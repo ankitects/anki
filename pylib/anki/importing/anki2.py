@@ -6,6 +6,7 @@ import unicodedata
 from typing import Any, Dict, List, Optional, Tuple
 
 from anki.collection import _Collection
+from anki.consts import *
 from anki.importing.base import Importer
 from anki.lang import _
 from anki.storage import Collection
@@ -343,7 +344,10 @@ class Anki2Importer(Importer):
             card[4] = intTime()
             card[5] = usn
             # review cards have a due date relative to collection
-            if card[7] in (2, 3) or card[6] == 2:
+            if (
+                card[7] in (QUEUE_TYPE_REV, QUEUE_TYPE_DAY_LEARN_RELEARN)
+                or card[6] == CARD_TYPE_REV
+            ):
                 card[8] -= aheadBy
             # odue needs updating too
             if card[14]:
@@ -356,13 +360,13 @@ class Anki2Importer(Importer):
                 card[8] = card[14]
                 card[14] = 0
                 # queue
-                if card[6] == 1:  # type
-                    card[7] = 0
+                if card[6] == CARD_TYPE_LRN:  # type
+                    card[7] = QUEUE_TYPE_NEW
                 else:
                     card[7] = card[6]
                 # type
-                if card[6] == 1:
-                    card[6] = 0
+                if card[6] == CARD_TYPE_LRN:
+                    card[6] = CARD_TYPE_NEW
             cards.append(card)
             # we need to import revlog, rewriting card ids and bumping usn
             for rev in self.src.db.execute("select * from revlog where cid = ?", scid):

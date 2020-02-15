@@ -240,7 +240,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """
             elif type == "cardDue":
                 sort = "c.type, c.due"
             elif type == "cardEase":
-                sort = "c.type == 0, c.factor"
+                sort = f"c.type == {CARD_TYPE_NEW}, c.factor"
             elif type == "cardLapses":
                 sort = "c.lapses"
             elif type == "cardIvl":
@@ -271,18 +271,18 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """
             if val == "review":
                 n = 2
             elif val == "new":
-                n = 0
+                n = CARD_TYPE_NEW
             else:
-                return "queue in (1, 3)"
+                return f"queue in ({QUEUE_TYPE_LRN}, {QUEUE_TYPE_DAY_LEARN_RELEARN})"
             return "type = %d" % n
         elif val == "suspended":
             return "c.queue = -1"
         elif val == "buried":
-            return "c.queue in (-2, -3)"
+            return f"c.queue in ({QUEUE_TYPE_SIBLING_BURIED}, {QUEUE_TYPE_MANUALLY_BURIED})"
         elif val == "due":
-            return """
-(c.queue in (2,3) and c.due <= %d) or
-(c.queue = 1 and c.due <= %d)""" % (
+            return f"""
+(c.queue in ({QUEUE_TYPE_REV},{QUEUE_TYPE_DAY_LEARN_RELEARN}) and c.due <= %d) or
+(c.queue = {QUEUE_TYPE_LRN} and c.due <= %d)""" % (
                 self.col.sched.today,
                 self.col.sched.dayCutoff,
             )
@@ -349,7 +349,7 @@ select distinct(n.id) from cards c, notes n where c.nid=n.id and """
         if prop == "due":
             val += self.col.sched.today
             # only valid for review/daily learning
-            q.append("(c.queue in (2,3))")
+            q.append(f"(c.queue in ({QUEUE_TYPE_REV},{QUEUE_TYPE_DAY_LEARN_RELEARN}))")
         elif prop == "ease":
             prop = "factor"
             val = int(val * 1000)

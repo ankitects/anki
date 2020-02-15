@@ -52,9 +52,12 @@ class ForeignCard:
 # If the first field of the model is not in the map, the map is invalid.
 
 # The import mode is one of:
-# 0: update if first field matches existing note
-# 1: ignore if first field matches existing note
-# 2: import even if first field matches existing note
+# UPDATE_MODE: update if first field matches existing note
+# IGNORE_MODE: ignore if first field matches existing note
+# ADD_MODE: import even if first field matches existing note
+UPDATE_MODE = 0
+IGNORE_MODE = 1
+ADD_MODE = 2
 
 
 class NoteImporter(Importer):
@@ -62,7 +65,7 @@ class NoteImporter(Importer):
     needMapper = True
     needDelimiter = False
     allowHTML = False
-    importMode = 0
+    importMode = UPDATE_MODE
     mapping: Optional[List[str]]
     tagModified: Optional[str]
 
@@ -153,7 +156,7 @@ class NoteImporter(Importer):
                 self.log.append(_("Empty first field: %s") % " ".join(n.fields))
                 continue
             # earlier in import?
-            if fld0 in firsts and self.importMode != 2:
+            if fld0 in firsts and self.importMode != ADD_MODE:
                 # duplicates in source file; log and ignore
                 self.log.append(_("Appeared twice in file: %s") % fld0)
                 continue
@@ -168,16 +171,16 @@ class NoteImporter(Importer):
                     if fld0 == sflds[0]:
                         # duplicate
                         found = True
-                        if self.importMode == 0:
+                        if self.importMode == UPDATE_MODE:
                             data = self.updateData(n, id, sflds)
                             if data:
                                 updates.append(data)
                                 updateLog.append(updateLogTxt % fld0)
                                 dupeCount += 1
                                 found = True
-                        elif self.importMode == 1:
+                        elif self.importMode == IGNORE_MODE:
                             dupeCount += 1
-                        elif self.importMode == 2:
+                        elif self.importMode == ADD_MODE:
                             # allow duplicates in this case
                             if fld0 not in dupes:
                                 # only show message once, no matter how many
@@ -214,9 +217,9 @@ class NoteImporter(Importer):
             ngettext("%d note updated", "%d notes updated", self.updateCount)
             % self.updateCount
         )
-        if self.importMode == 0:
+        if self.importMode == UPDATE_MODE:
             unchanged = dupeCount - self.updateCount
-        elif self.importMode == 1:
+        elif self.importMode == IGNORE_MODE:
             unchanged = dupeCount
         else:
             unchanged = 0

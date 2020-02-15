@@ -151,6 +151,7 @@ class Overview:
             ),
             css=["overview.css"],
             js=["jquery.js", "overview.js"],
+            context=self,
         )
 
     def _desc(self, deck):
@@ -243,8 +244,9 @@ to their original deck."""
 <button title="%s" onclick='pycmd("%s")'>%s</button>""" % tuple(
                 b
             )
-        self.bottom.draw(buf)
-        self.bottom.web.set_bridge_command(self._linkHandler, OverviewBottomBar(self))
+        self.bottom.draw(
+            buf=buf, link_handler=self._linkHandler, web_context=OverviewBottomBar(self)
+        )
 
     # Studying more
     ######################################################################

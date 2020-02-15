@@ -111,7 +111,7 @@ def _upgrade(col, ver) -> None:
     if ver < 3:
         # new deck properties
         for d in col.decks.all():
-            d["dyn"] = 0
+            d["dyn"] = DECK_STD
             d["collapsed"] = False
             col.decks.save(d)
     if ver < 4:

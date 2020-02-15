@@ -164,6 +164,40 @@ hooks = [
         """,
     ),
     Hook(
+        name="webview_will_set_content",
+        args=["web_content: aqt.webview.WebContent", "context: Optional[Any]",],
+        doc="""Used to modify web content before it is rendered.
+
+        Web_content contains the HTML, JS, and CSS the web view will be
+        populated with.
+
+        Context is the instance that was passed to stdHtml().
+        It can be inspected to check which screen this hook is firing
+        in, and to get a reference to the screen. For example, if your
+        code wishes to function only in the review screen, you could do:
+
+            def on_webview_will_set_content(web_content: WebContent, context):
+                
+                if not isinstance(context, aqt.reviewer.Reviewer):
+                    # not reviewer, do not modify content
+                    return
+                
+                # reviewer, perform changes to content
+                
+                context: aqt.reviewer.Reviewer
+                
+                addon_package = mw.addonManager.addonFromModule(__name__)
+                
+                web_content.css.append(
+                    f"/_addons/{addon_package}/web/my-addon.css")
+                web_content.js.append(
+                    f"/_addons/{addon_package}/web/my-addon.js")
+
+                web_content.head += "<script>console.log('my-addon')</script>"
+                web_content.body += "<div id='my-addon'></div>"
+        """,
+    ),
+    Hook(
         name="webview_will_show_context_menu",
         args=["webview: aqt.webview.AnkiWebView", "menu: QMenu"],
         legacy_hook="AnkiWebView.contextMenuEvent",
