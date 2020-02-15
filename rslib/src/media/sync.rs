@@ -388,7 +388,7 @@ where
 
     fn maybe_fire_progress_cb(&mut self) -> Result<()> {
         let now = Instant::now();
-        if now.duration_since(self.progress_updated).as_secs() < 1 {
+        if now.duration_since(self.progress_updated).as_f64() < 0.15 {
             return Ok(());
         }
         self.progress_updated = now;
