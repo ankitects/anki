@@ -25,7 +25,7 @@ langs = sorted(
         ("Galego", "gl_ES"),
         ("Hrvatski", "hr_HR"),
         ("Italiano", "it_IT"),
-        ("lo jbobau", "jbo"),
+        ("lo jbobau", "jbo_EN"),
         ("Lenga d'òc", "oc_FR"),
         ("Magyar", "hu_HU"),
         ("Nederlands", "nl_NL"),
