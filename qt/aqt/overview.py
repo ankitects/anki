@@ -149,8 +149,8 @@ class Overview:
                 desc=self._desc(deck),
                 table=self._table(),
             ),
-            css=["_anki/overview.css"],
-            js=["_anki/jquery.js", "_anki/overview.js"],
+            css=["overview.css"],
+            js=["jquery.js", "overview.js"],
             context=self,
         )
 

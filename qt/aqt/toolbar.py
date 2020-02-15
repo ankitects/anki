@@ -49,9 +49,7 @@ class Toolbar:
         link_handler = link_handler or self._linkHandler
         self.web.set_bridge_command(link_handler, web_context)
         self.web.stdHtml(
-            self._body % self._centerLinks(),
-            css=["_anki/toolbar.css"],
-            context=web_context,
+            self._body % self._centerLinks(), css=["toolbar.css"], context=web_context,
         )
         self.web.adjustHeightToFit()
 
@@ -147,7 +145,7 @@ class BottomBar(Toolbar):
         self.web.set_bridge_command(link_handler, web_context)
         self.web.stdHtml(
             self._centerBody % buf,
-            css=["_anki/toolbar.css", "_anki/toolbar-bottom.css"],
+            css=["toolbar.css", "toolbar-bottom.css"],
             context=web_context,
         )
         self.web.adjustHeightToFit()

@@ -107,8 +107,8 @@ class DeckBrowser:
         stats = self._renderStats()
         self.web.stdHtml(
             self._body % dict(tree=tree, stats=stats, countwarn=self._countWarn()),
-            css=["_anki/deckbrowser.css"],
-            js=["_anki/jquery.js", "_anki/jquery-ui.js", "_anki/deckbrowser.js"],
+            css=["deckbrowser.css"],
+            js=["jquery.js", "jquery-ui.js", "deckbrowser.js"],
             context=self,
         )
         self.web.key = "deckBrowser"

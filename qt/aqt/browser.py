@@ -1643,16 +1643,16 @@ where id in %s"""
 
     def _setupPreviewWebview(self):
         jsinc = [
-            "_anki/jquery.js",
-            "_anki/browsersel.js",
-            "_anki/mathjax/conf.js",
-            "_anki/mathjax/MathJax.js",
-            "_anki/reviewer.js",
+            "jquery.js",
+            "browsersel.js",
+            "mathjax/conf.js",
+            "mathjax/MathJax.js",
+            "reviewer.js",
         ]
         web_context = PreviewDialog(dialog=self._previewWindow, browser=self)
         self._previewWeb.stdHtml(
             self.mw.reviewer.revHtml(),
-            css=["_anki/reviewer.css"],
+            css=["reviewer.css"],
             js=jsinc,
             context=web_context,
         )

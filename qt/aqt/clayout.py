@@ -208,23 +208,17 @@ class CardLayout(QDialog):
         pform.backWeb = AnkiWebView(title="card layout back")
         pform.backPrevBox.addWidget(pform.backWeb)
         jsinc = [
-            "_anki/jquery.js",
-            "_anki/browsersel.js",
-            "_anki/mathjax/conf.js",
-            "_anki/mathjax/MathJax.js",
-            "_anki/reviewer.js",
+            "jquery.js",
+            "browsersel.js",
+            "mathjax/conf.js",
+            "mathjax/MathJax.js",
+            "reviewer.js",
         ]
         pform.frontWeb.stdHtml(
-            self.mw.reviewer.revHtml(),
-            css=["_anki/reviewer.css"],
-            js=jsinc,
-            context=self,
+            self.mw.reviewer.revHtml(), css=["reviewer.css"], js=jsinc, context=self,
         )
         pform.backWeb.stdHtml(
-            self.mw.reviewer.revHtml(),
-            css=["_anki/reviewer.css"],
-            js=jsinc,
-            context=self,
+            self.mw.reviewer.revHtml(), css=["reviewer.css"], js=jsinc, context=self,
         )
         pform.frontWeb.set_bridge_command(self._on_bridge_cmd, self)
         pform.backWeb.set_bridge_command(self._on_bridge_cmd, self)
