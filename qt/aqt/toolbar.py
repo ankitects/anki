@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from typing import Dict
+
 import aqt
 from anki.lang import _
 from aqt import gui_hooks
@@ -27,7 +29,7 @@ class Toolbar:
     def __init__(self, mw: aqt.AnkiQt, web: AnkiWebView) -> None:
         self.mw = mw
         self.web = web
-        self.link_handlers = {
+        self.link_handlers: Dict[str, Callable] = {
             "decks": self._deckLinkHandler,
             "study": self._studyLinkHandler,
             "add": self._addLinkHandler,
@@ -45,6 +47,13 @@ class Toolbar:
 
     # Available links
     ######################################################################
+
+    def addLink(
+        self, name: str, cmd: str, func: Callable, tip: str = "",
+    ):
+        self.link_handlers[cmd] = func
+
+        return (cmd, name, tip)
 
     def _centerLinks(self):
         links = [
