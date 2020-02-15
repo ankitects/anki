@@ -32,17 +32,17 @@ class CustomStudy(QDialog):
         f.setupUi(self)
         self.setWindowModality(Qt.WindowModal)
         self.setupSignals()
-        f.radio1.click()
+        f.radioNew.click()
         self.exec_()
 
     def setupSignals(self):
         f = self.form
-        f.radio1.clicked.connect(lambda: self.onRadioChange(1))
-        f.radio2.clicked.connect(lambda: self.onRadioChange(2))
-        f.radio3.clicked.connect(lambda: self.onRadioChange(3))
-        f.radio4.clicked.connect(lambda: self.onRadioChange(4))
-        f.radio5.clicked.connect(lambda: self.onRadioChange(5))
-        f.radio6.clicked.connect(lambda: self.onRadioChange(6))
+        f.radioNew.clicked.connect(lambda: self.onRadioChange(RADIO_NEW))
+        f.radioRev.clicked.connect(lambda: self.onRadioChange(RADIO_REV))
+        f.radioForgot.clicked.connect(lambda: self.onRadioChange(RADIO_FORGOT))
+        f.radioAhead.clicked.connect(lambda: self.onRadioChange(RADIO_AHEAD))
+        f.radioPreview.clicked.connect(lambda: self.onRadioChange(RADIO_PREVIEW))
+        f.radioCram.clicked.connect(lambda: self.onRadioChange(RADIO_CRAM))
 
     def onRadioChange(self, idx):
         f = self.form

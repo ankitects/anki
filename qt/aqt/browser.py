@@ -350,11 +350,13 @@ class DataModel(QAbstractTableModel):
     def nextDue(self, c, index):
         if c.odid:
             return _("(filtered)")
-        elif c.queue == 1:
+        elif c.queue == QUEUE_TYPE_LRN:
             date = c.due
-        elif c.queue == 0 or c.type == 0:
+        elif c.queue == QUEUE_TYPE_NEW or c.type == CARD_TYPE_NEW:
             return str(c.due)
-        elif c.queue in (2, 3) or (c.type == 2 and c.queue < 0):
+        elif c.queue in (QUEUE_TYPE_REV, QUEUE_TYPE_DAY_LEARN_RELEARN) or (
+            c.type == CARD_TYPE_REV and c.queue < 0
+        ):
             date = time.time() + ((c.due - self.col.sched.today) * 86400)
         else:
             return ""
@@ -1382,27 +1384,20 @@ by clicking on one on the left."""
         info, cs = self._cardInfoData()
         reps = self._revlogData(cs)
 
-        class CardInfoDialog(QDialog):
-            silentlyClose = True
-
-            def reject(self):
-                saveGeom(self, "revlog")
-                return QDialog.reject(self)
-
-        d = CardInfoDialog(self)
+        card_info_dialog = CardInfoDialog(self)
         l = QVBoxLayout()
         l.setContentsMargins(0, 0, 0, 0)
-        w = AnkiWebView()
+        w = AnkiWebView(title="browser card info")
         l.addWidget(w)
-        w.stdHtml(info + "<p>" + reps)
+        w.stdHtml(info + "<p>" + reps, context=card_info_dialog)
         bb = QDialogButtonBox(QDialogButtonBox.Close)
         l.addWidget(bb)
-        bb.rejected.connect(d.reject)
-        d.setLayout(l)
-        d.setWindowModality(Qt.WindowModal)
-        d.resize(500, 400)
-        restoreGeom(d, "revlog")
-        d.show()
+        bb.rejected.connect(card_info_dialog.reject)
+        card_info_dialog.setLayout(l)
+        card_info_dialog.setWindowModality(Qt.WindowModal)
+        card_info_dialog.resize(500, 400)
+        restoreGeom(card_info_dialog, "revlog", CardInfoDialog)
+        card_info_dialog.show()
 
     def _cardInfoData(self):
         from anki.stats import CardStats
@@ -1446,9 +1441,9 @@ border: 1px solid #000; padding: 3px; '>%s</div>"""
             import anki.stats as st
 
             fmt = "<span style='color:%s'>%s</span>"
-            if type == 0:
+            if type == CARD_TYPE_NEW:
                 tstr = fmt % (st.colLearn, tstr)
-            elif type == 1:
+            elif type == CARD_TYPE_LRN:
                 tstr = fmt % (st.colMature, tstr)
             elif type == 2:
                 tstr = fmt % (st.colRelearn, tstr)
@@ -1561,7 +1556,7 @@ where id in %s"""
         self._previewWindow.silentlyClose = True
         vbox = QVBoxLayout()
         vbox.setContentsMargins(0, 0, 0, 0)
-        self._previewWeb = AnkiWebView()
+        self._previewWeb = AnkiWebView(title="previewer")
         vbox.addWidget(self._previewWeb)
         bbox = QDialogButtonBox()
 
@@ -1656,12 +1651,15 @@ where id in %s"""
             "mathjax/MathJax.js",
             "reviewer.js",
         ]
+        web_context = PreviewDialog(dialog=self._previewWindow, browser=self)
         self._previewWeb.stdHtml(
-            self.mw.reviewer.revHtml(), css=["reviewer.css"], js=jsinc
+            self.mw.reviewer.revHtml(),
+            css=["reviewer.css"],
+            js=jsinc,
+            context=web_context,
         )
         self._previewWeb.set_bridge_command(
-            self._on_preview_bridge_cmd,
-            PreviewDialog(dialog=self._previewWindow, browser=self),
+            self._on_preview_bridge_cmd, web_context,
         )
 
     def _on_preview_bridge_cmd(self, cmd: str) -> Any:
@@ -1737,7 +1735,7 @@ where id in %s"""
                 av_player.play_tags(audio)
 
             txt = self.mw.prepare_card_text_for_display(txt)
-            gui_hooks.card_will_show(
+            txt = gui_hooks.card_will_show(
                 txt, c, "preview" + self._previewState.capitalize()
             )
             self._lastPreviewState = self._previewStateAndMod()
@@ -1965,7 +1963,8 @@ update cards set usn=?, mod=?, did=? where id in """
     def _reposition(self):
         cids = self.selectedCards()
         cids2 = self.col.db.list(
-            "select id from cards where type = 0 and id in " + ids2str(cids)
+            f"select id from cards where type = {CARD_TYPE_NEW} and id in "
+            + ids2str(cids)
         )
         if not cids2:
             return showInfo(_("Only new cards can be repositioned."))
@@ -1974,7 +1973,7 @@ update cards set usn=?, mod=?, did=? where id in """
         frm = aqt.forms.reposition.Ui_Dialog()
         frm.setupUi(d)
         (pmin, pmax) = self.col.db.first(
-            "select min(due), max(due) from cards where type=0 and odid=0"
+            f"select min(due), max(due) from cards where type={CARD_TYPE_NEW} and odid=0"
         )
         pmin = pmin or 0
         pmax = pmax or 0
@@ -2158,10 +2157,10 @@ update cards set usn=?, mod=?, did=? where id in """
         frm.fields.addItems(fields)
         self._dupesButton = None
         # links
-        frm.webView.set_bridge_command(
-            self.dupeLinkClicked, FindDupesDialog(dialog=d, browser=self)
-        )
-        frm.webView.stdHtml("")
+        frm.webView.title = "find duplicates"
+        web_context = FindDupesDialog(dialog=d, browser=self)
+        frm.webView.set_bridge_command(self.dupeLinkClicked, web_context)
+        frm.webView.stdHtml("", context=web_context)
 
         def onFin(code):
             saveGeom(d, "findDupes")
@@ -2170,13 +2169,15 @@ update cards set usn=?, mod=?, did=? where id in """
 
         def onClick():
             field = fields[frm.fields.currentIndex()]
-            self.duplicatesReport(frm.webView, field, frm.search.text(), frm)
+            self.duplicatesReport(
+                frm.webView, field, frm.search.text(), frm, web_context
+            )
 
         search = frm.buttonBox.addButton(_("Search"), QDialogButtonBox.ActionRole)
         search.clicked.connect(onClick)
         d.show()
 
-    def duplicatesReport(self, web, fname, search, frm):
+    def duplicatesReport(self, web, fname, search, frm, web_context):
         self.mw.progress.start()
         res = self.mw.col.findDupes(fname, search)
         if not self._dupesButton:
@@ -2201,7 +2202,7 @@ update cards set usn=?, mod=?, did=? where id in """
                 )
             )
         t += "</ol>"
-        web.stdHtml(t)
+        web.stdHtml(t, context=web_context)
         self.mw.progress.finish()
 
     def _onTagDupes(self, res):
@@ -2475,3 +2476,19 @@ Are you sure you want to continue?"""
 
     def onHelp(self):
         openHelp("browsermisc")
+
+
+# Card Info Dialog
+######################################################################
+
+
+class CardInfoDialog(QDialog):
+    silentlyClose = True
+
+    def __init__(self, browser: Browser, *args, **kwargs):
+        super().__init__(browser, *args, **kwargs)
+        self.browser = browser
+
+    def reject(self):
+        saveGeom(self, "revlog")
+        return QDialog.reject(self)

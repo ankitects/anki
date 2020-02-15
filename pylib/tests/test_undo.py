@@ -55,18 +55,18 @@ def test_review():
     # answer
     assert d.sched.counts() == (1, 0, 0)
     c = d.sched.getCard()
-    assert c.queue == 0
+    assert c.queue == QUEUE_TYPE_NEW
     d.sched.answerCard(c, 3)
     assert c.left == 1001
     assert d.sched.counts() == (0, 1, 0)
-    assert c.queue == 1
+    assert c.queue == QUEUE_TYPE_LRN
     # undo
     assert d.undoName()
     d.undo()
     d.reset()
     assert d.sched.counts() == (1, 0, 0)
     c.load()
-    assert c.queue == 0
+    assert c.queue == QUEUE_TYPE_NEW
     assert c.left != 1001
     assert not d.undoName()
     # we should be able to undo multiple answers too
