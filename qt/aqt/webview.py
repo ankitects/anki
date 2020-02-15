@@ -103,50 +103,52 @@ class AnkiWebPage(QWebEnginePage):  # type: ignore
 
 @dataclasses.dataclass
 class WebContent:
-    """Stores all dynamically modified content that a particular web view will be
-    populated with.
+    """Stores all dynamically modified content that a particular web view
+    will be populated with.
 
     Attributes:
         body {str} -- HTML body
         head {str} -- HTML head
-        css {List[str]} -- List of media server subpaths, each pointing to a CSS file
-        js {List[str]} -- List of media server subpaths, each pointing to a JS file
+        css {List[str]} -- List of media server subpaths,
+                           each pointing to a CSS file
+        js {List[str]} -- List of media server subpaths,
+                          each pointing to a JS file
 
     Important Notes:
-        - When modifying the attributes specified above, please make sure your changes
-        only perform the minimum requried edits to make your add-on work. You should
-        avoid overwriting or interfering with existing data as much as possible,
-        instead opting to append your own changes, e.g.:
+        - When modifying the attributes specified above, please make sure your
+        changes only perform the minimum requried edits to make your add-on work.
+        You should avoid overwriting or interfering with existing data as much
+        as possible, instead opting to append your own changes, e.g.:
         
             def on_webview_will_set_content(web_content: WebContent, context):
                 web_content.body += "<my_html>"
                 web_content.head += "<my_head>"
-                web_content.css.append("my_addon.css")
-                web_content.js.append("my_addon.js")
 
-        - The paths specified in `css` and `js` need to be accessible by Anki's media
-          server. Web components shipping with Anki are located under the `_anki`
-          subpath.
+        - The paths specified in `css` and `js` need to be accessible by Anki's
+          media server. All list members without a specified subpath are assumed
+          to be located under `/_anki`, which is the media server subpath used
+          for all web assets shipped with Anki.
           
-          Add-ons may expose their own web components by utilizing
-          aqt.addons.AddonManager.setWebExports(). Web exports registered in this
-          manner may then be accessed under the `_addons` subpath.
+          Add-ons may expose their own web assets by utilizing
+          aqt.addons.AddonManager.setWebExports(). Web exports registered
+          in this manner may then be accessed under the `/_addons` subpath.
           
-          E.g., to allow access to an `addon.js` and `addon.css` residing in a "web"
-          subfolder in your add-on package, first register the corresponding web export:
+          E.g., to allow access to a `my-addon.js` and `my-addon.css` residing
+          in a "web" subfolder in your add-on package, first register the
+          corresponding web export:
           
           > from aqt import mw
           > mw.addonManager.setWebExports(__name__, r"web/.*(css|js)")
           
-          Then append the subpaths to the corresponding web_content fields within a
-          function subscribing to gui_hooks.webview_will_set_content:
+          Then append the subpaths to the corresponding web_content fields
+          within a function subscribing to gui_hooks.webview_will_set_content:
           
               def on_webview_will_set_content(web_content: WebContent, context):
                   addon_package = mw.addonManager.addonFromModule(__name__)
                   web_content.css.append(
-                      f"_addons/{addon_package}/web/addon.css")
+                      f"/_addons/{addon_package}/web/my-addon.css")
                   web_content.js.append(
-                      f"_addons/{addon_package}/web/addon.js")
+                      f"/_addons/{addon_package}/web/my-addon.js")
     """
 
     body: str = ""

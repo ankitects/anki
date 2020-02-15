@@ -1140,14 +1140,25 @@ class _WebviewWillSetContentHook:
         in, and to get a reference to the screen. For example, if your
         code wishes to function only in the review screen, you could do:
 
-            if not isinstance(context, aqt.reviewer.Reviewer):
-                # not reviewer, do not modify content
-                return
+            def on_webview_will_set_content(web_content: WebContent, context):
+                
+                if not isinstance(context, aqt.reviewer.Reviewer):
+                    # not reviewer, do not modify content
+                    return
+                
+                # reviewer, perform changes to content
+                
+                context: aqt.reviewer.Reviewer
+                
+                addon_package = mw.addonManager.addonFromModule(__name__)
+                
+                web_content.css.append(
+                    f"/_addons/{addon_package}/web/my-addon.css")
+                web_content.js.append(
+                    f"/_addons/{addon_package}/web/my-addon.js")
 
-            web_content.js.append("my_addon.js")
-            web_content.css.append("my_addon.css")
-            web_content.head += "<script>console.log('my_addon')</script>"
-            web_content.body += "<div id='my-addon'></div>"
+                web_content.head += "<script>console.log('my-addon')</script>"
+                web_content.body += "<div id='my-addon'></div>"
         """
 
     _hooks: List[Callable[["aqt.webview.WebContent", Optional[Any]], None]] = []
