@@ -98,6 +98,51 @@ hooks = [
         args=["browser: aqt.browser.Browser"],
         legacy_hook="browser.rowChanged",
     ),
+    Hook(
+        name="browser_will_build_tree",
+        args=[
+            "handled: bool",
+            "tree: aqt.browser.SidebarItem",
+            "stage: aqt.browser.SidebarStage",
+            "browser: aqt.browser.Browser",
+        ],
+        return_type="bool",
+        doc="""Used to add or replace items in the browser sidebar tree
+        
+        'tree' is the root SidebarItem that all other items are added to.
+        
+        'stage' is an enum describing the different construction stages of
+        the sidebar tree at which you can interject your changes.
+        The different values can be inspected by looking at
+        aqt.browser.SidebarStage.
+        
+        If you want Anki to proceed with the construction of the tree stage
+        in question after your have performed your changes or additions,
+        return the 'handled' boolean unchanged.
+        
+        On the other hand, if you want to prevent Anki from adding its own
+        items at a particular construction stage (e.g. in case your add-on
+        implements its own version of that particular stage), return 'True'.
+        
+        If you return 'True' at SidebarStage.ROOT, the sidebar will not be
+        populated by any of the other construction stages. For any other stage
+        the tree construction will just continue as usual.
+        
+        For example, if your code wishes to replace the tag tree, you could do:
+        
+            def on_browser_will_build_tree(handled, root, stage, browser):
+                if stage != SidebarStage.TAGS:
+                    # not at tag tree building stage, pass on
+                    return handled
+                
+                # your tag tree construction code
+                # root.addChild(...)
+                
+                # your code handled tag tree construction, no need for Anki
+                # or other add-ons to build the tag tree
+                return True
+        """,
+    ),
     # States
     ###################
     Hook(
