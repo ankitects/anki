@@ -11,6 +11,7 @@ import sre_constants
 import time
 import unicodedata
 from dataclasses import dataclass
+from enum import Enum
 from operator import itemgetter
 from typing import Callable, List, Optional, Union
 
@@ -416,6 +417,15 @@ class StatusDelegate(QItemDelegate):
 
 # Sidebar
 ######################################################################
+
+
+class SidebarStage(Enum):
+    ROOT = 0
+    STANDARD = 1
+    FAVORITES = 2
+    DECKS = 3
+    MODELS = 4
+    TAGS = 5
 
 
 class SidebarItem:
@@ -1085,11 +1095,27 @@ by clicking on one on the left."""
 
     def buildTree(self) -> SidebarItem:
         root = SidebarItem("", "")
-        self._stdTree(root)
-        self._favTree(root)
-        self._decksTree(root)
-        self._modelTree(root)
-        self._userTagTree(root)
+
+        handled = gui_hooks.browser_will_build_tree(
+            False, root, SidebarStage.ROOT, self
+        )
+        if handled:
+            return root
+
+        for stage, builder in zip(
+            list(SidebarStage)[1:],
+            (
+                self._stdTree,
+                self._favTree,
+                self._decksTree,
+                self._modelTree,
+                self._userTagTree,
+            ),
+        ):
+            handled = gui_hooks.browser_will_build_tree(False, root, stage, self)
+            if not handled and builder:
+                builder(root)
+
         return root
 
     def _stdTree(self, root) -> None:
