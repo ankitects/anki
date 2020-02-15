@@ -663,9 +663,8 @@ from the profile screen."
         if self.resetModal:
             # we don't have to change the webview, as we have a covering window
             return
-        self.web.set_bridge_command(
-            lambda url: self.delayedMaybeReset(), ResetRequired(self)
-        )
+        web_context = ResetRequired(self)
+        self.web.set_bridge_command(lambda url: self.delayedMaybeReset(), web_context)
         i = _("Waiting for editing to finish.")
         b = self.button("refresh", _("Resume Now"), id="resume")
         self.web.stdHtml(
@@ -676,7 +675,8 @@ from the profile screen."
 %s</div></div></center>
 <script>$('#resume').focus()</script>
 """
-            % (i, b)
+            % (i, b),
+            context=web_context,
         )
         self.bottomWeb.hide()
         self.web.setFocus()
@@ -717,19 +717,16 @@ title="%s" %s>%s</button>""" % (
         self.form = aqt.forms.main.Ui_MainWindow()
         self.form.setupUi(self)
         # toolbar
-        tweb = self.toolbarWeb = aqt.webview.AnkiWebView()
-        tweb.title = "top toolbar"
+        tweb = self.toolbarWeb = aqt.webview.AnkiWebView(title="top toolbar")
         tweb.setFocusPolicy(Qt.WheelFocus)
         self.toolbar = aqt.toolbar.Toolbar(self, tweb)
         self.toolbar.draw()
         # main area
-        self.web = aqt.webview.AnkiWebView()
-        self.web.title = "main webview"
+        self.web = aqt.webview.AnkiWebView(title="main webview")
         self.web.setFocusPolicy(Qt.WheelFocus)
         self.web.setMinimumWidth(400)
         # bottom area
-        sweb = self.bottomWeb = aqt.webview.AnkiWebView()
-        sweb.title = "bottom toolbar"
+        sweb = self.bottomWeb = aqt.webview.AnkiWebView(title="bottom toolbar")
         sweb.setFocusPolicy(Qt.WheelFocus)
         # add in a layout
         self.mainLayout = QVBoxLayout()

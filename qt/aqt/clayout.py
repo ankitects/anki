@@ -203,9 +203,9 @@ class CardLayout(QDialog):
 
     def setupWebviews(self):
         pform = self.pform
-        pform.frontWeb = AnkiWebView()
+        pform.frontWeb = AnkiWebView(title="card layout front")
         pform.frontPrevBox.addWidget(pform.frontWeb)
-        pform.backWeb = AnkiWebView()
+        pform.backWeb = AnkiWebView(title="card layout back")
         pform.backPrevBox.addWidget(pform.backWeb)
         jsinc = [
             "jquery.js",
@@ -215,10 +215,10 @@ class CardLayout(QDialog):
             "reviewer.js",
         ]
         pform.frontWeb.stdHtml(
-            self.mw.reviewer.revHtml(), css=["reviewer.css"], js=jsinc
+            self.mw.reviewer.revHtml(), css=["reviewer.css"], js=jsinc, context=self,
         )
         pform.backWeb.stdHtml(
-            self.mw.reviewer.revHtml(), css=["reviewer.css"], js=jsinc
+            self.mw.reviewer.revHtml(), css=["reviewer.css"], js=jsinc, context=self,
         )
         pform.frontWeb.set_bridge_command(self._on_bridge_cmd, self)
         pform.backWeb.set_bridge_command(self._on_bridge_cmd, self)

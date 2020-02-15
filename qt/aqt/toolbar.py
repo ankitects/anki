@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from typing import Any, Optional
+
 import aqt
 from anki.lang import _
 from aqt.qt import *
@@ -37,9 +39,18 @@ class Toolbar:
         self.web.setFixedHeight(30)
         self.web.requiresCol = False
 
-    def draw(self):
-        self.web.set_bridge_command(self._linkHandler, TopToolbar(self))
-        self.web.stdHtml(self._body % self._centerLinks(), css=["toolbar.css"])
+    def draw(
+        self,
+        buf: str = "",
+        web_context: Optional[Any] = None,
+        link_handler: Optional[Callable[[str], Any]] = None,
+    ):
+        web_context = web_context or TopToolbar(self)
+        link_handler = link_handler or self._linkHandler
+        self.web.set_bridge_command(link_handler, web_context)
+        self.web.stdHtml(
+            self._body % self._centerLinks(), css=["toolbar.css"], context=web_context,
+        )
         self.web.adjustHeightToFit()
 
     # Available links
@@ -122,10 +133,19 @@ class BottomBar(Toolbar):
 %s</td></tr></table></center>
 """
 
-    def draw(self, buf):
+    def draw(
+        self,
+        buf: str = "",
+        web_context: Optional[Any] = None,
+        link_handler: Optional[Callable[[str], Any]] = None,
+    ):
         # note: some screens may override this
-        self.web.set_bridge_command(self._linkHandler, BottomToolbar(self))
+        web_context = web_context or BottomToolbar(self)
+        link_handler = link_handler or self._linkHandler
+        self.web.set_bridge_command(link_handler, web_context)
         self.web.stdHtml(
-            self._centerBody % buf, css=["toolbar.css", "toolbar-bottom.css"]
+            self._centerBody % buf,
+            css=["toolbar.css", "toolbar-bottom.css"],
+            context=web_context,
         )
         self.web.adjustHeightToFit()
