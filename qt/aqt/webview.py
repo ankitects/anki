@@ -327,8 +327,8 @@ class AnkiWebView(QWebEngineView):  # type: ignore
         web_content = WebContent(
             body=body,
             head=head,
-            js=["_anki/webview.js"] + (["_anki/jquery.js"] if js is None else js),
-            css=["_anki/webview.css"] + ([] if css is None else css),
+            js=["webview.js"] + (["jquery.js"] if js is None else js),
+            css=["webview.css"] + ([] if css is None else css),
         )
 
         gui_hooks.webview_will_set_content(web_content, context)
@@ -411,7 +411,12 @@ body {{ zoom: {}; background: {}; {} }}
     def webBundlePath(self, path: str) -> str:
         from aqt import mw
 
-        return "http://127.0.0.1:%d/%s" % (mw.mediaServer.getPort(), path)
+        if path.startswith("/"):
+            subpath = ""
+        else:
+            subpath = "/_anki/"
+
+        return f"http://127.0.0.1:{mw.mediaServer.getPort()}{subpath}{path}"
 
     def bundledScript(self, fname: str) -> str:
         return '<script src="%s"></script>' % self.webBundlePath(fname)

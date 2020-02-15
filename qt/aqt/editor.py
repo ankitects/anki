@@ -164,8 +164,8 @@ class Editor:
         # then load page
         self.web.stdHtml(
             _html % (bgcol, bgcol, topbuts, _("Show Duplicates")),
-            css=["_anki/editor.css"],
-            js=["_anki/jquery.js", "_anki/editor.js"],
+            css=["editor.css"],
+            js=["jquery.js", "editor.js"],
             context=self,
         )
 

@@ -98,7 +98,7 @@ class DeckStats(QDialog):
         self.form.web.title = "deck stats"
         self.form.web.stdHtml(
             "<html><body>" + self.report + "</body></html>",
-            js=["_anki/jquery.js", "_anki/plot.js"],
+            js=["jquery.js", "plot.js"],
             context=self,
         )
         self.mw.progress.finish()
