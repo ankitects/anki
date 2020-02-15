@@ -79,6 +79,9 @@ class MediaManager:
     def dir(self) -> Any:
         return self._dir
 
+    def force_resync(self) -> None:
+        os.unlink(media_paths_from_col_path(self.col.path)[1])
+
     # File manipulation
     ##########################################################################
 
