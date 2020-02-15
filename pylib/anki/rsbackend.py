@@ -3,6 +3,7 @@
 # pylint: skip-file
 
 import enum
+import os
 from dataclasses import dataclass
 from typing import Callable, Dict, List, NewType, NoReturn, Optional, Tuple, Union
 
@@ -179,10 +180,13 @@ def proto_progress_to_native(progress: pb.Progress) -> Progress:
 
 class RustBackend:
     def __init__(self, col_path: str, media_folder_path: str, media_db_path: str):
+        ftl_folder = os.path.join(anki.lang.locale_folder, "ftl")
         init_msg = pb.BackendInit(
             collection_path=col_path,
             media_folder_path=media_folder_path,
             media_db_path=media_db_path,
+            locale_folder_path=ftl_folder,
+            preferred_langs=[anki.lang.currentLang],
         )
         self._backend = ankirspy.open_backend(init_msg.SerializeToString())
         self._backend.set_progress_callback(self._on_progress)
