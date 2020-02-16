@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: anki\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-02-12 08:52+1000\n"
-"PO-Revision-Date: 2020-02-11 22:59\n"
+"POT-Creation-Date: 2020-02-12 09:03+1000\n"
+"PO-Revision-Date: 2020-02-16 02:24\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Lojban\n"
 "Language: jbo_EN\n"
@@ -41,13 +41,13 @@ msgstr[0] " .i %d mei fi lo karda"
 #. T: include a font for your language on Windows, eg: "Segoe UI", "MS Mincho"
 #: qt/aqt/webview.py:268
 msgid "\"Segoe UI\""
-msgstr "Segoe UI"
+msgstr "\"Segoe UI\""
 
 #: qt/aqt/forms/dconf.py:341 qt/aqt/forms/dconf.py:352
 #: qt/aqt/forms/dconf.py:357 qt/aqt/forms/dconf.py:360
 #: qt/aqt/forms/dconf.py:371 qt/aqt/forms/preferences.py:271
 msgid "%"
-msgstr "ce'i"
+msgstr " ce'i"
 
 #: pylib/anki/stats.py:815 pylib/anki/stats.py:837
 msgid "% Correct"
@@ -136,13 +136,13 @@ msgstr[0] ".i mo'u ningau %d karda selcmi"
 #, python-format
 msgid "%d file found in media folder not used by any cards:"
 msgid_plural "%d files found in media folder not used by any cards:"
-msgstr[0] ""
+msgstr[0] ".i %d da poi ganvi datnyvei zo'u mo'u facki lo du'u da ckini no karda"
 
 #: qt/aqt/main.py:1339
 #, python-format
 msgid "%d file remaining..."
 msgid_plural "%d files remaining..."
-msgstr[0] ""
+msgstr[0] ".i %d datnyvei ca stali"
 
 #: qt/aqt/browser.py:2190
 #, python-format
@@ -261,7 +261,7 @@ msgstr[0] "snidu li %s"
 #: qt/aqt/main.py:1375
 #, python-format
 msgid "%s to delete:"
-msgstr ".i ba vimcu %s"
+msgstr ".i vimcu %s ba"
 
 #: pylib/anki/utils.py:39
 #, python-format
@@ -307,7 +307,7 @@ msgstr "nanca li %s"
 
 #: qt/aqt/forms/main.py:139
 msgid "&About..."
-msgstr "datni la .ankis."
+msgstr "datni"
 
 #: qt/aqt/forms/main.py:145
 msgid "&Browse and Install..."
@@ -327,15 +327,15 @@ msgstr "nu sutra tadni"
 
 #: qt/aqt/forms/browser.py:298 qt/aqt/forms/main.py:133
 msgid "&Edit"
-msgstr "nu bixygau"
+msgstr "binxo"
 
 #: qt/aqt/forms/browser.py:341
 msgid "&Export Notes..."
-msgstr ""
+msgstr "barbei lo karda datni"
 
 #: qt/aqt/forms/main.py:149
 msgid "&Export..."
-msgstr "nu barbei"
+msgstr "barbei"
 
 #: qt/aqt/forms/main.py:134
 msgid "&File"
@@ -343,7 +343,7 @@ msgstr "datnyvei"
 
 #: qt/aqt/forms/browser.py:308
 msgid "&Find"
-msgstr "nu sisku"
+msgstr "sisku"
 
 #: qt/aqt/forms/browser.py:299
 msgid "&Go"
@@ -359,7 +359,7 @@ msgstr "sidju"
 
 #: qt/aqt/forms/main.py:150
 msgid "&Import..."
-msgstr "nu nerbei"
+msgstr "nerbei"
 
 #: qt/aqt/forms/browser.py:326
 msgid "&Info..."
@@ -399,7 +399,7 @@ msgstr "nu rupsra lo favgau be la .ankis."
 
 #: qt/aqt/forms/main.py:148
 msgid "&Switch Profile"
-msgstr "nu samymo'i lo pilno datni poi drata"
+msgstr "samymo'i pa pilno datni poi drata"
 
 #: qt/aqt/forms/main.py:135
 msgid "&Tools"
@@ -407,7 +407,7 @@ msgstr "tutci"
 
 #: qt/aqt/forms/browser.py:306 qt/aqt/forms/main.py:140
 msgid "&Undo"
-msgstr "nu xruti"
+msgstr "xruti"
 
 #: pylib/anki/importing/csvfile.py:44
 #, python-format
@@ -425,7 +425,7 @@ msgstr "mo'u se vimcu"
 
 #: qt/aqt/addons.py:717
 msgid "(disabled)"
-msgstr ""
+msgstr " to ganda toi"
 
 #: pylib/anki/sched.py:1342 pylib/anki/schedv2.py:1550
 msgid "(end)"
@@ -479,23 +479,23 @@ msgstr "nanca li pa"
 
 #: pylib/anki/stats.py:829
 msgid "10AM"
-msgstr "li pa no tcika"
+msgstr "pa no"
 
 #: pylib/anki/stats.py:831
 msgid "10PM"
-msgstr "li re re tcika"
+msgstr "re re"
 
 #: pylib/anki/stats.py:832
 msgid "3AM"
-msgstr "li ci tcika"
+msgstr "ci"
 
 #: pylib/anki/stats.py:828
 msgid "4AM"
-msgstr "li vo tcika"
+msgstr "vo"
 
 #: pylib/anki/stats.py:830
 msgid "4PM"
-msgstr "li pa xa tcika"
+msgstr "pa xa"
 
 #: qt/aqt/sync.py:211
 msgid "504 gateway timeout error received. Please try temporarily disabling your antivirus."
@@ -585,8 +585,8 @@ msgstr "<b>nu co'a datni sarxe</b><br>\n"
 #, python-format
 msgid "<h1>Account Required</h1>\n"
 "A free account is required to keep your collection synchronized. Please <a href=\"%s\">sign up</a> for an account, then enter your details below."
-msgstr "<h1>.i .ei da jaspu do</h1>\n"
-".i nitcu lo ka ce'u ponse pa jaspu noi nonseldi'a vau lo nu co'a datni sarxe .i ko <a href=\"%s\">co'a se jaspu</a> je cu samci'a lo plicme je lo japyvla lo cnita"
+msgstr "<h1>.i sarcu fa lo du'u da jaspu do</h1>\n"
+".i lo du'u da jaspu do cu sarcu lo du'u co'a datni sarxe fa ro karda .i ko <a href=\"%s\">co'a se jaspu</a> je cu samci'a lo plicme je lo jaspu lo cnita"
 
 #: qt/aqt/update.py:60
 #, python-format
@@ -655,47 +655,47 @@ msgstr "datni la .ankis."
 #: qt/aqt/forms/addcards.py:58 qt/aqt/forms/fields.py:101
 #: qt/aqt/forms/profiles.py:76
 msgid "Add"
-msgstr "nu jmina"
+msgstr "jmina"
 
 #: qt/aqt/addcards.py:68
 msgid "Add (shortcut: ctrl+enter)"
-msgstr "nu jmina (Ctrl+Enter)"
+msgstr "jmina (Ctrl+Enter)"
 
 #: qt/aqt/clayout.py:471
 msgid "Add Card Type..."
-msgstr "nu jmina pa karda klesi"
+msgstr "jmina pa karda klesi"
 
 #: qt/aqt/clayout.py:273 qt/aqt/forms/addfield.py:73
 msgid "Add Field"
-msgstr "nu jmina pa datnyvau"
+msgstr "jmina pa datnyvau"
 
 #: qt/aqt/editor.py:657
 msgid "Add Media"
-msgstr "nu jmina lo ganvi"
+msgstr "jmina pa ganvi"
 
 #: qt/aqt/studydeck.py:48
 msgid "Add New Deck (Ctrl+N)"
-msgstr "nu jmina pa karda selcmi poi cnino (Ctrl+N)"
+msgstr "jmina pa karda selcmi poi cnino (Ctrl+N)"
 
 #: qt/aqt/forms/addmodel.py:44
 msgid "Add Note Type"
-msgstr "nu jmina pa karda datni klesi"
+msgstr "jmina pa karda datni klesi"
 
 #: qt/aqt/forms/browser.py:331
 msgid "Add Notes..."
-msgstr "nu jmina lo karda datni"
+msgstr "jmina pa karda datni"
 
 #: pylib/anki/stdmodels.py:83
 msgid "Add Reverse"
-msgstr "nu jmina lo fatne"
+msgstr "jmina lo fatne"
 
 #: qt/aqt/browser.py:1871
 msgid "Add Tags"
-msgstr "nu jmina lo tcita"
+msgstr "co'a tcita"
 
 #: qt/aqt/forms/browser.py:327
 msgid "Add Tags..."
-msgstr "nu jmina lo tcita"
+msgstr "co'a tcita"
 
 #: qt/aqt/forms/addfield.py:79
 msgid "Add to:"
@@ -703,7 +703,7 @@ msgstr "te jmina"
 
 #: qt/aqt/browser.py:158
 msgid "Add-on"
-msgstr ""
+msgstr "se samtcise'a"
 
 #: qt/aqt/addons.py:869
 msgid "Add-on has no configuration."
@@ -711,7 +711,7 @@ msgstr ".i zi'o tcimi'e lo se samtcise'a no da"
 
 #: qt/aqt/addons.py:1382
 msgid "Add-on installation error"
-msgstr ""
+msgstr "nabmi fi lo ka samtcise'a"
 
 #: qt/aqt/addons.py:791
 msgid "Add-on was not downloaded from AnkiWeb."
@@ -719,7 +719,7 @@ msgstr ".i kibycpa lo se samtcise'a na'e la .ankiueb."
 
 #: qt/aqt/main.py:1535
 msgid "Add-on will be installed when a profile is opened."
-msgstr ""
+msgstr ".i samtcise'a da ba lo nu samymo'i pa pilno datni"
 
 #: qt/aqt/forms/addons.py:67 qt/aqt/forms/main.py:155
 msgid "Add-ons"
@@ -733,7 +733,7 @@ msgstr ".i la'e di'e se samtcise'a je cu srana la'a cu'i\n"
 #: qt/aqt/models.py:187
 #, python-format
 msgid "Add: %s"
-msgstr "nu jmina la'o zoi. %s .zoi"
+msgstr "jmina la'o zoi. %s .zoi"
 
 #: pylib/anki/stats.py:27 pylib/anki/stats.py:335
 #: pylib/anki/importing/anki2.py:168 qt/aqt/addcards.py:209
@@ -751,7 +751,7 @@ msgstr ".i mo'u jmina pa fukpi poi se srana zoi zoi. %s .zoi poi pa moi datnyvau
 
 #: qt/aqt/reviewer.py:612
 msgid "Again"
-msgstr "fu'i nai"
+msgstr "fliba"
 
 #: qt/aqt/browser.py:1230
 msgid "Again Today"
@@ -760,7 +760,7 @@ msgstr "to'e frili ca lo cabdei"
 #: pylib/anki/stats.py:184
 #, python-format
 msgid "Again count: %s"
-msgstr "%s da nu to'e frili"
+msgstr ".i %s da zo'u fliba tu'a da"
 
 #: qt/aqt/overview.py:114
 msgid "All Buried Cards"
@@ -784,7 +784,7 @@ msgstr "porsi lo cunso lu'i ro karda to na basti lo tcika toi"
 
 #: qt/aqt/main.py:281
 msgid "All cards, notes, and media for this profile will be deleted. Are you sure?"
-msgstr ".i xu do birti lo du'u do djica lo nu vimcu ro karda je ro karda datni je ro ganvi vu'o pe lo pilno"
+msgstr ".i ba vimcu ro karda je ro karda datni je ro ganvi vu'o pe lo pilno datni .i xu do birti"
 
 #: qt/aqt/forms/customstudy.py:114
 msgid "All review cards in random order"
@@ -834,7 +834,7 @@ msgstr ".i da nabmi fi lo nu samymo'i la'o zoi. %s .zoi"
 #: qt/aqt/forms/main.py:131 qt/aqt/forms/setgroup.py:38
 #: qt/aqt/forms/setlang.py:39
 msgid "Anki"
-msgstr "me la .ankis."
+msgstr "la .ankis."
 
 #: pylib/anki/exporting.py:162
 msgid "Anki 2.0 Deck"
@@ -884,7 +884,7 @@ msgstr ".i la .ankis. na kakne lo ka ce'u samymo'i lo karda selcmi selcmi datnyv
 
 #: qt/aqt/sync.py:107
 msgid "AnkiWeb ID or password was incorrect; please try again."
-msgstr ".i lo plicme be fi la .ankiueb. ja lo japyvla cu toldra .i ko za'u re'u troci"
+msgstr ".i lo plicme be fi la .ankiueb. ja lo mipri jaspu cu toldra .i ko za'u re'u troci"
 
 #: qt/aqt/sync.py:270
 msgid "AnkiWeb ID:"
@@ -912,7 +912,7 @@ msgstr "te spuda batkyuidje"
 
 #: pylib/anki/stats.py:383 pylib/anki/stats.py:711 pylib/anki/stats.py:819
 msgid "Answers"
-msgstr "nu spuda"
+msgstr "te spuda"
 
 #: qt/aqt/sync.py:219
 msgid "Antivirus or firewall software is preventing Anki from connecting to the internet."
@@ -924,7 +924,7 @@ msgstr "cmima lo selcmi be ro lanci tcita"
 
 #: qt/aqt/browser.py:2455
 msgid "Any cards mapped to nothing will be deleted. If a note has no remaining cards, it will be lost. Are you sure you want to continue?"
-msgstr ""
+msgstr ".i ba vimcu ro karda klesi poi ckini no da .i ba vimcu ro karda datni poi ckini no karda .i xu do birti lo du'u do djica"
 
 #: pylib/anki/importing/noteimp.py:158
 #, python-format
@@ -934,7 +934,7 @@ msgstr ".i lo datnyvei cu vasru re la'o zoi. %s .zoi"
 #: qt/aqt/deckbrowser.py:316
 #, python-format
 msgid "Are you sure you wish to delete %s?"
-msgstr ".i xu do birti lo du'u do djica lo ka ce'u vimcu la'o zoi. %s .zoi"
+msgstr ".i xu do birti lo du'u do djica lo nu vimcu la'o zoi. %s .zoi"
 
 #: qt/aqt/clayout.py:238
 msgid "At least one card type is required."
@@ -946,7 +946,7 @@ msgstr ""
 
 #: qt/aqt/editor.py:140
 msgid "Attach pictures/audio/video (F3)"
-msgstr "nu jmina lo pixra ja lo snavi ja lo vidvi (F3)"
+msgstr "jmina pa pixra ja pa snavi ja pa vidvi (F3)"
 
 #: qt/aqt/reviewer.py:712
 msgid "Audio +5s"
@@ -1005,11 +1005,11 @@ msgstr "jvinu co purzga be lo trixe"
 
 #: qt/aqt/forms/template.py:109
 msgid "Back Template"
-msgstr ""
+msgstr "trixe te morna"
 
 #: qt/aqt/main.py:485
 msgid "Backing Up..."
-msgstr ".i ca'o cupra lo nurfu'i"
+msgstr ".i ca'o cupra pa nurfu'i"
 
 #: qt/aqt/forms/preferences.py:285
 msgid "Backups"
@@ -1038,11 +1038,11 @@ msgstr "blanu lanci tcita"
 
 #: qt/aqt/editor.py:104
 msgid "Bold text (Ctrl+B)"
-msgstr ""
+msgstr "rotsu (Ctrl+B)"
 
 #: qt/aqt/toolbar.py:52
 msgid "Browse"
-msgstr "liste lo'i karda"
+msgstr "liste"
 
 #: qt/aqt/browser.py:795
 #, python-format
@@ -1068,7 +1068,7 @@ msgstr "te tcimi'e lo liste be lo'i karda"
 
 #: qt/aqt/dyndeckconf.py:20
 msgid "Build"
-msgstr "nu cupra"
+msgstr "cupra"
 
 #: qt/aqt/browser.py:1247
 msgid "Buried"
@@ -1080,23 +1080,23 @@ msgstr "zasni se mipri je cu ckini"
 
 #: qt/aqt/reviewer.py:799 qt/aqt/reviewer.py:805
 msgid "Bury"
-msgstr "nu zasni mipri"
+msgstr "zasni mipri"
 
 #: qt/aqt/reviewer.py:702
 msgid "Bury Card"
-msgstr "nu zasni mipri lo karda"
+msgstr "zasni mipri pa karda"
 
 #: qt/aqt/reviewer.py:703
 msgid "Bury Note"
-msgstr "nu zasni mipri lo karda datni"
+msgstr "zasni mipri pa karda datni"
 
 #: qt/aqt/forms/dconf.py:347
 msgid "Bury related new cards until the next day"
-msgstr "nu zasni mipri pu'o lo bavlamdei lo karda poi ckini je cu cnino"
+msgstr "zasni mipri pu'o lo bavlamdei ro karda poi ckini je cu cnino"
 
 #: qt/aqt/forms/dconf.py:358
 msgid "Bury related reviews until the next day"
-msgstr "nu zasni mipri pu'o lo bavlamdei ro morji jai se bilga poi ckini"
+msgstr "zasni mipri pu'o lo bavlamdei ro se morji poi ckini"
 
 #: qt/aqt/importing.py:125
 msgid "By default, Anki will detect the character between fields, such as\n"
@@ -1107,7 +1107,7 @@ msgstr ""
 #: qt/aqt/overview.py:115 qt/aqt/sound.py:522 qt/aqt/sync.py:299
 #: qt/aqt/sync.py:321
 msgid "Cancel"
-msgstr "nu sisti"
+msgstr "sisti"
 
 #: qt/aqt/browser.py:713
 msgid "Card"
@@ -1157,15 +1157,15 @@ msgstr "selcmi ro karda klesi pe la'o zoi. %s .zoi"
 
 #: qt/aqt/reviewer.py:802
 msgid "Card buried."
-msgstr ".i co'a zasni mipri pa karda"
+msgstr ".i co'a zasni mipri lo karda"
 
 #: qt/aqt/reviewer.py:779
 msgid "Card suspended."
-msgstr ".i co'a mipri pa karda"
+msgstr ".i co'a mipri lo karda"
 
 #: qt/aqt/reviewer.py:660
 msgid "Card was a leech."
-msgstr ".i pa karda cu mutce lo ka ce'u nandu"
+msgstr ".i pa karda pu toldju"
 
 #: pylib/anki/stats.py:336 pylib/anki/stats.py:973 qt/aqt/editor.py:159
 #: qt/aqt/forms/changemodel.py:112
@@ -1194,7 +1194,7 @@ msgstr "midju"
 
 #: qt/aqt/importing.py:258
 msgid "Change"
-msgstr "nu basti"
+msgstr "binxo"
 
 #: qt/aqt/browser.py:2376
 #, python-format
@@ -1203,27 +1203,27 @@ msgstr "basti la'o zoi. %s .zoi"
 
 #: qt/aqt/browser.py:1822 qt/aqt/browser.py:1834
 msgid "Change Deck"
-msgstr "nu muvdu lo karda selcmi poi drata"
+msgstr "basti lo ka karda selcmi"
 
 #: qt/aqt/forms/browser.py:332
 msgid "Change Deck..."
-msgstr "nu muvdu lo karda selcmi poi drata"
+msgstr "basti lo ka karda selcmi"
 
 #: qt/aqt/browser.py:2462 qt/aqt/forms/changemodel.py:109
 msgid "Change Note Type"
-msgstr "nu basti lo karda datni klesi"
+msgstr "basti lo karda datni klesi"
 
 #: qt/aqt/modelchooser.py:31
 msgid "Change Note Type (Ctrl+N)"
-msgstr "nu basti lo karda datni klesi (Ctrl+N)"
+msgstr "basti lo karda datni klesi (Ctrl+N)"
 
 #: qt/aqt/forms/browser.py:313
 msgid "Change Note Type..."
-msgstr "nu basti fi lo ka ce'u karda datni klesi"
+msgstr "basti lo karda datni klesi"
 
 #: qt/aqt/editor.py:127
 msgid "Change colour (F8)"
-msgstr "nu basti lo se skari (F8)"
+msgstr "basti lo se skari (F8)"
 
 #: qt/aqt/forms/preferences.py:263
 msgid "Change deck depending on note type"
@@ -1269,19 +1269,19 @@ msgstr ".i ca'o cipcta"
 
 #: qt/aqt/deckchooser.py:84 qt/aqt/modelchooser.py:71
 msgid "Choose"
-msgstr "nu cuxna"
+msgstr "cuxna"
 
 #: qt/aqt/deckchooser.py:85
 msgid "Choose Deck"
-msgstr "nu cuxna pa karda selcmi"
+msgstr "cuxna pa karda selcmi"
 
 #: qt/aqt/modelchooser.py:72
 msgid "Choose Note Type"
-msgstr "nu cuxna pa karda datni klesi"
+msgstr "cuxna pa karda datni klesi"
 
 #: qt/aqt/customstudy.py:103
 msgid "Choose Tags"
-msgstr "nu cuxna lo se tcita"
+msgstr "cuxna pa se tcita"
 
 #: qt/aqt/browser.py:1263
 msgid "Clear Unused"
@@ -1298,11 +1298,11 @@ msgstr "ve fukpi la'o zoi. %s .zoi"
 
 #: qt/aqt/addcards.py:70 qt/aqt/clayout.py:283 qt/aqt/forms/browser.py:325
 msgid "Close"
-msgstr "nu mipri"
+msgstr "mipri"
 
 #: qt/aqt/addcards.py:240
 msgid "Close and lose current input?"
-msgstr ".i xu do djica lo nu mipri je lo nu ju'i do cirko lo ka ce'u te samci'a"
+msgstr ".i xu do djica lo du'u mipri je lo du'u cirko lo ka te samci'a"
 
 #: qt/aqt/main.py:483
 msgid "Closing..."
@@ -1311,11 +1311,11 @@ msgstr ".i ca'o mipri"
 #: pylib/anki/stdmodels.py:100 pylib/anki/stdmodels.py:105
 #: pylib/anki/stdmodels.py:124 pylib/anki/storage.py:219
 msgid "Cloze"
-msgstr ""
+msgstr "mipri cipra"
 
 #: qt/aqt/editor.py:137
 msgid "Cloze deletion (Ctrl+Shift+C)"
-msgstr ""
+msgstr "cipra mipri (Ctrl+Shift+C)"
 
 #: qt/aqt/forms/getaddons.py:50
 msgid "Code:"
@@ -1331,11 +1331,11 @@ msgstr ".i lo datni be lo karda selcmi selcmi cu spofu .i ko tcidu lo djunoi"
 
 #: qt/aqt/importing.py:169
 msgid "Colon"
-msgstr ".kolon."
+msgstr "':'"
 
 #: qt/aqt/importing.py:163
 msgid "Comma"
-msgstr "slaka bu"
+msgstr "','"
 
 #: qt/aqt/forms/addons.py:73
 msgid "Config"
@@ -1351,11 +1351,11 @@ msgstr "nu tcimi'e fi tu'a lo sazycimde je lo bangu be lo sazycimde"
 
 #: pylib/anki/sched.py:1261 pylib/anki/schedv2.py:1459
 msgid "Congratulations! You have finished this deck for now."
-msgstr ".i do ba'o .ui tadni pa karda selcmi"
+msgstr ".i do tadni pa karda selcmi mo'u .ui"
 
 #: qt/aqt/sync.py:50
 msgid "Connecting..."
-msgstr ".i ca'o samjongau"
+msgstr ".i ca'o co'a samjo'e"
 
 #: qt/aqt/sync.py:223
 msgid "Connection timed out. Either your internet connection is experiencing problems, or you have a very large file in your media folder."
@@ -1371,7 +1371,7 @@ msgstr ".i mo'u co'a fukra'e"
 
 #: qt/aqt/editor.py:1115 qt/aqt/webview.py:188
 msgid "Copy"
-msgstr "nu fukra'e"
+msgstr "fukra'e"
 
 #: qt/aqt/about.py:88
 msgid "Copy Debug Info"
@@ -1379,7 +1379,7 @@ msgstr "nu fukra'e lo samcfisisku datni"
 
 #: qt/aqt/utils.py:129
 msgid "Copy to Clipboard"
-msgstr "nu fukra'e"
+msgstr "fukra'e"
 
 #: pylib/anki/stats.py:205
 #, python-format
@@ -1393,11 +1393,11 @@ msgstr ".i <b>%(pct)0.2f</b> ce'i pi'i ro co'e cu drani<br>to %(good)d lo %(tot)
 
 #: qt/aqt/addons.py:466
 msgid "Corrupt add-on file."
-msgstr ".i da datnyvei fi pa se samtcise'a je cu spofu"
+msgstr ".i pa datnyvei be fi pa se samtcise'a cu spofu"
 
 #: qt/aqt/sync.py:179
 msgid "Couldn't connect to AnkiWeb. Please check your network connection and try again."
-msgstr ".i ka'e nai samjo'e lo skami pe la .ankiueb. .i ko cipcta lo te samjo'e je cu za'u re'u troci"
+msgstr ".i na cumki fa lo du'u samjo'e lo skami pe la .ankiueb. .i ko cipcta lo te samjo'e je cu za'u re'u troci"
 
 #: qt/aqt/editor.py:686
 msgid "Couldn't record audio. Have you installed 'lame'?"
@@ -1414,11 +1414,11 @@ msgstr "nu sutra tadni"
 
 #: qt/aqt/deckbrowser.py:329
 msgid "Create Deck"
-msgstr "nu cupra pa karda selcmi"
+msgstr "cupra pa karda selcmi"
 
 #: qt/aqt/forms/main.py:153
 msgid "Create Filtered Deck..."
-msgstr "nu cupra pa se julne karda selcmi"
+msgstr "zbasu pa se julne karda selcmi"
 
 #: qt/aqt/forms/modelopts.py:64
 msgid "Create scalable images with dvisvgm"
@@ -1430,24 +1430,24 @@ msgstr "se finti"
 
 #: qt/aqt/forms/browser.py:342
 msgid "Ctrl+Shift+E"
-msgstr ""
+msgstr "Ctrl+Shift+E"
 
 #: pylib/anki/stats.py:253
 msgid "Cumulative"
-msgstr ""
+msgstr "ra'irsumji"
 
 #: pylib/anki/stats.py:408
 #, python-format
 msgid "Cumulative %s"
-msgstr ""
+msgstr "%s ra'irsumji"
 
 #: pylib/anki/stats.py:383
 msgid "Cumulative Answers"
-msgstr ""
+msgstr "spuda ra'irsumji"
 
 #: pylib/anki/stats.py:268 pylib/anki/stats.py:336
 msgid "Cumulative Cards"
-msgstr ""
+msgstr "karda ra'irsumji"
 
 #: qt/aqt/browser.py:1096 qt/aqt/browser.py:1220
 msgid "Current Deck"
@@ -1459,11 +1459,11 @@ msgstr "karda datni klesi je cu se cuxna"
 
 #: qt/aqt/overview.py:234 qt/aqt/forms/customstudy.py:100
 msgid "Custom Study"
-msgstr "nu macnu tadni"
+msgstr "macnu tadni"
 
 #: qt/aqt/customstudy.py:137 qt/aqt/customstudy.py:149
 msgid "Custom Study Session"
-msgstr "nu macnu tadni"
+msgstr "macnu tadni"
 
 #: qt/aqt/forms/dyndconf.py:147
 msgid "Custom steps (in minutes)"
@@ -1512,7 +1512,7 @@ msgstr ""
 
 #: qt/aqt/main.py:1537
 msgid "Deck will be imported when a profile is opened."
-msgstr ".i nerbei pa karda selcmi ba lo nu samymo'i lo pilno datni"
+msgstr ".i nerbei pa karda selcmi ba lo nu samymo'i pa pilno datni"
 
 #: qt/aqt/browser.py:1291 qt/aqt/toolbar.py:50
 msgid "Decks"
@@ -1535,31 +1535,31 @@ msgstr ".i temci fi lo nu za'u re'u bilga lo ka ce'u morji"
 #: qt/aqt/reviewer.py:787 qt/aqt/forms/addons.py:76 qt/aqt/forms/browser.py:330
 #: qt/aqt/forms/fields.py:102 qt/aqt/forms/profiles.py:78
 msgid "Delete"
-msgstr "nu vimcu"
+msgstr "vimcu"
 
 #: qt/aqt/main.py:1377
 msgid "Delete Cards"
-msgstr "nu vimcu lo karda"
+msgstr "vimcu pa karda"
 
 #: qt/aqt/deckbrowser.py:300
 msgid "Delete Deck"
-msgstr "nu vimcu pa karda selcmi"
+msgstr "vimcu pa karda selcmi"
 
 #: qt/aqt/main.py:1383
 msgid "Delete Empty"
-msgstr "nu vimcu lo kunti"
+msgstr "vimcu ro kunti"
 
 #: qt/aqt/reviewer.py:706
 msgid "Delete Note"
-msgstr "nu vimcu lo karda datni"
+msgstr "vimcu pa karda datni"
 
 #: qt/aqt/browser.py:1775
 msgid "Delete Notes"
-msgstr "nu vimcu lo karda datni"
+msgstr "vimcu pa karda datni"
 
 #: qt/aqt/browser.py:1881
 msgid "Delete Tags"
-msgstr "nu vimcu lo tcita"
+msgstr "co'u tcita"
 
 #: qt/aqt/main.py:1309
 msgid "Delete Unused Files"
@@ -1591,7 +1591,7 @@ msgstr ".i pa da poi karda datni klesi je cu se pilno no da zo'u xu do djica lo 
 
 #: qt/aqt/main.py:1322
 msgid "Delete unused media?"
-msgstr ".i xu do djica lo ka ce'u vimcu ro ganvi poi se pilno no da"
+msgstr ".i xu do djica lo du'u vimcu ro ganvi poi se pilno no da"
 
 #: pylib/anki/collection.py:874
 #, python-format
@@ -1609,7 +1609,7 @@ msgstr[0] ".i mo'u vimcu %d karda pe no karda klesi"
 #, python-format
 msgid "Deleted %d file."
 msgid_plural "Deleted %d files."
-msgstr[0] ""
+msgstr[0] ".i mo'u vimcu %d datnyvei"
 
 #: pylib/anki/collection.py:795
 #, python-format
@@ -1644,15 +1644,15 @@ msgstr ""
 #: qt/aqt/forms/dyndconf.py:133 qt/aqt/forms/editaddon.py:40
 #: qt/aqt/forms/editcurrent.py:41 qt/aqt/forms/progress.py:40
 msgid "Dialog"
-msgstr "preti cankyuidje"
+msgstr "preti"
 
 #: qt/aqt/addons.py:1082
 msgid "Download complete. Please restart Anki to apply changes."
-msgstr ""
+msgstr ".i mo'u kibycpa .i lo du'u tu'a la .ankis. cu refcfa cu sarcu lo du'u binxo"
 
 #: qt/aqt/sync.py:299 qt/aqt/sync.py:321 qt/aqt/sync.py:327
 msgid "Download from AnkiWeb"
-msgstr "nu kibycpa fi la .ankiueb."
+msgstr "kibycpa fi la .ankiueb."
 
 #: qt/aqt/addons.py:486
 #, python-format
@@ -1676,7 +1676,7 @@ msgstr ".i ca'o kibycpa fi la .ankiueb."
 #: pylib/anki/stats.py:43 qt/aqt/browser.py:719 qt/aqt/browser.py:1244
 #: qt/aqt/deckbrowser.py:162
 msgid "Due"
-msgstr "morji jai se bilga"
+msgstr "morji"
 
 #: qt/aqt/forms/customstudy.py:112
 msgid "Due cards only"
@@ -1684,11 +1684,11 @@ msgstr "karda je cu morji jai se bilga po'o"
 
 #: pylib/anki/stats.py:289
 msgid "Due tomorrow"
-msgstr "jai se bilga fai lo ka ce'u morji ca lo bavlamdei"
+msgstr "morji ca lo bavlamdei"
 
 #: qt/aqt/forms/main.py:136
 msgid "E&xit"
-msgstr "fanmo"
+msgstr "sisti"
 
 #: pylib/anki/stats.py:46 qt/aqt/browser.py:721 qt/aqt/browser.py:1434
 msgid "Ease"
@@ -1696,7 +1696,7 @@ msgstr "ni frili"
 
 #: qt/aqt/reviewer.py:617 qt/aqt/reviewer.py:619
 msgid "Easy"
-msgstr "fu'i sai"
+msgstr "frili"
 
 #: qt/aqt/forms/dconf.py:351
 msgid "Easy bonus"
@@ -1708,12 +1708,12 @@ msgstr ""
 
 #: qt/aqt/reviewer.py:555
 msgid "Edit"
-msgstr "nu bixygau"
+msgstr "binxo"
 
 #: qt/aqt/addcards.py:154
 #, python-format
 msgid "Edit \"%s\""
-msgstr "nu la'o zoi. %s .zoi binxo"
+msgstr "binxo la'o zoi. %s .zoi"
 
 #: qt/aqt/editcurrent.py:19
 msgid "Edit Current"
@@ -1737,7 +1737,7 @@ msgstr "kunti"
 
 #: qt/aqt/forms/main.py:152
 msgid "Empty Cards..."
-msgstr "nu cipcta lo karda lo ka ce'u kunti"
+msgstr "karda je cu kunti"
 
 #: pylib/anki/collection.py:583
 #, python-format
@@ -1765,7 +1765,7 @@ msgstr "fanmo"
 #: qt/aqt/clayout.py:534
 #, python-format
 msgid "Enter deck to place new %s cards in, or leave blank:"
-msgstr ".i ko samci'a no da jo nai pa cmene be pa karda selcmi poi ro karda poi cnino pe la'o zoi. %s .zoi ba binxo lo ka ce'u cmima ke'a"
+msgstr ".i ko samci'a no da jo nai pa cmene be pa karda selcmi poi ro karda poi cnino je cu morna fi la'o zoi. %s .zoi ba co'a cmima"
 
 #: qt/aqt/clayout.py:401
 #, python-format
@@ -1774,11 +1774,11 @@ msgstr ".i ko samci'a lo ba se pormoi be lo karda to py. mulnonmau je cu na zmad
 
 #: qt/aqt/browser.py:1861
 msgid "Enter tags to add:"
-msgstr ".i ko samci'a lo tcita poi .ai dai se jmina"
+msgstr ".i ko samci'a ro ba co'a tcita"
 
 #: qt/aqt/browser.py:1883
 msgid "Enter tags to delete:"
-msgstr ".i ko samci'a lo tcita poi .ai dai se vimcu"
+msgstr ".i ko samci'a ro ba co'u tcita"
 
 #: qt/aqt/addons.py:473
 #, python-format
@@ -1814,11 +1814,11 @@ msgstr ".i da nabmi fi lo nu terca'a fi la'o zoi. %s .zoi"
 #: qt/aqt/deckbrowser.py:255 qt/aqt/exporting.py:122
 #: qt/aqt/forms/exporting.py:74
 msgid "Export"
-msgstr "nu barbei"
+msgstr "barbei"
 
 #: qt/aqt/exporting.py:49
 msgid "Export..."
-msgstr "nu barbei"
+msgstr "barbei"
 
 #: qt/aqt/exporting.py:145
 #, python-format
@@ -1837,7 +1837,7 @@ msgstr ""
 
 #: qt/aqt/fields.py:81
 msgid "Field name:"
-msgstr "cmene lo datnyvau"
+msgstr "cmene pa datnyvau"
 
 #: qt/aqt/forms/addfield.py:75
 msgid "Field:"
@@ -1851,12 +1851,12 @@ msgstr "datnyvau"
 #: qt/aqt/fields.py:23
 #, python-format
 msgid "Fields for %s"
-msgstr "cmima lo'i datnyvau pe la'o zoi. %s .zoi"
+msgstr "datnyvau je cu ckini la'o zoi. %s .zoi"
 
 #: qt/aqt/importing.py:172
 #, python-format
 msgid "Fields separated by: %s"
-msgstr ".i lo datnyvau cu sepli lo datnyvau la'o zoi. %s .zoi"
+msgstr ".i lo'i datnyvau cu simxu lo ka sepli fi zoi zoi. %s .zoi"
 
 #: qt/aqt/models.py:54
 msgid "Fields..."
@@ -1876,7 +1876,7 @@ msgstr "julne"
 
 #: qt/aqt/forms/dyndconf.py:138
 msgid "Filter 2"
-msgstr "re moi julne"
+msgstr "re moi lo'i julne"
 
 #: qt/aqt/forms/browser.py:297
 msgid "Filter..."
@@ -1897,23 +1897,23 @@ msgstr "%d moi lo'i se julne karda selcmi"
 
 #: qt/aqt/forms/browser.py:319
 msgid "Find &Duplicates..."
-msgstr "nu sisku lo ka ce'u fukpi da"
+msgstr "sisku lo ka mintu"
 
 #: qt/aqt/forms/finddupes.py:62
 msgid "Find Duplicates"
-msgstr "nu sisku lo ka ce'u fukpi da"
+msgstr "sisku lo ka mintu"
 
 #: qt/aqt/forms/browser.py:315
 msgid "Find and Re&place..."
-msgstr ""
+msgstr "sisku je cu basygau"
 
 #: qt/aqt/browser.py:2111 qt/aqt/forms/findreplace.py:68
 msgid "Find and Replace"
-msgstr "nu sisku je cu gafygau"
+msgstr "sisku je cu basygau"
 
 #: qt/aqt/reviewer.py:80
 msgid "Finish"
-msgstr "fanmo"
+msgstr "mulno"
 
 #: qt/aqt/forms/browser.py:321
 msgid "First Card"
@@ -1921,7 +1921,7 @@ msgstr "pa moi lo'i karda"
 
 #: pylib/anki/stats.py:31
 msgid "First Review"
-msgstr ""
+msgstr "pa moi lo'i nu morji"
 
 #: pylib/anki/importing/noteimp.py:132
 #, python-format
@@ -1949,11 +1949,11 @@ msgstr "lanci tcita"
 
 #: qt/aqt/reviewer.py:673
 msgid "Flag Card"
-msgstr "lanci tcita lo karda"
+msgstr "lanci tcita pa karda"
 
 #: qt/aqt/clayout.py:278
 msgid "Flip"
-msgstr ""
+msgstr "simbasti"
 
 #: qt/aqt/profiles.py:232
 msgid "Folder already exists."
@@ -1974,7 +1974,7 @@ msgstr ""
 
 #: pylib/anki/stats.py:260
 msgid "Forecast"
-msgstr "se kanpe"
+msgstr "balvi"
 
 #: qt/aqt/forms/clayout_top.py:56 qt/aqt/forms/preview.py:39
 #: qt/aqt/forms/template.py:106
@@ -2013,19 +2013,19 @@ msgstr ""
 #: pylib/anki/stats.py:958
 #, python-format
 msgid "Generated on %s"
-msgstr ".i se cupra de'i la'o zoi. %s .zoi"
+msgstr ".i cupra de'i la'o zoi. %s .zoi"
 
 #: qt/aqt/forms/addons.py:69
 msgid "Get Add-ons..."
-msgstr "nu samtcise'a"
+msgstr "samtcise'a da"
 
 #: qt/aqt/deckbrowser.py:328
 msgid "Get Shared"
-msgstr "nu cpacu lo karda selcmi poi gubni"
+msgstr "cpacu pa gubni"
 
 #: qt/aqt/reviewer.py:615 qt/aqt/reviewer.py:617 qt/aqt/reviewer.py:619
 msgid "Good"
-msgstr "fu'i"
+msgstr "snada"
 
 #: qt/aqt/forms/dconf.py:344
 msgid "Graduating interval"
@@ -2041,7 +2041,7 @@ msgstr "tutci lo nu basti lo lerpoi be bau la .xetmel."
 
 #: qt/aqt/reviewer.py:619
 msgid "Hard"
-msgstr "fu'i nai ru'e"
+msgstr "nandu"
 
 #: qt/aqt/forms/dconf.py:359
 msgid "Hard interval"
@@ -2049,11 +2049,11 @@ msgstr ""
 
 #: qt/aqt/forms/preferences.py:252
 msgid "Hardware acceleration (faster, may cause display issues)"
-msgstr ""
+msgstr "samca'a sutra to zmadu fi lo ka sutra .i kakne lo ka rinka pa jvinu nabmi toi"
 
 #: pylib/anki/latex.py:182
 msgid "Have you installed latex and dvipng/dvisvgm?"
-msgstr ".i xu do ba'o ci'erse'a la .latex. je la'o zoi. dvipng .zoi ja bo la'o zoi. dvisvgm .zoi"
+msgstr ".i xu do mo'u ci'erse'a la .latex. je la'o zoi. dvipng .zoi ja bo la'o zoi. dvisvgm .zoi"
 
 #: qt/aqt/forms/modelopts.py:65
 msgid "Header"
@@ -2094,7 +2094,7 @@ msgstr "mintu"
 
 #: qt/aqt/about.py:212
 msgid "If you have contributed and are not on this list, please get in touch."
-msgstr ".i ga na ja do pu gunka dunda je nai cmima lo se liste be di'u gi .e'u do tavla lo favgau"
+msgstr ".i djica lo du'u ro pu gunka poi nai cmima lo se liste be di'u cu tavla lo favgau"
 
 #: pylib/anki/stats.py:447
 msgid "If you studied every day"
@@ -2123,11 +2123,11 @@ msgstr ""
 #: qt/aqt/importing.py:98 qt/aqt/importing.py:192 qt/aqt/importing.py:309
 #: qt/aqt/forms/changemap.py:41 qt/aqt/forms/importing.py:103
 msgid "Import"
-msgstr "nu nerbei"
+msgstr "nerbei"
 
 #: qt/aqt/deckbrowser.py:330
 msgid "Import File"
-msgstr "nu nerbei pa datnyvei"
+msgstr "nerbei pa datnyvei"
 
 #: qt/aqt/forms/importing.py:109
 msgid "Import even if existing note has same first field"
@@ -2135,11 +2135,11 @@ msgstr "nu nerbei ju cu xa'o mintu da lo pa moi datnyvau"
 
 #: qt/aqt/importing.py:199 qt/aqt/importing.py:408
 msgid "Import failed.\n"
-msgstr ".i da nabmi fi lo nu nerbei\n"
+msgstr ".i pu fliba lo ka nerbei\n"
 
 #: qt/aqt/importing.py:363
 msgid "Import failed. Debugging info:\n"
-msgstr ".i da nabmi fi lo nu nerbei .i di'e samcfisisku datni\n"
+msgstr ".i pu fliba lo ka nerbei .i di'e samcfisisku datni\n"
 
 #: qt/aqt/forms/importing.py:104
 msgid "Import options"
@@ -2199,23 +2199,23 @@ msgstr ""
 
 #: qt/aqt/forms/getaddons.py:48
 msgid "Install Add-on"
-msgstr "nu samtcise'a"
+msgstr "samtcise'a da"
 
 #: qt/aqt/addons.py:842
 msgid "Install Add-on(s)"
-msgstr "nu samtcise'a"
+msgstr "samtcise'a da"
 
 #: qt/aqt/addons.py:1351
 msgid "Install Anki add-on"
-msgstr ""
+msgstr "samtcise'a"
 
 #: qt/aqt/forms/addons.py:70
 msgid "Install from file..."
-msgstr "nu samtcise'a pa te datnyvei"
+msgstr "samtcise'a pa te datnyvei"
 
 #: qt/aqt/addons.py:1374
 msgid "Installation complete"
-msgstr ""
+msgstr ".i mo'u samtcise'a"
 
 #: qt/aqt/addons.py:488
 #, python-format
@@ -2224,11 +2224,11 @@ msgstr ".i mo'u samtcise'a la'o zoi. %(name)s .zoi"
 
 #: qt/aqt/addons.py:991
 msgid "Installed successfully."
-msgstr ""
+msgstr ".i mo'u snada lo ka samtcise'a"
 
 #: qt/aqt/forms/preferences.py:251 qt/aqt/forms/setlang.py:40
 msgid "Interface language:"
-msgstr "bangu lo sazycimde"
+msgstr "bangu pa sazycimde"
 
 #: qt/aqt/forms/preferences.py:256
 msgid "Interrupt current audio when answering"
@@ -2256,7 +2256,7 @@ msgstr ".i ri toldra ja cu judri pa se samtcise'a poi na mapti la do .ankis."
 
 #: qt/aqt/addons.py:904
 msgid "Invalid code."
-msgstr ".i lo judri cu toldra"
+msgstr ".i pa judri cu toldra"
 
 #: qt/aqt/addons.py:1307
 msgid "Invalid configuration: "
@@ -2289,7 +2289,7 @@ msgstr ".i lo se sisku cu toldra .i ko cipcta lo se samci'a lo se srera"
 
 #: qt/aqt/reviewer.py:662
 msgid "It has been suspended."
-msgstr ".i mo'u co'a mipri"
+msgstr ".i mipri da co'a"
 
 #: qt/aqt/editor.py:106
 msgid "Italic text (Ctrl+I)"
@@ -2301,23 +2301,23 @@ msgstr ""
 
 #: qt/aqt/forms/preferences.py:280
 msgid "Keep"
-msgstr ""
+msgstr "ralte"
 
 #: qt/aqt/editor.py:876 qt/aqt/forms/modelopts.py:67
 msgid "LaTeX"
-msgstr "me la .latex."
+msgstr "la .latex."
 
 #: qt/aqt/editor.py:877
 msgid "LaTeX equation"
-msgstr "me la .latex. ku mesko"
+msgstr "du la .latex. ku mesko"
 
 #: qt/aqt/editor.py:878
 msgid "LaTeX math env."
-msgstr "me la .latex. ku sepli mesko"
+msgstr "du la .latex. ku sepli mesko"
 
 #: pylib/anki/stats.py:48 qt/aqt/browser.py:723 qt/aqt/forms/dconf.py:372
 msgid "Lapses"
-msgstr ""
+msgstr "fliba lo ka morji"
 
 #: qt/aqt/forms/browser.py:323
 msgid "Last Card"
@@ -2333,7 +2333,7 @@ msgstr ""
 
 #: pylib/anki/stats.py:375 pylib/anki/stats.py:395 qt/aqt/browser.py:1443
 msgid "Learn"
-msgstr "te cilre"
+msgstr "cilre"
 
 #: qt/aqt/forms/preferences.py:267
 msgid "Learn ahead limit"
@@ -2342,11 +2342,11 @@ msgstr ""
 #: pylib/anki/stats.py:192
 #, python-format
 msgid "Learn: %(a)s, Review: %(b)s, Relearn: %(c)s, Filtered: %(d)s"
-msgstr ".i %(a)s da te cilre .i %(b)s da te morji .i %(c)s da za'u re'u te cilre .i %(d)s se julne"
+msgstr ".i cilre %(a)s da .i morji %(b)s da .i cilre %(c)s da za'u re'u .i julne %(d)s da"
 
 #: pylib/anki/stats.py:705 qt/aqt/browser.py:1242 qt/aqt/overview.py:207
 msgid "Learning"
-msgstr "ca'o te cilre"
+msgstr "cilre"
 
 #: qt/aqt/forms/dconf.py:366
 msgid "Leech action"
@@ -2354,7 +2354,7 @@ msgstr ""
 
 #: qt/aqt/forms/dconf.py:364
 msgid "Leech threshold"
-msgstr ""
+msgstr "toldju jimte"
 
 #: pylib/anki/consts.py:80
 msgid "Left"
@@ -2411,7 +2411,7 @@ msgstr "nu mapti lo tcita"
 
 #: qt/aqt/reviewer.py:701
 msgid "Mark Note"
-msgstr "nu tcita lo karda datni"
+msgstr "tcita pa karda datni"
 
 #: qt/aqt/editor.py:874
 msgid "MathJax block"
@@ -2448,7 +2448,7 @@ msgstr ""
 
 #: pylib/anki/stats.py:400
 msgid "Minutes"
-msgstr "mentu"
+msgstr "se mentu"
 
 #: pylib/anki/consts.py:71
 msgid "Mix new cards and reviews"
@@ -2508,7 +2508,7 @@ msgstr "cnino"
 
 #: qt/aqt/forms/dconf.py:350
 msgid "New Cards"
-msgstr "cnino karda"
+msgstr "karda je cu cnino"
 
 #: qt/aqt/customstudy.py:71
 #, python-format
@@ -2525,7 +2525,7 @@ msgstr ""
 
 #: qt/aqt/deckbrowser.py:269 qt/aqt/studydeck.py:142
 msgid "New deck name:"
-msgstr ".i di'e co'a cmene lo karda selcmi"
+msgstr "basti fi lo ka cmene lo karda selcmi"
 
 #: qt/aqt/forms/dconf.py:363
 msgid "New interval"
@@ -2534,15 +2534,15 @@ msgstr ""
 #: qt/aqt/clayout.py:388 qt/aqt/deckconf.py:139 qt/aqt/fields.py:72
 #: qt/aqt/main.py:262 qt/aqt/models.py:67
 msgid "New name:"
-msgstr ".i di'e co'a cmene"
+msgstr "basti fi lo ka cmene"
 
 #: qt/aqt/forms/changemodel.py:111
 msgid "New note type:"
-msgstr "basti fi lo ka ce'u karda datni klesi"
+msgstr "basti lo karda datni klesi"
 
 #: qt/aqt/deckconf.py:117
 msgid "New options group name:"
-msgstr ".i di'e co'a cmene lo te tcimi'e selcmi"
+msgstr "basti fi lo ka cmene lo te tcimi'e selcmi"
 
 #: qt/aqt/fields.py:109
 #, python-format
@@ -2551,15 +2551,15 @@ msgstr ""
 
 #: qt/aqt/forms/preferences.py:266
 msgid "Next day starts at"
-msgstr ""
+msgstr "tcika lo nu lo djedi cu cfari"
 
 #: qt/aqt/forms/preferences.py:259
 msgid "Night mode"
-msgstr ""
+msgstr "nicte jvinu"
 
 #: qt/aqt/browser.py:1253
 msgid "No Flag"
-msgstr "na lanci tcita"
+msgstr "no da lanci tcita"
 
 #: qt/aqt/overview.py:49
 msgid "No cards are due yet."
@@ -2567,11 +2567,11 @@ msgstr ".i no karda ca morji jai se bilga"
 
 #: pylib/anki/stats.py:210
 msgid "No cards have been studied today."
-msgstr ".i do tadni no karda ca lo cabdei"
+msgstr ".i tadni no karda ca lo cabdei"
 
 #: qt/aqt/customstudy.py:185
 msgid "No cards matched the criteria you provided."
-msgstr ""
+msgstr ".i no karda ckaji lo se sisku"
 
 #: qt/aqt/main.py:1370
 msgid "No empty cards."
@@ -2579,7 +2579,7 @@ msgstr ".i no karda cu kunti"
 
 #: pylib/anki/stats.py:208
 msgid "No mature cards were studied today."
-msgstr ".i do tadni no karda poi makcu ku'o ca lo cabdei"
+msgstr ".i tadni no karda poi makcu ku'o ca lo cabdei"
 
 #: qt/aqt/main.py:1295
 msgid "No unused or missing files found."
@@ -2595,7 +2595,7 @@ msgstr "karda datni"
 
 #: pylib/anki/stats.py:60
 msgid "Note ID"
-msgstr ""
+msgstr "nacme'e lo karda datni"
 
 #: pylib/anki/stats.py:58
 msgid "Note Type"
@@ -2609,15 +2609,15 @@ msgstr "karda datni klesi"
 #, python-format
 msgid "Note and its %d card deleted."
 msgid_plural "Note and its %d cards deleted."
-msgstr[0] ".i mo'u vimcu pa karda datni je %d karda pe ri"
+msgstr[0] ".i vimcu pa karda datni je %d karda pe ri mo'u"
 
 #: qt/aqt/reviewer.py:808
 msgid "Note buried."
-msgstr ".i mo'u co'a zasni mipri pa karda datni"
+msgstr ".i co'a zasni mipri pa karda datni"
 
 #: qt/aqt/reviewer.py:773
 msgid "Note suspended."
-msgstr ".i mo'u co'a mipri pa karda datni"
+msgstr ".i co'a mipri pa karda datni"
 
 #: qt/aqt/forms/preferences.py:283
 msgid "Note: Media is not backed up. Please create a periodic backup of your Anki folder to be safe."
@@ -2630,12 +2630,12 @@ msgstr ""
 #: pylib/anki/importing/anki2.py:151
 #, python-format
 msgid "Notes added from file: %d"
-msgstr ".i pa da poi datnyvei zo'u mo'u jmina %d karda datni poi se krasi da"
+msgstr ".i da poi datnyvei zo'u mo'u jmina %d karda datni poi se krasi da"
 
 #: pylib/anki/importing/anki2.py:139
 #, python-format
 msgid "Notes found in file: %d"
-msgstr ".i pa da poi datnyvei zo'u mo'u facki fi %d karda datni poi se krasi da"
+msgstr ".i da poi datnyvei zo'u mo'u facki lo du'u da krasi %d karda datni"
 
 #: pylib/anki/exporting.py:120
 msgid "Notes in Plain Text"
@@ -2652,7 +2652,7 @@ msgstr ""
 
 #: qt/aqt/browser.py:2219
 msgid "Notes tagged."
-msgstr ".i mo'u tcitygau fi lo karda datni"
+msgstr ".i tcita pa karda datni co'a"
 
 #: pylib/anki/importing/anki2.py:143
 #, python-format
@@ -2698,11 +2698,11 @@ msgstr ""
 
 #: qt/aqt/forms/profiles.py:75
 msgid "Open"
-msgstr "nu samymo'i"
+msgstr "samymo'i"
 
 #: qt/aqt/forms/profiles.py:80
 msgid "Open Backup..."
-msgstr "nu samymo'i pa nurfu'i"
+msgstr "samymo'i pa nurfu'i"
 
 #: qt/aqt/main.py:570
 msgid "Optimizing..."
@@ -2769,7 +2769,7 @@ msgstr "me la .ankis. ku karda selcmi bakfu (*.apkg *.colpkg *.zip)"
 
 #: qt/aqt/sync.py:274
 msgid "Password:"
-msgstr "japyvla"
+msgstr "mipri jaspu"
 
 #: qt/aqt/editor.py:1117
 msgid "Paste"
@@ -2798,7 +2798,7 @@ msgstr "se cenlai"
 #: pylib/anki/stats.py:966
 #, python-format
 msgid "Period: %s"
-msgstr ".i la'o zoi. %s .zoi temci"
+msgstr ".i pa temci cu %s"
 
 #: qt/aqt/forms/reschedule.py:74
 msgid "Place at end of new card queue"
@@ -2867,7 +2867,7 @@ msgstr ".i ko cuxna da"
 
 #: qt/aqt/sync.py:197
 msgid "Please upgrade to the latest version of Anki."
-msgstr ".i ko basygau la .ankis. poi traji lo ka ce'u cnino"
+msgstr ".i ko basygau la .ankis. poi traji lo ka cnino"
 
 #: qt/aqt/main.py:1033
 msgid "Please use File>Import to import this file."
@@ -2887,20 +2887,20 @@ msgstr "te tcimi'e"
 
 #: qt/aqt/browser.py:1558 qt/aqt/forms/browser.py:296
 msgid "Preview"
-msgstr "nu purzga"
+msgstr "purzga"
 
 #: qt/aqt/browser.py:593
 #, python-format
 msgid "Preview Selected Card (%s)"
-msgstr "nu purzga lo karda poi se cuxna (%s)"
+msgstr "purzga pa karda poi se cuxna (%s)"
 
 #: qt/aqt/forms/customstudy.py:106
 msgid "Preview new cards"
-msgstr "nu purzga ro karda poi cnino"
+msgstr "purzga ro karda poi cnino"
 
 #: qt/aqt/customstudy.py:96
 msgid "Preview new cards added in the last"
-msgstr "nu purzga lo karda poi cnino poi se jmina ca lo ro moi"
+msgstr "purzga lo karda poi cnino poi se jmina ca lo ro moi"
 
 #: qt/aqt/importing.py:486
 #, python-format
@@ -2914,7 +2914,7 @@ msgstr ".i ca'o gunka"
 
 #: qt/aqt/profiles.py:174
 msgid "Profile Corrupt"
-msgstr ".i lo pilno datni cu spofu"
+msgstr ".i pa pilno datni cu spofu"
 
 #: qt/aqt/forms/profiles.py:74
 msgid "Profiles"
@@ -2940,7 +2940,7 @@ msgstr ".i li %d cu pa moi"
 
 #: qt/aqt/forms/profiles.py:79
 msgid "Quit"
-msgstr "fanmo"
+msgstr "sisti"
 
 #: pylib/anki/consts.py:88
 msgid "Random"
@@ -2952,11 +2952,11 @@ msgstr "nu lo se porsi cu cunso"
 
 #: qt/aqt/browser.py:1432
 msgid "Rating"
-msgstr "vamji"
+msgstr "te spuda"
 
 #: qt/aqt/dyndeckconf.py:22 qt/aqt/overview.py:231
 msgid "Rebuild"
-msgstr "nu za'u re'u zbasu"
+msgstr "za'u re'u zbasu"
 
 #: qt/aqt/reviewer.py:713
 msgid "Record Own Voice"
@@ -3015,15 +3015,15 @@ msgstr ".i lo nu da'i vimcu lo karda klesi cu rinka lo nu vimcu su'o karda datni
 #: qt/aqt/deckbrowser.py:251 qt/aqt/deckconf.py:85 qt/aqt/models.py:49
 #: qt/aqt/forms/fields.py:103 qt/aqt/forms/profiles.py:77
 msgid "Rename"
-msgstr "nu basti lo cmene"
+msgstr "basti fi lo ka cmene"
 
 #: qt/aqt/clayout.py:477
 msgid "Rename Card Type..."
-msgstr "nu basti lo cmene be la karda klesi"
+msgstr "basti fi lo ka cmene lo karda klesi"
 
 #: qt/aqt/deckbrowser.py:266
 msgid "Rename Deck"
-msgstr "nu basti lo cmene be la karda selcmi"
+msgstr "basti fi lo ka cmene lo karda selcmi"
 
 #: qt/aqt/forms/dyndconf.py:145
 msgid "Repeat failed cards after"
@@ -3079,7 +3079,7 @@ msgstr ""
 
 #: qt/aqt/main.py:670
 msgid "Resume Now"
-msgstr "nu mo'u denpa"
+msgstr "co'u denpa"
 
 #: qt/aqt/forms/fields.py:106
 msgid "Reverse text direction (RTL)"
@@ -3087,7 +3087,7 @@ msgstr ""
 
 #: qt/aqt/main.py:308
 msgid "Revert to backup"
-msgstr "nu xruti fi pa nurfu'i"
+msgstr "pa nurfu'i cu basti"
 
 #: qt/aqt/main.py:951
 #, python-format
@@ -3096,7 +3096,7 @@ msgstr ".i mo'u xruti fo la'o zoi. %s .zoi"
 
 #: pylib/anki/collection.py:694 qt/aqt/browser.py:1243 qt/aqt/browser.py:1443
 msgid "Review"
-msgstr "te morji"
+msgstr "morji"
 
 #: pylib/anki/stats.py:380
 msgid "Review Count"
@@ -3129,7 +3129,7 @@ msgstr ""
 #: pylib/anki/stats.py:47 pylib/anki/stats.py:838 qt/aqt/browser.py:722
 #: qt/aqt/forms/dconf.py:361
 msgid "Reviews"
-msgstr "nu morji"
+msgstr "morji"
 
 #: qt/aqt/customstudy.py:83
 #, python-format
@@ -3142,7 +3142,7 @@ msgstr "pritu"
 
 #: qt/aqt/sound.py:519
 msgid "Save"
-msgstr "nu rejgau"
+msgstr "rejgau"
 
 #: qt/aqt/browser.py:1339
 msgid "Save Current Filter..."
@@ -3150,7 +3150,7 @@ msgstr "nu rejgau lo ca julne"
 
 #: qt/aqt/stats.py:40 qt/aqt/stats.py:70
 msgid "Save PDF"
-msgstr "nu rejgau pa me la me py dy fy."
+msgstr "rejgau pa me la me py dy fy."
 
 #: qt/aqt/stats.py:83
 msgid "Saved."
@@ -3164,7 +3164,7 @@ msgstr ".i kuspe la'o zoi. %s .zoi"
 #: qt/aqt/browser.py:2175 qt/aqt/forms/browser.py:295
 #: qt/aqt/forms/dyndconf.py:136 qt/aqt/forms/dyndconf.py:140
 msgid "Search"
-msgstr "nu sisku"
+msgstr "sisku"
 
 #: qt/aqt/forms/finddupes.py:64
 msgid "Search in:"
@@ -3176,15 +3176,15 @@ msgstr ""
 
 #: qt/aqt/customstudy.py:100
 msgid "Select"
-msgstr "nu cuxna"
+msgstr "cuxna"
 
 #: qt/aqt/forms/browser.py:305
 msgid "Select &All"
-msgstr "nu cuxna ro da"
+msgstr "cuxna ro da"
 
 #: qt/aqt/forms/browser.py:314
 msgid "Select &Notes"
-msgstr "nu cuxna lo karda datni"
+msgstr "cuxna pa karda datni"
 
 #: qt/aqt/forms/taglimit.py:62
 msgid "Select tags to exclude:"
@@ -3204,7 +3204,7 @@ msgstr ""
 
 #: qt/aqt/importing.py:167
 msgid "Semicolon"
-msgstr ".semikolon. bu"
+msgstr "';'"
 
 #: qt/aqt/sync.py:227
 msgid "Server not found. Either your connection is down, or antivirus/firewall software is blocking Anki from connecting to the internet."
@@ -3255,7 +3255,7 @@ msgstr ""
 
 #: qt/aqt/reviewer.py:570
 msgid "Show Answer"
-msgstr "nu catlu lo danfu"
+msgstr "viska lo danfu"
 
 #: qt/aqt/browser.py:1589
 msgid "Show Both Sides"
@@ -3263,7 +3263,7 @@ msgstr ""
 
 #: qt/aqt/editor.py:167
 msgid "Show Duplicates"
-msgstr "liste lo fukpi"
+msgstr "liste lo'i mintu"
 
 #: qt/aqt/forms/dconf.py:375
 msgid "Show answer timer"
@@ -3339,7 +3339,7 @@ msgstr ".i spofu lo nu snavi je lo nu vidvi vu'o pe lo karda pu'o lo nu ci'erse'
 
 #: qt/aqt/importing.py:165 qt/aqt/reviewer.py:569
 msgid "Space"
-msgstr ""
+msgstr "' '"
 
 #: qt/aqt/forms/reposition.py:71
 msgid "Start position:"
@@ -3351,11 +3351,11 @@ msgstr ""
 
 #: qt/aqt/forms/stats.py:75
 msgid "Statistics"
-msgstr ""
+msgstr "datni"
 
 #: qt/aqt/toolbar.py:53
 msgid "Stats"
-msgstr "datni lo nu pilno"
+msgstr "datni"
 
 #: qt/aqt/forms/reposition.py:72
 msgid "Step:"
@@ -3371,7 +3371,7 @@ msgstr ""
 
 #: qt/aqt/sync.py:61
 msgid "Stopping..."
-msgstr ""
+msgstr ".i ca'o sisti"
 
 #: pylib/anki/stats.py:178
 #, python-format
@@ -3389,19 +3389,19 @@ msgstr "se tadni ca lo cabdei"
 
 #: qt/aqt/studydeck.py:62
 msgid "Study"
-msgstr "nu tadni"
+msgstr "tadni"
 
 #: qt/aqt/forms/studydeck.py:45
 msgid "Study Deck"
-msgstr "nu tadni lo karda selcmi"
+msgstr "tadni pa karda selcmi"
 
 #: qt/aqt/forms/main.py:151
 msgid "Study Deck..."
-msgstr "nu tadni lo karda selcmi"
+msgstr "tadni pa karda selcmi"
 
 #: qt/aqt/overview.py:211
 msgid "Study Now"
-msgstr "nu co'a tadni"
+msgstr "co'a tadni"
 
 #: qt/aqt/forms/customstudy.py:105
 msgid "Study by card state or tag"
@@ -3433,15 +3433,15 @@ msgstr "mipri"
 
 #: qt/aqt/reviewer.py:704 qt/aqt/forms/dconf.py:369
 msgid "Suspend Card"
-msgstr "nu mipri lo karda"
+msgstr "mipri pa karda"
 
 #: qt/aqt/reviewer.py:705
 msgid "Suspend Note"
-msgstr "nu mipri lo karda datni"
+msgstr "mipri pa karda datni"
 
 #: qt/aqt/browser.py:1246
 msgid "Suspended"
-msgstr "lo ka se mipri"
+msgstr "se mipri"
 
 #: pylib/anki/stats.py:880
 msgid "Suspended+Buried"
@@ -3449,7 +3449,7 @@ msgstr "se mipri je cu zasni se mipri"
 
 #: qt/aqt/toolbar.py:54 qt/aqt/forms/synclog.py:38
 msgid "Sync"
-msgstr "nu co'a datni sarxe"
+msgstr "datni sarxe"
 
 #: qt/aqt/forms/preferences.py:274
 msgid "Synchronize audio and images too"
@@ -3476,11 +3476,11 @@ msgstr ".i ca'o co'a datni sarxe"
 
 #: qt/aqt/importing.py:161
 msgid "Tab"
-msgstr ""
+msgstr "'\\t'"
 
 #: qt/aqt/browser.py:2184 qt/aqt/browser.py:2211
 msgid "Tag Duplicates"
-msgstr ""
+msgstr "tcita fi lo ka mintu"
 
 #: qt/aqt/forms/dconf.py:370
 msgid "Tag Only"
@@ -3621,7 +3621,7 @@ msgstr ".i su'o karda cu za'o cnino .i ku'i ca'o rinju lo djedi jimte .i do ka'e
 
 #: qt/aqt/main.py:277
 msgid "There must be at least one profile."
-msgstr ".i su'o pa lo pilno cu sarcu"
+msgstr ".i sarcu fa lo du'u da pilno datni"
 
 #: qt/aqt/addons.py:502
 msgid "This add-on is not compatible with your version of Anki."
@@ -3667,11 +3667,11 @@ msgstr "ti {{c1::mupli}} ke mipri cipra"
 #, python-format
 msgid "This will create %d card. Proceed?"
 msgid_plural "This will create %d cards. Proceed?"
-msgstr[0] ".i ba cupra %d karda .i xu do djica"
+msgstr[0] ".i cupra %d karda ba .i xu do djica"
 
 #: qt/aqt/importing.py:442
 msgid "This will delete your existing collection and replace it with the data in the file you're importing. Are you sure?"
-msgstr ".i ju'i do lo ca karda selcmi selcmi ba se vimcu je ba se basti lo se datnyvei be lo se nerbei .i xu do birti"
+msgstr ".i lo karda selcmi selcmi ba se vimcu je ba se basti lo se datnyvei be lo ca se nerbei be do .i xu do birti"
 
 #: qt/aqt/preferences.py:135
 msgid "This will reset any cards in learning, clear filtered decks, and change the scheduler version. Proceed?"
@@ -3679,7 +3679,7 @@ msgstr ".i ju'i do rinka lo nu ro karda poi ca'o te cilre cu zilxru je lo nu ro 
 
 #: qt/aqt/browser.py:1435
 msgid "Time"
-msgstr "spuda temci"
+msgstr "temci"
 
 #: qt/aqt/forms/preferences.py:268
 msgid "Timebox time limit"
@@ -3687,7 +3687,7 @@ msgstr ""
 
 #: qt/aqt/overview.py:209
 msgid "To Review"
-msgstr "morji jai se bilga"
+msgstr "morji"
 
 #: qt/aqt/forms/getaddons.py:49
 msgid "To browse add-ons, please click the browse button below.<br><br>When you've found an add-on you like, please paste its code below. You can paste multiple codes, separated by spaces."
@@ -3787,12 +3787,12 @@ msgstr ""
 
 #: qt/aqt/main.py:961
 msgid "Undo"
-msgstr "nu xruti"
+msgstr "xruti"
 
 #: qt/aqt/main.py:957
 #, python-format
 msgid "Undo %s"
-msgstr "nu xruti fo la'o zoi. %s .zoi"
+msgstr "xruti fo la'o zoi. %s .zoi"
 
 #: qt/aqt/addons.py:981 qt/aqt/editor.py:782
 #, python-format
@@ -3821,11 +3821,11 @@ msgstr ""
 
 #: qt/aqt/sync.py:321 qt/aqt/sync.py:325
 msgid "Upload to AnkiWeb"
-msgstr "kibydu'a fi la .anki,ueb."
+msgstr "kibdu'a fi la .ankiueb."
 
 #: qt/aqt/sync.py:130
 msgid "Uploading to AnkiWeb..."
-msgstr ".i ca kibydu'a fi la .anki,ueb."
+msgstr ".i ca'o kibdu'a fi la .ankiueb."
 
 #: qt/aqt/main.py:1292
 msgid "Used on cards but missing from media folder:"
@@ -3833,7 +3833,7 @@ msgstr "se pilno su'o karda je nai ku'i cu se datnyveimei lo ganvi datnyveimei"
 
 #: qt/aqt/profiles.py:375
 msgid "User 1"
-msgstr "pa moi pilno"
+msgstr "pa moi lo'i pilno datni"
 
 #: qt/aqt/forms/preferences.py:270
 msgid "User interface size"
@@ -3862,7 +3862,7 @@ msgstr ""
 
 #: qt/aqt/overview.py:118
 msgid "What would you like to unbury?"
-msgstr ".i .au dai do to'e ke zasni mipri ma"
+msgstr ".i do djica lo du'u co'u zasni mipri ma"
 
 #: qt/aqt/forms/preferences.py:262
 msgid "When adding, default to current deck"
@@ -3874,7 +3874,7 @@ msgstr "mulno ke karda selcmi selcmi"
 
 #: qt/aqt/update.py:64
 msgid "Would you like to download it now?"
-msgstr ""
+msgstr ".i xu do djica lo du'u ca kibycpa"
 
 #: qt/aqt/about.py:206
 #, python-format
@@ -3892,7 +3892,7 @@ msgstr ""
 #: qt/aqt/deckbrowser.py:142
 #, python-format
 msgid "You have a lot of decks. Please see %(a)s. %(b)s"
-msgstr ""
+msgstr ".i do ralte so'i karda selcmi .i ko tcidu fi la'o zoi. %(a)s .zoi %(b)s"
 
 #: qt/aqt/reviewer.py:816
 msgid "You haven't recorded your voice yet."
@@ -3909,7 +3909,7 @@ msgstr "na'e makcu"
 
 #: pylib/anki/stats.py:878
 msgid "Young+Learn"
-msgstr "na'e makcu je cu te cilre"
+msgstr "na'e makcu je cu se cilre"
 
 #: qt/aqt/sync.py:172
 msgid "Your AnkiWeb collection does not contain any cards. Please sync again and choose 'Upload' instead."
@@ -3929,7 +3929,7 @@ msgstr ""
 
 #: qt/aqt/sync.py:233
 msgid "Your collection or a media file is too large to sync."
-msgstr ".i lo do karda selcmi selcmi ja pa ganvi datnyvei cu dukse lo ka ce'u barda kei lo ka ce'u co'a datni sarxe"
+msgstr ".i pa karda selcmi selcmi ja pa ganvi datnyvei cu dukse lo ka barda kei lo ka co'a datni sarxe"
 
 #: qt/aqt/sync.py:75
 msgid "Your collection was successfully uploaded to AnkiWeb.\n\n"
@@ -3957,7 +3957,7 @@ msgstr ""
 
 #: qt/aqt/forms/preferences.py:281
 msgid "backups"
-msgstr "lo nurfu'i"
+msgstr "nurfu'i"
 
 #: pylib/anki/stats.py:345 qt/aqt/customstudy.py:53
 msgid "cards"
@@ -3985,7 +3985,7 @@ msgstr ""
 #: qt/aqt/forms/dconf.py:356 qt/aqt/forms/dconf.py:368
 #: qt/aqt/forms/reschedule.py:77
 msgid "days"
-msgstr "lo djedi"
+msgstr "djedi"
 
 #: qt/aqt/forms/stats.py:76
 msgid "deck"
@@ -3997,11 +3997,11 @@ msgstr ""
 
 #: qt/aqt/browser.py:2215
 msgid "duplicate"
-msgstr ""
+msgstr "mintu"
 
 #: qt/aqt/deckbrowser.py:149
 msgid "hide"
-msgstr ""
+msgstr "mipri"
 
 #: pylib/anki/stats.py:433
 msgid "hours"
@@ -4049,7 +4049,7 @@ msgstr[0] "ca lo nanca be li %s"
 
 #: qt/aqt/forms/dconf.py:365
 msgid "lapses"
-msgstr ""
+msgstr "fliba lo ka morji"
 
 #: pylib/anki/stats.py:454
 msgid "less than 0.1 cards/minute"
@@ -4066,11 +4066,11 @@ msgstr ""
 
 #: qt/aqt/forms/preferences.py:265 qt/aqt/forms/preferences.py:269
 msgid "mins"
-msgstr ""
+msgstr "mentu"
 
 #: pylib/anki/stats.py:410 qt/aqt/forms/dyndconf.py:146
 msgid "minutes"
-msgstr ""
+msgstr "mentu"
 
 #. T: abbreviation of month
 #: pylib/anki/stats.py:996
@@ -4083,11 +4083,11 @@ msgstr ""
 
 #: qt/aqt/forms/dconf.py:374
 msgid "seconds"
-msgstr ""
+msgstr "snidu"
 
 #: qt/aqt/stats.py:67
 msgid "stats"
-msgstr ""
+msgstr "datni"
 
 #: qt/aqt/deckbrowser.py:145
 msgid "this page"
@@ -4108,5 +4108,5 @@ msgstr ""
 
 #: qt/aqt/forms/reschedule.py:76
 msgid "~"
-msgstr ""
+msgstr "~"
 
