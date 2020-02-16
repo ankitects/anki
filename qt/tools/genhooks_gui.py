@@ -31,6 +31,36 @@ hooks = [
         doc="""Allow to update the deck browser window. E.g. change its title.""",
     ),
     Hook(
+        name="deck_browser_will_render_section",
+        args=[
+            "html: str",
+            "section: aqt.deckbrowser.DeckBrowserSection",
+            "deck_browser: aqt.deckbrowser.DeckBrowser",
+        ],
+        return_type="str",
+        doc="""Used to modify HTML content sections in the deck browser body
+        
+        'html' is the content a particular section will be populated with
+        
+        'section' is an enum describing the current section. For an overview
+        of all the possible values please see aqt.deckbrowser.DeckBrowserSection.
+
+        If you do not want to modify the content of a particular section,
+        return 'html' unmodified, e.g.:
+        
+            def on_deck_browser_will_render_section(html, section, deck_browser):
+                
+                if section != DeckBrowserSection.TREE:
+                    # not the tree section we want to modify, return unchanged
+                    return html
+
+                # tree section, perform changes to html
+                html += "<div>my code</div>"
+                
+                return html
+        """,
+    ),
+    Hook(
         name="reviewer_did_show_question",
         args=["card: Card"],
         legacy_hook="showQuestion",

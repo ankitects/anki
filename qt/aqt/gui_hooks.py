@@ -435,6 +435,75 @@ class _DeckBrowserDidRenderHook:
 deck_browser_did_render = _DeckBrowserDidRenderHook()
 
 
+class _DeckBrowserWillRenderSectionFilter:
+    """Used to modify HTML content sections in the deck browser body
+        
+        'html' is the content a particular section will be populated with
+        
+        'section' is an enum describing the current section. For an overview
+        of all the possible values please see aqt.deckbrowser.DeckBrowserSection.
+
+        If you do not want to modify the content of a particular section,
+        return 'html' unmodified, e.g.:
+        
+            def on_deck_browser_will_render_section(html, section, deck_browser):
+                
+                if section != DeckBrowserSection.TREE:
+                    # not the tree section we want to modify, return unchanged
+                    return html
+
+                # tree section, perform changes to html
+                html += "<div>my code</div>"
+                
+                return html
+        """
+
+    _hooks: List[
+        Callable[
+            [str, "aqt.deckbrowser.DeckBrowserSection", "aqt.deckbrowser.DeckBrowser"],
+            str,
+        ]
+    ] = []
+
+    def append(
+        self,
+        cb: Callable[
+            [str, "aqt.deckbrowser.DeckBrowserSection", "aqt.deckbrowser.DeckBrowser"],
+            str,
+        ],
+    ) -> None:
+        """(html: str, section: aqt.deckbrowser.DeckBrowserSection, deck_browser: aqt.deckbrowser.DeckBrowser)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self,
+        cb: Callable[
+            [str, "aqt.deckbrowser.DeckBrowserSection", "aqt.deckbrowser.DeckBrowser"],
+            str,
+        ],
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(
+        self,
+        html: str,
+        section: aqt.deckbrowser.DeckBrowserSection,
+        deck_browser: aqt.deckbrowser.DeckBrowser,
+    ) -> str:
+        for filter in self._hooks:
+            try:
+                html = filter(html, section, deck_browser)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return html
+
+
+deck_browser_will_render_section = _DeckBrowserWillRenderSectionFilter()
+
+
 class _DeckBrowserWillShowOptionsMenuHook:
     _hooks: List[Callable[[QMenu, int], None]] = []
 
