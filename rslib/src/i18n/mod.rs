@@ -2,15 +2,15 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use fluent::{FluentArgs, FluentBundle, FluentResource};
-use log::error;
+use log::{error, warn};
 use std::borrow::Cow;
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::sync::{Arc, Mutex};
 use unic_langid::LanguageIdentifier;
 
-pub use fluent::fluent_args as tr_args;
-
 pub use crate::backend_proto::StringsGroup;
+pub use fluent::fluent_args as tr_args;
 
 /// Helper for creating args with &strs
 #[macro_export]
@@ -25,38 +25,29 @@ macro_rules! tr_strs {
         }
     };
 }
-use std::sync::{Arc, Mutex};
 pub use tr_strs;
 
-/// All languages we (currently) support, excluding the fallback
-/// English.
-#[derive(Debug, PartialEq, Clone, Copy)]
-pub enum LanguageDialect {
-    Japanese,
-    ChineseMainland,
-    ChineseTaiwan,
-}
-
-fn lang_dialect(lang: LanguageIdentifier) -> Option<LanguageDialect> {
-    use LanguageDialect as L;
-    Some(match lang.get_language() {
-        "ja" => L::Japanese,
-        "zh" => match lang.get_region() {
-            Some("TW") => L::ChineseTaiwan,
-            _ => L::ChineseMainland,
-        },
-        _ => return None,
-    })
-}
-
-fn dialect_file_locale(dialect: LanguageDialect) -> &'static str {
-    match dialect {
-        LanguageDialect::Japanese => "ja",
-        LanguageDialect::ChineseMainland => "zh",
-        LanguageDialect::ChineseTaiwan => todo!(),
+/// The folder containing ftl files for the provided language.
+/// If a fully qualified folder exists (eg, en_GB), return that.
+/// Otherwise, try the language alone (eg en).
+/// If neither folder exists, return None.
+fn lang_folder(lang: LanguageIdentifier, ftl_folder: &Path) -> Option<PathBuf> {
+    if let Some(region) = lang.get_region() {
+        let path = ftl_folder.join(format!("{}_{}", lang.get_language(), region));
+        if fs::metadata(&path).is_ok() {
+            return Some(path);
+        }
+    }
+    let path = ftl_folder.join(lang.get_language());
+    if fs::metadata(&path).is_ok() {
+        Some(path)
+    } else {
+        None
     }
 }
 
+/// Get the fallback/English resource text for the given group.
+/// These are embedded in the binary.
 fn ftl_fallback_for_group(group: StringsGroup) -> String {
     match group {
         StringsGroup::Other => "",
@@ -68,27 +59,25 @@ fn ftl_fallback_for_group(group: StringsGroup) -> String {
     .to_string()
 }
 
-fn localized_ftl_for_group(
-    dialect: LanguageDialect,
-    group: StringsGroup,
-    locales: &Path,
-) -> Option<String> {
-    let path = locales
-        .join(dialect_file_locale(dialect))
-        .join(match group {
-            StringsGroup::Other => "",
-            StringsGroup::Test => "test.ftl",
-            StringsGroup::MediaCheck => "media-check.ftl",
-            StringsGroup::CardTemplates => "card-template-rendering.ftl",
-            StringsGroup::Sync => "sync.ftl",
-        });
+/// Get the resource text for the given group in the given language folder.
+/// If the file can't be read, returns None.
+fn localized_ftl_for_group(group: StringsGroup, lang_ftl_folder: &Path) -> Option<String> {
+    let path = lang_ftl_folder.join(match group {
+        StringsGroup::Other => "",
+        StringsGroup::Test => "test.ftl",
+        StringsGroup::MediaCheck => "media-check.ftl",
+        StringsGroup::CardTemplates => "card-template-rendering.ftl",
+        StringsGroup::Sync => "sync.ftl",
+    });
     fs::read_to_string(&path)
         .map_err(|e| {
-            error!("Unable to read translation file: {:?}: {}", path, e);
+            warn!("Unable to read translation file: {:?}: {}", path, e);
         })
         .ok()
 }
 
+/// Parse resource text into an AST for inclusion in a bundle.
+/// Returns None if the text contains errors.
 fn get_bundle(
     text: String,
     locales: &[LanguageIdentifier],
@@ -116,14 +105,15 @@ pub struct I18n {
 }
 
 impl I18n {
-    pub fn new<S: AsRef<str>, P: Into<PathBuf>>(locale_codes: &[S], locale_folder: P) -> Self {
+    pub fn new<S: AsRef<str>, P: Into<PathBuf>>(locale_codes: &[S], ftl_folder: P) -> Self {
         let mut langs = vec![];
         let mut supported = vec![];
+        let ftl_folder = ftl_folder.into();
         for code in locale_codes {
-            if let Ok(ident) = code.as_ref().parse::<LanguageIdentifier>() {
-                langs.push(ident.clone());
-                if let Some(dialect) = lang_dialect(ident) {
-                    supported.push(dialect)
+            if let Ok(lang) = code.as_ref().parse::<LanguageIdentifier>() {
+                langs.push(lang.clone());
+                if let Some(path) = lang_folder(lang, &ftl_folder) {
+                    supported.push(path);
                 }
             }
         }
@@ -133,29 +123,22 @@ impl I18n {
         Self {
             inner: Arc::new(Mutex::new(I18nInner {
                 langs,
-                supported,
-                locale_folder: locale_folder.into(),
+                available_ftl_folders: supported,
             })),
         }
     }
 
     pub fn get(&self, group: StringsGroup) -> I18nCategory {
         let inner = self.inner.lock().unwrap();
-        I18nCategory::new(
-            &*inner.langs,
-            &*inner.supported,
-            group,
-            &inner.locale_folder,
-        )
+        I18nCategory::new(&*inner.langs, &*inner.available_ftl_folders, group)
     }
 }
 
 struct I18nInner {
-    // language identifiers, used for date/time rendering
+    // all preferred languages of the user, used for date/time processing
     langs: Vec<LanguageIdentifier>,
-    // languages supported by us
-    supported: Vec<LanguageDialect>,
-    locale_folder: PathBuf,
+    // the available ftl folder subset of the user's preferred languages
+    available_ftl_folders: Vec<PathBuf>,
 }
 
 pub struct I18nCategory {
@@ -165,22 +148,17 @@ pub struct I18nCategory {
 }
 
 impl I18nCategory {
-    pub fn new(
-        langs: &[LanguageIdentifier],
-        preferred: &[LanguageDialect],
-        group: StringsGroup,
-        locale_folder: &Path,
-    ) -> Self {
+    pub fn new(langs: &[LanguageIdentifier], preferred: &[PathBuf], group: StringsGroup) -> Self {
         let mut bundles = Vec::with_capacity(preferred.len() + 1);
-        for dialect in preferred {
-            if let Some(text) = localized_ftl_for_group(*dialect, group, locale_folder) {
+        for ftl_folder in preferred {
+            if let Some(text) = localized_ftl_for_group(group, ftl_folder) {
                 if let Some(mut bundle) = get_bundle(text, langs) {
                     if cfg!(test) {
                         bundle.set_use_isolating(false);
                     }
                     bundles.push(bundle);
                 } else {
-                    error!("Failed to create bundle for {:?} {:?}", dialect, group);
+                    error!("Failed to create bundle for {:?} {:?}", ftl_folder, group);
                 }
             }
         }
@@ -234,27 +212,9 @@ impl I18nCategory {
 
 #[cfg(test)]
 mod test {
-    use crate::i18n::{dialect_file_locale, lang_dialect, StringsGroup};
-    use crate::i18n::{tr_args, I18n, LanguageDialect};
+    use crate::i18n::StringsGroup;
+    use crate::i18n::{tr_args, I18n};
     use std::path::PathBuf;
-    use unic_langid::LanguageIdentifier;
-
-    #[test]
-    fn dialect() {
-        use LanguageDialect as L;
-        let mut ident: LanguageIdentifier = "en-US".parse().unwrap();
-        assert_eq!(lang_dialect(ident), None);
-        ident = "ja_JP".parse().unwrap();
-        assert_eq!(lang_dialect(ident), Some(L::Japanese));
-        ident = "zh".parse().unwrap();
-        assert_eq!(lang_dialect(ident), Some(L::ChineseMainland));
-        ident = "zh-TW".parse().unwrap();
-        assert_eq!(lang_dialect(ident), Some(L::ChineseTaiwan));
-
-        assert_eq!(dialect_file_locale(L::Japanese), "ja");
-        assert_eq!(dialect_file_locale(L::ChineseMainland), "zh");
-        //        assert_eq!(dialect_file_locale(L::Other), "templates");
-    }
 
     #[test]
     fn i18n() {
