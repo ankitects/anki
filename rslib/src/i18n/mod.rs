@@ -25,6 +25,7 @@ macro_rules! tr_strs {
         }
     };
 }
+use std::sync::{Arc, Mutex};
 pub use tr_strs;
 
 /// All languages we (currently) support, excluding the fallback
@@ -109,13 +110,9 @@ fn get_bundle(
     Some(bundle)
 }
 
+#[derive(Clone)]
 pub struct I18n {
-    // language identifiers, used for date/time rendering
-    langs: Vec<LanguageIdentifier>,
-    // languages supported by us
-    supported: Vec<LanguageDialect>,
-
-    locale_folder: PathBuf,
+    inner: Arc<Mutex<I18nInner>>,
 }
 
 impl I18n {
@@ -134,15 +131,31 @@ impl I18n {
         langs.push("en_US".parse().unwrap());
 
         Self {
-            langs,
-            supported,
-            locale_folder: locale_folder.into(),
+            inner: Arc::new(Mutex::new(I18nInner {
+                langs,
+                supported,
+                locale_folder: locale_folder.into(),
+            })),
         }
     }
 
     pub fn get(&self, group: StringsGroup) -> I18nCategory {
-        I18nCategory::new(&*self.langs, &*self.supported, group, &self.locale_folder)
+        let inner = self.inner.lock().unwrap();
+        I18nCategory::new(
+            &*inner.langs,
+            &*inner.supported,
+            group,
+            &inner.locale_folder,
+        )
     }
+}
+
+struct I18nInner {
+    // language identifiers, used for date/time rendering
+    langs: Vec<LanguageIdentifier>,
+    // languages supported by us
+    supported: Vec<LanguageDialect>,
+    locale_folder: PathBuf,
 }
 
 pub struct I18nCategory {
