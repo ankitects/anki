@@ -1,0 +1,5 @@
+#!/bin/bash
+
+targetDir=../aqt_data/locale/fluent
+test -d $targetDir || mkdir -p $targetDir
+rsync -a --delete --exclude=templates ftl/core/* $targetDir/
