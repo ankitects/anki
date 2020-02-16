@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if [ ! -d po ]; then
+  git clone https://github.com/ankitects/anki-desktop-i18n po
+fi
+
+echo "Updating translations from git..."
+(cd po && git pull)
+
