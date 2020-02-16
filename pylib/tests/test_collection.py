@@ -158,37 +158,7 @@ def test_translate():
     def no_uni(s: str) -> str:
         return s.replace("\u2068", "").replace("\u2069", "")
 
-    def test_backend():
-        assert tr(StringsGroup.TEST, "valid-key") == "a valid key"
-        assert "invalid-key" in tr(StringsGroup.TEST, "invalid-key")
-        assert no_uni(tr(StringsGroup.TEST, "plural", hats=1)) == "You have 1 hat."
-        assert no_uni(tr(StringsGroup.TEST, "plural", hats=2)) == "You have 2 hats."
-
-    import time
-    t = time.time()
-    test_backend()
-    print(time.time() - t)
-
-    from fluent.runtime import FluentBundle, FluentResource
-
-    test_path = os.path.join(
-        os.path.dirname(__file__), "../../rslib/tests/support/test.ftl"
-    )
-
-    def python_render(bundle, key, **kwargs):
-        try:
-            return bundle.format_pattern(bundle.get_message(key).value, kwargs)[0]
-        except:
-            return f"Missing key: {key}"
-
-    def test_python():
-        bundle = FluentBundle(["en-US"])
-        bundle.add_resource(FluentResource(open(test_path).read()))
-        assert python_render(bundle, "valid-key") == "a valid key"
-        assert "invalid-key" in python_render(bundle, "invalid-key")
-        assert no_uni(python_render(bundle, "plural", hats=1)) == "You have 1 hat."
-        assert no_uni(python_render(bundle, "plural", hats=2)) == "You have 2 hats."
-
-    t = time.time()
-    test_python()
-    print(time.time() - t)
+    assert tr(StringsGroup.TEST, "valid-key") == "a valid key"
+    assert "invalid-key" in tr(StringsGroup.TEST, "invalid-key")
+    assert no_uni(tr(StringsGroup.TEST, "plural", hats=1)) == "You have 1 hat."
+    assert no_uni(tr(StringsGroup.TEST, "plural", hats=2)) == "You have 2 hats."

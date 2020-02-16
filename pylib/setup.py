@@ -23,6 +23,5 @@ setuptools.setup(
         "protobuf",
         'psutil; sys_platform == "win32"',
         'distro; sys_platform != "darwin" and sys_platform != "win32"',
-        "fluent.runtime",
     ],
 )
