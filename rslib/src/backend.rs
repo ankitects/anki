@@ -16,6 +16,7 @@ use crate::template::{
     RenderedNode,
 };
 use crate::text::{extract_av_tags, strip_av_tags, AVTag};
+use fluent::FluentValue;
 use prost::Message;
 use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
@@ -193,6 +194,7 @@ impl Backend {
                 self.remove_media_files(&input.fnames)?;
                 OValue::TrashMediaFiles(Empty {})
             }
+            Value::TranslateString(input) => OValue::TranslateString(self.translate_string(input)),
         })
     }
 
@@ -375,6 +377,31 @@ impl Backend {
         let mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
         let mut ctx = mgr.dbctx();
         mgr.remove_files(&mut ctx, fnames)
+    }
+
+    fn translate_string(&self, input: pb::TranslateStringIn) -> String {
+        let group = match pb::StringsGroup::from_i32(input.group) {
+            Some(group) => group,
+            None => return "".to_string(),
+        };
+        let map = input
+            .args
+            .iter()
+            .map(|(k, v)| (k.as_str(), translate_arg_to_fluent_val(&v)))
+            .collect();
+
+        self.i18n.get(group).trn(&input.key, map)
+    }
+}
+
+fn translate_arg_to_fluent_val(arg: &pb::TranslateArgValue) -> FluentValue {
+    use pb::translate_arg_value::Value as V;
+    match &arg.value {
+        Some(val) => match val {
+            V::Str(s) => FluentValue::String(s.into()),
+            V::Number(s) => FluentValue::Number(s.into()),
+        },
+        None => FluentValue::String("".into()),
     }
 }
 

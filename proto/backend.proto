@@ -39,6 +39,7 @@ message BackendInput {
         SyncMediaIn sync_media = 27;
         Empty check_media = 28;
         TrashMediaFilesIn trash_media_files = 29;
+        TranslateStringIn translate_string = 30;
     }
 }
 
@@ -58,6 +59,7 @@ message BackendOutput {
         Empty sync_media = 27;
         MediaCheckOut check_media = 28;
         Empty trash_media_files = 29;
+        string translate_string = 30;
 
         BackendError error = 2047;
     }
@@ -281,4 +283,17 @@ message MediaCheckOut {
 
 message TrashMediaFilesIn {
     repeated string fnames = 1;
+}
+
+message TranslateStringIn {
+    StringsGroup group = 1;
+    string key = 2;
+    map<string,TranslateArgValue> args = 3;
+}
+
+message TranslateArgValue {
+    oneof value {
+        string str = 1;
+        string number = 2;
+    }
 }
