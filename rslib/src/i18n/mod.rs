@@ -10,6 +10,7 @@ use unic_langid::LanguageIdentifier;
 
 pub use fluent::fluent_args as tr_args;
 
+pub use crate::backend_proto::StringsGroup;
 /// Helper for creating args with &strs
 #[macro_export]
 macro_rules! tr_strs {
@@ -34,13 +35,6 @@ pub enum LanguageDialect {
     ChineseTaiwan,
 }
 
-#[derive(Debug, PartialEq, Clone, Copy)]
-pub enum TranslationFile {
-    Test,
-    MediaCheck,
-    CardTemplates,
-}
-
 fn lang_dialect(lang: LanguageIdentifier) -> Option<LanguageDialect> {
     use LanguageDialect as L;
     Some(match lang.get_language() {
@@ -61,25 +55,29 @@ fn dialect_file_locale(dialect: LanguageDialect) -> &'static str {
     }
 }
 
-fn data_for_fallback(file: TranslationFile) -> String {
-    match file {
-        TranslationFile::Test => include_str!("../../tests/support/test.ftl"),
-        TranslationFile::MediaCheck => include_str!("media-check.ftl"),
-        TranslationFile::CardTemplates => include_str!("card-template-rendering.ftl"),
+fn ftl_fallback_for_group(group: StringsGroup) -> String {
+    match group {
+        StringsGroup::Other => "",
+        StringsGroup::Test => include_str!("../../tests/support/test.ftl"),
+        StringsGroup::MediaCheck => include_str!("media-check.ftl"),
+        StringsGroup::CardTemplates => include_str!("card-template-rendering.ftl"),
     }
     .to_string()
 }
 
-fn data_for_lang_and_file(
+fn localized_ftl_for_group(
     dialect: LanguageDialect,
-    file: TranslationFile,
+    group: StringsGroup,
     locales: &Path,
 ) -> Option<String> {
-    let path = locales.join(dialect_file_locale(dialect)).join(match file {
-        TranslationFile::Test => "test.ftl",
-        TranslationFile::MediaCheck => "media-check.ftl",
-        TranslationFile::CardTemplates => "card-template-rendering.ftl",
-    });
+    let path = locales
+        .join(dialect_file_locale(dialect))
+        .join(match group {
+            StringsGroup::Other => "",
+            StringsGroup::Test => "test.ftl",
+            StringsGroup::MediaCheck => "media-check.ftl",
+            StringsGroup::CardTemplates => "card-template-rendering.ftl",
+        });
     fs::read_to_string(&path)
         .map_err(|e| {
             error!("Unable to read translation file: {:?}: {}", path, e);
@@ -139,8 +137,8 @@ impl I18n {
         }
     }
 
-    pub fn get(&self, file: TranslationFile) -> I18nCategory {
-        I18nCategory::new(&*self.langs, &*self.supported, file, &self.locale_folder)
+    pub fn get(&self, group: StringsGroup) -> I18nCategory {
+        I18nCategory::new(&*self.langs, &*self.supported, group, &self.locale_folder)
     }
 }
 
@@ -154,24 +152,24 @@ impl I18nCategory {
     pub fn new(
         langs: &[LanguageIdentifier],
         preferred: &[LanguageDialect],
-        file: TranslationFile,
+        group: StringsGroup,
         locale_folder: &Path,
     ) -> Self {
         let mut bundles = Vec::with_capacity(preferred.len() + 1);
         for dialect in preferred {
-            if let Some(text) = data_for_lang_and_file(*dialect, file, locale_folder) {
+            if let Some(text) = localized_ftl_for_group(*dialect, group, locale_folder) {
                 if let Some(mut bundle) = get_bundle(text, langs) {
                     if cfg!(test) {
                         bundle.set_use_isolating(false);
                     }
                     bundles.push(bundle);
                 } else {
-                    error!("Failed to create bundle for {:?} {:?}", dialect, file);
+                    error!("Failed to create bundle for {:?} {:?}", dialect, group);
                 }
             }
         }
 
-        let mut fallback_bundle = get_bundle(data_for_fallback(file), langs).unwrap();
+        let mut fallback_bundle = get_bundle(ftl_fallback_for_group(group), langs).unwrap();
         if cfg!(test) {
             fallback_bundle.set_use_isolating(false);
         }
@@ -220,7 +218,7 @@ impl I18nCategory {
 
 #[cfg(test)]
 mod test {
-    use crate::i18n::{dialect_file_locale, lang_dialect, TranslationFile};
+    use crate::i18n::{dialect_file_locale, lang_dialect, StringsGroup};
     use crate::i18n::{tr_args, I18n, LanguageDialect};
     use std::path::PathBuf;
     use unic_langid::LanguageIdentifier;
@@ -246,7 +244,7 @@ mod test {
     fn i18n() {
         // English fallback
         let i18n = I18n::new(&["zz"], "../../tests/support");
-        let cat = i18n.get(TranslationFile::Test);
+        let cat = i18n.get(StringsGroup::Test);
         assert_eq!(cat.tr("valid-key"), "a valid key");
         assert_eq!(
             cat.tr("invalid-key"),
@@ -271,7 +269,7 @@ mod test {
         let mut d = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         d.push("tests/support");
         let i18n = I18n::new(&["ja_JP"], d);
-        let cat = i18n.get(TranslationFile::Test);
+        let cat = i18n.get(StringsGroup::Test);
         assert_eq!(cat.tr("valid-key"), "キー");
         assert_eq!(cat.tr("only-in-english"), "not translated");
         assert_eq!(

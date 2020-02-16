@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::err::{AnkiError, Result, TemplateError};
-use crate::i18n::{tr_strs, I18n, I18nCategory, TranslationFile};
+use crate::i18n::{tr_strs, I18n, I18nCategory, StringsGroup};
 use crate::template_filters::apply_filters;
 use lazy_static::lazy_static;
 use nom;
@@ -196,7 +196,7 @@ fn parse_inner<'a, I: Iterator<Item = TemplateResult<Token<'a>>>>(
 }
 
 fn template_error_to_anki_error(err: TemplateError, q_side: bool, i18n: &I18n) -> AnkiError {
-    let cat = i18n.get(TranslationFile::CardTemplates);
+    let cat = i18n.get(StringsGroup::CardTemplates);
     let header = cat.tr(if q_side {
         "front-side-problem"
     } else {
@@ -508,7 +508,7 @@ pub fn render_card(
 
     // check if the front side was empty
     if !qtmpl.renders_with_fields(context.nonempty_fields) {
-        let cat = i18n.get(TranslationFile::CardTemplates);
+        let cat = i18n.get(StringsGroup::CardTemplates);
         let info = format!(
             "{}<br><a href='{}'>{}</a>",
             cat.tr("empty-front"),
