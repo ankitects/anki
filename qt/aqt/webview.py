@@ -379,7 +379,7 @@ div[contenteditable="true"]:focus {
 
         from aqt import mw
 
-        head = mw.baseHTML() + web_content.head + csstxt + jstxt
+        head = mw.baseHTML() + csstxt + jstxt + web_content.head
 
         body_class = theme_manager.body_class()
 
