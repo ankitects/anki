@@ -4,9 +4,9 @@
 # Please leave the coding line in this file to prevent xgettext complaining.
 
 import gettext
+import os
 import re
-import threading
-from typing import Any
+from typing import Optional, Union
 
 langs = sorted(
     [
@@ -133,55 +133,39 @@ def lang_to_disk_lang(lang: str) -> str:
     return re.match("(.*)_", lang).group(1)
 
 
-threadLocal = threading.local()
+# the currently set interface language
+currentLang = "en"
 
-# global defaults
-currentLang: Any = None
-currentTranslation: Any = None
-locale_folder: str = ""
+# the current translation catalog
+current_catalog: Optional[
+    Union[gettext.NullTranslations, gettext.GNUTranslations]
+] = None
 
-
-def localTranslation() -> Any:
-    "Return the translation local to this thread, or the default."
-    if getattr(threadLocal, "currentTranslation", None):
-        return threadLocal.currentTranslation
-    else:
-        return currentTranslation
+# path to locale folder
+locale_folder = ""
 
 
 def _(str: str) -> str:
-    return localTranslation().gettext(str)
+    if current_catalog:
+        return current_catalog.gettext(str)
+    else:
+        return str
 
 
 def ngettext(single: str, plural: str, n: int) -> str:
-    return localTranslation().ngettext(single, plural, n)
+    if current_catalog:
+        return current_catalog.ngettext(single, plural, n)
+    elif n == 1:
+        return single
+    return plural
 
 
-def setLang(lang: str, locale_dir: str, local: bool = True) -> None:
-    trans = gettext.translation("anki", locale_dir, languages=[lang], fallback=True)
-    if local:
-        threadLocal.currentLang = lang
-        threadLocal.currentTranslation = trans
-        threadLocal.locale_folder = locale_dir
-    else:
-        global currentLang, currentTranslation, locale_folder
-        currentLang = lang
-        currentTranslation = trans
-        locale_folder = locale_dir
+def set_lang(lang: str, locale_dir: str) -> None:
+    global currentLang, current_catalog, locale_folder
+    gettext_dir = os.path.join(locale_dir, "gettext")
 
-
-def getLang() -> str:
-    "Return the language local to this thread, or the default."
-    if getattr(threadLocal, "currentLang", None):
-        return threadLocal.currentLang
-    else:
-        return currentLang
-
-
-def noHint(str) -> str:
-    "Remove translation hint from end of string."
-    return re.sub(r"(^.*?)( ?\(.+?\))?$", "\\1", str)
-
-
-if not currentTranslation:
-    setLang("en_US", locale_dir="", local=False)
+    currentLang = lang
+    current_catalog = gettext.translation(
+        "anki", gettext_dir, languages=[lang], fallback=True
+    )
+    locale_folder = locale_dir

@@ -59,7 +59,7 @@ class Preferences(QDialog):
     def langIdx(self):
         codes = [x[1] for x in anki.lang.langs]
         try:
-            return codes.index(anki.lang.getLang())
+            return codes.index(anki.lang.currentLang)
         except:
             return codes.index("en_US")
 
