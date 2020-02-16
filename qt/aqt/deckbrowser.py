@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from enum import Enum
 from typing import Any
 
 import aqt
@@ -21,6 +22,12 @@ from aqt.utils import askUser, getOnlyText, openHelp, openLink, shortcut, showWa
 class DeckBrowserBottomBar:
     def __init__(self, deck_browser: DeckBrowser):
         self.deck_browser = deck_browser
+
+
+class DeckBrowserSection(Enum):
+    TREE = 0
+    STATS = 1
+    WARN = 2
 
 
 class DeckBrowser:
@@ -103,10 +110,17 @@ class DeckBrowser:
         gui_hooks.deck_browser_did_render(self)
 
     def __renderPage(self, offset):
-        tree = self._renderDeckTree(self._dueTree)
-        stats = self._renderStats()
+        tree = gui_hooks.deck_browser_will_render_section(
+            self._renderDeckTree(self._dueTree), DeckBrowserSection.TREE, self
+        )
+        stats = gui_hooks.deck_browser_will_render_section(
+            self._renderStats(), DeckBrowserSection.STATS, self
+        )
+        warn = gui_hooks.deck_browser_will_render_section(
+            self._countWarn(), DeckBrowserSection.WARN, self
+        )
         self.web.stdHtml(
-            self._body % dict(tree=tree, stats=stats, countwarn=self._countWarn()),
+            self._body % dict(tree=tree, stats=stats, countwarn=warn),
             css=["deckbrowser.css"],
             js=["jquery.js", "jquery-ui.js", "deckbrowser.js"],
             context=self,
