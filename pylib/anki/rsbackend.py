@@ -126,6 +126,8 @@ MediaSyncProgress = pb.MediaSyncProgress
 
 MediaCheckOutput = pb.MediaCheckOut
 
+StringsGroup = pb.StringsGroup
+
 
 @dataclass
 class ExtractedLatex:
@@ -318,3 +320,19 @@ class RustBackend:
         self._run_command(
             pb.BackendInput(trash_media_files=pb.TrashMediaFilesIn(fnames=fnames))
         )
+
+    def translate(
+        self, group: pb.StringsGroup, key: str, **kwargs: Union[str, int, float]
+    ):
+        args = {}
+        for (k, v) in kwargs.items():
+            if isinstance(v, str):
+                args[k] = pb.TranslateArgValue(str=v)
+            else:
+                args[k] = pb.TranslateArgValue(number=str(v))
+
+        return self._run_command(
+            pb.BackendInput(
+                translate_string=pb.TranslateStringIn(group=group, key=key, args=args)
+            )
+        ).translate_string
