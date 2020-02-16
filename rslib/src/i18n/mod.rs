@@ -25,6 +25,7 @@ macro_rules! tr_strs {
         }
     };
 }
+use std::collections::HashMap;
 pub use tr_strs;
 
 /// The folder containing ftl files for the provided language.
@@ -124,13 +125,13 @@ impl I18n {
             inner: Arc::new(Mutex::new(I18nInner {
                 langs,
                 available_ftl_folders: supported,
+                cache: Default::default(),
             })),
         }
     }
 
-    pub fn get(&self, group: StringsGroup) -> I18nCategory {
-        let inner = self.inner.lock().unwrap();
-        I18nCategory::new(&*inner.langs, &*inner.available_ftl_folders, group)
+    pub fn get(&self, group: StringsGroup) -> Arc<I18nCategory> {
+        self.inner.lock().unwrap().get(group)
     }
 }
 
@@ -139,6 +140,19 @@ struct I18nInner {
     langs: Vec<LanguageIdentifier>,
     // the available ftl folder subset of the user's preferred languages
     available_ftl_folders: Vec<PathBuf>,
+    cache: HashMap<StringsGroup, Arc<I18nCategory>>,
+}
+
+impl I18nInner {
+    pub fn get(&mut self, group: StringsGroup) -> Arc<I18nCategory> {
+        let langs = &self.langs;
+        let avail = &self.available_ftl_folders;
+
+        self.cache
+            .entry(group)
+            .or_insert_with(|| Arc::new(I18nCategory::new(langs, avail, group)))
+            .clone()
+    }
 }
 
 pub struct I18nCategory {
