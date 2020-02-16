@@ -11,6 +11,7 @@ use unic_langid::LanguageIdentifier;
 pub use fluent::fluent_args as tr_args;
 
 pub use crate::backend_proto::StringsGroup;
+
 /// Helper for creating args with &strs
 #[macro_export]
 macro_rules! tr_strs {
@@ -61,6 +62,7 @@ fn ftl_fallback_for_group(group: StringsGroup) -> String {
         StringsGroup::Test => include_str!("../../tests/support/test.ftl"),
         StringsGroup::MediaCheck => include_str!("media-check.ftl"),
         StringsGroup::CardTemplates => include_str!("card-template-rendering.ftl"),
+        StringsGroup::Sync => include_str!("sync.ftl"),
     }
     .to_string()
 }
@@ -77,6 +79,7 @@ fn localized_ftl_for_group(
             StringsGroup::Test => "test.ftl",
             StringsGroup::MediaCheck => "media-check.ftl",
             StringsGroup::CardTemplates => "card-template-rendering.ftl",
+            StringsGroup::Sync => "sync.ftl",
         });
     fs::read_to_string(&path)
         .map_err(|e| {

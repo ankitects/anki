@@ -5,7 +5,7 @@ use crate::backend_proto as pb;
 use crate::backend_proto::backend_input::Value;
 use crate::backend_proto::{Empty, RenderedTemplateReplacement, SyncMediaIn};
 use crate::err::{AnkiError, NetworkErrorKind, Result, SyncErrorKind};
-use crate::i18n::I18n;
+use crate::i18n::{tr_args, I18n, StringsGroup};
 use crate::latex::{extract_latex, ExtractedLatex};
 use crate::media::check::MediaChecker;
 use crate::media::sync::MediaSyncProgress;
@@ -198,7 +198,7 @@ impl Backend {
 
     fn fire_progress_callback(&self, progress: Progress) -> bool {
         if let Some(cb) = &self.progress_callback {
-            let bytes = progress_to_proto_bytes(progress);
+            let bytes = progress_to_proto_bytes(progress, &self.i18n);
             cb(bytes)
         } else {
             true
@@ -406,21 +406,35 @@ fn rendered_node_to_proto(node: RenderedNode) -> pb::rendered_template_node::Val
     }
 }
 
-fn progress_to_proto_bytes(progress: Progress) -> Vec<u8> {
+fn progress_to_proto_bytes(progress: Progress, i18n: &I18n) -> Vec<u8> {
     let proto = pb::Progress {
         value: Some(match progress {
-            Progress::MediaSync(p) => pb::progress::Value::MediaSync(pb::MediaSyncProgress {
-                checked: p.checked as u32,
-                downloaded_files: p.downloaded_files as u32,
-                downloaded_deletions: p.downloaded_deletions as u32,
-                uploaded_files: p.uploaded_files as u32,
-                uploaded_deletions: p.uploaded_deletions as u32,
-            }),
-            Progress::MediaCheck(n) => pb::progress::Value::MediaCheck(n),
+            Progress::MediaSync(p) => pb::progress::Value::MediaSync(media_sync_progress(p, i18n)),
+            Progress::MediaCheck(n) => {
+                let s = i18n
+                    .get(StringsGroup::MediaCheck)
+                    .trn("checked", tr_args!["count"=>n]);
+                pb::progress::Value::MediaCheck(s)
+            }
         }),
     };
 
     let mut buf = vec![];
     proto.encode(&mut buf).expect("encode failed");
     buf
+}
+
+fn media_sync_progress(p: &MediaSyncProgress, i18n: &I18n) -> pb::MediaSyncProgress {
+    let cat = i18n.get(StringsGroup::Sync);
+    pb::MediaSyncProgress {
+        checked: cat.trn("media-checked-count", tr_args!["count"=>p.checked]),
+        added: cat.trn(
+            "media-added-count",
+            tr_args!["up"=>p.uploaded_files,"down"=>p.downloaded_files],
+        ),
+        removed: cat.trn(
+            "media-removed-count",
+            tr_args!["up"=>p.uploaded_deletions,"down"=>p.downloaded_deletions],
+        ),
+    }
 }
