@@ -106,6 +106,33 @@ compatMap = {
     "vi": "vi_VN",
 }
 
+
+def lang_to_disk_lang(lang: str) -> str:
+    """Normalize lang, then convert it to name used on disk."""
+    # convert it into our canonical representation first
+    lang = lang.replace("-", "_")
+    if lang in compatMap:
+        lang = compatMap[lang]
+
+    # these language/region combinations are fully qualified, but with a hyphen
+    if lang in (
+        "en_GB",
+        "es_ES",
+        "ga_IE",
+        "hy_AM",
+        "nb_NO",
+        "nn_NO",
+        "pt_BR",
+        "pt_PT",
+        "sv_SE",
+        "zh_CN",
+        "zh_TW",
+    ):
+        return lang.replace("_", "-")
+    # other languages have the region portion stripped
+    return re.match("(.*)_", lang).group(1)
+
+
 threadLocal = threading.local()
 
 # global defaults
@@ -131,7 +158,6 @@ def ngettext(single: str, plural: str, n: int) -> str:
 
 
 def setLang(lang: str, locale_dir: str, local: bool = True) -> None:
-    lang = mungeCode(lang)
     trans = gettext.translation("anki", locale_dir, languages=[lang], fallback=True)
     if local:
         threadLocal.currentLang = lang
@@ -155,14 +181,6 @@ def getLang() -> str:
 def noHint(str) -> str:
     "Remove translation hint from end of string."
     return re.sub(r"(^.*?)( ?\(.+?\))?$", "\\1", str)
-
-
-def mungeCode(code: str) -> Any:
-    code = code.replace("-", "_")
-    if code in compatMap:
-        code = compatMap[code]
-
-    return code
 
 
 if not currentTranslation:
