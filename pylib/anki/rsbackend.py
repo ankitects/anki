@@ -147,7 +147,7 @@ class ProgressKind(enum.Enum):
 @dataclass
 class Progress:
     kind: ProgressKind
-    val: Union[MediaSyncProgress, int]
+    val: Union[MediaSyncProgress, str]
 
 
 def proto_replacement_list_to_native(

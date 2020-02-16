@@ -17,6 +17,7 @@ enum StringsGroup {
     TEST = 1;
     MEDIA_CHECK = 2;
     CARD_TEMPLATES = 3;
+    SYNC = 4;
 }
 
 // 1-15 reserved for future use; 2047 for errors
@@ -78,7 +79,7 @@ message BackendError {
 message Progress {
     oneof value {
         MediaSyncProgress media_sync = 1;
-        uint32 media_check = 2;
+        string media_check = 2;
     }
 }
 
@@ -117,11 +118,9 @@ message SyncError {
 }
 
 message MediaSyncProgress {
-    uint32 checked = 1;
-    uint32 downloaded_files = 2;
-    uint32 downloaded_deletions = 3;
-    uint32 uploaded_files = 4;
-    uint32 uploaded_deletions = 5;
+    string checked = 1;
+    string added = 2;
+    string removed = 3;
 }
 
 message MediaSyncUploadProgress {

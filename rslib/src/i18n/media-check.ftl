@@ -17,3 +17,5 @@ oversize-file = Over 100MB: {$filename}
 subfolder-file = Folder: {$filename}
 missing-file = Missing: {$filename}
 unused-file = Unused: {$filename}
+
+checked = Checked {$count}...

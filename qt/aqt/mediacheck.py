@@ -51,9 +51,7 @@ class MediaChecker:
         if self.progress_dialog.wantCancel:
             return False
 
-        self.mw.taskman.run_on_main(
-            lambda: self.mw.progress.update(_("Checked {}...").format(progress.val))
-        )
+        self.mw.taskman.run_on_main(lambda: self.mw.progress.update(progress.val))
         return True
 
     def _check(self) -> MediaCheckOutput:
