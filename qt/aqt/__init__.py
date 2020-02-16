@@ -175,8 +175,7 @@ def setupLang(
 
     # load gettext catalog
     ldir = locale_dir()
-    gettext_dir = os.path.join(ldir, "gettext")
-    anki.lang.setLang(lang, gettext_dir, local=False)
+    anki.lang.set_lang(lang, ldir)
 
     # switch direction for RTL languages
     if lang in ("he", "ar", "fa"):

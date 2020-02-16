@@ -442,7 +442,7 @@ please see:
         sql = "update profiles set data = ? where name = ?"
         self.db.execute(sql, self._pickle(self.meta), "_global")
         self.db.commit()
-        anki.lang.setLang(code, locale_dir(), local=False)
+        anki.lang.set_lang(code, locale_dir())
 
     # OpenGL
     ######################################################################
