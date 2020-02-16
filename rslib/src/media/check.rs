@@ -3,7 +3,7 @@
 
 use crate::cloze::expand_clozes_to_reveal_latex;
 use crate::err::{AnkiError, Result};
-use crate::i18n::{tr_args, tr_strs, I18n, TranslationFile};
+use crate::i18n::{tr_args, tr_strs, I18n, StringsGroup};
 use crate::latex::extract_latex;
 use crate::media::col::{
     for_every_note, get_note_types, mark_collection_modified, open_or_create_collection_db,
@@ -89,7 +89,7 @@ where
 
     pub fn summarize_output(&self, output: &mut MediaCheckOutput) -> String {
         let mut buf = String::new();
-        let cat = self.i18n.get(TranslationFile::MediaCheck);
+        let cat = self.i18n.get(StringsGroup::MediaCheck);
 
         // top summary area
         buf += &cat.trn("missing-count", tr_args!["count"=>output.missing.len()]);

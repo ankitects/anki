@@ -12,6 +12,13 @@ message BackendInit {
     string locale_folder_path = 5;
 }
 
+enum StringsGroup {
+    OTHER = 0;
+    TEST = 1;
+    MEDIA_CHECK = 2;
+    CARD_TEMPLATES = 3;
+}
+
 // 1-15 reserved for future use; 2047 for errors
 
 message BackendInput {
