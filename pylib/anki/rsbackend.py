@@ -180,7 +180,7 @@ def proto_progress_to_native(progress: pb.Progress) -> Progress:
 
 class RustBackend:
     def __init__(self, col_path: str, media_folder_path: str, media_db_path: str):
-        ftl_folder = os.path.join(anki.lang.locale_folder, "ftl")
+        ftl_folder = os.path.join(anki.lang.locale_folder, "fluent")
         init_msg = pb.BackendInit(
             collection_path=col_path,
             media_folder_path=media_folder_path,
