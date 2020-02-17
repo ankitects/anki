@@ -66,7 +66,6 @@ impl AnkiError {
                     SyncErrorKind::ServerError => cat.tr("server-error"),
                     SyncErrorKind::ClientTooOld => cat.tr("client-too-old"),
                     SyncErrorKind::AuthFailed => cat.tr("wrong-pass"),
-                    SyncErrorKind::MediaCheckRequired => cat.tr("media-check-required"),
                     SyncErrorKind::ResyncRequired => cat.tr("resync-required"),
                 }
                 .into()
@@ -160,7 +159,6 @@ pub enum SyncErrorKind {
     AuthFailed,
     ServerMessage,
     Other,
-    MediaCheckRequired,
     ResyncRequired,
 }
 
