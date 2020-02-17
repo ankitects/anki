@@ -725,7 +725,7 @@ class AddonsDialog(QDialog):
         if min is not None and min > current_point_version:
             return f"Anki >= 2.1.{min}"
         else:
-            max = addon.max_point_version
+            max = abs(addon.max_point_version)
             return f"Anki <= 2.1.{max}"
 
     def should_grey(self, addon: AddonMeta):
