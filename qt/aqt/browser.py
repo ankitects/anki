@@ -790,10 +790,11 @@ class Browser(QMainWindow):
     def search(self) -> None:
         if "is:current" in self._lastSearchTxt:
             # show current card if there is one
-            c = self.mw.reviewer.card
-            self.card = self.mw.reviewer.card
+            c = self.card = self.mw.reviewer.card
             nid = c and c.nid or 0
-            self.model.search("nid:%d" % nid)
+            if nid:
+                self.model.search("nid:%d" % nid)
+                self.focusCid(c.id)
         else:
             self.model.search(self._lastSearchTxt)
 
