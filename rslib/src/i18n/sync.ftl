@@ -22,6 +22,5 @@ server-error = AnkiWeb encountered a problem. Please try again in a few minutes.
 client-too-old =
   Your Anki version is too old. Please update to the latest version to continue syncing.
 wrong-pass = AnkiWeb ID or password was incorrect; please try again.
-media-check-required = A problem occurred while syncing media. Please use the Check Media function, then synchronize again to correct the issue.
 resync-required =
   Please sync again. If this message keeps appearing, please post on the support site.
