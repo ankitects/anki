@@ -781,6 +781,55 @@ class _OverviewDidRefreshHook:
 overview_did_refresh = _OverviewDidRefreshHook()
 
 
+class _OverviewWillRenderContentHook:
+    """Used to modify HTML content sections in the overview body
+
+        'content' contains the sections of HTML content the overview body
+        will be updated with.
+
+        When modifying the content of a particular section, please make sure your
+        changes only perform the minimum required edits to make your add-on work.
+        You should avoid overwriting or interfering with existing data as much
+        as possible, instead opting to append your own changes, e.g.:
+
+            def on_overview_will_render_content(overview, content):
+                content.table += "
+<div>my html</div>"
+        """
+
+    _hooks: List[
+        Callable[["aqt.overview.Overview", "aqt.overview.OverviewContent"], None]
+    ] = []
+
+    def append(
+        self,
+        cb: Callable[["aqt.overview.Overview", "aqt.overview.OverviewContent"], None],
+    ) -> None:
+        """(overview: aqt.overview.Overview, content: aqt.overview.OverviewContent)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self,
+        cb: Callable[["aqt.overview.Overview", "aqt.overview.OverviewContent"], None],
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(
+        self, overview: aqt.overview.Overview, content: aqt.overview.OverviewContent
+    ) -> None:
+        for hook in self._hooks:
+            try:
+                hook(overview, content)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+overview_will_render_content = _OverviewWillRenderContentHook()
+
+
 class _ProfileDidOpenHook:
     _hooks: List[Callable[[], None]] = []
 
