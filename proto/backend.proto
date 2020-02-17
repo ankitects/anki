@@ -18,6 +18,7 @@ enum StringsGroup {
     MEDIA_CHECK = 2;
     CARD_TEMPLATES = 3;
     SYNC = 4;
+    NETWORK = 5;
 }
 
 // 1-15 reserved for future use; 2047 for errors
@@ -102,6 +103,7 @@ message NetworkError {
         PROXY_AUTH = 3;
     }
     NetworkErrorKind kind = 2;
+    string localized = 3;
 }
 
 message SyncError {
@@ -117,6 +119,7 @@ message SyncError {
         RESYNC_REQUIRED = 7;
     }
     SyncErrorKind kind = 2;
+    string localized = 3;
 }
 
 message MediaSyncProgress {

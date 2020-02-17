@@ -39,33 +39,34 @@ enum Progress<'a> {
 }
 
 /// Convert an Anki error to a protobuf error.
-impl std::convert::From<AnkiError> for pb::BackendError {
-    fn from(err: AnkiError) -> Self {
-        use pb::backend_error::Value as V;
-        let value = match err {
-            AnkiError::InvalidInput { info } => V::InvalidInput(pb::StringError { info }),
-            AnkiError::TemplateError { info } => V::TemplateParse(pb::TemplateParseError { info }),
-            AnkiError::IOError { info } => V::IoError(pb::StringError { info }),
-            AnkiError::DBError { info } => V::DbError(pb::StringError { info }),
-            AnkiError::NetworkError { info, kind } => V::NetworkError(pb::NetworkError {
-                info,
-                kind: kind.into(),
-            }),
-            AnkiError::SyncError { info, kind } => V::SyncError(pb::SyncError {
-                info,
-                kind: kind.into(),
-            }),
-            AnkiError::Interrupted => V::Interrupted(Empty {}),
-        };
+fn anki_error_to_proto_error(err: AnkiError, i18n: &I18n) -> pb::BackendError {
+    use pb::backend_error::Value as V;
+    let localized = err.localized_description(i18n);
+    let value = match err {
+        AnkiError::InvalidInput { info } => V::InvalidInput(pb::StringError { info }),
+        AnkiError::TemplateError { info } => V::TemplateParse(pb::TemplateParseError { info }),
+        AnkiError::IOError { info } => V::IoError(pb::StringError { info }),
+        AnkiError::DBError { info } => V::DbError(pb::StringError { info }),
+        AnkiError::NetworkError { info, kind } => V::NetworkError(pb::NetworkError {
+            info,
+            kind: kind.into(),
+            localized,
+        }),
+        AnkiError::SyncError { info, kind } => V::SyncError(pb::SyncError {
+            info,
+            kind: kind.into(),
+            localized,
+        }),
+        AnkiError::Interrupted => V::Interrupted(Empty {}),
+    };
 
-        pb::BackendError { value: Some(value) }
-    }
+    pb::BackendError { value: Some(value) }
 }
 
 // Convert an Anki error to a protobuf output.
-impl std::convert::From<AnkiError> for pb::backend_output::Value {
-    fn from(err: AnkiError) -> Self {
-        pb::backend_output::Value::Error(err.into())
+impl std::convert::From<pb::BackendError> for pb::backend_output::Value {
+    fn from(err: pb::BackendError) -> Self {
+        pb::backend_output::Value::Error(err)
     }
 }
 
@@ -136,8 +137,9 @@ impl Backend {
             Err(_e) => {
                 // unable to decode
                 let err = AnkiError::invalid_input("couldn't decode backend request");
+                let oerr = anki_error_to_proto_error(err, &self.i18n);
                 let output = pb::BackendOutput {
-                    value: Some(err.into()),
+                    value: Some(oerr.into()),
                 };
                 output.encode(&mut buf).expect("encode failed");
                 return buf;
@@ -153,10 +155,14 @@ impl Backend {
         let oval = if let Some(ival) = input.value {
             match self.run_command_inner(ival) {
                 Ok(output) => output,
-                Err(err) => err.into(),
+                Err(err) => anki_error_to_proto_error(err, &self.i18n).into(),
             }
         } else {
-            AnkiError::invalid_input("unrecognized backend input value").into()
+            anki_error_to_proto_error(
+                AnkiError::invalid_input("unrecognized backend input value"),
+                &self.i18n,
+            )
+            .into()
         };
 
         pb::BackendOutput { value: Some(oval) }

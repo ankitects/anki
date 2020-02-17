@@ -37,6 +37,9 @@ class NetworkError(StringError):
     def kind(self) -> NetworkErrorKind:
         return self.args[1]
 
+    def localized(self) -> str:
+        return self.args[2]
+
 
 class IOError(StringError):
     pass
@@ -57,6 +60,9 @@ class SyncError(StringError):
     def kind(self) -> SyncErrorKind:
         return self.args[1]
 
+    def localized(self) -> str:
+        return self.args[2]
+
 
 def proto_exception_to_native(err: pb.BackendError) -> Exception:
     val = err.WhichOneof("value")
@@ -64,7 +70,7 @@ def proto_exception_to_native(err: pb.BackendError) -> Exception:
         return Interrupted()
     elif val == "network_error":
         e = err.network_error
-        return NetworkError(e.info, e.kind)
+        return NetworkError(e.info, e.kind, e.localized)
     elif val == "io_error":
         return IOError(err.io_error.info)
     elif val == "db_error":
@@ -75,7 +81,7 @@ def proto_exception_to_native(err: pb.BackendError) -> Exception:
         return StringError(err.invalid_input.info)
     elif val == "sync_error":
         e2 = err.sync_error
-        return SyncError(e2.info, e2.kind)
+        return SyncError(e2.info, e2.kind, e2.localized)
     else:
         assert_impossible_literal(val)
 

@@ -10,18 +10,14 @@ from typing import List, Union
 
 import aqt
 from anki import hooks
-from anki.lang import _
 from anki.rsbackend import (
-    DBError,
     Interrupted,
     MediaSyncProgress,
     NetworkError,
-    NetworkErrorKind,
     Progress,
     ProgressKind,
     StringsGroup,
     SyncError,
-    SyncErrorKind,
 )
 from anki.types import assert_impossible
 from anki.utils import intTime
@@ -114,40 +110,10 @@ class MediaSyncer:
 
         self._log_and_notify(tr(StringsGroup.SYNC, "media-failed"))
         if isinstance(exc, SyncError):
-            kind = exc.kind()
-            if kind == SyncErrorKind.AUTH_FAILED:
-                self.mw.pm.set_sync_key(None)
-                showWarning(
-                    _("AnkiWeb ID or password was incorrect; please try again.")
-                )
-            elif kind == SyncErrorKind.SERVER_ERROR:
-                showWarning(
-                    _(
-                        "AnkiWeb encountered a problem. Please try again in a few minutes."
-                    )
-                )
-            elif kind == SyncErrorKind.MEDIA_CHECK_REQUIRED:
-                showWarning(_("Please use the Tools>Check Media menu option."))
-            elif kind == SyncErrorKind.RESYNC_REQUIRED:
-                showWarning(
-                    _(
-                        "Please sync again, and post on the support forum if this message keeps appearing."
-                    )
-                )
-            else:
-                showWarning(_("Unexpected error: {}").format(str(exc)))
+            showWarning(exc.localized())
         elif isinstance(exc, NetworkError):
-            nkind = exc.kind()
-            if nkind in (NetworkErrorKind.OFFLINE, NetworkErrorKind.TIMEOUT):
-                showWarning(
-                    _("Syncing failed; please check your internet connection.")
-                    + "\n\n"
-                    + _("Detailed error: {}").format(str(exc))
-                )
-            else:
-                showWarning(_("Unexpected error: {}").format(str(exc)))
-        elif isinstance(exc, DBError):
-            showWarning(_("Problem accessing the media database: {}").format(str(exc)))
+            msg = exc.localized()
+            msg += "\n\n" + tr(StringsGroup.NETWORK, "details", details=str(exc))
         else:
             raise exc
 
