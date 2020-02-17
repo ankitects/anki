@@ -19,6 +19,7 @@ from anki.rsbackend import (
     NetworkErrorKind,
     Progress,
     ProgressKind,
+    StringsGroup,
     SyncError,
     SyncErrorKind,
 )
@@ -26,7 +27,7 @@ from anki.types import assert_impossible
 from anki.utils import intTime
 from aqt import gui_hooks
 from aqt.qt import QDialog, QDialogButtonBox, QPushButton
-from aqt.utils import showWarning
+from aqt.utils import showWarning, tr
 
 LogEntry = Union[MediaSyncProgress, str]
 
@@ -68,10 +69,10 @@ class MediaSyncer:
             return
 
         if not self.mw.pm.media_syncing_enabled():
-            self._log_and_notify(_("Media syncing disabled."))
+            self._log_and_notify(tr(StringsGroup.SYNC, "media-disabled"))
             return
 
-        self._log_and_notify(_("Media sync starting..."))
+        self._log_and_notify(tr(StringsGroup.SYNC, "media-starting"))
         self._syncing = True
         self._want_stop = False
         gui_hooks.media_sync_did_start_or_stop(True)
@@ -104,14 +105,14 @@ class MediaSyncer:
         if exc is not None:
             self._handle_sync_error(exc)
         else:
-            self._log_and_notify(_("Media sync complete."))
+            self._log_and_notify(tr(StringsGroup.SYNC, "media-complete"))
 
     def _handle_sync_error(self, exc: BaseException):
         if isinstance(exc, Interrupted):
-            self._log_and_notify(_("Media sync aborted."))
+            self._log_and_notify(tr(StringsGroup.SYNC, "media-aborted"))
             return
 
-        self._log_and_notify(_("Media sync failed."))
+        self._log_and_notify(tr(StringsGroup.SYNC, "media-failed"))
         if isinstance(exc, SyncError):
             kind = exc.kind()
             if kind == SyncErrorKind.AUTH_FAILED:
@@ -156,7 +157,7 @@ class MediaSyncer:
     def abort(self) -> None:
         if not self.is_syncing():
             return
-        self._log_and_notify(_("Media sync aborting..."))
+        self._log_and_notify(tr(StringsGroup.SYNC, "media-aborting"))
         self._want_stop = True
 
     def is_syncing(self) -> bool:
@@ -199,7 +200,7 @@ class MediaSyncDialog(QDialog):
         self._close_when_done = close_when_done
         self.form = aqt.forms.synclog.Ui_Dialog()
         self.form.setupUi(self)
-        self.abort_button = QPushButton(_("Abort"))
+        self.abort_button = QPushButton(tr(StringsGroup.SYNC, "abort"))
         self.abort_button.clicked.connect(self._on_abort)  # type: ignore
         self.abort_button.setAutoDefault(False)
         self.form.buttonBox.addButton(self.abort_button, QDialogButtonBox.ActionRole)
