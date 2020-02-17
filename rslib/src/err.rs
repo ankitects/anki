@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use crate::i18n::{I18n, StringsGroup};
 pub use failure::{Error, Fail};
 use reqwest::StatusCode;
 use std::io;
@@ -51,6 +52,36 @@ impl AnkiError {
         AnkiError::SyncError {
             info: msg.into(),
             kind: SyncErrorKind::Other,
+        }
+    }
+
+    pub fn localized_description(&self, i18n: &I18n) -> String {
+        match self {
+            AnkiError::SyncError { info, kind } => {
+                let cat = i18n.get(StringsGroup::Sync);
+                match kind {
+                    SyncErrorKind::ServerMessage => info.into(),
+                    SyncErrorKind::Other => info.into(),
+                    SyncErrorKind::Conflict => cat.tr("conflict"),
+                    SyncErrorKind::ServerError => cat.tr("server-error"),
+                    SyncErrorKind::ClientTooOld => cat.tr("client-too-old"),
+                    SyncErrorKind::AuthFailed => cat.tr("wrong-pass"),
+                    SyncErrorKind::MediaCheckRequired => cat.tr("media-check-required"),
+                    SyncErrorKind::ResyncRequired => cat.tr("resync-required"),
+                }
+                .into()
+            }
+            AnkiError::NetworkError { kind, .. } => {
+                let cat = i18n.get(StringsGroup::Network);
+                match kind {
+                    NetworkErrorKind::Offline => cat.tr("offline"),
+                    NetworkErrorKind::Timeout => cat.tr("timeout"),
+                    NetworkErrorKind::ProxyAuth => cat.tr("proxy-auth"),
+                    NetworkErrorKind::Other => cat.tr("other"),
+                }
+                .into()
+            }
+            _ => "".into(),
         }
     }
 }
