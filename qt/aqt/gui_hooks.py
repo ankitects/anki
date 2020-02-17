@@ -435,51 +435,41 @@ class _DeckBrowserDidRenderHook:
 deck_browser_did_render = _DeckBrowserDidRenderHook()
 
 
-class _DeckBrowserWillRenderSectionFilter:
+class _DeckBrowserWillRenderContentHook:
     """Used to modify HTML content sections in the deck browser body
         
-        'html' is the content a particular section will be populated with
+        'content' contains the sections of HTML content the deck browser body
+        will be updated with.
         
-        'section' is an enum describing the current section. For an overview
-        of all the possible values please see aqt.deckbrowser.DeckBrowserSection.
-
-        If you do not want to modify the content of a particular section,
-        return 'html' unmodified, e.g.:
+        When modifying the content of a particular section, please make sure your
+        changes only perform the minimum required edits to make your add-on work.
+        You should avoid overwriting or interfering with existing data as much
+        as possible, instead opting to append your own changes, e.g.:
         
-            def on_deck_browser_will_render_section(html, section, deck_browser):
-                
-                if section != DeckBrowserSection.TREE:
-                    # not the tree section we want to modify, return unchanged
-                    return html
-
-                # tree section, perform changes to html
-                html += "<div>my code</div>"
-                
-                return html
+            def on_deck_browser_will_render_content(deck_browser, content):
+                content.stats += "
+<div>my html</div>"
         """
 
     _hooks: List[
         Callable[
-            [str, "aqt.deckbrowser.DeckBrowserSection", "aqt.deckbrowser.DeckBrowser"],
-            str,
+            ["aqt.deckbrowser.DeckBrowser", "aqt.deckbrowser.DeckBrowserContent"], None
         ]
     ] = []
 
     def append(
         self,
         cb: Callable[
-            [str, "aqt.deckbrowser.DeckBrowserSection", "aqt.deckbrowser.DeckBrowser"],
-            str,
+            ["aqt.deckbrowser.DeckBrowser", "aqt.deckbrowser.DeckBrowserContent"], None
         ],
     ) -> None:
-        """(html: str, section: aqt.deckbrowser.DeckBrowserSection, deck_browser: aqt.deckbrowser.DeckBrowser)"""
+        """(deck_browser: aqt.deckbrowser.DeckBrowser, content: aqt.deckbrowser.DeckBrowserContent)"""
         self._hooks.append(cb)
 
     def remove(
         self,
         cb: Callable[
-            [str, "aqt.deckbrowser.DeckBrowserSection", "aqt.deckbrowser.DeckBrowser"],
-            str,
+            ["aqt.deckbrowser.DeckBrowser", "aqt.deckbrowser.DeckBrowserContent"], None
         ],
     ) -> None:
         if cb in self._hooks:
@@ -487,21 +477,19 @@ class _DeckBrowserWillRenderSectionFilter:
 
     def __call__(
         self,
-        html: str,
-        section: aqt.deckbrowser.DeckBrowserSection,
         deck_browser: aqt.deckbrowser.DeckBrowser,
-    ) -> str:
-        for filter in self._hooks:
+        content: aqt.deckbrowser.DeckBrowserContent,
+    ) -> None:
+        for hook in self._hooks:
             try:
-                html = filter(html, section, deck_browser)
+                hook(deck_browser, content)
             except:
                 # if the hook fails, remove it
-                self._hooks.remove(filter)
+                self._hooks.remove(hook)
                 raise
-        return html
 
 
-deck_browser_will_render_section = _DeckBrowserWillRenderSectionFilter()
+deck_browser_will_render_content = _DeckBrowserWillRenderContentHook()
 
 
 class _DeckBrowserWillShowOptionsMenuHook:

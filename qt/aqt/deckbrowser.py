@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from enum import Enum
+from dataclasses import dataclass
 from typing import Any
 
 import aqt
@@ -24,10 +24,20 @@ class DeckBrowserBottomBar:
         self.deck_browser = deck_browser
 
 
-class DeckBrowserSection(Enum):
-    TREE = 0
-    STATS = 1
-    WARN = 2
+@dataclass
+class DeckBrowserContent:
+    """Stores sections of HTML content that the deck browser will be
+    populated with.
+    
+    Attributes:
+        tree {str} -- HTML of the deck tree section
+        stats {str} -- HTML of the stats section
+        countwarn {str} -- HTML of the deck count warning section
+    """
+
+    tree: str
+    stats: str
+    countwarn: str
 
 
 class DeckBrowser:
@@ -110,17 +120,14 @@ class DeckBrowser:
         gui_hooks.deck_browser_did_render(self)
 
     def __renderPage(self, offset):
-        tree = gui_hooks.deck_browser_will_render_section(
-            self._renderDeckTree(self._dueTree), DeckBrowserSection.TREE, self
+        content = DeckBrowserContent(
+            tree=self._renderDeckTree(self._dueTree),
+            stats=self._renderStats(),
+            countwarn=self._countWarn(),
         )
-        stats = gui_hooks.deck_browser_will_render_section(
-            self._renderStats(), DeckBrowserSection.STATS, self
-        )
-        warn = gui_hooks.deck_browser_will_render_section(
-            self._countWarn(), DeckBrowserSection.WARN, self
-        )
+        gui_hooks.deck_browser_will_render_content(self, content)
         self.web.stdHtml(
-            self._body % dict(tree=tree, stats=stats, countwarn=warn),
+            self._body % content.__dict__,
             css=["deckbrowser.css"],
             js=["jquery.js", "jquery-ui.js", "deckbrowser.js"],
             context=self,

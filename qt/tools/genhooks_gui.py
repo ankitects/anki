@@ -31,33 +31,23 @@ hooks = [
         doc="""Allow to update the deck browser window. E.g. change its title.""",
     ),
     Hook(
-        name="deck_browser_will_render_section",
+        name="deck_browser_will_render_content",
         args=[
-            "html: str",
-            "section: aqt.deckbrowser.DeckBrowserSection",
             "deck_browser: aqt.deckbrowser.DeckBrowser",
+            "content: aqt.deckbrowser.DeckBrowserContent",
         ],
-        return_type="str",
         doc="""Used to modify HTML content sections in the deck browser body
         
-        'html' is the content a particular section will be populated with
+        'content' contains the sections of HTML content the deck browser body
+        will be updated with.
         
-        'section' is an enum describing the current section. For an overview
-        of all the possible values please see aqt.deckbrowser.DeckBrowserSection.
-
-        If you do not want to modify the content of a particular section,
-        return 'html' unmodified, e.g.:
+        When modifying the content of a particular section, please make sure your
+        changes only perform the minimum required edits to make your add-on work.
+        You should avoid overwriting or interfering with existing data as much
+        as possible, instead opting to append your own changes, e.g.:
         
-            def on_deck_browser_will_render_section(html, section, deck_browser):
-                
-                if section != DeckBrowserSection.TREE:
-                    # not the tree section we want to modify, return unchanged
-                    return html
-
-                # tree section, perform changes to html
-                html += "<div>my code</div>"
-                
-                return html
+            def on_deck_browser_will_render_content(deck_browser, content):
+                content.stats += "\n<div>my html</div>"
         """,
     ),
     Hook(
