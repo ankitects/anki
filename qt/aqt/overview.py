@@ -21,6 +21,16 @@ class OverviewBottomBar:
 
 @dataclass
 class OverviewContent:
+    """Stores sections of HTML content that the overview will be
+    populated with.
+
+    Attributes:
+        deck {str} -- Plain text deck name
+        shareLink {str} -- HTML of the share link section
+        desc {str} -- HTML of the deck description section
+        table {str} -- HTML of the deck stats table section
+    """
+
     deck: str
     shareLink: str
     desc: str
