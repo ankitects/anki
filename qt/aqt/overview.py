@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+
 import aqt
 from anki.lang import _
 from aqt import gui_hooks
@@ -15,6 +17,24 @@ from aqt.utils import askUserDialog, openLink, shortcut, tooltip
 class OverviewBottomBar:
     def __init__(self, overview: Overview):
         self.overview = overview
+
+
+@dataclass
+class OverviewContent:
+    """Stores sections of HTML content that the overview will be
+    populated with.
+
+    Attributes:
+        deck {str} -- Plain text deck name
+        shareLink {str} -- HTML of the share link section
+        desc {str} -- HTML of the deck description section
+        table {str} -- HTML of the deck stats table section
+    """
+
+    deck: str
+    shareLink: str
+    desc: str
+    table: str
 
 
 class Overview:
@@ -141,14 +161,15 @@ class Overview:
             shareLink = '<a class=smallLink href="review">Reviews and Updates</a>'
         else:
             shareLink = ""
+        content = OverviewContent(
+            deck=deck["name"],
+            shareLink=shareLink,
+            desc=self._desc(deck),
+            table=self._table(),
+        )
+        gui_hooks.overview_will_render_content(self, content)
         self.web.stdHtml(
-            self._body
-            % dict(
-                deck=deck["name"],
-                shareLink=shareLink,
-                desc=self._desc(deck),
-                table=self._table(),
-            ),
+            self._body % content.__dict__,
             css=["overview.css"],
             js=["jquery.js", "overview.js"],
             context=self,

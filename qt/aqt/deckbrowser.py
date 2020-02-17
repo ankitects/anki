@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from dataclasses import dataclass
 from typing import Any
 
 import aqt
@@ -30,6 +31,22 @@ from aqt.utils import (
 class DeckBrowserBottomBar:
     def __init__(self, deck_browser: DeckBrowser):
         self.deck_browser = deck_browser
+
+
+@dataclass
+class DeckBrowserContent:
+    """Stores sections of HTML content that the deck browser will be
+    populated with.
+    
+    Attributes:
+        tree {str} -- HTML of the deck tree section
+        stats {str} -- HTML of the stats section
+        countwarn {str} -- HTML of the deck count warning section
+    """
+
+    tree: str
+    stats: str
+    countwarn: str
 
 
 class DeckBrowser:
@@ -112,10 +129,14 @@ class DeckBrowser:
         gui_hooks.deck_browser_did_render(self)
 
     def __renderPage(self, offset):
-        tree = self._renderDeckTree(self._dueTree)
-        stats = self._renderStats()
+        content = DeckBrowserContent(
+            tree=self._renderDeckTree(self._dueTree),
+            stats=self._renderStats(),
+            countwarn=self._countWarn(),
+        )
+        gui_hooks.deck_browser_will_render_content(self, content)
         self.web.stdHtml(
-            self._body % dict(tree=tree, stats=stats, countwarn=self._countWarn()),
+            self._body % content.__dict__,
             css=["deckbrowser.css"],
             js=["jquery.js", "jquery-ui.js", "deckbrowser.js"],
             context=self,
