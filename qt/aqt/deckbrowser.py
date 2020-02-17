@@ -10,12 +10,21 @@ from typing import Any
 import aqt
 from anki.errors import DeckRenameError
 from anki.lang import _, ngettext
+from anki.rsbackend import StringsGroup
 from anki.utils import fmtTimeSpan, ids2str
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.sound import av_player
 from aqt.toolbar import BottomBar
-from aqt.utils import askUser, getOnlyText, openHelp, openLink, shortcut, showWarning
+from aqt.utils import (
+    askUser,
+    getOnlyText,
+    openHelp,
+    openLink,
+    shortcut,
+    showWarning,
+    tr,
+)
 
 
 class DeckBrowserBottomBar:
@@ -160,7 +169,7 @@ where id > ?""",
 <tr><th colspan=5 align=left>%s</th><th class=count>%s</th>
 <th class=count>%s</th><th class=optscol></th></tr>""" % (
                 _("Deck"),
-                _("Due"),
+                tr(StringsGroup.STATISTICS, "due-count"),
                 _("New"),
             )
             buf += self._topLevelDragRow()

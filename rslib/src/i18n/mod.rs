@@ -57,6 +57,8 @@ fn ftl_fallback_for_group(group: StringsGroup) -> String {
         StringsGroup::CardTemplates => include_str!("card-template-rendering.ftl"),
         StringsGroup::Sync => include_str!("sync.ftl"),
         StringsGroup::Network => include_str!("network.ftl"),
+        StringsGroup::Statistics => include_str!("statistics.ftl"),
+        StringsGroup::Filtering => include_str!("filtering.ftl"),
     }
     .to_string()
 }
@@ -71,6 +73,8 @@ fn localized_ftl_for_group(group: StringsGroup, lang_ftl_folder: &Path) -> Optio
         StringsGroup::CardTemplates => "card-template-rendering.ftl",
         StringsGroup::Sync => "sync.ftl",
         StringsGroup::Network => "network.ftl",
+        StringsGroup::Statistics => "statistics.ftl",
+        StringsGroup::Filtering => "filtering.ftl",
     });
     fs::read_to_string(&path)
         .map_err(|e| {
