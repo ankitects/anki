@@ -34,7 +34,10 @@ def locale_dir() -> str:
 def tr(group: StringsGroup, key: str, **kwargs: Union[str, int, float]) -> str:
     """Shortcut to access translations from the backend.
     (Currently) requires an open collection."""
-    return aqt.mw.col.backend.translate(group, key, **kwargs)
+    if aqt.mw.col:
+        return aqt.mw.col.backend.translate(group, key, **kwargs)
+    else:
+        return key
 
 
 def openHelp(section):
