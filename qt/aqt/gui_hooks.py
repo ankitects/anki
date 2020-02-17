@@ -251,7 +251,7 @@ class _CardWillShowFilter:
                 self._hooks.remove(filter)
                 raise
         # legacy support
-        runFilter("prepareQA", text, card, kind)
+        text = runFilter("prepareQA", text, card, kind)
         return text
 
 
@@ -512,7 +512,7 @@ class _EditorDidUnfocusFieldFilter:
                 self._hooks.remove(filter)
                 raise
         # legacy support
-        runFilter("editFocusLost", changed, note, current_field_idx)
+        changed = runFilter("editFocusLost", changed, note, current_field_idx)
         return changed
 
 
@@ -591,7 +591,7 @@ class _EditorWillUseFontForFieldFilter:
                 self._hooks.remove(filter)
                 raise
         # legacy support
-        runFilter("mungeEditingFontName", font)
+        font = runFilter("mungeEditingFontName", font)
         return font
 
 
@@ -1034,7 +1034,7 @@ class _StyleDidInitFilter:
                 self._hooks.remove(filter)
                 raise
         # legacy support
-        runFilter("setupStyle", style)
+        style = runFilter("setupStyle", style)
         return style
 
 
