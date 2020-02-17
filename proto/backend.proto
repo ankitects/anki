@@ -19,6 +19,8 @@ enum StringsGroup {
     CARD_TEMPLATES = 3;
     SYNC = 4;
     NETWORK = 5;
+    STATISTICS = 6;
+    FILTERING = 7;
 }
 
 // 1-15 reserved for future use; 2047 for errors

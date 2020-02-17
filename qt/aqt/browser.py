@@ -24,6 +24,7 @@ from anki.consts import *
 from anki.lang import _, ngettext
 from anki.models import NoteType
 from anki.notes import Note
+from anki.rsbackend import StringsGroup
 from anki.utils import fmtTimeSpan, htmlToTextLine, ids2str, intTime, isMac, isWin
 from aqt import AnkiQt, gui_hooks
 from aqt.editor import Editor
@@ -51,6 +52,7 @@ from aqt.utils import (
     showInfo,
     showWarning,
     tooltip,
+    tr,
 )
 from aqt.webview import AnkiWebView
 
@@ -728,7 +730,7 @@ class Browser(QMainWindow):
             ("noteCrt", _("Created")),
             ("noteMod", _("Edited")),
             ("cardMod", _("Changed")),
-            ("cardDue", _("Due")),
+            ("cardDue", tr(StringsGroup.STATISTICS, "due-date")),
             ("cardIvl", _("Interval")),
             ("cardEase", _("Ease")),
             ("cardReps", _("Reviews")),
@@ -1269,7 +1271,7 @@ by clicking on one on the left."""
                     (_("New"), "is:new"),
                     (_("Learning"), "is:learn"),
                     (_("Review"), "is:review"),
-                    (_("Due"), "is:due"),
+                    (tr(StringsGroup.FILTERING, "is-due"), "is:due"),
                     None,
                     (_("Suspended"), "is:suspended"),
                     (_("Buried"), "is:buried"),

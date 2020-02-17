@@ -6,8 +6,10 @@ import json
 import time
 from typing import Any, Dict, List, Optional, Tuple
 
+import anki
 from anki.consts import *
 from anki.lang import _, ngettext
+from anki.rsbackend import StringsGroup
 from anki.utils import fmtTimeSpan, ids2str
 
 # Card stats
@@ -19,7 +21,7 @@ PERIOD_LIFE = 2
 
 
 class CardStats:
-    def __init__(self, col, card) -> None:
+    def __init__(self, col: anki.storage._Collection, card: anki.cards.Card) -> None:
         self.col = col
         self.card = card
         self.txt = ""
@@ -45,7 +47,10 @@ class CardStats:
                     next = c.due
                 next = self.date(next)
             if next:
-                self.addLine(_("Due"), next)
+                self.addLine(
+                    self.col.backend.translate(StringsGroup.STATISTICS, "due-date"),
+                    next,
+                )
             if c.queue == QUEUE_TYPE_REV:
                 self.addLine(_("Interval"), fmt(c.ivl * 86400))
             self.addLine(_("Ease"), "%d%%" % (c.factor / 10.0))
