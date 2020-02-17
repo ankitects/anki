@@ -213,7 +213,9 @@ delete from media where fname=?"
     }
 
     pub(super) fn all_mtimes(&mut self) -> Result<HashMap<String, i64>> {
-        let mut stmt = self.db.prepare("select fname, mtime from media")?;
+        let mut stmt = self
+            .db
+            .prepare("select fname, mtime from media where csum is not null")?;
         let map: std::result::Result<HashMap<String, i64>, rusqlite::Error> = stmt
             .query_map(NO_PARAMS, |row| Ok((row.get(0)?, row.get(1)?)))?
             .collect();
