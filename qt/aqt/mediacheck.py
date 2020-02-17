@@ -10,10 +10,15 @@ from typing import Iterable, List, Optional, TypeVar
 
 import aqt
 from anki import hooks
-from anki.lang import _, ngettext
-from anki.rsbackend import Interrupted, MediaCheckOutput, Progress, ProgressKind
+from anki.rsbackend import (
+    Interrupted,
+    MediaCheckOutput,
+    Progress,
+    ProgressKind,
+    StringsGroup,
+)
 from aqt.qt import *
-from aqt.utils import askUser, restoreGeom, saveGeom, showText, tooltip
+from aqt.utils import askUser, restoreGeom, saveGeom, showText, tooltip, tr
 
 T = TypeVar("T")
 
@@ -84,14 +89,14 @@ class MediaChecker:
         layout.addWidget(box)
 
         if output.unused:
-            b = QPushButton(_("Delete Unused Files"))
+            b = QPushButton(tr(StringsGroup.MEDIA_CHECK, "delete-unused"))
             b.setAutoDefault(False)
             box.addButton(b, QDialogButtonBox.RejectRole)
             b.clicked.connect(lambda c: self._on_trash_files(output.unused))  # type: ignore
 
         if output.missing:
             if any(map(lambda x: x.startswith("latex-"), output.missing)):
-                b = QPushButton(_("Render LaTeX"))
+                b = QPushButton(tr(StringsGroup.MEDIA_CHECK, "render-latex"))
                 b.setAutoDefault(False)
                 box.addButton(b, QDialogButtonBox.RejectRole)
                 b.clicked.connect(self._on_render_latex)  # type: ignore
@@ -120,37 +125,34 @@ class MediaChecker:
             browser.onSearchActivated()
             showText(err, type="html")
         else:
-            tooltip(_("All LaTeX rendered."))
+            tooltip(tr(StringsGroup.MEDIA_CHECK, "all-latex-rendered"))
 
     def _on_render_latex_progress(self, count: int) -> bool:
         if self.progress_dialog.wantCancel:
             return False
 
-        self.mw.progress.update(_("Checked {}...").format(count))
+        self.mw.progress.update(tr(StringsGroup.MEDIA_CHECK, "checked", count=count))
         return True
 
     def _on_trash_files(self, fnames: List[str]):
-        if not askUser(_("Delete unused media?")):
+        if not askUser(tr(StringsGroup.MEDIA_CHECK, "delete-unused-confirm")):
             return
 
         self.progress_dialog = self.mw.progress.start()
 
         last_progress = time.time()
         remaining = len(fnames)
+        total = len(fnames)
         try:
             for chunk in chunked_list(fnames, 25):
                 self.mw.col.media.trash_files(chunk)
                 remaining -= len(chunk)
                 if time.time() - last_progress >= 0.3:
-                    label = (
-                        ngettext(
-                            "%d file remaining...", "%d files remaining...", remaining,
-                        )
-                        % remaining
+                    self.mw.progress.update(
+                        tr(StringsGroup.MEDIA_CHECK, "files-remaining", count=remaining)
                     )
-                    self.mw.progress.update(label)
         finally:
             self.mw.progress.finish()
             self.progress_dialog = None
 
-        tooltip(_("Files moved to trash."))
+        tooltip(tr(StringsGroup.MEDIA_CHECK, "delete-unused-complete", count=total))
