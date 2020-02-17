@@ -27,7 +27,7 @@ env_logger = "0.7.1"
 zip = "0.5.4"
 log = "0.4.8"
 serde_tuple = "0.4.0"
-coarsetime = "0.1.12"
+coarsetime = "=0.1.11"
 utime = "0.2.1"
 serde-aux = "0.6.1"
 unic-langid = { version = "0.7.0", features = ["macros"] }
