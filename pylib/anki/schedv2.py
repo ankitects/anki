@@ -668,7 +668,7 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
         if card.due < self.dayCutoff:
             # add some randomness, up to 5 minutes or 25%
             maxExtra = min(300, int(delay * 0.25))
-            fuzz = random.randrange(0, maxExtra)
+            fuzz = random.randrange(0, max(1, maxExtra))
             card.due = min(self.dayCutoff - 1, card.due + fuzz)
             card.queue = QUEUE_TYPE_LRN
             if card.due < (intTime() + self.col.conf["collapseTime"]):
