@@ -356,7 +356,7 @@ class DataModel(QAbstractTableModel):
         elif c.queue == QUEUE_TYPE_LRN:
             date = c.due
         elif c.queue == QUEUE_TYPE_NEW or c.type == CARD_TYPE_NEW:
-            return str(c.due)
+            return tr(StringsGroup.STATISTICS, "due-for-new-card", number=c.due)
         elif c.queue in (QUEUE_TYPE_REV, QUEUE_TYPE_DAY_LEARN_RELEARN) or (
             c.type == CARD_TYPE_REV and c.queue < 0
         ):
