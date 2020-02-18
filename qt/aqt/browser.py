@@ -1425,7 +1425,7 @@ by clicking on one on the left."""
         card_info_dialog.setLayout(l)
         card_info_dialog.setWindowModality(Qt.WindowModal)
         card_info_dialog.resize(500, 400)
-        restoreGeom(card_info_dialog, "revlog", CardInfoDialog)
+        restoreGeom(card_info_dialog, "revlog")
         card_info_dialog.show()
 
     def _cardInfoData(self):
