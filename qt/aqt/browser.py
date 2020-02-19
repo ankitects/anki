@@ -21,7 +21,7 @@ from anki import hooks
 from anki.cards import Card
 from anki.collection import _Collection
 from anki.consts import *
-from anki.decks import WITHOUT_LEAF_DEFAULT
+from anki.decks import WITHOUT_EMPTY_DEFAULT
 from anki.lang import _, ngettext
 from anki.models import NoteType
 from anki.notes import Note
@@ -1160,6 +1160,12 @@ by clicking on one on the left."""
                 baseName = g[0]
                 did = g[1]
                 children = g[5]
+                if str(did) == "1" and not children:
+                    if not self.mw.col.decks.shouldDefaultBeDisplayed(
+                        WITHOUT_EMPTY_DEFAULT
+                    ):
+                        # No need to test for children, we know there are not
+                        continue
                 item = SidebarItem(
                     baseName,
                     ":/icons/deck.svg",
