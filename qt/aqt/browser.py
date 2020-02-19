@@ -21,6 +21,7 @@ from anki import hooks
 from anki.cards import Card
 from anki.collection import _Collection
 from anki.consts import *
+from anki.decks import WITHOUT_LEAF_DEFAULT
 from anki.lang import _, ngettext
 from anki.models import NoteType
 from anki.notes import Note
@@ -1312,7 +1313,12 @@ by clicking on one on the left."""
                     subm.addSeparator()
                     addDecks(subm, children)
                 else:
-                    parent.addItem(shortname, self._filterFunc("deck", name))
+                    if did != 1 or self.col.decks.shouldDefaultBeDisplayed(
+                        WITHOUT_EMPTY_DEFAULT
+                        # no need to check for children, we know
+                        # there are none in this else branch
+                    ):
+                        parent.addItem(shortname, self._filterFunc("deck", name))
 
         # fixme: could rewrite to avoid calculating due # in the future
         alldecks = self.col.sched.deckDueTree()
