@@ -150,7 +150,7 @@ def fields_for_rendering(col: anki.storage._Collection, card: Card, note: Note):
     # add special fields
     fields["Tags"] = note.stringTags().strip()
     fields["Type"] = card.note_type()["name"]
-    fields["Deck"] = col.decks.name(card.did)
+    fields["Deck"] = col.decks.name(card.odid or card.did)
     fields["Subdeck"] = fields["Deck"].split("::")[-1]
     fields["Card"] = card.template()["name"]  # type: ignore
     flag = card.userFlag()
