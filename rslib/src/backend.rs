@@ -11,7 +11,7 @@ use crate::media::check::MediaChecker;
 use crate::media::sync::MediaSyncProgress;
 use crate::media::MediaManager;
 use crate::sched::cutoff::{local_minutes_west_for_stamp, sched_timing_today};
-use crate::sched::timespan::answer_button_time;
+use crate::sched::timespan::{answer_button_time, time_span};
 use crate::template::{
     render_card, without_legacy_template_directives, FieldMap, FieldRequirements, ParsedTemplate,
     RenderedNode,
@@ -406,6 +406,7 @@ impl Backend {
             None => return "".to_string(),
         };
         match context {
+            pb::format_time_span_in::Context::Normal => time_span(input.seconds, &self.i18n),
             pb::format_time_span_in::Context::AnswerButtons => {
                 answer_button_time(input.seconds, &self.i18n)
             }

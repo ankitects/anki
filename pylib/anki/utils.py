@@ -24,7 +24,7 @@ from html.entities import name2codepoint
 from typing import Iterable, Iterator, List, Optional, Tuple, Union
 
 from anki.db import DB
-from anki.lang import _, ngettext
+from anki.lang import ngettext
 
 _tmpdir: Optional[str]
 
@@ -56,28 +56,10 @@ inTimeTable = {
 }
 
 
-def shortTimeFmt(type: str) -> str:
-    return {
-        # T: year is an abbreviation for year. %s is a number of years
-        "years": _("%sy"),
-        # T: m is an abbreviation for month. %s is a number of months
-        "months": _("%smo"),
-        # T: d is an abbreviation for day. %s is a number of days
-        "days": _("%sd"),
-        # T: h is an abbreviation for hour. %s is a number of hours
-        "hours": _("%sh"),
-        # T: m is an abbreviation for minute. %s is a number of minutes
-        "minutes": _("%sm"),
-        # T: s is an abbreviation for second. %s is a number of seconds
-        "seconds": _("%ss"),
-    }[type]
-
-
 def fmtTimeSpan(
     time: Union[int, float],
     pad: int = 0,
     point: int = 0,
-    short: bool = False,
     inTime: bool = False,
     unit: int = 99,
 ) -> str:
@@ -86,13 +68,10 @@ def fmtTimeSpan(
     time = convertSecondsTo(time, type)
     if not point:
         time = int(round(time))
-    if short:
-        fmt = shortTimeFmt(type)
+    if inTime:
+        fmt = inTimeTable[type](_pluralCount(time, point))
     else:
-        if inTime:
-            fmt = inTimeTable[type](_pluralCount(time, point))
-        else:
-            fmt = timeTable[type](_pluralCount(time, point))
+        fmt = timeTable[type](_pluralCount(time, point))
     timestr = "%%%(a)d.%(b)df" % {"a": pad, "b": point}
     return locale.format_string(fmt % timestr, time)
 

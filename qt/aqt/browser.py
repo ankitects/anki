@@ -1451,13 +1451,10 @@ border: 1px solid #000; padding: 3px; '>%s</div>"""
         if not entries:
             return ""
         s = "<table width=100%%><tr><th align=left>%s</th>" % _("Date")
-        s += ("<th align=right>%s</th>" * 5) % (
-            _("Type"),
-            _("Rating"),
-            _("Interval"),
-            _("Ease"),
-            _("Time"),
-        )
+        s += "<th align=right>%s</th>" % _("Type")
+        s += "<th align=center>%s</th>" % _("Rating")
+        s += "<th align=left>%s</th>" % _("Interval")
+        s += ("<th align=right>%s</th>" * 2) % (_("Ease"), _("Time"),)
         cnt = 0
         for (date, ease, ivl, factor, taken, type) in reversed(entries):
             cnt += 1
@@ -1485,13 +1482,14 @@ border: 1px solid #000; padding: 3px; '>%s</div>"""
             if ivl == 0:
                 ivl = _("0d")
             elif ivl > 0:
-                ivl = fmtTimeSpan(ivl * 86400, short=True)
+                ivl = fmtTimeSpan(ivl * 86400)
             else:
                 ivl = cs.time(-ivl)
-            s += ("<td align=right>%s</td>" * 5) % (
-                tstr,
-                ease,
-                ivl,
+            s += "<td align=right>%s</td>" % tstr
+            s += "<td align=center>%s</td>" % ease
+            s += "<td align=left>%s</td>" % ivl
+
+            s += ("<td align=right>%s</td>" * 2) % (
                 "%d%%" % (factor / 10) if factor else "",
                 cs.time(taken),
             ) + "</tr>"

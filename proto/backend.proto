@@ -308,7 +308,8 @@ message TranslateArgValue {
 
 message FormatTimeSpanIn {
     enum Context {
-        ANSWER_BUTTONS = 0;
+        NORMAL = 0;
+        ANSWER_BUTTONS = 1;
     }
 
     float seconds = 1;

@@ -28,8 +28,6 @@ class CardStats:
 
     def report(self) -> str:
         c = self.card
-        # pylint: disable=unnecessary-lambda
-        fmt = lambda x, **kwargs: fmtTimeSpan(x, short=True, **kwargs)
         self.txt = "<table width=100%>"
         self.addLine(_("Added"), self.date(c.id / 1000))
         first = self.col.db.scalar("select min(id) from revlog where cid = ?", c.id)
@@ -52,7 +50,9 @@ class CardStats:
                     next,
                 )
             if c.queue == QUEUE_TYPE_REV:
-                self.addLine(_("Interval"), fmt(c.ivl * 86400))
+                self.addLine(
+                    _("Interval"), self.col.backend.format_time_span(c.ivl * 86400)
+                )
             self.addLine(_("Ease"), "%d%%" % (c.factor / 10.0))
             self.addLine(_("Reviews"), "%d" % c.reps)
             self.addLine(_("Lapses"), "%d" % c.lapses)
@@ -83,13 +83,8 @@ class CardStats:
     def date(self, tm) -> str:
         return time.strftime("%Y-%m-%d", time.localtime(tm))
 
-    def time(self, tm) -> str:
-        s = ""
-        if tm >= 60:
-            s = fmtTimeSpan((tm / 60) * 60, short=True, point=-1, unit=1)
-        if tm % 60 != 0 or not s:
-            s += fmtTimeSpan(tm % 60, point=2 if not s else -1, short=True)
-        return s
+    def time(self, tm: float) -> str:
+        return self.col.backend.format_time_span(tm)
 
 
 # Collection stats

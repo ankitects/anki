@@ -345,7 +345,11 @@ class RustBackend:
             )
         ).translate_string
 
-    def format_time_span(self, seconds: float, context: FormatTimeSpanContext) -> str:
+    def format_time_span(
+        self,
+        seconds: float,
+        context: FormatTimeSpanContext = FormatTimeSpanContext.NORMAL,
+    ) -> str:
         return self._run_command(
             pb.BackendInput(
                 format_time_span=pb.FormatTimeSpanIn(seconds=seconds, context=context)
