@@ -27,7 +27,18 @@ class BottomToolbar:
 
 
 @dataclass
-class CenterLink:
+class ToolbarLink:
+    """Bundles together the data fields used to generate a link element in
+    Anki's top toolbar
+    
+    Attributes:
+        cmd {str} -- Command name used for the JS → Python bridge
+        label {str} -- Display label of the link
+        func {Callable} -- Callable to be called on clicking the link
+        tip {Optional[str]} -- Optional tooltip text to show on hovering over the link
+        id: {Optional[str]} -- Optional id attribute to supply the link with
+    """
+
     cmd: str
     label: str
     func: Callable
@@ -64,7 +75,7 @@ class Toolbar:
     # Available links
     ######################################################################
 
-    def create_link(self, link: CenterLink):
+    def create_link(self, link: ToolbarLink):
         self.link_handlers[link.cmd] = link.func
 
         title_attr = f'title="{link.tip}"' if link.tip else ""
@@ -80,25 +91,25 @@ class Toolbar:
         links = [
             self.create_link(link)
             for link in [
-                CenterLink(
+                ToolbarLink(
                     cmd="decks",
                     label=_("Decks"),
                     tip=_("Shortcut key: %s") % "D",
                     func=self._deckLinkHandler,
                 ),
-                CenterLink(
+                ToolbarLink(
                     cmd="add",
                     label=_("Add"),
                     tip=_("Shortcut key: %s") % "A",
                     func=self._addLinkHandler,
                 ),
-                CenterLink(
+                ToolbarLink(
                     cmd="browse",
                     label=_("Browse"),
                     tip=_("Shortcut key: %s") % "B",
                     func=self._browseLinkHandler,
                 ),
-                CenterLink(
+                ToolbarLink(
                     cmd="stats",
                     label=_("Stats"),
                     tip=_("Shortcut key: %s") % "T",
