@@ -1480,11 +1480,9 @@ border: 1px solid #000; padding: 3px; '>%s</div>"""
             if ease == 1:
                 ease = fmt % (st.colRelearn, ease)
             if ivl == 0:
-                ivl = _("0d")
-            elif ivl > 0:
-                ivl = fmtTimeSpan(ivl * 86400)
+                ivl = ""
             else:
-                ivl = cs.time(-ivl)
+                ivl = cs.time(abs(ivl))
             s += "<td align=right>%s</td>" % tstr
             s += "<td align=center>%s</td>" % ease
             s += "<td align=left>%s</td>" % ivl
