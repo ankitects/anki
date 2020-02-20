@@ -1,8 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use fluent::{FluentArgs, FluentBundle, FluentResource};
+use fluent::{FluentArgs, FluentBundle, FluentResource, FluentValue};
+use intl_memoizer::IntlLangMemoizer;
 use log::{error, warn};
+use num_format::Locale;
 use std::borrow::Cow;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -33,13 +35,13 @@ pub use tr_strs;
 /// Otherwise, try the language alone (eg en).
 /// If neither folder exists, return None.
 fn lang_folder(lang: LanguageIdentifier, ftl_folder: &Path) -> Option<PathBuf> {
-    if let Some(region) = lang.get_region() {
-        let path = ftl_folder.join(format!("{}_{}", lang.get_language(), region));
+    if let Some(region) = lang.region() {
+        let path = ftl_folder.join(format!("{}_{}", lang.language(), region));
         if fs::metadata(&path).is_ok() {
             return Some(path);
         }
     }
-    let path = ftl_folder.join(lang.get_language());
+    let path = ftl_folder.join(lang.language());
     if fs::metadata(&path).is_ok() {
         Some(path)
     } else {
@@ -142,7 +144,7 @@ impl I18n {
 }
 
 struct I18nInner {
-    // all preferred languages of the user, used for date/time processing
+    // all preferred languages of the user, used for determine number format
     langs: Vec<LanguageIdentifier>,
     // the available ftl folder subset of the user's preferred languages
     available_ftl_folders: Vec<PathBuf>,
@@ -167,6 +169,18 @@ pub struct I18nCategory {
     bundles: Vec<FluentBundle<FluentResource>>,
 }
 
+fn set_bundle_formatter_for_langs<T>(bundle: &mut FluentBundle<T>, langs: &[LanguageIdentifier]) {
+    let num_formatter = NumberFormatter::new(langs);
+    let formatter = move |val: &FluentValue, _intls: &Mutex<IntlLangMemoizer>| -> Option<String> {
+        match val {
+            FluentValue::Number(n) => Some(num_formatter.format(n.value)),
+            _ => None,
+        }
+    };
+
+    bundle.set_formatter(Some(formatter));
+}
+
 impl I18nCategory {
     pub fn new(langs: &[LanguageIdentifier], preferred: &[PathBuf], group: StringsGroup) -> Self {
         let mut bundles = Vec::with_capacity(preferred.len() + 1);
@@ -176,6 +190,7 @@ impl I18nCategory {
                     if cfg!(test) {
                         bundle.set_use_isolating(false);
                     }
+                    set_bundle_formatter_for_langs(&mut bundle, langs);
                     bundles.push(bundle);
                 } else {
                     error!("Failed to create bundle for {:?} {:?}", ftl_folder, group);
@@ -187,6 +202,7 @@ impl I18nCategory {
         if cfg!(test) {
             fallback_bundle.set_use_isolating(false);
         }
+        set_bundle_formatter_for_langs(&mut fallback_bundle, langs);
 
         bundles.push(fallback_bundle);
 
@@ -230,11 +246,76 @@ impl I18nCategory {
     }
 }
 
+fn first_available_num_format_locale(langs: &[LanguageIdentifier]) -> Option<Locale> {
+    for lang in langs {
+        if let Some(locale) = num_format_locale(lang) {
+            return Some(locale);
+        }
+    }
+    None
+}
+
+// try to locate a num_format locale for a given language identifier
+fn num_format_locale(lang: &LanguageIdentifier) -> Option<Locale> {
+    // region provided?
+    if let Some(region) = lang.region() {
+        let code = format!("{}_{}", lang.language(), region);
+        if let Ok(locale) = Locale::from_name(code) {
+            return Some(locale);
+        }
+    }
+    // try the language alone
+    Locale::from_name(lang.language()).ok()
+}
+
+struct NumberFormatter {
+    decimal_separator: &'static str,
+}
+
+impl NumberFormatter {
+    fn new(langs: &[LanguageIdentifier]) -> Self {
+        if let Some(locale) = first_available_num_format_locale(langs) {
+            Self {
+                decimal_separator: locale.decimal(),
+            }
+        } else {
+            // fallback on English defaults
+            Self {
+                decimal_separator: ".",
+            }
+        }
+    }
+
+    fn format(&self, num: f64) -> String {
+        // is it an integer?
+        if (num - num.round()).abs() < std::f64::EPSILON {
+            num.to_string()
+        } else {
+            // currently we hard-code to 2 decimal places
+            let mut formatted = format!("{:.2}", num);
+            if self.decimal_separator != "." {
+                formatted = formatted.replace(".", self.decimal_separator)
+            }
+            formatted
+        }
+    }
+}
+
 #[cfg(test)]
 mod test {
-    use crate::i18n::StringsGroup;
     use crate::i18n::{tr_args, I18n};
+    use crate::i18n::{NumberFormatter, StringsGroup};
     use std::path::PathBuf;
+    use unic_langid::langid;
+
+    #[test]
+    fn numbers() {
+        let fmter = NumberFormatter::new(&[]);
+        assert_eq!(&fmter.format(1.0), "1");
+        assert_eq!(&fmter.format(1.007), "1.01");
+        let fmter = NumberFormatter::new(&[langid!("pl-PL")]);
+        assert_eq!(&fmter.format(1.007), "1,01");
+    }
 
     #[test]
     fn i18n() {
@@ -248,8 +329,8 @@ mod test {
         );
 
         assert_eq!(
-            cat.trn("two-args-key", tr_args!["one"=>1, "two"=>"2"]),
-            "two args: 1 and 2"
+            cat.trn("two-args-key", tr_args!["one"=>1.1, "two"=>"2"]),
+            "two args: 1.10 and 2"
         );
 
         // commented out to avoid scary warning during unit tests
@@ -258,13 +339,17 @@ mod test {
         //            "two args: testing error reporting and {$two}"
         //        );
 
-        assert_eq!(cat.trn("plural", tr_args!["hats"=>1]), "You have 1 hat.");
+        assert_eq!(cat.trn("plural", tr_args!["hats"=>1.0]), "You have 1 hat.");
+        assert_eq!(
+            cat.trn("plural", tr_args!["hats"=>1.1]),
+            "You have 1.10 hats."
+        );
         assert_eq!(cat.trn("plural", tr_args!["hats"=>3]), "You have 3 hats.");
 
-        // Other language
+        // Another language
         let mut d = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         d.push("tests/support");
-        let i18n = I18n::new(&["ja_JP"], d);
+        let i18n = I18n::new(&["ja_JP"], &d);
         let cat = i18n.get(StringsGroup::Test);
         assert_eq!(cat.tr("valid-key"), "キー");
         assert_eq!(cat.tr("only-in-english"), "not translated");
@@ -276,6 +361,15 @@ mod test {
         assert_eq!(
             cat.trn("two-args-key", tr_args!["one"=>1, "two"=>"2"]),
             "1と2"
+        );
+
+        // Decimal separator
+        let i18n = I18n::new(&["pl-PL"], &d);
+        let cat = i18n.get(StringsGroup::Test);
+        // falls back on English, but with Polish separators
+        assert_eq!(
+            cat.trn("two-args-key", tr_args!["one"=>1, "two"=>2.07]),
+            "two args: 1 and 2,07"
         );
     }
 }
