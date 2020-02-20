@@ -2,7 +2,10 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from __future__ import annotations
+
 import time
+from typing import Optional
 
 import aqt.forms
 from anki.lang import _
@@ -82,42 +85,20 @@ class ProgressManager:
     # Creating progress dialogs
     ##########################################################################
 
-    class ProgressDialog(QDialog):
-        def __init__(self, parent):
-            QDialog.__init__(self, parent)
-            self.form = aqt.forms.progress.Ui_Dialog()
-            self.form.setupUi(self)
-            self._closingDown = False
-            self.wantCancel = False
-
-        def cancel(self):
-            self._closingDown = True
-            self.hide()
-
-        def closeEvent(self, evt):
-            if self._closingDown:
-                evt.accept()
-            else:
-                self.wantCancel = True
-                evt.ignore()
-
-        def keyPressEvent(self, evt):
-            if evt.key() == Qt.Key_Escape:
-                evt.ignore()
-                self.wantCancel = True
-
     # note: immediate is no longer used
-    def start(self, max=0, min=0, label=None, parent=None, immediate=False):
+    def start(
+        self, max=0, min=0, label=None, parent=None, immediate=False
+    ) -> Optional[ProgressDialog]:
         self._levels += 1
         if self._levels > 1:
-            return
+            return None
         # setup window
         parent = parent or self.app.activeWindow()
         if not parent and self.mw.isVisible():
             parent = self.mw
 
         label = label or _("Processing...")
-        self._win = self.ProgressDialog(parent)
+        self._win = ProgressDialog(parent)
         self._win.form.progressBar.setMinimum(min)
         self._win.form.progressBar.setMaximum(max)
         self._win.form.progressBar.setTextVisible(False)
@@ -151,7 +132,7 @@ class ProgressManager:
             self._win.form.progressBar.setValue(self._counter)
         if process and elapsed >= 0.2:
             self._updating = True
-            self.app.processEvents(QEventLoop.ExcludeUserInputEvents)
+            self.app.processEvents()
             self._updating = False
             self._lastUpdate = time.time()
 
@@ -207,3 +188,28 @@ class ProgressManager:
     def busy(self):
         "True if processing."
         return self._levels
+
+
+class ProgressDialog(QDialog):
+    def __init__(self, parent):
+        QDialog.__init__(self, parent)
+        self.form = aqt.forms.progress.Ui_Dialog()
+        self.form.setupUi(self)
+        self._closingDown = False
+        self.wantCancel = False
+
+    def cancel(self):
+        self._closingDown = True
+        self.hide()
+
+    def closeEvent(self, evt):
+        if self._closingDown:
+            evt.accept()
+        else:
+            self.wantCancel = True
+            evt.ignore()
+
+    def keyPressEvent(self, evt):
+        if evt.key() == Qt.Key_Escape:
+            evt.ignore()
+            self.wantCancel = True

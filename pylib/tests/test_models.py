@@ -223,7 +223,7 @@ def test_typecloze():
     d = getEmptyCol()
     m = d.models.byName("Cloze")
     d.models.setCurrent(m)
-    m["tmpls"][0]["qfmt"] = "{{type:cloze:Text}}"
+    m["tmpls"][0]["qfmt"] = "{{cloze:Text}}{{type:cloze:Text}}"
     d.models.save(m)
     f = d.newNote()
     f["Text"] = "hello {{c1::world}}"

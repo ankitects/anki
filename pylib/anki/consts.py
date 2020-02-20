@@ -14,6 +14,22 @@ NEW_CARDS_FIRST = 2
 NEW_CARDS_RANDOM = 0
 NEW_CARDS_DUE = 1
 
+# Queue types
+QUEUE_TYPE_MANUALLY_BURIED = -3
+QUEUE_TYPE_SIBLING_BURIED = -2
+QUEUE_TYPE_SUSPENDED = -1
+QUEUE_TYPE_NEW = 0
+QUEUE_TYPE_LRN = 1
+QUEUE_TYPE_REV = 2
+QUEUE_TYPE_DAY_LEARN_RELEARN = 3
+QUEUE_TYPE_PREVIEW = 4
+
+# Card types
+CARD_TYPE_NEW = 0
+CARD_TYPE_LRN = 1
+CARD_TYPE_REV = 2
+CARD_TYPE_RELEARNING = 3
+
 # removal types
 REM_CARD = 0
 REM_NOTE = 1
@@ -26,6 +42,10 @@ COUNT_REMAINING = 1
 # media log
 MEDIA_ADD = 0
 MEDIA_REM = 1
+
+# Kind of decks
+DECK_STD = 0
+DECK_DYN = 1
 
 # dynamic deck order
 DYN_OLDEST = 0
@@ -54,6 +74,22 @@ SYNC_BASE = "https://sync%s.ankiweb.net/"
 SYNC_VER = 9
 
 HELP_SITE = "http://ankisrs.net/docs/manual.html"
+
+# Leech actions
+LEECH_SUSPEND = 0
+LEECH_TAGONLY = 1
+
+# Buttons
+BUTTON_ONE = 1
+BUTTON_TWO = 2
+BUTTON_THREE = 3
+BUTTON_FOUR = 4
+
+# Revlog types
+REVLOG_LRN = 0
+REVLOG_REV = 1
+REVLOG_RELRN = 2
+REVLOG_CRAM = 3
 
 # Labels
 ##########################################################################

@@ -11,7 +11,7 @@ import locale
 import pickle
 import random
 import shutil
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from send2trash import send2trash
 
@@ -442,7 +442,7 @@ please see:
         sql = "update profiles set data = ? where name = ?"
         self.db.execute(sql, self._pickle(self.meta), "_global")
         self.db.commit()
-        anki.lang.setLang(code, locale_dir(), local=False)
+        anki.lang.set_lang(code, locale_dir())
 
     # OpenGL
     ######################################################################
@@ -502,7 +502,7 @@ please see:
     def set_night_mode(self, on: bool) -> None:
         self.meta["night_mode"] = on
 
-    # Profile-specific options
+    # Profile-specific
     ######################################################################
 
     def interrupt_audio(self) -> bool:
@@ -511,6 +511,18 @@ please see:
     def set_interrupt_audio(self, val: bool) -> None:
         self.profile["interrupt_audio"] = val
         aqt.sound.av_player.interrupt_current_audio = val
+
+    def sync_key(self) -> Optional[str]:
+        return self.profile.get("syncKey")
+
+    def set_sync_key(self, val: Optional[str]) -> None:
+        self.profile["syncKey"] = val
+
+    def media_syncing_enabled(self) -> bool:
+        return self.profile["syncMedia"]
+
+    def sync_shard(self) -> Optional[int]:
+        return self.profile.get("hostNum")
 
     ######################################################################
 

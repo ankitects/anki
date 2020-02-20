@@ -34,7 +34,6 @@ from typing import Any, Dict, List, Optional, Tuple
 import anki
 from anki import hooks
 from anki.cards import Card
-from anki.lang import _
 from anki.models import NoteType
 from anki.notes import Note
 from anki.rsbackend import TemplateReplacementList
@@ -120,30 +119,13 @@ def render_card(
     # render
     try:
         output = render_card_from_context(ctx)
-    except anki.rsbackend.BackendException as e:
-        # fixme: specific exception in 2.1.21
-        err = e.args[0].template_parse  # pylint: disable=no-member
-        if err.q_side:
-            side = _("Front")
-        else:
-            side = _("Back")
-        errmsg = _("{} template has a problem:").format(side) + f"<br>{e}"
-        errmsg += "<br><a href=https://anki.tenderapp.com/kb/problems/card-template-has-a-problem>{}</a>".format(
-            _("More info")
-        )
+    except anki.rsbackend.TemplateError as e:
         output = TemplateRenderOutput(
-            question_text=errmsg,
-            answer_text=errmsg,
+            question_text=str(e),
+            answer_text=str(e),
             question_av_tags=[],
             answer_av_tags=[],
         )
-
-    if not output.question_text.strip():
-        msg = _("The front of this card is blank.")
-        help = _("More info")
-        helplink = CARD_BLANK_HELP
-        msg += f"<br><a href='{helplink}'>{help}</a>"
-        output.question_text = msg
 
     hooks.card_did_render(output, ctx)
 
@@ -168,7 +150,7 @@ def fields_for_rendering(col: anki.storage._Collection, card: Card, note: Note):
     # add special fields
     fields["Tags"] = note.stringTags().strip()
     fields["Type"] = card.note_type()["name"]
-    fields["Deck"] = col.decks.name(card.did)
+    fields["Deck"] = col.decks.name(card.odid or card.did)
     fields["Subdeck"] = fields["Deck"].split("::")[-1]
     fields["Card"] = card.template()["name"]  # type: ignore
     flag = card.userFlag()

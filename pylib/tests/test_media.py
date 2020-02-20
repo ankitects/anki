@@ -17,10 +17,10 @@ def test_add():
     assert d.media.addFile(path) == "foo.jpg"
     # adding the same file again should not create a duplicate
     assert d.media.addFile(path) == "foo.jpg"
-    # but if it has a different md5, it should
+    # but if it has a different sha1, it should
     with open(path, "w") as f:
         f.write("world")
-    assert d.media.addFile(path) == "foo (1).jpg"
+    assert d.media.addFile(path) == "foo-7c211433f02071597741e6ff5a8ea34789abbf43.jpg"
 
 
 def test_strings():
@@ -73,65 +73,8 @@ def test_deckIntegration():
     with open(os.path.join(d.media.dir(), "foo.jpg"), "w") as f:
         f.write("test")
     # check media
+    d.close()
     ret = d.media.check()
-    assert ret[0] == ["fake2.png"]
-    assert ret[1] == ["foo.jpg"]
-
-
-def test_changes():
-    d = getEmptyCol()
-
-    def added():
-        return d.media.db.execute("select fname from media where csum is not null")
-
-    def removed():
-        return d.media.db.execute("select fname from media where csum is null")
-
-    def advanceTime():
-        d.media.db.execute("update media set mtime=mtime-1")
-        d.media.db.execute("update meta set dirMod = dirMod - 1")
-
-    assert not list(added())
-    assert not list(removed())
-    # add a file
-    dir = tempfile.mkdtemp(prefix="anki")
-    path = os.path.join(dir, "foo.jpg")
-    with open(path, "w") as f:
-        f.write("hello")
-    path = d.media.addFile(path)
-    # should have been logged
-    d.media.findChanges()
-    assert list(added())
-    assert not list(removed())
-    # if we modify it, the cache won't notice
-    advanceTime()
-    with open(path, "w") as f:
-        f.write("world")
-    assert len(list(added())) == 1
-    assert not list(removed())
-    # but if we add another file, it will
-    advanceTime()
-    with open(path + "2", "w") as f:
-        f.write("yo")
-    d.media.findChanges()
-    assert len(list(added())) == 2
-    assert not list(removed())
-    # deletions should get noticed too
-    advanceTime()
-    os.unlink(path + "2")
-    d.media.findChanges()
-    assert len(list(added())) == 1
-    assert len(list(removed())) == 1
-
-
-def test_illegal():
-    d = getEmptyCol()
-    aString = "a:b|cd\\e/f\0g*h"
-    good = "abcdefgh"
-    assert d.media.stripIllegal(aString) == good
-    for c in aString:
-        bad = d.media.hasIllegal("somestring" + c + "morestring")
-        if bad:
-            assert c not in good
-        else:
-            assert c in good
+    d.reopen()
+    assert ret.missing == ["fake2.png"]
+    assert ret.unused == ["foo.jpg"]

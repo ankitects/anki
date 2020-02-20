@@ -51,6 +51,12 @@ hooks = [
     Hook(name="sync_stage_did_change", args=["stage: str"], legacy_hook="sync"),
     Hook(name="sync_progress_did_change", args=["msg: str"], legacy_hook="syncMsg"),
     Hook(
+        name="bg_thread_progress_callback",
+        args=["proceed: bool", "progress: anki.rsbackend.Progress"],
+        return_type="bool",
+        doc="Warning: this is called on a background thread.",
+    ),
+    Hook(
         name="tag_added", args=["tag: str"], legacy_hook="newTag", legacy_no_args=True,
     ),
     Hook(
@@ -66,6 +72,16 @@ hooks = [
         
         Your add-on can check filter_name to decide whether it should modify
         field_text or not before returning it.""",
+    ),
+    Hook(
+        name="note_will_flush",
+        args=["note: Note"],
+        doc="Allow to change a note before it is added/updated in the database.",
+    ),
+    Hook(
+        name="card_will_flush",
+        args=["card: Card"],
+        doc="Allow to change a card before it is added/updated in the database.",
     ),
     Hook(
         name="card_did_render",

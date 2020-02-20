@@ -11,6 +11,7 @@ from anki.collection import _Collection
 from anki.consts import *
 from anki.db import DB
 from anki.lang import _
+from anki.media import media_paths_from_col_path
 from anki.rsbackend import RustBackend
 from anki.stdmodels import (
     addBasicModel,
@@ -30,8 +31,9 @@ def Collection(
     path: str, lock: bool = True, server: Optional[ServerData] = None, log: bool = False
 ) -> _Collection:
     "Open a new or existing collection. Path must be unicode."
-    backend = RustBackend(path)
     assert path.endswith(".anki2")
+    (media_dir, media_db) = media_paths_from_col_path(path)
+    backend = RustBackend(path, media_dir, media_db)
     path = os.path.abspath(path)
     create = not os.path.exists(path)
     if create:
@@ -111,7 +113,7 @@ def _upgrade(col, ver) -> None:
     if ver < 3:
         # new deck properties
         for d in col.decks.all():
-            d["dyn"] = 0
+            d["dyn"] = DECK_STD
             d["collapsed"] = False
             col.decks.save(d)
     if ver < 4:

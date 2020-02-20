@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import Dict
+from typing import Any, Dict, Optional
 
 import aqt
 from anki.lang import _
@@ -40,10 +40,21 @@ class Toolbar:
         self.web.setFixedHeight(30)
         self.web.requiresCol = False
 
-    def draw(self):
-        self.web.set_bridge_command(self._linkHandler, TopToolbar(self))
-        self.web.stdHtml(self._body % self._centerLinks(), css=["toolbar.css"])
+    def draw(
+        self,
+        buf: str = "",
+        web_context: Optional[Any] = None,
+        link_handler: Optional[Callable[[str], Any]] = None,
+    ):
+        web_context = web_context or TopToolbar(self)
+        link_handler = link_handler or self._linkHandler
+        self.web.set_bridge_command(link_handler, web_context)
+        self.web.stdHtml(
+            self._body % self._centerLinks(), css=["toolbar.css"], context=web_context,
+        )
         self.web.adjustHeightToFit()
+        if self.mw.media_syncer.is_syncing():
+            self.set_sync_active(True)
 
     # Available links
     ######################################################################
@@ -61,10 +72,9 @@ class Toolbar:
             ("add", _("Add"), _("Shortcut key: %s") % "A"),
             ("browse", _("Browse"), _("Shortcut key: %s") % "B"),
             ("stats", _("Stats"), _("Shortcut key: %s") % "T"),
-            ("sync", _("Sync"), _("Shortcut key: %s") % "Y"),
         ]
         gui_hooks.top_toolbar_did_init_links(links, self)
-        return self._linkHTML(links)
+        return self._linkHTML(links) + self._sync_link()
 
     def _linkHTML(self, links):
         buf = ""
@@ -77,6 +87,22 @@ class Toolbar:
                 name,
             )
         return buf
+
+    def _sync_link(self) -> str:
+        name = _("Sync")
+        title = _("Shortcut key: %s") % "Y"
+        label = "sync"
+        return f"""
+<a class=hitem tabindex="-1" aria-label="{name}" title="{title}" href=# onclick="return pycmd('{label}')">{name}
+<img id=sync-spinner src='/_anki/imgs/refresh.svg'>        
+</a>"""
+
+    def set_sync_active(self, active: bool) -> None:
+        if active:
+            meth = "addClass"
+        else:
+            meth = "removeClass"
+        self.web.eval(f"$('#sync-spinner').{meth}('spin')")
 
     # Link handling
     ######################################################################
@@ -133,10 +159,19 @@ class BottomBar(Toolbar):
 %s</td></tr></table></center>
 """
 
-    def draw(self, buf):
+    def draw(
+        self,
+        buf: str = "",
+        web_context: Optional[Any] = None,
+        link_handler: Optional[Callable[[str], Any]] = None,
+    ):
         # note: some screens may override this
-        self.web.set_bridge_command(self._linkHandler, BottomToolbar(self))
+        web_context = web_context or BottomToolbar(self)
+        link_handler = link_handler or self._linkHandler
+        self.web.set_bridge_command(link_handler, web_context)
         self.web.stdHtml(
-            self._centerBody % buf, css=["toolbar.css", "toolbar-bottom.css"]
+            self._centerBody % buf,
+            css=["toolbar.css", "toolbar-bottom.css"],
+            context=web_context,
         )
         self.web.adjustHeightToFit()

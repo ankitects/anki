@@ -22,10 +22,13 @@ import uuid
 
 import PyQt5.QtSvg
 
-from anki.utils import isWin
+from anki.utils import isLin, isWin
 
 # external module access in Windows
 if isWin:
     import pythoncom
     import win32com
     import pywintypes
+
+if isLin:
+    import fcntl

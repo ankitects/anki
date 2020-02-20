@@ -4,7 +4,7 @@
 #
 
 import os, re, sys
-po_dir = "translations/anki.pot"
+po_dir = "po/desktop"
 
 msg_re = re.compile(r"^(msgid|msgid_plural|msgstr|)(\[[\d]\])? \"(.*)\"$")
 cont_re = re.compile(r"^\"(.*)\"$")
@@ -100,8 +100,11 @@ def fix_po(path):
     return len(problems)
 
 problems = 0
-for po in os.listdir(po_dir):
-    path = os.path.join(po_dir, po)
+for fname in os.listdir(po_dir):
+    path = os.path.join(po_dir, fname)
+    if not os.path.isdir(path):
+        continue
+    path = os.path.join(path, "anki.po")
     problems += fix_po(path)
 
 if problems:

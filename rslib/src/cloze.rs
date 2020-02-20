@@ -1,8 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use crate::latex::contains_latex;
 use crate::template::RenderContext;
-use crate::text::{contains_latex, strip_html};
+use crate::text::strip_html;
 use lazy_static::lazy_static;
 use regex::Captures;
 use regex::Regex;
@@ -144,7 +145,7 @@ mod test {
     use std::collections::HashSet;
 
     #[test]
-    fn test_cloze() {
+    fn cloze() {
         assert_eq!(
             cloze_numbers_in_string("test"),
             vec![].into_iter().collect::<HashSet<u16>>()

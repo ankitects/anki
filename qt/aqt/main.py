@@ -15,8 +15,6 @@ from argparse import Namespace
 from threading import Thread
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
-from send2trash import send2trash
-
 import anki
 import aqt
 import aqt.mediasrv
@@ -36,6 +34,8 @@ from anki.utils import devMode, ids2str, intTime, isMac, isWin, splitFields
 from aqt import gui_hooks
 from aqt.addons import DownloadLogEntry, check_and_prompt_for_updates, show_log_to_user
 from aqt.legacy import install_pylib_legacy
+from aqt.mediacheck import check_media_db
+from aqt.mediasync import MediaSyncer
 from aqt.profiles import ProfileManager as ProfileManagerType
 from aqt.qt import *
 from aqt.qt import sip
@@ -83,6 +83,7 @@ class AnkiQt(QMainWindow):
         self.opts = opts
         self.col: Optional[_Collection] = None
         self.taskman = TaskManager()
+        self.media_syncer = MediaSyncer(self)
         aqt.mw = self
         self.app = app
         self.pm = profileManager
@@ -132,7 +133,7 @@ class AnkiQt(QMainWindow):
         self.setupSignals()
         self.setupAutoUpdate()
         self.setupHooks()
-        self.setupRefreshTimer()
+        self.setup_timers()
         self.updateTitleBar()
         # screens
         self.setupDeckBrowser()
@@ -342,6 +343,8 @@ close the profile or restart Anki."""
         if not self.loadCollection():
             return
 
+        self.maybe_auto_sync_media()
+
         self.pm.apply_profile_options()
 
         # show main window
@@ -371,6 +374,9 @@ close the profile or restart Anki."""
             self._unloadProfile()
             onsuccess()
 
+        # start media sync if not already running
+        self.maybe_auto_sync_media()
+
         gui_hooks.profile_will_close()
         self.unloadCollection(callback)
 
@@ -385,7 +391,7 @@ close the profile or restart Anki."""
         # at this point there should be no windows left
         self._checkForUnclosedWidgets()
 
-        self.maybeAutoSync()
+        self.maybeAutoSync(True)
 
     def _checkForUnclosedWidgets(self) -> None:
         for w in self.app.topLevelWidgets():
@@ -663,9 +669,8 @@ from the profile screen."
         if self.resetModal:
             # we don't have to change the webview, as we have a covering window
             return
-        self.web.set_bridge_command(
-            lambda url: self.delayedMaybeReset(), ResetRequired(self)
-        )
+        web_context = ResetRequired(self)
+        self.web.set_bridge_command(lambda url: self.delayedMaybeReset(), web_context)
         i = _("Waiting for editing to finish.")
         b = self.button("refresh", _("Resume Now"), id="resume")
         self.web.stdHtml(
@@ -676,7 +681,8 @@ from the profile screen."
 %s</div></div></center>
 <script>$('#resume').focus()</script>
 """
-            % (i, b)
+            % (i, b),
+            context=web_context,
         )
         self.bottomWeb.hide()
         self.web.setFocus()
@@ -717,19 +723,16 @@ title="%s" %s>%s</button>""" % (
         self.form = aqt.forms.main.Ui_MainWindow()
         self.form.setupUi(self)
         # toolbar
-        tweb = self.toolbarWeb = aqt.webview.AnkiWebView()
-        tweb.title = "top toolbar"
+        tweb = self.toolbarWeb = aqt.webview.AnkiWebView(title="top toolbar")
         tweb.setFocusPolicy(Qt.WheelFocus)
         self.toolbar = aqt.toolbar.Toolbar(self, tweb)
         self.toolbar.draw()
         # main area
-        self.web = aqt.webview.AnkiWebView()
-        self.web.title = "main webview"
+        self.web = aqt.webview.AnkiWebView(title="main webview")
         self.web.setFocusPolicy(Qt.WheelFocus)
         self.web.setMinimumWidth(400)
         # bottom area
-        sweb = self.bottomWeb = aqt.webview.AnkiWebView()
-        sweb.title = "bottom toolbar"
+        sweb = self.bottomWeb = aqt.webview.AnkiWebView(title="bottom toolbar")
         sweb.setFocusPolicy(Qt.WheelFocus)
         # add in a layout
         self.mainLayout = QVBoxLayout()
@@ -833,15 +836,19 @@ title="%s" %s>%s</button>""" % (
     # expects a current profile and a loaded collection; reloads
     # collection after sync completes
     def onSync(self):
-        self.unloadCollection(self._onSync)
+        if self.media_syncer.is_syncing():
+            self.media_syncer.show_sync_log()
+        else:
+            self.unloadCollection(self._onSync)
 
     def _onSync(self):
         self._sync()
         if not self.loadCollection():
             return
+        self.media_syncer.start()
 
     # expects a current profile, but no collection loaded
-    def maybeAutoSync(self) -> None:
+    def maybeAutoSync(self, closing=False) -> None:
         if (
             not self.pm.profile["syncKey"]
             or not self.pm.profile["autoSync"]
@@ -852,6 +859,15 @@ title="%s" %s>%s</button>""" % (
 
         # ok to sync
         self._sync()
+
+        # if media still syncing at this point, pop up progress diag
+        if closing:
+            self.media_syncer.show_diag_until_finished()
+
+    def maybe_auto_sync_media(self) -> None:
+        if not self.pm.profile["autoSync"] or self.safeMode or self.restoringBackup:
+            return
+        self.media_syncer.start()
 
     def _sync(self):
         from aqt.sync import SyncManager
@@ -1098,7 +1114,7 @@ title="%s" %s>%s</button>""" % (
         if qtminor < 11:
             m.actionUndo.setShortcut(QKeySequence("Ctrl+Alt+Z"))
         m.actionFullDatabaseCheck.triggered.connect(self.onCheckDB)
-        m.actionCheckMediaDatabase.triggered.connect(self.onCheckMediaDB)
+        m.actionCheckMediaDatabase.triggered.connect(self.on_check_media_db)
         m.actionDocumentation.triggered.connect(self.onDocumentation)
         m.actionDonate.triggered.connect(self.onDonate)
         m.actionStudyDeck.triggered.connect(self.onStudyDeck)
@@ -1153,18 +1169,26 @@ Difference to correct time: %s."""
         showWarning(warn)
         self.app.closeAllWindows()
 
-    # Count refreshing
+    # Timers
     ##########################################################################
 
-    def setupRefreshTimer(self) -> None:
-        # every 10 minutes
+    def setup_timers(self) -> None:
+        # refresh decks every 10 minutes
         self.progress.timer(10 * 60 * 1000, self.onRefreshTimer, True)
+        # check media sync every 5 minutes
+        self.progress.timer(5 * 60 * 1000, self.on_autosync_timer, True)
 
     def onRefreshTimer(self):
         if self.state == "deckBrowser":
             self.deckBrowser.refresh()
         elif self.state == "overview":
             self.overview.refresh()
+
+    def on_autosync_timer(self):
+        elap = self.media_syncer.seconds_since_last_sync()
+        # autosync if 15 minutes have elapsed since last sync
+        if elap > 15 * 60:
+            self.maybe_auto_sync_media()
 
     # Permanent libanki hooks
     ##########################################################################
@@ -1265,94 +1289,8 @@ will be lost. Continue?"""
                 continue
         return ret
 
-    def onCheckMediaDB(self):
-        self.progress.start(immediate=True)
-        (nohave, unused, warnings) = self.col.media.check()
-        self.progress.finish()
-        # generate report
-        report = ""
-        if warnings:
-            report += "\n".join(warnings) + "\n"
-        if unused:
-            numberOfUnusedFilesLabel = len(unused)
-            if report:
-                report += "\n\n\n"
-            report += (
-                ngettext(
-                    "%d file found in media folder not used by any cards:",
-                    "%d files found in media folder not used by any cards:",
-                    numberOfUnusedFilesLabel,
-                )
-                % numberOfUnusedFilesLabel
-            )
-            report += "\n" + "\n".join(unused)
-        if nohave:
-            if report:
-                report += "\n\n\n"
-            report += _("Used on cards but missing from media folder:")
-            report += "\n" + "\n".join(nohave)
-        if not report:
-            tooltip(_("No unused or missing files found."))
-            return
-        # show report and offer to delete
-        diag = QDialog(self)
-        diag.setWindowTitle("Anki")
-        layout = QVBoxLayout(diag)
-        diag.setLayout(layout)
-        text = QTextEdit()
-        text.setReadOnly(True)
-        text.setPlainText(report)
-        layout.addWidget(text)
-        box = QDialogButtonBox(QDialogButtonBox.Close)
-        layout.addWidget(box)
-        if unused:
-            b = QPushButton(_("Delete Unused Files"))
-            b.setAutoDefault(False)
-            box.addButton(b, QDialogButtonBox.ActionRole)
-            b.clicked.connect(lambda c, u=unused, d=diag: self.deleteUnused(u, d))
-
-        box.rejected.connect(diag.reject)
-        diag.setMinimumHeight(400)
-        diag.setMinimumWidth(500)
-        restoreGeom(diag, "checkmediadb")
-        diag.exec_()
-        saveGeom(diag, "checkmediadb")
-
-    def deleteUnused(self, unused, diag):
-        if not askUser(_("Delete unused media?")):
-            return
-        mdir = self.col.media.dir()
-        self.progress.start(immediate=True)
-        try:
-            lastProgress = 0
-            for c, f in enumerate(unused):
-                path = os.path.join(mdir, f)
-                if os.path.exists(path):
-                    send2trash(path)
-
-                now = time.time()
-                if now - lastProgress >= 0.3:
-                    numberOfRemainingFilesToBeDeleted = len(unused) - c
-                    lastProgress = now
-                    label = (
-                        ngettext(
-                            "%d file remaining...",
-                            "%d files remaining...",
-                            numberOfRemainingFilesToBeDeleted,
-                        )
-                        % numberOfRemainingFilesToBeDeleted
-                    )
-                    self.progress.update(label)
-        finally:
-            self.progress.finish()
-        # caller must not pass in empty list
-        # pylint: disable=undefined-loop-variable
-        numberOfFilesDeleted = c + 1
-        tooltip(
-            ngettext("Deleted %d file.", "Deleted %d files.", numberOfFilesDeleted)
-            % numberOfFilesDeleted
-        )
-        diag.close()
+    def on_check_media_db(self) -> None:
+        check_media_db(self)
 
     def onStudyDeck(self):
         from aqt.studydeck import StudyDeck

@@ -4,6 +4,7 @@ import os
 import tempfile
 
 from anki import Collection as aopen
+from anki.rsbackend import StringsGroup
 from anki.stdmodels import addBasicModel, models
 from anki.utils import isWin
 from tests.shared import assertException, getEmptyCol
@@ -147,3 +148,17 @@ def test_furigana():
     m["tmpls"][0]["qfmt"] = "{{kana:}}"
     mm.save(m)
     c.q(reload=True)
+
+
+def test_translate():
+    d = getEmptyCol()
+    tr = d.backend.translate
+
+    # strip off unicode separators
+    def no_uni(s: str) -> str:
+        return s.replace("\u2068", "").replace("\u2069", "")
+
+    assert tr(StringsGroup.TEST, "valid-key") == "a valid key"
+    assert "invalid-key" in tr(StringsGroup.TEST, "invalid-key")
+    assert no_uni(tr(StringsGroup.TEST, "plural", hats=1)) == "You have 1 hat."
+    assert no_uni(tr(StringsGroup.TEST, "plural", hats=2)) == "You have 2 hats."
