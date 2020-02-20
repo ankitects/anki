@@ -109,7 +109,7 @@ class Toolbar:
 
         links.append(self._create_sync_link())
 
-        # gui_hooks.top_toolbar_did_init_links(links, self)
+        gui_hooks.top_toolbar_did_init_links(links, self)
 
         return "\n".join(links)
 
