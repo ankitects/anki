@@ -169,3 +169,9 @@ def set_lang(lang: str, locale_dir: str) -> None:
         "anki", gettext_dir, languages=[lang], fallback=True
     )
     locale_folder = locale_dir
+
+
+# strip off unicode isolation markers from a translated string
+# for testing purposes
+def without_unicode_isolation(s: str) -> str:
+    return s.replace("\u2068", "").replace("\u2069", "")

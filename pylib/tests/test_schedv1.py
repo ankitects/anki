@@ -5,6 +5,7 @@ import time
 
 from anki import hooks
 from anki.consts import *
+from anki.lang import without_unicode_isolation
 from anki.utils import intTime
 from tests.shared import getEmptyCol as getEmptyColOrig
 
@@ -397,9 +398,10 @@ def test_button_spacing():
     c.flush()
     d.reset()
     ni = d.sched.nextIvlStr
-    assert ni(c, 2) == "2 days"
-    assert ni(c, 3) == "3 days"
-    assert ni(c, 4) == "4 days"
+    wo = without_unicode_isolation
+    assert wo(ni(c, 2)) == "2d"
+    assert wo(ni(c, 3)) == "3d"
+    assert wo(ni(c, 4)) == "4d"
 
 
 def test_overdue_lapse():
@@ -514,7 +516,7 @@ def test_nextIvl():
     assert ni(c, 3) == 21600000
     # (* 100 2.5 1.3 86400)28080000.0
     assert ni(c, 4) == 28080000
-    assert d.sched.nextIvlStr(c, 4) == "10.8 months"
+    assert without_unicode_isolation(d.sched.nextIvlStr(c, 4)) == "10.83mo"
 
 
 def test_misc():

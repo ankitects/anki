@@ -61,6 +61,7 @@ fn ftl_fallback_for_group(group: StringsGroup) -> String {
         StringsGroup::Network => include_str!("network.ftl"),
         StringsGroup::Statistics => include_str!("statistics.ftl"),
         StringsGroup::Filtering => include_str!("filtering.ftl"),
+        StringsGroup::Scheduling => include_str!("scheduling.ftl"),
     }
     .to_string()
 }
@@ -77,6 +78,7 @@ fn localized_ftl_for_group(group: StringsGroup, lang_ftl_folder: &Path) -> Optio
         StringsGroup::Network => "network.ftl",
         StringsGroup::Statistics => "statistics.ftl",
         StringsGroup::Filtering => "filtering.ftl",
+        StringsGroup::Scheduling => "scheduling.ftl",
     });
     fs::read_to_string(&path)
         .map_err(|e| {
