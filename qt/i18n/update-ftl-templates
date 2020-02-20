@@ -1,0 +1,3 @@
+#!/bin/bash
+
+rsync -a --delete ../../rslib/src/i18n/*.ftl ftl/core/templates/

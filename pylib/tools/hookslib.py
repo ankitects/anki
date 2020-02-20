@@ -139,7 +139,7 @@ class {self.classname()}:
         if self.legacy_hook:
             out += f"""\
         # legacy support
-        runFilter({self.legacy_args()})
+        {arg_names[0]} = runFilter({self.legacy_args()})
 """
 
         out += f"""\

@@ -4,6 +4,25 @@ package backend_proto;
 
 message Empty {}
 
+message BackendInit {
+    string collection_path = 1;
+    string media_folder_path = 2;
+    string media_db_path = 3;
+    repeated string preferred_langs = 4;
+    string locale_folder_path = 5;
+}
+
+enum StringsGroup {
+    OTHER = 0;
+    TEST = 1;
+    MEDIA_CHECK = 2;
+    CARD_TEMPLATES = 3;
+    SYNC = 4;
+    NETWORK = 5;
+    STATISTICS = 6;
+    FILTERING = 7;
+}
+
 // 1-15 reserved for future use; 2047 for errors
 
 message BackendInput {
@@ -18,7 +37,12 @@ message BackendInput {
         int64 local_minutes_west = 22;
         string strip_av_tags = 23;
         ExtractAVTagsIn extract_av_tags = 24;
-        string expand_clozes_to_reveal_latex = 25;
+        ExtractLatexIn extract_latex = 25;
+        AddMediaFileIn add_media_file = 26;
+        SyncMediaIn sync_media = 27;
+        Empty check_media = 28;
+        TrashMediaFilesIn trash_media_files = 29;
+        TranslateStringIn translate_string = 30;
     }
 }
 
@@ -33,7 +57,12 @@ message BackendOutput {
         sint32 local_minutes_west = 22;
         string strip_av_tags = 23;
         ExtractAVTagsOut extract_av_tags = 24;
-        string expand_clozes_to_reveal_latex = 25;
+        ExtractLatexOut extract_latex = 25;
+        string add_media_file = 26;
+        Empty sync_media = 27;
+        MediaCheckOut check_media = 28;
+        Empty trash_media_files = 29;
+        string translate_string = 30;
 
         BackendError error = 2047;
     }
@@ -41,18 +70,69 @@ message BackendOutput {
 
 message BackendError {
     oneof value {
-        InvalidInputError invalid_input = 1;
+        StringError invalid_input = 1;
         TemplateParseError template_parse = 2;
+        StringError io_error = 3;
+        StringError db_error = 4;
+        NetworkError network_error = 5;
+        SyncError sync_error = 6;
+        // user interrupted operation
+        Empty interrupted = 8;
     }
 }
 
-message InvalidInputError {
+message Progress {
+    oneof value {
+        MediaSyncProgress media_sync = 1;
+        string media_check = 2;
+    }
+}
+
+message StringError {
     string info = 1;
 }
 
 message TemplateParseError {
     string info = 1;
-    bool q_side = 2;
+}
+
+message NetworkError {
+    string info = 1;
+    enum NetworkErrorKind {
+        OTHER = 0;
+        OFFLINE = 1;
+        TIMEOUT = 2;
+        PROXY_AUTH = 3;
+    }
+    NetworkErrorKind kind = 2;
+    string localized = 3;
+}
+
+message SyncError {
+    string info = 1;
+    enum SyncErrorKind {
+        OTHER = 0;
+        CONFLICT = 1;
+        SERVER_ERROR = 2;
+        CLIENT_TOO_OLD = 3;
+        AUTH_FAILED = 4;
+        SERVER_MESSAGE = 5;
+        MEDIA_CHECK_REQUIRED = 6;
+        RESYNC_REQUIRED = 7;
+    }
+    SyncErrorKind kind = 2;
+    string localized = 3;
+}
+
+message MediaSyncProgress {
+    string checked = 1;
+    string added = 2;
+    string removed = 3;
+}
+
+message MediaSyncUploadProgress {
+    uint32 files = 1;
+    uint32 deletions = 2;
 }
 
 message TemplateRequirementsIn {
@@ -173,4 +253,52 @@ message TTSTag {
     repeated string voices = 3;
     float speed = 4;
     repeated string other_args = 5;
+}
+
+message ExtractLatexIn {
+    string text = 1;
+    bool svg = 2;
+}
+
+message ExtractLatexOut {
+    string text = 1;
+    repeated ExtractedLatex latex = 2;
+}
+
+message ExtractedLatex {
+    string filename = 1;
+    string latex_body = 2;
+}
+
+message AddMediaFileIn {
+    string desired_name = 1;
+    bytes data = 2;
+}
+
+message SyncMediaIn {
+    string hkey = 1;
+    string endpoint = 2;
+}
+
+message MediaCheckOut {
+    repeated string unused = 1;
+    repeated string missing = 2;
+    string report = 3;
+}
+
+message TrashMediaFilesIn {
+    repeated string fnames = 1;
+}
+
+message TranslateStringIn {
+    StringsGroup group = 1;
+    string key = 2;
+    map<string,TranslateArgValue> args = 3;
+}
+
+message TranslateArgValue {
+    oneof value {
+        string str = 1;
+        string number = 2;
+    }
 }

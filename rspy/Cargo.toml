@@ -1,11 +1,14 @@
 [package]
 name = "ankirspy"
-version = "2.1.20" # automatically updated
+version = "2.1.21" # automatically updated
 edition = "2018"
 authors = ["Ankitects Pty Ltd and contributors"]
 
 [dependencies]
 anki = { path = "../rslib" }
+log = "0.4.8"
+env_logger = "0.7.1"
+tokio = "0.2.11"
 
 [dependencies.pyo3]
 version = "0.8.0"

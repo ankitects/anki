@@ -99,7 +99,7 @@ mod test {
     use chrono::{FixedOffset, Local, TimeZone, Utc};
 
     #[test]
-    fn test_rollover() {
+    fn rollover() {
         assert_eq!(normalized_rollover_hour(4), 4);
         assert_eq!(normalized_rollover_hour(23), 23);
         assert_eq!(normalized_rollover_hour(24), 23);
@@ -110,7 +110,7 @@ mod test {
     }
 
     #[test]
-    fn test_fixed_offset() {
+    fn fixed_offset() {
         let offset = fixed_offset_from_minutes(-600);
         assert_eq!(offset.utc_minus_local(), -600 * 60);
     }
@@ -122,14 +122,17 @@ mod test {
     }
 
     #[test]
-    fn test_local_minutes_west() {
+    #[cfg(target_vendor = "apple")]
+    /// On Linux, TZ needs to be set prior to the process being started to take effect,
+    /// so we limit this test to Macs.
+    fn local_minutes_west() {
         // -480 throughout the year
         std::env::set_var("TZ", "Australia/Perth");
         assert_eq!(local_minutes_west_for_stamp(Utc::now().timestamp()), -480);
     }
 
     #[test]
-    fn test_days_elapsed() {
+    fn days_elapsed() {
         let local_offset = local_minutes_west_for_stamp(Utc::now().timestamp());
 
         let created_dt = FixedOffset::west(local_offset * 60)
@@ -218,7 +221,7 @@ mod test {
     }
 
     #[test]
-    fn test_next_day_at() {
+    fn next_day_at() {
         let rollhour = 4;
         let crt = Local.ymd(2019, 1, 1).and_hms(2, 0, 0);
 

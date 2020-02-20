@@ -17,42 +17,42 @@
    <item>
     <layout class="QGridLayout" name="gridLayout">
      <item row="3" column="0">
-      <widget class="QRadioButton" name="radio4">
+      <widget class="QRadioButton" name="radioAhead">
        <property name="text">
         <string>Review ahead</string>
        </property>
       </widget>
      </item>
      <item row="2" column="0">
-      <widget class="QRadioButton" name="radio3">
+      <widget class="QRadioButton" name="radioForgot">
        <property name="text">
         <string>Review forgotten cards</string>
        </property>
       </widget>
      </item>
      <item row="0" column="0">
-      <widget class="QRadioButton" name="radio1">
+      <widget class="QRadioButton" name="radioNew">
        <property name="text">
         <string>Increase today's new card limit</string>
        </property>
       </widget>
      </item>
      <item row="1" column="0">
-      <widget class="QRadioButton" name="radio2">
+      <widget class="QRadioButton" name="radioRev">
        <property name="text">
         <string>Increase today's review card limit</string>
        </property>
       </widget>
      </item>
      <item row="5" column="0">
-      <widget class="QRadioButton" name="radio6">
+      <widget class="QRadioButton" name="radioCram">
        <property name="text">
         <string>Study by card state or tag</string>
        </property>
       </widget>
      </item>
      <item row="4" column="0">
-      <widget class="QRadioButton" name="radio5">
+      <widget class="QRadioButton" name="radioPreview">
        <property name="text">
         <string>Preview new cards</string>
        </property>
@@ -163,11 +163,12 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>radio1</tabstop>
-  <tabstop>radio2</tabstop>
-  <tabstop>radio3</tabstop>
-  <tabstop>radio4</tabstop>
-  <tabstop>radio6</tabstop>
+  <tabstop>radioNew</tabstop>
+  <tabstop>radioRev</tabstop>
+  <tabstop>radioForgot</tabstop>
+  <tabstop>radioAhead</tabstop>
+  <tabstop>radioPreview</tabstop>
+  <tabstop>radioCram</tabstop>
   <tabstop>spin</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>

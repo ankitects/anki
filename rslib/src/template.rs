@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::err::{AnkiError, Result, TemplateError};
+use crate::i18n::{tr_strs, I18n, I18nCategory, StringsGroup};
 use crate::template_filters::apply_filters;
 use lazy_static::lazy_static;
 use nom;
@@ -16,6 +17,11 @@ use std::iter;
 
 pub type FieldMap<'a> = HashMap<&'a str, u16>;
 type TemplateResult<T> = std::result::Result<T, TemplateError>;
+
+static TEMPLATE_ERROR_LINK: &str =
+    "https://anki.tenderapp.com/kb/problems/card-template-has-a-problem";
+static TEMPLATE_BLANK_LINK: &str =
+    "https://anki.tenderapp.com/kb/card-appearance/the-front-of-this-card-is-blank";
 
 // Lexing
 //----------------------------------------
@@ -189,30 +195,60 @@ fn parse_inner<'a, I: Iterator<Item = TemplateResult<Token<'a>>>>(
     }
 }
 
-fn template_error_to_anki_error(err: TemplateError, q_side: bool) -> AnkiError {
-    AnkiError::TemplateError {
-        info: match err {
-            TemplateError::NoClosingBrackets(context) => format!("Missing '}}}}' in '{}'", context),
-            TemplateError::ConditionalNotClosed(tag) => format!("Missing '{{{{/{}}}}}'", tag),
-            TemplateError::ConditionalNotOpen {
-                closed,
-                currently_open,
-            } => {
-                if let Some(open) = currently_open {
-                    format!("Found {{{{/{}}}}}, but expected {{{{/{}}}}}", closed, open)
-                } else {
-                    format!(
-                        "Found {{{{/{}}}}}, but missing '{{{{#{}}}}}' or '{{{{^{}}}}}'",
-                        closed, closed, closed
-                    )
-                }
+fn template_error_to_anki_error(err: TemplateError, q_side: bool, i18n: &I18n) -> AnkiError {
+    let cat = i18n.get(StringsGroup::CardTemplates);
+    let header = cat.tr(if q_side {
+        "front-side-problem"
+    } else {
+        "back-side-problem"
+    });
+    let details = localized_template_error(&cat, err);
+    let more_info = cat.tr("more-info");
+    let info = format!(
+        "{}<br>{}<br><a href='{}'>{}</a>",
+        header, details, TEMPLATE_ERROR_LINK, more_info
+    );
+
+    AnkiError::TemplateError { info }
+}
+
+fn localized_template_error(cat: &I18nCategory, err: TemplateError) -> String {
+    match err {
+        TemplateError::NoClosingBrackets(tag) => {
+            cat.trn("no-closing-brackets", tr_strs!("tag"=>tag, "missing"=>"}}"))
+        }
+        TemplateError::ConditionalNotClosed(tag) => cat.trn(
+            "conditional-not-closed",
+            tr_strs!("missing"=>format!("{{{{/{}}}}}", tag)),
+        ),
+        TemplateError::ConditionalNotOpen {
+            closed,
+            currently_open,
+        } => {
+            if let Some(open) = currently_open {
+                cat.trn(
+                    "wrong-conditional-closed",
+                    tr_strs!(
+                "found"=>format!("{{{{/{}}}}}", closed),
+                "expected"=>format!("{{{{/{}}}}}", open)),
+                )
+            } else {
+                cat.trn(
+                    "conditional-not-open",
+                    tr_strs!(
+                    "found"=>format!("{{{{/{}}}}}", closed),
+                    "missing1"=>format!("{{{{#{}}}}}", closed),
+                    "missing2"=>format!("{{{{^{}}}}}", closed)
+                    ),
+                )
             }
-            TemplateError::FieldNotFound { field, filters } => format!(
-                "Found '{{{{{}{}}}}}', but there is no field called '{}'",
-                filters, field, field
-            ),
-        },
-        q_side,
+        }
+        TemplateError::FieldNotFound { field, filters } => cat.trn(
+            "no-such-field",
+            tr_strs!(
+            "found"=>format!("{{{{{}{}}}}}", filters, field),
+            "field"=>field),
+        ),
     }
 }
 
@@ -454,6 +490,7 @@ pub fn render_card(
     afmt: &str,
     field_map: &HashMap<&str, &str>,
     card_ord: u16,
+    i18n: &I18n,
 ) -> Result<(Vec<RenderedNode>, Vec<RenderedNode>)> {
     // prepare context
     let mut context = RenderContext {
@@ -465,16 +502,28 @@ pub fn render_card(
 
     // question side
     let qnorm = without_legacy_template_directives(qfmt);
-    let qnodes = ParsedTemplate::from_text(qnorm.as_ref())
-        .and_then(|tmpl| tmpl.render(&context))
-        .map_err(|e| template_error_to_anki_error(e, true))?;
+    let (qnodes, qtmpl) = ParsedTemplate::from_text(qnorm.as_ref())
+        .and_then(|tmpl| Ok((tmpl.render(&context)?, tmpl)))
+        .map_err(|e| template_error_to_anki_error(e, true, i18n))?;
+
+    // check if the front side was empty
+    if !qtmpl.renders_with_fields(context.nonempty_fields) {
+        let cat = i18n.get(StringsGroup::CardTemplates);
+        let info = format!(
+            "{}<br><a href='{}'>{}</a>",
+            cat.tr("empty-front"),
+            TEMPLATE_BLANK_LINK,
+            cat.tr("more-info")
+        );
+        return Err(AnkiError::TemplateError { info });
+    };
 
     // answer side
     context.question_side = false;
     let anorm = without_legacy_template_directives(afmt);
     let anodes = ParsedTemplate::from_text(anorm.as_ref())
         .and_then(|tmpl| tmpl.render(&context))
-        .map_err(|e| template_error_to_anki_error(e, false))?;
+        .map_err(|e| template_error_to_anki_error(e, false, i18n))?;
 
     Ok((qnodes, anodes))
 }
@@ -547,7 +596,7 @@ mod test {
     use std::iter::FromIterator;
 
     #[test]
-    fn test_field_empty() {
+    fn field_empty() {
         assert_eq!(field_is_empty(""), true);
         assert_eq!(field_is_empty(" "), true);
         assert_eq!(field_is_empty("x"), false);
@@ -558,7 +607,7 @@ mod test {
     }
 
     #[test]
-    fn test_parsing() {
+    fn parsing() {
         let tmpl = PT::from_text("foo {{bar}} {{#baz}} quux {{/baz}}").unwrap();
         assert_eq!(
             tmpl.0,
@@ -606,7 +655,7 @@ mod test {
     }
 
     #[test]
-    fn test_nonempty() {
+    fn nonempty() {
         let fields = HashSet::from_iter(vec!["1", "3"].into_iter());
         let mut tmpl = PT::from_text("{{2}}{{1}}").unwrap();
         assert_eq!(tmpl.renders_with_fields(&fields), true);
@@ -619,7 +668,7 @@ mod test {
     }
 
     #[test]
-    fn test_requirements() {
+    fn requirements() {
         let field_map: FieldMap = vec!["a", "b"]
             .iter()
             .enumerate()
@@ -680,7 +729,7 @@ mod test {
     }
 
     #[test]
-    fn test_alt_syntax() {
+    fn alt_syntax() {
         let input = "
 {{=<% %>=}}
 <%Front%>
@@ -695,7 +744,7 @@ mod test {
     }
 
     #[test]
-    fn test_render_single() {
+    fn render_single() {
         let map: HashMap<_, _> = vec![("F", "f"), ("B", "b"), ("E", " ")]
             .into_iter()
             .collect();

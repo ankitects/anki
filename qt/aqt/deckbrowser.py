@@ -5,22 +5,48 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from dataclasses import dataclass
 from typing import Any
 
 import aqt
 from anki.errors import DeckRenameError
 from anki.lang import _, ngettext
+from anki.rsbackend import StringsGroup
 from anki.utils import fmtTimeSpan, ids2str
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.sound import av_player
 from aqt.toolbar import BottomBar
-from aqt.utils import askUser, getOnlyText, openHelp, openLink, shortcut, showWarning
+from aqt.utils import (
+    askUser,
+    getOnlyText,
+    openHelp,
+    openLink,
+    shortcut,
+    showWarning,
+    tr,
+)
 
 
 class DeckBrowserBottomBar:
     def __init__(self, deck_browser: DeckBrowser):
         self.deck_browser = deck_browser
+
+
+@dataclass
+class DeckBrowserContent:
+    """Stores sections of HTML content that the deck browser will be
+    populated with.
+    
+    Attributes:
+        tree {str} -- HTML of the deck tree section
+        stats {str} -- HTML of the stats section
+        countwarn {str} -- HTML of the deck count warning section
+    """
+
+    tree: str
+    stats: str
+    countwarn: str
 
 
 class DeckBrowser:
@@ -103,12 +129,17 @@ class DeckBrowser:
         gui_hooks.deck_browser_did_render(self)
 
     def __renderPage(self, offset):
-        tree = self._renderDeckTree(self._dueTree)
-        stats = self._renderStats()
+        content = DeckBrowserContent(
+            tree=self._renderDeckTree(self._dueTree),
+            stats=self._renderStats(),
+            countwarn=self._countWarn(),
+        )
+        gui_hooks.deck_browser_will_render_content(self, content)
         self.web.stdHtml(
-            self._body % dict(tree=tree, stats=stats, countwarn=self._countWarn()),
+            self._body % content.__dict__,
             css=["deckbrowser.css"],
             js=["jquery.js", "jquery-ui.js", "deckbrowser.js"],
+            context=self,
         )
         self.web.key = "deckBrowser"
         self._drawButtons()
@@ -159,7 +190,7 @@ where id > ?""",
 <tr><th colspan=5 align=left>%s</th><th class=count>%s</th>
 <th class=count>%s</th><th class=optscol></th></tr>""" % (
                 _("Deck"),
-                _("Due"),
+                tr(StringsGroup.STATISTICS, "due-count"),
                 _("New"),
             )
             buf += self._topLevelDragRow()
@@ -340,9 +371,10 @@ where id > ?""",
 <button title='%s' onclick='pycmd(\"%s\");'>%s</button>""" % tuple(
                 b
             )
-        self.bottom.draw(buf)
-        self.bottom.web.set_bridge_command(
-            self._linkHandler, DeckBrowserBottomBar(self)
+        self.bottom.draw(
+            buf=buf,
+            link_handler=self._linkHandler,
+            web_context=DeckBrowserBottomBar(self),
         )
 
     def _onShared(self):

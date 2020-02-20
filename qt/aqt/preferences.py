@@ -10,7 +10,7 @@ import aqt
 from anki.lang import _
 from aqt import AnkiQt
 from aqt.qt import *
-from aqt.utils import askUser, openHelp, showInfo
+from aqt.utils import askUser, openHelp, showInfo, showWarning
 
 
 class Preferences(QDialog):
@@ -59,7 +59,7 @@ class Preferences(QDialog):
     def langIdx(self):
         codes = [x[1] for x in anki.lang.langs]
         try:
-            return codes.index(anki.lang.getLang())
+            return codes.index(anki.lang.currentLang)
         except:
             return codes.index("en_US")
 
@@ -196,9 +196,12 @@ Not currently enabled; click the sync button in the main window to enable."""
             )
         )
 
-    def onSyncDeauth(self):
+    def onSyncDeauth(self) -> None:
+        if self.mw.media_syncer.is_syncing():
+            showWarning("Can't log out while sync in progress.")
+            return
         self.prof["syncKey"] = None
-        self.mw.col.media.forceResync()
+        self.mw.col.media.force_resync()
         self._hideAuth()
 
     def updateNetwork(self):

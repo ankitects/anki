@@ -95,7 +95,6 @@ class Editor:
 
     def setupWeb(self) -> None:
         self.web = EditorWebView(self.widget, self)
-        self.web.title = "editor"
         self.web.allowDrops = True
         self.web.set_bridge_command(self.onBridgeCmd, self)
         self.outerLayout.addWidget(self.web, 1)
@@ -167,6 +166,7 @@ class Editor:
             _html % (bgcol, bgcol, topbuts, _("Show Duplicates")),
             css=["editor.css"],
             js=["jquery.js", "editor.js"],
+            context=self,
         )
 
     # Top buttons
@@ -793,8 +793,11 @@ to a cloze type first, via Edit>Change Note Type."""
             self.mw.progress.finish()
         # strip off any query string
         url = re.sub(r"\?.*?$", "", url)
-        path = urllib.parse.unquote(url)
-        return self.mw.col.media.writeData(path, filecontents, typeHint=ct)
+        fname = os.path.basename(urllib.parse.unquote(url))
+        if ct:
+            fname = self.mw.col.media.add_extension_based_on_mime(fname, ct)
+
+        return self.mw.col.media.write_data(fname, filecontents)
 
     # Paste/drag&drop
     ######################################################################
@@ -937,7 +940,7 @@ to a cloze type first, via Edit>Change Note Type."""
 
 class EditorWebView(AnkiWebView):
     def __init__(self, parent, editor):
-        AnkiWebView.__init__(self)
+        AnkiWebView.__init__(self, title="editor")
         self.editor = editor
         self.strip = self.editor.mw.pm.profile["stripHTML"]
         self.setAcceptDrops(True)

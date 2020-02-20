@@ -7,7 +7,7 @@ import time
 from anki import hooks
 from anki.lang import _
 from anki.storage import Collection
-from anki.sync import FullSyncer, MediaSyncer, RemoteMediaServer, RemoteServer, Syncer
+from anki.sync import FullSyncer, RemoteServer, Syncer
 from aqt.qt import *
 from aqt.utils import askUserDialog, showInfo, showText, showWarning, tooltip
 
@@ -42,7 +42,6 @@ class SyncManager(QObject):
             self.pm.collectionPath(),
             self.pm.profile["syncKey"],
             auth=auth,
-            media=self.pm.profile["syncMedia"],
             hostNum=self.pm.profile.get("hostNum"),
         )
         t._event.connect(self.onEvent)
@@ -132,8 +131,6 @@ automatically."""
                 m = _("Downloading from AnkiWeb...")
             elif t == "sanity":
                 m = _("Checking...")
-            elif t == "findMedia":
-                m = _("Checking media...")
             elif t == "upgradeRequired":
                 showText(
                     _(
@@ -154,14 +151,6 @@ Please visit AnkiWeb, upgrade your deck, then try again."""
             self._clockOff()
         elif evt == "checkFailed":
             self._checkFailed()
-        elif evt == "mediaSanity":
-            showWarning(
-                _(
-                    """\
-A problem occurred while syncing media. Please use Tools>Check Media, then \
-sync again to correct the issue."""
-                )
-            )
         elif evt == "noChanges":
             pass
         elif evt == "fullSync":
@@ -358,12 +347,11 @@ class SyncThread(QThread):
     _event = pyqtSignal(str, str)
     progress_event = pyqtSignal(int, int)
 
-    def __init__(self, path, hkey, auth=None, media=True, hostNum=None):
+    def __init__(self, path, hkey, auth=None, hostNum=None):
         QThread.__init__(self)
         self.path = path
         self.hkey = hkey
         self.auth = auth
-        self.media = media
         self.hostNum = hostNum
         self._abort = 0  # 1=flagged, 2=aborting
 
@@ -475,8 +463,6 @@ class SyncThread(QThread):
         self.syncMsg = self.client.syncMsg
         self.uname = self.client.uname
         self.hostNum = self.client.hostNum
-        # then move on to media sync
-        self._syncMedia()
 
     def _fullSync(self):
         # tell the calling thread we need a decision on sync direction, and
@@ -505,29 +491,6 @@ class SyncThread(QThread):
             if "sync cancelled" in str(e):
                 return
             raise
-        # reopen db and move on to media sync
-        self.col.reopen()
-        self._syncMedia()
-
-    def _syncMedia(self):
-        if not self.media:
-            return
-        self.server = RemoteMediaServer(
-            self.col, self.hkey, self.server.client, hostNum=self.hostNum
-        )
-        self.client = MediaSyncer(self.col, self.server)
-        try:
-            ret = self.client.sync()
-        except Exception as e:
-            if "sync cancelled" in str(e):
-                return
-            raise
-        if ret == "noChanges":
-            self.fireEvent("noMediaChanges")
-        elif ret == "sanityCheckFailed" or ret == "corruptMediaDB":
-            self.fireEvent("mediaSanity")
-        else:
-            self.fireEvent("mediaSuccess")
 
     def fireEvent(self, cmd, arg=""):
         self._event.emit(cmd, arg)

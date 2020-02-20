@@ -8,8 +8,9 @@ SUBMAKE := $(MAKE) --print-directory
 
 BUILDFLAGS := --release --strip
 RUNFLAGS :=
-CHECKABLE := rslib pylib qt
-DEVEL := rspy pylib qt
+CHECKABLE_PY := pylib qt
+CHECKABLE_RS := rslib
+DEVEL := rslib rspy pylib qt
 
 .PHONY: all
 all: run
@@ -80,10 +81,13 @@ clean-dist:
 .PHONY: check
 check: pyenv buildhash
 	@set -e && \
+	for dir in $(CHECKABLE_RS); do \
+	  $(SUBMAKE) -C $$dir check; \
+	done; \
 	. pyenv/bin/activate && \
 	$(SUBMAKE) -C rspy develop && \
 	$(SUBMAKE) -C pylib develop && \
-	for dir in $(CHECKABLE); do \
+	for dir in $(CHECKABLE_PY); do \
 	  $(SUBMAKE) -C $$dir check; \
 	done;
 	@echo
@@ -93,7 +97,7 @@ check: pyenv buildhash
 fix:
 	@set -e && \
 	. pyenv/bin/activate && \
-	for dir in $(CHECKABLE); do \
+	for dir in $(CHECKABLE_RS) $(CHECKABLE_PY); do \
 	  $(SUBMAKE) -C $$dir fix; \
 	done; \
 

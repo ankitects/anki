@@ -50,3 +50,24 @@ body {
 .isMac.nightMode #header {
     border-bottom-color: vars.$night-frame-bg;
 }
+
+@keyframes spin {
+    0% {-webkit-transform: rotate(0deg);}
+    100% {-webkit-transform: rotate(360deg);}
+}
+
+.spin {
+    animation: spin;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+    display: inline-block;
+    visibility: visible !important;
+    animation-timing-function: linear;
+}
+
+#sync-spinner {
+    width: 16px;
+    height: 16px;
+    margin-bottom: -3px;
+    visibility: hidden;
+}

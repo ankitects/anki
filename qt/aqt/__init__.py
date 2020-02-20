@@ -64,7 +64,7 @@ except ImportError as e:
 
 
 from aqt import addcards, browser, editcurrent  # isort:skip
-from aqt import stats, about, preferences  # isort:skip
+from aqt import stats, about, preferences, mediasync  # isort:skip
 
 
 class DialogManager:
@@ -76,6 +76,7 @@ class DialogManager:
         "DeckStats": [stats.DeckStats, None],
         "About": [about.show, None],
         "Preferences": [preferences.Preferences, None],
+        "sync_log": [mediasync.MediaSyncDialog, None],
     }
 
     def open(self, name, *args):
@@ -147,8 +148,8 @@ def setupLang(
         locale.setlocale(locale.LC_ALL, "")
     except:
         pass
-    lang = force or pm.meta["defaultLang"]
 
+    # add _ and ngettext globals used by legacy code
     def fn__(arg):
         print("accessing _ without importing from anki.lang will break in the future")
         print("".join(traceback.format_stack()[-2]))
@@ -167,15 +168,26 @@ def setupLang(
 
     builtins.__dict__["_"] = fn__
     builtins.__dict__["ngettext"] = fn_ngettext
+
+    # get lang and normalize into ja/zh-CN form
+    lang = force or pm.meta["defaultLang"]
+    lang = anki.lang.lang_to_disk_lang(lang)
+
+    # load gettext catalog
     ldir = locale_dir()
-    anki.lang.setLang(lang, ldir, local=False)
+    anki.lang.set_lang(lang, ldir)
+
+    # switch direction for RTL languages
     if lang in ("he", "ar", "fa"):
         app.setLayoutDirection(Qt.RightToLeft)
     else:
         app.setLayoutDirection(Qt.LeftToRight)
-    # qt
+
+    # load qt translations
     _qtrans = QTranslator()
-    if _qtrans.load("qt_" + lang, ldir):
+    qt_dir = os.path.join(ldir, "qt")
+    qt_lang = lang.replace("-", "_")
+    if _qtrans.load("qtbase_" + qt_lang, qt_dir):
         app.installTranslator(_qtrans)
 
 

@@ -7,7 +7,7 @@ See pylib/anki/hooks.py
 
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, List, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import anki
 import aqt
@@ -203,6 +203,105 @@ class _BrowserMenusDidInitHook:
 browser_menus_did_init = _BrowserMenusDidInitHook()
 
 
+class _BrowserWillBuildTreeFilter:
+    """Used to add or replace items in the browser sidebar tree
+        
+        'tree' is the root SidebarItem that all other items are added to.
+        
+        'stage' is an enum describing the different construction stages of
+        the sidebar tree at which you can interject your changes.
+        The different values can be inspected by looking at
+        aqt.browser.SidebarStage.
+        
+        If you want Anki to proceed with the construction of the tree stage
+        in question after your have performed your changes or additions,
+        return the 'handled' boolean unchanged.
+        
+        On the other hand, if you want to prevent Anki from adding its own
+        items at a particular construction stage (e.g. in case your add-on
+        implements its own version of that particular stage), return 'True'.
+        
+        If you return 'True' at SidebarStage.ROOT, the sidebar will not be
+        populated by any of the other construction stages. For any other stage
+        the tree construction will just continue as usual.
+        
+        For example, if your code wishes to replace the tag tree, you could do:
+        
+            def on_browser_will_build_tree(handled, root, stage, browser):
+                if stage != SidebarStage.TAGS:
+                    # not at tag tree building stage, pass on
+                    return handled
+                
+                # your tag tree construction code
+                # root.addChild(...)
+                
+                # your code handled tag tree construction, no need for Anki
+                # or other add-ons to build the tag tree
+                return True
+        """
+
+    _hooks: List[
+        Callable[
+            [
+                bool,
+                "aqt.browser.SidebarItem",
+                "aqt.browser.SidebarStage",
+                "aqt.browser.Browser",
+            ],
+            bool,
+        ]
+    ] = []
+
+    def append(
+        self,
+        cb: Callable[
+            [
+                bool,
+                "aqt.browser.SidebarItem",
+                "aqt.browser.SidebarStage",
+                "aqt.browser.Browser",
+            ],
+            bool,
+        ],
+    ) -> None:
+        """(handled: bool, tree: aqt.browser.SidebarItem, stage: aqt.browser.SidebarStage, browser: aqt.browser.Browser)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self,
+        cb: Callable[
+            [
+                bool,
+                "aqt.browser.SidebarItem",
+                "aqt.browser.SidebarStage",
+                "aqt.browser.Browser",
+            ],
+            bool,
+        ],
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(
+        self,
+        handled: bool,
+        tree: aqt.browser.SidebarItem,
+        stage: aqt.browser.SidebarStage,
+        browser: aqt.browser.Browser,
+    ) -> bool:
+        for filter in self._hooks:
+            try:
+                handled = filter(handled, tree, stage, browser)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return handled
+
+
+browser_will_build_tree = _BrowserWillBuildTreeFilter()
+
+
 class _BrowserWillShowContextMenuHook:
     _hooks: List[Callable[["aqt.browser.Browser", QMenu], None]] = []
 
@@ -334,6 +433,63 @@ class _DeckBrowserDidRenderHook:
 
 
 deck_browser_did_render = _DeckBrowserDidRenderHook()
+
+
+class _DeckBrowserWillRenderContentHook:
+    """Used to modify HTML content sections in the deck browser body
+        
+        'content' contains the sections of HTML content the deck browser body
+        will be updated with.
+        
+        When modifying the content of a particular section, please make sure your
+        changes only perform the minimum required edits to make your add-on work.
+        You should avoid overwriting or interfering with existing data as much
+        as possible, instead opting to append your own changes, e.g.:
+        
+            def on_deck_browser_will_render_content(deck_browser, content):
+                content.stats += "
+<div>my html</div>"
+        """
+
+    _hooks: List[
+        Callable[
+            ["aqt.deckbrowser.DeckBrowser", "aqt.deckbrowser.DeckBrowserContent"], None
+        ]
+    ] = []
+
+    def append(
+        self,
+        cb: Callable[
+            ["aqt.deckbrowser.DeckBrowser", "aqt.deckbrowser.DeckBrowserContent"], None
+        ],
+    ) -> None:
+        """(deck_browser: aqt.deckbrowser.DeckBrowser, content: aqt.deckbrowser.DeckBrowserContent)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self,
+        cb: Callable[
+            ["aqt.deckbrowser.DeckBrowser", "aqt.deckbrowser.DeckBrowserContent"], None
+        ],
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(
+        self,
+        deck_browser: aqt.deckbrowser.DeckBrowser,
+        content: aqt.deckbrowser.DeckBrowserContent,
+    ) -> None:
+        for hook in self._hooks:
+            try:
+                hook(deck_browser, content)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+deck_browser_will_render_content = _DeckBrowserWillRenderContentHook()
 
 
 class _DeckBrowserWillShowOptionsMenuHook:
@@ -598,6 +754,54 @@ class _EditorWillUseFontForFieldFilter:
 editor_will_use_font_for_field = _EditorWillUseFontForFieldFilter()
 
 
+class _MediaSyncDidProgressHook:
+    _hooks: List[Callable[["aqt.mediasync.LogEntryWithTime"], None]] = []
+
+    def append(self, cb: Callable[["aqt.mediasync.LogEntryWithTime"], None]) -> None:
+        """(entry: aqt.mediasync.LogEntryWithTime)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[["aqt.mediasync.LogEntryWithTime"], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, entry: aqt.mediasync.LogEntryWithTime) -> None:
+        for hook in self._hooks:
+            try:
+                hook(entry)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+media_sync_did_progress = _MediaSyncDidProgressHook()
+
+
+class _MediaSyncDidStartOrStopHook:
+    _hooks: List[Callable[[bool], None]] = []
+
+    def append(self, cb: Callable[[bool], None]) -> None:
+        """(running: bool)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[bool], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, running: bool) -> None:
+        for hook in self._hooks:
+            try:
+                hook(running)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+media_sync_did_start_or_stop = _MediaSyncDidStartOrStopHook()
+
+
 class _OverviewDidRefreshHook:
     """Allow to update the overview window. E.g. add the deck name in the
         title."""
@@ -623,6 +827,55 @@ class _OverviewDidRefreshHook:
 
 
 overview_did_refresh = _OverviewDidRefreshHook()
+
+
+class _OverviewWillRenderContentHook:
+    """Used to modify HTML content sections in the overview body
+
+        'content' contains the sections of HTML content the overview body
+        will be updated with.
+
+        When modifying the content of a particular section, please make sure your
+        changes only perform the minimum required edits to make your add-on work.
+        You should avoid overwriting or interfering with existing data as much
+        as possible, instead opting to append your own changes, e.g.:
+
+            def on_overview_will_render_content(overview, content):
+                content.table += "
+<div>my html</div>"
+        """
+
+    _hooks: List[
+        Callable[["aqt.overview.Overview", "aqt.overview.OverviewContent"], None]
+    ] = []
+
+    def append(
+        self,
+        cb: Callable[["aqt.overview.Overview", "aqt.overview.OverviewContent"], None],
+    ) -> None:
+        """(overview: aqt.overview.Overview, content: aqt.overview.OverviewContent)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self,
+        cb: Callable[["aqt.overview.Overview", "aqt.overview.OverviewContent"], None],
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(
+        self, overview: aqt.overview.Overview, content: aqt.overview.OverviewContent
+    ) -> None:
+        for hook in self._hooks:
+            try:
+                hook(overview, content)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+overview_will_render_content = _OverviewWillRenderContentHook()
 
 
 class _ProfileDidOpenHook:
@@ -1159,6 +1412,67 @@ class _WebviewDidReceiveJsMessageFilter:
 
 
 webview_did_receive_js_message = _WebviewDidReceiveJsMessageFilter()
+
+
+class _WebviewWillSetContentHook:
+    """Used to modify web content before it is rendered.
+
+        Web_content contains the HTML, JS, and CSS the web view will be
+        populated with.
+
+        Context is the instance that was passed to stdHtml().
+        It can be inspected to check which screen this hook is firing
+        in, and to get a reference to the screen. For example, if your
+        code wishes to function only in the review screen, you could do:
+
+            def on_webview_will_set_content(web_content: WebContent, context):
+                
+                if not isinstance(context, aqt.reviewer.Reviewer):
+                    # not reviewer, do not modify content
+                    return
+                
+                # reviewer, perform changes to content
+                
+                context: aqt.reviewer.Reviewer
+                
+                addon_package = mw.addonManager.addonFromModule(__name__)
+                
+                web_content.css.append(
+                    f"/_addons/{addon_package}/web/my-addon.css")
+                web_content.js.append(
+                    f"/_addons/{addon_package}/web/my-addon.js")
+
+                web_content.head += "<script>console.log('my-addon')</script>"
+                web_content.body += "<div id='my-addon'></div>"
+        """
+
+    _hooks: List[Callable[["aqt.webview.WebContent", Optional[Any]], None]] = []
+
+    def append(
+        self, cb: Callable[["aqt.webview.WebContent", Optional[Any]], None]
+    ) -> None:
+        """(web_content: aqt.webview.WebContent, context: Optional[Any])"""
+        self._hooks.append(cb)
+
+    def remove(
+        self, cb: Callable[["aqt.webview.WebContent", Optional[Any]], None]
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(
+        self, web_content: aqt.webview.WebContent, context: Optional[Any]
+    ) -> None:
+        for hook in self._hooks:
+            try:
+                hook(web_content, context)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+webview_will_set_content = _WebviewWillSetContentHook()
 
 
 class _WebviewWillShowContextMenuHook:

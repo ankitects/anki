@@ -6,6 +6,7 @@ use lazy_static::lazy_static;
 use regex::{Captures, Regex};
 use std::borrow::Cow;
 use std::ptr;
+use unicode_normalization::{is_nfc, UnicodeNormalization};
 
 #[derive(Debug, PartialEq)]
 pub enum AVTag {
@@ -30,8 +31,33 @@ lazy_static! {
     .unwrap();
 
     static ref IMG_TAG: Regex = Regex::new(
-        // group 1 is filename
-        r#"(?i)<img[^>]+src=["']?([^"'>]+)["']?[^>]*>"#
+        r#"(?xsi)
+            # the start of the image tag
+            <img[^>]+src=
+            (?:
+                    # 1: double-quoted filename
+                    "
+                    ([^"]+?)
+                    "
+                    [^>]*>                    
+                |
+                    # 2: single-quoted filename
+                    '
+                    ([^']+?)
+                    '
+                    [^>]*>
+                |
+                    # 3: unquoted filename
+                    ([^ >]+?)
+                    (?:
+                        # then either a space and the rest
+                        \x20[^>]*>
+                        |
+                        # or the tag immediately ends
+                        >
+                    )
+            )
+            "#
     ).unwrap();
 
     // videos are also in sound tags
@@ -44,25 +70,26 @@ lazy_static! {
                 (.*?)           # 3 - field text
             \[/anki:tts\]
             "#).unwrap();
-
-    static ref LATEX: Regex = Regex::new(
-        r#"(?xsi)
-            \[latex\](.+?)\[/latex\]     # 1 - standard latex
-            |
-            \[\$\](.+?)\[/\$\]           # 2 - inline math
-            |
-            \[\$\$\](.+?)\[/\$\$\]       # 3 - math environment
-            "#).unwrap();    
 }
 
 pub fn strip_html(html: &str) -> Cow<str> {
-    HTML.replace_all(html, "")
+    let mut out: Cow<str> = html.into();
+
+    if let Cow::Owned(o) = HTML.replace_all(html, "") {
+        out = o.into();
+    }
+
+    if let Cow::Owned(o) = decode_entities(out.as_ref()) {
+        out = o.into();
+    }
+
+    out
 }
 
 pub fn decode_entities(html: &str) -> Cow<str> {
     if html.contains('&') {
         match htmlescape::decode_html(html) {
-            Ok(text) => text,
+            Ok(text) => text.replace("\u{a0}", " "),
             Err(e) => format!("{:?}", e),
         }
         .into()
@@ -105,6 +132,39 @@ pub fn extract_av_tags<'a>(text: &'a str, question_side: bool) -> (Cow<'a, str>,
     (replaced_text, tags)
 }
 
+#[derive(Debug)]
+pub(crate) struct MediaRef<'a> {
+    pub full_ref: &'a str,
+    pub fname: &'a str,
+}
+
+pub(crate) fn extract_media_refs(text: &str) -> Vec<MediaRef> {
+    let mut out = vec![];
+
+    for caps in IMG_TAG.captures_iter(text) {
+        out.push(MediaRef {
+            full_ref: caps.get(0).unwrap().as_str(),
+            fname: caps
+                .get(1)
+                .or_else(|| caps.get(2))
+                .or_else(|| caps.get(3))
+                .unwrap()
+                .as_str(),
+        });
+    }
+
+    for caps in AV_TAGS.captures_iter(text) {
+        if let Some(m) = caps.get(1) {
+            out.push(MediaRef {
+                full_ref: caps.get(0).unwrap().as_str(),
+                fname: m.as_str(),
+            });
+        }
+    }
+
+    out
+}
+
 fn tts_tag_from_string<'a>(field_text: &'a str, args: &'a str) -> AVTag {
     let mut other_args = vec![];
     let mut split_args = args.split_ascii_whitespace();
@@ -140,7 +200,7 @@ fn tts_tag_from_string<'a>(field_text: &'a str, args: &'a str) -> AVTag {
 }
 
 pub fn strip_html_preserving_image_filenames(html: &str) -> Cow<str> {
-    let without_fnames = IMG_TAG.replace_all(html, r" $1 ");
+    let without_fnames = IMG_TAG.replace_all(html, r" ${1}${2}${3} ");
     let without_html = HTML.replace_all(&without_fnames, "");
     // no changes?
     if let Cow::Borrowed(b) = without_html {
@@ -152,8 +212,12 @@ pub fn strip_html_preserving_image_filenames(html: &str) -> Cow<str> {
     without_html.into_owned().into()
 }
 
-pub(crate) fn contains_latex(text: &str) -> bool {
-    LATEX.is_match(text)
+pub(crate) fn normalize_to_nfc(s: &str) -> Cow<str> {
+    if !is_nfc(s) {
+        s.chars().nfc().collect::<String>().into()
+    } else {
+        s.into()
+    }
 }
 
 #[cfg(test)]
@@ -163,7 +227,7 @@ mod test {
     };
 
     #[test]
-    fn test_stripping() {
+    fn stripping() {
         assert_eq!(strip_html("test"), "test");
         assert_eq!(strip_html("t<b>e</b>st"), "test");
         assert_eq!(strip_html("so<SCRIPT>t<b>e</b>st</script>me"), "some");
@@ -180,7 +244,7 @@ mod test {
     }
 
     #[test]
-    fn test_audio() {
+    fn audio() {
         let s =
             "abc[sound:fo&amp;o.mp3]def[anki:tts][en_US voices=Bob,Jane speed=1.2]foo<br>1&gt;2[/anki:tts]gh";
         assert_eq!(strip_av_tags(s), "abcdefgh");

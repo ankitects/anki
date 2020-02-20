@@ -204,7 +204,7 @@ mod test {
     use crate::text::strip_html;
 
     #[test]
-    fn test_furigana() {
+    fn furigana() {
         let text = "test first[second] third[fourth]";
         assert_eq!(kana_filter(text).as_ref(), "testsecondfourth");
         assert_eq!(kanji_filter(text).as_ref(), "testfirstthird");
@@ -215,7 +215,7 @@ mod test {
     }
 
     #[test]
-    fn test_hint() {
+    fn hint() {
         assert_eq!(
             hint_filter("foo", "field"),
             r##"
@@ -230,7 +230,7 @@ field</a>
     }
 
     #[test]
-    fn test_type() {
+    fn typing() {
         assert_eq!(type_filter("Front"), "[[type:Front]]");
         assert_eq!(type_cloze_filter("Front"), "[[type:cloze:Front]]");
         let ctx = RenderContext {
@@ -246,7 +246,7 @@ field</a>
     }
 
     #[test]
-    fn test_cloze() {
+    fn cloze() {
         let text = "{{c1::one}} {{c2::two::hint}}";
         let mut ctx = RenderContext {
             fields: &Default::default(),
@@ -274,7 +274,7 @@ field</a>
     }
 
     #[test]
-    fn test_tts() {
+    fn tts() {
         assert_eq!(
             tts_filter("tts en_US voices=Bob,Jane", "foo"),
             "[anki:tts][en_US voices=Bob,Jane]foo[/anki:tts]"
