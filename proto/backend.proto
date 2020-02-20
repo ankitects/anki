@@ -299,6 +299,6 @@ message TranslateStringIn {
 message TranslateArgValue {
     oneof value {
         string str = 1;
-        string number = 2;
+        double number = 2;
     }
 }

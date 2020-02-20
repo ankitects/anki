@@ -404,7 +404,7 @@ fn translate_arg_to_fluent_val(arg: &pb::TranslateArgValue) -> FluentValue {
     match &arg.value {
         Some(val) => match val {
             V::Str(s) => FluentValue::String(s.into()),
-            V::Number(s) => FluentValue::Number(s.into()),
+            V::Number(f) => FluentValue::Number(f.into()),
         },
         None => FluentValue::String("".into()),
     }

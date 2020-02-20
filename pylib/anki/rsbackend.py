@@ -335,7 +335,7 @@ class RustBackend:
             if isinstance(v, str):
                 args[k] = pb.TranslateArgValue(str=v)
             else:
-                args[k] = pb.TranslateArgValue(number=str(v))
+                args[k] = pb.TranslateArgValue(number=v)
 
         return self._run_command(
             pb.BackendInput(
