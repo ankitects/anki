@@ -332,7 +332,8 @@ class Editor:
     ######################################################################
 
     def onBridgeCmd(self, cmd) -> None:
-        if not self.note:
+        cmd = gui_hooks.editor_command_received(cmd)
+        if cmd is None or not self.note:
             # shutdown
             return
         # focus lost or key/button pressed?

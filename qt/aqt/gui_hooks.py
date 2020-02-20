@@ -435,6 +435,49 @@ class _DeckBrowserDidRenderHook:
 deck_browser_did_render = _DeckBrowserDidRenderHook()
 
 
+class _DeckBrowserLinkReceivedFilter:
+    """ This allow to extend the actions that can be done sent from
+        the deck browser's JavaScript to Python.
+
+        The cmd is None if it is already executed and must not be
+        executed again. The cmd may be modified, as with any filter.
+
+        It can be used in different ways:
+        # Adding a new command
+        In "advanced deck browser", it could simply be a command
+        allowing to remove a column
+
+        # replacing a command
+        In the add-on "skip overview" it would replace the "open" the
+        method by one which directly shows the reviewer.
+
+        # Preprocessing a command
+        """
+
+    _hooks: List[Callable[[Optional[str]], Optional[str]]] = []
+
+    def append(self, cb: Callable[[Optional[str]], Optional[str]]) -> None:
+        """(cmd: Optional[str])"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[Optional[str]], Optional[str]]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, cmd: Optional[str]) -> Optional[str]:
+        for filter in self._hooks:
+            try:
+                cmd = filter(cmd)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return cmd
+
+
+deck_browser_link_received = _DeckBrowserLinkReceivedFilter()
+
+
 class _DeckBrowserWillRenderContentHook:
     """Used to modify HTML content sections in the deck browser body
         
@@ -516,6 +559,59 @@ class _DeckBrowserWillShowOptionsMenuHook:
 
 
 deck_browser_will_show_options_menu = _DeckBrowserWillShowOptionsMenuHook()
+
+
+class _EditorCommandReceivedFilter:
+    """ This allow to extend the actions that can be done sent from
+        editor's JavaScript to Python.
+
+        The cmd is None if it is already executed and must not be
+        executed again. The cmd may be modified, as with any filter.
+
+        It can be used in different ways:
+        # Adding a new command
+        For Frozen field, it would simply check whether the command is "Freeze:i" and if it is the case, make the i-th field sticky/unsticky.
+        # replacing a command
+        In order to change the method "cloze", the filter may check
+        whether "cmd" is "cloze". If it is the case, then apply the
+        new method and return None. (Note that this would not change
+        the shortcut for clozes.)
+
+        # Preprocessing a command
+        Let us consider an add-on which adds some html to each
+        fields (e.g. "show LaTeX image in editor" or "resize images in
+        editor"). This html is useful for the add-on purpose but
+        should not be saved.  The filter can catch the blur/key
+        commands, alter the text by removing the html, and then
+        return the input command, with the text modified. Note that
+        it's better to do it than during card flushing, because card
+        flush would execute this cleaning even when it would be
+        useless (e.g. if you change the decks of a lot of cards, this
+        cleaning will be executed while being useless).
+        """
+
+    _hooks: List[Callable[[Optional[str]], Optional[str]]] = []
+
+    def append(self, cb: Callable[[Optional[str]], Optional[str]]) -> None:
+        """(cmd: Optional[str])"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[Optional[str]], Optional[str]]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, cmd: Optional[str]) -> Optional[str]:
+        for filter in self._hooks:
+            try:
+                cmd = filter(cmd)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return cmd
+
+
+editor_command_received = _EditorCommandReceivedFilter()
 
 
 class _EditorDidFireTypingTimerHook:

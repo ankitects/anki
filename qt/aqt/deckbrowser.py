@@ -72,6 +72,9 @@ class DeckBrowser:
     ##########################################################################
 
     def _linkHandler(self, url):
+        url = gui_hooks.deck_browser_link_received(url)
+        if url is None:
+            return
         if ":" in url:
             (cmd, arg) = url.split(":")
         else:
