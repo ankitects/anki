@@ -9,3 +9,31 @@ answer-button-time-hours = {$amount}h
 answer-button-time-days = {$amount}d
 answer-button-time-months = {$amount}mo
 answer-button-time-years = {$amount}y
+
+## A span of time, such as the delay until a card is shown again, the
+## amount of time taken to answer a card, and so on.
+
+time-span-seconds = { $amount ->
+   [one]   {$amount} second
+  *[other] {$amount} seconds
+  }
+time-span-minutes = { $amount ->
+   [one]   {$amount} minute
+  *[other] {$amount} minutes
+  }
+time-span-hours = { $amount ->
+   [one]   {$amount} hour
+  *[other] {$amount} hours
+  }
+time-span-days = { $amount ->
+   [one]   {$amount} day
+  *[other] {$amount} days
+  }
+time-span-months = { $amount ->
+   [one]   {$amount} month
+  *[other] {$amount} months
+  }
+time-span-years = { $amount ->
+   [one]   {$amount} year
+  *[other] {$amount} years
+  }

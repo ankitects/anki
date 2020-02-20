@@ -3,17 +3,29 @@
 
 use crate::i18n::{tr_args, I18n, StringsGroup};
 
+/// Short string like '4d' to place above answer buttons.
 pub fn answer_button_time(seconds: f32, i18n: &I18n) -> String {
     let span = Timespan::from_secs(seconds).natural_span();
     let amount = match span.unit() {
         TimespanUnit::Months | TimespanUnit::Years => span.as_unit(),
-        // we don't show fractional value except for months/years
+        // we don't show fractional values except for months/years
         _ => span.as_unit().round(),
     };
     let unit = span.unit().as_str();
     let args = tr_args!["amount" => amount];
     i18n.get(StringsGroup::Scheduling)
         .trn(&format!("answer-button-time-{}", unit), args)
+}
+
+/// Describe the given seconds using the largest appropriate unit
+/// eg 70 seconds -> "1.17 minutes"
+pub fn time_span(seconds: f32, i18n: &I18n) -> String {
+    let span = Timespan::from_secs(seconds).natural_span();
+    let amount = span.as_unit();
+    let unit = span.unit().as_str();
+    let args = tr_args!["amount" => amount];
+    i18n.get(StringsGroup::Scheduling)
+        .trn(&format!("time-span-{}", unit), args)
 }
 
 const SECOND: f32 = 1.0;
