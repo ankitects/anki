@@ -23,8 +23,6 @@ from hashlib import sha1
 from html.entities import name2codepoint
 from typing import Iterable, Iterator, List, Optional, Tuple, Union
 
-import anki
-from anki.backend_pb2 import StringsGroup
 from anki.db import DB
 from anki.lang import _, ngettext
 
@@ -37,22 +35,6 @@ _tmpdir: Optional[str]
 def intTime(scale: int = 1) -> int:
     "The time in integer seconds. Pass scale=1000 to get milliseconds."
     return int(time.time() * scale)
-
-
-# eg 70 seconds -> (1.16, "minutes")
-def seconds_to_appropriate_unit(seconds: int) -> Tuple[float, str]:
-    unit, _ = optimalPeriod(seconds, 0, 99)
-    amount = convertSecondsTo(seconds, unit)
-    return (amount, unit)
-
-
-def answer_button_time(col: anki.storage._Collection, seconds: int) -> str:
-    (amount, unit) = seconds_to_appropriate_unit(seconds)
-    if unit not in ("months", "years"):
-        amount = int(amount)
-    return col.backend.translate(
-        StringsGroup.SCHEDULING, f"answer-button-time-{unit}", amount=amount
-    )
 
 
 timeTable = {

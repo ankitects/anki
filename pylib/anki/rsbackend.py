@@ -134,6 +134,8 @@ MediaCheckOutput = pb.MediaCheckOut
 
 StringsGroup = pb.StringsGroup
 
+FormatTimeSpanContext = pb.FormatTimeSpanIn.Context
+
 
 @dataclass
 class ExtractedLatex:
@@ -342,3 +344,10 @@ class RustBackend:
                 translate_string=pb.TranslateStringIn(group=group, key=key, args=args)
             )
         ).translate_string
+
+    def format_time_span(self, seconds: float, context: FormatTimeSpanContext) -> str:
+        return self._run_command(
+            pb.BackendInput(
+                format_time_span=pb.FormatTimeSpanIn(seconds=seconds, context=context)
+            )
+        ).format_time_span

@@ -10,7 +10,8 @@ use crate::latex::{extract_latex, ExtractedLatex};
 use crate::media::check::MediaChecker;
 use crate::media::sync::MediaSyncProgress;
 use crate::media::MediaManager;
-use crate::sched::{local_minutes_west_for_stamp, sched_timing_today};
+use crate::sched::cutoff::{local_minutes_west_for_stamp, sched_timing_today};
+use crate::sched::timespan::answer_button_time;
 use crate::template::{
     render_card, without_legacy_template_directives, FieldMap, FieldRequirements, ParsedTemplate,
     RenderedNode,
@@ -200,6 +201,7 @@ impl Backend {
                 OValue::TrashMediaFiles(Empty {})
             }
             Value::TranslateString(input) => OValue::TranslateString(self.translate_string(input)),
+            Value::FormatTimeSpan(input) => OValue::FormatTimeSpan(self.format_time_span(input)),
         })
     }
 
@@ -396,6 +398,18 @@ impl Backend {
             .collect();
 
         self.i18n.get(group).trn(&input.key, map)
+    }
+
+    fn format_time_span(&self, input: pb::FormatTimeSpanIn) -> String {
+        let context = match pb::format_time_span_in::Context::from_i32(input.context) {
+            Some(context) => context,
+            None => return "".to_string(),
+        };
+        match context {
+            pb::format_time_span_in::Context::AnswerButtons => {
+                answer_button_time(input.seconds, &self.i18n)
+            }
+        }
     }
 }
 
