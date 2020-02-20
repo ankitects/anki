@@ -134,7 +134,7 @@ impl Timespan {
 
 #[cfg(test)]
 mod test {
-    use crate::i18n::{I18n, StringsGroup};
+    use crate::i18n::I18n;
     use crate::sched::timespan::{answer_button_time, studied_today, time_span, MONTH};
 
     #[test]
