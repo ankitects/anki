@@ -95,24 +95,28 @@ class Toolbar:
                     cmd="decks",
                     label=_("Decks"),
                     tip=_("Shortcut key: %s") % "D",
+                    id="decks",
                     func=self._deckLinkHandler,
                 ),
                 ToolbarLink(
                     cmd="add",
                     label=_("Add"),
                     tip=_("Shortcut key: %s") % "A",
+                    id="add",
                     func=self._addLinkHandler,
                 ),
                 ToolbarLink(
                     cmd="browse",
                     label=_("Browse"),
                     tip=_("Shortcut key: %s") % "B",
+                    id="browse",
                     func=self._browseLinkHandler,
                 ),
                 ToolbarLink(
                     cmd="stats",
                     label=_("Stats"),
                     tip=_("Shortcut key: %s") % "T",
+                    id="stats",
                     func=self._statsLinkHandler,
                 ),
             ]
@@ -131,7 +135,7 @@ class Toolbar:
         self.link_handlers[label] = self._syncLinkHandler
 
         return f"""
-<a class=hitem tabindex="-1" aria-label="{name}" title="{title}" href=# onclick="return pycmd('{label}')">{name}
+<a class=hitem tabindex="-1" aria-label="{name}" title="{title}" id="{label}" href=# onclick="return pycmd('{label}')">{name}
 <img id=sync-spinner src='/_anki/imgs/refresh.svg'>        
 </a>"""
 
