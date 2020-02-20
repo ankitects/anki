@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
 import aqt
@@ -24,26 +23,6 @@ class TopToolbar:
 class BottomToolbar:
     def __init__(self, toolbar: Toolbar):
         self.toolbar = toolbar
-
-
-@dataclass
-class ToolbarLink:
-    """Bundles together the data fields used to generate a link element in
-    Anki's top toolbar
-    
-    Attributes:
-        cmd {str} -- Command name used for the JS → Python bridge
-        label {str} -- Display label of the link
-        func {Callable} -- Callable to be called on clicking the link
-        tip {Optional[str]} -- Optional tooltip text to show on hovering over the link
-        id: {Optional[str]} -- Optional id attribute to supply the link with
-    """
-
-    cmd: str
-    label: str
-    func: Callable
-    tip: Optional[str] = None
-    id: Optional[str] = None
 
 
 class Toolbar:
@@ -75,51 +54,72 @@ class Toolbar:
     # Available links
     ######################################################################
 
-    def create_link(self, link: ToolbarLink):
-        self.link_handlers[link.cmd] = link.func
+    def create_link(
+        self,
+        cmd: str,
+        label: str,
+        func: Callable,
+        tip: Optional[str] = None,
+        id: Optional[str] = None,
+    ) -> str:
+        """Generates HTML link element and registers link handler
+        
+        Arguments:
+            cmd {str} -- Command name used for the JS → Python bridge
+            label {str} -- Display label of the link
+            func {Callable} -- Callable to be called on clicking the link
+        
+        Keyword Arguments:
+            tip {Optional[str]} -- Optional tooltip text to show on hovering
+                                   over the link (default: {None})
+            id: {Optional[str]} -- Optional id attribute to supply the link with
+                                   (default: {None})
+        
+        Returns:
+            str -- HTML link element
+        """
 
-        title_attr = f'title="{link.tip}"' if link.tip else ""
-        id_attr = f"id={link.id}" if link.id else ""
+        self.link_handlers[cmd] = func
+
+        title_attr = f'title="{tip}"' if tip else ""
+        id_attr = f'id="{id}"' if id else ""
 
         return (
-            f"""<a class=hitem tabindex="-1" aria-label="{link.label}" """
-            f"""{title_attr} {id_attr} href=# onclick="return pycmd('{link.cmd}')">"""
-            f"""{link.label}</a>"""
+            f"""<a class=hitem tabindex="-1" aria-label="{label}" """
+            f"""{title_attr} {id_attr} href=# onclick="return pycmd('{cmd}')">"""
+            f"""{label}</a>"""
         )
 
     def _centerLinks(self):
         links = [
-            self.create_link(link)
-            for link in [
-                ToolbarLink(
-                    cmd="decks",
-                    label=_("Decks"),
-                    tip=_("Shortcut key: %s") % "D",
-                    id="decks",
-                    func=self._deckLinkHandler,
-                ),
-                ToolbarLink(
-                    cmd="add",
-                    label=_("Add"),
-                    tip=_("Shortcut key: %s") % "A",
-                    id="add",
-                    func=self._addLinkHandler,
-                ),
-                ToolbarLink(
-                    cmd="browse",
-                    label=_("Browse"),
-                    tip=_("Shortcut key: %s") % "B",
-                    id="browse",
-                    func=self._browseLinkHandler,
-                ),
-                ToolbarLink(
-                    cmd="stats",
-                    label=_("Stats"),
-                    tip=_("Shortcut key: %s") % "T",
-                    id="stats",
-                    func=self._statsLinkHandler,
-                ),
-            ]
+            self.create_link(
+                "decks",
+                _("Decks"),
+                self._deckLinkHandler,
+                tip=_("Shortcut key: %s") % "D",
+                id="decks",
+            ),
+            self.create_link(
+                "add",
+                _("Add"),
+                self._addLinkHandler,
+                tip=_("Shortcut key: %s") % "A",
+                id="add",
+            ),
+            self.create_link(
+                "browse",
+                _("Browse"),
+                self._browseLinkHandler,
+                tip=_("Shortcut key: %s") % "B",
+                id="browse",
+            ),
+            self.create_link(
+                "stats",
+                _("Stats"),
+                self._statsLinkHandler,
+                tip=_("Shortcut key: %s") % "T",
+                id="stats",
+            ),
         ]
 
         links.append(self._create_sync_link())
