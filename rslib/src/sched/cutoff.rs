@@ -92,7 +92,7 @@ pub fn local_minutes_west_for_stamp(stamp: i64) -> i32 {
 
 #[cfg(test)]
 mod test {
-    use crate::sched::{
+    use crate::sched::cutoff::{
         fixed_offset_from_minutes, local_minutes_west_for_stamp, normalized_rollover_hour,
         sched_timing_today,
     };

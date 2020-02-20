@@ -18,8 +18,8 @@ from anki import hooks
 from anki.cards import Card
 from anki.consts import *
 from anki.lang import _
-from anki.rsbackend import SchedTimingToday
-from anki.utils import answer_button_time, ids2str, intTime
+from anki.rsbackend import FormatTimeSpanContext, SchedTimingToday
+from anki.utils import ids2str, intTime
 
 # card types: 0=new, 1=lrn, 2=rev, 3=relrn
 # queue types: 0=new, 1=(re)lrn, 2=rev, 3=day (re)lrn,
@@ -1548,7 +1548,9 @@ To study outside of the normal schedule, click the Custom Study button below."""
         ivl_secs = self.nextIvl(card, ease)
         if not ivl_secs:
             return _("(end)")
-        s = answer_button_time(self.col, ivl_secs)
+        s = self.col.backend.format_time_span(
+            ivl_secs, FormatTimeSpanContext.ANSWER_BUTTONS
+        )
         if ivl_secs < self.col.conf["collapseTime"]:
             s = "<" + s
         return s

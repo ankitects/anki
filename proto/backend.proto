@@ -44,6 +44,7 @@ message BackendInput {
         Empty check_media = 28;
         TrashMediaFilesIn trash_media_files = 29;
         TranslateStringIn translate_string = 30;
+        FormatTimeSpanIn format_time_span = 31;
     }
 }
 
@@ -64,6 +65,7 @@ message BackendOutput {
         MediaCheckOut check_media = 28;
         Empty trash_media_files = 29;
         string translate_string = 30;
+        string format_time_span = 31;
 
         BackendError error = 2047;
     }
@@ -302,4 +304,13 @@ message TranslateArgValue {
         string str = 1;
         double number = 2;
     }
+}
+
+message FormatTimeSpanIn {
+    enum Context {
+        ANSWER_BUTTONS = 0;
+    }
+
+    float seconds = 1;
+    Context context = 2;
 }
