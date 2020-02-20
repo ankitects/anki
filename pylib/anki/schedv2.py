@@ -19,7 +19,7 @@ from anki.cards import Card
 from anki.consts import *
 from anki.lang import _
 from anki.rsbackend import SchedTimingToday
-from anki.utils import fmtTimeSpan, ids2str, intTime
+from anki.utils import answer_button_time, ids2str, intTime
 
 # card types: 0=new, 1=lrn, 2=rev, 3=relrn
 # queue types: 0=new, 1=(re)lrn, 2=rev, 3=day (re)lrn,
@@ -1545,11 +1545,11 @@ To study outside of the normal schedule, click the Custom Study button below."""
 
     def nextIvlStr(self, card: Card, ease: int, short: bool = False) -> str:
         "Return the next interval for CARD as a string."
-        ivl = self.nextIvl(card, ease)
-        if not ivl:
+        ivl_secs = self.nextIvl(card, ease)
+        if not ivl_secs:
             return _("(end)")
-        s = fmtTimeSpan(ivl, short=short)
-        if ivl < self.col.conf["collapseTime"]:
+        s = answer_button_time(self.col, ivl_secs)
+        if ivl_secs < self.col.conf["collapseTime"]:
             s = "<" + s
         return s
 

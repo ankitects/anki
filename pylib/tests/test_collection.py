@@ -4,6 +4,7 @@ import os
 import tempfile
 
 from anki import Collection as aopen
+from anki.lang import without_unicode_isolation
 from anki.rsbackend import StringsGroup
 from anki.stdmodels import addBasicModel, models
 from anki.utils import isWin
@@ -153,10 +154,7 @@ def test_furigana():
 def test_translate():
     d = getEmptyCol()
     tr = d.backend.translate
-
-    # strip off unicode separators
-    def no_uni(s: str) -> str:
-        return s.replace("\u2068", "").replace("\u2069", "")
+    no_uni = without_unicode_isolation
 
     assert tr(StringsGroup.TEST, "valid-key") == "a valid key"
     assert "invalid-key" in tr(StringsGroup.TEST, "invalid-key")
