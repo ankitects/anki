@@ -55,7 +55,6 @@ cards = { $cards ->
 # eg "Studied 3 cards in 13 seconds today (4.33s/card)."
 # The { in-time-span-seconds } part should be pasted in from the English
 # version unmodified.
-
 studied-today =
   Studied { cards }
   { $unit ->
