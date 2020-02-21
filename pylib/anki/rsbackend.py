@@ -362,3 +362,12 @@ class RustBackend:
                 studied_today=pb.StudiedTodayIn(cards=cards, seconds=seconds)
             )
         ).studied_today
+
+    def learning_congrats_msg(self, next_due: float, remaining: int) -> str:
+        return self._run_command(
+            pb.BackendInput(
+                congrats_learn_msg=pb.CongratsLearnMsgIn(
+                    next_due=next_due, remaining=remaining
+                )
+            )
+        ).congrats_learn_msg

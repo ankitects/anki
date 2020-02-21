@@ -44,6 +44,27 @@ pub fn studied_today(cards: usize, secs: f32, i18n: &I18n) -> String {
         .trn("studied-today", args)
 }
 
+// fixme: this doesn't belong here
+pub fn learning_congrats(remaining: usize, next_due: f32, i18n: &I18n) -> String {
+    // next learning card not due (/ until tomorrow)?
+    if next_due == 0.0 || next_due >= 86_400.0 {
+        return "".to_string();
+    }
+
+    let span = Timespan::from_secs(next_due).natural_span();
+    let amount = span.as_unit().round();
+    let unit = span.unit().as_str();
+    let next_args = tr_args!["amount" => amount, "unit" => unit];
+    let remaining_args = tr_args!["remaining" => remaining];
+    format!(
+        "{} {}",
+        i18n.get(StringsGroup::Scheduling)
+            .trn("next-learn-due", next_args),
+        i18n.get(StringsGroup::Scheduling)
+            .trn("learn-remaining", remaining_args)
+    )
+}
+
 const SECOND: f32 = 1.0;
 const MINUTE: f32 = 60.0 * SECOND;
 const HOUR: f32 = 60.0 * MINUTE;
@@ -134,7 +155,9 @@ impl Timespan {
 #[cfg(test)]
 mod test {
     use crate::i18n::I18n;
-    use crate::sched::timespan::{answer_button_time, studied_today, time_span, MONTH};
+    use crate::sched::timespan::{
+        answer_button_time, learning_congrats, studied_today, time_span, MONTH,
+    };
 
     #[test]
     fn answer_buttons() {
@@ -158,7 +181,11 @@ mod test {
         let i18n = I18n::new(&["zz"], "");
         assert_eq!(
             &studied_today(3, 13.0, &i18n).replace("\n", " "),
-            "Studied 3 cards in 13 seconds today (4.33s/card)."
+            "Studied 3 cards in 13 seconds today (4.33s/card)"
+        );
+        assert_eq!(
+            &learning_congrats(3, 3700.0, &i18n).replace("\n", " "),
+            "The next learning card will be ready in 1 hour. There are 3 learning cards due later today."
         );
     }
 }

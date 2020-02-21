@@ -11,7 +11,7 @@ use crate::media::check::MediaChecker;
 use crate::media::sync::MediaSyncProgress;
 use crate::media::MediaManager;
 use crate::sched::cutoff::{local_minutes_west_for_stamp, sched_timing_today};
-use crate::sched::timespan::{answer_button_time, studied_today, time_span};
+use crate::sched::timespan::{answer_button_time, learning_congrats, studied_today, time_span};
 use crate::template::{
     render_card, without_legacy_template_directives, FieldMap, FieldRequirements, ParsedTemplate,
     RenderedNode,
@@ -205,6 +205,11 @@ impl Backend {
             Value::StudiedToday(input) => OValue::StudiedToday(studied_today(
                 input.cards as usize,
                 input.seconds as f32,
+                &self.i18n,
+            )),
+            Value::CongratsLearnMsg(input) => OValue::CongratsLearnMsg(learning_congrats(
+                input.remaining as usize,
+                input.next_due,
                 &self.i18n,
             )),
         })
