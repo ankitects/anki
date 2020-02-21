@@ -453,20 +453,15 @@ group by day order by day"""
             )
         if total and tot:
             perMin = total / float(tot)
-            perMin = round(perMin, 1)
-            # don't round down to zero
-            if perMin < 0.1:
-                text = _("less than 0.1 cards/minute")
-            else:
-                text = _("%.01f cards/minute") % perMin
+            average_secs = (tot * 60) / total
             self._line(
                 i,
                 _("Average answer time"),
-                # T: For example, in the statistics line: " Average
-                # answer time: 16.8s (3.6 cards/minute)", then
-                # "%(a)0.1fs" represents "16.8s" and "%(b)s" represents
-                # "3.6 cards/minutes")
-                _("%(a)0.1fs (%(b)s)") % dict(a=(tot * 60) / total, b=text),
+                self.col.backend.translate(
+                    StringsGroup.STATISTICS,
+                    "average-answer-time",
+                    **{"cards-per-minute": perMin, "average-seconds": average_secs},
+                ),
             )
         return self._lineTbl(i), int(tot)
 
