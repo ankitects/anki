@@ -4,10 +4,11 @@
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any, Dict, Optional
 
 import aqt
 from anki.lang import _
+from aqt import gui_hooks
 from aqt.qt import *
 from aqt.webview import AnkiWebView
 
@@ -28,13 +29,8 @@ class Toolbar:
     def __init__(self, mw: aqt.AnkiQt, web: AnkiWebView) -> None:
         self.mw = mw
         self.web = web
-        self.link_handlers = {
-            "decks": self._deckLinkHandler,
+        self.link_handlers: Dict[str, Callable] = {
             "study": self._studyLinkHandler,
-            "add": self._addLinkHandler,
-            "browse": self._browseLinkHandler,
-            "stats": self._statsLinkHandler,
-            "sync": self._syncLinkHandler,
         }
         self.web.setFixedHeight(30)
         self.web.requiresCol = False
@@ -58,34 +54,88 @@ class Toolbar:
     # Available links
     ######################################################################
 
+    def create_link(
+        self,
+        cmd: str,
+        label: str,
+        func: Callable,
+        tip: Optional[str] = None,
+        id: Optional[str] = None,
+    ) -> str:
+        """Generates HTML link element and registers link handler
+        
+        Arguments:
+            cmd {str} -- Command name used for the JS → Python bridge
+            label {str} -- Display label of the link
+            func {Callable} -- Callable to be called on clicking the link
+        
+        Keyword Arguments:
+            tip {Optional[str]} -- Optional tooltip text to show on hovering
+                                   over the link (default: {None})
+            id: {Optional[str]} -- Optional id attribute to supply the link with
+                                   (default: {None})
+        
+        Returns:
+            str -- HTML link element
+        """
+
+        self.link_handlers[cmd] = func
+
+        title_attr = f'title="{tip}"' if tip else ""
+        id_attr = f'id="{id}"' if id else ""
+
+        return (
+            f"""<a class=hitem tabindex="-1" aria-label="{label}" """
+            f"""{title_attr} {id_attr} href=# onclick="return pycmd('{cmd}')">"""
+            f"""{label}</a>"""
+        )
+
     def _centerLinks(self):
         links = [
-            ["decks", _("Decks"), _("Shortcut key: %s") % "D"],
-            ["add", _("Add"), _("Shortcut key: %s") % "A"],
-            ["browse", _("Browse"), _("Shortcut key: %s") % "B"],
-            ["stats", _("Stats"), _("Shortcut key: %s") % "T"],
+            self.create_link(
+                "decks",
+                _("Decks"),
+                self._deckLinkHandler,
+                tip=_("Shortcut key: %s") % "D",
+                id="decks",
+            ),
+            self.create_link(
+                "add",
+                _("Add"),
+                self._addLinkHandler,
+                tip=_("Shortcut key: %s") % "A",
+                id="add",
+            ),
+            self.create_link(
+                "browse",
+                _("Browse"),
+                self._browseLinkHandler,
+                tip=_("Shortcut key: %s") % "B",
+                id="browse",
+            ),
+            self.create_link(
+                "stats",
+                _("Stats"),
+                self._statsLinkHandler,
+                tip=_("Shortcut key: %s") % "T",
+                id="stats",
+            ),
         ]
 
-        return self._linkHTML(links) + self._sync_link()
+        links.append(self._create_sync_link())
 
-    def _linkHTML(self, links):
-        buf = ""
-        for ln, name, title in links:
-            buf += """
-            <a class=hitem tabindex="-1" aria-label="%s" title="%s" href=# onclick="return pycmd('%s')">%s</a>""" % (
-                name,
-                title,
-                ln,
-                name,
-            )
-        return buf
+        gui_hooks.top_toolbar_did_init_links(links, self)
 
-    def _sync_link(self) -> str:
+        return "\n".join(links)
+
+    def _create_sync_link(self) -> str:
         name = _("Sync")
         title = _("Shortcut key: %s") % "Y"
         label = "sync"
+        self.link_handlers[label] = self._syncLinkHandler
+
         return f"""
-<a class=hitem tabindex="-1" aria-label="{name}" title="{title}" href=# onclick="return pycmd('{label}')">{name}
+<a class=hitem tabindex="-1" aria-label="{name}" title="{title}" id="{label}" href=# onclick="return pycmd('{label}')">{name}
 <img id=sync-spinner src='/_anki/imgs/refresh.svg'>        
 </a>"""
 
