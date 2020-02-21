@@ -229,6 +229,7 @@ class SimpleProcessPlayer(Player):  # pylint: disable=abstract-method
         self._taskman = taskman
         self._terminate_flag = False
         self._process: Optional[subprocess.Popen] = None
+        self._lock = threading.Lock()
 
     def play(self, tag: AVTag, on_done: OnDoneCallback) -> None:
         self._taskman.run_in_background(
@@ -239,7 +240,7 @@ class SimpleProcessPlayer(Player):  # pylint: disable=abstract-method
         self._terminate_flag = True
         # block until stopped
         t = time.time()
-        while self._terminate_flag and time.time() - t < 1:
+        while self._terminate_flag and time.time() - t < 3:
             time.sleep(0.1)
 
     def _play(self, tag: AVTag) -> None:
@@ -254,21 +255,32 @@ class SimpleProcessPlayer(Player):  # pylint: disable=abstract-method
             lambda: gui_hooks.av_player_did_begin_playing(self, tag)
         )
 
-        try:
-            while True:
+        while True:
+            with self._lock:
+                # if .stop() timed out, another thread may run when
+                # there is no process
+                if not self._process:
+                    self._process = None
+                    self._terminate_flag = False
+                    return
+
+                # should we abort playing?
+                if self._terminate_flag:
+                    self._process.terminate()
+                    self._process = None
+                    self._terminate_flag = False
+                    raise PlayerInterrupted()
+
+                # wait for completion
                 try:
                     self._process.wait(0.1)
                     if self._process.returncode != 0:
                         print(f"player got return code: {self._process.returncode}")
+                    self._process = None
+                    self._terminate_flag = False
                     return
                 except subprocess.TimeoutExpired:
                     pass
-                if self._terminate_flag:
-                    self._process.terminate()
-                    raise PlayerInterrupted()
-        finally:
-            self._process = None
-            self._terminate_flag = False
 
     def _on_done(self, ret: Future, cb: OnDoneCallback) -> None:
         try:
