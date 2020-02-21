@@ -307,6 +307,20 @@ hooks = [
         legacy_hook="setupStyle",
     ),
     Hook(
+        name="top_toolbar_did_init_links",
+        args=["links: List[str]", "top_toolbar: aqt.toolbar.Toolbar"],
+        doc="""Used to modify or add links in the top toolbar of Anki's main window
+        
+        'links' is a list of HTML link elements. Add-ons can generate their own links
+        by using aqt.toolbar.Toolbar.create_link. Links created in that way can then be
+        appended to the link list, e.g.:
+
+            def on_top_toolbar_did_init_links(links, toolbar):
+                my_link = toolbar.create_link(...)
+                links.append(my_link)
+        """,
+    ),
+    Hook(
         name="media_sync_did_progress", args=["entry: aqt.mediasync.LogEntryWithTime"],
     ),
     Hook(name="media_sync_did_start_or_stop", args=["running: bool"]),
