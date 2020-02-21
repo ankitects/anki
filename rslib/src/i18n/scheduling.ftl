@@ -44,3 +44,27 @@ time-span-years = { $amount ->
    [one]   {$amount} year
   *[other] {$amount} years
   }
+
+## Shown in the "Congratulations!" message after study finishes.
+
+# eg "The next learning card will be ready in 5 minutes."
+next-learn-due =
+  The next learning card will be ready in { $unit ->
+     [seconds] { $amount ->
+        [one]   {$amount} second
+       *[other] {$amount} seconds
+       }
+     [minutes] { $amount ->
+        [one]   {$amount} minute
+       *[other] {$amount} minutes
+       }
+    *[hours] { $amount ->
+        [one]   {$amount} hour
+       *[other] {$amount} hours
+       }
+    }.
+
+learn-remaining = { $remaining ->
+    [one]   There is one remaining learning card due later today.
+   *[other] There are {$remaining} learning cards due later today.
+  }

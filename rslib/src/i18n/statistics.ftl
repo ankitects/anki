@@ -12,7 +12,7 @@ cards-per-min = {$cards-per-minute} cards/minute
 average-answer-time = {$average-seconds}s ({cards-per-min})
 
 ## A span of time studying took place in, for example
-## "(studied 30 cards) in 3 minutes".
+## "(studied 30 cards) in 3 minutes"
 
 in-time-span-seconds = { $amount ->
    [one]   in {$amount} second

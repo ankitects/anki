@@ -1458,8 +1458,29 @@ where id = ?
             + self._nextDueMsg()
         )
 
+    def next_learn_msg(self) -> str:
+        dids = self._deckLimit()
+        (next, remaining) = self.col.db.first(
+            f"""
+select min(due), count(*)
+from cards where did in {dids} and queue = {QUEUE_TYPE_LRN}
+"""
+        )
+        next = next or 0
+        remaining = remaining or 0
+        if next and next < self.dayCutoff:
+            next -= intTime() - self.col.conf["collapseTime"]
+            return self.col.backend.learning_congrats_msg(abs(next), remaining)
+        else:
+            return ""
+
     def _nextDueMsg(self) -> str:
         line = []
+
+        learn_msg = self.next_learn_msg()
+        if learn_msg:
+            line.append(learn_msg)
+
         # the new line replacements are so we don't break translations
         # in a point release
         if self.revDue():
