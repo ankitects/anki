@@ -17,8 +17,6 @@ from typing import Any, Callable, Dict, List, Tuple
 import decorator
 
 import anki
-from anki.cards import Card
-from anki.notes import Note
 
 # New hook/filter handling
 ##############################################################################
@@ -56,17 +54,17 @@ bg_thread_progress_callback = _BgThreadProgressCallbackFilter()
 
 
 class _CardDidLeechHook:
-    _hooks: List[Callable[[Card], None]] = []
+    _hooks: List[Callable[["anki.cards.Card"], None]] = []
 
-    def append(self, cb: Callable[[Card], None]) -> None:
-        """(card: Card)"""
+    def append(self, cb: Callable[["anki.cards.Card"], None]) -> None:
+        """(card: anki.cards.Card)"""
         self._hooks.append(cb)
 
-    def remove(self, cb: Callable[[Card], None]) -> None:
+    def remove(self, cb: Callable[["anki.cards.Card"], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
-    def __call__(self, card: Card) -> None:
+    def __call__(self, card: anki.cards.Card) -> None:
         for hook in self._hooks:
             try:
                 hook(card)
@@ -164,17 +162,17 @@ card_odue_was_invalid = _CardOdueWasInvalidHook()
 class _CardWillFlushHook:
     """Allow to change a card before it is added/updated in the database."""
 
-    _hooks: List[Callable[[Card], None]] = []
+    _hooks: List[Callable[["anki.cards.Card"], None]] = []
 
-    def append(self, cb: Callable[[Card], None]) -> None:
-        """(card: Card)"""
+    def append(self, cb: Callable[["anki.cards.Card"], None]) -> None:
+        """(card: anki.cards.Card)"""
         self._hooks.append(cb)
 
-    def remove(self, cb: Callable[[Card], None]) -> None:
+    def remove(self, cb: Callable[["anki.cards.Card"], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
-    def __call__(self, card: Card) -> None:
+    def __call__(self, card: anki.cards.Card) -> None:
         for hook in self._hooks:
             try:
                 hook(card)
@@ -334,17 +332,17 @@ note_type_added = _NoteTypeAddedHook()
 class _NoteWillFlushHook:
     """Allow to change a note before it is added/updated in the database."""
 
-    _hooks: List[Callable[[Note], None]] = []
+    _hooks: List[Callable[["anki.cards.Note"], None]] = []
 
-    def append(self, cb: Callable[[Note], None]) -> None:
-        """(note: Note)"""
+    def append(self, cb: Callable[["anki.cards.Note"], None]) -> None:
+        """(note: anki.cards.Note)"""
         self._hooks.append(cb)
 
-    def remove(self, cb: Callable[[Note], None]) -> None:
+    def remove(self, cb: Callable[["anki.cards.Note"], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
-    def __call__(self, note: Note) -> None:
+    def __call__(self, note: anki.cards.Note) -> None:
         for hook in self._hooks:
             try:
                 hook(note)

@@ -72,13 +72,13 @@ hooks = [
     ),
     Hook(
         name="reviewer_did_show_question",
-        args=["card: Card"],
+        args=["card: anki.cards.Card"],
         legacy_hook="showQuestion",
         legacy_no_args=True,
     ),
     Hook(
         name="reviewer_did_show_answer",
-        args=["card: Card"],
+        args=["card: anki.cards.Card"],
         legacy_hook="showAnswer",
         legacy_no_args=True,
     ),
@@ -87,7 +87,7 @@ hooks = [
         args=[
             "ease_tuple: Tuple[bool, int]",
             "reviewer: aqt.reviewer.Reviewer",
-            "card: Card",
+            "card: anki.cards.Card",
         ],
         return_type="Tuple[bool, int]",
         doc="""Used to modify the ease at which a card is rated or to bypass
@@ -102,7 +102,7 @@ hooks = [
     ),
     Hook(
         name="reviewer_did_answer_card",
-        args=["reviewer: aqt.reviewer.Reviewer", "card: Card", "ease: int"],
+        args=["reviewer: aqt.reviewer.Reviewer", "card: anki.cards.Card", "ease: int"],
     ),
     Hook(
         name="reviewer_will_show_context_menu",
@@ -116,7 +116,7 @@ hooks = [
     ),
     Hook(
         name="card_will_show",
-        args=["text: str", "card: Card", "kind: str"],
+        args=["text: str", "card: anki.cards.Card", "kind: str"],
         return_type="str",
         legacy_hook="prepareQA",
         doc="Can modify card text before review/preview.",

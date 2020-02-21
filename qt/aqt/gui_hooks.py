@@ -11,7 +11,6 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import anki
 import aqt
-from anki.cards import Card
 from anki.hooks import runFilter, runHook
 from aqt.qt import QMenu
 
@@ -331,17 +330,17 @@ browser_will_show_context_menu = _BrowserWillShowContextMenuHook()
 class _CardWillShowFilter:
     """Can modify card text before review/preview."""
 
-    _hooks: List[Callable[[str, Card, str], str]] = []
+    _hooks: List[Callable[[str, "anki.cards.Card", str], str]] = []
 
-    def append(self, cb: Callable[[str, Card, str], str]) -> None:
-        """(text: str, card: Card, kind: str)"""
+    def append(self, cb: Callable[[str, "anki.cards.Card", str], str]) -> None:
+        """(text: str, card: anki.cards.Card, kind: str)"""
         self._hooks.append(cb)
 
-    def remove(self, cb: Callable[[str, Card, str], str]) -> None:
+    def remove(self, cb: Callable[[str, "anki.cards.Card", str], str]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
-    def __call__(self, text: str, card: Card, kind: str) -> str:
+    def __call__(self, text: str, card: anki.cards.Card, kind: str) -> str:
         for filter in self._hooks:
             try:
                 text = filter(text, card, kind)
@@ -957,17 +956,23 @@ review_did_undo = _ReviewDidUndoHook()
 
 
 class _ReviewerDidAnswerCardHook:
-    _hooks: List[Callable[["aqt.reviewer.Reviewer", Card, int], None]] = []
+    _hooks: List[Callable[["aqt.reviewer.Reviewer", "anki.cards.Card", int], None]] = []
 
-    def append(self, cb: Callable[["aqt.reviewer.Reviewer", Card, int], None]) -> None:
-        """(reviewer: aqt.reviewer.Reviewer, card: Card, ease: int)"""
+    def append(
+        self, cb: Callable[["aqt.reviewer.Reviewer", "anki.cards.Card", int], None]
+    ) -> None:
+        """(reviewer: aqt.reviewer.Reviewer, card: anki.cards.Card, ease: int)"""
         self._hooks.append(cb)
 
-    def remove(self, cb: Callable[["aqt.reviewer.Reviewer", Card, int], None]) -> None:
+    def remove(
+        self, cb: Callable[["aqt.reviewer.Reviewer", "anki.cards.Card", int], None]
+    ) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
-    def __call__(self, reviewer: aqt.reviewer.Reviewer, card: Card, ease: int) -> None:
+    def __call__(
+        self, reviewer: aqt.reviewer.Reviewer, card: anki.cards.Card, ease: int
+    ) -> None:
         for hook in self._hooks:
             try:
                 hook(reviewer, card, ease)
@@ -981,17 +986,17 @@ reviewer_did_answer_card = _ReviewerDidAnswerCardHook()
 
 
 class _ReviewerDidShowAnswerHook:
-    _hooks: List[Callable[[Card], None]] = []
+    _hooks: List[Callable[["anki.cards.Card"], None]] = []
 
-    def append(self, cb: Callable[[Card], None]) -> None:
-        """(card: Card)"""
+    def append(self, cb: Callable[["anki.cards.Card"], None]) -> None:
+        """(card: anki.cards.Card)"""
         self._hooks.append(cb)
 
-    def remove(self, cb: Callable[[Card], None]) -> None:
+    def remove(self, cb: Callable[["anki.cards.Card"], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
-    def __call__(self, card: Card) -> None:
+    def __call__(self, card: anki.cards.Card) -> None:
         for hook in self._hooks:
             try:
                 hook(card)
@@ -1007,17 +1012,17 @@ reviewer_did_show_answer = _ReviewerDidShowAnswerHook()
 
 
 class _ReviewerDidShowQuestionHook:
-    _hooks: List[Callable[[Card], None]] = []
+    _hooks: List[Callable[["anki.cards.Card"], None]] = []
 
-    def append(self, cb: Callable[[Card], None]) -> None:
-        """(card: Card)"""
+    def append(self, cb: Callable[["anki.cards.Card"], None]) -> None:
+        """(card: anki.cards.Card)"""
         self._hooks.append(cb)
 
-    def remove(self, cb: Callable[[Card], None]) -> None:
+    def remove(self, cb: Callable[["anki.cards.Card"], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
-    def __call__(self, card: Card) -> None:
+    def __call__(self, card: anki.cards.Card) -> None:
         for hook in self._hooks:
             try:
                 hook(card)
@@ -1044,29 +1049,37 @@ class _ReviewerWillAnswerCardFilter:
         the reviewer_did_answer_card hook instead."""
 
     _hooks: List[
-        Callable[[Tuple[bool, int], "aqt.reviewer.Reviewer", Card], Tuple[bool, int]]
+        Callable[
+            [Tuple[bool, int], "aqt.reviewer.Reviewer", "anki.cards.Card"],
+            Tuple[bool, int],
+        ]
     ] = []
 
     def append(
         self,
         cb: Callable[
-            [Tuple[bool, int], "aqt.reviewer.Reviewer", Card], Tuple[bool, int]
+            [Tuple[bool, int], "aqt.reviewer.Reviewer", "anki.cards.Card"],
+            Tuple[bool, int],
         ],
     ) -> None:
-        """(ease_tuple: Tuple[bool, int], reviewer: aqt.reviewer.Reviewer, card: Card)"""
+        """(ease_tuple: Tuple[bool, int], reviewer: aqt.reviewer.Reviewer, card: anki.cards.Card)"""
         self._hooks.append(cb)
 
     def remove(
         self,
         cb: Callable[
-            [Tuple[bool, int], "aqt.reviewer.Reviewer", Card], Tuple[bool, int]
+            [Tuple[bool, int], "aqt.reviewer.Reviewer", "anki.cards.Card"],
+            Tuple[bool, int],
         ],
     ) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
     def __call__(
-        self, ease_tuple: Tuple[bool, int], reviewer: aqt.reviewer.Reviewer, card: Card
+        self,
+        ease_tuple: Tuple[bool, int],
+        reviewer: aqt.reviewer.Reviewer,
+        card: anki.cards.Card,
     ) -> Tuple[bool, int]:
         for filter in self._hooks:
             try:

@@ -17,7 +17,7 @@ from hookslib import Hook, update_file
 ######################################################################
 
 hooks = [
-    Hook(name="card_did_leech", args=["card: Card"], legacy_hook="leech"),
+    Hook(name="card_did_leech", args=["card: anki.cards.Card"], legacy_hook="leech"),
     Hook(name="card_odue_was_invalid"),
     Hook(name="schema_will_change", args=["proceed: bool"], return_type="bool"),
     Hook(
@@ -75,12 +75,12 @@ hooks = [
     ),
     Hook(
         name="note_will_flush",
-        args=["note: Note"],
+        args=["note: anki.cards.Note"],
         doc="Allow to change a note before it is added/updated in the database.",
     ),
     Hook(
         name="card_will_flush",
-        args=["card: Card"],
+        args=["card: anki.cards.Card"],
         doc="Allow to change a card before it is added/updated in the database.",
     ),
     Hook(
