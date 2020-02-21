@@ -125,8 +125,16 @@ impl I18n {
         for code in locale_codes {
             if let Ok(lang) = code.as_ref().parse::<LanguageIdentifier>() {
                 langs.push(lang.clone());
-                if let Some(path) = lang_folder(lang, &ftl_folder) {
+                if let Some(path) = lang_folder(lang.clone(), &ftl_folder) {
                     supported.push(path);
+                }
+                // if English was listed, any further preferences are skipped,
+                // as the fallback has 100% coverage, and we need to ensure
+                // it is tried prior to any other langs. But we do keep a file
+                // if one was returned, to allow locale English variants to take
+                // priority over the fallback.
+                if lang.language() == "en" {
+                    break;
                 }
             }
         }
