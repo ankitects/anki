@@ -355,3 +355,10 @@ class RustBackend:
                 format_time_span=pb.FormatTimeSpanIn(seconds=seconds, context=context)
             )
         ).format_time_span
+
+    def studied_today(self, cards: int, seconds: float,) -> str:
+        return self._run_command(
+            pb.BackendInput(
+                studied_today=pb.StudiedTodayIn(cards=cards, seconds=seconds)
+            )
+        ).studied_today

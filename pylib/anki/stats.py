@@ -1,6 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from __future__ import annotations
+
 import datetime
 import json
 import time
@@ -104,7 +106,7 @@ colSusp = "#ff0"
 
 
 class CollectionStats:
-    def __init__(self, col) -> None:
+    def __init__(self, col: anki.storage._Collection) -> None:
         self.col = col
         self._stats = None
         self.type = PERIOD_MONTH
@@ -176,15 +178,8 @@ from revlog where id > ? """
         def bold(s):
             return "<b>" + str(s) + "</b>"
 
-        msgp1 = (
-            ngettext("<!--studied-->%d card", "<!--studied-->%d cards", cards) % cards
-        )
         if cards:
-            b += _("Studied %(a)s %(b)s today (%(secs).1fs/card)") % dict(
-                a=bold(msgp1),
-                b=bold(fmtTimeSpan(thetime, unit=1, inTime=True)),
-                secs=thetime / cards,
-            )
+            b += self.col.backend.studied_today(cards, float(thetime))
             # again/pass count
             b += "<br>" + _("Again count: %s") % bold(failed)
             if cards:

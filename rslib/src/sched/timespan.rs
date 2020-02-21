@@ -29,8 +29,7 @@ pub fn time_span(seconds: f32, i18n: &I18n) -> String {
 }
 
 // fixme: this doesn't belong here
-#[allow(dead_code)]
-fn studied_today(cards: usize, secs: f32, i18n: &I18n) -> String {
+pub fn studied_today(cards: usize, secs: f32, i18n: &I18n) -> String {
     let span = Timespan::from_secs(secs).natural_span();
     let amount = span.as_unit();
     let unit = span.unit().as_str();
@@ -41,7 +40,7 @@ fn studied_today(cards: usize, secs: f32, i18n: &I18n) -> String {
     };
     let args = tr_args!["amount" => amount, "unit" => unit,
         "cards" => cards, "secs-per-card" => secs_per];
-    i18n.get(StringsGroup::Scheduling)
+    i18n.get(StringsGroup::Statistics)
         .trn("studied-today", args)
 }
 
