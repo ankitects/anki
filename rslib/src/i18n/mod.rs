@@ -62,6 +62,7 @@ fn ftl_fallback_for_group(group: StringsGroup) -> String {
         StringsGroup::Statistics => include_str!("statistics.ftl"),
         StringsGroup::Filtering => include_str!("filtering.ftl"),
         StringsGroup::Scheduling => include_str!("scheduling.ftl"),
+        StringsGroup::DeckConfig => include_str!("deck-config.ftl"),
     }
     .to_string()
 }
@@ -79,6 +80,7 @@ fn localized_ftl_for_group(group: StringsGroup, lang_ftl_folder: &Path) -> Optio
         StringsGroup::Statistics => "statistics.ftl",
         StringsGroup::Filtering => "filtering.ftl",
         StringsGroup::Scheduling => "scheduling.ftl",
+        StringsGroup::DeckConfig => "deck-config.ftl",
     });
     fs::read_to_string(&path)
         .map_err(|e| {
