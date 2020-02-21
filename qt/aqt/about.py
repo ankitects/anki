@@ -5,6 +5,7 @@ import platform
 import time
 
 import aqt.forms
+from anki.hooks import HookOnInit
 from anki.lang import _
 from anki.utils import versionWithBuild
 from aqt.addons import AddonManager, AddonMeta
@@ -12,7 +13,7 @@ from aqt.qt import *
 from aqt.utils import supportText, tooltip
 
 
-class ClosableQDialog(QDialog):
+class ClosableQDialog(QDialog, HookOnInit):
     def reject(self):
         aqt.dialogs.markClosed("About")
         QDialog.reject(self)

@@ -3,13 +3,15 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import aqt
+from anki.hooks import HookOnInit
 from anki.lang import _
 from aqt.qt import *
 from aqt.utils import askUser, openHelp, restoreGeom, saveGeom, showWarning
 
 
-class DeckConf(QDialog):
+class DeckConf(QDialog, HookOnInit):
     def __init__(self, mw, first=False, search="", deck=None):
+        # pylint: disable=W0231
         QDialog.__init__(self, mw)
         self.mw = mw
         self.deck = deck or self.mw.col.decks.current()

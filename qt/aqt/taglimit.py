@@ -2,12 +2,14 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/copyleft/agpl.html
 
 import aqt
+from anki.hooks import HookOnInit
 from aqt.qt import *
 from aqt.utils import restoreGeom, saveGeom
 
 
-class TagLimit(QDialog):
+class TagLimit(QDialog, HookOnInit):
     def __init__(self, mw, parent):
+        # pylint: disable=W0231
         QDialog.__init__(self, parent, Qt.Window)
         self.mw = mw
         self.parent = parent

@@ -3,13 +3,14 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import aqt
+from anki.hooks import HookOnInit
 from anki.lang import _
 from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import getOnlyText, openHelp, restoreGeom, saveGeom, shortcut, showInfo
 
 
-class StudyDeck(QDialog):
+class StudyDeck(QDialog, HookOnInit):
     def __init__(
         self,
         mw,
@@ -24,6 +25,7 @@ class StudyDeck(QDialog):
         buttons=None,
         geomKey="default",
     ) -> None:
+        # pylint: disable=W0231
         QDialog.__init__(self, parent or mw)
         if buttons is None:
             buttons = []

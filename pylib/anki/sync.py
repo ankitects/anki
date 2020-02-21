@@ -14,6 +14,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 import anki
 from anki.consts import *
 from anki.db import DB
+from anki.hooks import HookOnInit
 from anki.utils import checksum, devMode, ids2str, intTime, platDesc, versionWithBuild
 
 from . import hooks
@@ -31,7 +32,8 @@ class UnexpectedSchemaChange(Exception):
 ##########################################################################
 
 
-class Syncer:
+class Syncer(HookOnInit):
+    # pylint: disable=W0231
     cursor: Optional[sqlite3.Cursor]
 
     def __init__(self, col: anki.storage._Collection, server=None) -> None:
@@ -465,8 +467,9 @@ from notes where %s"""
 ##########################################################################
 
 
-class HttpSyncer:
+class HttpSyncer(HookOnInit):
     def __init__(self, hkey=None, client=None, hostNum=None) -> None:
+        # pylint: disable=W0231
         self.hkey = hkey
         self.skey = checksum(str(random.random()))[:8]
         self.client = client or HttpClient()
@@ -561,8 +564,9 @@ Content-Type: application/octet-stream\r\n\r\n"""
 ######################################################################
 
 
-class RemoteServer(HttpSyncer):
+class RemoteServer(HttpSyncer, HookOnInit):
     def __init__(self, hkey, hostNum) -> None:
+        # pylint: disable=W0231
         HttpSyncer.__init__(self, hkey, hostNum=hostNum)
 
     def hostKey(self, user, pw) -> Any:
@@ -632,8 +636,9 @@ class RemoteServer(HttpSyncer):
 ##########################################################################
 
 
-class FullSyncer(HttpSyncer):
+class FullSyncer(HttpSyncer, HookOnInit):
     def __init__(self, col, hkey, client, hostNum) -> None:
+        # pylint: disable=W0231
         HttpSyncer.__init__(self, hkey, client, hostNum=hostNum)
         self.postVars = dict(
             k=self.hkey, v="ankidesktop,%s,%s" % (anki.version, platDesc()),

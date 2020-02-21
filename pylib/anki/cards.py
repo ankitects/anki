@@ -10,6 +10,7 @@ from typing import List, Optional
 import anki  # pylint: disable=unused-import
 from anki import hooks
 from anki.consts import *
+from anki.hooks import HookOnInit
 from anki.models import NoteType, Template
 from anki.notes import Note
 from anki.sound import AVTag
@@ -27,7 +28,7 @@ from anki.utils import intTime, joinFields, timestampID
 # - lrn queue: integer timestamp
 
 
-class Card:
+class Card(HookOnInit):
     _note: Optional[Note]
     timerStarted: Optional[float]
     lastIvl: int
@@ -36,6 +37,7 @@ class Card:
     def __init__(
         self, col: anki.collection._Collection, id: Optional[int] = None
     ) -> None:
+        # pylint: disable=W0231
         self.col = col
         self.timerStarted = None
         self._render_output: Optional[anki.template.TemplateRenderOutput] = None

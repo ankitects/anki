@@ -5,6 +5,7 @@ import gc
 import time
 
 from anki import hooks
+from anki.hooks import HookOnInit
 from anki.lang import _
 from anki.storage import Collection
 from anki.sync import FullSyncer, RemoteServer, Syncer
@@ -15,8 +16,9 @@ from aqt.utils import askUserDialog, showInfo, showText, showWarning, tooltip
 ######################################################################
 
 
-class SyncManager(QObject):
+class SyncManager(QObject, HookOnInit):
     def __init__(self, mw, pm):
+        # pylint: disable=W0231
         QObject.__init__(self, mw)
         self.mw = mw
         self.pm = pm
@@ -342,12 +344,13 @@ Check Database, then sync again."""
 ######################################################################
 
 
-class SyncThread(QThread):
+class SyncThread(QThread, HookOnInit):
 
     _event = pyqtSignal(str, str)
     progress_event = pyqtSignal(int, int)
 
     def __init__(self, path, hkey, auth=None, hostNum=None):
+        # pylint: disable=W0231
         QThread.__init__(self)
         self.path = path
         self.hkey = hkey

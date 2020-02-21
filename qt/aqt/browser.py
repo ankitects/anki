@@ -21,6 +21,7 @@ from anki import hooks
 from anki.cards import Card
 from anki.collection import _Collection
 from anki.consts import *
+from anki.hooks import HookOnInit
 from anki.lang import _, ngettext
 from anki.models import NoteType
 from anki.notes import Note
@@ -73,8 +74,9 @@ class FindDupesDialog:
 ##########################################################################
 
 
-class DataModel(QAbstractTableModel):
+class DataModel(QAbstractTableModel, HookOnInit):
     def __init__(self, browser):
+        # pylint: disable=W0231
         QAbstractTableModel.__init__(self)
         self.browser = browser
         self.col = browser.col
@@ -565,13 +567,14 @@ class SidebarModel(QAbstractItemModel):
 # fixme: respond to reset+edit hooks
 
 
-class Browser(QMainWindow):
+class Browser(QMainWindow, HookOnInit):
     model: DataModel
     mw: AnkiQt
     col: _Collection
     editor: Optional[Editor]
 
     def __init__(self, mw: AnkiQt) -> None:
+        # pylint: disable=W0231
         QMainWindow.__init__(self, None, Qt.Window)
         self.mw = mw
         self.col = self.mw.col
@@ -2328,8 +2331,9 @@ update cards set usn=?, mod=?, did=? where id in """
 ######################################################################
 
 
-class ChangeModel(QDialog):
+class ChangeModel(QDialog, HookOnInit):
     def __init__(self, browser, nids) -> None:
+        # pylint: disable=W0231
         QDialog.__init__(self, browser)
         self.browser = browser
         self.nids = nids
@@ -2511,7 +2515,8 @@ Are you sure you want to continue?"""
 ######################################################################
 
 
-class CardInfoDialog(QDialog):
+class CardInfoDialog(QDialog, HookOnInit):
+    # pylint: disable=W0231
     silentlyClose = True
 
     def __init__(self, browser: Browser, *args, **kwargs):

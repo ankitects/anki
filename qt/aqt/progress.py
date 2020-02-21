@@ -8,6 +8,7 @@ import time
 from typing import Optional
 
 import aqt.forms
+from anki.hooks import HookOnInit
 from anki.lang import _
 from aqt.qt import *
 
@@ -19,8 +20,9 @@ from aqt.qt import *
 ##########################################################################
 
 
-class ProgressManager:
+class ProgressManager(HookOnInit):
     def __init__(self, mw):
+        # pylint: disable=W0231
         self.mw = mw
         self.app = QApplication.instance()
         self.inDB = False
@@ -190,8 +192,9 @@ class ProgressManager:
         return self._levels
 
 
-class ProgressDialog(QDialog):
+class ProgressDialog(QDialog, HookOnInit):
     def __init__(self, parent):
+        # pylint: disable=W0231
         QDialog.__init__(self, parent)
         self.form = aqt.forms.progress.Ui_Dialog()
         self.form.setupUi(self)

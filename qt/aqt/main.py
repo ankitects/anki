@@ -26,7 +26,7 @@ import aqt.toolbar
 import aqt.webview
 from anki import hooks
 from anki.collection import _Collection
-from anki.hooks import runHook
+from anki.hooks import HookOnInit, runHook
 from anki.lang import _, ngettext
 from anki.sound import AVTag, SoundOrVideoTag
 from anki.storage import Collection
@@ -65,7 +65,7 @@ class ResetRequired:
         self.mw = mw
 
 
-class AnkiQt(QMainWindow):
+class AnkiQt(QMainWindow, HookOnInit):
     col: _Collection
     pm: ProfileManagerType
     web: aqt.webview.AnkiWebView
@@ -78,6 +78,7 @@ class AnkiQt(QMainWindow):
         opts: Namespace,
         args: List[Any],
     ) -> None:
+        # pylint: disable=W0231
         QMainWindow.__init__(self)
         self.state = "startup"
         self.opts = opts

@@ -5,6 +5,7 @@
 import time
 
 import aqt
+from anki.hooks import HookOnInit
 from anki.lang import _
 from aqt.qt import *
 from aqt.theme import theme_manager
@@ -21,8 +22,9 @@ from aqt.utils import (
 ######################################################################
 
 
-class DeckStats(QDialog):
+class DeckStats(QDialog, HookOnInit):
     def __init__(self, mw):
+        # pylint: disable=W0231
         QDialog.__init__(self, mw, Qt.Window)
         mw.setupDialogGC(self)
         self.mw = mw

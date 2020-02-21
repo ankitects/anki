@@ -7,14 +7,16 @@ import time
 
 import anki.lang
 import aqt
+from anki.hooks import HookOnInit
 from anki.lang import _
 from aqt import AnkiQt
 from aqt.qt import *
 from aqt.utils import askUser, openHelp, showInfo, showWarning
 
 
-class Preferences(QDialog):
+class Preferences(QDialog, HookOnInit):
     def __init__(self, mw: AnkiQt):
+        # pylint: disable=W0231
         QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw
         self.prof = self.mw.pm.profile

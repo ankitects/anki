@@ -10,6 +10,7 @@ from typing import Optional
 import aqt
 from anki.cards import Card
 from anki.consts import *
+from anki.hooks import HookOnInit
 from anki.lang import _, ngettext
 from anki.utils import isMac, isWin, joinFields
 from aqt import gui_hooks
@@ -29,7 +30,8 @@ from aqt.utils import (
 from aqt.webview import AnkiWebView
 
 
-class CardLayout(QDialog):
+class CardLayout(QDialog, HookOnInit):
+    # pylint: disable=W0231
     card: Optional[Card]
 
     def __init__(self, mw, note, ord=0, parent=None, addMode=False):

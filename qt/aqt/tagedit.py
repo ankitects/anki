@@ -3,15 +3,17 @@
 
 import re
 
+from anki.hooks import HookOnInit
 from aqt.qt import *
 
 
-class TagEdit(QLineEdit):
+class TagEdit(QLineEdit, HookOnInit):
 
     lostFocus = pyqtSignal()
 
     # 0 = tags, 1 = decks
     def __init__(self, parent, type=0):
+        # pylint: disable=W0231
         QLineEdit.__init__(self, parent)
         self.col = None
         self.model = QStringListModel()
@@ -92,8 +94,9 @@ class TagEdit(QLineEdit):
         self.completer.popup().hide()
 
 
-class TagCompleter(QCompleter):
+class TagCompleter(QCompleter, HookOnInit):
     def __init__(self, model, parent, edit, *args):
+        # pylint: disable=W0231
         QCompleter.__init__(self, model, parent)
         self.tags = []
         self.edit = edit

@@ -19,6 +19,7 @@ import anki.lang
 import aqt.forms
 import aqt.sound
 from anki.db import DB
+from anki.hooks import HookOnInit
 from anki.lang import _
 from anki.utils import intTime, isMac, isWin
 from aqt import appHelpSite
@@ -66,8 +67,9 @@ class LoadMetaResult:
     loadError: bool
 
 
-class ProfileManager:
+class ProfileManager(HookOnInit):
     def __init__(self, base=None):
+        # pylint: disable=W0231
         self.name = None
         self.db = None
         # instantiate base folder

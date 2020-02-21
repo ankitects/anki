@@ -10,6 +10,7 @@ from typing import Iterable, List, Optional, TypeVar
 
 import aqt
 from anki import hooks
+from anki.hooks import HookOnInit
 from anki.rsbackend import (
     Interrupted,
     MediaCheckOutput,
@@ -37,10 +38,11 @@ def check_media_db(mw: aqt.AnkiQt) -> None:
     c.check()
 
 
-class MediaChecker:
+class MediaChecker(HookOnInit):
     progress_dialog: Optional[aqt.progress.ProgressDialog]
 
     def __init__(self, mw: aqt.AnkiQt) -> None:
+        # pylint: disable=W0231
         self.mw = mw
 
     def check(self) -> None:

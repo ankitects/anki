@@ -7,6 +7,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import aqt
+from anki.hooks import HookOnInit
 from anki.lang import _
 from aqt import gui_hooks
 from aqt.sound import av_player
@@ -37,10 +38,11 @@ class OverviewContent:
     table: str
 
 
-class Overview:
+class Overview(HookOnInit):
     "Deck overview."
 
     def __init__(self, mw: aqt.AnkiQt) -> None:
+        # pylint: disable=W0231
         self.mw = mw
         self.web = mw.web
         self.bottom = BottomBar(mw, mw.bottomWeb)

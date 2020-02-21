@@ -4,6 +4,7 @@
 
 import aqt
 from anki.consts import *
+from anki.hooks import HookOnInit
 from anki.lang import _
 from aqt.qt import *
 from aqt.utils import showInfo, showWarning
@@ -21,8 +22,9 @@ TYPE_REVIEW = 2
 TYPE_ALL = 3
 
 
-class CustomStudy(QDialog):
+class CustomStudy(QDialog, HookOnInit):
     def __init__(self, mw) -> None:
+        # pylint: disable=W0231
         QDialog.__init__(self, mw)
         self.mw = mw
         self.deck = self.mw.col.decks.current()

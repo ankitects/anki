@@ -7,6 +7,7 @@ import math
 import sys
 from typing import Any, List, Optional, Tuple
 
+from anki.hooks import HookOnInit
 from anki.lang import _
 from anki.utils import isLin, isMac, isWin
 from aqt import gui_hooks
@@ -18,8 +19,9 @@ from aqt.utils import openLink
 ##########################################################################
 
 
-class AnkiWebPage(QWebEnginePage):  # type: ignore
+class AnkiWebPage(QWebEnginePage, HookOnInit):  # type: ignore
     def __init__(self, onBridgeCmd):
+        # pylint: disable=W0231
         QWebEnginePage.__init__(self)
         self._onBridgeCmd = onBridgeCmd
         self._setupBridge()
@@ -161,10 +163,11 @@ class WebContent:
 ##########################################################################
 
 
-class AnkiWebView(QWebEngineView):  # type: ignore
+class AnkiWebView(QWebEngineView, HookOnInit):  # type: ignore
     def __init__(
         self, parent: Optional[QWidget] = None, title: str = "default"
     ) -> None:
+        # pylint: disable=W0231
         QWebEngineView.__init__(self, parent=parent)  # type: ignore
         self.title = title
         self._page = AnkiWebPage(self._onBridgeCmd)

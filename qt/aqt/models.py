@@ -5,6 +5,7 @@ from operator import itemgetter
 
 import aqt.clayout
 from anki import stdmodels
+from anki.hooks import HookOnInit
 from anki.lang import _, ngettext
 from aqt import AnkiQt
 from aqt.qt import *
@@ -19,8 +20,9 @@ from aqt.utils import (
 )
 
 
-class Models(QDialog):
+class Models(QDialog, HookOnInit):
     def __init__(self, mw: AnkiQt, parent=None, fromMain=False):
+        # pylint: disable=W0231
         self.mw = mw
         parent = parent or mw
         self.fromMain = fromMain
@@ -170,8 +172,9 @@ class Models(QDialog):
         QDialog.reject(self)
 
 
-class AddModel(QDialog):
+class AddModel(QDialog, HookOnInit):
     def __init__(self, mw, parent=None):
+        # pylint: disable=W0231
         self.parent = parent or mw
         self.mw = mw
         self.col = mw.col

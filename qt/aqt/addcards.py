@@ -7,6 +7,7 @@ import aqt.deckchooser
 import aqt.editor
 import aqt.forms
 import aqt.modelchooser
+from anki.hooks import HookOnInit
 from anki.lang import _
 from anki.notes import Note
 from anki.utils import htmlToTextLine, isMac
@@ -26,8 +27,9 @@ from aqt.utils import (
 )
 
 
-class AddCards(QDialog):
+class AddCards(QDialog, HookOnInit):
     def __init__(self, mw: AnkiQt) -> None:
+        # pylint: disable=W0231
         QDialog.__init__(self, None, Qt.Window)
         mw.setupDialogGC(self)
         self.mw = mw

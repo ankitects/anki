@@ -11,6 +11,7 @@ import sys
 from typing import Any, Optional, Union
 
 import aqt
+from anki.hooks import HookOnInit
 from anki.lang import _
 from anki.rsbackend import StringsGroup
 from anki.utils import invalidFilename, isMac, isWin, noBundledLibs, versionWithBuild
@@ -188,8 +189,9 @@ def askUser(text, parent=None, help="", defaultno=False, msgfunc=None, title="An
     return r == QMessageBox.Yes
 
 
-class ButtonedDialog(QMessageBox):
+class ButtonedDialog(QMessageBox, HookOnInit):
     def __init__(self, text, buttons, parent=None, help="", title="Anki"):
+        # pylint: disable=W0231
         QMessageBox.__init__(self, parent)
         self.buttons = []
         self.setWindowTitle(title)

@@ -3,14 +3,16 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import aqt.editor
+from anki.hooks import HookOnInit
 from anki.lang import _
 from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import restoreGeom, saveGeom, tooltip
 
 
-class EditCurrent(QDialog):
+class EditCurrent(QDialog, HookOnInit):
     def __init__(self, mw) -> None:
+        # pylint: disable=W0231
         QDialog.__init__(self, None, Qt.Window)
         mw.setupDialogGC(self)
         self.mw = mw

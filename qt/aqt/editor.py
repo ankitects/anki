@@ -19,7 +19,7 @@ from bs4 import BeautifulSoup
 
 import aqt
 import aqt.sound
-from anki.hooks import runFilter
+from anki.hooks import HookOnInit, runFilter
 from anki.httpclient import HttpClient
 from anki.lang import _
 from anki.notes import Note
@@ -68,8 +68,9 @@ html { background: %s; }
 """
 
 # caller is responsible for resetting note on reset
-class Editor:
+class Editor(HookOnInit):
     def __init__(self, mw: AnkiQt, widget, parentWindow, addMode=False) -> None:
+        # pylint: disable=W0231
         self.mw = mw
         self.widget = widget
         self.parentWindow = parentWindow

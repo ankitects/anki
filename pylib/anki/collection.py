@@ -22,6 +22,7 @@ from anki.consts import *
 from anki.db import DB
 from anki.decks import DeckManager
 from anki.errors import AnkiError
+from anki.hooks import HookOnInit
 from anki.lang import _, ngettext
 from anki.media import MediaManager
 from anki.models import ModelManager, NoteType, Template
@@ -62,7 +63,7 @@ defaultConf = {
 
 
 # this is initialized by storage.Collection
-class _Collection:
+class _Collection(HookOnInit):
     db: Optional[DB]
     sched: Union[V1Scheduler, V2Scheduler]
     crt: int
@@ -82,6 +83,7 @@ class _Collection:
         server: Optional["anki.storage.ServerData"] = None,
         log: bool = False,
     ) -> None:
+        # pylint: disable=W0231
         self.backend = backend
         self._debugLog = log
         self.db = db

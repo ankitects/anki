@@ -2,14 +2,16 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from anki.hooks import HookOnInit
 from anki.lang import _
 from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import shortcut
 
 
-class DeckChooser(QHBoxLayout):
+class DeckChooser(QHBoxLayout, HookOnInit):
     def __init__(self, mw, widget: QWidget, label=True, start=None) -> None:
+        # pylint: disable=W0231
         QHBoxLayout.__init__(self)
         self.widget = widget  # type: ignore
         self.mw = mw

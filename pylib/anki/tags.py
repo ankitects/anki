@@ -17,15 +17,17 @@ from typing import Callable, Dict, List, Tuple
 
 import anki  # pylint: disable=unused-import
 from anki import hooks
+from anki.hooks import HookOnInit
 from anki.utils import ids2str, intTime
 
 
-class TagManager:
+class TagManager(HookOnInit):
 
     # Registry save/load
     #############################################################
 
     def __init__(self, col: anki.storage._Collection) -> None:
+        # pylint: disable=W0231
         self.col = col
         self.tags: Dict[str, int] = {}
 

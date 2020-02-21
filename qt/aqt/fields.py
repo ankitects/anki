@@ -3,13 +3,15 @@
 
 import aqt
 from anki.consts import *
+from anki.hooks import HookOnInit
 from anki.lang import _, ngettext
 from aqt.qt import *
 from aqt.utils import askUser, getOnlyText, openHelp, showWarning
 
 
-class FieldDialog(QDialog):
+class FieldDialog(QDialog, HookOnInit):
     def __init__(self, mw, note, ord=0, parent=None):
+        # pylint: disable=W0231
         QDialog.__init__(self, parent or mw)  # , Qt.Window)
         self.mw = aqt.mw
         self.parent = parent or mw

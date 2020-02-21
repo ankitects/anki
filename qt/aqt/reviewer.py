@@ -14,6 +14,7 @@ from typing import List, Optional
 
 from anki import hooks
 from anki.cards import Card
+from anki.hooks import HookOnInit
 from anki.lang import _, ngettext
 from anki.utils import stripHTML
 from aqt import AnkiQt, gui_hooks
@@ -29,10 +30,11 @@ class ReviewerBottomBar:
         self.reviewer = reviewer
 
 
-class Reviewer:
+class Reviewer(HookOnInit):
     "Manage reviews.  Maintains a separate state."
 
     def __init__(self, mw: AnkiQt) -> None:
+        # pylint: disable=W0231
         self.mw = mw
         self.web = mw.web
         self.card: Optional[Card] = None

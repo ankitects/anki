@@ -24,6 +24,7 @@ from send2trash import send2trash
 import anki
 import aqt
 import aqt.forms
+from anki.hooks import HookOnInit
 from anki.httpclient import HttpClient
 from anki.lang import _, ngettext
 from aqt.qt import *
@@ -138,7 +139,7 @@ class AddonMeta:
 
 
 # fixme: this class should not have any GUI code in it
-class AddonManager:
+class AddonManager(HookOnInit):
 
     ext: str = ".ankiaddon"
     _manifest_schema: dict = {
@@ -166,6 +167,7 @@ class AddonManager:
     }
 
     def __init__(self, mw: aqt.main.AnkiQt):
+        # pylint: disable=W0231
         self.mw = mw
         self.dirty = False
         f = self.mw.form

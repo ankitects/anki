@@ -19,7 +19,8 @@ from anki.utils import (
 )
 
 
-class Note:
+class Note(hooks.HookOnInit):
+    # pylint: disable=W0231
     col: anki.storage._Collection
     newlyAdded: bool
     id: int

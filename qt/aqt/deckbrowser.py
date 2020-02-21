@@ -10,6 +10,7 @@ from typing import Any
 
 import aqt
 from anki.errors import DeckRenameError
+from anki.hooks import HookOnInit
 from anki.lang import _, ngettext
 from anki.rsbackend import StringsGroup
 from anki.utils import fmtTimeSpan, ids2str
@@ -49,7 +50,8 @@ class DeckBrowserContent:
     countwarn: str
 
 
-class DeckBrowser:
+class DeckBrowser(HookOnInit):
+    # pylint: disable=W0231
     _dueTree: Any
 
     def __init__(self, mw: AnkiQt) -> None:

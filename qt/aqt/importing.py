@@ -14,6 +14,7 @@ import anki.importing as importing
 import aqt.deckchooser
 import aqt.forms
 import aqt.modelchooser
+from anki.hooks import HookOnInit
 from anki.lang import _, ngettext
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
@@ -29,8 +30,9 @@ from aqt.utils import (
 )
 
 
-class ChangeMap(QDialog):
+class ChangeMap(QDialog, HookOnInit):
     def __init__(self, mw: AnkiQt, model, current):
+        # pylint: disable=W0231
         QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw
         self.model = model
@@ -72,8 +74,9 @@ class ChangeMap(QDialog):
         self.accept()
 
 
-class ImportDialog(QDialog):
+class ImportDialog(QDialog, HookOnInit):
     def __init__(self, mw: AnkiQt, importer) -> None:
+        # pylint: disable=W0231
         QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw
         self.importer = importer

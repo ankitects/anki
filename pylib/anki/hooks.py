@@ -608,3 +608,78 @@ def wrap(old, new, pos="after") -> Callable:
         return repl(*args, **kwargs)
 
     return decorator.decorator(decorator_wrapper)(old)
+
+
+class HookOnInit:
+    """`class Foo(HookOnInit)` create a hook `foo_did_init(object)` which is
+    called on each new object of type `Foo`.
+
+    It should be noted that if an add-on replace the __init__ method,
+    the new method won't call this hook anymore, even if they copy the
+    entire code of `Foo.__init__` in their code.
+
+    For example
+```python
+from anki import hooks
+def init_card(card):
+    print(card.id)
+hooks.Card_did_init.append(init_card)
+```
+    would print the id of each card created.
+    """
+
+    def __init_subclass__(cls, *args, **kwargs):
+        super().__init_subclass__(*args, **kwargs)  # type: ignore
+        # Normally, args and kwargs should be empty. But it could be
+        # false in class with multiple inheritance. So need to ignore
+        # mypy error
+
+        class ClassHook:
+            _hooks: List[Callable[[cls], None]] = []  # type: ignore
+            # cls is indeed a type, even if it's a parameter
+
+            def append(self, cb: Callable[[cls], None]) -> None:  # type: ignore
+                self._hooks.append(cb)
+
+            def remove(self, cb: Callable[[cls], None]) -> None:  # type: ignore
+                if cb in self._hooks:
+                    self._hooks.remove(cb)
+
+            def __call__(self, object: cls) -> None:  # type: ignore
+                for hook in self._hooks:
+                    try:
+                        hook(object)
+                    except Exception as e:
+                        # if the hook fails, remove it
+                        self._hooks.remove(hook)
+                        raise
+
+        snake_name = cls.__name__
+        object_hook = ClassHook()
+        globals()[f"{snake_name}_did_init"] = object_hook
+        ClassHook.__name__ = f"_{caml_from_snake(snake_name)}DidInitHook"
+
+        # Replacing init of cls to ensure it calls the hook
+        init = getattr(cls, "__init__", None)
+
+        def __init__(self, *args, **kwargs):
+            r = init(self, *args, **kwargs)
+            object_hook(self)
+            # theoretically, r is always None
+            return r
+
+        cls.__init__ = __init__  # type: ignore
+        # In this case, assigning to a method is what we really want
+
+
+def caml_from_snake(snake: str):
+    letters = []
+    cap = True
+    for letter in snake:
+        if letter == "_":
+            cap = True
+        if cap:
+            letter.upper()
+            cap = False
+        letters.append(letter)
+    return "".join(letters)

@@ -5,6 +5,7 @@ from operator import itemgetter
 
 import aqt
 from anki.consts import NEW_CARDS_RANDOM
+from anki.hooks import HookOnInit
 from anki.lang import _, ngettext
 from aqt.qt import *
 from aqt.utils import (
@@ -19,8 +20,9 @@ from aqt.utils import (
 )
 
 
-class DeckConf(QDialog):
+class DeckConf(QDialog, HookOnInit):
     def __init__(self, mw, deck):
+        # pylint: disable=W0231
         QDialog.__init__(self, mw)
         self.mw = mw
         self.deck = deck

@@ -6,13 +6,14 @@ import platform
 import sys
 from typing import Dict
 
+from anki.hooks import HookOnInit
 from anki.utils import isMac
 from aqt import QApplication, gui_hooks, isWin
 from aqt.colors import colors
 from aqt.qt import QColor, QIcon, QPalette, QPixmap, QStyleFactory, Qt
 
 
-class ThemeManager:
+class ThemeManager(HookOnInit):
     _night_mode_preference = False
     _icon_cache_light: Dict[str, QIcon] = {}
     _icon_cache_dark: Dict[str, QIcon] = {}

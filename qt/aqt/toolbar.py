@@ -7,6 +7,7 @@ from __future__ import annotations
 from typing import Any, Dict, Optional
 
 import aqt
+from anki.hooks import HookOnInit
 from anki.lang import _
 from aqt import gui_hooks
 from aqt.qt import *
@@ -25,8 +26,9 @@ class BottomToolbar:
         self.toolbar = toolbar
 
 
-class Toolbar:
+class Toolbar(HookOnInit):
     def __init__(self, mw: aqt.AnkiQt, web: AnkiWebView) -> None:
+        # pylint: disable=W0231
         self.mw = mw
         self.web = web
         self.link_handlers: Dict[str, Callable] = {
