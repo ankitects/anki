@@ -158,12 +158,7 @@ where id > ?""",
         )
         cards = cards or 0
         thetime = thetime or 0
-        msgp1 = (
-            ngettext("<!--studied-->%d card", "<!--studied-->%d cards", cards) % cards
-        )
-        buf = _("Studied %(a)s %(b)s today.") % dict(
-            a=msgp1, b=fmtTimeSpan(thetime, unit=1, inTime=True)
-        )
+        buf = self.mw.col.backend.studied_today(cards, float(thetime))
         return buf
 
     def _countWarn(self):

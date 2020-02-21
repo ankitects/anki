@@ -45,6 +45,7 @@ message BackendInput {
         TrashMediaFilesIn trash_media_files = 29;
         TranslateStringIn translate_string = 30;
         FormatTimeSpanIn format_time_span = 31;
+        StudiedTodayIn studied_today = 32;
     }
 }
 
@@ -66,6 +67,7 @@ message BackendOutput {
         Empty trash_media_files = 29;
         string translate_string = 30;
         string format_time_span = 31;
+        string studied_today = 32;
 
         BackendError error = 2047;
     }
@@ -314,4 +316,9 @@ message FormatTimeSpanIn {
 
     float seconds = 1;
     Context context = 2;
+}
+
+message StudiedTodayIn {
+    uint32 cards = 1;
+    double seconds = 2;
 }
