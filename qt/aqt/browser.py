@@ -21,7 +21,6 @@ from anki import hooks
 from anki.cards import Card
 from anki.collection import _Collection
 from anki.consts import *
-from anki.decks import WITHOUT_EMPTY_DEFAULT
 from anki.lang import _, ngettext
 from anki.models import NoteType
 from anki.notes import Note
@@ -1157,25 +1156,16 @@ by clicking on one on the left."""
 
         def fillGroups(root, grps, head=""):
             for g in grps:
-                baseName = g[0]
-                did = g[1]
-                children = g[5]
-                if str(did) == "1" and not children:
-                    if not self.mw.col.decks.shouldDefaultBeDisplayed(
-                        WITHOUT_EMPTY_DEFAULT
-                    ):
-                        # No need to test for children, we know there are not
-                        continue
                 item = SidebarItem(
-                    baseName,
+                    g[0],
                     ":/icons/deck.svg",
-                    lambda baseName=baseName: self.setFilter("deck", head + baseName),
-                    lambda expanded, did=did: self.mw.col.decks.collapseBrowser(did),
+                    lambda g=g: self.setFilter("deck", head + g[0]),
+                    lambda expanded, g=g: self.mw.col.decks.collapseBrowser(g[1]),
                     not self.mw.col.decks.get(g[1]).get("browserCollapsed", False),
                 )
                 root.addChild(item)
-                newhead = head + baseName + "::"
-                fillGroups(item, children, newhead)
+                newhead = head + g[0] + "::"
+                fillGroups(item, g[5], newhead)
 
         fillGroups(root, grps)
 
@@ -1322,12 +1312,7 @@ by clicking on one on the left."""
                     subm.addSeparator()
                     addDecks(subm, children)
                 else:
-                    if did != 1 or self.col.decks.shouldDefaultBeDisplayed(
-                        WITHOUT_EMPTY_DEFAULT
-                        # no need to check for children, we know
-                        # there are none in this else branch
-                    ):
-                        parent.addItem(shortname, self._filterFunc("deck", name))
+                    parent.addItem(shortname, self._filterFunc("deck", name))
 
         # fixme: could rewrite to avoid calculating due # in the future
         alldecks = self.col.sched.deckDueTree()

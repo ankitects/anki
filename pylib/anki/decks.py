@@ -92,16 +92,6 @@ defaultConf = {
     "usn": 0,
 }
 
-# How to select list of decks
-
-# difference between WITHOUT_EMPTY_DEFAULT and
-# WITHOUT_EMPTY_LEAF_DEFAULT is that the first contains default when
-# it has a child. This is required for deck tree.
-
-WITHOUT_EMPTY_DEFAULT = 0
-ALL_DECKS = 1
-WITHOUT_EMPTY_LEAF_DEFAULT = 2
-
 
 class DeckManager:
     decks: Dict[str, Any]
@@ -229,7 +219,7 @@ class DeckManager:
             self.select(int(list(self.decks.keys())[0]))
         self.save()
 
-    def allNames(self, dyn: bool = True, forceDefault: int = ALL_DECKS) -> List:
+    def allNames(self, dyn: bool = True, forceDefault: bool = True) -> List:
         "An unsorted list of all deck names."
         if dyn:
             return [x["name"] for x in self.all(forceDefault=forceDefault)]
@@ -238,10 +228,14 @@ class DeckManager:
                 x["name"] for x in self.all(forceDefault=forceDefault) if not x["dyn"]
             ]
 
-    def all(self, forceDefault: int = ALL_DECKS) -> List:
+    def all(self, forceDefault: bool = True) -> List:
         "A list of all decks."
         decks = list(self.decks.values())
-        if not forceDefault and not self.shouldDefaultBeDisplayed(forceDefault):
+        if (
+            not forceDefault
+            and not self.col.db.scalar("select 1 from cards where did = 1 limit 1")
+            and len(decks) > 1
+        ):
             decks = [deck for deck in decks if deck["id"] != 1]
         return decks
 
@@ -518,35 +512,6 @@ class DeckManager:
     def checkIntegrity(self) -> None:
         self._recoverOrphans()
         self._checkDeckTree()
-
-    def shouldDeckBeDisplayed(self, deck, forceDefault: int = ALL_DECKS) -> bool:
-        """Whether the deck should appear in main window, browser side list, filter, deck selection...
-
-        True, except for empty default deck without children"""
-        if deck["id"] != "1":
-            return True
-        return self.shouldDefaultBeDisplayed(forceDefault)
-
-    def shouldDefaultBeDisplayed(
-        self, forceDefault: int = ALL_DECKS, defaultDeck=None
-    ) -> bool:
-        """Whether the default deck should appear in main window, browser side list, filter, deck selection...
-
-        True, except for empty default deck (without children)"""
-        if forceDefault == ALL_DECKS:
-            return True
-        if self.col.db.scalar("select 1 from cards where did = 1 limit 1"):
-            return True
-        if len(self.decks) == 1:
-            return True
-        if forceDefault == WITHOUT_EMPTY_LEAF_DEFAULT:
-            if defaultDeck is None:
-                defaultDeck = self.get(1)
-            defaultName = defaultDeck["name"]
-            for name in self.allNames():
-                if name.startswith(f"{defaultName}::"):
-                    return True
-        return False
 
     # Deck selection
     #############################################################
