@@ -31,8 +31,8 @@ coarsetime = "=0.1.11"
 utime = "0.2.1"
 serde-aux = "0.6.1"
 unic-langid = { version = "0.8.0", features = ["macros"] }
-fluent = { git = "https://github.com/projectfluent/fluent-rs", rev = "6a711ca1" }
-intl-memoizer = { git = "https://github.com/projectfluent/fluent-rs", rev = "6a711ca1" }
+fluent = "0.10.2"
+intl-memoizer = "0.3.0"
 num-format = "0.4.0"
 
 [target.'cfg(target_vendor="apple")'.dependencies]
