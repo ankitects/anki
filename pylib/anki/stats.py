@@ -276,7 +276,8 @@ from revlog where id > ? """
 
     def _dueInfo(self, tot, num) -> str:
         i: List[str] = []
-        self._line(i, _("Total"), ngettext("%d review", "%d reviews", tot) % tot)
+        self._line(i, _("Total"),
+                   self.col.backend.translate(StringsGroup.STATISTICS, "reviews", reviews=tot))
         self._line(i, _("Average"), self._avgDay(tot, num, _("reviews")))
         tomorrow = self.col.db.scalar(
             f"""
