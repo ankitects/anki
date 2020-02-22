@@ -222,20 +222,16 @@ class DeckManager:
     def allNames(self, dyn: bool = True, forceDefault: bool = True) -> List:
         "An unsorted list of all deck names."
         if dyn:
-            return [x["name"] for x in self.all(forceDefault=forceDefault)]
+            return [x["name"] for x in self.all(force_default=force_default)]
         else:
             return [
-                x["name"] for x in self.all(forceDefault=forceDefault) if not x["dyn"]
+                x["name"] for x in self.all(force_default=force_default) if not x["dyn"]
             ]
 
-    def all(self, forceDefault: bool = True) -> List:
+    def all(self, force_default: int = ALL_DECKS) -> List:
         "A list of all decks."
         decks = list(self.decks.values())
-        if (
-            not forceDefault
-            and not self.col.db.scalar("select 1 from cards where did = 1 limit 1")
-            and len(decks) > 1
-        ):
+        if not force_default and not self.shouldDefaultBeDisplayed(force_default):
             decks = [deck for deck in decks if deck["id"] != 1]
         return decks
 
@@ -512,6 +508,35 @@ class DeckManager:
     def checkIntegrity(self) -> None:
         self._recoverOrphans()
         self._checkDeckTree()
+
+    def shouldDeckBeDisplayed(self, deck, force_default: int = ALL_DECKS) -> bool:
+        """Whether the deck should appear in main window, browser side list, filter, deck selection...
+
+        True, except for empty default deck without children"""
+        if deck["id"] != "1":
+            return True
+        return self.shouldDefaultBeDisplayed(force_default)
+
+    def shouldDefaultBeDisplayed(
+        self, force_default: int = ALL_DECKS, defaultDeck=None
+    ) -> bool:
+        """Whether the default deck should appear in main window, browser side list, filter, deck selection...
+
+        True, except for empty default deck (without children)"""
+        if force_default == ALL_DECKS:
+            return True
+        if self.col.db.scalar("select 1 from cards where did = 1 limit 1"):
+            return True
+        if len(self.decks) == 1:
+            return True
+        if force_default == WITHOUT_EMPTY_LEAF_DEFAULT:
+            if defaultDeck is None:
+                defaultDeck = self.get(1)
+            defaultName = defaultDeck["name"]
+            for name in self.allNames():
+                if name.startswith(f"{defaultName}::"):
+                    return True
+        return False
 
     # Deck selection
     #############################################################
