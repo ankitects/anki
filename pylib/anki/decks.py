@@ -238,7 +238,7 @@ class DeckManager:
         * default deck has a child (assumed not to be the case if assume_no_child)
         """
         decks = list(self.decks.values())
-        if not force_default and not self.shouldDefaultBeDisplayed(force_default):
+        if not force_default and not self.should_default_be_displayed(force_default):
             decks = [deck for deck in decks if deck["id"] != 1]
         return decks
 
@@ -516,7 +516,7 @@ class DeckManager:
         self._recoverOrphans()
         self._checkDeckTree()
 
-    def shouldDeckBeDisplayed(
+    def should_deck_be_displayed(
         self, deck, force_default: bool = True, assume_no_child: bool = False
     ) -> bool:
         """Whether the deck should appear in main window, browser side list, filter, deck selection...
@@ -524,9 +524,9 @@ class DeckManager:
         True, except for empty default deck without children"""
         if deck["id"] != "1":
             return True
-        return self.shouldDefaultBeDisplayed(force_default, assume_no_child)
+        return self.should_default_be_displayed(force_default, assume_no_child)
 
-    def shouldDefaultBeDisplayed(
+    def should_default_be_displayed(
         self,
         force_default: bool = True,
         assume_no_child: bool = False,
