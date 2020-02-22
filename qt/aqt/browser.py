@@ -1160,7 +1160,7 @@ by clicking on one on the left."""
                 did = g[1]
                 children = g[5]
                 if str(did) == "1" and not children:
-                    if not self.mw.col.decks.shouldDefaultBeDisplayed(
+                    if not self.mw.col.decks.should_default_be_displayed(
                         force_default=False, assume_no_child=True
                     ):
 
@@ -1321,7 +1321,7 @@ by clicking on one on the left."""
                     subm.addSeparator()
                     addDecks(subm, children)
                 else:
-                    if did != 1 or self.col.decks.shouldDefaultBeDisplayed(
+                    if did != 1 or self.col.decks.should_default_be_displayed(
                         force_default=False, assume_no_child=True
                     ):
                         parent.addItem(shortname, self._filterFunc("deck", name))
