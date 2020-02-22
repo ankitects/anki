@@ -1,0 +1,65 @@
+/* Copyright: Ankitects Pty Ltd and contributors
+ * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
+
+@use 'vars';
+@use 'card_counts';
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+button {
+    min-width: 60px;
+    white-space: nowrap;
+    margin: 0.5em;
+}
+
+.hitem {
+    margin-top: 2px;
+}
+
+.stat {
+    padding-top: 5px;
+}
+
+.stat2 {
+    padding-top: 3px;
+    font-weight: normal;
+}
+
+.stattxt {
+    padding-left: 5px;
+    padding-right: 5px;
+    white-space: nowrap;
+}
+
+#ansbut { margin-bottom: 1em; }
+
+.nobold {
+    font-weight: normal;
+    display: inline-block;
+    padding-top: 4px;
+}
+
+.spacer {
+    height: 18px;
+}
+
+.spacer2 {
+    height: 16px;
+}
+
+#outer {
+    border-top: 1px solid vars.$day-border;
+}
+
+#innertable {
+    padding: 3px;
+}
+
+.nightMode {
+    #outer {
+        border-top-color: vars.$night-faint-border;
+    }
+}

@@ -1,0 +1,17 @@
+#!/bin/bash
+#
+# build mo files
+#
+
+targetDir="../aqt_data/locale/gettext"
+mkdir -p $targetDir
+
+echo "Compiling *.po..."
+for file in po/desktop/*/anki.po
+do
+    outdir=$(echo $file | \
+        perl -pe "s%po/desktop/(.*)/anki.po%$targetDir/\1/LC_MESSAGES%")
+    outfile="$outdir/anki.mo"
+    mkdir -p $outdir
+    msgfmt $file --output-file=$outfile
+done

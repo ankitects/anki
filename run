@@ -1,0 +1,3 @@
+#!/bin/bash
+
+make -C $(dirname $0) run RUNFLAGS="$*"

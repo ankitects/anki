@@ -1,7 +1,0 @@
-beautifulsoup4
-send2trash
-pyaudio
-requests
-decorator
-markdown
-psutil; sys_platform == "win32"

@@ -1,0 +1,60 @@
+/* Copyright: Ankitects Pty Ltd and contributors
+ * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
+
+@use 'vars';
+@use 'buttons';
+
+body {
+    margin: 2em;
+    color: vars.$day-text-fg;
+
+    // currently this is injected via webview.py to try to match the
+    // system background color
+    //    background: vars.$day-window-bg;
+}
+
+h1 {
+    margin-bottom: 0.2em;
+}
+
+a {
+    color: vars.$day-link;
+}
+
+body.nightMode {
+    color: vars.$night-text-fg;
+    background: vars.$night-window-bg;
+}
+
+body.nightMode::-webkit-scrollbar {
+    background: vars.$night-window-bg;
+}
+
+body.nightMode::-webkit-scrollbar:horizontal {
+    height: 12px;
+}
+
+body.nightMode::-webkit-scrollbar:vertical {
+    width: 12px;
+}
+
+body.nightMode::-webkit-scrollbar-thumb {
+    background: vars.$fusion-button-hover-bg;
+    border-radius: 8px;
+}
+
+body.nightMode::-webkit-scrollbar-thumb:horizontal {
+    min-width: 50px;
+}
+
+body.nightMode::-webkit-scrollbar-thumb:vertical {
+    min-height: 50px;
+}
+
+.nightMode {
+    a {
+        color: vars.$night-link;
+    }
+}
+
+body { overscroll-behavior: none; }

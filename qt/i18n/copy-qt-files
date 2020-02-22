@@ -1,0 +1,9 @@
+#!/bin/bash
+
+set -e
+
+out=../aqt_data/locale/qt
+mkdir -p $out
+
+qtTranslations=$(python -c "from PyQt5.QtCore import *; print(QLibraryInfo.location(QLibraryInfo.TranslationsPath))")
+rsync -a $qtTranslations/qt* $out

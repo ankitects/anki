@@ -1,6 +1,3 @@
-Running from source
---------------------
-
 For non-developers who want to try this development code, the easiest way is
 to use a binary package - please see:
 
@@ -10,106 +7,71 @@ You are welcome to run Anki from source instead, but it is expected that you
 can sort out all dependencies and issues by yourself - we are not able to
 provide support for problems you encounter when running from source.
 
-Anki requires:
+To start, make sure you have the following installed:
 
- - Python 3.6+
- - Qt 5.9.x/5.11.x/5.12.x and a PyQT that supports it
+ - Python 3.7+
+ - portaudio
  - mpv
  - lame
+ - npm
+ - your platform's C compiler, eg gcc, Xcode or Visual Studio 2017.
+ - GNU make
+ - protoc v3 (https://github.com/protocolbuffers/protobuf/releases)
+ - rustup (https://rustup.rs/)
+ - gettext
+ - rename
+ - rsync
 
-It also requires a number of Python packages, which you can grab via pip:
+The build scripts assume a UNIX-like environment, so on Windows you will
+need to use WSL or Cygwin to use them.
 
-$ pip3 install -r requirements.txt
-
-If you're on a Linux distribution that packages a compatible Qt then you can
-use the distro's packages. Make sure you install the development tools (eg
-pyqt5-dev-tools) as well.
-
-If you're on another platform or your distro has the wrong Qt version, you
-can install PyQt with pip:
-
-$ pip3 install PyQt5 PyQtWebEngine
-
-To use the development version:
-
-$ git clone https://github.com/dae/anki.git
-$ cd anki
-$ ./tools/build_ui.sh
-
-If you get any errors, you will not be able to proceed, so please return to
-the top and check the requirements again.
-
-ALL USERS: Make sure you rebuild the UI every time you git pull, otherwise you
-will get errors down the road.
-
-The translations are stored in a bazaar repo for integration with Launchpad's
-translation services. If you want to use a language other than English:
-
-$ cd ..
-$ mv anki dtop # i18n code expects anki folder to be called dtop
-$ bzr branch lp:anki i18n
-$ cd i18n
-$ ./update-mos.sh
-$ cd ../dtop
-
-And now you're ready to run Anki:
-$ ./runanki
-
-If you get any errors, please make sure you don't have an older version of
-Anki installed in a system location.
-
-To run the unit tests, you will need to install nose from your distro, or
-with pip:
-
-$ pip3 install nose
+Once you've installed the above components, execute ./run in this repo,
+which will build the subcomponents, and start Anki. Any arguments included
+on the command line will be passed on to Anki.
 
 Before contributing code, please read README.contributing.
 
 If you'd like to contribute translations, please see the translations section
 of http://ankisrs.net/docs/manual.html#_contributing
 
-Windows & Mac users
----------------------
+Subcomponents
+--------------
 
-The following was contributed by users in the past and will need updating
-for the latest version. It is left here in case it is any help:
+- pylib contains a Python module (anki) with most of the non-GUI code.
+- qt contains the Qt GUI implementation (aqt).
+- rspy contains a Python module (ankirspy) for accessing the Rust code.
+- rslib contains the parts of the code implemented in Rust. This
+  is only a tiny subsection at the moment.
+- proto contains the interface used to communicate between different
+  languages.
+- tslib and react are just an experiment at the moment.
 
-Windows:
+Makefile
+--------------
 
-I have not tested the build scripts on Windows, so you'll need to solve any
-problems you encounter on your own. The easiest way is to use a source
-tarball instead of git, as that way you don't need to build the UI yourself.
+Use 'make check' to run unit tests, type checking and linting on all of the
+subcomponents.
 
-If you do want to use git, two alternatives have been contributed by users. As
-these are not official solutions, I'm afraid we can not provide you with any
-support for these.
+Use 'make fix' to fix any formatting issues that were found with 'make check'.
 
-A powershell script:
+Use 'make build' to output Python wheels of the subcomponents into the dist/
+folder.
 
-https://gist.github.com/vermiceli/108fec65759d19645ee3
+Use 'make clean' to remove some generated files.
 
-Or a way with git bash and perl:
+PyQt
+-----
 
-    1) Install "git bash".
-    2) In the tools directory, modify build_ui.sh. Locate the line that reads
-    "pyuic4 $i -o $py" and alter it to be of the following form:
-    "<python-path-string>" "<pyuic-path-string>" $i -o $py
-    These two paths must point to your python executable, and to pyuic.py, on your
-    system. Typical paths would be:
-    <python-path> = C:\\Python27\\python.exe
-    <pyuic-path-string> = C:\\Python27\\Lib\\site-packages\\PyQt4\\uic\\pyuic.py
+The build scripts will use PyQt/Qt from PyPI by default. If you wish to use a
+system install, you will need to set up the pyenv folder yourself, making sure
+you have PyQt5, the WebEngine module and development tools (eg pyqt5-dev-tools)
+installed as well. You'll need to create the venv with --system-site-packages.
 
-Mac:
+Mac users
+----------
 
-These instructions may be incomplete as prerequisites may have already been
-installed. Most likely you will need to have installed xcode
-(https://developer.apple.com/xcode/)
+You can use homebrew to install some dependencies:
 
-Install homebrew (http://brew.sh/) and then install Anki prerequisites:
+$ brew install python mpv lame portaudio protobuf npm rustup-init gettext rename
 
-$ brew install python mplayer lame portaudio
-$ pip install sqlalchemy pyqt5==5.9.2
-
-Make sure to specify pyqt5 version 5.9.2, as the latest version 5.10 is not currently supported.
-
-Now you can follow the development commands at the start of this document.
+$ brew link gettext --force
