@@ -1,6 +1,6 @@
-offline = Please check your internet connection.
-timeout = Connection timed out. Please try again on a different network.
-proxy-auth = Your proxy requires authentication.
-other = A network error occurred.
+network-offline = Please check your internet connection.
+network-timeout = Connection timed out. Please try again on a different network.
+network-proxy-auth = Your proxy requires authentication.
+network-other = A network error occurred.
 
-details = Error details: {$details}
+network-details = Error details: {$details}
