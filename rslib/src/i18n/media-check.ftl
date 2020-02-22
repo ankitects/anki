@@ -1,50 +1,50 @@
 ## Shown at the top of the media check screen
 
-missing-count = Missing files: {$count}
-unused-count = Unused files: {$count}
-renamed-count = Renamed files: {$count}
-oversize-count = Over 100MB: {$count}
-subfolder-count = Subfolders: {$count}
+media-check-missing-count = Missing files: {$count}
+media-check-unused-count = Unused files: {$count}
+media-check-renamed-count = Renamed files: {$count}
+media-check-oversize-count = Over 100MB: {$count}
+media-check-subfolder-count = Subfolders: {$count}
 
 ## Shown at the top of each section
 
-renamed-header = Some files have been renamed for compatibility:
-oversize-header = Files over 100MB can not be synced with AnkiWeb.
-subfolder-header = Folders inside the media folder are not supported.
-missing-header =
+media-check-renamed-header = Some files have been renamed for compatibility:
+media-check-oversize-header = Files over 100MB can not be synced with AnkiWeb.
+media-check-subfolder-header = Folders inside the media folder are not supported.
+media-check-missing-header =
   The following files are referenced by cards, but were not found in the media folder:
-unused-header =
+media-check-unused-header =
   The following files were found in the media folder, but do not appear to be used on any cards:
 
 ## Shown once for each file
 
-renamed-file = Renamed: {$old} -> {$new}
-oversize-file = Over 100MB: {$filename}
-subfolder-file = Folder: {$filename}
-missing-file = Missing: {$filename}
-unused-file = Unused: {$filename}
+media-check-renamed-file = Renamed: {$old} -> {$new}
+media-check-oversize-file = Over 100MB: {$filename}
+media-check-subfolder-file = Folder: {$filename}
+media-check-missing-file = Missing: {$filename}
+media-check-unused-file = Unused: {$filename}
 
 ## Progress
 
-checked = Checked {$count}...
+media-check-checked = Checked {$count}...
 
 ## Deleting unused media
 
-delete-unused-confirm = Delete unused media?
-files-remaining = {$count ->
+media-check-delete-unused-confirm = Delete unused media?
+media-check-files-remaining = {$count ->
     [one] 1 file
     *[other] {$count} files
   } remaining.
-delete-unused-complete = {$count ->
+media-check-delete-unused-complete = {$count ->
     [one] 1 file
     *[other] {$count} files
   } moved to the trash.
 
 ## Rendering LaTeX
 
-all-latex-rendered = All LaTeX rendered.
+media-check-all-latex-rendered = All LaTeX rendered.
 
 ## Buttons
 
-delete-unused = Delete Unused
-render-latex = Render LaTeX
+media-check-delete-unused = Delete Unused
+media-check-render-latex = Render LaTeX

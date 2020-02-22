@@ -3,37 +3,37 @@
 ### template, or the front of the card is empty.
 
 # Label of link users can click on
-more-info = More information
+card-template-rendering-more-info = More information
 
-front-side-problem = Front template has a problem:
-back-side-problem = Back template has a problem:
+card-template-rendering-front-side-problem = Front template has a problem:
+card-template-rendering-back-side-problem = Back template has a problem:
 
 # when the user forgot to close a field reference,
 # eg, Missing '}}' in '{{Field'
-no-closing-brackets =
+card-template-rendering-no-closing-brackets =
   Missing '{$missing}' in '{$tag}'
 
 # when the user opened a conditional, but forgot to close it
 # eg, Missing '{{/Conditional}}'
-conditional-not-closed =
+card-template-rendering-conditional-not-closed =
   Missing '{$missing}'
 
 # when the user closed the wrong conditional
 # eg, Found '{{/Something}}', but expected '{{/SomethingElse}}'
-wrong-conditional-closed =
+card-template-rendering-wrong-conditional-closed =
   Found '{$found}', but expected '{$expected}'
 
 # when the user closed a conditional that wasn't open
 # eg, Found '{{/Something}}', but missing '{{#Something}}' or '{{^Something}}'
-conditional-not-open =
+card-template-rendering-conditional-not-open =
   Found '{$found}', but missing '{$missing1}' or '{$missing2}'
 
 # when the user referenced a field that doesn't exist
 # eg, Found '{{Field}}', but there is not field called 'Field'
-no-such-field =
+card-template-rendering-no-such-field =
   Found '{$found}', but there is no field called '{$field}'
 
 # This message is shown when the front side of the card is blank,
 # either due to a badly-designed template, or because required fields
 # are missing.
-empty-front = The front of this card is blank.
+card-template-rendering-empty-front = The front of this card is blank.
