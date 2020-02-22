@@ -530,7 +530,7 @@ class DeckManager:
         self,
         force_default: bool = True,
         assume_no_child: bool = False,
-        defaultDeck=None,
+        default_deck=None,
     ) -> bool:
         """Whether the default deck should appear in main window, browser side list, filter, deck selection...
 
@@ -544,9 +544,9 @@ class DeckManager:
         # looking for children
         if assume_no_child:
             return False
-        if defaultDeck is None:
-            defaultDeck = self.get(1)
-        defaultName = defaultDeck["name"]
+        if default_deck is None:
+            default_deck = self.get(1)
+        defaultName = default_deck["name"]
         for name in self.allNames():
             if name.startswith(f"{defaultName}::"):
                 return True
