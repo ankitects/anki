@@ -3,7 +3,7 @@
 
 use crate::cloze::expand_clozes_to_reveal_latex;
 use crate::err::{AnkiError, Result};
-use crate::i18n::{tr_args, tr_strs, I18n, StringsGroup};
+use crate::i18n::{tr_args, tr_strs, FString, I18n};
 use crate::latex::extract_latex;
 use crate::media::col::{
     for_every_note, get_note_types, mark_collection_modified, open_or_create_collection_db,
@@ -89,35 +89,53 @@ where
 
     pub fn summarize_output(&self, output: &mut MediaCheckOutput) -> String {
         let mut buf = String::new();
-        let cat = self.i18n.get(StringsGroup::MediaCheck);
+        let i = &self.i18n;
 
         // top summary area
-        buf += &cat.trn("missing-count", tr_args!["count"=>output.missing.len()]);
+        buf += &i.trn(
+            FString::MediaCheckMissingCount,
+            tr_args!["count"=>output.missing.len()],
+        );
         buf.push('\n');
 
-        buf += &cat.trn("unused-count", tr_args!["count"=>output.unused.len()]);
+        buf += &i.trn(
+            FString::MediaCheckUnusedCount,
+            tr_args!["count"=>output.unused.len()],
+        );
         buf.push('\n');
 
         if !output.renamed.is_empty() {
-            buf += &cat.trn("renamed-count", tr_args!["count"=>output.renamed.len()]);
+            buf += &i.trn(
+                FString::MediaCheckRenamedCount,
+                tr_args!["count"=>output.renamed.len()],
+            );
             buf.push('\n');
         }
         if !output.oversize.is_empty() {
-            buf += &cat.trn("oversize-count", tr_args!["count"=>output.oversize.len()]);
+            buf += &i.trn(
+                FString::MediaCheckOversizeCount,
+                tr_args!["count"=>output.oversize.len()],
+            );
             buf.push('\n');
         }
         if !output.dirs.is_empty() {
-            buf += &cat.trn("subfolder-count", tr_args!["count"=>output.dirs.len()]);
+            buf += &i.trn(
+                FString::MediaCheckSubfolderCount,
+                tr_args!["count"=>output.dirs.len()],
+            );
             buf.push('\n');
         }
 
         buf.push('\n');
 
         if !output.renamed.is_empty() {
-            buf += &cat.tr("renamed-header");
+            buf += &i.tr(FString::MediaCheckRenamedHeader);
             buf.push('\n');
             for (old, new) in &output.renamed {
-                buf += &cat.trn("renamed-file", tr_strs!["old"=>old,"new"=>new]);
+                buf += &i.trn(
+                    FString::MediaCheckRenamedFile,
+                    tr_strs!["old"=>old,"new"=>new],
+                );
                 buf.push('\n');
             }
             buf.push('\n')
@@ -125,10 +143,10 @@ where
 
         if !output.oversize.is_empty() {
             output.oversize.sort();
-            buf += &cat.tr("oversize-header");
+            buf += &i.tr(FString::MediaCheckOversizeHeader);
             buf.push('\n');
             for fname in &output.oversize {
-                buf += &cat.trn("oversize-file", tr_strs!["filename"=>fname]);
+                buf += &i.trn(FString::MediaCheckOversizeFile, tr_strs!["filename"=>fname]);
                 buf.push('\n');
             }
             buf.push('\n')
@@ -136,10 +154,13 @@ where
 
         if !output.dirs.is_empty() {
             output.dirs.sort();
-            buf += &cat.tr("subfolder-header");
+            buf += &i.tr(FString::MediaCheckSubfolderHeader);
             buf.push('\n');
             for fname in &output.dirs {
-                buf += &cat.trn("subfolder-file", tr_strs!["filename"=>fname]);
+                buf += &i.trn(
+                    FString::MediaCheckSubfolderFile,
+                    tr_strs!["filename"=>fname],
+                );
                 buf.push('\n');
             }
             buf.push('\n')
@@ -147,10 +168,10 @@ where
 
         if !output.missing.is_empty() {
             output.missing.sort();
-            buf += &cat.tr("missing-header");
+            buf += &i.tr(FString::MediaCheckMissingHeader);
             buf.push('\n');
             for fname in &output.missing {
-                buf += &cat.trn("missing-file", tr_strs!["filename"=>fname]);
+                buf += &i.trn(FString::MediaCheckMissingFile, tr_strs!["filename"=>fname]);
                 buf.push('\n');
             }
             buf.push('\n')
@@ -158,10 +179,10 @@ where
 
         if !output.unused.is_empty() {
             output.unused.sort();
-            buf += &cat.tr("unused-header");
+            buf += &i.tr(FString::MediaCheckUnusedHeader);
             buf.push('\n');
             for fname in &output.unused {
-                buf += &cat.trn("unused-file", tr_strs!["filename"=>fname]);
+                buf += &i.trn(FString::MediaCheckUnusedFile, tr_strs!["filename"=>fname]);
                 buf.push('\n');
             }
         }

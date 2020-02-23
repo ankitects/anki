@@ -4,13 +4,8 @@ if [ ! -d po ]; then
   git clone https://github.com/ankitects/anki-desktop-i18n po
 fi
 
-if [ ! -d ftl ]; then
-  git clone https://github.com/ankitects/anki-core-i18n ftl
-fi
-
 echo "Updating translations from git..."
 (cd po && git pull)
-(cd ftl && git pull)
 
 # make sure gettext translations haven't broken something
 python check-po-files.py

@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::i18n::{tr_args, I18n, StringsGroup};
+use crate::i18n::{tr_args, FString, I18n};
 
 /// Short string like '4d' to place above answer buttons.
 pub fn answer_button_time(seconds: f32, i18n: &I18n) -> String {
@@ -11,10 +11,16 @@ pub fn answer_button_time(seconds: f32, i18n: &I18n) -> String {
         // we don't show fractional values except for months/years
         _ => span.as_unit().round(),
     };
-    let unit = span.unit().as_str();
     let args = tr_args!["amount" => amount];
-    i18n.get(StringsGroup::Scheduling)
-        .trn(&format!("answer-button-time-{}", unit), args)
+    let key = match span.unit() {
+        TimespanUnit::Seconds => FString::SchedulingAnswerButtonTimeSeconds,
+        TimespanUnit::Minutes => FString::SchedulingAnswerButtonTimeMinutes,
+        TimespanUnit::Hours => FString::SchedulingAnswerButtonTimeHours,
+        TimespanUnit::Days => FString::SchedulingAnswerButtonTimeDays,
+        TimespanUnit::Months => FString::SchedulingAnswerButtonTimeMonths,
+        TimespanUnit::Years => FString::SchedulingAnswerButtonTimeYears,
+    };
+    i18n.trn(key, args)
 }
 
 /// Describe the given seconds using the largest appropriate unit
@@ -22,10 +28,16 @@ pub fn answer_button_time(seconds: f32, i18n: &I18n) -> String {
 pub fn time_span(seconds: f32, i18n: &I18n) -> String {
     let span = Timespan::from_secs(seconds).natural_span();
     let amount = span.as_unit();
-    let unit = span.unit().as_str();
     let args = tr_args!["amount" => amount];
-    i18n.get(StringsGroup::Scheduling)
-        .trn(&format!("time-span-{}", unit), args)
+    let key = match span.unit() {
+        TimespanUnit::Seconds => FString::SchedulingTimeSpanSeconds,
+        TimespanUnit::Minutes => FString::SchedulingTimeSpanMinutes,
+        TimespanUnit::Hours => FString::SchedulingTimeSpanHours,
+        TimespanUnit::Days => FString::SchedulingTimeSpanDays,
+        TimespanUnit::Months => FString::SchedulingTimeSpanMonths,
+        TimespanUnit::Years => FString::SchedulingTimeSpanYears,
+    };
+    i18n.trn(key, args)
 }
 
 // fixme: this doesn't belong here
@@ -40,8 +52,7 @@ pub fn studied_today(cards: usize, secs: f32, i18n: &I18n) -> String {
     };
     let args = tr_args!["amount" => amount, "unit" => unit,
         "cards" => cards, "secs-per-card" => secs_per];
-    i18n.get(StringsGroup::Statistics)
-        .trn("studied-today", args)
+    i18n.trn(FString::StatisticsStudiedToday, args)
 }
 
 // fixme: this doesn't belong here
@@ -58,10 +69,8 @@ pub fn learning_congrats(remaining: usize, next_due: f32, i18n: &I18n) -> String
     let remaining_args = tr_args!["remaining" => remaining];
     format!(
         "{} {}",
-        i18n.get(StringsGroup::Scheduling)
-            .trn("next-learn-due", next_args),
-        i18n.get(StringsGroup::Scheduling)
-            .trn("learn-remaining", remaining_args)
+        i18n.trn(FString::SchedulingNextLearnDue, next_args),
+        i18n.trn(FString::SchedulingLearnRemaining, remaining_args)
     )
 }
 

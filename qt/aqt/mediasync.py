@@ -11,12 +11,12 @@ from typing import List, Union
 import aqt
 from anki import hooks
 from anki.rsbackend import (
+    FString,
     Interrupted,
     MediaSyncProgress,
     NetworkError,
     Progress,
     ProgressKind,
-    StringsGroup,
     SyncError,
 )
 from anki.types import assert_impossible
@@ -65,10 +65,10 @@ class MediaSyncer:
             return
 
         if not self.mw.pm.media_syncing_enabled():
-            self._log_and_notify(tr(StringsGroup.SYNC, "media-disabled"))
+            self._log_and_notify(tr(FString.SYNC_MEDIA_DISABLED))
             return
 
-        self._log_and_notify(tr(StringsGroup.SYNC, "media-starting"))
+        self._log_and_notify(tr(FString.SYNC_MEDIA_STARTING))
         self._syncing = True
         self._want_stop = False
         gui_hooks.media_sync_did_start_or_stop(True)
@@ -101,19 +101,19 @@ class MediaSyncer:
         if exc is not None:
             self._handle_sync_error(exc)
         else:
-            self._log_and_notify(tr(StringsGroup.SYNC, "media-complete"))
+            self._log_and_notify(tr(FString.SYNC_MEDIA_COMPLETE))
 
     def _handle_sync_error(self, exc: BaseException):
         if isinstance(exc, Interrupted):
-            self._log_and_notify(tr(StringsGroup.SYNC, "media-aborted"))
+            self._log_and_notify(tr(FString.SYNC_MEDIA_ABORTED))
             return
 
-        self._log_and_notify(tr(StringsGroup.SYNC, "media-failed"))
+        self._log_and_notify(tr(FString.SYNC_MEDIA_FAILED))
         if isinstance(exc, SyncError):
             showWarning(exc.localized())
         elif isinstance(exc, NetworkError):
             msg = exc.localized()
-            msg += "\n\n" + tr(StringsGroup.NETWORK, "details", details=str(exc))
+            msg += "\n\n" + tr(FString.NETWORK_DETAILS, details=str(exc))
         else:
             raise exc
 
@@ -123,7 +123,7 @@ class MediaSyncer:
     def abort(self) -> None:
         if not self.is_syncing():
             return
-        self._log_and_notify(tr(StringsGroup.SYNC, "media-aborting"))
+        self._log_and_notify(tr(FString.SYNC_MEDIA_ABORTING))
         self._want_stop = True
 
     def is_syncing(self) -> bool:
@@ -166,7 +166,7 @@ class MediaSyncDialog(QDialog):
         self._close_when_done = close_when_done
         self.form = aqt.forms.synclog.Ui_Dialog()
         self.form.setupUi(self)
-        self.abort_button = QPushButton(tr(StringsGroup.SYNC, "abort"))
+        self.abort_button = QPushButton(tr(FString.SYNC_ABORT_BUTTON))
         self.abort_button.clicked.connect(self._on_abort)  # type: ignore
         self.abort_button.setAutoDefault(False)
         self.form.buttonBox.addButton(self.abort_button, QDialogButtonBox.ActionRole)

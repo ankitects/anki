@@ -1,3 +1,6 @@
+[MASTER]
+ignore-patterns=.*_pb2.*
+
 [MESSAGES CONTROL]
 disable=C,R,
   fixme,

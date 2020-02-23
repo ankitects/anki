@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import anki
 from anki.consts import *
 from anki.lang import _, ngettext
-from anki.rsbackend import StringsGroup
+from anki.rsbackend import FString
 from anki.utils import fmtTimeSpan, ids2str
 
 # Card stats
@@ -48,8 +48,7 @@ class CardStats:
                 next = self.date(next)
             if next:
                 self.addLine(
-                    self.col.backend.translate(StringsGroup.STATISTICS, "due-date"),
-                    next,
+                    self.col.backend.translate(FString.STATISTICS_DUE_DATE), next,
                 )
             if c.queue == QUEUE_TYPE_REV:
                 self.addLine(
@@ -279,7 +278,7 @@ from revlog where id > ? """
         self._line(
             i,
             _("Total"),
-            self.col.backend.translate(StringsGroup.STATISTICS, "reviews", reviews=tot),
+            self.col.backend.translate(FString.STATISTICS_REVIEWS, reviews=tot),
         )
         self._line(i, _("Average"), self._avgDay(tot, num, _("reviews")))
         tomorrow = self.col.db.scalar(
@@ -457,8 +456,7 @@ group by day order by day"""
                 i,
                 _("Average answer time"),
                 self.col.backend.translate(
-                    StringsGroup.STATISTICS,
-                    "average-answer-time",
+                    FString.STATISTICS_AVERAGE_ANSWER_TIME,
                     **{"cards-per-minute": perMin, "average-seconds": average_secs},
                 ),
             )

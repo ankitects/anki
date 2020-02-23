@@ -21,6 +21,7 @@ To start, make sure you have the following installed:
  - gettext
  - rename
  - rsync
+ - perl
 
 The build scripts assume a UNIX-like environment, so on Windows you will
 need to use WSL or Cygwin to use them.

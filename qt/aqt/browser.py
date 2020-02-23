@@ -24,7 +24,7 @@ from anki.consts import *
 from anki.lang import _, ngettext
 from anki.models import NoteType
 from anki.notes import Note
-from anki.rsbackend import StringsGroup
+from anki.rsbackend import FString
 from anki.utils import fmtTimeSpan, htmlToTextLine, ids2str, intTime, isMac, isWin
 from aqt import AnkiQt, gui_hooks
 from aqt.editor import Editor
@@ -356,7 +356,7 @@ class DataModel(QAbstractTableModel):
         elif c.queue == QUEUE_TYPE_LRN:
             date = c.due
         elif c.queue == QUEUE_TYPE_NEW or c.type == CARD_TYPE_NEW:
-            return tr(StringsGroup.STATISTICS, "due-for-new-card", number=c.due)
+            return tr(FString.STATISTICS_DUE_FOR_NEW_CARD, number=c.due)
         elif c.queue in (QUEUE_TYPE_REV, QUEUE_TYPE_DAY_LEARN_RELEARN) or (
             c.type == CARD_TYPE_REV and c.queue < 0
         ):
@@ -730,7 +730,7 @@ class Browser(QMainWindow):
             ("noteCrt", _("Created")),
             ("noteMod", _("Edited")),
             ("cardMod", _("Changed")),
-            ("cardDue", tr(StringsGroup.STATISTICS, "due-date")),
+            ("cardDue", tr(FString.STATISTICS_DUE_DATE)),
             ("cardIvl", _("Interval")),
             ("cardEase", _("Ease")),
             ("cardReps", _("Reviews")),
@@ -1272,7 +1272,7 @@ by clicking on one on the left."""
                     (_("New"), "is:new"),
                     (_("Learning"), "is:learn"),
                     (_("Review"), "is:review"),
-                    (tr(StringsGroup.FILTERING, "is-due"), "is:due"),
+                    (tr(FString.FILTERING_IS_DUE), "is:due"),
                     None,
                     (_("Suspended"), "is:suspended"),
                     (_("Buried"), "is:buried"),

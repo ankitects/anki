@@ -1,9 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use crate::err::Result;
 use fluent::{FluentArgs, FluentBundle, FluentResource, FluentValue};
 use intl_memoizer::IntlLangMemoizer;
-use log::{error, warn};
+use log::error;
 use num_format::Locale;
 use std::borrow::Cow;
 use std::fs;
@@ -11,8 +12,12 @@ use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 use unic_langid::LanguageIdentifier;
 
-pub use crate::backend_proto::StringsGroup;
+mod autogen;
+use crate::i18n::autogen::FLUENT_KEYS;
+
 pub use fluent::fluent_args as tr_args;
+
+pub use crate::backend_proto::FluentString as FString;
 
 /// Helper for creating args with &strs
 #[macro_export]
@@ -27,72 +32,140 @@ macro_rules! tr_strs {
         }
     };
 }
-use std::collections::HashMap;
 pub use tr_strs;
 
 /// The folder containing ftl files for the provided language.
 /// If a fully qualified folder exists (eg, en_GB), return that.
 /// Otherwise, try the language alone (eg en).
 /// If neither folder exists, return None.
-fn lang_folder(lang: LanguageIdentifier, ftl_folder: &Path) -> Option<PathBuf> {
-    if let Some(region) = lang.region() {
-        let path = ftl_folder.join(format!("{}_{}", lang.language(), region));
+fn lang_folder(lang: Option<&LanguageIdentifier>, ftl_folder: &Path) -> Option<PathBuf> {
+    if let Some(lang) = lang {
+        if let Some(region) = lang.region() {
+            let path = ftl_folder.join(format!("{}_{}", lang.language(), region));
+            if fs::metadata(&path).is_ok() {
+                return Some(path);
+            }
+        }
+        let path = ftl_folder.join(lang.language());
         if fs::metadata(&path).is_ok() {
-            return Some(path);
+            Some(path)
+        } else {
+            None
+        }
+    } else {
+        // fallback folder
+        let path = ftl_folder.join("templates");
+        if fs::metadata(&path).is_ok() {
+            Some(path)
+        } else {
+            None
         }
     }
-    let path = ftl_folder.join(lang.language());
-    if fs::metadata(&path).is_ok() {
-        Some(path)
-    } else {
-        None
-    }
 }
 
-/// Get the fallback/English resource text for the given group.
+/// Get the template/English resource text for the given group.
 /// These are embedded in the binary.
-fn ftl_fallback_for_group(group: StringsGroup) -> String {
-    match group {
-        StringsGroup::Other => "",
-        StringsGroup::Test => include_str!("../../tests/support/test.ftl"),
-        StringsGroup::MediaCheck => include_str!("media-check.ftl"),
-        StringsGroup::CardTemplates => include_str!("card-template-rendering.ftl"),
-        StringsGroup::Sync => include_str!("sync.ftl"),
-        StringsGroup::Network => include_str!("network.ftl"),
-        StringsGroup::Statistics => include_str!("statistics.ftl"),
-        StringsGroup::Filtering => include_str!("filtering.ftl"),
-        StringsGroup::Scheduling => include_str!("scheduling.ftl"),
-        StringsGroup::DeckConfig => include_str!("deck-config.ftl"),
-    }
-    .to_string()
+fn ftl_template_text() -> String {
+    include_str!("ftl/template.ftl").to_string()
 }
 
-/// Get the resource text for the given group in the given language folder.
-/// If the file can't be read, returns None.
-fn localized_ftl_for_group(group: StringsGroup, lang_ftl_folder: &Path) -> Option<String> {
-    let path = lang_ftl_folder.join(match group {
-        StringsGroup::Other => "",
-        StringsGroup::Test => "test.ftl",
-        StringsGroup::MediaCheck => "media-check.ftl",
-        StringsGroup::CardTemplates => "card-template-rendering.ftl",
-        StringsGroup::Sync => "sync.ftl",
-        StringsGroup::Network => "network.ftl",
-        StringsGroup::Statistics => "statistics.ftl",
-        StringsGroup::Filtering => "filtering.ftl",
-        StringsGroup::Scheduling => "scheduling.ftl",
-        StringsGroup::DeckConfig => "deck-config.ftl",
-    });
-    fs::read_to_string(&path)
-        .map_err(|e| {
-            warn!("Unable to read translation file: {:?}: {}", path, e);
-        })
-        .ok()
+fn ftl_localized_text(lang: &LanguageIdentifier) -> Option<String> {
+    Some(
+        match lang.language() {
+            "en" => {
+                match lang.region() {
+                    Some("GB") | Some("AU") => include_str!("ftl/en-GB.ftl"),
+                    // use fallback language instead
+                    _ => return None,
+                }
+            }
+            "zh" => match lang.region() {
+                Some("TW") | Some("HK") => include_str!("ftl/zh-TW.ftl"),
+                _ => include_str!("ftl/zh-CN.ftl"),
+            },
+            "pt" => {
+                if let Some("PT") = lang.region() {
+                    include_str!("ftl/pt-PT.ftl")
+                } else {
+                    include_str!("ftl/pt-BR.ftl")
+                }
+            }
+            "ga" => include_str!("ftl/ga-IE.ftl"),
+            "hy" => include_str!("ftl/hy-AM.ftl"),
+            "nb" => include_str!("ftl/nb-NO.ftl"),
+            "sv" => include_str!("ftl/sv-SE.ftl"),
+            "jbo" => include_str!("ftl/jbo.ftl"),
+            "kab" => include_str!("ftl/kab.ftl"),
+            "af" => include_str!("ftl/af.ftl"),
+            "ar" => include_str!("ftl/ar.ftl"),
+            "bg" => include_str!("ftl/bg.ftl"),
+            "ca" => include_str!("ftl/ca.ftl"),
+            "cs" => include_str!("ftl/cs.ftl"),
+            "da" => include_str!("ftl/da.ftl"),
+            "de" => include_str!("ftl/de.ftl"),
+            "el" => include_str!("ftl/el.ftl"),
+            "eo" => include_str!("ftl/eo.ftl"),
+            "es" => include_str!("ftl/es.ftl"),
+            "et" => include_str!("ftl/et.ftl"),
+            "eu" => include_str!("ftl/eu.ftl"),
+            "fa" => include_str!("ftl/fa.ftl"),
+            "fi" => include_str!("ftl/fi.ftl"),
+            "fr" => include_str!("ftl/fr.ftl"),
+            "gl" => include_str!("ftl/gl.ftl"),
+            "he" => include_str!("ftl/he.ftl"),
+            "hr" => include_str!("ftl/hr.ftl"),
+            "hu" => include_str!("ftl/hu.ftl"),
+            "it" => include_str!("ftl/it.ftl"),
+            "ja" => include_str!("ftl/ja.ftl"),
+            "ko" => include_str!("ftl/ko.ftl"),
+            "la" => include_str!("ftl/la.ftl"),
+            "mn" => include_str!("ftl/mn.ftl"),
+            "mr" => include_str!("ftl/mr.ftl"),
+            "ms" => include_str!("ftl/ms.ftl"),
+            "nl" => include_str!("ftl/nl.ftl"),
+            "oc" => include_str!("ftl/oc.ftl"),
+            "pl" => include_str!("ftl/pl.ftl"),
+            "ro" => include_str!("ftl/ro.ftl"),
+            "ru" => include_str!("ftl/ru.ftl"),
+            "sk" => include_str!("ftl/sk.ftl"),
+            "sl" => include_str!("ftl/sl.ftl"),
+            "sr" => include_str!("ftl/sr.ftl"),
+            "th" => include_str!("ftl/th.ftl"),
+            "tr" => include_str!("ftl/tr.ftl"),
+            "uk" => include_str!("ftl/uk.ftl"),
+            "vi" => include_str!("ftl/vi.ftl"),
+            _ => return None,
+        }
+        .to_string(),
+    )
+}
+
+/// Return the text from any .ftl files in the given folder.
+fn ftl_external_text(folder: &Path) -> Result<String> {
+    let mut buf = String::new();
+    for entry in fs::read_dir(folder)? {
+        let entry = entry?;
+        let fname = entry
+            .file_name()
+            .into_string()
+            .unwrap_or_else(|_| "".into());
+        if !fname.ends_with(".ftl") {
+            continue;
+        }
+        buf += &fs::read_to_string(entry.path())?
+    }
+
+    Ok(buf)
 }
 
 /// Parse resource text into an AST for inclusion in a bundle.
-/// Returns None if the text contains errors.
+/// Returns None if text contains errors.
+/// extra_text may contain resources loaded from the filesystem
+/// at runtime. If it contains errors, they will not prevent a
+/// bundle from being returned.
 fn get_bundle(
     text: String,
+    extra_text: String,
     locales: &[LanguageIdentifier],
 ) -> Option<FluentBundle<FluentResource>> {
     let res = FluentResource::try_new(text)
@@ -109,7 +182,44 @@ fn get_bundle(
         })
         .ok()?;
 
+    if !extra_text.is_empty() {
+        match FluentResource::try_new(extra_text) {
+            Ok(res) => bundle.add_resource_overriding(res),
+            Err((_res, e)) => error!("Unable to parse translations file: {:?}", e),
+        }
+    }
+
+    // disable isolation characters in test mode
+    if cfg!(test) {
+        bundle.set_use_isolating(false);
+    }
+
+    // add numeric formatter
+    set_bundle_formatter_for_langs(&mut bundle, locales);
+
     Some(bundle)
+}
+
+/// Get a bundle that includes any filesystem overrides.
+fn get_bundle_with_extra(
+    text: String,
+    lang: Option<&LanguageIdentifier>,
+    ftl_folder: &Path,
+    locales: &[LanguageIdentifier],
+) -> Option<FluentBundle<FluentResource>> {
+    let extra_text = if let Some(path) = lang_folder(lang, &ftl_folder) {
+        match ftl_external_text(&path) {
+            Ok(text) => text,
+            Err(e) => {
+                error!("Error reading external FTL files: {:?}", e);
+                "".into()
+            }
+        }
+    } else {
+        "".into()
+    };
+
+    get_bundle(text, extra_text, locales)
 }
 
 #[derive(Clone)]
@@ -119,120 +229,64 @@ pub struct I18n {
 
 impl I18n {
     pub fn new<S: AsRef<str>, P: Into<PathBuf>>(locale_codes: &[S], ftl_folder: P) -> Self {
-        let mut langs = vec![];
-        let mut supported = vec![];
         let ftl_folder = ftl_folder.into();
+
+        let mut langs = vec![];
+        let mut bundles = Vec::with_capacity(locale_codes.len() + 1);
+
         for code in locale_codes {
-            if let Ok(lang) = code.as_ref().parse::<LanguageIdentifier>() {
+            let code = code.as_ref();
+            if let Ok(lang) = code.parse::<LanguageIdentifier>() {
                 langs.push(lang.clone());
-                if let Some(path) = lang_folder(lang.clone(), &ftl_folder) {
-                    supported.push(path);
-                }
-                // if English was listed, any further preferences are skipped,
-                // as the fallback has 100% coverage, and we need to ensure
-                // it is tried prior to any other langs. But we do keep a file
-                // if one was returned, to allow locale English variants to take
-                // priority over the fallback.
-                if lang.language() == "en" {
-                    break;
-                }
             }
         }
         // add fallback date/time
         langs.push("en_US".parse().unwrap());
 
-        Self {
-            inner: Arc::new(Mutex::new(I18nInner {
-                langs,
-                available_ftl_folders: supported,
-                cache: Default::default(),
-            })),
-        }
-    }
-
-    pub fn get(&self, group: StringsGroup) -> Arc<I18nCategory> {
-        self.inner.lock().unwrap().get(group)
-    }
-}
-
-struct I18nInner {
-    // all preferred languages of the user, used for determine number format
-    langs: Vec<LanguageIdentifier>,
-    // the available ftl folder subset of the user's preferred languages
-    available_ftl_folders: Vec<PathBuf>,
-    cache: HashMap<StringsGroup, Arc<I18nCategory>>,
-}
-
-impl I18nInner {
-    pub fn get(&mut self, group: StringsGroup) -> Arc<I18nCategory> {
-        let langs = &self.langs;
-        let avail = &self.available_ftl_folders;
-
-        self.cache
-            .entry(group)
-            .or_insert_with(|| Arc::new(I18nCategory::new(langs, avail, group)))
-            .clone()
-    }
-}
-
-pub struct I18nCategory {
-    // bundles in preferred language order, with fallback English as the
-    // last element
-    bundles: Vec<FluentBundle<FluentResource>>,
-}
-
-fn set_bundle_formatter_for_langs<T>(bundle: &mut FluentBundle<T>, langs: &[LanguageIdentifier]) {
-    let num_formatter = NumberFormatter::new(langs);
-    let formatter = move |val: &FluentValue, _intls: &Mutex<IntlLangMemoizer>| -> Option<String> {
-        match val {
-            FluentValue::Number(n) => Some(num_formatter.format(n.value)),
-            _ => None,
-        }
-    };
-
-    bundle.set_formatter(Some(formatter));
-}
-
-impl I18nCategory {
-    pub fn new(langs: &[LanguageIdentifier], preferred: &[PathBuf], group: StringsGroup) -> Self {
-        let mut bundles = Vec::with_capacity(preferred.len() + 1);
-        for ftl_folder in preferred {
-            if let Some(text) = localized_ftl_for_group(group, ftl_folder) {
-                if let Some(mut bundle) = get_bundle(text, langs) {
-                    if cfg!(test) {
-                        bundle.set_use_isolating(false);
-                    }
-                    set_bundle_formatter_for_langs(&mut bundle, langs);
+        for lang in &langs {
+            // if the language is bundled in the binary
+            if let Some(text) = ftl_localized_text(lang) {
+                if let Some(bundle) = get_bundle_with_extra(text, Some(lang), &ftl_folder, &langs) {
                     bundles.push(bundle);
                 } else {
-                    error!("Failed to create bundle for {:?} {:?}", ftl_folder, group);
+                    error!("Failed to create bundle for {:?}", lang.language())
+                }
+
+                // if English was listed, any further preferences are skipped,
+                // as the template has 100% coverage, and we need to ensure
+                // it is tried prior to any other langs. But we do keep a file
+                // if one was returned, to allow locale English variants to take
+                // priority over the template.
+                if lang.language() == "en" {
+                    break;
                 }
             }
         }
 
-        let mut fallback_bundle = get_bundle(ftl_fallback_for_group(group), langs).unwrap();
-        if cfg!(test) {
-            fallback_bundle.set_use_isolating(false);
+        // add English templates
+        let template_bundle =
+            get_bundle_with_extra(ftl_template_text(), None, &ftl_folder, &langs).unwrap();
+        bundles.push(template_bundle);
+
+        Self {
+            inner: Arc::new(Mutex::new(I18nInner { bundles })),
         }
-        set_bundle_formatter_for_langs(&mut fallback_bundle, langs);
-
-        bundles.push(fallback_bundle);
-
-        Self { bundles }
     }
 
     /// Get translation with zero arguments.
-    pub fn tr(&self, key: &str) -> Cow<str> {
+    pub fn tr(&self, key: FString) -> Cow<str> {
+        let key = FLUENT_KEYS[key as usize];
         self.tr_(key, None)
     }
 
     /// Get translation with one or more arguments.
-    pub fn trn(&self, key: &str, args: FluentArgs) -> String {
+    pub fn trn(&self, key: FString, args: FluentArgs) -> String {
+        let key = FLUENT_KEYS[key as usize];
         self.tr_(key, Some(args)).into()
     }
 
     fn tr_<'a>(&'a self, key: &str, args: Option<FluentArgs>) -> Cow<'a, str> {
-        for bundle in &self.bundles {
+        for bundle in &self.inner.lock().unwrap().bundles {
             let msg = match bundle.get_message(key) {
                 Some(msg) => msg,
                 // not translated in this bundle
@@ -254,8 +308,27 @@ impl I18nCategory {
             return out.to_string().into();
         }
 
-        format!("Missing translation key: {}", key).into()
+        // return the key name if it was missing
+        key.to_string().into()
     }
+}
+
+struct I18nInner {
+    // bundles in preferred language order, with template English as the
+    // last element
+    bundles: Vec<FluentBundle<FluentResource>>,
+}
+
+fn set_bundle_formatter_for_langs<T>(bundle: &mut FluentBundle<T>, langs: &[LanguageIdentifier]) {
+    let num_formatter = NumberFormatter::new(langs);
+    let formatter = move |val: &FluentValue, _intls: &Mutex<IntlLangMemoizer>| -> Option<String> {
+        match val {
+            FluentValue::Number(n) => Some(num_formatter.format(n.value)),
+            _ => None,
+        }
+    };
+
+    bundle.set_formatter(Some(formatter));
 }
 
 fn first_available_num_format_locale(langs: &[LanguageIdentifier]) -> Option<Locale> {
@@ -315,8 +388,8 @@ impl NumberFormatter {
 
 #[cfg(test)]
 mod test {
+    use crate::i18n::NumberFormatter;
     use crate::i18n::{tr_args, I18n};
-    use crate::i18n::{NumberFormatter, StringsGroup};
     use std::path::PathBuf;
     use unic_langid::langid;
 
@@ -331,56 +404,48 @@ mod test {
 
     #[test]
     fn i18n() {
-        // English fallback
-        let i18n = I18n::new(&["zz"], "../../tests/support");
-        let cat = i18n.get(StringsGroup::Test);
-        assert_eq!(cat.tr("valid-key"), "a valid key");
-        assert_eq!(
-            cat.tr("invalid-key"),
-            "Missing translation key: invalid-key"
-        );
+        let mut ftl_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        ftl_dir.push("tests/support/ftl");
+
+        // English template
+        let i18n = I18n::new(&["zz"], &ftl_dir);
+        assert_eq!(i18n.tr_("valid-key", None), "a valid key");
+        assert_eq!(i18n.tr_("invalid-key", None), "invalid-key");
 
         assert_eq!(
-            cat.trn("two-args-key", tr_args!["one"=>1.1, "two"=>"2"]),
+            i18n.tr_("two-args-key", Some(tr_args!["one"=>1.1, "two"=>"2"])),
             "two args: 1.10 and 2"
         );
 
-        // commented out to avoid scary warning during unit tests
-        //        assert_eq!(
-        //            cat.trn("two-args-key", tr_args!["one"=>"testing error reporting"]),
-        //            "two args: testing error reporting and {$two}"
-        //        );
-
-        assert_eq!(cat.trn("plural", tr_args!["hats"=>1.0]), "You have 1 hat.");
         assert_eq!(
-            cat.trn("plural", tr_args!["hats"=>1.1]),
+            i18n.tr_("plural", Some(tr_args!["hats"=>1.0])),
+            "You have 1 hat."
+        );
+        assert_eq!(
+            i18n.tr_("plural", Some(tr_args!["hats"=>1.1])),
             "You have 1.10 hats."
         );
-        assert_eq!(cat.trn("plural", tr_args!["hats"=>3]), "You have 3 hats.");
-
-        // Another language
-        let mut d = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        d.push("tests/support");
-        let i18n = I18n::new(&["ja_JP"], &d);
-        let cat = i18n.get(StringsGroup::Test);
-        assert_eq!(cat.tr("valid-key"), "キー");
-        assert_eq!(cat.tr("only-in-english"), "not translated");
         assert_eq!(
-            cat.tr("invalid-key"),
-            "Missing translation key: invalid-key"
+            i18n.tr_("plural", Some(tr_args!["hats"=>3])),
+            "You have 3 hats."
         );
 
+        // Another language
+        let i18n = I18n::new(&["ja_JP"], &ftl_dir);
+        assert_eq!(i18n.tr_("valid-key", None), "キー");
+        assert_eq!(i18n.tr_("only-in-english", None), "not translated");
+        assert_eq!(i18n.tr_("invalid-key", None), "invalid-key");
+
         assert_eq!(
-            cat.trn("two-args-key", tr_args!["one"=>1, "two"=>"2"]),
+            i18n.tr_("two-args-key", Some(tr_args!["one"=>1, "two"=>"2"])),
             "1と2"
         );
 
         // Decimal separator
-        let i18n = I18n::new(&["pl-PL"], &d);
-        let cat = i18n.get(StringsGroup::Test);
+        let i18n = I18n::new(&["pl-PL"], &ftl_dir);
         // falls back on English, but with Polish separators
         assert_eq!(
-            cat.trn("two-args-key", tr_args!["one"=>1, "two"=>2.07]),
+            i18n.tr_("two-args-key", Some(tr_args!["one"=>1, "two"=>2.07])),
             "two args: 1 and 2,07"
         );
     }
