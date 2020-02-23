@@ -25,7 +25,6 @@ PROTODEPS := $(wildcard ../proto/*.proto)
 
 .build/py-proto: .build/dev-deps $(PROTODEPS)
 	protoc --proto_path=../proto --python_out=anki --mypy_out=anki $(PROTODEPS)
-	# fixup import path
 	perl -i'' -pe 's/from fluent_pb2/from anki.fluent_pb2/' anki/backend_pb2.pyi
 	perl -i'' -pe 's/import fluent_pb2/import anki.fluent_pb2/' anki/backend_pb2.py
 	@touch $@
