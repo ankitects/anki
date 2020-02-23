@@ -49,4 +49,5 @@ reqwest = { version = "0.10.1", features = ["json"] }
 
 [build-dependencies]
 prost-build = "0.5.0"
+fluent-syntax = "0.9.2"
 

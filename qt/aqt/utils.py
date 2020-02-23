@@ -12,7 +12,7 @@ from typing import Any, Optional, Union
 
 import aqt
 from anki.lang import _
-from anki.rsbackend import StringsGroup
+from anki.rsbackend import FString
 from anki.utils import invalidFilename, isMac, isWin, noBundledLibs, versionWithBuild
 from aqt.qt import *
 from aqt.theme import theme_manager
@@ -31,13 +31,13 @@ def locale_dir() -> str:
     return os.path.join(aqt_data_folder(), "locale")
 
 
-def tr(group: StringsGroup, key: str, **kwargs: Union[str, int, float]) -> str:
+def tr(key: FString, **kwargs: Union[str, int, float]) -> str:
     """Shortcut to access translations from the backend.
     (Currently) requires an open collection."""
     if aqt.mw.col:
-        return aqt.mw.col.backend.translate(group, key, **kwargs)
+        return aqt.mw.col.backend.translate(key, **kwargs)
     else:
-        return key
+        return repr(key)
 
 
 def openHelp(section):

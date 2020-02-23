@@ -5,7 +5,7 @@ use crate::backend_proto as pb;
 use crate::backend_proto::backend_input::Value;
 use crate::backend_proto::{Empty, RenderedTemplateReplacement, SyncMediaIn};
 use crate::err::{AnkiError, NetworkErrorKind, Result, SyncErrorKind};
-use crate::i18n::{tr_args, I18n, StringsGroup};
+use crate::i18n::{tr_args, FString, I18n};
 use crate::latex::{extract_latex, ExtractedLatex};
 use crate::media::check::MediaChecker;
 use crate::media::sync::MediaSyncProgress;
@@ -397,17 +397,18 @@ impl Backend {
     }
 
     fn translate_string(&self, input: pb::TranslateStringIn) -> String {
-        let group = match pb::StringsGroup::from_i32(input.group) {
-            Some(group) => group,
-            None => return "".to_string(),
+        let key = match pb::FluentString::from_i32(input.key) {
+            Some(key) => key,
+            None => return "invalid key".to_string(),
         };
+
         let map = input
             .args
             .iter()
             .map(|(k, v)| (k.as_str(), translate_arg_to_fluent_val(&v)))
             .collect();
 
-        self.i18n.get(group).trn(&input.key, map)
+        self.i18n.trn(key, map)
     }
 
     fn format_time_span(&self, input: pb::FormatTimeSpanIn) -> String {
@@ -468,9 +469,7 @@ fn progress_to_proto_bytes(progress: Progress, i18n: &I18n) -> Vec<u8> {
         value: Some(match progress {
             Progress::MediaSync(p) => pb::progress::Value::MediaSync(media_sync_progress(p, i18n)),
             Progress::MediaCheck(n) => {
-                let s = i18n
-                    .get(StringsGroup::MediaCheck)
-                    .trn("checked", tr_args!["count"=>n]);
+                let s = i18n.trn(FString::MediaCheckChecked, tr_args!["count"=>n]);
                 pb::progress::Value::MediaCheck(s)
             }
         }),
@@ -482,15 +481,14 @@ fn progress_to_proto_bytes(progress: Progress, i18n: &I18n) -> Vec<u8> {
 }
 
 fn media_sync_progress(p: &MediaSyncProgress, i18n: &I18n) -> pb::MediaSyncProgress {
-    let cat = i18n.get(StringsGroup::Sync);
     pb::MediaSyncProgress {
-        checked: cat.trn("media-checked-count", tr_args!["count"=>p.checked]),
-        added: cat.trn(
-            "media-added-count",
+        checked: i18n.trn(FString::SyncMediaCheckedCount, tr_args!["count"=>p.checked]),
+        added: i18n.trn(
+            FString::SyncMediaAddedCount,
             tr_args!["up"=>p.uploaded_files,"down"=>p.downloaded_files],
         ),
-        removed: cat.trn(
-            "media-removed-count",
+        removed: i18n.trn(
+            FString::SyncMediaRemovedCount,
             tr_args!["up"=>p.uploaded_deletions,"down"=>p.downloaded_deletions],
         ),
     }

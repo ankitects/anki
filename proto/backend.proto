@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+import "fluent.proto";
+
 package backend_proto;
 
 message Empty {}
@@ -10,19 +12,6 @@ message BackendInit {
     string media_db_path = 3;
     repeated string preferred_langs = 4;
     string locale_folder_path = 5;
-}
-
-enum StringsGroup {
-    OTHER = 0;
-    TEST = 1;
-    MEDIA_CHECK = 2;
-    CARD_TEMPLATES = 3;
-    SYNC = 4;
-    NETWORK = 5;
-    STATISTICS = 6;
-    FILTERING = 7;
-    SCHEDULING = 8;
-    DECK_CONFIG = 9;
 }
 
 // 1-15 reserved for future use; 2047 for errors
@@ -299,8 +288,7 @@ message TrashMediaFilesIn {
 }
 
 message TranslateStringIn {
-    StringsGroup group = 1;
-    string key = 2;
+    FluentString key = 2;
     map<string,TranslateArgValue> args = 3;
 }
 

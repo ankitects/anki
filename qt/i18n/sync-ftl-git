@@ -1,8 +1,0 @@
-#!/bin/bash
-
-# pull any pending changes from git repos
-./pull-git
-
-# upload changes to ftl templates
-./update-ftl-templates
-(cd ftl && git add core; git commit -m update; git push)

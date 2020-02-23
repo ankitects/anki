@@ -12,6 +12,7 @@ import ankirspy  # pytype: disable=import-error
 import anki.backend_pb2 as pb
 import anki.buildinfo
 from anki import hooks
+from anki.fluent_pb2 import FluentString as FString
 from anki.models import AllTemplateReqs
 from anki.sound import AVTag, SoundOrVideoTag, TTSTag
 from anki.types import assert_impossible_literal
@@ -131,8 +132,6 @@ TemplateReplacementList = List[Union[str, TemplateReplacement]]
 MediaSyncProgress = pb.MediaSyncProgress
 
 MediaCheckOutput = pb.MediaCheckOut
-
-StringsGroup = pb.StringsGroup
 
 FormatTimeSpanContext = pb.FormatTimeSpanIn.Context
 
@@ -329,9 +328,7 @@ class RustBackend:
             pb.BackendInput(trash_media_files=pb.TrashMediaFilesIn(fnames=fnames))
         )
 
-    def translate(
-        self, group: pb.StringsGroup, key: str, **kwargs: Union[str, int, float]
-    ):
+    def translate(self, key: FString, **kwargs: Union[str, int, float]):
         args = {}
         for (k, v) in kwargs.items():
             if isinstance(v, str):
@@ -340,9 +337,7 @@ class RustBackend:
                 args[k] = pb.TranslateArgValue(number=v)
 
         return self._run_command(
-            pb.BackendInput(
-                translate_string=pb.TranslateStringIn(group=group, key=key, args=args)
-            )
+            pb.BackendInput(translate_string=pb.TranslateStringIn(key=key, args=args))
         ).translate_string
 
     def format_time_span(
