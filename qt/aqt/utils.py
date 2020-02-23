@@ -10,6 +10,7 @@ import subprocess
 import sys
 from typing import Any, Optional, Union
 
+import anki
 import aqt
 from anki.lang import _
 from anki.rsbackend import FString
@@ -32,12 +33,8 @@ def locale_dir() -> str:
 
 
 def tr(key: FString, **kwargs: Union[str, int, float]) -> str:
-    """Shortcut to access translations from the backend.
-    (Currently) requires an open collection."""
-    if aqt.mw.col:
-        return aqt.mw.col.backend.translate(key, **kwargs)
-    else:
-        return repr(key)
+    "Shortcut to access Fluent translations."
+    return anki.lang.current_i18n.translate(key, *kwargs)
 
 
 def openHelp(section):

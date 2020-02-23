@@ -3,10 +3,14 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 # Please leave the coding line in this file to prevent xgettext complaining.
 
+from __future__ import annotations
+
 import gettext
 import os
 import re
 from typing import Optional, Union
+
+import anki
 
 langs = sorted(
     [
@@ -134,10 +138,13 @@ def lang_to_disk_lang(lang: str) -> str:
 # the currently set interface language
 currentLang = "en"
 
-# the current translation catalog
+# the current gettext translation catalog
 current_catalog: Optional[
     Union[gettext.NullTranslations, gettext.GNUTranslations]
 ] = None
+
+# the current Fluent translation instance
+current_i18n: Optional[anki.rsbackend.I18nBackend]
 
 # path to locale folder
 locale_folder = ""
@@ -159,12 +166,16 @@ def ngettext(single: str, plural: str, n: int) -> str:
 
 
 def set_lang(lang: str, locale_dir: str) -> None:
-    global currentLang, current_catalog, locale_folder
+    global currentLang, current_catalog, current_i18n, locale_folder
     gettext_dir = os.path.join(locale_dir, "gettext")
+    ftl_dir = os.path.join(locale_dir, "fluent")
 
     currentLang = lang
     current_catalog = gettext.translation(
         "anki", gettext_dir, languages=[lang], fallback=True
+    )
+    current_i18n = anki.rsbackend.I18nBackend(
+        preferred_langs=[lang], ftl_folder=ftl_dir
     )
     locale_folder = locale_dir
 

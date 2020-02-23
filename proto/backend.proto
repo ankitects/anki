@@ -14,6 +14,11 @@ message BackendInit {
     string locale_folder_path = 5;
 }
 
+message I18nBackendInit {
+    repeated string preferred_langs = 4;
+    string locale_folder_path = 5;
+}
+
 // 1-15 reserved for future use; 2047 for errors
 
 message BackendInput {
