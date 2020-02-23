@@ -33,8 +33,14 @@ def stripSounds(text) -> str:
     return aqt.mw.col.backend.strip_av_tags(text)
 
 
+def fmtTimeSpan(time, pad=0, point=0, inTime=False, unit=99):
+    print("fmtTimeSpan() has become col.backend.format_time_span()")
+    return aqt.mw.col.backend.format_time_span(time)
+
+
 def install_pylib_legacy():
     anki.utils.bodyClass = bodyClass
+    anki.utils.fmtTimeSpan = fmtTimeSpan
     anki.sound._soundReg = r"\[sound:(.*?)\]"
     anki.sound.allSounds = allSounds
     anki.sound.stripSounds = stripSounds
