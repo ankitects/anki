@@ -25,7 +25,7 @@ from anki.lang import _, ngettext
 from anki.models import NoteType
 from anki.notes import Note
 from anki.rsbackend import FString
-from anki.utils import fmtTimeSpan, htmlToTextLine, ids2str, intTime, isMac, isWin
+from anki.utils import htmlToTextLine, ids2str, intTime, isMac, isWin
 from aqt import AnkiQt, gui_hooks
 from aqt.editor import Editor
 from aqt.exporting import ExportDialog
@@ -74,7 +74,7 @@ class FindDupesDialog:
 
 
 class DataModel(QAbstractTableModel):
-    def __init__(self, browser):
+    def __init__(self, browser: Browser):
         QAbstractTableModel.__init__(self)
         self.browser = browser
         self.col = browser.col
@@ -82,8 +82,8 @@ class DataModel(QAbstractTableModel):
         self.activeCols = self.col.conf.get(
             "activeCols", ["noteFld", "template", "cardDue", "deck"]
         )
-        self.cards = []
-        self.cardObjs = {}
+        self.cards: List[int] = []
+        self.cardObjs: Dict[int, Card] = {}
 
     def getCard(self, index):
         id = self.cards[index.row()]
@@ -320,7 +320,7 @@ class DataModel(QAbstractTableModel):
                 return _("(new)")
             elif c.type == 1:
                 return _("(learning)")
-            return fmtTimeSpan(c.ivl * 86400)
+            return self.col.backend.format_time_span(c.ivl * 86400)
         elif type == "cardEase":
             if c.type == 0:
                 return _("(new)")

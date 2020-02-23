@@ -12,7 +12,7 @@ import anki
 from anki.consts import *
 from anki.lang import _, ngettext
 from anki.rsbackend import FString
-from anki.utils import fmtTimeSpan, ids2str
+from anki.utils import ids2str
 
 # Card stats
 ##########################################################################
@@ -631,8 +631,12 @@ group by day order by day)"""
             ),
         )
         i: List[str] = []
-        self._line(i, _("Average interval"), fmtTimeSpan(avg * 86400))
-        self._line(i, _("Longest interval"), fmtTimeSpan(max_ * 86400))
+        self._line(
+            i, _("Average interval"), self.col.backend.format_time_span(avg * 86400)
+        )
+        self._line(
+            i, _("Longest interval"), self.col.backend.format_time_span(max_ * 86400)
+        )
         return txt + self._lineTbl(i)
 
     def _ivls(self) -> Tuple[list, int]:
