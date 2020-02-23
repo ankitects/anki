@@ -17,12 +17,12 @@ all: develop
 
 develop: .build/develop
 
-.build/develop: .build/tools .build/vernum $(wildcard $(FTLS)/*.ftl)
+.build/develop: .build/tools .build/vernum ../meta/buildhash $(wildcard $(FTLS)/*.ftl)
 	touch ../proto/backend.proto
 	FTL_TEMPLATE_DIRS="$(FTLS)" maturin develop $(BUILDFLAGS)
 	touch $@
 
-build: .build/tools .build/vernum $(wildcard $(FTLS)/*.ftl)
+build: .build/tools .build/vernum ../meta/buildhash $(wildcard $(FTLS)/*.ftl)
 	rm -rf $(OUTDIR)/ankirspy*
 	touch ../proto/backend.proto
 	FTL_TEMPLATE_DIRS="$(FTLS)" maturin build -i $(shell which python3) -o $(OUTDIR) $(BUILDFLAGS)
