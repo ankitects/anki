@@ -8,4 +8,4 @@ echo "Updating translations from git..."
 (cd po && git pull)
 
 # make sure gettext translations haven't broken something
-python check-po-files.py
+(cd po && python check-po-files.py)
