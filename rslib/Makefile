@@ -23,7 +23,7 @@ develop: .build/vernum ftl/repo
 ftl/repo:
 	(cd ftl && ./scripts/fetch-latest-translations)
 
-ALL_SOURCE := $(find src -type f) $(wildcard ftl/*.ftl)
+ALL_SOURCE := $(shell find src -type f) $(wildcard ftl/*.ftl)
 
 # nightly currently required for ignoring files in rustfmt.toml
 RUST_TOOLCHAIN := $(shell cat rust-toolchain)

@@ -1,0 +1,9 @@
+#!/bin/bash
+
+echo "Downloading latest translations..."
+
+if [ ! -d repo ]; then
+  git clone https://github.com/ankitects/anki-desktop-ftl repo
+fi
+
+(cd repo && git pull)
