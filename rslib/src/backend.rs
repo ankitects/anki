@@ -493,3 +493,50 @@ fn media_sync_progress(p: &MediaSyncProgress, i18n: &I18n) -> pb::MediaSyncProgr
         ),
     }
 }
+
+/// Standalone I18n backend
+/// This is a hack to allow translating strings in the GUI
+/// when a collection is not open, and in the future it should
+/// either be shared with or merged into the backend object.
+///////////////////////////////////////////////////////
+
+pub struct I18nBackend {
+    i18n: I18n,
+}
+
+pub fn init_i18n_backend(init_msg: &[u8]) -> Result<I18nBackend> {
+    let input: pb::I18nBackendInit = match pb::I18nBackendInit::decode(init_msg) {
+        Ok(req) => req,
+        Err(_) => return Err(AnkiError::invalid_input("couldn't decode init msg")),
+    };
+
+    let i18n = I18n::new(&input.preferred_langs, input.locale_folder_path);
+
+    Ok(I18nBackend { i18n })
+}
+
+impl I18nBackend {
+    pub fn translate(&self, req: &[u8]) -> String {
+        let req = match pb::TranslateStringIn::decode(req) {
+            Ok(req) => req,
+            Err(_e) => return "decoding error".into(),
+        };
+
+        self.translate_string(req)
+    }
+
+    fn translate_string(&self, input: pb::TranslateStringIn) -> String {
+        let key = match pb::FluentString::from_i32(input.key) {
+            Some(key) => key,
+            None => return "invalid key".to_string(),
+        };
+
+        let map = input
+            .args
+            .iter()
+            .map(|(k, v)| (k.as_str(), translate_arg_to_fluent_val(&v)))
+            .collect();
+
+        self.i18n.trn(key, map)
+    }
+}

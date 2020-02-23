@@ -329,15 +329,8 @@ class RustBackend:
         )
 
     def translate(self, key: FString, **kwargs: Union[str, int, float]):
-        args = {}
-        for (k, v) in kwargs.items():
-            if isinstance(v, str):
-                args[k] = pb.TranslateArgValue(str=v)
-            else:
-                args[k] = pb.TranslateArgValue(number=v)
-
         return self._run_command(
-            pb.BackendInput(translate_string=pb.TranslateStringIn(key=key, args=args))
+            pb.BackendInput(translate_string=translate_string_in(key, **kwargs))
         ).translate_string
 
     def format_time_span(
@@ -366,3 +359,28 @@ class RustBackend:
                 )
             )
         ).congrats_learn_msg
+
+
+def translate_string_in(
+    key: FString, **kwargs: Union[str, int, float]
+) -> pb.TranslateStringIn:
+    args = {}
+    for (k, v) in kwargs.items():
+        if isinstance(v, str):
+            args[k] = pb.TranslateArgValue(str=v)
+        else:
+            args[k] = pb.TranslateArgValue(number=v)
+    return pb.TranslateStringIn(key=key, args=args)
+
+
+class I18nBackend:
+    def __init__(self, preferred_langs: List[str], ftl_folder: str) -> None:
+        init_msg = pb.I18nBackendInit(
+            locale_folder_path=ftl_folder, preferred_langs=preferred_langs
+        )
+        self._backend = ankirspy.open_i18n(init_msg.SerializeToString())
+
+    def translate(self, key: FString, **kwargs: Union[str, int, float]):
+        return self._backend.translate(
+            translate_string_in(key, **kwargs).SerializeToString()
+        )
