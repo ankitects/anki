@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Anki desktop js support files",
   "scripts": {
-    "build": "tsc --build; sass --no-source-map scss:../aqt_data/web",
+    "build": "tsc --build && sass --no-source-map scss:../aqt_data/web",
     "pretty": "prettier --write src/*.ts",
     "check-pretty": "prettier --check src/*.ts"
   },

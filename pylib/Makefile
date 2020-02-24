@@ -1,4 +1,7 @@
-SHELL := bash
+SHELL := /bin/bash
+ECHOCMD := /bin/echo -e
+FIND_EXEC := $(if $(wildcard /bin/find),,/usr)/bin/find
+
 .SHELLFLAGS := -eu -o pipefail -c
 .DELETE_ON_ERROR:
 MAKEFLAGS += --warn-undefined-variables
@@ -14,11 +17,11 @@ PHONY: all
 all: check
 
 .build/run-deps: setup.py
-	pip install -e .
+	python -m pip install -e .
 	@touch $@
 
 .build/dev-deps: requirements.dev
-	pip install -r requirements.dev
+	python -m pip install -r requirements.dev
 	@touch $@
 
 PROTODEPS := $(wildcard ../proto/*.proto)
@@ -54,7 +57,7 @@ clean:
 # Checking python
 ######################
 
-CHECKDEPS := $(shell find anki tests -name '*.py' | grep -v buildinfo.py)
+CHECKDEPS := $(shell ${FIND_EXEC} anki tests -name '*.py' | grep -v buildinfo.py)
 
 .build/mypy: $(CHECKDEPS)
 	mypy anki
