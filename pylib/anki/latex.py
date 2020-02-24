@@ -49,7 +49,7 @@ def render_latex(html: str, model: NoteType, col: anki.storage._Collection,) -> 
 
 
 def render_latex_returning_errors(
-    html: str, model: NoteType, col: anki.storage._Collection
+    html: str, model: NoteType, col: anki.storage._Collection, expand_clozes=False
 ) -> Tuple[str, List[str]]:
     """Returns (text, errors).
 
@@ -58,7 +58,7 @@ def render_latex_returning_errors(
     header = model["latexPre"]
     footer = model["latexPost"]
 
-    out = col.backend.extract_latex(html, svg)
+    out = col.backend.extract_latex(html, svg, expand_clozes)
     errors = []
     html = out.html
 

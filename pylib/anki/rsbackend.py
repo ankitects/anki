@@ -292,9 +292,15 @@ class RustBackend:
 
         return out.text, native_tags
 
-    def extract_latex(self, text: str, svg: bool) -> ExtractedLatexOutput:
+    def extract_latex(
+        self, text: str, svg: bool, expand_clozes: bool
+    ) -> ExtractedLatexOutput:
         out = self._run_command(
-            pb.BackendInput(extract_latex=pb.ExtractLatexIn(text=text, svg=svg))
+            pb.BackendInput(
+                extract_latex=pb.ExtractLatexIn(
+                    text=text, svg=svg, expand_clozes=expand_clozes
+                )
+            )
         ).extract_latex
 
         return ExtractedLatexOutput(

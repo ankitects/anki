@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use crate::cloze::expand_clozes_to_reveal_latex;
 use crate::media::files::sha1_of_data;
 use crate::text::strip_html;
 use lazy_static::lazy_static;
@@ -38,6 +39,21 @@ pub struct ExtractedLatex {
     pub latex: String,
 }
 
+/// Expand any cloze deletions, then extract LaTeX.
+pub(crate) fn extract_latex_expanding_clozes(
+    text: &str,
+    svg: bool,
+) -> (String, Vec<ExtractedLatex>) {
+    let text: Cow<str> = if text.contains("{{c") {
+        expand_clozes_to_reveal_latex(text).into()
+    } else {
+        text.into()
+    };
+    extract_latex(&text, svg)
+}
+
+/// Extract LaTeX from the provided text.
+/// Expects cloze deletions to already be expanded.
 pub(crate) fn extract_latex(text: &str, svg: bool) -> (String, Vec<ExtractedLatex>) {
     let mut extracted = vec![];
 
