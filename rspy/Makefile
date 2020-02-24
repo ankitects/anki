@@ -23,7 +23,7 @@ DEPS := .build/tools .build/vernum ../meta/buildhash $(wildcard $(QT_FTLS)/*.ftl
 
 .build/develop: $(DEPS)
 	touch ../proto/backend.proto
-	FTL_TEMPLATE_DIRS="$(QT_FTLS)" maturin develop $(BUILDFLAGS)
+	FTL_TEMPLATE_DIRS="$(QT_FTLS)" maturin develop
 	touch $@
 
 build: $(DEPS)
