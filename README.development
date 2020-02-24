@@ -96,5 +96,5 @@ Windows users
     1. Go to the menu `Build -> Build Solution`
     1. Copy the file `portaudio\build\msvc\x64\Release\portaudio.lib` to `C:\Python\libs\` (Or whatever your Windows Python is installed)
 1. Open a `cmd.exe` (command prompt) on the anki repository and run the command `sh run`
-    1. Do not `bash run` because it my call for Windows Subsystem fo Linux
+    1. Do not use `bash run` because it my call for Windows Subsystem fo Linux
     1. Do not use any Cygwin terminal as `mintty.exe` because the `rust lang` compiler does not work with them
