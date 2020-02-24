@@ -9,7 +9,7 @@ $(shell mkdir -p .build ../dist)
 OUTDIR := ../dist
 BUILDFLAGS := --release --strip
 
-FTLS := ../qt/ftl
+QT_FTLS := ../qt/ftl
 
 .PHONY: all develop build check fix clean
 
@@ -17,15 +17,19 @@ all: develop
 
 develop: .build/develop
 
-.build/develop: .build/tools .build/vernum ../meta/buildhash $(wildcard $(FTLS)/*.ftl)
+DEPS := .build/tools .build/vernum ../meta/buildhash $(wildcard $(QT_FTLS)/*.ftl) \
+	$(shell find ../rslib/src -name '*.rs') $(wildcard ../proto/*) \
+	$(shell find ../rslib/ftl -type f)
+
+.build/develop: $(DEPS)
 	touch ../proto/backend.proto
-	FTL_TEMPLATE_DIRS="$(FTLS)" maturin develop $(BUILDFLAGS)
+	FTL_TEMPLATE_DIRS="$(QT_FTLS)" maturin develop $(BUILDFLAGS)
 	touch $@
 
-build: .build/tools .build/vernum ../meta/buildhash $(wildcard $(FTLS)/*.ftl)
+build: $(DEPS)
 	rm -rf $(OUTDIR)/ankirspy*
 	touch ../proto/backend.proto
-	FTL_TEMPLATE_DIRS="$(FTLS)" maturin build -i $(shell which python3) -o $(OUTDIR) $(BUILDFLAGS)
+	FTL_TEMPLATE_DIRS="$(QT_FTLS)" maturin build -i $(shell which python3) -o $(OUTDIR) $(BUILDFLAGS)
 
 check: .build/check
 
