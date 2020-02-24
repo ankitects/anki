@@ -34,7 +34,7 @@ def locale_dir() -> str:
 
 def tr(key: FString, **kwargs: Union[str, int, float]) -> str:
     "Shortcut to access Fluent translations."
-    return anki.lang.current_i18n.translate(key, *kwargs)
+    return anki.lang.current_i18n.translate(key, **kwargs)
 
 
 def openHelp(section):
