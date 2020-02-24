@@ -29,6 +29,7 @@ class DeckConf(QDialog):
         self._origNewOrder = None
         self.form = aqt.forms.dconf.Ui_Dialog()
         self.form.setupUi(self)
+        gui_hooks.deck_conf_did_setup_ui_form(self)
         self.mw.checkpoint(_("Options"))
         self.setupCombos()
         self.setupConfs()

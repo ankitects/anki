@@ -544,6 +544,32 @@ class _DeckConfDidLoadConfigHook:
 deck_conf_did_load_config = _DeckConfDidLoadConfigHook()
 
 
+class _DeckConfDidSetupUiFormHook:
+    """Allows modifying or adding widgets in the deck options UI form"""
+
+    _hooks: List[Callable[["aqt.deckconf.DeckConf"], None]] = []
+
+    def append(self, cb: Callable[["aqt.deckconf.DeckConf"], None]) -> None:
+        """(deck_conf: aqt.deckconf.DeckConf)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[["aqt.deckconf.DeckConf"], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, deck_conf: aqt.deckconf.DeckConf) -> None:
+        for hook in self._hooks:
+            try:
+                hook(deck_conf)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+deck_conf_did_setup_ui_form = _DeckConfDidSetupUiFormHook()
+
+
 class _DeckConfWillSaveConfigHook:
     """Called before widget state is saved to config"""
 
