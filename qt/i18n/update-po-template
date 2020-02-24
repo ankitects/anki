@@ -2,7 +2,7 @@
 #
 # update template .pot file from source code strings
 #
-
+set -e
 
 topDir=$(dirname $0)/../..
 cd $topDir
