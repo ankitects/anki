@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -eo pipefail
 
 out=../aqt_data/locale/qt
 mkdir -p $out
