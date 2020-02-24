@@ -8,11 +8,8 @@
                 "pyenv",
             ],
         },
-        {
-            "path": "../anki-desktop-i18n",
-        },
 		{
-			"path": "D:\\User\\Documents\\Anki\\addons",
+			"path": "D:\\User\\Documents\\Anki2\\addons",
             "file_exclude_patterns":
             [
                 "*.rar",
