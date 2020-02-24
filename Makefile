@@ -43,7 +43,7 @@ buildhash:
 
 .PHONY: develop
 develop: pyenv buildhash
-	set -e && \
+	set -eo pipefail && \
 	. pyenv/$(if ${IS_WINDOWS},Scripts,bin)/activate && \
 	for dir in $(DEVEL); do \
 		$(SUBMAKE) -C $$dir develop BUILDFLAGS="$(BUILDFLAGS)"; \
@@ -51,7 +51,7 @@ develop: pyenv buildhash
 
 .PHONY: run
 run: develop
-	set -e && \
+	set -eo pipefail && \
 	. pyenv/$(if ${IS_WINDOWS},Scripts,bin)/activate && \
 	echo "Starting Anki..."; \
 	python qt/runanki $(RUNFLAGS)
@@ -78,7 +78,7 @@ build-qt:
 
 .PHONY: clean
 clean: clean-dist
-	set -e && \
+	set -eo pipefail && \
 	for dir in $(DEVEL); do \
 	  $(SUBMAKE) -C $$dir clean; \
 	done
@@ -89,7 +89,7 @@ clean-dist:
 
 .PHONY: check
 check: pyenv buildhash
-	set -e && \
+	set -eo pipefail && \
 	for dir in $(CHECKABLE_RS); do \
 	  $(SUBMAKE) -C $$dir check; \
 	done; \
@@ -104,7 +104,7 @@ check: pyenv buildhash
 
 .PHONY: fix
 fix:
-	set -e && \
+	set -eo pipefail && \
 	. pyenv/$(if ${IS_WINDOWS},Scripts,bin)/activate && \
 	for dir in $(CHECKABLE_RS) $(CHECKABLE_PY); do \
 	  $(SUBMAKE) -C $$dir fix; \
