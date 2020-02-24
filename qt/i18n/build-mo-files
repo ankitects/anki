@@ -2,6 +2,7 @@
 #
 # build mo files
 #
+set -e
 
 targetDir="../aqt_data/locale/gettext"
 mkdir -p $targetDir
