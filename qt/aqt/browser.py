@@ -1156,6 +1156,15 @@ by clicking on one on the left."""
 
         def fillGroups(root, grps, head=""):
             for g in grps:
+                baseName = g[0]
+                did = g[1]
+                children = g[5]
+                if str(did) == "1" and not children:
+                    if not self.mw.col.decks.should_default_be_displayed(
+                        force_default=False, assume_no_child=True
+                    ):
+
+                        continue
                 item = SidebarItem(
                     g[0],
                     ":/icons/deck.svg",
@@ -1312,7 +1321,10 @@ by clicking on one on the left."""
                     subm.addSeparator()
                     addDecks(subm, children)
                 else:
-                    parent.addItem(shortname, self._filterFunc("deck", name))
+                    if did != 1 or self.col.decks.should_default_be_displayed(
+                        force_default=False, assume_no_child=True
+                    ):
+                        parent.addItem(shortname, self._filterFunc("deck", name))
 
         # fixme: could rewrite to avoid calculating due # in the future
         alldecks = self.col.sched.deckDueTree()

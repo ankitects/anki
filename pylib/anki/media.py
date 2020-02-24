@@ -191,7 +191,9 @@ class MediaManager:
         ):
 
             model = self.col.models.get(mid)
-            _html, errors = render_latex_returning_errors(flds, model, self.col)
+            _html, errors = render_latex_returning_errors(
+                flds, model, self.col, expand_clozes=True
+            )
             if errors:
                 return (nid, "\n".join(errors))
 
