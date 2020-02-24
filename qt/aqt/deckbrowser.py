@@ -11,8 +11,8 @@ from typing import Any
 import aqt
 from anki.errors import DeckRenameError
 from anki.lang import _, ngettext
-from anki.rsbackend import StringsGroup
-from anki.utils import fmtTimeSpan, ids2str
+from anki.rsbackend import FString
+from anki.utils import ids2str
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.sound import av_player
@@ -158,12 +158,7 @@ where id > ?""",
         )
         cards = cards or 0
         thetime = thetime or 0
-        msgp1 = (
-            ngettext("<!--studied-->%d card", "<!--studied-->%d cards", cards) % cards
-        )
-        buf = _("Studied %(a)s %(b)s today.") % dict(
-            a=msgp1, b=fmtTimeSpan(thetime, unit=1, inTime=True)
-        )
+        buf = self.mw.col.backend.studied_today(cards, float(thetime))
         return buf
 
     def _countWarn(self):
@@ -190,7 +185,7 @@ where id > ?""",
 <tr><th colspan=5 align=left>%s</th><th class=count>%s</th>
 <th class=count>%s</th><th class=optscol></th></tr>""" % (
                 _("Deck"),
-                tr(StringsGroup.STATISTICS, "due-count"),
+                tr(FString.STATISTICS_DUE_COUNT),
                 _("New"),
             )
             buf += self._topLevelDragRow()

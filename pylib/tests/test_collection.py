@@ -4,7 +4,8 @@ import os
 import tempfile
 
 from anki import Collection as aopen
-from anki.rsbackend import StringsGroup
+from anki.lang import without_unicode_isolation
+from anki.rsbackend import FString
 from anki.stdmodels import addBasicModel, models
 from anki.utils import isWin
 from tests.shared import assertException, getEmptyCol
@@ -153,12 +154,11 @@ def test_furigana():
 def test_translate():
     d = getEmptyCol()
     tr = d.backend.translate
+    no_uni = without_unicode_isolation
 
-    # strip off unicode separators
-    def no_uni(s: str) -> str:
-        return s.replace("\u2068", "").replace("\u2069", "")
-
-    assert tr(StringsGroup.TEST, "valid-key") == "a valid key"
-    assert "invalid-key" in tr(StringsGroup.TEST, "invalid-key")
-    assert no_uni(tr(StringsGroup.TEST, "plural", hats=1)) == "You have 1 hat."
-    assert no_uni(tr(StringsGroup.TEST, "plural", hats=2)) == "You have 2 hats."
+    assert (
+        tr(FString.CARD_TEMPLATE_RENDERING_FRONT_SIDE_PROBLEM)
+        == "Front template has a problem:"
+    )
+    assert no_uni(tr(FString.STATISTICS_REVIEWS, reviews=1)) == "1 review"
+    assert no_uni(tr(FString.STATISTICS_REVIEWS, reviews=2)) == "2 reviews"

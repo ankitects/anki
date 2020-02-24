@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+import "fluent.proto";
+
 package backend_proto;
 
 message Empty {}
@@ -12,15 +14,9 @@ message BackendInit {
     string locale_folder_path = 5;
 }
 
-enum StringsGroup {
-    OTHER = 0;
-    TEST = 1;
-    MEDIA_CHECK = 2;
-    CARD_TEMPLATES = 3;
-    SYNC = 4;
-    NETWORK = 5;
-    STATISTICS = 6;
-    FILTERING = 7;
+message I18nBackendInit {
+    repeated string preferred_langs = 4;
+    string locale_folder_path = 5;
 }
 
 // 1-15 reserved for future use; 2047 for errors
@@ -43,6 +39,9 @@ message BackendInput {
         Empty check_media = 28;
         TrashMediaFilesIn trash_media_files = 29;
         TranslateStringIn translate_string = 30;
+        FormatTimeSpanIn format_time_span = 31;
+        StudiedTodayIn studied_today = 32;
+        CongratsLearnMsgIn congrats_learn_msg = 33;
     }
 }
 
@@ -63,6 +62,9 @@ message BackendOutput {
         MediaCheckOut check_media = 28;
         Empty trash_media_files = 29;
         string translate_string = 30;
+        string format_time_span = 31;
+        string studied_today = 32;
+        string congrats_learn_msg = 33;
 
         BackendError error = 2047;
     }
@@ -291,14 +293,33 @@ message TrashMediaFilesIn {
 }
 
 message TranslateStringIn {
-    StringsGroup group = 1;
-    string key = 2;
+    FluentString key = 2;
     map<string,TranslateArgValue> args = 3;
 }
 
 message TranslateArgValue {
     oneof value {
         string str = 1;
-        string number = 2;
+        double number = 2;
     }
+}
+
+message FormatTimeSpanIn {
+    enum Context {
+        NORMAL = 0;
+        ANSWER_BUTTONS = 1;
+    }
+
+    float seconds = 1;
+    Context context = 2;
+}
+
+message StudiedTodayIn {
+    uint32 cards = 1;
+    double seconds = 2;
+}
+
+message CongratsLearnMsgIn {
+    float next_due = 1;
+    uint32 remaining = 2;
 }

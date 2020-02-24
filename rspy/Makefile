@@ -9,16 +9,23 @@ $(shell mkdir -p .build ../dist)
 OUTDIR := ../dist
 BUILDFLAGS := --release --strip
 
+FTLS := ../qt/ftl
+
 .PHONY: all develop build check fix clean
 
 all: develop
 
-develop: .build/tools .build/vernum
-	maturin develop $(BUILDFLAGS)
+develop: .build/develop
 
-build: .build/tools .build/vernum
+.build/develop: .build/tools .build/vernum ../meta/buildhash $(wildcard $(FTLS)/*.ftl)
+	touch ../proto/backend.proto
+	FTL_TEMPLATE_DIRS="$(FTLS)" maturin develop $(BUILDFLAGS)
+	touch $@
+
+build: .build/tools .build/vernum ../meta/buildhash $(wildcard $(FTLS)/*.ftl)
 	rm -rf $(OUTDIR)/ankirspy*
-	maturin build -i $(shell which python3) -o $(OUTDIR) $(BUILDFLAGS)
+	touch ../proto/backend.proto
+	FTL_TEMPLATE_DIRS="$(FTLS)" maturin build -i $(shell which python3) -o $(OUTDIR) $(BUILDFLAGS)
 
 check: .build/check
 

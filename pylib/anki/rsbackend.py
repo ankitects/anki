@@ -12,6 +12,7 @@ import ankirspy  # pytype: disable=import-error
 import anki.backend_pb2 as pb
 import anki.buildinfo
 from anki import hooks
+from anki.fluent_pb2 import FluentString as FString
 from anki.models import AllTemplateReqs
 from anki.sound import AVTag, SoundOrVideoTag, TTSTag
 from anki.types import assert_impossible_literal
@@ -132,7 +133,7 @@ MediaSyncProgress = pb.MediaSyncProgress
 
 MediaCheckOutput = pb.MediaCheckOut
 
-StringsGroup = pb.StringsGroup
+FormatTimeSpanContext = pb.FormatTimeSpanIn.Context
 
 
 @dataclass
@@ -327,18 +328,59 @@ class RustBackend:
             pb.BackendInput(trash_media_files=pb.TrashMediaFilesIn(fnames=fnames))
         )
 
-    def translate(
-        self, group: pb.StringsGroup, key: str, **kwargs: Union[str, int, float]
-    ):
-        args = {}
-        for (k, v) in kwargs.items():
-            if isinstance(v, str):
-                args[k] = pb.TranslateArgValue(str=v)
-            else:
-                args[k] = pb.TranslateArgValue(number=str(v))
+    def translate(self, key: FString, **kwargs: Union[str, int, float]):
+        return self._run_command(
+            pb.BackendInput(translate_string=translate_string_in(key, **kwargs))
+        ).translate_string
 
+    def format_time_span(
+        self,
+        seconds: float,
+        context: FormatTimeSpanContext = FormatTimeSpanContext.NORMAL,
+    ) -> str:
         return self._run_command(
             pb.BackendInput(
-                translate_string=pb.TranslateStringIn(group=group, key=key, args=args)
+                format_time_span=pb.FormatTimeSpanIn(seconds=seconds, context=context)
             )
-        ).translate_string
+        ).format_time_span
+
+    def studied_today(self, cards: int, seconds: float,) -> str:
+        return self._run_command(
+            pb.BackendInput(
+                studied_today=pb.StudiedTodayIn(cards=cards, seconds=seconds)
+            )
+        ).studied_today
+
+    def learning_congrats_msg(self, next_due: float, remaining: int) -> str:
+        return self._run_command(
+            pb.BackendInput(
+                congrats_learn_msg=pb.CongratsLearnMsgIn(
+                    next_due=next_due, remaining=remaining
+                )
+            )
+        ).congrats_learn_msg
+
+
+def translate_string_in(
+    key: FString, **kwargs: Union[str, int, float]
+) -> pb.TranslateStringIn:
+    args = {}
+    for (k, v) in kwargs.items():
+        if isinstance(v, str):
+            args[k] = pb.TranslateArgValue(str=v)
+        else:
+            args[k] = pb.TranslateArgValue(number=v)
+    return pb.TranslateStringIn(key=key, args=args)
+
+
+class I18nBackend:
+    def __init__(self, preferred_langs: List[str], ftl_folder: str) -> None:
+        init_msg = pb.I18nBackendInit(
+            locale_folder_path=ftl_folder, preferred_langs=preferred_langs
+        )
+        self._backend = ankirspy.open_i18n(init_msg.SerializeToString())
+
+    def translate(self, key: FString, **kwargs: Union[str, int, float]):
+        return self._backend.translate(
+            translate_string_in(key, **kwargs).SerializeToString()
+        )

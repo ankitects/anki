@@ -5,7 +5,7 @@ MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 RUNARGS :=
 .SUFFIXES:
-BLACKARGS := -t py36 anki tests setup.py tools/*.py --exclude='backend_pb2|buildinfo'
+BLACKARGS := -t py36 anki tests setup.py tools/*.py --exclude='_pb2|buildinfo'
 ISORTARGS := anki tests setup.py
 
 $(shell mkdir -p .build ../dist)
@@ -25,6 +25,8 @@ PROTODEPS := $(wildcard ../proto/*.proto)
 
 .build/py-proto: .build/dev-deps $(PROTODEPS)
 	protoc --proto_path=../proto --python_out=anki --mypy_out=anki $(PROTODEPS)
+	perl -i'' -pe 's/from fluent_pb2/from anki.fluent_pb2/' anki/backend_pb2.pyi
+	perl -i'' -pe 's/import fluent_pb2/import anki.fluent_pb2/' anki/backend_pb2.py
 	@touch $@
 
 .build/hooks: tools/genhooks.py tools/hookslib.py

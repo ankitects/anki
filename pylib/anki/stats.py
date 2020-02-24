@@ -1,6 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from __future__ import annotations
+
 import datetime
 import json
 import time
@@ -9,8 +11,8 @@ from typing import Any, Dict, List, Optional, Tuple
 import anki
 from anki.consts import *
 from anki.lang import _, ngettext
-from anki.rsbackend import StringsGroup
-from anki.utils import fmtTimeSpan, ids2str
+from anki.rsbackend import FString
+from anki.utils import ids2str
 
 # Card stats
 ##########################################################################
@@ -28,8 +30,6 @@ class CardStats:
 
     def report(self) -> str:
         c = self.card
-        # pylint: disable=unnecessary-lambda
-        fmt = lambda x, **kwargs: fmtTimeSpan(x, short=True, **kwargs)
         self.txt = "<table width=100%>"
         self.addLine(_("Added"), self.date(c.id / 1000))
         first = self.col.db.scalar("select min(id) from revlog where cid = ?", c.id)
@@ -48,11 +48,12 @@ class CardStats:
                 next = self.date(next)
             if next:
                 self.addLine(
-                    self.col.backend.translate(StringsGroup.STATISTICS, "due-date"),
-                    next,
+                    self.col.backend.translate(FString.STATISTICS_DUE_DATE), next,
                 )
             if c.queue == QUEUE_TYPE_REV:
-                self.addLine(_("Interval"), fmt(c.ivl * 86400))
+                self.addLine(
+                    _("Interval"), self.col.backend.format_time_span(c.ivl * 86400)
+                )
             self.addLine(_("Ease"), "%d%%" % (c.factor / 10.0))
             self.addLine(_("Reviews"), "%d" % c.reps)
             self.addLine(_("Lapses"), "%d" % c.lapses)
@@ -83,13 +84,8 @@ class CardStats:
     def date(self, tm) -> str:
         return time.strftime("%Y-%m-%d", time.localtime(tm))
 
-    def time(self, tm) -> str:
-        s = ""
-        if tm >= 60:
-            s = fmtTimeSpan((tm / 60) * 60, short=True, point=-1, unit=1)
-        if tm % 60 != 0 or not s:
-            s += fmtTimeSpan(tm % 60, point=2 if not s else -1, short=True)
-        return s
+    def time(self, tm: float) -> str:
+        return self.col.backend.format_time_span(tm)
 
 
 # Collection stats
@@ -109,7 +105,7 @@ colSusp = "#ff0"
 
 
 class CollectionStats:
-    def __init__(self, col) -> None:
+    def __init__(self, col: anki.storage._Collection) -> None:
         self.col = col
         self._stats = None
         self.type = PERIOD_MONTH
@@ -181,15 +177,8 @@ from revlog where id > ? """
         def bold(s):
             return "<b>" + str(s) + "</b>"
 
-        msgp1 = (
-            ngettext("<!--studied-->%d card", "<!--studied-->%d cards", cards) % cards
-        )
         if cards:
-            b += _("Studied %(a)s %(b)s today (%(secs).1fs/card)") % dict(
-                a=bold(msgp1),
-                b=bold(fmtTimeSpan(thetime, unit=1, inTime=True)),
-                secs=thetime / cards,
-            )
+            b += self.col.backend.studied_today(cards, float(thetime))
             # again/pass count
             b += "<br>" + _("Again count: %s") % bold(failed)
             if cards:
@@ -286,7 +275,11 @@ from revlog where id > ? """
 
     def _dueInfo(self, tot, num) -> str:
         i: List[str] = []
-        self._line(i, _("Total"), ngettext("%d review", "%d reviews", tot) % tot)
+        self._line(
+            i,
+            _("Total"),
+            self.col.backend.translate(FString.STATISTICS_REVIEWS, reviews=tot),
+        )
         self._line(i, _("Average"), self._avgDay(tot, num, _("reviews")))
         tomorrow = self.col.db.scalar(
             f"""
@@ -458,20 +451,14 @@ group by day order by day"""
             )
         if total and tot:
             perMin = total / float(tot)
-            perMin = round(perMin, 1)
-            # don't round down to zero
-            if perMin < 0.1:
-                text = _("less than 0.1 cards/minute")
-            else:
-                text = _("%.01f cards/minute") % perMin
+            average_secs = (tot * 60) / total
             self._line(
                 i,
                 _("Average answer time"),
-                # T: For example, in the statistics line: " Average
-                # answer time: 16.8s (3.6 cards/minute)", then
-                # "%(a)0.1fs" represents "16.8s" and "%(b)s" represents
-                # "3.6 cards/minutes")
-                _("%(a)0.1fs (%(b)s)") % dict(a=(tot * 60) / total, b=text),
+                self.col.backend.translate(
+                    FString.STATISTICS_AVERAGE_ANSWER_TIME,
+                    **{"cards-per-minute": perMin, "average-seconds": average_secs},
+                ),
             )
         return self._lineTbl(i), int(tot)
 
@@ -644,8 +631,12 @@ group by day order by day)"""
             ),
         )
         i: List[str] = []
-        self._line(i, _("Average interval"), fmtTimeSpan(avg * 86400))
-        self._line(i, _("Longest interval"), fmtTimeSpan(max_ * 86400))
+        self._line(
+            i, _("Average interval"), self.col.backend.format_time_span(avg * 86400)
+        )
+        self._line(
+            i, _("Longest interval"), self.col.backend.format_time_span(max_ * 86400)
+        )
         return txt + self._lineTbl(i)
 
     def _ivls(self) -> Tuple[list, int]:

@@ -10,9 +10,10 @@ import subprocess
 import sys
 from typing import Any, Optional, Union
 
+import anki
 import aqt
 from anki.lang import _
-from anki.rsbackend import StringsGroup
+from anki.rsbackend import FString
 from anki.utils import invalidFilename, isMac, isWin, noBundledLibs, versionWithBuild
 from aqt.qt import *
 from aqt.theme import theme_manager
@@ -31,13 +32,9 @@ def locale_dir() -> str:
     return os.path.join(aqt_data_folder(), "locale")
 
 
-def tr(group: StringsGroup, key: str, **kwargs: Union[str, int, float]) -> str:
-    """Shortcut to access translations from the backend.
-    (Currently) requires an open collection."""
-    if aqt.mw.col:
-        return aqt.mw.col.backend.translate(group, key, **kwargs)
-    else:
-        return key
+def tr(key: FString, **kwargs: Union[str, int, float]) -> str:
+    "Shortcut to access Fluent translations."
+    return anki.lang.current_i18n.translate(key, *kwargs)
 
 
 def openHelp(section):

@@ -1,10 +1,11 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from __future__ import annotations
+
 # some add-ons expect json to be in the utils module
 import json  # pylint: disable=unused-import
 import locale
-import math
 import os
 import platform
 import random
@@ -19,10 +20,9 @@ import traceback
 from contextlib import contextmanager
 from hashlib import sha1
 from html.entities import name2codepoint
-from typing import Any, Iterable, Iterator, List, Optional, Tuple, Union
+from typing import Iterable, Iterator, List, Optional, Union
 
 from anki.db import DB
-from anki.lang import _, ngettext
 
 _tmpdir: Optional[str]
 
@@ -33,107 +33,6 @@ _tmpdir: Optional[str]
 def intTime(scale: int = 1) -> int:
     "The time in integer seconds. Pass scale=1000 to get milliseconds."
     return int(time.time() * scale)
-
-
-timeTable = {
-    "years": lambda n: ngettext("%s year", "%s years", n),
-    "months": lambda n: ngettext("%s month", "%s months", n),
-    "days": lambda n: ngettext("%s day", "%s days", n),
-    "hours": lambda n: ngettext("%s hour", "%s hours", n),
-    "minutes": lambda n: ngettext("%s minute", "%s minutes", n),
-    "seconds": lambda n: ngettext("%s second", "%s seconds", n),
-}
-
-inTimeTable = {
-    "years": lambda n: ngettext("in %s year", "in %s years", n),
-    "months": lambda n: ngettext("in %s month", "in %s months", n),
-    "days": lambda n: ngettext("in %s day", "in %s days", n),
-    "hours": lambda n: ngettext("in %s hour", "in %s hours", n),
-    "minutes": lambda n: ngettext("in %s minute", "in %s minutes", n),
-    "seconds": lambda n: ngettext("in %s second", "in %s seconds", n),
-}
-
-
-def shortTimeFmt(type: str) -> str:
-    return {
-        # T: year is an abbreviation for year. %s is a number of years
-        "years": _("%sy"),
-        # T: m is an abbreviation for month. %s is a number of months
-        "months": _("%smo"),
-        # T: d is an abbreviation for day. %s is a number of days
-        "days": _("%sd"),
-        # T: h is an abbreviation for hour. %s is a number of hours
-        "hours": _("%sh"),
-        # T: m is an abbreviation for minute. %s is a number of minutes
-        "minutes": _("%sm"),
-        # T: s is an abbreviation for second. %s is a number of seconds
-        "seconds": _("%ss"),
-    }[type]
-
-
-def fmtTimeSpan(
-    time: Union[int, float],
-    pad: int = 0,
-    point: int = 0,
-    short: bool = False,
-    inTime: bool = False,
-    unit: int = 99,
-) -> str:
-    "Return a string representing a time span (eg '2 days')."
-    (type, point) = optimalPeriod(time, point, unit)
-    time = convertSecondsTo(time, type)
-    if not point:
-        time = int(round(time))
-    if short:
-        fmt = shortTimeFmt(type)
-    else:
-        if inTime:
-            fmt = inTimeTable[type](_pluralCount(time, point))
-        else:
-            fmt = timeTable[type](_pluralCount(time, point))
-    timestr = "%%%(a)d.%(b)df" % {"a": pad, "b": point}
-    return locale.format_string(fmt % timestr, time)
-
-
-def optimalPeriod(time: Union[int, float], point: int, unit: int) -> Tuple[str, int]:
-    if abs(time) < 60 or unit < 1:
-        type = "seconds"
-        point -= 1
-    elif abs(time) < 3600 or unit < 2:
-        type = "minutes"
-    elif abs(time) < 60 * 60 * 24 or unit < 3:
-        type = "hours"
-    elif abs(time) < 60 * 60 * 24 * 30 or unit < 4:
-        type = "days"
-    elif abs(time) < 60 * 60 * 24 * 365 or unit < 5:
-        type = "months"
-        point += 1
-    else:
-        type = "years"
-        point += 1
-    return (type, max(point, 0))
-
-
-def convertSecondsTo(seconds: Union[int, float], type: str) -> Any:
-    if type == "seconds":
-        return seconds
-    elif type == "minutes":
-        return seconds / 60
-    elif type == "hours":
-        return seconds / 3600
-    elif type == "days":
-        return seconds / 86400
-    elif type == "months":
-        return seconds / 2592000
-    elif type == "years":
-        return seconds / 31536000
-    assert False
-
-
-def _pluralCount(time: Union[int, float], point: int) -> int:
-    if point:
-        return 2
-    return math.floor(time)
 
 
 # Locale

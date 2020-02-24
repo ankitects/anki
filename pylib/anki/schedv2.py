@@ -18,8 +18,8 @@ from anki import hooks
 from anki.cards import Card
 from anki.consts import *
 from anki.lang import _
-from anki.rsbackend import SchedTimingToday
-from anki.utils import fmtTimeSpan, ids2str, intTime
+from anki.rsbackend import FormatTimeSpanContext, SchedTimingToday
+from anki.utils import ids2str, intTime
 
 # card types: 0=new, 1=lrn, 2=rev, 3=relrn
 # queue types: 0=new, 1=(re)lrn, 2=rev, 3=day (re)lrn,
@@ -1458,8 +1458,29 @@ where id = ?
             + self._nextDueMsg()
         )
 
+    def next_learn_msg(self) -> str:
+        dids = self._deckLimit()
+        (next, remaining) = self.col.db.first(
+            f"""
+select min(due), count(*)
+from cards where did in {dids} and queue = {QUEUE_TYPE_LRN}
+"""
+        )
+        next = next or 0
+        remaining = remaining or 0
+        if next and next < self.dayCutoff:
+            next -= intTime() - self.col.conf["collapseTime"]
+            return self.col.backend.learning_congrats_msg(abs(next), remaining)
+        else:
+            return ""
+
     def _nextDueMsg(self) -> str:
         line = []
+
+        learn_msg = self.next_learn_msg()
+        if learn_msg:
+            line.append(learn_msg)
+
         # the new line replacements are so we don't break translations
         # in a point release
         if self.revDue():
@@ -1545,11 +1566,13 @@ To study outside of the normal schedule, click the Custom Study button below."""
 
     def nextIvlStr(self, card: Card, ease: int, short: bool = False) -> str:
         "Return the next interval for CARD as a string."
-        ivl = self.nextIvl(card, ease)
-        if not ivl:
+        ivl_secs = self.nextIvl(card, ease)
+        if not ivl_secs:
             return _("(end)")
-        s = fmtTimeSpan(ivl, short=short)
-        if ivl < self.col.conf["collapseTime"]:
+        s = self.col.backend.format_time_span(
+            ivl_secs, FormatTimeSpanContext.ANSWER_BUTTONS
+        )
+        if ivl_secs < self.col.conf["collapseTime"]:
             s = "<" + s
         return s
 

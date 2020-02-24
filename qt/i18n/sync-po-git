@@ -6,7 +6,3 @@
 # upload changes to .pot
 ./update-po-template
 (cd po && git add desktop; git commit -m update; git push)
-
-# upload changes to ftl templates
-./update-ftl-templates
-(cd ftl && git add core; git commit -m update; git push)

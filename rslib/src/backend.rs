@@ -5,12 +5,13 @@ use crate::backend_proto as pb;
 use crate::backend_proto::backend_input::Value;
 use crate::backend_proto::{Empty, RenderedTemplateReplacement, SyncMediaIn};
 use crate::err::{AnkiError, NetworkErrorKind, Result, SyncErrorKind};
-use crate::i18n::{tr_args, I18n, StringsGroup};
+use crate::i18n::{tr_args, FString, I18n};
 use crate::latex::{extract_latex, ExtractedLatex};
 use crate::media::check::MediaChecker;
 use crate::media::sync::MediaSyncProgress;
 use crate::media::MediaManager;
-use crate::sched::{local_minutes_west_for_stamp, sched_timing_today};
+use crate::sched::cutoff::{local_minutes_west_for_stamp, sched_timing_today};
+use crate::sched::timespan::{answer_button_time, learning_congrats, studied_today, time_span};
 use crate::template::{
     render_card, without_legacy_template_directives, FieldMap, FieldRequirements, ParsedTemplate,
     RenderedNode,
@@ -200,6 +201,17 @@ impl Backend {
                 OValue::TrashMediaFiles(Empty {})
             }
             Value::TranslateString(input) => OValue::TranslateString(self.translate_string(input)),
+            Value::FormatTimeSpan(input) => OValue::FormatTimeSpan(self.format_time_span(input)),
+            Value::StudiedToday(input) => OValue::StudiedToday(studied_today(
+                input.cards as usize,
+                input.seconds as f32,
+                &self.i18n,
+            )),
+            Value::CongratsLearnMsg(input) => OValue::CongratsLearnMsg(learning_congrats(
+                input.remaining as usize,
+                input.next_due,
+                &self.i18n,
+            )),
         })
     }
 
@@ -385,17 +397,31 @@ impl Backend {
     }
 
     fn translate_string(&self, input: pb::TranslateStringIn) -> String {
-        let group = match pb::StringsGroup::from_i32(input.group) {
-            Some(group) => group,
-            None => return "".to_string(),
+        let key = match pb::FluentString::from_i32(input.key) {
+            Some(key) => key,
+            None => return "invalid key".to_string(),
         };
+
         let map = input
             .args
             .iter()
             .map(|(k, v)| (k.as_str(), translate_arg_to_fluent_val(&v)))
             .collect();
 
-        self.i18n.get(group).trn(&input.key, map)
+        self.i18n.trn(key, map)
+    }
+
+    fn format_time_span(&self, input: pb::FormatTimeSpanIn) -> String {
+        let context = match pb::format_time_span_in::Context::from_i32(input.context) {
+            Some(context) => context,
+            None => return "".to_string(),
+        };
+        match context {
+            pb::format_time_span_in::Context::Normal => time_span(input.seconds, &self.i18n),
+            pb::format_time_span_in::Context::AnswerButtons => {
+                answer_button_time(input.seconds, &self.i18n)
+            }
+        }
     }
 }
 
@@ -404,7 +430,7 @@ fn translate_arg_to_fluent_val(arg: &pb::TranslateArgValue) -> FluentValue {
     match &arg.value {
         Some(val) => match val {
             V::Str(s) => FluentValue::String(s.into()),
-            V::Number(s) => FluentValue::Number(s.into()),
+            V::Number(f) => FluentValue::Number(f.into()),
         },
         None => FluentValue::String("".into()),
     }
@@ -443,9 +469,7 @@ fn progress_to_proto_bytes(progress: Progress, i18n: &I18n) -> Vec<u8> {
         value: Some(match progress {
             Progress::MediaSync(p) => pb::progress::Value::MediaSync(media_sync_progress(p, i18n)),
             Progress::MediaCheck(n) => {
-                let s = i18n
-                    .get(StringsGroup::MediaCheck)
-                    .trn("checked", tr_args!["count"=>n]);
+                let s = i18n.trn(FString::MediaCheckChecked, tr_args!["count"=>n]);
                 pb::progress::Value::MediaCheck(s)
             }
         }),
@@ -457,16 +481,62 @@ fn progress_to_proto_bytes(progress: Progress, i18n: &I18n) -> Vec<u8> {
 }
 
 fn media_sync_progress(p: &MediaSyncProgress, i18n: &I18n) -> pb::MediaSyncProgress {
-    let cat = i18n.get(StringsGroup::Sync);
     pb::MediaSyncProgress {
-        checked: cat.trn("media-checked-count", tr_args!["count"=>p.checked]),
-        added: cat.trn(
-            "media-added-count",
+        checked: i18n.trn(FString::SyncMediaCheckedCount, tr_args!["count"=>p.checked]),
+        added: i18n.trn(
+            FString::SyncMediaAddedCount,
             tr_args!["up"=>p.uploaded_files,"down"=>p.downloaded_files],
         ),
-        removed: cat.trn(
-            "media-removed-count",
+        removed: i18n.trn(
+            FString::SyncMediaRemovedCount,
             tr_args!["up"=>p.uploaded_deletions,"down"=>p.downloaded_deletions],
         ),
+    }
+}
+
+/// Standalone I18n backend
+/// This is a hack to allow translating strings in the GUI
+/// when a collection is not open, and in the future it should
+/// either be shared with or merged into the backend object.
+///////////////////////////////////////////////////////
+
+pub struct I18nBackend {
+    i18n: I18n,
+}
+
+pub fn init_i18n_backend(init_msg: &[u8]) -> Result<I18nBackend> {
+    let input: pb::I18nBackendInit = match pb::I18nBackendInit::decode(init_msg) {
+        Ok(req) => req,
+        Err(_) => return Err(AnkiError::invalid_input("couldn't decode init msg")),
+    };
+
+    let i18n = I18n::new(&input.preferred_langs, input.locale_folder_path);
+
+    Ok(I18nBackend { i18n })
+}
+
+impl I18nBackend {
+    pub fn translate(&self, req: &[u8]) -> String {
+        let req = match pb::TranslateStringIn::decode(req) {
+            Ok(req) => req,
+            Err(_e) => return "decoding error".into(),
+        };
+
+        self.translate_string(req)
+    }
+
+    fn translate_string(&self, input: pb::TranslateStringIn) -> String {
+        let key = match pb::FluentString::from_i32(input.key) {
+            Some(key) => key,
+            None => return "invalid key".to_string(),
+        };
+
+        let map = input
+            .args
+            .iter()
+            .map(|(k, v)| (k.as_str(), translate_arg_to_fluent_val(&v)))
+            .collect();
+
+        self.i18n.trn(key, map)
     }
 }

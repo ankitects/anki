@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::i18n::{I18n, StringsGroup};
+use crate::i18n::{FString, I18n};
 pub use failure::{Error, Fail};
 use reqwest::StatusCode;
 use std::io;
@@ -57,29 +57,23 @@ impl AnkiError {
 
     pub fn localized_description(&self, i18n: &I18n) -> String {
         match self {
-            AnkiError::SyncError { info, kind } => {
-                let cat = i18n.get(StringsGroup::Sync);
-                match kind {
-                    SyncErrorKind::ServerMessage => info.into(),
-                    SyncErrorKind::Other => info.into(),
-                    SyncErrorKind::Conflict => cat.tr("conflict"),
-                    SyncErrorKind::ServerError => cat.tr("server-error"),
-                    SyncErrorKind::ClientTooOld => cat.tr("client-too-old"),
-                    SyncErrorKind::AuthFailed => cat.tr("wrong-pass"),
-                    SyncErrorKind::ResyncRequired => cat.tr("resync-required"),
-                }
-                .into()
+            AnkiError::SyncError { info, kind } => match kind {
+                SyncErrorKind::ServerMessage => info.into(),
+                SyncErrorKind::Other => info.into(),
+                SyncErrorKind::Conflict => i18n.tr(FString::SyncConflict),
+                SyncErrorKind::ServerError => i18n.tr(FString::SyncServerError),
+                SyncErrorKind::ClientTooOld => i18n.tr(FString::SyncClientTooOld),
+                SyncErrorKind::AuthFailed => i18n.tr(FString::SyncWrongPass),
+                SyncErrorKind::ResyncRequired => i18n.tr(FString::SyncResyncRequired),
             }
-            AnkiError::NetworkError { kind, .. } => {
-                let cat = i18n.get(StringsGroup::Network);
-                match kind {
-                    NetworkErrorKind::Offline => cat.tr("offline"),
-                    NetworkErrorKind::Timeout => cat.tr("timeout"),
-                    NetworkErrorKind::ProxyAuth => cat.tr("proxy-auth"),
-                    NetworkErrorKind::Other => cat.tr("other"),
-                }
-                .into()
+            .into(),
+            AnkiError::NetworkError { kind, .. } => match kind {
+                NetworkErrorKind::Offline => i18n.tr(FString::NetworkOffline),
+                NetworkErrorKind::Timeout => i18n.tr(FString::NetworkTimeout),
+                NetworkErrorKind::ProxyAuth => i18n.tr(FString::NetworkProxyAuth),
+                NetworkErrorKind::Other => i18n.tr(FString::NetworkOther),
             }
+            .into(),
             _ => "".into(),
         }
     }

@@ -1,6 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from __future__ import annotations
+
 import itertools
 import random
 import time
@@ -8,11 +10,13 @@ from heapq import *
 from operator import itemgetter
 from typing import List, Optional, Set
 
+import anki
 from anki import hooks
 from anki.cards import Card
 from anki.consts import *
 from anki.lang import _
-from anki.utils import fmtTimeSpan, ids2str, intTime
+from anki.rsbackend import FormatTimeSpanContext
+from anki.utils import ids2str, intTime
 
 # queue types: 0=new/cram, 1=lrn, 2=rev, 3=day lrn, -1=suspended, -2=buried
 # revlog types: 0=lrn, 1=rev, 2=relrn, 3=cram
@@ -25,7 +29,7 @@ class Scheduler:
     _spreadRev = True
     _burySiblingsOnAnswer = True
 
-    def __init__(self, col):
+    def __init__(self, col: anki.storage._Collection) -> None:
         self.col = col
         self.queueLimit = 50
         self.reportLimit = 1000
@@ -33,7 +37,7 @@ class Scheduler:
         self.lrnCount = 0
         self.revCount = 0
         self.newCount = 0
-        self.today = None
+        self.today: Optional[int] = None
         self._haveQueues = False
         self._updateCutoff()
 
@@ -1351,11 +1355,13 @@ To study outside of the normal schedule, click the Custom Study button below."""
 
     def nextIvlStr(self, card, ease, short=False):
         "Return the next interval for CARD as a string."
-        ivl = self.nextIvl(card, ease)
-        if not ivl:
+        ivl_secs = self.nextIvl(card, ease)
+        if not ivl_secs:
             return _("(end)")
-        s = fmtTimeSpan(ivl, short=short)
-        if ivl < self.col.conf["collapseTime"]:
+        s = self.col.backend.format_time_span(
+            ivl_secs, FormatTimeSpanContext.ANSWER_BUTTONS
+        )
+        if ivl_secs < self.col.conf["collapseTime"]:
             s = "<" + s
         return s
 

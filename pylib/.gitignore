@@ -11,6 +11,7 @@
 __pycache__
 anki.egg-info
 anki/backend_pb2.*
+anki/fluent_pb2.*
 anki/buildhash.py
 build
 dist

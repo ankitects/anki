@@ -10,7 +10,7 @@ $(shell mkdir -p .build)
 
 all: check
 
-check: .build/check
+check: ftl/repo .build/check
 
 fix:
 	cargo fmt
@@ -18,11 +18,12 @@ fix:
 clean:
 	rm -rf .build target
 
-develop: .build/vernum
+develop: .build/vernum ftl/repo
 
-PROTO_SOURCE := $(wildcard ../proto/*.proto)
-RS_SOURCE := $(wildcard src/*)
-ALL_SOURCE := $(RS_SOURCE) $(PROTO_SOURCE)
+ftl/repo:
+	(cd ftl && ./scripts/fetch-latest-translations)
+
+ALL_SOURCE := $(shell find src -type f) $(wildcard ftl/*.ftl)
 
 # nightly currently required for ignoring files in rustfmt.toml
 RUST_TOOLCHAIN := $(shell cat rust-toolchain)
