@@ -6,6 +6,7 @@ from operator import itemgetter
 import aqt
 from anki.consts import NEW_CARDS_RANDOM
 from anki.lang import _, ngettext
+from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import (
     askUser,
@@ -40,6 +41,7 @@ class DeckConf(QDialog):
         self.setWindowTitle(_("Options for %s") % self.deck["name"])
         # qt doesn't size properly with altered fonts otherwise
         restoreGeom(self, "deckconf", adjustSize=True)
+        gui_hooks.deck_conf_will_show(self)
         self.show()
         self.exec_()
         saveGeom(self, "deckconf")
@@ -218,6 +220,7 @@ class DeckConf(QDialog):
         f.replayQuestion.setChecked(c.get("replayq", True))
         # description
         f.desc.setPlainText(self.deck["desc"])
+        gui_hooks.deck_conf_did_load_config(self, self.conf)
 
     def onRestore(self):
         self.mw.progress.start()
@@ -301,6 +304,7 @@ class DeckConf(QDialog):
         c["replayq"] = f.replayQuestion.isChecked()
         # description
         self.deck["desc"] = f.desc.toPlainText()
+        gui_hooks.deck_conf_will_save_config(self, self.deck, self.conf)
         self.mw.col.decks.save(self.deck)
         self.mw.col.decks.save(self.conf)
 
