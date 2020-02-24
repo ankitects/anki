@@ -1,4 +1,6 @@
-SHELL := bash
+SHELL := /bin/bash
+ECHOCMD := /bin/echo -e
+
 .SHELLFLAGS := -eu -o pipefail -c
 .DELETE_ON_ERROR:
 MAKEFLAGS += --warn-undefined-variables
@@ -44,7 +46,7 @@ clean:
 RUST_TOOLCHAIN := $(shell cat rust-toolchain)
 
 .build/tools: requirements.txt rust-toolchain
-	pip install -r requirements.txt
+	python -m pip install -r requirements.txt
 	rustup toolchain install $(RUST_TOOLCHAIN)
 	rustup component add rustfmt-preview --toolchain $(RUST_TOOLCHAIN)
 	rustup component add clippy-preview --toolchain $(RUST_TOOLCHAIN)

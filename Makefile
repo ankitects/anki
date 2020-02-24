@@ -1,4 +1,12 @@
-SHELL := bash
+SHELL := /bin/bash
+ECHOCMD := /bin/echo -e
+
+ifeq ($(OS),Windows_NT)
+	IS_WINDOWS := true
+else
+	IS_WINDOWS :=
+endif
+
 .SHELLFLAGS := -eu -o pipefail -c
 .DELETE_ON_ERROR:
 MAKEFLAGS += --warn-undefined-variables
@@ -18,10 +26,11 @@ all: run
 # - modern pip required for wheel
 # - add qt if missing
 pyenv:
-	python3 -m venv pyenv && \
-	. pyenv/bin/activate && \
-	pip install --upgrade pip setuptools && \
-	python -c 'import PyQt5' 2>/dev/null || pip install -r qt/requirements.qt
+	python$(if ${IS_WINDOWS},,3) -m venv pyenv && \
+	. pyenv/$(if ${IS_WINDOWS},Scripts,bin)/activate && \
+	python --version && \
+	python -m pip install --upgrade pip setuptools && \
+	python -c 'import PyQt5' 2>/dev/null || python -m pip install -r qt/requirements.qt
 
 # update build hash
 .PHONY: buildhash
@@ -34,42 +43,42 @@ buildhash:
 
 .PHONY: develop
 develop: pyenv buildhash
-	@set -e && \
-	. pyenv/bin/activate && \
+	set -e && \
+	. pyenv/$(if ${IS_WINDOWS},Scripts,bin)/activate && \
 	for dir in $(DEVEL); do \
 		$(SUBMAKE) -C $$dir develop BUILDFLAGS="$(BUILDFLAGS)"; \
 	done
 
 .PHONY: run
 run: develop
-	@set -e && \
-	. pyenv/bin/activate && \
+	set -e && \
+	. pyenv/$(if ${IS_WINDOWS},Scripts,bin)/activate && \
 	echo "Starting Anki..."; \
-	qt/runanki $(RUNFLAGS)
+	python qt/runanki $(RUNFLAGS)
 
 .PHONY: build
 build: clean-dist build-rspy build-pylib build-qt add-buildhash
-	@echo
-	@echo "Build complete."
+	echo
+	echo "Build complete."
 
 .PHONY: build-rspy
 build-rspy: pyenv buildhash
-	@. pyenv/bin/activate && \
+	. pyenv/$(if ${IS_WINDOWS},Scripts,bin)/activate && \
 	$(SUBMAKE) -C rspy build BUILDFLAGS="$(BUILDFLAGS)"
 
 .PHONY: build-pylib
 build-pylib:
-	@. pyenv/bin/activate && \
+	. pyenv/$(if ${IS_WINDOWS},Scripts,bin)/activate && \
 	$(SUBMAKE) -C pylib build
 
 .PHONY: build-qt
 build-qt:
-	@. pyenv/bin/activate && \
+	. pyenv/$(if ${IS_WINDOWS},Scripts,bin)/activate && \
 	$(SUBMAKE) -C qt build
 
 .PHONY: clean
 clean: clean-dist
-	@set -e && \
+	set -e && \
 	for dir in $(DEVEL); do \
 	  $(SUBMAKE) -C $$dir clean; \
 	done
@@ -80,29 +89,29 @@ clean-dist:
 
 .PHONY: check
 check: pyenv buildhash
-	@set -e && \
+	set -e && \
 	for dir in $(CHECKABLE_RS); do \
 	  $(SUBMAKE) -C $$dir check; \
 	done; \
-	. pyenv/bin/activate && \
+	. pyenv/$(if ${IS_WINDOWS},Scripts,bin)/activate && \
 	$(SUBMAKE) -C rspy develop && \
 	$(SUBMAKE) -C pylib develop && \
 	for dir in $(CHECKABLE_PY); do \
 	  $(SUBMAKE) -C $$dir check; \
 	done;
-	@echo
-	@echo "All checks passed!"
+	echo
+	echo "All checks passed!"
 
 .PHONY: fix
 fix:
-	@set -e && \
-	. pyenv/bin/activate && \
+	set -e && \
+	. pyenv/$(if ${IS_WINDOWS},Scripts,bin)/activate && \
 	for dir in $(CHECKABLE_RS) $(CHECKABLE_PY); do \
 	  $(SUBMAKE) -C $$dir fix; \
 	done; \
 
 .PHONY: add-buildhash
 add-buildhash:
-	@ver=$$(cat meta/version); \
+	ver=$$(cat meta/version); \
 	hash=$$(cat meta/buildhash); \
 	rename "s/-$${ver}-/-$${ver}+$${hash}-/" dist/*-$$ver-*
