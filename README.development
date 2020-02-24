@@ -76,3 +76,25 @@ You can use homebrew to install some dependencies:
 $ brew install python mpv lame portaudio protobuf npm rustup-init gettext rename
 
 $ brew link gettext --force
+
+Windows users
+----------
+
+1. Download and install Cygwin and put its `/bin/` directory on your system path.
+1. Install the Cygwin Packages: `apt-cyg install gettext rsync make`
+    1. Move these files to `/bin/`
+    1. /usr/bin/msgfmt.exe
+    1. /usr/bin/cyggettextsrc-0-19-8-1.dll
+    1. /usr/bin/cyggettextlib-0-19-8-1.dll
+1. Download and install Python for Windows (not from Cygwin) and put `python.exe` (not `python3.exe`) on your system path.
+1. Download and install pip for your Windows Python.
+1. Download and install rust (compiler), npm, git and put them your system path.
+1. Download and install Visual Studio 2017 or superior and:
+    1. `git clone https://github.com/evandroforks/portaudio`
+    1. Open the file `portaudio\build\msvc\portaudio.sln` with Visual Studio
+    1. Select the Solution Configuration as `Release` and the Solution Platforms as `x64` on the top toolbar
+    1. Go to the menu `Build -> Build Solution`
+    1. Copy the file `portaudio\build\msvc\x64\Release\portaudio.lib` to `C:\Python\libs\` (Or whatever your Windows Python is installed)
+1. Open a `cmd.exe` (command prompt) on the anki repository and run the command `sh run`
+    1. Do not `bash run` because it my call for Windows Subsystem fo Linux
+    1. Do not use any Cygwin terminal as `mintty.exe` because the `rust lang` compiler does not work with them

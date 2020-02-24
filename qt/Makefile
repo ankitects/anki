@@ -1,4 +1,13 @@
-SHELL := bash
+SHELL := /bin/bash
+ECHOCMD := /bin/echo -e
+FIND_EXEC := $(if $(wildcard /bin/find),,/usr)/bin/find
+
+ifeq ($(OS),Windows_NT)
+	IS_WINDOWS := true
+else
+	IS_WINDOWS :=
+endif
+
 .SHELLFLAGS := -eu -o pipefail -c
 .DELETE_ON_ERROR:
 MAKEFLAGS += --warn-undefined-variables
@@ -14,14 +23,15 @@ PHONY: all
 all: check
 
 .build/run-deps: setup.py
-	pip install -e .
+	$(if ${IS_WINDOWS},python -m pip install git+https://github.com/evandroforks/pyaudio,)
+	python -m pip install -e .
 	@touch $@
 
 .build/dev-deps: requirements.dev
-	pip install -r requirements.dev
+	python -m pip install -r requirements.dev
 	@touch $@
 
-.build/ui: $(shell find designer -type f)
+.build/ui: $(shell ${FIND_EXEC} designer -type f)
 	./tools/build_ui.sh
 	@touch $@
 
@@ -73,7 +83,7 @@ JSDEPS := $(patsubst ts/src/%.ts, web/%.js, $(TSDEPS))
 
 PYLIB := ../pylib
 
-CHECKDEPS := $(shell find aqt tests -name '*.py' | grep -v buildinfo.py)
+CHECKDEPS := $(shell ${FIND_EXEC} aqt tests -name '*.py' | grep -v buildinfo.py)
 
 .build/mypy: $(CHECKDEPS) .build/qt-stubs
 	mypy aqt

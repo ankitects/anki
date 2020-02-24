@@ -1,4 +1,6 @@
-SHELL := bash
+SHELL := /bin/bash
+ECHOCMD := /bin/echo -e
+
 .SHELLFLAGS := -eu -o pipefail -c
 .DELETE_ON_ERROR:
 MAKEFLAGS += --warn-undefined-variables
