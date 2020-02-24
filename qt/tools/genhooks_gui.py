@@ -392,6 +392,15 @@ hooks = [
         args=["player: aqt.sound.Player", "tag: anki.sound.AVTag"],
     ),
     Hook(name="av_player_did_end_playing", args=["player: aqt.sound.Player"]),
+    # Web
+    ###################
+    Hook(
+        name="will_init_bottom", 
+        return_type="bool",
+        doc="Return True to not display the bottom web.",),
+    Hook(
+        name="did_init_bottom", 
+        doc="Used to extend the bottom web. E.g. add extra stats to the status bar",),
     # Other
     ###################
     Hook(

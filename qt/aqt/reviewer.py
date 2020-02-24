@@ -155,6 +155,10 @@ class Reviewer:
             ],
             context=self,
         )
+
+        if gui_hooks.will_init_bottom():
+            return
+
         # show answer / ease buttons
         self.bottom.web.show()
         self.bottom.web.stdHtml(
@@ -163,6 +167,8 @@ class Reviewer:
             js=["jquery.js", "reviewer-bottom.js"],
             context=ReviewerBottomBar(self),
         )
+
+        gui_hooks.did_init_bottom()
 
     # Showing the question
     ##########################################################################
