@@ -8,6 +8,7 @@ $(shell mkdir -p .build ../dist)
 
 OUTDIR := ../dist
 BUILDFLAGS := --release --strip
+RSPY_TARGET_DIR ?= target
 
 QT_FTLS := ../qt/ftl
 
@@ -23,7 +24,7 @@ DEPS := .build/tools .build/vernum ../meta/buildhash $(wildcard $(QT_FTLS)/*.ftl
 
 .build/develop: $(DEPS)
 	touch ../proto/backend.proto
-	FTL_TEMPLATE_DIRS="$(QT_FTLS)" maturin develop
+	FTL_TEMPLATE_DIRS="$(QT_FTLS)" CARGO_TARGET_DIR="$(RSPY_TARGET_DIR)" maturin develop
 	touch $@
 
 build: $(DEPS)
