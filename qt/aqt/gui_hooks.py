@@ -205,36 +205,36 @@ browser_menus_did_init = _BrowserMenusDidInitHook()
 
 class _BrowserWillBuildTreeFilter:
     """Used to add or replace items in the browser sidebar tree
-        
+
         'tree' is the root SidebarItem that all other items are added to.
-        
+
         'stage' is an enum describing the different construction stages of
         the sidebar tree at which you can interject your changes.
         The different values can be inspected by looking at
         aqt.browser.SidebarStage.
-        
+
         If you want Anki to proceed with the construction of the tree stage
         in question after your have performed your changes or additions,
         return the 'handled' boolean unchanged.
-        
+
         On the other hand, if you want to prevent Anki from adding its own
         items at a particular construction stage (e.g. in case your add-on
         implements its own version of that particular stage), return 'True'.
-        
+
         If you return 'True' at SidebarStage.ROOT, the sidebar will not be
         populated by any of the other construction stages. For any other stage
         the tree construction will just continue as usual.
-        
+
         For example, if your code wishes to replace the tag tree, you could do:
-        
+
             def on_browser_will_build_tree(handled, root, stage, browser):
                 if stage != SidebarStage.TAGS:
                     # not at tag tree building stage, pass on
                     return handled
-                
+
                 # your tag tree construction code
                 # root.addChild(...)
-                
+
                 # your code handled tag tree construction, no need for Anki
                 # or other add-ons to build the tag tree
                 return True
@@ -437,15 +437,15 @@ deck_browser_did_render = _DeckBrowserDidRenderHook()
 
 class _DeckBrowserWillRenderContentHook:
     """Used to modify HTML content sections in the deck browser body
-        
+
         'content' contains the sections of HTML content the deck browser body
         will be updated with.
-        
+
         When modifying the content of a particular section, please make sure your
         changes only perform the minimum required edits to make your add-on work.
         You should avoid overwriting or interfering with existing data as much
         as possible, instead opting to append your own changes, e.g.:
-        
+
             def on_deck_browser_will_render_content(deck_browser, content):
                 content.stats += "
 <div>my html</div>"
@@ -1035,11 +1035,11 @@ reviewer_did_show_question = _ReviewerDidShowQuestionHook()
 class _ReviewerWillAnswerCardFilter:
     """Used to modify the ease at which a card is rated or to bypass
         rating the card completely.
-        
+
         ease_tuple is a tuple consisting of a boolean expressing whether the reviewer
         should continue with rating the card, and an integer expressing the ease at
         which the card should be rated.
-        
+
         If your code just needs to be notified of the card rating event, you should use
         the reviewer_did_answer_card hook instead."""
 
@@ -1296,7 +1296,7 @@ style_did_init = _StyleDidInitFilter()
 
 class _TopToolbarDidInitLinksHook:
     """Used to modify or add links in the top toolbar of Anki's main window
-        
+
         'links' is a list of HTML link elements. Add-ons can generate their own links
         by using aqt.toolbar.Toolbar.create_link. Links created in that way can then be
         appended to the link list, e.g.:
@@ -1357,17 +1357,17 @@ undo_state_did_change = _UndoStateDidChangeHook()
 
 class _WebviewDidReceiveJsMessageFilter:
     """Used to handle pycmd() messages sent from Javascript.
-        
+
         Message is the string passed to pycmd().
 
         For messages you don't want to handle, return 'handled' unchanged.
-        
+
         If you handle a message and don't want it passed to the original
         bridge command handler, return (True, None).
-        
+
         If you want to pass a value to pycmd's result callback, you can
         return it with (True, some_value).
-                
+
         Context is the instance that was passed to set_bridge_command().
         It can be inspected to check which screen this hook is firing
         in, and to get a reference to the screen. For example, if your
@@ -1376,7 +1376,7 @@ class _WebviewDidReceiveJsMessageFilter:
             if not isinstance(context, aqt.reviewer.Reviewer):
                 # not reviewer, pass on message
                 return handled
-    
+
             if message == "my-mark-action":
                 # our message, call onMark() on the reviewer instance
                 context.onMark()
@@ -1429,17 +1429,17 @@ class _WebviewWillSetContentHook:
         code wishes to function only in the review screen, you could do:
 
             def on_webview_will_set_content(web_content: WebContent, context):
-                
+
                 if not isinstance(context, aqt.reviewer.Reviewer):
                     # not reviewer, do not modify content
                     return
-                
+
                 # reviewer, perform changes to content
-                
+
                 context: aqt.reviewer.Reviewer
-                
+
                 addon_package = mw.addonManager.addonFromModule(__name__)
-                
+
                 web_content.css.append(
                     f"/_addons/{addon_package}/web/my-addon.css")
                 web_content.js.append(
