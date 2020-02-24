@@ -521,20 +521,22 @@ deck_browser_will_show_options_menu = _DeckBrowserWillShowOptionsMenuHook()
 class _DeckConfDidLoadConfigHook:
     """Called once widget state has been set from deck config"""
 
-    _hooks: List[Callable[["aqt.deckconf.DeckConf", Any], None]] = []
+    _hooks: List[Callable[["aqt.deckconf.DeckConf", Any, Any], None]] = []
 
-    def append(self, cb: Callable[["aqt.deckconf.DeckConf", Any], None]) -> None:
-        """(deck_conf: aqt.deckconf.DeckConf, config: Any)"""
+    def append(self, cb: Callable[["aqt.deckconf.DeckConf", Any, Any], None]) -> None:
+        """(deck_conf: aqt.deckconf.DeckConf, deck: Any, config: Any)"""
         self._hooks.append(cb)
 
-    def remove(self, cb: Callable[["aqt.deckconf.DeckConf", Any], None]) -> None:
+    def remove(self, cb: Callable[["aqt.deckconf.DeckConf", Any, Any], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
-    def __call__(self, deck_conf: aqt.deckconf.DeckConf, config: Any) -> None:
+    def __call__(
+        self, deck_conf: aqt.deckconf.DeckConf, deck: Any, config: Any
+    ) -> None:
         for hook in self._hooks:
             try:
-                hook(deck_conf, config)
+                hook(deck_conf, deck, config)
             except:
                 # if the hook fails, remove it
                 self._hooks.remove(hook)
@@ -576,7 +578,7 @@ class _DeckConfWillSaveConfigHook:
     _hooks: List[Callable[["aqt.deckconf.DeckConf", Any, Any], None]] = []
 
     def append(self, cb: Callable[["aqt.deckconf.DeckConf", Any, Any], None]) -> None:
-        """(deck_conf: aqt.deckconf.DeckConf, config: Any, deck: Any)"""
+        """(deck_conf: aqt.deckconf.DeckConf, deck: Any, config: Any)"""
         self._hooks.append(cb)
 
     def remove(self, cb: Callable[["aqt.deckconf.DeckConf", Any, Any], None]) -> None:
@@ -584,11 +586,11 @@ class _DeckConfWillSaveConfigHook:
             self._hooks.remove(cb)
 
     def __call__(
-        self, deck_conf: aqt.deckconf.DeckConf, config: Any, deck: Any
+        self, deck_conf: aqt.deckconf.DeckConf, deck: Any, config: Any
     ) -> None:
         for hook in self._hooks:
             try:
-                hook(deck_conf, config, deck)
+                hook(deck_conf, deck, config)
             except:
                 # if the hook fails, remove it
                 self._hooks.remove(hook)

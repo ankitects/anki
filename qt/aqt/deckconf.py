@@ -221,7 +221,7 @@ class DeckConf(QDialog):
         f.replayQuestion.setChecked(c.get("replayq", True))
         # description
         f.desc.setPlainText(self.deck["desc"])
-        gui_hooks.deck_conf_did_load_config(self, self.conf)
+        gui_hooks.deck_conf_did_load_config(self, self.deck, self.conf)
 
     def onRestore(self):
         self.mw.progress.start()

@@ -135,12 +135,12 @@ hooks = [
     ),
     Hook(
         name="deck_conf_did_load_config",
-        args=["deck_conf: aqt.deckconf.DeckConf", "config: Any"],
+        args=["deck_conf: aqt.deckconf.DeckConf", "deck: Any", "config: Any"],
         doc="Called once widget state has been set from deck config",
     ),
     Hook(
         name="deck_conf_will_save_config",
-        args=["deck_conf: aqt.deckconf.DeckConf", "config: Any", "deck: Any"],
+        args=["deck_conf: aqt.deckconf.DeckConf", "deck: Any", "config: Any"],
         doc="Called before widget state is saved to config",
     ),
     # Browser
