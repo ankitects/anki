@@ -197,6 +197,7 @@ system. It's free and open source."
             "Rai (Michael Pokorny)",
             "AMBOSS MD Inc.",
             "Erez Volk",
+            "Tobias Predel",
         )
     )
 
