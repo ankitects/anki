@@ -6,7 +6,7 @@ use crate::backend_proto::backend_input::Value;
 use crate::backend_proto::{Empty, RenderedTemplateReplacement, SyncMediaIn};
 use crate::err::{AnkiError, NetworkErrorKind, Result, SyncErrorKind};
 use crate::i18n::{tr_args, FString, I18n};
-use crate::latex::{extract_latex, ExtractedLatex};
+use crate::latex::{extract_latex, extract_latex_expanding_clozes, ExtractedLatex};
 use crate::media::check::MediaChecker;
 use crate::media::sync::MediaSyncProgress;
 use crate::media::MediaManager;
@@ -340,7 +340,12 @@ impl Backend {
     }
 
     fn extract_latex(&self, input: pb::ExtractLatexIn) -> pb::ExtractLatexOut {
-        let (text, extracted) = extract_latex(&input.text, input.svg);
+        let func = if input.expand_clozes {
+            extract_latex_expanding_clozes
+        } else {
+            extract_latex
+        };
+        let (text, extracted) = func(&input.text, input.svg);
 
         pb::ExtractLatexOut {
             text,

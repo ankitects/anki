@@ -1,10 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::cloze::expand_clozes_to_reveal_latex;
 use crate::err::{AnkiError, Result};
 use crate::i18n::{tr_args, tr_strs, FString, I18n};
-use crate::latex::extract_latex;
+use crate::latex::extract_latex_expanding_clozes;
 use crate::media::col::{
     for_every_note, get_note_types, mark_collection_modified, open_or_create_collection_db,
     set_note, Note,
@@ -429,12 +428,7 @@ fn find_unused_and_missing(
 
 fn extract_latex_refs(note: &Note, seen_files: &mut HashSet<String>, svg: bool) {
     for field in note.fields() {
-        let field_text: Cow<str> = if field.contains("{{c") {
-            expand_clozes_to_reveal_latex(field).into()
-        } else {
-            field.into()
-        };
-        let (_, extracted) = extract_latex(field_text.as_ref(), svg);
+        let (_, extracted) = extract_latex_expanding_clozes(field, svg);
         for e in extracted {
             seen_files.insert(e.fname);
         }

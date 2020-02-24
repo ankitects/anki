@@ -260,6 +260,7 @@ message TTSTag {
 message ExtractLatexIn {
     string text = 1;
     bool svg = 2;
+    bool expand_clozes = 3;
 }
 
 message ExtractLatexOut {
