@@ -26,7 +26,7 @@ class AnkiPackageImporter(Anki2Importer):
             suffix = ".anki2"
 
         col = z.read("collection" + suffix)
-        colpath = tmpfile(suffix=suffix)
+        colpath = tmpfile(suffix=".anki2")
         with open(colpath, "wb") as f:
             f.write(col)
         self.file = colpath

@@ -11,7 +11,7 @@ from anki import hooks
 from anki.exporting import exporters
 from anki.lang import _, ngettext
 from aqt.qt import *
-from aqt.utils import checkInvalidFilename, getSaveFile, showInfo, showWarning, tooltip
+from aqt.utils import checkInvalidFilename, getSaveFile, showWarning, tooltip
 
 
 class ExportDialog(QDialog):
@@ -103,17 +103,6 @@ class ExportDialog(QDialog):
             # Get deck name and remove invalid filename characters
             deck_name = self.decks[self.frm.deck.currentIndex()]
             deck_name = re.sub('[\\\\/?<>:*|"^]', "_", deck_name)
-
-        if (
-            not self.isVerbatim
-            and self.isApkg
-            and self.exporter.includeSched
-            and self.col.schedVer() == 2
-        ):
-            showInfo(
-                "Please switch to the regular scheduler before exporting a single deck .apkg with scheduling."
-            )
-            return
 
         filename = "{0}{1}".format(deck_name, self.exporter.ext)
         while 1:
