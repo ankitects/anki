@@ -3,6 +3,13 @@
 	[
         {
             "path": ".",
+            "folder_exclude_patterns":
+            [
+                "pyenv",
+            ],
+        },
+        {
+            "path": "../anki-desktop-i18n",
         },
 		{
 			"path": "D:\\User\\Documents\\Anki\\addons",
