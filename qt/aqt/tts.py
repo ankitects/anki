@@ -472,9 +472,14 @@ if isWin:
         return LCIDS.get(dec_str, "unknown")
 
     class WindowsTTSPlayer(TTSProcessPlayer):
-        speaker = win32com.client.Dispatch("SAPI.SpVoice")
+        try:
+            speaker = win32com.client.Dispatch("SAPI.SpVoice")
+        except:
+            speaker = None
 
         def get_available_voices(self) -> List[TTSVoice]:
+            if self.speaker is None:
+                return []
             return list(map(self._voice_to_object, self.speaker.GetVoices()))
 
         def _voice_to_object(self, voice: Any):
