@@ -121,6 +121,28 @@ hooks = [
         legacy_hook="prepareQA",
         doc="Can modify card text before review/preview.",
     ),
+    # Deck options
+    ###################
+    Hook(
+        name="deck_conf_did_setup_ui_form",
+        args=["deck_conf: aqt.deckconf.DeckConf"],
+        doc="Allows modifying or adding widgets in the deck options UI form",
+    ),
+    Hook(
+        name="deck_conf_will_show",
+        args=["deck_conf: aqt.deckconf.DeckConf"],
+        doc="Allows modifying the deck options dialog before it is shown",
+    ),
+    Hook(
+        name="deck_conf_did_load_config",
+        args=["deck_conf: aqt.deckconf.DeckConf", "deck: Any", "config: Any"],
+        doc="Called once widget state has been set from deck config",
+    ),
+    Hook(
+        name="deck_conf_will_save_config",
+        args=["deck_conf: aqt.deckconf.DeckConf", "deck: Any", "config: Any"],
+        doc="Called before widget state is saved to config",
+    ),
     # Browser
     ###################
     Hook(
