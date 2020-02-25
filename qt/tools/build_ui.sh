@@ -4,7 +4,7 @@
 # should be on the path.
 #
 
-set -e
+set -eo pipefail
 
 if [ ! -d "designer" ]
 then

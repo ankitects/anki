@@ -79,7 +79,7 @@ build-qt:
 
 .PHONY: clean
 clean: clean-dist
-	set -e && \
+	set -eo pipefail && \
 	for dir in $(DEVEL); do \
 	  $(SUBMAKE) -C $$dir clean; \
 	done
@@ -90,7 +90,7 @@ clean-dist:
 
 .PHONY: check
 check: pyenv buildhash
-	set -e && \
+	set -eo pipefail && \
 	for dir in $(CHECKABLE_RS); do \
 	  $(SUBMAKE) -C $$dir check; \
 	done; \
@@ -116,3 +116,16 @@ add-buildhash:
 	ver=$$(cat meta/version); \
 	hash=$$(cat meta/buildhash); \
 	rename "s/-$${ver}-/-$${ver}+$${hash}-/" dist/*-$$ver-*
+
+
+.PHONY: pull-i18n
+pull-i18n:
+	(cd rslib/ftl && scripts/fetch-latest-translations)
+	(cd qt/ftl && scripts/fetch-latest-translations)
+	(cd qt/i18n && ./pull-git)
+
+.PHONY: push-i18n
+push-i18n: pull-i18n
+	(cd rslib/ftl && scripts/upload-latest-templates)
+	(cd qt/ftl && scripts/upload-latest-templates)
+	(cd qt/i18n && ./sync-po-git)

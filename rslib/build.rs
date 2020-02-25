@@ -15,6 +15,8 @@ fn get_identifiers(ftl_text: &str) -> Vec<String> {
         }
     }
 
+    idents.sort();
+
     idents
 }
 
