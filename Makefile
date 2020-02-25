@@ -106,3 +106,16 @@ add-buildhash:
 	@ver=$$(cat meta/version); \
 	hash=$$(cat meta/buildhash); \
 	rename "s/-$${ver}-/-$${ver}+$${hash}-/" dist/*-$$ver-*
+
+
+.PHONY: pull-i18n
+pull-i18n:
+	(cd rslib/ftl && scripts/fetch-latest-translations)
+	(cd qt/ftl && scripts/fetch-latest-translations)
+	(cd qt/i18n && ./pull-git)
+
+.PHONY: push-i18n
+push-i18n: pull-i18n
+	(cd rslib/ftl && scripts/upload-latest-templates)
+	(cd qt/ftl && scripts/upload-latest-templates)
+	(cd qt/i18n && ./sync-po-git)
