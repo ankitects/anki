@@ -397,7 +397,7 @@ hooks = [
     Hook(
         name="toolbar_bottom_will_init", 
         return_type="bool",
-        doc="Return True to not display the toolbar while reviewing.",),
+        doc="Return True to hide the toolbar while reviewing.",),
     Hook(
         name="toolbar_bottom_did_init", 
         doc="Used to extend the toolbar while reviewing E.g. add extra stats to the toolbar",),
