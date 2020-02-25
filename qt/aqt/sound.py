@@ -639,10 +639,6 @@ def setup_audio(taskman: TaskManager, base_folder: str) -> None:
         mplayer = SimpleMplayerSlaveModePlayer(taskman)
         av_player.players.append(mplayer)
 
-    # currently unused
-    # mpv = SimpleMpvPlayer(base_folder)
-    # av_player.players.append(mpv)
-
     # tts support
     if isMac:
         from aqt.tts import MacTTSPlayer
