@@ -1,12 +1,6 @@
 SHELL := /bin/bash
 FIND := $(if $(wildcard /bin/find),/bin/find,/usr/bin/find)
 
-ifeq ($(OS),Windows_NT)
-	INSTALL_PYAUDIO := python -m pip install git+https://github.com/evandroforks/pyaudio
-else
-	INSTALL_PYAUDIO := @echo Skipping pyaudio for Windows...
-endif
-
 .SHELLFLAGS := -eu -o pipefail -c
 .DELETE_ON_ERROR:
 MAKEFLAGS += --warn-undefined-variables
@@ -22,7 +16,6 @@ PHONY: all
 all: check
 
 .build/run-deps: setup.py
-	${INSTALL_PYAUDIO}
 	python -m pip install -e .
 	@touch $@
 
