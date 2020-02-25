@@ -88,11 +88,14 @@ Windows users (using Visual Studio)
        The problem with the `/usr/bin/` is that it should not exists. Cygwin should map/mount `/bin/`
        into `/usr/bin/`, i.e., they should be the same directory.
 1. Download and install Python for Windows (not from Cygwin) and put `python.exe` (not `python3.exe`) on your system path.
-1. Download and install pip for your Windows Python.
+1. Download and install pip for your Windows Python (`python -m ensurepip`).
 1. Download and install rust (compiler), npm, git and put them your system path.
+1. Download and install the pyaudio wheel from: https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio
+    1. After download the file for your Python version, you can install it using a command like
+        `python -m pip install PyAudio‑0.2.11‑cp38‑cp38‑win_amd64.whl`
+    1. If got an error from pip trying to build the `pyaudio` library,
+        or there is not a wheel available for your Python version, you can built it from the source
+        following the installation instructions on: https://github.com/evandroforks/pyaudio
 1. Open a `cmd.exe` (command prompt) on the anki repository and run the command `sh run`
     1. Do not use `bash run` because it my call for Windows Subsystem for Linux
     1. Do not use any Cygwin terminal as `mintty.exe` because the `rust lang` compiler does not work with them
-    1. If got an error from pip trying to build the `pyaudio` library,
-        follow the installation instructions from: https://github.com/evandroforks/pyaudio
-        and install the `portaudio.lib` on your system.
