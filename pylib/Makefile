@@ -1,6 +1,5 @@
 SHELL := /bin/bash
-ECHOCMD := /bin/echo -e
-FIND_EXEC := $(if $(wildcard /bin/find),,/usr)/bin/find
+FIND := $(if $(wildcard /bin/find),/bin/find,/usr/bin/find)
 
 .SHELLFLAGS := -eu -o pipefail -c
 .DELETE_ON_ERROR:
@@ -57,7 +56,7 @@ clean:
 # Checking python
 ######################
 
-CHECKDEPS := $(shell ${FIND_EXEC} anki tests -name '*.py' | grep -v buildinfo.py)
+CHECKDEPS := $(shell ${FIND} anki tests -name '*.py' | grep -v buildinfo.py)
 
 .build/mypy: $(CHECKDEPS)
 	mypy anki
