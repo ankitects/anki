@@ -15,5 +15,10 @@ do
         perl -pe "s%po/desktop/(.*)/anki.po%$targetDir/\1/LC_MESSAGES%")
     outfile="$outdir/anki.mo"
     mkdir -p $outdir
-    msgmerge -q "$file" po/desktop/anki.pot | msgfmt - --output-file="$outfile"
+    mergedfile="$(msgmerge -q "$file" po/desktop/anki.pot)"
+    printf '%s' "$mergedfile" | msgfmt - --output-file="$outfile" \
+        || (error=$? \
+            && printf '%s' "$mergedfile" > "$file.error" \
+            && printf 'See the file "%s" to find the error line number just showed!\n' "$file.error" \
+            && exit $error)
 done
