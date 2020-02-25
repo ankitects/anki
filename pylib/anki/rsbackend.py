@@ -342,7 +342,7 @@ class RustBackend:
     def format_time_span(
         self,
         seconds: float,
-        context: FormatTimeSpanContext = FormatTimeSpanContext.NORMAL,
+        context: FormatTimeSpanContext = FormatTimeSpanContext.INTERVALS,
     ) -> str:
         return self._run_command(
             pb.BackendInput(
