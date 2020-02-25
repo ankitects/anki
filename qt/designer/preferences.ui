@@ -246,7 +246,7 @@
             <string>%</string>
            </property>
            <property name="minimum">
-            <number>50</number>
+            <number>100</number>
            </property>
            <property name="maximum">
             <number>200</number>
