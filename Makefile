@@ -3,9 +3,11 @@ SHELL := /bin/bash
 ifeq ($(OS),Windows_NT)
 	PYTHON_BIN := python
 	ACTIVATE_SCRIPT := pyenv/Scripts/activate
+	SYSTEM_PACKAGES := sed -iv -- "s/include-system-site-packages\s*=\s*false/include-system-site-packages = true/g" pyenv/pyvenv.cfg
 else
 	PYTHON_BIN := python3
 	ACTIVATE_SCRIPT := pyenv/bin/activate
+	SYSTEM_PACKAGES := echo Skipping Windows Pythons system packages inheritance activation...
 endif
 
 .SHELLFLAGS := -eu -o pipefail -c
@@ -28,6 +30,7 @@ all: run
 # - add qt if missing
 pyenv:
 	"${PYTHON_BIN}" -m venv pyenv && \
+	${SYSTEM_PACKAGES} && \
 	. "${ACTIVATE_SCRIPT}" && \
 	python --version && \
 	python -m pip install --upgrade pip setuptools && \
