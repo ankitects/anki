@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eo pipefail
 
 # pull any pending changes from git repos
 ./pull-git
