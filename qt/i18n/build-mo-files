@@ -14,5 +14,5 @@ do
         perl -pe "s%po/desktop/(.*)/anki.po%$targetDir/\1/LC_MESSAGES%")
     outfile="$outdir/anki.mo"
     mkdir -p $outdir
-    msgmerge --for-msgfmt "$file" po/desktop/anki.pot | msgfmt - --output-file="$outfile"
+    msgmerge -q "$file" po/desktop/anki.pot | msgfmt - --output-file="$outfile"
 done
