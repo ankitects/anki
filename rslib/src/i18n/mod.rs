@@ -323,7 +323,11 @@ fn set_bundle_formatter_for_langs<T>(bundle: &mut FluentBundle<T>, langs: &[Lang
     let num_formatter = NumberFormatter::new(langs);
     let formatter = move |val: &FluentValue, _intls: &Mutex<IntlLangMemoizer>| -> Option<String> {
         match val {
-            FluentValue::Number(n) => Some(num_formatter.format(n.value)),
+            FluentValue::Number(n) => {
+                let mut num = n.clone();
+                num.options.maximum_fraction_digits = Some(2);
+                Some(num_formatter.format(num.as_string().to_string()))
+            }
             _ => None,
         }
     };
@@ -371,17 +375,12 @@ impl NumberFormatter {
         }
     }
 
-    fn format(&self, num: f64) -> String {
-        // is it an integer?
-        if (num - num.round()).abs() < std::f64::EPSILON {
-            num.to_string()
+    /// Given a pre-formatted number, change the decimal separator as appropriate.
+    fn format(&self, num: String) -> String {
+        if self.decimal_separator != "." {
+            num.replace(".", self.decimal_separator)
         } else {
-            // currently we hard-code to 2 decimal places
-            let mut formatted = format!("{:.2}", num);
-            if self.decimal_separator != "." {
-                formatted = formatted.replace(".", self.decimal_separator)
-            }
-            formatted
+            num
         }
     }
 }
@@ -395,11 +394,8 @@ mod test {
 
     #[test]
     fn numbers() {
-        let fmter = NumberFormatter::new(&[]);
-        assert_eq!(&fmter.format(1.0), "1");
-        assert_eq!(&fmter.format(1.007), "1.01");
         let fmter = NumberFormatter::new(&[langid!("pl-PL")]);
-        assert_eq!(&fmter.format(1.007), "1,01");
+        assert_eq!(&fmter.format("1.007".to_string()), "1,007");
     }
 
     #[test]
@@ -414,7 +410,7 @@ mod test {
 
         assert_eq!(
             i18n.tr_("two-args-key", Some(tr_args!["one"=>1.1, "two"=>"2"])),
-            "two args: 1.10 and 2"
+            "two args: 1.1 and 2"
         );
 
         assert_eq!(
@@ -423,7 +419,7 @@ mod test {
         );
         assert_eq!(
             i18n.tr_("plural", Some(tr_args!["hats"=>1.1])),
-            "You have 1.10 hats."
+            "You have 1.1 hats."
         );
         assert_eq!(
             i18n.tr_("plural", Some(tr_args!["hats"=>3])),
