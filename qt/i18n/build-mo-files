@@ -10,6 +10,7 @@ mkdir -p $targetDir
 echo "Compiling *.po..."
 for file in po/desktop/*/anki.po
 do
+    echo "Building '$file'"
     outdir=$(echo "$file" | \
         perl -pe "s%po/desktop/(.*)/anki.po%$targetDir/\1/LC_MESSAGES%")
     outfile="$outdir/anki.mo"
