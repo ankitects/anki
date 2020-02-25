@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import anki
 from anki.consts import *
 from anki.lang import _, ngettext
-from anki.rsbackend import FString
+from anki.rsbackend import FormatTimeSpanContext, FString
 from anki.utils import ids2str
 
 # Card stats
@@ -85,7 +85,9 @@ class CardStats:
         return time.strftime("%Y-%m-%d", time.localtime(tm))
 
     def time(self, tm: float) -> str:
-        return self.col.backend.format_time_span(tm)
+        return self.col.backend.format_time_span(
+            tm, context=FormatTimeSpanContext.PRECISE
+        )
 
 
 # Collection stats

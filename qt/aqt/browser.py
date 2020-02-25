@@ -1494,6 +1494,8 @@ border: 1px solid #000; padding: 3px; '>%s</div>"""
             if ivl == 0:
                 ivl = ""
             else:
+                if ivl > 0:
+                    ivl *= 86_400
                 ivl = cs.time(abs(ivl))
             s += "<td align=right>%s</td>" % tstr
             s += "<td align=center>%s</td>" % ease
@@ -1501,7 +1503,7 @@ border: 1px solid #000; padding: 3px; '>%s</div>"""
 
             s += ("<td align=right>%s</td>" * 2) % (
                 "%d%%" % (factor / 10) if factor else "",
-                cs.time(taken),
+                self.col.backend.format_time_span(taken),
             ) + "</tr>"
         s += "</table>"
         if cnt < self.card.reps:
@@ -1770,8 +1772,10 @@ where id in %s"""
                 else:
                     audio = c.answer_av_tags()
                 av_player.play_tags(audio)
+            else:
+                av_player.maybe_interrupt()
 
-            txt = self.mw.prepare_card_text_for_display(txt)
+                txt = self.mw.prepare_card_text_for_display(txt)
             txt = gui_hooks.card_will_show(
                 txt, c, "preview" + self._previewState.capitalize()
             )

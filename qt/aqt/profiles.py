@@ -486,7 +486,8 @@ please see:
     ######################################################################
 
     def uiScale(self) -> float:
-        return self.meta.get("uiScale", 1.0)
+        scale = self.meta.get("uiScale", 1.0)
+        return max(scale, 1)
 
     def setUiScale(self, scale: float) -> None:
         self.meta["uiScale"] = scale

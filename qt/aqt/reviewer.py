@@ -187,6 +187,8 @@ The front of this card is empty. Please run Tools>Empty Cards."""
         # play audio?
         if self.autoplay(c):
             av_player.play_tags(c.question_av_tags())
+        else:
+            av_player.maybe_interrupt()
 
         # render & update bottom
         q = self._mungeQA(q)
@@ -230,6 +232,8 @@ The front of this card is empty. Please run Tools>Empty Cards."""
         # play audio?
         if self.autoplay(c):
             av_player.play_tags(c.answer_av_tags())
+        else:
+            av_player.maybe_interrupt()
 
         a = self._mungeQA(a)
         a = gui_hooks.card_will_show(a, c, "reviewAnswer")

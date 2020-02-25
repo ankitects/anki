@@ -9,7 +9,7 @@ from typing import Dict
 from anki.utils import isMac
 from aqt import QApplication, gui_hooks, isWin
 from aqt.colors import colors
-from aqt.qt import QColor, QIcon, QPalette, QPixmap, QStyleFactory, Qt
+from aqt.qt import QColor, QIcon, QPalette, QPixmap, QStyleFactory, Qt, qtminor
 
 
 class ThemeManager:
@@ -22,6 +22,8 @@ class ThemeManager:
         if not getattr(sys, "frozen", False):
             return False
         if not isMac:
+            return False
+        if qtminor < 14:
             return False
         import darkdetect  # pylint: disable=import-error
 

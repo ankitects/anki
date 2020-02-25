@@ -95,13 +95,16 @@ class AVPlayer:
     def play_tags(self, tags: List[AVTag]) -> None:
         """Clear the existing queue, then start playing provided tags."""
         self._enqueued = tags[:]
-        if self.interrupt_current_audio:
-            self._stop_if_playing()
+        self.maybe_interrupt()
         self._play_next_if_idle()
 
     def stop_and_clear_queue(self) -> None:
         self._enqueued = []
         self._stop_if_playing()
+
+    def maybe_interrupt(self) -> None:
+        if self.interrupt_current_audio:
+            self._stop_if_playing()
 
     def play_file(self, filename: str) -> None:
         self.play_tags([SoundOrVideoTag(filename=filename)])
@@ -638,10 +641,6 @@ def setup_audio(taskman: TaskManager, base_folder: str) -> None:
     else:
         mplayer = SimpleMplayerSlaveModePlayer(taskman)
         av_player.players.append(mplayer)
-
-    # currently unused
-    # mpv = SimpleMpvPlayer(base_folder)
-    # av_player.players.append(mpv)
 
     # tts support
     if isMac:
