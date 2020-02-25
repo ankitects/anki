@@ -1,11 +1,10 @@
 SHELL := /bin/bash
-ECHOCMD := /bin/echo -e
-FIND_EXEC := $(if $(wildcard /bin/find),,/usr)/bin/find
+FIND := $(if $(wildcard /bin/find),/bin/find,/usr/bin/find)
 
 ifeq ($(OS),Windows_NT)
-	IS_WINDOWS := true
+	INSTALL_PYAUDIO := python -m pip install git+https://github.com/evandroforks/pyaudio
 else
-	IS_WINDOWS :=
+	INSTALL_PYAUDIO := @echo Skipping pyaudio for Windows...
 endif
 
 .SHELLFLAGS := -eu -o pipefail -c
@@ -23,7 +22,7 @@ PHONY: all
 all: check
 
 .build/run-deps: setup.py
-	$(if ${IS_WINDOWS},python -m pip install git+https://github.com/evandroforks/pyaudio,)
+	${INSTALL_PYAUDIO}
 	python -m pip install -e .
 	@touch $@
 
@@ -31,7 +30,7 @@ all: check
 	python -m pip install -r requirements.dev
 	@touch $@
 
-.build/ui: $(shell ${FIND_EXEC} designer -type f)
+.build/ui: $(shell ${FIND} designer -type f)
 	./tools/build_ui.sh
 	@touch $@
 
@@ -83,7 +82,7 @@ JSDEPS := $(patsubst ts/src/%.ts, web/%.js, $(TSDEPS))
 
 PYLIB := ../pylib
 
-CHECKDEPS := $(shell ${FIND_EXEC} aqt tests -name '*.py' | grep -v buildinfo.py)
+CHECKDEPS := $(shell ${FIND} aqt tests -name '*.py' | grep -v buildinfo.py)
 
 .build/mypy: $(CHECKDEPS) .build/qt-stubs
 	mypy aqt

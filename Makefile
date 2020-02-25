@@ -1,10 +1,11 @@
 SHELL := /bin/bash
-ECHOCMD := /bin/echo -e
 
 ifeq ($(OS),Windows_NT)
-	IS_WINDOWS := true
+	PYTHON_BIN := python
+	ACTIVATE_SCRIPT := pyenv/Scripts/activate
 else
-	IS_WINDOWS :=
+	PYTHON_BIN := python3
+	ACTIVATE_SCRIPT := pyenv/bin/activate
 endif
 
 .SHELLFLAGS := -eu -o pipefail -c
@@ -26,8 +27,8 @@ all: run
 # - modern pip required for wheel
 # - add qt if missing
 pyenv:
-	python$(if ${IS_WINDOWS},,3) -m venv pyenv && \
-	. pyenv/$(if ${IS_WINDOWS},Scripts,bin)/activate && \
+	"${PYTHON_BIN}" -m venv pyenv && \
+	. "${ACTIVATE_SCRIPT}" && \
 	python --version && \
 	python -m pip install --upgrade pip setuptools && \
 	python -c 'import PyQt5' 2>/dev/null || python -m pip install -r qt/requirements.qt
@@ -44,7 +45,7 @@ buildhash:
 .PHONY: develop
 develop: pyenv buildhash
 	set -eo pipefail && \
-	. pyenv/$(if ${IS_WINDOWS},Scripts,bin)/activate && \
+	. "${ACTIVATE_SCRIPT}" && \
 	for dir in $(DEVEL); do \
 		$(SUBMAKE) -C $$dir develop BUILDFLAGS="$(BUILDFLAGS)"; \
 	done
@@ -52,28 +53,28 @@ develop: pyenv buildhash
 .PHONY: run
 run: develop
 	set -eo pipefail && \
-	. pyenv/$(if ${IS_WINDOWS},Scripts,bin)/activate && \
+	. "${ACTIVATE_SCRIPT}" && \
 	echo "Starting Anki..."; \
 	python qt/runanki $(RUNFLAGS)
 
 .PHONY: build
 build: clean-dist build-rspy build-pylib build-qt add-buildhash
-	echo
-	echo "Build complete."
+	@echo
+	@echo "Build complete."
 
 .PHONY: build-rspy
 build-rspy: pyenv buildhash
-	. pyenv/$(if ${IS_WINDOWS},Scripts,bin)/activate && \
+	. "${ACTIVATE_SCRIPT}" && \
 	$(SUBMAKE) -C rspy build BUILDFLAGS="$(BUILDFLAGS)"
 
 .PHONY: build-pylib
 build-pylib:
-	. pyenv/$(if ${IS_WINDOWS},Scripts,bin)/activate && \
+	. "${ACTIVATE_SCRIPT}" && \
 	$(SUBMAKE) -C pylib build
 
 .PHONY: build-qt
 build-qt:
-	. pyenv/$(if ${IS_WINDOWS},Scripts,bin)/activate && \
+	. "${ACTIVATE_SCRIPT}" && \
 	$(SUBMAKE) -C qt build
 
 .PHONY: clean
@@ -93,19 +94,19 @@ check: pyenv buildhash
 	for dir in $(CHECKABLE_RS); do \
 	  $(SUBMAKE) -C $$dir check; \
 	done; \
-	. pyenv/$(if ${IS_WINDOWS},Scripts,bin)/activate && \
+	. "${ACTIVATE_SCRIPT}" && \
 	$(SUBMAKE) -C rspy develop && \
 	$(SUBMAKE) -C pylib develop && \
 	for dir in $(CHECKABLE_PY); do \
 	  $(SUBMAKE) -C $$dir check; \
 	done;
-	echo
-	echo "All checks passed!"
+	@echo
+	@echo "All checks passed!"
 
 .PHONY: fix
 fix:
 	set -eo pipefail && \
-	. pyenv/$(if ${IS_WINDOWS},Scripts,bin)/activate && \
+	. "${ACTIVATE_SCRIPT}" && \
 	for dir in $(CHECKABLE_RS) $(CHECKABLE_PY); do \
 	  $(SUBMAKE) -C $$dir fix; \
 	done; \
