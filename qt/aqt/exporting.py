@@ -17,7 +17,12 @@ from aqt.utils import checkInvalidFilename, getSaveFile, showWarning, tooltip
 
 
 class ExportDialog(QDialog):
-    def __init__(self, mw: aqt.main.AnkiQt, did: Optional[int] = None, cids: Optional[List[int]] = None):
+    def __init__(
+        self,
+        mw: aqt.main.AnkiQt,
+        did: Optional[int] = None,
+        cids: Optional[List[int]] = None,
+    ):
         QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw
         self.col = mw.col

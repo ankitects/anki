@@ -1503,7 +1503,7 @@ border: 1px solid #000; padding: 3px; '>%s</div>"""
 
             s += ("<td align=right>%s</td>" * 2) % (
                 "%d%%" % (factor / 10) if factor else "",
-                self.col.backend.format_time_span(taken)
+                self.col.backend.format_time_span(taken),
             ) + "</tr>"
         s += "</table>"
         if cnt < self.card.reps:
@@ -1774,7 +1774,6 @@ where id in %s"""
                 av_player.play_tags(audio)
             else:
                 av_player.maybe_interrupt()
-
 
                 txt = self.mw.prepare_card_text_for_display(txt)
             txt = gui_hooks.card_will_show(
