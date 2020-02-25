@@ -422,7 +422,10 @@ impl Backend {
             None => return "".to_string(),
         };
         match context {
-            pb::format_time_span_in::Context::Normal => time_span(input.seconds, &self.i18n),
+            pb::format_time_span_in::Context::Precise => time_span(input.seconds, &self.i18n, true),
+            pb::format_time_span_in::Context::Intervals => {
+                time_span(input.seconds, &self.i18n, false)
+            }
             pb::format_time_span_in::Context::AnswerButtons => {
                 answer_button_time(input.seconds, &self.i18n)
             }

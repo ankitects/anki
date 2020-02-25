@@ -1503,7 +1503,7 @@ border: 1px solid #000; padding: 3px; '>%s</div>"""
 
             s += ("<td align=right>%s</td>" * 2) % (
                 "%d%%" % (factor / 10) if factor else "",
-                cs.time(taken),
+                self.col.backend.format_time_span(taken)
             ) + "</tr>"
         s += "</table>"
         if cnt < self.card.reps:
