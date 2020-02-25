@@ -1494,6 +1494,8 @@ border: 1px solid #000; padding: 3px; '>%s</div>"""
             if ivl == 0:
                 ivl = ""
             else:
+                if ivl > 0:
+                    ivl *= 86_400
                 ivl = cs.time(abs(ivl))
             s += "<td align=right>%s</td>" % tstr
             s += "<td align=center>%s</td>" % ease
