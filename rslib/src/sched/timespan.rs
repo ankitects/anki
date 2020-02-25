@@ -173,7 +173,7 @@ mod test {
         let i18n = I18n::new(&["zz"], "");
         assert_eq!(answer_button_time(30.0, &i18n), "30s");
         assert_eq!(answer_button_time(70.0, &i18n), "1m");
-        assert_eq!(answer_button_time(1.1 * MONTH, &i18n), "1.10mo");
+        assert_eq!(answer_button_time(1.1 * MONTH, &i18n), "1.1mo");
     }
 
     #[test]
@@ -181,7 +181,7 @@ mod test {
         let i18n = I18n::new(&["zz"], "");
         assert_eq!(time_span(1.0, &i18n), "1 second");
         assert_eq!(time_span(30.0, &i18n), "30 seconds");
-        assert_eq!(time_span(90.0, &i18n), "1.50 minutes");
+        assert_eq!(time_span(90.0, &i18n), "1.5 minutes");
     }
 
     #[test]
