@@ -90,7 +90,9 @@ Windows users (using Visual Studio)
 1. Download and install Python for Windows (not from Cygwin) and put `python.exe` (not `python3.exe`) on your system path.
 1. Download and install pip for your Windows Python.
 1. Download and install rust (compiler), npm, git and put them your system path.
-1. Download and install Visual Studio 2017 or superior and:
+1. Download and install the pyaudio wheel from: https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio
+   If that wheel do not work for you, you can download and build them from their source with the following steps:
+    1. Download and install Visual Studio 2017 or superior and:
     1. `git clone https://github.com/evandroforks/portaudio`
     1. Open the file `portaudio\build\msvc\portaudio.sln` with Visual Studio
     1. Select the Solution Configuration as `Release` and the Solution Platforms as `x64` on the top toolbar
