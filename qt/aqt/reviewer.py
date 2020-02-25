@@ -156,7 +156,7 @@ class Reviewer:
             context=self,
         )
 
-        if gui_hooks.will_init_bottom():
+        if not gui_hooks.toolbar_bottom_will_init(True):
             return
 
         # show answer / ease buttons
@@ -168,7 +168,7 @@ class Reviewer:
             context=ReviewerBottomBar(self),
         )
 
-        gui_hooks.did_init_bottom()
+        gui_hooks.toolbar_bottom_did_init()
 
     # Showing the question
     ##########################################################################
