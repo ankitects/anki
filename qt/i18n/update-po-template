@@ -2,7 +2,7 @@
 #
 # update template .pot file from source code strings
 #
-
+set -eo pipefail
 
 topDir=$(dirname $0)/../..
 cd $topDir
