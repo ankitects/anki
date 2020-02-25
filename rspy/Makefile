@@ -1,6 +1,5 @@
 SHELL := /bin/bash
-ECHOCMD := /bin/echo -e
-FIND_EXEC := $(if $(wildcard /bin/find),,/usr)/bin/find
+FIND := $(if $(wildcard /bin/find),/bin/find,/usr/bin/find)
 
 .SHELLFLAGS := -eu -o pipefail -c
 .DELETE_ON_ERROR:
@@ -22,8 +21,8 @@ all: develop
 develop: .build/develop
 
 DEPS := .build/tools .build/vernum ../meta/buildhash $(wildcard $(QT_FTLS)/*.ftl) \
-	$(shell ${FIND_EXEC} ../rslib/src -name '*.rs') $(wildcard ../proto/*) \
-	$(shell ${FIND_EXEC} ../rslib/ftl -type f)
+	$(shell ${FIND} ../rslib/src -name '*.rs') $(wildcard ../proto/*) \
+	$(shell ${FIND} ../rslib/ftl -type f)
 
 .build/develop: $(DEPS)
 	touch ../proto/backend.proto
