@@ -33,7 +33,7 @@ buildhash:
 	fi
 
 .PHONY: develop
-develop: pyenv buildhash
+develop: pyenv buildhash prepare
 	@set -eo pipefail && \
 	. pyenv/bin/activate && \
 	for dir in $(DEVEL); do \
@@ -46,6 +46,13 @@ run: develop
 	. pyenv/bin/activate && \
 	echo "Starting Anki..."; \
 	qt/runanki $(RUNFLAGS)
+
+.PHONY: prepare
+prepare: rslib/ftl/repo qt/ftl/repo qt/po/repo
+
+rslib/ftl/repo: pull-i18n
+qt/ftl/repo: pull-i18n
+qt/po/repo: pull-i18n
 
 .PHONY: build
 build: clean-dist build-rspy build-pylib build-qt add-buildhash
