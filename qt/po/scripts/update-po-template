@@ -4,7 +4,7 @@
 #
 set -eo pipefail
 
-topDir=$(dirname $0)/../..
+topDir=$(dirname $0)/../../../
 cd $topDir
 
 all=all.files
