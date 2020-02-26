@@ -16,5 +16,5 @@ for i in qt/aqt/{*.py,forms/*.py}; do
     echo $i >> $all
 done
 
-xgettext -cT: -s --no-wrap --files-from=$all --output=qt/i18n/po/desktop/anki.pot
+xgettext -cT: -s --no-wrap --files-from=$all --output=qt/po/repo/desktop/anki.pot
 rm $all

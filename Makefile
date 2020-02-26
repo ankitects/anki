@@ -112,10 +112,10 @@ add-buildhash:
 pull-i18n:
 	(cd rslib/ftl && scripts/fetch-latest-translations)
 	(cd qt/ftl && scripts/fetch-latest-translations)
-	(cd qt/i18n && ./pull-git)
+	(cd qt/po && scripts/fetch-latest-translations)
 
 .PHONY: push-i18n
 push-i18n: pull-i18n
 	(cd rslib/ftl && scripts/upload-latest-templates)
 	(cd qt/ftl && scripts/upload-latest-templates)
-	(cd qt/i18n && ./sync-po-git)
+	(cd qt/po && scripts/upload-latest-template)
