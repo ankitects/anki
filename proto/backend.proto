@@ -19,10 +19,9 @@ message I18nBackendInit {
     string locale_folder_path = 5;
 }
 
-// 1-15 reserved for future use; 2047 for errors
+// 1-15 reserved for future use
 
 message BackendInput {
-    reserved 2047;
     oneof value {
         TemplateRequirementsIn template_requirements = 16;
         SchedTimingTodayIn sched_timing_today = 17;
@@ -47,24 +46,27 @@ message BackendInput {
 
 message BackendOutput {
     oneof value {
-        TemplateRequirementsOut template_requirements = 16;
+        // infallible commands
         SchedTimingTodayOut sched_timing_today = 17;
-        DeckTreeOut deck_tree = 18;
-        FindCardsOut find_cards = 19;
-        BrowserRowsOut browser_rows = 20;
-        RenderCardOut render_card = 21;
         sint32 local_minutes_west = 22;
         string strip_av_tags = 23;
         ExtractAVTagsOut extract_av_tags = 24;
         ExtractLatexOut extract_latex = 25;
-        string add_media_file = 26;
-        Empty sync_media = 27;
-        MediaCheckOut check_media = 28;
-        Empty trash_media_files = 29;
         string translate_string = 30;
         string format_time_span = 31;
         string studied_today = 32;
         string congrats_learn_msg = 33;
+
+        // fallible commands
+        TemplateRequirementsOut template_requirements = 16;
+        DeckTreeOut deck_tree = 18;
+        FindCardsOut find_cards = 19;
+        BrowserRowsOut browser_rows = 20;
+        RenderCardOut render_card = 21;
+        string add_media_file = 26;
+        Empty sync_media = 27;
+        MediaCheckOut check_media = 28;
+        Empty trash_media_files = 29;
 
         BackendError error = 2047;
     }
