@@ -2,5 +2,5 @@
 
 set -eo pipefail
 
-./update-po-template
+scripts/update-po-template
 (cd repo && git add desktop; git commit -m update; git push)
