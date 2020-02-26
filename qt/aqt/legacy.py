@@ -33,7 +33,7 @@ def stripSounds(text) -> str:
     return aqt.mw.col.backend.strip_av_tags(text)
 
 
-def fmtTimeSpan(time, pad=0, point=0, inTime=False, unit=99):
+def fmtTimeSpan(time, pad=0, point=0, short=False, inTime=False, unit=99):
     print("fmtTimeSpan() has become col.backend.format_time_span()")
     return aqt.mw.col.backend.format_time_span(time)
 
