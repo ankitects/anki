@@ -25,8 +25,10 @@ all: check
 	./tools/build_ui.sh
 	@touch $@
 
-.build/i18n: $(wildcard i18n/po/desktop/*/anki.po)
-	(cd i18n && ./pull-git && ./build-mo-files && ./copy-qt-files)
+.build/i18n: $(wildcard po/repo/desktop/*/anki.po)
+	(cd po && ./scripts/fetch-latest-translations && \
+	./scripts/build-mo-files && \
+	./scripts/copy-qt-files)
 	@touch $@
 
 TSDEPS := $(wildcard ts/src/*.ts) $(wildcard ts/scss/*.scss)

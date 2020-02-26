@@ -1,9 +1,0 @@
-#!/bin/bash
-set -eo pipefail
-
-# pull any pending changes from git repos
-./pull-git
-
-# upload changes to .pot
-./update-po-template
-(cd po && git add desktop; git commit -m update; git push)
