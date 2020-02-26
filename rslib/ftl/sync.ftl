@@ -11,6 +11,9 @@ sync-media-complete = Media sync complete.
 sync-media-failed = Media sync failed.
 sync-media-aborting = Media sync aborting...
 sync-media-aborted = Media sync aborted.
+
+# shown in the sync log to indicate media syncing will not be done because it
+# was previously disabled by the user in the preferences screen
 sync-media-disabled = Media sync disabled.
 
 sync-abort-button = Abort
