@@ -50,9 +50,12 @@ run: develop
 .PHONY: prepare
 prepare: rslib/ftl/repo qt/ftl/repo qt/po/repo
 
-rslib/ftl/repo: pull-i18n
-qt/ftl/repo: pull-i18n
-qt/po/repo: pull-i18n
+rslib/ftl/repo:
+	pull-i18n
+qt/ftl/repo:
+	pull-i18n
+qt/po/repo:
+	pull-i18n
 
 .PHONY: build
 build: clean-dist build-rspy build-pylib build-qt add-buildhash
