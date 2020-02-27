@@ -36,4 +36,7 @@ errors-accessing-db =
     - Your hard disk may have errors.
     
     It's a good idea to run Tools>Check Database to ensure your collection is not corrupt.
-
+errors-unable-open-collection =
+    Anki was unable to open your collection file. If problems persist after restarting your computer, please use the Open Backup button in the profile manager.
+    
+    Debug info:
