@@ -1303,6 +1303,7 @@ will be lost. Continue?"""
     def onEmptyCards(self):
         self.progress.start(immediate=True)
         cids = self.col.emptyCids()
+        cids = gui_hooks.empty_cards_will_be_deleted(cids)
         if not cids:
             self.progress.finish()
             tooltip(_("No empty cards."))
