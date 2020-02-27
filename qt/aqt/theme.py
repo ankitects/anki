@@ -197,7 +197,7 @@ QTabWidget { background-color: %s; }
 
         app.setPalette(palette)
 
-    def _update_stat_colors(self):
+    def _update_stat_colors(self) -> None:
         import anki.stats as s
 
         s.colLearn = self.str_color("new-count")
