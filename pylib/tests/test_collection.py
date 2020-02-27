@@ -153,12 +153,11 @@ def test_furigana():
 
 def test_translate():
     d = getEmptyCol()
-    tr = d.backend.translate
     no_uni = without_unicode_isolation
 
     assert (
-        tr(TR.CARD_TEMPLATE_RENDERING_FRONT_SIDE_PROBLEM)
+        d.tr(TR.CARD_TEMPLATE_RENDERING_FRONT_SIDE_PROBLEM)
         == "Front template has a problem:"
     )
-    assert no_uni(tr(TR.STATISTICS_REVIEWS, reviews=1)) == "1 review"
-    assert no_uni(tr(TR.STATISTICS_REVIEWS, reviews=2)) == "2 reviews"
+    assert no_uni(d.tr(TR.STATISTICS_REVIEWS, reviews=1)) == "1 review"
+    assert no_uni(d.tr(TR.STATISTICS_REVIEWS, reviews=2)) == "2 reviews"
