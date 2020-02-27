@@ -28,7 +28,7 @@ all: check
 	@touch $@
 
 .build/i18n: $(wildcard po/repo/desktop/*/anki.po)
-	(cd po && ./scripts/fetch-latest-translations && \
+	(cd po && \
 	./scripts/build-mo-files && \
 	./scripts/copy-qt-files)
 	@touch $@
