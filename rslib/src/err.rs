@@ -75,7 +75,7 @@ impl AnkiError {
                     NetworkErrorKind::Other => i18n.tr(FString::NetworkOther),
                 };
                 let details = i18n.trn(FString::NetworkDetails, tr_strs!["details"=>info]);
-                format!("{}\n{}", summary, details)
+                format!("{}\n\n{}", summary, details)
             }
             AnkiError::TemplateError { info } => {
                 // already localized
