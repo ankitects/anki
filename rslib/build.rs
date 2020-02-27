@@ -142,9 +142,8 @@ fn main() -> std::io::Result<()> {
             let lang_name = lang_dir.file_name().into_string().unwrap();
             for entry in fs::read_dir(lang_dir.path())? {
                 let entry = entry?;
-                let fname = entry.file_name().into_string().unwrap();
                 let path = entry.path();
-                println!("cargo:rerun-if-changed=./ftl/{}", fname);
+                println!("cargo:rerun-if-changed={:?}", entry.path());
                 buf += &fs::read_to_string(path)?;
             }
             langs
