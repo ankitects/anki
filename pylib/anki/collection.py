@@ -183,7 +183,7 @@ class _Collection:
 select crt, mod, scm, dty, usn, ls,
 conf, models, decks, dconf, tags from col"""
         )
-        self.conf = json.loads(conf)  # type: ignore
+        self.conf = json.loads(conf)
         self.models.load(models)
         self.decks.load(decks, dconf)
         self.tags.load(tags)

@@ -137,7 +137,7 @@ class ProfileManager:
             def find_class(self, module, name):
                 if module == "PyQt5.sip":
                     try:
-                        import PyQt5.sip  # type: ignore # pylint: disable=unused-import
+                        import PyQt5.sip  # pylint: disable=unused-import
                     except:
                         # use old sip location
                         module = "sip"
