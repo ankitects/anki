@@ -657,6 +657,7 @@ where c.nid = n.id and c.id in %s group by nid"""
         self._startTime = time.time()
         self._startReps = self.sched.reps
 
+    # FIXME: Use Literal[False] when on Python 3.8
     def timeboxReached(self) -> Union[bool, Tuple[Any, int]]:
         "Return (elapsedTime, reps) if timebox reached, or False."
         if not self.conf["timeLim"]:
