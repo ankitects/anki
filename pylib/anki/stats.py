@@ -47,9 +47,7 @@ class CardStats:
                     next = c.due
                 next = self.date(next)
             if next:
-                self.addLine(
-                    self.col.backend.translate(TR.STATISTICS_DUE_DATE), next,
-                )
+                self.addLine(self.col.tr(TR.STATISTICS_DUE_DATE), next)
             if c.queue == QUEUE_TYPE_REV:
                 self.addLine(
                     _("Interval"), self.col.backend.format_time_span(c.ivl * 86400)
@@ -278,9 +276,7 @@ from revlog where id > ? """
     def _dueInfo(self, tot, num) -> str:
         i: List[str] = []
         self._line(
-            i,
-            _("Total"),
-            self.col.backend.translate(TR.STATISTICS_REVIEWS, reviews=tot),
+            i, _("Total"), self.col.tr(TR.STATISTICS_REVIEWS, reviews=tot),
         )
         self._line(i, _("Average"), self._avgDay(tot, num, _("reviews")))
         tomorrow = self.col.db.scalar(
@@ -457,7 +453,7 @@ group by day order by day"""
             self._line(
                 i,
                 _("Average answer time"),
-                self.col.backend.translate(
+                self.col.tr(
                     TR.STATISTICS_AVERAGE_ANSWER_TIME,
                     **{"cards-per-minute": perMin, "average-seconds": average_secs},
                 ),

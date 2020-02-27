@@ -324,7 +324,7 @@ class RustBackend:
             pb.BackendInput(trash_media_files=pb.TrashMediaFilesIn(fnames=fnames))
         )
 
-    def translate(self, key: TR, **kwargs: Union[str, int, float]):
+    def translate(self, key: TR, **kwargs: Union[str, int, float]) -> str:
         return self._run_command(
             pb.BackendInput(translate_string=translate_string_in(key, **kwargs))
         ).translate_string
