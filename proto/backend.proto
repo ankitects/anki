@@ -73,13 +73,16 @@ message BackendOutput {
 }
 
 message BackendError {
+    // localized error description suitable for displaying to the user
+    string localized = 1;
+    // error specifics
     oneof value {
-        StringError invalid_input = 1;
-        TemplateParseError template_parse = 2;
-        StringError io_error = 3;
-        StringError db_error = 4;
-        NetworkError network_error = 5;
-        SyncError sync_error = 6;
+        StringError invalid_input = 2;
+        StringError template_parse = 3;
+        StringError io_error = 4;
+        StringError db_error = 5;
+        NetworkError network_error = 6;
+        SyncError sync_error = 7;
         // user interrupted operation
         Empty interrupted = 8;
     }
@@ -96,10 +99,6 @@ message StringError {
     string info = 1;
 }
 
-message TemplateParseError {
-    string info = 1;
-}
-
 message NetworkError {
     string info = 1;
     enum NetworkErrorKind {
@@ -109,7 +108,6 @@ message NetworkError {
         PROXY_AUTH = 3;
     }
     NetworkErrorKind kind = 2;
-    string localized = 3;
 }
 
 message SyncError {
@@ -125,7 +123,6 @@ message SyncError {
         RESYNC_REQUIRED = 7;
     }
     SyncErrorKind kind = 2;
-    string localized = 3;
 }
 
 message MediaSyncProgress {

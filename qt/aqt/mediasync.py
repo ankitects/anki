@@ -14,10 +14,8 @@ from anki.rsbackend import (
     FString,
     Interrupted,
     MediaSyncProgress,
-    NetworkError,
     Progress,
     ProgressKind,
-    SyncError,
 )
 from anki.types import assert_impossible
 from anki.utils import intTime
@@ -109,13 +107,7 @@ class MediaSyncer:
             return
 
         self._log_and_notify(tr(FString.SYNC_MEDIA_FAILED))
-        if isinstance(exc, SyncError):
-            showWarning(exc.localized())
-        elif isinstance(exc, NetworkError):
-            msg = exc.localized()
-            msg += "\n\n" + tr(FString.NETWORK_DETAILS, details=str(exc))
-        else:
-            raise exc
+        showWarning(str(exc))
 
     def entries(self) -> List[LogEntryWithTime]:
         return self._log
