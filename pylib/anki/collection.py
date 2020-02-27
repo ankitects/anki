@@ -26,7 +26,7 @@ from anki.lang import _, ngettext
 from anki.media import MediaManager
 from anki.models import ModelManager, NoteType, Template
 from anki.notes import Note
-from anki.rsbackend import RustBackend
+from anki.rsbackend import TR, RustBackend
 from anki.sched import Scheduler as V1Scheduler
 from anki.schedv2 import Scheduler as V2Scheduler
 from anki.tags import TagManager
@@ -580,9 +580,11 @@ select group_concat(ord+1), count(), flds from cards c, notes n
 where c.nid = n.id and c.id in %s group by nid"""
             % ids2str(cids)
         ):
-            rep += _("Empty card numbers: %(c)s\nFields: %(f)s\n\n") % dict(
-                c=ords, f=flds.replace("\x1f", " / ")
+            rep += self.tr(
+                TR.EMPTY_CARDS_CARD_LINE,
+                **{"card-numbers": ords, "fields": flds.replace("\x1f", " / ")},
             )
+            rep += "\n\n"
         return rep
 
     # Field checksums and sorting fields

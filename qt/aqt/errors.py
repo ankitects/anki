@@ -128,7 +128,7 @@ your system's temporary folder may be incorrect."""
         addons = [
             mw.addonManager.addonName(i) for i in dict.fromkeys(reversed(matches))
         ]
-        txt = _("""Add-ons possibly involved: {}\n""")
         # highlight importance of first add-on:
         addons[0] = "<b>{}</b>".format(addons[0])
-        return txt.format(", ".join(addons))
+        addons_str = ", ".join(addons)
+        return tr(TR.ADDONS_POSSIBLY_INVOLVED, addons=addons_str) + "\n"

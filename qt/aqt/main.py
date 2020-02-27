@@ -42,6 +42,7 @@ from aqt.qt import sip
 from aqt.taskman import TaskManager
 from aqt.theme import theme_manager
 from aqt.utils import (
+    TR,
     askUser,
     checkInvalidFilename,
     getFile,
@@ -55,6 +56,7 @@ from aqt.utils import (
     showText,
     showWarning,
     tooltip,
+    tr,
 )
 
 install_pylib_legacy()
@@ -439,16 +441,7 @@ close the profile or restart Anki."""
             return self._loadCollection()
         except Exception as e:
             showWarning(
-                _(
-                    """\
-Anki was unable to open your collection file. If problems persist after \
-restarting your computer, please use the Open Backup button in the profile \
-manager.
-
-Debug info:
-"""
-                )
-                + traceback.format_exc()
+                tr(TR.ERRORS_UNABLE_OPEN_COLLECTION) + "\n" + traceback.format_exc()
             )
             # clean up open collection if possible
             if self.col:
