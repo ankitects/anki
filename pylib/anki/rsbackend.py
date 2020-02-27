@@ -32,14 +32,17 @@ class StringError(Exception):
 
 
 NetworkErrorKind = pb.NetworkError.NetworkErrorKind
+SyncErrorKind = pb.SyncError.SyncErrorKind
 
 
 class NetworkError(StringError):
     def kind(self) -> NetworkErrorKind:
         return self.args[1]
 
-    def localized(self) -> str:
-        return self.args[2]
+
+class SyncError(StringError):
+    def kind(self) -> SyncErrorKind:
+        return self.args[1]
 
 
 class IOError(StringError):
@@ -54,35 +57,22 @@ class TemplateError(StringError):
     pass
 
 
-SyncErrorKind = pb.SyncError.SyncErrorKind
-
-
-class SyncError(StringError):
-    def kind(self) -> SyncErrorKind:
-        return self.args[1]
-
-    def localized(self) -> str:
-        return self.args[2]
-
-
 def proto_exception_to_native(err: pb.BackendError) -> Exception:
     val = err.WhichOneof("value")
     if val == "interrupted":
         return Interrupted()
     elif val == "network_error":
-        e = err.network_error
-        return NetworkError(e.info, e.kind, e.localized)
-    elif val == "io_error":
-        return IOError(err.io_error.info)
-    elif val == "db_error":
-        return DBError(err.db_error.info)
-    elif val == "template_parse":
-        return TemplateError(err.template_parse.info)
-    elif val == "invalid_input":
-        return StringError(err.invalid_input.info)
+        return NetworkError(err.localized, err.network_error.kind)
     elif val == "sync_error":
-        e2 = err.sync_error
-        return SyncError(e2.info, e2.kind, e2.localized)
+        return SyncError(err.localized, err.sync_error.kind)
+    elif val == "io_error":
+        return IOError(err.localized)
+    elif val == "db_error":
+        return DBError(err.localized)
+    elif val == "template_parse":
+        return TemplateError(err.localized)
+    elif val == "invalid_input":
+        return StringError(err.localized)
     else:
         assert_impossible_literal(val)
 
