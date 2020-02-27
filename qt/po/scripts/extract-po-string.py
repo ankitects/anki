@@ -37,7 +37,7 @@ def get_msgstr(entry):
         if replacements:
             for (old, new) in replacements:
                 msg = msg.replace(old, f"{{{new}}}")
-        return msg
+        return msg.strip()
     # plural string and non-empty?
     elif entry.msgstr_plural and entry.msgstr_plural[0]:
         # convert the dict into a list in the correct order
@@ -49,7 +49,7 @@ def get_msgstr(entry):
             if replacements:
                 for (old, new) in replacements:
                     msg = msg.replace(old, f"{{{new}}}")
-            adjusted.append(msg)
+            adjusted.append(msg.strip())
         if len(adjusted) > 1 and adjusted[0]:
             return adjusted
         else:
