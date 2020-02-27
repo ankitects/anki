@@ -115,8 +115,8 @@ class MediaSyncer:
     def is_syncing(self) -> bool:
         return self._syncing
 
-    def _on_start_stop(self, running: bool):
-        self.mw.toolbar.set_sync_active(running)  # type: ignore
+    def _on_start_stop(self, running: bool) -> None:
+        self.mw.toolbar.set_sync_active(running)
 
     def show_sync_log(self):
         aqt.dialogs.open("sync_log", self.mw, self)

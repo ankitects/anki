@@ -1515,7 +1515,7 @@ Please ensure a profile is open and Anki is not busy, then try again."""
     # ensure gc runs in main thread
 
     def setupDialogGC(self, obj: Any) -> None:
-        obj.finished.connect(lambda: self.gcWindow(obj))  # type: ignore
+        obj.finished.connect(lambda: self.gcWindow(obj))
 
     def gcWindow(self, obj: Any) -> None:
         obj.deleteLater()
