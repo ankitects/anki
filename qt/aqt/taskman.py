@@ -18,7 +18,7 @@ Closure = Callable[[], None]
 class TaskManager(QObject):
     _closures_pending = pyqtSignal()
 
-    def __init__(self):
+    def __init__(self) -> None:
         QObject.__init__(self)
         self._executor = ThreadPoolExecutor()
         self._closures: List[Closure] = []
