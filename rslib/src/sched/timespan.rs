@@ -6,13 +6,7 @@ use crate::i18n::{tr_args, FString, I18n};
 /// Short string like '4d' to place above answer buttons.
 pub fn answer_button_time(seconds: f32, i18n: &I18n) -> String {
     let span = Timespan::from_secs(seconds).natural_span();
-    let amount = match span.unit() {
-        // months/years shown with 1 decimal place
-        TimespanUnit::Months | TimespanUnit::Years => (span.as_unit() * 10.0).round() / 10.0,
-        // other values shown without decimals
-        _ => span.as_unit().round(),
-    };
-    let args = tr_args!["amount" => amount];
+    let args = tr_args!["amount" => span.as_rounded_unit()];
     let key = match span.unit() {
         TimespanUnit::Seconds => FString::SchedulingAnswerButtonTimeSeconds,
         TimespanUnit::Minutes => FString::SchedulingAnswerButtonTimeMinutes,
@@ -24,11 +18,17 @@ pub fn answer_button_time(seconds: f32, i18n: &I18n) -> String {
     i18n.trn(key, args)
 }
 
-/// Describe the given seconds using the largest appropriate unit
+/// Describe the given seconds using the largest appropriate unit.
+/// If precise is true, show to two decimal places, eg
 /// eg 70 seconds -> "1.17 minutes"
-pub fn time_span(seconds: f32, i18n: &I18n) -> String {
+/// If false, seconds and days are shown without decimals.
+pub fn time_span(seconds: f32, i18n: &I18n, precise: bool) -> String {
     let span = Timespan::from_secs(seconds).natural_span();
-    let amount = span.as_unit();
+    let amount = if precise {
+        span.as_unit()
+    } else {
+        span.as_rounded_unit()
+    };
     let args = tr_args!["amount" => amount];
     let key = match span.unit() {
         TimespanUnit::Seconds => FString::SchedulingTimeSpanSeconds,
@@ -133,6 +133,17 @@ impl Timespan {
         }
     }
 
+    /// Round seconds and days to integers, otherwise
+    /// truncates to one decimal place.
+    fn as_rounded_unit(self) -> f32 {
+        match self.unit {
+            // seconds/days as integer
+            TimespanUnit::Seconds | TimespanUnit::Days => self.as_unit().round(),
+            // other values shown to 1 decimal place
+            _ => (self.as_unit() * 10.0).round() / 10.0,
+        }
+    }
+
     fn unit(self) -> TimespanUnit {
         self.unit
     }
@@ -173,16 +184,18 @@ mod test {
     fn answer_buttons() {
         let i18n = I18n::new(&["zz"], "");
         assert_eq!(answer_button_time(30.0, &i18n), "30s");
-        assert_eq!(answer_button_time(70.0, &i18n), "1m");
+        assert_eq!(answer_button_time(70.0, &i18n), "1.2m");
         assert_eq!(answer_button_time(1.1 * MONTH, &i18n), "1.1mo");
     }
 
     #[test]
     fn time_spans() {
         let i18n = I18n::new(&["zz"], "");
-        assert_eq!(time_span(1.0, &i18n), "1 second");
-        assert_eq!(time_span(30.0, &i18n), "30 seconds");
-        assert_eq!(time_span(90.0, &i18n), "1.5 minutes");
+        assert_eq!(time_span(1.0, &i18n, false), "1 second");
+        assert_eq!(time_span(30.3, &i18n, false), "30 seconds");
+        assert_eq!(time_span(30.3, &i18n, true), "30.3 seconds");
+        assert_eq!(time_span(90.0, &i18n, false), "1.5 minutes");
+        assert_eq!(time_span(45.0 * 86_400.0, &i18n, false), "1.5 months");
     }
 
     #[test]

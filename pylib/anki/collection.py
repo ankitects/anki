@@ -73,7 +73,6 @@ class _Collection:
     ls: int
     conf: Dict[str, Any]
     _undo: List[Any]
-    backend: RustBackend
 
     def __init__(
         self,
@@ -83,6 +82,7 @@ class _Collection:
         log: bool = False,
     ) -> None:
         self.backend = backend
+        self.tr = backend.translate
         self._debugLog = log
         self.db = db
         self.path = db._path

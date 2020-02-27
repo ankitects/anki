@@ -19,10 +19,9 @@ message I18nBackendInit {
     string locale_folder_path = 5;
 }
 
-// 1-15 reserved for future use; 2047 for errors
+// 1-15 reserved for future use
 
 message BackendInput {
-    reserved 2047;
     oneof value {
         TemplateRequirementsIn template_requirements = 16;
         SchedTimingTodayIn sched_timing_today = 17;
@@ -47,37 +46,43 @@ message BackendInput {
 
 message BackendOutput {
     oneof value {
-        TemplateRequirementsOut template_requirements = 16;
+        // infallible commands
         SchedTimingTodayOut sched_timing_today = 17;
-        DeckTreeOut deck_tree = 18;
-        FindCardsOut find_cards = 19;
-        BrowserRowsOut browser_rows = 20;
-        RenderCardOut render_card = 21;
         sint32 local_minutes_west = 22;
         string strip_av_tags = 23;
         ExtractAVTagsOut extract_av_tags = 24;
         ExtractLatexOut extract_latex = 25;
-        string add_media_file = 26;
-        Empty sync_media = 27;
-        MediaCheckOut check_media = 28;
-        Empty trash_media_files = 29;
         string translate_string = 30;
         string format_time_span = 31;
         string studied_today = 32;
         string congrats_learn_msg = 33;
+
+        // fallible commands
+        TemplateRequirementsOut template_requirements = 16;
+        DeckTreeOut deck_tree = 18;
+        FindCardsOut find_cards = 19;
+        BrowserRowsOut browser_rows = 20;
+        RenderCardOut render_card = 21;
+        string add_media_file = 26;
+        Empty sync_media = 27;
+        MediaCheckOut check_media = 28;
+        Empty trash_media_files = 29;
 
         BackendError error = 2047;
     }
 }
 
 message BackendError {
+    // localized error description suitable for displaying to the user
+    string localized = 1;
+    // error specifics
     oneof value {
-        StringError invalid_input = 1;
-        TemplateParseError template_parse = 2;
-        StringError io_error = 3;
-        StringError db_error = 4;
-        NetworkError network_error = 5;
-        SyncError sync_error = 6;
+        Empty invalid_input = 2;
+        Empty template_parse = 3;
+        Empty io_error = 4;
+        Empty db_error = 5;
+        NetworkError network_error = 6;
+        SyncError sync_error = 7;
         // user interrupted operation
         Empty interrupted = 8;
     }
@@ -90,28 +95,17 @@ message Progress {
     }
 }
 
-message StringError {
-    string info = 1;
-}
-
-message TemplateParseError {
-    string info = 1;
-}
-
 message NetworkError {
-    string info = 1;
     enum NetworkErrorKind {
         OTHER = 0;
         OFFLINE = 1;
         TIMEOUT = 2;
         PROXY_AUTH = 3;
     }
-    NetworkErrorKind kind = 2;
-    string localized = 3;
+    NetworkErrorKind kind = 1;
 }
 
 message SyncError {
-    string info = 1;
     enum SyncErrorKind {
         OTHER = 0;
         CONFLICT = 1;
@@ -122,8 +116,7 @@ message SyncError {
         MEDIA_CHECK_REQUIRED = 6;
         RESYNC_REQUIRED = 7;
     }
-    SyncErrorKind kind = 2;
-    string localized = 3;
+    SyncErrorKind kind = 1;
 }
 
 message MediaSyncProgress {
@@ -307,8 +300,9 @@ message TranslateArgValue {
 
 message FormatTimeSpanIn {
     enum Context {
-        NORMAL = 0;
+        PRECISE = 0;
         ANSWER_BUTTONS = 1;
+        INTERVALS = 2;
     }
 
     float seconds = 1;
