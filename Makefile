@@ -8,6 +8,10 @@ else
 	ACTIVATE_SCRIPT := pyenv/bin/activate
 endif
 
+ifndef ANKI_EXTRA_PIP
+	ANKI_EXTRA_PIP := echo The custom pip command variable ANKI_EXTRA_PIP was not defined...
+endif
+
 .SHELLFLAGS := -eu -o pipefail -c
 .DELETE_ON_ERROR:
 MAKEFLAGS += --warn-undefined-variables
@@ -124,7 +128,7 @@ fix:
 
 .PHONY: add-buildhash
 add-buildhash:
-	ver=$$(cat meta/version); \
+	@ver=$$(cat meta/version); \
 	hash=$$(cat meta/buildhash); \
 	rename "s/-$${ver}-/-$${ver}+$${hash}-/" dist/*-$$ver-*
 
