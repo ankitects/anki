@@ -45,7 +45,7 @@ buildhash:
 
 .PHONY: develop
 develop: pyenv buildhash prepare
-	set -eo pipefail && \
+	@set -eo pipefail && \
 	. "${ACTIVATE_SCRIPT}" && \
 	for dir in $(DEVEL); do \
 		$(SUBMAKE) -C $$dir develop BUILDFLAGS="$(BUILDFLAGS)"; \
@@ -53,7 +53,7 @@ develop: pyenv buildhash prepare
 
 .PHONY: run
 run: develop
-	set -eo pipefail && \
+	@set -eo pipefail && \
 	. "${ACTIVATE_SCRIPT}" && \
 	echo "Starting Anki..."; \
 	python qt/runanki $(RUNFLAGS)
@@ -75,22 +75,22 @@ build: clean-dist build-rspy build-pylib build-qt add-buildhash
 
 .PHONY: build-rspy
 build-rspy: pyenv buildhash
-	. "${ACTIVATE_SCRIPT}" && \
+	@. "${ACTIVATE_SCRIPT}" && \
 	$(SUBMAKE) -C rspy build BUILDFLAGS="$(BUILDFLAGS)"
 
 .PHONY: build-pylib
 build-pylib:
-	. "${ACTIVATE_SCRIPT}" && \
+	@. "${ACTIVATE_SCRIPT}" && \
 	$(SUBMAKE) -C pylib build
 
 .PHONY: build-qt
 build-qt:
-	. "${ACTIVATE_SCRIPT}" && \
+	@. "${ACTIVATE_SCRIPT}" && \
 	$(SUBMAKE) -C qt build
 
 .PHONY: clean
 clean: clean-dist
-	set -eo pipefail && \
+	@set -eo pipefail && \
 	for dir in $(DEVEL); do \
 	  $(SUBMAKE) -C $$dir clean; \
 	done
@@ -101,7 +101,7 @@ clean-dist:
 
 .PHONY: check
 check: pyenv buildhash
-	set -eo pipefail && \
+	@set -eo pipefail && \
 	for dir in $(CHECKABLE_RS); do \
 	  $(SUBMAKE) -C $$dir check; \
 	done; \
@@ -116,7 +116,7 @@ check: pyenv buildhash
 
 .PHONY: fix
 fix:
-	set -eo pipefail && \
+	@set -eo pipefail && \
 	. "${ACTIVATE_SCRIPT}" && \
 	for dir in $(CHECKABLE_RS) $(CHECKABLE_PY); do \
 	  $(SUBMAKE) -C $$dir fix; \
