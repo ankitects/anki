@@ -6,7 +6,7 @@ from __future__ import annotations
 import datetime
 import json
 import time
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import anki
 from anki.consts import *
@@ -16,6 +16,7 @@ from anki.utils import ids2str
 
 # Card stats
 ##########################################################################
+
 
 PERIOD_MONTH = 0
 PERIOD_YEAR = 1
@@ -71,15 +72,15 @@ class CardStats:
         self.txt += "</table>"
         return self.txt
 
-    def addLine(self, k, v) -> None:
+    def addLine(self, k: str, v: Union[int, str]) -> None:
         self.txt += self.makeLine(k, v)
 
-    def makeLine(self, k, v) -> str:
+    def makeLine(self, k: str, v: Union[str, int]) -> str:
         txt = "<tr><td align=left style='padding-right: 3px;'>"
         txt += "<b>%s</b></td><td>%s</td></tr>" % (k, v)
         return txt
 
-    def date(self, tm) -> str:
+    def date(self, tm: float) -> str:
         return time.strftime("%Y-%m-%d", time.localtime(tm))
 
     def time(self, tm: float) -> str:
@@ -114,7 +115,7 @@ class CollectionStats:
         self.wholeCollection = False
 
     # assumes jquery & plot are available in document
-    def report(self, type=PERIOD_MONTH) -> str:
+    def report(self, type: int = PERIOD_MONTH) -> str:
         # 0=month, 1=year, 2=deck life
         self.type = type
         from .statsbg import bg
@@ -131,7 +132,7 @@ class CollectionStats:
         txt += self._section(self.footer())
         return "<center>%s</center>" % txt
 
-    def _section(self, txt) -> str:
+    def _section(self, txt: str) -> str:
         return "<div class=section>%s</div>" % txt
 
     css = """
@@ -212,7 +213,7 @@ from revlog where id > ? """
     # Due and cumulative due
     ######################################################################
 
-    def get_start_end_chunk(self, by="review") -> Tuple[int, Optional[int], int]:
+    def get_start_end_chunk(self, by: str = "review") -> Tuple[int, Optional[int], int]:
         start = 0
         if self.type == PERIOD_MONTH:
             end, chunk = 31, 1
@@ -273,7 +274,7 @@ from revlog where id > ? """
         txt += self._dueInfo(tot, len(totd) * chunk)
         return txt
 
-    def _dueInfo(self, tot, num) -> str:
+    def _dueInfo(self, tot: int, num: int) -> str:
         i: List[str] = []
         self._line(
             i, _("Total"), self.col.tr(TR.STATISTICS_REVIEWS, reviews=tot),
@@ -290,7 +291,9 @@ and due = ?"""
         self._line(i, _("Due tomorrow"), tomorrow)
         return self._lineTbl(i)
 
-    def _due(self, start=None, end=None, chunk=1) -> Any:
+    def _due(
+        self, start: Optional[int] = None, end: Optional[int] = None, chunk: int = 1
+    ) -> Any:
         lim = ""
         if start is not None:
             lim += " and due-:today >= %d" % start
@@ -414,7 +417,13 @@ group by day order by day"""
         return self._section(txt1) + self._section(txt2)
 
     def _ansInfo(
-        self, totd, studied, first, unit, convHours=False, total=None
+        self,
+        totd: List[Tuple[int, float]],
+        studied: int,
+        first: int,
+        unit: str,
+        convHours: bool = False,
+        total: Optional[int] = None,
     ) -> Tuple[str, int]:
         assert totd
         tot = totd[-1][1]
@@ -460,14 +469,16 @@ group by day order by day"""
             )
         return self._lineTbl(i), int(tot)
 
-    def _splitRepData(self, data, spec) -> Tuple[List[dict], List[Tuple[Any, Any]]]:
+    def _splitRepData(
+        self, data: List[Tuple[Any, ...]], spec: Sequence[Tuple[int, str, str]],
+    ) -> Tuple[List[Dict[str, Any]], List[Tuple[Any, Any]]]:
         sep: Dict[int, Any] = {}
         totcnt = {}
         totd: Dict[int, Any] = {}
         alltot = []
-        allcnt = 0
+        allcnt: float = 0
         for (n, col, lab) in spec:
-            totcnt[n] = 0
+            totcnt[n] = 0.0
             totd[n] = []
         for row in data:
             for (n, col, lab) in spec:
@@ -497,7 +508,7 @@ group by day order by day"""
                 )
         return (ret, alltot)
 
-    def _added(self, num=7, chunk=1) -> Any:
+    def _added(self, num: Optional[int] = 7, chunk: int = 1) -> Any:
         lims = []
         if num is not None:
             lims.append(
@@ -525,7 +536,7 @@ group by day order by day"""
             chunk=chunk,
         )
 
-    def _done(self, num=7, chunk=1) -> Any:
+    def _done(self, num: Optional[int] = 7, chunk: int = 1) -> Any:
         lims = []
         if num is not None:
             lims.append(
@@ -637,7 +648,7 @@ group by day order by day)"""
         )
         return txt + self._lineTbl(i)
 
-    def _ivls(self) -> Tuple[list, int]:
+    def _ivls(self) -> Tuple[List[Any], int]:
         start, end, chunk = self.get_start_end_chunk()
         lim = "and grp <= %d" % end if end else ""
         data = [
@@ -712,7 +723,7 @@ select count(), avg(ivl), max(ivl) from cards where did in %s and queue = {QUEUE
         txt += self._easeInfo(eases)
         return txt
 
-    def _easeInfo(self, eases) -> str:
+    def _easeInfo(self, eases: List[Tuple[int, int, int]]) -> str:
         types = {PERIOD_MONTH: [0, 0], PERIOD_YEAR: [0, 0], PERIOD_LIFE: [0, 0]}
         for (type, ease, cnt) in eases:
             if ease == 1:
@@ -909,7 +920,9 @@ when you answer "good" on a review."""
         )
         return txt
 
-    def _line(self, i, a, b, bold=True) -> None:
+    def _line(
+        self, i: List[str], a: str, b: Union[int, str], bold: bool = True
+    ) -> None:
         # T: Symbols separating first and second column in a statistics table. Eg in "Total:    3 reviews".
         colon = _(":")
         if bold:
@@ -923,7 +936,7 @@ when you answer "good" on a review."""
                 % (a, colon, b)
             )
 
-    def _lineTbl(self, i) -> str:
+    def _lineTbl(self, i: List[str]) -> str:
         return "<table width=400>" + "".join(i) + "</table>"
 
     def _factors(self) -> Any:
@@ -969,7 +982,14 @@ from cards where did in %s"""
     ######################################################################
 
     def _graph(
-        self, id, data, conf=None, type="bars", xunit=1, ylabel=_("Cards"), ylabel2=""
+        self,
+        id: str,
+        data: Any,
+        conf: Optional[Any] = None,
+        type: str = "bars",
+        xunit: int = 1,
+        ylabel: str = _("Cards"),
+        ylabel2: str = "",
     ) -> str:
         if conf is None:
             conf = {}
@@ -1088,10 +1108,10 @@ $(function () {
             self.col.decks.active()
         )
 
-    def _title(self, title, subtitle="") -> str:
+    def _title(self, title: str, subtitle: str = "") -> str:
         return "<h1>%s</h1>%s" % (title, subtitle)
 
-    def _deckAge(self, by) -> int:
+    def _deckAge(self, by: str) -> int:
         lim = self._revlogLimit()
         if lim:
             lim = " where " + lim
@@ -1112,7 +1132,7 @@ $(function () {
             return None
         return end * chunk
 
-    def _avgDay(self, tot, num, unit) -> str:
+    def _avgDay(self, tot: float, num: int, unit: str) -> str:
         vals = []
         try:
             vals.append(_("%(a)0.1f %(b)s/day") % dict(a=tot / float(num), b=unit))

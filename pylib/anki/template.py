@@ -143,7 +143,9 @@ def templates_for_card(card: Card, browser: bool) -> Tuple[str, str]:
     return q, a  # type: ignore
 
 
-def fields_for_rendering(col: anki.storage._Collection, card: Card, note: Note):
+def fields_for_rendering(
+    col: anki.storage._Collection, card: Card, note: Note
+) -> Dict[str, str]:
     # fields from note
     fields = dict(note.items())
 

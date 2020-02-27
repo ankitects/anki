@@ -5,7 +5,7 @@ import os
 import time
 from sqlite3 import Cursor
 from sqlite3 import dbapi2 as sqlite
-from typing import Any, List
+from typing import Any, List, Type
 
 DBError = sqlite.Error
 
@@ -110,5 +110,5 @@ class DB:
     def _textFactory(self, data: bytes) -> str:
         return str(data, errors="ignore")
 
-    def cursor(self, factory=Cursor) -> Cursor:
+    def cursor(self, factory: Type[Cursor] = Cursor) -> Cursor:
         return self._db.cursor(factory)
