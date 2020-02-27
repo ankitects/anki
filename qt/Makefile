@@ -1,4 +1,6 @@
-SHELL := bash
+SHELL := /bin/bash
+FIND := $(if $(wildcard /bin/find),/bin/find,/usr/bin/find)
+
 .SHELLFLAGS := -eu -o pipefail -c
 .DELETE_ON_ERROR:
 MAKEFLAGS += --warn-undefined-variables
@@ -14,14 +16,14 @@ PHONY: all
 all: check
 
 .build/run-deps: setup.py
-	pip install -e .
+	python -m pip install -e .
 	@touch $@
 
 .build/dev-deps: requirements.dev
-	pip install -r requirements.dev
+	python -m pip install -r requirements.dev
 	@touch $@
 
-.build/ui: $(shell find designer -type f)
+.build/ui: $(shell ${FIND} designer -type f)
 	./tools/build_ui.sh
 	@touch $@
 
@@ -75,7 +77,7 @@ JSDEPS := $(patsubst ts/src/%.ts, web/%.js, $(TSDEPS))
 
 PYLIB := ../pylib
 
-CHECKDEPS := $(shell find aqt tests -name '*.py' | grep -v buildinfo.py)
+CHECKDEPS := $(shell ${FIND} aqt tests -name '*.py' | grep -v buildinfo.py)
 
 .build/mypy: $(CHECKDEPS) .build/qt-stubs
 	mypy aqt

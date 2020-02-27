@@ -1,4 +1,6 @@
-SHELL := bash
+SHELL := /bin/bash
+FIND := $(if $(wildcard /bin/find),/bin/find,/usr/bin/find)
+
 .SHELLFLAGS := -eu -o pipefail -c
 .DELETE_ON_ERROR:
 MAKEFLAGS += --warn-undefined-variables
@@ -19,8 +21,8 @@ all: develop
 develop: .build/develop
 
 DEPS := .build/tools .build/vernum ../meta/buildhash $(wildcard $(QT_FTLS)/*.ftl) \
-	$(shell find ../rslib/src -name '*.rs') $(wildcard ../proto/*) \
-	$(shell find ../rslib/ftl -type f)
+	$(shell ${FIND} ../rslib/src -name '*.rs') $(wildcard ../proto/*) \
+	$(shell ${FIND} ../rslib/ftl -type f)
 
 .build/develop: $(DEPS)
 	touch ../proto/backend.proto
@@ -44,7 +46,7 @@ clean:
 RUST_TOOLCHAIN := $(shell cat rust-toolchain)
 
 .build/tools: requirements.txt rust-toolchain
-	pip install -r requirements.txt
+	python -m pip install -r requirements.txt
 	rustup toolchain install $(RUST_TOOLCHAIN)
 	rustup component add rustfmt-preview --toolchain $(RUST_TOOLCHAIN)
 	rustup component add clippy-preview --toolchain $(RUST_TOOLCHAIN)

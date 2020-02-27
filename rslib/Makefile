@@ -1,4 +1,6 @@
-SHELL := bash
+SHELL := /bin/bash
+FIND := $(if $(wildcard /bin/find),/bin/find,/usr/bin/find)
+
 .SHELLFLAGS := -eu -o pipefail -c
 .DELETE_ON_ERROR:
 MAKEFLAGS += --warn-undefined-variables
@@ -23,7 +25,7 @@ develop: .build/vernum ftl/repo
 ftl/repo:
 	(cd ftl && ./scripts/fetch-latest-translations)
 
-ALL_SOURCE := $(shell find src -type f) $(wildcard ftl/*.ftl)
+ALL_SOURCE := $(shell ${FIND} src -type f) $(wildcard ftl/*.ftl)
 
 # nightly currently required for ignoring files in rustfmt.toml
 RUST_TOOLCHAIN := $(shell cat rust-toolchain)
