@@ -59,7 +59,7 @@ def get_msgstr(entry):
 
 
 # start by checking the .pot file for the message
-base = "i18n/po/desktop"
+base = "repo/desktop"
 pot = os.path.join(base, "anki.pot")
 pot_cat = polib.pofile(pot)
 catalogs = []
@@ -104,11 +104,9 @@ for (lang, cat) in catalogs:
             if translation:
                 print(f"{lang} had translation {translation}")
                 to_insert.append((lang, translation))
-            else:
-                print(f"{lang} had no translation")
             break
 
-plurals = json.load(open("i18n/plurals.json"))
+plurals = json.load(open("plurals.json"))
 
 
 def plural_text(key, lang, translation):
