@@ -104,7 +104,7 @@ clean-dist:
 	rm -rf dist
 
 .PHONY: check
-check: pyenv buildhash
+check: pyenv buildhash prepare
 	@set -eo pipefail && \
 	for dir in $(CHECKABLE_RS); do \
 	  $(SUBMAKE) -C $$dir check; \
