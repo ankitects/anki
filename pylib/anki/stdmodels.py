@@ -1,8 +1,9 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from typing import Any, Callable, List, Tuple, Union
+from typing import Any, Callable, List, Optional, Tuple, Union
 
+from anki.collection import _Collection
 from anki.consts import MODEL_CLOZE
 from anki.lang import _
 from anki.models import NoteType
@@ -13,7 +14,7 @@ models: List[Tuple[Union[Callable[[], str], str], Callable[[Any], NoteType]]] = 
 ##########################################################################
 
 
-def _newBasicModel(col, name=None) -> NoteType:
+def _newBasicModel(col: _Collection, name: Optional[str] = None) -> NoteType:
     mm = col.models
     m = mm.new(name or _("Basic"))
     fm = mm.newField(_("Front"))
@@ -27,7 +28,7 @@ def _newBasicModel(col, name=None) -> NoteType:
     return m
 
 
-def addBasicModel(col) -> NoteType:
+def addBasicModel(col: _Collection) -> NoteType:
     m = _newBasicModel(col)
     col.models.add(m)
     return m
@@ -39,7 +40,7 @@ models.append((lambda: _("Basic"), addBasicModel))
 ##########################################################################
 
 
-def addBasicTypingModel(col) -> NoteType:
+def addBasicTypingModel(col: _Collection) -> NoteType:
     mm = col.models
     m = _newBasicModel(col, _("Basic (type in the answer)"))
     t = m["tmpls"][0]
@@ -55,7 +56,7 @@ models.append((lambda: _("Basic (type in the answer)"), addBasicTypingModel))
 ##########################################################################
 
 
-def _newForwardReverse(col, name=None) -> NoteType:
+def _newForwardReverse(col: _Collection, name: Optional[str] = None) -> NoteType:
     mm = col.models
     m = _newBasicModel(col, name or _("Basic (and reversed card)"))
     t = mm.newTemplate(_("Card 2"))
@@ -65,7 +66,7 @@ def _newForwardReverse(col, name=None) -> NoteType:
     return m
 
 
-def addForwardReverse(col) -> NoteType:
+def addForwardReverse(col: _Collection) -> NoteType:
     m = _newForwardReverse(col)
     col.models.add(m)
     return m
@@ -77,7 +78,7 @@ models.append((lambda: _("Basic (and reversed card)"), addForwardReverse))
 ##########################################################################
 
 
-def addForwardOptionalReverse(col) -> NoteType:
+def addForwardOptionalReverse(col: _Collection) -> NoteType:
     mm = col.models
     m = _newForwardReverse(col, _("Basic (optional reversed card)"))
     av = _("Add Reverse")
@@ -95,7 +96,7 @@ models.append((lambda: _("Basic (optional reversed card)"), addForwardOptionalRe
 ##########################################################################
 
 
-def addClozeModel(col) -> NoteType:
+def addClozeModel(col: _Collection) -> NoteType:
     mm = col.models
     m = mm.new(_("Cloze"))
     m["type"] = MODEL_CLOZE
