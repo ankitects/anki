@@ -1031,7 +1031,7 @@ class DownloaderInstaller(QObject):
         self.client = client
         self.progressSignal.connect(self._progress_callback)  # type: ignore
 
-        def bg_thread_progress(up, down):
+        def bg_thread_progress(up, down) -> None:
             self.progressSignal.emit(up, down)  # type: ignore
 
         self.client.progress_hook = bg_thread_progress
