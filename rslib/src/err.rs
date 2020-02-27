@@ -77,7 +77,11 @@ impl AnkiError {
                 let details = i18n.trn(FString::NetworkDetails, tr_strs!["details"=>info]);
                 format!("{}\n{}", summary, details)
             }
-            _ => "".into(),
+            AnkiError::TemplateError { info } => {
+                // already localized
+                info.into()
+            }
+            _ => format!("{:?}", self),
         }
     }
 }
