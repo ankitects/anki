@@ -4,6 +4,7 @@ use std::path::Path;
 
 use fluent_syntax::ast::{Entry::Message, ResourceEntry};
 use fluent_syntax::parser::parse;
+use std::collections::HashMap;
 
 fn get_identifiers(ftl_text: &str) -> Vec<String> {
     let res = parse(ftl_text).unwrap();
@@ -126,28 +127,35 @@ fn main() -> std::io::Result<()> {
     prost_build::compile_protos(&["../proto/backend.proto"], &["../proto"]).unwrap();
 
     // write the other language ftl files
-    // fixme: doesn't currently support extra dirs
     let mut ftl_lang_dirs = vec!["./ftl/repo/core".to_string()];
-    if let Ok(paths) = std::env::var("FTL_LANG_DIRS") {
+    if let Ok(paths) = std::env::var("FTL_LOCALE_DIRS") {
         ftl_lang_dirs.extend(paths.split(",").map(|s| s.to_string()));
     }
+    let mut langs = HashMap::new();
     for ftl_dir in ftl_lang_dirs {
         for ftl_dir in fs::read_dir(ftl_dir)? {
-            let ftl_dir = ftl_dir?;
-            if ftl_dir.file_name() == "templates" {
+            let lang_dir = ftl_dir?;
+            if lang_dir.file_name() == "templates" {
                 continue;
             }
             let mut buf = String::new();
-            let lang = ftl_dir.file_name().into_string().unwrap();
-            for entry in fs::read_dir(ftl_dir.path())? {
+            let lang_name = lang_dir.file_name().into_string().unwrap();
+            for entry in fs::read_dir(lang_dir.path())? {
                 let entry = entry?;
                 let fname = entry.file_name().into_string().unwrap();
                 let path = entry.path();
                 println!("cargo:rerun-if-changed=./ftl/{}", fname);
                 buf += &fs::read_to_string(path)?;
             }
-            fs::write(format!("src/i18n/ftl/{}.ftl", lang), buf)?;
+            langs
+                .entry(lang_name)
+                .or_insert_with(|| String::new())
+                .push_str(&buf)
         }
+    }
+
+    for (lang, text) in langs {
+        fs::write(format!("src/i18n/ftl/{}.ftl", lang), text)?;
     }
 
     Ok(())
