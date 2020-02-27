@@ -15,13 +15,13 @@ from aqt.webview import AnkiWebView
 
 # wrapper class for set_bridge_command()
 class TopToolbar:
-    def __init__(self, toolbar: Toolbar):
+    def __init__(self, toolbar: Toolbar) -> None:
         self.toolbar = toolbar
 
 
 # wrapper class for set_bridge_command()
 class BottomToolbar:
-    def __init__(self, toolbar: Toolbar):
+    def __init__(self, toolbar: Toolbar) -> None:
         self.toolbar = toolbar
 
 
@@ -40,7 +40,7 @@ class Toolbar:
         buf: str = "",
         web_context: Optional[Any] = None,
         link_handler: Optional[Callable[[str], Any]] = None,
-    ):
+    ) -> None:
         web_context = web_context or TopToolbar(self)
         link_handler = link_handler or self._linkHandler
         self.web.set_bridge_command(link_handler, web_context)
@@ -90,7 +90,7 @@ class Toolbar:
             f"""{label}</a>"""
         )
 
-    def _centerLinks(self):
+    def _centerLinks(self) -> str:
         links = [
             self.create_link(
                 "decks",
@@ -149,15 +149,15 @@ class Toolbar:
     # Link handling
     ######################################################################
 
-    def _linkHandler(self, link):
+    def _linkHandler(self, link: str) -> bool:
         if link in self.link_handlers:
             self.link_handlers[link]()
         return False
 
-    def _deckLinkHandler(self):
+    def _deckLinkHandler(self) -> None:
         self.mw.moveToState("deckBrowser")
 
-    def _studyLinkHandler(self):
+    def _studyLinkHandler(self) -> None:
         # if overview already shown, switch to review
         if self.mw.state == "overview":
             self.mw.col.startTimebox()
@@ -165,16 +165,16 @@ class Toolbar:
         else:
             self.mw.onOverview()
 
-    def _addLinkHandler(self):
+    def _addLinkHandler(self) -> None:
         self.mw.onAddCard()
 
-    def _browseLinkHandler(self):
+    def _browseLinkHandler(self) -> None:
         self.mw.onBrowse()
 
-    def _statsLinkHandler(self):
+    def _statsLinkHandler(self) -> None:
         self.mw.onStats()
 
-    def _syncLinkHandler(self):
+    def _syncLinkHandler(self) -> None:
         self.mw.onSync()
 
     # HTML & CSS
@@ -206,7 +206,7 @@ class BottomBar(Toolbar):
         buf: str = "",
         web_context: Optional[Any] = None,
         link_handler: Optional[Callable[[str], Any]] = None,
-    ):
+    ) -> None:
         # note: some screens may override this
         web_context = web_context or BottomToolbar(self)
         link_handler = link_handler or self._linkHandler
