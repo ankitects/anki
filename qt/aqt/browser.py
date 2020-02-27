@@ -24,7 +24,7 @@ from anki.consts import *
 from anki.lang import _, ngettext
 from anki.models import NoteType
 from anki.notes import Note
-from anki.rsbackend import FString
+from anki.rsbackend import TR
 from anki.utils import htmlToTextLine, ids2str, intTime, isMac, isWin
 from aqt import AnkiQt, gui_hooks
 from aqt.editor import Editor
@@ -356,7 +356,7 @@ class DataModel(QAbstractTableModel):
         elif c.queue == QUEUE_TYPE_LRN:
             date = c.due
         elif c.queue == QUEUE_TYPE_NEW or c.type == CARD_TYPE_NEW:
-            return tr(FString.STATISTICS_DUE_FOR_NEW_CARD, number=c.due)
+            return tr(TR.STATISTICS_DUE_FOR_NEW_CARD, number=c.due)
         elif c.queue in (QUEUE_TYPE_REV, QUEUE_TYPE_DAY_LEARN_RELEARN) or (
             c.type == CARD_TYPE_REV and c.queue < 0
         ):
@@ -730,7 +730,7 @@ class Browser(QMainWindow):
             ("noteCrt", _("Created")),
             ("noteMod", _("Edited")),
             ("cardMod", _("Changed")),
-            ("cardDue", tr(FString.STATISTICS_DUE_DATE)),
+            ("cardDue", tr(TR.STATISTICS_DUE_DATE)),
             ("cardIvl", _("Interval")),
             ("cardEase", _("Ease")),
             ("cardReps", _("Reviews")),
@@ -1281,7 +1281,7 @@ by clicking on one on the left."""
                     (_("New"), "is:new"),
                     (_("Learning"), "is:learn"),
                     (_("Review"), "is:review"),
-                    (tr(FString.FILTERING_IS_DUE), "is:due"),
+                    (tr(TR.FILTERING_IS_DUE), "is:due"),
                     None,
                     (_("Suspended"), "is:suspended"),
                     (_("Buried"), "is:buried"),
@@ -1494,6 +1494,8 @@ border: 1px solid #000; padding: 3px; '>%s</div>"""
             if ivl == 0:
                 ivl = ""
             else:
+                if ivl > 0:
+                    ivl *= 86_400
                 ivl = cs.time(abs(ivl))
             s += "<td align=right>%s</td>" % tstr
             s += "<td align=center>%s</td>" % ease
@@ -1501,7 +1503,7 @@ border: 1px solid #000; padding: 3px; '>%s</div>"""
 
             s += ("<td align=right>%s</td>" * 2) % (
                 "%d%%" % (factor / 10) if factor else "",
-                cs.time(taken),
+                self.col.backend.format_time_span(taken),
             ) + "</tr>"
         s += "</table>"
         if cnt < self.card.reps:
@@ -1770,8 +1772,10 @@ where id in %s"""
                 else:
                     audio = c.answer_av_tags()
                 av_player.play_tags(audio)
+            else:
+                av_player.maybe_interrupt()
 
-            txt = self.mw.prepare_card_text_for_display(txt)
+                txt = self.mw.prepare_card_text_for_display(txt)
             txt = gui_hooks.card_will_show(
                 txt, c, "preview" + self._previewState.capitalize()
             )

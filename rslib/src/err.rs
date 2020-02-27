@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::i18n::{FString, I18n};
+use crate::i18n::{tr_strs, FString, I18n};
 pub use failure::{Error, Fail};
 use reqwest::StatusCode;
 use std::io;
@@ -67,14 +67,21 @@ impl AnkiError {
                 SyncErrorKind::ResyncRequired => i18n.tr(FString::SyncResyncRequired),
             }
             .into(),
-            AnkiError::NetworkError { kind, .. } => match kind {
-                NetworkErrorKind::Offline => i18n.tr(FString::NetworkOffline),
-                NetworkErrorKind::Timeout => i18n.tr(FString::NetworkTimeout),
-                NetworkErrorKind::ProxyAuth => i18n.tr(FString::NetworkProxyAuth),
-                NetworkErrorKind::Other => i18n.tr(FString::NetworkOther),
+            AnkiError::NetworkError { kind, info } => {
+                let summary = match kind {
+                    NetworkErrorKind::Offline => i18n.tr(FString::NetworkOffline),
+                    NetworkErrorKind::Timeout => i18n.tr(FString::NetworkTimeout),
+                    NetworkErrorKind::ProxyAuth => i18n.tr(FString::NetworkProxyAuth),
+                    NetworkErrorKind::Other => i18n.tr(FString::NetworkOther),
+                };
+                let details = i18n.trn(FString::NetworkDetails, tr_strs!["details"=>info]);
+                format!("{}\n\n{}", summary, details)
             }
-            .into(),
-            _ => "".into(),
+            AnkiError::TemplateError { info } => {
+                // already localized
+                info.into()
+            }
+            _ => format!("{:?}", self),
         }
     }
 }

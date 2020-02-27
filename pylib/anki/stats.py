@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import anki
 from anki.consts import *
 from anki.lang import _, ngettext
-from anki.rsbackend import FString
+from anki.rsbackend import TR, FormatTimeSpanContext
 from anki.utils import ids2str
 
 # Card stats
@@ -47,9 +47,7 @@ class CardStats:
                     next = c.due
                 next = self.date(next)
             if next:
-                self.addLine(
-                    self.col.backend.translate(FString.STATISTICS_DUE_DATE), next,
-                )
+                self.addLine(self.col.tr(TR.STATISTICS_DUE_DATE), next)
             if c.queue == QUEUE_TYPE_REV:
                 self.addLine(
                     _("Interval"), self.col.backend.format_time_span(c.ivl * 86400)
@@ -85,7 +83,9 @@ class CardStats:
         return time.strftime("%Y-%m-%d", time.localtime(tm))
 
     def time(self, tm: float) -> str:
-        return self.col.backend.format_time_span(tm)
+        return self.col.backend.format_time_span(
+            tm, context=FormatTimeSpanContext.PRECISE
+        )
 
 
 # Collection stats
@@ -276,9 +276,7 @@ from revlog where id > ? """
     def _dueInfo(self, tot, num) -> str:
         i: List[str] = []
         self._line(
-            i,
-            _("Total"),
-            self.col.backend.translate(FString.STATISTICS_REVIEWS, reviews=tot),
+            i, _("Total"), self.col.tr(TR.STATISTICS_REVIEWS, reviews=tot),
         )
         self._line(i, _("Average"), self._avgDay(tot, num, _("reviews")))
         tomorrow = self.col.db.scalar(
@@ -455,8 +453,8 @@ group by day order by day"""
             self._line(
                 i,
                 _("Average answer time"),
-                self.col.backend.translate(
-                    FString.STATISTICS_AVERAGE_ANSWER_TIME,
+                self.col.tr(
+                    TR.STATISTICS_AVERAGE_ANSWER_TIME,
                     **{"cards-per-minute": perMin, "average-seconds": average_secs},
                 ),
             )

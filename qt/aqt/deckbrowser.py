@@ -11,7 +11,7 @@ from typing import Any
 import aqt
 from anki.errors import DeckRenameError
 from anki.lang import _, ngettext
-from anki.rsbackend import FString
+from anki.rsbackend import TR
 from anki.utils import ids2str
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
@@ -185,7 +185,7 @@ where id > ?""",
 <tr><th colspan=5 align=left>%s</th><th class=count>%s</th>
 <th class=count>%s</th><th class=optscol></th></tr>""" % (
                 _("Deck"),
-                tr(FString.STATISTICS_DUE_COUNT),
+                tr(TR.STATISTICS_DUE_COUNT),
                 _("New"),
             )
             buf += self._topLevelDragRow()

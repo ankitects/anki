@@ -246,7 +246,7 @@
             <string>%</string>
            </property>
            <property name="minimum">
-            <number>50</number>
+            <number>100</number>
            </property>
            <property name="maximum">
             <number>200</number>
@@ -365,6 +365,30 @@
                 <size>
                  <width>40</width>
                  <height>1</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_3">
+             <item>
+              <widget class="QPushButton" name="media_log">
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_3">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
                 </size>
                </property>
               </spacer>
@@ -542,10 +566,10 @@
   <tabstop>lrnCutoff</tabstop>
   <tabstop>timeLimit</tabstop>
   <tabstop>numBackups</tabstop>
-  <tabstop>syncOnProgramOpen</tabstop>
-  <tabstop>tabWidget</tabstop>
-  <tabstop>fullSync</tabstop>
   <tabstop>syncMedia</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>syncOnProgramOpen</tabstop>
+  <tabstop>fullSync</tabstop>
   <tabstop>syncDeauth</tabstop>
  </tabstops>
  <resources/>
