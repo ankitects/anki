@@ -33,14 +33,16 @@ if isMac:
     os.environ["PATH"] += ":/usr/texbin:/Library/TeX/texbin"
 
 
-def on_card_did_render(output: TemplateRenderOutput, ctx: TemplateRenderContext):
+def on_card_did_render(
+    output: TemplateRenderOutput, ctx: TemplateRenderContext
+) -> None:
     output.question_text = render_latex(
         output.question_text, ctx.note_type(), ctx.col()
     )
     output.answer_text = render_latex(output.answer_text, ctx.note_type(), ctx.col())
 
 
-def render_latex(html: str, model: NoteType, col: anki.storage._Collection,) -> str:
+def render_latex(html: str, model: NoteType, col: anki.storage._Collection) -> str:
     "Convert embedded latex tags in text to image links."
     html, err = render_latex_returning_errors(html, model, col)
     if err:
@@ -49,7 +51,10 @@ def render_latex(html: str, model: NoteType, col: anki.storage._Collection,) -> 
 
 
 def render_latex_returning_errors(
-    html: str, model: NoteType, col: anki.storage._Collection, expand_clozes=False
+    html: str,
+    model: NoteType,
+    col: anki.storage._Collection,
+    expand_clozes: bool = False,
 ) -> Tuple[str, List[str]]:
     """Returns (text, errors).
 

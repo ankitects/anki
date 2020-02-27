@@ -18,7 +18,7 @@ class AnkiError(Exception):
 
 
 class DeckRenameError(Exception):
-    def __init__(self, description) -> None:
+    def __init__(self, description: str) -> None:
         super().__init__()
         self.description = description
 

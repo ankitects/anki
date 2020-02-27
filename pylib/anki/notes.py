@@ -63,7 +63,7 @@ class Note:
             self.mid,
             self.mod,
             self.usn,
-            self.tags,
+            tags,
             fields,
             self.flags,
             self.data,
@@ -74,7 +74,7 @@ from notes where id = ?""",
             self.id,
         )
         self.fields = splitFields(fields)
-        self.tags = self.col.tags.split(self.tags)
+        self.tags = self.col.tags.split(tags)
         self._model = self.col.models.get(self.mid)
         self._fmap = self.col.models.fieldMap(self._model)
         self.scm = self.col.scm
