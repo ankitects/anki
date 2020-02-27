@@ -12,7 +12,7 @@ import ankirspy  # pytype: disable=import-error
 import anki.backend_pb2 as pb
 import anki.buildinfo
 from anki import hooks
-from anki.fluent_pb2 import FluentString as FString
+from anki.fluent_pb2 import FluentString as TR
 from anki.models import AllTemplateReqs
 from anki.sound import AVTag, SoundOrVideoTag, TTSTag
 from anki.types import assert_impossible_literal
@@ -324,7 +324,7 @@ class RustBackend:
             pb.BackendInput(trash_media_files=pb.TrashMediaFilesIn(fnames=fnames))
         )
 
-    def translate(self, key: FString, **kwargs: Union[str, int, float]):
+    def translate(self, key: TR, **kwargs: Union[str, int, float]):
         return self._run_command(
             pb.BackendInput(translate_string=translate_string_in(key, **kwargs))
         ).translate_string
@@ -358,7 +358,7 @@ class RustBackend:
 
 
 def translate_string_in(
-    key: FString, **kwargs: Union[str, int, float]
+    key: TR, **kwargs: Union[str, int, float]
 ) -> pb.TranslateStringIn:
     args = {}
     for (k, v) in kwargs.items():
@@ -376,7 +376,7 @@ class I18nBackend:
         )
         self._backend = ankirspy.open_i18n(init_msg.SerializeToString())
 
-    def translate(self, key: FString, **kwargs: Union[str, int, float]):
+    def translate(self, key: TR, **kwargs: Union[str, int, float]):
         return self._backend.translate(
             translate_string_in(key, **kwargs).SerializeToString()
         )

@@ -11,7 +11,7 @@ from markdown import markdown
 from anki.lang import _
 from aqt import mw
 from aqt.qt import *
-from aqt.utils import FString, showText, showWarning, supportText, tr
+from aqt.utils import TR, showText, showWarning, supportText, tr
 
 if not os.environ.get("DEBUG"):
 
@@ -106,14 +106,14 @@ your system's temporary folder may be incorrect."""
                 )
             )
         if "disk I/O error" in error:
-            showWarning(markdown(tr(FString.ERRORS_ACCESSING_DB)))
+            showWarning(markdown(tr(TR.ERRORS_ACCESSING_DB)))
             return
 
         if self.mw.addonManager.dirty:
-            txt = markdown(tr(FString.ERRORS_ADDONS_ACTIVE_POPUP))
+            txt = markdown(tr(TR.ERRORS_ADDONS_ACTIVE_POPUP))
             error = supportText() + self._addonText(error) + "\n" + error
         else:
-            txt = markdown(tr(FString.ERRORS_STANDARD_POPUP))
+            txt = markdown(tr(TR.ERRORS_STANDARD_POPUP))
             error = supportText() + "\n" + error
 
         # show dialog
