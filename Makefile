@@ -1,4 +1,17 @@
-SHELL := bash
+SHELL := /bin/bash
+
+ifeq ($(OS),Windows_NT)
+	PYTHON_BIN := python
+	ACTIVATE_SCRIPT := pyenv/Scripts/activate
+else
+	PYTHON_BIN := python3
+	ACTIVATE_SCRIPT := pyenv/bin/activate
+endif
+
+ifndef ANKI_EXTRA_PIP
+	ANKI_EXTRA_PIP := echo The custom pip command variable ANKI_EXTRA_PIP was not defined...
+endif
+
 .SHELLFLAGS := -eu -o pipefail -c
 .DELETE_ON_ERROR:
 MAKEFLAGS += --warn-undefined-variables
@@ -18,10 +31,12 @@ all: run
 # - modern pip required for wheel
 # - add qt if missing
 pyenv:
-	python3 -m venv pyenv && \
-	. pyenv/bin/activate && \
-	pip install --upgrade pip setuptools && \
-	python -c 'import PyQt5' 2>/dev/null || pip install -r qt/requirements.qt
+	"${PYTHON_BIN}" -m venv pyenv && \
+	. "${ACTIVATE_SCRIPT}" && \
+	python --version && \
+	python -m pip install --upgrade pip setuptools && \
+	${ANKI_EXTRA_PIP} && \
+	python -c 'import PyQt5' 2>/dev/null || python -m pip install -r qt/requirements.qt
 
 # update build hash
 .PHONY: buildhash
@@ -35,7 +50,7 @@ buildhash:
 .PHONY: develop
 develop: pyenv buildhash prepare
 	@set -eo pipefail && \
-	. pyenv/bin/activate && \
+	. "${ACTIVATE_SCRIPT}" && \
 	for dir in $(DEVEL); do \
 		$(SUBMAKE) -C $$dir develop BUILDFLAGS="$(BUILDFLAGS)"; \
 	done
@@ -43,9 +58,9 @@ develop: pyenv buildhash prepare
 .PHONY: run
 run: develop
 	@set -eo pipefail && \
-	. pyenv/bin/activate && \
+	. "${ACTIVATE_SCRIPT}" && \
 	echo "Starting Anki..."; \
-	qt/runanki $(RUNFLAGS)
+	python qt/runanki $(RUNFLAGS)
 
 .PHONY: prepare
 prepare: rslib/ftl/repo qt/ftl/repo qt/po/repo
@@ -64,17 +79,17 @@ build: clean-dist build-rspy build-pylib build-qt add-buildhash
 
 .PHONY: build-rspy
 build-rspy: pyenv buildhash
-	@. pyenv/bin/activate && \
+	@. "${ACTIVATE_SCRIPT}" && \
 	$(SUBMAKE) -C rspy build BUILDFLAGS="$(BUILDFLAGS)"
 
 .PHONY: build-pylib
 build-pylib:
-	@. pyenv/bin/activate && \
+	@. "${ACTIVATE_SCRIPT}" && \
 	$(SUBMAKE) -C pylib build
 
 .PHONY: build-qt
 build-qt:
-	@. pyenv/bin/activate && \
+	@. "${ACTIVATE_SCRIPT}" && \
 	$(SUBMAKE) -C qt build
 
 .PHONY: clean
@@ -94,7 +109,7 @@ check: pyenv buildhash
 	for dir in $(CHECKABLE_RS); do \
 	  $(SUBMAKE) -C $$dir check; \
 	done; \
-	. pyenv/bin/activate && \
+	. "${ACTIVATE_SCRIPT}" && \
 	$(SUBMAKE) -C rspy develop && \
 	$(SUBMAKE) -C pylib develop && \
 	for dir in $(CHECKABLE_PY); do \
@@ -106,7 +121,7 @@ check: pyenv buildhash
 .PHONY: fix
 fix:
 	@set -eo pipefail && \
-	. pyenv/bin/activate && \
+	. "${ACTIVATE_SCRIPT}" && \
 	for dir in $(CHECKABLE_RS) $(CHECKABLE_PY); do \
 	  $(SUBMAKE) -C $$dir fix; \
 	done; \

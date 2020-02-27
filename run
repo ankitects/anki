@@ -1,3 +1,4 @@
 #!/bin/bash
 
+python --version
 make -C $(dirname $0) run RUNFLAGS="$*"
