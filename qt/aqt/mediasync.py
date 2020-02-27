@@ -158,10 +158,12 @@ class MediaSyncDialog(QDialog):
         self._close_when_done = close_when_done
         self.form = aqt.forms.synclog.Ui_Dialog()
         self.form.setupUi(self)
+        self.setWindowTitle(tr(FString.SYNC_MEDIA_LOG_TITLE))
         self.abort_button = QPushButton(tr(FString.SYNC_ABORT_BUTTON))
         self.abort_button.clicked.connect(self._on_abort)  # type: ignore
         self.abort_button.setAutoDefault(False)
         self.form.buttonBox.addButton(self.abort_button, QDialogButtonBox.ActionRole)
+        self.abort_button.setHidden(not self._syncer.is_syncing())
 
         gui_hooks.media_sync_did_progress.append(self._on_log_entry)
         gui_hooks.media_sync_did_start_or_stop.append(self._on_start_stop)
