@@ -44,7 +44,7 @@ buildhash:
 	fi
 
 .PHONY: develop
-develop: pyenv buildhash
+develop: pyenv buildhash prepare
 	set -eo pipefail && \
 	. "${ACTIVATE_SCRIPT}" && \
 	for dir in $(DEVEL); do \
@@ -57,6 +57,16 @@ run: develop
 	. "${ACTIVATE_SCRIPT}" && \
 	echo "Starting Anki..."; \
 	python qt/runanki $(RUNFLAGS)
+
+.PHONY: prepare
+prepare: rslib/ftl/repo qt/ftl/repo qt/po/repo
+
+rslib/ftl/repo:
+	$(MAKE) pull-i18n
+qt/ftl/repo:
+	$(MAKE) pull-i18n
+qt/po/repo:
+	$(MAKE) pull-i18n
 
 .PHONY: build
 build: clean-dist build-rspy build-pylib build-qt add-buildhash
@@ -123,10 +133,10 @@ add-buildhash:
 pull-i18n:
 	(cd rslib/ftl && scripts/fetch-latest-translations)
 	(cd qt/ftl && scripts/fetch-latest-translations)
-	(cd qt/i18n && ./pull-git)
+	(cd qt/po && scripts/fetch-latest-translations)
 
 .PHONY: push-i18n
 push-i18n: pull-i18n
 	(cd rslib/ftl && scripts/upload-latest-templates)
 	(cd qt/ftl && scripts/upload-latest-templates)
-	(cd qt/i18n && ./sync-po-git)
+	(cd qt/po && scripts/upload-latest-template)

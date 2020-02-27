@@ -96,6 +96,16 @@ pylib/tools/genhooks.py and qt/tools/genhooks_gui.py. Adding a new definition
 in one of those files and running 'make develop' will update pylib/anki/hooks
 .py or qt/aqt/gui_hooks.py.
 
+Translations
+--------------
+
+The translations into other languages will be fetched on the first build.
+If you'd like to keep them up to date, you need to run 'make pull-i18n'
+periodically.
+
+For information on adding new translatable strings to Anki, please see
+https://ankitects.github.io/translating/#/anki/developers
+
 Tests Must Pass
 ----------------
 

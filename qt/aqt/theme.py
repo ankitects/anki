@@ -23,7 +23,7 @@ class ThemeManager:
             return False
         if not isMac:
             return False
-        if qtminor < 14:
+        if qtminor < 13:
             return False
         import darkdetect  # pylint: disable=import-error
 

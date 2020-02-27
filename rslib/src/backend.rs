@@ -44,24 +44,21 @@ fn anki_error_to_proto_error(err: AnkiError, i18n: &I18n) -> pb::BackendError {
     use pb::backend_error::Value as V;
     let localized = err.localized_description(i18n);
     let value = match err {
-        AnkiError::InvalidInput { info } => V::InvalidInput(pb::StringError { info }),
-        AnkiError::TemplateError { info } => V::TemplateParse(pb::TemplateParseError { info }),
-        AnkiError::IOError { info } => V::IoError(pb::StringError { info }),
-        AnkiError::DBError { info } => V::DbError(pb::StringError { info }),
-        AnkiError::NetworkError { info, kind } => V::NetworkError(pb::NetworkError {
-            info,
-            kind: kind.into(),
-            localized,
-        }),
-        AnkiError::SyncError { info, kind } => V::SyncError(pb::SyncError {
-            info,
-            kind: kind.into(),
-            localized,
-        }),
+        AnkiError::InvalidInput { .. } => V::InvalidInput(pb::Empty {}),
+        AnkiError::TemplateError { .. } => V::TemplateParse(pb::Empty {}),
+        AnkiError::IOError { .. } => V::IoError(pb::Empty {}),
+        AnkiError::DBError { .. } => V::DbError(pb::Empty {}),
+        AnkiError::NetworkError { kind, .. } => {
+            V::NetworkError(pb::NetworkError { kind: kind.into() })
+        }
+        AnkiError::SyncError { kind, .. } => V::SyncError(pb::SyncError { kind: kind.into() }),
         AnkiError::Interrupted => V::Interrupted(Empty {}),
     };
 
-    pb::BackendError { value: Some(value) }
+    pb::BackendError {
+        value: Some(value),
+        localized,
+    }
 }
 
 // Convert an Anki error to a protobuf output.
