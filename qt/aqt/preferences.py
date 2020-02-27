@@ -10,7 +10,7 @@ import aqt
 from anki.lang import _
 from aqt import AnkiQt
 from aqt.qt import *
-from aqt.utils import askUser, openHelp, showInfo, showWarning, tr, FString
+from aqt.utils import TR, askUser, openHelp, showInfo, showWarning, tr
 
 
 class Preferences(QDialog):
@@ -177,7 +177,7 @@ class Preferences(QDialog):
     ######################################################################
 
     def setupNetwork(self):
-        self.form.media_log.setText(tr(FString.SYNC_MEDIA_LOG_BUTTON))
+        self.form.media_log.setText(tr(TR.SYNC_MEDIA_LOG_BUTTON))
         self.form.media_log.clicked.connect(self.on_media_log)
         self.form.syncOnProgramOpen.setChecked(self.prof["autoSync"])
         self.form.syncMedia.setChecked(self.prof["syncMedia"])

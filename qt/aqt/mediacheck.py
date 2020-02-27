@@ -10,13 +10,7 @@ from typing import Iterable, List, Optional, TypeVar
 
 import aqt
 from anki import hooks
-from anki.rsbackend import (
-    FString,
-    Interrupted,
-    MediaCheckOutput,
-    Progress,
-    ProgressKind,
-)
+from anki.rsbackend import TR, Interrupted, MediaCheckOutput, Progress, ProgressKind
 from aqt.qt import *
 from aqt.utils import askUser, restoreGeom, saveGeom, showText, tooltip, tr
 
@@ -89,14 +83,14 @@ class MediaChecker:
         layout.addWidget(box)
 
         if output.unused:
-            b = QPushButton(tr(FString.MEDIA_CHECK_DELETE_UNUSED))
+            b = QPushButton(tr(TR.MEDIA_CHECK_DELETE_UNUSED))
             b.setAutoDefault(False)
             box.addButton(b, QDialogButtonBox.RejectRole)
             b.clicked.connect(lambda c: self._on_trash_files(output.unused))  # type: ignore
 
         if output.missing:
             if any(map(lambda x: x.startswith("latex-"), output.missing)):
-                b = QPushButton(tr(FString.MEDIA_CHECK_RENDER_LATEX))
+                b = QPushButton(tr(TR.MEDIA_CHECK_RENDER_LATEX))
                 b.setAutoDefault(False)
                 box.addButton(b, QDialogButtonBox.RejectRole)
                 b.clicked.connect(self._on_render_latex)  # type: ignore
@@ -125,17 +119,17 @@ class MediaChecker:
             browser.onSearchActivated()
             showText(err, type="html")
         else:
-            tooltip(tr(FString.MEDIA_CHECK_ALL_LATEX_RENDERED))
+            tooltip(tr(TR.MEDIA_CHECK_ALL_LATEX_RENDERED))
 
     def _on_render_latex_progress(self, count: int) -> bool:
         if self.progress_dialog.wantCancel:
             return False
 
-        self.mw.progress.update(tr(FString.MEDIA_CHECK_CHECKED, count=count))
+        self.mw.progress.update(tr(TR.MEDIA_CHECK_CHECKED, count=count))
         return True
 
     def _on_trash_files(self, fnames: List[str]):
-        if not askUser(tr(FString.MEDIA_CHECK_DELETE_UNUSED_CONFIRM)):
+        if not askUser(tr(TR.MEDIA_CHECK_DELETE_UNUSED_CONFIRM)):
             return
 
         self.progress_dialog = self.mw.progress.start()
@@ -149,10 +143,10 @@ class MediaChecker:
                 remaining -= len(chunk)
                 if time.time() - last_progress >= 0.3:
                     self.mw.progress.update(
-                        tr(FString.MEDIA_CHECK_FILES_REMAINING, count=remaining)
+                        tr(TR.MEDIA_CHECK_FILES_REMAINING, count=remaining)
                     )
         finally:
             self.mw.progress.finish()
             self.progress_dialog = None
 
-        tooltip(tr(FString.MEDIA_CHECK_DELETE_UNUSED_COMPLETE, count=total))
+        tooltip(tr(TR.MEDIA_CHECK_DELETE_UNUSED_COMPLETE, count=total))

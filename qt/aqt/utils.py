@@ -13,7 +13,7 @@ from typing import Any, Optional, Union
 import anki
 import aqt
 from anki.lang import _
-from anki.rsbackend import FString
+from anki.rsbackend import TR
 from anki.utils import invalidFilename, isMac, isWin, noBundledLibs, versionWithBuild
 from aqt.qt import *
 from aqt.theme import theme_manager
@@ -32,7 +32,7 @@ def locale_dir() -> str:
     return os.path.join(aqt_data_folder(), "locale")
 
 
-def tr(key: FString, **kwargs: Union[str, int, float]) -> str:
+def tr(key: TR, **kwargs: Union[str, int, float]) -> str:
     "Shortcut to access Fluent translations."
     return anki.lang.current_i18n.translate(key, **kwargs)
 
