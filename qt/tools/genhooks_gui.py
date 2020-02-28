@@ -114,6 +114,9 @@ hooks = [
         legacy_hook="reviewCleanup",
         doc="Called before Anki transitions from the review screen to another screen.",
     ),
+    # Multiple windows
+    ###################
+    # reviewer, clayout and browser
     Hook(
         name="card_will_show",
         args=["text: str", "card: Card", "kind: str"],
