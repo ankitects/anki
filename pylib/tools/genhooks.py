@@ -95,6 +95,20 @@ hooks = [
         name="schedv2_did_answer_review_card",
         args=["card: anki.cards.Card", "ease: int", "early: bool"],
     ),
+    Hook(
+        name="fix_integrity",
+        args=["problems: List[str]", "col: anki.collection._Collection"],
+        return_type="List[str]",
+        doc="""Allow to add more actions to do when calling "Check Database". Any
+        error should be appended to the list and then returned.
+
+        For example:
+        * Checking for duplicate cards (same ord, same nid)
+        * Duplicate GUID
+        * calling automatically "Check Media"
+        * checking whether all deck/model parameters are set
+        """,
+    ),
 ]
 
 if __name__ == "__main__":

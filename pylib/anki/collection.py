@@ -970,6 +970,7 @@ and type=0""",
         self.optimize()
         newSize = os.stat(self.path)[stat.ST_SIZE]
         txt = _("Database rebuilt and optimized.")
+        problems = hooks.fix_integrity(problems, self)
         ok = not problems
         problems.append(txt)
         # if any problems were found, force a full sync

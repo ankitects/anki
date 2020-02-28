@@ -281,6 +281,47 @@ class _FieldFilterFilter:
 field_filter = _FieldFilterFilter()
 
 
+class _FixIntegrityFilter:
+    """Allow to add more actions to do when calling "Check Database". Any
+        error should be appended to the list and then returned.
+
+        For example:
+        * Checking for duplicate cards (same ord, same nid)
+        * Duplicate GUID
+        * calling automatically "Check Media"
+        * checking whether all deck/model parameters are set
+        """
+
+    _hooks: List[Callable[[List[str], "anki.collection._Collection"], List[str]]] = []
+
+    def append(
+        self, cb: Callable[[List[str], "anki.collection._Collection"], List[str]]
+    ) -> None:
+        """(problems: List[str], col: anki.collection._Collection)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self, cb: Callable[[List[str], "anki.collection._Collection"], List[str]]
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(
+        self, problems: List[str], col: anki.collection._Collection
+    ) -> List[str]:
+        for filter in self._hooks:
+            try:
+                problems = filter(problems, col)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return problems
+
+
+fix_integrity = _FixIntegrityFilter()
+
+
 class _MediaFilesDidExportHook:
     _hooks: List[Callable[[int], None]] = []
 
