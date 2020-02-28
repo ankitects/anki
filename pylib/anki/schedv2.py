@@ -992,7 +992,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
         ivl = max(1, conf["minInt"], int(card.ivl * conf["mult"]))
         return ivl
 
-    def _rescheduleRev(self, card: Card, ease: int, early: Union[bool, int]) -> None:
+    def _rescheduleRev(self, card: Card, ease: int, early: bool) -> None:
         # update interval
         card.lastIvl = card.ivl
         if early:
@@ -1075,7 +1075,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
         return [ivl - fuzz, ivl + fuzz]
 
     def _constrainedIvl(
-        self, ivl: Union[int, float], conf: Dict[str, Any], prev: int, fuzz: bool
+        self, ivl: float, conf: Dict[str, Any], prev: int, fuzz: bool
     ) -> int:
         ivl = int(ivl * conf.get("ivlFct", 1))
         if fuzz:

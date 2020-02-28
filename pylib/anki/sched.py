@@ -639,7 +639,7 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
                 card.queue = QUEUE_TYPE_DAY_LEARN_RELEARN
         self._logLrn(card, ease, conf, leaving, type, lastLeft)
 
-    def _delayForGrade(self, conf: Dict[str, Any], left: int) -> Union[int, float]:
+    def _delayForGrade(self, conf: Dict[str, Any], left: int) -> float:
         left = left % 1000
         try:
             delay = conf["delays"][-left]
@@ -923,7 +923,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
             self._rescheduleRev(card, ease)
         self._logRev(card, ease, delay)
 
-    def _rescheduleLapse(self, card: Card) -> Union[int, float]:
+    def _rescheduleLapse(self, card: Card) -> float:
         conf = self._lapseConf(card)
         card.lastIvl = card.ivl
         if self._resched(card):
@@ -977,7 +977,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
             card.odid = 0
             card.odue = 0
 
-    def _logRev(self, card: Card, ease: int, delay: Union[int, float]) -> None:
+    def _logRev(self, card: Card, ease: int, delay: float) -> None:
         def log():
             self.col.db.execute(
                 "insert into revlog values (?,?,?,?,?,?,?,?,?)",
@@ -1409,7 +1409,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
             return self._nextRevIvl(card, ease) * 86400
 
     # this isn't easily extracted from the learn code
-    def _nextLrnIvl(self, card: Card, ease: int) -> Union[int, float]:
+    def _nextLrnIvl(self, card: Card, ease: int) -> float:
         if card.queue == 0:
             card.left = self._startingLeft(card)
         conf = self._lrnConf(card)
