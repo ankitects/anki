@@ -511,7 +511,7 @@ if isWin:
                 self._terminate_flag = False
 
         def _tidy_name(self, name: str) -> str:
-            "eg. Microsoft Haruka Desktop -> Microsoft-Haruka."
+            "eg. Microsoft Haruka Desktop -> Microsoft_Haruka."
             return re.sub(r"^Microsoft (.+) Desktop$", "Microsoft_\\1", name).replace(
                 " ", "_"
             )
