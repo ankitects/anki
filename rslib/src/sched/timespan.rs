@@ -80,7 +80,7 @@ const MINUTE: f32 = 60.0 * SECOND;
 const HOUR: f32 = 60.0 * MINUTE;
 const DAY: f32 = 24.0 * HOUR;
 const MONTH: f32 = 30.0 * DAY;
-const YEAR: f32 = 365.0 * MONTH;
+const YEAR: f32 = 12.0 * MONTH;
 
 #[derive(Clone, Copy)]
 enum TimespanUnit {
@@ -196,6 +196,7 @@ mod test {
         assert_eq!(time_span(30.3, &i18n, true), "30.3 seconds");
         assert_eq!(time_span(90.0, &i18n, false), "1.5 minutes");
         assert_eq!(time_span(45.0 * 86_400.0, &i18n, false), "1.5 months");
+        assert_eq!(time_span(365.0 * 86_400.0 * 1.5, &i18n, false), "1.5 years");
     }
 
     #[test]
