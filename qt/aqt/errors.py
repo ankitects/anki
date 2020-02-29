@@ -82,12 +82,6 @@ your system's temporary folder may be incorrect."""
                     "Your firewall or antivirus program is preventing Anki from creating a connection to itself. Please add an exception for Anki."
                 )
             )
-        if "install mplayer" in error:
-            return showWarning(
-                _(
-                    "Sound and video on cards will not function until mpv or mplayer is installed."
-                )
-            )
         if "no default input" in error.lower():
             return showWarning(
                 _(
