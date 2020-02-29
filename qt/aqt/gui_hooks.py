@@ -907,6 +907,31 @@ def emptyNewCard():
 empty_cards_will_be_deleted = _EmptyCardsWillBeDeletedFilter()
 
 
+class _MainWindowShouldResetFilter:
+    _hooks: List[Callable[[bool], bool]] = []
+
+    def append(self, cb: Callable[[bool], bool]) -> None:
+        """(should_reset: bool)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[bool], bool]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, should_reset: bool) -> bool:
+        for filter in self._hooks:
+            try:
+                should_reset = filter(should_reset)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return should_reset
+
+
+main_window_should_reset = _MainWindowShouldResetFilter()
+
+
 class _MediaSyncDidProgressHook:
     _hooks: List[Callable[["aqt.mediasync.LogEntryWithTime"], None]] = []
 

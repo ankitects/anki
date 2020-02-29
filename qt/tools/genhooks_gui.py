@@ -370,6 +370,9 @@ def emptyNewCard():
     gui_hooks.remove(filter)
 ```""",
     ),
+    Hook(
+        name="main_window_should_reset", args=["should_reset: bool"], return_type="bool"
+    ),
     # Adding cards
     ###################
     Hook(

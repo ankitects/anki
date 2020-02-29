@@ -636,6 +636,8 @@ from the profile screen."
 
     def requireReset(self, modal=False):
         "Signal queue needs to be rebuilt when edits are finished or by user."
+        if not gui_hooks.main_window_should_reset(True):
+            return
         self.autosave()
         self.resetModal = modal
         if self.interactiveState():
