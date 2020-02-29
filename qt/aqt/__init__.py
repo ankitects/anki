@@ -24,10 +24,10 @@ from aqt.utils import locale_dir
 assert anki.buildinfo.buildhash == aqt.buildinfo.buildhash
 
 appVersion = _version
-appWebsite = "https://apps.ankiweb.net/"
-appChanges = "https://apps.ankiweb.net/docs/changes.html"
-appDonate = "https://apps.ankiweb.net/support/"
-appShared = "https://ankiweb.net/shared/decks/"
+appWebsite = "http://ankisrs.net/"
+appChanges = "http://ankisrs.net/docs/changes.html"
+appDonate = "http://ankisrs.net/support/"
+appShared = "https://ankiweb.net/shared/"
 appUpdate = "https://ankiweb.net/update/desktop"
 appHelpSite = HELP_SITE
 
