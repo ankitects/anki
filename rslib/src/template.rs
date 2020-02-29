@@ -5,7 +5,6 @@ use crate::err::{AnkiError, Result, TemplateError};
 use crate::i18n::{tr_strs, FString, I18n};
 use crate::template_filters::apply_filters;
 use lazy_static::lazy_static;
-use nom;
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::error::ErrorKind;

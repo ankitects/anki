@@ -1,7 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use htmlescape;
 use lazy_static::lazy_static;
 use regex::{Captures, Regex};
 use std::borrow::Cow;

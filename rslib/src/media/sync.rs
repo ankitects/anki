@@ -12,7 +12,6 @@ use crate::version;
 use bytes::Bytes;
 use coarsetime::Instant;
 use log::debug;
-use reqwest;
 use reqwest::{multipart, Client, Response};
 use serde_derive::{Deserialize, Serialize};
 use serde_tuple::Serialize_tuple;
