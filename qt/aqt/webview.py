@@ -149,6 +149,8 @@ class WebContent:
                       f"/_addons/{addon_package}/web/my-addon.css")
                   web_content.js.append(
                       f"/_addons/{addon_package}/web/my-addon.js")
+          
+          Note that '/' will also match the os specific path separator.
     """
 
     body: str = ""
