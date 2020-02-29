@@ -6,6 +6,7 @@ use crate::media::database::{open_or_create, MediaDatabaseContext, MediaEntry};
 use crate::media::files::{add_data_to_folder_uniquely, mtime_as_i64, remove_files, sha1_of_data};
 use crate::media::sync::{MediaSyncProgress, MediaSyncer};
 use rusqlite::Connection;
+use slog::Logger;
 use std::borrow::Cow;
 use std::path::{Path, PathBuf};
 

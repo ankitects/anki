@@ -33,7 +33,10 @@ def Collection(
     "Open a new or existing collection. Path must be unicode."
     assert path.endswith(".anki2")
     (media_dir, media_db) = media_paths_from_col_path(path)
-    backend = RustBackend(path, media_dir, media_db)
+    log_path = ""
+    if not server:
+        log_path = path.replace(".anki2", "2.log")
+    backend = RustBackend(path, media_dir, media_db, log_path)
     path = os.path.abspath(path)
     create = not os.path.exists(path)
     if create:

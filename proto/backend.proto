@@ -12,6 +12,7 @@ message BackendInit {
     string media_db_path = 3;
     repeated string preferred_langs = 4;
     string locale_folder_path = 5;
+    string log_path = 6;
 }
 
 message I18nBackendInit {

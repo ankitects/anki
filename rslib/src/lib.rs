@@ -14,6 +14,7 @@ pub mod cloze;
 pub mod err;
 pub mod i18n;
 pub mod latex;
+pub mod log;
 pub mod media;
 pub mod sched;
 pub mod template;
