@@ -147,6 +147,7 @@ hooks = [
     ),
     # Browser
     ###################
+    Hook(name="browser_will_show", args=["browser: aqt.browser.Browser"]),
     Hook(
         name="browser_menus_did_init",
         args=["browser: aqt.browser.Browser"],
