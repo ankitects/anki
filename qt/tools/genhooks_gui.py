@@ -46,31 +46,6 @@ hooks = [
         """,
     ),
     Hook(
-        name="deck_browser_did_render",
-        args=["deck_browser: aqt.deckbrowser.DeckBrowser"],
-        doc="""Allow to update the deck browser window. E.g. change its title.""",
-    ),
-    Hook(
-        name="deck_browser_will_render_content",
-        args=[
-            "deck_browser: aqt.deckbrowser.DeckBrowser",
-            "content: aqt.deckbrowser.DeckBrowserContent",
-        ],
-        doc="""Used to modify HTML content sections in the deck browser body
-        
-        'content' contains the sections of HTML content the deck browser body
-        will be updated with.
-        
-        When modifying the content of a particular section, please make sure your
-        changes only perform the minimum required edits to make your add-on work.
-        You should avoid overwriting or interfering with existing data as much
-        as possible, instead opting to append your own changes, e.g.:
-        
-            def on_deck_browser_will_render_content(deck_browser, content):
-                content.stats += "\n<div>my html</div>"
-        """,
-    ),
-    Hook(
         name="reviewer_did_show_question",
         args=["card: Card"],
         legacy_hook="showQuestion",
@@ -120,6 +95,33 @@ hooks = [
         return_type="str",
         legacy_hook="prepareQA",
         doc="Can modify card text before review/preview.",
+    ),
+    # Deck browser
+    ###################
+    Hook(
+        name="deck_browser_did_render",
+        args=["deck_browser: aqt.deckbrowser.DeckBrowser"],
+        doc="""Allow to update the deck browser window. E.g. change its title.""",
+    ),
+    Hook(
+        name="deck_browser_will_render_content",
+        args=[
+            "deck_browser: aqt.deckbrowser.DeckBrowser",
+            "content: aqt.deckbrowser.DeckBrowserContent",
+        ],
+        doc="""Used to modify HTML content sections in the deck browser body
+        
+        'content' contains the sections of HTML content the deck browser body
+        will be updated with.
+        
+        When modifying the content of a particular section, please make sure your
+        changes only perform the minimum required edits to make your add-on work.
+        You should avoid overwriting or interfering with existing data as much
+        as possible, instead opting to append your own changes, e.g.:
+        
+            def on_deck_browser_will_render_content(deck_browser, content):
+                content.stats += "\n<div>my html</div>"
+        """,
     ),
     # Deck options
     ###################
