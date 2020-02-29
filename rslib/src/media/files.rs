@@ -11,7 +11,6 @@ use std::io::Read;
 use std::path::{Path, PathBuf};
 use std::{fs, io, time};
 use unicode_normalization::{is_nfc, UnicodeNormalization};
-use utime;
 
 /// The maximum length we allow a filename to be. When combined
 /// with the rest of the path, the full path needs to be under ~240 chars
