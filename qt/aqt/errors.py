@@ -82,12 +82,6 @@ your system's temporary folder may be incorrect."""
             )
         if "Pyaudio not" in error:
             return showWarning(_("Please install PyAudio"))
-        if "install mplayer" in error:
-            return showWarning(
-                _(
-                    "Sound and video on cards will not function until mpv or mplayer is installed."
-                )
-            )
         if "no default input" in error.lower():
             return showWarning(
                 _(
