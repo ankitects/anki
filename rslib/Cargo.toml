@@ -23,9 +23,7 @@ serde = "1.0.104"
 serde_json = "1.0.45"
 tokio = "0.2.11"
 serde_derive = "1.0.104"
-env_logger = "0.7.1"
 zip = "0.5.4"
-log = "0.4.8"
 serde_tuple = "0.4.0"
 coarsetime = "=0.1.11"
 utime = "0.2.1"
@@ -34,6 +32,10 @@ unic-langid = { version = "0.8.0", features = ["macros"] }
 fluent = { git = "https://github.com/ankitects/fluent-rs.git", branch="32bit-panic" }
 intl-memoizer = { git = "https://github.com/ankitects/fluent-rs.git", branch="32bit-panic" }
 num-format = "0.4.0"
+slog = { version = "2.5.2", features = ["max_level_trace", "release_max_level_debug"] }
+slog-term = "2.5.0"
+slog-async = "2.4.0"
+slog-envlogger = "2.2.0"
 
 [target.'cfg(target_vendor="apple")'.dependencies]
 rusqlite = { version = "0.21.0", features = ["trace"] }

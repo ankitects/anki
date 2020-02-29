@@ -2,9 +2,9 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::err::Result;
+use crate::log::{error, Logger};
 use fluent::{FluentArgs, FluentBundle, FluentResource, FluentValue};
 use intl_memoizer::IntlLangMemoizer;
-use log::error;
 use num_format::Locale;
 use std::borrow::Cow;
 use std::fs;
@@ -167,10 +167,11 @@ fn get_bundle(
     text: String,
     extra_text: String,
     locales: &[LanguageIdentifier],
+    log: &Logger,
 ) -> Option<FluentBundle<FluentResource>> {
     let res = FluentResource::try_new(text)
         .map_err(|e| {
-            error!("Unable to parse translations file: {:?}", e);
+            error!(log, "Unable to parse translations file: {:?}", e);
         })
         .ok()?;
 
@@ -178,14 +179,14 @@ fn get_bundle(
     bundle
         .add_resource(res)
         .map_err(|e| {
-            error!("Duplicate key detected in translation file: {:?}", e);
+            error!(log, "Duplicate key detected in translation file: {:?}", e);
         })
         .ok()?;
 
     if !extra_text.is_empty() {
         match FluentResource::try_new(extra_text) {
             Ok(res) => bundle.add_resource_overriding(res),
-            Err((_res, e)) => error!("Unable to parse translations file: {:?}", e),
+            Err((_res, e)) => error!(log, "Unable to parse translations file: {:?}", e),
         }
     }
 
@@ -206,12 +207,13 @@ fn get_bundle_with_extra(
     lang: Option<&LanguageIdentifier>,
     ftl_folder: &Path,
     locales: &[LanguageIdentifier],
+    log: &Logger,
 ) -> Option<FluentBundle<FluentResource>> {
     let extra_text = if let Some(path) = lang_folder(lang, &ftl_folder) {
         match ftl_external_text(&path) {
             Ok(text) => text,
             Err(e) => {
-                error!("Error reading external FTL files: {:?}", e);
+                error!(log, "Error reading external FTL files: {:?}", e);
                 "".into()
             }
         }
@@ -219,16 +221,21 @@ fn get_bundle_with_extra(
         "".into()
     };
 
-    get_bundle(text, extra_text, locales)
+    get_bundle(text, extra_text, locales, log)
 }
 
 #[derive(Clone)]
 pub struct I18n {
     inner: Arc<Mutex<I18nInner>>,
+    log: Logger,
 }
 
 impl I18n {
-    pub fn new<S: AsRef<str>, P: Into<PathBuf>>(locale_codes: &[S], ftl_folder: P) -> Self {
+    pub fn new<S: AsRef<str>, P: Into<PathBuf>>(
+        locale_codes: &[S],
+        ftl_folder: P,
+        log: Logger,
+    ) -> Self {
         let ftl_folder = ftl_folder.into();
 
         let mut langs = vec![];
@@ -246,10 +253,12 @@ impl I18n {
         for lang in &langs {
             // if the language is bundled in the binary
             if let Some(text) = ftl_localized_text(lang) {
-                if let Some(bundle) = get_bundle_with_extra(text, Some(lang), &ftl_folder, &langs) {
+                if let Some(bundle) =
+                    get_bundle_with_extra(text, Some(lang), &ftl_folder, &langs, &log)
+                {
                     bundles.push(bundle);
                 } else {
-                    error!("Failed to create bundle for {:?}", lang.language())
+                    error!(log, "Failed to create bundle for {:?}", lang.language())
                 }
 
                 // if English was listed, any further preferences are skipped,
@@ -265,11 +274,12 @@ impl I18n {
 
         // add English templates
         let template_bundle =
-            get_bundle_with_extra(ftl_template_text(), None, &ftl_folder, &langs).unwrap();
+            get_bundle_with_extra(ftl_template_text(), None, &ftl_folder, &langs, &log).unwrap();
         bundles.push(template_bundle);
 
         Self {
             inner: Arc::new(Mutex::new(I18nInner { bundles })),
+            log,
         }
     }
 
@@ -302,7 +312,7 @@ impl I18n {
             let mut errs = vec![];
             let out = bundle.format_pattern(pat, args.as_ref(), &mut errs);
             if !errs.is_empty() {
-                error!("Error(s) in translation '{}': {:?}", key, errs);
+                error!(self.log, "Error(s) in translation '{}': {:?}", key, errs);
             }
             // clone so we can discard args
             return out.to_string().into();
@@ -389,6 +399,7 @@ impl NumberFormatter {
 mod test {
     use crate::i18n::NumberFormatter;
     use crate::i18n::{tr_args, I18n};
+    use crate::log;
     use std::path::PathBuf;
     use unic_langid::langid;
 
@@ -403,8 +414,10 @@ mod test {
         let mut ftl_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         ftl_dir.push("tests/support/ftl");
 
+        let log = log::terminal();
+
         // English template
-        let i18n = I18n::new(&["zz"], &ftl_dir);
+        let i18n = I18n::new(&["zz"], &ftl_dir, log.clone());
         assert_eq!(i18n.tr_("valid-key", None), "a valid key");
         assert_eq!(i18n.tr_("invalid-key", None), "invalid-key");
 
@@ -427,7 +440,7 @@ mod test {
         );
 
         // Another language
-        let i18n = I18n::new(&["ja_JP"], &ftl_dir);
+        let i18n = I18n::new(&["ja_JP"], &ftl_dir, log.clone());
         assert_eq!(i18n.tr_("valid-key", None), "キー");
         assert_eq!(i18n.tr_("only-in-english", None), "not translated");
         assert_eq!(i18n.tr_("invalid-key", None), "invalid-key");
@@ -438,7 +451,7 @@ mod test {
         );
 
         // Decimal separator
-        let i18n = I18n::new(&["pl-PL"], &ftl_dir);
+        let i18n = I18n::new(&["pl-PL"], &ftl_dir, log.clone());
         // falls back on English, but with Polish separators
         assert_eq!(
             i18n.tr_("two-args-key", Some(tr_args!["one"=>1, "two"=>2.07])),

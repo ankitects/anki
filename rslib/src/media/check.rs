@@ -4,6 +4,7 @@
 use crate::err::{AnkiError, Result};
 use crate::i18n::{tr_args, tr_strs, FString, I18n};
 use crate::latex::extract_latex_expanding_clozes;
+use crate::log::{debug, Logger};
 use crate::media::col::{
     for_every_note, get_note_types, mark_collection_modified, open_or_create_collection_db,
     set_note, Note,
@@ -15,7 +16,6 @@ use crate::media::files::{
 use crate::text::{normalize_to_nfc, MediaRef};
 use crate::{media::MediaManager, text::extract_media_refs};
 use coarsetime::Instant;
-use log::debug;
 use std::collections::{HashMap, HashSet};
 use std::path::Path;
 use std::{borrow::Cow, fs, time};
@@ -47,6 +47,7 @@ where
     checked: usize,
     progress_updated: Instant,
     i18n: &'a I18n,
+    log: &'a Logger,
 }
 
 impl<P> MediaChecker<'_, P>
@@ -58,6 +59,7 @@ where
         col_path: &'a Path,
         progress_cb: P,
         i18n: &'a I18n,
+        log: &'a Logger,
     ) -> MediaChecker<'a, P> {
         MediaChecker {
             mgr,
@@ -66,6 +68,7 @@ where
             checked: 0,
             progress_updated: Instant::now(),
             i18n,
+            log,
         }
     }
 
@@ -258,7 +261,7 @@ where
             }
         })?;
         let fname = self.mgr.add_file(ctx, disk_fname, &data)?;
-        debug!("renamed {} to {}", disk_fname, fname);
+        debug!(self.log, "renamed"; "from"=>disk_fname, "to"=>&fname.as_ref());
         assert_ne!(fname.as_ref(), disk_fname);
 
         // move the originally named file to the trash
@@ -303,6 +306,7 @@ where
                 .unwrap_or(0);
             if elap_secs >= 7 * 86_400 {
                 debug!(
+                    self.log,
                     "removing {:?} from trash, as 7 days have elapsed",
                     dentry.path()
                 );
@@ -439,13 +443,15 @@ fn extract_latex_refs(note: &Note, seen_files: &mut HashSet<String>, svg: bool) 
 mod test {
     use crate::err::Result;
     use crate::i18n::I18n;
+    use crate::log;
+    use crate::log::Logger;
     use crate::media::check::{MediaCheckOutput, MediaChecker};
     use crate::media::MediaManager;
     use std::fs;
     use std::path::PathBuf;
     use tempfile::{tempdir, TempDir};
 
-    fn common_setup() -> Result<(TempDir, MediaManager, PathBuf)> {
+    fn common_setup() -> Result<(TempDir, MediaManager, PathBuf, Logger)> {
         let dir = tempdir()?;
         let media_dir = dir.path().join("media");
         fs::create_dir(&media_dir)?;
@@ -458,12 +464,13 @@ mod test {
 
         let mgr = MediaManager::new(&media_dir, media_db)?;
 
-        Ok((dir, mgr, col_path))
+        let log = log::terminal();
+        Ok((dir, mgr, col_path, log))
     }
 
     #[test]
     fn media_check() -> Result<()> {
-        let (_dir, mgr, col_path) = common_setup()?;
+        let (_dir, mgr, col_path, log) = common_setup()?;
 
         // add some test files
         fs::write(&mgr.media_folder.join("zerobytes"), "")?;
@@ -473,10 +480,10 @@ mod test {
         fs::write(&mgr.media_folder.join("_under.jpg"), "foo")?;
         fs::write(&mgr.media_folder.join("unused.jpg"), "foo")?;
 
-        let i18n = I18n::new(&["zz"], "dummy");
+        let i18n = I18n::new(&["zz"], "dummy", log.clone());
 
         let progress = |_n| true;
-        let mut checker = MediaChecker::new(&mgr, &col_path, progress, &i18n);
+        let mut checker = MediaChecker::new(&mgr, &col_path, progress, &i18n, &log);
         let mut output = checker.check()?;
 
         assert_eq!(
@@ -522,14 +529,14 @@ Unused: unused.jpg
 
     #[test]
     fn unicode_normalization() -> Result<()> {
-        let (_dir, mgr, col_path) = common_setup()?;
+        let (_dir, mgr, col_path, log) = common_setup()?;
 
-        let i18n = I18n::new(&["zz"], "dummy");
+        let i18n = I18n::new(&["zz"], "dummy", log.clone());
 
         fs::write(&mgr.media_folder.join("ぱぱ.jpg"), "nfd encoding")?;
 
         let progress = |_n| true;
-        let mut checker = MediaChecker::new(&mgr, &col_path, progress, &i18n);
+        let mut checker = MediaChecker::new(&mgr, &col_path, progress, &i18n, &log);
         let mut output = checker.check()?;
         output.missing.sort();
 

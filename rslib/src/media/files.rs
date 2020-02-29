@@ -2,8 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::err::Result;
+use crate::log::{debug, Logger};
 use lazy_static::lazy_static;
-use log::debug;
 use regex::Regex;
 use sha1::Sha1;
 use std::borrow::Cow;
@@ -364,6 +364,7 @@ pub(super) fn add_file_from_ankiweb(
     media_folder: &Path,
     fname: &str,
     data: &[u8],
+    log: &Logger,
 ) -> Result<AddedFile> {
     let sha1 = sha1_of_data(data);
     let normalized = normalize_filename(fname);
@@ -374,7 +375,7 @@ pub(super) fn add_file_from_ankiweb(
         fs::write(&path, data)?;
         (None, path)
     } else {
-        debug!("non-normalized filename received {}", fname);
+        debug!(log, "non-normalized filename received"; "fname"=>&fname);
         // ankiweb sent us a non-normalized filename, so we'll rename it
         let new_name = add_data_to_folder_uniquely(media_folder, fname, data, sha1)?;
         (

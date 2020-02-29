@@ -4,7 +4,6 @@
 use anki::backend::{
     init_backend, init_i18n_backend, Backend as RustBackend, I18nBackend as RustI18nBackend,
 };
-use log::error;
 use pyo3::prelude::*;
 use pyo3::types::PyBytes;
 use pyo3::{exceptions, wrap_pyfunction};
@@ -55,7 +54,7 @@ impl Backend {
                 let res: PyObject = match callback.call1(py, (out_obj,)) {
                     Ok(res) => res,
                     Err(e) => {
-                        error!("error calling callback:");
+                        println!("error calling callback:");
                         e.print(py);
                         return false;
                     }
@@ -63,7 +62,7 @@ impl Backend {
                 match res.extract(py) {
                     Ok(cont) => cont,
                     Err(e) => {
-                        error!("callback did not return bool: {:?}", e);
+                        println!("callback did not return bool: {:?}", e);
                         return false;
                     }
                 }
@@ -106,8 +105,6 @@ fn ankirspy(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_wrapped(wrap_pyfunction!(buildhash)).unwrap();
     m.add_wrapped(wrap_pyfunction!(open_backend)).unwrap();
     m.add_wrapped(wrap_pyfunction!(open_i18n)).unwrap();
-
-    env_logger::init();
 
     Ok(())
 }

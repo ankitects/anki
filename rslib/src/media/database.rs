@@ -2,13 +2,12 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::err::Result;
-use log::debug;
 use rusqlite::{params, Connection, OptionalExtension, Row, Statement, NO_PARAMS};
 use std::collections::HashMap;
 use std::path::Path;
 
 fn trace(s: &str) {
-    debug!("sql: {}", s)
+    println!("sql: {}", s)
 }
 
 pub(super) fn open_or_create<P: AsRef<Path>>(path: P) -> Result<Connection> {

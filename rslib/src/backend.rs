@@ -1,12 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::backend_proto as pb;
 use crate::backend_proto::backend_input::Value;
 use crate::backend_proto::{Empty, RenderedTemplateReplacement, SyncMediaIn};
 use crate::err::{AnkiError, NetworkErrorKind, Result, SyncErrorKind};
 use crate::i18n::{tr_args, FString, I18n};
 use crate::latex::{extract_latex, extract_latex_expanding_clozes, ExtractedLatex};
+use crate::log::{default_logger, Logger};
 use crate::media::check::MediaChecker;
 use crate::media::sync::MediaSyncProgress;
 use crate::media::MediaManager;
@@ -17,10 +17,11 @@ use crate::template::{
     RenderedNode,
 };
 use crate::text::{extract_av_tags, strip_av_tags, AVTag};
+use crate::{backend_proto as pb, log};
 use fluent::FluentValue;
 use prost::Message;
 use std::collections::{HashMap, HashSet};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use tokio::runtime::Runtime;
 
 pub type ProtoProgressCallback = Box<dyn Fn(Vec<u8>) -> bool + Send>;
@@ -32,6 +33,7 @@ pub struct Backend {
     media_db: String,
     progress_callback: Option<ProtoProgressCallback>,
     i18n: I18n,
+    log: Logger,
 }
 
 enum Progress<'a> {
@@ -101,13 +103,28 @@ pub fn init_backend(init_msg: &[u8]) -> std::result::Result<Backend, String> {
         Err(_) => return Err("couldn't decode init request".into()),
     };
 
-    let i18n = I18n::new(&input.preferred_langs, input.locale_folder_path);
+    let mut path = input.collection_path.clone();
+    path.push_str(".log");
+
+    let log_path = match input.log_path.as_str() {
+        "" => None,
+        path => Some(Path::new(path)),
+    };
+    let logger =
+        default_logger(log_path).map_err(|e| format!("Unable to open log file: {:?}", e))?;
+
+    let i18n = I18n::new(
+        &input.preferred_langs,
+        input.locale_folder_path,
+        log::terminal(),
+    );
 
     match Backend::new(
         &input.collection_path,
         &input.media_folder_path,
         &input.media_db_path,
         i18n,
+        logger,
     ) {
         Ok(backend) => Ok(backend),
         Err(e) => Err(format!("{:?}", e)),
@@ -115,13 +132,20 @@ pub fn init_backend(init_msg: &[u8]) -> std::result::Result<Backend, String> {
 }
 
 impl Backend {
-    pub fn new(col_path: &str, media_folder: &str, media_db: &str, i18n: I18n) -> Result<Backend> {
+    pub fn new(
+        col_path: &str,
+        media_folder: &str,
+        media_db: &str,
+        i18n: I18n,
+        log: Logger,
+    ) -> Result<Backend> {
         Ok(Backend {
             col_path: col_path.into(),
             media_folder: media_folder.into(),
             media_db: media_db.into(),
             progress_callback: None,
             i18n,
+            log,
         })
     }
 
@@ -372,7 +396,7 @@ impl Backend {
         };
 
         let mut rt = Runtime::new().unwrap();
-        rt.block_on(mgr.sync_media(callback, &input.endpoint, &input.hkey))
+        rt.block_on(mgr.sync_media(callback, &input.endpoint, &input.hkey, self.log.clone()))
     }
 
     fn check_media(&self) -> Result<pb::MediaCheckOut> {
@@ -380,7 +404,7 @@ impl Backend {
             |progress: usize| self.fire_progress_callback(Progress::MediaCheck(progress as u32));
 
         let mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
-        let mut checker = MediaChecker::new(&mgr, &self.col_path, callback, &self.i18n);
+        let mut checker = MediaChecker::new(&mgr, &self.col_path, callback, &self.i18n, &self.log);
         let mut output = checker.check()?;
 
         let report = checker.summarize_output(&mut output);
@@ -515,7 +539,9 @@ pub fn init_i18n_backend(init_msg: &[u8]) -> Result<I18nBackend> {
         Err(_) => return Err(AnkiError::invalid_input("couldn't decode init msg")),
     };
 
-    let i18n = I18n::new(&input.preferred_langs, input.locale_folder_path);
+    let log = log::terminal();
+
+    let i18n = I18n::new(&input.preferred_langs, input.locale_folder_path, log);
 
     Ok(I18nBackend { i18n })
 }
