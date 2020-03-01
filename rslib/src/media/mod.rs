@@ -6,6 +6,7 @@ use crate::media::database::{open_or_create, MediaDatabaseContext, MediaEntry};
 use crate::media::files::{add_data_to_folder_uniquely, mtime_as_i64, remove_files, sha1_of_data};
 use crate::media::sync::{MediaSyncProgress, MediaSyncer};
 use rusqlite::Connection;
+use slog::Logger;
 use std::borrow::Cow;
 use std::path::{Path, PathBuf};
 
@@ -95,7 +96,12 @@ impl MediaManager {
     where
         S: AsRef<str> + std::fmt::Debug,
     {
+        let pre_remove_folder_mtime = mtime_as_i64(&self.media_folder)?;
+
         remove_files(&self.media_folder, &filenames)?;
+
+        let post_remove_folder_mtime = mtime_as_i64(&self.media_folder)?;
+
         ctx.transact(|ctx| {
             for fname in filenames {
                 if let Some(mut entry) = ctx.get_entry(fname.as_ref())? {
@@ -106,16 +112,33 @@ impl MediaManager {
                 }
             }
 
+            let mut meta = ctx.get_meta()?;
+            if meta.folder_mtime == pre_remove_folder_mtime {
+                // if media db was in sync with folder prior to this add,
+                // we can keep it in sync
+                meta.folder_mtime = post_remove_folder_mtime;
+                ctx.set_meta(&meta)?;
+            } else {
+                // otherwise, leave it alone so that other pending changes
+                // get picked up later
+            }
+
             Ok(())
         })
     }
 
     /// Sync media.
-    pub async fn sync_media<F>(&self, progress: F, endpoint: &str, hkey: &str) -> Result<()>
+    pub async fn sync_media<'a, F>(
+        &'a self,
+        progress: F,
+        endpoint: &'a str,
+        hkey: &'a str,
+        log: Logger,
+    ) -> Result<()>
     where
         F: Fn(&MediaSyncProgress) -> bool,
     {
-        let mut syncer = MediaSyncer::new(self, progress, endpoint);
+        let mut syncer = MediaSyncer::new(self, progress, endpoint, log);
         syncer.sync(hkey).await
     }
 

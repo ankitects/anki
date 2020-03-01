@@ -161,11 +161,10 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
             if not pattern:
                 return path
 
-            if not re.fullmatch(pattern, subPath):
-                return path
-
-            newPath = os.path.join(addMgr.addonsFolder(), addonPath)
-            return newPath
+            subPath2 = subPath.replace(os.sep, "/")
+            if re.fullmatch(pattern, subPath) or re.fullmatch(pattern, subPath2):
+                newPath = os.path.join(addMgr.addonsFolder(), addonPath)
+                return newPath
 
         return path
 

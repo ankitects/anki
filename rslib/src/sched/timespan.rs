@@ -80,7 +80,7 @@ const MINUTE: f32 = 60.0 * SECOND;
 const HOUR: f32 = 60.0 * MINUTE;
 const DAY: f32 = 24.0 * HOUR;
 const MONTH: f32 = 30.0 * DAY;
-const YEAR: f32 = 365.0 * MONTH;
+const YEAR: f32 = 12.0 * MONTH;
 
 #[derive(Clone, Copy)]
 enum TimespanUnit {
@@ -176,13 +176,15 @@ impl Timespan {
 #[cfg(test)]
 mod test {
     use crate::i18n::I18n;
+    use crate::log;
     use crate::sched::timespan::{
         answer_button_time, learning_congrats, studied_today, time_span, MONTH,
     };
 
     #[test]
     fn answer_buttons() {
-        let i18n = I18n::new(&["zz"], "");
+        let log = log::terminal();
+        let i18n = I18n::new(&["zz"], "", log);
         assert_eq!(answer_button_time(30.0, &i18n), "30s");
         assert_eq!(answer_button_time(70.0, &i18n), "1.2m");
         assert_eq!(answer_button_time(1.1 * MONTH, &i18n), "1.1mo");
@@ -190,18 +192,21 @@ mod test {
 
     #[test]
     fn time_spans() {
-        let i18n = I18n::new(&["zz"], "");
+        let log = log::terminal();
+        let i18n = I18n::new(&["zz"], "", log);
         assert_eq!(time_span(1.0, &i18n, false), "1 second");
         assert_eq!(time_span(30.3, &i18n, false), "30 seconds");
         assert_eq!(time_span(30.3, &i18n, true), "30.3 seconds");
         assert_eq!(time_span(90.0, &i18n, false), "1.5 minutes");
         assert_eq!(time_span(45.0 * 86_400.0, &i18n, false), "1.5 months");
+        assert_eq!(time_span(365.0 * 86_400.0 * 1.5, &i18n, false), "1.5 years");
     }
 
     #[test]
     fn combo() {
         // temporary test of fluent term handling
-        let i18n = I18n::new(&["zz"], "");
+        let log = log::terminal();
+        let i18n = I18n::new(&["zz"], "", log);
         assert_eq!(
             &studied_today(3, 13.0, &i18n).replace("\n", " "),
             "Studied 3 cards in 13 seconds today (4.33s/card)"

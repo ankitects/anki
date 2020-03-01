@@ -19,11 +19,11 @@ import anki.lang
 import aqt.forms
 import aqt.sound
 from anki.db import DB
-from anki.lang import _
+from anki.lang import _, without_unicode_isolation
 from anki.utils import intTime, isMac, isWin
 from aqt import appHelpSite
 from aqt.qt import *
-from aqt.utils import locale_dir, showWarning
+from aqt.utils import TR, locale_dir, showWarning, tr
 
 metaConf = dict(
     ver=0,
@@ -376,16 +376,9 @@ create table if not exists profiles
         self.create(_("User 1"))
         p = os.path.join(self.base, "README.txt")
         open(p, "w", encoding="utf8").write(
-            _(
-                """\
-This folder stores all of your Anki data in a single location,
-to make backups easy. To tell Anki to use a different location,
-please see:
-
-%s
-"""
+            without_unicode_isolation(
+                tr(TR.PROFILES_FOLDER_README, link=appHelpSite + "#startupopts")
             )
-            % (appHelpSite + "#startupopts")
         )
 
     # Default language

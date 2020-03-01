@@ -28,6 +28,7 @@ from anki.httpclient import HttpClient
 from anki.lang import _, ngettext
 from aqt.qt import *
 from aqt.utils import (
+    TR,
     askUser,
     getFile,
     isWin,
@@ -40,6 +41,7 @@ from aqt.utils import (
     showInfo,
     showWarning,
     tooltip,
+    tr,
 )
 
 
@@ -205,16 +207,11 @@ class AddonManager:
                 __import__(addon.dir_name)
             except:
                 showWarning(
-                    _(
-                        """\
-An add-on you installed failed to load. If problems persist, please \
-go to the Tools>Add-ons menu, and disable or delete the add-on.
-
-When loading '%(name)s':
-%(traceback)s
-"""
+                    tr(
+                        TR.ADDONS_FAILED_TO_LOAD,
+                        name=addon.human_name(),
+                        traceback=traceback.format_exc(),
                     )
-                    % dict(name=addon.human_name(), traceback=traceback.format_exc())
                 )
 
     def onAddonsDialog(self):

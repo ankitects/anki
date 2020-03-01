@@ -9,7 +9,7 @@ else
 endif
 
 ifndef ANKI_EXTRA_PIP
-	ANKI_EXTRA_PIP := echo The custom pip command variable ANKI_EXTRA_PIP was not defined...
+	ANKI_EXTRA_PIP := true
 endif
 
 .SHELLFLAGS := -eu -o pipefail -c
@@ -104,7 +104,7 @@ clean-dist:
 	rm -rf dist
 
 .PHONY: check
-check: pyenv buildhash
+check: pyenv buildhash prepare
 	@set -eo pipefail && \
 	for dir in $(CHECKABLE_RS); do \
 	  $(SUBMAKE) -C $$dir check; \

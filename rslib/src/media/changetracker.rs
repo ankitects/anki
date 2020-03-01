@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::err::{AnkiError, Result};
+use crate::log::{debug, Logger};
 use crate::media::database::{MediaDatabaseContext, MediaEntry};
 use crate::media::files::{
     filename_if_normalized, mtime_as_i64, sha1_of_file, MEDIA_SYNC_FILESIZE_LIMIT,
@@ -25,17 +26,23 @@ where
     media_folder: &'a Path,
     progress_cb: F,
     checked: usize,
+    log: &'a Logger,
 }
 
 impl<F> ChangeTracker<'_, F>
 where
     F: FnMut(usize) -> bool,
 {
-    pub(super) fn new(media_folder: &Path, progress: F) -> ChangeTracker<F> {
+    pub(super) fn new<'a>(
+        media_folder: &'a Path,
+        progress: F,
+        log: &'a Logger,
+    ) -> ChangeTracker<'a, F> {
         ChangeTracker {
             media_folder,
             progress_cb: progress,
             checked: 0,
+            log,
         }
     }
 
@@ -53,7 +60,9 @@ where
             let dirmod = mtime_as_i64(self.media_folder)?;
 
             let mut meta = ctx.get_meta()?;
+            debug!(self.log, "begin change check"; "folder_mod" => dirmod, "db_mod" => meta.folder_mtime);
             if dirmod == meta.folder_mtime {
+                debug!(self.log, "skip check");
                 return Ok(());
             } else {
                 meta.folder_mtime = dirmod;
@@ -106,6 +115,7 @@ where
                 Some(fname) => fname,
                 None => {
                     // not normalized; skip it
+                    debug!(self.log, "ignore non-normalized"; "fname"=>disk_fname);
                     continue;
                 }
             };
@@ -135,6 +145,7 @@ where
                 .as_secs() as i64;
             if let Some(previous_mtime) = previous_mtime {
                 if previous_mtime == mtime {
+                    debug!(self.log, "mtime unchanged"; "fname"=>fname.as_ref());
                     continue;
                 }
             }
@@ -147,6 +158,10 @@ where
                 mtime,
                 is_new: previous_mtime.is_none(),
             });
+            debug!(self.log, "added or changed";
+                "fname"=>fname.as_ref(),
+                "mtime"=>mtime,
+                "sha1"=>sha1.as_ref().map(|s| hex::encode(&s[0..4])));
 
             self.checked += 1;
             if self.checked % 10 == 0 {
@@ -156,6 +171,9 @@ where
 
         // any remaining entries from the database have been deleted
         let removed: Vec<_> = mtimes.into_iter().map(|(k, _)| k).collect();
+        for f in &removed {
+            debug!(self.log, "db entry missing on disk"; "fname"=>f);
+        }
 
         Ok((added_or_changed, removed))
     }
@@ -264,7 +282,9 @@ mod test {
 
         let progress_cb = |_n| true;
 
-        ChangeTracker::new(&mgr.media_folder, progress_cb).register_changes(&mut ctx)?;
+        let log = crate::log::terminal();
+
+        ChangeTracker::new(&mgr.media_folder, progress_cb, &log).register_changes(&mut ctx)?;
 
         let mut entry = ctx.transact(|ctx| {
             assert_eq!(ctx.count()?, 1);
@@ -299,7 +319,7 @@ mod test {
             Ok(entry)
         })?;
 
-        ChangeTracker::new(&mgr.media_folder, progress_cb).register_changes(&mut ctx)?;
+        ChangeTracker::new(&mgr.media_folder, progress_cb, &log).register_changes(&mut ctx)?;
 
         ctx.transact(|ctx| {
             assert_eq!(ctx.count()?, 1);
@@ -332,7 +352,7 @@ mod test {
 
         change_mtime(&media_dir);
 
-        ChangeTracker::new(&mgr.media_folder, progress_cb).register_changes(&mut ctx)?;
+        ChangeTracker::new(&mgr.media_folder, progress_cb, &log).register_changes(&mut ctx)?;
 
         assert_eq!(ctx.count()?, 0);
         assert!(!ctx.get_pending_uploads(1)?.is_empty());

@@ -6,9 +6,9 @@ import re
 import sys
 import polib
 from fluent.syntax import parse, serialize
-from fluent.syntax.ast import Message, TextElement, Identifier, Pattern
+from fluent.syntax.ast import Message, TextElement, Identifier, Pattern, Junk
 
-# extract a translated string from the gettext catalogs and insert it into ftl
+# extract a translated string from strings.json and insert it into ftl
 # eg:
 # $ python extract-po-string.py /path/to/templates/media-check.ftl delete-unused "Delete Unused Media" ""
 # $ python extract-po-string.py /path/to/templates/media-check.ftl delete-unused "%(a)s %(b)s" "%(a)s=$val1,%(b)s=$val2"
@@ -16,7 +16,7 @@ from fluent.syntax.ast import Message, TextElement, Identifier, Pattern
 # NOTE: the English text is written into the templates folder of the repo, so must be copied
 # into Anki's source tree
 
-ftl_filename, key, msgid, repls = sys.argv[1:]
+ftl_filename, key, msgid_substring, repls = sys.argv[1:]
 
 # split up replacements
 replacements = []
@@ -29,86 +29,51 @@ for repl in repls.split(","):
 prefix = os.path.splitext(os.path.basename(ftl_filename))[0]
 key = f"{prefix}-{key}"
 
-# returns a string, an array of plurals, or None if there's no translation
-def get_msgstr(entry):
-    # non-empty single string?
-    if entry.msgstr:
-        msg = entry.msgstr
-        if replacements:
-            for (old, new) in replacements:
-                msg = msg.replace(old, f"{{{new}}}")
-        return msg
-    # plural string and non-empty?
-    elif entry.msgstr_plural and entry.msgstr_plural[0]:
-        # convert the dict into a list in the correct order
-        plurals = list(entry.msgstr_plural.items())
-        plurals.sort()
-        # update variables and discard keys
-        adjusted = []
-        for _k, msg in plurals:
-            if replacements:
-                for (old, new) in replacements:
-                    msg = msg.replace(old, f"{{{new}}}")
-            adjusted.append(msg)
-        if len(adjusted) > 1 and adjusted[0]:
-            return adjusted
-        else:
-            if adjusted[0]:
-                return adjusted[0]
-    return None
+strings = json.load(open("strings.json", "r"))
 
+msgids = []
+if msgid_substring in strings["en"]:
+    # is the ID an exact match?
+    msgids.append(msgid_substring)
+else:
+    for id in strings["en"].keys():
+        if msgid_substring in id:
+            msgids.append(id)
 
-# start by checking the .pot file for the message
-base = "i18n/po/desktop"
-pot = os.path.join(base, "anki.pot")
-pot_cat = polib.pofile(pot)
-catalogs = []
-
-# is the ID an exact match?
-resolved_entry = None
-for entry in pot_cat:
-    if entry.msgid == msgid:
-        resolved_entry = entry
-
-# try a substring match, but make sure it doesn't match
-# multiple items
-if resolved_entry is None:
-    for entry in pot_cat:
-        if msgid in entry.msgid:
-            if resolved_entry is not None:
-                print("aborting, matched both", resolved_entry.msgid)
-                print("and", entry.msgid)
-                sys.exit(1)
-            resolved_entry = entry
-
-if resolved_entry is None:
+msgid = None
+if len(msgids) == 0:
     print("no IDs matched")
     sys.exit(1)
+elif len(msgids) == 1:
+    msgid = msgids[0]
+else:
+    for c, id in enumerate(msgids):
+        print(f"* {c}: {id}")
+    msgid = msgids[int(input("number to use? "))]
 
-msgid = resolved_entry.msgid
-print("matched id", msgid)
+def transform_entry(entry):
+    if isinstance(entry, str):
+        return(transform_string(entry))
+    else:
+        return [transform_string(e) for e in entry]
 
-print("loading translations...")
-# load the translations from each language
-langs = [d for d in os.listdir(base) if d != "anki.pot"]
-for lang in langs:
-    po_path = os.path.join(base, lang, "anki.po")
-    cat = polib.pofile(po_path)
-    catalogs.append((lang, cat))
+def transform_string(msg):
+    for (old, new) in replacements:
+        msg = msg.replace(old, f"{{{new}}}")
+    # strip leading/trailing whitespace
+    return msg.strip()
 
 to_insert = []
-for (lang, cat) in catalogs:
-    for entry in cat:
-        if entry.msgid == msgid:
-            translation = get_msgstr(entry)
-            if translation:
-                print(f"{lang} had translation {translation}")
-                to_insert.append((lang, translation))
-            else:
-                print(f"{lang} had no translation")
-            break
+for lang in strings.keys():
+    entry = strings[lang].get(msgid)
+    if not entry:
+        continue
+    entry = transform_entry(entry)
+    if entry:
+        print(f"{lang} had translation {entry}")
+        to_insert.append((lang, entry))
 
-plurals = json.load(open("i18n/plurals.json"))
+plurals = json.load(open("plurals.json"))
 
 
 def plural_text(key, lang, translation):
@@ -142,9 +107,22 @@ def add_simple_message(fname, key, message):
         orig = open(fname).read()
 
     obj = parse(orig)
+    for ent in obj.body:
+        if isinstance(ent, Junk):
+            raise Exception(f"file had junk! {fname} {ent}")
     obj.body.append(Message(Identifier(key), Pattern([TextElement(message)])))
 
-    modified = serialize(obj)
+    modified = serialize(obj, with_junk=True)
+    # escape leading dots
+    modified = re.sub(r"(?ms)^( +)\.", "\\1{\".\"}", modified)
+
+    # ensure the resulting serialized file is valid by parsing again
+    obj = parse(modified)
+    for ent in obj.body:
+        if isinstance(ent, Junk):
+            raise Exception(f"introduced junk! {fname} {ent}")
+
+    # it's ok, write it out
     open(fname, "w").write(modified)
 
 
@@ -160,21 +138,18 @@ def add_message(fname, key, translation):
 print()
 input("proceed? ctrl+c to abort")
 
-# add template first
-if resolved_entry.msgid_plural:
-    original = [resolved_entry.msgid, resolved_entry.msgid_plural]
-else:
-    original = resolved_entry.msgid
-
-add_message(ftl_filename, key, original)
-
-# the each language's translation
+# for each language's translation
 for lang, translation in to_insert:
-    ftl_path = ftl_filename.replace("templates", lang)
-    ftl_dir = os.path.dirname(ftl_path)
+    if lang == "en":
+        # template
+        ftl_path = ftl_filename
+    else:
+        # translation
+        ftl_path = ftl_filename.replace("templates", lang)
+        ftl_dir = os.path.dirname(ftl_path)
 
-    if not os.path.exists(ftl_dir):
-        os.mkdir(ftl_dir)
+        if not os.path.exists(ftl_dir):
+            os.mkdir(ftl_dir)
 
     add_message(ftl_path, key, translation)
 

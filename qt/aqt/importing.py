@@ -18,6 +18,7 @@ from anki.lang import _, ngettext
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.utils import (
+    TR,
     askUser,
     getFile,
     getOnlyText,
@@ -26,6 +27,7 @@ from aqt.utils import (
     showText,
     showWarning,
     tooltip,
+    tr,
 )
 
 
@@ -196,7 +198,7 @@ you can enter it here. Use \\t to represent tab."""
             showUnicodeWarning()
             return
         except Exception as e:
-            msg = _("Import failed.\n")
+            msg = tr(TR.IMPORTING_FAILED_DEBUG_INFO) + "\n"
             err = repr(str(e))
             if "1-character string" in err:
                 msg += err
@@ -360,7 +362,7 @@ def importFile(mw, file):
             if msg == "'unknownFormat'":
                 showWarning(_("Unknown file format."))
             else:
-                msg = _("Import failed. Debugging info:\n")
+                msg = tr(TR.IMPORTING_FAILED_DEBUG_INFO) + "\n"
                 msg += str(traceback.format_exc())
                 showText(msg)
             return
@@ -405,7 +407,7 @@ Unable to import from a read-only file."""
                     )
                 )
             else:
-                msg = _("Import failed.\n")
+                msg = tr(TR.IMPORTING_FAILED_DEBUG_INFO) + "\n"
                 msg += str(traceback.format_exc())
                 showText(msg)
         else:

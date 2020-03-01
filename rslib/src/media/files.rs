@@ -2,8 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::err::Result;
+use crate::log::{debug, Logger};
 use lazy_static::lazy_static;
-use log::debug;
 use regex::Regex;
 use sha1::Sha1;
 use std::borrow::Cow;
@@ -11,7 +11,6 @@ use std::io::Read;
 use std::path::{Path, PathBuf};
 use std::{fs, io, time};
 use unicode_normalization::{is_nfc, UnicodeNormalization};
-use utime;
 
 /// The maximum length we allow a filename to be. When combined
 /// with the rest of the path, the full path needs to be under ~240 chars
@@ -365,6 +364,7 @@ pub(super) fn add_file_from_ankiweb(
     media_folder: &Path,
     fname: &str,
     data: &[u8],
+    log: &Logger,
 ) -> Result<AddedFile> {
     let sha1 = sha1_of_data(data);
     let normalized = normalize_filename(fname);
@@ -375,7 +375,7 @@ pub(super) fn add_file_from_ankiweb(
         fs::write(&path, data)?;
         (None, path)
     } else {
-        debug!("non-normalized filename received {}", fname);
+        debug!(log, "non-normalized filename received"; "fname"=>&fname);
         // ankiweb sent us a non-normalized filename, so we'll rename it
         let new_name = add_data_to_folder_uniquely(media_folder, fname, data, sha1)?;
         (

@@ -11,11 +11,10 @@ use crate::media::MediaManager;
 use crate::version;
 use bytes::Bytes;
 use coarsetime::Instant;
-use log::debug;
-use reqwest;
 use reqwest::{multipart, Client, Response};
 use serde_derive::{Deserialize, Serialize};
 use serde_tuple::Serialize_tuple;
+use slog::{debug, Logger};
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::io::{Read, Write};
@@ -47,6 +46,7 @@ where
     progress: MediaSyncProgress,
     progress_updated: Instant,
     endpoint: &'a str,
+    log: Logger,
 }
 
 #[derive(Debug, Deserialize)]
@@ -136,7 +136,12 @@ impl<P> MediaSyncer<'_, P>
 where
     P: Fn(&MediaSyncProgress) -> bool,
 {
-    pub fn new<'a>(mgr: &'a MediaManager, progress_cb: P, endpoint: &'a str) -> MediaSyncer<'a, P> {
+    pub fn new<'a>(
+        mgr: &'a MediaManager,
+        progress_cb: P,
+        endpoint: &'a str,
+        log: Logger,
+    ) -> MediaSyncer<'a, P> {
         let client = Client::builder()
             .connect_timeout(time::Duration::from_secs(30))
             .build()
@@ -152,6 +157,7 @@ where
             progress: Default::default(),
             progress_updated: Instant::now(),
             endpoint,
+            log,
         }
     }
 
@@ -166,16 +172,19 @@ where
         let meta = self.ctx.get_meta()?;
         let client_usn = meta.last_sync_usn;
 
-        debug!("beginning media sync");
+        debug!(self.log, "begin media sync");
         let (sync_key, server_usn) = self.sync_begin(hkey).await?;
         self.skey = Some(sync_key);
-        debug!("server usn was {}", server_usn);
+        debug!(self.log, "server usn was {}", server_usn);
 
         let mut actions_performed = false;
 
         // need to fetch changes from server?
         if client_usn != server_usn {
-            debug!("differs from local usn {}, fetching changes", client_usn);
+            debug!(
+                self.log,
+                "differs from local usn {}, fetching changes", client_usn
+            );
             self.fetch_changes(meta).await?;
             actions_performed = true;
         }
@@ -193,7 +202,7 @@ where
 
         self.fire_progress_cb()?;
 
-        debug!("media sync complete");
+        debug!(self.log, "media sync complete");
 
         Ok(())
     }
@@ -216,7 +225,7 @@ where
             }
         };
 
-        ChangeTracker::new(self.mgr.media_folder.as_path(), progress)
+        ChangeTracker::new(self.mgr.media_folder.as_path(), progress, &self.log)
             .register_changes(&mut self.ctx)
     }
 
@@ -243,11 +252,15 @@ where
     async fn fetch_changes(&mut self, mut meta: MediaDatabaseMetadata) -> Result<()> {
         let mut last_usn = meta.last_sync_usn;
         loop {
-            debug!("fetching record batch starting from usn {}", last_usn);
+            debug!(
+                self.log,
+                "fetching record batch";
+                 "start_usn"=>last_usn
+            );
 
             let batch = self.fetch_record_batch(last_usn).await?;
             if batch.is_empty() {
-                debug!("empty batch, done");
+                debug!(self.log, "empty batch, done");
                 break;
             }
             last_usn = batch.last().unwrap().usn;
@@ -256,7 +269,7 @@ where
             self.maybe_fire_progress_cb()?;
 
             let (to_download, to_delete, to_remove_pending) =
-                determine_required_changes(&mut self.ctx, &batch)?;
+                determine_required_changes(&mut self.ctx, &batch, &self.log)?;
 
             // file removal
             self.mgr.remove_files(&mut self.ctx, to_delete.as_slice())?;
@@ -273,9 +286,12 @@ where
                     .map(ToOwned::to_owned)
                     .collect();
                 let zip_data = self.fetch_zip(batch.as_slice()).await?;
-                let download_batch =
-                    extract_into_media_folder(self.mgr.media_folder.as_path(), zip_data)?
-                        .into_iter();
+                let download_batch = extract_into_media_folder(
+                    self.mgr.media_folder.as_path(),
+                    zip_data,
+                    &self.log,
+                )?
+                .into_iter();
                 let len = download_batch.len();
                 dl_fnames = &dl_fnames[len..];
                 downloaded.extend(download_batch);
@@ -286,10 +302,11 @@ where
 
             // then update the DB
             let dirmod = mtime_as_i64(&self.mgr.media_folder)?;
+            let log = &self.log;
             self.ctx.transact(|ctx| {
-                record_clean(ctx, &to_remove_pending)?;
-                record_removals(ctx, &to_delete)?;
-                record_additions(ctx, downloaded)?;
+                record_clean(ctx, &to_remove_pending, log)?;
+                record_removals(ctx, &to_delete, log)?;
+                record_additions(ctx, downloaded, log)?;
 
                 // update usn
                 meta.last_sync_usn = last_usn;
@@ -309,7 +326,7 @@ where
                 break;
             }
 
-            let zip_data = zip_files(&mut self.ctx, &self.mgr.media_folder, &pending)?;
+            let zip_data = zip_files(&mut self.ctx, &self.mgr.media_folder, &pending, &self.log)?;
             if zip_data.is_none() {
                 self.progress.checked += pending.len();
                 self.maybe_fire_progress_cb()?;
@@ -335,14 +352,16 @@ where
                 .map(|e| &e.fname)
                 .collect();
             let fname_cnt = fnames.len() as i32;
+            let log = &self.log;
             self.ctx.transact(|ctx| {
-                record_clean(ctx, fnames.as_slice())?;
+                record_clean(ctx, fnames.as_slice(), log)?;
                 let mut meta = ctx.get_meta()?;
                 if meta.last_sync_usn + fname_cnt == reply.current_usn {
                     meta.last_sync_usn = reply.current_usn;
                     ctx.set_meta(&meta)?;
                 } else {
                     debug!(
+                        log,
                         "server usn {} is not {}, skipping usn update",
                         reply.current_usn,
                         meta.last_sync_usn + fname_cnt
@@ -412,7 +431,7 @@ where
     async fn fetch_zip(&self, files: &[&String]) -> Result<Bytes> {
         let url = format!("{}downloadFiles", self.endpoint);
 
-        debug!("requesting files: {:?}", files);
+        debug!(self.log, "requesting files: {:?}", files);
 
         let req = ZipRequest { files };
         let resp = ankiweb_json_request(&self.client, &url, &req, self.skey()).await?;
@@ -471,6 +490,7 @@ fn determine_required_change(
 fn determine_required_changes<'a>(
     ctx: &mut MediaDatabaseContext,
     records: &'a [ServerMediaRecord],
+    log: &Logger,
 ) -> Result<(Vec<&'a String>, Vec<&'a String>, Vec<&'a String>)> {
     let mut to_download = vec![];
     let mut to_delete = vec![];
@@ -494,12 +514,13 @@ fn determine_required_changes<'a>(
 
         let req_change = determine_required_change(&local_sha1, &remote.sha1, local_state);
         debug!(
-            "for {}, lsha={} rsha={} lstate={:?} -> {:?}",
-            remote.fname,
-            local_sha1.chars().take(8).collect::<String>(),
-            remote.sha1.chars().take(8).collect::<String>(),
-            local_state,
-            req_change
+            log,
+            "determine action";
+            "fname" => &remote.fname,
+            "lsha" => local_sha1.chars().take(8).collect::<String>(),
+            "rsha" => remote.sha1.chars().take(8).collect::<String>(),
+            "state" => ?local_state,
+            "action" => ?req_change
         );
         match req_change {
             RequiredChange::Download => to_download.push(&remote.fname),
@@ -557,7 +578,11 @@ async fn ankiweb_request(
         .map_err(Into::into)
 }
 
-fn extract_into_media_folder(media_folder: &Path, zip: Bytes) -> Result<Vec<AddedFile>> {
+fn extract_into_media_folder(
+    media_folder: &Path,
+    zip: Bytes,
+    log: &Logger,
+) -> Result<Vec<AddedFile>> {
     let reader = io::Cursor::new(zip);
     let mut zip = zip::ZipArchive::new(reader)?;
 
@@ -579,9 +604,9 @@ fn extract_into_media_folder(media_folder: &Path, zip: Bytes) -> Result<Vec<Adde
         let mut data = Vec::with_capacity(file.size() as usize);
         file.read_to_end(&mut data)?;
 
-        debug!("writing {}", real_name);
+        debug!(log, "write"; "fname" => real_name);
 
-        let added = add_file_from_ankiweb(media_folder, real_name, &data)?;
+        let added = add_file_from_ankiweb(media_folder, real_name, &data, log)?;
 
         output.push(added);
     }
@@ -589,21 +614,29 @@ fn extract_into_media_folder(media_folder: &Path, zip: Bytes) -> Result<Vec<Adde
     Ok(output)
 }
 
-fn record_removals(ctx: &mut MediaDatabaseContext, removals: &[&String]) -> Result<()> {
+fn record_removals(
+    ctx: &mut MediaDatabaseContext,
+    removals: &[&String],
+    log: &Logger,
+) -> Result<()> {
     for &fname in removals {
-        debug!("marking removed: {}", fname);
+        debug!(log, "mark removed"; "fname" => fname);
         ctx.remove_entry(fname)?;
     }
 
     Ok(())
 }
 
-fn record_additions(ctx: &mut MediaDatabaseContext, additions: Vec<AddedFile>) -> Result<()> {
+fn record_additions(
+    ctx: &mut MediaDatabaseContext,
+    additions: Vec<AddedFile>,
+    log: &Logger,
+) -> Result<()> {
     for file in additions {
         if let Some(renamed) = file.renamed_from {
             // the file AnkiWeb sent us wasn't normalized, so we need to record
             // the old file name as a deletion
-            debug!("marking non-normalized file as deleted: {}", renamed);
+            debug!(log, "marking non-normalized file as deleted: {}", renamed);
             let mut entry = MediaEntry {
                 fname: renamed,
                 sha1: None,
@@ -612,7 +645,10 @@ fn record_additions(ctx: &mut MediaDatabaseContext, additions: Vec<AddedFile>) -
             };
             ctx.set_entry(&entry)?;
             // and upload the new filename to ankiweb
-            debug!("marking renamed file as needing upload: {}", file.fname);
+            debug!(
+                log,
+                "marking renamed file as needing upload: {}", file.fname
+            );
             entry = MediaEntry {
                 fname: file.fname.to_string(),
                 sha1: Some(file.sha1),
@@ -628,10 +664,9 @@ fn record_additions(ctx: &mut MediaDatabaseContext, additions: Vec<AddedFile>) -
                 mtime: file.mtime,
                 sync_required: false,
             };
-            debug!(
-                "marking added: {} {}",
-                entry.fname,
-                hex::encode(entry.sha1.as_ref().unwrap())
+            debug!(log, "mark added";
+                "fname" => &entry.fname,
+                "sha1" => hex::encode(&entry.sha1.as_ref().unwrap()[0..4])
             );
             ctx.set_entry(&entry)?;
         }
@@ -640,12 +675,12 @@ fn record_additions(ctx: &mut MediaDatabaseContext, additions: Vec<AddedFile>) -
     Ok(())
 }
 
-fn record_clean(ctx: &mut MediaDatabaseContext, clean: &[&String]) -> Result<()> {
+fn record_clean(ctx: &mut MediaDatabaseContext, clean: &[&String], log: &Logger) -> Result<()> {
     for &fname in clean {
         if let Some(mut entry) = ctx.get_entry(fname)? {
             if entry.sync_required {
                 entry.sync_required = false;
-                debug!("marking clean: {}", entry.fname);
+                debug!(log, "mark clean"; "fname"=>&entry.fname);
                 ctx.set_entry(&entry)?;
             }
         }
@@ -658,6 +693,7 @@ fn zip_files<'a>(
     ctx: &mut MediaDatabaseContext,
     media_folder: &Path,
     files: &'a [MediaEntry],
+    log: &Logger,
 ) -> Result<Option<Vec<u8>>> {
     let buf = vec![];
     let mut invalid_entries = vec![];
@@ -679,7 +715,7 @@ fn zip_files<'a>(
         let file_data = match data_for_file(media_folder, &file.fname) {
             Ok(data) => data,
             Err(e) => {
-                debug!("error accessing {}: {}", &file.fname, e);
+                debug!(log, "error accessing {}: {}", &file.fname, e);
                 invalid_entries.push(&file.fname);
                 continue;
             }
@@ -688,7 +724,7 @@ fn zip_files<'a>(
         if let Some(data) = &file_data {
             let normalized = normalize_filename(&file.fname);
             if let Cow::Owned(o) = normalized {
-                debug!("media check required: {} should be {}", &file.fname, o);
+                debug!(log, "media check required: {} should be {}", &file.fname, o);
                 invalid_entries.push(&file.fname);
                 continue;
             }
@@ -707,9 +743,10 @@ fn zip_files<'a>(
         }
 
         debug!(
-            "will upload {} as {}",
-            file.fname,
-            if file_data.is_some() {
+            log,
+            "will upload";
+             "fname"=>&file.fname,
+             "kind"=>if file_data.is_some() {
                 "addition "
             } else {
                 "removal"
@@ -773,8 +810,10 @@ mod test {
             true
         };
 
+        let log = crate::log::terminal();
+
         let mgr = MediaManager::new(&media_dir, &media_db)?;
-        mgr.sync_media(progress, "https://sync.ankiweb.net/msync/", hkey)
+        mgr.sync_media(progress, "https://sync.ankiweb.net/msync/", hkey, log)
             .await?;
 
         Ok(())
@@ -782,8 +821,6 @@ mod test {
 
     #[test]
     fn sync() {
-        env_logger::init();
-
         let hkey = match std::env::var("TEST_HKEY") {
             Ok(s) => s,
             Err(_) => {

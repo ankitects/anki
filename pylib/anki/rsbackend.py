@@ -178,7 +178,9 @@ def proto_progress_to_native(progress: pb.Progress) -> Progress:
 
 
 class RustBackend:
-    def __init__(self, col_path: str, media_folder_path: str, media_db_path: str):
+    def __init__(
+        self, col_path: str, media_folder_path: str, media_db_path: str, log_path: str
+    ) -> None:
         ftl_folder = os.path.join(anki.lang.locale_folder, "fluent")
         init_msg = pb.BackendInit(
             collection_path=col_path,
@@ -186,6 +188,7 @@ class RustBackend:
             media_db_path=media_db_path,
             locale_folder_path=ftl_folder,
             preferred_langs=[anki.lang.currentLang],
+            log_path=log_path,
         )
         self._backend = ankirspy.open_backend(init_msg.SerializeToString())
         self._backend.set_progress_callback(self._on_progress)
@@ -340,7 +343,7 @@ class RustBackend:
             )
         ).format_time_span
 
-    def studied_today(self, cards: int, seconds: float,) -> str:
+    def studied_today(self, cards: int, seconds: float) -> str:
         return self._run_command(
             pb.BackendInput(
                 studied_today=pb.StudiedTodayIn(cards=cards, seconds=seconds)
@@ -376,7 +379,12 @@ class I18nBackend:
         )
         self._backend = ankirspy.open_i18n(init_msg.SerializeToString())
 
-    def translate(self, key: TR, **kwargs: Union[str, int, float]):
+    def translate(self, key: TR, **kwargs: Union[str, int, float]) -> str:
         return self._backend.translate(
             translate_string_in(key, **kwargs).SerializeToString()
         )
+
+
+# temporarily force logging of media handling
+if "RUST_LOG" not in os.environ:
+    os.environ["RUST_LOG"] = "warn,anki::media=debug"

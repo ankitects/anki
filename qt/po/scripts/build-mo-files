@@ -7,7 +7,7 @@ set -eo pipefail
 targetDir="../aqt_data/locale/gettext"
 mkdir -p $targetDir
 
-echo "Compiling *.repo..."
+echo "Compiling *.po..."
 for file in repo/desktop/*/anki.po
 do
     outdir=$(echo "$file" | \

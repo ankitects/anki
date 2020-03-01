@@ -1,6 +1,5 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
 import atexit
 import os
 import re
@@ -25,7 +24,7 @@ from aqt import gui_hooks
 from aqt.mpv import MPV, MPVBase
 from aqt.qt import *
 from aqt.taskman import TaskManager
-from aqt.utils import restoreGeom, saveGeom, startup_info
+from aqt.utils import restoreGeom, saveGeom, showWarning, startup_info
 
 # AV player protocol
 ##########################################################################
@@ -291,6 +290,14 @@ class SimpleProcessPlayer(Player):  # pylint: disable=abstract-method
         except PlayerInterrupted:
             # don't fire done callback when interrupted
             return
+        except FileNotFoundError:
+            showWarning(
+                _(
+                    "Sound and video on cards will not function until mpv or mplayer is installed."
+                )
+            )
+            # must call cb() here, as we don't currently have another way
+            # to flag to av_player that we've stopped
         cb()
 
 

@@ -446,7 +446,7 @@ class DeckManager:
             return deck["name"]
         return _("[no deck]")
 
-    def nameOrNone(self, did) -> Any:
+    def nameOrNone(self, did: int) -> Any:
         deck = self.get(did, default=False)
         if deck:
             return deck["name"]
@@ -530,7 +530,7 @@ class DeckManager:
         self,
         force_default: bool = True,
         assume_no_child: bool = False,
-        default_deck=None,
+        default_deck: Optional[Dict[str, Any]] = None,
     ) -> bool:
         """Whether the default deck should appear in main window, browser side list, filter, deck selection...
 

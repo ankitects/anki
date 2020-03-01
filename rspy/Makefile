@@ -12,7 +12,8 @@ OUTDIR := ../dist
 BUILDFLAGS := --release --strip
 RSPY_TARGET_DIR ?= target
 
-QT_FTLS := ../qt/ftl
+QT_FTL_TEMPLATES := ../qt/ftl
+QT_FTL_LOCALES := ../qt/ftl/repo/desktop
 
 .PHONY: all develop build check fix clean
 
@@ -20,19 +21,23 @@ all: develop
 
 develop: .build/develop
 
-DEPS := .build/tools .build/vernum ../meta/buildhash $(wildcard $(QT_FTLS)/*.ftl) \
+DEPS := .build/tools .build/vernum ../meta/buildhash \
+	$(wildcard $(QT_FTL_TEMPLATES)/*.ftl) \
+	$(wildcard $(QT_FTL_LOCALES)/*/*.ftl) \
 	$(shell ${FIND} ../rslib/src -name '*.rs') $(wildcard ../proto/*) \
 	$(shell ${FIND} ../rslib/ftl -type f)
 
 .build/develop: $(DEPS)
 	touch ../proto/backend.proto
-	FTL_TEMPLATE_DIRS="$(QT_FTLS)" CARGO_TARGET_DIR="$(RSPY_TARGET_DIR)" maturin develop
+	FTL_TEMPLATE_DIRS="$(QT_FTL_TEMPLATES)" FTL_LOCALE_DIRS="$(QT_FTL_LOCALES)" \
+		CARGO_TARGET_DIR="$(RSPY_TARGET_DIR)" maturin develop
 	touch $@
 
 build: $(DEPS)
 	rm -rf $(OUTDIR)/ankirspy*
 	touch ../proto/backend.proto
-	FTL_TEMPLATE_DIRS="$(QT_FTLS)" maturin build -i $(shell which python3) -o $(OUTDIR) $(BUILDFLAGS)
+	FTL_TEMPLATE_DIRS="$(QT_FTL_TEMPLATES)" FTL_LOCALE_DIRS="$(QT_FTL_LOCALES)" \
+		maturin build -i $(shell which python3) -o $(OUTDIR) $(BUILDFLAGS)
 
 check: .build/check
 
