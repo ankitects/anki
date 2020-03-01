@@ -117,6 +117,57 @@ class _AddonCurrentConfigIsInvalidFilter:
 addon_current_config_is_invalid = _AddonCurrentConfigIsInvalidFilter()
 
 
+class _AddonDefaultConfigIsInvalidFilter:
+    """Allow to react when a default configuration file (config.json) is
+        broken. You can either use the file content to display it, or
+        try to correct it, or print the json error message so that the
+        user/dev can correct it manually.
+
+        This should never occur except if an add-on as a default
+        config file, in which case the developper should probably be
+        told quickly."""
+
+    _hooks: List[
+        Callable[[Optional[Dict[str, Any]], Exception, Optional[str]], Dict[str, Any]]
+    ] = []
+
+    def append(
+        self,
+        cb: Callable[
+            [Optional[Dict[str, Any]], Exception, Optional[str]], Dict[str, Any]
+        ],
+    ) -> None:
+        """(config: Optional[Dict[str, Any]], exc: Exception, file_content: Optional[str])"""
+        self._hooks.append(cb)
+
+    def remove(
+        self,
+        cb: Callable[
+            [Optional[Dict[str, Any]], Exception, Optional[str]], Dict[str, Any]
+        ],
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(
+        self,
+        config: Optional[Dict[str, Any]],
+        exc: Exception,
+        file_content: Optional[str],
+    ) -> Dict[str, Any]:
+        for filter in self._hooks:
+            try:
+                config = filter(config, exc, file_content)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return config
+
+
+addon_default_config_is_invalid = _AddonDefaultConfigIsInvalidFilter()
+
+
 class _AvPlayerDidBeginPlayingHook:
     _hooks: List[Callable[["aqt.sound.Player", "anki.sound.AVTag"], None]] = []
 

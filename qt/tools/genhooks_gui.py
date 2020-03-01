@@ -457,6 +457,23 @@ def emptyNewCard():
         without using anki add-on manager (or if an add-on wrote some
         value without just dumping some json.""",
     ),
+    Hook(
+        name="addon_default_config_is_invalid",
+        args=[
+            "config: Optional[Dict[str, Any]]",
+            "exc: Exception",
+            "file_content: Optional[str]",
+        ],
+        return_type="Dict[str, Any]",
+        doc="""Allow to react when a default configuration file (config.json) is
+        broken. You can either use the file content to display it, or
+        try to correct it, or print the json error message so that the
+        user/dev can correct it manually.
+
+        This should never occur except if an add-on as a default
+        config file, in which case the developper should probably be
+        told quickly.""",
+    ),
     # Other
     ###################
     Hook(

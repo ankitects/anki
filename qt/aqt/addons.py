@@ -573,11 +573,13 @@ and have been disabled: %(found)s"
 
     def addonConfigDefaults(self, dir):
         path = os.path.join(self.addonsFolder(dir), "config.json")
+        t = None
         try:
             with open(path, encoding="utf8") as f:
-                return json.load(f)
-        except:
-            return None
+                t = f.read
+            return json.loads(t)
+        except Exception as e:
+            return gui_hooks.addon_default_config_is_invalid(None, e, t)
 
     def addonConfigHelp(self, dir):
         path = os.path.join(self.addonsFolder(dir), "config.md")
