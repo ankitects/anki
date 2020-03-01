@@ -2,9 +2,13 @@ SHELL := /bin/bash
 FIND := $(if $(wildcard /bin/find),/bin/find,/usr/bin/find)
 
 ifeq ($(OS),Windows_NT)
-	PYTHON_BIN := python
+	ifndef PYTHON_BIN
+		PYTHON_BIN := python
+	endif
 else
-	PYTHON_BIN := python3
+	ifndef PYTHON_BIN
+		PYTHON_BIN := python3
+	endif
 endif
 
 .SHELLFLAGS := -eu -o pipefail -c
