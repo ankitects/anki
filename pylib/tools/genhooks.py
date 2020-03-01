@@ -95,6 +95,20 @@ hooks = [
         name="schedv2_did_answer_review_card",
         args=["card: anki.cards.Card", "ease: int", "early: bool"],
     ),
+    Hook(
+        name="scheduler_new_limit_for_single_deck",
+        args=["count: int", "deck: Dict[str, Any]"],
+        return_type="int",
+        doc="""Allows changing the number of new card for this deck (without
+        considering descendants).""",
+    ),
+    Hook(
+        name="scheduler_review_limit_for_single_deck",
+        args=["count: int", "deck: Dict[str, Any]"],
+        return_type="int",
+        doc="""Allows changing the number of rev card for this deck (without
+        considering descendants).""",
+    ),
 ]
 
 if __name__ == "__main__":

@@ -387,6 +387,62 @@ class _NotesWillBeDeletedHook:
 notes_will_be_deleted = _NotesWillBeDeletedHook()
 
 
+class _SchedulerNewLimitForSingleDeckFilter:
+    """Allows changing the number of new card for this deck (without
+        considering descendants)."""
+
+    _hooks: List[Callable[[int, Dict[str, Any]], int]] = []
+
+    def append(self, cb: Callable[[int, Dict[str, Any]], int]) -> None:
+        """(count: int, deck: Dict[str, Any])"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[int, Dict[str, Any]], int]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, count: int, deck: Dict[str, Any]) -> int:
+        for filter in self._hooks:
+            try:
+                count = filter(count, deck)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return count
+
+
+scheduler_new_limit_for_single_deck = _SchedulerNewLimitForSingleDeckFilter()
+
+
+class _SchedulerReviewLimitForSingleDeckFilter:
+    """Allows changing the number of rev card for this deck (without
+        considering descendants)."""
+
+    _hooks: List[Callable[[int, Dict[str, Any]], int]] = []
+
+    def append(self, cb: Callable[[int, Dict[str, Any]], int]) -> None:
+        """(count: int, deck: Dict[str, Any])"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[int, Dict[str, Any]], int]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, count: int, deck: Dict[str, Any]) -> int:
+        for filter in self._hooks:
+            try:
+                count = filter(count, deck)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return count
+
+
+scheduler_review_limit_for_single_deck = _SchedulerReviewLimitForSingleDeckFilter()
+
+
 class _Schedv2DidAnswerReviewCardHook:
     _hooks: List[Callable[["anki.cards.Card", int, bool], None]] = []
 
