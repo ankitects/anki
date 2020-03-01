@@ -737,6 +737,56 @@ class _DeckConfWillShowHook:
 deck_conf_will_show = _DeckConfWillShowHook()
 
 
+class _DeckFailedToRenameFilter:
+    """This hook allows to change the behavior when renaming would fail
+        (name already existing or becoming descendant of filtered
+        deck). For example it would allow to merge decks. Return True
+        if an exception should still be raised; false if it should
+        just return silently."""
+
+    _hooks: List[
+        Callable[
+            [bool, "anki.decks.DeckRenameError", "aqt.deckbrowser.DeckBrowser"], bool
+        ]
+    ] = []
+
+    def append(
+        self,
+        cb: Callable[
+            [bool, "anki.decks.DeckRenameError", "aqt.deckbrowser.DeckBrowser"], bool
+        ],
+    ) -> None:
+        """(should_warn: bool, exc: anki.decks.DeckRenameError, deck_browser: aqt.deckbrowser.DeckBrowser)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self,
+        cb: Callable[
+            [bool, "anki.decks.DeckRenameError", "aqt.deckbrowser.DeckBrowser"], bool
+        ],
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(
+        self,
+        should_warn: bool,
+        exc: anki.decks.DeckRenameError,
+        deck_browser: aqt.deckbrowser.DeckBrowser,
+    ) -> bool:
+        for filter in self._hooks:
+            try:
+                should_warn = filter(should_warn, exc, deck_browser)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return should_warn
+
+
+deck_failed_to_rename = _DeckFailedToRenameFilter()
+
+
 class _EditorDidFireTypingTimerHook:
     _hooks: List[Callable[["anki.notes.Note"], None]] = []
 

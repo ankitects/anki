@@ -134,6 +134,20 @@ hooks = [
                 content.stats += "\n<div>my html</div>"
         """,
     ),
+    Hook(
+        name="deck_failed_to_rename",
+        args=[
+            "should_warn: bool",
+            "exc: anki.decks.DeckRenameError",
+            "deck_browser: aqt.deckbrowser.DeckBrowser",
+        ],
+        return_type="bool",
+        doc="""This hook allows to change the behavior when renaming would fail
+        (name already existing or becoming descendant of filtered
+        deck). For example it would allow to merge decks. Return True
+        if an exception should still be raised; false if it should
+        just return silently.""",
+    ),
     # Deck options
     ###################
     Hook(

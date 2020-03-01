@@ -299,7 +299,10 @@ where id > ?""",
         try:
             self.mw.col.decks.rename(deck, newName)
         except DeckRenameError as e:
-            return showWarning(e.description)
+            if gui_hooks.deck_failed_to_rename(True, e, self):
+                return showWarning(e.description)
+            else:
+                return
         self.show()
 
     def _options(self, did):
@@ -312,12 +315,14 @@ where id > ?""",
         self.mw.col.decks.collapse(did)
         self._renderPage(reuse=True)
 
-    def _dragDeckOnto(self, draggedDeckDid, ontoDeckDid):
+    def _dragDeckOnto(self, draggedDeckDid: str, ontoDeckDid: str):
         try:
             self.mw.col.decks.renameForDragAndDrop(draggedDeckDid, ontoDeckDid)
         except DeckRenameError as e:
-            return showWarning(e.description)
-
+            if gui_hooks.deck_failed_to_rename(True, e, self):
+                return showWarning(e.description)
+            else:
+                return
         self.show()
 
     def _delete(self, did):

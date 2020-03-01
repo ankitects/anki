@@ -284,11 +284,13 @@ class DeckManager:
         "Rename deck prefix to NAME if not exists. Updates children."
         # make sure target node doesn't already exist
         if self.byName(newName):
-            raise DeckRenameError(_("That deck already exists."))
+            raise DeckRenameError(_("That deck already exists."), g, newName)
         # make sure we're not nesting under a filtered deck
         for p in self.parentsByName(newName):
             if p["dyn"]:
-                raise DeckRenameError(_("A filtered deck cannot have subdecks."))
+                raise DeckRenameError(
+                    _("A filtered deck cannot have subdecks."), g, newName
+                )
         # ensure we have parents
         newName = self._ensureParents(newName)
         # rename children
