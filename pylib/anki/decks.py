@@ -304,19 +304,27 @@ class DeckManager:
         # renaming may have altered active did order
         self.maybeAddToActive()
 
-    def renameForDragAndDrop(self, draggedDeckDid: int, ontoDeckDid: Any) -> None:
+    def renameForDragAndDrop(
+        self, draggedDeckDid: str, ontoDeckDid: Optional[str]
+    ) -> None:
         draggedDeck = self.get(draggedDeckDid)
+        new_name = self.new_name_for_drag_and_drop(draggedDeck, ontoDeckDid)
+        if new_name is not None:
+            self.rename(draggedDeck, new_name)
+
+    def new_name_for_drag_and_drop(
+        self, draggedDeck: Dict[str, Any], ontoDeckDid: Optional[str]
+    ) -> Optional[str]:
         draggedDeckName = draggedDeck["name"]
         ontoDeckName = self.get(ontoDeckDid)["name"]
 
         if ontoDeckDid is None or ontoDeckDid == "":
             if len(self._path(draggedDeckName)) > 1:
-                self.rename(draggedDeck, self._basename(draggedDeckName))
+                return self._basename(draggedDeckName)
         elif self._canDragAndDrop(draggedDeckName, ontoDeckName):
             assert ontoDeckName.strip()
-            self.rename(
-                draggedDeck, ontoDeckName + "::" + self._basename(draggedDeckName)
-            )
+            return ontoDeckName + "::" + self._basename(draggedDeckName)
+        return None
 
     def _canDragAndDrop(self, draggedDeckName: str, ontoDeckName: str) -> bool:
         if (
