@@ -26,6 +26,7 @@ import aqt
 import aqt.forms
 from anki.httpclient import HttpClient
 from anki.lang import _, ngettext
+from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import (
     TR,
@@ -248,11 +249,13 @@ class AddonManager:
     # in new code, use self.addon_meta() instead
     def addonMeta(self, dir: str) -> Dict[str, Any]:
         path = self._addonMetaPath(dir)
+        t = None
         try:
             with open(path, encoding="utf8") as f:
-                return json.load(f)
-        except:
-            return dict()
+                t = f.read()
+            return json.loads(t)
+        except Exception as e:
+            return gui_hooks.addon_current_config_is_invalid(dict(), e, t)
 
     # in new code, use write_addon_meta() instead
     def writeAddonMeta(self, dir, meta):

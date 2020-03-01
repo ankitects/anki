@@ -75,6 +75,48 @@ class _AddCardsWillShowHistoryMenuHook:
 add_cards_will_show_history_menu = _AddCardsWillShowHistoryMenuHook()
 
 
+class _AddonCurrentConfigIsInvalidFilter:
+    """Allow to react when a current configuration file (meta.json) is
+        broken. You can either use the file content to display it, or
+        try to correct it, or print the json error message so that the
+        user/dev can correct it manually.
+
+        This should never occur except if a user changed the file
+        without using anki add-on manager (or if an add-on wrote some
+        value without just dumping some json."""
+
+    _hooks: List[
+        Callable[[Dict[str, Any], Exception, Optional[str]], Dict[str, Any]]
+    ] = []
+
+    def append(
+        self, cb: Callable[[Dict[str, Any], Exception, Optional[str]], Dict[str, Any]]
+    ) -> None:
+        """(config: Dict[str, Any], exc: Exception, file_content: Optional[str])"""
+        self._hooks.append(cb)
+
+    def remove(
+        self, cb: Callable[[Dict[str, Any], Exception, Optional[str]], Dict[str, Any]]
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(
+        self, config: Dict[str, Any], exc: Exception, file_content: Optional[str]
+    ) -> Dict[str, Any]:
+        for filter in self._hooks:
+            try:
+                config = filter(config, exc, file_content)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return config
+
+
+addon_current_config_is_invalid = _AddonCurrentConfigIsInvalidFilter()
+
+
 class _AvPlayerDidBeginPlayingHook:
     _hooks: List[Callable[["aqt.sound.Player", "anki.sound.AVTag"], None]] = []
 

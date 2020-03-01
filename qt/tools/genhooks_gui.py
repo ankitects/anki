@@ -438,6 +438,25 @@ def emptyNewCard():
         args=["player: aqt.sound.Player", "tag: anki.sound.AVTag"],
     ),
     Hook(name="av_player_did_end_playing", args=["player: aqt.sound.Player"]),
+    # Add-on manager
+    ###################
+    Hook(
+        name="addon_current_config_is_invalid",
+        args=[
+            "config: Dict[str, Any]",
+            "exc: Exception",
+            "file_content: Optional[str]",
+        ],
+        return_type="Dict[str, Any]",
+        doc="""Allow to react when a current configuration file (meta.json) is
+        broken. You can either use the file content to display it, or
+        try to correct it, or print the json error message so that the
+        user/dev can correct it manually.
+
+        This should never occur except if a user changed the file
+        without using anki add-on manager (or if an add-on wrote some
+        value without just dumping some json.""",
+    ),
     # Other
     ###################
     Hook(
