@@ -27,7 +27,7 @@ appVersion = _version
 appWebsite = "https://apps.ankiweb.net/"
 appChanges = "https://apps.ankiweb.net/docs/changes.html"
 appDonate = "https://apps.ankiweb.net/support/"
-appShared = "https://ankiweb.net/shared/"
+appShared = "https://ankiweb.net/shared/decks/"
 appUpdate = "https://ankiweb.net/update/desktop"
 appHelpSite = HELP_SITE
 
