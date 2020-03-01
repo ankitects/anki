@@ -11,6 +11,7 @@ import re
 import stat
 import time
 import traceback
+import unicodedata
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
 import anki.find
@@ -780,6 +781,8 @@ select id from notes where mid = ?) limit 1"""
         problems were found.
         """
         problems = []
+        # problems that don't require a full sync
+        syncable_problems = []
         curs = self.db.cursor()
         self.save()
         oldSize = os.stat(self.path)[stat.ST_SIZE]
@@ -916,6 +919,12 @@ select id from cards where odid > 0 and did in %s"""
             self.db.execute(
                 "update cards set odid=0, odue=0 where id in " + ids2str(ids)
             )
+        # notes with non-normalized tags
+        cnt = self._normalize_tags()
+        if cnt > 0:
+            syncable_problems.append(
+                self.tr(TR.DATABASE_CHECK_FIXED_NON_NORMALIZED_TAGS, count=cnt)
+            )
         # tags
         self.tags.registerNotes()
         # field cache
@@ -976,7 +985,20 @@ and type=0""",
         if not ok:
             self.modSchema(check=False)
         self.save()
+        problems.extend(syncable_problems)
         return ("\n".join(problems), ok)
+
+    def _normalize_tags(self) -> int:
+        to_fix = []
+        for id, tags in self.db.execute("select id, tags from notes"):
+            nfc = unicodedata.normalize("NFC", tags)
+            if nfc != tags:
+                to_fix.append((nfc, self.usn(), intTime(), id))
+        if to_fix:
+            self.db.executemany(
+                "update notes set tags=?, usn=?, mod=? where id=?", to_fix
+            )
+        return len(to_fix)
 
     def optimize(self) -> None:
         self.db.setAutocommit(True)
