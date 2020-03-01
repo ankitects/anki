@@ -867,14 +867,12 @@ and due <= ? limit ?)""",
         lim = max(0, c["rev"]["perDay"] - d["revToday"][1])
 
         if parentLimit is not None:
-            return min(parentLimit, lim)
-        elif "::" not in d["name"]:
-            return lim
-        else:
+            lim = min(parentLimit, lim)
+        elif "::" in d["name"]:
             for parent in self.col.decks.parents(d["id"]):
                 # pass in dummy parentLimit so we don't do parent lookup again
                 lim = min(lim, self._deckRevLimitSingle(parent, parentLimit=lim))
-            return lim
+        return lim
 
     def _revForDeck(self, did: int, lim: int, childMap: Dict[int, Any]) -> Any:
         dids = [did] + self.col.decks.childDids(did, childMap)
