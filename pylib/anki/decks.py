@@ -313,9 +313,6 @@ class DeckManager:
             if len(self._path(draggedDeckName)) > 1:
                 self.rename(draggedDeck, self._basename(draggedDeckName))
         elif self._canDragAndDrop(draggedDeckName, ontoDeckName):
-            draggedDeck = self.get(draggedDeckDid)
-            draggedDeckName = draggedDeck["name"]
-            ontoDeckName = self.get(ontoDeckDid)["name"]
             assert ontoDeckName.strip()
             self.rename(
                 draggedDeck, ontoDeckName + "::" + self._basename(draggedDeckName)
