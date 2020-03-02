@@ -754,10 +754,7 @@ title="%s" %s>%s</button>""" % (
         signal.signal(signal.SIGINT, self.onSigInt)
 
     def onSigInt(self, signum, frame):
-        # interrupt any current transaction and schedule a rollback & quit
-        if self.col:
-            self.col.db.interrupt()
-
+        # schedule a rollback & quit
         def quit():
             self.col.db.rollback()
             self.close()
