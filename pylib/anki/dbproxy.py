@@ -62,13 +62,6 @@ class DBProxy:
     def close(self) -> None:
         self._db.close()
 
-    def __enter__(self) -> "DBProxy":
-        self._db.execute("begin")
-        return self
-
-    def __exit__(self, exc_type, *args) -> None:
-        self._db.close()
-
     def totalChanges(self) -> Any:
         return self._db.total_changes
 
