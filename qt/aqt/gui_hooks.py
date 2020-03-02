@@ -328,6 +328,33 @@ class _BrowserWillShowContextMenuHook:
 browser_will_show_context_menu = _BrowserWillShowContextMenuHook()
 
 
+class _CardLayoutWillShowHook:
+    """Allow to change the display of the card layout. After most values are
+         set and before the window is actually shown."""
+
+    _hooks: List[Callable[["aqt.clayout.CardLayout"], None]] = []
+
+    def append(self, cb: Callable[["aqt.clayout.CardLayout"], None]) -> None:
+        """(clayout: aqt.clayout.CardLayout)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[["aqt.clayout.CardLayout"], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, clayout: aqt.clayout.CardLayout) -> None:
+        for hook in self._hooks:
+            try:
+                hook(clayout)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+card_layout_will_show = _CardLayoutWillShowHook()
+
+
 class _CardWillShowFilter:
     """Can modify card text before review/preview."""
 
