@@ -1,6 +1,12 @@
 SHELL := /bin/bash
 FIND := $(if $(wildcard /bin/find),/bin/find,/usr/bin/find)
 
+ifeq ($(OS),Windows_NT)
+	PYTHON_BIN := python
+else
+	PYTHON_BIN := python3
+endif
+
 .SHELLFLAGS := -eu -o pipefail -c
 .DELETE_ON_ERROR:
 MAKEFLAGS += --warn-undefined-variables
@@ -37,7 +43,7 @@ build: $(DEPS)
 	rm -rf $(OUTDIR)/ankirspy*
 	touch ../proto/backend.proto
 	FTL_TEMPLATE_DIRS="$(QT_FTL_TEMPLATES)" FTL_LOCALE_DIRS="$(QT_FTL_LOCALES)" \
-		maturin build -i $(shell which python3) -o $(OUTDIR) $(BUILDFLAGS)
+		maturin build -i $(shell which ${PYTHON_BIN}) -o $(OUTDIR) $(BUILDFLAGS)
 
 check: .build/check
 
