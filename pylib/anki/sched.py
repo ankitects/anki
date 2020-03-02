@@ -106,8 +106,8 @@ class Scheduler:
         counts = [self.newCount, self.lrnCount, self.revCount]
         if card:
             idx = self.countIdx(card)
-            if idx == 1:
-                counts[1] += card.left // 1000
+            if idx == QUEUE_TYPE_LRN:
+                counts[QUEUE_TYPE_LRN] += card.left // 1000
             else:
                 counts[idx] += 1
 
@@ -139,7 +139,7 @@ order by due"""
 
     def countIdx(self, card: Card) -> int:
         if card.queue == QUEUE_TYPE_DAY_LEARN_RELEARN:
-            return 1
+            return QUEUE_TYPE_LRN
         return card.queue
 
     def answerButtons(self, card: Card) -> int:
