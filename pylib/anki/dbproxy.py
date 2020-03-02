@@ -11,8 +11,8 @@ from typing import Any, List, Type
 
 
 class DBProxy:
-    def __init__(self, path: str, timeout: int = 0) -> None:
-        self._db = sqlite.connect(path, timeout=timeout)
+    def __init__(self, path: str) -> None:
+        self._db = sqlite.connect(path, timeout=0)
         self._path = path
         self.mod = False
 
@@ -68,9 +68,6 @@ class DBProxy:
     def close(self) -> None:
         self._db.text_factory = None
         self._db.close()
-
-    def set_progress_handler(self, *args) -> None:
-        self._db.set_progress_handler(*args)
 
     def __enter__(self) -> "DBProxy":
         self._db.execute("begin")
