@@ -114,6 +114,17 @@ hooks = [
         legacy_hook="reviewCleanup",
         doc="Called before Anki transitions from the review screen to another screen.",
     ),
+    # Card layout
+    ###################
+    Hook(
+        name="card_layout_will_show",
+        args=["clayout: aqt.clayout.CardLayout"],
+        doc="""Allow to change the display of the card layout. After most values are
+         set and before the window is actually shown.""",
+    ),
+    # Multiple windows
+    ###################
+    # reviewer, clayout and browser
     Hook(
         name="card_will_show",
         args=["text: str", "card: Card", "kind: str"],
