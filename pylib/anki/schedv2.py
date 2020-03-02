@@ -161,7 +161,7 @@ order by due"""
 
     def countIdx(self, card: Card) -> int:
         if card.queue in (QUEUE_TYPE_DAY_LEARN_RELEARN, QUEUE_TYPE_PREVIEW):
-            return 1
+            return QUEUE_TYPE_LRN
         return card.queue
 
     def answerButtons(self, card: Card) -> int:
