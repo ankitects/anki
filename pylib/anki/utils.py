@@ -22,7 +22,7 @@ from hashlib import sha1
 from html.entities import name2codepoint
 from typing import Iterable, Iterator, List, Optional, Union
 
-from anki.db import DB
+from anki.dbproxy import DBProxy
 
 _tmpdir: Optional[str]
 
@@ -142,7 +142,7 @@ def ids2str(ids: Iterable[Union[int, str]]) -> str:
     return "(%s)" % ",".join(str(i) for i in ids)
 
 
-def timestampID(db: DB, table: str) -> int:
+def timestampID(db: DBProxy, table: str) -> int:
     "Return a non-conflicting timestamp for table."
     # be careful not to create multiple objects without flushing them, or they
     # may share an ID.
@@ -152,7 +152,7 @@ def timestampID(db: DB, table: str) -> int:
     return t
 
 
-def maxID(db: DB) -> int:
+def maxID(db: DBProxy) -> int:
     "Return the first safe ID to use."
     now = intTime(1000)
     for tbl in "cards", "notes":

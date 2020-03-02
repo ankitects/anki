@@ -23,7 +23,7 @@ import anki.template
 from anki import hooks
 from anki.cards import Card
 from anki.consts import *
-from anki.db import DB
+from anki.dbproxy import DBProxy
 from anki.decks import DeckManager
 from anki.errors import AnkiError
 from anki.lang import _, ngettext
@@ -67,7 +67,7 @@ defaultConf = {
 
 # this is initialized by storage.Collection
 class _Collection:
-    db: Optional[DB]
+    db: Optional[DBProxy]
     sched: Union[V1Scheduler, V2Scheduler]
     crt: int
     mod: int
@@ -80,7 +80,7 @@ class _Collection:
 
     def __init__(
         self,
-        db: DB,
+        db: DBProxy,
         backend: RustBackend,
         server: Optional["anki.storage.ServerData"] = None,
         log: bool = False,
@@ -267,7 +267,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     def reopen(self) -> None:
         "Reconnect to DB (after changing threads, etc)."
         if not self.db:
-            self.db = DB(self.path)
+            self.db = DBProxy(self.path)
             self.media.connect()
             self._openLog()
 
