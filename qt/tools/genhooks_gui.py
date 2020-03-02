@@ -464,6 +464,14 @@ def emptyNewCard():
         while reading the file and let the user uses real new line in
         string instead of its encoding.""",
     ),
+    Hook(
+        name="addon_config_editor_will_save_json",
+        args=["text: str"],
+        return_type="str",
+        doc="""Allows changing the text of the json configuration that was
+        received from the user before actually reading it. For
+        example, you can replace new line in strings by some "\\\\n".""",
+    ),
     # Other
     ###################
     Hook(

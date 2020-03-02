@@ -1301,6 +1301,7 @@ class ConfigEditor(QDialog):
 
     def accept(self):
         txt = self.form.editor.toPlainText()
+        txt = gui_hooks.addon_config_editor_will_save_json(txt)
         try:
             new_conf = json.loads(txt)
         except Exception as e:
