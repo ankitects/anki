@@ -110,30 +110,25 @@ class TagManager:
         else:
             l = "tags "
             fn = self.remFromStr
-        lim = " or ".join([l + "like :_%d" % c for c, t in enumerate(newTags)])
+        lim = " or ".join(l + "like ?" for x in newTags)
         res = self.col.db.all(
             "select id, tags from notes where id in %s and (%s)" % (ids2str(ids), lim),
-            **dict(
-                [
-                    ("_%d" % x, "%% %s %%" % y.replace("*", "%"))
-                    for x, y in enumerate(newTags)
-                ]
-            ),
+            *["%% %s %%" % y.replace("*", "%") for x, y in enumerate(newTags)],
         )
         # update tags
         nids = []
 
         def fix(row):
             nids.append(row[0])
-            return {
-                "id": row[0],
-                "t": fn(tags, row[1]),
-                "n": intTime(),
-                "u": self.col.usn(),
-            }
+            return [
+                fn(tags, row[1]),
+                intTime(),
+                self.col.usn(),
+                row[0],
+            ]
 
         self.col.db.executemany(
-            "update notes set tags=:t,mod=:n,usn=:u where id = :id",
+            "update notes set tags=?,mod=?,usn=? where id = ?",
             [fix(row) for row in res],
         )
 

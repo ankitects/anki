@@ -2,8 +2,8 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 # fixme: lossy utf8 handling
+# fixme: progress
 
-import os
 import time
 from sqlite3 import Cursor
 from sqlite3 import dbapi2 as sqlite
@@ -16,19 +16,13 @@ class DBProxy:
         self._path = path
         self.mod = False
 
-    def execute(self, sql: str, *a, **ka) -> Cursor:
+    def execute(self, sql: str, *args) -> Cursor:
         s = sql.strip().lower()
         # mark modified?
         for stmt in "insert", "update", "delete":
             if s.startswith(stmt):
                 self.mod = True
-        t = time.time()
-        if ka:
-            # execute("...where id = :id", id=5)
-            res = self._db.execute(sql, ka)
-        else:
-            # execute("...where id = ?", 5)
-            res = self._db.execute(sql, a)
+        res = self._db.execute(sql, args)
         return res
 
     def executemany(self, sql: str, l: Any) -> None:
@@ -47,26 +41,25 @@ class DBProxy:
     def rollback(self) -> None:
         self._db.rollback()
 
-    def scalar(self, *a, **kw) -> Any:
-        res = self.execute(*a, **kw).fetchone()
+    def scalar(self, sql: str, *args) -> Any:
+        res = self.execute(sql, *args).fetchone()
         if res:
             return res[0]
         return None
 
-    def all(self, *a, **kw) -> List:
-        return self.execute(*a, **kw).fetchall()
+    def all(self, sql: str, *args) -> List:
+        return self.execute(sql, *args).fetchall()
 
-    def first(self, *a, **kw) -> Any:
-        c = self.execute(*a, **kw)
+    def first(self, sql: str, *args) -> Any:
+        c = self.execute(sql, *args)
         res = c.fetchone()
         c.close()
         return res
 
-    def list(self, *a, **kw) -> List:
-        return [x[0] for x in self.execute(*a, **kw)]
+    def list(self, sql: str, *args) -> List:
+        return [x[0] for x in self.execute(sql, *args)]
 
     def close(self) -> None:
-        self._db.text_factory = None
         self._db.close()
 
     def __enter__(self) -> "DBProxy":
@@ -78,9 +71,6 @@ class DBProxy:
 
     def totalChanges(self) -> Any:
         return self._db.total_changes
-
-    def interrupt(self) -> None:
-        self._db.interrupt()
 
     def setAutocommit(self, autocommit: bool) -> None:
         if autocommit:

@@ -286,10 +286,10 @@ and due <= ? limit %d"""
         self._lrnQueue = self.col.db.all(
             f"""
 select due, id from cards where
-did in %s and queue = {QUEUE_TYPE_LRN} and due < :lim
+did in %s and queue = {QUEUE_TYPE_LRN} and due < ?
 limit %d"""
             % (self._deckLimit(), self.reportLimit),
-            lim=self.dayCutoff,
+            self.dayCutoff,
         )
         # as it arrives sorted by did first, we need to sort it
         self._lrnQueue.sort()

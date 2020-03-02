@@ -35,7 +35,7 @@ class ProgressManager:
         "Install a handler in the current DB."
         self.lastDbProgress = 0
         self.inDB = False
-        #db.set_progress_handler(self._dbProgress, 10000)
+        # db.set_progress_handler(self._dbProgress, 10000)
 
     def _dbProgress(self):
         "Called from SQLite."
