@@ -41,7 +41,7 @@ pyenv:
 # update build hash
 .PHONY: buildhash
 buildhash:
-	oldhash=$$(test -f meta/buildhash && cat meta/buildhash || true); \
+	@oldhash=$$(test -f meta/buildhash && cat meta/buildhash || true); \
 	newhash=$$(git rev-parse --short=8 HEAD || echo dev); \
 	if [ "$$oldhash" != "$$newhash" ]; then \
 		echo $$newhash > meta/buildhash; \
