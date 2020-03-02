@@ -35,7 +35,8 @@ DEPS := .build/tools .build/vernum ../meta/buildhash \
 	$(wildcard $(QT_FTL_TEMPLATES)/*.ftl) \
 	$(wildcard $(QT_FTL_LOCALES)/*/*.ftl) \
 	$(shell ${FIND} ../rslib/src -name '*.rs') $(wildcard ../proto/*) \
-	$(shell ${FIND} ../rslib/ftl -type f)
+	$(shell ${FIND} ../rslib/ftl -type f) \
+	$(shell ${FIND} ./src -type f) 
 
 .build/develop: $(DEPS)
 	touch ../proto/backend.proto
