@@ -10,6 +10,9 @@ provide support for problems you encounter when running from source.
 To start, make sure you have the following installed:
 
  - Python 3.7+
+   If you build Python from its source, you will have to call the `./configure` command with 
+   `--enable-loadable-sqlite-extensions`, for example: 
+   ./configure --enable-optimizations --enable-loadable-sqlite-extensions && sudo make altinstall
  - portaudio
  - mpv
  - lame
