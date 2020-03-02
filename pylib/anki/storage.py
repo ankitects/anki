@@ -9,7 +9,7 @@ from typing import Any, Dict, Optional, Tuple
 
 from anki.collection import _Collection
 from anki.consts import *
-from anki.db import DB
+from anki.dbproxy import DBProxy
 from anki.lang import _
 from anki.media import media_paths_from_col_path
 from anki.rsbackend import RustBackend
@@ -44,7 +44,7 @@ def Collection(
         for c in ("/", ":", "\\"):
             assert c not in base
     # connect
-    db = DB(path)
+    db = DBProxy(path)
     db.setAutocommit(True)
     if create:
         ver = _createDB(db)
@@ -78,7 +78,7 @@ def Collection(
     return col
 
 
-def _upgradeSchema(db: DB) -> Any:
+def _upgradeSchema(db: DBProxy) -> Any:
     ver = db.scalar("select ver from col")
     if ver == SCHEMA_VERSION:
         return ver
@@ -238,7 +238,7 @@ def _upgradeClozeModel(col, m) -> None:
 ######################################################################
 
 
-def _createDB(db: DB) -> int:
+def _createDB(db: DBProxy) -> int:
     db.execute("pragma page_size = 4096")
     db.execute("pragma legacy_file_format = 0")
     db.execute("vacuum")
@@ -248,7 +248,7 @@ def _createDB(db: DB) -> int:
     return SCHEMA_VERSION
 
 
-def _addSchema(db: DB, setColConf: bool = True) -> None:
+def _addSchema(db: DBProxy, setColConf: bool = True) -> None:
     db.executescript(
         """
 create table if not exists col (
@@ -329,7 +329,7 @@ values(1,0,0,%(s)s,%(v)s,0,0,0,'','{}','','','{}');
         _addColVars(db, *_getColVars(db))
 
 
-def _getColVars(db: DB) -> Tuple[Any, Any, Dict[str, Any]]:
+def _getColVars(db: DBProxy) -> Tuple[Any, Any, Dict[str, Any]]:
     import anki.collection
     import anki.decks
 
@@ -344,7 +344,7 @@ def _getColVars(db: DB) -> Tuple[Any, Any, Dict[str, Any]]:
 
 
 def _addColVars(
-    db: DB, g: Dict[str, Any], gc: Dict[str, Any], c: Dict[str, Any]
+    db: DBProxy, g: Dict[str, Any], gc: Dict[str, Any], c: Dict[str, Any]
 ) -> None:
     db.execute(
         """
@@ -355,7 +355,7 @@ update col set conf = ?, decks = ?, dconf = ?""",
     )
 
 
-def _updateIndices(db: DB) -> None:
+def _updateIndices(db: DBProxy) -> None:
     "Add indices to the DB."
     db.executescript(
         """
