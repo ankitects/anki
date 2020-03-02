@@ -1258,6 +1258,12 @@ class ConfigEditor(QDialog):
         self.updateText(self.conf)
         restoreGeom(self, "addonconf")
         restoreSplitter(self.form.splitter, "addonconf")
+        self.setWindowTitle(
+            tr(
+                TR.ADDONS_CONFIG_WINDOW_TITLE,
+                name=self.mgr.addon_meta(addon).human_name(),
+            )
+        )
         self.show()
 
     def onRestoreDefaults(self):
