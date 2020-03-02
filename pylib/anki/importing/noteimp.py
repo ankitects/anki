@@ -287,7 +287,7 @@ content in the text file to the correct fields."""
             return [intTime(), self.col.usn(), n.fieldsStr, id, n.fieldsStr]
 
     def addUpdates(self, rows: List[List[Union[int, str]]]) -> None:
-        old = self.col.db.totalChanges()
+        changes = self.col.db.scalar("select total_changes()")
         if self._tagsMapped:
             self.col.db.executemany(
                 """
@@ -309,7 +309,8 @@ update notes set mod = ?, usn = ?, flds = ?
 where id = ? and flds != ?""",
                 rows,
             )
-        self.updateCount = self.col.db.totalChanges() - old
+        changes2 = self.col.db.scalar("select total_changes()")
+        self.updateCount = changes2 - changes
 
     def processFields(
         self, note: ForeignNote, fields: Optional[List[str]] = None

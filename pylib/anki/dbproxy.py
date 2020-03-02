@@ -62,9 +62,6 @@ class DBProxy:
     def close(self) -> None:
         self._db.close()
 
-    def totalChanges(self) -> Any:
-        return self._db.total_changes
-
     def setAutocommit(self, autocommit: bool) -> None:
         if autocommit:
             self._db.isolation_level = None
