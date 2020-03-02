@@ -93,9 +93,6 @@ User-contributed instructions for building using Cygwin:
 1. Install the Cygwin Packages: `apt-cyg install rsync make`
     1. Download `gettext` 0.20.1 or superior and put its `bin` directory on your system path.
         1. https://mlocati.github.io/articles/gettext-iconv-windows.html
-    1. If the Cygwin `/usr/bin/` directory exists, move all files from `/usr/bin/` to `/bin/`.
-       The problem with the `/usr/bin/` is that it should not exists. Cygwin should map/mount `/bin/`
-       into `/usr/bin/`, i.e., they should be the same directory.
 1. Download and install Python for Windows (not from Cygwin) and put `python.exe` (not `python3.exe`) on your system path.
 1. Download and install pip for your Windows Python (`python -m ensurepip`).
 1. Download and install rust (compiler), npm, git and put them your system path.
