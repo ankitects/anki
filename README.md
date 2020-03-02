@@ -8,4 +8,4 @@ For more information on building, please see README.development
 
 If you'd like to contribute code, please see README.contributing
 
-![](https://github.com/ankitects/anki/workflows/Checks/badge.svg)
+[![](../../workflows/Checks/badge.svg)](../../actions)
