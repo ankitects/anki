@@ -298,6 +298,7 @@ and no other programs are accessing your profile folders, then try again."""
             # from aqt.winpaths import get_appdata
             # return os.path.join(get_appdata(), "Anki2")
             from aqt.winpaths import get_personal
+
             return os.path.join(get_personal(), "Anki2")
         elif isMac:
             return os.path.expanduser("~/Library/Application Support/Anki2")
