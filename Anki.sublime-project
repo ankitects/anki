@@ -16,6 +16,12 @@
 				"*.rar"
 			],
 			"path": "D:\\User\\Documents\\Anki2\\addons21"
+		},
+		{
+			"file_exclude_patterns":
+			[
+			],
+			"path": "D:\\User\\Dropbox\\SoftwareVersioning\\Forks\\anki-docs"
 		}
 	],
 	"settings":
