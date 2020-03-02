@@ -596,6 +596,7 @@ class Browser(QMainWindow):
         self.updateFont()
         self.onUndoState(self.mw.form.actionUndo.isEnabled())
         self.setupSearch()
+        gui_hooks.browser_will_show(self)
         self.show()
 
     def setupMenus(self) -> None:

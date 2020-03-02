@@ -302,6 +302,30 @@ class _BrowserWillBuildTreeFilter:
 browser_will_build_tree = _BrowserWillBuildTreeFilter()
 
 
+class _BrowserWillShowHook:
+    _hooks: List[Callable[["aqt.browser.Browser"], None]] = []
+
+    def append(self, cb: Callable[["aqt.browser.Browser"], None]) -> None:
+        """(browser: aqt.browser.Browser)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[["aqt.browser.Browser"], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, browser: aqt.browser.Browser) -> None:
+        for hook in self._hooks:
+            try:
+                hook(browser)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+browser_will_show = _BrowserWillShowHook()
+
+
 class _BrowserWillShowContextMenuHook:
     _hooks: List[Callable[["aqt.browser.Browser", QMenu], None]] = []
 
@@ -326,6 +350,33 @@ class _BrowserWillShowContextMenuHook:
 
 
 browser_will_show_context_menu = _BrowserWillShowContextMenuHook()
+
+
+class _CardLayoutWillShowHook:
+    """Allow to change the display of the card layout. After most values are
+         set and before the window is actually shown."""
+
+    _hooks: List[Callable[["aqt.clayout.CardLayout"], None]] = []
+
+    def append(self, cb: Callable[["aqt.clayout.CardLayout"], None]) -> None:
+        """(clayout: aqt.clayout.CardLayout)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[["aqt.clayout.CardLayout"], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, clayout: aqt.clayout.CardLayout) -> None:
+        for hook in self._hooks:
+            try:
+                hook(clayout)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+card_layout_will_show = _CardLayoutWillShowHook()
 
 
 class _CardWillShowFilter:
