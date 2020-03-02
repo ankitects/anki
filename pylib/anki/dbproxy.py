@@ -7,7 +7,7 @@
 import time
 from sqlite3 import Cursor
 from sqlite3 import dbapi2 as sqlite
-from typing import Any, List, Type
+from typing import Any, List
 
 
 class DBProxy:
@@ -67,6 +67,3 @@ class DBProxy:
             self._db.isolation_level = None
         else:
             self._db.isolation_level = ""
-
-    def cursor(self, factory: Type[Cursor] = Cursor) -> Cursor:
-        return self._db.cursor(factory)

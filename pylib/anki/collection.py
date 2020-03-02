@@ -793,7 +793,6 @@ select id from notes where mid = ?) limit 1"""
         problems = []
         # problems that don't require a full sync
         syncable_problems = []
-        curs = self.db.cursor()
         self.save()
         oldSize = os.stat(self.path)[stat.ST_SIZE]
         if self.db.scalar("pragma integrity_check") != "ok":
@@ -942,16 +941,18 @@ select id from cards where odid > 0 and did in %s"""
             self.updateFieldCache(self.models.nids(m))
         # new cards can't have a due position > 32 bits, so wrap items over
         # 2 million back to 1 million
-        curs.execute(
+        self.db.execute(
             """
 update cards set due=1000000+due%1000000,mod=?,usn=? where due>=1000000
 and type=0""",
-            [intTime(), self.usn()],
+            intTime(),
+            self.usn(),
         )
-        if curs.rowcount:
+        rowcount = self.db.scalar("select changes()")
+        if rowcount:
             problems.append(
                 "Found %d new cards with a due number >= 1,000,000 - consider repositioning them in the Browse screen."
-                % curs.rowcount
+                % rowcount
             )
         # new card position
         self.conf["nextPos"] = (
@@ -969,18 +970,20 @@ and type=0""",
                 self.usn(),
             )
         # v2 sched had a bug that could create decimal intervals
-        curs.execute(
+        self.db.execute(
             "update cards set ivl=round(ivl),due=round(due) where ivl!=round(ivl) or due!=round(due)"
         )
-        if curs.rowcount:
-            problems.append("Fixed %d cards with v2 scheduler bug." % curs.rowcount)
+        rowcount = self.db.scalar("select changes()")
+        if rowcount:
+            problems.append("Fixed %d cards with v2 scheduler bug." % rowcount)
 
-        curs.execute(
+        self.db.execute(
             "update revlog set ivl=round(ivl),lastIvl=round(lastIvl) where ivl!=round(ivl) or lastIvl!=round(lastIvl)"
         )
-        if curs.rowcount:
+        rowcount = self.db.scalar("select changes()")
+        if rowcount:
             problems.append(
-                "Fixed %d review history entries with v2 scheduler bug." % curs.rowcount
+                "Fixed %d review history entries with v2 scheduler bug." % rowcount
             )
         # models
         if self.models.ensureNotEmpty():
