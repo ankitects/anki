@@ -87,7 +87,7 @@ class AVPlayer:
     # audio be stopped?
     interrupt_current_audio = True
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._enqueued: List[AVTag] = []
         self.current_player: Optional[Player] = None
 
@@ -112,7 +112,7 @@ class AVPlayer:
         self._enqueued.insert(0, SoundOrVideoTag(filename=filename))
         self._play_next_if_idle()
 
-    def toggle_pause(self):
+    def toggle_pause(self) -> None:
         if self.current_player:
             self.current_player.toggle_pause()
 
@@ -179,7 +179,7 @@ av_player = AVPlayer()
 
 # return modified command array that points to bundled command, and return
 # required environment
-def _packagedCmd(cmd) -> Tuple[Any, Dict[str, str]]:
+def _packagedCmd(cmd: List[str]) -> Tuple[Any, Dict[str, str]]:
     cmd = cmd[:]
     env = os.environ.copy()
     if "LD_LIBRARY_PATH" in env:
@@ -205,7 +205,7 @@ def _packagedCmd(cmd) -> Tuple[Any, Dict[str, str]]:
 si = startup_info()
 
 # osx throws interrupted system call errors frequently
-def retryWait(proc) -> Any:
+def retryWait(proc: subprocess.Popen) -> int:
     while 1:
         try:
             return proc.wait()
@@ -227,7 +227,7 @@ class SimpleProcessPlayer(Player):  # pylint: disable=abstract-method
     args: List[str] = []
     env: Optional[Dict[str, str]] = None
 
-    def __init__(self, taskman: TaskManager):
+    def __init__(self, taskman: TaskManager) -> None:
         self._taskman = taskman
         self._terminate_flag = False
         self._process: Optional[subprocess.Popen] = None
@@ -238,7 +238,7 @@ class SimpleProcessPlayer(Player):  # pylint: disable=abstract-method
             lambda: self._play(tag), lambda res: self._on_done(res, on_done)
         )
 
-    def stop(self):
+    def stop(self) -> None:
         self._terminate_flag = True
         # block until stopped
         t = time.time()
@@ -252,7 +252,7 @@ class SimpleProcessPlayer(Player):  # pylint: disable=abstract-method
         )
         self._wait_for_termination(tag)
 
-    def _wait_for_termination(self, tag: AVTag):
+    def _wait_for_termination(self, tag: AVTag) -> None:
         self._taskman.run_on_main(
             lambda: gui_hooks.av_player_did_begin_playing(self, tag)
         )
@@ -359,7 +359,7 @@ class MpvManager(MPV, SoundOrVideoPlayer):
     def toggle_pause(self) -> None:
         self.set_property("pause", not self.get_property("pause"))
 
-    def seek_relative(self, secs) -> None:
+    def seek_relative(self, secs: int) -> None:
         self.command("seek", secs, "relative")
 
     def on_idle(self) -> None:
@@ -401,7 +401,7 @@ class SimpleMplayerSlaveModePlayer(SimpleMplayerPlayer):
         )
         self._wait_for_termination(tag)
 
-    def command(self, *args) -> None:
+    def command(self, *args: Any) -> None:
         """Send a command over the slave interface.
 
         The trailing newline is automatically added."""
@@ -412,7 +412,7 @@ class SimpleMplayerSlaveModePlayer(SimpleMplayerPlayer):
     def seek_relative(self, secs: int) -> None:
         self.command("seek", secs, 0)
 
-    def toggle_pause(self):
+    def toggle_pause(self) -> None:
         self.command("pause")
 
 
@@ -458,12 +458,12 @@ class _Recorder:
 
 
 class PyAudioThreadedRecorder(threading.Thread):
-    def __init__(self, startupDelay) -> None:
+    def __init__(self, startupDelay: float) -> None:
         threading.Thread.__init__(self)
         self.startupDelay = startupDelay
         self.finish = False
 
-    def run(self) -> Any:
+    def run(self) -> None:
         chunk = 1024
         p = pyaudio.PyAudio()
 
@@ -499,7 +499,7 @@ class PyAudioRecorder(_Recorder):
     # discard first 250ms which may have pops/cracks
     startupDelay = 0.25
 
-    def __init__(self):
+    def __init__(self) -> None:
         for t in recFiles + [processingSrc, processingDst]:
             try:
                 os.unlink(t)
@@ -507,15 +507,15 @@ class PyAudioRecorder(_Recorder):
                 pass
         self.encode = False
 
-    def start(self):
+    def start(self) -> None:
         self.thread = PyAudioThreadedRecorder(startupDelay=self.startupDelay)
         self.thread.start()
 
-    def stop(self):
+    def stop(self) -> None:
         self.thread.finish = True
         self.thread.join()
 
-    def file(self):
+    def file(self) -> str:
         if self.encode:
             tgt = "rec%d.mp3" % time.time()
             os.rename(processingDst, tgt)
@@ -530,7 +530,7 @@ Recorder = PyAudioRecorder
 ##########################################################################
 
 
-def getAudio(parent, encode=True):
+def getAudio(parent: QWidget, encode: bool = True) -> Optional[str]:
     "Record and return filename"
     # record first
     r = Recorder()
@@ -547,16 +547,16 @@ def getAudio(parent, encode=True):
     t = time.time()
     r.start()
     time.sleep(r.startupDelay)
-    QApplication.instance().processEvents()
+    QApplication.instance().processEvents()  # type: ignore
     while not mb.clickedButton():
         txt = _("Recording...<br>Time: %0.1f")
         mb.setText(txt % (time.time() - t))
         mb.show()
-        QApplication.instance().processEvents()
+        QApplication.instance().processEvents()  # type: ignore
     if mb.clickedButton() == mb.escapeButton():
         r.stop()
         r.cleanup()
-        return
+        return None
     saveGeom(mb, "audioRecorder")
     # ensure at least a second captured
     while time.time() - t < 1:
