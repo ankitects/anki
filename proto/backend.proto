@@ -13,6 +13,7 @@ message BackendInit {
     repeated string preferred_langs = 4;
     string locale_folder_path = 5;
     string log_path = 6;
+    bool server = 7;
 }
 
 message I18nBackendInit {
@@ -44,6 +45,7 @@ message BackendInput {
         CongratsLearnMsgIn congrats_learn_msg = 33;
         Empty empty_trash = 34;
         Empty restore_trash = 35;
+        DBQueryIn db_query = 36;
     }
 }
 
@@ -72,6 +74,7 @@ message BackendOutput {
         Empty trash_media_files = 29;
         Empty empty_trash = 34;
         Empty restore_trash = 35;
+        DBQueryOut db_query = 36;
 
         BackendError error = 2047;
     }
@@ -323,4 +326,27 @@ message StudiedTodayIn {
 message CongratsLearnMsgIn {
     float next_due = 1;
     uint32 remaining = 2;
+}
+
+message DBQueryIn {
+    string sql = 1;
+    repeated SqlValue args = 2;
+}
+
+message DBQueryOut {
+    repeated SqlRow rows = 1;
+}
+
+message SqlValue {
+    oneof value {
+        Empty null = 1;
+        string string = 2;
+        int64 int = 3;
+        double double = 4;
+        bytes blob = 5;
+    }
+}
+
+message SqlRow {
+    repeated SqlValue values = 1;
 }

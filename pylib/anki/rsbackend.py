@@ -5,13 +5,25 @@
 import enum
 import os
 from dataclasses import dataclass
-from typing import Callable, Dict, List, NewType, NoReturn, Optional, Tuple, Union
+from typing import (
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    NewType,
+    NoReturn,
+    Optional,
+    Tuple,
+    Union,
+    Any)
 
 import ankirspy  # pytype: disable=import-error
 
 import anki.backend_pb2 as pb
 import anki.buildinfo
 from anki import hooks
+from anki.dbproxy import Row as DBRow
+from anki.dbproxy import ValueForDB
 from anki.fluent_pb2 import FluentString as TR
 from anki.models import AllTemplateReqs
 from anki.sound import AVTag, SoundOrVideoTag, TTSTag
@@ -186,7 +198,12 @@ def _on_progress(progress_bytes: bytes) -> bool:
 
 class RustBackend:
     def __init__(
-        self, col_path: str, media_folder_path: str, media_db_path: str, log_path: str
+        self,
+        col_path: str,
+        media_folder_path: str,
+        media_db_path: str,
+        log_path: str,
+        server: bool,
     ) -> None:
         ftl_folder = os.path.join(anki.lang.locale_folder, "fluent")
         init_msg = pb.BackendInit(
@@ -196,6 +213,7 @@ class RustBackend:
             locale_folder_path=ftl_folder,
             preferred_langs=[anki.lang.currentLang],
             log_path=log_path,
+            server=server,
         )
         self._backend = ankirspy.open_backend(init_msg.SerializeToString())
         self._backend.set_progress_callback(_on_progress)
@@ -366,6 +384,42 @@ class RustBackend:
     def restore_trash(self):
         self._run_command(pb.BackendInput(restore_trash=pb.Empty()))
 
+    def db_query(self, sql: str, args: Iterable[ValueForDB]) -> Iterable[DBRow]:
+        def arg_to_proto(arg: ValueForDB) -> pb.SqlValue:
+            if isinstance(arg, int):
+                return pb.SqlValue(int=arg)
+            elif isinstance(arg, float):
+                return pb.SqlValue(double=arg)
+            elif isinstance(arg, str):
+                return pb.SqlValue(string=arg)
+            elif arg is None:
+                return pb.SqlValue(null=pb.Empty())
+            else:
+                raise Exception("unexpected DB type")
+
+        output = self._run_command(
+            pb.BackendInput(
+                db_query=pb.DBQueryIn(sql=sql, args=map(arg_to_proto, args))
+            )
+        ).db_query
+
+        def sqlvalue_to_native(arg: pb.SqlValue) -> Any:
+            v = arg.WhichOneof("value")
+            if v == "int":
+                return arg.int
+            elif v == "double":
+                return arg.double
+            elif v == "string":
+                return arg.string
+            elif v == "null":
+                return None
+            else:
+                assert_impossible_literal(v)
+
+        def sqlrow_to_tuple(arg: pb.SqlRow) -> Tuple:
+            return tuple(map(sqlvalue_to_native, arg.values))
+
+        return map(sqlrow_to_tuple, output.rows)
 
 def translate_string_in(
     key: TR, **kwargs: Union[str, int, float]

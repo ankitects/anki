@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::err::{AnkiError, Result};
+use crate::err::{AnkiError, DBErrorKind, Result};
 use crate::i18n::{tr_args, tr_strs, FString, I18n};
 use crate::latex::extract_latex_expanding_clozes;
 use crate::log::{debug, Logger};
@@ -403,6 +403,7 @@ where
                 .get(&note.mid)
                 .ok_or_else(|| AnkiError::DBError {
                     info: "missing note type".to_string(),
+                    kind: DBErrorKind::MissingEntity,
                 })?;
             if fix_and_extract_media_refs(note, &mut referenced_files, renamed)? {
                 // note was modified, needs saving

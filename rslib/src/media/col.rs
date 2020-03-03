@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 /// Basic note reading/updating functionality for the media DB check.
-use crate::err::{AnkiError, Result};
+use crate::err::{AnkiError, DBErrorKind, Result};
 use crate::text::strip_html_preserving_image_filenames;
 use crate::time::{i64_unix_millis, i64_unix_secs};
 use crate::types::{ObjID, Timestamp, Usn};
@@ -85,6 +85,7 @@ pub(super) fn get_note_types(db: &Connection) -> Result<HashMap<ObjID, NoteType>
         .next()
         .ok_or_else(|| AnkiError::DBError {
             info: "col table empty".to_string(),
+            kind: DBErrorKind::MissingEntity,
         })??;
     Ok(note_types)
 }
@@ -136,6 +137,7 @@ pub(super) fn set_note(db: &Connection, note: &mut Note, note_type: &NoteType) -
             .get(note_type.sort_field_idx as usize)
             .ok_or_else(|| AnkiError::DBError {
                 info: "sort field out of range".to_string(),
+                kind: DBErrorKind::MissingEntity,
             })?,
     );
 

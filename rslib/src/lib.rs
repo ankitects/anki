@@ -17,6 +17,7 @@ pub mod latex;
 pub mod log;
 pub mod media;
 pub mod sched;
+pub mod storage;
 pub mod template;
 pub mod template_filters;
 pub mod text;

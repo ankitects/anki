@@ -35,7 +35,6 @@ def Collection(
     log_path = ""
     if not server:
         log_path = path.replace(".anki2", "2.log")
-    backend = RustBackend(path, media_dir, media_db, log_path)
     path = os.path.abspath(path)
     create = not os.path.exists(path)
     if create:
@@ -43,7 +42,10 @@ def Collection(
         for c in ("/", ":", "\\"):
             assert c not in base
     # connect
-    db = DBProxy(path)
+    backend = RustBackend(
+        path, media_dir, media_db, log_path, server=server is not None
+    )
+    db = DBProxy(backend, path)
     db.setAutocommit(True)
     if create:
         ver = _createDB(db)
