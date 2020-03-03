@@ -5,7 +5,15 @@
 # fixme: progress
 
 from sqlite3 import dbapi2 as sqlite
-from typing import Any, Iterable, List, Optional
+from typing import Any, Iterable, List, Optional, Sequence, Union
+
+# DBValue is actually Union[str, int, float, None], but if defined
+# that way, every call site needs to do a type check prior to using
+# the return values.
+ValueFromDB = Any
+Row = Sequence[ValueFromDB]
+
+ValueForDB = Union[str, int, float, None]
 
 
 class DBProxy:
@@ -38,7 +46,9 @@ class DBProxy:
     # Querying
     ################
 
-    def _query(self, sql: str, *args, first_row_only: bool = False) -> List[List]:
+    def _query(
+        self, sql: str, *args: ValueForDB, first_row_only: bool = False
+    ) -> List[Row]:
         # mark modified?
         s = sql.strip().lower()
         for stmt in "insert", "update", "delete":
@@ -59,20 +69,20 @@ class DBProxy:
     # Query shortcuts
     ###################
 
-    def all(self, sql: str, *args) -> List:
+    def all(self, sql: str, *args: ValueForDB) -> List[Row]:
         return self._query(sql, *args)
 
-    def list(self, sql: str, *args) -> List:
+    def list(self, sql: str, *args: ValueForDB) -> List[ValueFromDB]:
         return [x[0] for x in self._query(sql, *args)]
 
-    def first(self, sql: str, *args) -> Optional[List]:
+    def first(self, sql: str, *args: ValueForDB) -> Optional[Row]:
         rows = self._query(sql, *args, first_row_only=True)
         if rows:
             return rows[0]
         else:
             return None
 
-    def scalar(self, sql: str, *args) -> Optional[Any]:
+    def scalar(self, sql: str, *args: ValueForDB) -> ValueFromDB:
         rows = self._query(sql, *args, first_row_only=True)
         if rows:
             return rows[0][0]
@@ -86,7 +96,7 @@ class DBProxy:
     # Updates
     ################
 
-    def executemany(self, sql: str, args: Iterable) -> None:
+    def executemany(self, sql: str, args: Iterable[Iterable[ValueForDB]]) -> None:
         self.mod = True
         self._db.executemany(sql, args)
 
