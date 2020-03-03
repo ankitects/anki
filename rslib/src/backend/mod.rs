@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use crate::backend::dbproxy::db_query_proto;
 use crate::backend_proto::backend_input::Value;
 use crate::backend_proto::{Empty, RenderedTemplateReplacement, SyncMediaIn};
 use crate::err::{AnkiError, NetworkErrorKind, Result, SyncErrorKind};
@@ -12,6 +13,7 @@ use crate::media::sync::MediaSyncProgress;
 use crate::media::MediaManager;
 use crate::sched::cutoff::{local_minutes_west_for_stamp, sched_timing_today};
 use crate::sched::timespan::{answer_button_time, learning_congrats, studied_today, time_span};
+use crate::storage::SqliteStorage;
 use crate::template::{
     render_card, without_legacy_template_directives, FieldMap, FieldRequirements, ParsedTemplate,
     RenderedNode,
@@ -24,9 +26,12 @@ use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 use tokio::runtime::Runtime;
 
+mod dbproxy;
+
 pub type ProtoProgressCallback = Box<dyn Fn(Vec<u8>) -> bool + Send>;
 
 pub struct Backend {
+    col: SqliteStorage,
     #[allow(dead_code)]
     col_path: PathBuf,
     media_folder: PathBuf,
@@ -119,7 +124,11 @@ pub fn init_backend(init_msg: &[u8]) -> std::result::Result<Backend, String> {
         log::terminal(),
     );
 
+    let col = SqliteStorage::open_or_create(Path::new(&input.collection_path), input.server)
+        .map_err(|e| format!("Unable to open collection: {:?}", e))?;
+
     match Backend::new(
+        col,
         &input.collection_path,
         &input.media_folder_path,
         &input.media_db_path,
@@ -133,6 +142,7 @@ pub fn init_backend(init_msg: &[u8]) -> std::result::Result<Backend, String> {
 
 impl Backend {
     pub fn new(
+        col: SqliteStorage,
         col_path: &str,
         media_folder: &str,
         media_db: &str,
@@ -140,6 +150,7 @@ impl Backend {
         log: Logger,
     ) -> Result<Backend> {
         Ok(Backend {
+            col,
             col_path: col_path.into(),
             media_folder: media_folder.into(),
             media_db: media_db.into(),
@@ -241,6 +252,7 @@ impl Backend {
                 self.restore_trash()?;
                 OValue::RestoreTrash(Empty {})
             }
+            Value::DbQuery(input) => OValue::DbQuery(self.db_query(input)?),
         })
     }
 
@@ -480,6 +492,10 @@ impl Backend {
         let mut checker = MediaChecker::new(&mgr, &self.col_path, callback, &self.i18n, &self.log);
 
         checker.restore_trash()
+    }
+
+    fn db_query(&self, input: pb::DbQueryIn) -> Result<pb::DbQueryOut> {
+        db_query_proto(&self.col, input)
     }
 }
 
