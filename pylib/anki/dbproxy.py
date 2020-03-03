@@ -4,9 +4,8 @@
 # fixme: lossy utf8 handling
 # fixme: progress
 
-from sqlite3 import Cursor
 from sqlite3 import dbapi2 as sqlite
-from typing import Any, Iterable, List
+from typing import Any, Iterable, List, Optional
 
 
 class DBProxy:
@@ -39,23 +38,50 @@ class DBProxy:
     # Querying
     ################
 
-    def all(self, sql: str, *args) -> List:
-        return self.execute(sql, *args).fetchall()
+    def _query(self, sql: str, *args, first_row_only: bool = False) -> List[List]:
+        # mark modified?
+        s = sql.strip().lower()
+        for stmt in "insert", "update", "delete":
+            if s.startswith(stmt):
+                self.mod = True
+        # fetch rows
+        curs = self._db.execute(sql, args)
+        if first_row_only:
+            row = curs.fetchone()
+            curs.close()
+            if row is not None:
+                return [row]
+            else:
+                return []
+        else:
+            return curs.fetchall()
 
-    def first(self, sql: str, *args) -> Any:
-        c = self.execute(sql, *args)
-        res = c.fetchone()
-        c.close()
-        return res
+    # Query shortcuts
+    ###################
+
+    def all(self, sql: str, *args) -> List:
+        return self._query(sql, *args)
 
     def list(self, sql: str, *args) -> List:
-        return [x[0] for x in self.execute(sql, *args)]
+        return [x[0] for x in self._query(sql, *args)]
 
-    def scalar(self, sql: str, *args) -> Any:
-        res = self.execute(sql, *args).fetchone()
-        if res:
-            return res[0]
-        return None
+    def first(self, sql: str, *args) -> Optional[List]:
+        rows = self._query(sql, *args, first_row_only=True)
+        if rows:
+            return rows[0]
+        else:
+            return None
+
+    def scalar(self, sql: str, *args) -> Optional[Any]:
+        rows = self._query(sql, *args, first_row_only=True)
+        if rows:
+            return rows[0][0]
+        else:
+            return None
+
+    # execute used to return a pysqlite cursor, but now is synonymous
+    # with .all()
+    execute = all
 
     # Updates
     ################
@@ -67,15 +93,3 @@ class DBProxy:
     def executescript(self, sql: str) -> None:
         self.mod = True
         self._db.executescript(sql)
-
-    # Cursor API
-    ###############
-
-    def execute(self, sql: str, *args) -> Cursor:
-        s = sql.strip().lower()
-        # mark modified?
-        for stmt in "insert", "update", "delete":
-            if s.startswith(stmt):
-                self.mod = True
-        res = self._db.execute(sql, args)
-        return res
