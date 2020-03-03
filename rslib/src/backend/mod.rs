@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use crate::backend::dbproxy::db_query_json_str;
 use crate::backend::dbproxy::db_query_proto;
 use crate::backend_proto::backend_input::Value;
 use crate::backend_proto::{Empty, RenderedTemplateReplacement, SyncMediaIn};
@@ -496,6 +497,10 @@ impl Backend {
 
     fn db_query(&self, input: pb::DbQueryIn) -> Result<pb::DbQueryOut> {
         db_query_proto(&self.col, input)
+    }
+
+    pub fn db_query_json(&self, input: &[u8]) -> Result<String> {
+        db_query_json_str(&self.col, input)
     }
 }
 

@@ -1,11 +1,14 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-# fixme: lossy utf8 handling
-# fixme: progress
+from __future__ import annotations
 
-from sqlite3 import dbapi2 as sqlite
 from typing import Any, Iterable, List, Optional, Sequence, Union
+
+import anki
+
+# fixme: remember to null on close to avoid circular ref
+# fixme: progress
 
 # DBValue is actually Union[str, int, float, None], but if defined
 # that way, every call site needs to do a type check prior to using
@@ -20,28 +23,29 @@ class DBProxy:
     # Lifecycle
     ###############
 
-    def __init__(self, path: str) -> None:
-        self._db = sqlite.connect(path, timeout=0)
+    def __init__(self, backend: anki.rsbackend.RustBackend, path: str) -> None:
+        self._backend = backend
         self._path = path
         self.mod = False
 
     def close(self) -> None:
-        self._db.close()
+        # fixme
+        pass
 
     # Transactions
     ###############
 
     def commit(self) -> None:
-        self._db.commit()
+        # fixme
+        pass
 
     def rollback(self) -> None:
-        self._db.rollback()
+        # fixme
+        pass
 
     def setAutocommit(self, autocommit: bool) -> None:
-        if autocommit:
-            self._db.isolation_level = None
-        else:
-            self._db.isolation_level = ""
+        # fixme
+        pass
 
     # Querying
     ################
@@ -55,16 +59,8 @@ class DBProxy:
             if s.startswith(stmt):
                 self.mod = True
         # fetch rows
-        curs = self._db.execute(sql, args)
-        if first_row_only:
-            row = curs.fetchone()
-            curs.close()
-            if row is not None:
-                return [row]
-            else:
-                return []
-        else:
-            return curs.fetchall()
+        # fixme: first_row_only
+        return self._backend.db_query_json(sql, args)
 
     # Query shortcuts
     ###################
@@ -98,8 +94,8 @@ class DBProxy:
 
     def executemany(self, sql: str, args: Iterable[Iterable[ValueForDB]]) -> None:
         self.mod = True
-        self._db.executemany(sql, args)
+        raise Exception("fixme")
 
     def executescript(self, sql: str) -> None:
         self.mod = True
-        self._db.executescript(sql)
+        raise Exception("fixme")

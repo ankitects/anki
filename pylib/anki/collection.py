@@ -266,8 +266,9 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
 
     def reopen(self) -> None:
         "Reconnect to DB (after changing threads, etc)."
+        raise Exception("fixme")
         if not self.db:
-            self.db = DBProxy(self.path)
+            #self.db = DBProxy(self.path)
             self.media.connect()
             self._openLog()
 
