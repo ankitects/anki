@@ -6,6 +6,7 @@ from __future__ import annotations
 import itertools
 import random
 import time
+import weakref
 from heapq import *
 from operator import itemgetter
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
@@ -30,7 +31,7 @@ class Scheduler:
     _burySiblingsOnAnswer = True
 
     def __init__(self, col: anki.storage._Collection) -> None:
-        self.col = col
+        self.col = weakref.proxy(col)
         self.queueLimit = 50
         self.reportLimit = 1000
         self.reps = 0
