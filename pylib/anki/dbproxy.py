@@ -94,7 +94,9 @@ class DBProxy:
 
     def executemany(self, sql: str, args: Iterable[Iterable[ValueForDB]]) -> None:
         self.mod = True
-        raise Exception("fixme")
+        # fixme
+        for row in args:
+            self.execute(sql, *row)
 
     def executescript(self, sql: str) -> None:
         self.mod = True
