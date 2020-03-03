@@ -138,8 +138,8 @@ class Scheduler:
 
     def dueForecast(self, days: int = 7) -> List[Any]:
         "Return counts over next DAYS. Includes today."
-        daysd = dict(
-            self.col.db.all(
+        daysd: Dict[int, int] = dict(
+            self.col.db.all(  # type: ignore
                 f"""
 select due, count() from cards
 where did in %s and queue = {QUEUE_TYPE_REV}
@@ -542,7 +542,7 @@ select count() from cards where did in %s and queue = {QUEUE_TYPE_PREVIEW}
         if self._lrnQueue:
             return True
         cutoff = intTime() + self.col.conf["collapseTime"]
-        self._lrnQueue = self.col.db.all(
+        self._lrnQueue = self.col.db.all(  # type: ignore
             f"""
 select due, id from cards where
 did in %s and queue in ({QUEUE_TYPE_LRN},{QUEUE_TYPE_PREVIEW}) and due < ?

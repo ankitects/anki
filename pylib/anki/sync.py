@@ -8,7 +8,7 @@ import io
 import json
 import os
 import random
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import anki
 from anki.consts import *
@@ -31,7 +31,7 @@ class UnexpectedSchemaChange(Exception):
 
 
 class Syncer:
-    chunkRows: Optional[List[List]]
+    chunkRows: Optional[List[Sequence]]
 
     def __init__(self, col: anki.storage._Collection, server=None) -> None:
         self.col = col.weakref()
@@ -248,7 +248,7 @@ class Syncer:
         self.tablesLeft = ["revlog", "cards", "notes"]
         self.chunkRows = None
 
-    def getChunkRows(self, table) -> List[List]:
+    def getChunkRows(self, table) -> List[Sequence]:
         lim = self.usnLim()
         x = self.col.db.all
         d = (self.maxUsn, lim)
