@@ -2,7 +2,6 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::backend::dbproxy::db_query_json_str;
-use crate::backend::dbproxy::db_query_proto;
 use crate::backend_proto::backend_input::Value;
 use crate::backend_proto::{Empty, RenderedTemplateReplacement, SyncMediaIn};
 use crate::err::{AnkiError, NetworkErrorKind, Result, SyncErrorKind};
@@ -253,7 +252,6 @@ impl Backend {
                 self.restore_trash()?;
                 OValue::RestoreTrash(Empty {})
             }
-            Value::DbQuery(input) => OValue::DbQuery(self.db_query(input)?),
         })
     }
 
@@ -495,12 +493,8 @@ impl Backend {
         checker.restore_trash()
     }
 
-    fn db_query(&self, input: pb::DbQueryIn) -> Result<pb::DbQueryOut> {
+    pub fn db_query(&self, input: pb::DbQueryIn) -> Result<pb::DbQueryOut> {
         db_query_proto(&self.col, input)
-    }
-
-    pub fn db_query_json(&self, input: &[u8]) -> Result<String> {
-        db_query_json_str(&self.col, input)
     }
 }
 
