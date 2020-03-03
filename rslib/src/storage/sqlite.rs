@@ -26,6 +26,7 @@ macro_rules! cached_sql {
     }};
 }
 
+// currently public for dbproxy
 #[derive(Debug)]
 pub struct SqliteStorage {
     // currently crate-visible for dbproxy

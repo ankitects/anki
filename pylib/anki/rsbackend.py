@@ -18,6 +18,7 @@ from typing import (
     Any)
 
 import ankirspy  # pytype: disable=import-error
+import orjson
 
 import anki.backend_pb2 as pb
 import anki.buildinfo
@@ -420,6 +421,11 @@ class RustBackend:
             return tuple(map(sqlvalue_to_native, arg.values))
 
         return map(sqlrow_to_tuple, output.rows)
+
+    def db_query_json(self, sql: str, args: Iterable[ValueForDB]) -> List[DBRow]:
+        input = orjson.dumps(dict(sql=sql, args=args))
+        output = self._backend.db_query(input)
+        return orjson.loads(output)
 
 def translate_string_in(
     key: TR, **kwargs: Union[str, int, float]
