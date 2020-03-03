@@ -10,6 +10,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+import weakref
 from typing import Any, Callable, List, Optional, Tuple, Union
 
 import anki
@@ -42,7 +43,7 @@ class MediaManager:
     regexps = soundRegexps + imgRegexps
 
     def __init__(self, col: anki.storage._Collection, server: bool) -> None:
-        self.col = col
+        self.col = weakref.proxy(col)
         if server:
             self._dir = None
             return

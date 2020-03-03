@@ -176,11 +176,13 @@ def proto_progress_to_native(progress: pb.Progress) -> Progress:
     else:
         assert_impossible_literal(kind)
 
+
 def _on_progress(progress_bytes: bytes) -> bool:
     progress = pb.Progress()
     progress.ParseFromString(progress_bytes)
     native_progress = proto_progress_to_native(progress)
     return hooks.bg_thread_progress_callback(True, native_progress)
+
 
 class RustBackend:
     def __init__(

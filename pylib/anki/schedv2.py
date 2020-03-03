@@ -7,6 +7,7 @@ import datetime
 import itertools
 import random
 import time
+import weakref
 from heapq import *
 from operator import itemgetter
 
@@ -37,7 +38,7 @@ class Scheduler:
     revCount: int
 
     def __init__(self, col: anki.storage._Collection) -> None:
-        self.col = col
+        self.col = weakref.proxy(col)
         self.queueLimit = 50
         self.reportLimit = 1000
         self.dynReportLimit = 99999
