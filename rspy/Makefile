@@ -1,6 +1,10 @@
 SHELL := /bin/bash
 FIND := $(if $(wildcard /bin/find),/bin/find,/usr/bin/find)
 
+ifndef OS
+	OS := unknown
+endif
+
 ifeq ($(OS),Windows_NT)
 	ifndef PYTHON_BIN
 		PYTHON_BIN := python
