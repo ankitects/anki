@@ -73,7 +73,7 @@ impl Backend {
 
     fn db_query(&mut self, py: Python, input: &PyBytes) -> PyObject {
         let in_bytes = input.as_bytes();
-        let out_string = self.backend.db_query_json(in_bytes).unwrap();
+        let out_string = self.backend.db_query(in_bytes).unwrap();
         let out_obj = PyBytes::new(py, out_string.as_bytes());
         out_obj.into()
     }

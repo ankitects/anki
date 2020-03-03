@@ -60,7 +60,7 @@ class DBProxy:
                 self.mod = True
         # fetch rows
         # fixme: first_row_only
-        return self._backend.db_query_json(sql, args)
+        return self._backend.db_query(sql, args)
 
     # Query shortcuts
     ###################

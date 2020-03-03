@@ -385,44 +385,7 @@ class RustBackend:
     def restore_trash(self):
         self._run_command(pb.BackendInput(restore_trash=pb.Empty()))
 
-    def db_query(self, sql: str, args: Iterable[ValueForDB]) -> Iterable[DBRow]:
-        def arg_to_proto(arg: ValueForDB) -> pb.SqlValue:
-            if isinstance(arg, int):
-                return pb.SqlValue(int=arg)
-            elif isinstance(arg, float):
-                return pb.SqlValue(double=arg)
-            elif isinstance(arg, str):
-                return pb.SqlValue(string=arg)
-            elif arg is None:
-                return pb.SqlValue(null=pb.Empty())
-            else:
-                raise Exception("unexpected DB type")
-
-        output = self._run_command(
-            pb.BackendInput(
-                db_query=pb.DBQueryIn(sql=sql, args=map(arg_to_proto, args))
-            )
-        ).db_query
-
-        def sqlvalue_to_native(arg: pb.SqlValue) -> Any:
-            v = arg.WhichOneof("value")
-            if v == "int":
-                return arg.int
-            elif v == "double":
-                return arg.double
-            elif v == "string":
-                return arg.string
-            elif v == "null":
-                return None
-            else:
-                assert_impossible_literal(v)
-
-        def sqlrow_to_tuple(arg: pb.SqlRow) -> Tuple:
-            return tuple(map(sqlvalue_to_native, arg.values))
-
-        return map(sqlrow_to_tuple, output.rows)
-
-    def db_query_json(self, sql: str, args: Iterable[ValueForDB]) -> List[DBRow]:
+    def db_query(self, sql: str, args: Iterable[ValueForDB]) -> List[DBRow]:
         input = orjson.dumps(dict(sql=sql, args=args))
         output = self._backend.db_query(input)
         return orjson.loads(output)
