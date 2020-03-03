@@ -1,11 +1,21 @@
 SHELL := /bin/bash
 
 ifeq ($(OS),Windows_NT)
-	PYTHON_BIN := python
-	ACTIVATE_SCRIPT := pyenv/Scripts/activate
+	ifndef ACTIVATE_SCRIPT
+		ACTIVATE_SCRIPT := pyenv/Scripts/activate
+	endif
+
+	ifndef PYTHON_BIN
+		PYTHON_BIN := python
+	endif
 else
-	PYTHON_BIN := python3
-	ACTIVATE_SCRIPT := pyenv/bin/activate
+	ifndef ACTIVATE_SCRIPT
+		ACTIVATE_SCRIPT := pyenv/bin/activate
+	endif
+
+	ifndef PYTHON_BIN
+		PYTHON_BIN := python3
+	endif
 endif
 
 ifndef ANKI_EXTRA_PIP
