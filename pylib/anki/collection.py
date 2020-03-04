@@ -83,7 +83,6 @@ class _Collection:
         log: bool = False,
     ) -> None:
         self.backend = backend
-        self.tr = backend.translate
         self._debugLog = log
         self.db = db
         self.path = db._path
@@ -111,6 +110,9 @@ class _Collection:
     def name(self) -> Any:
         n = os.path.splitext(os.path.basename(self.path))[0]
         return n
+
+    def tr(self, key: TR, **kwargs: Union[str, int, float]) -> str:
+        return self.backend.translate(key, **kwargs)
 
     # Scheduler
     ##########################################################################
