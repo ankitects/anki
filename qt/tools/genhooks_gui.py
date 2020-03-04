@@ -98,6 +98,13 @@ hooks = [
         doc="""Allows editing the debug window. E.g. setting a default code, or
         previous code.""",
     ),
+    Hook(
+        name="debug_console_did_evaluate_python",
+        args=["output: str", "query: str", "debug_window: QDialog"],
+        return_type="str",
+        doc="""Allows processing the debug result. E.g. logging queries and
+        result, saving last query to display it later...""",
+    ),
     # Card layout
     ###################
     Hook(
