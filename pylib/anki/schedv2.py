@@ -441,8 +441,8 @@ did = ? and queue = {QUEUE_TYPE_NEW} limit ?)""",
             return None
 
     def _deckNewLimit(
-        self, did: int, fn: Callable[[Dict[str, Any]], int] = None
-    ) -> Any:
+        self, did: int, fn: Optional[Callable[[Dict[str, Any]], int]] = None
+    ) -> int:
         if not fn:
             fn = self._deckNewLimitSingle
         sel = self.col.decks.get(did)
@@ -691,7 +691,7 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
             card.queue = QUEUE_TYPE_DAY_LEARN_RELEARN
         return delay
 
-    def _delayForGrade(self, conf: Dict[str, Any], left: int) -> Any:
+    def _delayForGrade(self, conf: Dict[str, Any], left: int) -> int:
         left = left % 1000
         try:
             delay = conf["delays"][-left]
@@ -1060,7 +1060,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
         min, max = self._fuzzIvlRange(ivl)
         return random.randint(min, max)
 
-    def _fuzzIvlRange(self, ivl: int) -> List:
+    def _fuzzIvlRange(self, ivl: int) -> List[int]:
         if ivl < 2:
             return [1, 1]
         elif ivl == 2:
@@ -1085,7 +1085,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
         ivl = min(ivl, conf["maxIvl"])
         return int(ivl)
 
-    def _daysLate(self, card: Card) -> Any:
+    def _daysLate(self, card: Card) -> int:
         "Number of days later than scheduled."
         due = card.odue if card.odid else card.due
         return max(0, self.today - due)
@@ -1331,7 +1331,7 @@ where id = ?
             resched=conf["resched"],
         )
 
-    def _revConf(self, card: Card) -> Any:
+    def _revConf(self, card: Card) -> Dict[str, Any]:
         conf = self._cardConf(card)
         # normal deck
         if not card.odid:
@@ -1523,7 +1523,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
             )
         return "<p>".join(line)
 
-    def revDue(self) -> Any:
+    def revDue(self) -> Optional[int]:
         "True if there are any rev cards due."
         return self.col.db.scalar(
             (
@@ -1534,7 +1534,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
             self.today,
         )
 
-    def newDue(self) -> Any:
+    def newDue(self) -> Optional[int]:
         "True if there are any new cards due."
         return self.col.db.scalar(
             (
@@ -1669,7 +1669,7 @@ update cards set queue=?,mod=?,usn=? where id in """
             self.col.usn(),
         )
 
-    def buryNote(self, nid) -> None:
+    def buryNote(self, nid: int) -> None:
         "Bury all cards for note until next session."
         cids = self.col.db.list(
             f"select id from cards where nid = ? and queue >= {QUEUE_TYPE_NEW}", nid
