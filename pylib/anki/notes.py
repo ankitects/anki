@@ -40,7 +40,7 @@ class Note:
         id: Optional[int] = None,
     ) -> None:
         assert not (model and id)
-        self.col = col
+        self.col = col.weakref()
         self.newlyAdded = False
         if id:
             self.id = id

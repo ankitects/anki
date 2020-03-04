@@ -6,7 +6,6 @@ from __future__ import annotations
 import itertools
 import random
 import time
-import weakref
 from heapq import *
 from operator import itemgetter
 from typing import Any, Dict, List, Optional, Tuple, Union
@@ -32,7 +31,7 @@ class Scheduler(V2):
     def __init__(  # pylint: disable=super-init-not-called
         self, col: anki.storage._Collection
     ) -> None:
-        self.col = weakref.proxy(col)
+        self.col = col.weakref()
         self.queueLimit = 50
         self.reportLimit = 1000
         self.dynReportLimit = 99999

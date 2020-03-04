@@ -7,7 +7,6 @@ import copy
 import json
 import re
 import time
-import weakref
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import anki  # pylint: disable=unused-import
@@ -92,7 +91,7 @@ class ModelManager:
     #############################################################
 
     def __init__(self, col: anki.storage._Collection) -> None:
-        self.col = weakref.proxy(col)
+        self.col = col.weakref()
         self.models = {}
         self.changed = False
 

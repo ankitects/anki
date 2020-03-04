@@ -6,8 +6,13 @@ from anki.find import Finder
 from tests.shared import getEmptyCol
 
 
+class DummyCollection:
+    def weakref(self):
+        return None
+
+
 def test_parse():
-    f = Finder(None)
+    f = Finder(DummyCollection())
     assert f._tokenize("hello world") == ["hello", "world"]
     assert f._tokenize("hello  world") == ["hello", "world"]
     assert f._tokenize("one -two") == ["one", "-", "two"]

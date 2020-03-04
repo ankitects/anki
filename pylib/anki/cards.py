@@ -36,7 +36,7 @@ class Card:
     def __init__(
         self, col: anki.collection._Collection, id: Optional[int] = None
     ) -> None:
-        self.col = col
+        self.col = col.weakref()
         self.timerStarted = None
         self._render_output: Optional[anki.template.TemplateRenderOutput] = None
         self._note = None

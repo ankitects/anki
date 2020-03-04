@@ -1,6 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from __future__ import annotations
+
 import copy
 import datetime
 import json
@@ -12,6 +14,7 @@ import stat
 import time
 import traceback
 import unicodedata
+import weakref
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
 import anki.find
@@ -113,6 +116,10 @@ class _Collection:
 
     def tr(self, key: TR, **kwargs: Union[str, int, float]) -> str:
         return self.backend.translate(key, **kwargs)
+
+    def weakref(self) -> anki.storage._Collection:
+        "Shortcut to create a weak reference that doesn't break code completion."
+        return weakref.proxy(self)
 
     # Scheduler
     ##########################################################################

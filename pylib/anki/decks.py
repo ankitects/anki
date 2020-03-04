@@ -7,7 +7,6 @@ import copy
 import json
 import operator
 import unicodedata
-import weakref
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import anki  # pylint: disable=unused-import
@@ -102,7 +101,7 @@ class DeckManager:
     #############################################################
 
     def __init__(self, col: anki.storage._Collection) -> None:
-        self.col = weakref.proxy(col)
+        self.col = col.weakref()
         self.decks = {}
         self.dconf = {}
 

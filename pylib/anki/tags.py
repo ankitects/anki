@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import json
 import re
-import weakref
 from typing import Callable, Collection, Dict, List, Optional, Tuple
 
 import anki  # pylint: disable=unused-import
@@ -27,7 +26,7 @@ class TagManager:
     #############################################################
 
     def __init__(self, col: anki.storage._Collection) -> None:
-        self.col = weakref.proxy(col)
+        self.col = col.weakref()
         self.tags: Dict[str, int] = {}
 
     def load(self, json_: str) -> None:
