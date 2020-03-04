@@ -868,7 +868,7 @@ QTableView {{ gridline-color: {grid} }}
         else:
             self.editor.setNote(self.card.note(reload=True), focusTo=self.focusTo)
             self.focusTo = None
-            self.editor.card = self.card  # type: ignore
+            self.editor.card = self.card
             self.singleCard = True
         self._updateFlagsMenu()
         gui_hooks.browser_did_change_row(self)
