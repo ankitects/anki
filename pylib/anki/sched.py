@@ -420,21 +420,6 @@ limit %d"""
         tod = self._leftToday(conf["delays"], tot)
         return tot + tod * 1000
 
-    def _leftToday(
-        self, delays: List[int], left: int, now: Optional[int] = None
-    ) -> int:
-        "The number of steps that can be completed by the day cutoff."
-        if not now:
-            now = intTime()
-        delays = delays[-left:]
-        ok = 0
-        for i in range(len(delays)):
-            now += delays[i] * 60
-            if now > self.dayCutoff:
-                break
-            ok = i
-        return ok + 1
-
     def _graduatingIvl(
         self, card: Card, conf: Dict[str, Any], early: bool, adj: bool = True
     ) -> int:
