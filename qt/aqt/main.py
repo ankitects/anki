@@ -1404,9 +1404,17 @@ will be lost. Continue?"""
             else:
                 buf += "... %s\n" % line
         try:
-            frm.log.appendPlainText(buf + (self._output or "<no output>"))
+            to_append = buf + (self._output or "<no output>")
+            to_append = gui_hooks.debug_console_did_evaluate_python(
+                to_append, text, frm
+            )
+            frm.log.appendPlainText(to_append)
         except UnicodeDecodeError:
-            frm.log.appendPlainText(_("<non-unicode text>"))
+            to_append = _("<non-unicode text>")
+            to_append = gui_hooks.debug_console_did_evaluate_python(
+                to_append, text, frm
+            )
+            frm.log.appendPlainText(to_append)
         frm.log.ensureCursorVisible()
 
     # System specific code
