@@ -248,18 +248,6 @@ class Scheduler(V2):
         # collapse or finish
         return self._getLrnCard(collapse=True)
 
-    # New cards
-    ##########################################################################
-
-    def totalNewForCurrentDeck(self) -> int:
-        return self.col.db.scalar(
-            f"""
-select count() from cards where id in (
-select id from cards where did in %s and queue = {QUEUE_TYPE_NEW} limit ?)"""
-            % self._deckLimit(),
-            self.reportLimit,
-        )
-
     # Learning queues
     ##########################################################################
 
@@ -612,16 +600,6 @@ did = ? and queue = {QUEUE_TYPE_REV} and due <= ? limit ?""",
 
         return None
 
-    def totalRevForCurrentDeck(self) -> int:
-        return self.col.db.scalar(
-            f"""
-select count() from cards where id in (
-select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? limit ?)"""
-            % self._deckLimit(),
-            self.today,
-            self.reportLimit,
-        )
-
     # Answering a review card
     ##########################################################################
 
@@ -773,33 +751,6 @@ due = odue, odue = 0, odid = 0, usn = ? where %s"""
             self.col.usn(),
         )
 
-    def _dynOrder(self, o: int, l: int) -> str:
-        if o == DYN_OLDEST:
-            t = "(select max(id) from revlog where cid=c.id)"
-        elif o == DYN_RANDOM:
-            t = "random()"
-        elif o == DYN_SMALLINT:
-            t = "ivl"
-        elif o == DYN_BIGINT:
-            t = "ivl desc"
-        elif o == DYN_LAPSES:
-            t = "lapses desc"
-        elif o == DYN_ADDED:
-            t = "n.id"
-        elif o == DYN_REVADDED:
-            t = "n.id desc"
-        elif o == DYN_DUE:
-            t = "c.due"
-        elif o == DYN_DUEPRIORITY:
-            t = (
-                f"(case when queue={QUEUE_TYPE_REV} and due <= %d then (ivl / cast(%d-due+0.001 as real)) else 100000+due end)"
-                % (self.today, self.today)
-            )
-        else:
-            # if we don't understand the term, default to due order
-            t = "c.due"
-        return t + " limit %d" % l
-
     def _moveToDyn(self, did: int, ids: List[int]) -> None:  # type: ignore[override]
         deck = self.col.decks.get(did)
         data = []
@@ -865,9 +816,6 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?"""
 
     # Tools
     ##########################################################################
-
-    def _cardConf(self, card: Card) -> Dict[str, Any]:
-        return self.col.decks.confForDid(card.did)
 
     def _newConf(self, card: Card) -> Dict[str, Any]:
         conf = self._cardConf(card)
