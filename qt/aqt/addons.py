@@ -255,6 +255,9 @@ class AddonManager:
         except json.JSONDecodeError as e:
             print(f"json error in add-on {dir}:\n{e}")
             return dict()
+        except:
+            # missing meta file, etc
+            return dict()
 
     # in new code, use write_addon_meta() instead
     def writeAddonMeta(self, dir, meta):
