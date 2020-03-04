@@ -1342,6 +1342,7 @@ will be lost. Continue?"""
         s.activated.connect(frm.log.clear)
         s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+shift+l"), d)
         s.activated.connect(frm.text.clear)
+        gui_hooks.debug_console_will_show(d)
         d.show()
 
     def _captureOutput(self, on):
