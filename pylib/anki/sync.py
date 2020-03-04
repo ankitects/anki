@@ -35,7 +35,7 @@ class Syncer:
     cursor: Optional[sqlite3.Cursor]
 
     def __init__(self, col: anki.storage._Collection, server=None) -> None:
-        self.col = col
+        self.col = col.weakref()
         self.server = server
 
         # these are set later; provide dummy values for type checking
@@ -638,7 +638,7 @@ class FullSyncer(HttpSyncer):
         self.postVars = dict(
             k=self.hkey, v="ankidesktop,%s,%s" % (anki.version, platDesc()),
         )
-        self.col = col
+        self.col = col.weakref()
 
     def download(self) -> Optional[str]:
         hooks.sync_stage_did_change("download")
