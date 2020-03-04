@@ -452,6 +452,26 @@ def emptyNewCard():
         args=["player: aqt.sound.Player", "tag: anki.sound.AVTag"],
     ),
     Hook(name="av_player_did_end_playing", args=["player: aqt.sound.Player"]),
+    # Addon
+    ###################
+    Hook(
+        name="addon_config_editor_will_display_json",
+        args=["text: str"],
+        return_type="str",
+        doc="""Allows changing the text of the json configuration before actually
+        displaying it to the user. For example, you can replace "\\\\n" by
+        some actual new line. Then you can replace the new lines by "\\\\n"
+        while reading the file and let the user uses real new line in
+        string instead of its encoding.""",
+    ),
+    Hook(
+        name="addon_config_editor_will_save_json",
+        args=["text: str"],
+        return_type="str",
+        doc="""Allows changing the text of the json configuration that was
+        received from the user before actually reading it. For
+        example, you can replace new line in strings by some "\\\\n".""",
+    ),
     # Other
     ###################
     Hook(
