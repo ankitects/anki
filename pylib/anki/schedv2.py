@@ -1775,21 +1775,12 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
         mod = intTime()
         for id in ids:
             r = random.randint(imin, imax)
-            d.append(
-                dict(
-                    id=id,
-                    due=r + t,
-                    ivl=max(1, r),
-                    mod=mod,
-                    usn=self.col.usn(),
-                    fact=STARTING_FACTOR,
-                )
-            )
+            d.append((max(1, r), r + t, self.col.usn(), mod, STARTING_FACTOR, id,))
         self.remFromDyn(ids)
         self.col.db.executemany(
             f"""
-update cards set type={CARD_TYPE_REV},queue={QUEUE_TYPE_REV},ivl=:ivl,due=:due,odue=0,
-usn=:usn,mod=:mod,factor=:fact where id=:id""",
+update cards set type={CARD_TYPE_REV},queue={QUEUE_TYPE_REV},ivl=?,due=?,odue=0,
+usn=?,mod=?,factor=? where id=?""",
             d,
         )
         self.col.log(ids)
@@ -1866,10 +1857,8 @@ and due >= ? and queue = {QUEUE_TYPE_NEW}"""
         for id, nid in self.col.db.execute(
             f"select id, nid from cards where type = {CARD_TYPE_NEW} and id in " + scids
         ):
-            d.append(dict(now=now, due=due[nid], usn=self.col.usn(), cid=id))
-        self.col.db.executemany(
-            "update cards set due=:due,mod=:now,usn=:usn where id = :cid", d
-        )
+            d.append((due[nid], now, self.col.usn(), id))
+        self.col.db.executemany("update cards set due=?,mod=?,usn=? where id = ?", d)
 
     def randomizeCards(self, did: int) -> None:
         cids = self.col.db.list("select id from cards where did = ?", did)

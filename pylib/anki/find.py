@@ -555,11 +555,11 @@ def findReplace(
         flds = joinFields(sflds)
         if flds != origFlds:
             nids.append(nid)
-            d.append(dict(nid=nid, flds=flds, u=col.usn(), m=intTime()))
+            d.append((flds, intTime(), col.usn(), nid))
     if not d:
         return 0
     # replace
-    col.db.executemany("update notes set flds=:flds,mod=:m,usn=:u where id=:nid", d)
+    col.db.executemany("update notes set flds=?,mod=?,usn=? where id=?", d)
     col.updateFieldCache(nids)
     col.genCards(nids)
     return len(d)
