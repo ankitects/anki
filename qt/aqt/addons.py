@@ -251,7 +251,8 @@ class AddonManager:
         try:
             with open(path, encoding="utf8") as f:
                 return json.load(f)
-        except:
+        except json.JSONDecodeError as e:
+            print(f"json error in add-on {dir}:\n{e}")
             return dict()
 
     # in new code, use write_addon_meta() instead
