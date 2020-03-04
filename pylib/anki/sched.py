@@ -17,6 +17,7 @@ from anki.cards import Card
 from anki.consts import *
 from anki.lang import _
 from anki.rsbackend import FormatTimeSpanContext
+from anki.schedv2 import Scheduler as V2
 from anki.utils import ids2str, intTime
 
 # queue types: 0=new/cram, 1=lrn, 2=rev, 3=day lrn, -1=suspended, -2=buried
@@ -24,13 +25,15 @@ from anki.utils import ids2str, intTime
 # positive revlog intervals are in days (rev), negative in seconds (lrn)
 
 
-class Scheduler:
+class Scheduler(V2):
     name = "std"
     haveCustomStudy = True
     _spreadRev = True
     _burySiblingsOnAnswer = True
 
-    def __init__(self, col: anki.storage._Collection) -> None:
+    def __init__(  # pylint: disable=super-init-not-called
+        self, col: anki.storage._Collection
+    ) -> None:
         self.col = weakref.proxy(col)
         self.queueLimit = 50
         self.reportLimit = 1000
@@ -169,7 +172,7 @@ order by due"""
             f"update cards set queue=type where queue = {QUEUE_TYPE_SIBLING_BURIED}"
         )
 
-    def unburyCardsForDeck(self) -> None:
+    def unburyCardsForDeck(self) -> None:  # type: ignore[override]
         sids = ids2str(self.col.decks.active())
         self.col.log(
             self.col.db.list(
@@ -818,13 +821,13 @@ and due <= ? limit ?)""",
     def _deckRevLimit(self, did: int) -> int:
         return self._deckNewLimit(did, self._deckRevLimitSingle)
 
-    def _deckRevLimitSingle(self, d: Dict[str, Any]) -> int:
+    def _deckRevLimitSingle(self, d: Dict[str, Any]) -> int:  # type: ignore[override]
         if d["dyn"]:
             return self.reportLimit
         c = self.col.decks.confForDid(d["id"])
         return max(0, c["rev"]["perDay"] - d["revToday"][1])
 
-    def _revForDeck(self, did: int, lim: int) -> int:
+    def _revForDeck(self, did: int, lim: int) -> int:  # type: ignore[override]
         lim = min(lim, self.reportLimit)
         return self.col.db.scalar(
             f"""
@@ -963,7 +966,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
     def _nextLapseIvl(self, card: Card, conf: Dict[str, Any]) -> int:
         return max(conf["minInt"], int(card.ivl * conf["mult"]))
 
-    def _rescheduleRev(self, card: Card, ease: int) -> None:
+    def _rescheduleRev(self, card: Card, ease: int) -> None:  # type: ignore[override]
         # update interval
         card.lastIvl = card.ivl
         if self._resched(card):
@@ -978,7 +981,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
             card.odid = 0
             card.odue = 0
 
-    def _logRev(self, card: Card, ease: int, delay: float) -> None:
+    def _logRev(self, card: Card, ease: int, delay: float) -> None:  # type: ignore[override]
         def log():
             self.col.db.execute(
                 "insert into revlog values (?,?,?,?,?,?,?,?,?)",
@@ -1003,7 +1006,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
     # Interval management
     ##########################################################################
 
-    def _nextRevIvl(self, card: Card, ease: int) -> int:
+    def _nextRevIvl(self, card: Card, ease: int) -> int:  # type: ignore[override]
         "Ideal next interval for CARD, given EASE."
         delay = self._daysLate(card)
         conf = self._revConf(card)
@@ -1041,7 +1044,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
         fuzz = max(fuzz, 1)
         return [ivl - fuzz, ivl + fuzz]
 
-    def _constrainedIvl(self, ivl: float, conf: Dict[str, Any], prev: int) -> int:
+    def _constrainedIvl(self, ivl: float, conf: Dict[str, Any], prev: int) -> int:  # type: ignore[override]
         "Integer interval after interval factor and prev+1 constraints applied."
         new = ivl * conf.get("ivlFct", 1)
         return int(max(new, prev + 1))
@@ -1066,7 +1069,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
     # Dynamic deck handling
     ##########################################################################
 
-    def rebuildDyn(self, did: Optional[int] = None) -> Optional[List[int]]:
+    def rebuildDyn(self, did: Optional[int] = None) -> Optional[List[int]]:  # type: ignore[override]
         "Rebuild a dynamic deck."
         did = did or self.col.decks.selected()
         deck = self.col.decks.get(did)
@@ -1080,7 +1083,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
         self.col.decks.select(did)
         return ids
 
-    def _fillDyn(self, deck: Dict[str, Any]) -> List[int]:
+    def _fillDyn(self, deck: Dict[str, Any]) -> List[int]:  # type: ignore[override]
         search, limit, order = deck["terms"][0]
         orderlimit = self._dynOrder(order, limit)
         if search.strip():
@@ -1140,7 +1143,7 @@ due = odue, odue = 0, odid = 0, usn = ? where %s"""
             t = "c.due"
         return t + " limit %d" % l
 
-    def _moveToDyn(self, did: int, ids: List[int]) -> None:
+    def _moveToDyn(self, did: int, ids: List[int]) -> None:  # type: ignore[override]
         deck = self.col.decks.get(did)
         data = []
         t = intTime()
@@ -1457,7 +1460,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
             self.col.usn(),
         )
 
-    def buryCards(self, cids: List[int]) -> None:
+    def buryCards(self, cids: List[int]) -> None:  # type: ignore[override]
         self.col.log(cids)
         self.remFromDyn(cids)
         self.removeLrn(cids)
