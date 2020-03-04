@@ -35,6 +35,7 @@ class Scheduler(V2):
         self.col = weakref.proxy(col)
         self.queueLimit = 50
         self.reportLimit = 1000
+        self.dynReportLimit = 99999
         self.reps = 0
         self.lrnCount = 0
         self.revCount = 0
@@ -249,13 +250,6 @@ class Scheduler(V2):
 
     # New cards
     ##########################################################################
-
-    def _deckNewLimitSingle(self, g: Dict[str, Any]) -> int:
-        "Limit for deck without parent limits."
-        if g["dyn"]:
-            return self.reportLimit
-        c = self.col.decks.confForDid(g["id"])
-        return max(0, c["new"]["perDay"] - g["newToday"][1])
 
     def totalNewForCurrentDeck(self) -> int:
         return self.col.db.scalar(
