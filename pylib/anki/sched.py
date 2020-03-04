@@ -367,7 +367,7 @@ limit %d"""
             delay = self._delayForGrade(conf, card.left)
             if card.due < time.time():
                 # not collapsed; add some randomness
-                delay *= random.uniform(1, 1.25)
+                delay *= int(random.uniform(1, 1.25))
             card.due = int(time.time() + delay)
             # due today?
             if card.due < self.dayCutoff:
@@ -647,14 +647,14 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
     ##########################################################################
 
     def _answerRevCard(self, card: Card, ease: int) -> None:
-        delay: float = 0
+        delay: int = 0
         if ease == BUTTON_ONE:
             delay = self._rescheduleLapse(card)
         else:
             self._rescheduleRev(card, ease)
-        self._logRev(card, ease, delay)
+        self._logRev(card, ease, delay, REVLOG_REV)
 
-    def _rescheduleLapse(self, card: Card) -> float:
+    def _rescheduleLapse(self, card: Card) -> int:
         conf = self._lapseConf(card)
         card.lastIvl = card.ivl
         if self._resched(card):
@@ -666,7 +666,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
             if card.odid:
                 card.odue = card.due
         # if suspended as a leech, nothing to do
-        delay: float = 0
+        delay: int = 0
         if self._checkLeech(card, conf) and card.queue == QUEUE_TYPE_SUSPENDED:
             return delay
         # if no relearning steps, nothing to do
@@ -707,28 +707,6 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
             card.did = card.odid
             card.odid = 0
             card.odue = 0
-
-    def _logRev(self, card: Card, ease: int, delay: float) -> None:  # type: ignore[override]
-        def log():
-            self.col.db.execute(
-                "insert into revlog values (?,?,?,?,?,?,?,?,?)",
-                int(time.time() * 1000),
-                card.id,
-                self.col.usn(),
-                ease,
-                -delay or card.ivl,
-                card.lastIvl,
-                card.factor,
-                card.timeTaken(),
-                REVLOG_REV,
-            )
-
-        try:
-            log()
-        except:
-            # duplicate pk; retry in 10ms
-            time.sleep(0.01)
-            log()
 
     # Interval management
     ##########################################################################
