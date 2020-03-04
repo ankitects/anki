@@ -11,6 +11,7 @@ import sys
 pylib = os.path.join(os.path.dirname(__file__), "..", "..", "pylib")
 sys.path.append(pylib)
 
+
 from tools.hookslib import Hook, update_file
 
 # Hook list
@@ -88,6 +89,14 @@ hooks = [
         name="reviewer_will_end",
         legacy_hook="reviewCleanup",
         doc="Called before Anki transitions from the review screen to another screen.",
+    ),
+    # Debug
+    ###################
+    Hook(
+        name="debug_console_will_show",
+        args=["debug_window: QDialog"],
+        doc="""Allows editing the debug window. E.g. setting a default code, or
+        previous code.""",
     ),
     # Card layout
     ###################
