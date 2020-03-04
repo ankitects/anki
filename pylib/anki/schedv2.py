@@ -1291,7 +1291,7 @@ where id = ?
     # Tools
     ##########################################################################
 
-    def _cardConf(self, card: Card) -> Any:
+    def _cardConf(self, card: Card) -> Dict[str, Any]:
         return self.col.decks.confForDid(card.did)
 
     def _newConf(self, card: Card) -> Any:
