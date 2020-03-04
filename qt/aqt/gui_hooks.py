@@ -75,6 +75,66 @@ class _AddCardsWillShowHistoryMenuHook:
 add_cards_will_show_history_menu = _AddCardsWillShowHistoryMenuHook()
 
 
+class _AddonConfigEditorWillDisplayJsonFilter:
+    """Allows changing the text of the json configuration before actually
+        displaying it to the user. For example, you can replace "\n" by
+        some actual new line. Then you can replace the new lines by "\n"
+        while reading the file and let the user uses real new line in
+        string instead of its encoding."""
+
+    _hooks: List[Callable[[str], str]] = []
+
+    def append(self, cb: Callable[[str], str]) -> None:
+        """(text: str)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[str], str]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, text: str) -> str:
+        for filter in self._hooks:
+            try:
+                text = filter(text)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return text
+
+
+addon_config_editor_will_display_json = _AddonConfigEditorWillDisplayJsonFilter()
+
+
+class _AddonConfigEditorWillSaveJsonFilter:
+    """Allows changing the text of the json configuration that was
+        received from the user before actually reading it. For
+        example, you can replace new line in strings by some "\n"."""
+
+    _hooks: List[Callable[[str], str]] = []
+
+    def append(self, cb: Callable[[str], str]) -> None:
+        """(text: str)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[str], str]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, text: str) -> str:
+        for filter in self._hooks:
+            try:
+                text = filter(text)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return text
+
+
+addon_config_editor_will_save_json = _AddonConfigEditorWillSaveJsonFilter()
+
+
 class _AvPlayerDidBeginPlayingHook:
     _hooks: List[Callable[["aqt.sound.Player", "anki.sound.AVTag"], None]] = []
 
