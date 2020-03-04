@@ -127,7 +127,7 @@ class Scheduler(V2):
         )
 
     def unburyCardsForDeck(self) -> None:  # type: ignore[override]
-        sids = ids2str(self.col.decks.active())
+        sids = self._deckLimit()
         self.col.log(
             self.col.db.list(
                 f"select id from cards where queue = {QUEUE_TYPE_SIBLING_BURIED} and did in %s"
@@ -256,7 +256,7 @@ class Scheduler(V2):
             f"""
 select count() from cards where id in (
 select id from cards where did in %s and queue = {QUEUE_TYPE_NEW} limit ?)"""
-            % ids2str(self.col.decks.active()),
+            % self._deckLimit(),
             self.reportLimit,
         )
 
@@ -617,7 +617,7 @@ did = ? and queue = {QUEUE_TYPE_REV} and due <= ? limit ?""",
             f"""
 select count() from cards where id in (
 select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? limit ?)"""
-            % ids2str(self.col.decks.active()),
+            % self._deckLimit(),
             self.today,
             self.reportLimit,
         )
@@ -944,7 +944,7 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?"""
     ##########################################################################
 
     def haveBuried(self) -> bool:
-        sdids = ids2str(self.col.decks.active())
+        sdids = self._deckLimit()
         cnt = self.col.db.scalar(
             f"select 1 from cards where queue = {QUEUE_TYPE_SIBLING_BURIED} and did in %s limit 1"
             % sdids
