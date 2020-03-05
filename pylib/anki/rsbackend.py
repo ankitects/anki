@@ -6,6 +6,7 @@ import enum
 import os
 from dataclasses import dataclass
 from typing import (
+    Any,
     Callable,
     Dict,
     Iterable,
@@ -15,7 +16,7 @@ from typing import (
     Optional,
     Tuple,
     Union,
-    Any)
+)
 
 import ankirspy  # pytype: disable=import-error
 import orjson
@@ -386,9 +387,20 @@ class RustBackend:
         self._run_command(pb.BackendInput(restore_trash=pb.Empty()))
 
     def db_query(self, sql: str, args: Iterable[ValueForDB]) -> List[DBRow]:
-        input = orjson.dumps(dict(sql=sql, args=args))
-        output = self._backend.db_query(input)
-        return orjson.loads(output)
+        return self._db_command(dict(kind="query", sql=sql, args=args))
+
+    def db_begin(self) -> None:
+        return self._db_command(dict(kind="begin"))
+
+    def db_commit(self) -> None:
+        return self._db_command(dict(kind="commit"))
+
+    def db_rollback(self) -> None:
+        return self._db_command(dict(kind="rollback"))
+
+    def _db_command(self, input: Dict[str, Any]) -> Any:
+        return orjson.loads(self._backend.db_command(orjson.dumps(input)))
+
 
 def translate_string_in(
     key: TR, **kwargs: Union[str, int, float]

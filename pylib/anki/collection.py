@@ -242,10 +242,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         return None
 
     def lock(self) -> None:
-        # make sure we don't accidentally bump mod time
-        mod = self.db.mod
-        self.db.execute("update col set mod=mod")
-        self.db.mod = mod
+        self.db.begin()
 
     def close(self, save: bool = True) -> None:
         "Disconnect from DB."
@@ -260,6 +257,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
                 self.db.setAutocommit(False)
             self.db.close()
             self.db = None
+            self.backend = None
             self.media.close()
             self._closeLog()
 

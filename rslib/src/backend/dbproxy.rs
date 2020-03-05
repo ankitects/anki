@@ -1,23 +1,26 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::backend_proto as pb;
 use crate::err::Result;
 use crate::storage::SqliteStorage;
 use rusqlite::types::{FromSql, FromSqlError, ToSql, ToSqlOutput, ValueRef};
 use serde_derive::{Deserialize, Serialize};
 
 #[derive(Deserialize)]
-pub(super) struct DBRequest {
-    sql: String,
-    args: Vec<SqlValue>,
+#[serde(tag = "kind", rename_all = "lowercase")]
+pub(super) enum DBRequest {
+    Query { sql: String, args: Vec<SqlValue> },
+    Begin,
+    Commit,
+    Rollback,
 }
 
-// #[derive(Serialize)]
-// pub(super) struct DBResult {
-//     rows: Vec<Vec<SqlValue>>,
-// }
-type DBResult = Vec<Vec<SqlValue>>;
+#[derive(Serialize)]
+#[serde(untagged)]
+pub(super) enum DBResult {
+    Rows(Vec<Vec<SqlValue>>),
+    None,
+}
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(untagged)]
@@ -55,30 +58,41 @@ impl FromSql for SqlValue {
     }
 }
 
-pub(super) fn db_query_json_str(db: &SqliteStorage, input: &[u8]) -> Result<String> {
+pub(super) fn db_command_bytes(db: &SqliteStorage, input: &[u8]) -> Result<String> {
     let req: DBRequest = serde_json::from_slice(input)?;
-    let resp = db_query_json(db, req)?;
+    let resp = match req {
+        DBRequest::Query { sql, args } => db_query(db, &sql, &args)?,
+        DBRequest::Begin => {
+            db.begin()?;
+            DBResult::None
+        }
+        DBRequest::Commit => {
+            db.commit()?;
+            DBResult::None
+        }
+        DBRequest::Rollback => {
+            db.rollback()?;
+            DBResult::None
+        }
+    };
     Ok(serde_json::to_string(&resp)?)
 }
 
-pub(super) fn db_query_json(db: &SqliteStorage, input: DBRequest) -> Result<DBResult> {
-    let mut stmt = db.db.prepare_cached(&input.sql)?;
+pub(super) fn db_query(db: &SqliteStorage, sql: &str, args: &[SqlValue]) -> Result<DBResult> {
+    let mut stmt = db.db.prepare_cached(sql)?;
 
     let columns = stmt.column_count();
 
-    let mut rows = stmt.query(&input.args)?;
+    let res: std::result::Result<Vec<Vec<_>>, rusqlite::Error> = stmt
+        .query_map(args, |row| {
+            let mut orow = Vec::with_capacity(columns);
+            for i in 0..columns {
+                let v: SqlValue = row.get(i)?;
+                orow.push(v);
+            }
+            Ok(orow)
+        })?
+        .collect();
 
-    let mut output_rows = vec![];
-
-    while let Some(row) = rows.next()? {
-        let mut orow = Vec::with_capacity(columns);
-        for i in 0..columns {
-            let v: SqlValue = row.get(i)?;
-            orow.push(v);
-        }
-
-        output_rows.push(orow);
-    }
-
-    Ok(output_rows)
+    Ok(DBResult::Rows(res?))
 }
