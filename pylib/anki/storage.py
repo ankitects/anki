@@ -19,7 +19,7 @@ from anki.stdmodels import (
     addForwardOptionalReverse,
     addForwardReverse,
 )
-from anki.utils import intTime, isWin
+from anki.utils import intTime
 
 
 class ServerData:

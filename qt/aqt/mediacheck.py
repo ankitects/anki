@@ -40,7 +40,6 @@ class MediaChecker:
     def check(self) -> None:
         self.progress_dialog = self.mw.progress.start()
         hooks.bg_thread_progress_callback.append(self._on_progress)
-        self.mw.col.close()
         self.mw.taskman.run_in_background(self._check, self._on_finished)
 
     def _on_progress(self, proceed: bool, progress: Progress) -> bool:
@@ -61,7 +60,6 @@ class MediaChecker:
         hooks.bg_thread_progress_callback.remove(self._on_progress)
         self.mw.progress.finish()
         self.progress_dialog = None
-        self.mw.col.reopen()
 
         exc = future.exception()
         if isinstance(exc, Interrupted):

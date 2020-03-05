@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::err::Result;
-use crate::storage::SqliteStorage;
+use crate::storage::StorageContext;
 use rusqlite::types::{FromSql, FromSqlError, ToSql, ToSqlOutput, ValueRef};
 use serde_derive::{Deserialize, Serialize};
 
@@ -58,28 +58,28 @@ impl FromSql for SqlValue {
     }
 }
 
-pub(super) fn db_command_bytes(db: &SqliteStorage, input: &[u8]) -> Result<String> {
+pub(super) fn db_command_bytes(ctx: &StorageContext, input: &[u8]) -> Result<String> {
     let req: DBRequest = serde_json::from_slice(input)?;
     let resp = match req {
-        DBRequest::Query { sql, args } => db_query(db, &sql, &args)?,
+        DBRequest::Query { sql, args } => db_query(ctx, &sql, &args)?,
         DBRequest::Begin => {
-            db.begin()?;
+            ctx.begin_trx()?;
             DBResult::None
         }
         DBRequest::Commit => {
-            db.commit()?;
+            ctx.commit_trx()?;
             DBResult::None
         }
         DBRequest::Rollback => {
-            db.rollback()?;
+            ctx.rollback_trx()?;
             DBResult::None
         }
     };
     Ok(serde_json::to_string(&resp)?)
 }
 
-pub(super) fn db_query(db: &SqliteStorage, sql: &str, args: &[SqlValue]) -> Result<DBResult> {
-    let mut stmt = db.db.prepare_cached(sql)?;
+pub(super) fn db_query(ctx: &StorageContext, sql: &str, args: &[SqlValue]) -> Result<DBResult> {
+    let mut stmt = ctx.db.prepare_cached(sql)?;
 
     let columns = stmt.column_count();
 

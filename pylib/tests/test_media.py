@@ -73,8 +73,6 @@ def test_deckIntegration():
     with open(os.path.join(d.media.dir(), "foo.jpg"), "w") as f:
         f.write("test")
     # check media
-    d.close()
     ret = d.media.check()
-    d.reopen()
     assert ret.missing == ["fake2.png"]
     assert ret.unused == ["foo.jpg"]

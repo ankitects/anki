@@ -4,16 +4,16 @@
 use crate::backend::dbproxy::db_command_bytes;
 use crate::backend_proto::backend_input::Value;
 use crate::backend_proto::{Empty, RenderedTemplateReplacement, SyncMediaIn};
+use crate::collection::{open_collection, Collection};
 use crate::err::{AnkiError, NetworkErrorKind, Result, SyncErrorKind};
 use crate::i18n::{tr_args, FString, I18n};
 use crate::latex::{extract_latex, extract_latex_expanding_clozes, ExtractedLatex};
-use crate::log::{default_logger, Logger};
+use crate::log::default_logger;
 use crate::media::check::MediaChecker;
 use crate::media::sync::MediaSyncProgress;
 use crate::media::MediaManager;
 use crate::sched::cutoff::{local_minutes_west_for_stamp, sched_timing_today};
 use crate::sched::timespan::{answer_button_time, learning_congrats, studied_today, time_span};
-use crate::storage::SqliteStorage;
 use crate::template::{
     render_card, without_legacy_template_directives, FieldMap, FieldRequirements, ParsedTemplate,
     RenderedNode,
@@ -31,14 +31,12 @@ mod dbproxy;
 pub type ProtoProgressCallback = Box<dyn Fn(Vec<u8>) -> bool + Send>;
 
 pub struct Backend {
-    col: SqliteStorage,
+    col: Collection,
     #[allow(dead_code)]
     col_path: PathBuf,
     media_folder: PathBuf,
     media_db: String,
     progress_callback: Option<ProtoProgressCallback>,
-    pub i18n: I18n,
-    log: Logger,
 }
 
 enum Progress<'a> {
@@ -124,7 +122,7 @@ pub fn init_backend(init_msg: &[u8]) -> std::result::Result<Backend, String> {
         log::terminal(),
     );
 
-    let col = SqliteStorage::open_or_create(Path::new(&input.collection_path), input.server)
+    let col = open_collection(&input.collection_path, input.server, i18n, logger)
         .map_err(|e| format!("Unable to open collection: {:?}", e))?;
 
     match Backend::new(
@@ -132,8 +130,6 @@ pub fn init_backend(init_msg: &[u8]) -> std::result::Result<Backend, String> {
         &input.collection_path,
         &input.media_folder_path,
         &input.media_db_path,
-        i18n,
-        logger,
     ) {
         Ok(backend) => Ok(backend),
         Err(e) => Err(format!("{:?}", e)),
@@ -142,12 +138,10 @@ pub fn init_backend(init_msg: &[u8]) -> std::result::Result<Backend, String> {
 
 impl Backend {
     pub fn new(
-        col: SqliteStorage,
+        col: Collection,
         col_path: &str,
         media_folder: &str,
         media_db: &str,
-        i18n: I18n,
-        log: Logger,
     ) -> Result<Backend> {
         Ok(Backend {
             col,
@@ -155,9 +149,11 @@ impl Backend {
             media_folder: media_folder.into(),
             media_db: media_db.into(),
             progress_callback: None,
-            i18n,
-            log,
         })
+    }
+
+    pub fn i18n(&self) -> &I18n {
+        &self.col.i18n
     }
 
     /// Decode a request, process it, and return the encoded result.
@@ -169,7 +165,7 @@ impl Backend {
             Err(_e) => {
                 // unable to decode
                 let err = AnkiError::invalid_input("couldn't decode backend request");
-                let oerr = anki_error_to_proto_error(err, &self.i18n);
+                let oerr = anki_error_to_proto_error(err, &self.col.i18n);
                 let output = pb::BackendOutput {
                     value: Some(oerr.into()),
                 };
@@ -187,12 +183,12 @@ impl Backend {
         let oval = if let Some(ival) = input.value {
             match self.run_command_inner(ival) {
                 Ok(output) => output,
-                Err(err) => anki_error_to_proto_error(err, &self.i18n).into(),
+                Err(err) => anki_error_to_proto_error(err, &self.col.i18n).into(),
             }
         } else {
             anki_error_to_proto_error(
                 AnkiError::invalid_input("unrecognized backend input value"),
-                &self.i18n,
+                &self.col.i18n,
             )
             .into()
         };
@@ -237,12 +233,12 @@ impl Backend {
             Value::StudiedToday(input) => OValue::StudiedToday(studied_today(
                 input.cards as usize,
                 input.seconds as f32,
-                &self.i18n,
+                &self.col.i18n,
             )),
             Value::CongratsLearnMsg(input) => OValue::CongratsLearnMsg(learning_congrats(
                 input.remaining as usize,
                 input.next_due,
-                &self.i18n,
+                &self.col.i18n,
             )),
             Value::EmptyTrash(_) => {
                 self.empty_trash()?;
@@ -257,7 +253,7 @@ impl Backend {
 
     fn fire_progress_callback(&self, progress: Progress) -> bool {
         if let Some(cb) = &self.progress_callback {
-            let bytes = progress_to_proto_bytes(progress, &self.i18n);
+            let bytes = progress_to_proto_bytes(progress, &self.col.i18n);
             cb(bytes)
         } else {
             true
@@ -337,7 +333,7 @@ impl Backend {
             &input.answer_template,
             &fields,
             input.card_ordinal as u16,
-            &self.i18n,
+            &self.col.i18n,
         )?;
 
         // return
@@ -415,7 +411,7 @@ impl Backend {
         };
 
         let mut rt = Runtime::new().unwrap();
-        rt.block_on(mgr.sync_media(callback, &input.endpoint, &input.hkey, self.log.clone()))
+        rt.block_on(mgr.sync_media(callback, &input.endpoint, &input.hkey, self.col.log.clone()))
     }
 
     fn check_media(&self) -> Result<pb::MediaCheckOut> {
@@ -423,16 +419,18 @@ impl Backend {
             |progress: usize| self.fire_progress_callback(Progress::MediaCheck(progress as u32));
 
         let mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
-        let mut checker = MediaChecker::new(&mgr, &self.col_path, callback, &self.i18n, &self.log);
-        let mut output = checker.check()?;
+        self.col.transact(None, |ctx| {
+            let mut checker = MediaChecker::new(ctx, &mgr, callback);
+            let mut output = checker.check()?;
 
-        let report = checker.summarize_output(&mut output);
+            let report = checker.summarize_output(&mut output);
 
-        Ok(pb::MediaCheckOut {
-            unused: output.unused,
-            missing: output.missing,
-            report,
-            have_trash: output.trash_count > 0,
+            Ok(pb::MediaCheckOut {
+                unused: output.unused,
+                missing: output.missing,
+                report,
+                have_trash: output.trash_count > 0,
+            })
         })
     }
 
@@ -454,7 +452,7 @@ impl Backend {
             .map(|(k, v)| (k.as_str(), translate_arg_to_fluent_val(&v)))
             .collect();
 
-        self.i18n.trn(key, map)
+        self.col.i18n.trn(key, map)
     }
 
     fn format_time_span(&self, input: pb::FormatTimeSpanIn) -> String {
@@ -463,12 +461,14 @@ impl Backend {
             None => return "".to_string(),
         };
         match context {
-            pb::format_time_span_in::Context::Precise => time_span(input.seconds, &self.i18n, true),
+            pb::format_time_span_in::Context::Precise => {
+                time_span(input.seconds, &self.col.i18n, true)
+            }
             pb::format_time_span_in::Context::Intervals => {
-                time_span(input.seconds, &self.i18n, false)
+                time_span(input.seconds, &self.col.i18n, false)
             }
             pb::format_time_span_in::Context::AnswerButtons => {
-                answer_button_time(input.seconds, &self.i18n)
+                answer_button_time(input.seconds, &self.col.i18n)
             }
         }
     }
@@ -478,9 +478,11 @@ impl Backend {
             |progress: usize| self.fire_progress_callback(Progress::MediaCheck(progress as u32));
 
         let mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
-        let mut checker = MediaChecker::new(&mgr, &self.col_path, callback, &self.i18n, &self.log);
+        self.col.transact(None, |ctx| {
+            let mut checker = MediaChecker::new(ctx, &mgr, callback);
 
-        checker.empty_trash()
+            checker.empty_trash()
+        })
     }
 
     fn restore_trash(&self) -> Result<()> {
@@ -488,13 +490,15 @@ impl Backend {
             |progress: usize| self.fire_progress_callback(Progress::MediaCheck(progress as u32));
 
         let mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
-        let mut checker = MediaChecker::new(&mgr, &self.col_path, callback, &self.i18n, &self.log);
+        self.col.transact(None, |ctx| {
+            let mut checker = MediaChecker::new(ctx, &mgr, callback);
 
-        checker.restore_trash()
+            checker.restore_trash()
+        })
     }
 
     pub fn db_command(&self, input: &[u8]) -> Result<String> {
-        db_command_bytes(&self.col, input)
+        db_command_bytes(&self.col.storage.context(self.col.server), input)
     }
 }
 
