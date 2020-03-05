@@ -1,10 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-/// Basic note reading/updating functionality for the media DB check.
+/// At the moment, this is just basic note reading/updating functionality for
+/// the media DB check.
 use crate::err::{AnkiError, DBErrorKind, Result};
 use crate::text::strip_html_preserving_image_filenames;
-use crate::time::{i64_unix_millis, i64_unix_secs};
+use crate::time::i64_unix_secs;
 use crate::types::{ObjID, Timestamp, Usn};
 use rusqlite::{params, Connection, Row, NO_PARAMS};
 use serde_aux::field_attributes::deserialize_number_from_string;
@@ -138,10 +139,5 @@ pub(super) fn set_note(db: &Connection, note: &mut Note, note_type: &NoteType) -
         note.id,
     ])?;
 
-    Ok(())
-}
-
-pub(super) fn mark_collection_modified(db: &Connection) -> Result<()> {
-    db.execute("update col set mod=?", params![i64_unix_millis()])?;
     Ok(())
 }

@@ -1,3 +1,6 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
 use crate::err::Result;
 use crate::i18n::I18n;
 use crate::log::Logger;
@@ -35,6 +38,7 @@ pub(crate) struct RequestContext<'a> {
     pub storage: StorageContext<'a>,
     pub i18n: &'a I18n,
     pub log: &'a Logger,
+    pub should_commit: bool,
 }
 
 impl Collection {
@@ -52,6 +56,7 @@ impl Collection {
             storage: self.storage.context(self.server),
             i18n: &self.i18n,
             log: &self.log,
+            should_commit: true,
         };
         func(&mut ctx)
     }
@@ -67,13 +72,15 @@ impl Collection {
 
             let mut res = func(ctx);
 
-            if res.is_ok() {
-                if let Err(e) = ctx.storage.commit_rust_op(op) {
+            if res.is_ok() && ctx.should_commit {
+                if let Err(e) = ctx.storage.mark_modified() {
+                    res = Err(e);
+                } else if let Err(e) = ctx.storage.commit_rust_op(op) {
                     res = Err(e);
                 }
             }
 
-            if res.is_err() {
+            if res.is_err() || !ctx.should_commit {
                 ctx.storage.rollback_rust_trx()?;
             }
 

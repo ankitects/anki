@@ -4,7 +4,7 @@
 use crate::collection::CollectionOp;
 use crate::err::Result;
 use crate::err::{AnkiError, DBErrorKind};
-use crate::time::i64_unix_secs;
+use crate::time::{i64_unix_millis, i64_unix_secs};
 use crate::types::Usn;
 use rusqlite::{params, Connection, NO_PARAMS};
 use std::path::{Path, PathBuf};
@@ -172,6 +172,13 @@ impl StorageContext<'_> {
     }
 
     //////////////////////////////////////////
+
+    pub(crate) fn mark_modified(&self) -> Result<()> {
+        self.db
+            .prepare_cached("update col set mod=?")?
+            .execute(params![i64_unix_millis()])?;
+        Ok(())
+    }
 
     #[allow(dead_code)]
     pub(crate) fn usn(&mut self) -> Result<Usn> {
