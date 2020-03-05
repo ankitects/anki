@@ -6,11 +6,11 @@ use crate::err::{AnkiError, DBErrorKind, Result};
 use crate::i18n::{tr_args, tr_strs, FString};
 use crate::latex::extract_latex_expanding_clozes;
 use crate::log::debug;
-use crate::media::col::{for_every_note, get_note_types, mark_collection_modified, set_note, Note};
 use crate::media::database::MediaDatabaseContext;
 use crate::media::files::{
     data_for_file, filename_if_normalized, trash_folder, MEDIA_SYNC_FILESIZE_LIMIT,
 };
+use crate::notes::{for_every_note, get_note_types, set_note, Note};
 use crate::text::{normalize_to_nfc, MediaRef};
 use crate::{media::MediaManager, text::extract_media_refs};
 use coarsetime::Instant;
@@ -42,26 +42,26 @@ struct MediaFolderCheck {
     oversize: Vec<String>,
 }
 
-pub struct MediaChecker<'a, P>
+pub struct MediaChecker<'a, 'b, P>
 where
     P: FnMut(usize) -> bool,
 {
-    ctx: &'a RequestContext<'a>,
+    ctx: &'a mut RequestContext<'b>,
     mgr: &'a MediaManager,
     progress_cb: P,
     checked: usize,
     progress_updated: Instant,
 }
 
-impl<P> MediaChecker<'_, P>
+impl<P> MediaChecker<'_, '_, P>
 where
     P: FnMut(usize) -> bool,
 {
-    pub(crate) fn new<'a>(
-        ctx: &'a RequestContext<'a>,
+    pub(crate) fn new<'a, 'b>(
+        ctx: &'a mut RequestContext<'b>,
         mgr: &'a MediaManager,
         progress_cb: P,
-    ) -> MediaChecker<'a, P> {
+    ) -> MediaChecker<'a, 'b, P> {
         MediaChecker {
             ctx,
             mgr,
@@ -404,8 +404,8 @@ where
             Ok(())
         })?;
 
-        if collection_modified {
-            mark_collection_modified(&self.ctx.storage.db)?;
+        if !collection_modified {
+            self.ctx.should_commit = false;
         }
 
         Ok(referenced_files)
@@ -546,7 +546,7 @@ mod test {
         let progress = |_n| true;
 
         let (output, report) = col.transact(None, |ctx| {
-            let mut checker = MediaChecker::new(&ctx, &mgr, progress);
+            let mut checker = MediaChecker::new(ctx, &mgr, progress);
             let output = checker.check()?;
             let summary = checker.summarize_output(&mut output.clone());
             Ok((output, summary))
@@ -616,7 +616,7 @@ Unused: unused.jpg
         let progress = |_n| true;
 
         col.transact(None, |ctx| {
-            let mut checker = MediaChecker::new(&ctx, &mgr, progress);
+            let mut checker = MediaChecker::new(ctx, &mgr, progress);
             checker.restore_trash()
         })?;
 
@@ -630,7 +630,7 @@ Unused: unused.jpg
         // if we repeat the process, restoring should do the same thing if the contents are equal
         fs::write(trash_folder.join("test.jpg"), "test")?;
         col.transact(None, |ctx| {
-            let mut checker = MediaChecker::new(&ctx, &mgr, progress);
+            let mut checker = MediaChecker::new(ctx, &mgr, progress);
             checker.restore_trash()
         })?;
         assert_eq!(files_in_dir(&trash_folder), Vec::<String>::new());
@@ -642,7 +642,7 @@ Unused: unused.jpg
         // but rename if required
         fs::write(trash_folder.join("test.jpg"), "test2")?;
         col.transact(None, |ctx| {
-            let mut checker = MediaChecker::new(&ctx, &mgr, progress);
+            let mut checker = MediaChecker::new(ctx, &mgr, progress);
             checker.restore_trash()
         })?;
         assert_eq!(files_in_dir(&trash_folder), Vec::<String>::new());
@@ -666,7 +666,7 @@ Unused: unused.jpg
         let progress = |_n| true;
 
         let mut output = col.transact(None, |ctx| {
-            let mut checker = MediaChecker::new(&ctx, &mgr, progress);
+            let mut checker = MediaChecker::new(ctx, &mgr, progress);
             checker.check()
         })?;
 

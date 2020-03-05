@@ -17,6 +17,7 @@ pub mod i18n;
 pub mod latex;
 pub mod log;
 pub mod media;
+pub mod notes;
 pub mod sched;
 pub mod storage;
 pub mod template;
