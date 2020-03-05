@@ -7,7 +7,9 @@ license = "AGPL-3.0-or-later"
 
 [dependencies]
 nom = "5.0.1"
-failure = "0.1.6"
+# temporary pin to fix https://github.com/rust-lang-nursery/failure/pull/343e
+failure = "=0.1.5"
+failure_derive = "=0.1.5"
 prost = "0.6.1"
 bytes = "0.5.4"
 chrono = "0.4.10"
