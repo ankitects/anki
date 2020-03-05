@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::backend::dbproxy::db_query_json_str;
+use crate::backend::dbproxy::db_command_bytes;
 use crate::backend_proto::backend_input::Value;
 use crate::backend_proto::{Empty, RenderedTemplateReplacement, SyncMediaIn};
 use crate::err::{AnkiError, NetworkErrorKind, Result, SyncErrorKind};
@@ -37,7 +37,7 @@ pub struct Backend {
     media_folder: PathBuf,
     media_db: String,
     progress_callback: Option<ProtoProgressCallback>,
-    i18n: I18n,
+    pub i18n: I18n,
     log: Logger,
 }
 
@@ -493,8 +493,8 @@ impl Backend {
         checker.restore_trash()
     }
 
-    pub fn db_query(&self, input: pb::DbQueryIn) -> Result<pb::DbQueryOut> {
-        db_query_proto(&self.col, input)
+    pub fn db_command(&self, input: &[u8]) -> Result<String> {
+        db_command_bytes(&self.col, input)
     }
 }
 

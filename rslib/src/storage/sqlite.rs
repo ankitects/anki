@@ -4,27 +4,11 @@
 use crate::err::Result;
 use crate::err::{AnkiError, DBErrorKind};
 use crate::time::i64_unix_timestamp;
-use rusqlite::types::{FromSql, FromSqlError, FromSqlResult, ValueRef};
-use rusqlite::{params, Connection, OptionalExtension, NO_PARAMS};
-use serde::de::DeserializeOwned;
-use serde_derive::{Deserialize, Serialize};
-use serde_json::Value;
-use std::borrow::Cow;
-use std::convert::TryFrom;
-use std::fmt;
+use rusqlite::{params, Connection, NO_PARAMS};
 use std::path::{Path, PathBuf};
 
 const SCHEMA_MIN_VERSION: u8 = 11;
 const SCHEMA_MAX_VERSION: u8 = 11;
-
-macro_rules! cached_sql {
-    ( $label:expr, $db:expr, $sql:expr ) => {{
-        if $label.is_none() {
-            $label = Some($db.prepare_cached($sql)?);
-        }
-        $label.as_mut().unwrap()
-    }};
-}
 
 // currently public for dbproxy
 #[derive(Debug)]
@@ -41,6 +25,8 @@ fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
     if std::env::var("TRACESQL").is_ok() {
         db.trace(Some(trace));
     }
+
+    db.busy_timeout(std::time::Duration::from_secs(0))?;
 
     db.pragma_update(None, "locking_mode", &"exclusive")?;
     db.pragma_update(None, "page_size", &4096)?;
@@ -78,7 +64,6 @@ impl SqliteStorage {
 
         let (create, ver) = schema_version(&db)?;
         if create {
-            unimplemented!(); // todo
             db.prepare_cached("begin exclusive")?.execute(NO_PARAMS)?;
             db.execute_batch(include_str!("schema11.sql"))?;
             db.execute(
@@ -118,12 +103,16 @@ impl SqliteStorage {
     }
 
     pub(crate) fn commit(&self) -> Result<()> {
-        self.db.prepare_cached("commit")?.execute(NO_PARAMS)?;
+        if !self.db.is_autocommit() {
+            self.db.prepare_cached("commit")?.execute(NO_PARAMS)?;
+        }
         Ok(())
     }
 
     pub(crate) fn rollback(&self) -> Result<()> {
-        self.db.execute("rollback", NO_PARAMS)?;
+        if !self.db.is_autocommit() {
+            self.db.execute("rollback", NO_PARAMS)?;
+        }
         Ok(())
     }
 }

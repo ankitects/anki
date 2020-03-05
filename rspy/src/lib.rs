@@ -4,9 +4,10 @@
 use anki::backend::{
     init_backend, init_i18n_backend, Backend as RustBackend, I18nBackend as RustI18nBackend,
 };
+use pyo3::exceptions::Exception;
 use pyo3::prelude::*;
 use pyo3::types::PyBytes;
-use pyo3::{exceptions, wrap_pyfunction};
+use pyo3::{create_exception, exceptions, wrap_pyfunction};
 
 // Regular backend
 //////////////////////////////////
@@ -15,6 +16,8 @@ use pyo3::{exceptions, wrap_pyfunction};
 struct Backend {
     backend: RustBackend,
 }
+
+create_exception!(ankirspy, DBError, Exception);
 
 #[pyfunction]
 fn buildhash() -> &'static str {
@@ -71,11 +74,15 @@ impl Backend {
         }
     }
 
-    fn db_query(&mut self, py: Python, input: &PyBytes) -> PyObject {
+    fn db_command(&mut self, py: Python, input: &PyBytes) -> PyResult<PyObject> {
         let in_bytes = input.as_bytes();
-        let out_string = self.backend.db_query(in_bytes).unwrap();
+        let out_string = self
+            .backend
+            .db_command(in_bytes)
+            .map_err(|e| DBError::py_err(e.localized_description(&self.backend.i18n)))?;
+
         let out_obj = PyBytes::new(py, out_string.as_bytes());
-        out_obj.into()
+        Ok(out_obj.into())
     }
 }
 

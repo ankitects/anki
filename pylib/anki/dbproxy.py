@@ -3,11 +3,14 @@
 
 from __future__ import annotations
 
+import weakref
 from typing import Any, Iterable, List, Optional, Sequence, Union
 
 import anki
 
-# fixme: remember to null on close to avoid circular ref
+# fixme: col.reopen()
+# fixme: setAutocommit()
+# fixme: transaction/lock handling
 # fixme: progress
 
 # DBValue is actually Union[str, int, float, None], but if defined
@@ -24,7 +27,7 @@ class DBProxy:
     ###############
 
     def __init__(self, backend: anki.rsbackend.RustBackend, path: str) -> None:
-        self._backend = backend
+        self._backend = weakref.proxy(backend)
         self._path = path
         self.mod = False
 
@@ -35,17 +38,20 @@ class DBProxy:
     # Transactions
     ###############
 
+    def begin(self) -> None:
+        self._backend.db_begin()
+
     def commit(self) -> None:
-        # fixme
-        pass
+        self._backend.db_commit()
 
     def rollback(self) -> None:
-        # fixme
-        pass
+        self._backend.db_rollback()
 
     def setAutocommit(self, autocommit: bool) -> None:
-        # fixme
-        pass
+        if autocommit:
+            self.commit()
+        else:
+            self.begin()
 
     # Querying
     ################
@@ -58,6 +64,7 @@ class DBProxy:
         for stmt in "insert", "update", "delete":
             if s.startswith(stmt):
                 self.mod = True
+        assert ":" not in sql
         # fetch rows
         # fixme: first_row_only
         return self._backend.db_query(sql, args)
