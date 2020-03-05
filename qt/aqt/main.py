@@ -459,7 +459,7 @@ close the profile or restart Anki."""
     def _loadCollection(self) -> bool:
         cpath = self.pm.collectionPath()
 
-        self.col = Collection(cpath, log=True)
+        self.col = Collection(cpath)
 
         self.setEnabled(True)
         self.progress.setupDB(self.col.db)
