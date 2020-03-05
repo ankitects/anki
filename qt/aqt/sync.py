@@ -364,7 +364,7 @@ class SyncThread(QThread):
         self.syncMsg = ""
         self.uname = ""
         try:
-            self.col = Collection(self.path, log=True)
+            self.col = Collection(self.path)
         except:
             self.fireEvent("corrupt")
             return
