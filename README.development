@@ -64,9 +64,13 @@ Use 'make clean' to remove some generated files.
 Performance
 ------------
 
-'make run' builds the Rust libraries in unoptimized debug mode. Before doing
-any performance testing, please make sure you make a release build with
-'make build', and install the resulting .whl files with pip.
+'make run' builds the Rust libraries in unoptimized debug mode by default.
+Before doing any performance testing, please make sure you make a release
+build with 'make build' and install the resulting .whl files, or use
+make run with the following command:
+
+touch rspy/src/lib.rs
+make run DEVFLAGS="--release --strip"
 
 PyQt
 -----
