@@ -1,9 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use crate::collection::CollectionOp;
 use crate::err::Result;
 use crate::err::{AnkiError, DBErrorKind};
-use crate::time::i64_unix_timestamp;
+use crate::time::i64_unix_secs;
+use crate::types::Usn;
 use rusqlite::{params, Connection, NO_PARAMS};
 use std::path::{Path, PathBuf};
 
@@ -15,8 +17,9 @@ const SCHEMA_MAX_VERSION: u8 = 11;
 pub struct SqliteStorage {
     // currently crate-visible for dbproxy
     pub(crate) db: Connection,
+
+    // fixme: stored in wrong location?
     path: PathBuf,
-    server: bool,
 }
 
 fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
@@ -59,17 +62,14 @@ fn trace(s: &str) {
 }
 
 impl SqliteStorage {
-    pub(crate) fn open_or_create(path: &Path, server: bool) -> Result<Self> {
+    pub(crate) fn open_or_create(path: &Path) -> Result<Self> {
         let db = open_or_create_collection_db(path)?;
 
         let (create, ver) = schema_version(&db)?;
         if create {
             db.prepare_cached("begin exclusive")?.execute(NO_PARAMS)?;
             db.execute_batch(include_str!("schema11.sql"))?;
-            db.execute(
-                "update col set crt=?, ver=?",
-                params![i64_unix_timestamp(), ver],
-            )?;
+            db.execute("update col set crt=?, ver=?", params![i64_unix_secs(), ver])?;
             db.prepare_cached("commit")?.execute(NO_PARAMS)?;
         } else {
             if ver > SCHEMA_MAX_VERSION {
@@ -89,30 +89,103 @@ impl SqliteStorage {
         let storage = Self {
             db,
             path: path.to_owned(),
-            server,
         };
 
         Ok(storage)
     }
 
-    pub(crate) fn begin(&self) -> Result<()> {
+    pub(crate) fn context(&self, server: bool) -> StorageContext {
+        StorageContext::new(&self.db, server)
+    }
+}
+
+pub(crate) struct StorageContext<'a> {
+    pub(crate) db: &'a Connection,
+    #[allow(dead_code)]
+    server: bool,
+    #[allow(dead_code)]
+    usn: Option<Usn>,
+}
+
+impl StorageContext<'_> {
+    fn new(db: &Connection, server: bool) -> StorageContext {
+        StorageContext {
+            db,
+            server,
+            usn: None,
+        }
+    }
+
+    // Standard transaction start/stop
+    //////////////////////////////////////
+
+    pub(crate) fn begin_trx(&self) -> Result<()> {
         self.db
             .prepare_cached("begin exclusive")?
             .execute(NO_PARAMS)?;
         Ok(())
     }
 
-    pub(crate) fn commit(&self) -> Result<()> {
+    pub(crate) fn commit_trx(&self) -> Result<()> {
         if !self.db.is_autocommit() {
             self.db.prepare_cached("commit")?.execute(NO_PARAMS)?;
         }
         Ok(())
     }
 
-    pub(crate) fn rollback(&self) -> Result<()> {
+    pub(crate) fn rollback_trx(&self) -> Result<()> {
         if !self.db.is_autocommit() {
             self.db.execute("rollback", NO_PARAMS)?;
         }
         Ok(())
+    }
+
+    // Savepoints
+    //////////////////////////////////////////
+    //
+    // This is necessary at the moment because Anki's current architecture uses
+    // long-running transactions as an undo mechanism. Once a proper undo
+    // mechanism has been added to all existing functionality, we could
+    // transition these to standard commits.
+
+    pub(crate) fn begin_rust_trx(&self) -> Result<()> {
+        self.db
+            .prepare_cached("savepoint rust")?
+            .execute(NO_PARAMS)?;
+        Ok(())
+    }
+
+    pub(crate) fn commit_rust_trx(&self) -> Result<()> {
+        self.db.prepare_cached("release rust")?.execute(NO_PARAMS)?;
+        Ok(())
+    }
+
+    pub(crate) fn commit_rust_op(&self, _op: Option<CollectionOp>) -> Result<()> {
+        self.commit_rust_trx()
+    }
+
+    pub(crate) fn rollback_rust_trx(&self) -> Result<()> {
+        self.db
+            .prepare_cached("rollback to rust")?
+            .execute(NO_PARAMS)?;
+        Ok(())
+    }
+
+    //////////////////////////////////////////
+
+    #[allow(dead_code)]
+    pub(crate) fn usn(&mut self) -> Result<Usn> {
+        if self.server {
+            if self.usn.is_none() {
+                self.usn = Some(
+                    self.db
+                        .prepare_cached("select usn from col")?
+                        .query_row(NO_PARAMS, |row| row.get(0))?,
+                );
+            }
+            Ok(*self.usn.as_ref().unwrap())
+        } else {
+            Ok(-1)
+        }
     }
 }

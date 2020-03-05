@@ -1,14 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use crate::collection::RequestContext;
 use crate::err::{AnkiError, DBErrorKind, Result};
-use crate::i18n::{tr_args, tr_strs, FString, I18n};
+use crate::i18n::{tr_args, tr_strs, FString};
 use crate::latex::extract_latex_expanding_clozes;
-use crate::log::{debug, Logger};
-use crate::media::col::{
-    for_every_note, get_note_types, mark_collection_modified, open_or_create_collection_db,
-    set_note, Note,
-};
+use crate::log::debug;
+use crate::media::col::{for_every_note, get_note_types, mark_collection_modified, set_note, Note};
 use crate::media::database::MediaDatabaseContext;
 use crate::media::files::{
     data_for_file, filename_if_normalized, trash_folder, MEDIA_SYNC_FILESIZE_LIMIT,
@@ -19,14 +17,13 @@ use coarsetime::Instant;
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::collections::{HashMap, HashSet};
-use std::path::Path;
 use std::{borrow::Cow, fs, io};
 
 lazy_static! {
     static ref REMOTE_FILENAME: Regex = Regex::new("(?i)^https?://").unwrap();
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct MediaCheckOutput {
     pub unused: Vec<String>,
     pub missing: Vec<String>,
@@ -49,34 +46,28 @@ pub struct MediaChecker<'a, P>
 where
     P: FnMut(usize) -> bool,
 {
+    ctx: &'a RequestContext<'a>,
     mgr: &'a MediaManager,
-    col_path: &'a Path,
     progress_cb: P,
     checked: usize,
     progress_updated: Instant,
-    i18n: &'a I18n,
-    log: &'a Logger,
 }
 
 impl<P> MediaChecker<'_, P>
 where
     P: FnMut(usize) -> bool,
 {
-    pub fn new<'a>(
+    pub(crate) fn new<'a>(
+        ctx: &'a RequestContext<'a>,
         mgr: &'a MediaManager,
-        col_path: &'a Path,
         progress_cb: P,
-        i18n: &'a I18n,
-        log: &'a Logger,
     ) -> MediaChecker<'a, P> {
         MediaChecker {
+            ctx,
             mgr,
-            col_path,
             progress_cb,
             checked: 0,
             progress_updated: Instant::now(),
-            i18n,
-            log,
         }
     }
 
@@ -100,7 +91,7 @@ where
 
     pub fn summarize_output(&self, output: &mut MediaCheckOutput) -> String {
         let mut buf = String::new();
-        let i = &self.i18n;
+        let i = &self.ctx.i18n;
 
         // top summary area
         if output.trash_count > 0 {
@@ -279,7 +270,7 @@ where
             }
         })?;
         let fname = self.mgr.add_file(ctx, disk_fname, &data)?;
-        debug!(self.log, "renamed"; "from"=>disk_fname, "to"=>&fname.as_ref());
+        debug!(self.ctx.log, "renamed"; "from"=>disk_fname, "to"=>&fname.as_ref());
         assert_ne!(fname.as_ref(), disk_fname);
 
         // remove the original file
@@ -373,7 +364,7 @@ where
                         self.mgr
                             .add_file(&mut self.mgr.dbctx(), fname.as_ref(), &data)?;
                 } else {
-                    debug!(self.log, "file disappeared while restoring trash"; "fname"=>fname.as_ref());
+                    debug!(self.ctx.log, "file disappeared while restoring trash"; "fname"=>fname.as_ref());
                 }
                 fs::remove_file(dentry.path())?;
             }
@@ -387,14 +378,11 @@ where
         &mut self,
         renamed: &HashMap<String, String>,
     ) -> Result<HashSet<String>> {
-        let mut db = open_or_create_collection_db(self.col_path)?;
-        let trx = db.transaction()?;
-
         let mut referenced_files = HashSet::new();
-        let note_types = get_note_types(&trx)?;
+        let note_types = get_note_types(&self.ctx.storage.db)?;
         let mut collection_modified = false;
 
-        for_every_note(&trx, |note| {
+        for_every_note(&self.ctx.storage.db, |note| {
             self.checked += 1;
             if self.checked % 10 == 0 {
                 self.maybe_fire_progress_cb()?;
@@ -407,7 +395,7 @@ where
                 })?;
             if fix_and_extract_media_refs(note, &mut referenced_files, renamed)? {
                 // note was modified, needs saving
-                set_note(&trx, note, nt)?;
+                set_note(&self.ctx.storage.db, note, nt)?;
                 collection_modified = true;
             }
 
@@ -417,8 +405,7 @@ where
         })?;
 
         if collection_modified {
-            mark_collection_modified(&trx)?;
-            trx.commit()?;
+            mark_collection_modified(&self.ctx.storage.db)?;
         }
 
         Ok(referenced_files)
@@ -512,18 +499,18 @@ fn extract_latex_refs(note: &Note, seen_files: &mut HashSet<String>, svg: bool) 
 
 #[cfg(test)]
 mod test {
+    use crate::collection::{open_collection, Collection};
     use crate::err::Result;
     use crate::i18n::I18n;
     use crate::log;
-    use crate::log::Logger;
     use crate::media::check::{MediaCheckOutput, MediaChecker};
     use crate::media::files::trash_folder;
     use crate::media::MediaManager;
-    use std::path::{Path, PathBuf};
+    use std::path::Path;
     use std::{fs, io};
     use tempfile::{tempdir, TempDir};
 
-    fn common_setup() -> Result<(TempDir, MediaManager, PathBuf, Logger, I18n)> {
+    fn common_setup() -> Result<(TempDir, MediaManager, Collection)> {
         let dir = tempdir()?;
         let media_dir = dir.path().join("media");
         fs::create_dir(&media_dir)?;
@@ -537,15 +524,16 @@ mod test {
         let mgr = MediaManager::new(&media_dir, media_db)?;
 
         let log = log::terminal();
-
         let i18n = I18n::new(&["zz"], "dummy", log.clone());
 
-        Ok((dir, mgr, col_path, log, i18n))
+        let col = open_collection(col_path, false, i18n, log)?;
+
+        Ok((dir, mgr, col))
     }
 
     #[test]
     fn media_check() -> Result<()> {
-        let (_dir, mgr, col_path, log, i18n) = common_setup()?;
+        let (_dir, mgr, col) = common_setup()?;
 
         // add some test files
         fs::write(&mgr.media_folder.join("zerobytes"), "")?;
@@ -556,8 +544,13 @@ mod test {
         fs::write(&mgr.media_folder.join("unused.jpg"), "foo")?;
 
         let progress = |_n| true;
-        let mut checker = MediaChecker::new(&mgr, &col_path, progress, &i18n, &log);
-        let mut output = checker.check()?;
+
+        let (output, report) = col.transact(None, |ctx| {
+            let mut checker = MediaChecker::new(&ctx, &mgr, progress);
+            let output = checker.check()?;
+            let summary = checker.summarize_output(&mut output.clone());
+            Ok((output, summary))
+        })?;
 
         assert_eq!(
             output,
@@ -577,7 +570,6 @@ mod test {
         assert!(fs::metadata(&mgr.media_folder.join("foo[.jpg")).is_err());
         assert!(fs::metadata(&mgr.media_folder.join("foo.jpg")).is_ok());
 
-        let report = checker.summarize_output(&mut output);
         assert_eq!(
             report,
             "Missing files: 1
@@ -617,14 +609,16 @@ Unused: unused.jpg
 
     #[test]
     fn trash_handling() -> Result<()> {
-        let (_dir, mgr, col_path, log, i18n) = common_setup()?;
+        let (_dir, mgr, col) = common_setup()?;
         let trash_folder = trash_folder(&mgr.media_folder)?;
         fs::write(trash_folder.join("test.jpg"), "test")?;
 
         let progress = |_n| true;
-        let mut checker = MediaChecker::new(&mgr, &col_path, progress, &i18n, &log);
 
-        checker.restore_trash()?;
+        col.transact(None, |ctx| {
+            let mut checker = MediaChecker::new(&ctx, &mgr, progress);
+            checker.restore_trash()
+        })?;
 
         // file should have been moved to media folder
         assert_eq!(files_in_dir(&trash_folder), Vec::<String>::new());
@@ -635,7 +629,10 @@ Unused: unused.jpg
 
         // if we repeat the process, restoring should do the same thing if the contents are equal
         fs::write(trash_folder.join("test.jpg"), "test")?;
-        checker.restore_trash()?;
+        col.transact(None, |ctx| {
+            let mut checker = MediaChecker::new(&ctx, &mgr, progress);
+            checker.restore_trash()
+        })?;
         assert_eq!(files_in_dir(&trash_folder), Vec::<String>::new());
         assert_eq!(
             files_in_dir(&mgr.media_folder),
@@ -644,7 +641,10 @@ Unused: unused.jpg
 
         // but rename if required
         fs::write(trash_folder.join("test.jpg"), "test2")?;
-        checker.restore_trash()?;
+        col.transact(None, |ctx| {
+            let mut checker = MediaChecker::new(&ctx, &mgr, progress);
+            checker.restore_trash()
+        })?;
         assert_eq!(files_in_dir(&trash_folder), Vec::<String>::new());
         assert_eq!(
             files_in_dir(&mgr.media_folder),
@@ -659,13 +659,17 @@ Unused: unused.jpg
 
     #[test]
     fn unicode_normalization() -> Result<()> {
-        let (_dir, mgr, col_path, log, i18n) = common_setup()?;
+        let (_dir, mgr, col) = common_setup()?;
 
         fs::write(&mgr.media_folder.join("ぱぱ.jpg"), "nfd encoding")?;
 
         let progress = |_n| true;
-        let mut checker = MediaChecker::new(&mgr, &col_path, progress, &i18n, &log);
-        let mut output = checker.check()?;
+
+        let mut output = col.transact(None, |ctx| {
+            let mut checker = MediaChecker::new(&ctx, &mgr, progress);
+            checker.check()
+        })?;
+
         output.missing.sort();
 
         if cfg!(target_vendor = "apple") {

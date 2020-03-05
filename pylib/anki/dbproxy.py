@@ -8,6 +8,7 @@ from typing import Any, Iterable, List, Optional, Sequence, Union
 
 import anki
 
+# fixme: threads
 # fixme: col.reopen()
 # fixme: setAutocommit()
 # fixme: transaction/lock handling

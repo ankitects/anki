@@ -79,7 +79,7 @@ impl Backend {
         let out_string = self
             .backend
             .db_command(in_bytes)
-            .map_err(|e| DBError::py_err(e.localized_description(&self.backend.i18n)))?;
+            .map_err(|e| DBError::py_err(e.localized_description(&self.backend.i18n())))?;
 
         let out_obj = PyBytes::new(py, out_string.as_bytes());
         Ok(out_obj.into())

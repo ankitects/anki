@@ -11,7 +11,6 @@ use serde_aux::field_attributes::deserialize_number_from_string;
 use serde_derive::Deserialize;
 use std::collections::HashMap;
 use std::convert::TryInto;
-use std::path::Path;
 
 #[derive(Debug)]
 pub(super) struct Note {
@@ -43,19 +42,6 @@ impl Note {
 fn field_checksum(text: &str) -> u32 {
     let digest = sha1::Sha1::from(text).digest().bytes();
     u32::from_be_bytes(digest[..4].try_into().unwrap())
-}
-
-pub(super) fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
-    let db = Connection::open(path)?;
-
-    db.pragma_update(None, "locking_mode", &"exclusive")?;
-    db.pragma_update(None, "page_size", &4096)?;
-    db.pragma_update(None, "cache_size", &(-40 * 1024))?;
-    db.pragma_update(None, "legacy_file_format", &false)?;
-    db.pragma_update(None, "journal", &"wal")?;
-    db.set_prepared_statement_cache_capacity(5);
-
-    Ok(db)
 }
 
 #[derive(Deserialize, Debug)]

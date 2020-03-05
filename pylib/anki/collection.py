@@ -264,10 +264,10 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     def reopen(self) -> None:
         "Reconnect to DB (after changing threads, etc)."
         raise Exception("fixme")
-        if not self.db:
-            #self.db = DBProxy(self.path)
-            self.media.connect()
-            self._openLog()
+        # if not self.db:
+        #     # self.db = DBProxy(self.path)
+        #     self.media.connect()
+        #     self._openLog()
 
     def rollback(self) -> None:
         self.db.rollback()
