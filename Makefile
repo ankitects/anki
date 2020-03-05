@@ -34,6 +34,7 @@ SUBMAKE := $(MAKE) --print-directory
 .SUFFIXES:
 
 BUILDFLAGS := --release --strip
+DEVFLAGS :=
 RUNFLAGS :=
 CHECKABLE_PY := pylib qt
 CHECKABLE_RS := rslib
@@ -66,7 +67,7 @@ develop: pyenv buildhash prepare
 	@set -eo pipefail && \
 	. "${ACTIVATE_SCRIPT}" && \
 	for dir in $(DEVEL); do \
-		$(SUBMAKE) -C $$dir develop BUILDFLAGS="$(BUILDFLAGS)"; \
+		$(SUBMAKE) -C $$dir develop DEVFLAGS="$(DEVFLAGS)"; \
 	done
 
 .PHONY: run
