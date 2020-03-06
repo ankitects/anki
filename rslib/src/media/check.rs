@@ -5,6 +5,7 @@ use std::{
     borrow::Cow,
     collections::{HashMap, HashSet},
     fs, io,
+    iter::FromIterator,
     path::Path,
 };
 
@@ -75,9 +76,10 @@ where
 
     pub fn check(&mut self) -> Result<MediaCheckOutput> {
         let mut ctx = self.mgr.dbctx();
-
         let folder_check = self.check_media_folder(&mut ctx)?;
-        let referenced_files = self.check_media_references(&folder_check.renamed)?;
+        let fileshash: HashSet<String> = HashSet::from_iter(folder_check.files.iter().cloned());
+
+        let referenced_files = self.check_media_references(&folder_check.renamed, &fileshash)?;
         let (unused, missing) = find_unused_and_missing(folder_check.files, referenced_files);
         let (trash_count, trash_bytes) = self.files_in_trash()?;
         Ok(MediaCheckOutput {
@@ -353,6 +355,7 @@ where
     fn check_media_references(
         &mut self,
         renamed: &HashMap<String, String>,
+        allfiles: &HashSet<String>,
     ) -> Result<HashSet<String>> {
         let mut referenced_files = HashSet::new();
         let notetypes = self.ctx.get_all_notetypes()?;
@@ -374,6 +377,7 @@ where
                 &mut referenced_files,
                 renamed,
                 &self.mgr.media_folder,
+                allfiles,
             )? {
                 // note was modified, needs saving
                 note.prepare_for_update(nt, false)?;
@@ -401,6 +405,7 @@ fn fix_and_extract_media_refs(
     seen_files: &mut HashSet<String>,
     renamed: &HashMap<String, String>,
     media_folder: &Path,
+    allfiles: &HashSet<String>,
 ) -> Result<bool> {
     let mut updated = false;
 
@@ -411,6 +416,12 @@ fn fix_and_extract_media_refs(
             seen_files,
             media_folder,
         );
+
+        // For fields only with media names
+        if field.len() < 2000 && allfiles.contains(&field.to_string()) {
+            seen_files.insert(field.to_string());
+        }
+
         if let Cow::Owned(field) = field {
             // field was modified, need to save
             note.set_field(idx, field)?;
