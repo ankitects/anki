@@ -25,7 +25,7 @@ class ExportDialog(QDialog):
     ):
         QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw
-        self.col = mw.col
+        self.col = mw.col.weakref()
         self.frm = aqt.forms.exporting.Ui_ExportDialog()
         self.frm.setupUi(self)
         self.exporter = None
@@ -151,6 +151,7 @@ class ExportDialog(QDialog):
                 period = 3000
                 if self.isVerbatim:
                     msg = _("Collection exported.")
+                    self.mw.reopen()
                 else:
                     if self.isTextNote:
                         msg = (
