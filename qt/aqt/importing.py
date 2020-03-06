@@ -473,48 +473,57 @@ def replaceWithApkg(mw, file, backup):
     mw.unloadCollection(lambda: _replaceWithApkg(mw, file, backup))
 
 
-def _replaceWithApkg(mw, file, backup):
+def _replaceWithApkg(mw, filename, backup):
     mw.progress.start(immediate=True)
 
-    z = zipfile.ZipFile(file)
+    def do_import():
+        z = zipfile.ZipFile(filename)
 
-    # v2 scheduler?
-    colname = "collection.anki21"
-    try:
-        z.getinfo(colname)
-    except KeyError:
-        colname = "collection.anki2"
+        # v2 scheduler?
+        colname = "collection.anki21"
+        try:
+            z.getinfo(colname)
+        except KeyError:
+            colname = "collection.anki2"
 
-    try:
         with z.open(colname) as source, open(mw.pm.collectionPath(), "wb") as target:
             shutil.copyfileobj(source, target)
-    except:
+
+        d = os.path.join(mw.pm.profileFolder(), "collection.media")
+        for n, (cStr, file) in enumerate(
+            json.loads(z.read("media").decode("utf8")).items()
+        ):
+            mw.taskman.run_on_main(
+                lambda n=n: mw.progress.update(
+                    ngettext("Processed %d media file", "Processed %d media files", n)
+                    % n
+                )
+            )
+            size = z.getinfo(cStr).file_size
+            dest = os.path.join(d, unicodedata.normalize("NFC", file))
+            # if we have a matching file size
+            if os.path.exists(dest) and size == os.stat(dest).st_size:
+                continue
+            data = z.read(cStr)
+            open(dest, "wb").write(data)
+
+        z.close()
+
+    def on_done(future: Future):
         mw.progress.finish()
-        showWarning(_("The provided file is not a valid .apkg file."))
-        return
-    # because users don't have a backup of media, it's safer to import new
-    # data and rely on them running a media db check to get rid of any
-    # unwanted media. in the future we might also want to deduplicate this
-    # step
-    d = os.path.join(mw.pm.profileFolder(), "collection.media")
-    for n, (cStr, file) in enumerate(
-        json.loads(z.read("media").decode("utf8")).items()
-    ):
-        mw.progress.update(
-            ngettext("Processed %d media file", "Processed %d media files", n) % n
-        )
-        size = z.getinfo(cStr).file_size
-        dest = os.path.join(d, unicodedata.normalize("NFC", file))
-        # if we have a matching file size
-        if os.path.exists(dest) and size == os.stat(dest).st_size:
-            continue
-        data = z.read(cStr)
-        open(dest, "wb").write(data)
-    z.close()
-    # reload
-    if not mw.loadCollection():
-        mw.progress.finish()
-        return
-    if backup:
-        mw.col.modSchema(check=False)
-    mw.progress.finish()
+
+        try:
+            future.result()
+        except Exception as e:
+            print(e)
+            showWarning(_("The provided file is not a valid .apkg file."))
+            return
+
+        if not mw.loadCollection():
+            return
+        if backup:
+            mw.col.modSchema(check=False)
+
+        tooltip(_("Importing complete."))
+
+    mw.taskman.run_in_background(do_import, on_done)
