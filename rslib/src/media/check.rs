@@ -17,6 +17,7 @@ use crate::text::{normalize_to_nfc, MediaRef};
 use crate::{media::MediaManager, text::extract_media_refs};
 use coarsetime::Instant;
 use std::collections::{HashMap, HashSet};
+use std::iter::FromIterator;
 use std::path::Path;
 use std::{borrow::Cow, fs, time};
 
@@ -76,9 +77,10 @@ where
         self.expire_old_trash()?;
 
         let mut ctx = self.mgr.dbctx();
-
         let folder_check = self.check_media_folder(&mut ctx)?;
-        let referenced_files = self.check_media_references(&folder_check.renamed)?;
+        let fileshash: HashSet<String> = HashSet::from_iter(folder_check.files.iter().cloned());
+
+        let referenced_files = self.check_media_references(&folder_check.renamed, &fileshash)?;
         let (unused, missing) = find_unused_and_missing(folder_check.files, referenced_files);
         Ok(MediaCheckOutput {
             unused,
@@ -321,6 +323,7 @@ where
     fn check_media_references(
         &mut self,
         renamed: &HashMap<String, String>,
+        allfiles: &HashSet<String>,
     ) -> Result<HashSet<String>> {
         let mut db = open_or_create_collection_db(self.col_path)?;
         let trx = db.transaction()?;
@@ -339,7 +342,7 @@ where
                 .ok_or_else(|| AnkiError::DBError {
                     info: "missing note type".to_string(),
                 })?;
-            if fix_and_extract_media_refs(note, &mut referenced_files, renamed)? {
+            if fix_and_extract_media_refs(note, &mut referenced_files, renamed, allfiles)? {
                 // note was modified, needs saving
                 set_note(&trx, note, nt)?;
                 collection_modified = true;
@@ -364,11 +367,18 @@ fn fix_and_extract_media_refs(
     note: &mut Note,
     seen_files: &mut HashSet<String>,
     renamed: &HashMap<String, String>,
+    allfiles: &HashSet<String>,
 ) -> Result<bool> {
     let mut updated = false;
 
     for idx in 0..note.fields().len() {
         let field = normalize_and_maybe_rename_files(&note.fields()[idx], renamed, seen_files);
+
+        // For fields only with media names
+        if field.len() < 2000 && allfiles.contains(&field.to_string()) {
+            seen_files.insert(field.to_string());
+        }
+
         if let Cow::Owned(field) = field {
             // field was modified, need to save
             note.set_field(idx, field)?;
