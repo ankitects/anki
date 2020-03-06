@@ -84,7 +84,7 @@ class ProgressManager:
         self._show_timer = QTimer(self.mw)
         self._show_timer.setSingleShot(True)
         self._show_timer.start(600)
-        self._show_timer.timeout.connect(self._on_show_timer)
+        self._show_timer.timeout.connect(self._on_show_timer)  # type: ignore
         return self._win
 
     def update(self, label=None, value=None, process=True, maybeShow=True):
