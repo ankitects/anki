@@ -135,6 +135,40 @@ class _AddonConfigEditorWillSaveJsonFilter:
 addon_config_editor_will_save_json = _AddonConfigEditorWillSaveJsonFilter()
 
 
+class _AddonsDialogDidChangeSelectedAddonHook:
+    """Allows doing an action when a single add-on is selected."""
+
+    _hooks: List[
+        Callable[["aqt.addons.AddonsDialog", "aqt.addons.AddonMeta"], None]
+    ] = []
+
+    def append(
+        self, cb: Callable[["aqt.addons.AddonsDialog", "aqt.addons.AddonMeta"], None]
+    ) -> None:
+        """(dialog: aqt.addons.AddonsDialog, add_on: aqt.addons.AddonMeta)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self, cb: Callable[["aqt.addons.AddonsDialog", "aqt.addons.AddonMeta"], None]
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(
+        self, dialog: aqt.addons.AddonsDialog, add_on: aqt.addons.AddonMeta
+    ) -> None:
+        for hook in self._hooks:
+            try:
+                hook(dialog, add_on)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+addons_dialog_did_change_selected_addon = _AddonsDialogDidChangeSelectedAddonHook()
+
+
 class _AddonsDialogWillShowHook:
     """Allows changing the add-on dialog before it is shown. E.g. add
         buttons."""

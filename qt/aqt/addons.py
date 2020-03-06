@@ -784,6 +784,7 @@ class AddonsDialog(QDialog):
                 or self.mgr.configAction(addon.dir_name)
             )
         )
+        gui_hooks.addons_dialog_did_change_selected_addon(self, addon)
         return
 
     def selectedAddons(self) -> List[str]:

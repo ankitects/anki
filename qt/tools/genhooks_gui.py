@@ -494,6 +494,11 @@ def emptyNewCard():
         doc="""Allows changing the add-on dialog before it is shown. E.g. add
         buttons.""",
     ),
+    Hook(
+        name="addons_dialog_did_change_selected_addon",
+        args=["dialog: aqt.addons.AddonsDialog", "add_on: aqt.addons.AddonMeta"],
+        doc="""Allows doing an action when a single add-on is selected.""",
+    ),
     # Other
     ###################
     Hook(
