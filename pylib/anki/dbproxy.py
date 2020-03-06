@@ -7,8 +7,8 @@ from typing import Any, Iterable, List, Optional, Sequence, Union
 
 import anki
 
-# fixme: threads
-# fixme: col.reopen()
+# fixme: col.close()/col.reopen() & journal_mode=delete
+
 # fixme: setAutocommit()
 # fixme: transaction/lock handling
 # fixme: progress
@@ -46,12 +46,6 @@ class DBProxy:
 
     def rollback(self) -> None:
         self._backend.db_rollback()
-
-    def setAutocommit(self, autocommit: bool) -> None:
-        if autocommit:
-            self.commit()
-        else:
-            self.begin()
 
     # Querying
     ################
