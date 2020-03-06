@@ -412,6 +412,18 @@ def emptyNewCard():
         args=["note: anki.notes.Note"],
         legacy_hook="AddCards.noteAdded",
     ),
+    Hook(
+        name="add_card_accepts",
+        args=["reason_to_already_reject: Optional[str]", "note: anki.notes.Note"],
+        return_type="Optional[str]",
+        doc="""Decides whether the note should be added to the collection or
+        not. It is assumed to come from the addCards window.
+
+        reason_to_already_reject is the first reason to reject that
+        was found, or None. If your filter wants to reject, it should
+        replace return the reason to reject. Otherwise return the
+        input.""",
+    ),
     # Editing
     ###################
     Hook(
