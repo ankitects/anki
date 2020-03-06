@@ -386,8 +386,11 @@ class RustBackend:
     def restore_trash(self):
         self._run_command(pb.BackendInput(restore_trash=pb.Empty()))
 
-    def db_query(self, sql: str, args: Iterable[ValueForDB]) -> List[DBRow]:
+    def db_query(self, sql: str, args: List[ValueForDB]) -> List[DBRow]:
         return self._db_command(dict(kind="query", sql=sql, args=args))
+
+    def db_execute_many(self, sql: str, args: List[List[ValueForDB]]) -> List[DBRow]:
+        return self._db_command(dict(kind="executemany", sql=sql, args=args))
 
     def db_begin(self) -> None:
         return self._db_command(dict(kind="begin"))

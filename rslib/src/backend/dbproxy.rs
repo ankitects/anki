@@ -9,10 +9,17 @@ use serde_derive::{Deserialize, Serialize};
 #[derive(Deserialize)]
 #[serde(tag = "kind", rename_all = "lowercase")]
 pub(super) enum DBRequest {
-    Query { sql: String, args: Vec<SqlValue> },
+    Query {
+        sql: String,
+        args: Vec<SqlValue>,
+    },
     Begin,
     Commit,
     Rollback,
+    ExecuteMany {
+        sql: String,
+        args: Vec<Vec<SqlValue>>,
+    },
 }
 
 #[derive(Serialize)]
@@ -74,13 +81,13 @@ pub(super) fn db_command_bytes(ctx: &StorageContext, input: &[u8]) -> Result<Str
             ctx.rollback_trx()?;
             DBResult::None
         }
+        DBRequest::ExecuteMany { sql, args } => db_execute_many(ctx, &sql, &args)?,
     };
     Ok(serde_json::to_string(&resp)?)
 }
 
 pub(super) fn db_query(ctx: &StorageContext, sql: &str, args: &[SqlValue]) -> Result<DBResult> {
     let mut stmt = ctx.db.prepare_cached(sql)?;
-
     let columns = stmt.column_count();
 
     let res: std::result::Result<Vec<Vec<_>>, rusqlite::Error> = stmt
@@ -95,4 +102,18 @@ pub(super) fn db_query(ctx: &StorageContext, sql: &str, args: &[SqlValue]) -> Re
         .collect();
 
     Ok(DBResult::Rows(res?))
+}
+
+pub(super) fn db_execute_many(
+    ctx: &StorageContext,
+    sql: &str,
+    args: &[Vec<SqlValue>],
+) -> Result<DBResult> {
+    let mut stmt = ctx.db.prepare_cached(sql)?;
+
+    for params in args {
+        stmt.execute(params)?;
+    }
+
+    Ok(DBResult::None)
 }
