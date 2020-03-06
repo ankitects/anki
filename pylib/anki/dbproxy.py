@@ -100,12 +100,11 @@ class DBProxy:
     # Updates
     ################
 
-    def executemany(self, sql: str, args: Iterable[Iterable[ValueForDB]]) -> None:
+    def executemany(self, sql: str, args: Iterable[Sequence[ValueForDB]]) -> None:
         self.mod = True
-        # fixme
-        for row in args:
-            self.execute(sql, *row)
-
-    def executescript(self, sql: str) -> None:
-        self.mod = True
-        raise Exception("fixme")
+        assert ":" not in sql
+        if isinstance(args, list):
+            list_args = args
+        else:
+            list_args = list(args)
+        self._backend.db_execute_many(sql, list_args)
