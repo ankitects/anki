@@ -459,13 +459,16 @@ close the profile or restart Anki."""
 
     def _loadCollection(self) -> bool:
         cpath = self.pm.collectionPath()
-
         self.col = Collection(cpath)
 
         self.setEnabled(True)
         self.maybeEnableUndo()
         self.moveToState("deckBrowser")
         return True
+
+    def reopen(self):
+        cpath = self.pm.collectionPath()
+        self.col = Collection(cpath)
 
     def unloadCollection(self, onsuccess: Callable) -> None:
         def callback():
