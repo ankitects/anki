@@ -14,6 +14,7 @@ from typing import (
     NewType,
     NoReturn,
     Optional,
+    Sequence,
     Tuple,
     Union,
 )
@@ -387,7 +388,7 @@ class RustBackend:
         self._run_command(pb.BackendInput(restore_trash=pb.Empty()))
 
     def db_query(
-        self, sql: str, args: List[ValueForDB], first_row_only: bool
+        self, sql: str, args: Sequence[ValueForDB], first_row_only: bool
     ) -> List[DBRow]:
         return self._db_command(
             dict(kind="query", sql=sql, args=args, first_row_only=first_row_only)
