@@ -488,6 +488,12 @@ def emptyNewCard():
         received from the user before actually reading it. For
         example, you can replace new line in strings by some "\\\\n".""",
     ),
+    Hook(
+        name="addons_dialog_will_show",
+        args=["dialog: aqt.addons.AddonsDialog"],
+        doc="""Allows changing the add-on dialog before it is shown. E.g. add
+        buttons.""",
+    ),
     # Other
     ###################
     Hook(
