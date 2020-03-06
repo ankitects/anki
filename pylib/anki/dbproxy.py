@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import weakref
 from typing import Any, Iterable, List, Optional, Sequence, Union
 
 import anki
@@ -28,7 +27,7 @@ class DBProxy:
     ###############
 
     def __init__(self, backend: anki.rsbackend.RustBackend, path: str) -> None:
-        self._backend = weakref.proxy(backend)
+        self._backend = backend
         self._path = path
         self.mod = False
 

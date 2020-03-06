@@ -4,6 +4,7 @@
 import copy
 import json
 import os
+import weakref
 from typing import Any, Dict, Optional, Tuple
 
 from anki.collection import _Collection
@@ -38,7 +39,7 @@ def Collection(path: str, server: Optional[ServerData] = None) -> _Collection:
     backend = RustBackend(
         path, media_dir, media_db, log_path, server=server is not None
     )
-    db = DBProxy(backend, path)
+    db = DBProxy(weakref.proxy(backend), path)
     db.begin()
     db.setAutocommit(True)
 
