@@ -25,6 +25,7 @@ class ProgressManager:
         self.app = QApplication.instance()
         self.inDB = False
         self.blockUpdates = False
+        self._show_timer: Optional[QTimer] = None
         self._win = None
         self._levels = 0
 
@@ -114,6 +115,10 @@ class ProgressManager:
         self._firstTime = time.time()
         self._lastUpdate = time.time()
         self._updating = False
+        self._show_timer = QTimer(self.mw)
+        self._show_timer.setSingleShot(True)
+        self._show_timer.start(600)
+        self._show_timer.timeout.connect(self._on_show_timer)
         return self._win
 
     def update(self, label=None, value=None, process=True, maybeShow=True):
@@ -143,6 +148,9 @@ class ProgressManager:
             if self._win:
                 self._closeWin()
             self._unsetBusy()
+            if self._show_timer:
+                self._show_timer.stop()
+                self._show_timer = None
 
     def clear(self):
         "Restore the interface after an error."
@@ -188,6 +196,10 @@ class ProgressManager:
     def busy(self):
         "True if processing."
         return self._levels
+
+    def _on_show_timer(self):
+        self._show_timer = None
+        self._showWin()
 
 
 class ProgressDialog(QDialog):
