@@ -395,41 +395,44 @@ def importFile(mw, file):
 
         # importing non-colpkg files
         mw.progress.start(immediate=True)
-        try:
+
+        def on_done(future: Future):
+            mw.progress.finish()
             try:
-                importer.run()
-            finally:
-                mw.progress.finish()
-        except zipfile.BadZipfile:
-            showWarning(invalidZipMsg())
-        except Exception as e:
-            err = repr(str(e))
-            if "invalidFile" in err:
-                msg = _(
-                    """\
-Invalid file. Please restore from backup."""
-                )
-                showWarning(msg)
-            elif "invalidTempFolder" in err:
-                showWarning(mw.errorHandler.tempFolderMsg())
-            elif "readonly" in err:
-                showWarning(
-                    _(
+                future.result()
+            except zipfile.BadZipfile:
+                showWarning(invalidZipMsg())
+            except Exception as e:
+                err = repr(str(e))
+                if "invalidFile" in err:
+                    msg = _(
                         """\
-Unable to import from a read-only file."""
+    Invalid file. Please restore from backup."""
                     )
-                )
+                    showWarning(msg)
+                elif "invalidTempFolder" in err:
+                    showWarning(mw.errorHandler.tempFolderMsg())
+                elif "readonly" in err:
+                    showWarning(
+                        _(
+                            """\
+    Unable to import from a read-only file."""
+                        )
+                    )
+                else:
+                    msg = tr(TR.IMPORTING_FAILED_DEBUG_INFO) + "\n"
+                    msg += str(traceback.format_exc())
+                    showText(msg)
             else:
-                msg = tr(TR.IMPORTING_FAILED_DEBUG_INFO) + "\n"
-                msg += str(traceback.format_exc())
-                showText(msg)
-        else:
-            log = "\n".join(importer.log)
-            if "\n" not in log:
-                tooltip(log)
-            else:
-                showText(log)
-        mw.reset()
+                log = "\n".join(importer.log)
+                if "\n" not in log:
+                    tooltip(log)
+                else:
+                    showText(log)
+
+            mw.reset()
+
+        mw.taskman.run_in_background(importer.run, on_done)
 
 
 def invalidZipMsg():
