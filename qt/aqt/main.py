@@ -12,6 +12,7 @@ import signal
 import time
 import zipfile
 from argparse import Namespace
+from concurrent.futures import Future
 from threading import Thread
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
@@ -1260,25 +1261,29 @@ will be lost. Continue?"""
 
     def onCheckDB(self):
         "True if no problems"
-        self.progress.start(immediate=True)
-        ret, ok = self.col.fixIntegrity()
-        self.progress.finish()
-        if not ok:
-            showText(ret)
-        else:
-            tooltip(ret)
+        self.progress.start()
 
-        # if an error has directed the user to check the database,
-        # silently clean up any broken reset hooks which distract from
-        # the underlying issue
-        while True:
-            try:
-                self.reset()
-                break
-            except Exception as e:
-                print("swallowed exception in reset hook:", e)
-                continue
-        return ret
+        def onDone(future: Future):
+            self.progress.finish()
+            ret, ok = future.result()
+
+            if not ok:
+                showText(ret)
+            else:
+                tooltip(ret)
+
+            # if an error has directed the user to check the database,
+            # silently clean up any broken reset hooks which distract from
+            # the underlying issue
+            while True:
+                try:
+                    self.reset()
+                    break
+                except Exception as e:
+                    print("swallowed exception in reset hook:", e)
+                    continue
+
+        self.taskman.run_in_background(self.col.fixIntegrity, onDone)
 
     def on_check_media_db(self) -> None:
         check_media_db(self)
