@@ -10,6 +10,7 @@ from typing import List, Union
 
 import aqt
 from anki import hooks
+from anki.consts import SYNC_BASE
 from anki.rsbackend import TR, Interrupted, MediaSyncProgress, Progress, ProgressKind
 from anki.types import assert_impossible
 from anki.utils import intTime
@@ -76,7 +77,7 @@ class MediaSyncer:
             shard_str = str(shard)
         else:
             shard_str = ""
-        return f"https://sync{shard_str}.ankiweb.net/msync/"
+        return f"{SYNC_BASE % shard_str}msync/"
 
     def _log_and_notify(self, entry: LogEntry) -> None:
         entry_with_time = LogEntryWithTime(time=intTime(), entry=entry)
