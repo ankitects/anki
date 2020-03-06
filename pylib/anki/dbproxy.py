@@ -9,10 +9,6 @@ import anki
 
 # fixme: col.close()/col.reopen() & journal_mode=delete
 
-# fixme: setAutocommit()
-# fixme: transaction/lock handling
-# fixme: progress
-
 # DBValue is actually Union[str, int, float, None], but if defined
 # that way, every call site needs to do a type check prior to using
 # the return values.
