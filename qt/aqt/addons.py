@@ -706,6 +706,7 @@ class AddonsDialog(QDialog):
         self.setAcceptDrops(True)
         self.redrawAddons()
         restoreGeom(self, "addons")
+        gui_hooks.addons_dialog_will_show(self)
         self.show()
 
     def dragEnterEvent(self, event):

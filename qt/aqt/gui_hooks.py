@@ -135,6 +135,33 @@ class _AddonConfigEditorWillSaveJsonFilter:
 addon_config_editor_will_save_json = _AddonConfigEditorWillSaveJsonFilter()
 
 
+class _AddonsDialogWillShowHook:
+    """Allows changing the add-on dialog before it is shown. E.g. add
+        buttons."""
+
+    _hooks: List[Callable[["aqt.addons.AddonsDialog"], None]] = []
+
+    def append(self, cb: Callable[["aqt.addons.AddonsDialog"], None]) -> None:
+        """(dialog: aqt.addons.AddonsDialog)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[["aqt.addons.AddonsDialog"], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, dialog: aqt.addons.AddonsDialog) -> None:
+        for hook in self._hooks:
+            try:
+                hook(dialog)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+addons_dialog_will_show = _AddonsDialogWillShowHook()
+
+
 class _AvPlayerDidBeginPlayingHook:
     _hooks: List[Callable[["aqt.sound.Player", "anki.sound.AVTag"], None]] = []
 
