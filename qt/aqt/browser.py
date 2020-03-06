@@ -391,15 +391,12 @@ class StatusDelegate(QItemDelegate):
         self.model = model
 
     def paint(self, painter, option, index):
-        self.browser.mw.progress.blockUpdates = True
         try:
             c = self.model.getCard(index)
         except:
             # in the the middle of a reset; return nothing so this row is not
             # rendered until we have a chance to reset the model
             return
-        finally:
-            self.browser.mw.progress.blockUpdates = True
 
         if self.model.isRTL(index):
             option.direction = Qt.RightToLeft

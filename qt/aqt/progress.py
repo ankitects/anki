@@ -11,10 +11,6 @@ import aqt.forms
 from anki.lang import _
 from aqt.qt import *
 
-# fixme: if mw->subwindow opens a progress dialog with mw as the parent, mw
-# gets raised on finish on compiz. perhaps we should be using the progress
-# dialog as the parent?
-
 # Progress info
 ##########################################################################
 
@@ -29,44 +25,14 @@ class ProgressManager:
         self._win = None
         self._levels = 0
 
-    # SQLite progress handler
-    ##########################################################################
-
-    def setupDB(self, db):
-        "Install a handler in the current DB."
-        self.lastDbProgress = 0
-        self.inDB = False
-        # db.set_progress_handler(self._dbProgress, 10000)
-
-    def _dbProgress(self):
-        "Called from SQLite."
-        # do nothing if we don't have a progress window
-        if not self._win:
-            return
-        # make sure we're not executing too frequently
-        if (time.time() - self.lastDbProgress) < 0.01:
-            return
-        self.lastDbProgress = time.time()
-        # and we're in the main thread
-        if not self.mw.inMainThread():
-            return
-        # ensure timers don't fire
-        self.inDB = True
-        # handle GUI events
-        if not self.blockUpdates:
-            self._maybeShow()
-            self.app.processEvents(QEventLoop.ExcludeUserInputEvents)
-        self.inDB = False
-
     # Safer timers
     ##########################################################################
-    # QTimer may fire in processEvents(). We provide a custom timer which
-    # automatically defers until the DB is not busy, and avoids running
-    # while a progress window is visible.
+    # A custom timer which avoids firing while a progress dialog is active
+    # (likely due to some long-running DB operation)
 
     def timer(self, ms, func, repeat, requiresCollection=True):
         def handler():
-            if self.inDB or self._levels:
+            if self._levels:
                 # retry in 100ms
                 self.timer(100, func, False, requiresCollection)
             elif not self.mw.col and requiresCollection:
@@ -123,6 +89,9 @@ class ProgressManager:
 
     def update(self, label=None, value=None, process=True, maybeShow=True):
         # print self._min, self._counter, self._max, label, time.time() - self._lastTime
+        if not self.mw.inMainThread():
+            print("progress.update() called on wrong thread")
+            return
         if self._updating:
             return
         if maybeShow:

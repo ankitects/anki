@@ -463,7 +463,6 @@ close the profile or restart Anki."""
         self.col = Collection(cpath)
 
         self.setEnabled(True)
-        self.progress.setupDB(self.col.db)
         self.maybeEnableUndo()
         self.moveToState("deckBrowser")
         return True
@@ -1531,7 +1530,6 @@ Please ensure a profile is open and Anki is not busy, then try again."""
         gc.disable()
 
     def doGC(self) -> None:
-        assert not self.progress.inDB
         gc.collect()
 
     # Crash log
