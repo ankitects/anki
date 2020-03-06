@@ -9,6 +9,7 @@ import shutil
 import traceback
 import unicodedata
 import zipfile
+from concurrent.futures import Future
 
 import anki.importing as importing
 import aqt.deckchooser
@@ -74,6 +75,7 @@ class ChangeMap(QDialog):
         self.accept()
 
 
+# called by importFile() when importing a mappable file like .csv
 class ImportDialog(QDialog):
     def __init__(self, mw: AnkiQt, importer) -> None:
         QDialog.__init__(self, mw, Qt.Window)
@@ -192,30 +194,35 @@ you can enter it here. Use \\t to represent tab."""
         self.mw.col.decks.select(did)
         self.mw.progress.start(immediate=True)
         self.mw.checkpoint(_("Import"))
-        try:
-            self.importer.run()
-        except UnicodeDecodeError:
-            showUnicodeWarning()
-            return
-        except Exception as e:
-            msg = tr(TR.IMPORTING_FAILED_DEBUG_INFO) + "\n"
-            err = repr(str(e))
-            if "1-character string" in err:
-                msg += err
-            elif "invalidTempFolder" in err:
-                msg += self.mw.errorHandler.tempFolderMsg()
-            else:
-                msg += traceback.format_exc()
-            showText(msg)
-            return
-        finally:
+
+        def on_done(future: Future):
             self.mw.progress.finish()
-        txt = _("Importing complete.") + "\n"
-        if self.importer.log:
-            txt += "\n".join(self.importer.log)
-        self.close()
-        showText(txt)
-        self.mw.reset()
+
+            try:
+                future.result()
+            except UnicodeDecodeError:
+                showUnicodeWarning()
+                return
+            except Exception as e:
+                msg = tr(TR.IMPORTING_FAILED_DEBUG_INFO) + "\n"
+                err = repr(str(e))
+                if "1-character string" in err:
+                    msg += err
+                elif "invalidTempFolder" in err:
+                    msg += self.mw.errorHandler.tempFolderMsg()
+                else:
+                    msg += traceback.format_exc()
+                showText(msg)
+                return
+            else:
+                txt = _("Importing complete.") + "\n"
+                if self.importer.log:
+                    txt += "\n".join(self.importer.log)
+                self.close()
+                showText(txt)
+                self.mw.reset()
+
+        self.mw.taskman.run_in_background(self.importer.run, on_done)
 
     def setupMappingFrame(self):
         # qt seems to have a bug with adding/removing from a grid, so we add
@@ -380,9 +387,13 @@ def importFile(mw, file):
             except:
                 showWarning(invalidZipMsg())
                 return
-            # we need to ask whether to import/replace
+            # we need to ask whether to import/replace; if it's
+            # a colpkg file then the rest of the import process
+            # will happen in setupApkgImport()
             if not setupApkgImport(mw, importer):
                 return
+
+        # importing non-colpkg files
         mw.progress.start(immediate=True)
         try:
             try:
