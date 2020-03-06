@@ -1738,7 +1738,6 @@ where id in %s"""
             else:
                 av_player.maybe_interrupt()
 
-
                 txt = self.mw.prepare_card_text_for_display(txt)
             txt = gui_hooks.card_will_show(
                 txt, c, "preview" + self._previewState.capitalize()
