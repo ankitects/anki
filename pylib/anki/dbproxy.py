@@ -67,8 +67,7 @@ class DBProxy:
                 self.mod = True
         assert ":" not in sql
         # fetch rows
-        # fixme: first_row_only
-        return self._backend.db_query(sql, args)
+        return self._backend.db_query(sql, args, first_row_only)
 
     # Query shortcuts
     ###################
