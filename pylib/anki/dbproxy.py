@@ -7,8 +7,6 @@ from typing import Any, Iterable, List, Optional, Sequence, Union
 
 import anki
 
-# fixme: col.close()/col.reopen() & journal_mode=delete
-
 # DBValue is actually Union[str, int, float, None], but if defined
 # that way, every call site needs to do a type check prior to using
 # the return values.
@@ -26,10 +24,6 @@ class DBProxy:
         self._backend = backend
         self._path = path
         self.mod = False
-
-    def close(self) -> None:
-        # fixme
-        pass
 
     # Transactions
     ###############
