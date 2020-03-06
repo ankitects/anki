@@ -219,8 +219,10 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
             json.dumps(self.conf),
         )
 
-    def save(self, name: Optional[str] = None, mod: Optional[int] = None) -> None:
-        "Flush, commit DB, and take out another write lock."
+    def save(
+        self, name: Optional[str] = None, mod: Optional[int] = None, trx: bool = True
+    ) -> None:
+        "Flush, commit DB, and take out another write lock if trx=True."
         # let the managers conditionally flush
         self.models.flush()
         self.decks.flush()
@@ -229,8 +231,14 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         if self.db.mod:
             self.flush(mod=mod)
             self.db.commit()
-            self.lock()
             self.db.mod = False
+            if trx:
+                self.db.begin()
+        elif not trx:
+            # if no changes were pending but calling code expects to be
+            # outside of a transaction, we need to roll back
+            self.db.rollback()
+
         self._markOp(name)
         self._lastSave = time.time()
 
@@ -241,20 +249,13 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
             return True
         return None
 
-    def lock(self) -> None:
-        self.db.begin()
-
     def close(self, save: bool = True) -> None:
         "Disconnect from DB."
         if self.db:
             if save:
-                self.save()
-            else:
-                self.db.rollback()
+                self.save(trx=False)
             if not self.server:
-                self.db.setAutocommit(True)
                 self.db.execute("pragma journal_mode = delete")
-                self.db.setAutocommit(False)
             self.db.close()
             self.db = None
             self.backend = None
@@ -271,8 +272,8 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
 
     def rollback(self) -> None:
         self.db.rollback()
+        self.db.begin()
         self.load()
-        self.lock()
 
     def modSchema(self, check: bool) -> None:
         "Mark schema modified. Call this first so user can abort if necessary."
@@ -303,10 +304,10 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         self.modSchema(check=False)
         self.ls = self.scm
         # ensure db is compacted before upload
-        self.db.setAutocommit(True)
+        self.save(trx=False)
         self.db.execute("vacuum")
         self.db.execute("analyze")
-        self.close()
+        self.close(save=False)
 
     # Object creation helpers
     ##########################################################################
@@ -1012,11 +1013,10 @@ and type=0""",
         return len(to_fix)
 
     def optimize(self) -> None:
-        self.db.setAutocommit(True)
+        self.save(trx=False)
         self.db.execute("vacuum")
         self.db.execute("analyze")
-        self.db.setAutocommit(False)
-        self.lock()
+        self.db.begin()
 
     # Logging
     ##########################################################################

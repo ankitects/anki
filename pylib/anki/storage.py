@@ -40,15 +40,12 @@ def Collection(path: str, server: Optional[ServerData] = None) -> _Collection:
         path, media_dir, media_db, log_path, server=server is not None
     )
     db = DBProxy(weakref.proxy(backend), path)
-    db.begin()
-    db.setAutocommit(True)
 
     # initial setup required?
     create = db.scalar("select models = '{}' from col")
     if create:
         initial_db_setup(db)
 
-    db.setAutocommit(False)
     # add db to col and do any remaining upgrades
     col = _Collection(db, backend=backend, server=server)
     if create:
@@ -59,6 +56,8 @@ def Collection(path: str, server: Optional[ServerData] = None) -> _Collection:
         addForwardReverse(col)
         addBasicModel(col)
         col.save()
+    else:
+        db.begin()
     return col
 
 
@@ -67,6 +66,7 @@ def Collection(path: str, server: Optional[ServerData] = None) -> _Collection:
 
 
 def initial_db_setup(db: DBProxy) -> None:
+    db.begin()
     _addColVars(db, *_getColVars(db))
 
 
