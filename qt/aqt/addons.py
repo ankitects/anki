@@ -598,6 +598,24 @@ and have been disabled: %(found)s"
     def configUpdatedAction(self, addon: str) -> Callable[[Any], None]:
         return self._configUpdatedActions.get(addon)
 
+    # Schema
+    ######################################################################
+
+    def _addonSchemaPath(self, dir):
+        return os.path.join(self.addonsFolder(dir), "config.schema.json")
+
+    def _addonSchema(self, dir):
+        path = self._addonSchemaPath(dir)
+        try:
+            if not os.path.exists(path):
+                # True is a schema accepting everything
+                return True
+            with open(path, encoding="utf-8") as f:
+                return json.load(f)
+        except json.decoder.JSONDecodeError as e:
+            print("The schema is not valid:")
+            print(e)
+
     # Add-on Config API
     ######################################################################
 
@@ -1308,6 +1326,12 @@ class ConfigEditor(QDialog):
         txt = gui_hooks.addon_config_editor_will_save_json(txt)
         try:
             new_conf = json.loads(txt)
+            jsonschema.validate(new_conf, self.parent().mgr._addonSchema(self.addon))
+        except ValidationError as e:
+            # The user did edit the configuration and entered a value
+            # which can not be interpreted.
+            showInfo(tr(TR.ADDONS_CONFIG_VALIDATION_ERROR, problem=e.message))
+            return
         except Exception as e:
             showInfo(_("Invalid configuration: ") + repr(e))
             return
