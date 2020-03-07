@@ -10,7 +10,7 @@ import os
 import sys
 import tempfile
 import traceback
-from typing import Any, Dict, Optional
+from typing import Any, Callable, Dict, Optional, Union
 
 import anki.buildinfo
 import anki.lang
@@ -125,6 +125,23 @@ class DialogManager:
                 instance.closeWithCallback(callback)
 
         return True
+
+    def register_dialog(
+        self, name: str, creator: Union[Callable, type], instance: Optional[Any] = None
+    ):
+        """Allows add-ons to register a custom dialog to be managed by Anki's dialog
+        manager
+        
+        Arguments:
+            name {str} -- Name/identifier of the dialog in question
+            creator {Union[Callable, type]} -- A class or function to create new
+                                               dialog instances with
+        
+        Keyword Arguments:
+            instance {Optional[Any]} -- An optional existing instance of the dialog
+                                        (default: {None})
+        """
+        self._dialogs[name] = [creator, instance]
 
 
 dialogs = DialogManager()
