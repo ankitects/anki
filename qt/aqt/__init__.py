@@ -10,7 +10,7 @@ import os
 import sys
 import tempfile
 import traceback
-from typing import Any, Optional
+from typing import Any, Dict, Optional
 
 import anki.buildinfo
 import anki.lang
@@ -69,7 +69,7 @@ from aqt import stats, about, preferences, mediasync  # isort:skip
 
 class DialogManager:
 
-    _dialogs = {
+    _dialogs: Dict[str, list] = {
         "AddCards": [addcards.AddCards, None],
         "Browser": [browser.Browser, None],
         "EditCurrent": [editcurrent.EditCurrent, None],
@@ -79,7 +79,7 @@ class DialogManager:
         "sync_log": [mediasync.MediaSyncDialog, None],
     }
 
-    def open(self, name, *args):
+    def open(self, name: str, *args: Any) -> Any:
         (creator, instance) = self._dialogs[name]
         if instance:
             if instance.windowState() & Qt.WindowMinimized:
@@ -94,17 +94,17 @@ class DialogManager:
             self._dialogs[name][1] = instance
             return instance
 
-    def markClosed(self, name):
+    def markClosed(self, name: str):
         self._dialogs[name] = [self._dialogs[name][0], None]
 
     def allClosed(self):
         return not any(x[1] for x in self._dialogs.values())
 
-    def closeAll(self, onsuccess):
+    def closeAll(self, onsuccess: Callable[[], None]) -> Optional[bool]:
         # can we close immediately?
         if self.allClosed():
             onsuccess()
-            return
+            return None
 
         # ask all windows to close and await a reply
         for (name, (creator, instance)) in self._dialogs.items():
