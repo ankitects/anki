@@ -1330,7 +1330,14 @@ class ConfigEditor(QDialog):
         except ValidationError as e:
             # The user did edit the configuration and entered a value
             # which can not be interpreted.
-            showInfo(tr(TR.ADDONS_CONFIG_VALIDATION_ERROR, problem=e.message))
+            showInfo(
+                tr(
+                    TR.ADDONS_CONFIG_VALIDATION_ERROR,
+                    problem=e.message,
+                    path="/".join(str(path) for path in e.path),
+                    schema=str(e.schema),
+                )
+            )
             return
         except Exception as e:
             showInfo(_("Invalid configuration: ") + repr(e))
