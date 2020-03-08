@@ -82,7 +82,7 @@ class Scheduler:
         self._updateStats(card, "time", card.timeTaken())
         card.mod = intTime()
         card.usn = self.col.usn()
-        card.flushSched()
+        card.flush()
 
     def _answerCard(self, card: Card, ease: int) -> None:
         if self._previewingCard(card):
