@@ -372,12 +372,13 @@ pub(super) fn add_file_from_ankiweb(
     // if the filename is already valid, we can write the file directly
     let (renamed_from, path) = if let Cow::Borrowed(_) = normalized {
         let path = media_folder.join(normalized.as_ref());
+        debug!(log, "write"; "fname" => normalized.as_ref());
         fs::write(&path, data)?;
         (None, path)
     } else {
-        debug!(log, "non-normalized filename received"; "fname"=>&fname);
         // ankiweb sent us a non-normalized filename, so we'll rename it
         let new_name = add_data_to_folder_uniquely(media_folder, fname, data, sha1)?;
+        debug!(log, "non-normalized filename received"; "fname"=>&fname, "rename_to"=>new_name.as_ref());
         (
             Some(fname.to_string()),
             media_folder.join(new_name.as_ref()),
