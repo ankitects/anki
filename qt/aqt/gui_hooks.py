@@ -13,7 +13,7 @@ import anki
 import aqt
 from anki.cards import Card
 from anki.hooks import runFilter, runHook
-from aqt.qt import QMenu
+from aqt.qt import QDialog, QMenu
 
 # New hook/filter handling
 ##############################################################################
@@ -518,6 +518,61 @@ class _CurrentNoteTypeDidChangeHook:
 
 
 current_note_type_did_change = _CurrentNoteTypeDidChangeHook()
+
+
+class _DebugConsoleDidEvaluatePythonFilter:
+    """Allows processing the debug result. E.g. logging queries and
+        result, saving last query to display it later..."""
+
+    _hooks: List[Callable[[str, str, QDialog], str]] = []
+
+    def append(self, cb: Callable[[str, str, QDialog], str]) -> None:
+        """(output: str, query: str, debug_window: QDialog)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[str, str, QDialog], str]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, output: str, query: str, debug_window: QDialog) -> str:
+        for filter in self._hooks:
+            try:
+                output = filter(output, query, debug_window)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return output
+
+
+debug_console_did_evaluate_python = _DebugConsoleDidEvaluatePythonFilter()
+
+
+class _DebugConsoleWillShowHook:
+    """Allows editing the debug window. E.g. setting a default code, or
+        previous code."""
+
+    _hooks: List[Callable[[QDialog], None]] = []
+
+    def append(self, cb: Callable[[QDialog], None]) -> None:
+        """(debug_window: QDialog)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[QDialog], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, debug_window: QDialog) -> None:
+        for hook in self._hooks:
+            try:
+                hook(debug_window)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+debug_console_will_show = _DebugConsoleWillShowHook()
 
 
 class _DeckBrowserDidRenderHook:
