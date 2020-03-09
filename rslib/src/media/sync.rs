@@ -165,8 +165,15 @@ where
         self.skey.as_ref().unwrap()
     }
 
-    #[allow(clippy::useless_let_if_seq)]
     pub async fn sync(&mut self, hkey: &str) -> Result<()> {
+        self.sync_inner(hkey).await.map_err(|e| {
+            debug!(self.log, "sync error: {:?}", e);
+            e
+        })
+    }
+
+    #[allow(clippy::useless_let_if_seq)]
+    async fn sync_inner(&mut self, hkey: &str) -> Result<()> {
         self.register_changes()?;
 
         let meta = self.ctx.get_meta()?;
