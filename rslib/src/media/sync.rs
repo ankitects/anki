@@ -712,13 +712,18 @@ fn zip_files<'a>(
             break;
         }
 
-        let file_data = match data_for_file(media_folder, &file.fname) {
-            Ok(data) => data,
-            Err(e) => {
-                debug!(log, "error accessing {}: {}", &file.fname, e);
-                invalid_entries.push(&file.fname);
-                continue;
+        let file_data = if file.sha1.is_some() {
+            match data_for_file(media_folder, &file.fname) {
+                Ok(data) => data,
+                Err(e) => {
+                    debug!(log, "error accessing {}: {}", &file.fname, e);
+                    invalid_entries.push(&file.fname);
+                    continue;
+                }
             }
+        } else {
+            // uploading deletion
+            None
         };
 
         if let Some(data) = &file_data {
