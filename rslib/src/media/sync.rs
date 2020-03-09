@@ -604,8 +604,6 @@ fn extract_into_media_folder(
         let mut data = Vec::with_capacity(file.size() as usize);
         file.read_to_end(&mut data)?;
 
-        debug!(log, "write"; "fname" => real_name);
-
         let added = add_file_from_ankiweb(media_folder, real_name, &data, log)?;
 
         output.push(added);
