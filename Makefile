@@ -120,9 +120,10 @@ clean-dist:
 .PHONY: check
 check: pyenv buildhash prepare
 	@set -eo pipefail && \
+	.github/scripts/trailing-newlines.sh && \
 	for dir in $(CHECKABLE_RS); do \
 	  $(SUBMAKE) -C $$dir check; \
-	done; \
+	done && \
 	. "${ACTIVATE_SCRIPT}" && \
 	$(SUBMAKE) -C rspy develop && \
 	$(SUBMAKE) -C pylib develop && \
