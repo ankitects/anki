@@ -21,6 +21,7 @@ jobs:
         run: |
           # add requirements
           sudo apt update; sudo apt install portaudio19-dev gettext rename
+          sudo snap install ripgrep --classic
           export CARGO_TARGET_DIR=~/target
           export RSPY_TARGET_DIR=~/target
           make check build BUILDFLAGS=""
