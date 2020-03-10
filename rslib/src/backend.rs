@@ -21,7 +21,7 @@ use crate::{backend_proto as pb, log};
 use fluent::FluentValue;
 use prost::Message;
 use std::collections::{HashMap, HashSet};
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use tokio::runtime::Runtime;
 
 pub type ProtoProgressCallback = Box<dyn Fn(Vec<u8>) -> bool + Send>;
@@ -108,7 +108,7 @@ pub fn init_backend(init_msg: &[u8]) -> std::result::Result<Backend, String> {
 
     let log_path = match input.log_path.as_str() {
         "" => None,
-        path => Some(Path::new(path)),
+        path => Some(path),
     };
     let logger =
         default_logger(log_path).map_err(|e| format!("Unable to open log file: {:?}", e))?;
