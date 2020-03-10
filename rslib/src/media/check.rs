@@ -16,9 +16,15 @@ use crate::media::files::{
 use crate::text::{normalize_to_nfc, MediaRef};
 use crate::{media::MediaManager, text::extract_media_refs};
 use coarsetime::Instant;
+use lazy_static::lazy_static;
+use regex::Regex;
 use std::collections::{HashMap, HashSet};
 use std::path::Path;
 use std::{borrow::Cow, fs, io};
+
+lazy_static! {
+    static ref REMOTE_FILENAME: Regex = Regex::new("(?i)^https?://").unwrap();
+}
 
 #[derive(Debug, PartialEq)]
 pub struct MediaCheckOutput {
@@ -449,6 +455,11 @@ fn normalize_and_maybe_rename_files<'a>(
     let mut field: Cow<str> = field.into();
 
     for media_ref in refs {
+        if REMOTE_FILENAME.is_match(media_ref.fname) {
+            // skip remote references
+            continue;
+        }
+
         // normalize fname into NFC
         let mut fname = normalize_to_nfc(media_ref.fname);
         // and look it up to see if it's been renamed
