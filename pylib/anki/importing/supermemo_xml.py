@@ -143,18 +143,18 @@ class SupermemoXmlImporter(NoteImporter):
             ]
         )
 
-    def _decode_htmlescapes(self, s: str) -> str:
+    def _decode_htmlescapes(self, html: str) -> str:
         """Unescape HTML code."""
-        # In case of bad formated html you can import MinimalSoup etc.. see btflsoup source code
-        from bs4 import BeautifulSoup as btflsoup
+        # In case of bad formated html you can import MinimalSoup etc.. see BeautifulSoup source code
+        from bs4 import BeautifulSoup
 
         # my sm2004 also ecaped & char in escaped sequences.
-        s = re.sub("&amp;", "&", s)
+        html = re.sub("&amp;", "&", html)
         # unescaped solitary chars < or > that were ok for minidom confuse btfl soup
-        # s = re.sub(u'>',u'&gt;',s)
-        # s = re.sub(u'<',u'&lt;',s)
+        # html = re.sub(u'>',u'&gt;',html)
+        # html = re.sub(u'<',u'&lt;',html)
 
-        return str(btflsoup(s, "html.parser"))
+        return str(BeautifulSoup(html, "html.parser"))
 
     def _afactor2efactor(self, af: float) -> float:
         # Adapted from <http://www.supermemo.com/beta/xml/xml-core.htm>
