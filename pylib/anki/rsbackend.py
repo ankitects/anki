@@ -360,6 +360,8 @@ class RustBackend:
             )
         ).congrats_learn_msg
 
+    def empty_trash(self):
+        self._run_command(pb.BackendInput(empty_trash=pb.Empty()))
 
 def translate_string_in(
     key: TR, **kwargs: Union[str, int, float]
