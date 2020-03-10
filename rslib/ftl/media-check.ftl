@@ -48,6 +48,7 @@ media-check-delete-unused-complete = {$count ->
   } moved to the trash.
 
 media-check-trash-emptied = The trash folder is now empty.
+media-check-trash-restored = Restored deleted files to the media folder.
 
 ## Rendering LaTeX
 
@@ -59,3 +60,5 @@ media-check-delete-unused = Delete Unused
 media-check-render-latex = Render LaTeX
 # button to permanently delete media files from the trash folder
 media-check-empty-trash = Empty Trash
+# button to move deleted files from the trash back into the media folder
+media-check-restore-trash = Restore Deleted

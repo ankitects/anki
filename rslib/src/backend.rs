@@ -237,6 +237,10 @@ impl Backend {
                 self.empty_trash()?;
                 OValue::EmptyTrash(Empty {})
             }
+            Value::RestoreTrash(_) => {
+                self.restore_trash()?;
+                OValue::RestoreTrash(Empty {})
+            }
         })
     }
 
@@ -466,6 +470,16 @@ impl Backend {
         let mut checker = MediaChecker::new(&mgr, &self.col_path, callback, &self.i18n, &self.log);
 
         checker.empty_trash()
+    }
+
+    fn restore_trash(&self) -> Result<()> {
+        let callback =
+            |progress: usize| self.fire_progress_callback(Progress::MediaCheck(progress as u32));
+
+        let mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
+        let mut checker = MediaChecker::new(&mgr, &self.col_path, callback, &self.i18n, &self.log);
+
+        checker.restore_trash()
     }
 }
 
