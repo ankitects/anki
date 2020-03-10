@@ -92,8 +92,10 @@ class Preferences(QDialog):
         f.dayLearnFirst.setChecked(qc.get("dayLearnFirst", False))
         if self.mw.col.schedVer() != 2:
             f.dayLearnFirst.setVisible(False)
+            f.new_timezone.setVisible(False)
         else:
             f.newSched.setChecked(True)
+            f.new_timezone.setChecked(self.mw.col.sched._new_timezone_enabled())
 
     def updateCollection(self):
         f = self.form
@@ -118,6 +120,14 @@ class Preferences(QDialog):
         qc["addToCur"] = not f.useCurrent.currentIndex()
         qc["dayLearnFirst"] = f.dayLearnFirst.isChecked()
         self._updateDayCutoff()
+        if self.mw.col.schedVer() != 1:
+            was_enabled = self.mw.col.sched._new_timezone_enabled()
+            is_enabled = f.new_timezone.isChecked()
+            if was_enabled != is_enabled:
+                if is_enabled:
+                    self.mw.col.sched.set_creation_offset()
+                else:
+                    self.mw.col.sched.clear_creation_offset()
         self._updateSchedVer(f.newSched.isChecked())
         d.setMod()
 
