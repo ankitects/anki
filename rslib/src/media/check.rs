@@ -11,14 +11,14 @@ use crate::media::col::{
 };
 use crate::media::database::MediaDatabaseContext;
 use crate::media::files::{
-    data_for_file, filename_if_normalized, remove_files, trash_folder, MEDIA_SYNC_FILESIZE_LIMIT,
+    data_for_file, filename_if_normalized, trash_folder, MEDIA_SYNC_FILESIZE_LIMIT,
 };
 use crate::text::{normalize_to_nfc, MediaRef};
 use crate::{media::MediaManager, text::extract_media_refs};
 use coarsetime::Instant;
 use std::collections::{HashMap, HashSet};
 use std::path::Path;
-use std::{borrow::Cow, fs, time};
+use std::{borrow::Cow, fs};
 
 #[derive(Debug, PartialEq)]
 pub struct MediaCheckOutput {
@@ -27,6 +27,8 @@ pub struct MediaCheckOutput {
     pub renamed: HashMap<String, String>,
     pub dirs: Vec<String>,
     pub oversize: Vec<String>,
+    pub trash_count: u64,
+    pub trash_bytes: u64,
 }
 
 #[derive(Debug, PartialEq, Default)]
@@ -73,19 +75,20 @@ where
     }
 
     pub fn check(&mut self) -> Result<MediaCheckOutput> {
-        self.expire_old_trash()?;
-
         let mut ctx = self.mgr.dbctx();
 
         let folder_check = self.check_media_folder(&mut ctx)?;
         let referenced_files = self.check_media_references(&folder_check.renamed)?;
         let (unused, missing) = find_unused_and_missing(folder_check.files, referenced_files);
+        let (trash_count, trash_bytes) = self.files_in_trash()?;
         Ok(MediaCheckOutput {
             unused,
             missing,
             renamed: folder_check.renamed,
             dirs: folder_check.dirs,
             oversize: folder_check.oversize,
+            trash_count,
+            trash_bytes,
         })
     }
 
@@ -94,6 +97,15 @@ where
         let i = &self.i18n;
 
         // top summary area
+        if output.trash_count > 0 {
+            let megs = (output.trash_bytes as f32) / 1024.0 / 1024.0;
+            buf += &i.trn(
+                FString::MediaCheckTrashCount,
+                tr_args!["count"=>output.trash_count, "megs"=>megs],
+            );
+            buf.push('\n');
+        }
+
         buf += &i.trn(
             FString::MediaCheckMissingCount,
             tr_args!["count"=>output.missing.len()],
@@ -264,8 +276,9 @@ where
         debug!(self.log, "renamed"; "from"=>disk_fname, "to"=>&fname.as_ref());
         assert_ne!(fname.as_ref(), disk_fname);
 
-        // move the originally named file to the trash
-        remove_files(&self.mgr.media_folder, &[disk_fname])?;
+        // remove the original file
+        let path = &self.mgr.media_folder.join(disk_fname);
+        fs::remove_file(path)?;
 
         Ok((fname, true))
     }
@@ -287,9 +300,11 @@ where
         self.fire_progress_cb()
     }
 
-    fn expire_old_trash(&mut self) -> Result<()> {
+    /// Returns the count and total size of the files in the trash folder
+    fn files_in_trash(&mut self) -> Result<(u64, u64)> {
         let trash = trash_folder(&self.mgr.media_folder)?;
-        let now = time::SystemTime::now();
+        let mut total_files = 0;
+        let mut total_bytes = 0;
 
         for dentry in trash.read_dir()? {
             let dentry = dentry?;
@@ -300,18 +315,25 @@ where
             }
 
             let meta = dentry.metadata()?;
-            let elap_secs = now
-                .duration_since(meta.modified()?)
-                .map(|d| d.as_secs())
-                .unwrap_or(0);
-            if elap_secs >= 7 * 86_400 {
-                debug!(
-                    self.log,
-                    "removing {:?} from trash, as 7 days have elapsed",
-                    dentry.path()
-                );
-                fs::remove_file(dentry.path())?;
+            total_files += 1;
+            total_bytes += meta.len();
+        }
+
+        Ok((total_files, total_bytes))
+    }
+
+    pub fn empty_trash(&mut self) -> Result<()> {
+        let trash = trash_folder(&self.mgr.media_folder)?;
+
+        for dentry in trash.read_dir()? {
+            let dentry = dentry?;
+
+            self.checked += 1;
+            if self.checked % 10 == 0 {
+                self.maybe_fire_progress_cb()?;
             }
+
+            fs::remove_file(dentry.path())?;
         }
 
         Ok(())
@@ -495,7 +517,9 @@ mod test {
                     .into_iter()
                     .collect(),
                 dirs: vec!["folder".to_string()],
-                oversize: vec![]
+                oversize: vec![],
+                trash_count: 0,
+                trash_bytes: 0
             }
         );
 
@@ -550,7 +574,9 @@ Unused: unused.jpg
                     missing: vec!["foo[.jpg".into(), "normal.jpg".into()],
                     renamed: Default::default(),
                     dirs: vec![],
-                    oversize: vec![]
+                    oversize: vec![],
+                    trash_count: 0,
+                    trash_bytes: 0
                 }
             );
             assert!(fs::metadata(&mgr.media_folder.join("ぱぱ.jpg")).is_ok());
@@ -565,7 +591,9 @@ Unused: unused.jpg
                         .into_iter()
                         .collect(),
                     dirs: vec![],
-                    oversize: vec![]
+                    oversize: vec![],
+                    trash_count: 0,
+                    trash_bytes: 0
                 }
             );
             assert!(fs::metadata(&mgr.media_folder.join("ぱぱ.jpg")).is_err());
