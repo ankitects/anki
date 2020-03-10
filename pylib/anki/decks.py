@@ -491,26 +491,27 @@ class DeckManager:
 
         for deck in decks:
             # two decks with the same name?
-            if deck["name"] in names:
+            deck_name = self.normalizeName(deck["name"])
+            if deck_name in names:
                 self.col.log("fix duplicate deck name", deck["name"])
                 deck["name"] += "%d" % intTime(1000)
                 self.save(deck)
 
             # ensure no sections are blank
-            if not all(deck["name"].split("::")):
+            if not all(deck_name.split("::")):
                 self.col.log("fix deck with missing sections", deck["name"])
                 deck["name"] = "recovered%d" % intTime(1000)
                 self.save(deck)
 
             # immediate parent must exist
-            if "::" in deck["name"]:
-                immediateParent = "::".join(deck["name"].split("::")[:-1])
+            if "::" in deck_name:
+                immediateParent = "::".join(deck_name.split("::")[:-1])
                 if immediateParent not in names:
                     self.col.log("fix deck with missing parent", deck["name"])
                     self._ensureParents(deck["name"])
-                    names.add(immediateParent)
+                    names.add(self.normalizeName(immediateParent))
 
-            names.add(deck["name"])
+            names.add(deck_name)
 
     def checkIntegrity(self) -> None:
         self._recoverOrphans()
