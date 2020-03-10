@@ -601,11 +601,11 @@ and have been disabled: %(found)s"
     # Schema
     ######################################################################
 
-    def _addonSchemaPath(self, dir):
+    def _addon_schema_path(self, dir):
         return os.path.join(self.addonsFolder(dir), "config.schema.json")
 
-    def _addonSchema(self, dir):
-        path = self._addonSchemaPath(dir)
+    def _addon_schema(self, dir):
+        path = self._addon_schema_path(dir)
         try:
             if not os.path.exists(path):
                 # True is a schema accepting everything
@@ -1328,7 +1328,7 @@ class ConfigEditor(QDialog):
         txt = gui_hooks.addon_config_editor_will_save_json(txt)
         try:
             new_conf = json.loads(txt)
-            jsonschema.validate(new_conf, self.parent().mgr._addonSchema(self.addon))
+            jsonschema.validate(new_conf, self.parent().mgr._addon_schema(self.addon))
         except ValidationError as e:
             # The user did edit the configuration and entered a value
             # which can not be interpreted.
