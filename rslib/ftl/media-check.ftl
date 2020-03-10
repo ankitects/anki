@@ -1,5 +1,12 @@
 ## Shown at the top of the media check screen
 
+# the number of files, and the total space used by files
+# that have been moved to the trash folder. eg,
+# "Trash folder: 3 files, 3.47MB"
+media-check-trash-count = Trash folder: { $count ->
+  [one] 1 file, {$megs}MB
+ *[other] {$count} files, {$megs}MB
+ }
 media-check-missing-count = Missing files: {$count}
 media-check-unused-count = Unused files: {$count}
 media-check-renamed-count = Renamed files: {$count}
