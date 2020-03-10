@@ -18,7 +18,7 @@ use crate::{media::MediaManager, text::extract_media_refs};
 use coarsetime::Instant;
 use std::collections::{HashMap, HashSet};
 use std::path::Path;
-use std::{borrow::Cow, fs};
+use std::{borrow::Cow, fs, io};
 
 #[derive(Debug, PartialEq)]
 pub struct MediaCheckOutput {
@@ -339,6 +339,43 @@ where
         Ok(())
     }
 
+    pub fn restore_trash(&mut self) -> Result<()> {
+        let trash = trash_folder(&self.mgr.media_folder)?;
+
+        for dentry in trash.read_dir()? {
+            let dentry = dentry?;
+
+            self.checked += 1;
+            if self.checked % 10 == 0 {
+                self.maybe_fire_progress_cb()?;
+            }
+
+            let orig_path = self.mgr.media_folder.join(dentry.file_name());
+            // if the original filename doesn't exist, we can just rename
+            if let Err(e) = fs::metadata(&orig_path) {
+                if e.kind() == io::ErrorKind::NotFound {
+                    fs::rename(&dentry.path(), &orig_path)?;
+                } else {
+                    return Err(e.into());
+                }
+            } else {
+                // ensure we don't overwrite different data
+                let fname_os = dentry.file_name();
+                let fname = fname_os.to_string_lossy();
+                if let Some(data) = data_for_file(&trash, fname.as_ref())? {
+                    let _new_fname =
+                        self.mgr
+                            .add_file(&mut self.mgr.dbctx(), fname.as_ref(), &data)?;
+                } else {
+                    debug!(self.log, "file disappeared while restoring trash"; "fname"=>fname.as_ref());
+                }
+                fs::remove_file(dentry.path())?;
+            }
+        }
+
+        Ok(())
+    }
+
     /// Find all media references in notes, fixing as necessary.
     fn check_media_references(
         &mut self,
@@ -468,12 +505,13 @@ mod test {
     use crate::log;
     use crate::log::Logger;
     use crate::media::check::{MediaCheckOutput, MediaChecker};
+    use crate::media::files::trash_folder;
     use crate::media::MediaManager;
-    use std::fs;
-    use std::path::PathBuf;
+    use std::path::{Path, PathBuf};
+    use std::{fs, io};
     use tempfile::{tempdir, TempDir};
 
-    fn common_setup() -> Result<(TempDir, MediaManager, PathBuf, Logger)> {
+    fn common_setup() -> Result<(TempDir, MediaManager, PathBuf, Logger, I18n)> {
         let dir = tempdir()?;
         let media_dir = dir.path().join("media");
         fs::create_dir(&media_dir)?;
@@ -487,12 +525,15 @@ mod test {
         let mgr = MediaManager::new(&media_dir, media_db)?;
 
         let log = log::terminal();
-        Ok((dir, mgr, col_path, log))
+
+        let i18n = I18n::new(&["zz"], "dummy", log.clone());
+
+        Ok((dir, mgr, col_path, log, i18n))
     }
 
     #[test]
     fn media_check() -> Result<()> {
-        let (_dir, mgr, col_path, log) = common_setup()?;
+        let (_dir, mgr, col_path, log, i18n) = common_setup()?;
 
         // add some test files
         fs::write(&mgr.media_folder.join("zerobytes"), "")?;
@@ -501,8 +542,6 @@ mod test {
         fs::write(&mgr.media_folder.join("foo[.jpg"), "foo")?;
         fs::write(&mgr.media_folder.join("_under.jpg"), "foo")?;
         fs::write(&mgr.media_folder.join("unused.jpg"), "foo")?;
-
-        let i18n = I18n::new(&["zz"], "dummy", log.clone());
 
         let progress = |_n| true;
         let mut checker = MediaChecker::new(&mgr, &col_path, progress, &i18n, &log);
@@ -551,11 +590,64 @@ Unused: unused.jpg
         Ok(())
     }
 
+    fn files_in_dir(dir: &Path) -> Vec<String> {
+        let mut files = fs::read_dir(dir)
+            .unwrap()
+            .map(|dentry| {
+                let dentry = dentry.unwrap();
+                Ok(dentry.file_name().to_string_lossy().to_string())
+            })
+            .collect::<io::Result<Vec<_>>>()
+            .unwrap();
+        files.sort();
+        files
+    }
+
+    #[test]
+    fn trash_handling() -> Result<()> {
+        let (_dir, mgr, col_path, log, i18n) = common_setup()?;
+        let trash_folder = trash_folder(&mgr.media_folder)?;
+        fs::write(trash_folder.join("test.jpg"), "test")?;
+
+        let progress = |_n| true;
+        let mut checker = MediaChecker::new(&mgr, &col_path, progress, &i18n, &log);
+
+        checker.restore_trash()?;
+
+        // file should have been moved to media folder
+        assert_eq!(files_in_dir(&trash_folder), Vec::<String>::new());
+        assert_eq!(
+            files_in_dir(&mgr.media_folder),
+            vec!["test.jpg".to_string()]
+        );
+
+        // if we repeat the process, restoring should do the same thing if the contents are equal
+        fs::write(trash_folder.join("test.jpg"), "test")?;
+        checker.restore_trash()?;
+        assert_eq!(files_in_dir(&trash_folder), Vec::<String>::new());
+        assert_eq!(
+            files_in_dir(&mgr.media_folder),
+            vec!["test.jpg".to_string()]
+        );
+
+        // but rename if required
+        fs::write(trash_folder.join("test.jpg"), "test2")?;
+        checker.restore_trash()?;
+        assert_eq!(files_in_dir(&trash_folder), Vec::<String>::new());
+        assert_eq!(
+            files_in_dir(&mgr.media_folder),
+            vec![
+                "test-109f4b3c50d7b0df729d299bc6f8e9ef9066971f.jpg".to_string(),
+                "test.jpg".into()
+            ]
+        );
+
+        Ok(())
+    }
+
     #[test]
     fn unicode_normalization() -> Result<()> {
-        let (_dir, mgr, col_path, log) = common_setup()?;
-
-        let i18n = I18n::new(&["zz"], "dummy", log.clone());
+        let (_dir, mgr, col_path, log, i18n) = common_setup()?;
 
         fs::write(&mgr.media_folder.join("ぱぱ.jpg"), "nfd encoding")?;
 
