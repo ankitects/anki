@@ -95,6 +95,11 @@ class MediaChecker:
                 box.addButton(b, QDialogButtonBox.RejectRole)
                 b.clicked.connect(self._on_render_latex)  # type: ignore
 
+        if output.have_trash:
+            b = QPushButton(tr(TR.MEDIA_CHECK_EMPTY_TRASH))
+            b.setAutoDefault(False)
+            box.addButton(b, QDialogButtonBox.RejectRole)
+            b.clicked.connect(lambda c: self._on_empty_trash())  # type: ignore
         box.rejected.connect(diag.reject)  # type: ignore
         diag.setMinimumHeight(400)
         diag.setMinimumWidth(500)
@@ -150,3 +155,20 @@ class MediaChecker:
             self.progress_dialog = None
 
         tooltip(tr(TR.MEDIA_CHECK_DELETE_UNUSED_COMPLETE, count=total))
+
+    def _on_empty_trash(self):
+        self.progress_dialog = self.mw.progress.start()
+        hooks.bg_thread_progress_callback.append(self._on_progress)
+
+        def empty_trash():
+            self.mw.col.backend.empty_trash()
+
+        def on_done(fut: Future):
+            self.mw.progress.finish()
+            hooks.bg_thread_progress_callback.remove(self._on_progress)
+            # check for errors
+            fut.result()
+
+            tooltip(tr(TR.MEDIA_CHECK_TRASH_EMPTIED))
+
+        self.mw.taskman.run_in_background(empty_trash, on_done)

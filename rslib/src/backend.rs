@@ -233,6 +233,10 @@ impl Backend {
                 input.next_due,
                 &self.i18n,
             )),
+            Value::EmptyTrash(_) => {
+                self.empty_trash()?;
+                OValue::EmptyTrash(Empty {})
+            }
         })
     }
 
@@ -413,6 +417,7 @@ impl Backend {
             unused: output.unused,
             missing: output.missing,
             report,
+            have_trash: output.trash_count > 0,
         })
     }
 
@@ -451,6 +456,16 @@ impl Backend {
                 answer_button_time(input.seconds, &self.i18n)
             }
         }
+    }
+
+    fn empty_trash(&self) -> Result<()> {
+        let callback =
+            |progress: usize| self.fire_progress_callback(Progress::MediaCheck(progress as u32));
+
+        let mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
+        let mut checker = MediaChecker::new(&mgr, &self.col_path, callback, &self.i18n, &self.log);
+
+        checker.empty_trash()
     }
 }
 
