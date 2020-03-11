@@ -601,11 +601,11 @@ and have been disabled: %(found)s"
     # Schema
     ######################################################################
 
-    def _addonSchemaPath(self, dir):
+    def _addon_schema_path(self, dir):
         return os.path.join(self.addonsFolder(dir), "config.schema.json")
 
-    def _addonSchema(self, dir):
-        path = self._addonSchemaPath(dir)
+    def _addon_schema(self, dir):
+        path = self._addon_schema_path(dir)
         try:
             if not os.path.exists(path):
                 # True is a schema accepting everything
@@ -1328,18 +1328,30 @@ class ConfigEditor(QDialog):
         txt = gui_hooks.addon_config_editor_will_save_json(txt)
         try:
             new_conf = json.loads(txt)
-            jsonschema.validate(new_conf, self.parent().mgr._addonSchema(self.addon))
+            jsonschema.validate(new_conf, self.parent().mgr._addon_schema(self.addon))
         except ValidationError as e:
             # The user did edit the configuration and entered a value
             # which can not be interpreted.
-            showInfo(
-                tr(
+            schema = e.schema
+            erroneous_conf = new_conf
+            for link in e.path:
+                erroneous_conf = erroneous_conf[link]
+            path = "/".join(str(path) for path in e.path)
+            if "error_msg" in schema:
+                msg = schema["error_msg"].format(
+                    problem=e.message,
+                    path=path,
+                    schema=str(schema),
+                    erroneous_conf=erroneous_conf,
+                )
+            else:
+                msg = tr(
                     TR.ADDONS_CONFIG_VALIDATION_ERROR,
                     problem=e.message,
-                    path="/".join(str(path) for path in e.path),
-                    schema=str(e.schema),
+                    path=path,
+                    schema=str(schema),
                 )
-            )
+            showInfo(msg)
             return
         except Exception as e:
             showInfo(_("Invalid configuration: ") + repr(e))
