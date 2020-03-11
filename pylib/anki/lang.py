@@ -121,7 +121,6 @@ def lang_to_disk_lang(lang: str) -> str:
     # these language/region combinations are fully qualified, but with a hyphen
     if lang in (
         "en_GB",
-        "es_ES",
         "ga_IE",
         "hy_AM",
         "nb_NO",
