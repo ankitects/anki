@@ -25,7 +25,8 @@ PERIOD_LIFE = 2
 
 class CardStats:
     def __init__(self, col: anki.storage._Collection, card: anki.cards.Card) -> None:
-        self.col = col.weakref()
+        if col:
+            self.col = col.weakref()
         self.card = card
         self.txt = ""
 
