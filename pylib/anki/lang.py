@@ -22,7 +22,7 @@ langs = sorted(
         ("Eesti", "et_EE"),
         ("English (United States)", "en_US"),
         ("English (United Kingdom)", "en_GB"),
-        ("Español", "es"),
+        ("Español", "es_ES"),
         ("Esperanto", "eo_UY"),
         ("Euskara", "eu_ES"),
         ("Français", "fr_FR"),
@@ -76,6 +76,7 @@ compatMap = {
     "el": "el_GR",
     "en": "en_US",
     "eo": "eo_UY",
+    "es": "es_ES",
     "et": "et_EE",
     "eu": "eu_ES",
     "fa": "fa_IR",
@@ -120,6 +121,7 @@ def lang_to_disk_lang(lang: str) -> str:
     # these language/region combinations are fully qualified, but with a hyphen
     if lang in (
         "en_GB",
+        "es_ES",
         "ga_IE",
         "hy_AM",
         "nb_NO",
