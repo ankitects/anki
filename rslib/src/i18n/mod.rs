@@ -260,15 +260,15 @@ impl I18n {
                 } else {
                     error!(log, "Failed to create bundle for {:?}", lang.language())
                 }
+            }
 
-                // if English was listed, any further preferences are skipped,
-                // as the template has 100% coverage, and we need to ensure
-                // it is tried prior to any other langs. But we do keep a file
-                // if one was returned, to allow locale English variants to take
-                // priority over the template.
-                if lang.language() == "en" {
-                    break;
-                }
+            // if English was listed, any further preferences are skipped,
+            // as the template has 100% coverage, and we need to ensure
+            // it is tried prior to any other langs. But we do keep a file
+            // if one was returned, to allow locale English variants to take
+            // priority over the template.
+            if lang.language() == "en" {
+                break;
             }
         }
 
