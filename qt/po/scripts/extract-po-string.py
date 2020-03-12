@@ -5,6 +5,7 @@ import json
 import re
 import sys
 import polib
+import shutil
 from fluent.syntax import parse, serialize
 from fluent.syntax.ast import Message, TextElement, Identifier, Pattern, Junk
 
@@ -12,9 +13,6 @@ from fluent.syntax.ast import Message, TextElement, Identifier, Pattern, Junk
 # eg:
 # $ python extract-po-string.py strings.json /path/to/templates/media-check.ftl delete-unused "Delete Unused Media" ""
 # $ python extract-po-string.py strings.json /path/to/templates/media-check.ftl delete-unused "%(a)s %(b)s" "%(a)s=$val1,%(b)s=$val2"
-#
-# NOTE: the English text is written into the templates folder of the repo, so must be copied
-# into Anki's source tree
 
 json_filename, ftl_filename, key, msgid_substring, repls = sys.argv[1:]
 
@@ -155,5 +153,10 @@ for lang, translation in to_insert:
             os.mkdir(ftl_dir)
 
     add_message(ftl_path, key, translation)
+
+# copy file from repo into src
+srcdir = os.path.join(i18ndir, "..", "..")
+src_filename = os.path.join(srcdir, os.path.basename(ftl_filename))
+shutil.copy(ftl_filename, src_filename)
 
 print("done")
