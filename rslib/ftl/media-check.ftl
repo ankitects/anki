@@ -1,5 +1,7 @@
 ## Shown at the top of the media check screen
 
+media-check-window-title = Check Media
+
 # the number of files, and the total space used by files
 # that have been moved to the trash folder. eg,
 # "Trash folder: 3 files, 3.47MB"
@@ -62,4 +64,4 @@ media-check-render-latex = Render LaTeX
 media-check-empty-trash = Empty Trash
 # button to move deleted files from the trash back into the media folder
 media-check-restore-trash = Restore Deleted
-media-check-window-title = Check Media
+media-check-check-media-action = Check Media
