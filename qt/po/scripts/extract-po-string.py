@@ -61,7 +61,7 @@ def transform_entry(entry):
 
 def transform_string(msg):
     for (old, new) in replacements:
-        msg = msg.replace(old, f"{{{new}}}")
+        msg = msg.replace(old, f"{new}")
     # strip leading/trailing whitespace
     return msg.strip()
 
