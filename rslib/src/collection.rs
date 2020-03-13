@@ -5,18 +5,24 @@ use crate::err::Result;
 use crate::i18n::I18n;
 use crate::log::Logger;
 use crate::storage::{SqliteStorage, StorageContext};
-use std::path::Path;
+use std::path::PathBuf;
 
-pub fn open_collection<P: AsRef<Path>>(
+pub fn open_collection<P: Into<PathBuf>>(
     path: P,
+    media_folder: P,
+    media_db: P,
     server: bool,
     i18n: I18n,
     log: Logger,
 ) -> Result<Collection> {
-    let storage = SqliteStorage::open_or_create(path.as_ref())?;
+    let col_path = path.into();
+    let storage = SqliteStorage::open_or_create(&col_path)?;
 
     let col = Collection {
         storage,
+        col_path,
+        media_folder: media_folder.into(),
+        media_db: media_db.into(),
         server,
         i18n,
         log,
@@ -27,6 +33,10 @@ pub fn open_collection<P: AsRef<Path>>(
 
 pub struct Collection {
     pub(crate) storage: SqliteStorage,
+    #[allow(dead_code)]
+    pub(crate) col_path: PathBuf,
+    pub(crate) media_folder: PathBuf,
+    pub(crate) media_db: PathBuf,
     pub(crate) server: bool,
     pub(crate) i18n: I18n,
     pub(crate) log: Logger,

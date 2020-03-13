@@ -23,7 +23,6 @@ use crate::{backend_proto as pb, log};
 use fluent::FluentValue;
 use prost::Message;
 use std::collections::{HashMap, HashSet};
-use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use tokio::runtime::Runtime;
 
@@ -33,8 +32,6 @@ pub type ProtoProgressCallback = Box<dyn Fn(Vec<u8>) -> bool + Send>;
 
 pub struct Backend {
     col: Arc<Mutex<Option<Collection>>>,
-    media_folder: PathBuf,
-    media_db: String,
     progress_callback: Option<ProtoProgressCallback>,
     i18n: I18n,
     log: Logger,
@@ -125,37 +122,25 @@ pub fn init_backend(init_msg: &[u8]) -> std::result::Result<Backend, String> {
     );
 
     let col = open_collection(
-        &input.collection_path,
+        input.collection_path,
+        input.media_folder_path,
+        input.media_db_path,
         input.server,
         i18n.clone(),
         logger.clone(),
     )
     .map_err(|e| format!("Unable to open collection: {:?}", e))?;
 
-    match Backend::new(
-        col,
-        &input.media_folder_path,
-        &input.media_db_path,
-        i18n,
-        logger,
-    ) {
+    match Backend::new(col, i18n, logger) {
         Ok(backend) => Ok(backend),
         Err(e) => Err(format!("{:?}", e)),
     }
 }
 
 impl Backend {
-    pub fn new(
-        col: Collection,
-        media_folder: &str,
-        media_db: &str,
-        i18n: I18n,
-        log: Logger,
-    ) -> Result<Backend> {
+    pub fn new(col: Collection, i18n: I18n, log: Logger) -> Result<Backend> {
         Ok(Backend {
             col: Arc::new(Mutex::new(Some(col))),
-            media_folder: media_folder.into(),
-            media_db: media_db.into(),
             progress_callback: None,
             i18n,
             log,
@@ -422,31 +407,35 @@ impl Backend {
     }
 
     fn add_media_file(&mut self, input: pb::AddMediaFileIn) -> Result<String> {
-        let mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
-        let mut ctx = mgr.dbctx();
-        Ok(mgr
-            .add_file(&mut ctx, &input.desired_name, &input.data)?
-            .into())
+        self.with_col(|col| {
+            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
+            let mut ctx = mgr.dbctx();
+            Ok(mgr
+                .add_file(&mut ctx, &input.desired_name, &input.data)?
+                .into())
+        })
     }
 
-    fn sync_media(&self, input: SyncMediaIn) -> Result<()> {
-        let mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
+    // fixme: will block other db access
 
+    fn sync_media(&self, input: SyncMediaIn) -> Result<()> {
         let callback = |progress: &MediaSyncProgress| {
             self.fire_progress_callback(Progress::MediaSync(progress))
         };
 
-        let mut rt = Runtime::new().unwrap();
-        rt.block_on(mgr.sync_media(callback, &input.endpoint, &input.hkey, self.log.clone()))
+        self.with_col(|col| {
+            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
+            let mut rt = Runtime::new().unwrap();
+            rt.block_on(mgr.sync_media(callback, &input.endpoint, &input.hkey, self.log.clone()))
+        })
     }
 
     fn check_media(&self) -> Result<pb::MediaCheckOut> {
         let callback =
             |progress: usize| self.fire_progress_callback(Progress::MediaCheck(progress as u32));
 
-        let mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
-
         self.with_col(|col| {
+            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
             col.transact(None, |ctx| {
                 let mut checker = MediaChecker::new(ctx, &mgr, callback);
                 let mut output = checker.check()?;
@@ -464,9 +453,11 @@ impl Backend {
     }
 
     fn remove_media_files(&self, fnames: &[String]) -> Result<()> {
-        let mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
-        let mut ctx = mgr.dbctx();
-        mgr.remove_files(&mut ctx, fnames)
+        self.with_col(|col| {
+            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
+            let mut ctx = mgr.dbctx();
+            mgr.remove_files(&mut ctx, fnames)
+        })
     }
 
     fn translate_string(&self, input: pb::TranslateStringIn) -> String {
@@ -504,8 +495,8 @@ impl Backend {
         let callback =
             |progress: usize| self.fire_progress_callback(Progress::MediaCheck(progress as u32));
 
-        let mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
         self.with_col(|col| {
+            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
             col.transact(None, |ctx| {
                 let mut checker = MediaChecker::new(ctx, &mgr, callback);
 
@@ -518,8 +509,9 @@ impl Backend {
         let callback =
             |progress: usize| self.fire_progress_callback(Progress::MediaCheck(progress as u32));
 
-        let mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
         self.with_col(|col| {
+            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
+
             col.transact(None, |ctx| {
                 let mut checker = MediaChecker::new(ctx, &mgr, callback);
 
