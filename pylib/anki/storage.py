@@ -27,18 +27,24 @@ class ServerData:
     minutes_west: Optional[int] = None
 
 
-def Collection(path: str, server: Optional[ServerData] = None) -> _Collection:
+def Collection(
+    path: str,
+    backend: Optional[RustBackend] = None,
+    server: Optional[ServerData] = None,
+) -> _Collection:
     "Open a new or existing collection. Path must be unicode."
     assert path.endswith(".anki2")
+    if backend is None:
+        backend = RustBackend(server=server is not None)
+
     (media_dir, media_db) = media_paths_from_col_path(path)
     log_path = ""
     if not server:
         log_path = path.replace(".anki2", "2.log")
     path = os.path.abspath(path)
+
     # connect
-    backend = RustBackend(
-        path, media_dir, media_db, log_path, server=server is not None
-    )
+    backend.open_collection(path, media_dir, media_db, log_path)
     db = DBProxy(weakref.proxy(backend), path)
 
     # initial setup required?

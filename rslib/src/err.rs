@@ -36,6 +36,9 @@ pub enum AnkiError {
 
     #[fail(display = "Operation requires an open collection.")]
     CollectionNotOpen,
+
+    #[fail(display = "Close the existing collection first.")]
+    CollectionAlreadyOpen,
 }
 
 // error helpers

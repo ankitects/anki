@@ -200,22 +200,11 @@ def _on_progress(progress_bytes: bytes) -> bool:
 
 
 class RustBackend:
-    def __init__(
-        self,
-        col_path: str,
-        media_folder_path: str,
-        media_db_path: str,
-        log_path: str,
-        server: bool,
-    ) -> None:
+    def __init__(self, server: bool = False) -> None:
         ftl_folder = os.path.join(anki.lang.locale_folder, "fluent")
         init_msg = pb.BackendInit(
-            collection_path=col_path,
-            media_folder_path=media_folder_path,
-            media_db_path=media_db_path,
             locale_folder_path=ftl_folder,
             preferred_langs=[anki.lang.currentLang],
-            log_path=log_path,
             server=server,
         )
         self._backend = ankirspy.open_backend(init_msg.SerializeToString())
@@ -233,6 +222,23 @@ class RustBackend:
             raise proto_exception_to_native(output.error)
         else:
             return output
+
+    def open_collection(
+        self, col_path: str, media_folder_path: str, media_db_path: str, log_path: str
+    ):
+        self._run_command(
+            pb.BackendInput(
+                open_collection=pb.OpenCollectionIn(
+                    collection_path=col_path,
+                    media_folder_path=media_folder_path,
+                    media_db_path=media_db_path,
+                    log_path=log_path,
+                )
+            )
+        )
+
+    def close_collection(self):
+        self._run_command(pb.BackendInput(close_collection=pb.Empty()))
 
     def template_requirements(
         self, template_fronts: List[str], field_map: Dict[str, int]
