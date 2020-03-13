@@ -521,12 +521,12 @@ mod test {
             &include_bytes!("../../tests/support/mediacheck.anki2")[..],
         )?;
 
-        let mgr = MediaManager::new(&media_dir, media_db)?;
+        let mgr = MediaManager::new(&media_dir, media_db.clone())?;
 
         let log = log::terminal();
         let i18n = I18n::new(&["zz"], "dummy", log.clone());
 
-        let col = open_collection(col_path, false, i18n, log)?;
+        let col = open_collection(col_path, media_dir, media_db, false, i18n, log)?;
 
         Ok((dir, mgr, col))
     }
