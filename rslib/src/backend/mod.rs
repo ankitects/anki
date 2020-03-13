@@ -32,7 +32,7 @@ mod dbproxy;
 pub type ProtoProgressCallback = Box<dyn Fn(Vec<u8>) -> bool + Send>;
 
 pub struct Backend {
-    col: Arc<Mutex<Collection>>,
+    col: Arc<Mutex<Option<Collection>>>,
     #[allow(dead_code)]
     col_path: PathBuf,
     media_folder: PathBuf,
@@ -61,6 +61,7 @@ fn anki_error_to_proto_error(err: AnkiError, i18n: &I18n) -> pb::BackendError {
         }
         AnkiError::SyncError { kind, .. } => V::SyncError(pb::SyncError { kind: kind.into() }),
         AnkiError::Interrupted => V::Interrupted(Empty {}),
+        AnkiError::CollectionNotOpen => V::CollectionNotOpen(pb::Empty {}),
     };
 
     pb::BackendError {
@@ -156,7 +157,7 @@ impl Backend {
         log: Logger,
     ) -> Result<Backend> {
         Ok(Backend {
-            col: Arc::new(Mutex::new(col)),
+            col: Arc::new(Mutex::new(Some(col))),
             col_path: col_path.into(),
             media_folder: media_folder.into(),
             media_db: media_db.into(),
@@ -191,6 +192,22 @@ impl Backend {
         let resp = self.run_command(req);
         resp.encode(&mut buf).expect("encode failed");
         buf
+    }
+
+    /// If collection is open, run the provided closure while holding
+    /// the mutex.
+    /// If collection is not open, return an error.
+    fn with_col<F, T>(&self, func: F) -> Result<T>
+    where
+        F: FnOnce(&Collection) -> Result<T>,
+    {
+        func(
+            self.col
+                .lock()
+                .unwrap()
+                .as_ref()
+                .ok_or(AnkiError::CollectionNotOpen)?,
+        )
     }
 
     fn run_command(&mut self, input: pb::BackendInput) -> pb::BackendOutput {
@@ -433,17 +450,20 @@ impl Backend {
             |progress: usize| self.fire_progress_callback(Progress::MediaCheck(progress as u32));
 
         let mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
-        self.col.lock().unwrap().transact(None, |ctx| {
-            let mut checker = MediaChecker::new(ctx, &mgr, callback);
-            let mut output = checker.check()?;
 
-            let report = checker.summarize_output(&mut output);
+        self.with_col(|col| {
+            col.transact(None, |ctx| {
+                let mut checker = MediaChecker::new(ctx, &mgr, callback);
+                let mut output = checker.check()?;
 
-            Ok(pb::MediaCheckOut {
-                unused: output.unused,
-                missing: output.missing,
-                report,
-                have_trash: output.trash_count > 0,
+                let report = checker.summarize_output(&mut output);
+
+                Ok(pb::MediaCheckOut {
+                    unused: output.unused,
+                    missing: output.missing,
+                    report,
+                    have_trash: output.trash_count > 0,
+                })
             })
         })
     }
@@ -490,10 +510,12 @@ impl Backend {
             |progress: usize| self.fire_progress_callback(Progress::MediaCheck(progress as u32));
 
         let mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
-        self.col.lock().unwrap().transact(None, |ctx| {
-            let mut checker = MediaChecker::new(ctx, &mgr, callback);
+        self.with_col(|col| {
+            col.transact(None, |ctx| {
+                let mut checker = MediaChecker::new(ctx, &mgr, callback);
 
-            checker.empty_trash()
+                checker.empty_trash()
+            })
         })
     }
 
@@ -502,18 +524,17 @@ impl Backend {
             |progress: usize| self.fire_progress_callback(Progress::MediaCheck(progress as u32));
 
         let mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
-        self.col.lock().unwrap().transact(None, |ctx| {
-            let mut checker = MediaChecker::new(ctx, &mgr, callback);
+        self.with_col(|col| {
+            col.transact(None, |ctx| {
+                let mut checker = MediaChecker::new(ctx, &mgr, callback);
 
-            checker.restore_trash()
+                checker.restore_trash()
+            })
         })
     }
 
     pub fn db_command(&self, input: &[u8]) -> Result<String> {
-        self.col
-            .lock()
-            .unwrap()
-            .with_ctx(|ctx| db_command_bytes(&ctx.storage, input))
+        self.with_col(|col| col.with_ctx(|ctx| db_command_bytes(&ctx.storage, input)))
     }
 }
 
