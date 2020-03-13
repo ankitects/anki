@@ -29,6 +29,7 @@ from anki import hooks
 from anki.collection import _Collection
 from anki.hooks import runHook
 from anki.lang import _, ngettext
+from anki.rsbackend import RustBackend
 from anki.sound import AVTag, SoundOrVideoTag
 from anki.storage import Collection
 from anki.utils import devMode, ids2str, intTime, isMac, isWin, splitFields
@@ -78,10 +79,12 @@ class AnkiQt(QMainWindow):
         self,
         app: QApplication,
         profileManager: ProfileManagerType,
+        backend: RustBackend,
         opts: Namespace,
         args: List[Any],
     ) -> None:
         QMainWindow.__init__(self)
+        self.backend = backend
         self.state = "startup"
         self.opts = opts
         self.col: Optional[_Collection] = None

@@ -17,6 +17,7 @@ import anki.lang
 import aqt.buildinfo
 from anki import version as _version
 from anki.consts import HELP_SITE
+from anki.rsbackend import RustBackend
 from anki.utils import checksum, isLin, isMac
 from aqt.qt import *
 from aqt.utils import locale_dir
@@ -162,15 +163,15 @@ dialogs = DialogManager()
 # Qt requires its translator to be installed before any GUI widgets are
 # loaded, and we need the Qt language to match the gettext language or
 # translated shortcuts will not work.
-#
-# The Qt translator needs to be retained to work.
 
+# A reference to the Qt translator needs to be held to prevent it from
+# being immediately deallocated.
 _qtrans: Optional[QTranslator] = None
 
 
-def setupLang(
+def setupLangAndBackend(
     pm: ProfileManager, app: QApplication, force: Optional[str] = None
-) -> None:
+) -> RustBackend:
     global _qtrans
     try:
         locale.setlocale(locale.LC_ALL, "")
@@ -217,6 +218,8 @@ def setupLang(
     qt_lang = lang.replace("-", "_")
     if _qtrans.load("qtbase_" + qt_lang, qt_dir):
         app.installTranslator(_qtrans)
+
+    return anki.lang.current_i18n
 
 
 # App initialisation
@@ -465,8 +468,8 @@ environment points to a valid, writable folder.""",
     if opts.profile:
         pm.openProfile(opts.profile)
 
-    # i18n
-    setupLang(pm, app, opts.lang)
+    # i18n & backend
+    backend = setupLangAndBackend(pm, app, opts.lang)
 
     if isLin and pm.glMode() == "auto":
         from aqt.utils import gfxDriverIsBroken
@@ -483,7 +486,7 @@ environment points to a valid, writable folder.""",
     # load the main window
     import aqt.main
 
-    mw = aqt.main.AnkiQt(app, pm, opts, args)
+    mw = aqt.main.AnkiQt(app, pm, backend, opts, args)
     if exec:
         app.exec()
     else:
