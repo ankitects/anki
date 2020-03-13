@@ -200,12 +200,20 @@ def _on_progress(progress_bytes: bytes) -> bool:
 
 
 class RustBackend:
-    def __init__(self, server: bool = False) -> None:
-        ftl_folder = os.path.join(anki.lang.locale_folder, "fluent")
+    def __init__(
+        self,
+        ftl_folder: Optional[str] = None,
+        langs: Optional[List[str]] = None,
+        server: bool = False,
+    ) -> None:
+        # pick up global defaults if not provided
+        if ftl_folder is None:
+            ftl_folder = os.path.join(anki.lang.locale_folder, "fluent")
+        if langs is None:
+            langs = [anki.lang.currentLang]
+
         init_msg = pb.BackendInit(
-            locale_folder_path=ftl_folder,
-            preferred_langs=[anki.lang.currentLang],
-            server=server,
+            locale_folder_path=ftl_folder, preferred_langs=langs, server=server,
         )
         self._backend = ankirspy.open_backend(init_msg.SerializeToString())
         self._backend.set_progress_callback(_on_progress)
@@ -426,19 +434,6 @@ def translate_string_in(
         else:
             args[k] = pb.TranslateArgValue(number=v)
     return pb.TranslateStringIn(key=key, args=args)
-
-
-class I18nBackend:
-    def __init__(self, preferred_langs: List[str], ftl_folder: str) -> None:
-        init_msg = pb.I18nBackendInit(
-            locale_folder_path=ftl_folder, preferred_langs=preferred_langs
-        )
-        self._backend = ankirspy.open_i18n(init_msg.SerializeToString())
-
-    def translate(self, key: TR, **kwargs: Union[str, int, float]) -> str:
-        return self._backend.translate(
-            translate_string_in(key, **kwargs).SerializeToString()
-        )
 
 
 # temporarily force logging of media handling
