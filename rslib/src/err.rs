@@ -33,6 +33,9 @@ pub enum AnkiError {
 
     #[fail(display = "The user interrupted the operation.")]
     Interrupted,
+
+    #[fail(display = "Operation requires an open collection.")]
+    CollectionNotOpen,
 }
 
 // error helpers

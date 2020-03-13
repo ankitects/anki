@@ -91,6 +91,7 @@ message BackendError {
         SyncError sync_error = 7;
         // user interrupted operation
         Empty interrupted = 8;
+        Empty collection_not_open = 9;
     }
 }
 
