@@ -462,7 +462,7 @@ close the profile or restart Anki."""
 
     def _loadCollection(self) -> bool:
         cpath = self.pm.collectionPath()
-        self.col = Collection(cpath)
+        self.col = Collection(cpath, backend=self.backend)
 
         self.setEnabled(True)
         self.maybeEnableUndo()
@@ -471,7 +471,7 @@ close the profile or restart Anki."""
 
     def reopen(self):
         cpath = self.pm.collectionPath()
-        self.col = Collection(cpath)
+        self.col = Collection(cpath, backend=self.backend)
 
     def unloadCollection(self, onsuccess: Callable) -> None:
         def callback():
