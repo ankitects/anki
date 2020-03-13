@@ -256,8 +256,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
                 self.save(trx=False)
             if not self.server:
                 self.db.execute("pragma journal_mode = delete")
-            self.db = None
-            self.backend = None
+            self.backend.close_collection()
             self.media.close()
             self._closeLog()
 

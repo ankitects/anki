@@ -35,6 +35,7 @@ pub struct Backend {
     progress_callback: Option<ProtoProgressCallback>,
     i18n: I18n,
     log: Logger,
+    server: bool,
 }
 
 enum Progress<'a> {
@@ -56,7 +57,8 @@ fn anki_error_to_proto_error(err: AnkiError, i18n: &I18n) -> pb::BackendError {
         }
         AnkiError::SyncError { kind, .. } => V::SyncError(pb::SyncError { kind: kind.into() }),
         AnkiError::Interrupted => V::Interrupted(Empty {}),
-        AnkiError::CollectionNotOpen => V::CollectionNotOpen(pb::Empty {}),
+        AnkiError::CollectionNotOpen => V::InvalidInput(pb::Empty {}),
+        AnkiError::CollectionAlreadyOpen => V::InvalidInput(pb::Empty {}),
     };
 
     pb::BackendError {
@@ -105,46 +107,24 @@ pub fn init_backend(init_msg: &[u8]) -> std::result::Result<Backend, String> {
         Err(_) => return Err("couldn't decode init request".into()),
     };
 
-    let mut path = input.collection_path.clone();
-    path.push_str(".log");
-
-    let log_path = match input.log_path.as_str() {
-        "" => None,
-        path => Some(path),
-    };
-    let logger =
-        default_logger(log_path).map_err(|e| format!("Unable to open log file: {:?}", e))?;
-
     let i18n = I18n::new(
         &input.preferred_langs,
         input.locale_folder_path,
         log::terminal(),
     );
 
-    let col = open_collection(
-        input.collection_path,
-        input.media_folder_path,
-        input.media_db_path,
-        input.server,
-        i18n.clone(),
-        logger.clone(),
-    )
-    .map_err(|e| format!("Unable to open collection: {:?}", e))?;
-
-    match Backend::new(col, i18n, logger) {
-        Ok(backend) => Ok(backend),
-        Err(e) => Err(format!("{:?}", e)),
-    }
+    Ok(Backend::new(i18n, log::terminal(), input.server))
 }
 
 impl Backend {
-    pub fn new(col: Collection, i18n: I18n, log: Logger) -> Result<Backend> {
-        Ok(Backend {
-            col: Arc::new(Mutex::new(Some(col))),
+    pub fn new(i18n: I18n, log: Logger, server: bool) -> Backend {
+        Backend {
+            col: Arc::new(Mutex::new(None)),
             progress_callback: None,
             i18n,
             log,
-        })
+            server,
+        }
     }
 
     pub fn i18n(&self) -> &I18n {
@@ -259,7 +239,55 @@ impl Backend {
                 self.restore_trash()?;
                 OValue::RestoreTrash(Empty {})
             }
+            Value::OpenCollection(input) => {
+                self.open_collection(input)?;
+                OValue::OpenCollection(Empty {})
+            }
+            Value::CloseCollection(_) => {
+                self.close_collection()?;
+                OValue::CloseCollection(Empty {})
+            }
         })
+    }
+
+    fn open_collection(&self, input: pb::OpenCollectionIn) -> Result<()> {
+        let mut mutex = self.col.lock().unwrap();
+        if mutex.is_some() {
+            return Err(AnkiError::CollectionAlreadyOpen);
+        }
+
+        let mut path = input.collection_path.clone();
+        path.push_str(".log");
+
+        let log_path = match input.log_path.as_str() {
+            "" => None,
+            path => Some(path),
+        };
+        let logger = default_logger(log_path)?;
+
+        let col = open_collection(
+            input.collection_path,
+            input.media_folder_path,
+            input.media_db_path,
+            self.server,
+            self.i18n.clone(),
+            logger,
+        )?;
+
+        *mutex = Some(col);
+
+        Ok(())
+    }
+
+    fn close_collection(&self) -> Result<()> {
+        let mut mutex = self.col.lock().unwrap();
+        if mutex.is_none() {
+            return Err(AnkiError::CollectionNotOpen);
+        }
+
+        *mutex = None;
+
+        Ok(())
     }
 
     fn fire_progress_callback(&self, progress: Progress) -> bool {
