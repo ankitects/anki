@@ -1,0 +1,10 @@
+#!/bin/bash
+#
+# expects to be run from the ftl folder
+#
+
+test -d repo || exit 1
+
+rsync -av --delete *.ftl repo/core/templates/
+(cd repo && git add core; git commit -m update; git push)
+

@@ -1,0 +1,61 @@
+If you have made changes to Anki's AGPL code, you are welcome to distribute
+the changed code under the AGPL license.
+
+If you would like to contribute your code back to the official release, we ask
+that you license your contributions under the BSD 3 clause license. Portions
+of the code are also used in AnkiWeb and AnkiMobile, and accepting
+contributions under an AGPL license would mean we could no longer use the code
+we have written in those projects.
+
+In your first pull request, please add your name below. By adding your name to
+this file, you assert that any code you contribute to the Anki project is
+licensed under the BSD 3 clause license. If any pull request you make contains
+code that you don't own the copyright to, you agree to make that clear when
+submitting the request.
+
+For users who previously confirmed the license of their contributions on the
+support site, it would be great if you could add your name below as well.
+
+********************
+
+AMBOSS MD Inc. <https://www.amboss.com/>
+Aristotelis P. <https://glutanimate.com/contact>
+Erez Volk <erez.volk@gmail.com>
+zjosua <zjosua@hotmail.com>
+Arthur Milchior <arthur@milchior.fr>
+Yngve Hoiseth <yngve@hoiseth.net>
+Ijgnd
+Yoonchae Lee
+Evandro Coan <github.com/evandrocoan>
+Alan Du <alanhdu@gmail.com>
+
+********************
+
+The text of the 3 clause BSD license follows:
+
+Contributions copyright the above contributors, 2010-Present.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation
+and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its contributors
+may be used to endorse or promote products derived from this software without
+specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.

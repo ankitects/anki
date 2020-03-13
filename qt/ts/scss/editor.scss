@@ -1,0 +1,103 @@
+/* Copyright: Ankitects Pty Ltd and contributors
+ * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
+
+@use 'vars';
+
+.field {
+    border: 1px solid vars.$day-border;
+    background: vars.$day-frame-bg;
+    color: vars.$day-text-fg;
+    padding: 5px;
+    overflow-wrap: break-word;
+}
+
+.clearfix:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.fname {
+    vertical-align: middle;
+    padding: 0;
+}
+
+img {
+    max-width: 90%;
+}
+
+body {
+    margin: 0;
+}
+
+#topbutsOuter {
+    position: fixed;
+    top: 0;
+    padding: 2px;
+    left: 0;
+    right: 0;
+    z-index: 1;
+}
+
+.topbut {
+    width: 16px;
+    height: 16px;
+    margin-top: 4px;
+}
+
+.rainbow {
+    background-image: -webkit-gradient(linear, left top, left bottom,
+    color-stop(0.00, #f77),
+    color-stop(50%, #7f7),
+    color-stop(100%, #77f));
+}
+
+button.linkb {
+    -webkit-appearance: none;
+    border: 0;
+    box-shadow: none;
+    padding: 0px 2px;
+    background: transparent;
+}
+
+.linkb:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.highlighted {
+    border-bottom: 3px solid #000;
+}
+
+#fields {
+    margin-top: 35px;
+}
+
+.dupe {
+    background: vars.$night-flag1-bg;
+}
+
+.nightMode {
+    .field {
+        border-color: vars.$night-border;
+        background: vars.$night-frame-bg;
+        color: vars.$night-text-fg;
+    }
+
+    button.linkb > img {
+        filter: invert(180);
+    }
+
+    .dupe {
+        background: vars.$night-flag1-bg;
+    }
+
+    #dupes a {
+        color: vars.$night-link;
+    }
+}
+
+.drawing { zoom: 50%; }
+.nightMode img.drawing {
+    filter: unquote("invert() hue-rotate(180deg)")
+}

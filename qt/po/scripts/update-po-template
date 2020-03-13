@@ -1,0 +1,20 @@
+#!/bin/bash
+#
+# update template .pot file from source code strings
+#
+set -eo pipefail
+
+topDir=$(dirname $0)/../../../
+cd $topDir
+
+all=all.files
+echo "Updating anki.pot..."
+for i in pylib/anki/{*.py,importing/*.py}; do
+    echo $i >> $all
+done
+for i in qt/aqt/{*.py,forms/*.py}; do
+    echo $i >> $all
+done
+
+xgettext -cT: -s --no-wrap --files-from=$all --output=qt/po/repo/desktop/anki.pot
+rm $all

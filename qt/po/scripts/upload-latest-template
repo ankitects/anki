@@ -1,0 +1,6 @@
+#!/bin/bash
+
+set -eo pipefail
+
+scripts/update-po-template
+(cd repo && git add desktop; git commit -m update; git push)

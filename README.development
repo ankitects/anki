@@ -1,66 +1,113 @@
-Please see the README file for basic requirements.
+For non-developers who want to try this development code, the easiest way is
+to use a binary package - please see:
 
-In addition to the basic requirements, you also need the PyQt development
-tools (specifically pyrcc4 and pyuic4). These are often contained in a
-separate package on Linux, such as 'pyqt4-dev-tools' on Debian/Ubuntu. On a Mac
-they are part of the PyQt source install.
+https://anki.tenderapp.com/discussions/beta-testing
 
-Windows users, please see the note at the bottom of this file before proceeding.
+You are welcome to run Anki from source instead, but it is expected that you
+can sort out all dependencies and issues by yourself - we are not able to
+provide support for problems you encounter when running from source.
 
-To use the development version:
+To start, make sure you have the following installed:
 
-$ git clone https://github.com/dae/anki.git
-$ cd anki
-$ ./tools/build_ui.sh
+ - Python 3.7+
+   If you build Python from its source, you will have to call the `./configure` command with 
+   `--enable-loadable-sqlite-extensions`, for example: 
+   ./configure --enable-optimizations --enable-loadable-sqlite-extensions && sudo make altinstall
+ - portaudio
+ - mpv
+ - lame
+ - npm
+ - your platform's C compiler, eg gcc, Xcode or Visual Studio 2017.
+ - GNU make
+ - protoc v3 (https://github.com/protocolbuffers/protobuf/releases)
+ - rustup (https://rustup.rs/)
+ - gettext
+ - rename
+ - rsync
+ - perl
 
-If you get any errors, you will not be able to proceed, so please return to
-the top and check the requirements again.
+The build scripts assume a UNIX-like environment, so on Windows you will
+need to use WSL or Cygwin to use them.
 
-ALL USERS: Make sure you rebuild the UI every time you git pull, otherwise you
-will get errors down the road.
+Once you've installed the above components, execute ./run in this repo,
+which will build the subcomponents, and start Anki. Any arguments included
+on the command line will be passed on to Anki.
 
-The translations are stored in a bazaar repo for integration with Launchpad's
-translation services. If you want to use a language other than English:
-
-$ cd ..
-$ mv anki dtop # i18n code expects anki folder to be called dtop
-$ bzr clone lp:anki i18n
-$ cd i18n
-$ ./update-mos.sh
-$ cd ../dtop
-
-And now you're ready to run Anki:
-$ ./runanki
-
-If you get any errors, please make sure you don't have an older version of
-Anki installed in a system location.
-
-Before contributing code, please read the LICENSE file.
+Before contributing code, please read README.contributing.
 
 If you'd like to contribute translations, please see the translations section
 of http://ankisrs.net/docs/manual.html#_contributing
 
-WINDOWS USERS:
+Subcomponents
+--------------
 
-I have not tested the build scripts on Windows, so you'll need to solve any
-problems you encounter on your own. The easiest way is to use a source
-tarball instead of git, as that way you don't need to build the UI yourself.
+- pylib contains a Python module (anki) with most of the non-GUI code.
+- qt contains the Qt GUI implementation (aqt).
+- rspy contains a Python module (ankirspy) for accessing the Rust code.
+- rslib contains the parts of the code implemented in Rust. This
+  is only a tiny subsection at the moment.
+- proto contains the interface used to communicate between different
+  languages.
+- tslib and react are just an experiment at the moment.
 
-If you do want to use git, two alternatives have been contributed by users. As
-these are not official solutions, I'm afraid we can not provide you with any
-support for these.
+Makefile
+--------------
 
-A powershell script:
+Use 'make check' to run unit tests, type checking and linting on all of the
+subcomponents.
 
-https://gist.github.com/vermiceli/108fec65759d19645ee3
+Use 'make fix' to fix any formatting issues that were found with 'make check'.
 
-Or a way with git bash and perl:
+Use 'make build' to output Python wheels of the subcomponents into the dist/
+folder.
 
-    1) Install "git bash".
-    2) In the tools directory, modify build_ui.sh. Locate the line that reads
-    "pyuic4 $i -o $py" and alter it to be of the following form:
-    "<python-path-string>" "<pyuic-path-string>" $i -o $py
-    These two paths must point to your python executable, and to pyuic.py, on your
-    system. Typical paths would be:
-    <python-path> = C:\\Python27\\python.exe
-    <pyuic-path-string> = C:\\Python27\\Lib\\site-packages\\PyQt4\\uic\\pyuic.py
+Use 'make clean' to remove some generated files.
+
+Performance
+------------
+
+'make run' builds the Rust libraries in unoptimized debug mode. Before doing
+any performance testing, please make sure you make a release build with
+'make build', and install the resulting .whl files with pip.
+
+PyQt
+-----
+
+The build scripts will use PyQt/Qt from PyPI by default. If you wish to use a
+system install, you will need to set up the pyenv folder yourself, making sure
+you have PyQt5, the WebEngine module and development tools (eg pyqt5-dev-tools)
+installed as well. You'll need to create the venv with --system-site-packages.
+
+Mac users
+----------
+
+You can use homebrew to install some dependencies:
+
+$ brew install python mpv lame portaudio protobuf npm rustup-init gettext rename
+
+$ brew link gettext --force
+
+Windows users (using Visual Studio)
+----------
+
+User-contributed instructions for building using Cygwin:
+
+1. Download and install Cygwin and put its `/bin/` directory on your system path.
+1. Install the Cygwin Packages: `apt-cyg install rsync make`
+    1. Download `gettext` 0.20.1 or superior and put its `bin` directory on your system path.
+        1. https://mlocati.github.io/articles/gettext-iconv-windows.html
+1. Download and install Python for Windows (not from Cygwin) and put `python.exe` (not `python3.exe`) on your system path.
+1. Download and install pip for your Windows Python (`python -m ensurepip`).
+1. Download and install rust (compiler), npm, git and put them your system path.
+1. Download and install the pyaudio wheel from: https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio
+    1. After download the file for your Python version, you need to define the following environment
+        variable before running anki:
+        `set "ANKI_EXTRA_PIP=python -m pip install full/path/to/PyAudio‑0.2.11‑cp38‑cp38‑win_amd64.whl"`
+    1. If there is not an wheel available for your Python version, you can built it from the source
+        following the installation instructions on: https://github.com/evandroforks/pyaudio
+        After building and installing portaudio, you need to define the following environment
+        variable before running anki:
+        `set "ANKI_EXTRA_PIP=python -m pip install git+https://github.com/evandroforks/pyaudio"`
+1. Open a `cmd.exe` (command prompt) on the anki repository and run the command `sh run`
+    1. Do not use `bash run` because it my call for Windows Subsystem for Linux
+    1. Do not use any Cygwin terminal as `mintty.exe` because the `rust lang` compiler does not work with them

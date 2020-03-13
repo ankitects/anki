@@ -1,0 +1,17 @@
+#!/bin/bash
+
+set -eo pipefail
+
+out=../aqt_data/locale/qt
+mkdir -p "$out"
+
+qtTranslations="$(python -c "from PyQt5.QtCore import *; import sys; sys.stdout.write(QLibraryInfo.location(QLibraryInfo.TranslationsPath))")"
+unameOut="$(uname -s)"
+
+case "${unameOut}" in
+    CYGWIN*)
+        qtTranslations="$(cygpath -u "${qtTranslations}")"
+        ;;
+esac
+
+rsync -a "$qtTranslations"/qt* "$out"

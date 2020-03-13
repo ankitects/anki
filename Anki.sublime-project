@@ -1,15 +1,31 @@
 {
 	"folders":
 	[
-        {
-            "path": ".",
-        },
 		{
-			"path": "D:\\User\\Documents\\Anki\\addons",
-            "file_exclude_patterns":
-            [
-                "*.rar",
-            ],
+			"folder_exclude_patterns":
+			[
+				"pyenv",
+				"debug",
+				".mypy_cache",
+			],
+			"path": "."
+		},
+		{
+			"file_exclude_patterns":
+			[
+				"*.rar"
+			],
+			"path": "D:\\User\\Documents\\Anki2\\addons21"
+		},
+		{
+			"file_exclude_patterns":
+			[
+			],
+			"path": "D:\\User\\Dropbox\\SoftwareVersioning\\Forks\\anki-docs"
 		}
-	]
+	],
+	"settings":
+	{
+		"trim_trailing_white_space_on_save": false
+	}
 }

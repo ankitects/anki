@@ -1,0 +1,63 @@
+@use 'vars';
+
+.isWin {
+  button {
+    font-size: 12px;
+  }
+}
+
+.isMac {
+  button {
+    font-size: 13px;
+  }
+}
+
+.isLin {
+  button {
+    font-size: 14px;
+
+    -webkit-appearance: none;
+    border-radius: 3px;
+    padding: 5px;
+    border: 1px solid vars.$day-border;
+  }
+}
+
+.nightMode {
+  button {
+    -webkit-appearance: none;
+    color: vars.$night-text-fg;
+
+    /* match the fusion button gradient */
+    background: linear-gradient(0deg,
+            vars.$fusion-button-gradient-start 0%,
+            vars.$fusion-button-gradient-end 100%);
+    box-shadow: 0 0 3px vars.$fusion-button-outline;
+    border: 1px solid vars.$fusion-button-border;
+
+    border-radius: 2px;
+    padding: 10px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+  }
+
+  button:hover {
+    background: vars.$fusion-button-hover-bg;
+  }
+}
+
+/* imitate standard macOS dark mode buttons */
+.isMac.nightMode.macos-dark-mode button:not(.linkb) {
+    background: #656565;
+    box-shadow: 0 1px 2px #222222;
+    border-top-color: #848484;
+    border-top-width: 0.5px;
+    border-bottom: 0;
+    border-left: 0;
+    border-right: 0;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 15px;
+    padding-right: 15px;
+    color: #e5e5e5;
+}

@@ -1,0 +1,148 @@
+Contributing Code
+==================
+
+For info on contributing things other than code, such as translations, decks
+and add-ons, please see http://ankisrs.net/docs/manual.html#contributing
+
+With most users now on 2.1, it's time to start paying down some of the
+technical debt that Anki's codebase has built up over the years. This is
+not an easy task - the code is tightly coupled together, not fully covered
+by unit tests, and mostly dynamically typed, meaning even small changes
+carry the risk of regressions.
+
+So to start with, the primary focus is on changes that will make future
+maintenance and refactoring easier - improving tooling and linting, static
+type checking, more unit tests, and so on. Contributions that move the code in
+this direction or fix bugs would be appreciated.
+
+If you would like to add a new feature or alter existing functionality in the
+Python code, please reach out on the support site before you begin work, as
+some changes may be more appropriately done in an add-on instead.
+
+Please hold off on large refactoring projects for now, as it risks introducing
+bugs, and many addons currently rely on certain variable/method names and
+type signatures. If you're working on an isolated part of the codebase
+covered by unit tests, then such changes may be accepted, but larger changes
+are less likely to be at this time.
+
+Type hints
+-----------
+
+Type hints have recently been added to parts of the codebase, mainly using
+automated tools. At the moment, large parts of the codebase are still missing
+type hints, and some of the hints that do exist are incorrect or too general.
+
+When running 'make check', Anki uses mypy to typecheck the code. Mypy only
+checks functions that have type signatures, so adding more type signatures to
+the code increases the amount of code that mypy is able to analyze.
+
+Patches that improve the type hints would be appreciated. And if you're
+adding new functionality, please use type hints in the new code you write
+where practical.
+
+Parts of Anki's codebase use ad-hoc data structures like nested dictionaries
+and lists, and they can be difficult to fully type. Don't worry too much about
+getting the types perfect - even a partial type like Dict[str, Any] or
+List[Tuple] is an improvement over no types at all.
+
+Anki bundles Qt stubs, but they are not perfect, so you'll find when doing
+things like connecting signals, you may have to add the following to the end
+of a line to silence the spurious errors.
+
+ # type: ignore
+
+In cases where you have two modules that reference each other, you can fix the
+import cycle by using fully qualified names in the types, and enabling
+annotations. For example, instead of
+
+  from aqt.browser import Browser
+
+  def myfunc(b: Browser) -> None:
+    pass
+
+use the following instead:
+
+  from __future__ import annotations
+
+  import aqt
+
+  def myfunc(b: aqt.browser.Browser) -> None:
+    pass
+
+Hooks
+-------
+
+If you're writing an add-on and would like to extend a function that doesn't
+currently have a hook, a pull request that adds the required hooks would be
+welcome. If you could mention your use case in the pull request, that would be
+appreciated.
+
+The hooks try to follow one of two formats:
+
+[subject] [verb] - eg, note_type_added, card_will_render
+
+[module] [verb] [subject] - eg, browser_did_change_row, editor_did_update_tags
+
+The qt code tends to use the second form as the hooks tend to focus on
+particular screens. The pylib code tends to use the first form, as the focus
+is usually subjects like cards, notes, etc.
+
+Using "did change" instead of the past test "changed" can seem awkward, but
+makes it consistent with "will", and is similar to the naming style used in
+iOS's libraries.
+
+The hook code is automatically generated using the definitions in
+pylib/tools/genhooks.py and qt/tools/genhooks_gui.py. Adding a new definition
+in one of those files and running 'make develop' will update pylib/anki/hooks
+.py or qt/aqt/gui_hooks.py.
+
+Translations
+--------------
+
+The translations into other languages will be fetched on the first build.
+If you'd like to keep them up to date, you need to run 'make pull-i18n'
+periodically.
+
+For information on adding new translatable strings to Anki, please see
+https://ankitects.github.io/translating/#/anki/developers
+
+Tests Must Pass
+----------------
+
+Please make sure 'make check' completes successfully before submitting code.
+You can do this automatically by adding the following into
+.git/hooks/pre-commit or .git/hooks/pre-push and making it executable.
+
+#!/bin/bash
+set -eo pipefail
+make check
+
+You may need to adjust the PATH variable so that things like a local install
+of cargo can be found.
+
+If your change is to anki/ and not covered by the existing unit tests, please
+consider adding a unit test at the same time.
+
+Code Style
+------------------
+
+You are welcome to use snake_case variable names and functions in newly
+introduced code, but please avoid renaming existing functions and global
+variables that use camelCaps. Variables local to a function are safer to
+rename, but please do so only when a function needs to be changed for other
+reasons as well.
+
+Code formatting is automatically done when you use "make fix".
+
+Do One Thing
+-------------
+
+A patch or pull request should be the minimum necessary to address one issue.
+Please don't make a pull request for a bunch of unrelated changes, as they are
+difficult to review and will be rejected - split them up into separate
+requests instead.
+
+License
+-------
+
+Please add yourself to the CONTRIBUTORS file in your first pull request.

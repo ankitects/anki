@@ -1,0 +1,20 @@
+#!/bin/bash
+#
+# build mo files
+#
+set -eo pipefail
+
+targetDir="../aqt_data/locale/gettext"
+mkdir -p $targetDir
+
+echo "Compiling *.po..."
+for file in repo/desktop/*/anki.po
+do
+    outdir=$(echo "$file" | \
+        perl -pe "s%repo/desktop/(.*)/anki.po%$targetDir/\1/LC_MESSAGES%")
+    outfile="$outdir/anki.mo"
+    mkdir -p $outdir
+    (msgmerge -q "$file" repo/desktop/anki.pot | msgfmt - --output-file="$outfile") || (
+      echo "error building $file"
+    )
+done
