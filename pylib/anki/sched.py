@@ -1537,7 +1537,7 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
             ):
                 source = getSource( self.col.getCard( cid ) )
 
-                if source and source == firstsource and len( firstsource ) > 10:
+                if source and source == firstsource and len( firstsource ) > 0:
                     toBury.append(cid)
 
         # then bury
