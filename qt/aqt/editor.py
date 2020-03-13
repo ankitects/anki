@@ -495,11 +495,13 @@ class Editor:
         form.textEdit.moveCursor(QTextCursor.End)
         d.exec_()
         html = form.textEdit.toPlainText()
-        # filter html through beautifulsoup so we can strip out things like a
-        # leading </div>
-        with warnings.catch_warnings() as w:
-            warnings.simplefilter("ignore", UserWarning)
-            html = str(BeautifulSoup(html, "html.parser"))
+        # https://anki.tenderapp.com/discussions/ankidesktop/39543-anki-is-replacing-the-character-by-when-i-exit-the-html-edit-mode-ctrlshiftx
+        if html.find(">") > -1:
+            # filter html through beautifulsoup so we can strip out things like a
+            # leading </div>
+            with warnings.catch_warnings() as w:
+                warnings.simplefilter("ignore", UserWarning)
+                html = str(BeautifulSoup(html, "html.parser"))
         self.note.fields[field] = html
         self.note.flush()
         self.loadNote(focusTo=field)
@@ -806,6 +808,10 @@ to a cloze type first, via Edit>Change Note Type."""
     removeTags = ["script", "iframe", "object", "style"]
 
     def _pastePreFilter(self, html, internal):
+        # https://anki.tenderapp.com/discussions/ankidesktop/39543-anki-is-replacing-the-character-by-when-i-exit-the-html-edit-mode-ctrlshiftx
+        if html.find(">") < 0:
+            return html
+
         with warnings.catch_warnings() as w:
             warnings.simplefilter("ignore", UserWarning)
             doc = BeautifulSoup(html, "html.parser")
