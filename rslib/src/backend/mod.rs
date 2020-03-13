@@ -33,8 +33,6 @@ pub type ProtoProgressCallback = Box<dyn Fn(Vec<u8>) -> bool + Send>;
 
 pub struct Backend {
     col: Arc<Mutex<Option<Collection>>>,
-    #[allow(dead_code)]
-    col_path: PathBuf,
     media_folder: PathBuf,
     media_db: String,
     progress_callback: Option<ProtoProgressCallback>,
@@ -136,7 +134,6 @@ pub fn init_backend(init_msg: &[u8]) -> std::result::Result<Backend, String> {
 
     match Backend::new(
         col,
-        &input.collection_path,
         &input.media_folder_path,
         &input.media_db_path,
         i18n,
@@ -150,7 +147,6 @@ pub fn init_backend(init_msg: &[u8]) -> std::result::Result<Backend, String> {
 impl Backend {
     pub fn new(
         col: Collection,
-        col_path: &str,
         media_folder: &str,
         media_db: &str,
         i18n: I18n,
@@ -158,7 +154,6 @@ impl Backend {
     ) -> Result<Backend> {
         Ok(Backend {
             col: Arc::new(Mutex::new(Some(col))),
-            col_path: col_path.into(),
             media_folder: media_folder.into(),
             media_db: media_db.into(),
             progress_callback: None,
