@@ -75,7 +75,7 @@ CHECKDEPS := $(shell ${FIND} anki tests -name '*.py' | grep -v buildinfo.py)
 	@touch $@
 
 .build/fmt: $(CHECKDEPS)
-	black --check $(BLACKARGS)
+# 	black --check $(BLACKARGS)
 	@touch $@
 
 # Building
