@@ -150,6 +150,11 @@ class SupermemoXmlImporter(NoteImporter):
 
         # my sm2004 also ecaped & char in escaped sequences.
         html = re.sub("&amp;", "&", html)
+
+        # https://anki.tenderapp.com/discussions/ankidesktop/39543-anki-is-replacing-the-character-by-when-i-exit-the-html-edit-mode-ctrlshiftx
+        if html.find(">") < 0:
+            return html
+
         # unescaped solitary chars < or > that were ok for minidom confuse btfl soup
         # html = re.sub(u'>',u'&gt;',html)
         # html = re.sub(u'<',u'&lt;',html)
