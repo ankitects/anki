@@ -17,14 +17,7 @@ from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.sound import av_player
 from aqt.toolbar import BottomBar
-from aqt.utils import (
-    askUser,
-    getOnlyText,
-    openLink,
-    shortcut,
-    showWarning,
-    tr,
-)
+from aqt.utils import askUser, getOnlyText, openLink, shortcut, showWarning, tr
 
 
 class DeckBrowserBottomBar:
