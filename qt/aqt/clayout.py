@@ -65,6 +65,7 @@ class CardLayout(QDialog):
         v1.addLayout(self.buttons)
         v1.setContentsMargins(12, 12, 12, 12)
         self.setLayout(v1)
+        gui_hooks.card_layout_will_show(self)
         self.redraw()
         restoreGeom(self, "CardLayout")
         self.setWindowModality(Qt.ApplicationModal)

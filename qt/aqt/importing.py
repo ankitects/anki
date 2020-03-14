@@ -355,9 +355,11 @@ def importFile(mw, file):
         try:
             importer.open()
         except UnicodeDecodeError:
+            mw.progress.finish()
             showUnicodeWarning()
             return
         except Exception as e:
+            mw.progress.finish()
             msg = repr(str(e))
             if msg == "'unknownFormat'":
                 showWarning(_("Unknown file format."))

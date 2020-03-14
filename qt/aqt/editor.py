@@ -19,6 +19,7 @@ from bs4 import BeautifulSoup
 
 import aqt
 import aqt.sound
+from anki.cards import Card
 from anki.hooks import runFilter
 from anki.httpclient import HttpClient
 from anki.lang import _
@@ -77,7 +78,7 @@ class Editor:
         self.addMode = addMode
         self.currentField: Optional[int] = None
         # current card, for card layout
-        self.card = None
+        self.card: Optional[Card] = None
         self.setupOuter()
         self.setupWeb()
         self.setupShortcuts()

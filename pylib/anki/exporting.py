@@ -27,7 +27,7 @@ class Exporter:
         did: Optional[int] = None,
         cids: Optional[List[int]] = None,
     ) -> None:
-        self.col = col
+        self.col = col.weakref()
         self.did = did
         self.cids = cids
 

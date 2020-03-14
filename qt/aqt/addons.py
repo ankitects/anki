@@ -26,6 +26,7 @@ import aqt
 import aqt.forms
 from anki.httpclient import HttpClient
 from anki.lang import _, ngettext
+from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import (
     TR,
@@ -251,7 +252,11 @@ class AddonManager:
         try:
             with open(path, encoding="utf8") as f:
                 return json.load(f)
+        except json.JSONDecodeError as e:
+            print(f"json error in add-on {dir}:\n{e}")
+            return dict()
         except:
+            # missing meta file, etc
             return dict()
 
     # in new code, use write_addon_meta() instead
@@ -593,6 +598,24 @@ and have been disabled: %(found)s"
     def configUpdatedAction(self, addon: str) -> Callable[[Any], None]:
         return self._configUpdatedActions.get(addon)
 
+    # Schema
+    ######################################################################
+
+    def _addon_schema_path(self, dir):
+        return os.path.join(self.addonsFolder(dir), "config.schema.json")
+
+    def _addon_schema(self, dir):
+        path = self._addon_schema_path(dir)
+        try:
+            if not os.path.exists(path):
+                # True is a schema accepting everything
+                return True
+            with open(path, encoding="utf-8") as f:
+                return json.load(f)
+        except json.decoder.JSONDecodeError as e:
+            print("The schema is not valid:")
+            print(e)
+
     # Add-on Config API
     ######################################################################
 
@@ -683,6 +706,7 @@ class AddonsDialog(QDialog):
         self.setAcceptDrops(True)
         self.redrawAddons()
         restoreGeom(self, "addons")
+        gui_hooks.addons_dialog_will_show(self)
         self.show()
 
     def dragEnterEvent(self, event):
@@ -760,6 +784,7 @@ class AddonsDialog(QDialog):
                 or self.mgr.configAction(addon.dir_name)
             )
         )
+        gui_hooks.addons_dialog_did_change_selected_addon(self, addon)
         return
 
     def selectedAddons(self) -> List[str]:
@@ -1258,6 +1283,12 @@ class ConfigEditor(QDialog):
         self.updateText(self.conf)
         restoreGeom(self, "addonconf")
         restoreSplitter(self.form.splitter, "addonconf")
+        self.setWindowTitle(
+            tr(
+                TR.ADDONS_CONFIG_WINDOW_TITLE,
+                name=self.mgr.addon_meta(addon).human_name(),
+            )
+        )
         self.show()
 
     def onRestoreDefaults(self):
@@ -1278,15 +1309,11 @@ class ConfigEditor(QDialog):
             self.form.scrollArea.setVisible(False)
 
     def updateText(self, conf):
-        self.form.editor.setPlainText(
-            json.dumps(
-                conf,
-                ensure_ascii=False,
-                sort_keys=True,
-                indent=4,
-                separators=(",", ": "),
-            )
+        text = json.dumps(
+            conf, ensure_ascii=False, sort_keys=True, indent=4, separators=(",", ": "),
         )
+        text = gui_hooks.addon_config_editor_will_display_json(text)
+        self.form.editor.setPlainText(text)
 
     def onClose(self):
         saveGeom(self, "addonconf")
@@ -1298,8 +1325,34 @@ class ConfigEditor(QDialog):
 
     def accept(self):
         txt = self.form.editor.toPlainText()
+        txt = gui_hooks.addon_config_editor_will_save_json(txt)
         try:
             new_conf = json.loads(txt)
+            jsonschema.validate(new_conf, self.parent().mgr._addon_schema(self.addon))
+        except ValidationError as e:
+            # The user did edit the configuration and entered a value
+            # which can not be interpreted.
+            schema = e.schema
+            erroneous_conf = new_conf
+            for link in e.path:
+                erroneous_conf = erroneous_conf[link]
+            path = "/".join(str(path) for path in e.path)
+            if "error_msg" in schema:
+                msg = schema["error_msg"].format(
+                    problem=e.message,
+                    path=path,
+                    schema=str(schema),
+                    erroneous_conf=erroneous_conf,
+                )
+            else:
+                msg = tr(
+                    TR.ADDONS_CONFIG_VALIDATION_ERROR,
+                    problem=e.message,
+                    path=path,
+                    schema=str(schema),
+                )
+            showInfo(msg)
+            return
         except Exception as e:
             showInfo(_("Invalid configuration: ") + repr(e))
             return

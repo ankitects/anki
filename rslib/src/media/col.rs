@@ -4,7 +4,7 @@
 /// Basic note reading/updating functionality for the media DB check.
 use crate::err::{AnkiError, Result};
 use crate::text::strip_html_preserving_image_filenames;
-use crate::time::i64_unix_timestamp;
+use crate::time::{i64_unix_millis, i64_unix_secs};
 use crate::types::{ObjID, Timestamp, Usn};
 use rusqlite::{params, Connection, Row, NO_PARAMS};
 use serde_aux::field_attributes::deserialize_number_from_string;
@@ -127,7 +127,7 @@ fn row_to_note(row: &Row) -> Result<Note> {
 }
 
 pub(super) fn set_note(db: &Connection, note: &mut Note, note_type: &NoteType) -> Result<()> {
-    note.mtime_secs = i64_unix_timestamp();
+    note.mtime_secs = i64_unix_secs();
     // hard-coded for now
     note.usn = -1;
     let csum = field_checksum(&note.fields()[0]);
@@ -154,9 +154,6 @@ pub(super) fn set_note(db: &Connection, note: &mut Note, note_type: &NoteType) -
 }
 
 pub(super) fn mark_collection_modified(db: &Connection) -> Result<()> {
-    db.execute(
-        "update col set usn=-1, mod=?",
-        params![i64_unix_timestamp()],
-    )?;
+    db.execute("update col set mod=?", params![i64_unix_millis()])?;
     Ok(())
 }

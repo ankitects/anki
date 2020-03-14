@@ -42,6 +42,8 @@ message BackendInput {
         FormatTimeSpanIn format_time_span = 31;
         StudiedTodayIn studied_today = 32;
         CongratsLearnMsgIn congrats_learn_msg = 33;
+        Empty empty_trash = 34;
+        Empty restore_trash = 35;
     }
 }
 
@@ -68,6 +70,8 @@ message BackendOutput {
         Empty sync_media = 27;
         MediaCheckOut check_media = 28;
         Empty trash_media_files = 29;
+        Empty empty_trash = 34;
+        Empty restore_trash = 35;
 
         BackendError error = 2047;
     }
@@ -281,6 +285,7 @@ message MediaCheckOut {
     repeated string unused = 1;
     repeated string missing = 2;
     string report = 3;
+    bool have_trash = 4;
 }
 
 message TrashMediaFilesIn {

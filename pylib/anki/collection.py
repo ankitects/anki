@@ -1,6 +1,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from __future__ import annotations
+
 import copy
 import datetime
 import json
@@ -12,6 +14,7 @@ import stat
 import time
 import traceback
 import unicodedata
+import weakref
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
 import anki.find
@@ -83,7 +86,6 @@ class _Collection:
         log: bool = False,
     ) -> None:
         self.backend = backend
-        self.tr = backend.translate
         self._debugLog = log
         self.db = db
         self.path = db._path
@@ -111,6 +113,13 @@ class _Collection:
     def name(self) -> Any:
         n = os.path.splitext(os.path.basename(self.path))[0]
         return n
+
+    def tr(self, key: TR, **kwargs: Union[str, int, float]) -> str:
+        return self.backend.translate(key, **kwargs)
+
+    def weakref(self) -> anki.storage._Collection:
+        "Shortcut to create a weak reference that doesn't break code completion."
+        return weakref.proxy(self)
 
     # Scheduler
     ##########################################################################
@@ -657,6 +666,7 @@ where c.nid = n.id and c.id in %s group by nid"""
         self._startTime = time.time()
         self._startReps = self.sched.reps
 
+    # FIXME: Use Literal[False] when on Python 3.8
     def timeboxReached(self) -> Union[bool, Tuple[Any, int]]:
         "Return (elapsedTime, reps) if timebox reached, or False."
         if not self.conf["timeLim"]:

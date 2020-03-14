@@ -10,7 +10,7 @@ import os
 import sys
 import tempfile
 import traceback
-from typing import Any, Optional
+from typing import Any, Callable, Dict, Optional, Union
 
 import anki.buildinfo
 import anki.lang
@@ -69,7 +69,7 @@ from aqt import stats, about, preferences, mediasync  # isort:skip
 
 class DialogManager:
 
-    _dialogs = {
+    _dialogs: Dict[str, list] = {
         "AddCards": [addcards.AddCards, None],
         "Browser": [browser.Browser, None],
         "EditCurrent": [editcurrent.EditCurrent, None],
@@ -79,7 +79,7 @@ class DialogManager:
         "sync_log": [mediasync.MediaSyncDialog, None],
     }
 
-    def open(self, name, *args):
+    def open(self, name: str, *args: Any) -> Any:
         (creator, instance) = self._dialogs[name]
         if instance:
             if instance.windowState() & Qt.WindowMinimized:
@@ -94,17 +94,17 @@ class DialogManager:
             self._dialogs[name][1] = instance
             return instance
 
-    def markClosed(self, name):
+    def markClosed(self, name: str):
         self._dialogs[name] = [self._dialogs[name][0], None]
 
     def allClosed(self):
         return not any(x[1] for x in self._dialogs.values())
 
-    def closeAll(self, onsuccess):
+    def closeAll(self, onsuccess: Callable[[], None]) -> Optional[bool]:
         # can we close immediately?
         if self.allClosed():
             onsuccess()
-            return
+            return None
 
         # ask all windows to close and await a reply
         for (name, (creator, instance)) in self._dialogs.items():
@@ -125,6 +125,34 @@ class DialogManager:
                 instance.closeWithCallback(callback)
 
         return True
+
+    def register_dialog(
+        self, name: str, creator: Union[Callable, type], instance: Optional[Any] = None
+    ):
+        """Allows add-ons to register a custom dialog to be managed by Anki's dialog
+        manager, which ensures that only one copy of the window is open at once,
+        and that the dialog cleans up asynchronously when the collection closes
+        
+        Please note that dialogs added in this manner need to define a close behavior
+        by either:
+        
+            - setting `dialog.silentlyClose = True` to have it close immediately
+            - define a `dialog.closeWithCallback()` method that is called when closed
+              by the dialog manager
+        
+        TODO?: Implement more restrictive type check to ensure these requirements
+        are met
+        
+        Arguments:
+            name {str} -- Name/identifier of the dialog in question
+            creator {Union[Callable, type]} -- A class or function to create new
+                                               dialog instances with
+        
+        Keyword Arguments:
+            instance {Optional[Any]} -- An optional existing instance of the dialog
+                                        (default: {None})
+        """
+        self._dialogs[name] = [creator, instance]
 
 
 dialogs = DialogManager()

@@ -12,6 +12,10 @@
   color: vars.$day-learn-count;
 }
 
+.zero-count {
+  color: vars.$day-zero-count;
+}
+
 .nightMode {
   .review-count {
     color: vars.$night-review-count;
@@ -23,6 +27,10 @@
 
   .learn-count {
     color: vars.$night-learn-count;
+  }
+
+  .zero-count {
+    color: vars.$night-zero-count;
   }
 }
 

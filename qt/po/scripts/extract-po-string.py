@@ -5,18 +5,16 @@ import json
 import re
 import sys
 import polib
+import shutil
 from fluent.syntax import parse, serialize
 from fluent.syntax.ast import Message, TextElement, Identifier, Pattern, Junk
 
 # extract a translated string from strings.json and insert it into ftl
 # eg:
-# $ python extract-po-string.py /path/to/templates/media-check.ftl delete-unused "Delete Unused Media" ""
-# $ python extract-po-string.py /path/to/templates/media-check.ftl delete-unused "%(a)s %(b)s" "%(a)s=$val1,%(b)s=$val2"
-#
-# NOTE: the English text is written into the templates folder of the repo, so must be copied
-# into Anki's source tree
+# $ python extract-po-string.py strings.json /path/to/templates/media-check.ftl delete-unused "Delete Unused Media" ""
+# $ python extract-po-string.py strings.json /path/to/templates/media-check.ftl delete-unused "%(a)s %(b)s" "%(a)s=$val1,%(b)s=$val2"
 
-ftl_filename, key, msgid_substring, repls = sys.argv[1:]
+json_filename, ftl_filename, key, msgid_substring, repls = sys.argv[1:]
 
 # split up replacements
 replacements = []
@@ -29,7 +27,7 @@ for repl in repls.split(","):
 prefix = os.path.splitext(os.path.basename(ftl_filename))[0]
 key = f"{prefix}-{key}"
 
-strings = json.load(open("strings.json", "r"))
+strings = json.load(open(json_filename, "r"))
 
 msgids = []
 if msgid_substring in strings["en"]:
@@ -51,17 +49,20 @@ else:
         print(f"* {c}: {id}")
     msgid = msgids[int(input("number to use? "))]
 
+
 def transform_entry(entry):
     if isinstance(entry, str):
-        return(transform_string(entry))
+        return transform_string(entry)
     else:
         return [transform_string(e) for e in entry]
 
+
 def transform_string(msg):
     for (old, new) in replacements:
-        msg = msg.replace(old, f"{{{new}}}")
+        msg = msg.replace(old, f"{new}")
     # strip leading/trailing whitespace
     return msg.strip()
+
 
 to_insert = []
 for lang in strings.keys():
@@ -114,7 +115,7 @@ def add_simple_message(fname, key, message):
 
     modified = serialize(obj, with_junk=True)
     # escape leading dots
-    modified = re.sub(r"(?ms)^( +)\.", "\\1{\".\"}", modified)
+    modified = re.sub(r"(?ms)^( +)\.", '\\1{"."}', modified)
 
     # ensure the resulting serialized file is valid by parsing again
     obj = parse(modified)
@@ -152,5 +153,10 @@ for lang, translation in to_insert:
             os.mkdir(ftl_dir)
 
     add_message(ftl_path, key, translation)
+
+# copy file from repo into src
+srcdir = os.path.join(i18ndir, "..", "..")
+src_filename = os.path.join(srcdir, os.path.basename(ftl_filename))
+shutil.copy(ftl_filename, src_filename)
 
 print("done")

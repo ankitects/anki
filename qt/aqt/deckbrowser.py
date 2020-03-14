@@ -17,15 +17,7 @@ from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.sound import av_player
 from aqt.toolbar import BottomBar
-from aqt.utils import (
-    askUser,
-    getOnlyText,
-    openHelp,
-    openLink,
-    shortcut,
-    showWarning,
-    tr,
-)
+from aqt.utils import askUser, getOnlyText, openLink, shortcut, showWarning, tr
 
 
 class DeckBrowserBottomBar:
@@ -41,12 +33,10 @@ class DeckBrowserContent:
     Attributes:
         tree {str} -- HTML of the deck tree section
         stats {str} -- HTML of the stats section
-        countwarn {str} -- HTML of the deck count warning section
     """
 
     tree: str
     stats: str
-    countwarn: str
 
 
 class DeckBrowser:
@@ -84,11 +74,6 @@ class DeckBrowser:
             self._onShared()
         elif cmd == "import":
             self.mw.onImport()
-        elif cmd == "lots":
-            openHelp("using-decks-appropriately")
-        elif cmd == "hidelots":
-            self.mw.pm.profile["hideDeckLotsMsg"] = True
-            self.refresh()
         elif cmd == "create":
             deck = getOnlyText(_("Name for deck:"))
             if deck:
@@ -116,7 +101,6 @@ class DeckBrowser:
 
 <br>
 %(stats)s
-%(countwarn)s
 </center>
 """
 
@@ -130,9 +114,7 @@ class DeckBrowser:
 
     def __renderPage(self, offset):
         content = DeckBrowserContent(
-            tree=self._renderDeckTree(self._dueTree),
-            stats=self._renderStats(),
-            countwarn=self._countWarn(),
+            tree=self._renderDeckTree(self._dueTree), stats=self._renderStats(),
         )
         gui_hooks.deck_browser_will_render_content(self, content)
         self.web.stdHtml(
@@ -160,22 +142,6 @@ where id > ?""",
         thetime = thetime or 0
         buf = self.mw.col.backend.studied_today(cards, float(thetime))
         return buf
-
-    def _countWarn(self):
-        if self.mw.col.decks.count() < 25 or self.mw.pm.profile.get("hideDeckLotsMsg"):
-            return ""
-        return "<br><div style='width:50%;border: 1px solid #000;padding:5px;'>" + (
-            _("You have a lot of decks. Please see %(a)s. %(b)s")
-            % dict(
-                a=(
-                    "<a href=# onclick=\"return pycmd('lots')\">%s</a>" % _("this page")
-                ),
-                b=(
-                    "<br><small><a href=# onclick='return pycmd(\"hidelots\")'>("
-                    "%s)</a></small>" % (_("hide")) + "</div>"
-                ),
-            )
-        )
 
     def _renderDeckTree(self, nodes, depth=0):
         if not nodes:

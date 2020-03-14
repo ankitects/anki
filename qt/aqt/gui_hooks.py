@@ -13,7 +13,7 @@ import anki
 import aqt
 from anki.cards import Card
 from anki.hooks import runFilter, runHook
-from aqt.qt import QMenu
+from aqt.qt import QDialog, QMenu
 
 # New hook/filter handling
 ##############################################################################
@@ -73,6 +73,127 @@ class _AddCardsWillShowHistoryMenuHook:
 
 
 add_cards_will_show_history_menu = _AddCardsWillShowHistoryMenuHook()
+
+
+class _AddonConfigEditorWillDisplayJsonFilter:
+    """Allows changing the text of the json configuration before actually
+        displaying it to the user. For example, you can replace "\n" by
+        some actual new line. Then you can replace the new lines by "\n"
+        while reading the file and let the user uses real new line in
+        string instead of its encoding."""
+
+    _hooks: List[Callable[[str], str]] = []
+
+    def append(self, cb: Callable[[str], str]) -> None:
+        """(text: str)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[str], str]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, text: str) -> str:
+        for filter in self._hooks:
+            try:
+                text = filter(text)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return text
+
+
+addon_config_editor_will_display_json = _AddonConfigEditorWillDisplayJsonFilter()
+
+
+class _AddonConfigEditorWillSaveJsonFilter:
+    """Allows changing the text of the json configuration that was
+        received from the user before actually reading it. For
+        example, you can replace new line in strings by some "\n"."""
+
+    _hooks: List[Callable[[str], str]] = []
+
+    def append(self, cb: Callable[[str], str]) -> None:
+        """(text: str)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[str], str]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, text: str) -> str:
+        for filter in self._hooks:
+            try:
+                text = filter(text)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return text
+
+
+addon_config_editor_will_save_json = _AddonConfigEditorWillSaveJsonFilter()
+
+
+class _AddonsDialogDidChangeSelectedAddonHook:
+    """Allows doing an action when a single add-on is selected."""
+
+    _hooks: List[
+        Callable[["aqt.addons.AddonsDialog", "aqt.addons.AddonMeta"], None]
+    ] = []
+
+    def append(
+        self, cb: Callable[["aqt.addons.AddonsDialog", "aqt.addons.AddonMeta"], None]
+    ) -> None:
+        """(dialog: aqt.addons.AddonsDialog, add_on: aqt.addons.AddonMeta)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self, cb: Callable[["aqt.addons.AddonsDialog", "aqt.addons.AddonMeta"], None]
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(
+        self, dialog: aqt.addons.AddonsDialog, add_on: aqt.addons.AddonMeta
+    ) -> None:
+        for hook in self._hooks:
+            try:
+                hook(dialog, add_on)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+addons_dialog_did_change_selected_addon = _AddonsDialogDidChangeSelectedAddonHook()
+
+
+class _AddonsDialogWillShowHook:
+    """Allows changing the add-on dialog before it is shown. E.g. add
+        buttons."""
+
+    _hooks: List[Callable[["aqt.addons.AddonsDialog"], None]] = []
+
+    def append(self, cb: Callable[["aqt.addons.AddonsDialog"], None]) -> None:
+        """(dialog: aqt.addons.AddonsDialog)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[["aqt.addons.AddonsDialog"], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, dialog: aqt.addons.AddonsDialog) -> None:
+        for hook in self._hooks:
+            try:
+                hook(dialog)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+addons_dialog_will_show = _AddonsDialogWillShowHook()
 
 
 class _AvPlayerDidBeginPlayingHook:
@@ -302,6 +423,30 @@ class _BrowserWillBuildTreeFilter:
 browser_will_build_tree = _BrowserWillBuildTreeFilter()
 
 
+class _BrowserWillShowHook:
+    _hooks: List[Callable[["aqt.browser.Browser"], None]] = []
+
+    def append(self, cb: Callable[["aqt.browser.Browser"], None]) -> None:
+        """(browser: aqt.browser.Browser)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[["aqt.browser.Browser"], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, browser: aqt.browser.Browser) -> None:
+        for hook in self._hooks:
+            try:
+                hook(browser)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+browser_will_show = _BrowserWillShowHook()
+
+
 class _BrowserWillShowContextMenuHook:
     _hooks: List[Callable[["aqt.browser.Browser", QMenu], None]] = []
 
@@ -326,6 +471,33 @@ class _BrowserWillShowContextMenuHook:
 
 
 browser_will_show_context_menu = _BrowserWillShowContextMenuHook()
+
+
+class _CardLayoutWillShowHook:
+    """Allow to change the display of the card layout. After most values are
+         set and before the window is actually shown."""
+
+    _hooks: List[Callable[["aqt.clayout.CardLayout"], None]] = []
+
+    def append(self, cb: Callable[["aqt.clayout.CardLayout"], None]) -> None:
+        """(clayout: aqt.clayout.CardLayout)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[["aqt.clayout.CardLayout"], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, clayout: aqt.clayout.CardLayout) -> None:
+        for hook in self._hooks:
+            try:
+                hook(clayout)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+card_layout_will_show = _CardLayoutWillShowHook()
 
 
 class _CardWillShowFilter:
@@ -407,6 +579,61 @@ class _CurrentNoteTypeDidChangeHook:
 
 
 current_note_type_did_change = _CurrentNoteTypeDidChangeHook()
+
+
+class _DebugConsoleDidEvaluatePythonFilter:
+    """Allows processing the debug result. E.g. logging queries and
+        result, saving last query to display it later..."""
+
+    _hooks: List[Callable[[str, str, QDialog], str]] = []
+
+    def append(self, cb: Callable[[str, str, QDialog], str]) -> None:
+        """(output: str, query: str, debug_window: QDialog)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[str, str, QDialog], str]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, output: str, query: str, debug_window: QDialog) -> str:
+        for filter in self._hooks:
+            try:
+                output = filter(output, query, debug_window)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return output
+
+
+debug_console_did_evaluate_python = _DebugConsoleDidEvaluatePythonFilter()
+
+
+class _DebugConsoleWillShowHook:
+    """Allows editing the debug window. E.g. setting a default code, or
+        previous code."""
+
+    _hooks: List[Callable[[QDialog], None]] = []
+
+    def append(self, cb: Callable[[QDialog], None]) -> None:
+        """(debug_window: QDialog)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[QDialog], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, debug_window: QDialog) -> None:
+        for hook in self._hooks:
+            try:
+                hook(debug_window)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+debug_console_will_show = _DebugConsoleWillShowHook()
 
 
 class _DeckBrowserDidRenderHook:

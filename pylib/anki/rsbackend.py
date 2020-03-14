@@ -177,6 +177,13 @@ def proto_progress_to_native(progress: pb.Progress) -> Progress:
         assert_impossible_literal(kind)
 
 
+def _on_progress(progress_bytes: bytes) -> bool:
+    progress = pb.Progress()
+    progress.ParseFromString(progress_bytes)
+    native_progress = proto_progress_to_native(progress)
+    return hooks.bg_thread_progress_callback(True, native_progress)
+
+
 class RustBackend:
     def __init__(
         self, col_path: str, media_folder_path: str, media_db_path: str, log_path: str
@@ -191,13 +198,7 @@ class RustBackend:
             log_path=log_path,
         )
         self._backend = ankirspy.open_backend(init_msg.SerializeToString())
-        self._backend.set_progress_callback(self._on_progress)
-
-    def _on_progress(self, progress_bytes: bytes) -> bool:
-        progress = pb.Progress()
-        progress.ParseFromString(progress_bytes)
-        native_progress = proto_progress_to_native(progress)
-        return hooks.bg_thread_progress_callback(True, native_progress)
+        self._backend.set_progress_callback(_on_progress)
 
     def _run_command(
         self, input: pb.BackendInput, release_gil: bool = False
@@ -358,6 +359,12 @@ class RustBackend:
                 )
             )
         ).congrats_learn_msg
+
+    def empty_trash(self):
+        self._run_command(pb.BackendInput(empty_trash=pb.Empty()))
+
+    def restore_trash(self):
+        self._run_command(pb.BackendInput(restore_trash=pb.Empty()))
 
 
 def translate_string_in(

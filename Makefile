@@ -34,6 +34,7 @@ SUBMAKE := $(MAKE) --print-directory
 .SUFFIXES:
 
 BUILDFLAGS := --release --strip
+DEVFLAGS := $(BUILDFLAGS)
 RUNFLAGS :=
 CHECKABLE_PY := pylib qt
 CHECKABLE_RS := rslib
@@ -66,7 +67,7 @@ develop: pyenv buildhash prepare
 	@set -eo pipefail && \
 	. "${ACTIVATE_SCRIPT}" && \
 	for dir in $(DEVEL); do \
-		$(SUBMAKE) -C $$dir develop BUILDFLAGS="$(BUILDFLAGS)"; \
+		$(SUBMAKE) -C $$dir develop DEVFLAGS="$(DEVFLAGS)"; \
 	done
 
 .PHONY: run
@@ -120,9 +121,10 @@ clean-dist:
 .PHONY: check
 check: pyenv buildhash prepare
 	@set -eo pipefail && \
+	.github/scripts/trailing-newlines.sh && \
 	for dir in $(CHECKABLE_RS); do \
 	  $(SUBMAKE) -C $$dir check; \
-	done; \
+	done && \
 	. "${ACTIVATE_SCRIPT}" && \
 	$(SUBMAKE) -C rspy develop && \
 	$(SUBMAKE) -C pylib develop && \

@@ -91,7 +91,7 @@ class ModelManager:
     #############################################################
 
     def __init__(self, col: anki.storage._Collection) -> None:
-        self.col = col
+        self.col = col.weakref()
         self.models = {}
         self.changed = False
 

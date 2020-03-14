@@ -101,7 +101,7 @@ class DeckManager:
     #############################################################
 
     def __init__(self, col: anki.storage._Collection) -> None:
-        self.col = col
+        self.col = col.weakref()
         self.decks = {}
         self.dconf = {}
 

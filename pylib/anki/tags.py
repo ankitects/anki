@@ -26,7 +26,7 @@ class TagManager:
     #############################################################
 
     def __init__(self, col: anki.storage._Collection) -> None:
-        self.col = col
+        self.col = col.weakref()
         self.tags: Dict[str, int] = {}
 
     def load(self, json_: str) -> None:

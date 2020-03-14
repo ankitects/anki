@@ -88,5 +88,5 @@ img {
 
 .drawing { zoom: 50%; }
 .nightMode img.drawing {
-    filter: unquote("invert() hue-rotate(180deg)")
+    filter: unquote("invert(1) hue-rotate(180deg)")
 }

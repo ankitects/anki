@@ -37,7 +37,7 @@ class Scheduler:
     revCount: int
 
     def __init__(self, col: anki.storage._Collection) -> None:
-        self.col = col
+        self.col = col.weakref()
         self.queueLimit = 50
         self.reportLimit = 1000
         self.dynReportLimit = 99999
@@ -161,7 +161,7 @@ order by due"""
 
     def countIdx(self, card: Card) -> int:
         if card.queue in (QUEUE_TYPE_DAY_LEARN_RELEARN, QUEUE_TYPE_PREVIEW):
-            return 1
+            return QUEUE_TYPE_LRN
         return card.queue
 
     def answerButtons(self, card: Card) -> int:
@@ -440,8 +440,8 @@ did = ? and queue = {QUEUE_TYPE_NEW} limit ?)""",
             return None
 
     def _deckNewLimit(
-        self, did: int, fn: Callable[[Dict[str, Any]], int] = None
-    ) -> Any:
+        self, did: int, fn: Optional[Callable[[Dict[str, Any]], int]] = None
+    ) -> int:
         if not fn:
             fn = self._deckNewLimitSingle
         sel = self.col.decks.get(did)
@@ -473,7 +473,8 @@ select count() from
         if g["dyn"]:
             return self.dynReportLimit
         c = self.col.decks.confForDid(g["id"])
-        return max(0, c["new"]["perDay"] - g["newToday"][1])
+        limit = max(0, c["new"]["perDay"] - g["newToday"][1])
+        return hooks.scheduler_new_limit_for_single_deck(limit, g)
 
     def totalNewForCurrentDeck(self) -> int:
         return self.col.db.scalar(
@@ -690,7 +691,7 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
             card.queue = QUEUE_TYPE_DAY_LEARN_RELEARN
         return delay
 
-    def _delayForGrade(self, conf: Dict[str, Any], left: int) -> Any:
+    def _delayForGrade(self, conf: Dict[str, Any], left: int) -> int:
         left = left % 1000
         try:
             delay = conf["delays"][-left]
@@ -866,14 +867,12 @@ and due <= ? limit ?)""",
         lim = max(0, c["rev"]["perDay"] - d["revToday"][1])
 
         if parentLimit is not None:
-            return min(parentLimit, lim)
-        elif "::" not in d["name"]:
-            return lim
-        else:
+            lim = min(parentLimit, lim)
+        elif "::" in d["name"]:
             for parent in self.col.decks.parents(d["id"]):
                 # pass in dummy parentLimit so we don't do parent lookup again
                 lim = min(lim, self._deckRevLimitSingle(parent, parentLimit=lim))
-            return lim
+        return hooks.scheduler_review_limit_for_single_deck(lim, d)
 
     def _revForDeck(self, did: int, lim: int, childMap: Dict[int, Any]) -> Any:
         dids = [did] + self.col.decks.childDids(did, childMap)
@@ -1059,7 +1058,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
         min, max = self._fuzzIvlRange(ivl)
         return random.randint(min, max)
 
-    def _fuzzIvlRange(self, ivl: int) -> List:
+    def _fuzzIvlRange(self, ivl: int) -> List[int]:
         if ivl < 2:
             return [1, 1]
         elif ivl == 2:
@@ -1084,7 +1083,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
         ivl = min(ivl, conf["maxIvl"])
         return int(ivl)
 
-    def _daysLate(self, card: Card) -> Any:
+    def _daysLate(self, card: Card) -> int:
         "Number of days later than scheduled."
         due = card.odue if card.odid else card.due
         return max(0, self.today - due)
@@ -1290,7 +1289,7 @@ where id = ?
     # Tools
     ##########################################################################
 
-    def _cardConf(self, card: Card) -> Any:
+    def _cardConf(self, card: Card) -> Dict[str, Any]:
         return self.col.decks.confForDid(card.did)
 
     def _newConf(self, card: Card) -> Any:
@@ -1330,7 +1329,7 @@ where id = ?
             resched=conf["resched"],
         )
 
-    def _revConf(self, card: Card) -> Any:
+    def _revConf(self, card: Card) -> Dict[str, Any]:
         conf = self._cardConf(card)
         # normal deck
         if not card.odid:
@@ -1522,7 +1521,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
             )
         return "<p>".join(line)
 
-    def revDue(self) -> Any:
+    def revDue(self) -> Optional[int]:
         "True if there are any rev cards due."
         return self.col.db.scalar(
             (
@@ -1533,7 +1532,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
             self.today,
         )
 
-    def newDue(self) -> Any:
+    def newDue(self) -> Optional[int]:
         "True if there are any new cards due."
         return self.col.db.scalar(
             (
@@ -1668,7 +1667,7 @@ update cards set queue=?,mod=?,usn=? where id in """
             self.col.usn(),
         )
 
-    def buryNote(self, nid) -> None:
+    def buryNote(self, nid: int) -> None:
         "Bury all cards for note until next session."
         cids = self.col.db.list(
             f"select id from cards where nid = ? and queue >= {QUEUE_TYPE_NEW}", nid

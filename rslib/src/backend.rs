@@ -21,7 +21,7 @@ use crate::{backend_proto as pb, log};
 use fluent::FluentValue;
 use prost::Message;
 use std::collections::{HashMap, HashSet};
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use tokio::runtime::Runtime;
 
 pub type ProtoProgressCallback = Box<dyn Fn(Vec<u8>) -> bool + Send>;
@@ -108,7 +108,7 @@ pub fn init_backend(init_msg: &[u8]) -> std::result::Result<Backend, String> {
 
     let log_path = match input.log_path.as_str() {
         "" => None,
-        path => Some(Path::new(path)),
+        path => Some(path),
     };
     let logger =
         default_logger(log_path).map_err(|e| format!("Unable to open log file: {:?}", e))?;
@@ -233,6 +233,14 @@ impl Backend {
                 input.next_due,
                 &self.i18n,
             )),
+            Value::EmptyTrash(_) => {
+                self.empty_trash()?;
+                OValue::EmptyTrash(Empty {})
+            }
+            Value::RestoreTrash(_) => {
+                self.restore_trash()?;
+                OValue::RestoreTrash(Empty {})
+            }
         })
     }
 
@@ -413,6 +421,7 @@ impl Backend {
             unused: output.unused,
             missing: output.missing,
             report,
+            have_trash: output.trash_count > 0,
         })
     }
 
@@ -451,6 +460,26 @@ impl Backend {
                 answer_button_time(input.seconds, &self.i18n)
             }
         }
+    }
+
+    fn empty_trash(&self) -> Result<()> {
+        let callback =
+            |progress: usize| self.fire_progress_callback(Progress::MediaCheck(progress as u32));
+
+        let mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
+        let mut checker = MediaChecker::new(&mgr, &self.col_path, callback, &self.i18n, &self.log);
+
+        checker.empty_trash()
+    }
+
+    fn restore_trash(&self) -> Result<()> {
+        let callback =
+            |progress: usize| self.fire_progress_callback(Progress::MediaCheck(progress as u32));
+
+        let mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
+        let mut checker = MediaChecker::new(&mgr, &self.col_path, callback, &self.i18n, &self.log);
+
+        checker.restore_trash()
     }
 }
 

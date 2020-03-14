@@ -42,7 +42,7 @@ class MediaManager:
     regexps = soundRegexps + imgRegexps
 
     def __init__(self, col: anki.storage._Collection, server: bool) -> None:
-        self.col = col
+        self.col = col.weakref()
         if server:
             self._dir = None
             return

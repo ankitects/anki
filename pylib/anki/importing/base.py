@@ -19,7 +19,7 @@ class Importer:
     def __init__(self, col: _Collection, file: str) -> None:
         self.file = file
         self.log: List[str] = []
-        self.col = col
+        self.col = col.weakref()
         self.total = 0
         self.dst = None
 

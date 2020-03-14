@@ -25,6 +25,7 @@ To start, make sure you have the following installed:
  - rename
  - rsync
  - perl
+ - ripgrep (cargo install rigrep)
 
 The build scripts assume a UNIX-like environment, so on Windows you will
 need to use WSL or Cygwin to use them.
@@ -62,13 +63,6 @@ Use 'make build' to output Python wheels of the subcomponents into the dist/
 folder.
 
 Use 'make clean' to remove some generated files.
-
-Performance
-------------
-
-'make run' builds the Rust libraries in unoptimized debug mode. Before doing
-any performance testing, please make sure you make a release build with
-'make build', and install the resulting .whl files with pip.
 
 PyQt
 -----

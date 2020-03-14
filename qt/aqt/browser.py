@@ -596,6 +596,7 @@ class Browser(QMainWindow):
         self.updateFont()
         self.onUndoState(self.mw.form.actionUndo.isEnabled())
         self.setupSearch()
+        gui_hooks.browser_will_show(self)
         self.show()
 
     def setupMenus(self) -> None:
@@ -867,7 +868,7 @@ QTableView {{ gridline-color: {grid} }}
         else:
             self.editor.setNote(self.card.note(reload=True), focusTo=self.focusTo)
             self.focusTo = None
-            self.editor.card = self.card  # type: ignore
+            self.editor.card = self.card
             self.singleCard = True
         self._updateFlagsMenu()
         gui_hooks.browser_did_change_row(self)
@@ -1773,9 +1774,9 @@ where id in %s"""
                     audio = c.answer_av_tags()
                 av_player.play_tags(audio)
             else:
-                av_player.maybe_interrupt()
+                av_player.clear_queue_and_maybe_interrupt()
 
-                txt = self.mw.prepare_card_text_for_display(txt)
+            txt = self.mw.prepare_card_text_for_display(txt)
             txt = gui_hooks.card_will_show(
                 txt, c, "preview" + self._previewState.capitalize()
             )

@@ -5,8 +5,9 @@ pub use slog::{debug, error, Logger};
 use slog::{slog_o, Drain};
 use slog_async::OverflowStrategy;
 use std::fs::OpenOptions;
-use std::io;
-use std::path::Path;
+use std::{fs, io};
+
+const LOG_ROTATE_BYTES: u64 = 50 * 1024 * 1024;
 
 pub(crate) fn terminal() -> Logger {
     let decorator = slog_term::TermDecorator::new().build();
@@ -20,7 +21,8 @@ pub(crate) fn terminal() -> Logger {
     Logger::root(drain, slog_o!())
 }
 
-fn file(path: &Path) -> io::Result<Logger> {
+fn file(path: &str) -> io::Result<Logger> {
+    maybe_rotate_log(path)?;
     let file = OpenOptions::new().create(true).append(true).open(path)?;
 
     let decorator = slog_term::PlainSyncDecorator::new(file);
@@ -34,8 +36,37 @@ fn file(path: &Path) -> io::Result<Logger> {
     Ok(Logger::root(drain, slog_o!()))
 }
 
+fn maybe_rotate_log(path: &str) -> io::Result<()> {
+    let current_bytes = match fs::metadata(path) {
+        Ok(meta) => meta.len(),
+        Err(e) => {
+            if e.kind() == io::ErrorKind::NotFound {
+                0
+            } else {
+                return Err(e);
+            }
+        }
+    };
+    if current_bytes < LOG_ROTATE_BYTES {
+        return Ok(());
+    }
+
+    let path2 = format!("{}.1", path);
+    let path3 = format!("{}.2", path);
+
+    // if a rotated file already exists, rename it
+    if let Err(e) = fs::rename(&path2, &path3) {
+        if e.kind() != io::ErrorKind::NotFound {
+            return Err(e);
+        }
+    }
+
+    // and rotate the primary log
+    fs::rename(path, path2)
+}
+
 /// Get a logger, logging to a file if a path was provided, otherwise terminal.
-pub(crate) fn default_logger(path: Option<&Path>) -> io::Result<Logger> {
+pub(crate) fn default_logger(path: Option<&str>) -> io::Result<Logger> {
     Ok(match path {
         Some(path) => file(path)?,
         None => terminal(),

@@ -165,8 +165,15 @@ where
         self.skey.as_ref().unwrap()
     }
 
-    #[allow(clippy::useless_let_if_seq)]
     pub async fn sync(&mut self, hkey: &str) -> Result<()> {
+        self.sync_inner(hkey).await.map_err(|e| {
+            debug!(self.log, "sync error: {:?}", e);
+            e
+        })
+    }
+
+    #[allow(clippy::useless_let_if_seq)]
+    async fn sync_inner(&mut self, hkey: &str) -> Result<()> {
         self.register_changes()?;
 
         let meta = self.ctx.get_meta()?;
@@ -604,8 +611,6 @@ fn extract_into_media_folder(
         let mut data = Vec::with_capacity(file.size() as usize);
         file.read_to_end(&mut data)?;
 
-        debug!(log, "write"; "fname" => real_name);
-
         let added = add_file_from_ankiweb(media_folder, real_name, &data, log)?;
 
         output.push(added);
@@ -712,13 +717,18 @@ fn zip_files<'a>(
             break;
         }
 
-        let file_data = match data_for_file(media_folder, &file.fname) {
-            Ok(data) => data,
-            Err(e) => {
-                debug!(log, "error accessing {}: {}", &file.fname, e);
-                invalid_entries.push(&file.fname);
-                continue;
+        let file_data = if file.sha1.is_some() {
+            match data_for_file(media_folder, &file.fname) {
+                Ok(data) => data,
+                Err(e) => {
+                    debug!(log, "error accessing {}: {}", &file.fname, e);
+                    invalid_entries.push(&file.fname);
+                    continue;
+                }
             }
+        } else {
+            // uploading deletion
+            None
         };
 
         if let Some(data) = &file_data {
