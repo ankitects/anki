@@ -1746,6 +1746,37 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
                     self._newQueue.remove(cid)
                 except ValueError:
                     pass
+
+        # bury related sources
+        from anki.utils import stripHTML
+
+        def _getSource(field, note):
+            try:
+                return note[field]
+            except KeyError:
+                pass
+
+        def getSource(card):
+            note = card.note()
+            source = _getSource( 'Source', note ) or _getSource( 'source', note ) 
+            return stripHTML( source ) if source else None
+
+        firstsource = getSource( card )
+
+        if self._burySiblingsOnAnswer and firstsource:
+            for cid, queue in self.col.db.execute(
+                f"""
+select id, queue from cards where nid!=? and id!=?
+and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
+                card.nid, 
+                card.id, 
+                self.today,
+            ):
+                source = getSource( self.col.getCard( cid ) )
+
+                if source and source == firstsource and len( firstsource ) > 0:
+                    toBury.append(cid)
+
         # then bury
         if toBury:
             self.buryCards(toBury, manual=False)
