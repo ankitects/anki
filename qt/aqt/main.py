@@ -397,7 +397,7 @@ close the profile or restart Anki."""
         # at this point there should be no windows left
         self._checkForUnclosedWidgets()
 
-        self.maybeAutoSync(True)
+        self.maybeAutoSync()
 
     def _checkForUnclosedWidgets(self) -> None:
         for w in self.app.topLevelWidgets():
@@ -476,6 +476,7 @@ close the profile or restart Anki."""
     def unloadCollection(self, onsuccess: Callable) -> None:
         def callback():
             self.setEnabled(False)
+            self.media_syncer.show_diag_until_finished()
             self._unloadCollection()
             onsuccess()
 
@@ -845,7 +846,7 @@ title="%s" %s>%s</button>""" % (
         self.media_syncer.start()
 
     # expects a current profile, but no collection loaded
-    def maybeAutoSync(self, closing=False) -> None:
+    def maybeAutoSync(self) -> None:
         if (
             not self.pm.profile["syncKey"]
             or not self.pm.profile["autoSync"]
@@ -856,10 +857,6 @@ title="%s" %s>%s</button>""" % (
 
         # ok to sync
         self._sync()
-
-        # if media still syncing at this point, pop up progress diag
-        if closing:
-            self.media_syncer.show_diag_until_finished()
 
     def maybe_auto_sync_media(self) -> None:
         if not self.pm.profile["autoSync"] or self.safeMode or self.restoringBackup:
