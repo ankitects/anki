@@ -8,7 +8,7 @@ use crate::collection::{open_collection, Collection};
 use crate::err::{AnkiError, NetworkErrorKind, Result, SyncErrorKind};
 use crate::i18n::{tr_args, FString, I18n};
 use crate::latex::{extract_latex, extract_latex_expanding_clozes, ExtractedLatex};
-use crate::log::{default_logger, Logger};
+use crate::log::default_logger;
 use crate::media::check::MediaChecker;
 use crate::media::sync::MediaSyncProgress;
 use crate::media::MediaManager;
@@ -34,7 +34,6 @@ pub struct Backend {
     col: Arc<Mutex<Option<Collection>>>,
     progress_callback: Option<ProtoProgressCallback>,
     i18n: I18n,
-    log: Logger,
     server: bool,
 }
 
@@ -113,16 +112,15 @@ pub fn init_backend(init_msg: &[u8]) -> std::result::Result<Backend, String> {
         log::terminal(),
     );
 
-    Ok(Backend::new(i18n, log::terminal(), input.server))
+    Ok(Backend::new(i18n, input.server))
 }
 
 impl Backend {
-    pub fn new(i18n: I18n, log: Logger, server: bool) -> Backend {
+    pub fn new(i18n: I18n, server: bool) -> Backend {
         Backend {
             col: Arc::new(Mutex::new(None)),
             progress_callback: None,
             i18n,
-            log,
             server,
         }
     }
@@ -454,7 +452,7 @@ impl Backend {
         self.with_col(|col| {
             let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
             let mut rt = Runtime::new().unwrap();
-            rt.block_on(mgr.sync_media(callback, &input.endpoint, &input.hkey, self.log.clone()))
+            rt.block_on(mgr.sync_media(callback, &input.endpoint, &input.hkey, col.log.clone()))
         })
     }
 
