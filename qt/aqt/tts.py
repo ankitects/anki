@@ -37,7 +37,7 @@ from anki import hooks
 from anki.sound import AVTag, TTSTag
 from anki.utils import checksum, isWin, tmpdir
 from aqt import gui_hooks
-from aqt.sound import OnDoneCallback, PlayerInterrupted, SimpleProcessPlayer
+from aqt.sound import OnDoneCallback, SimpleProcessPlayer
 
 
 @dataclass
@@ -234,11 +234,7 @@ class MacTTSFilePlayer(MacTTSPlayer):
         self._wait_for_termination(tag)
 
     def _on_done(self, ret: Future, cb: OnDoneCallback) -> None:
-        try:
-            ret.result()
-        except PlayerInterrupted:
-            # don't fire done callback when interrupted
-            return
+        ret.result()
 
         # inject file into the top of the audio queue
         from aqt.sound import av_player
