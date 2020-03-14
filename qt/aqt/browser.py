@@ -1774,7 +1774,7 @@ where id in %s"""
                     audio = c.answer_av_tags()
                 av_player.play_tags(audio)
             else:
-                av_player.maybe_interrupt()
+                av_player.clear_queue_and_maybe_interrupt()
 
             txt = self.mw.prepare_card_text_for_display(txt)
             txt = gui_hooks.card_will_show(
