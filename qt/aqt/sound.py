@@ -217,10 +217,6 @@ def retryWait(proc: subprocess.Popen) -> int:
 ##########################################################################
 
 
-class PlayerInterrupted(Exception):
-    pass
-
-
 class SimpleProcessPlayer(Player):  # pylint: disable=abstract-method
     "A player that invokes a new process for each tag to play."
 
@@ -231,7 +227,6 @@ class SimpleProcessPlayer(Player):  # pylint: disable=abstract-method
         self._taskman = taskman
         self._terminate_flag = False
         self._process: Optional[subprocess.Popen] = None
-        self._lock = threading.Lock()
 
     def play(self, tag: AVTag, on_done: OnDoneCallback) -> None:
         self._terminate_flag = False
@@ -260,23 +255,22 @@ class SimpleProcessPlayer(Player):  # pylint: disable=abstract-method
         )
 
         while True:
-            with self._lock:
-                # should we abort playing?
-                if self._terminate_flag:
-                    self._process.terminate()
-                    self._process = None
-                    return
+            # should we abort playing?
+            if self._terminate_flag:
+                self._process.terminate()
+                self._process = None
+                return
 
-                # wait for completion
-                try:
-                    self._process.wait(0.1)
-                    if self._process.returncode != 0:
-                        print(f"player got return code: {self._process.returncode}")
-                    self._process = None
-                    return
-                except subprocess.TimeoutExpired:
-                    # process still running, repeat loop
-                    pass
+            # wait for completion
+            try:
+                self._process.wait(0.1)
+                if self._process.returncode != 0:
+                    print(f"player got return code: {self._process.returncode}")
+                self._process = None
+                return
+            except subprocess.TimeoutExpired:
+                # process still running, repeat loop
+                pass
 
     def _on_done(self, ret: Future, cb: OnDoneCallback) -> None:
         try:
