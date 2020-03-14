@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::err::Result;
+use crate::err::{AnkiError, Result};
 use crate::i18n::I18n;
 use crate::log::Logger;
 use crate::storage::{SqliteStorage, StorageContext};
@@ -26,9 +26,17 @@ pub fn open_collection<P: Into<PathBuf>>(
         server,
         i18n,
         log,
+        state: CollectionState::Normal,
     };
 
     Ok(col)
+}
+
+#[derive(Debug, PartialEq)]
+pub enum CollectionState {
+    Normal,
+    // in this state, the DB must not be closed
+    MediaSyncRunning,
 }
 
 pub struct Collection {
@@ -40,6 +48,7 @@ pub struct Collection {
     pub(crate) server: bool,
     pub(crate) i18n: I18n,
     pub(crate) log: Logger,
+    state: CollectionState,
 }
 
 pub(crate) enum CollectionOp {}
@@ -96,5 +105,27 @@ impl Collection {
 
             res
         })
+    }
+
+    pub(crate) fn set_media_sync_running(&mut self) -> Result<()> {
+        if self.state == CollectionState::Normal {
+            self.state = CollectionState::MediaSyncRunning;
+            Ok(())
+        } else {
+            Err(AnkiError::invalid_input("media sync already running"))
+        }
+    }
+
+    pub(crate) fn set_media_sync_finished(&mut self) -> Result<()> {
+        if self.state == CollectionState::MediaSyncRunning {
+            self.state = CollectionState::Normal;
+            Ok(())
+        } else {
+            Err(AnkiError::invalid_input("media sync not running"))
+        }
+    }
+
+    pub(crate) fn can_close(&self) -> bool {
+        self.state == CollectionState::Normal
     }
 }

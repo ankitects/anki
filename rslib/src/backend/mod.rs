@@ -8,7 +8,7 @@ use crate::collection::{open_collection, Collection};
 use crate::err::{AnkiError, NetworkErrorKind, Result, SyncErrorKind};
 use crate::i18n::{tr_args, FString, I18n};
 use crate::latex::{extract_latex, extract_latex_expanding_clozes, ExtractedLatex};
-use crate::log::default_logger;
+use crate::log::{default_logger, Logger};
 use crate::media::check::MediaChecker;
 use crate::media::sync::MediaSyncProgress;
 use crate::media::MediaManager;
@@ -23,6 +23,7 @@ use crate::{backend_proto as pb, log};
 use fluent::FluentValue;
 use prost::Message;
 use std::collections::{HashMap, HashSet};
+use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use tokio::runtime::Runtime;
 
@@ -157,13 +158,13 @@ impl Backend {
     /// If collection is not open, return an error.
     fn with_col<F, T>(&self, func: F) -> Result<T>
     where
-        F: FnOnce(&Collection) -> Result<T>,
+        F: FnOnce(&mut Collection) -> Result<T>,
     {
         func(
             self.col
                 .lock()
                 .unwrap()
-                .as_ref()
+                .as_mut()
                 .ok_or(AnkiError::CollectionNotOpen)?,
         )
     }
@@ -249,8 +250,8 @@ impl Backend {
     }
 
     fn open_collection(&self, input: pb::OpenCollectionIn) -> Result<()> {
-        let mut mutex = self.col.lock().unwrap();
-        if mutex.is_some() {
+        let mut col = self.col.lock().unwrap();
+        if col.is_some() {
             return Err(AnkiError::CollectionAlreadyOpen);
         }
 
@@ -263,7 +264,7 @@ impl Backend {
         };
         let logger = default_logger(log_path)?;
 
-        let col = open_collection(
+        let new_col = open_collection(
             input.collection_path,
             input.media_folder_path,
             input.media_db_path,
@@ -272,18 +273,22 @@ impl Backend {
             logger,
         )?;
 
-        *mutex = Some(col);
+        *col = Some(new_col);
 
         Ok(())
     }
 
     fn close_collection(&self) -> Result<()> {
-        let mut mutex = self.col.lock().unwrap();
-        if mutex.is_none() {
+        let mut col = self.col.lock().unwrap();
+        if col.is_none() {
             return Err(AnkiError::CollectionNotOpen);
         }
 
-        *mutex = None;
+        if !col.as_ref().unwrap().can_close() {
+            return Err(AnkiError::invalid_input("can't close yet"));
+        }
+
+        *col = None;
 
         Ok(())
     }
@@ -445,15 +450,38 @@ impl Backend {
     // fixme: will block other db access
 
     fn sync_media(&self, input: SyncMediaIn) -> Result<()> {
+        let mut guard = self.col.lock().unwrap();
+
+        let col = guard.as_mut().unwrap();
+        col.set_media_sync_running()?;
+
+        let folder = col.media_folder.clone();
+        let db = col.media_db.clone();
+        let log = col.log.clone();
+
+        drop(guard);
+
+        let res = self.sync_media_inner(input, folder, db, log);
+
+        self.with_col(|col| col.set_media_sync_finished())?;
+
+        res
+    }
+
+    fn sync_media_inner(
+        &self,
+        input: pb::SyncMediaIn,
+        folder: PathBuf,
+        db: PathBuf,
+        log: Logger,
+    ) -> Result<()> {
         let callback = |progress: &MediaSyncProgress| {
             self.fire_progress_callback(Progress::MediaSync(progress))
         };
 
-        self.with_col(|col| {
-            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
-            let mut rt = Runtime::new().unwrap();
-            rt.block_on(mgr.sync_media(callback, &input.endpoint, &input.hkey, col.log.clone()))
-        })
+        let mgr = MediaManager::new(&folder, &db)?;
+        let mut rt = Runtime::new().unwrap();
+        rt.block_on(mgr.sync_media(callback, &input.endpoint, &input.hkey, log))
     }
 
     fn check_media(&self) -> Result<pb::MediaCheckOut> {
