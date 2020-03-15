@@ -517,7 +517,7 @@ Please run Tools>Empty Cards"""
                     res += good(txt)
                 else:
                     res += bad(txt)
-            res += "<br>&darr;<br>"
+            res += "<br><span id=typearrow>&darr;</span><br>"
             for ok, txt in correctElems:
                 txt = self._noLoneMarks(txt)
                 if ok:
