@@ -19,6 +19,7 @@ pub mod log;
 pub mod media;
 pub mod notes;
 pub mod sched;
+pub mod search;
 pub mod storage;
 pub mod template;
 pub mod template_filters;
