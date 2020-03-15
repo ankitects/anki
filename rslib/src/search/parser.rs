@@ -7,6 +7,7 @@ use nom::character::complete::{char, one_of};
 use nom::combinator::{all_consuming, map};
 use nom::sequence::{delimited, preceded};
 use nom::{multi::many0, IResult};
+use std::borrow::Cow;
 
 #[derive(Debug, PartialEq)]
 pub(super) enum Node<'a> {
@@ -14,7 +15,11 @@ pub(super) enum Node<'a> {
     Or,
     Not(Box<Node<'a>>),
     Group(Vec<Node<'a>>),
-    Text(&'a str),
+    UnqualifiedText(Cow<'a, str>),
+    QualifiedText {
+        key: Cow<'a, str>,
+        val: Cow<'a, str>,
+    },
 }
 
 /// Parse the input string into a list of nodes.
@@ -83,6 +88,32 @@ fn text(s: &str) -> IResult<&str, Node> {
     alt((quoted_term, unquoted_term))(s)
 }
 
+/// Determine if text is a qualified search, and handle escaped chars.
+fn node_for_text(s: &str) -> Node {
+    let mut it = s.splitn(2, ':');
+    let (head, tail) = (
+        without_escapes(it.next().unwrap()),
+        it.next().map(without_escapes),
+    );
+
+    if let Some(tail) = tail {
+        Node::QualifiedText {
+            key: head,
+            val: tail,
+        }
+    } else {
+        Node::UnqualifiedText(head)
+    }
+}
+
+fn without_escapes(s: &str) -> Cow<str> {
+    if s.find('\\').is_some() {
+        s.replace('\\', "").into()
+    } else {
+        s.into()
+    }
+}
+
 /// Unquoted text, terminated by a space or )
 fn unquoted_term(s: &str) -> IResult<&str, Node> {
     map(take_while1(|c| c != ' ' && c != ')'), |text: &str| {
@@ -91,7 +122,7 @@ fn unquoted_term(s: &str) -> IResult<&str, Node> {
         } else if text.len() == 3 && text.to_ascii_lowercase() == "and" {
             Node::And
         } else {
-            Node::Text(text)
+            node_for_text(text)
         }
     })(s)
 }
@@ -102,10 +133,10 @@ fn quoted_term(s: &str) -> IResult<&str, Node> {
 }
 
 /// Quoted text, terminated by a non-escaped double quote
-/// Can escape :, " and \
+/// Can escape " and \
 fn quoted_term_inner(s: &str) -> IResult<&str, Node> {
-    map(escaped(is_not(r#""\"#), '\\', one_of(r#"":\"#)), |o| {
-        Node::Text(o)
+    map(escaped(is_not(r#""\"#), '\\', one_of(r#""\"#)), |o| {
+        node_for_text(o)
     })(s)
 }
 
@@ -116,14 +147,22 @@ mod test {
     #[test]
     fn parsing() -> Result<(), String> {
         use Node::*;
+
         assert_eq!(
-            parse(r#"hello  -(world and "foo bar") OR test"#)?,
+            parse(r#"hello  -(world and "foo:bar baz") OR test"#)?,
             vec![
-                Text("hello"),
+                UnqualifiedText("hello".into()),
                 And,
-                Not(Box::new(Group(vec![Text("world"), And, Text("foo bar")]))),
+                Not(Box::new(Group(vec![
+                    UnqualifiedText("world".into()),
+                    And,
+                    QualifiedText {
+                        key: "foo".into(),
+                        val: "bar baz".into()
+                    }
+                ]))),
                 Or,
-                Text("test")
+                UnqualifiedText("test".into())
             ]
         );
 
