@@ -155,8 +155,11 @@ pull-i18n:
 	(cd qt/ftl && scripts/fetch-latest-translations)
 	(cd qt/po && scripts/fetch-latest-translations)
 
-.PHONY: push-i18n
-push-i18n: pull-i18n
+.PHONY: push-i18n-ftl
+push-i18n-ftl: pull-i18n
 	(cd rslib/ftl && scripts/upload-latest-templates)
 	(cd qt/ftl && scripts/upload-latest-templates)
+
+.PHONY: push-i18n-po
+push-i18n-po: pull-i18n
 	(cd qt/po && scripts/upload-latest-template)
