@@ -20,6 +20,12 @@ import anki
 from anki.cards import Card
 from anki.notes import Note
 
+if False:  # pylint: disable=W0125
+    import anki.importing.anki2
+
+    # this import is required for mypy to know how to import the type
+    # Anki2Importer.
+
 # New hook/filter handling
 ##############################################################################
 # The code in this section is automatically generated - any edits you make
@@ -279,6 +285,38 @@ class _FieldFilterFilter:
 
 
 field_filter = _FieldFilterFilter()
+
+
+class _ImporterChangeUpdateHook:
+    """Change the notes before updating them."""
+
+    _hooks: List[Callable[[List[Any], "anki.importing.anki2.Anki2Importer"], None]] = []
+
+    def append(
+        self, cb: Callable[[List[Any], "anki.importing.anki2.Anki2Importer"], None]
+    ) -> None:
+        """(update: List[Any], importer: anki.importing.anki2.Anki2Importer)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self, cb: Callable[[List[Any], "anki.importing.anki2.Anki2Importer"], None]
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(
+        self, update: List[Any], importer: anki.importing.anki2.Anki2Importer
+    ) -> None:
+        for hook in self._hooks:
+            try:
+                hook(update, importer)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+importer_change_update = _ImporterChangeUpdateHook()
 
 
 class _ImporterDoesItUpdateNoteFilter:

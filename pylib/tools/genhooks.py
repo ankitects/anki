@@ -140,6 +140,11 @@ hooks = [
         the current collection. It is assumed that the schemas are the
         same, otherwise update is technically impossible anyway.""",
     ),
+    Hook(
+        name="importer_change_update",
+        args=["update: List[Any]", "importer: anki.importing.anki2.Anki2Importer"],
+        doc="""Change the notes before updating them.""",
+    ),
 ]
 
 if __name__ == "__main__":
