@@ -460,6 +460,10 @@ def emptyNewCard():
         return_type="str",
         legacy_hook="mungeEditingFontName",
     ),
+    Hook(
+        name="editor_web_view_did_init",
+        args=["editor_web_view: aqt.editor.EditorWebView"],
+    ),
     # Sound/video
     ###################
     Hook(name="av_player_will_play", args=["tag: anki.sound.AVTag"]),

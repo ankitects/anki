@@ -1036,6 +1036,30 @@ class _EditorDidUpdateTagsHook:
 editor_did_update_tags = _EditorDidUpdateTagsHook()
 
 
+class _EditorWebViewDidInitHook:
+    _hooks: List[Callable[["aqt.editor.EditorWebView"], None]] = []
+
+    def append(self, cb: Callable[["aqt.editor.EditorWebView"], None]) -> None:
+        """(editor_web_view: aqt.editor.EditorWebView)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[["aqt.editor.EditorWebView"], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, editor_web_view: aqt.editor.EditorWebView) -> None:
+        for hook in self._hooks:
+            try:
+                hook(editor_web_view)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+editor_web_view_did_init = _EditorWebViewDidInitHook()
+
+
 class _EditorWillShowContextMenuHook:
     _hooks: List[Callable[["aqt.editor.EditorWebView", QMenu], None]] = []
 
