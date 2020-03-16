@@ -403,6 +403,33 @@ class _ImporterDoesItUpdateNoteTypeFilter:
 importer_does_it_update_note_type = _ImporterDoesItUpdateNoteTypeFilter()
 
 
+class _ImportingChangeDeckDescriptionFilter:
+    """Whether to update the description of a deck."""
+
+    _hooks: List[Callable[[bool, int, Dict[str, Any]], bool]] = []
+
+    def append(self, cb: Callable[[bool, int, Dict[str, Any]], bool]) -> None:
+        """(update: bool, newid: int, imported_deck: Dict[str, Any])"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[bool, int, Dict[str, Any]], bool]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, update: bool, newid: int, imported_deck: Dict[str, Any]) -> bool:
+        for filter in self._hooks:
+            try:
+                update = filter(update, newid, imported_deck)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return update
+
+
+importing_change_deck_description = _ImportingChangeDeckDescriptionFilter()
+
+
 class _MediaFilesDidExportHook:
     _hooks: List[Callable[[int], None]] = []
 

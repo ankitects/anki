@@ -145,6 +145,12 @@ hooks = [
         args=["update: List[Any]", "importer: anki.importing.anki2.Anki2Importer"],
         doc="""Change the notes before updating them.""",
     ),
+    Hook(
+        name="importing_change_deck_description",
+        args=["update: bool", "newid: int", "imported_deck: Dict[str, Any]"],
+        return_type="bool",
+        doc="""Whether to update the description of a deck.""",
+    ),
 ]
 
 if __name__ == "__main__":

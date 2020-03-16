@@ -293,9 +293,10 @@ class Anki2Importer(Importer):
             g2["conf"] = g["conf"]
             self.dst.decks.save(g2)
         # save desc
-        deck = self.dst.decks.get(newid)
-        deck["desc"] = g["desc"]
-        self.dst.decks.save(deck)
+        if hooks.importing_change_deck_description(True, newid, g):
+            deck = self.dst.decks.get(newid)
+            deck["desc"] = g["desc"]
+            self.dst.decks.save(deck)
         # add to deck map and return
         self._decks[did] = newid
         return newid
