@@ -5,6 +5,7 @@ import os
 import unicodedata
 from typing import Any, Dict, List, Optional, Tuple
 
+from anki import hooks
 from anki.collection import _Collection
 from anki.consts import *
 from anki.importing.base import Importer
@@ -122,7 +123,9 @@ class Anki2Importer(Importer):
                 if self.allowUpdate:
                     oldNid, oldMod, oldMid = self._notes[note[GUID]]
                     # will update if incoming note more recent
-                    if oldMod < note[MOD]:
+                    if hooks.importer_does_it_update_note(
+                        oldMod < note[MOD], note, self._notes[note[GUID]]
+                    ):
                         # safe if note types identical
                         if oldMid == note[MID]:
                             # incoming note should use existing id

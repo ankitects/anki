@@ -109,6 +109,23 @@ hooks = [
         doc="""Allows changing the number of rev card for this deck (without
         considering descendants).""",
     ),
+    # Importing
+    ###################
+    Hook(
+        name="importer_does_it_update_note",
+        args=["importing: bool", "note: List[Any]", "old_note: Tuple[int, int, int]"],
+        return_type="bool",
+        doc="""Decides whether a note from the collection should be updated to the
+        imported deck value. It assumes that the note is present in
+        both collection and imported deck.
+
+        By default, a note is updated iff its last modification date
+        is more recent in the imported deck than in the current
+        collection.
+
+        The note is the list of values taken from the collection
+        database.  The old_note is an in Anki2Importer._notes.  """,
+    ),
 ]
 
 if __name__ == "__main__":

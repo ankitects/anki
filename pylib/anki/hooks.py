@@ -281,6 +281,48 @@ class _FieldFilterFilter:
 field_filter = _FieldFilterFilter()
 
 
+class _ImporterDoesItUpdateNoteFilter:
+    """Decides whether a note from the collection should be updated to the
+        imported deck value. It assumes that the note is present in
+        both collection and imported deck.
+
+        By default, a note is updated iff its last modification date
+        is more recent in the imported deck than in the current
+        collection.
+
+        The note is the list of values taken from the collection
+        database.  The old_note is an in Anki2Importer._notes.  """
+
+    _hooks: List[Callable[[bool, List[Any], Tuple[int, int, int]], bool]] = []
+
+    def append(
+        self, cb: Callable[[bool, List[Any], Tuple[int, int, int]], bool]
+    ) -> None:
+        """(importing: bool, note: List[Any], old_note: Tuple[int, int, int])"""
+        self._hooks.append(cb)
+
+    def remove(
+        self, cb: Callable[[bool, List[Any], Tuple[int, int, int]], bool]
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(
+        self, importing: bool, note: List[Any], old_note: Tuple[int, int, int]
+    ) -> bool:
+        for filter in self._hooks:
+            try:
+                importing = filter(importing, note, old_note)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return importing
+
+
+importer_does_it_update_note = _ImporterDoesItUpdateNoteFilter()
+
+
 class _MediaFilesDidExportHook:
     _hooks: List[Callable[[int], None]] = []
 
