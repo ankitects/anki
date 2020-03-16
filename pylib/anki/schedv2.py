@@ -1763,23 +1763,23 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
 
         def getSource(card):
             note = card.note()
-            source = _getSource( 'Source', note ) or _getSource( 'source', note ) 
-            return stripHTML( source ) if source else None
+            source = _getSource("Source", note) or _getSource("source", note)
+            return stripHTML(source) if source else None
 
-        firstsource = getSource( card )
+        firstsource = getSource(card)
 
         if self._burySiblingsOnAnswer and firstsource:
             for cid, queue in self.col.db.execute(
                 f"""
 select id, queue from cards where nid!=? and id!=?
 and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
-                card.nid, 
-                card.id, 
+                card.nid,
+                card.id,
                 self.today,
             ):
-                source = getSource( self.col.getCard( cid ) )
+                source = getSource(self.col.getCard(cid))
 
-                if source and source == firstsource and len( firstsource ) > 0:
+                if source and source == firstsource and len(firstsource) > 0:
                     toBury.append(cid)
 
         # then bury
