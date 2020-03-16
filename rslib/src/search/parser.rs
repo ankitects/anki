@@ -247,7 +247,7 @@ fn search_node_for_text_with_argument<'a>(
 /// ensure a list of ids contains only numbers and commas, returning unchanged if true
 /// used by nid: and cid:
 fn check_id_list(s: Cow<str>) -> ParseResult<Cow<str>> {
-    if s.as_bytes().iter().any(|&c| !is_digit(c) && c != b',') {
+    if s.is_empty() || s.as_bytes().iter().any(|&c| !is_digit(c) && c != b',') {
         Err(ParseError {})
     } else {
         Ok(s)
