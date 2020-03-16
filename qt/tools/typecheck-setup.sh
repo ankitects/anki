@@ -6,8 +6,23 @@
 # able to resolve. A solution that doesn't require modifying the python install
 # would be welcome!
 
-TOOLS="$(cd "`dirname "$0"`"; pwd)"
-modDir=$(python -c 'import PyQt5, sys, os; print(os.path.dirname(sys.modules["PyQt5"].__file__))')
-cmd="rsync -a $TOOLS/stubs/PyQt5/* $modDir/"
+set -eo pipefail
 
-$cmd > /dev/null 2>&1 || sudo $cmd
+TOOLS="$(cd "`dirname "$0"`"; pwd)"
+modDir=$(python -c 'import PyQt5, sys, os; sys.stdout.write(os.path.dirname(sys.modules["PyQt5"].__file__))')
+
+unameOut="$(uname -s)"
+case "${unameOut}" in
+    CYGWIN*)
+        modDir="$(cygpath -u "${modDir}")"
+        ;;
+esac
+
+cmd="rsync -a \"${TOOLS}/stubs/PyQt5/\" \"${modDir}/\""
+
+if [[ "w${OS}" == "wWindows_NT" ]]; 
+then
+    eval "${cmd}" > /dev/null 2>&1 || eval "${cmd}"
+else
+    eval "${cmd}" > /dev/null 2>&1 || eval "${cmd}" || eval "sudo ${cmd}"
+fi
