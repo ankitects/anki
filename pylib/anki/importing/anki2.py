@@ -238,7 +238,9 @@ class Anki2Importer(Importer):
             dstScm = self.dst.models.scmhash(dstModel)
             if srcScm == dstScm:
                 # copy styling changes over if newer
-                if srcModel["mod"] > dstModel["mod"]:
+                if hooks.importer_does_it_update_note_type(
+                    srcModel["mod"] > dstModel["mod"], srcModel, dstModel
+                ):
                     model = srcModel.copy()
                     model["id"] = mid
                     model["usn"] = self.col.usn()

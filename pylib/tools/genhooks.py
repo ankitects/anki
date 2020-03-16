@@ -126,6 +126,20 @@ hooks = [
         The note is the list of values taken from the collection
         database.  The old_note is an in Anki2Importer._notes.  """,
     ),
+    Hook(
+        name="importer_does_it_update_note_type",
+        args=[
+            "importing: bool",
+            "srcModel: anki.models.NoteType",
+            "dstModel: anki.models.NoteType",
+        ],
+        return_type="bool",
+        doc="""Decides whether a note type should be replaced when importing a
+        collection. By default, a note type is replaced iff its last
+        modification date is more recent in the imported deck than in
+        the current collection. It is assumed that the schemas are the
+        same, otherwise update is technically impossible anyway.""",
+    ),
 ]
 
 if __name__ == "__main__":

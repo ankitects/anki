@@ -323,6 +323,48 @@ class _ImporterDoesItUpdateNoteFilter:
 importer_does_it_update_note = _ImporterDoesItUpdateNoteFilter()
 
 
+class _ImporterDoesItUpdateNoteTypeFilter:
+    """Decides whether a note type should be replaced when importing a
+        collection. By default, a note type is replaced iff its last
+        modification date is more recent in the imported deck than in
+        the current collection. It is assumed that the schemas are the
+        same, otherwise update is technically impossible anyway."""
+
+    _hooks: List[
+        Callable[[bool, "anki.models.NoteType", "anki.models.NoteType"], bool]
+    ] = []
+
+    def append(
+        self, cb: Callable[[bool, "anki.models.NoteType", "anki.models.NoteType"], bool]
+    ) -> None:
+        """(importing: bool, srcModel: anki.models.NoteType, dstModel: anki.models.NoteType)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self, cb: Callable[[bool, "anki.models.NoteType", "anki.models.NoteType"], bool]
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(
+        self,
+        importing: bool,
+        srcModel: anki.models.NoteType,
+        dstModel: anki.models.NoteType,
+    ) -> bool:
+        for filter in self._hooks:
+            try:
+                importing = filter(importing, srcModel, dstModel)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return importing
+
+
+importer_does_it_update_note_type = _ImporterDoesItUpdateNoteTypeFilter()
+
+
 class _MediaFilesDidExportHook:
     _hooks: List[Callable[[int], None]] = []
 
