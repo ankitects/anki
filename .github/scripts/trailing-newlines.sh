@@ -1,8 +1,12 @@
 #!/bin/bash
 
-set -e
+set -eo pipefail
 
-files=$(rg -l '[^\n]\z' -g '!*.{svg,scss,json}' || true)
+# Checking version to force it fail the build if rg is not installed.
+# Because `set -e` does not work inside the subshell $()
+rg --version
+
+files=$(rg -l '[^\n]\z' -g '!*.{png,svg,scss,json}' || true)
 if [ "$files" != "" ]; then
     echo "the following files are missing a newline on the last line:"
     echo $files
