@@ -1,4 +1,5 @@
-# coding: utf-8
+#!/usr/bin/env python3
+# -*- coding: UTF-8 -*-
 
 import os
 import tempfile
@@ -34,6 +35,6 @@ def test_graphs():
     d = aopen(os.path.join(dir, "test.anki2"))
     g = d.stats()
     rep = g.report()
-    with open(os.path.join(dir, "test.html"), "w") as f:
+    with open(os.path.join(dir, "test.html"), "w", encoding="UTF-8") as f:
         f.write(rep)
     return
