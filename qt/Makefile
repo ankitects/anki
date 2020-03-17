@@ -1,6 +1,11 @@
 SHELL := /bin/bash
 FIND := $(if $(wildcard /bin/find),/bin/find,/usr/bin/find)
 
+# For example, to run an individual test, use: export PYTEST_ARGS=tests/test_addons.py::test_mustHaveName
+ifndef PYTEST_ARGS
+	PYTEST_ARGS :=
+endif
+
 .SHELLFLAGS := -eu -o pipefail -c
 .DELETE_ON_ERROR:
 MAKEFLAGS += --warn-undefined-variables
@@ -84,7 +89,7 @@ CHECKDEPS := $(shell ${FIND} aqt tests -name '*.py' | grep -v buildinfo.py)
 	@touch $@
 
 .build/test: $(CHECKDEPS)
-	python -m pytest -s
+	python -m pytest -s ${PYTEST_ARGS}
 	@touch $@
 
 .build/lint: $(CHECKDEPS)
