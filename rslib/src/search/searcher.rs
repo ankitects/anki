@@ -63,9 +63,9 @@ fn write_search_node_to_sql(ctx: &mut SearchContext, node: &SearchNode) {
             write!(ctx.sql, "n.mid = {}", ntid).unwrap();
         }
         SearchNode::NoteType(notetype) => write_note_type(ctx, notetype.as_ref()),
-        SearchNode::Rated { days, ease } => write_rated(ctx, days, ease),
+        SearchNode::Rated { days, ease } => write_rated(ctx, *days, *ease),
         SearchNode::Tag(tag) => write_tag(ctx, tag),
-        SearchNode::Duplicates { note_type_id, text } => write_dupes(ctx, note_type_id, text),
+        SearchNode::Duplicates { note_type_id, text } => write_dupes(ctx, *note_type_id, text),
         SearchNode::State(state) => write_state(ctx, state),
         SearchNode::Flag(flag) => {
             write!(ctx.sql, "(c.flags & 7) == {}", flag).unwrap();
@@ -104,9 +104,9 @@ fn write_tag(ctx: &mut SearchContext, text: &str) {
 }
 
 // fixme: need day cutoff
-fn write_rated(ctx: &mut SearchContext, days: &u32, ease: &Option<u8>) {
+fn write_rated(ctx: &mut SearchContext, days: u32, ease: Option<u8>) {
     let today_cutoff = 0; // fixme
-    let days = *days.min(&31);
+    let days = days.min(31);
     let target_cutoff = today_cutoff - 86_400 * days;
     write!(
         ctx.sql,
@@ -241,7 +241,7 @@ fn write_single_field(ctx: &mut SearchContext, field: &str, val: &str) {
     write!(ctx.sql, ")").unwrap();
 }
 
-fn write_dupes(ctx: &mut SearchContext, ntid: &ObjID, text: &str) {
+fn write_dupes(ctx: &mut SearchContext, ntid: ObjID, text: &str) {
     let text_nohtml = strip_html_preserving_image_filenames(text);
     let csum = field_checksum(text_nohtml.as_ref());
     write!(
