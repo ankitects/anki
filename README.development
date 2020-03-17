@@ -46,7 +46,6 @@ Subcomponents
   is only a tiny subsection at the moment.
 - proto contains the interface used to communicate between different
   languages.
-- tslib and react are just an experiment at the moment.
 
 Makefile
 --------------
