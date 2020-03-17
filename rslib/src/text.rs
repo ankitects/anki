@@ -219,8 +219,20 @@ pub(crate) fn normalize_to_nfc(s: &str) -> Cow<str> {
     }
 }
 
+/// True if search is equal to text, folding ascii case.
+/// Supports '*' to match 0 or more characters.
+pub(crate) fn matches_wildcard(text: &str, search: &str) -> bool {
+    if search.contains('*') {
+        let search = format!("^(?i){}$", regex::escape(search).replace(r"\*", ".*"));
+        Regex::new(&search).unwrap().is_match(text)
+    } else {
+        text.eq_ignore_ascii_case(search)
+    }
+}
+
 #[cfg(test)]
 mod test {
+    use super::matches_wildcard;
     use crate::text::{
         extract_av_tags, strip_av_tags, strip_html, strip_html_preserving_image_filenames, AVTag,
     };
@@ -264,5 +276,14 @@ mod test {
                 },
             ]
         );
+    }
+
+    #[test]
+    fn wildcard() {
+        assert_eq!(matches_wildcard("foo", "bar"), false);
+        assert_eq!(matches_wildcard("foo", "Foo"), true);
+        assert_eq!(matches_wildcard("foo", "F*"), true);
+        assert_eq!(matches_wildcard("foo", "F*oo"), true);
+        assert_eq!(matches_wildcard("foo", "b*"), false);
     }
 }

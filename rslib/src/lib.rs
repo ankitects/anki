@@ -13,6 +13,8 @@ pub mod backend;
 pub mod card;
 pub mod cloze;
 pub mod collection;
+pub mod config;
+pub mod decks;
 pub mod err;
 pub mod i18n;
 pub mod latex;

@@ -3,7 +3,11 @@
 
 use super::parser::{Node, PropertyKind, SearchNode, StateKind, TemplateKind};
 use crate::card::CardQueue;
+use crate::decks::child_ids;
+use crate::decks::get_deck;
+use crate::err::{AnkiError, Result};
 use crate::notes::field_checksum;
+use crate::text::matches_wildcard;
 use crate::{
     collection::RequestContext, text::strip_html_preserving_image_filenames, types::ObjID,
 };
@@ -21,34 +25,35 @@ struct SearchContext<'a> {
 fn node_to_sql<'a>(
     ctx: &'a mut RequestContext<'a>,
     node: &'a Node,
-) -> (String, Vec<ToSqlOutput<'a>>) {
+) -> Result<(String, Vec<ToSqlOutput<'a>>)> {
     let sql = String::new();
     let args = vec![];
     let mut sctx = SearchContext { ctx, sql, args };
-    write_node_to_sql(&mut sctx, node);
-    (sctx.sql, sctx.args)
+    write_node_to_sql(&mut sctx, node)?;
+    Ok((sctx.sql, sctx.args))
 }
 
-fn write_node_to_sql(ctx: &mut SearchContext, node: &Node) {
+fn write_node_to_sql(ctx: &mut SearchContext, node: &Node) -> Result<()> {
     match node {
         Node::And => write!(ctx.sql, " and ").unwrap(),
         Node::Or => write!(ctx.sql, " or ").unwrap(),
         Node::Not(node) => {
             write!(ctx.sql, "not ").unwrap();
-            write_node_to_sql(ctx, node);
+            write_node_to_sql(ctx, node)?;
         }
         Node::Group(nodes) => {
             write!(ctx.sql, "(").unwrap();
             for node in nodes {
-                write_node_to_sql(ctx, node);
+                write_node_to_sql(ctx, node)?;
             }
             write!(ctx.sql, ")").unwrap();
         }
-        Node::Search(search) => write_search_node_to_sql(ctx, search),
-    }
+        Node::Search(search) => write_search_node_to_sql(ctx, search)?,
+    };
+    Ok(())
 }
 
-fn write_search_node_to_sql(ctx: &mut SearchContext, node: &SearchNode) {
+fn write_search_node_to_sql(ctx: &mut SearchContext, node: &SearchNode) -> Result<()> {
     match node {
         SearchNode::UnqualifiedText(text) => write_unqualified(ctx, text),
         SearchNode::SingleField { field, text } => {
@@ -58,7 +63,7 @@ fn write_search_node_to_sql(ctx: &mut SearchContext, node: &SearchNode) {
             write!(ctx.sql, "c.id > {}", days).unwrap();
         }
         SearchNode::CardTemplate(template) => write_template(ctx, template),
-        SearchNode::Deck(deck) => write_deck(ctx, deck.as_ref()),
+        SearchNode::Deck(deck) => write_deck(ctx, deck.as_ref())?,
         SearchNode::NoteTypeID(ntid) => {
             write!(ctx.sql, "n.mid = {}", ntid).unwrap();
         }
@@ -77,7 +82,8 @@ fn write_search_node_to_sql(ctx: &mut SearchContext, node: &SearchNode) {
             write!(ctx.sql, "c.id in ({})", cids).unwrap();
         }
         SearchNode::Property { operator, kind } => write_prop(ctx, operator, kind),
-    }
+    };
+    Ok(())
 }
 
 fn write_unqualified(ctx: &mut SearchContext, text: &str) {
@@ -180,19 +186,43 @@ fn write_state(ctx: &mut SearchContext, state: &StateKind) {
     .unwrap()
 }
 
-// fixme: need deck manager
-fn write_deck(ctx: &mut SearchContext, deck: &str) {
+fn write_deck(ctx: &mut SearchContext, deck: &str) -> Result<()> {
     match deck {
         "*" => write!(ctx.sql, "true").unwrap(),
         "filtered" => write!(ctx.sql, "c.odid > 0").unwrap(),
-        "current" => {
-            todo!() // fixme: need current deck and child decks
+        deck => {
+            let all_decks = ctx.ctx.storage.all_decks()?;
+            let dids_with_children = if deck == "current" {
+                let config = ctx.ctx.storage.all_config()?;
+                let mut dids_with_children = vec![config.current_deck_id];
+                let current = get_deck(&all_decks, config.current_deck_id)
+                    .ok_or_else(|| AnkiError::invalid_input("invalid current deck"))?;
+                for child_did in child_ids(&all_decks, &current.name) {
+                    dids_with_children.push(child_did);
+                }
+                dids_with_children
+            } else {
+                let mut dids_with_children = vec![];
+                for deck in all_decks.iter().filter(|d| matches_wildcard(&d.name, deck)) {
+                    dids_with_children.push(deck.id);
+                    for child_id in child_ids(&all_decks, &deck.name) {
+                        dids_with_children.push(child_id);
+                    }
+                }
+                dids_with_children
+            };
+
+            if dids_with_children.is_empty() {
+                write!(ctx.sql, "false")
+            } else {
+                let did_strings: Vec<String> =
+                    dids_with_children.iter().map(ToString::to_string).collect();
+                write!(ctx.sql, "c.did in ({})", did_strings.join(","))
+            }
+            .unwrap();
         }
-        _deck => {
-            // fixme: narrow to dids matching possible wildcard; include children
-            todo!()
-        }
-    }
+    };
+    Ok(())
 }
 
 // fixme: need note type manager

@@ -2,10 +2,11 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::collection::CollectionOp;
+use crate::config::Config;
 use crate::err::Result;
 use crate::err::{AnkiError, DBErrorKind};
 use crate::time::{i64_unix_millis, i64_unix_secs};
-use crate::types::Usn;
+use crate::{decks::Deck, types::Usn};
 use rusqlite::{params, Connection, NO_PARAMS};
 use std::path::{Path, PathBuf};
 
@@ -209,5 +210,19 @@ impl StorageContext<'_> {
         } else {
             Ok(-1)
         }
+    }
+
+    pub(crate) fn all_decks(&self) -> Result<Vec<Deck>> {
+        self.db
+            .query_row_and_then("select decks from col", NO_PARAMS, |row| -> Result<_> {
+                Ok(serde_json::from_str(row.get_raw(0).as_str()?)?)
+            })
+    }
+
+    pub(crate) fn all_config(&self) -> Result<Config> {
+        self.db
+            .query_row_and_then("select conf from col", NO_PARAMS, |row| -> Result<_> {
+                Ok(serde_json::from_str(row.get_raw(0).as_str()?)?)
+            })
     }
 }
