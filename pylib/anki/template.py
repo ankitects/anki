@@ -211,7 +211,7 @@ def apply_custom_filters(
                     field_text, node.field_name, filter_name, ctx
                 )
                 # legacy hook - the second and fifth argument are no longer used.
-                field_text = anki.hooks.runFilter(
+                field_text = hooks.runFilter(
                     "fmod_" + filter_name,
                     field_text,
                     "",
