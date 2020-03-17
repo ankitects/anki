@@ -1,6 +1,0 @@
-{
-  "svelteSortOrder" : "styles-scripts-markup",
-  "svelteStrictMode": true,
-  "svelteBracketNewLine": true,
-  "pluginSearchDirs": ["."]
-}
