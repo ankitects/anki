@@ -54,7 +54,7 @@ pub(super) enum SearchNode<'a> {
         text: Cow<'a, str>,
     },
     AddedInDays(u32),
-    CardTemplate(Cow<'a, str>),
+    CardTemplate(TemplateKind),
     Deck(Cow<'a, str>),
     NoteTypeID(ObjID),
     NoteType(Cow<'a, str>),
@@ -94,6 +94,12 @@ pub(super) enum StateKind {
     Due,
     Buried,
     Suspended,
+}
+
+#[derive(Debug, PartialEq)]
+pub(super) enum TemplateKind {
+    Ordinal(u16),
+    Name(String),
 }
 
 /// Parse the input string into a list of nodes.
@@ -223,13 +229,13 @@ fn search_node_for_text_with_argument<'a>(
 ) -> ParseResult<SearchNode<'a>> {
     Ok(match key.to_ascii_lowercase().as_str() {
         "added" => SearchNode::AddedInDays(val.parse()?),
-        "card" => SearchNode::CardTemplate(val),
         "deck" => SearchNode::Deck(val),
         "note" => SearchNode::NoteType(val),
         "tag" => SearchNode::Tag(val),
         "mid" => SearchNode::NoteTypeID(val.parse()?),
         "nid" => SearchNode::NoteIDs(check_id_list(val)?),
         "cid" => SearchNode::CardIDs(check_id_list(val)?),
+        "card" => parse_template(val.as_ref()),
         "is" => parse_state(val.as_ref())?,
         "flag" => parse_flag(val.as_ref())?,
         "rated" => parse_rated(val.as_ref())?,
@@ -350,6 +356,13 @@ fn parse_prop(val: &str) -> ParseResult<SearchNode<'static>> {
     })
 }
 
+fn parse_template(val: &str) -> SearchNode<'static> {
+    SearchNode::CardTemplate(match val.parse::<u16>() {
+        Ok(n) => TemplateKind::Ordinal(n),
+        Err(_) => TemplateKind::Name(val.into()),
+    })
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -380,7 +393,11 @@ mod test {
         assert_eq!(parse("added:3")?, vec![Search(AddedInDays(3))]);
         assert_eq!(
             parse("card:front")?,
-            vec![Search(CardTemplate("front".into()))]
+            vec![Search(CardTemplate(TemplateKind::Name("front".into())))]
+        );
+        assert_eq!(
+            parse("card:3")?,
+            vec![Search(CardTemplate(TemplateKind::Ordinal(3)))]
         );
         assert_eq!(parse("deck:default")?, vec![Search(Deck("default".into()))]);
         assert_eq!(parse("note:basic")?, vec![Search(NoteType("basic".into()))]);
