@@ -40,9 +40,10 @@ impl Note {
     }
 }
 
+/// Text must be passed to strip_html_preserving_image_filenames() by
+/// caller prior to passing in here.
 pub(crate) fn field_checksum(text: &str) -> u32 {
-    let text = strip_html_preserving_image_filenames(text);
-    let digest = sha1::Sha1::from(text.as_ref()).digest().bytes();
+    let digest = sha1::Sha1::from(text).digest().bytes();
     u32::from_be_bytes(digest[..4].try_into().unwrap())
 }
 
@@ -119,15 +120,20 @@ pub(super) fn set_note(db: &Connection, note: &mut Note, note_type: &NoteType) -
     note.mtime_secs = i64_unix_secs();
     // hard-coded for now
     note.usn = -1;
-    let csum = field_checksum(&note.fields()[0]);
-    let sort_field = strip_html_preserving_image_filenames(
-        note.fields()
-            .get(note_type.sort_field_idx as usize)
-            .ok_or_else(|| AnkiError::DBError {
-                info: "sort field out of range".to_string(),
-                kind: DBErrorKind::MissingEntity,
-            })?,
-    );
+    let field1_nohtml = strip_html_preserving_image_filenames(&note.fields()[0]);
+    let csum = field_checksum(field1_nohtml.as_ref());
+    let sort_field = if note_type.sort_field_idx == 0 {
+        field1_nohtml
+    } else {
+        strip_html_preserving_image_filenames(
+            note.fields()
+                .get(note_type.sort_field_idx as usize)
+                .ok_or_else(|| AnkiError::DBError {
+                    info: "sort field out of range".to_string(),
+                    kind: DBErrorKind::MissingEntity,
+                })?,
+        )
+    };
 
     let mut stmt =
         db.prepare_cached("update notes set mod=?,usn=?,flds=?,sfld=?,csum=? where id=?")?;
