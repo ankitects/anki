@@ -1430,11 +1430,11 @@ will be lost. Continue?"""
             self.maybeHideAccelerators()
             self.hideStatusTips()
         elif isWin:
-            # make sure ctypes is bundled
             from ctypes import windll, wintypes  # type: ignore
 
-            _dummy = windll
-            _dummy = wintypes
+            # make sure ctypes is bundled
+            _dummy1 = windll
+            _dummy2 = wintypes
 
     def maybeHideAccelerators(self, tgt: Optional[Any] = None) -> None:
         if not self.hideMenuAccels:
