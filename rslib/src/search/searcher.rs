@@ -4,7 +4,9 @@
 use super::parser::{Node, PropertyKind, SearchNode, StateKind, TemplateKind};
 use crate::card::CardQueue;
 use crate::notes::field_checksum;
-use crate::{collection::RequestContext, types::ObjID};
+use crate::{
+    collection::RequestContext, text::strip_html_preserving_image_filenames, types::ObjID,
+};
 use rusqlite::types::ToSqlOutput;
 use std::fmt::Write;
 
@@ -240,7 +242,8 @@ fn write_single_field(ctx: &mut SearchContext, field: &str, val: &str) {
 }
 
 fn write_dupes(ctx: &mut SearchContext, ntid: &ObjID, text: &str) {
-    let csum = field_checksum(text);
+    let text_nohtml = strip_html_preserving_image_filenames(text);
+    let csum = field_checksum(text_nohtml.as_ref());
     write!(
         ctx.sql,
         "(n.mid = {} and n.csum = {} and field_at_index(n.flds, 0) = ?",
