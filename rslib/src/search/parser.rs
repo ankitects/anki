@@ -306,7 +306,7 @@ fn parse_rated(val: &str) -> ParseResult<SearchNode<'static>> {
 
 /// eg dupes:1231,hello
 fn parse_dupes(val: &str) -> ParseResult<SearchNode<'static>> {
-    let mut it = val.splitn(2, ",");
+    let mut it = val.splitn(2, ',');
     let mid: ObjID = it.next().unwrap().parse()?;
     let text = it.next().ok_or(ParseError {})?;
     Ok(SearchNode::Duplicates {
