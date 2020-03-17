@@ -69,6 +69,13 @@ hooks = [
         field_text or not before returning it.""",
     ),
     Hook(
+        name="template_filter_all_fields",
+        args=["field_text: str", "node:anki.rsbackend.TemplateReplacement"],
+        return_type="str",
+        doc="""Apply hooks to each field content, during rendering, once all
+        explicitly called filters are applied.""",
+    ),
+    Hook(
         name="note_will_flush",
         args=["note: Note"],
         doc="Allow to change a note before it is added/updated in the database.",
