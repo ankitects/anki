@@ -40,8 +40,9 @@ impl Note {
     }
 }
 
-fn field_checksum(text: &str) -> u32 {
-    let digest = sha1::Sha1::from(text).digest().bytes();
+pub(crate) fn field_checksum(text: &str) -> u32 {
+    let text = strip_html_preserving_image_filenames(text);
+    let digest = sha1::Sha1::from(text.as_ref()).digest().bytes();
     u32::from_be_bytes(digest[..4].try_into().unwrap())
 }
 
