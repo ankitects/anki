@@ -36,9 +36,24 @@ fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
     db.pragma_update(None, "cache_size", &(-40 * 1024))?;
     db.pragma_update(None, "legacy_file_format", &false)?;
     db.pragma_update(None, "journal", &"wal")?;
+
     db.set_prepared_statement_cache_capacity(50);
 
+    add_field_index_function(&db)?;
+
     Ok(db)
+}
+
+/// Adds sql function field_at_index(flds, index)
+/// to split provided fields and return field at zero-based index.
+/// If out of range, returns empty string.
+fn add_field_index_function(db: &Connection) -> Result<()> {
+    db.create_scalar_function("field_at_index", 2, true, |ctx| {
+        let mut fields = ctx.get_raw(0).as_str()?.split('\x1f');
+        let idx: u16 = ctx.get(1)?;
+        Ok(fields.nth(idx as usize).unwrap_or("").to_string())
+    })
+    .map_err(Into::into)
 }
 
 /// Fetch schema version from database.

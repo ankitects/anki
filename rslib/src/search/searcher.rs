@@ -216,7 +216,6 @@ fn write_note_type(ctx: &mut SearchContext, _notetype: &str) {
 }
 
 // fixme: need note type manager
-// fixme: need field_at_index()
 fn write_single_field(ctx: &mut SearchContext, field: &str, val: &str) {
     let _ = field;
     let fields = vec![(0, 0)]; // fixme: get list of (ntid, ordinal)
@@ -240,7 +239,6 @@ fn write_single_field(ctx: &mut SearchContext, field: &str, val: &str) {
     write!(ctx.sql, ")").unwrap();
 }
 
-// fixme: need field_at_index()
 fn write_dupes(ctx: &mut SearchContext, ntid: &ObjID, text: &str) {
     let csum = field_checksum(text);
     write!(
