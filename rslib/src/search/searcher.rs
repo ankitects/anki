@@ -1,12 +1,15 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::parser::{Node, PropertyKind, SearchNode, StateKind};
+use super::parser::{Node, PropertyKind, SearchNode, StateKind, TemplateKind};
+use crate::card::CardQueue;
+use crate::notes::field_checksum;
 use crate::{collection::RequestContext, types::ObjID};
 use rusqlite::types::ToSqlOutput;
 use std::fmt::Write;
 
 struct SearchContext<'a> {
+    #[allow(dead_code)]
     ctx: &'a mut RequestContext<'a>,
     sql: String,
     args: Vec<ToSqlOutput<'a>>,
@@ -52,7 +55,7 @@ fn write_search_node_to_sql(ctx: &mut SearchContext, node: &SearchNode) {
         SearchNode::AddedInDays(days) => {
             write!(ctx.sql, "c.id > {}", days).unwrap();
         }
-        SearchNode::CardTemplate(template) => write_template(ctx, template.as_ref()),
+        SearchNode::CardTemplate(template) => write_template(ctx, template),
         SearchNode::Deck(deck) => write_deck(ctx, deck.as_ref()),
         SearchNode::NoteTypeID(ntid) => {
             write!(ctx.sql, "n.mid = {}", ntid).unwrap();
@@ -99,38 +102,165 @@ fn write_tag(ctx: &mut SearchContext, text: &str) {
 }
 
 // fixme: need day cutoff
-fn write_rated(ctx: &mut SearchContext, days: &u32, ease: &Option<u8>) {}
+fn write_rated(ctx: &mut SearchContext, days: &u32, ease: &Option<u8>) {
+    let today_cutoff = 0; // fixme
+    let days = *days.min(&31);
+    let target_cutoff = today_cutoff - 86_400 * days;
+    write!(
+        ctx.sql,
+        "c.id in (select cid from revlog where id>{}",
+        target_cutoff
+    )
+    .unwrap();
+    if let Some(ease) = ease {
+        write!(ctx.sql, "and ease={})", ease).unwrap();
+    } else {
+        write!(ctx.sql, ")").unwrap();
+    }
+}
 
 // fixme: need current day
-fn write_prop(ctx: &mut SearchContext, op: &str, kind: &PropertyKind) {}
-
-// fixme: need db
-fn write_dupes(ctx: &mut SearchContext, ntid: &ObjID, text: &str) {}
+fn write_prop(ctx: &mut SearchContext, op: &str, kind: &PropertyKind) {
+    match kind {
+        PropertyKind::Due(days) => {
+            let day = days; // fixme: + sched_today
+            write!(
+                ctx.sql,
+                "(c.queue in ({rev},{daylrn}) and due {op} {day})",
+                rev = CardQueue::Review as u8,
+                daylrn = CardQueue::DayLearn as u8,
+                op = op,
+                day = day
+            )
+        }
+        PropertyKind::Interval(ivl) => write!(ctx.sql, "ivl {} {}", op, ivl),
+        PropertyKind::Reps(reps) => write!(ctx.sql, "reps {} {}", op, reps),
+        PropertyKind::Lapses(days) => write!(ctx.sql, "lapses {} {}", op, days),
+        PropertyKind::Ease(ease) => write!(ctx.sql, "ease {} {}", op, (ease * 1000.0) as u32),
+    }
+    .unwrap();
+}
 
 // fixme: need cutoff & current day
-fn write_state(ctx: &mut SearchContext, state: &StateKind) {}
+fn write_state(ctx: &mut SearchContext, state: &StateKind) {
+    match state {
+        StateKind::New => write!(ctx.sql, "c.queue = {}", CardQueue::New as u8),
+        StateKind::Review => write!(ctx.sql, "c.queue = {}", CardQueue::Review as u8),
+        StateKind::Learning => write!(
+            ctx.sql,
+            "c.queue in ({},{})",
+            CardQueue::Learn as u8,
+            CardQueue::DayLearn as u8
+        ),
+        StateKind::Buried => write!(
+            ctx.sql,
+            "c.queue in ({},{})",
+            CardQueue::SchedBuried as u8,
+            CardQueue::UserBuried as u8
+        ),
+        StateKind::Suspended => write!(ctx.sql, "c.queue = {}", CardQueue::Suspended as u8),
+        StateKind::Due => {
+            let today = 0; // fixme: today
+            let day_cutoff = 0; // fixme: day_cutoff
+            write!(
+                ctx.sql,
+                "
+(c.queue in ({rev},{daylrn}) and c.due <= {today}) or
+(c.queue = {lrn} and c.due <= {daycutoff})",
+                rev = CardQueue::Review as u8,
+                daylrn = CardQueue::DayLearn as u8,
+                today = today,
+                lrn = CardQueue::Learn as u8,
+                daycutoff = day_cutoff,
+            )
+        }
+    }
+    .unwrap()
+}
 
 // fixme: need deck manager
-fn write_deck(ctx: &mut SearchContext, deck: &str) {}
+fn write_deck(ctx: &mut SearchContext, deck: &str) {
+    match deck {
+        "*" => write!(ctx.sql, "true").unwrap(),
+        "filtered" => write!(ctx.sql, "c.odid > 0").unwrap(),
+        "current" => {
+            todo!() // fixme: need current deck and child decks
+        }
+        _deck => {
+            // fixme: narrow to dids matching possible wildcard; include children
+            todo!()
+        }
+    }
+}
 
 // fixme: need note type manager
-fn write_template(ctx: &mut SearchContext, template: &str) {}
+fn write_template(ctx: &mut SearchContext, template: &TemplateKind) {
+    match template {
+        TemplateKind::Ordinal(n) => {
+            write!(ctx.sql, "c.ord = {}", n).unwrap();
+        }
+        TemplateKind::Name(_name) => {
+            // fixme: search through note types loooking for template name
+        }
+    }
+}
 
 // fixme: need note type manager
-fn write_note_type(ctx: &mut SearchContext, notetype: &str) {}
+fn write_note_type(ctx: &mut SearchContext, _notetype: &str) {
+    let ntid: Option<ObjID> = None; // fixme: get id via name search
+    if let Some(ntid) = ntid {
+        write!(ctx.sql, "n.mid = {}", ntid).unwrap();
+    } else {
+        write!(ctx.sql, "false").unwrap();
+    }
+}
 
 // fixme: need note type manager
-fn write_single_field(ctx: &mut SearchContext, field: &str, val: &str) {}
+// fixme: need field_at_index()
+fn write_single_field(ctx: &mut SearchContext, field: &str, val: &str) {
+    let _ = field;
+    let fields = vec![(0, 0)]; // fixme: get list of (ntid, ordinal)
+
+    if fields.is_empty() {
+        write!(ctx.sql, "false").unwrap();
+        return;
+    }
+
+    write!(ctx.sql, "(").unwrap();
+    ctx.args.push(val.to_string().into());
+    let arg_idx = ctx.args.len();
+    for (ntid, ord) in fields {
+        write!(
+            ctx.sql,
+            "(n.mid = {} and field_at_index(n.flds, {}) like ?{})",
+            ntid, ord, arg_idx
+        )
+        .unwrap();
+    }
+    write!(ctx.sql, ")").unwrap();
+}
+
+// fixme: need field_at_index()
+fn write_dupes(ctx: &mut SearchContext, ntid: &ObjID, text: &str) {
+    let csum = field_checksum(text);
+    write!(
+        ctx.sql,
+        "(n.mid = {} and n.csum = {} and field_at_index(n.flds, 0) = ?",
+        ntid, csum
+    )
+    .unwrap();
+    ctx.args.push(text.to_string().into())
+}
 
 #[cfg(test)]
 mod test {
-    use super::super::parser::parse;
-    use super::*;
+    // use super::super::parser::parse;
+    // use super::*;
 
     // parse
-    fn p(search: &str) -> Node {
-        Node::Group(parse(search).unwrap())
-    }
+    // fn p(search: &str) -> Node {
+    //     Node::Group(parse(search).unwrap())
+    // }
 
     // get sql
     // fn s<'a>(n: &'a Node) -> (String, Vec<ToSqlOutput<'a>>) {
