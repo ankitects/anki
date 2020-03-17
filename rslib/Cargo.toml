@@ -36,6 +36,8 @@ slog = { version = "2.5.2", features = ["max_level_trace", "release_max_level_de
 slog-term = "2.5.0"
 slog-async = "2.4.0"
 slog-envlogger = "2.2.0"
+serde_repr = "0.1.5"
+num_enum = "0.4.2"
 
 [target.'cfg(target_vendor="apple")'.dependencies]
 rusqlite = { version = "0.21.0", features = ["trace"] }

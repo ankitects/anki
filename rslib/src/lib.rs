@@ -10,6 +10,7 @@ pub fn version() -> &'static str {
 }
 
 pub mod backend;
+pub mod card;
 pub mod cloze;
 pub mod collection;
 pub mod err;
