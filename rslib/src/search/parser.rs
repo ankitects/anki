@@ -191,9 +191,9 @@ fn unquoted_term(s: &str) -> IResult<&str, Node> {
     map_res(
         take_while1(|c| c != ' ' && c != ')'),
         |text: &str| -> ParseResult<Node> {
-            Ok(if text.len() == 2 && text.to_ascii_lowercase() == "or" {
+            Ok(if text.eq_ignore_ascii_case("or") {
                 Node::Or
-            } else if text.len() == 3 && text.to_ascii_lowercase() == "and" {
+            } else if text.eq_ignore_ascii_case("and") {
                 Node::And
             } else {
                 Node::Search(search_node_for_text(text)?)
