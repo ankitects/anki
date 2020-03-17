@@ -219,6 +219,7 @@ def apply_custom_filters(
                     node.field_name,
                     "",
                 )
+            field_text = hooks.template_filter_all_fields(field_text, node)
 
             res += field_text
     return res

@@ -594,6 +594,40 @@ class _TagAddedHook:
 
 
 tag_added = _TagAddedHook()
+
+
+class _TemplateFilterAllFieldsFilter:
+    """Apply hooks to each field content, during rendering, once all
+        explicitly called filters are applied."""
+
+    _hooks: List[Callable[[str, "anki.rsbackend.TemplateReplacement"], str]] = []
+
+    def append(
+        self, cb: Callable[[str, "anki.rsbackend.TemplateReplacement"], str]
+    ) -> None:
+        """(field_text: str, node:anki.rsbackend.TemplateReplacement)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self, cb: Callable[[str, "anki.rsbackend.TemplateReplacement"], str]
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(
+        self, field_text: str, node: anki.rsbackend.TemplateReplacement
+    ) -> str:
+        for filter in self._hooks:
+            try:
+                field_text = filter(field_text, node)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return field_text
+
+
+template_filter_all_fields = _TemplateFilterAllFieldsFilter()
 # @@AUTOGEN@@
 
 # Legacy hook handling
