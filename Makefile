@@ -4,7 +4,7 @@ ifndef OS
 	OS := unknown
 endif
 
-ifeq ($(OS),Windows_NT)
+ifeq (${OS},Windows_NT)
 	ifndef ACTIVATE_SCRIPT
 		ACTIVATE_SCRIPT := pyenv/Scripts/activate
 	endif

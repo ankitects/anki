@@ -5,7 +5,7 @@ ifndef OS
 	OS := unknown
 endif
 
-ifeq ($(OS),Windows_NT)
+ifeq (${OS},Windows_NT)
 	ifndef PYTHON_BIN
 		PYTHON_BIN := python
 	endif
