@@ -15,11 +15,6 @@ ifneq (${OS},Windows_NT)
 	MYPY_ARGS := --warn-unused-ignores
 endif
 
-# For example, to run an individual test, use: export PYTEST_ARGS=tests/test_schedv2.py::test_suspend
-ifndef PYTEST_ARGS
-	PYTEST_ARGS :=
-endif
-
 .SHELLFLAGS := -eu -o pipefail -c
 .DELETE_ON_ERROR:
 MAKEFLAGS += --warn-undefined-variables
@@ -82,7 +77,7 @@ CHECKDEPS := $(shell ${FIND} anki tests -name '*.py' | grep -v buildinfo.py)
 	@touch $@
 
 .build/test: $(CHECKDEPS)
-	python -m pytest --durations=1 -s ${PYTEST_ARGS}
+	python -m pytest --durations=1 -s
 	@touch $@
 
 .build/lint: $(CHECKDEPS)
