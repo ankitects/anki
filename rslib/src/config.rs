@@ -5,7 +5,11 @@ use crate::types::ObjID;
 use serde_derive::Deserialize;
 
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Config {
     #[serde(rename = "curDeck")]
     pub(crate) current_deck_id: ObjID,
+    pub(crate) rollover: Option<i8>,
+    pub(crate) creation_offset: Option<i32>,
+    pub(crate) local_offset: Option<i32>,
 }
