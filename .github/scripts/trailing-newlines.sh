@@ -4,7 +4,7 @@ set -eo pipefail
 
 # Checking version to force it fail the build if rg is not installed.
 # Because `set -e` does not work inside the subshell $()
-rg --version
+rg --version > /dev/null 2>&1
 
 files=$(rg -l '[^\n]\z' -g '!*.{png,svg,scss,json}' || true)
 if [ "$files" != "" ]; then
