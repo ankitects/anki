@@ -6,7 +6,11 @@ use crate::config::Config;
 use crate::err::Result;
 use crate::err::{AnkiError, DBErrorKind};
 use crate::time::{i64_unix_millis, i64_unix_secs};
-use crate::{decks::Deck, types::Usn};
+use crate::{
+    decks::Deck,
+    sched::cutoff::{sched_timing_today, SchedTimingToday},
+    types::Usn,
+};
 use rusqlite::{params, Connection, NO_PARAMS};
 use std::path::{Path, PathBuf};
 
@@ -121,6 +125,8 @@ pub(crate) struct StorageContext<'a> {
     server: bool,
     #[allow(dead_code)]
     usn: Option<Usn>,
+
+    timing_today: Option<SchedTimingToday>,
 }
 
 impl StorageContext<'_> {
@@ -129,6 +135,7 @@ impl StorageContext<'_> {
             db,
             server,
             usn: None,
+            timing_today: None,
         }
     }
 
@@ -224,5 +231,25 @@ impl StorageContext<'_> {
             .query_row_and_then("select conf from col", NO_PARAMS, |row| -> Result<_> {
                 Ok(serde_json::from_str(row.get_raw(0).as_str()?)?)
             })
+    }
+
+    #[allow(dead_code)]
+    pub(crate) fn timing_today(&mut self) -> Result<SchedTimingToday> {
+        if self.timing_today.is_none() {
+            let crt: i64 = self
+                .db
+                .prepare_cached("select crt from col")?
+                .query_row(NO_PARAMS, |row| row.get(0))?;
+            let conf = self.all_config()?;
+            let now_offset = if self.server { conf.local_offset } else { None };
+
+            self.timing_today = Some(sched_timing_today(
+                crt,
+                conf.creation_offset,
+                now_offset,
+                conf.rollover,
+            ));
+        }
+        Ok(*self.timing_today.as_ref().unwrap())
     }
 }

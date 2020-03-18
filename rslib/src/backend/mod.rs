@@ -12,7 +12,7 @@ use crate::log::{default_logger, Logger};
 use crate::media::check::MediaChecker;
 use crate::media::sync::MediaSyncProgress;
 use crate::media::MediaManager;
-use crate::sched::cutoff::{local_minutes_west_for_stamp, sched_timing_today};
+use crate::sched::cutoff::{local_minutes_west_for_stamp, sched_timing_today_v2_new};
 use crate::sched::timespan::{answer_button_time, learning_congrats, studied_today, time_span};
 use crate::template::{
     render_card, without_legacy_template_directives, FieldMap, FieldRequirements, ParsedTemplate,
@@ -348,7 +348,7 @@ impl Backend {
     }
 
     fn sched_timing_today(&self, input: pb::SchedTimingTodayIn) -> pb::SchedTimingTodayOut {
-        let today = sched_timing_today(
+        let today = sched_timing_today_v2_new(
             input.created_secs as i64,
             input.created_mins_west,
             input.now_secs as i64,
