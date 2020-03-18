@@ -68,10 +68,10 @@ fn write_search_node_to_sql(ctx: &mut SearchContext, node: &SearchNode) -> Resul
             write!(ctx.sql, "n.mid = {}", ntid).unwrap();
         }
         SearchNode::NoteType(notetype) => write_note_type(ctx, notetype.as_ref()),
-        SearchNode::Rated { days, ease } => write_rated(ctx, *days, *ease),
+        SearchNode::Rated { days, ease } => write_rated(ctx, *days, *ease)?,
         SearchNode::Tag(tag) => write_tag(ctx, tag),
         SearchNode::Duplicates { note_type_id, text } => write_dupes(ctx, *note_type_id, text),
-        SearchNode::State(state) => write_state(ctx, state),
+        SearchNode::State(state) => write_state(ctx, state)?,
         SearchNode::Flag(flag) => {
             write!(ctx.sql, "(c.flags & 7) == {}", flag).unwrap();
         }
@@ -81,7 +81,7 @@ fn write_search_node_to_sql(ctx: &mut SearchContext, node: &SearchNode) -> Resul
         SearchNode::CardIDs(cids) => {
             write!(ctx.sql, "c.id in ({})", cids).unwrap();
         }
-        SearchNode::Property { operator, kind } => write_prop(ctx, operator, kind),
+        SearchNode::Property { operator, kind } => write_prop(ctx, operator, kind)?,
     };
     Ok(())
 }
@@ -109,10 +109,9 @@ fn write_tag(ctx: &mut SearchContext, text: &str) {
     ctx.args.push(tag.into());
 }
 
-// fixme: need day cutoff
-fn write_rated(ctx: &mut SearchContext, days: u32, ease: Option<u8>) {
-    let today_cutoff = 0; // fixme
-    let days = days.min(31);
+fn write_rated(ctx: &mut SearchContext, days: u32, ease: Option<u8>) -> Result<()> {
+    let today_cutoff = ctx.ctx.storage.timing_today()?.next_day_at;
+    let days = days.min(31) as i64;
     let target_cutoff = today_cutoff - 86_400 * days;
     write!(
         ctx.sql,
@@ -125,13 +124,15 @@ fn write_rated(ctx: &mut SearchContext, days: u32, ease: Option<u8>) {
     } else {
         write!(ctx.sql, ")").unwrap();
     }
+
+    Ok(())
 }
 
-// fixme: need current day
-fn write_prop(ctx: &mut SearchContext, op: &str, kind: &PropertyKind) {
+fn write_prop(ctx: &mut SearchContext, op: &str, kind: &PropertyKind) -> Result<()> {
+    let timing = ctx.ctx.storage.timing_today()?;
     match kind {
         PropertyKind::Due(days) => {
-            let day = days; // fixme: + sched_today
+            let day = days + (timing.days_elapsed as i32);
             write!(
                 ctx.sql,
                 "(c.queue in ({rev},{daylrn}) and due {op} {day})",
@@ -147,10 +148,11 @@ fn write_prop(ctx: &mut SearchContext, op: &str, kind: &PropertyKind) {
         PropertyKind::Ease(ease) => write!(ctx.sql, "ease {} {}", op, (ease * 1000.0) as u32),
     }
     .unwrap();
+    Ok(())
 }
 
-// fixme: need cutoff & current day
-fn write_state(ctx: &mut SearchContext, state: &StateKind) {
+fn write_state(ctx: &mut SearchContext, state: &StateKind) -> Result<()> {
+    let timing = ctx.ctx.storage.timing_today()?;
     match state {
         StateKind::New => write!(ctx.sql, "c.queue = {}", CardQueue::New as u8),
         StateKind::Review => write!(ctx.sql, "c.queue = {}", CardQueue::Review as u8),
@@ -167,23 +169,20 @@ fn write_state(ctx: &mut SearchContext, state: &StateKind) {
             CardQueue::UserBuried as u8
         ),
         StateKind::Suspended => write!(ctx.sql, "c.queue = {}", CardQueue::Suspended as u8),
-        StateKind::Due => {
-            let today = 0; // fixme: today
-            let day_cutoff = 0; // fixme: day_cutoff
-            write!(
-                ctx.sql,
-                "
+        StateKind::Due => write!(
+            ctx.sql,
+            "
 (c.queue in ({rev},{daylrn}) and c.due <= {today}) or
 (c.queue = {lrn} and c.due <= {daycutoff})",
-                rev = CardQueue::Review as u8,
-                daylrn = CardQueue::DayLearn as u8,
-                today = today,
-                lrn = CardQueue::Learn as u8,
-                daycutoff = day_cutoff,
-            )
-        }
+            rev = CardQueue::Review as u8,
+            daylrn = CardQueue::DayLearn as u8,
+            today = timing.days_elapsed,
+            lrn = CardQueue::Learn as u8,
+            daycutoff = timing.next_day_at,
+        ),
     }
-    .unwrap()
+    .unwrap();
+    Ok(())
 }
 
 fn write_deck(ctx: &mut SearchContext, deck: &str) -> Result<()> {
