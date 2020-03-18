@@ -6,11 +6,11 @@
 use crate::err::{AnkiError, DBErrorKind, Result};
 use crate::text::strip_html_preserving_image_filenames;
 use crate::time::i64_unix_secs;
-use crate::types::{ObjID, Timestamp, Usn};
+use crate::{
+    notetypes::NoteType,
+    types::{ObjID, Timestamp, Usn},
+};
 use rusqlite::{params, Connection, Row, NO_PARAMS};
-use serde_aux::field_attributes::deserialize_number_from_string;
-use serde_derive::Deserialize;
-use std::collections::HashMap;
 use std::convert::TryInto;
 
 #[derive(Debug)]
@@ -45,38 +45,6 @@ impl Note {
 pub(crate) fn field_checksum(text: &str) -> u32 {
     let digest = sha1::Sha1::from(text).digest().bytes();
     u32::from_be_bytes(digest[..4].try_into().unwrap())
-}
-
-#[derive(Deserialize, Debug)]
-pub(super) struct NoteType {
-    #[serde(deserialize_with = "deserialize_number_from_string")]
-    id: ObjID,
-    #[serde(rename = "sortf")]
-    sort_field_idx: u16,
-
-    #[serde(rename = "latexsvg", default)]
-    latex_svg: bool,
-}
-
-impl NoteType {
-    pub fn latex_uses_svg(&self) -> bool {
-        self.latex_svg
-    }
-}
-
-pub(super) fn get_note_types(db: &Connection) -> Result<HashMap<ObjID, NoteType>> {
-    let mut stmt = db.prepare("select models from col")?;
-    let note_types = stmt
-        .query_and_then(NO_PARAMS, |row| -> Result<HashMap<ObjID, NoteType>> {
-            let v: HashMap<ObjID, NoteType> = serde_json::from_str(row.get_raw(0).as_str()?)?;
-            Ok(v)
-        })?
-        .next()
-        .ok_or_else(|| AnkiError::DBError {
-            info: "col table empty".to_string(),
-            kind: DBErrorKind::MissingEntity,
-        })??;
-    Ok(note_types)
 }
 
 #[allow(dead_code)]

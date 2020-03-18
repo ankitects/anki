@@ -57,17 +57,17 @@ fn write_search_node_to_sql(ctx: &mut SearchContext, node: &SearchNode) -> Resul
     match node {
         SearchNode::UnqualifiedText(text) => write_unqualified(ctx, text),
         SearchNode::SingleField { field, text } => {
-            write_single_field(ctx, field.as_ref(), text.as_ref())
+            write_single_field(ctx, field.as_ref(), text.as_ref())?
         }
         SearchNode::AddedInDays(days) => {
             write!(ctx.sql, "c.id > {}", days).unwrap();
         }
-        SearchNode::CardTemplate(template) => write_template(ctx, template),
+        SearchNode::CardTemplate(template) => write_template(ctx, template)?,
         SearchNode::Deck(deck) => write_deck(ctx, deck.as_ref())?,
         SearchNode::NoteTypeID(ntid) => {
             write!(ctx.sql, "n.mid = {}", ntid).unwrap();
         }
-        SearchNode::NoteType(notetype) => write_note_type(ctx, notetype.as_ref()),
+        SearchNode::NoteType(notetype) => write_note_type(ctx, notetype.as_ref())?,
         SearchNode::Rated { days, ease } => write_rated(ctx, *days, *ease)?,
         SearchNode::Tag(tag) => write_tag(ctx, tag),
         SearchNode::Duplicates { note_type_id, text } => write_dupes(ctx, *note_type_id, text),
@@ -211,55 +211,74 @@ fn write_deck(ctx: &mut SearchContext, deck: &str) -> Result<()> {
                 dids_with_children
             };
 
-            if dids_with_children.is_empty() {
-                write!(ctx.sql, "false")
-            } else {
-                let did_strings: Vec<String> =
-                    dids_with_children.iter().map(ToString::to_string).collect();
-                write!(ctx.sql, "c.did in ({})", did_strings.join(","))
-            }
-            .unwrap();
+            ctx.sql.push_str("c.did in ");
+            ids_to_string(&mut ctx.sql, &dids_with_children);
         }
     };
     Ok(())
 }
 
-// fixme: need note type manager
-fn write_template(ctx: &mut SearchContext, template: &TemplateKind) {
+fn write_template(ctx: &mut SearchContext, template: &TemplateKind) -> Result<()> {
     match template {
         TemplateKind::Ordinal(n) => {
             write!(ctx.sql, "c.ord = {}", n).unwrap();
         }
-        TemplateKind::Name(_name) => {
-            // fixme: search through note types loooking for template name
+        TemplateKind::Name(name) => {
+            let note_types = ctx.req.storage.all_note_types()?;
+            let mut id_ords = vec![];
+            for nt in note_types.values() {
+                for tmpl in &nt.templates {
+                    if matches_wildcard(&tmpl.name, name) {
+                        id_ords.push(format!("(n.mid = {} and c.ord = {})", nt.id, tmpl.ord));
+                    }
+                }
+            }
+
+            if id_ords.is_empty() {
+                ctx.sql.push_str("false");
+            } else {
+                write!(ctx.sql, "({})", id_ords.join(",")).unwrap();
+            }
+        }
+    };
+    Ok(())
+}
+
+fn write_note_type(ctx: &mut SearchContext, nt_name: &str) -> Result<()> {
+    let ntids: Vec<_> = ctx
+        .req
+        .storage
+        .all_note_types()?
+        .values()
+        .filter(|nt| matches_wildcard(&nt.name, nt_name))
+        .map(|nt| nt.id)
+        .collect();
+    ctx.sql.push_str("n.mid in ");
+    ids_to_string(&mut ctx.sql, &ntids);
+    Ok(())
+}
+
+fn write_single_field(ctx: &mut SearchContext, field_name: &str, val: &str) -> Result<()> {
+    let note_types = ctx.req.storage.all_note_types()?;
+
+    let mut field_map = vec![];
+    for nt in note_types.values() {
+        for field in &nt.fields {
+            if field.name.eq_ignore_ascii_case(field_name) {
+                field_map.push((nt.id, field.ord));
+            }
         }
     }
-}
 
-// fixme: need note type manager
-fn write_note_type(ctx: &mut SearchContext, _notetype: &str) {
-    let ntid: Option<ObjID> = None; // fixme: get id via name search
-    if let Some(ntid) = ntid {
-        write!(ctx.sql, "n.mid = {}", ntid).unwrap();
-    } else {
+    if field_map.is_empty() {
         write!(ctx.sql, "false").unwrap();
-    }
-}
-
-// fixme: need note type manager
-fn write_single_field(ctx: &mut SearchContext, field: &str, val: &str) {
-    let _ = field;
-    let fields = vec![(0, 0)]; // fixme: get list of (ntid, ordinal)
-
-    if fields.is_empty() {
-        write!(ctx.sql, "false").unwrap();
-        return;
+        return Ok(());
     }
 
     write!(ctx.sql, "(").unwrap();
     ctx.args.push(val.to_string().into());
     let arg_idx = ctx.args.len();
-    for (ntid, ord) in fields {
+    for (ntid, ord) in field_map {
         write!(
             ctx.sql,
             "(n.mid = {} and field_at_index(n.flds, {}) like ?{})",
@@ -268,6 +287,8 @@ fn write_single_field(ctx: &mut SearchContext, field: &str, val: &str) {
         .unwrap();
     }
     write!(ctx.sql, ")").unwrap();
+
+    Ok(())
 }
 
 fn write_dupes(ctx: &mut SearchContext, ntid: ObjID, text: &str) {
@@ -282,8 +303,42 @@ fn write_dupes(ctx: &mut SearchContext, ntid: ObjID, text: &str) {
     ctx.args.push(text.to_string().into())
 }
 
+// Write a list of IDs as '(x,y,...)' into the provided string.
+fn ids_to_string<T>(buf: &mut String, ids: &[T])
+where
+    T: std::fmt::Display,
+{
+    buf.push('(');
+    if !ids.is_empty() {
+        for id in ids.iter().skip(1) {
+            write!(buf, "{},", id).unwrap();
+        }
+        write!(buf, "{}", ids[0]).unwrap();
+    }
+    buf.push(')');
+}
+
 #[cfg(test)]
 mod test {
+    use super::ids_to_string;
+
+    #[test]
+    fn ids_string() {
+        let mut s = String::new();
+        ids_to_string::<u8>(&mut s, &[]);
+        assert_eq!(s, "()");
+        s.clear();
+        ids_to_string(&mut s, &[7]);
+        assert_eq!(s, "(7)");
+        s.clear();
+        ids_to_string(&mut s, &[7, 6]);
+        assert_eq!(s, "(6,7)");
+        s.clear();
+        ids_to_string(&mut s, &[7, 6, 5]);
+        assert_eq!(s, "(6,5,7)");
+        s.clear();
+    }
+
     // use super::super::parser::parse;
     // use super::*;
 

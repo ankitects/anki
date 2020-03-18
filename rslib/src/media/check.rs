@@ -10,7 +10,7 @@ use crate::media::database::MediaDatabaseContext;
 use crate::media::files::{
     data_for_file, filename_if_normalized, trash_folder, MEDIA_SYNC_FILESIZE_LIMIT,
 };
-use crate::notes::{for_every_note, get_note_types, set_note, Note};
+use crate::notes::{for_every_note, set_note, Note};
 use crate::text::{normalize_to_nfc, MediaRef};
 use crate::{media::MediaManager, text::extract_media_refs};
 use coarsetime::Instant;
@@ -379,7 +379,7 @@ where
         renamed: &HashMap<String, String>,
     ) -> Result<HashSet<String>> {
         let mut referenced_files = HashSet::new();
-        let note_types = get_note_types(&self.ctx.storage.db)?;
+        let note_types = self.ctx.storage.all_note_types()?;
         let mut collection_modified = false;
 
         for_every_note(&self.ctx.storage.db, |note| {
