@@ -50,6 +50,7 @@ hooks = [
     ),
     Hook(name="sync_stage_did_change", args=["stage: str"], legacy_hook="sync"),
     Hook(name="sync_progress_did_change", args=["msg: str"], legacy_hook="syncMsg"),
+    Hook(name="sync_chunk_will_be_applied", args=["chunk: Any"]),
     Hook(
         name="bg_thread_progress_callback",
         args=["proceed: bool", "progress: anki.rsbackend.Progress"],

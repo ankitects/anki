@@ -518,6 +518,30 @@ class _SearchTermsPreparedHook:
 search_terms_prepared = _SearchTermsPreparedHook()
 
 
+class _SyncChunkWillBeAppliedHook:
+    _hooks: List[Callable[[Any], None]] = []
+
+    def append(self, cb: Callable[[Any], None]) -> None:
+        """(chunk: Any)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[Any], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, chunk: Any) -> None:
+        for hook in self._hooks:
+            try:
+                hook(chunk)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+sync_chunk_will_be_applied = _SyncChunkWillBeAppliedHook()
+
+
 class _SyncProgressDidChangeHook:
     _hooks: List[Callable[[str], None]] = []
 

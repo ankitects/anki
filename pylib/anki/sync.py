@@ -299,6 +299,8 @@ from notes where %s"""
         return buf
 
     def applyChunk(self, chunk) -> None:
+        hooks.sync_chunk_will_be_applied(chunk)
+
         if "revlog" in chunk:
             self.mergeRevlog(chunk["revlog"])
         if "cards" in chunk:
