@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 FIND := $(if $(wildcard /bin/find),/bin/find,/usr/bin/find)
-MYPY_IGNORED_IMPORTS :=
-PYLINT_IGNORED_MODULES :=
+MYPY_ARGS :=
+PYLINT_ARGS :=
 
 ifndef OS
 	OS := unknown
@@ -13,11 +13,9 @@ endif
 
 # https://anki.tenderapp.com/discussions/beta-testing/1860-error-unused-type-ignore-comment
 ifneq (${OS},Windows_NT)
-	ifneq (${UNAME},Darwin)
-		MYPY_IGNORED_IMPORTS := --warn-unused-ignores
-	endif
+	MYPY_ARGS := --warn-unused-ignores
 else
-	PYLINT_IGNORED_MODULES := --ignored-modules=win32file,pywintypes,socket,win32pipe
+	PYLINT_ARGS := --ignored-modules=win32file,pywintypes,socket,win32pipe
 endif
 
 # For example, to run an individual test, use: export PYTEST_ARGS=tests/test_addons.py::test_mustHaveName
@@ -104,7 +102,7 @@ PYLIB := ../pylib
 CHECKDEPS := $(shell ${FIND} aqt tests -name '*.py' | grep -v buildinfo.py)
 
 .build/mypy: $(CHECKDEPS) .build/qt-stubs
-	python -m mypy ${MYPY_IGNORED_IMPORTS} aqt
+	python -m mypy ${MYPY_ARGS} aqt
 	@touch $@
 
 .build/test: $(CHECKDEPS)
@@ -112,7 +110,7 @@ CHECKDEPS := $(shell ${FIND} aqt tests -name '*.py' | grep -v buildinfo.py)
 	@touch $@
 
 .build/lint: $(CHECKDEPS)
-	python -m pylint -j 0 --rcfile=.pylintrc -f colorized ${PYLINT_IGNORED_MODULES} \
+	python -m pylint -j 0 --rcfile=.pylintrc -f colorized ${PYLINT_ARGS} \
 		--extension-pkg-whitelist=PyQt5,ankirspy aqt tests setup.py
 	@touch $@
 

@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 FIND := $(if $(wildcard /bin/find),/bin/find,/usr/bin/find)
-MYPY_IGNORED_IMPORTS :=
+MYPY_ARGS :=
 
 ifndef OS
 	OS := unknown
@@ -12,9 +12,7 @@ endif
 
 # https://anki.tenderapp.com/discussions/beta-testing/1860-error-unused-type-ignore-comment
 ifneq (${OS},Windows_NT)
-	ifneq (${UNAME},Darwin)
-		MYPY_IGNORED_IMPORTS := --warn-unused-ignores
-	endif
+	MYPY_ARGS := --warn-unused-ignores
 endif
 
 # For example, to run an individual test, use: export PYTEST_ARGS=tests/test_schedv2.py::test_suspend
@@ -80,7 +78,7 @@ clean:
 CHECKDEPS := $(shell ${FIND} anki tests -name '*.py' | grep -v buildinfo.py)
 
 .build/mypy: $(CHECKDEPS)
-	python -m mypy ${MYPY_IGNORED_IMPORTS} anki
+	python -m mypy ${MYPY_ARGS} anki
 	@touch $@
 
 .build/test: $(CHECKDEPS)

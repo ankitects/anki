@@ -1430,9 +1430,9 @@ will be lost. Continue?"""
             self.maybeHideAccelerators()
             self.hideStatusTips()
         elif isWin:
+            # make sure ctypes is bundled
             from ctypes import windll, wintypes  # type: ignore
 
-            # make sure ctypes is bundled
             _dummy1 = windll
             _dummy2 = wintypes
 
