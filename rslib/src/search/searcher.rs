@@ -16,19 +16,19 @@ use std::fmt::Write;
 
 struct SearchContext<'a> {
     #[allow(dead_code)]
-    ctx: &'a mut RequestContext<'a>,
+    req: &'a mut RequestContext<'a>,
     sql: String,
     args: Vec<ToSqlOutput<'a>>,
 }
 
 #[allow(dead_code)]
 fn node_to_sql<'a>(
-    ctx: &'a mut RequestContext<'a>,
+    req: &'a mut RequestContext<'a>,
     node: &'a Node,
 ) -> Result<(String, Vec<ToSqlOutput<'a>>)> {
     let sql = String::new();
     let args = vec![];
-    let mut sctx = SearchContext { ctx, sql, args };
+    let mut sctx = SearchContext { req, sql, args };
     write_node_to_sql(&mut sctx, node)?;
     Ok((sctx.sql, sctx.args))
 }
@@ -110,7 +110,7 @@ fn write_tag(ctx: &mut SearchContext, text: &str) {
 }
 
 fn write_rated(ctx: &mut SearchContext, days: u32, ease: Option<u8>) -> Result<()> {
-    let today_cutoff = ctx.ctx.storage.timing_today()?.next_day_at;
+    let today_cutoff = ctx.req.storage.timing_today()?.next_day_at;
     let days = days.min(31) as i64;
     let target_cutoff = today_cutoff - 86_400 * days;
     write!(
@@ -129,7 +129,7 @@ fn write_rated(ctx: &mut SearchContext, days: u32, ease: Option<u8>) -> Result<(
 }
 
 fn write_prop(ctx: &mut SearchContext, op: &str, kind: &PropertyKind) -> Result<()> {
-    let timing = ctx.ctx.storage.timing_today()?;
+    let timing = ctx.req.storage.timing_today()?;
     match kind {
         PropertyKind::Due(days) => {
             let day = days + (timing.days_elapsed as i32);
@@ -152,7 +152,7 @@ fn write_prop(ctx: &mut SearchContext, op: &str, kind: &PropertyKind) -> Result<
 }
 
 fn write_state(ctx: &mut SearchContext, state: &StateKind) -> Result<()> {
-    let timing = ctx.ctx.storage.timing_today()?;
+    let timing = ctx.req.storage.timing_today()?;
     match state {
         StateKind::New => write!(ctx.sql, "c.queue = {}", CardQueue::New as u8),
         StateKind::Review => write!(ctx.sql, "c.queue = {}", CardQueue::Review as u8),
@@ -190,9 +190,9 @@ fn write_deck(ctx: &mut SearchContext, deck: &str) -> Result<()> {
         "*" => write!(ctx.sql, "true").unwrap(),
         "filtered" => write!(ctx.sql, "c.odid > 0").unwrap(),
         deck => {
-            let all_decks = ctx.ctx.storage.all_decks()?;
+            let all_decks = ctx.req.storage.all_decks()?;
             let dids_with_children = if deck == "current" {
-                let config = ctx.ctx.storage.all_config()?;
+                let config = ctx.req.storage.all_config()?;
                 let mut dids_with_children = vec![config.current_deck_id];
                 let current = get_deck(&all_decks, config.current_deck_id)
                     .ok_or_else(|| AnkiError::invalid_input("invalid current deck"))?;
