@@ -8,11 +8,15 @@ use crate::err::{AnkiError, DBErrorKind};
 use crate::time::{i64_unix_millis, i64_unix_secs};
 use crate::{
     decks::Deck,
+    notetypes::NoteType,
     sched::cutoff::{sched_timing_today, SchedTimingToday},
-    types::Usn,
+    types::{ObjID, Usn},
 };
 use rusqlite::{params, Connection, NO_PARAMS};
-use std::path::{Path, PathBuf};
+use std::{
+    collections::HashMap,
+    path::{Path, PathBuf},
+};
 
 const SCHEMA_MIN_VERSION: u8 = 11;
 const SCHEMA_MAX_VERSION: u8 = 11;
@@ -231,6 +235,21 @@ impl StorageContext<'_> {
             .query_row_and_then("select conf from col", NO_PARAMS, |row| -> Result<_> {
                 Ok(serde_json::from_str(row.get_raw(0).as_str()?)?)
             })
+    }
+
+    pub(crate) fn all_note_types(&self) -> Result<HashMap<ObjID, NoteType>> {
+        let mut stmt = self.db.prepare("select models from col")?;
+        let note_types = stmt
+            .query_and_then(NO_PARAMS, |row| -> Result<HashMap<ObjID, NoteType>> {
+                let v: HashMap<ObjID, NoteType> = serde_json::from_str(row.get_raw(0).as_str()?)?;
+                Ok(v)
+            })?
+            .next()
+            .ok_or_else(|| AnkiError::DBError {
+                info: "col table empty".to_string(),
+                kind: DBErrorKind::MissingEntity,
+            })??;
+        Ok(note_types)
     }
 
     #[allow(dead_code)]
