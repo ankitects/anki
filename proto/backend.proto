@@ -43,6 +43,7 @@ message BackendInput {
         Empty restore_trash = 35;
         OpenCollectionIn open_collection = 36;
         Empty close_collection = 37;
+        SearchCardsIn search_cards = 38;
     }
 }
 
@@ -73,6 +74,7 @@ message BackendOutput {
         Empty restore_trash = 35;
         Empty open_collection = 36;
         Empty close_collection = 37;
+        SearchCardsOut search_cards = 38;
 
         BackendError error = 2047;
     }
@@ -331,4 +333,13 @@ message OpenCollectionIn {
     string media_folder_path = 2;
     string media_db_path = 3;
     string log_path = 4;
+}
+
+message SearchCardsIn {
+    string search = 1;
+}
+
+message SearchCardsOut {
+    repeated int64 card_ids = 1;
+
 }

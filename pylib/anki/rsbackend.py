@@ -423,6 +423,11 @@ class RustBackend:
     def _db_command(self, input: Dict[str, Any]) -> Any:
         return orjson.loads(self._backend.db_command(orjson.dumps(input)))
 
+    def search_cards(self, search: str) -> Sequence[int]:
+        return self._run_command(
+            pb.BackendInput(search_cards=pb.SearchCardsIn(search=search))
+        ).search_cards.card_ids
+
 
 def translate_string_in(
     key: TR, **kwargs: Union[str, int, float]

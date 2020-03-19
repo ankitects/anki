@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use crate::err::{AnkiError, Result};
 use crate::types::ObjID;
 use nom::branch::alt;
 use nom::bytes::complete::{escaped, is_not, tag, take_while1};
@@ -33,7 +34,7 @@ impl<I> From<nom::Err<(I, nom::error::ErrorKind)>> for ParseError {
     }
 }
 
-type ParseResult<T> = Result<T, ParseError>;
+type ParseResult<T> = std::result::Result<T, ParseError>;
 
 #[derive(Debug, PartialEq)]
 pub(super) enum Node<'a> {
@@ -104,8 +105,9 @@ pub(super) enum TemplateKind {
 
 /// Parse the input string into a list of nodes.
 #[allow(dead_code)]
-pub(super) fn parse(input: &str) -> std::result::Result<Vec<Node>, String> {
-    let (_, nodes) = all_consuming(group_inner)(input).map_err(|e| format!("{:?}", e))?;
+pub(super) fn parse(input: &str) -> Result<Vec<Node>> {
+    let (_, nodes) = all_consuming(group_inner)(input)
+        .map_err(|_e| AnkiError::invalid_input("unable to parse search"))?;
     Ok(nodes)
 }
 
@@ -368,7 +370,7 @@ mod test {
     use super::*;
 
     #[test]
-    fn parsing() -> Result<(), String> {
+    fn parsing() -> Result<()> {
         use Node::*;
         use SearchNode::*;
 

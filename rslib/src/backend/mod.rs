@@ -14,6 +14,7 @@ use crate::media::sync::MediaSyncProgress;
 use crate::media::MediaManager;
 use crate::sched::cutoff::{local_minutes_west_for_stamp, sched_timing_today_v2_new};
 use crate::sched::timespan::{answer_button_time, learning_congrats, studied_today, time_span};
+use crate::search::search_cards;
 use crate::template::{
     render_card, without_legacy_template_directives, FieldMap, FieldRequirements, ParsedTemplate,
     RenderedNode,
@@ -246,6 +247,7 @@ impl Backend {
                 self.close_collection()?;
                 OValue::CloseCollection(Empty {})
             }
+            Value::SearchCards(input) => OValue::SearchCards(self.search_cards(input)?),
         })
     }
 
@@ -576,6 +578,15 @@ impl Backend {
 
     pub fn db_command(&self, input: &[u8]) -> Result<String> {
         self.with_col(|col| col.with_ctx(|ctx| db_command_bytes(&ctx.storage, input)))
+    }
+
+    fn search_cards(&self, input: pb::SearchCardsIn) -> Result<pb::SearchCardsOut> {
+        self.with_col(|col| {
+            col.with_ctx(|ctx| {
+                let cids = search_cards(ctx, &input.search)?;
+                Ok(pb::SearchCardsOut { card_ids: cids })
+            })
+        })
     }
 }
 
