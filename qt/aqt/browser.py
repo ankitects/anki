@@ -275,6 +275,9 @@ class DataModel(QAbstractTableModel):
     def columnType(self, column):
         return self.activeCols[column]
 
+    def time_format(self):
+        return "%Y-%m-%d"
+
     def columnData(self, index):
         row = index.row()
         col = index.column()
@@ -302,11 +305,11 @@ class DataModel(QAbstractTableModel):
                 t = "(" + t + ")"
             return t
         elif type == "noteCrt":
-            return time.strftime("%Y-%m-%d", time.localtime(c.note().id / 1000))
+            return time.strftime(self.time_format(), time.localtime(c.note().id / 1000))
         elif type == "noteMod":
-            return time.strftime("%Y-%m-%d", time.localtime(c.note().mod))
+            return time.strftime(self.time_format(), time.localtime(c.note().mod))
         elif type == "cardMod":
-            return time.strftime("%Y-%m-%d", time.localtime(c.mod))
+            return time.strftime(self.time_format(), time.localtime(c.mod))
         elif type == "cardReps":
             return str(c.reps)
         elif type == "cardLapses":
@@ -363,7 +366,7 @@ class DataModel(QAbstractTableModel):
             date = time.time() + ((c.due - self.col.sched.today) * 86400)
         else:
             return ""
-        return time.strftime("%Y-%m-%d", time.localtime(date))
+        return time.strftime(self.time_format(), time.localtime(date))
 
     def isRTL(self, index):
         col = index.column()
