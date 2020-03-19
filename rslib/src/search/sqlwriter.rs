@@ -88,13 +88,13 @@ impl SqlWriter<'_, '_> {
     fn write_unqualified(&mut self, text: &str) {
         // implicitly wrap in %
         let text = format!("%{}%", text);
+        self.args.push(text.into());
         write!(
             self.sql,
-            "(n.sfld like ? escape '\\' or n.flds like ? escape '\\')"
+            "(n.sfld like ?{n} escape '\\' or n.flds like ?{n} escape '\\')",
+            n = self.args.len(),
         )
         .unwrap();
-        self.args.push(text.clone().into());
-        self.args.push(text.into());
     }
 
     fn write_tag(&mut self, text: &str) {
