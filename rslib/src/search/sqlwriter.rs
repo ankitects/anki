@@ -269,23 +269,28 @@ impl SqlWriter<'_, '_> {
             }
         }
 
+        // for now, sort the map for the benefit of unit tests
+        field_map.sort();
+
         if field_map.is_empty() {
             write!(self.sql, "false").unwrap();
             return Ok(());
         }
 
-        write!(self.sql, "(").unwrap();
         self.args.push(val.to_string().into());
         let arg_idx = self.args.len();
-        for (ntid, ord) in field_map {
-            write!(
-                self.sql,
-                "(n.mid = {} and field_at_index(n.flds, {}) like ?{})",
-                ntid, ord, arg_idx
-            )
-            .unwrap();
-        }
-        write!(self.sql, ")").unwrap();
+        let searches: Vec<_> = field_map
+            .iter()
+            .map(|(ntid, ord)| {
+                format!(
+                    "(n.mid = {mid} and field_at_index(n.flds, {ord}) like ?{n})",
+                    mid = ntid,
+                    ord = ord,
+                    n = arg_idx
+                )
+            })
+            .collect();
+        write!(self.sql, "({})", searches.join(" or ")).unwrap();
 
         Ok(())
     }
@@ -383,6 +388,20 @@ mod test {
             // user should be able to escape sql wildcards
             assert_eq!(s(ctx, r#"te\%s\_t"#).1, vec!["%te\\%s\\_t%".to_string()]);
 
+            // qualified search
+            assert_eq!(
+                s(ctx, "front:test"),
+                (
+                    concat!(
+                        "(((n.mid = 1581236385344 and field_at_index(n.flds, 0) like ?1) or ",
+                        "(n.mid = 1581236385345 and field_at_index(n.flds, 0) like ?1) or ",
+                        "(n.mid = 1581236385346 and field_at_index(n.flds, 0) like ?1) or ",
+                        "(n.mid = 1581236385347 and field_at_index(n.flds, 0) like ?1)))"
+                    )
+                    .into(),
+                    vec!["test".into()]
+                )
+            );
 
             Ok(())
         })
