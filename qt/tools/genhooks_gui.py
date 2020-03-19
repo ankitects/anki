@@ -341,6 +341,7 @@ hooks = [
     ),
     # Main
     ###################
+    Hook(name="backup_is_done"),
     Hook(name="profile_did_open", legacy_hook="profileLoaded"),
     Hook(name="profile_will_close", legacy_hook="unloadProfile"),
     Hook(
