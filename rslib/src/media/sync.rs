@@ -20,7 +20,6 @@ use std::collections::HashMap;
 use std::io::{Read, Write};
 use std::path::Path;
 use std::{io, time};
-use unicode_normalization::is_nfc;
 
 static SYNC_MAX_FILES: usize = 25;
 static SYNC_MAX_BYTES: usize = (2.5 * 1024.0 * 1024.0) as usize;
@@ -720,6 +719,7 @@ fn zip_files<'a>(
 
         #[cfg(target_vendor = "apple")]
         {
+            use unicode_normalization::is_nfc;
             if !is_nfc(&file.fname) {
                 // older Anki versions stored non-normalized filenames in the DB; clean them up
                 debug!(log, "clean up non-nfc entry"; "fname"=>&file.fname);
