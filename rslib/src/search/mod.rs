@@ -1,2 +1,5 @@
+mod cards;
 mod parser;
-mod searcher;
+mod sqlwriter;
+
+pub(crate) use cards::search_cards;
