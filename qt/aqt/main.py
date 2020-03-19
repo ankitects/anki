@@ -561,6 +561,7 @@ from the profile screen."
             fname = backups.pop(0)
             path = os.path.join(dir, fname)
             os.unlink(path)
+        gui_hooks.backup_is_done()
 
     def maybeOptimize(self) -> None:
         # have two weeks passed?
