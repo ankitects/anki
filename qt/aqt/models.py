@@ -6,7 +6,7 @@ from operator import itemgetter
 import aqt.clayout
 from anki import stdmodels
 from anki.lang import _, ngettext
-from aqt import AnkiQt
+from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.utils import (
     askUser,
@@ -124,6 +124,7 @@ class Models(QDialog):
         d.setWindowTitle(_("Options for %s") % self.model["name"])
         frm.buttonBox.helpRequested.connect(lambda: openHelp("latex"))
         restoreGeom(d, "modelopts")
+        gui_hooks.models_advanced_will_show(d)
         d.exec_()
         saveGeom(d, "modelopts")
         self.model["latexsvg"] = frm.latexsvg.isChecked()
