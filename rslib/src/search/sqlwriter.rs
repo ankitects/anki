@@ -321,6 +321,9 @@ where
 #[cfg(test)]
 mod test {
     use super::ids_to_string;
+    use crate::{collection::open_collection, i18n::I18n, log};
+    use std::{fs, path::PathBuf};
+    use tempfile::tempdir;
 
     #[test]
     fn ids_string() {
@@ -339,22 +342,51 @@ mod test {
         s.clear();
     }
 
-    // use super::super::parser::parse;
-    // use super::*;
+    use super::super::parser::parse;
+    use super::*;
 
-    // parse
-    // fn p(search: &str) -> Node {
-    //     Node::Group(parse(search).unwrap())
-    // }
-
-    // get sql
-    // fn s<'a>(n: &'a Node) -> (String, Vec<ToSqlOutput<'a>>) {
-    //     node_to_sql(n)
-    // }
+    // shortcut
+    fn s(req: &mut RequestContext, search: &str) -> (String, Vec<String>) {
+        let node = Node::Group(parse(search).unwrap());
+        node_to_sql(req, &node).unwrap()
+    }
 
     #[test]
-    fn tosql() -> Result<(), String> {
-        // assert_eq!(s(&p("added:1")), ("(c.id > 1)".into(), vec![]));
+    fn sql() -> Result<()> {
+        // re-use the mediacheck .anki2 file for now
+        use crate::media::check::test::MEDIACHECK_ANKI2;
+        let dir = tempdir().unwrap();
+        let col_path = dir.path().join("col.anki2");
+        fs::write(&col_path, MEDIACHECK_ANKI2).unwrap();
+
+        let i18n = I18n::new(&[""], "", log::terminal());
+        let col = open_collection(
+            &col_path,
+            &PathBuf::new(),
+            &PathBuf::new(),
+            false,
+            i18n,
+            log::terminal(),
+        )
+        .unwrap();
+
+        col.with_ctx(|ctx| {
+            // unqualified search
+            assert_eq!(
+                s(ctx, "test"),
+                (
+                    "((n.sfld like ?1 escape '\\' or n.flds like ?1 escape '\\'))".into(),
+                    vec!["%test%".into()]
+                )
+            );
+            assert_eq!(s(ctx, "te%st").1, vec!["%te%st%".to_string()]);
+            // user should be able to escape sql wildcards
+            assert_eq!(s(ctx, r#"te\%s\_t"#).1, vec!["%te\\%s\\_t%".to_string()]);
+
+
+            Ok(())
+        })
+        .unwrap();
 
         Ok(())
     }

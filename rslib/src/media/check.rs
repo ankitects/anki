@@ -498,7 +498,10 @@ fn extract_latex_refs(note: &Note, seen_files: &mut HashSet<String>, svg: bool) 
 }
 
 #[cfg(test)]
-mod test {
+pub(crate) mod test {
+    pub(crate) const MEDIACHECK_ANKI2: &'static [u8] =
+        include_bytes!("../../tests/support/mediacheck.anki2");
+
     use crate::collection::{open_collection, Collection};
     use crate::err::Result;
     use crate::i18n::I18n;
@@ -516,10 +519,7 @@ mod test {
         fs::create_dir(&media_dir)?;
         let media_db = dir.path().join("media.db");
         let col_path = dir.path().join("col.anki2");
-        fs::write(
-            &col_path,
-            &include_bytes!("../../tests/support/mediacheck.anki2")[..],
-        )?;
+        fs::write(&col_path, MEDIACHECK_ANKI2)?;
 
         let mgr = MediaManager::new(&media_dir, media_db.clone())?;
 
