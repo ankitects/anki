@@ -109,6 +109,13 @@ hooks = [
         doc="""Allows changing the number of rev card for this deck (without
         considering descendants).""",
     ),
+    Hook(
+        name="empty_card_line",
+        args=["line: str", "ords: str", "flds: str", "nid: int"],
+        return_type="str",
+        doc="""Allow to change the line warning about empty cards ords of note nid
+        with fields flds.""",
+    ),
 ]
 
 if __name__ == "__main__":

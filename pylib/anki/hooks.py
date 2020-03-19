@@ -213,6 +213,34 @@ class _DeckAddedHook:
 deck_added = _DeckAddedHook()
 
 
+class _EmptyCardLineFilter:
+    """Allow to change the line warning about empty cards ords of note nid
+        with fields flds."""
+
+    _hooks: List[Callable[[str, str, str, int], str]] = []
+
+    def append(self, cb: Callable[[str, str, str, int], str]) -> None:
+        """(line: str, ords: str, flds: str, nid: int)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[str, str, str, int], str]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, line: str, ords: str, flds: str, nid: int) -> str:
+        for filter in self._hooks:
+            try:
+                line = filter(line, ords, flds, nid)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return line
+
+
+empty_card_line = _EmptyCardLineFilter()
+
+
 class _ExportersListCreatedHook:
     _hooks: List[Callable[[List[Tuple[str, Any]]], None]] = []
 
