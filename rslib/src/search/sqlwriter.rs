@@ -58,9 +58,7 @@ impl SqlWriter<'_, '_> {
             SearchNode::SingleField { field, text } => {
                 self.write_single_field(field.as_ref(), text.as_ref())?
             }
-            SearchNode::AddedInDays(days) => {
-                write!(self.sql, "c.id > {}", days).unwrap();
-            }
+            SearchNode::AddedInDays(days) => self.write_added(*days)?,
             SearchNode::CardTemplate(template) => self.write_template(template)?,
             SearchNode::Deck(deck) => self.write_deck(deck.as_ref())?,
             SearchNode::NoteTypeID(ntid) => {
@@ -306,6 +304,13 @@ impl SqlWriter<'_, '_> {
         .unwrap();
         self.args.push(text.to_string().into())
     }
+
+    fn write_added(&mut self, days: u32) -> Result<()> {
+        let timing = self.req.storage.timing_today()?;
+        let cutoff = timing.next_day_at - (86_400 * (days as i64));
+        write!(self.sql, "c.id > {}", cutoff).unwrap();
+        Ok(())
+    }
 }
 
 // Write a list of IDs as '(x,y,...)' into the provided string.
@@ -401,6 +406,13 @@ mod test {
                     .into(),
                     vec!["test".into()]
                 )
+            );
+
+            // added
+            let t = ctx.storage.timing_today().unwrap();
+            assert_eq!(
+                s(ctx, "added:3").0,
+                format!("(c.id > {})", t.next_day_at - (86_400 * 3))
             );
 
             Ok(())
