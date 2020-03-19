@@ -174,8 +174,8 @@ fn text(s: &str) -> IResult<&str, Node> {
 fn search_node_for_text(s: &str) -> ParseResult<SearchNode> {
     let mut it = s.splitn(2, ':');
     let (head, tail) = (
-        without_escapes(it.next().unwrap()),
-        it.next().map(without_escapes),
+        unescape_quotes(it.next().unwrap()),
+        it.next().map(unescape_quotes),
     );
 
     if let Some(tail) = tail {
@@ -185,10 +185,10 @@ fn search_node_for_text(s: &str) -> ParseResult<SearchNode> {
     }
 }
 
-/// Strip the \ escaping character
-fn without_escapes(s: &str) -> Cow<str> {
-    if s.find('\\').is_some() {
-        s.replace('\\', "").into()
+/// \" -> "
+fn unescape_quotes(s: &str) -> Cow<str> {
+    if s.find(r#"\""#).is_some() {
+        s.replace(r#"\""#, "\"").into()
     } else {
         s.into()
     }
@@ -216,10 +216,10 @@ fn quoted_term(s: &str) -> IResult<&str, Node> {
 }
 
 /// Quoted text, terminated by a non-escaped double quote
-/// Can escape " and \
+/// Can escape %, _, " and \
 fn quoted_term_inner(s: &str) -> IResult<&str, Node> {
     map_res(
-        escaped(is_not(r#""\"#), '\\', one_of(r#""\"#)),
+        escaped(is_not(r#""\"#), '\\', one_of(r#""\%_"#)),
         |o| -> ParseResult<Node> { Ok(Node::Search(search_node_for_text(o)?)) },
     )(s)
 }
