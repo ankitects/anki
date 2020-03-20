@@ -834,6 +834,7 @@ class Browser(QMainWindow):
         self.form.tableView.selectionModel()
         self.form.tableView.setItemDelegate(StatusDelegate(self, self.model))
         self.form.tableView.selectionModel().selectionChanged.connect(self.onRowChanged)
+        self.form.tableView.setWordWrap(False)
         if not theme_manager.night_mode:
             self.form.tableView.setStyleSheet(
                 "QTableView{ selection-background-color: rgba(150, 150, 150, 50); "
