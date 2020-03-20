@@ -13,10 +13,12 @@ pub struct Deck {
 }
 
 pub(crate) fn child_ids<'a>(decks: &'a [Deck], name: &str) -> impl Iterator<Item = ObjID> + 'a {
-    let prefix = format!("{}::", name);
+    let prefix = format!("{}::", name.to_ascii_lowercase());
     decks
         .iter()
-        .filter(move |d| d.name.starts_with(&prefix))
+        .filter(move |d| {
+            d.name.to_ascii_lowercase().starts_with(&prefix)
+        })
         .map(|d| d.id)
 }
 
