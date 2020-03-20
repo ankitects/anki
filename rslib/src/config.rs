@@ -16,4 +16,31 @@ pub struct Config {
     pub(crate) rollover: Option<i8>,
     pub(crate) creation_offset: Option<i32>,
     pub(crate) local_offset: Option<i32>,
+    #[serde(rename = "sortType")]
+    pub(crate) browser_sort_kind: SortKind,
+    #[serde(rename = "sortBackwards", default)]
+    pub(crate) browser_sort_reverse: bool,
+}
+
+#[derive(Deserialize, PartialEq, Debug)]
+#[serde(rename_all = "camelCase")]
+pub enum SortKind {
+    #[serde(rename = "noteCrt")]
+    NoteCreation,
+    NoteMod,
+    #[serde(rename = "noteFld")]
+    NoteField,
+    CardMod,
+    CardReps,
+    CardDue,
+    CardEase,
+    CardLapses,
+    #[serde(rename = "cardIvl")]
+    CardInterval,
+}
+
+impl Default for SortKind {
+    fn default() -> Self {
+        Self::NoteCreation
+    }
 }
