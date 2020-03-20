@@ -143,7 +143,9 @@ impl SqlWriter<'_, '_> {
             PropertyKind::Interval(ivl) => write!(self.sql, "ivl {} {}", op, ivl),
             PropertyKind::Reps(reps) => write!(self.sql, "reps {} {}", op, reps),
             PropertyKind::Lapses(days) => write!(self.sql, "lapses {} {}", op, days),
-            PropertyKind::Ease(ease) => write!(self.sql, "ease {} {}", op, (ease * 1000.0) as u32),
+            PropertyKind::Ease(ease) => {
+                write!(self.sql, "factor {} {}", op, (ease * 1000.0) as u32)
+            }
         }
         .unwrap();
         Ok(())
@@ -513,7 +515,7 @@ mod test {
 
             // props
             assert_eq!(s(ctx, "prop:lapses=3").0, "(lapses = 3)".to_string());
-            assert_eq!(s(ctx, "prop:ease>=2.5").0, "(ease >= 2500)".to_string());
+            assert_eq!(s(ctx, "prop:ease>=2.5").0, "(factor >= 2500)".to_string());
             assert_eq!(
                 s(ctx, "prop:due!=-1").0,
                 format!(
