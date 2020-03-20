@@ -152,8 +152,8 @@ impl SqlWriter<'_, '_> {
     fn write_state(&mut self, state: &StateKind) -> Result<()> {
         let timing = self.req.storage.timing_today()?;
         match state {
-            StateKind::New => write!(self.sql, "c.queue = {}", CardQueue::New as i8),
-            StateKind::Review => write!(self.sql, "c.queue = {}", CardQueue::Review as i8),
+            StateKind::New => write!(self.sql, "c.type = {}", CardQueue::New as i8),
+            StateKind::Review => write!(self.sql, "c.type = {}", CardQueue::Review as i8),
             StateKind::Learning => write!(
                 self.sql,
                 "c.queue in ({},{})",
@@ -489,6 +489,10 @@ mod test {
             assert_eq!(
                 s(ctx, "is:suspended").0,
                 format!("(c.queue = {})", CardQueue::Suspended as i8)
+            );
+            assert_eq!(
+                s(ctx, "is:new").0,
+                format!("(c.type = {})", CardQueue::New as i8)
             );
 
             // rated
