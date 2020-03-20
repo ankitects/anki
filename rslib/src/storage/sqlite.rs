@@ -223,7 +223,7 @@ impl StorageContext<'_> {
         }
     }
 
-    pub(crate) fn all_decks(&self) -> Result<Vec<Deck>> {
+    pub(crate) fn all_decks(&self) -> Result<HashMap<ObjID, Deck>> {
         self.db
             .query_row_and_then("select decks from col", NO_PARAMS, |row| -> Result<_> {
                 Ok(serde_json::from_str(row.get_raw(0).as_str()?)?)
