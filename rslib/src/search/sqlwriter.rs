@@ -293,7 +293,7 @@ impl SqlWriter<'_, '_> {
             return Ok(());
         }
 
-        self.args.push(val.to_string());
+        self.args.push(val.replace('*', "%"));
         let arg_idx = self.args.len();
         let searches: Vec<_> = field_map
             .iter()
@@ -413,7 +413,7 @@ mod test {
 
             // qualified search
             assert_eq!(
-                s(ctx, "front:test"),
+                s(ctx, "front:te*st"),
                 (
                     concat!(
                         "(((n.mid = 1581236385344 and field_at_index(n.flds, 0) like ?1) or ",
@@ -422,7 +422,7 @@ mod test {
                         "(n.mid = 1581236385347 and field_at_index(n.flds, 0) like ?1)))"
                     )
                     .into(),
-                    vec!["test".into()]
+                    vec!["te%st".into()]
                 )
             );
 
