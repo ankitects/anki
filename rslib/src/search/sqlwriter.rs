@@ -323,7 +323,7 @@ impl SqlWriter<'_, '_> {
 
     fn write_added(&mut self, days: u32) -> Result<()> {
         let timing = self.req.storage.timing_today()?;
-        let cutoff = timing.next_day_at - (86_400 * (days as i64));
+        let cutoff = (timing.next_day_at - (86_400 * (days as i64))) * 1_000;
         write!(self.sql, "c.id > {}", cutoff).unwrap();
         Ok(())
     }
@@ -428,7 +428,7 @@ mod test {
             let timing = ctx.storage.timing_today().unwrap();
             assert_eq!(
                 s(ctx, "added:3").0,
-                format!("(c.id > {})", timing.next_day_at - (86_400 * 3))
+                format!("(c.id > {})", (timing.next_day_at - (86_400 * 3)) * 1_000)
             );
 
             // deck
