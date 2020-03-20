@@ -503,6 +503,9 @@ def emptyNewCard():
         args=["dialog: aqt.addons.AddonsDialog", "add_on: aqt.addons.AddonMeta"],
         doc="""Allows doing an action when a single add-on is selected.""",
     ),
+    # Model
+    ###################
+    Hook(name="models_advanced_will_show", args=["advanced: QDialog"],),
     # Other
     ###################
     Hook(

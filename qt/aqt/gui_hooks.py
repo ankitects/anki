@@ -1206,6 +1206,30 @@ class _MediaSyncDidStartOrStopHook:
 media_sync_did_start_or_stop = _MediaSyncDidStartOrStopHook()
 
 
+class _ModelsAdvancedWillShowHook:
+    _hooks: List[Callable[[QDialog], None]] = []
+
+    def append(self, cb: Callable[[QDialog], None]) -> None:
+        """(advanced: QDialog)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[QDialog], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, advanced: QDialog) -> None:
+        for hook in self._hooks:
+            try:
+                hook(advanced)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+models_advanced_will_show = _ModelsAdvancedWillShowHook()
+
+
 class _OverviewDidRefreshHook:
     """Allow to update the overview window. E.g. add the deck name in the
         title."""
