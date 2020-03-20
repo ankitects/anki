@@ -15,7 +15,7 @@ import time
 import traceback
 import unicodedata
 import weakref
-from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, Union
 
 import anki.find
 import anki.latex  # sets up hook
@@ -616,8 +616,8 @@ where c.nid = n.id and c.id in %s group by nid"""
     # Finding cards
     ##########################################################################
 
-    def findCards(self, query: str, order: Union[bool, str] = False) -> Any:
-        return anki.find.Finder(self).findCards(query, order)
+    def findCards(self, query: str, order: Union[bool, str] = False) -> Sequence[int]:
+        return self.backend.search_cards(query, order)
 
     def findNotes(self, query: str) -> Any:
         return anki.find.Finder(self).findNotes(query)

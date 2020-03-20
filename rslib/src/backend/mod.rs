@@ -14,7 +14,7 @@ use crate::media::sync::MediaSyncProgress;
 use crate::media::MediaManager;
 use crate::sched::cutoff::{local_minutes_west_for_stamp, sched_timing_today_v2_new};
 use crate::sched::timespan::{answer_button_time, learning_congrats, studied_today, time_span};
-use crate::search::search_cards;
+use crate::search::{search_cards, SortMode};
 use crate::template::{
     render_card, without_legacy_template_directives, FieldMap, FieldRequirements, ParsedTemplate,
     RenderedNode,
@@ -200,8 +200,6 @@ impl Backend {
                 OValue::SchedTimingToday(self.sched_timing_today(input))
             }
             Value::DeckTree(_) => todo!(),
-            Value::FindCards(_) => todo!(),
-            Value::BrowserRows(_) => todo!(),
             Value::RenderCard(input) => OValue::RenderCard(self.render_template(input)?),
             Value::LocalMinutesWest(stamp) => {
                 OValue::LocalMinutesWest(local_minutes_west_for_stamp(stamp))
@@ -583,7 +581,18 @@ impl Backend {
     fn search_cards(&self, input: pb::SearchCardsIn) -> Result<pb::SearchCardsOut> {
         self.with_col(|col| {
             col.with_ctx(|ctx| {
-                let cids = search_cards(ctx, &input.search)?;
+                let order = if let Some(order) = input.order {
+                    use pb::sort_order::Value as V;
+                    match order.value {
+                        Some(V::None(_)) => SortMode::NoOrder,
+                        Some(V::Custom(s)) => SortMode::Custom(s),
+                        Some(V::FromConfig(_)) => SortMode::FromConfig,
+                        None => SortMode::FromConfig,
+                    }
+                } else {
+                    SortMode::FromConfig
+                };
+                let cids = search_cards(ctx, &input.search, order)?;
                 Ok(pb::SearchCardsOut { card_ids: cids })
             })
         })

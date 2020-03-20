@@ -8,7 +8,7 @@ import random
 import time
 from heapq import *
 from operator import itemgetter
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import anki
 from anki import hooks
@@ -707,7 +707,7 @@ did = ? and queue = {QUEUE_TYPE_REV} and due <= ? limit ?""",
     # Dynamic deck handling
     ##########################################################################
 
-    def rebuildDyn(self, did: Optional[int] = None) -> Optional[List[int]]:  # type: ignore[override]
+    def rebuildDyn(self, did: Optional[int] = None) -> Optional[Sequence[int]]:  # type: ignore[override]
         "Rebuild a dynamic deck."
         did = did or self.col.decks.selected()
         deck = self.col.decks.get(did)
@@ -721,7 +721,7 @@ did = ? and queue = {QUEUE_TYPE_REV} and due <= ? limit ?""",
         self.col.decks.select(did)
         return ids
 
-    def _fillDyn(self, deck: Dict[str, Any]) -> List[int]:  # type: ignore[override]
+    def _fillDyn(self, deck: Dict[str, Any]) -> Sequence[int]:  # type: ignore[override]
         search, limit, order = deck["terms"][0]
         orderlimit = self._dynOrder(order, limit)
         if search.strip():
@@ -751,7 +751,7 @@ due = odue, odue = 0, odid = 0, usn = ? where %s"""
             self.col.usn(),
         )
 
-    def _moveToDyn(self, did: int, ids: List[int]) -> None:  # type: ignore[override]
+    def _moveToDyn(self, did: int, ids: Sequence[int]) -> None:  # type: ignore[override]
         deck = self.col.decks.get(did)
         data = []
         t = intTime()
