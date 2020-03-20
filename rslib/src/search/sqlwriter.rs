@@ -86,7 +86,7 @@ impl SqlWriter<'_, '_> {
     fn write_unqualified(&mut self, text: &str) {
         // implicitly wrap in %
         let text = format!("%{}%", text);
-        self.args.push(text.into());
+        self.args.push(text);
         write!(
             self.sql,
             "(n.sfld like ?{n} escape '\\' or n.flds like ?{n} escape '\\')",
@@ -103,7 +103,7 @@ impl SqlWriter<'_, '_> {
 
         let tag = format!("% {} %", text.replace('*', "%"));
         write!(self.sql, "n.tags like ?").unwrap();
-        self.args.push(tag.into());
+        self.args.push(tag);
     }
 
     fn write_rated(&mut self, days: u32, ease: Option<u8>) -> Result<()> {
@@ -255,7 +255,7 @@ impl SqlWriter<'_, '_> {
     }
 
     fn write_note_type(&mut self, nt_name: &str) -> Result<()> {
-        let ntids: Vec<_> = self
+        let mut ntids: Vec<_> = self
             .req
             .storage
             .all_note_types()?
@@ -264,6 +264,8 @@ impl SqlWriter<'_, '_> {
             .map(|nt| nt.id)
             .collect();
         self.sql.push_str("n.mid in ");
+        // sort for the benefit of unit tests
+        ntids.sort();
         ids_to_string(&mut self.sql, &ntids);
         Ok(())
     }
@@ -288,7 +290,7 @@ impl SqlWriter<'_, '_> {
             return Ok(());
         }
 
-        self.args.push(val.to_string().into());
+        self.args.push(val.to_string());
         let arg_idx = self.args.len();
         let searches: Vec<_> = field_map
             .iter()
@@ -315,7 +317,7 @@ impl SqlWriter<'_, '_> {
             ntid, csum
         )
         .unwrap();
-        self.args.push(text.to_string().into())
+        self.args.push(text.to_string());
     }
 
     fn write_added(&mut self, days: u32) -> Result<()> {
@@ -504,9 +506,23 @@ mod test {
                 )
             );
 
-            // todo:
-            // note
-            // prop
+            // props
+            assert_eq!(s(ctx, "prop:lapses=3").0, "(lapses = 3)".to_string());
+            assert_eq!(s(ctx, "prop:ease>=2.5").0, "(ease >= 2500)".to_string());
+            assert_eq!(
+                s(ctx, "prop:due!=-1").0,
+                format!(
+                    "((c.queue in (2,3) and due != {}))",
+                    timing.days_elapsed - 1
+                )
+            );
+
+            // note types by name
+            assert_eq!(&s(ctx, "note:basic").0, "(n.mid in (1581236385347))");
+            assert_eq!(
+                &s(ctx, "note:basic*").0,
+                "(n.mid in (1581236385345,1581236385346,1581236385347,1581236385344))"
+            );
 
             Ok(())
         })
