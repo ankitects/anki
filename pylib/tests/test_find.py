@@ -199,14 +199,8 @@ def test_findCards():
     assert len(deck.findCards("prop:ivl!=10")) > 1
     assert len(deck.findCards("prop:due>0")) == 1
     # due dates should work
-    deck.sched.today = 15
-    assert len(deck.findCards("prop:due=14")) == 0
-    assert len(deck.findCards("prop:due=15")) == 1
-    assert len(deck.findCards("prop:due=16")) == 0
-    # including negatives
-    deck.sched.today = 32
-    assert len(deck.findCards("prop:due=-1")) == 0
-    assert len(deck.findCards("prop:due=-2")) == 1
+    assert len(deck.findCards("prop:due=29")) == 0
+    assert len(deck.findCards("prop:due=30")) == 1
     # ease factors
     assert len(deck.findCards("prop:ease=2.3")) == 0
     assert len(deck.findCards("prop:ease=2.2")) == 1
