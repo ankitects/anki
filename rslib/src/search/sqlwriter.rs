@@ -101,7 +101,7 @@ impl SqlWriter<'_, '_> {
             return;
         }
 
-        let tag = format!(" %{}% ", text.replace('*', "%"));
+        let tag = format!("% {} %", text.replace('*', "%"));
         write!(self.sql, "n.tags like ?").unwrap();
         self.args.push(tag.into());
     }
@@ -451,17 +451,41 @@ mod test {
                 )
             );
 
+            // IDs
+            assert_eq!(s(ctx, "mid:3"), ("(n.mid = 3)".into(), vec![]));
+            assert_eq!(s(ctx, "nid:3"), ("(n.id in (3))".into(), vec![]));
+            assert_eq!(s(ctx, "nid:3,4"), ("(n.id in (3,4))".into(), vec![]));
+            assert_eq!(s(ctx, "cid:3,4"), ("(c.id in (3,4))".into(), vec![]));
+
+            // flags
+            assert_eq!(s(ctx, "flag:2"), ("((c.flags & 7) == 2)".into(), vec![]));
+            assert_eq!(s(ctx, "flag:0"), ("((c.flags & 7) == 0)".into(), vec![]));
+
+            // dupes
+            assert_eq!(
+                s(ctx, "dupes:123,test"),
+                (
+                    "((n.mid = 123 and n.csum = 2840236005 and field_at_index(n.flds, 0) = ?)"
+                        .into(),
+                    vec!["test".into()]
+                )
+            );
+
+            // tags
+            assert_eq!(
+                s(ctx, "tag:one"),
+                ("(n.tags like ?)".into(), vec!["% one %".into()])
+            );
+            assert_eq!(
+                s(ctx, "tag:o*e"),
+                ("(n.tags like ?)".into(), vec!["% o%e %".into()])
+            );
+            assert_eq!(s(ctx, "tag:none"), ("(n.tags = '')".into(), vec![]));
+
             // todo:
-            // card
-            // mid
-            // nid
             // note
             // rated
-            // tag
             // is
-            // dupe
-            // flag
-            // cid
             // prop
 
             Ok(())
