@@ -109,15 +109,15 @@ impl SqlWriter<'_, '_> {
     fn write_rated(&mut self, days: u32, ease: Option<u8>) -> Result<()> {
         let today_cutoff = self.req.storage.timing_today()?.next_day_at;
         let days = days.min(31) as i64;
-        let target_cutoff = today_cutoff - 86_400 * days;
+        let target_cutoff_ms = (today_cutoff - 86_400 * days) * 1_000;
         write!(
             self.sql,
             "c.id in (select cid from revlog where id>{}",
-            target_cutoff
+            target_cutoff_ms
         )
         .unwrap();
         if let Some(ease) = ease {
-            write!(self.sql, "and ease={})", ease).unwrap();
+            write!(self.sql, " and ease={})", ease).unwrap();
         } else {
             write!(self.sql, ")").unwrap();
         }
@@ -151,30 +151,30 @@ impl SqlWriter<'_, '_> {
     fn write_state(&mut self, state: &StateKind) -> Result<()> {
         let timing = self.req.storage.timing_today()?;
         match state {
-            StateKind::New => write!(self.sql, "c.queue = {}", CardQueue::New as u8),
-            StateKind::Review => write!(self.sql, "c.queue = {}", CardQueue::Review as u8),
+            StateKind::New => write!(self.sql, "c.queue = {}", CardQueue::New as i8),
+            StateKind::Review => write!(self.sql, "c.queue = {}", CardQueue::Review as i8),
             StateKind::Learning => write!(
                 self.sql,
                 "c.queue in ({},{})",
-                CardQueue::Learn as u8,
-                CardQueue::DayLearn as u8
+                CardQueue::Learn as i8,
+                CardQueue::DayLearn as i8
             ),
             StateKind::Buried => write!(
                 self.sql,
                 "c.queue in ({},{})",
-                CardQueue::SchedBuried as u8,
-                CardQueue::UserBuried as u8
+                CardQueue::SchedBuried as i8,
+                CardQueue::UserBuried as i8
             ),
-            StateKind::Suspended => write!(self.sql, "c.queue = {}", CardQueue::Suspended as u8),
+            StateKind::Suspended => write!(self.sql, "c.queue = {}", CardQueue::Suspended as i8),
             StateKind::Due => write!(
                 self.sql,
                 "
     (c.queue in ({rev},{daylrn}) and c.due <= {today}) or
     (c.queue = {lrn} and c.due <= {daycutoff})",
-                rev = CardQueue::Review as u8,
-                daylrn = CardQueue::DayLearn as u8,
+                rev = CardQueue::Review as i8,
+                daylrn = CardQueue::DayLearn as i8,
                 today = timing.days_elapsed,
-                lrn = CardQueue::Learn as u8,
+                lrn = CardQueue::Learn as i8,
                 daycutoff = timing.next_day_at,
             ),
         }
@@ -422,10 +422,10 @@ mod test {
             );
 
             // added
-            let t = ctx.storage.timing_today().unwrap();
+            let timing = ctx.storage.timing_today().unwrap();
             assert_eq!(
                 s(ctx, "added:3").0,
-                format!("(c.id > {})", t.next_day_at - (86_400 * 3))
+                format!("(c.id > {})", timing.next_day_at - (86_400 * 3))
             );
 
             // deck
@@ -482,10 +482,30 @@ mod test {
             );
             assert_eq!(s(ctx, "tag:none"), ("(n.tags = '')".into(), vec![]));
 
+            // state
+            assert_eq!(
+                s(ctx, "is:suspended").0,
+                format!("(c.queue = {})", CardQueue::Suspended as i8)
+            );
+
+            // rated
+            assert_eq!(
+                s(ctx, "rated:2").0,
+                format!(
+                    "(c.id in (select cid from revlog where id>{}))",
+                    (timing.next_day_at - (86_400 * 2)) * 1_000
+                )
+            );
+            assert_eq!(
+                s(ctx, "rated:40:1").0,
+                format!(
+                    "(c.id in (select cid from revlog where id>{} and ease=1))",
+                    (timing.next_day_at - (86_400 * 31)) * 1_000
+                )
+            );
+
             // todo:
             // note
-            // rated
-            // is
             // prop
 
             Ok(())
