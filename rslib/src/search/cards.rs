@@ -51,6 +51,7 @@ fn write_order(sql: &mut String, kind: &SortKind, reverse: bool) -> Result<()> {
         }
         SortKind::CardLapses => "c.lapses",
         SortKind::CardInterval => "c.ivl",
+        SortKind::NoteTags => "n.tags",
         SortKind::CardDeck => "(select v from sort_order where k = c.did)",
         SortKind::NoteType => "(select v from sort_order where k = n.mid)",
         SortKind::CardTemplate => "(select v from sort_order where k1 = n.mid and k2 = c.ord)",
