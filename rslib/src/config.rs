@@ -42,6 +42,7 @@ pub enum SortKind {
     NoteField,
     #[serde(rename = "note")]
     NoteType,
+    NoteTags,
     CardMod,
     CardReps,
     CardDue,
