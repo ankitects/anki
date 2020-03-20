@@ -187,7 +187,13 @@ impl SqlWriter<'_, '_> {
             "*" => write!(self.sql, "true").unwrap(),
             "filtered" => write!(self.sql, "c.odid > 0").unwrap(),
             deck => {
-                let all_decks = self.req.storage.all_decks()?;
+                let all_decks: Vec<_> = self
+                    .req
+                    .storage
+                    .all_decks()?
+                    .into_iter()
+                    .map(|(_, v)| v)
+                    .collect();
                 let dids_with_children = if deck == "current" {
                     let config = self.req.storage.all_config()?;
                     let mut dids_with_children = vec![config.current_deck_id];
@@ -414,6 +420,11 @@ mod test {
                 s(ctx, "added:3").0,
                 format!("(c.id > {})", t.next_day_at - (86_400 * 3))
             );
+
+            // deck
+            assert_eq!(s(ctx, "deck:default"), ("(c.did in (1))".into(), vec![],));
+            assert_eq!(s(ctx, "deck:current"), ("(c.did in (1))".into(), vec![],));
+            assert_eq!(s(ctx, "deck:filtered"), ("(c.odid > 0)".into(), vec![],));
 
             Ok(())
         })
