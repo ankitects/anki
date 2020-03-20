@@ -68,6 +68,7 @@ def test_findCards():
     f["Front"] = "test"
     f["Back"] = "foo bar"
     deck.addNote(f)
+    deck.save()
     latestCardIds = [c.id for c in f.cards()]
     # tag searches
     assert len(deck.findCards("tag:*")) == 5
@@ -133,15 +134,19 @@ def test_findCards():
     assert len(deck.findCards("front:*")) == 5
     # ordering
     deck.conf["sortType"] = "noteCrt"
+    deck.flush()
     assert deck.findCards("front:*", order=True)[-1] in latestCardIds
     assert deck.findCards("", order=True)[-1] in latestCardIds
     deck.conf["sortType"] = "noteFld"
+    deck.flush()
     assert deck.findCards("", order=True)[0] == catCard.id
     assert deck.findCards("", order=True)[-1] in latestCardIds
     deck.conf["sortType"] = "cardMod"
+    deck.flush()
     assert deck.findCards("", order=True)[-1] in latestCardIds
     assert deck.findCards("", order=True)[0] == firstCardId
     deck.conf["sortBackwards"] = True
+    deck.flush()
     assert deck.findCards("", order=True)[0] in latestCardIds
     # model
     assert len(deck.findCards("note:basic")) == 5
@@ -177,6 +182,7 @@ def test_findCards():
     deck.db.execute(
         "update cards set did = ? where id = ?", deck.decks.id("Default::Child"), id
     )
+    deck.save()
     assert len(deck.findCards("deck:default")) == 7
     assert len(deck.findCards("deck:default::child")) == 1
     assert len(deck.findCards("deck:default -deck:default::*")) == 6
