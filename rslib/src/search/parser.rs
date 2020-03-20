@@ -373,7 +373,7 @@ fn parse_prop(val: &str) -> ParseResult<SearchNode<'static>> {
 
 fn parse_template(val: &str) -> SearchNode<'static> {
     SearchNode::CardTemplate(match val.parse::<u16>() {
-        Ok(n) => TemplateKind::Ordinal(n),
+        Ok(n) => TemplateKind::Ordinal(n.max(1) - 1),
         Err(_) => TemplateKind::Name(val.into()),
     })
 }
@@ -425,7 +425,12 @@ mod test {
         );
         assert_eq!(
             parse("card:3")?,
-            vec![Search(CardTemplate(TemplateKind::Ordinal(3)))]
+            vec![Search(CardTemplate(TemplateKind::Ordinal(2)))]
+        );
+        // 0 must not cause a crash due to underflow
+        assert_eq!(
+            parse("card:0")?,
+            vec![Search(CardTemplate(TemplateKind::Ordinal(0)))]
         );
         assert_eq!(parse("deck:default")?, vec![Search(Deck("default".into()))]);
         assert_eq!(parse("note:basic")?, vec![Search(NoteType("basic".into()))]);
