@@ -8,7 +8,7 @@ use nom::bytes::complete::{escaped, is_not, tag, take_while1};
 use nom::character::complete::{char, one_of};
 use nom::character::is_digit;
 use nom::combinator::{all_consuming, map, map_res};
-use nom::sequence::{delimited, preceded};
+use nom::sequence::{delimited, preceded, tuple};
 use nom::{multi::many0, IResult};
 use std::{borrow::Cow, num};
 
@@ -180,7 +180,7 @@ fn negated_node(s: &str) -> IResult<&str, Node> {
 
 /// Either quoted or unquoted text
 fn text(s: &str) -> IResult<&str, Node> {
-    alt((quoted_term, unquoted_term))(s)
+    alt((quoted_term, partially_quoted_term, unquoted_term))(s)
 }
 
 /// Determine if text is a qualified search, and handle escaped chars.
@@ -210,7 +210,7 @@ fn unescape_quotes(s: &str) -> Cow<str> {
 /// Unquoted text, terminated by a space or )
 fn unquoted_term(s: &str) -> IResult<&str, Node> {
     map_res(
-        take_while1(|c| c != ' ' && c != ')'),
+        take_while1(|c| c != ' ' && c != ')' && c != '"'),
         |text: &str| -> ParseResult<Node> {
             Ok(if text.eq_ignore_ascii_case("or") {
                 Node::Or
@@ -225,16 +225,30 @@ fn unquoted_term(s: &str) -> IResult<&str, Node> {
 
 /// Quoted text, including the outer double quotes.
 fn quoted_term(s: &str) -> IResult<&str, Node> {
+    map_res(quoted_term_str, |o| -> ParseResult<Node> {
+        Ok(Node::Search(search_node_for_text(o)?))
+    })(s)
+}
+
+fn quoted_term_str(s: &str) -> IResult<&str, &str> {
     delimited(char('"'), quoted_term_inner, char('"'))(s)
 }
 
 /// Quoted text, terminated by a non-escaped double quote
 /// Can escape %, _, " and \
-fn quoted_term_inner(s: &str) -> IResult<&str, Node> {
-    map_res(
-        escaped(is_not(r#""\"#), '\\', one_of(r#""\%_"#)),
-        |o| -> ParseResult<Node> { Ok(Node::Search(search_node_for_text(o)?)) },
-    )(s)
+fn quoted_term_inner(s: &str) -> IResult<&str, &str> {
+    escaped(is_not(r#""\"#), '\\', one_of(r#""\%_"#))(s)
+}
+
+/// eg deck:"foo bar" - quotes must come after the :
+fn partially_quoted_term(s: &str) -> IResult<&str, Node> {
+    let term = take_while1(|c| c != ' ' && c != ')' && c != ':');
+    let (s, (term, _, quoted_val)) = tuple((term, char(':'), quoted_term_str))(s)?;
+
+    match search_node_for_text_with_argument(term.into(), quoted_val.into()) {
+        Ok(search) => Ok((s, Node::Search(search))),
+        Err(_) => Err(nom::Err::Failure((s, nom::error::ErrorKind::NoneOf))),
+    }
 }
 
 /// Convert a colon-separated key/val pair into the relevant search type.
@@ -433,6 +447,11 @@ mod test {
             vec![Search(CardTemplate(TemplateKind::Ordinal(0)))]
         );
         assert_eq!(parse("deck:default")?, vec![Search(Deck("default".into()))]);
+        assert_eq!(
+            parse("deck:\"default one\"")?,
+            vec![Search(Deck("default one".into()))]
+        );
+
         assert_eq!(parse("note:basic")?, vec![Search(NoteType("basic".into()))]);
         assert_eq!(parse("tag:hard")?, vec![Search(Tag("hard".into()))]);
         assert_eq!(
