@@ -10,21 +10,38 @@ use crate::search::parser::parse;
 use crate::types::ObjID;
 use rusqlite::params;
 
+pub(crate) enum SortMode {
+    NoOrder,
+    FromConfig,
+    Custom(String),
+}
+
 pub(crate) fn search_cards<'a, 'b>(
     req: &'a mut RequestContext<'b>,
     search: &'a str,
+    order: SortMode,
 ) -> Result<Vec<ObjID>> {
     let top_node = Node::Group(parse(search)?);
     let (sql, args) = node_to_sql(req, &top_node)?;
-
-    let conf = req.storage.all_config()?;
-    prepare_sort(req, &conf.browser_sort_kind)?;
 
     let mut sql = format!(
         "select c.id from cards c, notes n where c.nid=n.id and {}",
         sql
     );
-    write_order(&mut sql, &conf.browser_sort_kind, conf.browser_sort_reverse)?;
+
+    match order {
+        SortMode::NoOrder => (),
+        SortMode::FromConfig => {
+            let conf = req.storage.all_config()?;
+            prepare_sort(req, &conf.browser_sort_kind)?;
+            sql.push_str(" order by ");
+            write_order(&mut sql, &conf.browser_sort_kind, conf.browser_sort_reverse)?;
+        }
+        SortMode::Custom(order_clause) => {
+            sql.push_str(" order by ");
+            sql.push_str(&order_clause);
+        }
+    }
 
     let mut stmt = req.storage.db.prepare(&sql)?;
     let ids: Vec<i64> = stmt
@@ -59,7 +76,6 @@ fn write_order(sql: &mut String, kind: &SortKind, reverse: bool) -> Result<()> {
     if order.is_empty() {
         return Ok(());
     }
-    sql.push_str(" order by ");
     sql.push_str(order);
     if reverse {
         sql.push_str(" desc");

@@ -2,4 +2,4 @@ mod cards;
 mod parser;
 mod sqlwriter;
 
-pub(crate) use cards::search_cards;
+pub(crate) use cards::{search_cards, SortMode};

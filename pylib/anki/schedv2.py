@@ -11,7 +11,7 @@ from heapq import *
 from operator import itemgetter
 
 # from anki.collection import _Collection
-from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Sequence, Set, Tuple, Union
 
 import anki  # pylint: disable=unused-import
 from anki import hooks
@@ -1215,7 +1215,7 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
             t = "c.due, c.ord"
         return t + " limit %d" % l
 
-    def _moveToDyn(self, did: int, ids: List[int], start: int = -100000) -> None:
+    def _moveToDyn(self, did: int, ids: Sequence[int], start: int = -100000) -> None:
         deck = self.col.decks.get(did)
         data = []
         u = self.col.usn()
