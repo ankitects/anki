@@ -79,6 +79,7 @@ impl SqlWriter<'_, '_> {
                 write!(self.sql, "c.id in ({})", cids).unwrap();
             }
             SearchNode::Property { operator, kind } => self.write_prop(operator, kind)?,
+            SearchNode::WholeCollection => write!(self.sql, "true").unwrap(),
         };
         Ok(())
     }

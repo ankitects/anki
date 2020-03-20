@@ -76,6 +76,7 @@ pub(super) enum SearchNode<'a> {
         operator: String,
         kind: PropertyKind,
     },
+    WholeCollection,
 }
 
 #[derive(Debug, PartialEq)]
@@ -106,6 +107,11 @@ pub(super) enum TemplateKind {
 /// Parse the input string into a list of nodes.
 #[allow(dead_code)]
 pub(super) fn parse(input: &str) -> Result<Vec<Node>> {
+    let input = input.trim();
+    if input.is_empty() {
+        return Ok(vec![Node::Search(SearchNode::WholeCollection)]);
+    }
+
     let (_, nodes) = all_consuming(group_inner)(input)
         .map_err(|_e| AnkiError::invalid_input("unable to parse search"))?;
     Ok(nodes)
@@ -150,12 +156,19 @@ fn group_inner(input: &str) -> IResult<&str, Vec<Node>> {
         };
     }
 
-    Ok((remaining, nodes))
+    if nodes.is_empty() {
+        Err(nom::Err::Error((remaining, nom::error::ErrorKind::Many1)))
+    } else {
+        Ok((remaining, nodes))
+    }
+}
+
+fn whitespace0(s: &str) -> IResult<&str, Vec<char>> {
+    many0(one_of(" \u{3000}"))(s)
 }
 
 /// Optional leading space, then a (negated) group or text
 fn node(s: &str) -> IResult<&str, Node> {
-    let whitespace0 = many0(one_of(" \u{3000}"));
     preceded(whitespace0, alt((negated_node, group, text)))(s)
 }
 
@@ -373,6 +386,19 @@ mod test {
     fn parsing() -> Result<()> {
         use Node::*;
         use SearchNode::*;
+
+        assert_eq!(parse("")?, vec![Search(SearchNode::WholeCollection)]);
+        assert_eq!(parse("  ")?, vec![Search(SearchNode::WholeCollection)]);
+
+        // leading/trailing/interspersed whitespace
+        assert_eq!(
+            parse("  t   t2  ")?,
+            vec![
+                Search(UnqualifiedText("t".into())),
+                And,
+                Search(UnqualifiedText("t2".into()))
+            ]
+        );
 
         assert_eq!(
             parse(r#"hello  -(world and "foo:bar baz") OR test"#)?,
