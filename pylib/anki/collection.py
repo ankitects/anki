@@ -616,11 +616,11 @@ where c.nid = n.id and c.id in %s group by nid"""
     # Finding cards
     ##########################################################################
 
-    def findCards(self, query: str, order: Union[bool, str] = False) -> Sequence[int]:
+    def find_cards(self, query: str, order: Union[bool, str] = False) -> Sequence[int]:
         return self.backend.search_cards(query, order)
 
-    def findNotes(self, query: str) -> Any:
-        return anki.find.Finder(self).findNotes(query)
+    def find_notes(self, query: str) -> Sequence[int]:
+        return self.backend.search_notes(query)
 
     def findReplace(
         self,
@@ -635,6 +635,9 @@ where c.nid = n.id and c.id in %s group by nid"""
 
     def findDupes(self, fieldName: str, search: str = "") -> List[Tuple[Any, list]]:
         return anki.find.findDupes(self, fieldName, search)
+
+    findCards = find_cards
+    findNotes = find_notes
 
     # Stats
     ##########################################################################

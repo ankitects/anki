@@ -14,7 +14,7 @@ use crate::media::sync::MediaSyncProgress;
 use crate::media::MediaManager;
 use crate::sched::cutoff::{local_minutes_west_for_stamp, sched_timing_today_v2_new};
 use crate::sched::timespan::{answer_button_time, learning_congrats, studied_today, time_span};
-use crate::search::{search_cards, SortMode};
+use crate::search::{search_cards, search_notes, SortMode};
 use crate::template::{
     render_card, without_legacy_template_directives, FieldMap, FieldRequirements, ParsedTemplate,
     RenderedNode,
@@ -246,6 +246,7 @@ impl Backend {
                 OValue::CloseCollection(Empty {})
             }
             Value::SearchCards(input) => OValue::SearchCards(self.search_cards(input)?),
+            Value::SearchNotes(input) => OValue::SearchNotes(self.search_notes(input)?),
         })
     }
 
@@ -594,6 +595,15 @@ impl Backend {
                 };
                 let cids = search_cards(ctx, &input.search, order)?;
                 Ok(pb::SearchCardsOut { card_ids: cids })
+            })
+        })
+    }
+
+    fn search_notes(&self, input: pb::SearchNotesIn) -> Result<pb::SearchNotesOut> {
+        self.with_col(|col| {
+            col.with_ctx(|ctx| {
+                let nids = search_notes(ctx, &input.search)?;
+                Ok(pb::SearchNotesOut { note_ids: nids })
             })
         })
     }

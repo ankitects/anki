@@ -595,7 +595,7 @@ def findDupes(
     # limit search to notes with applicable field name
     if search:
         search = "(" + search + ") "
-    search += "'%s:*'" % fieldName
+    search += '"%s:*"' % fieldName.replace('"', '"')
     # go through notes
     vals: Dict[str, List[int]] = {}
     dupes = []
