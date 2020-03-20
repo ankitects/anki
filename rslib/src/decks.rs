@@ -16,9 +16,7 @@ pub(crate) fn child_ids<'a>(decks: &'a [Deck], name: &str) -> impl Iterator<Item
     let prefix = format!("{}::", name.to_ascii_lowercase());
     decks
         .iter()
-        .filter(move |d| {
-            d.name.to_ascii_lowercase().starts_with(&prefix)
-        })
+        .filter(move |d| d.name.to_ascii_lowercase().starts_with(&prefix))
         .map(|d| d.id)
 }
 

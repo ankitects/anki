@@ -484,11 +484,11 @@ mod test {
             // tags
             assert_eq!(
                 s(ctx, "tag:one"),
-                ("(n.tags like ?)".into(), vec!["% one %".into()])
+                ("(n.tags like ? escape '\\')".into(), vec!["% one %".into()])
             );
             assert_eq!(
                 s(ctx, "tag:o*e"),
-                ("(n.tags like ?)".into(), vec!["% o%e %".into()])
+                ("(n.tags like ? escape '\\')".into(), vec!["% o%e %".into()])
             );
             assert_eq!(s(ctx, "tag:none"), ("(n.tags = '')".into(), vec![]));
             assert_eq!(s(ctx, "tag:*"), ("(true)".into(), vec![]));
