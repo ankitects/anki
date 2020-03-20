@@ -25,7 +25,7 @@ message BackendInput {
         SchedTimingTodayIn sched_timing_today = 17;
         Empty deck_tree = 18;
         SearchCardsIn search_cards = 19;
-//        BrowserRowsIn browser_rows = 20;
+        SearchNotesIn search_notes = 20;
         RenderCardIn render_card = 21;
         int64 local_minutes_west = 22;
         string strip_av_tags = 23;
@@ -63,7 +63,7 @@ message BackendOutput {
         TemplateRequirementsOut template_requirements = 16;
         DeckTreeOut deck_tree = 18;
         SearchCardsOut search_cards = 19;
-//        BrowserRowsOut browser_rows = 20;
+        SearchNotesOut search_notes = 20;
         RenderCardOut render_card = 21;
         string add_media_file = 26;
         Empty sync_media = 27;
@@ -332,4 +332,12 @@ message SortOrder {
         Empty none = 2;
         string custom = 3;
     }
+}
+
+message SearchNotesIn {
+    string search = 1;
+}
+
+message SearchNotesOut {
+    repeated int64 note_ids = 2;
 }

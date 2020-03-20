@@ -434,6 +434,11 @@ class RustBackend:
             pb.BackendInput(search_cards=pb.SearchCardsIn(search=search, order=mode))
         ).search_cards.card_ids
 
+    def search_notes(self, search: str) -> Sequence[int]:
+        return self._run_command(
+            pb.BackendInput(search_notes=pb.SearchNotesIn(search=search))
+        ).search_notes.note_ids
+
 
 def translate_string_in(
     key: TR, **kwargs: Union[str, int, float]
