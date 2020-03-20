@@ -184,8 +184,9 @@ class DataModel(QAbstractTableModel):
                 invalid = True
             else:
                 raise
-        # print "fetch cards in %dms" % ((time.time() - t)*1000)
-        self.endReset()
+        finally:
+            # print "fetch cards in %dms" % ((time.time() - t)*1000)
+            self.endReset()
 
         if invalid:
             showWarning(_("Invalid search - please check for typing mistakes."))
