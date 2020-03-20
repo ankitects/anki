@@ -947,10 +947,14 @@ by clicking on one on the left."""
             if type == "noteFld":
                 ord = not ord
             self.col.conf["sortBackwards"] = ord
+            self.col.setMod()
+            self.col.save()
             self.search()
         else:
             if self.col.conf["sortBackwards"] != ord:
                 self.col.conf["sortBackwards"] = ord
+                self.col.setMod()
+                self.col.save()
                 self.model.reverse()
         self.setSortIndicator()
 
