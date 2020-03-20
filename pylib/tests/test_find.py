@@ -118,9 +118,8 @@ def test_findCards():
     assert len(deck.findCards("nid:%d" % f.id)) == 2
     assert len(deck.findCards("nid:%d,%d" % (f1id, f2id))) == 2
     # templates
-    with pytest.raises(Exception):
-        deck.findCards("card:foo")
-    assert len(deck.findCards("'card:card 1'")) == 4
+    assert len(deck.findCards("card:foo")) == 0
+    assert len(deck.findCards('"card:card 1"')) == 4
     assert len(deck.findCards("card:reverse")) == 1
     assert len(deck.findCards("card:1")) == 4
     assert len(deck.findCards("card:2")) == 1
@@ -158,8 +157,7 @@ def test_findCards():
     assert len(deck.findCards("-deck:foo")) == 5
     assert len(deck.findCards("deck:def*")) == 5
     assert len(deck.findCards("deck:*EFAULT")) == 5
-    with pytest.raises(Exception):
-        deck.findCards("deck:*cefault")
+    assert len(deck.findCards("deck:*cefault")) == 0
     # full search
     f = deck.newNote()
     f["Front"] = "hello<b>world</b>"
@@ -241,17 +239,12 @@ def test_findCards():
     assert len(deck.findCards("-(tag:monkey OR tag:sheep)")) == 6
     assert len(deck.findCards("tag:monkey or (tag:sheep sheep)")) == 2
     assert len(deck.findCards("tag:monkey or (tag:sheep octopus)")) == 1
-    # invalid grouping shouldn't error
-    assert len(deck.findCards(")")) == 0
-    assert len(deck.findCards("(()")) == 0
     # added
     assert len(deck.findCards("added:0")) == 0
     deck.db.execute("update cards set id = id - 86400*1000 where id = ?", id)
     assert len(deck.findCards("added:1")) == deck.cardCount() - 1
     assert len(deck.findCards("added:2")) == deck.cardCount()
     # flag
-    with pytest.raises(Exception):
-        deck.findCards("flag:01")
     with pytest.raises(Exception):
         deck.findCards("flag:12")
 
