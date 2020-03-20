@@ -23,6 +23,45 @@ from aqt.qt import QDialog, QMenu
 # @@AUTOGEN@@
 
 
+class _AddCardAcceptsFilter:
+    """Decides whether the note should be added to the collection or
+        not. It is assumed to come from the addCards window.
+
+        reason_to_already_reject is the first reason to reject that
+        was found, or None. If your filter wants to reject, it should
+        replace return the reason to reject. Otherwise return the
+        input."""
+
+    _hooks: List[Callable[[Optional[str], "anki.notes.Note"], Optional[str]]] = []
+
+    def append(
+        self, cb: Callable[[Optional[str], "anki.notes.Note"], Optional[str]]
+    ) -> None:
+        """(reason_to_already_reject: Optional[str], note: anki.notes.Note)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self, cb: Callable[[Optional[str], "anki.notes.Note"], Optional[str]]
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(
+        self, reason_to_already_reject: Optional[str], note: anki.notes.Note
+    ) -> Optional[str]:
+        for filter in self._hooks:
+            try:
+                reason_to_already_reject = filter(reason_to_already_reject, note)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return reason_to_already_reject
+
+
+add_card_accepts = _AddCardAcceptsFilter()
+
+
 class _AddCardsDidAddNoteHook:
     _hooks: List[Callable[["anki.notes.Note"], None]] = []
 
