@@ -8,6 +8,7 @@ use crate::config::SortKind;
 use crate::err::Result;
 use crate::search::parser::parse;
 use crate::types::ObjID;
+use rusqlite::params;
 
 pub(crate) fn search_cards<'a, 'b>(
     req: &'a mut RequestContext<'b>,
@@ -15,11 +16,15 @@ pub(crate) fn search_cards<'a, 'b>(
 ) -> Result<Vec<ObjID>> {
     let top_node = Node::Group(parse(search)?);
     let (sql, args) = node_to_sql(req, &top_node)?;
+
+    let conf = req.storage.all_config()?;
+    prepare_sort(req, &conf.browser_sort_kind)?;
+
     let mut sql = format!(
-        "select c.id from cards c, notes n where c.nid=n.id and {} order by ",
+        "select c.id from cards c, notes n where c.nid=n.id and {}",
         sql
     );
-    write_order(req, &mut sql)?;
+    write_order(&mut sql, &conf.browser_sort_kind, conf.browser_sort_reverse)?;
 
     let mut stmt = req.storage.db.prepare(&sql)?;
     let ids: Vec<i64> = stmt
@@ -30,10 +35,10 @@ pub(crate) fn search_cards<'a, 'b>(
     Ok(ids)
 }
 
-fn write_order(req: &mut RequestContext, sql: &mut String) -> Result<()> {
-    let conf = req.storage.all_config()?;
+/// Add the order clause to the sql.
+fn write_order(sql: &mut String, kind: &SortKind, reverse: bool) -> Result<()> {
     let tmp_str;
-    sql.push_str(match conf.browser_sort_kind {
+    let order = match kind {
         SortKind::NoteCreation => "n.id, c.ord",
         SortKind::NoteMod => "n.mod, c.ord",
         SortKind::NoteField => "n.sfld collate nocase, c.ord",
@@ -46,9 +51,76 @@ fn write_order(req: &mut RequestContext, sql: &mut String) -> Result<()> {
         }
         SortKind::CardLapses => "c.lapses",
         SortKind::CardInterval => "c.ivl",
-    });
-    if conf.browser_sort_reverse {
+        SortKind::CardDeck => "(select v from sort_order where k = c.did)",
+        SortKind::NoteType => "(select v from sort_order where k = n.mid)",
+        SortKind::CardTemplate => "(select v from sort_order where k1 = n.mid and k2 = c.ord)",
+    };
+    if order.is_empty() {
+        return Ok(());
+    }
+    sql.push_str(" order by ");
+    sql.push_str(order);
+    if reverse {
         sql.push_str(" desc");
     }
+    Ok(())
+}
+
+// In the future these items should be moved from JSON into separate SQL tables,
+// - for now we use a temporary deck to sort them.
+fn prepare_sort(req: &mut RequestContext, kind: &SortKind) -> Result<()> {
+    use SortKind::*;
+    match kind {
+        CardDeck | NoteType => {
+            prepare_sort_order_table(req)?;
+            let mut stmt = req
+                .storage
+                .db
+                .prepare("insert into sort_order (k,v) values (?,?)")?;
+
+            match kind {
+                CardDeck => {
+                    for (k, v) in req.storage.all_decks()? {
+                        stmt.execute(params![k, v.name])?;
+                    }
+                }
+                NoteType => {
+                    for (k, v) in req.storage.all_note_types()? {
+                        stmt.execute(params![k, v.name])?;
+                    }
+                }
+                _ => unreachable!(),
+            }
+        }
+        CardTemplate => {
+            prepare_sort_order_table2(req)?;
+            let mut stmt = req
+                .storage
+                .db
+                .prepare("insert into sort_order (k1,k2,v) values (?,?,?)")?;
+
+            for (ntid, nt) in req.storage.all_note_types()? {
+                for tmpl in nt.templates {
+                    stmt.execute(params![ntid, tmpl.ord, tmpl.name])?;
+                }
+            }
+        }
+        _ => (),
+    }
+
+    Ok(())
+}
+
+fn prepare_sort_order_table(req: &mut RequestContext) -> Result<()> {
+    req.storage
+        .db
+        .execute_batch(include_str!("sort_order.sql"))?;
+    Ok(())
+}
+
+fn prepare_sort_order_table2(req: &mut RequestContext) -> Result<()> {
+    req.storage
+        .db
+        .execute_batch(include_str!("sort_order2.sql"))?;
     Ok(())
 }
