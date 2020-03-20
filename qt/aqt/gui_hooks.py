@@ -311,6 +311,30 @@ class _AvPlayerWillPlayHook:
 av_player_will_play = _AvPlayerWillPlayHook()
 
 
+class _BackupIsDoneHook:
+    _hooks: List[Callable[[], None]] = []
+
+    def append(self, cb: Callable[[], None]) -> None:
+        """()"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self) -> None:
+        for hook in self._hooks:
+            try:
+                hook()
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+backup_is_done = _BackupIsDoneHook()
+
+
 class _BrowserDidChangeRowHook:
     _hooks: List[Callable[["aqt.browser.Browser"], None]] = []
 
