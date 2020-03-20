@@ -232,15 +232,22 @@ impl SqlWriter<'_, '_> {
                 for nt in note_types.values() {
                     for tmpl in &nt.templates {
                         if matches_wildcard(&tmpl.name, name) {
-                            id_ords.push(format!("(n.mid = {} and c.ord = {})", nt.id, tmpl.ord));
+                            id_ords.push((nt.id, tmpl.ord));
                         }
                     }
                 }
 
+                // sort for the benefit of unit tests
+                id_ords.sort();
+
                 if id_ords.is_empty() {
                     self.sql.push_str("false");
                 } else {
-                    write!(self.sql, "({})", id_ords.join(",")).unwrap();
+                    let v: Vec<_> = id_ords
+                        .iter()
+                        .map(|(ntid, ord)| format!("(n.mid = {} and c.ord = {})", ntid, ord))
+                        .collect();
+                    write!(self.sql, "({})", v.join(" or ")).unwrap();
                 }
             }
         };
@@ -424,7 +431,38 @@ mod test {
             // deck
             assert_eq!(s(ctx, "deck:default"), ("(c.did in (1))".into(), vec![],));
             assert_eq!(s(ctx, "deck:current"), ("(c.did in (1))".into(), vec![],));
+            assert_eq!(s(ctx, "deck:missing"), ("(c.did in ())".into(), vec![],));
+            assert_eq!(s(ctx, "deck:d*"), ("(c.did in (1))".into(), vec![],));
             assert_eq!(s(ctx, "deck:filtered"), ("(c.odid > 0)".into(), vec![],));
+
+            // card
+            assert_eq!(s(ctx, "card:front"), ("(false)".into(), vec![],));
+            assert_eq!(
+                s(ctx, r#""card:card 1""#),
+                (
+                    concat!(
+                        "(((n.mid = 1581236385344 and c.ord = 0) or ",
+                        "(n.mid = 1581236385345 and c.ord = 0) or ",
+                        "(n.mid = 1581236385346 and c.ord = 0) or ",
+                        "(n.mid = 1581236385347 and c.ord = 0)))"
+                    )
+                    .into(),
+                    vec![],
+                )
+            );
+
+            // todo:
+            // card
+            // mid
+            // nid
+            // note
+            // rated
+            // tag
+            // is
+            // dupe
+            // flag
+            // cid
+            // prop
 
             Ok(())
         })
