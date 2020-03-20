@@ -341,7 +341,7 @@ hooks = [
     ),
     # Main
     ###################
-    Hook(name="backup_is_done"),
+    Hook(name="backup_did_complete"),
     Hook(name="profile_did_open", legacy_hook="profileLoaded"),
     Hook(name="profile_will_close", legacy_hook="unloadProfile"),
     Hook(
@@ -414,8 +414,8 @@ def emptyNewCard():
         legacy_hook="AddCards.noteAdded",
     ),
     Hook(
-        name="add_card_accepts",
-        args=["reason_to_already_reject: Optional[str]", "note: anki.notes.Note"],
+        name="add_cards_will_add_note",
+        args=["problem: Optional[str]", "note: anki.notes.Note"],
         return_type="Optional[str]",
         doc="""Decides whether the note should be added to the collection or
         not. It is assumed to come from the addCards window.
