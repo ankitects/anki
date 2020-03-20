@@ -97,14 +97,19 @@ impl SqlWriter<'_, '_> {
     }
 
     fn write_tag(&mut self, text: &str) {
-        if text == "none" {
-            write!(self.sql, "n.tags = ''").unwrap();
-            return;
+        match text {
+            "none" => {
+                write!(self.sql, "n.tags = ''").unwrap();
+            }
+            "*" | "%" => {
+                write!(self.sql, "true").unwrap();
+            }
+            text => {
+                let tag = format!("% {} %", text.replace('*', "%"));
+                write!(self.sql, "n.tags like ? escape '\\'").unwrap();
+                self.args.push(tag);
+            }
         }
-
-        let tag = format!("% {} %", text.replace('*', "%"));
-        write!(self.sql, "n.tags like ?").unwrap();
-        self.args.push(tag);
     }
 
     fn write_rated(&mut self, days: u32, ease: Option<u8>) -> Result<()> {
@@ -486,6 +491,7 @@ mod test {
                 ("(n.tags like ?)".into(), vec!["% o%e %".into()])
             );
             assert_eq!(s(ctx, "tag:none"), ("(n.tags = '')".into(), vec![]));
+            assert_eq!(s(ctx, "tag:*"), ("(true)".into(), vec![]));
 
             // state
             assert_eq!(
