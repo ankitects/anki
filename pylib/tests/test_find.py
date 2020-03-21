@@ -2,39 +2,12 @@
 import pytest
 
 from anki.consts import *
-from anki.find import Finder
 from tests.shared import getEmptyCol
 
 
 class DummyCollection:
     def weakref(self):
         return None
-
-
-def test_parse():
-    f = Finder(DummyCollection())
-    assert f._tokenize("hello world") == ["hello", "world"]
-    assert f._tokenize("hello  world") == ["hello", "world"]
-    assert f._tokenize("one -two") == ["one", "-", "two"]
-    assert f._tokenize("one --two") == ["one", "-", "two"]
-    assert f._tokenize("one - two") == ["one", "-", "two"]
-    assert f._tokenize("one or -two") == ["one", "or", "-", "two"]
-    assert f._tokenize("'hello \"world\"'") == ['hello "world"']
-    assert f._tokenize('"hello world"') == ["hello world"]
-    assert f._tokenize("one (two or ( three or four))") == [
-        "one",
-        "(",
-        "two",
-        "or",
-        "(",
-        "three",
-        "or",
-        "four",
-        ")",
-        ")",
-    ]
-    assert f._tokenize("embedded'string") == ["embedded'string"]
-    assert f._tokenize("deck:'two words'") == ["deck:two words"]
 
 
 def test_findCards():

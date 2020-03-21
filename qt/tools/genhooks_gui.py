@@ -235,6 +235,26 @@ hooks = [
                 return True
         """,
     ),
+    Hook(
+        name="browser_will_search",
+        args=["context: aqt.browser.SearchContext"],
+        doc="""Allows you to modify the search text, or perform your own search.
+         
+         You can modify context.search to change the text that is sent to the
+         searching backend.
+         
+         If you set context.card_ids to a list of ids, the regular search will
+         not be performed, and the provided ids will be used instead.
+         
+         Your add-on should check if context.card_ids is not None, and return
+         without making changes if it has been set.
+         """,
+    ),
+    Hook(
+        name="browser_did_search",
+        args=["context: aqt.browser.SearchContext"],
+        doc="""Allows you to modify the list of returned card ids from a search.""",
+    ),
     # States
     ###################
     Hook(
