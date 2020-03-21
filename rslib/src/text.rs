@@ -6,7 +6,9 @@ use regex::{Captures, Regex};
 use std::borrow::Cow;
 use std::ptr;
 use unicase::eq as uni_eq;
-use unicode_normalization::{is_nfc, UnicodeNormalization};
+use unicode_normalization::{
+    char::is_combining_mark, is_nfc, is_nfkd_quick, IsNormalized, UnicodeNormalization,
+};
 
 #[derive(Debug, PartialEq)]
 pub enum AVTag {
@@ -231,12 +233,32 @@ pub(crate) fn matches_wildcard(text: &str, search: &str) -> bool {
     }
 }
 
+/// Convert provided string to NFKD form and strip combining characters.
+pub(crate) fn without_combining(s: &str) -> Cow<str> {
+    // if the string is already normalized
+    if matches!(is_nfkd_quick(s.chars()), IsNormalized::Yes) {
+        // and no combining characters found, return unchanged
+        if !s.chars().any(is_combining_mark) {
+            return s.into();
+        }
+    }
+
+    // we need to create a new string without the combining marks
+    s.chars()
+        .nfkd()
+        .filter(|c| !is_combining_mark(*c))
+        .collect::<String>()
+        .into()
+}
+
 #[cfg(test)]
 mod test {
     use super::matches_wildcard;
+    use crate::text::without_combining;
     use crate::text::{
         extract_av_tags, strip_av_tags, strip_html, strip_html_preserving_image_filenames, AVTag,
     };
+    use std::borrow::Cow;
 
     #[test]
     fn stripping() {
@@ -286,5 +308,11 @@ mod test {
         assert_eq!(matches_wildcard("foo", "F*"), true);
         assert_eq!(matches_wildcard("foo", "F*oo"), true);
         assert_eq!(matches_wildcard("foo", "b*"), false);
+    }
+
+    #[test]
+    fn combining() {
+        assert!(matches!(without_combining("test"), Cow::Borrowed(_)));
+        assert!(matches!(without_combining("Über"), Cow::Owned(_)));
     }
 }

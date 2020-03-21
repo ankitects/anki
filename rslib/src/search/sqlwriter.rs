@@ -8,6 +8,7 @@ use crate::decks::get_deck;
 use crate::err::{AnkiError, Result};
 use crate::notes::field_checksum;
 use crate::text::matches_wildcard;
+use crate::text::without_combining;
 use crate::{
     collection::RequestContext, text::strip_html_preserving_image_filenames, types::ObjID,
 };
@@ -81,6 +82,7 @@ impl SqlWriter<'_, '_> {
             SearchNode::Property { operator, kind } => self.write_prop(operator, kind)?,
             SearchNode::WholeCollection => write!(self.sql, "true").unwrap(),
             SearchNode::Regex(re) => self.write_regex(re.as_ref()),
+            SearchNode::NoCombining(text) => self.write_no_combining(text.as_ref()),
         };
         Ok(())
     }
@@ -92,6 +94,20 @@ impl SqlWriter<'_, '_> {
         write!(
             self.sql,
             "(n.sfld like ?{n} escape '\\' or n.flds like ?{n} escape '\\')",
+            n = self.args.len(),
+        )
+        .unwrap();
+    }
+
+    fn write_no_combining(&mut self, text: &str) {
+        let text = format!("%{}%", without_combining(text));
+        self.args.push(text);
+        write!(
+            self.sql,
+            concat!(
+                "(coalesce(without_combining(cast(n.sfld as text)), n.sfld) like ?{n} escape '\\' ",
+                "or coalesce(without_combining(n.flds), n.flds) like ?{n} escape '\\')"
+            ),
             n = self.args.len(),
         )
         .unwrap();
