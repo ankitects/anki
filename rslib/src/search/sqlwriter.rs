@@ -55,8 +55,8 @@ impl SqlWriter<'_, '_> {
     fn write_search_node_to_sql(&mut self, node: &SearchNode) -> Result<()> {
         match node {
             SearchNode::UnqualifiedText(text) => self.write_unqualified(text),
-            SearchNode::SingleField { field, text } => {
-                self.write_single_field(field.as_ref(), text.as_ref())?
+            SearchNode::SingleField { field, text, is_re } => {
+                self.write_single_field(field.as_ref(), text.as_ref(), *is_re)?
             }
             SearchNode::AddedInDays(days) => self.write_added(*days)?,
             SearchNode::CardTemplate(template) => self.write_template(template)?,
@@ -279,7 +279,7 @@ impl SqlWriter<'_, '_> {
         Ok(())
     }
 
-    fn write_single_field(&mut self, field_name: &str, val: &str) -> Result<()> {
+    fn write_single_field(&mut self, field_name: &str, val: &str, is_re: bool) -> Result<()> {
         let note_types = self.req.storage.all_note_types()?;
 
         let mut field_map = vec![];
@@ -299,15 +299,24 @@ impl SqlWriter<'_, '_> {
             return Ok(());
         }
 
-        self.args.push(val.replace('*', "%"));
+        let cmp;
+        if is_re {
+            cmp = "regexp";
+            self.args.push(format!("(?i){}", val));
+        } else {
+            cmp = "like";
+            self.args.push(val.replace('*', "%"));
+        }
+
         let arg_idx = self.args.len();
         let searches: Vec<_> = field_map
             .iter()
             .map(|(ntid, ord)| {
                 format!(
-                    "(n.mid = {mid} and field_at_index(n.flds, {ord}) like ?{n})",
+                    "(n.mid = {mid} and field_at_index(n.flds, {ord}) {cmp} ?{n})",
                     mid = ntid,
                     ord = ord,
+                    cmp = cmp,
                     n = arg_idx
                 )
             })
