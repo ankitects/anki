@@ -72,6 +72,7 @@ class FindDupesDialog:
 @dataclass
 class SearchContext:
     search: str
+    order: Union[bool, str] = True
     # if set, provided card ids will be used instead of the regular search
     card_ids: Optional[Sequence[int]] = None
 
@@ -184,7 +185,7 @@ class DataModel(QAbstractTableModel):
             ctx = SearchContext(search=txt)
             gui_hooks.browser_will_search(ctx)
             if ctx.card_ids is None:
-                ctx.card_ids = self.col.find_cards(txt)
+                ctx.card_ids = self.col.find_cards(txt, order=ctx.order)
             gui_hooks.browser_did_search(ctx)
             self.cards = ctx.card_ids
         except Exception as e:
