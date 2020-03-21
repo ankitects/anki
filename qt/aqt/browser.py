@@ -219,7 +219,7 @@ class DataModel(QAbstractTableModel):
 
     def _reverse(self):
         self.beginReset()
-        self.cards.reverse()
+        self.cards = list(reversed(self.cards))
         self.endReset()
 
     def saveSelection(self):
