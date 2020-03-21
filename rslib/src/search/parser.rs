@@ -5,7 +5,7 @@ use crate::err::{AnkiError, Result};
 use crate::types::ObjID;
 use nom::branch::alt;
 use nom::bytes::complete::{escaped, is_not, tag, take_while1};
-use nom::character::complete::{char, one_of};
+use nom::character::complete::{anychar, char, one_of};
 use nom::character::is_digit;
 use nom::combinator::{all_consuming, map, map_res};
 use nom::sequence::{delimited, preceded, tuple};
@@ -77,6 +77,7 @@ pub(super) enum SearchNode<'a> {
         kind: PropertyKind,
     },
     WholeCollection,
+    Regex(Cow<'a, str>),
 }
 
 #[derive(Debug, PartialEq)]
@@ -235,9 +236,8 @@ fn quoted_term_str(s: &str) -> IResult<&str, &str> {
 }
 
 /// Quoted text, terminated by a non-escaped double quote
-/// Can escape %, _, " and \
 fn quoted_term_inner(s: &str) -> IResult<&str, &str> {
-    escaped(is_not(r#""\"#), '\\', one_of(r#""\%_"#))(s)
+    escaped(is_not(r#""\"#), '\\', anychar)(s)
 }
 
 /// eg deck:"foo bar" - quotes must come after the :
@@ -270,7 +270,7 @@ fn search_node_for_text_with_argument<'a>(
         "rated" => parse_rated(val.as_ref())?,
         "dupes" => parse_dupes(val.as_ref())?,
         "prop" => parse_prop(val.as_ref())?,
-
+        "re" => SearchNode::Regex(val),
         // anything else is a field search
         _ => SearchNode::SingleField {
             field: key,
@@ -430,6 +430,12 @@ mod test {
                 Or,
                 Search(UnqualifiedText("test".into()))
             ]
+        );
+
+        // any character should be escapable in quotes
+        assert_eq!(
+            parse(r#""re:\btest""#)?,
+            vec![Search(Regex(r"\btest".into()))]
         );
 
         assert_eq!(parse("added:3")?, vec![Search(AddedInDays(3))]);
