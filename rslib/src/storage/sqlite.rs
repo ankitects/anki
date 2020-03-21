@@ -10,12 +10,14 @@ use crate::{
     decks::Deck,
     notetypes::NoteType,
     sched::cutoff::{sched_timing_today, SchedTimingToday},
+    text::without_combining,
     types::{ObjID, Usn},
 };
 use regex::Regex;
 use rusqlite::{params, Connection, NO_PARAMS};
 use std::cmp::Ordering;
 use std::{
+    borrow::Cow,
     collections::HashMap,
     path::{Path, PathBuf},
 };
@@ -58,6 +60,7 @@ fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
 
     add_field_index_function(&db)?;
     add_regexp_function(&db)?;
+    add_without_combining_function(&db)?;
 
     db.create_collation("unicase", unicase_compare)?;
 
@@ -72,6 +75,16 @@ fn add_field_index_function(db: &Connection) -> rusqlite::Result<()> {
         let mut fields = ctx.get_raw(0).as_str()?.split('\x1f');
         let idx: u16 = ctx.get(1)?;
         Ok(fields.nth(idx as usize).unwrap_or("").to_string())
+    })
+}
+
+fn add_without_combining_function(db: &Connection) -> rusqlite::Result<()> {
+    db.create_scalar_function("without_combining", 1, true, |ctx| {
+        let text = ctx.get_raw(0).as_str()?;
+        Ok(match without_combining(text) {
+            Cow::Borrowed(_) => None,
+            Cow::Owned(o) => Some(o),
+        })
     })
 }
 
