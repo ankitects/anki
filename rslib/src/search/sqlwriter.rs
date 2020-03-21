@@ -131,7 +131,7 @@ impl SqlWriter<'_, '_> {
 
     fn write_rated(&mut self, days: u32, ease: Option<u8>) -> Result<()> {
         let today_cutoff = self.req.storage.timing_today()?.next_day_at;
-        let days = days.min(31) as i64;
+        let days = days.min(365) as i64;
         let target_cutoff_ms = (today_cutoff - 86_400 * days) * 1_000;
         write!(
             self.sql,
@@ -543,10 +543,10 @@ mod test {
                 )
             );
             assert_eq!(
-                s(ctx, "rated:40:1").0,
+                s(ctx, "rated:400:1").0,
                 format!(
                     "(c.id in (select cid from revlog where id>{} and ease=1))",
-                    (timing.next_day_at - (86_400 * 31)) * 1_000
+                    (timing.next_day_at - (86_400 * 365)) * 1_000
                 )
             );
 

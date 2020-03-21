@@ -314,14 +314,14 @@ fn parse_flag(s: &str) -> ParseResult<SearchNode<'static>> {
 }
 
 /// eg rated:3 or rated:10:2
-/// second arg must be between 1-4
+/// second arg must be between 0-4
 fn parse_rated(val: &str) -> ParseResult<SearchNode<'static>> {
     let mut it = val.splitn(2, ':');
     let days = it.next().unwrap().parse()?;
     let ease = match it.next() {
         Some(v) => {
             let n: u8 = v.parse()?;
-            if n < 5 && n > 0 {
+            if n < 5 {
                 Some(n)
             } else {
                 return Err(ParseError {});
