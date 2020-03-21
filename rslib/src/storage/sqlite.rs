@@ -14,13 +14,19 @@ use crate::{
 };
 use regex::Regex;
 use rusqlite::{params, Connection, NO_PARAMS};
+use std::cmp::Ordering;
 use std::{
     collections::HashMap,
     path::{Path, PathBuf},
 };
+use unicase::UniCase;
 
 const SCHEMA_MIN_VERSION: u8 = 11;
 const SCHEMA_MAX_VERSION: u8 = 11;
+
+fn unicase_compare(s1: &str, s2: &str) -> Ordering {
+    UniCase::new(s1).cmp(&UniCase::new(s2))
+}
 
 // currently public for dbproxy
 #[derive(Debug)]
@@ -52,6 +58,8 @@ fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
 
     add_field_index_function(&db)?;
     add_regexp_function(&db)?;
+
+    db.create_collation("unicase", unicase_compare)?;
 
     Ok(db)
 }
