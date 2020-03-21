@@ -106,7 +106,11 @@ class TemplateRenderOutput:
 
 
 def render_card(
-    col: anki.storage._Collection, card: Card, note: Note, browser: bool
+    col: anki.storage._Collection,
+    card: Card,
+    note: Note,
+    browser: bool,
+    return_all_fields: bool = False,
 ) -> TemplateRenderOutput:
     "Render a card."
     # collect data
@@ -167,9 +171,10 @@ def render_card_from_context(ctx: TemplateRenderContext) -> TemplateRenderOutput
 
     Will raise if the template is invalid."""
     col = ctx.col()
+    return_all_fields = bool(hooks.template_filter_all_fields._hooks)
 
     (qnodes, anodes) = col.backend.render_card(
-        ctx.qfmt(), ctx.afmt(), ctx.fields(), ctx.card().ord
+        ctx.qfmt(), ctx.afmt(), ctx.fields(), ctx.card().ord, return_all_fields
     )
 
     qtext = apply_custom_filters(qnodes, ctx, front_side=None)

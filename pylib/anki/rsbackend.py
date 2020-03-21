@@ -293,7 +293,12 @@ class RustBackend:
         ).sched_timing_today
 
     def render_card(
-        self, qfmt: str, afmt: str, fields: Dict[str, str], card_ord: int
+        self,
+        qfmt: str,
+        afmt: str,
+        fields: Dict[str, str],
+        card_ord: int,
+        return_all_fields: bool,
     ) -> Tuple[TemplateReplacementList, TemplateReplacementList]:
         out = self._run_command(
             pb.BackendInput(
@@ -302,6 +307,7 @@ class RustBackend:
                     answer_template=afmt,
                     fields=fields,
                     card_ordinal=card_ord,
+                    return_all_fields=return_all_fields,
                 )
             )
         ).render_card

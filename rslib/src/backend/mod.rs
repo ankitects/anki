@@ -377,6 +377,7 @@ impl Backend {
             &fields,
             input.card_ordinal as u16,
             &self.i18n,
+            input.return_all_fields,
         )?;
 
         // return

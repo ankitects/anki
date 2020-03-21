@@ -194,6 +194,7 @@ message RenderCardIn {
     string answer_template = 2;
     map<string,string> fields = 3;
     int32 card_ordinal = 4;
+    bool return_all_fields = 5;
 }
 
 message RenderCardOut {
