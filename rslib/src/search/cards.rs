@@ -48,7 +48,6 @@ pub(crate) fn search_cards<'a, 'b>(
         .query_map(&args, |row| row.get(0))?
         .collect::<std::result::Result<_, _>>()?;
 
-    println!("sql {}\nargs {:?} count {}", sql, args, ids.len());
     Ok(ids)
 }
 
