@@ -20,7 +20,6 @@ from typing import (
 )
 
 import ankirspy  # pytype: disable=import-error
-import orjson
 
 import anki.backend_pb2 as pb
 import anki.buildinfo
@@ -35,6 +34,19 @@ from anki.types import assert_impossible_literal
 assert ankirspy.buildhash() == anki.buildinfo.buildhash
 
 SchedTimingToday = pb.SchedTimingTodayOut
+
+try:
+    import orjson
+except:
+    # add compat layer for 32 bit builds that can't use orjson
+    print("reverting to stock json")
+    import json
+
+    class orjson:  # type: ignore
+        def dumps(obj: Any) -> bytes:
+            return json.dumps(obj).encode("utf8")
+
+        loads = json.loads
 
 
 class Interrupted(Exception):
