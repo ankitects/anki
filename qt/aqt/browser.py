@@ -13,7 +13,7 @@ import unicodedata
 from dataclasses import dataclass
 from enum import Enum
 from operator import itemgetter
-from typing import Callable, List, Optional, Union
+from typing import Callable, List, Optional, Sequence, Union
 
 import anki
 import aqt.forms
@@ -69,6 +69,13 @@ class FindDupesDialog:
     browser: Browser
 
 
+@dataclass
+class SearchContext:
+    search: str
+    # if set, provided card ids will be used instead of the regular search
+    card_ids: Optional[Sequence[int]] = None
+
+
 # Data model
 ##########################################################################
 
@@ -82,7 +89,7 @@ class DataModel(QAbstractTableModel):
         self.activeCols = self.col.conf.get(
             "activeCols", ["noteFld", "template", "cardDue", "deck"]
         )
-        self.cards: List[int] = []
+        self.cards: Sequence[int] = []
         self.cardObjs: Dict[int, Card] = {}
 
     def getCard(self, index: QModelIndex) -> Card:
@@ -169,23 +176,21 @@ class DataModel(QAbstractTableModel):
     # Filtering
     ######################################################################
 
-    def search(self, txt):
+    def search(self, txt: str) -> None:
         self.beginReset()
-        t = time.time()
-        # the db progress handler may cause a refresh, so we need to zero out
-        # old data first
         self.cards = []
         invalid = False
         try:
-            self.cards = self.col.findCards(txt, order=True)
+            ctx = SearchContext(search=txt)
+            gui_hooks.browser_will_search(ctx)
+            if ctx.card_ids is None:
+                ctx.card_ids = self.col.find_cards(txt)
+            gui_hooks.browser_did_search(ctx)
+            self.cards = ctx.card_ids
         except Exception as e:
-            if str(e) == "invalidSearch":
-                self.cards = []
-                invalid = True
-            else:
-                raise
+            print("search failed:", e)
+            invalid = True
         finally:
-            # print "fetch cards in %dms" % ((time.time() - t)*1000)
             self.endReset()
 
         if invalid:

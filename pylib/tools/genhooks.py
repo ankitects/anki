@@ -38,11 +38,6 @@ hooks = [
         legacy_hook="exportersList",
     ),
     Hook(
-        name="search_terms_prepared",
-        args=["searches: Dict[str, Callable]"],
-        legacy_hook="search",
-    ),
-    Hook(
         name="note_type_added",
         args=["notetype: Dict[str, Any]"],
         legacy_hook="newModel",

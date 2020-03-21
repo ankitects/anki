@@ -359,6 +359,32 @@ class _BrowserDidChangeRowHook:
 browser_did_change_row = _BrowserDidChangeRowHook()
 
 
+class _BrowserDidSearchHook:
+    """Allows you to modify the list of returned card ids from a search."""
+
+    _hooks: List[Callable[["aqt.browser.SearchContext"], None]] = []
+
+    def append(self, cb: Callable[["aqt.browser.SearchContext"], None]) -> None:
+        """(context: aqt.browser.SearchContext)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[["aqt.browser.SearchContext"], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, context: aqt.browser.SearchContext) -> None:
+        for hook in self._hooks:
+            try:
+                hook(context)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+browser_did_search = _BrowserDidSearchHook()
+
+
 class _BrowserMenusDidInitHook:
     _hooks: List[Callable[["aqt.browser.Browser"], None]] = []
 
@@ -482,6 +508,42 @@ class _BrowserWillBuildTreeFilter:
 
 
 browser_will_build_tree = _BrowserWillBuildTreeFilter()
+
+
+class _BrowserWillSearchHook:
+    """Allows you to modify the search text, or perform your own search.
+         
+         You can modify context.search to change the text that is sent to the
+         searching backend.
+         
+         If you set context.card_ids to a list of ids, the regular search will
+         not be performed, and the provided ids will be used instead.
+         
+         Your add-on should check if context.card_ids is not None, and return
+         without making changes if it has been set.
+         """
+
+    _hooks: List[Callable[["aqt.browser.SearchContext"], None]] = []
+
+    def append(self, cb: Callable[["aqt.browser.SearchContext"], None]) -> None:
+        """(context: aqt.browser.SearchContext)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[["aqt.browser.SearchContext"], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, context: aqt.browser.SearchContext) -> None:
+        for hook in self._hooks:
+            try:
+                hook(context)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+browser_will_search = _BrowserWillSearchHook()
 
 
 class _BrowserWillShowHook:
