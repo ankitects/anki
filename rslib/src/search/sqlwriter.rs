@@ -80,6 +80,7 @@ impl SqlWriter<'_, '_> {
             }
             SearchNode::Property { operator, kind } => self.write_prop(operator, kind)?,
             SearchNode::WholeCollection => write!(self.sql, "true").unwrap(),
+            SearchNode::Regex(re) => self.write_regex(re.as_ref()),
         };
         Ok(())
     }
@@ -334,6 +335,11 @@ impl SqlWriter<'_, '_> {
         write!(self.sql, "c.id > {}", cutoff).unwrap();
         Ok(())
     }
+
+    fn write_regex(&mut self, word: &str) {
+        self.sql.push_str("n.flds regexp ?");
+        self.args.push(format!(r"(?i){}", word));
+    }
 }
 
 // Write a list of IDs as '(x,y,...)' into the provided string.
@@ -535,6 +541,12 @@ mod test {
             assert_eq!(
                 &s(ctx, "note:basic*").0,
                 "(n.mid in (1581236385345,1581236385346,1581236385347,1581236385344))"
+            );
+
+            // regex
+            assert_eq!(
+                s(ctx, r"re:\bone"),
+                ("(n.flds regexp ?)".into(), vec![r"(?i)\bone".into()])
             );
 
             Ok(())
