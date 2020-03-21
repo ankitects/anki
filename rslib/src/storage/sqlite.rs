@@ -12,6 +12,7 @@ use crate::{
     sched::cutoff::{sched_timing_today, SchedTimingToday},
     types::{ObjID, Usn},
 };
+use regex::Regex;
 use rusqlite::{params, Connection, NO_PARAMS};
 use std::{
     collections::HashMap,
@@ -50,6 +51,7 @@ fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
     db.set_prepared_statement_cache_capacity(50);
 
     add_field_index_function(&db)?;
+    add_regexp_function(&db)?;
 
     Ok(db)
 }
@@ -57,13 +59,49 @@ fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
 /// Adds sql function field_at_index(flds, index)
 /// to split provided fields and return field at zero-based index.
 /// If out of range, returns empty string.
-fn add_field_index_function(db: &Connection) -> Result<()> {
+fn add_field_index_function(db: &Connection) -> rusqlite::Result<()> {
     db.create_scalar_function("field_at_index", 2, true, |ctx| {
         let mut fields = ctx.get_raw(0).as_str()?.split('\x1f');
         let idx: u16 = ctx.get(1)?;
         Ok(fields.nth(idx as usize).unwrap_or("").to_string())
     })
-    .map_err(Into::into)
+}
+
+/// Adds sql function regexp(regex, string) -> is_match
+/// Taken from the rusqlite docs
+fn add_regexp_function(db: &Connection) -> rusqlite::Result<()> {
+    db.create_scalar_function("regexp", 2, true, move |ctx| {
+        assert_eq!(ctx.len(), 2, "called with unexpected number of arguments");
+
+        let saved_re: Option<&Regex> = ctx.get_aux(0)?;
+        let new_re = match saved_re {
+            None => {
+                let s = ctx.get::<String>(0)?;
+                match Regex::new(&s) {
+                    Ok(r) => Some(r),
+                    Err(err) => return Err(rusqlite::Error::UserFunctionError(Box::new(err))),
+                }
+            }
+            Some(_) => None,
+        };
+
+        let is_match = {
+            let re = saved_re.unwrap_or_else(|| new_re.as_ref().unwrap());
+
+            let text = ctx
+                .get_raw(1)
+                .as_str()
+                .map_err(|e| rusqlite::Error::UserFunctionError(e.into()))?;
+
+            re.is_match(text)
+        };
+
+        if let Some(re) = new_re {
+            ctx.set_aux(0, re);
+        }
+
+        Ok(is_match)
+    })
 }
 
 /// Fetch schema version from database.
