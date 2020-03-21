@@ -5,6 +5,7 @@ use lazy_static::lazy_static;
 use regex::{Captures, Regex};
 use std::borrow::Cow;
 use std::ptr;
+use unicase::eq as uni_eq;
 use unicode_normalization::{is_nfc, UnicodeNormalization};
 
 #[derive(Debug, PartialEq)]
@@ -219,14 +220,14 @@ pub(crate) fn normalize_to_nfc(s: &str) -> Cow<str> {
     }
 }
 
-/// True if search is equal to text, folding ascii case.
+/// True if search is equal to text, folding case.
 /// Supports '*' to match 0 or more characters.
 pub(crate) fn matches_wildcard(text: &str, search: &str) -> bool {
     if search.contains('*') {
         let search = format!("^(?i){}$", regex::escape(search).replace(r"\*", ".*"));
         Regex::new(&search).unwrap().is_match(text)
     } else {
-        text.eq_ignore_ascii_case(search)
+        uni_eq(text, search)
     }
 }
 
