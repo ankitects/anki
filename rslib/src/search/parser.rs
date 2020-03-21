@@ -53,6 +53,7 @@ pub(super) enum SearchNode<'a> {
     SingleField {
         field: Cow<'a, str>,
         text: Cow<'a, str>,
+        is_re: bool,
     },
     AddedInDays(u32),
     CardTemplate(TemplateKind),
@@ -272,10 +273,7 @@ fn search_node_for_text_with_argument<'a>(
         "prop" => parse_prop(val.as_ref())?,
         "re" => SearchNode::Regex(val),
         // anything else is a field search
-        _ => SearchNode::SingleField {
-            field: key,
-            text: val,
-        },
+        _ => parse_single_field(key.as_ref(), val.as_ref()),
     })
 }
 
@@ -392,6 +390,20 @@ fn parse_template(val: &str) -> SearchNode<'static> {
     })
 }
 
+fn parse_single_field(key: &str, mut val: &str) -> SearchNode<'static> {
+    let is_re = if val.starts_with("re:") {
+        val = val.trim_start_matches("re:");
+        true
+    } else {
+        false
+    };
+    SearchNode::SingleField {
+        field: key.to_string().into(),
+        text: val.to_string().into(),
+        is_re,
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -424,12 +436,22 @@ mod test {
                     And,
                     Search(SingleField {
                         field: "foo".into(),
-                        text: "bar baz".into()
+                        text: "bar baz".into(),
+                        is_re: false,
                     })
                 ]))),
                 Or,
                 Search(UnqualifiedText("test".into()))
             ]
+        );
+
+        assert_eq!(
+            parse("foo:re:bar")?,
+            vec![Search(SingleField {
+                field: "foo".into(),
+                text: "bar".into(),
+                is_re: true
+            })]
         );
 
         // any character should be escapable in quotes
