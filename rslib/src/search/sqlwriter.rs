@@ -285,7 +285,7 @@ impl SqlWriter<'_, '_> {
         let mut field_map = vec![];
         for nt in note_types.values() {
             for field in &nt.fields {
-                if field.name.eq_ignore_ascii_case(field_name) {
+                if matches_wildcard(&field.name, field_name) {
                     field_map.push((nt.id, field.ord));
                 }
             }
