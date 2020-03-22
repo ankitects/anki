@@ -256,11 +256,14 @@ class RustBackend:
                     media_db_path=media_db_path,
                     log_path=log_path,
                 )
-            )
+            ),
+            release_gil=True,
         )
 
     def close_collection(self):
-        self._run_command(pb.BackendInput(close_collection=pb.Empty()))
+        self._run_command(
+            pb.BackendInput(close_collection=pb.Empty()), release_gil=True
+        )
 
     def template_requirements(
         self, template_fronts: List[str], field_map: Dict[str, int]
