@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import datetime
 import itertools
 import random
 import time
@@ -1353,13 +1352,8 @@ where id = ?
     def _updateCutoff(self) -> None:
         oldToday = self.today
         timing = self._timing_today()
-
-        if self._new_timezone_enabled():
-            self.today = timing.days_elapsed
-            self.dayCutoff = timing.next_day_at
-        else:
-            self.today = self._daysSinceCreation()
-            self.dayCutoff = self._dayCutoff()
+        self.today = timing.days_elapsed
+        self.dayCutoff = timing.next_day_at
 
         if oldToday != self.today:
             self.col.log(self.today, self.dayCutoff)
@@ -1385,51 +1379,28 @@ where id = ?
         if time.time() > self.dayCutoff:
             self.reset()
 
-    def _dayCutoff(self) -> int:
-        rolloverTime = self.col.conf.get("rollover", 4)
-        if rolloverTime < 0:
-            rolloverTime = 24 + rolloverTime
-        date = datetime.datetime.today()
-        date = date.replace(hour=rolloverTime, minute=0, second=0, microsecond=0)
-        if date < datetime.datetime.today():
-            date = date + datetime.timedelta(days=1)
-
-        stamp = int(time.mktime(date.timetuple()))
-        return stamp
-
-    def _daysSinceCreation(self) -> int:
-        startDate = datetime.datetime.fromtimestamp(self.col.crt)
-        startDate = startDate.replace(
-            hour=self._rolloverHour(), minute=0, second=0, microsecond=0
-        )
-        return int((time.time() - time.mktime(startDate.timetuple())) // 86400)
-
     def _rolloverHour(self) -> int:
         return self.col.conf.get("rollover", 4)
 
     # New timezone handling
     ##########################################################################
 
-    def _new_timezone_enabled(self) -> bool:
-        return self.col.conf.get("creationOffset") is not None
-
     def _timing_today(self) -> SchedTimingToday:
         return self.col.backend.sched_timing_today(
             self.col.crt,
             self._creation_timezone_offset(),
-            intTime(),
             self._current_timezone_offset(),
             self._rolloverHour(),
         )
 
-    def _current_timezone_offset(self) -> int:
+    def _current_timezone_offset(self) -> Optional[int]:
         if self.col.server:
-            return self.col.conf.get("localOffset", 0)
+            return self.col.conf.get("localOffset", None)
         else:
-            return self.col.backend.local_minutes_west(intTime())
+            return None
 
-    def _creation_timezone_offset(self) -> int:
-        return self.col.conf.get("creationOffset", 0)
+    def _creation_timezone_offset(self) -> Optional[int]:
+        return self.col.conf.get("creationOffset", None)
 
     def set_creation_offset(self):
         """Save the UTC west offset at the time of creation into the DB.

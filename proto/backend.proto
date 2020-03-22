@@ -6,6 +6,10 @@ package backend_proto;
 
 message Empty {}
 
+message OptionalInt32 {
+    sint32 val = 1;
+}
+
 message BackendInit {
     repeated string preferred_langs = 1;
     string locale_folder_path = 2;
@@ -163,10 +167,10 @@ message TemplateRequirementAny {
 
 message SchedTimingTodayIn {
     int64 created_secs = 1;
-    sint32 created_mins_west = 2;
-    int64 now_secs = 3;
-    sint32 now_mins_west = 4;
-    sint32 rollover_hour = 5;
+    int64 now_secs = 2;
+    OptionalInt32 created_mins_west = 3;
+    OptionalInt32 now_mins_west = 4;
+    OptionalInt32 rollover_hour = 5;
 }
 
 message SchedTimingTodayOut {

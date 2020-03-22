@@ -13,7 +13,7 @@ use crate::log::{default_logger, Logger};
 use crate::media::check::MediaChecker;
 use crate::media::sync::MediaSyncProgress;
 use crate::media::MediaManager;
-use crate::sched::cutoff::{local_minutes_west_for_stamp, sched_timing_today_v2_new};
+use crate::sched::cutoff::{local_minutes_west_for_stamp, sched_timing_today};
 use crate::sched::timespan::{answer_button_time, learning_congrats, studied_today, time_span};
 use crate::search::{search_cards, search_notes, SortMode};
 use crate::template::{
@@ -350,12 +350,12 @@ impl Backend {
     }
 
     fn sched_timing_today(&self, input: pb::SchedTimingTodayIn) -> pb::SchedTimingTodayOut {
-        let today = sched_timing_today_v2_new(
+        let today = sched_timing_today(
             input.created_secs as i64,
-            input.created_mins_west,
             input.now_secs as i64,
-            input.now_mins_west,
-            input.rollover_hour as i8,
+            input.created_mins_west.map(|v| v.val),
+            input.now_mins_west.map(|v| v.val),
+            input.rollover_hour.map(|v| v.val as i8),
         );
         pb::SchedTimingTodayOut {
             days_elapsed: today.days_elapsed,

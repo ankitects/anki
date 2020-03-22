@@ -1,7 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::time::i64_unix_secs;
 use chrono::{Date, Duration, FixedOffset, Local, TimeZone};
 
 #[derive(Debug, PartialEq, Clone, Copy)]
@@ -140,26 +139,25 @@ fn sched_timing_today_v2_legacy(
 /// Based on provided input, get timing info from the relevant function.
 pub(crate) fn sched_timing_today(
     created_secs: i64,
+    now_secs: i64,
     created_mins_west: Option<i32>,
     now_mins_west: Option<i32>,
     rollover_hour: Option<i8>,
 ) -> SchedTimingToday {
-    let now = i64_unix_secs();
-
     match (rollover_hour, created_mins_west) {
         (None, _) => {
             // if rollover unset, v1 scheduler
-            sched_timing_today_v1(created_secs, now)
+            sched_timing_today_v1(created_secs, now_secs)
         }
         (Some(roll), None) => {
             // if creation offset unset, v2 legacy cutoff using local timezone
-            let offset = local_minutes_west_for_stamp(now);
-            sched_timing_today_v2_legacy(created_secs, roll, now, offset)
+            let offset = local_minutes_west_for_stamp(now_secs);
+            sched_timing_today_v2_legacy(created_secs, roll, now_secs, offset)
         }
         (Some(roll), Some(crt_west)) => {
             // new cutoff code, using provided current timezone, falling back on local timezone
-            let now_west = now_mins_west.unwrap_or_else(|| local_minutes_west_for_stamp(now));
-            sched_timing_today_v2_new(created_secs, crt_west, now, now_west, roll)
+            let now_west = now_mins_west.unwrap_or_else(|| local_minutes_west_for_stamp(now_secs));
+            sched_timing_today_v2_new(created_secs, crt_west, now_secs, now_west, roll)
         }
     }
 }
