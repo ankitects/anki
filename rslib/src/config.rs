@@ -28,7 +28,7 @@ pub struct Config {
     pub(crate) local_offset: Option<i32>,
     #[serde(rename = "sortType", deserialize_with = "default_on_invalid")]
     pub(crate) browser_sort_kind: SortKind,
-    #[serde(rename = "sortBackwards", default)]
+    #[serde(rename = "sortBackwards", deserialize_with = "default_on_invalid")]
     pub(crate) browser_sort_reverse: bool,
 }
 
