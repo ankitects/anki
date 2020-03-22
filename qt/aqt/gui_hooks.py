@@ -1028,6 +1028,30 @@ class _EditorDidFocusFieldHook:
 editor_did_focus_field = _EditorDidFocusFieldHook()
 
 
+class _EditorDidInitHook:
+    _hooks: List[Callable[["aqt.editor.Editor"], None]] = []
+
+    def append(self, cb: Callable[["aqt.editor.Editor"], None]) -> None:
+        """(editor: aqt.editor.Editor)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[["aqt.editor.Editor"], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, editor: aqt.editor.Editor) -> None:
+        for hook in self._hooks:
+            try:
+                hook(editor)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+editor_did_init = _EditorDidInitHook()
+
+
 class _EditorDidInitButtonsHook:
     _hooks: List[Callable[[List, "aqt.editor.Editor"], None]] = []
 
