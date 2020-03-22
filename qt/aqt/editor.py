@@ -83,6 +83,7 @@ class Editor:
         self.setupWeb()
         self.setupShortcuts()
         self.setupTags()
+        gui_hooks.editor_did_init(self)
 
     # Initial setup
     ############################################################

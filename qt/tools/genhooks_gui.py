@@ -497,6 +497,7 @@ def emptyNewCard():
         name="editor_web_view_did_init",
         args=["editor_web_view: aqt.editor.EditorWebView"],
     ),
+    Hook(name="editor_did_init", args=["editor: aqt.editor.Editor"],),
     # Sound/video
     ###################
     Hook(name="av_player_will_play", args=["tag: anki.sound.AVTag"]),
