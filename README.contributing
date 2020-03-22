@@ -114,7 +114,7 @@ You can do this automatically by adding the following into
 .git/hooks/pre-commit or .git/hooks/pre-push and making it executable.
 
 #!/bin/bash
-set -eo pipefail
+set -eu -o pipefail ${SHELLFLAGS}
 make check
 
 You may need to adjust the PATH variable so that things like a local install

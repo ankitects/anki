@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -eu -o pipefail ${SHELLFLAGS}
 
 files=$(rg -l '[^\n]\z' -g '!*.{svg,scss,json,sql}' || true)
 if [ "$files" != "" ]; then
