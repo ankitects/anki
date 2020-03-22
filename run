@@ -1,4 +1,6 @@
 #!/bin/bash
 
+set -eu -o pipefail ${SHELLFLAGS}
+
 python --version
 make -C $(dirname $0) run RUNFLAGS="$*"
