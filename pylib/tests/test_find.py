@@ -3,7 +3,7 @@ import pytest
 
 from anki.consts import *
 from anki.rsbackend import BuiltinSortKind
-from tests.shared import getEmptyCol
+from tests.shared import getEmptyCol, isNearCutoff
 
 
 class DummyCollection:
@@ -189,19 +189,27 @@ def test_findCards():
     assert len(deck.findCards("prop:ease>2")) == 1
     assert len(deck.findCards("-prop:ease>2")) > 1
     # recently failed
-    assert len(deck.findCards("rated:1:1")) == 0
-    assert len(deck.findCards("rated:1:2")) == 0
-    c = deck.sched.getCard()
-    deck.sched.answerCard(c, 2)
-    assert len(deck.findCards("rated:1:1")) == 0
-    assert len(deck.findCards("rated:1:2")) == 1
-    c = deck.sched.getCard()
-    deck.sched.answerCard(c, 1)
-    assert len(deck.findCards("rated:1:1")) == 1
-    assert len(deck.findCards("rated:1:2")) == 1
-    assert len(deck.findCards("rated:1")) == 2
-    assert len(deck.findCards("rated:0:2")) == 0
-    assert len(deck.findCards("rated:2:2")) == 1
+    if not isNearCutoff():
+        assert len(deck.findCards("rated:1:1")) == 0
+        assert len(deck.findCards("rated:1:2")) == 0
+        c = deck.sched.getCard()
+        deck.sched.answerCard(c, 2)
+        assert len(deck.findCards("rated:1:1")) == 0
+        assert len(deck.findCards("rated:1:2")) == 1
+        c = deck.sched.getCard()
+        deck.sched.answerCard(c, 1)
+        assert len(deck.findCards("rated:1:1")) == 1
+        assert len(deck.findCards("rated:1:2")) == 1
+        assert len(deck.findCards("rated:1")) == 2
+        assert len(deck.findCards("rated:0:2")) == 0
+        assert len(deck.findCards("rated:2:2")) == 1
+        # added
+        assert len(deck.findCards("added:0")) == 0
+        deck.db.execute("update cards set id = id - 86400*1000 where id = ?", id)
+        assert len(deck.findCards("added:1")) == deck.cardCount() - 1
+        assert len(deck.findCards("added:2")) == deck.cardCount()
+    else:
+        print("some find tests disabled near cutoff")
     # empty field
     assert len(deck.findCards("front:")) == 0
     f = deck.newNote()
@@ -215,11 +223,6 @@ def test_findCards():
     assert len(deck.findCards("-(tag:monkey OR tag:sheep)")) == 6
     assert len(deck.findCards("tag:monkey or (tag:sheep sheep)")) == 2
     assert len(deck.findCards("tag:monkey or (tag:sheep octopus)")) == 1
-    # added
-    assert len(deck.findCards("added:0")) == 0
-    deck.db.execute("update cards set id = id - 86400*1000 where id = ?", id)
-    assert len(deck.findCards("added:1")) == deck.cardCount() - 1
-    assert len(deck.findCards("added:2")) == deck.cardCount()
     # flag
     with pytest.raises(Exception):
         deck.findCards("flag:12")

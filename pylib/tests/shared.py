@@ -1,8 +1,21 @@
 import os
 import shutil
 import tempfile
+import time
 
 from anki import Collection as aopen
+
+# Between 2-4AM, shift the time back so test assumptions hold.
+lt = time.localtime()
+if lt.tm_hour >= 2 and lt.tm_hour < 4:
+    orig_time = time.time
+
+    def adjusted_time():
+        return orig_time() - 60 * 60 * 2
+
+    time.time = adjusted_time
+else:
+    orig_time = None
 
 
 def assertException(exception, func):
@@ -48,3 +61,15 @@ def getUpgradeDeckPath(name="anki12.anki"):
 
 
 testDir = os.path.dirname(__file__)
+
+
+def errorsAfterMidnight(func):
+    lt = time.localtime()
+    if lt.tm_hour < 4:
+        print("test disabled around cutoff", func)
+    else:
+        func()
+
+
+def isNearCutoff():
+    return orig_time is not None
