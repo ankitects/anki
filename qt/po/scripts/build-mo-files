@@ -2,7 +2,8 @@
 #
 # build mo files
 #
-set -eo pipefail
+
+set -eu -o pipefail ${SHELLFLAGS}
 
 targetDir="../aqt_data/locale/gettext"
 mkdir -p $targetDir

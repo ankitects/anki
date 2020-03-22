@@ -1,7 +1,12 @@
 SHELL := /bin/bash
 
-.SHELLFLAGS := -eu -o pipefail -c
+ifndef SHELLFLAGS
+	SHELLFLAGS :=
+endif
+
+.SHELLFLAGS := -eu -o pipefail ${SHELLFLAGS} -c
 .DELETE_ON_ERROR:
+
 MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 .SUFFIXES:

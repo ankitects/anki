@@ -1,4 +1,13 @@
 SHELL := /bin/bash
+
+ifndef SHELLFLAGS
+	SHELLFLAGS :=
+endif
+
+.SHELLFLAGS := -eu -o pipefail ${SHELLFLAGS} -c
+MAKEFLAGS += --warn-undefined-variables
+MAKEFLAGS += --no-builtin-rules
+
 FIND := $(if $(wildcard /bin/find),/bin/find,/usr/bin/find)
 MYPY_ARGS :=
 
@@ -15,10 +24,7 @@ ifneq (${OS},Windows_NT)
 	MYPY_ARGS := --warn-unused-ignores
 endif
 
-.SHELLFLAGS := -eu -o pipefail -c
 .DELETE_ON_ERROR:
-MAKEFLAGS += --warn-undefined-variables
-MAKEFLAGS += --no-builtin-rules
 RUNARGS :=
 .SUFFIXES:
 BLACKARGS := -t py36 anki tests setup.py tools/*.py --exclude='_pb2|buildinfo'

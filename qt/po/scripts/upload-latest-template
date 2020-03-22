@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eo pipefail
+set -eu -o pipefail ${SHELLFLAGS}
 
 scripts/update-po-template
 (cd repo && git add desktop; git commit -m update; git push)

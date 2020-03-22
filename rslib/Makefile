@@ -1,10 +1,15 @@
 SHELL := /bin/bash
-FIND := $(if $(wildcard /bin/find),/bin/find,/usr/bin/find)
 
-.SHELLFLAGS := -eu -o pipefail -c
-.DELETE_ON_ERROR:
+ifndef SHELLFLAGS
+	SHELLFLAGS :=
+endif
+
+.SHELLFLAGS := -eu -o pipefail ${SHELLFLAGS} -c
 MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
+
+FIND := $(if $(wildcard /bin/find),/bin/find,/usr/bin/find)
+.DELETE_ON_ERROR:
 
 $(shell mkdir -p .build)
 

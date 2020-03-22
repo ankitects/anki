@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -eu -o pipefail ${SHELLFLAGS}
+
 echo "Downloading latest translations..."
 
 if [ ! -d repo ]; then

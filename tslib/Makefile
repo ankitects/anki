@@ -1,9 +1,14 @@
 SHELL := /bin/bash
 
-.SHELLFLAGS := -eu -o pipefail -c
-.DELETE_ON_ERROR:
+ifndef SHELLFLAGS
+	SHELLFLAGS :=
+endif
+
+.SHELLFLAGS := -eu -o pipefail ${SHELLFLAGS} -c
 MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
+
+.DELETE_ON_ERROR:
 .SUFFIXES:
 
 $(shell mkdir -p .build dist)
