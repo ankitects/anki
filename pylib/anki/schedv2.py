@@ -1393,11 +1393,14 @@ where id = ?
             self._rolloverHour(),
         )
 
-    def _current_timezone_offset(self) -> Optional[int]:
+    def _current_timezone_offset(self) -> int:
         if self.col.server:
             return self.col.conf.get("localOffset", None)
         else:
-            return None
+            # note: while we could return None to sched_timing_today to have
+            # the backend calculate it, this function is also used to set
+            # localOffset, so it must not return None
+            return self.col.backend.local_minutes_west(intTime())
 
     def _creation_timezone_offset(self) -> Optional[int]:
         return self.col.conf.get("creationOffset", None)
