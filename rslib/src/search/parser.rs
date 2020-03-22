@@ -162,6 +162,9 @@ fn group_inner(input: &str) -> IResult<&str, Vec<Node>> {
     if nodes.is_empty() {
         Err(nom::Err::Error((remaining, nom::error::ErrorKind::Many1)))
     } else {
+        // chomp any trailing whitespace
+        let (remaining, _) = whitespace0(remaining)?;
+
         Ok((remaining, nodes))
     }
 }
@@ -426,6 +429,16 @@ mod test {
                 And,
                 Search(UnqualifiedText("t2".into()))
             ]
+        );
+
+        // including in groups
+        assert_eq!(
+            parse("(  t   t2  )")?,
+            vec![Group(vec![
+                Search(UnqualifiedText("t".into())),
+                And,
+                Search(UnqualifiedText("t2".into()))
+            ])]
         );
 
         assert_eq!(
