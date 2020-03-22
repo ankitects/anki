@@ -34,6 +34,7 @@ from anki.types import assert_impossible_literal
 assert ankirspy.buildhash() == anki.buildinfo.buildhash
 
 SchedTimingToday = pb.SchedTimingTodayOut
+BuiltinSortKind = pb.BuiltinSortKind
 
 try:
     import orjson
@@ -435,13 +436,23 @@ class RustBackend:
     def _db_command(self, input: Dict[str, Any]) -> Any:
         return orjson.loads(self._backend.db_command(orjson.dumps(input)))
 
-    def search_cards(self, search: str, order: Union[bool, str]) -> Sequence[int]:
+    def search_cards(
+        self, search: str, order: Union[bool, str, int], reverse: bool = False
+    ) -> Sequence[int]:
         if isinstance(order, str):
             mode = pb.SortOrder(custom=order)
-        elif not order:
+        elif order is True:
+            mode = pb.SortOrder(from_config=pb.Empty())
+        elif order is False:
             mode = pb.SortOrder(none=pb.Empty())
         else:
-            mode = pb.SortOrder(from_config=pb.Empty())
+            # sadly we can't use the protobuf type in a Union, so we
+            # have to accept an int and convert it
+            kind = BuiltinSortKind.Value(BuiltinSortKind.Name(order))
+            mode = pb.SortOrder(
+                builtin=pb.BuiltinSearchOrder(kind=kind, reverse=reverse)
+            )
+
         return self._run_command(
             pb.BackendInput(search_cards=pb.SearchCardsIn(search=search, order=mode))
         ).search_cards.card_ids

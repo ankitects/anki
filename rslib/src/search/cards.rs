@@ -13,6 +13,7 @@ use rusqlite::params;
 pub(crate) enum SortMode {
     NoOrder,
     FromConfig,
+    Builtin { kind: SortKind, reverse: bool },
     Custom(String),
 }
 
@@ -36,6 +37,11 @@ pub(crate) fn search_cards<'a, 'b>(
             prepare_sort(req, &conf.browser_sort_kind)?;
             sql.push_str(" order by ");
             write_order(&mut sql, &conf.browser_sort_kind, conf.browser_sort_reverse)?;
+        }
+        SortMode::Builtin { kind, reverse } => {
+            prepare_sort(req, &kind)?;
+            sql.push_str(" order by ");
+            write_order(&mut sql, &kind, reverse)?;
         }
         SortMode::Custom(order_clause) => {
             sql.push_str(" order by ");
