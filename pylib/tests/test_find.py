@@ -2,6 +2,7 @@
 import pytest
 
 from anki.consts import *
+from anki.rsbackend import BuiltinSortKind
 from tests.shared import getEmptyCol
 
 
@@ -120,6 +121,14 @@ def test_findCards():
     deck.conf["sortBackwards"] = True
     deck.flush()
     assert deck.findCards("", order=True)[0] in latestCardIds
+    assert (
+        deck.find_cards("", order=BuiltinSortKind.CARD_DUE, reverse=False)[0]
+        == firstCardId
+    )
+    assert (
+        deck.find_cards("", order=BuiltinSortKind.CARD_DUE, reverse=True)[0]
+        != firstCardId
+    )
     # model
     assert len(deck.findCards("note:basic")) == 5
     assert len(deck.findCards("-note:basic")) == 0

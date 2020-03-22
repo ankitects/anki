@@ -3,8 +3,9 @@
 
 use crate::backend::dbproxy::db_command_bytes;
 use crate::backend_proto::backend_input::Value;
-use crate::backend_proto::{Empty, RenderedTemplateReplacement, SyncMediaIn};
+use crate::backend_proto::{BuiltinSortKind, Empty, RenderedTemplateReplacement, SyncMediaIn};
 use crate::collection::{open_collection, Collection};
+use crate::config::SortKind;
 use crate::err::{AnkiError, NetworkErrorKind, Result, SyncErrorKind};
 use crate::i18n::{tr_args, FString, I18n};
 use crate::latex::{extract_latex, extract_latex_expanding_clozes, ExtractedLatex};
@@ -588,6 +589,10 @@ impl Backend {
                         Some(V::None(_)) => SortMode::NoOrder,
                         Some(V::Custom(s)) => SortMode::Custom(s),
                         Some(V::FromConfig(_)) => SortMode::FromConfig,
+                        Some(V::Builtin(b)) => SortMode::Builtin {
+                            kind: sort_kind_from_pb(b.kind),
+                            reverse: b.reverse,
+                        },
                         None => SortMode::FromConfig,
                     }
                 } else {
@@ -675,5 +680,27 @@ fn media_sync_progress(p: &MediaSyncProgress, i18n: &I18n) -> pb::MediaSyncProgr
             FString::SyncMediaRemovedCount,
             tr_args!["up"=>p.uploaded_deletions,"down"=>p.downloaded_deletions],
         ),
+    }
+}
+
+fn sort_kind_from_pb(kind: i32) -> SortKind {
+    use SortKind as SK;
+    match pb::BuiltinSortKind::from_i32(kind) {
+        Some(pbkind) => match pbkind {
+            BuiltinSortKind::NoteCreation => SK::NoteCreation,
+            BuiltinSortKind::NoteMod => SK::NoteMod,
+            BuiltinSortKind::NoteField => SK::NoteField,
+            BuiltinSortKind::NoteTags => SK::NoteTags,
+            BuiltinSortKind::NoteType => SK::NoteType,
+            BuiltinSortKind::CardMod => SK::CardMod,
+            BuiltinSortKind::CardReps => SK::CardReps,
+            BuiltinSortKind::CardDue => SK::CardDue,
+            BuiltinSortKind::CardEase => SK::CardEase,
+            BuiltinSortKind::CardLapses => SK::CardLapses,
+            BuiltinSortKind::CardInterval => SK::CardInterval,
+            BuiltinSortKind::CardDeck => SK::CardDeck,
+            BuiltinSortKind::CardTemplate => SK::CardTemplate,
+        },
+        _ => SortKind::NoteCreation,
     }
 }
