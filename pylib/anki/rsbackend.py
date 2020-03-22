@@ -30,6 +30,7 @@ from anki.fluent_pb2 import FluentString as TR
 from anki.models import AllTemplateReqs
 from anki.sound import AVTag, SoundOrVideoTag, TTSTag
 from anki.types import assert_impossible_literal
+from anki.utils import intTime
 
 assert ankirspy.buildhash() == anki.buildinfo.buildhash
 
@@ -276,19 +277,33 @@ class RustBackend:
     def sched_timing_today(
         self,
         created_secs: int,
-        created_mins_west: int,
-        now_secs: int,
-        now_mins_west: int,
-        rollover: int,
+        created_mins_west: Optional[int],
+        now_mins_west: Optional[int],
+        rollover: Optional[int],
     ) -> SchedTimingToday:
+        if created_mins_west is not None:
+            crt_west = pb.OptionalInt32(val=created_mins_west)
+        else:
+            crt_west = None
+
+        if now_mins_west is not None:
+            now_west = pb.OptionalInt32(val=now_mins_west)
+        else:
+            now_west = None
+
+        if rollover is not None:
+            roll = pb.OptionalInt32(val=rollover)
+        else:
+            roll = None
+
         return self._run_command(
             pb.BackendInput(
                 sched_timing_today=pb.SchedTimingTodayIn(
                     created_secs=created_secs,
-                    created_mins_west=created_mins_west,
-                    now_secs=now_secs,
-                    now_mins_west=now_mins_west,
-                    rollover_hour=rollover,
+                    now_secs=intTime(),
+                    created_mins_west=crt_west,
+                    now_mins_west=now_west,
+                    rollover_hour=roll,
                 )
             )
         ).sched_timing_today

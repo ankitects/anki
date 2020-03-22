@@ -324,6 +324,7 @@ impl StorageContext<'_> {
 
             self.timing_today = Some(sched_timing_today(
                 crt,
+                i64_unix_secs(),
                 conf.creation_offset,
                 now_offset,
                 conf.rollover,
