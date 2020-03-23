@@ -11,7 +11,8 @@ from typing import List, Union
 import aqt
 from anki import hooks
 from anki.consts import SYNC_BASE
-from anki.rsbackend import TR, Interrupted, MediaSyncProgress, Progress, ProgressKind
+from anki.rsbackend import TR, Interrupted, MediaSyncProgress, Progress, \
+    ProgressKind, NetworkError
 from anki.types import assert_impossible
 from anki.utils import intTime
 from aqt import gui_hooks
@@ -99,6 +100,10 @@ class MediaSyncer:
     def _handle_sync_error(self, exc: BaseException):
         if isinstance(exc, Interrupted):
             self._log_and_notify(tr(TR.SYNC_MEDIA_ABORTED))
+            return
+        elif isinstance(exc, NetworkError):
+            # avoid popups for network errors
+            self._log_and_notify(str(exc))
             return
 
         self._log_and_notify(tr(TR.SYNC_MEDIA_FAILED))
