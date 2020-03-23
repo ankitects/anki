@@ -235,6 +235,26 @@ hooks = [
                 return True
         """,
     ),
+    Hook(
+        name="browser_will_search",
+        args=["context: aqt.browser.SearchContext"],
+        doc="""Allows you to modify the search text, or perform your own search.
+         
+         You can modify context.search to change the text that is sent to the
+         searching backend.
+         
+         If you set context.card_ids to a list of ids, the regular search will
+         not be performed, and the provided ids will be used instead.
+         
+         Your add-on should check if context.card_ids is not None, and return
+         without making changes if it has been set.
+         """,
+    ),
+    Hook(
+        name="browser_did_search",
+        args=["context: aqt.browser.SearchContext"],
+        doc="""Allows you to modify the list of returned card ids from a search.""",
+    ),
     # States
     ###################
     Hook(
@@ -341,6 +361,7 @@ hooks = [
     ),
     # Main
     ###################
+    Hook(name="backup_did_complete"),
     Hook(name="profile_did_open", legacy_hook="profileLoaded"),
     Hook(name="profile_will_close", legacy_hook="unloadProfile"),
     Hook(
@@ -411,6 +432,18 @@ def emptyNewCard():
         name="add_cards_did_add_note",
         args=["note: anki.notes.Note"],
         legacy_hook="AddCards.noteAdded",
+    ),
+    Hook(
+        name="add_cards_will_add_note",
+        args=["problem: Optional[str]", "note: anki.notes.Note"],
+        return_type="Optional[str]",
+        doc="""Decides whether the note should be added to the collection or
+        not. It is assumed to come from the addCards window.
+
+        reason_to_already_reject is the first reason to reject that
+        was found, or None. If your filter wants to reject, it should
+        replace return the reason to reject. Otherwise return the
+        input.""",
     ),
     # Editing
     ###################
@@ -503,6 +536,9 @@ def emptyNewCard():
         args=["dialog: aqt.addons.AddonsDialog", "add_on: aqt.addons.AddonMeta"],
         doc="""Allows doing an action when a single add-on is selected.""",
     ),
+    # Model
+    ###################
+    Hook(name="models_advanced_will_show", args=["advanced: QDialog"],),
     # Other
     ###################
     Hook(

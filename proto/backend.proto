@@ -6,13 +6,14 @@ package backend_proto;
 
 message Empty {}
 
+message OptionalInt32 {
+    sint32 val = 1;
+}
+
 message BackendInit {
-    string collection_path = 1;
-    string media_folder_path = 2;
-    string media_db_path = 3;
-    repeated string preferred_langs = 4;
-    string locale_folder_path = 5;
-    string log_path = 6;
+    repeated string preferred_langs = 1;
+    string locale_folder_path = 2;
+    bool server = 3;
 }
 
 message I18nBackendInit {
@@ -27,8 +28,8 @@ message BackendInput {
         TemplateRequirementsIn template_requirements = 16;
         SchedTimingTodayIn sched_timing_today = 17;
         Empty deck_tree = 18;
-        FindCardsIn find_cards = 19;
-        BrowserRowsIn browser_rows = 20;
+        SearchCardsIn search_cards = 19;
+        SearchNotesIn search_notes = 20;
         RenderCardIn render_card = 21;
         int64 local_minutes_west = 22;
         string strip_av_tags = 23;
@@ -44,6 +45,8 @@ message BackendInput {
         CongratsLearnMsgIn congrats_learn_msg = 33;
         Empty empty_trash = 34;
         Empty restore_trash = 35;
+        OpenCollectionIn open_collection = 36;
+        Empty close_collection = 37;
     }
 }
 
@@ -63,8 +66,8 @@ message BackendOutput {
         // fallible commands
         TemplateRequirementsOut template_requirements = 16;
         DeckTreeOut deck_tree = 18;
-        FindCardsOut find_cards = 19;
-        BrowserRowsOut browser_rows = 20;
+        SearchCardsOut search_cards = 19;
+        SearchNotesOut search_notes = 20;
         RenderCardOut render_card = 21;
         string add_media_file = 26;
         Empty sync_media = 27;
@@ -72,6 +75,8 @@ message BackendOutput {
         Empty trash_media_files = 29;
         Empty empty_trash = 34;
         Empty restore_trash = 35;
+        Empty open_collection = 36;
+        Empty close_collection = 37;
 
         BackendError error = 2047;
     }
@@ -162,10 +167,10 @@ message TemplateRequirementAny {
 
 message SchedTimingTodayIn {
     int64 created_secs = 1;
-    sint32 created_mins_west = 2;
-    int64 now_secs = 3;
-    sint32 now_mins_west = 4;
-    sint32 rollover_hour = 5;
+    int64 now_secs = 2;
+    OptionalInt32 created_mins_west = 3;
+    OptionalInt32 now_mins_west = 4;
+    OptionalInt32 rollover_hour = 5;
 }
 
 message SchedTimingTodayOut {
@@ -186,23 +191,6 @@ message DeckTreeNode {
     uint32 new_count = 5;
     repeated DeckTreeNode children = 6;
     bool collapsed = 7;
-}
-
-message FindCardsIn {
-    string search = 1;
-}
-
-message FindCardsOut {
-    repeated int64 card_ids = 1;
-}
-
-message BrowserRowsIn {
-    repeated int64 card_ids = 1;
-}
-
-message BrowserRowsOut {
-    // just sort fields for proof of concept
-    repeated string sort_fields = 1;
 }
 
 message RenderCardIn {
@@ -323,4 +311,59 @@ message StudiedTodayIn {
 message CongratsLearnMsgIn {
     float next_due = 1;
     uint32 remaining = 2;
+}
+
+message OpenCollectionIn {
+    string collection_path = 1;
+    string media_folder_path = 2;
+    string media_db_path = 3;
+    string log_path = 4;
+}
+
+message SearchCardsIn {
+    string search = 1;
+    SortOrder order = 2;
+}
+
+message SearchCardsOut {
+    repeated int64 card_ids = 1;
+
+}
+
+message SortOrder {
+    oneof value {
+        Empty from_config = 1;
+        Empty none = 2;
+        string custom = 3;
+        BuiltinSearchOrder builtin = 4;
+    }
+}
+
+message SearchNotesIn {
+    string search = 1;
+}
+
+message SearchNotesOut {
+    repeated int64 note_ids = 2;
+}
+
+message BuiltinSearchOrder {
+    BuiltinSortKind kind = 1;
+    bool reverse = 2;
+}
+
+enum BuiltinSortKind {
+    NOTE_CREATION = 0;
+    NOTE_MOD = 1;
+    NOTE_FIELD = 2;
+    NOTE_TAGS = 3;
+    NOTE_TYPE = 4;
+    CARD_MOD = 5;
+    CARD_REPS = 6;
+    CARD_DUE = 7;
+    CARD_EASE = 8;
+    CARD_LAPSES = 9;
+    CARD_INTERVAL = 10;
+    CARD_DECK = 11;
+    CARD_TEMPLATE = 12;
 }

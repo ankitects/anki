@@ -1,17 +1,17 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-/// Basic note reading/updating functionality for the media DB check.
-use crate::err::{AnkiError, Result};
+/// At the moment, this is just basic note reading/updating functionality for
+/// the media DB check.
+use crate::err::{AnkiError, DBErrorKind, Result};
 use crate::text::strip_html_preserving_image_filenames;
-use crate::time::{i64_unix_millis, i64_unix_secs};
-use crate::types::{ObjID, Timestamp, Usn};
+use crate::time::i64_unix_secs;
+use crate::{
+    notetypes::NoteType,
+    types::{ObjID, Timestamp, Usn},
+};
 use rusqlite::{params, Connection, Row, NO_PARAMS};
-use serde_aux::field_attributes::deserialize_number_from_string;
-use serde_derive::Deserialize;
-use std::collections::HashMap;
 use std::convert::TryInto;
-use std::path::Path;
 
 #[derive(Debug)]
 pub(super) struct Note {
@@ -40,53 +40,11 @@ impl Note {
     }
 }
 
-fn field_checksum(text: &str) -> u32 {
+/// Text must be passed to strip_html_preserving_image_filenames() by
+/// caller prior to passing in here.
+pub(crate) fn field_checksum(text: &str) -> u32 {
     let digest = sha1::Sha1::from(text).digest().bytes();
     u32::from_be_bytes(digest[..4].try_into().unwrap())
-}
-
-pub(super) fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
-    let db = Connection::open(path)?;
-
-    db.pragma_update(None, "locking_mode", &"exclusive")?;
-    db.pragma_update(None, "page_size", &4096)?;
-    db.pragma_update(None, "cache_size", &(-40 * 1024))?;
-    db.pragma_update(None, "legacy_file_format", &false)?;
-    db.pragma_update(None, "journal", &"wal")?;
-    db.set_prepared_statement_cache_capacity(5);
-
-    Ok(db)
-}
-
-#[derive(Deserialize, Debug)]
-pub(super) struct NoteType {
-    #[serde(deserialize_with = "deserialize_number_from_string")]
-    id: ObjID,
-    #[serde(rename = "sortf")]
-    sort_field_idx: u16,
-
-    #[serde(rename = "latexsvg", default)]
-    latex_svg: bool,
-}
-
-impl NoteType {
-    pub fn latex_uses_svg(&self) -> bool {
-        self.latex_svg
-    }
-}
-
-pub(super) fn get_note_types(db: &Connection) -> Result<HashMap<ObjID, NoteType>> {
-    let mut stmt = db.prepare("select models from col")?;
-    let note_types = stmt
-        .query_and_then(NO_PARAMS, |row| -> Result<HashMap<ObjID, NoteType>> {
-            let v: HashMap<ObjID, NoteType> = serde_json::from_str(row.get_raw(0).as_str()?)?;
-            Ok(v)
-        })?
-        .next()
-        .ok_or_else(|| AnkiError::DBError {
-            info: "col table empty".to_string(),
-        })??;
-    Ok(note_types)
 }
 
 #[allow(dead_code)]
@@ -130,14 +88,20 @@ pub(super) fn set_note(db: &Connection, note: &mut Note, note_type: &NoteType) -
     note.mtime_secs = i64_unix_secs();
     // hard-coded for now
     note.usn = -1;
-    let csum = field_checksum(&note.fields()[0]);
-    let sort_field = strip_html_preserving_image_filenames(
-        note.fields()
-            .get(note_type.sort_field_idx as usize)
-            .ok_or_else(|| AnkiError::DBError {
-                info: "sort field out of range".to_string(),
-            })?,
-    );
+    let field1_nohtml = strip_html_preserving_image_filenames(&note.fields()[0]);
+    let csum = field_checksum(field1_nohtml.as_ref());
+    let sort_field = if note_type.sort_field_idx == 0 {
+        field1_nohtml
+    } else {
+        strip_html_preserving_image_filenames(
+            note.fields()
+                .get(note_type.sort_field_idx as usize)
+                .ok_or_else(|| AnkiError::DBError {
+                    info: "sort field out of range".to_string(),
+                    kind: DBErrorKind::MissingEntity,
+                })?,
+        )
+    };
 
     let mut stmt =
         db.prepare_cached("update notes set mod=?,usn=?,flds=?,sfld=?,csum=? where id=?")?;
@@ -150,10 +114,5 @@ pub(super) fn set_note(db: &Connection, note: &mut Note, note_type: &NoteType) -
         note.id,
     ])?;
 
-    Ok(())
-}
-
-pub(super) fn mark_collection_modified(db: &Connection) -> Result<()> {
-    db.execute("update col set mod=?", params![i64_unix_millis()])?;
     Ok(())
 }

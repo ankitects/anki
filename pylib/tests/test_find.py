@@ -2,39 +2,13 @@
 import pytest
 
 from anki.consts import *
-from anki.find import Finder
-from tests.shared import getEmptyCol
+from anki.rsbackend import BuiltinSortKind
+from tests.shared import getEmptyCol, isNearCutoff
 
 
 class DummyCollection:
     def weakref(self):
         return None
-
-
-def test_parse():
-    f = Finder(DummyCollection())
-    assert f._tokenize("hello world") == ["hello", "world"]
-    assert f._tokenize("hello  world") == ["hello", "world"]
-    assert f._tokenize("one -two") == ["one", "-", "two"]
-    assert f._tokenize("one --two") == ["one", "-", "two"]
-    assert f._tokenize("one - two") == ["one", "-", "two"]
-    assert f._tokenize("one or -two") == ["one", "or", "-", "two"]
-    assert f._tokenize("'hello \"world\"'") == ['hello "world"']
-    assert f._tokenize('"hello world"') == ["hello world"]
-    assert f._tokenize("one (two or ( three or four))") == [
-        "one",
-        "(",
-        "two",
-        "or",
-        "(",
-        "three",
-        "or",
-        "four",
-        ")",
-        ")",
-    ]
-    assert f._tokenize("embedded'string") == ["embedded'string"]
-    assert f._tokenize("deck:'two words'") == ["deck:two words"]
 
 
 def test_findCards():
@@ -68,6 +42,7 @@ def test_findCards():
     f["Front"] = "test"
     f["Back"] = "foo bar"
     deck.addNote(f)
+    deck.save()
     latestCardIds = [c.id for c in f.cards()]
     # tag searches
     assert len(deck.findCards("tag:*")) == 5
@@ -117,9 +92,8 @@ def test_findCards():
     assert len(deck.findCards("nid:%d" % f.id)) == 2
     assert len(deck.findCards("nid:%d,%d" % (f1id, f2id))) == 2
     # templates
-    with pytest.raises(Exception):
-        deck.findCards("card:foo")
-    assert len(deck.findCards("'card:card 1'")) == 4
+    assert len(deck.findCards("card:foo")) == 0
+    assert len(deck.findCards('"card:card 1"')) == 4
     assert len(deck.findCards("card:reverse")) == 1
     assert len(deck.findCards("card:1")) == 4
     assert len(deck.findCards("card:2")) == 1
@@ -133,16 +107,28 @@ def test_findCards():
     assert len(deck.findCards("front:*")) == 5
     # ordering
     deck.conf["sortType"] = "noteCrt"
+    deck.flush()
     assert deck.findCards("front:*", order=True)[-1] in latestCardIds
     assert deck.findCards("", order=True)[-1] in latestCardIds
     deck.conf["sortType"] = "noteFld"
+    deck.flush()
     assert deck.findCards("", order=True)[0] == catCard.id
     assert deck.findCards("", order=True)[-1] in latestCardIds
     deck.conf["sortType"] = "cardMod"
+    deck.flush()
     assert deck.findCards("", order=True)[-1] in latestCardIds
     assert deck.findCards("", order=True)[0] == firstCardId
     deck.conf["sortBackwards"] = True
+    deck.flush()
     assert deck.findCards("", order=True)[0] in latestCardIds
+    assert (
+        deck.find_cards("", order=BuiltinSortKind.CARD_DUE, reverse=False)[0]
+        == firstCardId
+    )
+    assert (
+        deck.find_cards("", order=BuiltinSortKind.CARD_DUE, reverse=True)[0]
+        != firstCardId
+    )
     # model
     assert len(deck.findCards("note:basic")) == 5
     assert len(deck.findCards("-note:basic")) == 0
@@ -153,8 +139,7 @@ def test_findCards():
     assert len(deck.findCards("-deck:foo")) == 5
     assert len(deck.findCards("deck:def*")) == 5
     assert len(deck.findCards("deck:*EFAULT")) == 5
-    with pytest.raises(Exception):
-        deck.findCards("deck:*cefault")
+    assert len(deck.findCards("deck:*cefault")) == 0
     # full search
     f = deck.newNote()
     f["Front"] = "hello<b>world</b>"
@@ -177,6 +162,7 @@ def test_findCards():
     deck.db.execute(
         "update cards set did = ? where id = ?", deck.decks.id("Default::Child"), id
     )
+    deck.save()
     assert len(deck.findCards("deck:default")) == 7
     assert len(deck.findCards("deck:default::child")) == 1
     assert len(deck.findCards("deck:default -deck:default::*")) == 6
@@ -195,33 +181,35 @@ def test_findCards():
     assert len(deck.findCards("prop:ivl!=10")) > 1
     assert len(deck.findCards("prop:due>0")) == 1
     # due dates should work
-    deck.sched.today = 15
-    assert len(deck.findCards("prop:due=14")) == 0
-    assert len(deck.findCards("prop:due=15")) == 1
-    assert len(deck.findCards("prop:due=16")) == 0
-    # including negatives
-    deck.sched.today = 32
-    assert len(deck.findCards("prop:due=-1")) == 0
-    assert len(deck.findCards("prop:due=-2")) == 1
+    assert len(deck.findCards("prop:due=29")) == 0
+    assert len(deck.findCards("prop:due=30")) == 1
     # ease factors
     assert len(deck.findCards("prop:ease=2.3")) == 0
     assert len(deck.findCards("prop:ease=2.2")) == 1
     assert len(deck.findCards("prop:ease>2")) == 1
     assert len(deck.findCards("-prop:ease>2")) > 1
     # recently failed
-    assert len(deck.findCards("rated:1:1")) == 0
-    assert len(deck.findCards("rated:1:2")) == 0
-    c = deck.sched.getCard()
-    deck.sched.answerCard(c, 2)
-    assert len(deck.findCards("rated:1:1")) == 0
-    assert len(deck.findCards("rated:1:2")) == 1
-    c = deck.sched.getCard()
-    deck.sched.answerCard(c, 1)
-    assert len(deck.findCards("rated:1:1")) == 1
-    assert len(deck.findCards("rated:1:2")) == 1
-    assert len(deck.findCards("rated:1")) == 2
-    assert len(deck.findCards("rated:0:2")) == 0
-    assert len(deck.findCards("rated:2:2")) == 1
+    if not isNearCutoff():
+        assert len(deck.findCards("rated:1:1")) == 0
+        assert len(deck.findCards("rated:1:2")) == 0
+        c = deck.sched.getCard()
+        deck.sched.answerCard(c, 2)
+        assert len(deck.findCards("rated:1:1")) == 0
+        assert len(deck.findCards("rated:1:2")) == 1
+        c = deck.sched.getCard()
+        deck.sched.answerCard(c, 1)
+        assert len(deck.findCards("rated:1:1")) == 1
+        assert len(deck.findCards("rated:1:2")) == 1
+        assert len(deck.findCards("rated:1")) == 2
+        assert len(deck.findCards("rated:0:2")) == 0
+        assert len(deck.findCards("rated:2:2")) == 1
+        # added
+        assert len(deck.findCards("added:0")) == 0
+        deck.db.execute("update cards set id = id - 86400*1000 where id = ?", id)
+        assert len(deck.findCards("added:1")) == deck.cardCount() - 1
+        assert len(deck.findCards("added:2")) == deck.cardCount()
+    else:
+        print("some find tests disabled near cutoff")
     # empty field
     assert len(deck.findCards("front:")) == 0
     f = deck.newNote()
@@ -235,17 +223,7 @@ def test_findCards():
     assert len(deck.findCards("-(tag:monkey OR tag:sheep)")) == 6
     assert len(deck.findCards("tag:monkey or (tag:sheep sheep)")) == 2
     assert len(deck.findCards("tag:monkey or (tag:sheep octopus)")) == 1
-    # invalid grouping shouldn't error
-    assert len(deck.findCards(")")) == 0
-    assert len(deck.findCards("(()")) == 0
-    # added
-    assert len(deck.findCards("added:0")) == 0
-    deck.db.execute("update cards set id = id - 86400*1000 where id = ?", id)
-    assert len(deck.findCards("added:1")) == deck.cardCount() - 1
-    assert len(deck.findCards("added:2")) == deck.cardCount()
     # flag
-    with pytest.raises(Exception):
-        deck.findCards("flag:01")
     with pytest.raises(Exception):
         deck.findCards("flag:12")
 

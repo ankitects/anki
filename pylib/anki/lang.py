@@ -145,7 +145,7 @@ current_catalog: Optional[
 ] = None
 
 # the current Fluent translation instance
-current_i18n: Optional[anki.rsbackend.I18nBackend]
+current_i18n: Optional[anki.rsbackend.RustBackend]
 
 # path to locale folder
 locale_folder = ""
@@ -175,9 +175,9 @@ def set_lang(lang: str, locale_dir: str) -> None:
     current_catalog = gettext.translation(
         "anki", gettext_dir, languages=[lang], fallback=True
     )
-    current_i18n = anki.rsbackend.I18nBackend(
-        preferred_langs=[lang], ftl_folder=ftl_dir
-    )
+
+    current_i18n = anki.rsbackend.RustBackend(ftl_folder=ftl_dir, langs=[lang])
+
     locale_folder = locale_dir
 
 

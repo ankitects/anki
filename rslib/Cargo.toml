@@ -1,6 +1,6 @@
 [package]
 name = "anki"
-version = "2.1.22" # automatically updated
+version = "2.1.24" # automatically updated
 edition = "2018"
 authors = ["Ankitects Pty Ltd and contributors"]
 license = "AGPL-3.0-or-later"
@@ -36,12 +36,15 @@ slog = { version = "2.5.2", features = ["max_level_trace", "release_max_level_de
 slog-term = "2.5.0"
 slog-async = "2.4.0"
 slog-envlogger = "2.2.0"
+serde_repr = "0.1.5"
+num_enum = "0.4.2"
+unicase = "2.6.0"
 
 [target.'cfg(target_vendor="apple")'.dependencies]
-rusqlite = { version = "0.21.0", features = ["trace"] }
+rusqlite = { version = "0.21.0", features = ["trace", "functions", "collation"] }
 
 [target.'cfg(not(target_vendor="apple"))'.dependencies]
-rusqlite = { version = "0.21.0", features = ["trace", "bundled"] }
+rusqlite = { version = "0.21.0", features = ["trace", "functions", "collation", "bundled"] }
 
 [target.'cfg(linux)'.dependencies]
 reqwest = { version = "0.10.1", features = ["json", "native-tls-vendored"] }

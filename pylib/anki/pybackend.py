@@ -48,19 +48,19 @@ class PythonBackend:
         native = self.col.sched.deckDueTree()
         return native_deck_tree_to_proto(native)
 
-    def find_cards(self, input: pb.FindCardsIn) -> pb.FindCardsOut:
-        cids = self.col.findCards(input.search)
-        return pb.FindCardsOut(card_ids=cids)
-
-    def browser_rows(self, input: pb.BrowserRowsIn) -> pb.BrowserRowsOut:
-        sort_fields = []
-        for cid in input.card_ids:
-            sort_fields.append(
-                self.col.db.scalar(
-                    "select sfld from notes n,cards c where n.id=c.nid and c.id=?", cid
-                )
-            )
-        return pb.BrowserRowsOut(sort_fields=sort_fields)
+    # def find_cards(self, input: pb.FindCardsIn) -> pb.FindCardsOut:
+    #     cids = self.col.findCards(input.search)
+    #     return pb.FindCardsOut(card_ids=cids)
+    #
+    # def browser_rows(self, input: pb.BrowserRowsIn) -> pb.BrowserRowsOut:
+    #     sort_fields = []
+    #     for cid in input.card_ids:
+    #         sort_fields.append(
+    #             self.col.db.scalar(
+    #                 "select sfld from notes n,cards c where n.id=c.nid and c.id=?", cid
+    #             )
+    #         )
+    #     return pb.BrowserRowsOut(sort_fields=sort_fields)
 
 
 def native_deck_tree_to_proto(native):

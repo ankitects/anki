@@ -84,7 +84,7 @@ pub(crate) fn normalize_filename(fname: &str) -> Cow<str> {
 }
 
 /// See normalize_filename(). This function expects NFC-normalized input.
-fn normalize_nfc_filename(mut fname: Cow<str>) -> Cow<str> {
+pub(crate) fn normalize_nfc_filename(mut fname: Cow<str>) -> Cow<str> {
     if fname.chars().any(disallowed_char) {
         fname = fname.replace(disallowed_char, "").into()
     }

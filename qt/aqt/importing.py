@@ -9,6 +9,7 @@ import shutil
 import traceback
 import unicodedata
 import zipfile
+from concurrent.futures import Future
 
 import anki.importing as importing
 import aqt.deckchooser
@@ -74,6 +75,7 @@ class ChangeMap(QDialog):
         self.accept()
 
 
+# called by importFile() when importing a mappable file like .csv
 class ImportDialog(QDialog):
     def __init__(self, mw: AnkiQt, importer) -> None:
         QDialog.__init__(self, mw, Qt.Window)
@@ -192,30 +194,35 @@ you can enter it here. Use \\t to represent tab."""
         self.mw.col.decks.select(did)
         self.mw.progress.start(immediate=True)
         self.mw.checkpoint(_("Import"))
-        try:
-            self.importer.run()
-        except UnicodeDecodeError:
-            showUnicodeWarning()
-            return
-        except Exception as e:
-            msg = tr(TR.IMPORTING_FAILED_DEBUG_INFO) + "\n"
-            err = repr(str(e))
-            if "1-character string" in err:
-                msg += err
-            elif "invalidTempFolder" in err:
-                msg += self.mw.errorHandler.tempFolderMsg()
-            else:
-                msg += traceback.format_exc()
-            showText(msg)
-            return
-        finally:
+
+        def on_done(future: Future):
             self.mw.progress.finish()
-        txt = _("Importing complete.") + "\n"
-        if self.importer.log:
-            txt += "\n".join(self.importer.log)
-        self.close()
-        showText(txt)
-        self.mw.reset()
+
+            try:
+                future.result()
+            except UnicodeDecodeError:
+                showUnicodeWarning()
+                return
+            except Exception as e:
+                msg = tr(TR.IMPORTING_FAILED_DEBUG_INFO) + "\n"
+                err = repr(str(e))
+                if "1-character string" in err:
+                    msg += err
+                elif "invalidTempFolder" in err:
+                    msg += self.mw.errorHandler.tempFolderMsg()
+                else:
+                    msg += traceback.format_exc()
+                showText(msg)
+                return
+            else:
+                txt = _("Importing complete.") + "\n"
+                if self.importer.log:
+                    txt += "\n".join(self.importer.log)
+                self.close()
+                showText(txt)
+                self.mw.reset()
+
+        self.mw.taskman.run_in_background(self.importer.run, on_done)
 
     def setupMappingFrame(self):
         # qt seems to have a bug with adding/removing from a grid, so we add
@@ -380,45 +387,52 @@ def importFile(mw, file):
             except:
                 showWarning(invalidZipMsg())
                 return
-            # we need to ask whether to import/replace
+            # we need to ask whether to import/replace; if it's
+            # a colpkg file then the rest of the import process
+            # will happen in setupApkgImport()
             if not setupApkgImport(mw, importer):
                 return
+
+        # importing non-colpkg files
         mw.progress.start(immediate=True)
-        try:
+
+        def on_done(future: Future):
+            mw.progress.finish()
             try:
-                importer.run()
-            finally:
-                mw.progress.finish()
-        except zipfile.BadZipfile:
-            showWarning(invalidZipMsg())
-        except Exception as e:
-            err = repr(str(e))
-            if "invalidFile" in err:
-                msg = _(
-                    """\
-Invalid file. Please restore from backup."""
-                )
-                showWarning(msg)
-            elif "invalidTempFolder" in err:
-                showWarning(mw.errorHandler.tempFolderMsg())
-            elif "readonly" in err:
-                showWarning(
-                    _(
+                future.result()
+            except zipfile.BadZipfile:
+                showWarning(invalidZipMsg())
+            except Exception as e:
+                err = repr(str(e))
+                if "invalidFile" in err:
+                    msg = _(
                         """\
-Unable to import from a read-only file."""
+    Invalid file. Please restore from backup."""
                     )
-                )
+                    showWarning(msg)
+                elif "invalidTempFolder" in err:
+                    showWarning(mw.errorHandler.tempFolderMsg())
+                elif "readonly" in err:
+                    showWarning(
+                        _(
+                            """\
+    Unable to import from a read-only file."""
+                        )
+                    )
+                else:
+                    msg = tr(TR.IMPORTING_FAILED_DEBUG_INFO) + "\n"
+                    msg += str(traceback.format_exc())
+                    showText(msg)
             else:
-                msg = tr(TR.IMPORTING_FAILED_DEBUG_INFO) + "\n"
-                msg += str(traceback.format_exc())
-                showText(msg)
-        else:
-            log = "\n".join(importer.log)
-            if "\n" not in log:
-                tooltip(log)
-            else:
-                showText(log)
-        mw.reset()
+                log = "\n".join(importer.log)
+                if "\n" not in log:
+                    tooltip(log)
+                else:
+                    showText(log)
+
+            mw.reset()
+
+        mw.taskman.run_in_background(importer.run, on_done)
 
 
 def invalidZipMsg():
@@ -459,48 +473,57 @@ def replaceWithApkg(mw, file, backup):
     mw.unloadCollection(lambda: _replaceWithApkg(mw, file, backup))
 
 
-def _replaceWithApkg(mw, file, backup):
+def _replaceWithApkg(mw, filename, backup):
     mw.progress.start(immediate=True)
 
-    z = zipfile.ZipFile(file)
+    def do_import():
+        z = zipfile.ZipFile(filename)
 
-    # v2 scheduler?
-    colname = "collection.anki21"
-    try:
-        z.getinfo(colname)
-    except KeyError:
-        colname = "collection.anki2"
+        # v2 scheduler?
+        colname = "collection.anki21"
+        try:
+            z.getinfo(colname)
+        except KeyError:
+            colname = "collection.anki2"
 
-    try:
         with z.open(colname) as source, open(mw.pm.collectionPath(), "wb") as target:
             shutil.copyfileobj(source, target)
-    except:
+
+        d = os.path.join(mw.pm.profileFolder(), "collection.media")
+        for n, (cStr, file) in enumerate(
+            json.loads(z.read("media").decode("utf8")).items()
+        ):
+            mw.taskman.run_on_main(
+                lambda n=n: mw.progress.update(
+                    ngettext("Processed %d media file", "Processed %d media files", n)
+                    % n
+                )
+            )
+            size = z.getinfo(cStr).file_size
+            dest = os.path.join(d, unicodedata.normalize("NFC", file))
+            # if we have a matching file size
+            if os.path.exists(dest) and size == os.stat(dest).st_size:
+                continue
+            data = z.read(cStr)
+            open(dest, "wb").write(data)
+
+        z.close()
+
+    def on_done(future: Future):
         mw.progress.finish()
-        showWarning(_("The provided file is not a valid .apkg file."))
-        return
-    # because users don't have a backup of media, it's safer to import new
-    # data and rely on them running a media db check to get rid of any
-    # unwanted media. in the future we might also want to deduplicate this
-    # step
-    d = os.path.join(mw.pm.profileFolder(), "collection.media")
-    for n, (cStr, file) in enumerate(
-        json.loads(z.read("media").decode("utf8")).items()
-    ):
-        mw.progress.update(
-            ngettext("Processed %d media file", "Processed %d media files", n) % n
-        )
-        size = z.getinfo(cStr).file_size
-        dest = os.path.join(d, unicodedata.normalize("NFC", file))
-        # if we have a matching file size
-        if os.path.exists(dest) and size == os.stat(dest).st_size:
-            continue
-        data = z.read(cStr)
-        open(dest, "wb").write(data)
-    z.close()
-    # reload
-    if not mw.loadCollection():
-        mw.progress.finish()
-        return
-    if backup:
-        mw.col.modSchema(check=False)
-    mw.progress.finish()
+
+        try:
+            future.result()
+        except Exception as e:
+            print(e)
+            showWarning(_("The provided file is not a valid .apkg file."))
+            return
+
+        if not mw.loadCollection():
+            return
+        if backup:
+            mw.col.modSchema(check=False)
+
+        tooltip(_("Importing complete."))
+
+    mw.taskman.run_in_background(do_import, on_done)
