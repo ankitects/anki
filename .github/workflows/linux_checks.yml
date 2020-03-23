@@ -22,11 +22,11 @@ jobs:
         with:
           path: ~/.cargo/git
           key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.toml') }}
-      - name: Cache cargo build
+      - name: Cache cargo target
         uses: actions/cache@v1
         with:
           path: ~/target
-          key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.toml') }}
+          key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.toml') }}
       - name: Cache pip wheels
         uses: actions/cache@v1
         with:
@@ -52,18 +52,23 @@ jobs:
           sudo apt update
           sudo apt install portaudio19-dev gettext rename
           sudo snap install ripgrep --classic
-      - name: Run checks
+      - name: Run develop
         run: |
           export RSPY_TARGET_DIR=~/target
           export CARGO_TARGET_DIR=~/target
-          make check BUILDFLAGS=""
+          make develop BUILDFLAGS=""
       - name: Run build
         run: |
           export RSPY_TARGET_DIR=~/target
           export CARGO_TARGET_DIR=~/target
           make build BUILDFLAGS=""
+      - name: Run check
+        run: |
+          export RSPY_TARGET_DIR=~/target
+          export CARGO_TARGET_DIR=~/target
+          make check BUILDFLAGS=""
       - name: Upload python wheels
         uses: actions/upload-artifact@v1
         with:
-          name: linux_python_wheels
+          name: anki_linux_python_wheels
           path: dist

@@ -37,11 +37,11 @@ jobs:
         with:
           path: C:\Rust\.cargo\git
           key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.toml') }}
-      - name: Cache cargo build
+      - name: Cache cargo target
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}\target
-          key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.toml') }}
+          key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.toml') }}
       - name: Cache pip wheels
         uses: actions/cache@v1
         with:
@@ -97,13 +97,13 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 12
-      - name: Run checks
+      - name: Run develop
         shell: cmd
         run: |
           echo on
           set "RSPY_TARGET_DIR=%GITHUB_WORKSPACE%\target"
           set "CARGO_TARGET_DIR=%GITHUB_WORKSPACE%\target"
-          make check BUILDFLAGS=""
+          make develop BUILDFLAGS=""
       - name: Run build
         shell: cmd
         run: |
@@ -111,8 +111,15 @@ jobs:
           set "RSPY_TARGET_DIR=%GITHUB_WORKSPACE%\target"
           set "CARGO_TARGET_DIR=%GITHUB_WORKSPACE%\target"
           make build BUILDFLAGS=""
+      - name: Run check
+        shell: cmd
+        run: |
+          echo on
+          set "RSPY_TARGET_DIR=%GITHUB_WORKSPACE%\target"
+          set "CARGO_TARGET_DIR=%GITHUB_WORKSPACE%\target"
+          make check BUILDFLAGS=""
       - name: Upload python wheels
         uses: actions/upload-artifact@v1
         with:
-          name: windows_python_wheels
+          name: anki_windows_python_wheels
           path: dist
