@@ -61,29 +61,35 @@ pub(crate) fn search_cards<'a, 'b>(
 fn write_order(sql: &mut String, kind: &SortKind, reverse: bool) -> Result<()> {
     let tmp_str;
     let order = match kind {
-        SortKind::NoteCreation => "n.id, c.ord",
-        SortKind::NoteMod => "n.mod, c.ord",
-        SortKind::NoteField => "n.sfld collate nocase, c.ord",
-        SortKind::CardMod => "c.mod",
-        SortKind::CardReps => "c.reps",
-        SortKind::CardDue => "c.type, c.due",
+        SortKind::NoteCreation => "n.id asc, c.ord asc",
+        SortKind::NoteMod => "n.mod asc, c.ord asc",
+        SortKind::NoteField => "n.sfld collate nocase asc, c.ord asc",
+        SortKind::CardMod => "c.mod asc",
+        SortKind::CardReps => "c.reps asc",
+        SortKind::CardDue => "c.type asc, c.due asc",
         SortKind::CardEase => {
-            tmp_str = format!("c.type = {}, c.factor", CardType::New as i8);
+            tmp_str = format!("c.type = {} asc, c.factor asc", CardType::New as i8);
             &tmp_str
         }
-        SortKind::CardLapses => "c.lapses",
-        SortKind::CardInterval => "c.ivl",
-        SortKind::NoteTags => "n.tags",
-        SortKind::CardDeck => "(select v from sort_order where k = c.did)",
-        SortKind::NoteType => "(select v from sort_order where k = n.mid)",
-        SortKind::CardTemplate => "(select v from sort_order where k1 = n.mid and k2 = c.ord)",
+        SortKind::CardLapses => "c.lapses asc",
+        SortKind::CardInterval => "c.ivl asc",
+        SortKind::NoteTags => "n.tags asc",
+        SortKind::CardDeck => "(select v from sort_order where k = c.did) asc",
+        SortKind::NoteType => "(select v from sort_order where k = n.mid) asc",
+        SortKind::CardTemplate => "(select v from sort_order where k1 = n.mid and k2 = c.ord) asc",
     };
     if order.is_empty() {
         return Ok(());
     }
-    sql.push_str(order);
     if reverse {
-        sql.push_str(" desc");
+        sql.push_str(
+            &order
+                .to_ascii_lowercase()
+                .replace(" desc", "")
+                .replace(" asc", " desc"),
+        )
+    } else {
+        sql.push_str(order);
     }
     Ok(())
 }
