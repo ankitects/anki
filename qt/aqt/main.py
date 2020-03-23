@@ -1368,11 +1368,42 @@ will be lost. Continue?"""
             sys.stderr = self._oldStderr
             sys.stdout = self._oldStdout
 
-    def _debugCard(self):
-        return self.reviewer.card.__dict__
+    def _card_repr(self, card: anki.cards.Card) -> None:
+        import pprint, copy
 
-    def _debugBrowserCard(self):
-        return aqt.dialogs._dialogs["Browser"][1].card.__dict__
+        if not card:
+            print("no card")
+            return
+
+        print("Front:", card.question())
+        print("\n")
+        print("Back:", card.answer())
+
+        print("\nNote:")
+        note = copy.copy(card.note())
+        for k, v in note.items():
+            print(f"- {k}:", v)
+
+        print("\n")
+        del note.fields
+        del note._fmap
+        del note._model
+        pprint.pprint(note.__dict__)
+
+        print("\nCard:")
+        c = copy.copy(card)
+        c._render_output = None
+        pprint.pprint(c.__dict__)
+
+    def _debugCard(self) -> Optional[anki.cards.Card]:
+        card = self.reviewer.card
+        self._card_repr(card)
+        return card
+
+    def _debugBrowserCard(self) -> Optional[anki.cards.Card]:
+        card = aqt.dialogs._dialogs["Browser"][1].card
+        self._card_repr(card)
+        return card
 
     def onDebugPrint(self, frm):
         cursor = frm.text.textCursor()
