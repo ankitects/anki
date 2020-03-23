@@ -83,7 +83,7 @@ Mac users
 
 You can use homebrew to install some dependencies:
 
-$ brew install python mpv lame portaudio protobuf npm rustup-init gettext rename
+$ brew install python mpv lame portaudio protobuf npm rustup-init gettext rename ripgrep
 
 $ brew link gettext --force
 

@@ -65,8 +65,13 @@ pyenv:
 	"${PYTHON_BIN}" -m venv pyenv && \
 	case "$$(uname -s)" in CYGWIN*|MINGW*|MSYS*) \
 		dos2unix "${ACTIVATE_SCRIPT}" && \
-		sed -i -- "s@VIRTUAL_ENV=\".*\"@VIRTUAL_ENV=\"$(shell pwd)/pyenv\"@g" "${ACTIVATE_SCRIPT}" \
-		;; esac; \
+		# https://github.com/PyO3/maturin/issues/283 \
+		# Expected `python` to be a python interpreter inside a virtualenv \
+		VIRTUAL_ENV="$$(pwd)" && \
+		VIRTUAL_ENV="$$(cygpath -m "$${VIRTUAL_ENV}")" && \
+		sed -i -- "s@VIRTUAL_ENV=\".*\"@VIRTUAL_ENV=\"$$(pwd)/pyenv\"@g" "${ACTIVATE_SCRIPT}" && \
+		sed -i -- "s@export PATH@export PATH; VIRTUAL_ENV=\"$${VIRTUAL_ENV}/pyenv\";@g" "${ACTIVATE_SCRIPT}" \
+		;; esac && \
 	. "${ACTIVATE_SCRIPT}" && \
 	python --version && \
 	python -m pip install --upgrade pip setuptools && \
@@ -178,4 +183,3 @@ push-i18n: pull-i18n
 	(cd rslib/ftl && scripts/upload-latest-templates)
 	(cd qt/ftl && scripts/upload-latest-templates)
 	(cd qt/po && scripts/upload-latest-template)
-

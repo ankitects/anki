@@ -43,10 +43,10 @@ jobs:
           .\bash pacman-key --refresh-keys
           .\pacman -Tv
           .\pacman -Syuv --overwrite='*'
+          .\pacman --version
           :: We must install bash first, otherwise we will have bash fork errors:
           :: https://github.com/evandroforks/anki/runs/524857054?check_suite_focus=true
           :: 0 [main] pacman 748 dofork: child -1 - forked process 2896 died unexpectedly
-          .\pacman --version
           .\pacman -Sv --noconfirm --overwrite='*' bash
           .\pacman -Sv --noconfirm --overwrite='*' rsync
       - name: Set up scoop, gettext, ripgrep
@@ -78,24 +78,24 @@ jobs:
       - name: Cache cargo build
         uses: actions/cache@v1
         with:
-          path: ~\target
+          path: ${{ github.workspace }}\target
           key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.toml') }}
       - name: Cache pip wheels
         uses: actions/cache@v1
         with:
           path: ~\AppData\Local\pip\Cache
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-      - name: Configure project variables
-        run: |
-          echo "::set-env name=RSPY_TARGET_DIR::~\target"
-          echo "::set-env name=CARGO_TARGET_DIR::~\target"
       - name: Run checks
         shell: cmd
         run: |
           echo on
+          set "RSPY_TARGET_DIR=%GITHUB_WORKSPACE%\target"
+          set "CARGO_TARGET_DIR=%GITHUB_WORKSPACE%\target"
           make check BUILDFLAGS=""
       - name: Run build
         shell: cmd
         run: |
           echo on
+          set "RSPY_TARGET_DIR=%GITHUB_WORKSPACE%\target"
+          set "CARGO_TARGET_DIR=%GITHUB_WORKSPACE%\target"
           make build BUILDFLAGS=""
