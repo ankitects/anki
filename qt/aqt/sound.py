@@ -393,8 +393,9 @@ class SimpleMplayerSlaveModePlayer(SimpleMplayerPlayer):
 
         The trailing newline is automatically added."""
         str_args = [str(x) for x in args]
-        self._process.stdin.write(" ".join(str_args).encode("utf8") + b"\n")
-        self._process.stdin.flush()
+        if self._process:
+            self._process.stdin.write(" ".join(str_args).encode("utf8") + b"\n")
+            self._process.stdin.flush()
 
     def seek_relative(self, secs: int) -> None:
         self.command("seek", secs, 0)
