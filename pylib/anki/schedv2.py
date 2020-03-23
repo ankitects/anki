@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import datetime
 import itertools
 import random
 import time
@@ -11,7 +10,7 @@ from heapq import *
 from operator import itemgetter
 
 # from anki.collection import _Collection
-from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Sequence, Set, Tuple, Union
 
 import anki  # pylint: disable=unused-import
 from anki import hooks
@@ -82,7 +81,7 @@ class Scheduler:
         self._updateStats(card, "time", card.timeTaken())
         card.mod = intTime()
         card.usn = self.col.usn()
-        card.flushSched()
+        card.flush()
 
     def _answerCard(self, card: Card, ease: int) -> None:
         if self._previewingCard(card):
@@ -138,8 +137,8 @@ class Scheduler:
 
     def dueForecast(self, days: int = 7) -> List[Any]:
         "Return counts over next DAYS. Includes today."
-        daysd = dict(
-            self.col.db.all(
+        daysd: Dict[int, int] = dict(
+            self.col.db.all(  # type: ignore
                 f"""
 select due, count() from cards
 where did in %s and queue = {QUEUE_TYPE_REV}
@@ -542,14 +541,16 @@ select count() from cards where did in %s and queue = {QUEUE_TYPE_PREVIEW}
         if self._lrnQueue:
             return True
         cutoff = intTime() + self.col.conf["collapseTime"]
-        self._lrnQueue = self.col.db.all(
+        self._lrnQueue = self.col.db.all(  # type: ignore
             f"""
 select due, id from cards where
-did in %s and queue in ({QUEUE_TYPE_LRN},{QUEUE_TYPE_PREVIEW}) and due < :lim
+did in %s and queue in ({QUEUE_TYPE_LRN},{QUEUE_TYPE_PREVIEW}) and due < ?
 limit %d"""
             % (self._deckLimit(), self.reportLimit),
-            lim=cutoff,
+            cutoff,
         )
+        for i in range(len(self._lrnQueue)):
+            self._lrnQueue[i] = (self._lrnQueue[i][0], self._lrnQueue[i][1])
         # as it arrives sorted by did first, we need to sort it
         self._lrnQueue.sort()
         return self._lrnQueue
@@ -1215,7 +1216,7 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
             t = "c.due, c.ord"
         return t + " limit %d" % l
 
-    def _moveToDyn(self, did: int, ids: List[int], start: int = -100000) -> None:
+    def _moveToDyn(self, did: int, ids: Sequence[int], start: int = -100000) -> None:
         deck = self.col.decks.get(did)
         data = []
         u = self.col.usn()
@@ -1353,13 +1354,8 @@ where id = ?
     def _updateCutoff(self) -> None:
         oldToday = self.today
         timing = self._timing_today()
-
-        if self._new_timezone_enabled():
-            self.today = timing.days_elapsed
-            self.dayCutoff = timing.next_day_at
-        else:
-            self.today = self._daysSinceCreation()
-            self.dayCutoff = self._dayCutoff()
+        self.today = timing.days_elapsed
+        self.dayCutoff = timing.next_day_at
 
         if oldToday != self.today:
             self.col.log(self.today, self.dayCutoff)
@@ -1385,51 +1381,39 @@ where id = ?
         if time.time() > self.dayCutoff:
             self.reset()
 
-    def _dayCutoff(self) -> int:
-        rolloverTime = self.col.conf.get("rollover", 4)
-        if rolloverTime < 0:
-            rolloverTime = 24 + rolloverTime
-        date = datetime.datetime.today()
-        date = date.replace(hour=rolloverTime, minute=0, second=0, microsecond=0)
-        if date < datetime.datetime.today():
-            date = date + datetime.timedelta(days=1)
-
-        stamp = int(time.mktime(date.timetuple()))
-        return stamp
-
-    def _daysSinceCreation(self) -> int:
-        startDate = datetime.datetime.fromtimestamp(self.col.crt)
-        startDate = startDate.replace(
-            hour=self._rolloverHour(), minute=0, second=0, microsecond=0
-        )
-        return int((time.time() - time.mktime(startDate.timetuple())) // 86400)
-
     def _rolloverHour(self) -> int:
         return self.col.conf.get("rollover", 4)
 
-    # New timezone handling
-    ##########################################################################
-
-    def _new_timezone_enabled(self) -> bool:
-        return self.col.conf.get("creationOffset") is not None
-
     def _timing_today(self) -> SchedTimingToday:
+        roll: Optional[int] = None
+        if self.col.schedVer() > 1:
+            roll = self._rolloverHour()
         return self.col.backend.sched_timing_today(
             self.col.crt,
             self._creation_timezone_offset(),
-            intTime(),
             self._current_timezone_offset(),
-            self._rolloverHour(),
+            roll,
         )
 
-    def _current_timezone_offset(self) -> int:
+    def _current_timezone_offset(self) -> Optional[int]:
         if self.col.server:
+            mins = self.col.server.minutes_west
+            if mins is not None:
+                return mins
+            # older Anki versions stored the local offset in
+            # the config
             return self.col.conf.get("localOffset", 0)
         else:
-            return self.col.backend.local_minutes_west(intTime())
+            return None
 
-    def _creation_timezone_offset(self) -> int:
-        return self.col.conf.get("creationOffset", 0)
+    def _creation_timezone_offset(self) -> Optional[int]:
+        return self.col.conf.get("creationOffset", None)
+
+    # New timezone handling - GUI helpers
+    ##########################################################################
+
+    def new_timezone_enabled(self) -> bool:
+        return self.col.conf.get("creationOffset") is not None
 
     def set_creation_offset(self):
         """Save the UTC west offset at the time of creation into the DB.
@@ -1775,21 +1759,12 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
         mod = intTime()
         for id in ids:
             r = random.randint(imin, imax)
-            d.append(
-                dict(
-                    id=id,
-                    due=r + t,
-                    ivl=max(1, r),
-                    mod=mod,
-                    usn=self.col.usn(),
-                    fact=STARTING_FACTOR,
-                )
-            )
+            d.append((max(1, r), r + t, self.col.usn(), mod, STARTING_FACTOR, id,))
         self.remFromDyn(ids)
         self.col.db.executemany(
             f"""
-update cards set type={CARD_TYPE_REV},queue={QUEUE_TYPE_REV},ivl=:ivl,due=:due,odue=0,
-usn=:usn,mod=:mod,factor=:fact where id=:id""",
+update cards set type={CARD_TYPE_REV},queue={QUEUE_TYPE_REV},ivl=?,due=?,odue=0,
+usn=?,mod=?,factor=? where id=?""",
             d,
         )
         self.col.log(ids)
@@ -1866,10 +1841,8 @@ and due >= ? and queue = {QUEUE_TYPE_NEW}"""
         for id, nid in self.col.db.execute(
             f"select id, nid from cards where type = {CARD_TYPE_NEW} and id in " + scids
         ):
-            d.append(dict(now=now, due=due[nid], usn=self.col.usn(), cid=id))
-        self.col.db.executemany(
-            "update cards set due=:due,mod=:now,usn=:usn where id = :cid", d
-        )
+            d.append((due[nid], now, self.col.usn(), id))
+        self.col.db.executemany("update cards set due=?,mod=?,usn=? where id = ?", d)
 
     def randomizeCards(self, did: int) -> None:
         cids = self.col.db.list("select id from cards where did = ?", did)

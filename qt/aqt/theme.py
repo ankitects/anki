@@ -4,7 +4,7 @@
 
 import platform
 import sys
-from typing import Dict
+from typing import Dict, Optional
 
 from anki.utils import isMac
 from aqt import QApplication, gui_hooks, isWin
@@ -17,6 +17,7 @@ class ThemeManager:
     _icon_cache_light: Dict[str, QIcon] = {}
     _icon_cache_dark: Dict[str, QIcon] = {}
     _icon_size = 128
+    _macos_dark_mode_cached: Optional[bool] = None
 
     def macos_dark_mode(self) -> bool:
         if not getattr(sys, "frozen", False):
@@ -25,9 +26,13 @@ class ThemeManager:
             return False
         if qtminor < 13:
             return False
-        import darkdetect  # pylint: disable=import-error
+        if self._macos_dark_mode_cached is None:
+            import darkdetect  # pylint: disable=import-error
 
-        return darkdetect.isDark() is True
+            # cache the value, as the interface gets messed up
+            # if the value changes after starting Anki
+            self._macos_dark_mode_cached = darkdetect.isDark() is True
+        return self._macos_dark_mode_cached
 
     def get_night_mode(self) -> bool:
         return self.macos_dark_mode() or self._night_mode_preference

@@ -504,17 +504,9 @@ select id from notes where mid = ?)"""
             for c in range(nfields):
                 flds.append(newflds.get(c, ""))
             flds = joinFields(flds)
-            d.append(
-                dict(
-                    nid=nid,
-                    flds=flds,
-                    mid=newModel["id"],
-                    m=intTime(),
-                    u=self.col.usn(),
-                )
-            )
+            d.append((flds, newModel["id"], intTime(), self.col.usn(), nid,))
         self.col.db.executemany(
-            "update notes set flds=:flds,mid=:mid,mod=:m,usn=:u where id = :nid", d
+            "update notes set flds=?,mid=?,mod=?,usn=? where id = ?", d
         )
         self.col.updateFieldCache(nids)
 
@@ -543,12 +535,10 @@ select id from notes where mid = ?)"""
                 # mapping from a regular note, so the map should be valid
                 new = map[ord]
             if new is not None:
-                d.append(dict(cid=cid, new=new, u=self.col.usn(), m=intTime()))
+                d.append((new, self.col.usn(), intTime(), cid))
             else:
                 deleted.append(cid)
-        self.col.db.executemany(
-            "update cards set ord=:new,usn=:u,mod=:m where id=:cid", d
-        )
+        self.col.db.executemany("update cards set ord=?,usn=?,mod=? where id=?", d)
         self.col.remCards(deleted)
 
     # Schema hash

@@ -124,30 +124,6 @@ insert or replace into cards values
         )
         self.col.log(self)
 
-    def flushSched(self) -> None:
-        self._preFlush()
-        # bug checks
-        self.col.db.execute(
-            """update cards set
-mod=?, usn=?, type=?, queue=?, due=?, ivl=?, factor=?, reps=?,
-lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
-            self.mod,
-            self.usn,
-            self.type,
-            self.queue,
-            self.due,
-            self.ivl,
-            self.factor,
-            self.reps,
-            self.lapses,
-            self.left,
-            self.odue,
-            self.odid,
-            self.did,
-            self.id,
-        )
-        self.col.log(self)
-
     def question(self, reload: bool = False, browser: bool = False) -> str:
         return self.css() + self.render_output(reload, browser).question_text
 
@@ -181,6 +157,8 @@ lapses=?, left=?, odue=?, odid=?, did=? where id = ?""",
     def note_type(self) -> NoteType:
         return self.col.models.get(self.note().mid)
 
+    # legacy aliases
+    flushSched = flush
     q = question
     a = answer
     model = note_type

@@ -492,32 +492,6 @@ class _SchemaWillChangeFilter:
 schema_will_change = _SchemaWillChangeFilter()
 
 
-class _SearchTermsPreparedHook:
-    _hooks: List[Callable[[Dict[str, Callable]], None]] = []
-
-    def append(self, cb: Callable[[Dict[str, Callable]], None]) -> None:
-        """(searches: Dict[str, Callable])"""
-        self._hooks.append(cb)
-
-    def remove(self, cb: Callable[[Dict[str, Callable]], None]) -> None:
-        if cb in self._hooks:
-            self._hooks.remove(cb)
-
-    def __call__(self, searches: Dict[str, Callable]) -> None:
-        for hook in self._hooks:
-            try:
-                hook(searches)
-            except:
-                # if the hook fails, remove it
-                self._hooks.remove(hook)
-                raise
-        # legacy support
-        runHook("search", searches)
-
-
-search_terms_prepared = _SearchTermsPreparedHook()
-
-
 class _SyncProgressDidChangeHook:
     _hooks: List[Callable[[str], None]] = []
 

@@ -20,7 +20,7 @@ pub enum AnkiError {
     IOError { info: String },
 
     #[fail(display = "DB error: {}", info)]
-    DBError { info: String },
+    DBError { info: String, kind: DBErrorKind },
 
     #[fail(display = "Network error: {:?} {}", kind, info)]
     NetworkError {
@@ -33,6 +33,12 @@ pub enum AnkiError {
 
     #[fail(display = "The user interrupted the operation.")]
     Interrupted,
+
+    #[fail(display = "Operation requires an open collection.")]
+    CollectionNotOpen,
+
+    #[fail(display = "Close the existing collection first.")]
+    CollectionAlreadyOpen,
 }
 
 // error helpers
@@ -112,6 +118,7 @@ impl From<rusqlite::Error> for AnkiError {
     fn from(err: rusqlite::Error) -> Self {
         AnkiError::DBError {
             info: format!("{:?}", err),
+            kind: DBErrorKind::Other,
         }
     }
 }
@@ -120,6 +127,7 @@ impl From<rusqlite::types::FromSqlError> for AnkiError {
     fn from(err: rusqlite::types::FromSqlError) -> Self {
         AnkiError::DBError {
             info: format!("{:?}", err),
+            kind: DBErrorKind::Other,
         }
     }
 }
@@ -214,4 +222,12 @@ impl From<serde_json::Error> for AnkiError {
     fn from(err: serde_json::Error) -> Self {
         AnkiError::sync_misc(err.to_string())
     }
+}
+
+#[derive(Debug, PartialEq)]
+pub enum DBErrorKind {
+    FileTooNew,
+    FileTooOld,
+    MissingEntity,
+    Other,
 }

@@ -1,8 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use crate::backend::dbproxy::db_command_bytes;
 use crate::backend_proto::backend_input::Value;
-use crate::backend_proto::{Empty, RenderedTemplateReplacement, SyncMediaIn};
+use crate::backend_proto::{BuiltinSortKind, Empty, RenderedTemplateReplacement, SyncMediaIn};
+use crate::collection::{open_collection, Collection};
+use crate::config::SortKind;
 use crate::err::{AnkiError, NetworkErrorKind, Result, SyncErrorKind};
 use crate::i18n::{tr_args, FString, I18n};
 use crate::latex::{extract_latex, extract_latex_expanding_clozes, ExtractedLatex};
@@ -12,6 +15,7 @@ use crate::media::sync::MediaSyncProgress;
 use crate::media::MediaManager;
 use crate::sched::cutoff::{local_minutes_west_for_stamp, sched_timing_today};
 use crate::sched::timespan::{answer_button_time, learning_congrats, studied_today, time_span};
+use crate::search::{search_cards, search_notes, SortMode};
 use crate::template::{
     render_card, without_legacy_template_directives, FieldMap, FieldRequirements, ParsedTemplate,
     RenderedNode,
@@ -22,18 +26,18 @@ use fluent::FluentValue;
 use prost::Message;
 use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
+use std::sync::{Arc, Mutex};
 use tokio::runtime::Runtime;
+
+mod dbproxy;
 
 pub type ProtoProgressCallback = Box<dyn Fn(Vec<u8>) -> bool + Send>;
 
 pub struct Backend {
-    #[allow(dead_code)]
-    col_path: PathBuf,
-    media_folder: PathBuf,
-    media_db: String,
+    col: Arc<Mutex<Option<Collection>>>,
     progress_callback: Option<ProtoProgressCallback>,
     i18n: I18n,
-    log: Logger,
+    server: bool,
 }
 
 enum Progress<'a> {
@@ -55,6 +59,8 @@ fn anki_error_to_proto_error(err: AnkiError, i18n: &I18n) -> pb::BackendError {
         }
         AnkiError::SyncError { kind, .. } => V::SyncError(pb::SyncError { kind: kind.into() }),
         AnkiError::Interrupted => V::Interrupted(Empty {}),
+        AnkiError::CollectionNotOpen => V::InvalidInput(pb::Empty {}),
+        AnkiError::CollectionAlreadyOpen => V::InvalidInput(pb::Empty {}),
     };
 
     pb::BackendError {
@@ -103,50 +109,27 @@ pub fn init_backend(init_msg: &[u8]) -> std::result::Result<Backend, String> {
         Err(_) => return Err("couldn't decode init request".into()),
     };
 
-    let mut path = input.collection_path.clone();
-    path.push_str(".log");
-
-    let log_path = match input.log_path.as_str() {
-        "" => None,
-        path => Some(path),
-    };
-    let logger =
-        default_logger(log_path).map_err(|e| format!("Unable to open log file: {:?}", e))?;
-
     let i18n = I18n::new(
         &input.preferred_langs,
         input.locale_folder_path,
         log::terminal(),
     );
 
-    match Backend::new(
-        &input.collection_path,
-        &input.media_folder_path,
-        &input.media_db_path,
-        i18n,
-        logger,
-    ) {
-        Ok(backend) => Ok(backend),
-        Err(e) => Err(format!("{:?}", e)),
-    }
+    Ok(Backend::new(i18n, input.server))
 }
 
 impl Backend {
-    pub fn new(
-        col_path: &str,
-        media_folder: &str,
-        media_db: &str,
-        i18n: I18n,
-        log: Logger,
-    ) -> Result<Backend> {
-        Ok(Backend {
-            col_path: col_path.into(),
-            media_folder: media_folder.into(),
-            media_db: media_db.into(),
+    pub fn new(i18n: I18n, server: bool) -> Backend {
+        Backend {
+            col: Arc::new(Mutex::new(None)),
             progress_callback: None,
             i18n,
-            log,
-        })
+            server,
+        }
+    }
+
+    pub fn i18n(&self) -> &I18n {
+        &self.i18n
     }
 
     /// Decode a request, process it, and return the encoded result.
@@ -170,6 +153,22 @@ impl Backend {
         let resp = self.run_command(req);
         resp.encode(&mut buf).expect("encode failed");
         buf
+    }
+
+    /// If collection is open, run the provided closure while holding
+    /// the mutex.
+    /// If collection is not open, return an error.
+    fn with_col<F, T>(&self, func: F) -> Result<T>
+    where
+        F: FnOnce(&mut Collection) -> Result<T>,
+    {
+        func(
+            self.col
+                .lock()
+                .unwrap()
+                .as_mut()
+                .ok_or(AnkiError::CollectionNotOpen)?,
+        )
     }
 
     fn run_command(&mut self, input: pb::BackendInput) -> pb::BackendOutput {
@@ -202,8 +201,6 @@ impl Backend {
                 OValue::SchedTimingToday(self.sched_timing_today(input))
             }
             Value::DeckTree(_) => todo!(),
-            Value::FindCards(_) => todo!(),
-            Value::BrowserRows(_) => todo!(),
             Value::RenderCard(input) => OValue::RenderCard(self.render_template(input)?),
             Value::LocalMinutesWest(stamp) => {
                 OValue::LocalMinutesWest(local_minutes_west_for_stamp(stamp))
@@ -241,7 +238,61 @@ impl Backend {
                 self.restore_trash()?;
                 OValue::RestoreTrash(Empty {})
             }
+            Value::OpenCollection(input) => {
+                self.open_collection(input)?;
+                OValue::OpenCollection(Empty {})
+            }
+            Value::CloseCollection(_) => {
+                self.close_collection()?;
+                OValue::CloseCollection(Empty {})
+            }
+            Value::SearchCards(input) => OValue::SearchCards(self.search_cards(input)?),
+            Value::SearchNotes(input) => OValue::SearchNotes(self.search_notes(input)?),
         })
+    }
+
+    fn open_collection(&self, input: pb::OpenCollectionIn) -> Result<()> {
+        let mut col = self.col.lock().unwrap();
+        if col.is_some() {
+            return Err(AnkiError::CollectionAlreadyOpen);
+        }
+
+        let mut path = input.collection_path.clone();
+        path.push_str(".log");
+
+        let log_path = match input.log_path.as_str() {
+            "" => None,
+            path => Some(path),
+        };
+        let logger = default_logger(log_path)?;
+
+        let new_col = open_collection(
+            input.collection_path,
+            input.media_folder_path,
+            input.media_db_path,
+            self.server,
+            self.i18n.clone(),
+            logger,
+        )?;
+
+        *col = Some(new_col);
+
+        Ok(())
+    }
+
+    fn close_collection(&self) -> Result<()> {
+        let mut col = self.col.lock().unwrap();
+        if col.is_none() {
+            return Err(AnkiError::CollectionNotOpen);
+        }
+
+        if !col.as_ref().unwrap().can_close() {
+            return Err(AnkiError::invalid_input("can't close yet"));
+        }
+
+        *col = None;
+
+        Ok(())
     }
 
     fn fire_progress_callback(&self, progress: Progress) -> bool {
@@ -301,10 +352,10 @@ impl Backend {
     fn sched_timing_today(&self, input: pb::SchedTimingTodayIn) -> pb::SchedTimingTodayOut {
         let today = sched_timing_today(
             input.created_secs as i64,
-            input.created_mins_west,
             input.now_secs as i64,
-            input.now_mins_west,
-            input.rollover_hour as i8,
+            input.created_mins_west.map(|v| v.val),
+            input.now_mins_west.map(|v| v.val),
+            input.rollover_hour.map(|v| v.val as i8),
         );
         pb::SchedTimingTodayOut {
             days_elapsed: today.days_elapsed,
@@ -389,46 +440,80 @@ impl Backend {
     }
 
     fn add_media_file(&mut self, input: pb::AddMediaFileIn) -> Result<String> {
-        let mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
-        let mut ctx = mgr.dbctx();
-        Ok(mgr
-            .add_file(&mut ctx, &input.desired_name, &input.data)?
-            .into())
+        self.with_col(|col| {
+            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
+            let mut ctx = mgr.dbctx();
+            Ok(mgr
+                .add_file(&mut ctx, &input.desired_name, &input.data)?
+                .into())
+        })
     }
 
-    fn sync_media(&self, input: SyncMediaIn) -> Result<()> {
-        let mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
+    // fixme: will block other db access
 
+    fn sync_media(&self, input: SyncMediaIn) -> Result<()> {
+        let mut guard = self.col.lock().unwrap();
+
+        let col = guard.as_mut().unwrap();
+        col.set_media_sync_running()?;
+
+        let folder = col.media_folder.clone();
+        let db = col.media_db.clone();
+        let log = col.log.clone();
+
+        drop(guard);
+
+        let res = self.sync_media_inner(input, folder, db, log);
+
+        self.with_col(|col| col.set_media_sync_finished())?;
+
+        res
+    }
+
+    fn sync_media_inner(
+        &self,
+        input: pb::SyncMediaIn,
+        folder: PathBuf,
+        db: PathBuf,
+        log: Logger,
+    ) -> Result<()> {
         let callback = |progress: &MediaSyncProgress| {
             self.fire_progress_callback(Progress::MediaSync(progress))
         };
 
+        let mgr = MediaManager::new(&folder, &db)?;
         let mut rt = Runtime::new().unwrap();
-        rt.block_on(mgr.sync_media(callback, &input.endpoint, &input.hkey, self.log.clone()))
+        rt.block_on(mgr.sync_media(callback, &input.endpoint, &input.hkey, log))
     }
 
     fn check_media(&self) -> Result<pb::MediaCheckOut> {
         let callback =
             |progress: usize| self.fire_progress_callback(Progress::MediaCheck(progress as u32));
 
-        let mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
-        let mut checker = MediaChecker::new(&mgr, &self.col_path, callback, &self.i18n, &self.log);
-        let mut output = checker.check()?;
+        self.with_col(|col| {
+            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
+            col.transact(None, |ctx| {
+                let mut checker = MediaChecker::new(ctx, &mgr, callback);
+                let mut output = checker.check()?;
 
-        let report = checker.summarize_output(&mut output);
+                let report = checker.summarize_output(&mut output);
 
-        Ok(pb::MediaCheckOut {
-            unused: output.unused,
-            missing: output.missing,
-            report,
-            have_trash: output.trash_count > 0,
+                Ok(pb::MediaCheckOut {
+                    unused: output.unused,
+                    missing: output.missing,
+                    report,
+                    have_trash: output.trash_count > 0,
+                })
+            })
         })
     }
 
     fn remove_media_files(&self, fnames: &[String]) -> Result<()> {
-        let mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
-        let mut ctx = mgr.dbctx();
-        mgr.remove_files(&mut ctx, fnames)
+        self.with_col(|col| {
+            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
+            let mut ctx = mgr.dbctx();
+            mgr.remove_files(&mut ctx, fnames)
+        })
     }
 
     fn translate_string(&self, input: pb::TranslateStringIn) -> String {
@@ -466,20 +551,66 @@ impl Backend {
         let callback =
             |progress: usize| self.fire_progress_callback(Progress::MediaCheck(progress as u32));
 
-        let mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
-        let mut checker = MediaChecker::new(&mgr, &self.col_path, callback, &self.i18n, &self.log);
+        self.with_col(|col| {
+            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
+            col.transact(None, |ctx| {
+                let mut checker = MediaChecker::new(ctx, &mgr, callback);
 
-        checker.empty_trash()
+                checker.empty_trash()
+            })
+        })
     }
 
     fn restore_trash(&self) -> Result<()> {
         let callback =
             |progress: usize| self.fire_progress_callback(Progress::MediaCheck(progress as u32));
 
-        let mgr = MediaManager::new(&self.media_folder, &self.media_db)?;
-        let mut checker = MediaChecker::new(&mgr, &self.col_path, callback, &self.i18n, &self.log);
+        self.with_col(|col| {
+            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
 
-        checker.restore_trash()
+            col.transact(None, |ctx| {
+                let mut checker = MediaChecker::new(ctx, &mgr, callback);
+
+                checker.restore_trash()
+            })
+        })
+    }
+
+    pub fn db_command(&self, input: &[u8]) -> Result<String> {
+        self.with_col(|col| col.with_ctx(|ctx| db_command_bytes(&ctx.storage, input)))
+    }
+
+    fn search_cards(&self, input: pb::SearchCardsIn) -> Result<pb::SearchCardsOut> {
+        self.with_col(|col| {
+            col.with_ctx(|ctx| {
+                let order = if let Some(order) = input.order {
+                    use pb::sort_order::Value as V;
+                    match order.value {
+                        Some(V::None(_)) => SortMode::NoOrder,
+                        Some(V::Custom(s)) => SortMode::Custom(s),
+                        Some(V::FromConfig(_)) => SortMode::FromConfig,
+                        Some(V::Builtin(b)) => SortMode::Builtin {
+                            kind: sort_kind_from_pb(b.kind),
+                            reverse: b.reverse,
+                        },
+                        None => SortMode::FromConfig,
+                    }
+                } else {
+                    SortMode::FromConfig
+                };
+                let cids = search_cards(ctx, &input.search, order)?;
+                Ok(pb::SearchCardsOut { card_ids: cids })
+            })
+        })
+    }
+
+    fn search_notes(&self, input: pb::SearchNotesIn) -> Result<pb::SearchNotesOut> {
+        self.with_col(|col| {
+            col.with_ctx(|ctx| {
+                let nids = search_notes(ctx, &input.search)?;
+                Ok(pb::SearchNotesOut { note_ids: nids })
+            })
+        })
     }
 }
 
@@ -552,51 +683,24 @@ fn media_sync_progress(p: &MediaSyncProgress, i18n: &I18n) -> pb::MediaSyncProgr
     }
 }
 
-/// Standalone I18n backend
-/// This is a hack to allow translating strings in the GUI
-/// when a collection is not open, and in the future it should
-/// either be shared with or merged into the backend object.
-///////////////////////////////////////////////////////
-
-pub struct I18nBackend {
-    i18n: I18n,
-}
-
-pub fn init_i18n_backend(init_msg: &[u8]) -> Result<I18nBackend> {
-    let input: pb::I18nBackendInit = match pb::I18nBackendInit::decode(init_msg) {
-        Ok(req) => req,
-        Err(_) => return Err(AnkiError::invalid_input("couldn't decode init msg")),
-    };
-
-    let log = log::terminal();
-
-    let i18n = I18n::new(&input.preferred_langs, input.locale_folder_path, log);
-
-    Ok(I18nBackend { i18n })
-}
-
-impl I18nBackend {
-    pub fn translate(&self, req: &[u8]) -> String {
-        let req = match pb::TranslateStringIn::decode(req) {
-            Ok(req) => req,
-            Err(_e) => return "decoding error".into(),
-        };
-
-        self.translate_string(req)
-    }
-
-    fn translate_string(&self, input: pb::TranslateStringIn) -> String {
-        let key = match pb::FluentString::from_i32(input.key) {
-            Some(key) => key,
-            None => return "invalid key".to_string(),
-        };
-
-        let map = input
-            .args
-            .iter()
-            .map(|(k, v)| (k.as_str(), translate_arg_to_fluent_val(&v)))
-            .collect();
-
-        self.i18n.trn(key, map)
+fn sort_kind_from_pb(kind: i32) -> SortKind {
+    use SortKind as SK;
+    match pb::BuiltinSortKind::from_i32(kind) {
+        Some(pbkind) => match pbkind {
+            BuiltinSortKind::NoteCreation => SK::NoteCreation,
+            BuiltinSortKind::NoteMod => SK::NoteMod,
+            BuiltinSortKind::NoteField => SK::NoteField,
+            BuiltinSortKind::NoteTags => SK::NoteTags,
+            BuiltinSortKind::NoteType => SK::NoteType,
+            BuiltinSortKind::CardMod => SK::CardMod,
+            BuiltinSortKind::CardReps => SK::CardReps,
+            BuiltinSortKind::CardDue => SK::CardDue,
+            BuiltinSortKind::CardEase => SK::CardEase,
+            BuiltinSortKind::CardLapses => SK::CardLapses,
+            BuiltinSortKind::CardInterval => SK::CardInterval,
+            BuiltinSortKind::CardDeck => SK::CardDeck,
+            BuiltinSortKind::CardTemplate => SK::CardTemplate,
+        },
+        _ => SortKind::NoteCreation,
     }
 }

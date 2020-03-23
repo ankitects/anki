@@ -12,6 +12,7 @@ import signal
 import time
 import zipfile
 from argparse import Namespace
+from concurrent.futures import Future
 from threading import Thread
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
@@ -28,6 +29,7 @@ from anki import hooks
 from anki.collection import _Collection
 from anki.hooks import runHook
 from anki.lang import _, ngettext
+from anki.rsbackend import RustBackend
 from anki.sound import AVTag, SoundOrVideoTag
 from anki.storage import Collection
 from anki.utils import devMode, ids2str, intTime, isMac, isWin, splitFields
@@ -77,10 +79,12 @@ class AnkiQt(QMainWindow):
         self,
         app: QApplication,
         profileManager: ProfileManagerType,
+        backend: RustBackend,
         opts: Namespace,
         args: List[Any],
     ) -> None:
         QMainWindow.__init__(self)
+        self.backend = backend
         self.state = "startup"
         self.opts = opts
         self.col: Optional[_Collection] = None
@@ -393,7 +397,7 @@ close the profile or restart Anki."""
         # at this point there should be no windows left
         self._checkForUnclosedWidgets()
 
-        self.maybeAutoSync(True)
+        self.maybeAutoSync()
 
     def _checkForUnclosedWidgets(self) -> None:
         for w in self.app.topLevelWidgets():
@@ -458,18 +462,22 @@ close the profile or restart Anki."""
 
     def _loadCollection(self) -> bool:
         cpath = self.pm.collectionPath()
-
-        self.col = Collection(cpath, log=True)
+        self.col = Collection(cpath, backend=self.backend)
 
         self.setEnabled(True)
-        self.progress.setupDB(self.col.db)
         self.maybeEnableUndo()
+        gui_hooks.collection_did_load(self.col)
         self.moveToState("deckBrowser")
         return True
+
+    def reopen(self):
+        cpath = self.pm.collectionPath()
+        self.col = Collection(cpath, backend=self.backend)
 
     def unloadCollection(self, onsuccess: Callable) -> None:
         def callback():
             self.setEnabled(False)
+            self.media_syncer.show_diag_until_finished()
             self._unloadCollection()
             onsuccess()
 
@@ -561,6 +569,7 @@ from the profile screen."
             fname = backups.pop(0)
             path = os.path.join(dir, fname)
             os.unlink(path)
+        gui_hooks.backup_did_complete()
 
     def maybeOptimize(self) -> None:
         # have two weeks passed?
@@ -593,14 +602,6 @@ from the profile screen."
     def _deckBrowserState(self, oldState: str) -> None:
         self.maybe_check_for_addon_updates()
         self.deckBrowser.show()
-
-    def _colLoadingState(self, oldState) -> None:
-        "Run once, when col is loaded."
-        self.enableColMenuItems()
-        # ensure cwd is set if media dir exists
-        self.col.media.dir()
-        gui_hooks.collection_did_load(self.col)
-        self.moveToState("overview")
 
     def _selectedDeck(self) -> Optional[Dict[str, Any]]:
         did = self.col.decks.selected()
@@ -753,10 +754,7 @@ title="%s" %s>%s</button>""" % (
         signal.signal(signal.SIGINT, self.onSigInt)
 
     def onSigInt(self, signum, frame):
-        # interrupt any current transaction and schedule a rollback & quit
-        if self.col:
-            self.col.db.interrupt()
-
+        # schedule a rollback & quit
         def quit():
             self.col.db.rollback()
             self.close()
@@ -841,7 +839,7 @@ title="%s" %s>%s</button>""" % (
         self.media_syncer.start()
 
     # expects a current profile, but no collection loaded
-    def maybeAutoSync(self, closing=False) -> None:
+    def maybeAutoSync(self) -> None:
         if (
             not self.pm.profile["syncKey"]
             or not self.pm.profile["autoSync"]
@@ -852,10 +850,6 @@ title="%s" %s>%s</button>""" % (
 
         # ok to sync
         self._sync()
-
-        # if media still syncing at this point, pop up progress diag
-        if closing:
-            self.media_syncer.show_diag_until_finished()
 
     def maybe_auto_sync_media(self) -> None:
         if not self.pm.profile["autoSync"] or self.safeMode or self.restoringBackup:
@@ -1262,25 +1256,29 @@ will be lost. Continue?"""
 
     def onCheckDB(self):
         "True if no problems"
-        self.progress.start(immediate=True)
-        ret, ok = self.col.fixIntegrity()
-        self.progress.finish()
-        if not ok:
-            showText(ret)
-        else:
-            tooltip(ret)
+        self.progress.start()
 
-        # if an error has directed the user to check the database,
-        # silently clean up any broken reset hooks which distract from
-        # the underlying issue
-        while True:
-            try:
-                self.reset()
-                break
-            except Exception as e:
-                print("swallowed exception in reset hook:", e)
-                continue
-        return ret
+        def onDone(future: Future):
+            self.progress.finish()
+            ret, ok = future.result()
+
+            if not ok:
+                showText(ret)
+            else:
+                tooltip(ret)
+
+            # if an error has directed the user to check the database,
+            # silently clean up any broken reset hooks which distract from
+            # the underlying issue
+            while True:
+                try:
+                    self.reset()
+                    break
+                except Exception as e:
+                    print("swallowed exception in reset hook:", e)
+                    continue
+
+        self.taskman.run_in_background(self.col.fixIntegrity, onDone)
 
     def on_check_media_db(self) -> None:
         check_media_db(self)
@@ -1363,11 +1361,42 @@ will be lost. Continue?"""
             sys.stderr = self._oldStderr
             sys.stdout = self._oldStdout
 
-    def _debugCard(self):
-        return self.reviewer.card.__dict__
+    def _card_repr(self, card: anki.cards.Card) -> None:
+        import pprint, copy
 
-    def _debugBrowserCard(self):
-        return aqt.dialogs._dialogs["Browser"][1].card.__dict__
+        if not card:
+            print("no card")
+            return
+
+        print("Front:", card.question())
+        print("\n")
+        print("Back:", card.answer())
+
+        print("\nNote:")
+        note = copy.copy(card.note())
+        for k, v in note.items():
+            print(f"- {k}:", v)
+
+        print("\n")
+        del note.fields
+        del note._fmap
+        del note._model
+        pprint.pprint(note.__dict__)
+
+        print("\nCard:")
+        c = copy.copy(card)
+        c._render_output = None
+        pprint.pprint(c.__dict__)
+
+    def _debugCard(self) -> Optional[anki.cards.Card]:
+        card = self.reviewer.card
+        self._card_repr(card)
+        return card
+
+    def _debugBrowserCard(self) -> Optional[anki.cards.Card]:
+        card = aqt.dialogs._dialogs["Browser"][1].card
+        self._card_repr(card)
+        return card
 
     def onDebugPrint(self, frm):
         cursor = frm.text.textCursor()
@@ -1528,7 +1557,6 @@ Please ensure a profile is open and Anki is not busy, then try again."""
         gc.disable()
 
     def doGC(self) -> None:
-        assert not self.progress.inDB
         gc.collect()
 
     # Crash log

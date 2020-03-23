@@ -8,7 +8,7 @@ import random
 import time
 from heapq import *
 from operator import itemgetter
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import anki
 from anki import hooks
@@ -80,7 +80,7 @@ class Scheduler(V2):
         self._updateStats(card, "time", card.timeTaken())
         card.mod = intTime()
         card.usn = self.col.usn()
-        card.flushSched()
+        card.flush()
 
     def counts(self, card: Optional[Card] = None) -> Tuple[int, int, int]:
         counts = [self.newCount, self.lrnCount, self.revCount]
@@ -286,11 +286,13 @@ and due <= ? limit %d"""
         self._lrnQueue = self.col.db.all(
             f"""
 select due, id from cards where
-did in %s and queue = {QUEUE_TYPE_LRN} and due < :lim
+did in %s and queue = {QUEUE_TYPE_LRN} and due < ?
 limit %d"""
             % (self._deckLimit(), self.reportLimit),
-            lim=self.dayCutoff,
+            self.dayCutoff,
         )
+        for i in range(len(self._lrnQueue)):
+            self._lrnQueue[i] = (self._lrnQueue[i][0], self._lrnQueue[i][1])
         # as it arrives sorted by did first, we need to sort it
         self._lrnQueue.sort()
         return self._lrnQueue
@@ -707,7 +709,7 @@ did = ? and queue = {QUEUE_TYPE_REV} and due <= ? limit ?""",
     # Dynamic deck handling
     ##########################################################################
 
-    def rebuildDyn(self, did: Optional[int] = None) -> Optional[List[int]]:  # type: ignore[override]
+    def rebuildDyn(self, did: Optional[int] = None) -> Optional[Sequence[int]]:  # type: ignore[override]
         "Rebuild a dynamic deck."
         did = did or self.col.decks.selected()
         deck = self.col.decks.get(did)
@@ -721,7 +723,7 @@ did = ? and queue = {QUEUE_TYPE_REV} and due <= ? limit ?""",
         self.col.decks.select(did)
         return ids
 
-    def _fillDyn(self, deck: Dict[str, Any]) -> List[int]:  # type: ignore[override]
+    def _fillDyn(self, deck: Dict[str, Any]) -> Sequence[int]:  # type: ignore[override]
         search, limit, order = deck["terms"][0]
         orderlimit = self._dynOrder(order, limit)
         if search.strip():
@@ -751,7 +753,7 @@ due = odue, odue = 0, odid = 0, usn = ? where %s"""
             self.col.usn(),
         )
 
-    def _moveToDyn(self, did: int, ids: List[int]) -> None:  # type: ignore[override]
+    def _moveToDyn(self, did: int, ids: Sequence[int]) -> None:  # type: ignore[override]
         deck = self.col.decks.get(did)
         data = []
         t = intTime()
@@ -867,10 +869,9 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?"""
 
     def _updateCutoff(self) -> None:
         oldToday = self.today
-        # days since col created
-        self.today = int((time.time() - self.col.crt) // 86400)
-        # end of day cutoff
-        self.dayCutoff = self.col.crt + (self.today + 1) * 86400
+        timing = self._timing_today()
+        self.today = timing.days_elapsed
+        self.dayCutoff = timing.next_day_at
         if oldToday != self.today:
             self.col.log(self.today, self.dayCutoff)
         # update all daily counts, but don't save decks to prevent needless

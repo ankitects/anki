@@ -1,12 +1,11 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use anki::backend::{
-    init_backend, init_i18n_backend, Backend as RustBackend, I18nBackend as RustI18nBackend,
-};
+use anki::backend::{init_backend, Backend as RustBackend};
+use pyo3::exceptions::Exception;
 use pyo3::prelude::*;
 use pyo3::types::PyBytes;
-use pyo3::{exceptions, wrap_pyfunction};
+use pyo3::{create_exception, exceptions, wrap_pyfunction};
 
 // Regular backend
 //////////////////////////////////
@@ -15,6 +14,8 @@ use pyo3::{exceptions, wrap_pyfunction};
 struct Backend {
     backend: RustBackend,
 }
+
+create_exception!(ankirspy, DBError, Exception);
 
 #[pyfunction]
 fn buildhash() -> &'static str {
@@ -70,29 +71,17 @@ impl Backend {
             self.backend.set_progress_callback(Some(Box::new(func)));
         }
     }
-}
 
-// I18n backend
-//////////////////////////////////
-
-#[pyclass]
-struct I18nBackend {
-    backend: RustI18nBackend,
-}
-
-#[pyfunction]
-fn open_i18n(init_msg: &PyBytes) -> PyResult<I18nBackend> {
-    match init_i18n_backend(init_msg.as_bytes()) {
-        Ok(backend) => Ok(I18nBackend { backend }),
-        Err(e) => Err(exceptions::Exception::py_err(format!("{:?}", e))),
-    }
-}
-
-#[pymethods]
-impl I18nBackend {
-    fn translate(&self, input: &PyBytes) -> String {
+    fn db_command(&mut self, py: Python, input: &PyBytes) -> PyResult<PyObject> {
         let in_bytes = input.as_bytes();
-        self.backend.translate(in_bytes)
+        let out_res = py.allow_threads(move || {
+            self.backend
+                .db_command(in_bytes)
+                .map_err(|e| DBError::py_err(e.localized_description(&self.backend.i18n())))
+        });
+        let out_string = out_res?;
+        let out_obj = PyBytes::new(py, out_string.as_bytes());
+        Ok(out_obj.into())
     }
 }
 
@@ -104,7 +93,6 @@ fn ankirspy(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<Backend>()?;
     m.add_wrapped(wrap_pyfunction!(buildhash)).unwrap();
     m.add_wrapped(wrap_pyfunction!(open_backend)).unwrap();
-    m.add_wrapped(wrap_pyfunction!(open_i18n)).unwrap();
 
     Ok(())
 }

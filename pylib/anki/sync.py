@@ -8,8 +8,7 @@ import io
 import json
 import os
 import random
-import sqlite3
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import anki
 from anki.consts import *
@@ -32,7 +31,7 @@ class UnexpectedSchemaChange(Exception):
 
 
 class Syncer:
-    cursor: Optional[sqlite3.Cursor]
+    chunkRows: Optional[List[Sequence]]
 
     def __init__(self, col: anki.storage._Collection, server=None) -> None:
         self.col = col.weakref()
@@ -247,11 +246,11 @@ class Syncer:
 
     def prepareToChunk(self) -> None:
         self.tablesLeft = ["revlog", "cards", "notes"]
-        self.cursor = None
+        self.chunkRows = None
 
-    def cursorForTable(self, table) -> sqlite3.Cursor:
+    def getChunkRows(self, table) -> List[Sequence]:
         lim = self.usnLim()
-        x = self.col.db.execute
+        x = self.col.db.all
         d = (self.maxUsn, lim)
         if table == "revlog":
             return x(
@@ -280,14 +279,15 @@ from notes where %s"""
         lim = 250
         while self.tablesLeft and lim:
             curTable = self.tablesLeft[0]
-            if not self.cursor:
-                self.cursor = self.cursorForTable(curTable)
-            rows = self.cursor.fetchmany(lim)
+            if not self.chunkRows:
+                self.chunkRows = self.getChunkRows(curTable)
+            rows = self.chunkRows[:lim]
+            self.chunkRows = self.chunkRows[lim:]
             fetched = len(rows)
             if fetched != lim:
                 # table is empty
                 self.tablesLeft.pop(0)
-                self.cursor = None
+                self.chunkRows = None
                 # mark the objects as having been sent
                 self.col.db.execute(
                     "update %s set usn=? where usn=-1" % curTable, self.maxUsn

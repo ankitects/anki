@@ -16,17 +16,6 @@ def getEmptyCol():
     return col
 
 
-# Between 2-4AM, shift the time back so test assumptions hold.
-lt = time.localtime()
-if lt.tm_hour >= 2 and lt.tm_hour < 4:
-    orig_time = time.time
-
-    def adjusted_time():
-        return orig_time() - 60 * 60 * 2
-
-    time.time = adjusted_time
-
-
 def test_clock():
     d = getEmptyCol()
     if (d.sched.dayCutoff - intTime()) < 10 * 60:

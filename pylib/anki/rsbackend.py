@@ -5,21 +5,50 @@
 import enum
 import os
 from dataclasses import dataclass
-from typing import Callable, Dict, List, NewType, NoReturn, Optional, Tuple, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    NewType,
+    NoReturn,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+)
 
 import ankirspy  # pytype: disable=import-error
 
 import anki.backend_pb2 as pb
 import anki.buildinfo
 from anki import hooks
+from anki.dbproxy import Row as DBRow
+from anki.dbproxy import ValueForDB
 from anki.fluent_pb2 import FluentString as TR
 from anki.models import AllTemplateReqs
 from anki.sound import AVTag, SoundOrVideoTag, TTSTag
 from anki.types import assert_impossible_literal
+from anki.utils import intTime
 
 assert ankirspy.buildhash() == anki.buildinfo.buildhash
 
 SchedTimingToday = pb.SchedTimingTodayOut
+BuiltinSortKind = pb.BuiltinSortKind
+
+try:
+    import orjson
+except:
+    # add compat layer for 32 bit builds that can't use orjson
+    print("reverting to stock json")
+    import json
+
+    class orjson:  # type: ignore
+        def dumps(obj: Any) -> bytes:
+            return json.dumps(obj).encode("utf8")
+
+        loads = json.loads
 
 
 class Interrupted(Exception):
@@ -186,16 +215,19 @@ def _on_progress(progress_bytes: bytes) -> bool:
 
 class RustBackend:
     def __init__(
-        self, col_path: str, media_folder_path: str, media_db_path: str, log_path: str
+        self,
+        ftl_folder: Optional[str] = None,
+        langs: Optional[List[str]] = None,
+        server: bool = False,
     ) -> None:
-        ftl_folder = os.path.join(anki.lang.locale_folder, "fluent")
+        # pick up global defaults if not provided
+        if ftl_folder is None:
+            ftl_folder = os.path.join(anki.lang.locale_folder, "fluent")
+        if langs is None:
+            langs = [anki.lang.currentLang]
+
         init_msg = pb.BackendInit(
-            collection_path=col_path,
-            media_folder_path=media_folder_path,
-            media_db_path=media_db_path,
-            locale_folder_path=ftl_folder,
-            preferred_langs=[anki.lang.currentLang],
-            log_path=log_path,
+            locale_folder_path=ftl_folder, preferred_langs=langs, server=server,
         )
         self._backend = ankirspy.open_backend(init_msg.SerializeToString())
         self._backend.set_progress_callback(_on_progress)
@@ -213,6 +245,26 @@ class RustBackend:
         else:
             return output
 
+    def open_collection(
+        self, col_path: str, media_folder_path: str, media_db_path: str, log_path: str
+    ):
+        self._run_command(
+            pb.BackendInput(
+                open_collection=pb.OpenCollectionIn(
+                    collection_path=col_path,
+                    media_folder_path=media_folder_path,
+                    media_db_path=media_db_path,
+                    log_path=log_path,
+                )
+            ),
+            release_gil=True,
+        )
+
+    def close_collection(self):
+        self._run_command(
+            pb.BackendInput(close_collection=pb.Empty()), release_gil=True
+        )
+
     def template_requirements(
         self, template_fronts: List[str], field_map: Dict[str, int]
     ) -> AllTemplateReqs:
@@ -228,19 +280,33 @@ class RustBackend:
     def sched_timing_today(
         self,
         created_secs: int,
-        created_mins_west: int,
-        now_secs: int,
-        now_mins_west: int,
-        rollover: int,
+        created_mins_west: Optional[int],
+        now_mins_west: Optional[int],
+        rollover: Optional[int],
     ) -> SchedTimingToday:
+        if created_mins_west is not None:
+            crt_west = pb.OptionalInt32(val=created_mins_west)
+        else:
+            crt_west = None
+
+        if now_mins_west is not None:
+            now_west = pb.OptionalInt32(val=now_mins_west)
+        else:
+            now_west = None
+
+        if rollover is not None:
+            roll = pb.OptionalInt32(val=rollover)
+        else:
+            roll = None
+
         return self._run_command(
             pb.BackendInput(
                 sched_timing_today=pb.SchedTimingTodayIn(
                     created_secs=created_secs,
-                    created_mins_west=created_mins_west,
-                    now_secs=now_secs,
-                    now_mins_west=now_mins_west,
-                    rollover_hour=rollover,
+                    now_secs=intTime(),
+                    created_mins_west=crt_west,
+                    now_mins_west=now_west,
+                    rollover_hour=roll,
                 )
             )
         ).sched_timing_today
@@ -366,6 +432,54 @@ class RustBackend:
     def restore_trash(self):
         self._run_command(pb.BackendInput(restore_trash=pb.Empty()))
 
+    def db_query(
+        self, sql: str, args: Sequence[ValueForDB], first_row_only: bool
+    ) -> List[DBRow]:
+        return self._db_command(
+            dict(kind="query", sql=sql, args=args, first_row_only=first_row_only)
+        )
+
+    def db_execute_many(self, sql: str, args: List[List[ValueForDB]]) -> List[DBRow]:
+        return self._db_command(dict(kind="executemany", sql=sql, args=args))
+
+    def db_begin(self) -> None:
+        return self._db_command(dict(kind="begin"))
+
+    def db_commit(self) -> None:
+        return self._db_command(dict(kind="commit"))
+
+    def db_rollback(self) -> None:
+        return self._db_command(dict(kind="rollback"))
+
+    def _db_command(self, input: Dict[str, Any]) -> Any:
+        return orjson.loads(self._backend.db_command(orjson.dumps(input)))
+
+    def search_cards(
+        self, search: str, order: Union[bool, str, int], reverse: bool = False
+    ) -> Sequence[int]:
+        if isinstance(order, str):
+            mode = pb.SortOrder(custom=order)
+        elif order is True:
+            mode = pb.SortOrder(from_config=pb.Empty())
+        elif order is False:
+            mode = pb.SortOrder(none=pb.Empty())
+        else:
+            # sadly we can't use the protobuf type in a Union, so we
+            # have to accept an int and convert it
+            kind = BuiltinSortKind.Value(BuiltinSortKind.Name(order))
+            mode = pb.SortOrder(
+                builtin=pb.BuiltinSearchOrder(kind=kind, reverse=reverse)
+            )
+
+        return self._run_command(
+            pb.BackendInput(search_cards=pb.SearchCardsIn(search=search, order=mode))
+        ).search_cards.card_ids
+
+    def search_notes(self, search: str) -> Sequence[int]:
+        return self._run_command(
+            pb.BackendInput(search_notes=pb.SearchNotesIn(search=search))
+        ).search_notes.note_ids
+
 
 def translate_string_in(
     key: TR, **kwargs: Union[str, int, float]
@@ -377,19 +491,6 @@ def translate_string_in(
         else:
             args[k] = pb.TranslateArgValue(number=v)
     return pb.TranslateStringIn(key=key, args=args)
-
-
-class I18nBackend:
-    def __init__(self, preferred_langs: List[str], ftl_folder: str) -> None:
-        init_msg = pb.I18nBackendInit(
-            locale_folder_path=ftl_folder, preferred_langs=preferred_langs
-        )
-        self._backend = ankirspy.open_i18n(init_msg.SerializeToString())
-
-    def translate(self, key: TR, **kwargs: Union[str, int, float]) -> str:
-        return self._backend.translate(
-            translate_string_in(key, **kwargs).SerializeToString()
-        )
 
 
 # temporarily force logging of media handling

@@ -13,7 +13,7 @@ import unicodedata
 from dataclasses import dataclass
 from enum import Enum
 from operator import itemgetter
-from typing import Callable, List, Optional, Union
+from typing import Callable, List, Optional, Sequence, Union
 
 import anki
 import aqt.forms
@@ -69,6 +69,14 @@ class FindDupesDialog:
     browser: Browser
 
 
+@dataclass
+class SearchContext:
+    search: str
+    order: Union[bool, str] = True
+    # if set, provided card ids will be used instead of the regular search
+    card_ids: Optional[Sequence[int]] = None
+
+
 # Data model
 ##########################################################################
 
@@ -82,7 +90,7 @@ class DataModel(QAbstractTableModel):
         self.activeCols = self.col.conf.get(
             "activeCols", ["noteFld", "template", "cardDue", "deck"]
         )
-        self.cards: List[int] = []
+        self.cards: Sequence[int] = []
         self.cardObjs: Dict[int, Card] = {}
 
     def getCard(self, index: QModelIndex) -> Card:
@@ -169,23 +177,22 @@ class DataModel(QAbstractTableModel):
     # Filtering
     ######################################################################
 
-    def search(self, txt):
+    def search(self, txt: str) -> None:
         self.beginReset()
-        t = time.time()
-        # the db progress handler may cause a refresh, so we need to zero out
-        # old data first
         self.cards = []
         invalid = False
         try:
-            self.cards = self.col.findCards(txt, order=True)
+            ctx = SearchContext(search=txt)
+            gui_hooks.browser_will_search(ctx)
+            if ctx.card_ids is None:
+                ctx.card_ids = self.col.find_cards(txt, order=ctx.order)
+            gui_hooks.browser_did_search(ctx)
+            self.cards = ctx.card_ids
         except Exception as e:
-            if str(e) == "invalidSearch":
-                self.cards = []
-                invalid = True
-            else:
-                raise
-        # print "fetch cards in %dms" % ((time.time() - t)*1000)
-        self.endReset()
+            print("search failed:", e)
+            invalid = True
+        finally:
+            self.endReset()
 
         if invalid:
             showWarning(_("Invalid search - please check for typing mistakes."))
@@ -213,7 +220,7 @@ class DataModel(QAbstractTableModel):
 
     def _reverse(self):
         self.beginReset()
-        self.cards.reverse()
+        self.cards = list(reversed(self.cards))
         self.endReset()
 
     def saveSelection(self):
@@ -275,6 +282,9 @@ class DataModel(QAbstractTableModel):
     def columnType(self, column):
         return self.activeCols[column]
 
+    def time_format(self):
+        return "%Y-%m-%d"
+
     def columnData(self, index):
         row = index.row()
         col = index.column()
@@ -302,11 +312,11 @@ class DataModel(QAbstractTableModel):
                 t = "(" + t + ")"
             return t
         elif type == "noteCrt":
-            return time.strftime("%Y-%m-%d", time.localtime(c.note().id / 1000))
+            return time.strftime(self.time_format(), time.localtime(c.note().id / 1000))
         elif type == "noteMod":
-            return time.strftime("%Y-%m-%d", time.localtime(c.note().mod))
+            return time.strftime(self.time_format(), time.localtime(c.note().mod))
         elif type == "cardMod":
-            return time.strftime("%Y-%m-%d", time.localtime(c.mod))
+            return time.strftime(self.time_format(), time.localtime(c.mod))
         elif type == "cardReps":
             return str(c.reps)
         elif type == "cardLapses":
@@ -363,7 +373,7 @@ class DataModel(QAbstractTableModel):
             date = time.time() + ((c.due - self.col.sched.today) * 86400)
         else:
             return ""
-        return time.strftime("%Y-%m-%d", time.localtime(date))
+        return time.strftime(self.time_format(), time.localtime(date))
 
     def isRTL(self, index):
         col = index.column()
@@ -388,15 +398,12 @@ class StatusDelegate(QItemDelegate):
         self.model = model
 
     def paint(self, painter, option, index):
-        self.browser.mw.progress.blockUpdates = True
         try:
             c = self.model.getCard(index)
         except:
             # in the the middle of a reset; return nothing so this row is not
             # rendered until we have a chance to reset the model
             return
-        finally:
-            self.browser.mw.progress.blockUpdates = True
 
         if self.model.isRTL(index):
             option.direction = Qt.RightToLeft
@@ -833,6 +840,7 @@ class Browser(QMainWindow):
         self.form.tableView.selectionModel()
         self.form.tableView.setItemDelegate(StatusDelegate(self, self.model))
         self.form.tableView.selectionModel().selectionChanged.connect(self.onRowChanged)
+        self.form.tableView.setWordWrap(False)
         if not theme_manager.night_mode:
             self.form.tableView.setStyleSheet(
                 "QTableView{ selection-background-color: rgba(150, 150, 150, 50); "
@@ -915,31 +923,11 @@ QTableView {{ gridline-color: {grid} }}
 
     def _onSortChanged(self, idx, ord):
         type = self.model.activeCols[idx]
-        noSort = ("question", "answer", "template", "deck", "note", "noteTags")
+        noSort = ("question", "answer")
         if type in noSort:
-            if type == "template":
-                showInfo(
-                    _(
-                        """\
-This column can't be sorted on, but you can search for individual card types, \
-such as 'card:1'."""
-                    )
-                )
-            elif type == "deck":
-                showInfo(
-                    _(
-                        """\
-This column can't be sorted on, but you can search for specific decks \
-by clicking on one on the left."""
-                    )
-                )
-            else:
-                showInfo(
-                    _(
-                        "Sorting on this column is not supported. Please "
-                        "choose another."
-                    )
-                )
+            showInfo(
+                _("Sorting on this column is not supported. Please " "choose another.")
+            )
             type = self.col.conf["sortType"]
         if self.col.conf["sortType"] != type:
             self.col.conf["sortType"] = type
@@ -947,10 +935,14 @@ by clicking on one on the left."""
             if type == "noteFld":
                 ord = not ord
             self.col.conf["sortBackwards"] = ord
+            self.col.setMod()
+            self.col.save()
             self.search()
         else:
             if self.col.conf["sortBackwards"] != ord:
                 self.col.conf["sortBackwards"] = ord
+                self.col.setMod()
+                self.col.save()
                 self.model.reverse()
         self.setSortIndicator()
 

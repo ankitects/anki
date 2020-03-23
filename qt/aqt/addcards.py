@@ -167,8 +167,12 @@ class AddCards(QDialog):
     def addNote(self, note) -> Optional[Note]:
         note.model()["did"] = self.deckChooser.selectedId()
         ret = note.dupeOrEmpty()
+        problem = None
         if ret == 1:
-            showWarning(_("The first field is empty."), help="AddItems#AddError")
+            problem = _("The first field is empty.")
+        problem = gui_hooks.add_cards_will_add_note(problem, note)
+        if problem is not None:
+            showWarning(problem, help="AddItems#AddError")
             return None
         if "{{cloze:" in note.model()["tmpls"][0]["qfmt"]:
             if not self.mw.col.models._availClozeOrds(

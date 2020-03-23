@@ -58,7 +58,7 @@ class CardStats:
             self.addLine(_("Reviews"), "%d" % c.reps)
             self.addLine(_("Lapses"), "%d" % c.lapses)
             (cnt, total) = self.col.db.first(
-                "select count(), sum(time)/1000 from revlog where cid = :id", id=c.id
+                "select count(), sum(time)/1000 from revlog where cid = ?", c.id
             )
             if cnt:
                 self.addLine(_("Average Time"), self.time(total / float(cnt)))
@@ -297,12 +297,12 @@ and due = ?"""
     ) -> Any:
         lim = ""
         if start is not None:
-            lim += " and due-:today >= %d" % start
+            lim += " and due-%d >= %d" % (self.col.sched.today, start)
         if end is not None:
             lim += " and day < %d" % end
         return self.col.db.all(
             f"""
-select (due-:today)/:chunk as day,
+select (due-?)/? as day,
 sum(case when ivl < 21 then 1 else 0 end), -- yng
 sum(case when ivl >= 21 then 1 else 0 end) -- mtr
 from cards
@@ -310,8 +310,8 @@ where did in %s and queue in ({QUEUE_TYPE_REV},{QUEUE_TYPE_DAY_LEARN_RELEARN})
 %s
 group by day order by day"""
             % (self._limit(), lim),
-            today=self.col.sched.today,
-            chunk=chunk,
+            self.col.sched.today,
+            chunk,
         )
 
     # Added, reps and time spent
@@ -527,14 +527,13 @@ group by day order by day"""
         return self.col.db.all(
             """
 select
-(cast((id/1000.0 - :cut) / 86400.0 as int))/:chunk as day,
+(cast((id/1000.0 - ?) / 86400.0 as int))/? as day,
 count(id)
 from cards %s
 group by day order by day"""
             % lim,
-            cut=self.col.sched.dayCutoff,
-            tf=tf,
-            chunk=chunk,
+            self.col.sched.dayCutoff,
+            chunk,
         )
 
     def _done(self, num: Optional[int] = 7, chunk: int = 1) -> Any:
@@ -557,24 +556,28 @@ group by day order by day"""
         return self.col.db.all(
             f"""
 select
-(cast((id/1000.0 - :cut) / 86400.0 as int))/:chunk as day,
+(cast((id/1000.0 - ?) / 86400.0 as int))/? as day,
 sum(case when type = {REVLOG_LRN} then 1 else 0 end), -- lrn count
 sum(case when type = {REVLOG_REV} and lastIvl < 21 then 1 else 0 end), -- yng count
 sum(case when type = {REVLOG_REV} and lastIvl >= 21 then 1 else 0 end), -- mtr count
 sum(case when type = {REVLOG_RELRN} then 1 else 0 end), -- lapse count
 sum(case when type = {REVLOG_CRAM} then 1 else 0 end), -- cram count
-sum(case when type = {REVLOG_LRN} then time/1000.0 else 0 end)/:tf, -- lrn time
+sum(case when type = {REVLOG_LRN} then time/1000.0 else 0 end)/?, -- lrn time
 -- yng + mtr time
-sum(case when type = {REVLOG_REV} and lastIvl < 21 then time/1000.0 else 0 end)/:tf,
-sum(case when type = {REVLOG_REV} and lastIvl >= 21 then time/1000.0 else 0 end)/:tf,
-sum(case when type = {REVLOG_RELRN} then time/1000.0 else 0 end)/:tf, -- lapse time
-sum(case when type = {REVLOG_CRAM} then time/1000.0 else 0 end)/:tf -- cram time
+sum(case when type = {REVLOG_REV} and lastIvl < 21 then time/1000.0 else 0 end)/?,
+sum(case when type = {REVLOG_REV} and lastIvl >= 21 then time/1000.0 else 0 end)/?,
+sum(case when type = {REVLOG_RELRN} then time/1000.0 else 0 end)/?, -- lapse time
+sum(case when type = {REVLOG_CRAM} then time/1000.0 else 0 end)/? -- cram time
 from revlog %s
 group by day order by day"""
             % lim,
-            cut=self.col.sched.dayCutoff,
-            tf=tf,
-            chunk=chunk,
+            self.col.sched.dayCutoff,
+            chunk,
+            tf,
+            tf,
+            tf,
+            tf,
+            tf,
         )
 
     def _daysStudied(self) -> Any:
@@ -592,11 +595,11 @@ group by day order by day"""
         ret = self.col.db.first(
             """
 select count(), abs(min(day)) from (select
-(cast((id/1000 - :cut) / 86400.0 as int)+1) as day
+(cast((id/1000 - ?) / 86400.0 as int)+1) as day
 from revlog %s
 group by day order by day)"""
             % lim,
-            cut=self.col.sched.dayCutoff,
+            self.col.sched.dayCutoff,
         )
         assert ret
         return ret
@@ -655,12 +658,12 @@ group by day order by day)"""
         data = [
             self.col.db.all(
                 f"""
-select ivl / :chunk as grp, count() from cards
+select ivl / ? as grp, count() from cards
 where did in %s and queue = {QUEUE_TYPE_REV} %s
 group by grp
 order by grp"""
                 % (self._limit(), lim),
-                chunk=chunk,
+                chunk,
             )
         ]
         return (
@@ -866,14 +869,14 @@ order by thetype, ease"""
         return self.col.db.all(
             f"""
 select
-23 - ((cast((:cut - id/1000) / 3600.0 as int)) %% 24) as hour,
+23 - ((cast((? - id/1000) / 3600.0 as int)) %% 24) as hour,
 sum(case when ease = 1 then 0 else 1 end) /
 cast(count() as float) * 100,
 count()
 from revlog where type in ({REVLOG_LRN},{REVLOG_REV},{REVLOG_RELRN}) %s
 group by hour having count() > 30 order by hour"""
             % lim,
-            cut=self.col.sched.dayCutoff - (rolloverHour * 3600),
+            self.col.sched.dayCutoff - (rolloverHour * 3600),
         )
 
     # Cards

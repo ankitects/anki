@@ -21,6 +21,7 @@ setuptools.setup(
         "requests",
         "decorator",
         "protobuf",
+        'orjson; platform_machine == "x86_64"',
         'psutil; sys_platform == "win32"',
         'distro; sys_platform != "darwin" and sys_platform != "win32"',
     ],

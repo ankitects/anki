@@ -1,6 +1,14 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+"""
+A convenience wrapper over pysqlite.
+
+Anki's Collection class now uses dbproxy.py instead of this class,
+but this class is still used by aqt's profile manager, and a number
+of add-ons rely on it.
+"""
+
 import os
 import time
 from sqlite3 import Cursor
