@@ -22,11 +22,9 @@ case "$(uname -s)" in
         ;;
 esac
 
-cmd="rsync -a \"${TOOLS}/stubs/PyQt5/\" \"${modDir}/\""
-
-if [[ "w${OS}" == "wWindows_NT" ]]; 
+if [[ "w${OS}" == "wWindows_NT" ]];
 then
-    eval "${cmd}" > /dev/null 2>&1 || eval "${cmd}"
+    rsync -a "${TOOLS}/stubs/PyQt5/" "${modDir}/"
 else
-    eval "${cmd}" > /dev/null 2>&1 || eval "${cmd}" || eval "sudo ${cmd}"
+    rsync -a "${TOOLS}/stubs/PyQt5/" "${modDir}/" || sudo rsync -a "${TOOLS}/stubs/PyQt5/" "${modDir}/"
 fi
