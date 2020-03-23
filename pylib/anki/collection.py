@@ -251,6 +251,8 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         if self.db:
             if save:
                 self.save(trx=False)
+            else:
+                self.db.rollback()
             if not self.server:
                 self.db.execute("pragma journal_mode = delete")
             self.backend.close_collection()
