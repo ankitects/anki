@@ -5,6 +5,7 @@ import copy
 import json
 import os
 import weakref
+from dataclasses import dataclass
 from typing import Any, Dict, Optional, Tuple
 
 from anki.collection import _Collection
@@ -23,6 +24,7 @@ from anki.stdmodels import (
 from anki.utils import intTime
 
 
+@dataclass
 class ServerData:
     minutes_west: Optional[int] = None
 
