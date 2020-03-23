@@ -335,7 +335,7 @@ function setFields(fields) {
         }
         txt += `
         <tr>
-            <td class=fname>${n}</td>
+            <td class=fname id="name${i}">${n}</td>
         </tr>
         <tr>
             <td width=100%>
