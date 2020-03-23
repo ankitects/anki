@@ -466,6 +466,7 @@ close the profile or restart Anki."""
 
         self.setEnabled(True)
         self.maybeEnableUndo()
+        gui_hooks.collection_did_load(self.col)
         self.moveToState("deckBrowser")
         return True
 
@@ -601,14 +602,6 @@ from the profile screen."
     def _deckBrowserState(self, oldState: str) -> None:
         self.maybe_check_for_addon_updates()
         self.deckBrowser.show()
-
-    def _colLoadingState(self, oldState) -> None:
-        "Run once, when col is loaded."
-        self.enableColMenuItems()
-        # ensure cwd is set if media dir exists
-        self.col.media.dir()
-        gui_hooks.collection_did_load(self.col)
-        self.moveToState("overview")
 
     def _selectedDeck(self) -> Optional[Dict[str, Any]]:
         did = self.col.decks.selected()
