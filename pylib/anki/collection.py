@@ -138,10 +138,6 @@ class _Collection:
             self.sched = V1Scheduler(self)
         elif ver == 2:
             self.sched = V2Scheduler(self)
-            if not self.server:
-                self.conf["localOffset"] = self.sched._current_timezone_offset()
-            elif self.server.minutes_west is not None:
-                self.conf["localOffset"] = self.server.minutes_west
 
     def changeSchedulerVer(self, ver: int) -> None:
         if ver == self.schedVer():
@@ -164,12 +160,13 @@ class _Collection:
 
         self._loadScheduler()
 
+    # the sync code uses this to send the local timezone to AnkiWeb
     def localOffset(self) -> Optional[int]:
         "Minutes west of UTC. Only applies to V2 scheduler."
         if isinstance(self.sched, V1Scheduler):
             return None
         else:
-            return self.sched._current_timezone_offset()
+            return self.backend.local_minutes_west(intTime())
 
     # DB-related
     ##########################################################################
