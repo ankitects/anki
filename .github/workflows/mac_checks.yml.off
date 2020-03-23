@@ -1,12 +1,8 @@
 name: Mac Tests
 
-# on: [push, pull_request]
-# Disables Mac OS builds until this gets fixed
+# Disabled until Mac OS builds until this gets fixed:
 # https://github.com/actions/virtual-environments/issues/602
-on:
-  push:
-    branches-ignore:
-      - '**'
+on: [push, pull_request]
 
 jobs:
   test:
