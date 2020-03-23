@@ -22,6 +22,6 @@ case "$(uname -s)" in
         ;;
 esac
 
-cmd="rsync -a \"${TOOLS}/stubs/PyQt5/\" \"${modDir}/\""
+cmd="rsync -a ${TOOLS}/stubs/PyQt5/ ${modDir}/"
 
 $cmd > /dev/null 2>&1 || sudo $cmd
