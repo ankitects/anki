@@ -26,33 +26,33 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}\pyenv
-          key: ${{ runner.os }}-pyenv-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/requirements.txt') }}-
+          key: ${{ runner.os }}-pyenv-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/requirements.txt') }}-1
       - name: Cache cargo registry
         uses: actions/cache@v1
         with:
           path: C:\Rust\.cargo\registry
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.toml') }}
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.toml') }}-1
       - name: Cache cargo index
         uses: actions/cache@v1
         with:
           path: C:\Rust\.cargo\git
-          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.toml') }}
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.toml') }}-1
       - name: Cache cargo target
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}\target
-          key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.toml') }}
+          key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.toml') }}-1
       - name: Cache pip wheels
         uses: actions/cache@v1
         with:
           path: ~\AppData\Local\pip\Cache
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-1
       - name: Cache pacman
         uses: actions/cache@v1
         id: cache-pacman
         with:
           path: C:\Program Files\Git
-          key: ${{ runner.os }}-pacman-${{ hashFiles('**/windows_checks.yml') }}
+          key: ${{ runner.os }}-pacman-${{ hashFiles('**/windows_checks.yml') }}-1
       - name: Set up pacman, pyaudio, rsync, rename
         if: steps.cache-pacman.outputs.cache-hit != 'true'
         shell: cmd
