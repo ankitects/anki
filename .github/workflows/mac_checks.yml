@@ -1,10 +1,16 @@
-name: Linux Tests
+name: Mac Tests
 
-on: [push, pull_request]
+# on: [push, pull_request]
+# Disables Mac OS builds until this gets fixed
+# https://github.com/actions/virtual-environments/issues/602
+on:
+  push:
+    branches-ignore:
+      - '**'
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: macOS-latest
     steps:
       - uses: actions/checkout@v2
       - name: Set up python
@@ -17,15 +23,10 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 12
-      - name: Set up ripgrep, pyaudio, gettext, rename
+      - name: Set up brew packages
         run: |
-          sudo apt update
-          sudo apt install portaudio19-dev gettext rename
-          sudo snap install ripgrep --classic
-      # Necessary for now for the cargo cache:
-      # https://github.com/actions/cache/issues/133#issuecomment-599102035
-      - name: Fix ~/.cargo directory permissions
-        run: sudo chown -R $(whoami):$(id -ng) ~/.cargo/
+          brew install portaudio protobuf gettext rename ripgrep
+          brew link gettext --force
       - name: Cache cargo registry
         uses: actions/cache@v1
         with:
@@ -38,13 +39,13 @@ jobs:
           key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.toml') }}
       - name: Cache cargo build
         uses: actions/cache@v1
-        with:
+        with: 
           path: ~/target
           key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.toml') }}
       - name: Cache pip wheels
         uses: actions/cache@v1
         with:
-          path: ~/.cache/pip
+          path: ~/Library/Caches/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
       - name: Run checks
         run: |
