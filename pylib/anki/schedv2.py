@@ -1385,11 +1385,14 @@ where id = ?
         return self.col.conf.get("rollover", 4)
 
     def _timing_today(self) -> SchedTimingToday:
+        roll: Optional[int] = None
+        if self.col.schedVer() > 1:
+            roll = self._rolloverHour()
         return self.col.backend.sched_timing_today(
             self.col.crt,
             self._creation_timezone_offset(),
             self._current_timezone_offset(),
-            self._rolloverHour(),
+            roll,
         )
 
     def _current_timezone_offset(self) -> Optional[int]:
