@@ -27,6 +27,12 @@ jobs:
         run: |
           brew install portaudio protobuf gettext rename ripgrep
           brew link gettext --force
+      - name: Cache pyenv
+        id: cache-pyenv
+        uses: actions/cache@v1
+        with:
+          path: ${{ github.workspace }}/pyenv
+          key: ${{ runner.os }}-pyenv-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/requirements.txt') }}-
       - name: Cache cargo registry
         uses: actions/cache@v1
         with:
@@ -57,3 +63,8 @@ jobs:
           export RSPY_TARGET_DIR=~/target
           export CARGO_TARGET_DIR=~/target
           make build BUILDFLAGS=""
+      - name: Upload python wheels
+        uses: actions/upload-artifact@v1
+        with:
+          name: Mac OS python wheels
+          path: dist

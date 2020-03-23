@@ -22,7 +22,20 @@ jobs:
           echo "::set-env name=SCOOP::$env:GITHUB_WORKSPACE"
           echo "::set-env name=SCOOP_GLOBAL::$env:GITHUB_WORKSPACE\"
           echo "::set-env name=ANKI_EXTRA_PIP::python -m pip install $pyaudio"
+      - name: Cache pyenv
+        id: cache-pyenv
+        uses: actions/cache@v1
+        with:
+          path: ${{ github.workspace }}\pyenv
+          key: ${{ runner.os }}-pyenv-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/requirements.txt') }}-
+      - name: Cache pacman
+        id: cache-pacman
+        uses: actions/cache@v1
+        with:
+          path: C:\Program Files\Git
+          key: ${{ runner.os }}-pacman-${{ hashFiles('**/windows_checks.yml') }}
       - name: Set up pacman, pyaudio, rsync, rename
+        if: steps.cache-pacman.outputs.cache-hit != 'true'
         shell: cmd
         run: |
           echo on
@@ -99,3 +112,8 @@ jobs:
           set "RSPY_TARGET_DIR=%GITHUB_WORKSPACE%\target"
           set "CARGO_TARGET_DIR=%GITHUB_WORKSPACE%\target"
           make build BUILDFLAGS=""
+      - name: Upload python wheels
+        uses: actions/upload-artifact@v1
+        with:
+          name: Windows python wheels
+          path: dist

@@ -22,10 +22,16 @@ jobs:
           sudo apt update
           sudo apt install portaudio19-dev gettext rename
           sudo snap install ripgrep --classic
+      - name: Cache pyenv
+        uses: actions/cache@v1
+        with:
+          path: ${{ github.workspace }}/pyenv
+          key: ${{ runner.os }}-pyenv-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/requirements.txt') }}-
       # Necessary for now for the cargo cache:
       # https://github.com/actions/cache/issues/133#issuecomment-599102035
-      - name: Fix ~/.cargo directory permissions
-        run: sudo chown -R $(whoami):$(id -ng) ~/.cargo/
+      - name: Fix ~/.cache permissions
+        run: |
+          sudo chown -R $(whoami):$(id -ng) ~/.cargo/
       - name: Cache cargo registry
         uses: actions/cache@v1
         with:
@@ -56,3 +62,8 @@ jobs:
           export RSPY_TARGET_DIR=~/target
           export CARGO_TARGET_DIR=~/target
           make build BUILDFLAGS=""
+      - name: Upload python wheels
+        uses: actions/upload-artifact@v1
+        with:
+          name: Linux python wheels
+          path: dist
