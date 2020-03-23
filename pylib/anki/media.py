@@ -171,8 +171,11 @@ class MediaManager:
     ##########################################################################
 
     def check(self) -> MediaCheckOutput:
-        "This should be called while the collection is closed."
-        return self.col.backend.check_media()
+        output = self.col.backend.check_media()
+        # files may have been renamed on disk, so an undo at this point could
+        # break file references
+        self.col.save()
+        return output
 
     def render_all_latex(
         self, progress_cb: Optional[Callable[[int], bool]] = None

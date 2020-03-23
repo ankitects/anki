@@ -1,6 +1,0 @@
-.DS_Store
-node_modules
-public/bundle.*
-dist
-es
-.vscode

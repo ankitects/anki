@@ -6,6 +6,7 @@ import tempfile
 from anki import Collection as aopen
 from anki.exporting import *
 from anki.importing import Anki2Importer
+from tests.shared import errorsAfterMidnight
 from tests.shared import getEmptyCol as getEmptyColOrig
 
 
@@ -97,6 +98,7 @@ def test_export_ankipkg():
     e.exportInto(newname)
 
 
+@errorsAfterMidnight
 def test_export_anki_due():
     setup1()
     deck = getEmptyCol()

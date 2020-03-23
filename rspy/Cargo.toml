@@ -1,6 +1,6 @@
 [package]
 name = "ankirspy"
-version = "2.1.22" # automatically updated
+version = "2.1.24" # automatically updated
 edition = "2018"
 authors = ["Ankitects Pty Ltd and contributors"]
 

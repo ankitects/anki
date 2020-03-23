@@ -717,6 +717,17 @@ fn zip_files<'a>(
             break;
         }
 
+        #[cfg(target_vendor = "apple")]
+        {
+            use unicode_normalization::is_nfc;
+            if !is_nfc(&file.fname) {
+                // older Anki versions stored non-normalized filenames in the DB; clean them up
+                debug!(log, "clean up non-nfc entry"; "fname"=>&file.fname);
+                invalid_entries.push(&file.fname);
+                continue;
+            }
+        }
+
         let file_data = if file.sha1.is_some() {
             match data_for_file(media_folder, &file.fname) {
                 Ok(data) => data,

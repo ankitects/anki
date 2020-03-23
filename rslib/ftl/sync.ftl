@@ -31,3 +31,4 @@ sync-client-too-old =
 sync-wrong-pass = AnkiWeb ID or password was incorrect; please try again.
 sync-resync-required =
   Please sync again. If this message keeps appearing, please post on the support site.
+sync-must-wait-for-end = Anki is currently syncing. Please wait for the sync to complete, then try again.

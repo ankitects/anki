@@ -954,6 +954,7 @@ class EditorWebView(AnkiWebView):
         self._markInternal = False
         clip = self.editor.mw.app.clipboard()
         clip.dataChanged.connect(self._onClipboardChange)
+        gui_hooks.editor_web_view_did_init(self)
 
     def _onClipboardChange(self):
         if self._markInternal:
