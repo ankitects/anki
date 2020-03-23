@@ -7,26 +7,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Set up python
-        uses: actions/setup-python@v1
-        with:
-          python-version: 3.7
-      - name: Set up protoc
-        uses: Arduino/actions/setup-protoc@master
-      - name: Set up node
-        uses: actions/setup-node@v1
-        with:
-          node-version: 12
-      - name: Set up ripgrep, pyaudio, gettext, rename
-        run: |
-          sudo apt update
-          sudo apt install portaudio19-dev gettext rename
-          sudo snap install ripgrep --classic
-      - name: Cache pyenv
-        uses: actions/cache@v1
-        with:
-          path: ${{ github.workspace }}/pyenv
-          key: ${{ runner.os }}-pyenv-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/requirements.txt') }}-
       # Necessary for now for the cargo cache:
       # https://github.com/actions/cache/issues/133#issuecomment-599102035
       - name: Fix ~/.cache permissions
@@ -52,6 +32,26 @@ jobs:
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+      - name: Cache pyenv
+        uses: actions/cache@v1
+        with:
+          path: ${{ github.workspace }}/pyenv
+          key: ${{ runner.os }}-pyenv-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/requirements.txt') }}-
+      - name: Set up python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.7
+      - name: Set up protoc
+        uses: Arduino/actions/setup-protoc@master
+      - name: Set up node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - name: Set up ripgrep, pyaudio, gettext, rename
+        run: |
+          sudo apt update
+          sudo apt install portaudio19-dev gettext rename
+          sudo snap install ripgrep --classic
       - name: Run checks
         run: |
           export RSPY_TARGET_DIR=~/target
@@ -65,5 +65,5 @@ jobs:
       - name: Upload python wheels
         uses: actions/upload-artifact@v1
         with:
-          name: Linux python wheels
+          name: linux_python_wheels
           path: dist

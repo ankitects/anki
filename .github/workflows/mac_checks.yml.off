@@ -9,26 +9,6 @@ jobs:
     runs-on: macOS-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Set up python
-        uses: actions/setup-python@v1
-        with:
-          python-version: 3.7
-      - name: Set up protoc
-        uses: Arduino/actions/setup-protoc@master
-      - name: Set up node
-        uses: actions/setup-node@v1
-        with:
-          node-version: 12
-      - name: Set up brew packages
-        run: |
-          brew install portaudio protobuf gettext rename ripgrep
-          brew link gettext --force
-      - name: Cache pyenv
-        id: cache-pyenv
-        uses: actions/cache@v1
-        with:
-          path: ${{ github.workspace }}/pyenv
-          key: ${{ runner.os }}-pyenv-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/requirements.txt') }}-
       - name: Cache cargo registry
         uses: actions/cache@v1
         with:
@@ -49,6 +29,25 @@ jobs:
         with:
           path: ~/Library/Caches/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+      - name: Cache pyenv
+        uses: actions/cache@v1
+        with:
+          path: ${{ github.workspace }}/pyenv
+          key: ${{ runner.os }}-pyenv-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/requirements.txt') }}-
+      - name: Set up python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.7
+      - name: Set up protoc
+        uses: Arduino/actions/setup-protoc@master
+      - name: Set up node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - name: Set up brew packages
+        run: |
+          brew install portaudio protobuf gettext rename ripgrep
+          brew link gettext --force
       - name: Run checks
         run: |
           export RSPY_TARGET_DIR=~/target
@@ -62,5 +61,5 @@ jobs:
       - name: Upload python wheels
         uses: actions/upload-artifact@v1
         with:
-          name: Mac OS python wheels
+          name: mac_os_python_wheels
           path: dist
