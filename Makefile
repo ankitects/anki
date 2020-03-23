@@ -181,3 +181,4 @@ push-i18n-ftl: pull-i18n
 .PHONY: push-i18n-po
 push-i18n-po: pull-i18n
 	(cd qt/po && scripts/upload-latest-template)
+
