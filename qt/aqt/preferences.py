@@ -62,6 +62,8 @@ class Preferences(QDialog):
         lang = anki.lang.currentLang
         if lang in anki.lang.compatMap:
             lang = anki.lang.compatMap[lang]
+        else:
+            lang = lang.replace("-", "_")
         try:
             return codes.index(lang)
         except:
