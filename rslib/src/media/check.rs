@@ -8,7 +8,8 @@ use crate::latex::extract_latex_expanding_clozes;
 use crate::log::debug;
 use crate::media::database::MediaDatabaseContext;
 use crate::media::files::{
-    data_for_file, filename_if_normalized, trash_folder, MEDIA_SYNC_FILESIZE_LIMIT,
+    data_for_file, filename_if_normalized, normalize_nfc_filename, trash_folder,
+    MEDIA_SYNC_FILESIZE_LIMIT,
 };
 use crate::notes::{for_every_note, set_note, Note};
 use crate::text::{normalize_to_nfc, MediaRef};
@@ -17,6 +18,7 @@ use coarsetime::Instant;
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::collections::{HashMap, HashSet};
+use std::path::Path;
 use std::{borrow::Cow, fs, io};
 
 lazy_static! {
@@ -393,7 +395,12 @@ where
                     info: "missing note type".to_string(),
                     kind: DBErrorKind::MissingEntity,
                 })?;
-            if fix_and_extract_media_refs(note, &mut referenced_files, renamed)? {
+            if fix_and_extract_media_refs(
+                note,
+                &mut referenced_files,
+                renamed,
+                &self.mgr.media_folder,
+            )? {
                 // note was modified, needs saving
                 set_note(&self.ctx.storage.db, note, nt)?;
                 collection_modified = true;
@@ -417,11 +424,17 @@ fn fix_and_extract_media_refs(
     note: &mut Note,
     seen_files: &mut HashSet<String>,
     renamed: &HashMap<String, String>,
+    media_folder: &Path,
 ) -> Result<bool> {
     let mut updated = false;
 
     for idx in 0..note.fields().len() {
-        let field = normalize_and_maybe_rename_files(&note.fields()[idx], renamed, seen_files);
+        let field = normalize_and_maybe_rename_files(
+            &note.fields()[idx],
+            renamed,
+            seen_files,
+            media_folder,
+        );
         if let Cow::Owned(field) = field {
             // field was modified, need to save
             note.set_field(idx, field)?;
@@ -438,6 +451,7 @@ fn normalize_and_maybe_rename_files<'a>(
     field: &'a str,
     renamed: &HashMap<String, String>,
     seen_files: &mut HashSet<String>,
+    media_folder: &Path,
 ) -> Cow<'a, str> {
     let refs = extract_media_refs(field);
     let mut field: Cow<str> = field.into();
@@ -454,7 +468,21 @@ fn normalize_and_maybe_rename_files<'a>(
         if let Some(new_name) = renamed.get(fname.as_ref()) {
             fname = new_name.to_owned().into();
         }
-        // if it was not in NFC or was renamed, update the field
+        // if the filename was in NFC and was not renamed as part of the
+        // media check, it may have already been renamed during a previous
+        // sync. If that's the case and the renamed version exists on disk,
+        // we'll need to update the field to match it. It may be possible
+        // to remove this check in the future once we can be sure all media
+        // files stored on AnkiWeb are in normalized form.
+        if matches!(fname, Cow::Borrowed(_)) {
+            if let Cow::Owned(normname) = normalize_nfc_filename(fname.as_ref().into()) {
+                let path = media_folder.join(&normname);
+                if path.exists() {
+                    fname = normname.into();
+                }
+            }
+        }
+        // update the field if the filename was modified
         if let Cow::Owned(ref new_name) = fname {
             field = rename_media_ref_in_field(field.as_ref(), &media_ref, new_name).into();
         }
