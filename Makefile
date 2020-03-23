@@ -178,3 +178,4 @@ push-i18n: pull-i18n
 	(cd rslib/ftl && scripts/upload-latest-templates)
 	(cd qt/ftl && scripts/upload-latest-templates)
 	(cd qt/po && scripts/upload-latest-template)
+
