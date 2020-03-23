@@ -47,7 +47,7 @@ jobs:
           :: https://github.com/evandroforks/anki/runs/524857054?check_suite_focus=true
           :: 0 [main] pacman 748 dofork: child -1 - forked process 2896 died unexpectedly
           .\pacman --version
-          .\pacman -Sv --noconfirm --overwrite='*' bash 
+          .\pacman -Sv --noconfirm --overwrite='*' bash
           .\pacman -Sv --noconfirm --overwrite='*' rsync
       - name: Set up scoop, gettext, ripgrep
         shell: cmd
@@ -65,12 +65,37 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 12
+      - name: Cache cargo registry
+        uses: actions/cache@v1
+        with:
+          path: C:\Rust\.cargo\registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.toml') }}
+      - name: Cache cargo index
+        uses: actions/cache@v1
+        with:
+          path: C:\Rust\.cargo\git
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.toml') }}
+      - name: Cache cargo build
+        uses: actions/cache@v1
+        with:
+          path: ~\target
+          key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.toml') }}
+      - name: Cache pip wheels
+        uses: actions/cache@v1
+        with:
+          path: ~\AppData\Local\pip\Cache
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+      - name: Configure project variables
+        run: |
+          echo "::set-env name=RSPY_TARGET_DIR::~\target"
+          echo "::set-env name=CARGO_TARGET_DIR::~\target"
       - name: Run checks
         shell: cmd
         run: |
           echo on
-          set "RSPY_TARGET_DIR=%GITHUB_WORKSPACE%\target"
-          set "CARGO_TARGET_DIR=%GITHUB_WORKSPACE%\target"
-          set "BUILDFLAGS="
-          :: set "SHELLFLAGS=-x"
-          make check build
+          make check BUILDFLAGS=""
+      - name: Run build
+        shell: cmd
+        run: |
+          echo on
+          make build BUILDFLAGS=""
