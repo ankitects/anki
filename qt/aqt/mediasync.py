@@ -11,8 +11,14 @@ from typing import List, Union
 import aqt
 from anki import hooks
 from anki.consts import SYNC_BASE
-from anki.rsbackend import TR, Interrupted, MediaSyncProgress, Progress, \
-    ProgressKind, NetworkError
+from anki.rsbackend import (
+    TR,
+    Interrupted,
+    MediaSyncProgress,
+    NetworkError,
+    Progress,
+    ProgressKind,
+)
 from anki.types import assert_impossible
 from anki.utils import intTime
 from aqt import gui_hooks
