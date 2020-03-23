@@ -23,14 +23,33 @@ jobs:
           echo "::set-env name=SCOOP_GLOBAL::$env:GITHUB_WORKSPACE\"
           echo "::set-env name=ANKI_EXTRA_PIP::python -m pip install $pyaudio"
       - name: Cache pyenv
-        id: cache-pyenv
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}\pyenv
           key: ${{ runner.os }}-pyenv-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/requirements.txt') }}-
-      - name: Cache pacman
-        id: cache-pacman
+      - name: Cache cargo registry
         uses: actions/cache@v1
+        with:
+          path: C:\Rust\.cargo\registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.toml') }}
+      - name: Cache cargo index
+        uses: actions/cache@v1
+        with:
+          path: C:\Rust\.cargo\git
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.toml') }}
+      - name: Cache cargo build
+        uses: actions/cache@v1
+        with:
+          path: ${{ github.workspace }}\target
+          key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.toml') }}
+      - name: Cache pip wheels
+        uses: actions/cache@v1
+        with:
+          path: ~\AppData\Local\pip\Cache
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+      - name: Cache pacman
+        uses: actions/cache@v1
+        id: cache-pacman
         with:
           path: C:\Program Files\Git
           key: ${{ runner.os }}-pacman-${{ hashFiles('**/windows_checks.yml') }}
@@ -78,26 +97,6 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 12
-      - name: Cache cargo registry
-        uses: actions/cache@v1
-        with:
-          path: C:\Rust\.cargo\registry
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.toml') }}
-      - name: Cache cargo index
-        uses: actions/cache@v1
-        with:
-          path: C:\Rust\.cargo\git
-          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.toml') }}
-      - name: Cache cargo build
-        uses: actions/cache@v1
-        with:
-          path: ${{ github.workspace }}\target
-          key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.toml') }}
-      - name: Cache pip wheels
-        uses: actions/cache@v1
-        with:
-          path: ~\AppData\Local\pip\Cache
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
       - name: Run checks
         shell: cmd
         run: |
@@ -115,5 +114,5 @@ jobs:
       - name: Upload python wheels
         uses: actions/upload-artifact@v1
         with:
-          name: Windows python wheels
+          name: windows_python_wheels
           path: dist
