@@ -58,11 +58,9 @@ jobs:
         shell: cmd
         run: |
           echo on
-          curl -LO https://download.lfd.uci.edu/pythonlibs/s2jqpv5t/%pyaudio%
           curl -LO http://repo.msys2.org/msys/x86_64/%pacmanbin%
           curl -LO http://repo.msys2.org/msys/x86_64/%pacmanmirror%
           curl -LO http://repo.msys2.org/msys/x86_64/%pacmankeys%
-          curl -LO https://raw.githubusercontent.com/subogero/rename/master/rename
           :: https://stackoverflow.com/questions/1359793/programmatically-extract-tar-gz
           7z x "%pacmanbin%" -so | 7z x -aoa -si -ttar -o"%programfiles%\Git"
           7z x "%pacmanmirror%" -so | 7z x -aoa -si -ttar -o"%programfiles%\Git"
@@ -81,6 +79,12 @@ jobs:
           :: 0 [main] pacman 748 dofork: child -1 - forked process 2896 died unexpectedly
           .\pacman -Sv --noconfirm --overwrite='*' bash
           .\pacman -Sv --noconfirm --overwrite='*' rsync
+      - name: Set up pyaudio, rename
+        shell: cmd
+        run: |
+          echo on
+          curl -LO https://download.lfd.uci.edu/pythonlibs/s2jqpv5t/%pyaudio%
+          curl -LO https://raw.githubusercontent.com/subogero/rename/master/rename
       - name: Set up scoop, gettext, ripgrep
         shell: cmd
         run: |
