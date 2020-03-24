@@ -1,5 +1,19 @@
 SHELL := /bin/bash
 FIND := $(if $(wildcard /bin/find),/bin/find,/usr/bin/find)
+MYPY_ARGS :=
+
+ifndef OS
+	OS := unknown
+endif
+
+ifndef UNAME
+	UNAME := unknown
+endif
+
+# https://anki.tenderapp.com/discussions/beta-testing/1860-error-unused-type-ignore-comment
+ifneq (${OS},Windows_NT)
+	MYPY_ARGS := --warn-unused-ignores
+endif
 
 .SHELLFLAGS := -eu -o pipefail -c
 .DELETE_ON_ERROR:
@@ -33,7 +47,7 @@ PROTODEPS := $(wildcard ../proto/*.proto)
 
 .build/hooks: tools/genhooks.py tools/hookslib.py
 	python tools/genhooks.py
-	black anki/hooks.py
+	python -m black anki/hooks.py
 	@touch $@
 
 BUILD_STEPS := .build/run-deps .build/dev-deps .build/py-proto anki/buildinfo.py .build/hooks
@@ -47,7 +61,7 @@ check: $(BUILD_STEPS) .build/mypy .build/test .build/fmt .build/imports .build/l
 .PHONY: fix
 fix: $(BUILD_STEPS)
 	isort $(ISORTARGS)
-	black $(BLACKARGS)
+	python -m black $(BLACKARGS)
 
 .PHONY: clean
 clean:
@@ -59,7 +73,7 @@ clean:
 CHECKDEPS := $(shell ${FIND} anki tests -name '*.py' | grep -v buildinfo.py)
 
 .build/mypy: $(CHECKDEPS)
-	mypy anki
+	python -m mypy ${MYPY_ARGS} anki
 	@touch $@
 
 .build/test: $(CHECKDEPS)
@@ -67,7 +81,8 @@ CHECKDEPS := $(shell ${FIND} anki tests -name '*.py' | grep -v buildinfo.py)
 	@touch $@
 
 .build/lint: $(CHECKDEPS)
-	pylint -j 0 --rcfile=.pylintrc -f colorized --extension-pkg-whitelist=ankirspy anki tests setup.py
+	python -m pylint -j 0 --rcfile=.pylintrc -f colorized \
+		--extension-pkg-whitelist=ankirspy anki tests setup.py
 	@touch $@
 
 .build/imports: $(CHECKDEPS)
@@ -75,7 +90,7 @@ CHECKDEPS := $(shell ${FIND} anki tests -name '*.py' | grep -v buildinfo.py)
 	@touch $@
 
 .build/fmt: $(CHECKDEPS)
-	black --check $(BLACKARGS)
+	python -m black --check $(BLACKARGS)
 	@touch $@
 
 # Building
