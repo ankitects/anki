@@ -1207,6 +1207,40 @@ class _EditorWebViewDidInitHook:
 editor_web_view_did_init = _EditorWebViewDidInitHook()
 
 
+class _EditorWillLoadNoteFilter:
+    """Allows changing the javascript commands to load note before
+        executing it and do change in the QT editor."""
+
+    _hooks: List[Callable[[str, "anki.notes.Note", "aqt.editor.Editor"], str]] = []
+
+    def append(
+        self, cb: Callable[[str, "anki.notes.Note", "aqt.editor.Editor"], str]
+    ) -> None:
+        """(js: str, note: anki.notes.Note, editor: aqt.editor.Editor)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self, cb: Callable[[str, "anki.notes.Note", "aqt.editor.Editor"], str]
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(
+        self, js: str, note: anki.notes.Note, editor: aqt.editor.Editor
+    ) -> str:
+        for filter in self._hooks:
+            try:
+                js = filter(js, note, editor)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return js
+
+
+editor_will_load_note = _EditorWillLoadNoteFilter()
+
+
 class _EditorWillShowContextMenuHook:
     _hooks: List[Callable[["aqt.editor.EditorWebView", QMenu], None]] = []
 
