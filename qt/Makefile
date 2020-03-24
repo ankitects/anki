@@ -1,5 +1,22 @@
 SHELL := /bin/bash
 FIND := $(if $(wildcard /bin/find),/bin/find,/usr/bin/find)
+MYPY_ARGS :=
+PYLINT_ARGS :=
+
+ifndef OS
+	OS := unknown
+endif
+
+ifndef UNAME
+	UNAME := unknown
+endif
+
+# https://anki.tenderapp.com/discussions/beta-testing/1860-error-unused-type-ignore-comment
+ifneq (${OS},Windows_NT)
+	MYPY_ARGS := --warn-unused-ignores
+else
+	PYLINT_ARGS := --ignored-modules=win32file,pywintypes,socket,win32pipe
+endif
 
 .SHELLFLAGS := -eu -o pipefail -c
 .DELETE_ON_ERROR:
@@ -42,7 +59,7 @@ TSDEPS := $(wildcard ts/src/*.ts) $(wildcard ts/scss/*.scss)
 
 .build/hooks: tools/genhooks_gui.py ../pylib/tools/hookslib.py
 	python tools/genhooks_gui.py
-	black aqt/gui_hooks.py
+	python -m black aqt/gui_hooks.py
 	@touch $@
 
 BUILD_STEPS := .build/run-deps .build/dev-deps .build/js .build/ui aqt/buildinfo.py .build/hooks .build/i18n
@@ -56,7 +73,7 @@ check: $(BUILD_STEPS) .build/mypy .build/test .build/fmt .build/imports .build/l
 .PHONY: fix
 fix: $(BUILD_STEPS)
 	isort $(ISORTARGS)
-	black $(BLACKARGS)
+	python -m black $(BLACKARGS)
 	(cd ts && npm run pretty)
 
 .PHONY: clean
@@ -80,7 +97,7 @@ PYLIB := ../pylib
 CHECKDEPS := $(shell ${FIND} aqt tests -name '*.py' | grep -v buildinfo.py)
 
 .build/mypy: $(CHECKDEPS) .build/qt-stubs
-	mypy aqt
+	python -m mypy ${MYPY_ARGS} aqt
 	@touch $@
 
 .build/test: $(CHECKDEPS)
@@ -88,7 +105,8 @@ CHECKDEPS := $(shell ${FIND} aqt tests -name '*.py' | grep -v buildinfo.py)
 	@touch $@
 
 .build/lint: $(CHECKDEPS)
-	pylint -j 0 --rcfile=.pylintrc -f colorized --extension-pkg-whitelist=PyQt5,ankirspy aqt tests setup.py
+	python -m pylint -j 0 --rcfile=.pylintrc -f colorized ${PYLINT_ARGS} \
+		--extension-pkg-whitelist=PyQt5,ankirspy aqt tests setup.py
 	@touch $@
 
 .build/imports: $(CHECKDEPS)
@@ -96,7 +114,7 @@ CHECKDEPS := $(shell ${FIND} aqt tests -name '*.py' | grep -v buildinfo.py)
 	@touch $@
 
 .build/fmt: $(CHECKDEPS)
-	black --check $(BLACKARGS)
+	python -m black --check $(BLACKARGS)
 	@touch $@
 
 .build/qt-stubs:
