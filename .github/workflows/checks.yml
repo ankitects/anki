@@ -13,6 +13,8 @@ jobs:
           python-version: 3.7
       - name: Set up protoc
         uses: ankitects/setup-protoc@master
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Set up node
         uses: actions/setup-node@v1
         with:
