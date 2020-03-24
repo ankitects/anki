@@ -865,7 +865,7 @@ QTableView {{ gridline-color: {grid} }}
     def _onRowChanged(self, current, previous) -> None:
         update = self.updateTitle()
         show = self.model.cards and update == 1
-        self.form.splitter.widget(1).setVisible(not not show)
+        self.form.splitter.widget(1).setVisible(bool(show))
         idx = self.form.tableView.selectionModel().currentIndex()
         if idx.isValid():
             self.card = self.model.getCard(idx)
@@ -1660,12 +1660,12 @@ where id in %s"""
             and self._previewState == "answer"
             and not self._previewBothSides
         )
-        self._previewPrev.setEnabled(not not (self.singleCard and canBack))
+        self._previewPrev.setEnabled(bool(self.singleCard and canBack))
         canForward = (
             self.currentRow() < self.model.rowCount(None) - 1
             or self._previewState == "question"
         )
-        self._previewNext.setEnabled(not not (self.singleCard and canForward))
+        self._previewNext.setEnabled(bool(self.singleCard and canForward))
 
     def _closePreview(self):
         if self._previewWindow:
@@ -1925,7 +1925,7 @@ update cards set usn=?, mod=?, did=? where id in """
     ######################################################################
 
     def isSuspended(self):
-        return not not (self.card and self.card.queue == QUEUE_TYPE_SUSPENDED)
+        return bool(self.card and self.card.queue == QUEUE_TYPE_SUSPENDED)
 
     def onSuspend(self):
         self.editor.saveNow(self._onSuspend)
@@ -1986,7 +1986,7 @@ update cards set usn=?, mod=?, did=? where id in """
             self.deleteTags(tags="marked", label=False)
 
     def isMarked(self):
-        return not not (self.card and self.card.note().hasTag("Marked"))
+        return bool(self.card and self.card.note().hasTag("Marked"))
 
     # Repositioning
     ######################################################################
