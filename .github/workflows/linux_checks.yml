@@ -7,6 +7,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Configure environment variables
+        run: |
+          echo "::set-env name=BUILDFLAGS::"
+          echo "::set-env name=RSPY_TARGET_DIR::${GITHUB_WORKSPACE}/target"
+          echo "::set-env name=CARGO_TARGET_DIR::${GITHUB_WORKSPACE}/target"
       # Necessary for now for the cargo cache:
       # https://github.com/actions/cache/issues/133#issuecomment-599102035
       - name: Fix ~/.cache permissions
@@ -16,27 +21,37 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ~/.cargo/registry
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.toml') }}-1
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.toml') }}-3-
       - name: Cache cargo index
         uses: actions/cache@v1
         with:
           path: ~/.cargo/git
-          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.toml') }}-1
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.toml') }}-3-
       - name: Cache cargo target
         uses: actions/cache@v1
         with:
-          path: ~/target
-          key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.toml') }}-1
+          path: ${{ github.workspace }}/target
+          key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.toml') }}-3-
+      - name: Cache cargo rslib
+        uses: actions/cache@v1
+        with:
+          path: ${{ github.workspace }}/rslib/target
+          key: ${{ runner.os }}-cargo-rslib-${{ hashFiles('**/Cargo.toml') }}-3-
+      - name: Cache cargo rspy
+        uses: actions/cache@v1
+        with:
+          path: ${{ github.workspace }}/rspy/target
+          key: ${{ runner.os }}-cargo-rspy-${{ hashFiles('**/Cargo.toml') }}-3-
       - name: Cache pip wheels
         uses: actions/cache@v1
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-1
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-3-
       - name: Cache pyenv
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}/pyenv
-          key: ${{ runner.os }}-pyenv-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/requirements.txt') }}-1
+          key: ${{ runner.os }}-pyenv-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/requirements.txt') }}-3-
       - name: Set up python
         uses: actions/setup-python@v1
         with:
@@ -54,19 +69,16 @@ jobs:
           sudo snap install ripgrep --classic
       - name: Run develop
         run: |
-          export RSPY_TARGET_DIR=~/target
-          export CARGO_TARGET_DIR=~/target
-          make develop BUILDFLAGS=""
+          # export SHELLFLAGS=-x
+          make develop
       - name: Run build
         run: |
-          export RSPY_TARGET_DIR=~/target
-          export CARGO_TARGET_DIR=~/target
-          make build BUILDFLAGS=""
+          # export SHELLFLAGS=-x
+          make build
       - name: Run check
         run: |
-          export RSPY_TARGET_DIR=~/target
-          export CARGO_TARGET_DIR=~/target
-          make check BUILDFLAGS=""
+          # export SHELLFLAGS=-x
+          make check
       - name: Upload python wheels
         uses: actions/upload-artifact@v1
         with:
