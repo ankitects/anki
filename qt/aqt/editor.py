@@ -456,6 +456,7 @@ class Editor:
             json.dumps(focusTo),
             json.dumps(self.note.id),
         )
+        js = gui_hooks.editor_will_load_note(js, self.note, self)
         self.web.evalWithCallback(js, oncallback)
 
     def fonts(self) -> List[Tuple[str, int, bool]]:
