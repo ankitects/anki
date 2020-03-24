@@ -279,7 +279,7 @@ from notes where %s"""
         lim = 250
         while self.tablesLeft and lim:
             curTable = self.tablesLeft[0]
-            if not self.chunkRows:
+            if self.chunkRows is None:
                 self.chunkRows = self.getChunkRows(curTable)
             rows = self.chunkRows[:lim]
             self.chunkRows = self.chunkRows[lim:]
