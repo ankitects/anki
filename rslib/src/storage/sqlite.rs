@@ -14,7 +14,7 @@ use crate::{
     types::{ObjID, Usn},
 };
 use regex::Regex;
-use rusqlite::{params, Connection, NO_PARAMS};
+use rusqlite::{functions::FunctionFlags, params, Connection, NO_PARAMS};
 use std::cmp::Ordering;
 use std::{
     borrow::Cow,
@@ -71,58 +71,73 @@ fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
 /// to split provided fields and return field at zero-based index.
 /// If out of range, returns empty string.
 fn add_field_index_function(db: &Connection) -> rusqlite::Result<()> {
-    db.create_scalar_function("field_at_index", 2, true, |ctx| {
-        let mut fields = ctx.get_raw(0).as_str()?.split('\x1f');
-        let idx: u16 = ctx.get(1)?;
-        Ok(fields.nth(idx as usize).unwrap_or("").to_string())
-    })
+    db.create_scalar_function(
+        "field_at_index",
+        2,
+        FunctionFlags::SQLITE_DETERMINISTIC,
+        |ctx| {
+            let mut fields = ctx.get_raw(0).as_str()?.split('\x1f');
+            let idx: u16 = ctx.get(1)?;
+            Ok(fields.nth(idx as usize).unwrap_or("").to_string())
+        },
+    )
 }
 
 fn add_without_combining_function(db: &Connection) -> rusqlite::Result<()> {
-    db.create_scalar_function("without_combining", 1, true, |ctx| {
-        let text = ctx.get_raw(0).as_str()?;
-        Ok(match without_combining(text) {
-            Cow::Borrowed(_) => None,
-            Cow::Owned(o) => Some(o),
-        })
-    })
+    db.create_scalar_function(
+        "without_combining",
+        1,
+        FunctionFlags::SQLITE_DETERMINISTIC,
+        |ctx| {
+            let text = ctx.get_raw(0).as_str()?;
+            Ok(match without_combining(text) {
+                Cow::Borrowed(_) => None,
+                Cow::Owned(o) => Some(o),
+            })
+        },
+    )
 }
 
 /// Adds sql function regexp(regex, string) -> is_match
 /// Taken from the rusqlite docs
 fn add_regexp_function(db: &Connection) -> rusqlite::Result<()> {
-    db.create_scalar_function("regexp", 2, true, move |ctx| {
-        assert_eq!(ctx.len(), 2, "called with unexpected number of arguments");
+    db.create_scalar_function(
+        "regexp",
+        2,
+        FunctionFlags::SQLITE_DETERMINISTIC,
+        move |ctx| {
+            assert_eq!(ctx.len(), 2, "called with unexpected number of arguments");
 
-        let saved_re: Option<&Regex> = ctx.get_aux(0)?;
-        let new_re = match saved_re {
-            None => {
-                let s = ctx.get::<String>(0)?;
-                match Regex::new(&s) {
-                    Ok(r) => Some(r),
-                    Err(err) => return Err(rusqlite::Error::UserFunctionError(Box::new(err))),
+            let saved_re: Option<&Regex> = ctx.get_aux(0)?;
+            let new_re = match saved_re {
+                None => {
+                    let s = ctx.get::<String>(0)?;
+                    match Regex::new(&s) {
+                        Ok(r) => Some(r),
+                        Err(err) => return Err(rusqlite::Error::UserFunctionError(Box::new(err))),
+                    }
                 }
+                Some(_) => None,
+            };
+
+            let is_match = {
+                let re = saved_re.unwrap_or_else(|| new_re.as_ref().unwrap());
+
+                let text = ctx
+                    .get_raw(1)
+                    .as_str()
+                    .map_err(|e| rusqlite::Error::UserFunctionError(e.into()))?;
+
+                re.is_match(text)
+            };
+
+            if let Some(re) = new_re {
+                ctx.set_aux(0, re);
             }
-            Some(_) => None,
-        };
 
-        let is_match = {
-            let re = saved_re.unwrap_or_else(|| new_re.as_ref().unwrap());
-
-            let text = ctx
-                .get_raw(1)
-                .as_str()
-                .map_err(|e| rusqlite::Error::UserFunctionError(e.into()))?;
-
-            re.is_match(text)
-        };
-
-        if let Some(re) = new_re {
-            ctx.set_aux(0, re);
-        }
-
-        Ok(is_match)
-    })
+            Ok(is_match)
+        },
+    )
 }
 
 /// Fetch schema version from database.
