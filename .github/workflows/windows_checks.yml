@@ -66,7 +66,7 @@ jobs:
         with:
           path: C:\Program Files\Git
           key: ${{ runner.os }}-pacman-${{ hashFiles('**/windows_checks.yml') }}-3-
-      - name: Set up pacman, pyaudio, rsync, rename
+      - name: Set up pacman, rsync
         if: steps.cache-pacman.outputs.cache-hit != 'true'
         shell: cmd
         run: |
@@ -85,7 +85,8 @@ jobs:
           .\bash pacman-key --populate msys2
           .\bash pacman-key --refresh-keys
           .\pacman -Tv
-          .\pacman -Syuv --overwrite='*'
+          .\pacman -Syyuuv --overwrite='*'
+          .\pacman -Syuuv --overwrite='*'
           .\pacman --version
           :: We must install bash first, otherwise we will have bash fork errors:
           :: https://github.com/evandroforks/anki/runs/524857054?check_suite_focus=true
@@ -109,7 +110,9 @@ jobs:
         with:
           python-version: 3.7
       - name: Set up protoc
-        uses: Arduino/actions/setup-protoc@master
+        uses: arduino/setup-protoc@v1.1.0
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Set up node
         uses: actions/setup-node@v1
         with:

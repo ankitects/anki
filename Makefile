@@ -60,13 +60,12 @@ all: run
 # - modern pip required for wheel
 # - add qt if missing
 pyenv:
-	"${PYTHON_BIN}" -m ensurepip && \
+	# https://github.com/PyO3/maturin/issues/283
+	# Expected `python` to be a python interpreter inside a virtualenv
 	"${PYTHON_BIN}" -m pip install virtualenv && \
 	"${PYTHON_BIN}" -m venv pyenv && \
 	case "$$(uname -s)" in CYGWIN*|MINGW*|MSYS*) \
 		dos2unix "${ACTIVATE_SCRIPT}" && \
-		# https://github.com/PyO3/maturin/issues/283 \
-		# Expected `python` to be a python interpreter inside a virtualenv \
 		VIRTUAL_ENV="$$(pwd)" && \
 		VIRTUAL_ENV="$$(cygpath -m "$${VIRTUAL_ENV}")" && \
 		sed -i -- "s@VIRTUAL_ENV=\".*\"@VIRTUAL_ENV=\"$$(pwd)/pyenv\"@g" "${ACTIVATE_SCRIPT}" && \
@@ -76,7 +75,9 @@ pyenv:
 	python --version && \
 	python -m pip install --upgrade pip setuptools && \
 	${ANKI_EXTRA_PIP} && \
-	python -c 'import PyQt5' 2>/dev/null || python -m pip install -r qt/requirements.qt
+	if ! python -c 'import PyQt5' 2>/dev/null; then \
+		python -m pip install -r qt/requirements.qt; \
+	fi;
 
 # update build hash
 .PHONY: buildhash

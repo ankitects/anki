@@ -57,7 +57,9 @@ jobs:
         with:
           python-version: 3.7
       - name: Set up protoc
-        uses: Arduino/actions/setup-protoc@master
+        uses: arduino/setup-protoc@v1.1.0
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Set up node
         uses: actions/setup-node@v1
         with:
