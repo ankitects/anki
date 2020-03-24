@@ -367,20 +367,16 @@ class Editor:
             # shutdown
             return
         # focus lost or key/button pressed?
-        type, remaining = cmd.split(":", 1)
-        if type == "blur":
-            self.onBlur(*remaining.split(":", 2))
-        elif type == "key":
-            self.onKey(*remaining.split(":", 2))
-        # focused into field?
-        elif type == "focus":
-            self.onFocus(remaining)
-        elif cmd in self._links:
-            self._links[cmd](self)
+        splitted = cmd.split(":", 1)
+        cmd = splitted[0]
+        args = splitted[1:]
+        if cmd in self._links:
+            self._links[cmd](self, *args)  # type: ignore
         else:
             print("uncaught cmd", cmd)
 
-    def onBlurOrKey(self, ord, nid, txt):
+    def onBlurOrKey(self, args):
+        ord, nid, txt = args.split(":", 2)
         ord = int(ord)
         try:
             nid = int(nid)
@@ -399,9 +395,10 @@ class Editor:
         if not self.addMode:
             self.note.flush()
             self.mw.requireReset()
+        return ord
 
-    def onBlur(self, ord, nid, txt):
-        self.onBlurOrKey(ord, nid, txt)
+    def onBlur(self, args):
+        ord = self.onBlurOrKey(args)
         self.currentField = None
         # run any filters
         if gui_hooks.editor_did_unfocus_field(False, self.note, int(ord)):
@@ -411,14 +408,14 @@ class Editor:
         else:
             self.checkValid()
 
-    def onKey(self, ord, nid, txt):
-        self.onBlurOrKey(ord, nid, txt)
+    def onKey(self, args):
+        self.onBlurOrKey(args)
         gui_hooks.editor_did_fire_typing_timer(self.note)
         self.checkValid()
 
     def onFocus(self, num):
-            self.currentField = int(num)
-            gui_hooks.editor_did_focus_field(self.note, self.currentField)
+        self.currentField = int(num)
+        gui_hooks.editor_did_focus_field(self.note, self.currentField)
 
     def mungeHTML(self, txt):
         if txt in ("<br>", "<div><br></div>"):
@@ -981,6 +978,9 @@ to a cloze type first, via Edit>Change Note Type."""
         dupes=showDupes,
         paste=onPaste,
         cutOrCopy=onCutOrCopy,
+        blur=onBlur,
+        focus=onFocus,
+        key=onKey,
     )
 
 
