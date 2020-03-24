@@ -22,37 +22,50 @@ jobs:
           echo "::set-env name=SCOOP::$env:GITHUB_WORKSPACE"
           echo "::set-env name=SCOOP_GLOBAL::$env:GITHUB_WORKSPACE\"
           echo "::set-env name=ANKI_EXTRA_PIP::python -m pip install $pyaudio"
+          echo "::set-env name=BUILDFLAGS::"
+          echo "::set-env name=RSPY_TARGET_DIR::$env:GITHUB_WORKSPACE\target"
+          echo "::set-env name=CARGO_TARGET_DIR::$env:GITHUB_WORKSPACE\target"
       - name: Cache pyenv
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}\pyenv
-          key: ${{ runner.os }}-pyenv-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/requirements.txt') }}-1
+          key: ${{ runner.os }}-pyenv-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/requirements.txt') }}-3-
       - name: Cache cargo registry
         uses: actions/cache@v1
         with:
           path: C:\Rust\.cargo\registry
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.toml') }}-1
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.toml') }}-3-
       - name: Cache cargo index
         uses: actions/cache@v1
         with:
           path: C:\Rust\.cargo\git
-          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.toml') }}-1
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.toml') }}-3-
       - name: Cache cargo target
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}\target
-          key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.toml') }}-1
+          key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.toml') }}-3-
+      - name: Cache cargo rslib
+        uses: actions/cache@v1
+        with:
+          path: ${{ github.workspace }}\rslib\target
+          key: ${{ runner.os }}-cargo-rslib-${{ hashFiles('**/Cargo.toml') }}-3-
+      - name: Cache cargo rspy
+        uses: actions/cache@v1
+        with:
+          path: ${{ github.workspace }}\rspy\target
+          key: ${{ runner.os }}-cargo-rspy-${{ hashFiles('**/Cargo.toml') }}-3-
       - name: Cache pip wheels
         uses: actions/cache@v1
         with:
           path: ~\AppData\Local\pip\Cache
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-1
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-3-
       - name: Cache pacman
         uses: actions/cache@v1
         id: cache-pacman
         with:
           path: C:\Program Files\Git
-          key: ${{ runner.os }}-pacman-${{ hashFiles('**/windows_checks.yml') }}-1
+          key: ${{ runner.os }}-pacman-${{ hashFiles('**/windows_checks.yml') }}-3-
       - name: Set up pacman, pyaudio, rsync, rename
         if: steps.cache-pacman.outputs.cache-hit != 'true'
         shell: cmd
@@ -105,23 +118,20 @@ jobs:
         shell: cmd
         run: |
           echo on
-          set "RSPY_TARGET_DIR=%GITHUB_WORKSPACE%\target"
-          set "CARGO_TARGET_DIR=%GITHUB_WORKSPACE%\target"
-          make develop BUILDFLAGS=""
+          :: set "SHELLFLAGS=-x"
+          make develop
       - name: Run build
         shell: cmd
         run: |
           echo on
-          set "RSPY_TARGET_DIR=%GITHUB_WORKSPACE%\target"
-          set "CARGO_TARGET_DIR=%GITHUB_WORKSPACE%\target"
-          make build BUILDFLAGS=""
+          :: set "SHELLFLAGS=-x"
+          make build
       - name: Run check
         shell: cmd
         run: |
           echo on
-          set "RSPY_TARGET_DIR=%GITHUB_WORKSPACE%\target"
-          set "CARGO_TARGET_DIR=%GITHUB_WORKSPACE%\target"
-          make check BUILDFLAGS=""
+          :: set "SHELLFLAGS=-x"
+          make check
       - name: Upload python wheels
         uses: actions/upload-artifact@v1
         with:

@@ -70,7 +70,7 @@ pyenv:
 		VIRTUAL_ENV="$$(pwd)" && \
 		VIRTUAL_ENV="$$(cygpath -m "$${VIRTUAL_ENV}")" && \
 		sed -i -- "s@VIRTUAL_ENV=\".*\"@VIRTUAL_ENV=\"$$(pwd)/pyenv\"@g" "${ACTIVATE_SCRIPT}" && \
-		sed -i -- "s@export PATH@export PATH; VIRTUAL_ENV=\"$${VIRTUAL_ENV}/pyenv\";@g" "${ACTIVATE_SCRIPT}" \
+		sed -i -- "s@export PATH@export PATH; VIRTUAL_ENV=\"$${VIRTUAL_ENV}/pyenv\";@g" "${ACTIVATE_SCRIPT}"; \
 		;; esac && \
 	. "${ACTIVATE_SCRIPT}" && \
 	python --version && \
