@@ -496,9 +496,10 @@ class Editor:
             return True
         m = self.note.model()
         for c, f in enumerate(self.note.fields):
+            f = f.replace("<br>", "").strip()
             notChangedvalues = {"", "<br>"}
             if previousNote and m["flds"][c]["sticky"]:
-                notChangedvalues.add(previousNote.fields[c])
+                notChangedvalues.add(previousNote.fields[c].replace("<br>", "").strip())
             if f not in notChangedvalues:
                 return False
         return True
