@@ -10,6 +10,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Configure environment variables
         run: |
+          # echo "::set-env name=SHELLFLAGS::-x"
           $pyaudio=("PyAudio-0.2.11-cp37-cp37m-win_amd64.whl")
           $new_path=("$env:GITHUB_WORKSPACE;$env:PATH")
           $new_path=("$env:GITHUB_WORKSPACE\shims;$new_path")
@@ -29,43 +30,43 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}\pyenv
-          key: ${{ runner.os }}-pyenv-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/requirements.txt') }}-3-
+          key: ${{ runner.os }}-pyenv-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/requirements.txt') }}-4-
       - name: Cache cargo registry
         uses: actions/cache@v1
         with:
           path: C:\Rust\.cargo\registry
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.toml') }}-3-
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.toml') }}-4-
       - name: Cache cargo index
         uses: actions/cache@v1
         with:
           path: C:\Rust\.cargo\git
-          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.toml') }}-3-
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.toml') }}-4-
       - name: Cache cargo target
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}\target
-          key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.toml') }}-3-
+          key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.toml') }}-4-
       - name: Cache cargo rslib
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}\rslib\target
-          key: ${{ runner.os }}-cargo-rslib-${{ hashFiles('**/Cargo.toml') }}-3-
+          key: ${{ runner.os }}-cargo-rslib-${{ hashFiles('**/Cargo.toml') }}-4-
       - name: Cache cargo rspy
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}\rspy\target
-          key: ${{ runner.os }}-cargo-rspy-${{ hashFiles('**/Cargo.toml') }}-3-
+          key: ${{ runner.os }}-cargo-rspy-${{ hashFiles('**/Cargo.toml') }}-4-
       - name: Cache pip wheels
         uses: actions/cache@v1
         with:
           path: ~\AppData\Local\pip\Cache
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-3-
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-4-
       - name: Cache pacman
         uses: actions/cache@v1
         id: cache-pacman
         with:
           path: C:\Program Files\Git
-          key: ${{ runner.os }}-pacman-${{ hashFiles('**/windows_checks.yml') }}-3-
+          key: ${{ runner.os }}-pacman-${{ hashFiles('**/windows_checks.yml') }}-4-
       - name: Set up pacman, rsync
         if: steps.cache-pacman.outputs.cache-hit != 'true'
         shell: cmd
@@ -80,19 +81,22 @@ jobs:
           7z x "%pacmankeys%" -so | 7z x -aoa -si -ttar -o"%programfiles%\Git"
           :: Manually Install Pacman Binaries
           :: https://github.com/Alexpux/MSYS2-pacman/issues/50
-          cd /d "%programfiles%\Git\usr\bin"
-          .\bash pacman-key --init
-          .\bash pacman-key --populate msys2
-          .\bash pacman-key --refresh-keys
-          .\pacman -Tv
-          .\pacman -Syyuuv --overwrite='*'
-          .\pacman -Syuuv --overwrite='*'
-          .\pacman --version
+          set "PATH=%programfiles%\Git\usr\bin"
+          bash pacman-key --init
+          bash pacman-key --populate msys2
+          bash pacman-key --refresh-keys
+          pacman -Tv
+          pacman -Syyuuv --overwrite='*'
+          pacman -Syuuv --overwrite='*'
+          pacman --version
           :: We must install bash first, otherwise we will have bash fork errors:
           :: https://github.com/evandroforks/anki/runs/524857054?check_suite_focus=true
           :: 0 [main] pacman 748 dofork: child -1 - forked process 2896 died unexpectedly
-          .\pacman -Sv --noconfirm --overwrite='*' bash
-          .\pacman -Sv --noconfirm --overwrite='*' rsync
+          pacman -Sv --noconfirm --overwrite='*' bash
+          pacman -Sv --noconfirm --overwrite='*' rsync
+          :: clean all packages to decrease image size
+          pacman -Sccv --noconfirm
+          pacman -Qsv --noconfirm
       - name: Set up pyaudio, rename
         shell: cmd
         run: |
@@ -117,24 +121,9 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 12
-      - name: Run develop
-        shell: cmd
-        run: |
-          echo on
-          :: set "SHELLFLAGS=-x"
-          make develop
-      - name: Run build
-        shell: cmd
-        run: |
-          echo on
-          :: set "SHELLFLAGS=-x"
-          make build
-      - name: Run check
-        shell: cmd
-        run: |
-          echo on
-          :: set "SHELLFLAGS=-x"
-          make check
+      - run: make check
+      - run: make develop
+      - run: make build
       - name: Upload python wheels
         uses: actions/upload-artifact@v1
         with:
