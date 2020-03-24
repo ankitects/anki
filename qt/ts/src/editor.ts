@@ -352,9 +352,7 @@ function setFields(fields) {
                      oncut='onCutOrCopy(this);'
                      contentEditable=true
                      class=field
-                >
-${f}
-                </div>
+                >${f}</div>
             </td>
         </tr>`;
     }
