@@ -12,7 +12,7 @@ jobs:
         with:
           python-version: 3.7
       - name: Set up protoc
-        uses: Arduino/actions/setup-protoc@master
+        uses: ankitects/setup-protoc@master
       - name: Set up node
         uses: actions/setup-node@v1
         with:
