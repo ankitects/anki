@@ -174,7 +174,7 @@ jobs:
           echo "::set-env name=PATH::$new_path"
           echo "::set-env name=RUST_BACKTRACE::full"
           echo "::set-env name=SCOOP::$env:GITHUB_WORKSPACE"
-          echo "::set-env name=SCOOP_GLOBAL::$env:GITHUB_WORKSPACE\"
+          echo "::set-env name=SCOOP_GLOBAL::$env:GITHUB_WORKSPACE"
           echo "::set-env name=ANKI_EXTRA_PIP::python -m pip install $pyaudio"
           echo "::set-env name=BUILDFLAGS::"
           echo "::set-env name=RSPY_TARGET_DIR::$env:GITHUB_WORKSPACE\target"
