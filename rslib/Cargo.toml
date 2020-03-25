@@ -40,11 +40,16 @@ serde_repr = "0.1.5"
 num_enum = "0.4.2"
 unicase = "2.6.0"
 
-[target.'cfg(target_vendor="apple")'.dependencies]
-rusqlite = { version = "0.21.0", features = ["trace", "functions", "collation"] }
+# pinned until rusqlite 0.22 comes out
+[target.'cfg(target_vendor="apple")'.dependencies.rusqlite]
+git = "https://github.com/ankitects/rusqlite.git"
+branch="nulsafe-text"
+features = ["trace", "functions", "collation"]
 
-[target.'cfg(not(target_vendor="apple"))'.dependencies]
-rusqlite = { version = "0.21.0", features = ["trace", "functions", "collation", "bundled"] }
+[target.'cfg(not(target_vendor="apple"))'.dependencies.rusqlite]
+git = "https://github.com/ankitects/rusqlite.git"
+branch="nulsafe-text"
+features = ["trace", "functions", "collation", "bundled"]
 
 [target.'cfg(linux)'.dependencies]
 reqwest = { version = "0.10.1", features = ["json", "native-tls-vendored"] }
