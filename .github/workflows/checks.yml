@@ -58,7 +58,7 @@ jobs:
         with:
           python-version: 3.7
       - name: Set up protoc
-        uses: arduino/setup-protoc@v1.1.0
+        uses: ankitects/setup-protoc@master
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Set up node
@@ -135,7 +135,7 @@ jobs:
         with:
           python-version: 3.7
       - name: Set up protoc
-        uses: arduino/setup-protoc@v1.1.0
+        uses: ankitects/setup-protoc@master
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Set up node
@@ -267,7 +267,7 @@ jobs:
         with:
           python-version: 3.7
       - name: Set up protoc
-        uses: arduino/setup-protoc@v1.1.0
+        uses: ankitects/setup-protoc@master
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Set up node
