@@ -13,6 +13,9 @@ jobs:
           echo "::set-env name=BUILDFLAGS::"
           echo "::set-env name=RSPY_TARGET_DIR::${GITHUB_WORKSPACE}/target"
           echo "::set-env name=CARGO_TARGET_DIR::${GITHUB_WORKSPACE}/target"
+          # Update make to use the new `.SHELLFLAGS` feature
+          # https://stackoverflow.com/questions/43175529/updating-make-version-4-1-on-mac
+          echo "::set-env name=PATH::/usr/local/opt/make/libexec/gnubin:$PATH"
       # Necessary for now for the cargo cache:
       # https://github.com/actions/cache/issues/133#issuecomment-599102035
       - name: Fix ~/.cache permissions
@@ -144,7 +147,7 @@ jobs:
           node-version: 12
       - name: Set up brew packages
         run: |
-          brew install portaudio protobuf gettext rename ripgrep
+          brew install portaudio protobuf gettext rename ripgrep make
           brew link gettext --force
       - run: make develop
       - run: make build
