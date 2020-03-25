@@ -1462,8 +1462,8 @@ will be lost. Continue?"""
             # make sure ctypes is bundled
             from ctypes import windll, wintypes  # type: ignore
 
-            _dummy = windll
-            _dummy = wintypes
+            _dummy1 = windll
+            _dummy2 = wintypes
 
     def maybeHideAccelerators(self, tgt: Optional[Any] = None) -> None:
         if not self.hideMenuAccels:

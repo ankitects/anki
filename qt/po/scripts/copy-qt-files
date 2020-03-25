@@ -13,4 +13,4 @@ case "$(uname -s)" in
         ;;
 esac
 
-rsync -a "$qtTranslations"/qt* "$out"
+rsync -a "$qtTranslations/" "$out/"

@@ -18,6 +18,15 @@ srcNotes = None
 srcCards = None
 
 
+def clear_tempfile(tf):
+    """ https://stackoverflow.com/questions/23212435/permission-denied-to-write-to-my-temporary-file """
+    try:
+        tf.close()
+        os.unlink(tf.name)
+    except:
+        pass
+
+
 def test_anki2_mediadupes():
     tmp = getEmptyCol()
     # add a note that references a sound
@@ -208,13 +217,15 @@ def test_tsv_tag_modified():
     n.addTag("four")
     deck.addNote(n)
 
-    with NamedTemporaryFile(mode="w") as tf:
+    # https://stackoverflow.com/questions/23212435/permission-denied-to-write-to-my-temporary-file
+    with NamedTemporaryFile(mode="w", delete=False) as tf:
         tf.write("1\tb\tc\n")
         tf.flush()
         i = TextImporter(deck, tf.name)
         i.initMapping()
         i.tagModified = "boom"
         i.run()
+        clear_tempfile(tf)
 
     n.load()
     assert n["Front"] == "1"
@@ -243,13 +254,15 @@ def test_tsv_tag_multiple_tags():
     n.addTag("five")
     deck.addNote(n)
 
-    with NamedTemporaryFile(mode="w") as tf:
+    # https://stackoverflow.com/questions/23212435/permission-denied-to-write-to-my-temporary-file
+    with NamedTemporaryFile(mode="w", delete=False) as tf:
         tf.write("1\tb\tc\n")
         tf.flush()
         i = TextImporter(deck, tf.name)
         i.initMapping()
         i.tagModified = "five six"
         i.run()
+        clear_tempfile(tf)
 
     n.load()
     assert n["Front"] == "1"
@@ -273,13 +286,15 @@ def test_csv_tag_only_if_modified():
     n["Left"] = "3"
     deck.addNote(n)
 
-    with NamedTemporaryFile(mode="w") as tf:
+    # https://stackoverflow.com/questions/23212435/permission-denied-to-write-to-my-temporary-file
+    with NamedTemporaryFile(mode="w", delete=False) as tf:
         tf.write("1,2,3\n")
         tf.flush()
         i = TextImporter(deck, tf.name)
         i.initMapping()
         i.tagModified = "right"
         i.run()
+        clear_tempfile(tf)
 
     n.load()
     assert n.tags == []

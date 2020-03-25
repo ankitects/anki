@@ -48,7 +48,6 @@ class DBProxy:
         for stmt in "insert", "update", "delete":
             if s.startswith(stmt):
                 self.mod = True
-        assert ":" not in sql
         # fetch rows
         return self._backend.db_query(sql, args, first_row_only)
 
@@ -84,7 +83,6 @@ class DBProxy:
 
     def executemany(self, sql: str, args: Iterable[Sequence[ValueForDB]]) -> None:
         self.mod = True
-        assert ":" not in sql
         if isinstance(args, list):
             list_args = args
         else:

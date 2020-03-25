@@ -108,6 +108,7 @@ fn main() -> std::io::Result<()> {
             let path = entry.path();
             println!("cargo:rerun-if-changed=./ftl/{}", fname);
             buf += &fs::read_to_string(path)?;
+            buf.push('\n');
         }
     }
     let combined_ftl = Path::new("src/i18n/ftl/template.ftl");
@@ -145,6 +146,7 @@ fn main() -> std::io::Result<()> {
                 let path = entry.path();
                 println!("cargo:rerun-if-changed={:?}", entry.path());
                 buf += &fs::read_to_string(path)?;
+                buf.push('\n');
             }
             langs
                 .entry(lang_name)
