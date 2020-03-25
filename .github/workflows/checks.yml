@@ -1,9 +1,9 @@
-name: Linux Tests
+name: Checks
 
 on: [push, pull_request]
 
 jobs:
-  test:
+  linux_tests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -77,4 +77,208 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: anki_linux_python_wheels
+          path: dist
+
+
+  mac_os_tests:
+    runs-on: macOS-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Configure environment variables
+        run: |
+          # echo "::set-env name=SHELLFLAGS::-x"
+          echo "::set-env name=BUILDFLAGS::"
+          echo "::set-env name=RSPY_TARGET_DIR::${GITHUB_WORKSPACE}/target"
+          echo "::set-env name=CARGO_TARGET_DIR::${GITHUB_WORKSPACE}/target"
+      # Necessary for now for the cargo cache:
+      # https://github.com/actions/cache/issues/133#issuecomment-599102035
+      - name: Fix ~/.cache permissions
+        run: |
+          sudo chown -R $(whoami):$(id -ng) ~/.cargo/
+      - name: Cache cargo registry
+        uses: actions/cache@v1
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.toml') }}-4-
+      - name: Cache cargo index
+        uses: actions/cache@v1
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.toml') }}-4-
+      - name: Cache cargo target
+        uses: actions/cache@v1
+        with:
+          path: ${{ github.workspace }}/target
+          key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.toml') }}-4-
+      - name: Cache cargo rslib
+        uses: actions/cache@v1
+        with:
+          path: ${{ github.workspace }}/rslib/target
+          key: ${{ runner.os }}-cargo-rslib-${{ hashFiles('**/Cargo.toml') }}-4-
+      - name: Cache cargo rspy
+        uses: actions/cache@v1
+        with:
+          path: ${{ github.workspace }}/rspy/target
+          key: ${{ runner.os }}-cargo-rspy-${{ hashFiles('**/Cargo.toml') }}-4-
+      - name: Cache pip wheels
+        uses: actions/cache@v1
+        with:
+          path: ~/Library/Caches/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-4-
+      - name: Cache pyenv
+        uses: actions/cache@v1
+        with:
+          path: ${{ github.workspace }}/pyenv
+          key: ${{ runner.os }}-pyenv-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/requirements.txt') }}-4-
+      - name: Set up python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.7
+      - name: Set up protoc
+        uses: arduino/setup-protoc@v1.1.0
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set up node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - name: Set up brew packages
+        run: |
+          brew install portaudio protobuf gettext rename ripgrep
+          brew link gettext --force
+      - run: make check
+      - run: make develop
+      - run: make build
+      - name: Upload python wheels
+        uses: actions/upload-artifact@v1
+        with:
+          name: anki_mac_os_python_wheels
+          path: dist
+
+
+  windows_tests:
+    runs-on: windows-latest
+    steps:
+      - run: git config --global core.autocrlf false
+      - uses: actions/checkout@v2
+      - name: Configure environment variables
+        run: |
+          # echo "::set-env name=SHELLFLAGS::-x"
+          $pyaudio=("PyAudio-0.2.11-cp37-cp37m-win_amd64.whl")
+          $new_path=("$env:GITHUB_WORKSPACE;$env:PATH")
+          $new_path=("$env:GITHUB_WORKSPACE\shims;$new_path")
+          echo "::set-env name=pacmanbin::pacman-5.1.1-3-x86_64.pkg.tar.xz"
+          echo "::set-env name=pacmanmirror::pacman-mirrors-20200307-1-any.pkg.tar.xz"
+          echo "::set-env name=pacmankeys::msys2-keyring-r9.397a52e-1-any.pkg.tar.xz"
+          echo "::set-env name=pyaudio::$pyaudio"
+          echo "::set-env name=PATH::$new_path"
+          echo "::set-env name=RUST_BACKTRACE::full"
+          echo "::set-env name=SCOOP::$env:GITHUB_WORKSPACE"
+          echo "::set-env name=SCOOP_GLOBAL::$env:GITHUB_WORKSPACE\"
+          echo "::set-env name=ANKI_EXTRA_PIP::python -m pip install $pyaudio"
+          echo "::set-env name=BUILDFLAGS::"
+          echo "::set-env name=RSPY_TARGET_DIR::$env:GITHUB_WORKSPACE\target"
+          echo "::set-env name=CARGO_TARGET_DIR::$env:GITHUB_WORKSPACE\target"
+      - name: Cache pyenv
+        uses: actions/cache@v1
+        with:
+          path: ${{ github.workspace }}\pyenv
+          key: ${{ runner.os }}-pyenv-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/requirements.txt') }}-4-
+      - name: Cache cargo registry
+        uses: actions/cache@v1
+        with:
+          path: C:\Rust\.cargo\registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.toml') }}-4-
+      - name: Cache cargo index
+        uses: actions/cache@v1
+        with:
+          path: C:\Rust\.cargo\git
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.toml') }}-4-
+      - name: Cache cargo target
+        uses: actions/cache@v1
+        with:
+          path: ${{ github.workspace }}\target
+          key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.toml') }}-4-
+      - name: Cache cargo rslib
+        uses: actions/cache@v1
+        with:
+          path: ${{ github.workspace }}\rslib\target
+          key: ${{ runner.os }}-cargo-rslib-${{ hashFiles('**/Cargo.toml') }}-4-
+      - name: Cache cargo rspy
+        uses: actions/cache@v1
+        with:
+          path: ${{ github.workspace }}\rspy\target
+          key: ${{ runner.os }}-cargo-rspy-${{ hashFiles('**/Cargo.toml') }}-4-
+      - name: Cache pip wheels
+        uses: actions/cache@v1
+        with:
+          path: ~\AppData\Local\pip\Cache
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-4-
+      - name: Cache pacman
+        uses: actions/cache@v1
+        id: cache-pacman
+        with:
+          path: C:\Program Files\Git
+          key: ${{ runner.os }}-pacman-${{ hashFiles('**/windows_checks.yml') }}-4-
+      - name: Set up pacman, rsync
+        if: steps.cache-pacman.outputs.cache-hit != 'true'
+        shell: cmd
+        run: |
+          echo on
+          curl -LO http://repo.msys2.org/msys/x86_64/%pacmanbin%
+          curl -LO http://repo.msys2.org/msys/x86_64/%pacmanmirror%
+          curl -LO http://repo.msys2.org/msys/x86_64/%pacmankeys%
+          :: https://stackoverflow.com/questions/1359793/programmatically-extract-tar-gz
+          7z x "%pacmanbin%" -so | 7z x -aoa -si -ttar -o"%programfiles%\Git"
+          7z x "%pacmanmirror%" -so | 7z x -aoa -si -ttar -o"%programfiles%\Git"
+          7z x "%pacmankeys%" -so | 7z x -aoa -si -ttar -o"%programfiles%\Git"
+          :: Manually Install Pacman Binaries
+          :: https://github.com/Alexpux/MSYS2-pacman/issues/50
+          set "PATH=%programfiles%\Git\usr\bin"
+          bash pacman-key --init
+          bash pacman-key --populate msys2
+          bash pacman-key --refresh-keys
+          pacman -Tv
+          pacman -Syyuuv --overwrite='*'
+          pacman -Syuuv --overwrite='*'
+          pacman --version
+          :: We must install bash first, otherwise we will have bash fork errors:
+          :: https://github.com/evandroforks/anki/runs/524857054?check_suite_focus=true
+          :: 0 [main] pacman 748 dofork: child -1 - forked process 2896 died unexpectedly
+          pacman -Sv --noconfirm --overwrite='*' bash
+          pacman -Sv --noconfirm --overwrite='*' rsync
+          :: clean all packages to decrease image size
+          pacman -Sccv --noconfirm
+          pacman -Qsv --noconfirm
+      - name: Set up pyaudio, rename
+        shell: cmd
+        run: |
+          echo on
+          curl -LO https://download.lfd.uci.edu/pythonlibs/s2jqpv5t/%pyaudio%
+          curl -LO https://raw.githubusercontent.com/subogero/rename/master/rename
+      - name: Set up scoop, gettext, ripgrep
+        shell: cmd
+        run: |
+          echo on
+          powershell -executionpolicy bypass "& Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')"
+          scoop install -g gettext ripgrep
+      - name: Set up python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.7
+      - name: Set up protoc
+        uses: arduino/setup-protoc@v1.1.0
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set up node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - run: make check
+      - run: make develop
+      - run: make build
+      - name: Upload python wheels
+        uses: actions/upload-artifact@v1
+        with:
+          name: anki_windows_python_wheels
           path: dist
