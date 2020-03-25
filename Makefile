@@ -62,19 +62,20 @@ all: run
 pyenv:
 	# https://github.com/PyO3/maturin/issues/283
 	# Expected `python` to be a python interpreter inside a virtualenv
-	"${PYTHON_BIN}" -m pip install virtualenv && \
-	"${PYTHON_BIN}" -m venv pyenv && \
+	set -eu -o pipefail ${SHELLFLAGS}; \
+	"${PYTHON_BIN}" -m pip install virtualenv; \
+	"${PYTHON_BIN}" -m venv pyenv; \
 	case "$$(uname -s)" in CYGWIN*|MINGW*|MSYS*) \
-		dos2unix "${ACTIVATE_SCRIPT}" && \
-		VIRTUAL_ENV="$$(pwd)" && \
-		VIRTUAL_ENV="$$(cygpath -m "$${VIRTUAL_ENV}")" && \
-		sed -i -- "s@VIRTUAL_ENV=\".*\"@VIRTUAL_ENV=\"$$(pwd)/pyenv\"@g" "${ACTIVATE_SCRIPT}" && \
+		dos2unix "${ACTIVATE_SCRIPT}"; \
+		VIRTUAL_ENV="$$(pwd)"; \
+		VIRTUAL_ENV="$$(cygpath -m "$${VIRTUAL_ENV}")"; \
+		sed -i -- "s@VIRTUAL_ENV=\".*\"@VIRTUAL_ENV=\"$$(pwd)/pyenv\"@g" "${ACTIVATE_SCRIPT}"; \
 		sed -i -- "s@export PATH@export PATH; VIRTUAL_ENV=\"$${VIRTUAL_ENV}/pyenv\";@g" "${ACTIVATE_SCRIPT}"; \
-		;; esac && \
-	. "${ACTIVATE_SCRIPT}" && \
-	python --version && \
-	python -m pip install --upgrade pip setuptools && \
-	${ANKI_EXTRA_PIP} && \
+		;; esac; \
+	. "${ACTIVATE_SCRIPT}"; \
+	python --version; \
+	python -m pip install --upgrade pip setuptools; \
+	${ANKI_EXTRA_PIP}; \
 	if ! python -c 'import PyQt5' 2>/dev/null; then \
 		python -m pip install -r qt/requirements.qt; \
 	fi;
@@ -82,23 +83,26 @@ pyenv:
 # update build hash
 .PHONY: buildhash
 buildhash:
-	@oldhash=$$(test -f meta/buildhash && cat meta/buildhash || true) && \
-	newhash=$$(git rev-parse --short=8 HEAD || echo dev) && \
+	@set -eu -o pipefail ${SHELLFLAGS}; \
+	oldhash=$$(test -f meta/buildhash && cat meta/buildhash || true); \
+	newhash=$$(git rev-parse --short=8 HEAD || echo dev); \
 	if [ "$$oldhash" != "$$newhash" ]; then \
 		echo $$newhash > meta/buildhash; \
 	fi
 
 .PHONY: develop
 develop: pyenv buildhash prepare
-	@. "${ACTIVATE_SCRIPT}" && \
+	@set -eu -o pipefail ${SHELLFLAGS}; \
+	. "${ACTIVATE_SCRIPT}"; \
 	for dir in $(DEVEL); do \
 		$(SUBMAKE) -C $$dir develop DEVFLAGS="$(DEVFLAGS)"; \
 	done
 
 .PHONY: run
 run: develop
-	@. "${ACTIVATE_SCRIPT}" && \
-	echo "Starting Anki..." && \
+	@set -eu -o pipefail ${SHELLFLAGS}; \
+	. "${ACTIVATE_SCRIPT}"; \
+	echo "Starting Anki..."; \
 	python qt/runanki $(RUNFLAGS)
 
 .PHONY: prepare
@@ -118,23 +122,27 @@ build: clean-dist build-rspy build-pylib build-qt add-buildhash
 
 .PHONY: build-rspy
 build-rspy: pyenv buildhash
-	@. "${ACTIVATE_SCRIPT}" && \
+	@set -eu -o pipefail ${SHELLFLAGS}; \
+	. "${ACTIVATE_SCRIPT}"; \
 	$(SUBMAKE) -C rspy build BUILDFLAGS="$(BUILDFLAGS)"
 
 .PHONY: build-pylib
 build-pylib:
-	@. "${ACTIVATE_SCRIPT}" && \
+	@set -eu -o pipefail ${SHELLFLAGS}; \
+	. "${ACTIVATE_SCRIPT}"; \
 	$(SUBMAKE) -C pylib build
 
 .PHONY: build-qt
 build-qt:
-	@. "${ACTIVATE_SCRIPT}" && \
+	@set -eu -o pipefail ${SHELLFLAGS}; \
+	. "${ACTIVATE_SCRIPT}"; \
 	$(SUBMAKE) -C qt build
 
 .PHONY: clean
 clean: clean-dist
-	@for dir in $(DEVEL); do \
-	  $(SUBMAKE) -C $$dir clean; \
+	@set -eu -o pipefail ${SHELLFLAGS}; \
+	for dir in $(DEVEL); do \
+	   $(SUBMAKE) -C $$dir clean; \
 	done
 
 .PHONY: clean-dist
@@ -143,13 +151,14 @@ clean-dist:
 
 .PHONY: check
 check: pyenv buildhash prepare
-	@.github/scripts/trailing-newlines.sh && \
+	@set -eu -o pipefail ${SHELLFLAGS}; \
+	.github/scripts/trailing-newlines.sh; \
 	for dir in $(CHECKABLE_RS); do \
 	  $(SUBMAKE) -C $$dir check; \
-	done && \
-	. "${ACTIVATE_SCRIPT}" && \
-	$(SUBMAKE) -C rspy develop && \
-	$(SUBMAKE) -C pylib develop && \
+	done; \
+	. "${ACTIVATE_SCRIPT}"; \
+	$(SUBMAKE) -C rspy develop; \
+	$(SUBMAKE) -C pylib develop; \
 	for dir in $(CHECKABLE_PY); do \
 	  $(SUBMAKE) -C $$dir check; \
 	done;
@@ -158,18 +167,20 @@ check: pyenv buildhash prepare
 
 .PHONY: fix
 fix:
-	@. "${ACTIVATE_SCRIPT}" && \
+	@set -eu -o pipefail ${SHELLFLAGS}; \
+	. "${ACTIVATE_SCRIPT}"; \
 	for dir in $(CHECKABLE_RS) $(CHECKABLE_PY); do \
 	  $(SUBMAKE) -C $$dir fix; \
 	done; \
 
 .PHONY: add-buildhash
 add-buildhash:
-	@if [[ ! -f rename ]]; then \
+	@set -eu -o pipefail ${SHELLFLAGS}; \
+	if [[ ! -f rename ]]; then \
 		curl --silent -LO https://raw.githubusercontent.com/subogero/rename/master/rename; \
-	fi && \
-	ver="$$(cat meta/version)" && \
-	hash="$$(cat meta/buildhash)" && \
+	fi; \
+	ver="$$(cat meta/version)"; \
+	hash="$$(cat meta/buildhash)"; \
 	${RENAME_BIN} "s/-$${ver}-/-$${ver}+$${hash}-/" dist/*-"$${ver}"-*
 
 
