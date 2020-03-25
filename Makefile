@@ -166,11 +166,11 @@ fix:
 .PHONY: add-buildhash
 add-buildhash:
 	@if [[ ! -f rename ]]; then \
-		curl -LO https://raw.githubusercontent.com/subogero/rename/master/rename; \
+		curl --silent -LO https://raw.githubusercontent.com/subogero/rename/master/rename; \
 	fi && \
 	ver="$$(cat meta/version)" && \
 	hash="$$(cat meta/buildhash)" && \
-	${RENAME_BIN} "s/-$${ver}-/-$${ver}+$${hash}-/" dist/*-$$ver-*
+	${RENAME_BIN} "s/-$${ver}-/-$${ver}+$${hash}-/" dist/*-"$${ver}"-*
 
 
 .PHONY: pull-i18n
