@@ -142,7 +142,7 @@ build-qt:
 clean: clean-dist
 	@set -eu -o pipefail ${SHELLFLAGS}; \
 	for dir in $(DEVEL); do \
-	   $(SUBMAKE) -C $$dir clean; \
+		$(SUBMAKE) -C $$dir clean; \
 	done
 
 .PHONY: clean-dist
@@ -154,13 +154,13 @@ check: pyenv buildhash prepare
 	@set -eu -o pipefail ${SHELLFLAGS}; \
 	.github/scripts/trailing-newlines.sh; \
 	for dir in $(CHECKABLE_RS); do \
-	  $(SUBMAKE) -C $$dir check; \
+		$(SUBMAKE) -C $$dir check; \
 	done; \
 	. "${ACTIVATE_SCRIPT}"; \
 	$(SUBMAKE) -C rspy develop; \
 	$(SUBMAKE) -C pylib develop; \
 	for dir in $(CHECKABLE_PY); do \
-	  $(SUBMAKE) -C $$dir check; \
+		$(SUBMAKE) -C $$dir check; \
 	done;
 	@echo
 	@echo "All checks passed!"
@@ -170,7 +170,7 @@ fix:
 	@set -eu -o pipefail ${SHELLFLAGS}; \
 	. "${ACTIVATE_SCRIPT}"; \
 	for dir in $(CHECKABLE_RS) $(CHECKABLE_PY); do \
-	  $(SUBMAKE) -C $$dir fix; \
+		$(SUBMAKE) -C $$dir fix; \
 	done; \
 
 .PHONY: add-buildhash
