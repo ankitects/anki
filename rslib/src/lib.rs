@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 #![deny(unused_must_use)]
+#![cfg_attr(feature = "unstable", feature(test))]
 
 mod backend_proto;
 

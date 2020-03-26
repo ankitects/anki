@@ -379,3 +379,42 @@ impl StorageContext<'_> {
         Ok(*self.timing_today.as_ref().unwrap())
     }
 }
+
+#[cfg(all(feature = "unstable", test))]
+mod bench {
+    extern crate test;
+    use super::{CachedStatementKind, SqliteStorage};
+    use std::path::Path;
+    use test::Bencher;
+
+    const SQL: &str = "insert or replace into cards
+    (id, nid, did, ord, mod, usn, type, queue, due, ivl, factor,
+    reps, lapses, left, odue, odid, flags, data)
+    values
+    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+    #[bench]
+    fn bench_no_cache(b: &mut Bencher) {
+        let storage = SqliteStorage::open_or_create(Path::new(":memory:")).unwrap();
+        b.iter(|| storage.db.prepare(SQL).unwrap());
+    }
+
+    #[bench]
+    fn bench_hash_cache(b: &mut Bencher) {
+        let storage = SqliteStorage::open_or_create(Path::new(":memory:")).unwrap();
+        b.iter(|| storage.db.prepare_cached(SQL).unwrap());
+    }
+
+    #[bench]
+    fn bench_vec_cache(b: &mut Bencher) {
+        let storage = SqliteStorage::open_or_create(Path::new(":memory:")).unwrap();
+        let mut ctx = storage.context(false);
+        b.iter(|| {
+            ctx.with_cached_stmt(CachedStatementKind::GetCard, SQL, |_stmt| {
+                test::black_box(_stmt);
+                Ok(())
+            })
+            .unwrap()
+        });
+    }
+}

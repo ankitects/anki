@@ -5,6 +5,9 @@ edition = "2018"
 authors = ["Ankitects Pty Ltd and contributors"]
 license = "AGPL-3.0-or-later"
 
+[features]
+unstable = []
+
 [dependencies]
 nom = "5.0.1"
 failure = "0.1.7"
