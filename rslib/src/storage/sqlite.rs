@@ -24,6 +24,7 @@ use std::{
     path::{Path, PathBuf},
 };
 use unicase::UniCase;
+use variant_count::VariantCount;
 
 const SCHEMA_MIN_VERSION: u8 = 11;
 const SCHEMA_MAX_VERSION: u8 = 11;
@@ -40,16 +41,6 @@ pub struct SqliteStorage {
 
     // fixme: stored in wrong location?
     path: PathBuf,
-}
-
-#[macro_export]
-macro_rules! cached_sql {
-    ( $label:expr, $db:expr, $sql:expr ) => {{
-        if $label.is_none() {
-            $label = Some($db.prepare_cached($sql)?);
-        }
-        $label.as_mut().unwrap()
-    }};
 }
 
 fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
@@ -213,6 +204,12 @@ impl SqliteStorage {
     }
 }
 
+#[derive(Clone, Copy, VariantCount)]
+pub(super) enum CachedStatementKind {
+    GetCard,
+    FlushCard,
+}
+
 pub(crate) struct StorageContext<'a> {
     pub(crate) db: &'a Connection,
     server: bool,
@@ -220,21 +217,36 @@ pub(crate) struct StorageContext<'a> {
 
     timing_today: Option<SchedTimingToday>,
 
-    // cards
-    pub(super) get_card_stmt: Option<rusqlite::CachedStatement<'a>>,
-    pub(super) update_card_stmt: Option<rusqlite::CachedStatement<'a>>,
+    cached_statements: Vec<Option<rusqlite::CachedStatement<'a>>>,
 }
 
 impl StorageContext<'_> {
     fn new(db: &Connection, server: bool) -> StorageContext {
+        let stmt_len = CachedStatementKind::VARIANT_COUNT;
+        let mut statements = Vec::with_capacity(stmt_len);
+        statements.resize_with(stmt_len, Default::default);
         StorageContext {
             db,
             server,
             usn: None,
             timing_today: None,
-            get_card_stmt: None,
-            update_card_stmt: None,
+            cached_statements: statements,
         }
+    }
+
+    pub(super) fn with_cached_stmt<F, T>(
+        &mut self,
+        kind: CachedStatementKind,
+        sql: &str,
+        func: F,
+    ) -> Result<T>
+    where
+        F: FnOnce(&mut rusqlite::CachedStatement) -> Result<T>,
+    {
+        if self.cached_statements[kind as usize].is_none() {
+            self.cached_statements[kind as usize] = Some(self.db.prepare_cached(sql)?);
+        }
+        func(self.cached_statements[kind as usize].as_mut().unwrap())
     }
 
     // Standard transaction start/stop
