@@ -7,8 +7,18 @@ pub type ObjID = i64;
 macro_rules! define_newtype {
     ( $name:ident, $type:ident ) => {
         #[repr(transparent)]
-        #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord,
-            serde::Serialize, serde::Deserialize)]
+        #[derive(
+            Debug,
+            Clone,
+            Copy,
+            PartialEq,
+            Eq,
+            PartialOrd,
+            Ord,
+            Hash,
+            serde::Serialize,
+            serde::Deserialize,
+        )]
         pub struct $name(pub $type);
 
         impl std::fmt::Display for $name {
@@ -20,7 +30,7 @@ macro_rules! define_newtype {
         impl std::str::FromStr for $name {
             type Err = std::num::ParseIntError;
             fn from_str(s: &std::primitive::str) -> std::result::Result<Self, Self::Err> {
-                $type::from_str(s).map(|n| $name(n))
+                $type::from_str(s).map($name)
             }
         }
 
