@@ -82,28 +82,23 @@ class Card:
         self.flags = c.flags
         self.data = c.data
 
-    def _preFlush(self) -> None:
-        hooks.card_will_flush(self)
-        self.mod = intTime()
-        self.usn = self.col.usn()
-        # bug check
+    def _bugcheck(self) -> None:
         if (
             self.queue == QUEUE_TYPE_REV
             and self.odue
             and not self.col.decks.isDyn(self.did)
         ):
             hooks.card_odue_was_invalid()
-        assert self.due < 4294967296
 
     def flush(self) -> None:
-        self._preFlush()
+        self._bugcheck()
+        hooks.card_will_flush(self)
+        # mtime & usn are set by backend
         card = BackendCard(
             id=self.id,
             nid=self.nid,
             did=self.did,
             ord=self.ord,
-            mtime=self.mod,
-            usn=self.usn,
             ctype=self.type,
             queue=self.queue,
             due=self.due,

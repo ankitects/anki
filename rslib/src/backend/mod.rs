@@ -637,8 +637,8 @@ impl Backend {
     }
 
     fn update_card(&self, pbcard: pb::Card) -> Result<()> {
-        let card = pbcard_to_native(pbcard)?;
-        self.with_col(|col| col.with_ctx(|ctx| ctx.storage.update_card(&card)))
+        let mut card = pbcard_to_native(pbcard)?;
+        self.with_col(|col| col.with_ctx(|ctx| ctx.update_card(&mut card)))
     }
 }
 
@@ -751,7 +751,7 @@ fn card_to_pb(c: Card) -> pb::Card {
         left: c.left,
         odue: c.odue,
         odid: c.odid.0,
-        flags: c.flags,
+        flags: c.flags as u32,
         data: c.data,
     }
 }
@@ -778,7 +778,7 @@ fn pbcard_to_native(c: pb::Card) -> Result<Card> {
         left: c.left,
         odue: c.odue,
         odid: DeckID(c.odid),
-        flags: c.flags,
+        flags: c.flags as u8,
         data: c.data,
     })
 }
