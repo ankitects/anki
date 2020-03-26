@@ -480,6 +480,10 @@ class RustBackend:
             pb.BackendInput(search_notes=pb.SearchNotesIn(search=search))
         ).search_notes.note_ids
 
+    def get_card(self, cid: int) -> Optional[pb.Card]:
+        return self._run_command(
+            pb.BackendInput(get_card=cid)
+        ).get_card.card
 
 def translate_string_in(
     key: TR, **kwargs: Union[str, int, float]

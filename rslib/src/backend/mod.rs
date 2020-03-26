@@ -4,6 +4,7 @@
 use crate::backend::dbproxy::db_command_bytes;
 use crate::backend_proto::backend_input::Value;
 use crate::backend_proto::{BuiltinSortKind, Empty, RenderedTemplateReplacement, SyncMediaIn};
+use crate::card::{Card, CardID};
 use crate::collection::{open_collection, Collection};
 use crate::config::SortKind;
 use crate::err::{AnkiError, NetworkErrorKind, Result, SyncErrorKind};
@@ -248,6 +249,7 @@ impl Backend {
             }
             Value::SearchCards(input) => OValue::SearchCards(self.search_cards(input)?),
             Value::SearchNotes(input) => OValue::SearchNotes(self.search_notes(input)?),
+            Value::GetCard(cid) => OValue::GetCard(self.get_card(cid)?),
         })
     }
 
@@ -616,6 +618,13 @@ impl Backend {
             })
         })
     }
+
+    fn get_card(&self, cid: i64) -> Result<pb::GetCardOut> {
+        let card = self.with_col(|col| col.with_ctx(|ctx| ctx.storage.get_card(CardID(cid))))?;
+        Ok(pb::GetCardOut {
+            card: card.map(card_to_pb),
+        })
+    }
 }
 
 fn translate_arg_to_fluent_val(arg: &pb::TranslateArgValue) -> FluentValue {
@@ -706,5 +715,28 @@ fn sort_kind_from_pb(kind: i32) -> SortKind {
             BuiltinSortKind::CardTemplate => SK::CardTemplate,
         },
         _ => SortKind::NoteCreation,
+    }
+}
+
+fn card_to_pb(c: Card) -> pb::Card {
+    pb::Card {
+        id: c.id.0,
+        nid: c.nid.0,
+        did: c.did.0,
+        ord: c.ord as u32,
+        mtime: c.mtime.0,
+        usn: c.usn.0,
+        ctype: c.ctype as u32,
+        queue: c.queue as i32,
+        due: c.due,
+        ivl: c.ivl,
+        factor: c.factor as u32,
+        reps: c.reps,
+        lapses: c.lapses,
+        left: c.left,
+        odue: c.odue,
+        odid: c.odid.0,
+        flags: c.flags,
+        data: c.data,
     }
 }

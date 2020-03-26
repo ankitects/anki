@@ -34,7 +34,7 @@ class Card:
     ord: int
 
     def __init__(
-        self, col: anki.collection._Collection, id: Optional[int] = None
+        self, col: anki.storage._Collection, id: Optional[int] = None
     ) -> None:
         self.col = col.weakref()
         self.timerStarted = None
@@ -61,28 +61,27 @@ class Card:
             self.data = ""
 
     def load(self) -> None:
-        (
-            self.id,
-            self.nid,
-            self.did,
-            self.ord,
-            self.mod,
-            self.usn,
-            self.type,
-            self.queue,
-            self.due,
-            self.ivl,
-            self.factor,
-            self.reps,
-            self.lapses,
-            self.left,
-            self.odue,
-            self.odid,
-            self.flags,
-            self.data,
-        ) = self.col.db.first("select * from cards where id = ?", self.id)
         self._render_output = None
         self._note = None
+        c = self.col.backend.get_card(self.id)
+        assert c
+        self.nid = c.nid
+        self.did = c.did
+        self.ord = c.ord
+        self.mod = c.mtime
+        self.usn = c.usn
+        self.type = c.ctype
+        self.queue = c.queue
+        self.due = c.due
+        self.ivl = c.ivl
+        self.factor = c.factor
+        self.reps = c.reps
+        self.lapses = c.lapses
+        self.left = c.left
+        self.odue = c.odue
+        self.odid = c.odid
+        self.flags = c.flags
+        self.data = c.data
 
     def _preFlush(self) -> None:
         hooks.card_will_flush(self)
