@@ -968,7 +968,7 @@ def test_timing():
     c2 = d.sched.getCard()
     assert c2.queue == QUEUE_TYPE_REV
     # if the failed card becomes due, it should show first
-    c.due = time.time() - 1
+    c.due = intTime() - 1
     c.flush()
     d.reset()
     c = d.sched.getCard()
