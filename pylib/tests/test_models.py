@@ -318,7 +318,7 @@ def test_modelChange():
     try:
         c1.load()
         assert 0
-    except TypeError:
+    except AssertionError:
         pass
     # but we have two cards, as a new one was generated
     assert len(f.cards()) == 2

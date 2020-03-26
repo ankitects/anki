@@ -42,6 +42,16 @@ pub struct SqliteStorage {
     path: PathBuf,
 }
 
+#[macro_export]
+macro_rules! cached_sql {
+    ( $label:expr, $db:expr, $sql:expr ) => {{
+        if $label.is_none() {
+            $label = Some($db.prepare_cached($sql)?);
+        }
+        $label.as_mut().unwrap()
+    }};
+}
+
 fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
     let mut db = Connection::open(path)?;
 
@@ -211,6 +221,9 @@ pub(crate) struct StorageContext<'a> {
     usn: Option<Usn>,
 
     timing_today: Option<SchedTimingToday>,
+
+    // cards
+    pub(super) get_card_stmt: Option<rusqlite::CachedStatement<'a>>,
 }
 
 impl StorageContext<'_> {
@@ -220,6 +233,7 @@ impl StorageContext<'_> {
             server,
             usn: None,
             timing_today: None,
+            get_card_stmt: None,
         }
     }
 
