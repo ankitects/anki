@@ -36,6 +36,7 @@ assert ankirspy.buildhash() == anki.buildinfo.buildhash
 
 SchedTimingToday = pb.SchedTimingTodayOut
 BuiltinSortKind = pb.BuiltinSortKind
+BackendCard = pb.Card
 
 try:
     import orjson
@@ -479,6 +480,12 @@ class RustBackend:
         return self._run_command(
             pb.BackendInput(search_notes=pb.SearchNotesIn(search=search))
         ).search_notes.note_ids
+
+    def get_card(self, cid: int) -> Optional[pb.Card]:
+        return self._run_command(pb.BackendInput(get_card=cid)).get_card.card
+
+    def update_card(self, card: BackendCard) -> None:
+        self._run_command(pb.BackendInput(update_card=card))
 
 
 def translate_string_in(

@@ -12,6 +12,7 @@ from anki import hooks
 from anki.consts import *
 from anki.models import NoteType, Template
 from anki.notes import Note
+from anki.rsbackend import BackendCard
 from anki.sound import AVTag
 from anki.utils import intTime, joinFields, timestampID
 
@@ -33,9 +34,7 @@ class Card:
     lastIvl: int
     ord: int
 
-    def __init__(
-        self, col: anki.collection._Collection, id: Optional[int] = None
-    ) -> None:
+    def __init__(self, col: anki.storage._Collection, id: Optional[int] = None) -> None:
         self.col = col.weakref()
         self.timerStarted = None
         self._render_output: Optional[anki.template.TemplateRenderOutput] = None
@@ -61,68 +60,59 @@ class Card:
             self.data = ""
 
     def load(self) -> None:
-        (
-            self.id,
-            self.nid,
-            self.did,
-            self.ord,
-            self.mod,
-            self.usn,
-            self.type,
-            self.queue,
-            self.due,
-            self.ivl,
-            self.factor,
-            self.reps,
-            self.lapses,
-            self.left,
-            self.odue,
-            self.odid,
-            self.flags,
-            self.data,
-        ) = self.col.db.first("select * from cards where id = ?", self.id)
         self._render_output = None
         self._note = None
+        c = self.col.backend.get_card(self.id)
+        assert c
+        self.nid = c.nid
+        self.did = c.did
+        self.ord = c.ord
+        self.mod = c.mtime
+        self.usn = c.usn
+        self.type = c.ctype
+        self.queue = c.queue
+        self.due = c.due
+        self.ivl = c.ivl
+        self.factor = c.factor
+        self.reps = c.reps
+        self.lapses = c.lapses
+        self.left = c.left
+        self.odue = c.odue
+        self.odid = c.odid
+        self.flags = c.flags
+        self.data = c.data
 
-    def _preFlush(self) -> None:
-        hooks.card_will_flush(self)
-        self.mod = intTime()
-        self.usn = self.col.usn()
-        # bug check
+    def _bugcheck(self) -> None:
         if (
             self.queue == QUEUE_TYPE_REV
             and self.odue
             and not self.col.decks.isDyn(self.did)
         ):
             hooks.card_odue_was_invalid()
-        assert self.due < 4294967296
 
     def flush(self) -> None:
-        self._preFlush()
-        self.col.db.execute(
-            """
-insert or replace into cards values
-(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-            self.id,
-            self.nid,
-            self.did,
-            self.ord,
-            self.mod,
-            self.usn,
-            self.type,
-            self.queue,
-            self.due,
-            self.ivl,
-            self.factor,
-            self.reps,
-            self.lapses,
-            self.left,
-            self.odue,
-            self.odid,
-            self.flags,
-            self.data,
+        self._bugcheck()
+        hooks.card_will_flush(self)
+        # mtime & usn are set by backend
+        card = BackendCard(
+            id=self.id,
+            nid=self.nid,
+            did=self.did,
+            ord=self.ord,
+            ctype=self.type,
+            queue=self.queue,
+            due=self.due,
+            ivl=self.ivl,
+            factor=self.factor,
+            reps=self.reps,
+            lapses=self.lapses,
+            left=self.left,
+            odue=self.odue,
+            odid=self.odid,
+            flags=self.flags,
+            data=self.data,
         )
-        self.col.log(self)
+        self.col.backend.update_card(card)
 
     def question(self, reload: bool = False, browser: bool = False) -> str:
         return self.css() + self.render_output(reload, browser).question_text

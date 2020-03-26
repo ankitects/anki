@@ -390,7 +390,7 @@ where
                 self.maybe_fire_progress_cb()?;
             }
             let nt = note_types
-                .get(&note.mid)
+                .get(&note.ntid)
                 .ok_or_else(|| AnkiError::DBError {
                     info: "missing note type".to_string(),
                     kind: DBErrorKind::MissingEntity,

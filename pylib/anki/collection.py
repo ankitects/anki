@@ -956,7 +956,7 @@ and type=0""",
         )
         rowcount = self.db.scalar("select changes()")
         if rowcount:
-            problems.append(
+            syncable_problems.append(
                 "Found %d new cards with a due number >= 1,000,000 - consider repositioning them in the Browse screen."
                 % rowcount
             )

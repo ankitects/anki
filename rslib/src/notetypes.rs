@@ -1,14 +1,16 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::types::ObjID;
+use crate::define_newtype;
 use serde_aux::field_attributes::deserialize_number_from_string;
 use serde_derive::Deserialize;
+
+define_newtype!(NoteTypeID, i64);
 
 #[derive(Deserialize, Debug)]
 pub(crate) struct NoteType {
     #[serde(deserialize_with = "deserialize_number_from_string")]
-    pub id: ObjID,
+    pub id: NoteTypeID,
     pub name: String,
     #[serde(rename = "sortf")]
     pub sort_field_idx: u16,

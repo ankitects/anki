@@ -47,6 +47,8 @@ message BackendInput {
         Empty restore_trash = 35;
         OpenCollectionIn open_collection = 36;
         Empty close_collection = 37;
+        int64 get_card = 38;
+        Card update_card = 39;
     }
 }
 
@@ -77,6 +79,8 @@ message BackendOutput {
         Empty restore_trash = 35;
         Empty open_collection = 36;
         Empty close_collection = 37;
+        GetCardOut get_card = 38;
+        Empty update_card = 39;
 
         BackendError error = 2047;
     }
@@ -366,4 +370,29 @@ enum BuiltinSortKind {
     CARD_INTERVAL = 10;
     CARD_DECK = 11;
     CARD_TEMPLATE = 12;
+}
+
+message GetCardOut {
+    Card card = 1;
+}
+
+message Card {
+    int64 id = 1;
+    int64 nid = 2;
+    int64 did = 3;
+    uint32 ord = 4;
+    int64 mtime = 5;
+    sint32 usn = 6;
+    uint32 ctype = 7;
+    sint32 queue = 8;
+    sint32 due = 9;
+    uint32 ivl = 10;
+    uint32 factor = 11;
+    uint32 reps = 12;
+    uint32 lapses = 13;
+    uint32 left = 14;
+    sint32 odue = 15;
+    int64 odid = 16;
+    uint32 flags = 17;
+    string data = 18;
 }
