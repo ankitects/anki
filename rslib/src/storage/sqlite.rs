@@ -224,6 +224,7 @@ pub(crate) struct StorageContext<'a> {
 
     // cards
     pub(super) get_card_stmt: Option<rusqlite::CachedStatement<'a>>,
+    pub(super) update_card_stmt: Option<rusqlite::CachedStatement<'a>>,
 }
 
 impl StorageContext<'_> {
@@ -234,6 +235,7 @@ impl StorageContext<'_> {
             usn: None,
             timing_today: None,
             get_card_stmt: None,
+            update_card_stmt: None,
         }
     }
 

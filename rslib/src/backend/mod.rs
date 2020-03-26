@@ -5,8 +5,10 @@ use crate::backend::dbproxy::db_command_bytes;
 use crate::backend_proto::backend_input::Value;
 use crate::backend_proto::{BuiltinSortKind, Empty, RenderedTemplateReplacement, SyncMediaIn};
 use crate::card::{Card, CardID};
+use crate::card::{CardQueue, CardType};
 use crate::collection::{open_collection, Collection};
 use crate::config::SortKind;
+use crate::decks::DeckID;
 use crate::err::{AnkiError, NetworkErrorKind, Result, SyncErrorKind};
 use crate::i18n::{tr_args, FString, I18n};
 use crate::latex::{extract_latex, extract_latex_expanding_clozes, ExtractedLatex};
@@ -14,6 +16,7 @@ use crate::log::{default_logger, Logger};
 use crate::media::check::MediaChecker;
 use crate::media::sync::MediaSyncProgress;
 use crate::media::MediaManager;
+use crate::notes::NoteID;
 use crate::sched::cutoff::{local_minutes_west_for_stamp, sched_timing_today};
 use crate::sched::timespan::{answer_button_time, learning_congrats, studied_today, time_span};
 use crate::search::{search_cards, search_notes, SortMode};
@@ -22,10 +25,13 @@ use crate::template::{
     RenderedNode,
 };
 use crate::text::{extract_av_tags, strip_av_tags, AVTag};
+use crate::timestamp::TimestampSecs;
+use crate::types::Usn;
 use crate::{backend_proto as pb, log};
 use fluent::FluentValue;
 use prost::Message;
 use std::collections::{HashMap, HashSet};
+use std::convert::TryFrom;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use tokio::runtime::Runtime;
@@ -250,6 +256,10 @@ impl Backend {
             Value::SearchCards(input) => OValue::SearchCards(self.search_cards(input)?),
             Value::SearchNotes(input) => OValue::SearchNotes(self.search_notes(input)?),
             Value::GetCard(cid) => OValue::GetCard(self.get_card(cid)?),
+            Value::UpdateCard(card) => {
+                self.update_card(card)?;
+                OValue::UpdateCard(pb::Empty {})
+            }
         })
     }
 
@@ -625,6 +635,11 @@ impl Backend {
             card: card.map(card_to_pb),
         })
     }
+
+    fn update_card(&self, pbcard: pb::Card) -> Result<()> {
+        let card = pbcard_to_native(pbcard);
+        self.with_col(|col| col.with_ctx(|ctx| ctx.storage.update_card(&card)))
+    }
 }
 
 fn translate_arg_to_fluent_val(arg: &pb::TranslateArgValue) -> FluentValue {
@@ -736,6 +751,29 @@ fn card_to_pb(c: Card) -> pb::Card {
         left: c.left,
         odue: c.odue,
         odid: c.odid.0,
+        flags: c.flags,
+        data: c.data,
+    }
+}
+
+fn pbcard_to_native(c: pb::Card) -> Card {
+    Card {
+        id: CardID(c.id),
+        nid: NoteID(c.nid),
+        did: DeckID(c.did),
+        ord: c.ord as u16,
+        mtime: TimestampSecs(c.mtime),
+        usn: Usn(c.usn),
+        ctype: CardType::try_from(c.ctype as u8).unwrap_or(CardType::New),
+        queue: CardQueue::try_from(c.queue as i8).unwrap_or(CardQueue::New),
+        due: c.due,
+        ivl: c.ivl,
+        factor: c.factor as u16,
+        reps: c.reps,
+        lapses: c.lapses,
+        left: c.left,
+        odue: c.odue,
+        odid: DeckID(c.odid),
         flags: c.flags,
         data: c.data,
     }

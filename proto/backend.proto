@@ -48,6 +48,7 @@ message BackendInput {
         OpenCollectionIn open_collection = 36;
         Empty close_collection = 37;
         int64 get_card = 38;
+        Card update_card = 39;
     }
 }
 
@@ -79,6 +80,7 @@ message BackendOutput {
         Empty open_collection = 36;
         Empty close_collection = 37;
         GetCardOut get_card = 38;
+        Empty update_card = 39;
 
         BackendError error = 2047;
     }
