@@ -3,15 +3,17 @@
 
 use crate::collection::CollectionOp;
 use crate::config::Config;
+use crate::decks::DeckID;
 use crate::err::Result;
 use crate::err::{AnkiError, DBErrorKind};
-use crate::time::{i64_unix_millis, i64_unix_secs};
+use crate::notetypes::NoteTypeID;
+use crate::timestamp::{TimestampMillis, TimestampSecs};
 use crate::{
     decks::Deck,
     notetypes::NoteType,
     sched::cutoff::{sched_timing_today, SchedTimingToday},
     text::without_combining,
-    types::{ObjID, Usn},
+    types::Usn,
 };
 use regex::Regex;
 use rusqlite::{functions::FunctionFlags, params, Connection, NO_PARAMS};
@@ -38,6 +40,16 @@ pub struct SqliteStorage {
 
     // fixme: stored in wrong location?
     path: PathBuf,
+}
+
+#[macro_export]
+macro_rules! cached_sql {
+    ( $label:expr, $db:expr, $sql:expr ) => {{
+        if $label.is_none() {
+            $label = Some($db.prepare_cached($sql)?);
+        }
+        $label.as_mut().unwrap()
+    }};
 }
 
 fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
@@ -168,7 +180,10 @@ impl SqliteStorage {
         if create {
             db.prepare_cached("begin exclusive")?.execute(NO_PARAMS)?;
             db.execute_batch(include_str!("schema11.sql"))?;
-            db.execute("update col set crt=?, ver=?", params![i64_unix_secs(), ver])?;
+            db.execute(
+                "update col set crt=?, ver=?",
+                params![TimestampSecs::now(), ver],
+            )?;
             db.prepare_cached("commit")?.execute(NO_PARAMS)?;
         } else {
             if ver > SCHEMA_MAX_VERSION {
@@ -200,12 +215,14 @@ impl SqliteStorage {
 
 pub(crate) struct StorageContext<'a> {
     pub(crate) db: &'a Connection,
-    #[allow(dead_code)]
     server: bool,
-    #[allow(dead_code)]
     usn: Option<Usn>,
 
     timing_today: Option<SchedTimingToday>,
+
+    // cards
+    pub(super) get_card_stmt: Option<rusqlite::CachedStatement<'a>>,
+    pub(super) update_card_stmt: Option<rusqlite::CachedStatement<'a>>,
 }
 
 impl StorageContext<'_> {
@@ -215,6 +232,8 @@ impl StorageContext<'_> {
             server,
             usn: None,
             timing_today: None,
+            get_card_stmt: None,
+            update_card_stmt: None,
         }
     }
 
@@ -278,11 +297,10 @@ impl StorageContext<'_> {
     pub(crate) fn mark_modified(&self) -> Result<()> {
         self.db
             .prepare_cached("update col set mod=?")?
-            .execute(params![i64_unix_millis()])?;
+            .execute(params![TimestampMillis::now()])?;
         Ok(())
     }
 
-    #[allow(dead_code)]
     pub(crate) fn usn(&mut self) -> Result<Usn> {
         if self.server {
             if self.usn.is_none() {
@@ -292,13 +310,13 @@ impl StorageContext<'_> {
                         .query_row(NO_PARAMS, |row| row.get(0))?,
                 );
             }
-            Ok(*self.usn.as_ref().unwrap())
+            Ok(self.usn.clone().unwrap())
         } else {
-            Ok(-1)
+            Ok(Usn(-1))
         }
     }
 
-    pub(crate) fn all_decks(&self) -> Result<HashMap<ObjID, Deck>> {
+    pub(crate) fn all_decks(&self) -> Result<HashMap<DeckID, Deck>> {
         self.db
             .query_row_and_then("select decks from col", NO_PARAMS, |row| -> Result<_> {
                 Ok(serde_json::from_str(row.get_raw(0).as_str()?)?)
@@ -312,11 +330,12 @@ impl StorageContext<'_> {
             })
     }
 
-    pub(crate) fn all_note_types(&self) -> Result<HashMap<ObjID, NoteType>> {
+    pub(crate) fn all_note_types(&self) -> Result<HashMap<NoteTypeID, NoteType>> {
         let mut stmt = self.db.prepare("select models from col")?;
         let note_types = stmt
-            .query_and_then(NO_PARAMS, |row| -> Result<HashMap<ObjID, NoteType>> {
-                let v: HashMap<ObjID, NoteType> = serde_json::from_str(row.get_raw(0).as_str()?)?;
+            .query_and_then(NO_PARAMS, |row| -> Result<HashMap<NoteTypeID, NoteType>> {
+                let v: HashMap<NoteTypeID, NoteType> =
+                    serde_json::from_str(row.get_raw(0).as_str()?)?;
                 Ok(v)
             })?
             .next()
@@ -339,7 +358,7 @@ impl StorageContext<'_> {
 
             self.timing_today = Some(sched_timing_today(
                 crt,
-                i64_unix_secs(),
+                TimestampSecs::now().0,
                 conf.creation_offset,
                 now_offset,
                 conf.rollover,

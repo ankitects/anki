@@ -442,7 +442,7 @@ close the profile or restart Anki."""
 
     def loadCollection(self) -> bool:
         try:
-            return self._loadCollection()
+            self._loadCollection()
         except Exception as e:
             showWarning(
                 tr(TR.ERRORS_UNABLE_OPEN_COLLECTION) + "\n" + traceback.format_exc()
@@ -460,15 +460,22 @@ close the profile or restart Anki."""
             self.showProfileManager()
             return False
 
-    def _loadCollection(self) -> bool:
+        # make sure we don't get into an inconsistent state if an add-on
+        # has broken the deck browser or the did_load hook
+        try:
+            self.maybeEnableUndo()
+            gui_hooks.collection_did_load(self.col)
+            self.moveToState("deckBrowser")
+        except Exception as e:
+            # dump error to stderr so it gets picked up by errors.py
+            traceback.print_exc()
+
+        return True
+
+    def _loadCollection(self):
         cpath = self.pm.collectionPath()
         self.col = Collection(cpath, backend=self.backend)
-
         self.setEnabled(True)
-        self.maybeEnableUndo()
-        gui_hooks.collection_did_load(self.col)
-        self.moveToState("deckBrowser")
-        return True
 
     def reopen(self):
         cpath = self.pm.collectionPath()
@@ -1241,7 +1248,10 @@ and if the problem comes up again, please ask on the support site."""
     ##########################################################################
 
     def onSchemaMod(self, arg):
-        return askUser(
+        progress_shown = self.progress.busy()
+        if progress_shown:
+            self.progress.finish()
+        ret = askUser(
             _(
                 """\
 The requested change will require a full upload of the database when \
@@ -1250,6 +1260,9 @@ waiting on another device that haven't been synchronized here yet, they \
 will be lost. Continue?"""
             )
         )
+        if progress_shown:
+            self.progress.start()
+        return ret
 
     # Advanced features
     ##########################################################################

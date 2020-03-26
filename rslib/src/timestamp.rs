@@ -1,14 +1,22 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use crate::define_newtype;
 use std::time;
 
-pub(crate) fn i64_unix_secs() -> i64 {
-    elapsed().as_secs() as i64
+define_newtype!(TimestampSecs, i64);
+define_newtype!(TimestampMillis, i64);
+
+impl TimestampSecs {
+    pub fn now() -> Self {
+        Self(elapsed().as_secs() as i64)
+    }
 }
 
-pub(crate) fn i64_unix_millis() -> i64 {
-    elapsed().as_millis() as i64
+impl TimestampMillis {
+    pub fn now() -> Self {
+        Self(elapsed().as_millis() as i64)
+    }
 }
 
 #[cfg(not(test))]

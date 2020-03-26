@@ -28,5 +28,5 @@ pub mod storage;
 pub mod template;
 pub mod template_filters;
 pub mod text;
-pub mod time;
+pub mod timestamp;
 pub mod types;

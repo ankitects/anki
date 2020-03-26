@@ -7,11 +7,10 @@ use crate::decks::child_ids;
 use crate::decks::get_deck;
 use crate::err::{AnkiError, Result};
 use crate::notes::field_checksum;
+use crate::notetypes::NoteTypeID;
 use crate::text::matches_wildcard;
 use crate::text::without_combining;
-use crate::{
-    collection::RequestContext, text::strip_html_preserving_image_filenames, types::ObjID,
-};
+use crate::{collection::RequestContext, text::strip_html_preserving_image_filenames};
 use std::fmt::Write;
 
 struct SqlWriter<'a, 'b> {
@@ -342,7 +341,7 @@ impl SqlWriter<'_, '_> {
         Ok(())
     }
 
-    fn write_dupes(&mut self, ntid: ObjID, text: &str) {
+    fn write_dupes(&mut self, ntid: NoteTypeID, text: &str) {
         let text_nohtml = strip_html_preserving_image_filenames(text);
         let csum = field_checksum(text_nohtml.as_ref());
         write!(
