@@ -3,12 +3,24 @@
 
 use std::time;
 
-pub(crate) fn i64_unix_secs() -> i64 {
-    elapsed().as_secs() as i64
+#[repr(transparent)]
+#[derive(Debug, Clone)]
+pub struct TimestampSecs(pub i64);
+
+impl TimestampSecs {
+    pub fn now() -> Self {
+        Self(elapsed().as_secs() as i64)
+    }
 }
 
-pub(crate) fn i64_unix_millis() -> i64 {
-    elapsed().as_millis() as i64
+#[repr(transparent)]
+#[derive(Debug, Clone)]
+pub struct TimestampMillis(pub i64);
+
+impl TimestampMillis {
+    pub fn now() -> Self {
+        Self(elapsed().as_millis() as i64)
+    }
 }
 
 #[cfg(not(test))]

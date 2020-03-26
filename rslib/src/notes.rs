@@ -5,10 +5,10 @@
 /// the media DB check.
 use crate::err::{AnkiError, DBErrorKind, Result};
 use crate::text::strip_html_preserving_image_filenames;
-use crate::time::i64_unix_secs;
+use crate::timestamp::TimestampSecs;
 use crate::{
     notetypes::NoteType,
-    types::{ObjID, Timestamp, Usn},
+    types::{ObjID, Usn},
 };
 use rusqlite::{params, Connection, Row, NO_PARAMS};
 use std::convert::TryInto;
@@ -17,7 +17,7 @@ use std::convert::TryInto;
 pub(super) struct Note {
     pub id: ObjID,
     pub mid: ObjID,
-    pub mtime_secs: Timestamp,
+    pub mtime: TimestampSecs,
     pub usn: Usn,
     fields: Vec<String>,
 }
@@ -73,7 +73,7 @@ fn row_to_note(row: &Row) -> Result<Note> {
     Ok(Note {
         id: row.get(0)?,
         mid: row.get(1)?,
-        mtime_secs: row.get(2)?,
+        mtime: row.get(2)?,
         usn: row.get(3)?,
         fields: row
             .get_raw(4)
@@ -85,7 +85,7 @@ fn row_to_note(row: &Row) -> Result<Note> {
 }
 
 pub(super) fn set_note(db: &Connection, note: &mut Note, note_type: &NoteType) -> Result<()> {
-    note.mtime_secs = i64_unix_secs();
+    note.mtime = TimestampSecs::now();
     // hard-coded for now
     note.usn = -1;
     let field1_nohtml = strip_html_preserving_image_filenames(&note.fields()[0]);
@@ -106,7 +106,7 @@ pub(super) fn set_note(db: &Connection, note: &mut Note, note_type: &NoteType) -
     let mut stmt =
         db.prepare_cached("update notes set mod=?,usn=?,flds=?,sfld=?,csum=? where id=?")?;
     stmt.execute(params![
-        note.mtime_secs,
+        note.mtime,
         note.usn,
         note.fields().join("\x1f"),
         sort_field,

@@ -6,4 +6,3 @@
 
 pub type ObjID = i64;
 pub type Usn = i32;
-pub type Timestamp = i64;
