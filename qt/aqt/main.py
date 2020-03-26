@@ -1248,7 +1248,10 @@ and if the problem comes up again, please ask on the support site."""
     ##########################################################################
 
     def onSchemaMod(self, arg):
-        return askUser(
+        progress_shown = self.progress.busy()
+        if progress_shown:
+            self.progress.finish()
+        ret = askUser(
             _(
                 """\
 The requested change will require a full upload of the database when \
@@ -1257,6 +1260,9 @@ waiting on another device that haven't been synchronized here yet, they \
 will be lost. Continue?"""
             )
         )
+        if progress_shown:
+            self.progress.start()
+        return ret
 
     # Advanced features
     ##########################################################################
