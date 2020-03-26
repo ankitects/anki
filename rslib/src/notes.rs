@@ -87,7 +87,7 @@ fn row_to_note(row: &Row) -> Result<Note> {
 pub(super) fn set_note(db: &Connection, note: &mut Note, note_type: &NoteType) -> Result<()> {
     note.mtime = TimestampSecs::now();
     // hard-coded for now
-    note.usn = -1;
+    note.usn = Usn(-1);
     let field1_nohtml = strip_html_preserving_image_filenames(&note.fields()[0]);
     let csum = field_checksum(field1_nohtml.as_ref());
     let sort_field = if note_type.sort_field_idx == 0 {

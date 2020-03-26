@@ -4,7 +4,7 @@
 use std::time;
 
 #[repr(transparent)]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct TimestampSecs(pub i64);
 
 impl TimestampSecs {
@@ -14,7 +14,7 @@ impl TimestampSecs {
 }
 
 #[repr(transparent)]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct TimestampMillis(pub i64);
 
 impl TimestampMillis {

@@ -5,4 +5,7 @@
 // signed integers, so these numbers are signed as well.
 
 pub type ObjID = i64;
-pub type Usn = i32;
+
+#[repr(transparent)]
+#[derive(Debug, Clone, Copy)]
+pub struct Usn(pub i32);
