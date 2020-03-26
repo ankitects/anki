@@ -52,7 +52,7 @@ pub struct Collection {
 }
 
 pub(crate) enum CollectionOp {
-    UpdateCard
+    UpdateCard,
 }
 
 pub(crate) struct RequestContext<'a> {
