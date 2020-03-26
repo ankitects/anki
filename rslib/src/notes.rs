@@ -7,15 +7,18 @@ use crate::err::{AnkiError, DBErrorKind, Result};
 use crate::text::strip_html_preserving_image_filenames;
 use crate::timestamp::TimestampSecs;
 use crate::{
+    define_newtype,
     notetypes::NoteType,
     types::{ObjID, Usn},
 };
 use rusqlite::{params, Connection, Row, NO_PARAMS};
 use std::convert::TryInto;
 
+define_newtype!(NoteID, i64);
+
 #[derive(Debug)]
 pub(super) struct Note {
-    pub id: ObjID,
+    pub id: NoteID,
     pub mid: ObjID,
     pub mtime: TimestampSecs,
     pub usn: Usn,

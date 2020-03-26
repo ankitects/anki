@@ -7,8 +7,22 @@ pub type ObjID = i64;
 macro_rules! define_newtype {
     ( $name:ident, $type:ident ) => {
         #[repr(transparent)]
-        #[derive(Debug, Clone, Copy)]
+        #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord,
+            serde::Serialize, serde::Deserialize)]
         pub struct $name(pub $type);
+
+        impl std::fmt::Display for $name {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                self.0.fmt(f)
+            }
+        }
+
+        impl std::str::FromStr for $name {
+            type Err = std::num::ParseIntError;
+            fn from_str(s: &std::primitive::str) -> std::result::Result<Self, Self::Err> {
+                $type::from_str(s).map(|n| $name(n))
+            }
+        }
 
         impl rusqlite::types::FromSql for $name {
             fn column_result(
