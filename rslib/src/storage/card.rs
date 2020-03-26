@@ -3,7 +3,7 @@
 
 use crate::cached_sql;
 use crate::card::{Card, CardID, CardQueue, CardType};
-use crate::err::{AnkiError, Result};
+use crate::err::Result;
 use rusqlite::params;
 use rusqlite::{
     types::{FromSql, FromSqlError, ValueRef},
@@ -70,14 +70,7 @@ flags, data from cards where id=?"
         .map_err(Into::into)
     }
 
-    pub(crate) fn update_card(&mut self, card: &Card) -> Result<()> {
-        if card.id.0 == 0 {
-            return Err(AnkiError::invalid_input("card id not set"));
-        }
-        self.flush_card(card)
-    }
-
-    fn flush_card(&mut self, card: &Card) -> Result<()> {
+    pub(crate) fn flush_card(&mut self, card: &Card) -> Result<()> {
         let stmt = cached_sql!(
             self.update_card_stmt,
             self.db,

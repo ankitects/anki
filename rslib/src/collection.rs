@@ -51,7 +51,9 @@ pub struct Collection {
     state: CollectionState,
 }
 
-pub(crate) enum CollectionOp {}
+pub(crate) enum CollectionOp {
+    UpdateCard
+}
 
 pub(crate) struct RequestContext<'a> {
     pub storage: StorageContext<'a>,

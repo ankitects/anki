@@ -3,7 +3,7 @@
 
 use crate::decks::DeckID;
 use crate::define_newtype;
-use crate::err::Result;
+use crate::err::{AnkiError, Result};
 use crate::notes::NoteID;
 use crate::{collection::RequestContext, timestamp::TimestampSecs, types::Usn};
 use num_enum::TryFromPrimitive;
@@ -88,8 +88,11 @@ impl Default for Card {
 
 impl RequestContext<'_> {
     pub fn update_card(&mut self, card: &mut Card) -> Result<()> {
+        if card.id.0 == 0 {
+            return Err(AnkiError::invalid_input("card id not set"));
+        }
         card.mtime = TimestampSecs::now();
         card.usn = self.storage.usn()?;
-        self.storage.update_card(card)
+        self.storage.flush_card(card)
     }
 }
