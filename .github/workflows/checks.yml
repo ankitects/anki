@@ -4,11 +4,12 @@ on: [push, pull_request]
 
 jobs:
   tests:
-    name: Test ${{ matrix.os }}
+    name: ${{ matrix.os }} ${{ matrix.BUILD_TYPE }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ ubuntu-latest, macos-latest, windows-latest ]
+        BUILD_TYPE: [check, build]
         include:
           - os: ubuntu-latest
             SEP: /
@@ -30,6 +31,9 @@ jobs:
             CARGO_INDEX_DIR: C:\Rust\.cargo\git
             CARGO_REGISTRY_DIR: C:\Rust\.cargo\registry
             ANKI_PYTHON_WHEELS: anki_windows_python_wheels
+
+      # Keep running all matrices if something fail
+      fail-fast: false
 
     steps:
       - run: git config --global core.autocrlf false
@@ -93,43 +97,43 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ${{ matrix.PIP_WHEELS_DIR }}
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-8-
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-11-
 
       - name: Cache pyenv
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}${{ matrix.SEP }}pyenv
-          key: ${{ runner.os }}-pyenv-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/requirements.txt') }}-8-
+          key: ${{ runner.os }}-pyenv-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/requirements.txt') }}-11-
 
       - name: Cache cargo index
         uses: actions/cache@v1
         with:
           path: ${{ matrix.CARGO_INDEX_DIR }}
-          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.toml') }}-8-
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.toml') }}-11-
 
       - name: Cache cargo registry
         uses: actions/cache@v1
         with:
           path: ${{ matrix.CARGO_REGISTRY_DIR }}
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.toml') }}-8-
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.toml') }}-11-
 
       - name: Cache cargo target
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}${{ matrix.SEP }}target
-          key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.toml') }}-8-
+          key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.toml') }}-$${{ matrix.BUILD_TYPE }}-11-
 
       - name: Cache cargo rslib
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}${{ matrix.SEP }}rslib${{ matrix.SEP }}target
-          key: ${{ runner.os }}-cargo-rslib-${{ hashFiles('**/Cargo.toml') }}-8-
+          key: ${{ runner.os }}-cargo-rslib-${{ hashFiles('**/Cargo.toml') }}-$${{ matrix.BUILD_TYPE }}-11-
 
       - name: Cache cargo rspy
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}${{ matrix.SEP }}rspy${{ matrix.SEP }}target
-          key: ${{ runner.os }}-cargo-rspy-${{ hashFiles('**/Cargo.toml') }}-8-
+          key: ${{ runner.os }}-cargo-rspy-${{ hashFiles('**/Cargo.toml') }}-$${{ matrix.BUILD_TYPE }}-11-
 
       - name: Cache pacman
         if: matrix.os == 'windows-latest'
@@ -137,7 +141,7 @@ jobs:
         id: cache-pacman
         with:
           path: C:\Program Files\Git
-          key: ${{ runner.os }}-pacman-${{ hashFiles('**/checks.yml') }}-8-
+          key: ${{ runner.os }}-pacman-${{ hashFiles('**/checks.yml') }}-11-
 
       - name: Set up pacman, rsync
         if: matrix.os == 'windows-latest' && steps.cache-pacman.outputs.cache-hit != 'true'
@@ -219,10 +223,16 @@ jobs:
           node-version: 12
 
       - run: make develop
+        if: matrix.BUILD_TYPE != 'check'
+
       - run: make build
+        if: matrix.BUILD_TYPE != 'check'
+
       - run: make check
+        if: matrix.BUILD_TYPE == 'check'
 
       - name: Upload python wheels
+        if: matrix.BUILD_TYPE != 'check'
         uses: actions/upload-artifact@v1
         with:
           name: ${{ matrix.ANKI_PYTHON_WHEELS }}
