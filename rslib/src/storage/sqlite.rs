@@ -297,7 +297,7 @@ impl StorageContext<'_> {
             }
             Ok(*self.usn.as_ref().unwrap())
         } else {
-            Ok(-1)
+            Ok(Usn(-1))
         }
     }
 
