@@ -1,11 +1,35 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-// while Anki tends to only use positive numbers, sqlite only supports
-// signed integers, so these numbers are signed as well.
-
 pub type ObjID = i64;
 
-#[repr(transparent)]
-#[derive(Debug, Clone, Copy)]
-pub struct Usn(pub i32);
+#[macro_export]
+macro_rules! define_newtype {
+    ( $name:ident, $type:ident ) => {
+        #[repr(transparent)]
+        #[derive(Debug, Clone, Copy)]
+        pub struct $name(pub $type);
+
+        impl rusqlite::types::FromSql for $name {
+            fn column_result(
+                value: rusqlite::types::ValueRef<'_>,
+            ) -> std::result::Result<Self, rusqlite::types::FromSqlError> {
+                if let rusqlite::types::ValueRef::Integer(i) = value {
+                    Ok(Self(i as $type))
+                } else {
+                    Err(rusqlite::types::FromSqlError::InvalidType)
+                }
+            }
+        }
+
+        impl rusqlite::ToSql for $name {
+            fn to_sql(&self) -> ::rusqlite::Result<rusqlite::types::ToSqlOutput<'_>> {
+                Ok(rusqlite::types::ToSqlOutput::Owned(
+                    rusqlite::types::Value::Integer(self.0 as i64),
+                ))
+            }
+        }
+    };
+}
+
+define_newtype!(Usn, i32);
