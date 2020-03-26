@@ -3,6 +3,7 @@
 
 use crate::collection::CollectionOp;
 use crate::config::Config;
+use crate::decks::DeckID;
 use crate::err::Result;
 use crate::err::{AnkiError, DBErrorKind};
 use crate::notetypes::NoteTypeID;
@@ -12,7 +13,7 @@ use crate::{
     notetypes::NoteType,
     sched::cutoff::{sched_timing_today, SchedTimingToday},
     text::without_combining,
-    types::{ObjID, Usn},
+    types::Usn,
 };
 use regex::Regex;
 use rusqlite::{functions::FunctionFlags, params, Connection, NO_PARAMS};
@@ -302,7 +303,7 @@ impl StorageContext<'_> {
         }
     }
 
-    pub(crate) fn all_decks(&self) -> Result<HashMap<ObjID, Deck>> {
+    pub(crate) fn all_decks(&self) -> Result<HashMap<DeckID, Deck>> {
         self.db
             .query_row_and_then("select decks from col", NO_PARAMS, |row| -> Result<_> {
                 Ok(serde_json::from_str(row.get_raw(0).as_str()?)?)

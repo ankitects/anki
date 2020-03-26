@@ -599,7 +599,9 @@ impl Backend {
                     SortMode::FromConfig
                 };
                 let cids = search_cards(ctx, &input.search, order)?;
-                Ok(pb::SearchCardsOut { card_ids: cids })
+                Ok(pb::SearchCardsOut {
+                    card_ids: cids.into_iter().map(|v| v.0).collect(),
+                })
             })
         })
     }
