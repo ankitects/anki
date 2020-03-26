@@ -1,21 +1,17 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use crate::define_newtype;
 use std::time;
 
-#[repr(transparent)]
-#[derive(Debug, Clone, Copy)]
-pub struct TimestampSecs(pub i64);
+define_newtype!(TimestampSecs, i64);
+define_newtype!(TimestampMillis, i64);
 
 impl TimestampSecs {
     pub fn now() -> Self {
         Self(elapsed().as_secs() as i64)
     }
 }
-
-#[repr(transparent)]
-#[derive(Debug, Clone, Copy)]
-pub struct TimestampMillis(pub i64);
 
 impl TimestampMillis {
     pub fn now() -> Self {
