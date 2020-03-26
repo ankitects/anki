@@ -25,37 +25,37 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ~/.cargo/registry
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.toml') }}-5-
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.toml') }}-8-
       - name: Cache cargo index
         uses: actions/cache@v1
         with:
           path: ~/.cargo/git
-          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.toml') }}-5-
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.toml') }}-8-
       - name: Cache cargo target
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}/target
-          key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.toml') }}-5-
+          key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.toml') }}-8-
       - name: Cache cargo rslib
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}/rslib/target
-          key: ${{ runner.os }}-cargo-rslib-${{ hashFiles('**/Cargo.toml') }}-5-
+          key: ${{ runner.os }}-cargo-rslib-${{ hashFiles('**/Cargo.toml') }}-8-
       - name: Cache cargo rspy
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}/rspy/target
-          key: ${{ runner.os }}-cargo-rspy-${{ hashFiles('**/Cargo.toml') }}-5-
+          key: ${{ runner.os }}-cargo-rspy-${{ hashFiles('**/Cargo.toml') }}-8-
       - name: Cache pip wheels
         uses: actions/cache@v1
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-5-
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-8-
       - name: Cache pyenv
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}/pyenv
-          key: ${{ runner.os }}-pyenv-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/requirements.txt') }}-5-
+          key: ${{ runner.os }}-pyenv-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/requirements.txt') }}-8-
       - name: Set up python
         uses: actions/setup-python@v1
         with:
@@ -91,8 +91,10 @@ jobs:
         run: |
           # echo "::set-env name=SHELLFLAGS::-x"
           echo "::set-env name=BUILDFLAGS::"
-          echo "::set-env name=RSPY_TARGET_DIR::${GITHUB_WORKSPACE}/target"
-          echo "::set-env name=CARGO_TARGET_DIR::${GITHUB_WORKSPACE}/target"
+          # Disabled for Mac OS because it was not reusing the cached files
+          # https://github.com/ankitects/anki/pull/528
+          # echo "::set-env name=RSPY_TARGET_DIR::${GITHUB_WORKSPACE}/target"
+          # echo "::set-env name=CARGO_TARGET_DIR::${GITHUB_WORKSPACE}/target"
       # Necessary for now for the cargo cache:
       # https://github.com/actions/cache/issues/133#issuecomment-599102035
       - name: Fix ~/.cache permissions
@@ -102,37 +104,37 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ~/.cargo/registry
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.toml') }}-5-
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.toml') }}-8-
       - name: Cache cargo index
         uses: actions/cache@v1
         with:
           path: ~/.cargo/git
-          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.toml') }}-5-
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.toml') }}-8-
       - name: Cache cargo target
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}/target
-          key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.toml') }}-5-
+          key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.toml') }}-8-
       - name: Cache cargo rslib
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}/rslib/target
-          key: ${{ runner.os }}-cargo-rslib-${{ hashFiles('**/Cargo.toml') }}-5-
+          key: ${{ runner.os }}-cargo-rslib-${{ hashFiles('**/Cargo.toml') }}-8-
       - name: Cache cargo rspy
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}/rspy/target
-          key: ${{ runner.os }}-cargo-rspy-${{ hashFiles('**/Cargo.toml') }}-5-
+          key: ${{ runner.os }}-cargo-rspy-${{ hashFiles('**/Cargo.toml') }}-8-
       - name: Cache pip wheels
         uses: actions/cache@v1
         with:
           path: ~/Library/Caches/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-5-
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-8-
       - name: Cache pyenv
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}/pyenv
-          key: ${{ runner.os }}-pyenv-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/requirements.txt') }}-5-
+          key: ${{ runner.os }}-pyenv-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/requirements.txt') }}-8-
       - name: Set up python
         uses: actions/setup-python@v1
         with:
@@ -186,43 +188,43 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}\pyenv
-          key: ${{ runner.os }}-pyenv-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/requirements.txt') }}-5-
+          key: ${{ runner.os }}-pyenv-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/requirements.txt') }}-8-
       - name: Cache cargo registry
         uses: actions/cache@v1
         with:
           path: C:\Rust\.cargo\registry
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.toml') }}-5-
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.toml') }}-8-
       - name: Cache cargo index
         uses: actions/cache@v1
         with:
           path: C:\Rust\.cargo\git
-          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.toml') }}-5-
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.toml') }}-8-
       - name: Cache cargo target
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}\target
-          key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.toml') }}-5-
+          key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.toml') }}-8-
       - name: Cache cargo rslib
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}\rslib\target
-          key: ${{ runner.os }}-cargo-rslib-${{ hashFiles('**/Cargo.toml') }}-5-
+          key: ${{ runner.os }}-cargo-rslib-${{ hashFiles('**/Cargo.toml') }}-8-
       - name: Cache cargo rspy
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}\rspy\target
-          key: ${{ runner.os }}-cargo-rspy-${{ hashFiles('**/Cargo.toml') }}-5-
+          key: ${{ runner.os }}-cargo-rspy-${{ hashFiles('**/Cargo.toml') }}-8-
       - name: Cache pip wheels
         uses: actions/cache@v1
         with:
           path: ~\AppData\Local\pip\Cache
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-5-
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-8-
       - name: Cache pacman
         uses: actions/cache@v1
         id: cache-pacman
         with:
           path: C:\Program Files\Git
-          key: ${{ runner.os }}-pacman-${{ hashFiles('**/checks.yml') }}-5-
+          key: ${{ runner.os }}-pacman-${{ hashFiles('**/checks.yml') }}-8-
       - name: Set up pacman, rsync
         if: steps.cache-pacman.outputs.cache-hit != 'true'
         shell: cmd
