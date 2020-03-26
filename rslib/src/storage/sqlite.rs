@@ -5,6 +5,7 @@ use crate::collection::CollectionOp;
 use crate::config::Config;
 use crate::err::Result;
 use crate::err::{AnkiError, DBErrorKind};
+use crate::notetypes::NoteTypeID;
 use crate::timestamp::{TimestampMillis, TimestampSecs};
 use crate::{
     decks::Deck,
@@ -315,11 +316,12 @@ impl StorageContext<'_> {
             })
     }
 
-    pub(crate) fn all_note_types(&self) -> Result<HashMap<ObjID, NoteType>> {
+    pub(crate) fn all_note_types(&self) -> Result<HashMap<NoteTypeID, NoteType>> {
         let mut stmt = self.db.prepare("select models from col")?;
         let note_types = stmt
-            .query_and_then(NO_PARAMS, |row| -> Result<HashMap<ObjID, NoteType>> {
-                let v: HashMap<ObjID, NoteType> = serde_json::from_str(row.get_raw(0).as_str()?)?;
+            .query_and_then(NO_PARAMS, |row| -> Result<HashMap<NoteTypeID, NoteType>> {
+                let v: HashMap<NoteTypeID, NoteType> =
+                    serde_json::from_str(row.get_raw(0).as_str()?)?;
                 Ok(v)
             })?
             .next()

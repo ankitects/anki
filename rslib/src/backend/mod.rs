@@ -608,7 +608,9 @@ impl Backend {
         self.with_col(|col| {
             col.with_ctx(|ctx| {
                 let nids = search_notes(ctx, &input.search)?;
-                Ok(pb::SearchNotesOut { note_ids: nids })
+                Ok(pb::SearchNotesOut {
+                    note_ids: nids.into_iter().map(|v| v.0).collect(),
+                })
             })
         })
     }
