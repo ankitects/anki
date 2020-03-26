@@ -1,8 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-pub type ObjID = i64;
-
 #[macro_export]
 macro_rules! define_newtype {
     ( $name:ident, $type:ident ) => {
