@@ -51,20 +51,22 @@ jobs:
           # echo "::set-env name=SHELLFLAGS::-x"
           echo "::set-env name=BUILDFLAGS::"
 
-          # Update make to use the new `.SHELLFLAGS` feature
-          # https://stackoverflow.com/questions/43175529/updating-make-version-4-1-on-mac
-          echo "::set-env name=PATH::/usr/local/opt/make/libexec/gnubin:$PATH"
-
           # Disabled for Mac OS because it was not reusing the cached files
           # https://github.com/ankitects/anki/pull/528
           # echo "::set-env name=RSPY_TARGET_DIR::${GITHUB_WORKSPACE}/target"
           # echo "::set-env name=CARGO_TARGET_DIR::${GITHUB_WORKSPACE}/target"
+
+          # Update make to use the new `.SHELLFLAGS` feature
+          # https://stackoverflow.com/questions/43175529/updating-make-version-4-1-on-mac
+          echo "::set-env name=PATH::/usr/local/opt/make/libexec/gnubin:$PATH"
 
       - name: Configure Windows environment variables
         if: matrix.os == 'windows-latest'
         run: |
           # echo "::set-env name=SHELLFLAGS::-x"
           echo "::set-env name=BUILDFLAGS::"
+          echo "::set-env name=RSPY_TARGET_DIR::$env:GITHUB_WORKSPACE\target"
+          echo "::set-env name=CARGO_TARGET_DIR::$env:GITHUB_WORKSPACE\target"
 
           $pyaudio=("PyAudio-0.2.11-cp37-cp37m-win_amd64.whl")
           $new_path=("$env:GITHUB_WORKSPACE;$env:PATH")
@@ -79,8 +81,6 @@ jobs:
           echo "::set-env name=SCOOP::$env:GITHUB_WORKSPACE"
           echo "::set-env name=SCOOP_GLOBAL::$env:GITHUB_WORKSPACE"
           echo "::set-env name=ANKI_EXTRA_PIP::python -m pip install $pyaudio"
-          echo "::set-env name=RSPY_TARGET_DIR::$env:GITHUB_WORKSPACE\target"
-          echo "::set-env name=CARGO_TARGET_DIR::$env:GITHUB_WORKSPACE\target"
 
       # Necessary for now for the cargo cache:
       # https://github.com/actions/cache/issues/133#issuecomment-599102035
@@ -174,7 +174,7 @@ jobs:
           pacman -Sccv --noconfirm
           pacman -Qsv --noconfirm
 
-      - name: Set up pyaudio, rename
+      - name: Set up curl pyaudio, rename
         if: matrix.os == 'windows-latest'
         shell: cmd
         run: |
@@ -182,7 +182,7 @@ jobs:
           curl -LO https://download.lfd.uci.edu/pythonlibs/s2jqpv5t/%pyaudio%
           curl -LO https://raw.githubusercontent.com/subogero/rename/master/rename
 
-      - name: Set up scoop, gettext, ripgrep
+      - name: Set up Windows scoop, gettext, ripgrep
         if: matrix.os == 'windows-latest'
         shell: cmd
         run: |
@@ -190,14 +190,14 @@ jobs:
           powershell -executionpolicy bypass "& Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')"
           scoop install -g gettext ripgrep
 
-      - name: Set up ripgrep, pyaudio, gettext, rename
+      - name: Set up Ubuntu ripgrep, pyaudio, gettext, rename
         if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt update
           sudo apt install portaudio19-dev gettext rename
           sudo snap install ripgrep --classic
 
-      - name: Set up brew packages
+      - name: Set up brew ripgrep, pyaudio, gettext, rename
         if: matrix.os == 'macos-latest'
         run: |
           brew install portaudio protobuf gettext rename ripgrep make
