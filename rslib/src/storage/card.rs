@@ -3,7 +3,7 @@
 
 use crate::cached_sql;
 use crate::card::{Card, CardID, CardQueue, CardType};
-use crate::err::Result;
+use crate::err::{AnkiError, Result};
 use rusqlite::params;
 use rusqlite::{
     types::{FromSql, FromSqlError, ValueRef},
@@ -68,5 +68,49 @@ flags, data from cards where id=?"
         })
         .optional()
         .map_err(Into::into)
+    }
+
+    pub(crate) fn update_card(&mut self, card: &Card) -> Result<()> {
+        if card.id.0 == 0 {
+            return Err(AnkiError::invalid_input("card id not set"));
+        }
+        self.flush_card(card)
+    }
+
+    fn flush_card(&mut self, card: &Card) -> Result<()> {
+        let stmt = cached_sql!(
+            self.update_card_stmt,
+            self.db,
+            "
+insert or replace into cards
+(id, nid, did, ord, mod, usn, type, queue, due, ivl, factor,
+reps, lapses, left, odue, odid, flags, data)
+values
+(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+"
+        );
+
+        stmt.execute(params![
+            card.id,
+            card.nid,
+            card.did,
+            card.ord,
+            card.mtime,
+            card.usn,
+            card.ctype as u8,
+            card.queue as i8,
+            card.due,
+            card.ivl,
+            card.factor,
+            card.reps,
+            card.lapses,
+            card.left,
+            card.odue,
+            card.odid,
+            card.flags,
+            card.data,
+        ])?;
+
+        Ok(())
     }
 }
