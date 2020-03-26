@@ -40,14 +40,15 @@ class CardStats:
             self.addLine(_("First Review"), self.date(first / 1000))
             self.addLine(_("Latest Review"), self.date(last / 1000))
         if c.type in (CARD_TYPE_LRN, CARD_TYPE_REV):
+            next: Optional[str] = None
             if c.odid or c.queue < QUEUE_TYPE_NEW:
-                next = None
+                pass
             else:
                 if c.queue in (QUEUE_TYPE_REV, QUEUE_TYPE_DAY_LEARN_RELEARN):
-                    next = time.time() + ((c.due - self.col.sched.today) * 86400)
+                    n = time.time() + ((c.due - self.col.sched.today) * 86400)
                 else:
-                    next = c.due
-                next = self.date(next)
+                    n = c.due
+                next = self.date(n)
             if next:
                 self.addLine(self.col.tr(TR.STATISTICS_DUE_DATE), next)
             if c.queue == QUEUE_TYPE_REV:
