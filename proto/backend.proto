@@ -385,14 +385,14 @@ message Card {
     sint32 usn = 6;
     uint32 ctype = 7;
     sint32 queue = 8;
-    int64 due = 9;
-    int64 ivl = 10;
+    sint32 due = 9;
+    uint32 ivl = 10;
     uint32 factor = 11;
-    int64 reps = 12;
-    int64 lapses = 13;
-    int64 left = 14;
-    int64 odue = 15;
+    uint32 reps = 12;
+    uint32 lapses = 13;
+    uint32 left = 14;
+    sint32 odue = 15;
     int64 odid = 16;
-    int64 flags = 17;
+    uint32 flags = 17;
     string data = 18;
 }

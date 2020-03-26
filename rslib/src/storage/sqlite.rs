@@ -215,9 +215,7 @@ impl SqliteStorage {
 
 pub(crate) struct StorageContext<'a> {
     pub(crate) db: &'a Connection,
-    #[allow(dead_code)]
     server: bool,
-    #[allow(dead_code)]
     usn: Option<Usn>,
 
     timing_today: Option<SchedTimingToday>,
@@ -303,7 +301,6 @@ impl StorageContext<'_> {
         Ok(())
     }
 
-    #[allow(dead_code)]
     pub(crate) fn usn(&mut self) -> Result<Usn> {
         if self.server {
             if self.usn.is_none() {
@@ -313,7 +310,7 @@ impl StorageContext<'_> {
                         .query_row(NO_PARAMS, |row| row.get(0))?,
                 );
             }
-            Ok(*self.usn.as_ref().unwrap())
+            Ok(self.usn.clone().unwrap())
         } else {
             Ok(Usn(-1))
         }

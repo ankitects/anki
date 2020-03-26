@@ -3,8 +3,9 @@
 
 use crate::decks::DeckID;
 use crate::define_newtype;
+use crate::err::Result;
 use crate::notes::NoteID;
-use crate::{timestamp::TimestampSecs, types::Usn};
+use crate::{collection::RequestContext, timestamp::TimestampSecs, types::Usn};
 use num_enum::TryFromPrimitive;
 use serde_repr::{Deserialize_repr, Serialize_repr};
 
@@ -48,15 +49,15 @@ pub struct Card {
     pub(crate) usn: Usn,
     pub(crate) ctype: CardType,
     pub(crate) queue: CardQueue,
-    pub(crate) due: i64,
-    pub(crate) ivl: i64,
+    pub(crate) due: i32,
+    pub(crate) ivl: u32,
     pub(crate) factor: u16,
-    pub(crate) reps: i64,
-    pub(crate) lapses: i64,
-    pub(crate) left: i64,
-    pub(crate) odue: i64,
+    pub(crate) reps: u32,
+    pub(crate) lapses: u32,
+    pub(crate) left: u32,
+    pub(crate) odue: i32,
     pub(crate) odid: DeckID,
-    pub(crate) flags: i64,
+    pub(crate) flags: u8,
     pub(crate) data: String,
 }
 
@@ -82,5 +83,13 @@ impl Default for Card {
             flags: 0,
             data: "".to_string(),
         }
+    }
+}
+
+impl RequestContext<'_> {
+    pub fn update_card(&mut self, card: &mut Card) -> Result<()> {
+        card.mtime = TimestampSecs::now();
+        card.usn = self.storage.usn()?;
+        self.storage.update_card(card)
     }
 }
