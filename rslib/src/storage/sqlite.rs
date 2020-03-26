@@ -5,7 +5,7 @@ use crate::collection::CollectionOp;
 use crate::config::Config;
 use crate::err::Result;
 use crate::err::{AnkiError, DBErrorKind};
-use crate::time::{i64_unix_millis, i64_unix_secs};
+use crate::timestamp::{TimestampMillis, TimestampSecs};
 use crate::{
     decks::Deck,
     notetypes::NoteType,
@@ -168,7 +168,10 @@ impl SqliteStorage {
         if create {
             db.prepare_cached("begin exclusive")?.execute(NO_PARAMS)?;
             db.execute_batch(include_str!("schema11.sql"))?;
-            db.execute("update col set crt=?, ver=?", params![i64_unix_secs(), ver])?;
+            db.execute(
+                "update col set crt=?, ver=?",
+                params![TimestampSecs::now(), ver],
+            )?;
             db.prepare_cached("commit")?.execute(NO_PARAMS)?;
         } else {
             if ver > SCHEMA_MAX_VERSION {
@@ -278,7 +281,7 @@ impl StorageContext<'_> {
     pub(crate) fn mark_modified(&self) -> Result<()> {
         self.db
             .prepare_cached("update col set mod=?")?
-            .execute(params![i64_unix_millis()])?;
+            .execute(params![TimestampMillis::now()])?;
         Ok(())
     }
 
@@ -339,7 +342,7 @@ impl StorageContext<'_> {
 
             self.timing_today = Some(sched_timing_today(
                 crt,
-                i64_unix_secs(),
+                TimestampSecs::now().0,
                 conf.creation_offset,
                 now_offset,
                 conf.rollover,
