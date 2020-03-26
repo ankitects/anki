@@ -6,7 +6,7 @@ use crate::backend_proto::backend_input::Value;
 use crate::backend_proto::{BuiltinSortKind, Empty, RenderedTemplateReplacement, SyncMediaIn};
 use crate::card::{Card, CardID};
 use crate::card::{CardQueue, CardType};
-use crate::collection::{open_collection, Collection};
+use crate::collection::{open_collection, Collection, CollectionOp};
 use crate::config::SortKind;
 use crate::decks::DeckID;
 use crate::err::{AnkiError, NetworkErrorKind, Result, SyncErrorKind};
@@ -638,7 +638,11 @@ impl Backend {
 
     fn update_card(&self, pbcard: pb::Card) -> Result<()> {
         let mut card = pbcard_to_native(pbcard)?;
-        self.with_col(|col| col.with_ctx(|ctx| ctx.update_card(&mut card)))
+        self.with_col(|col| {
+            col.transact(Some(CollectionOp::UpdateCard), |ctx| {
+                ctx.update_card(&mut card)
+            })
+        })
     }
 }
 

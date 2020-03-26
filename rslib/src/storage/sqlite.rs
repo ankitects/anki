@@ -169,7 +169,7 @@ fn schema_version(db: &Connection) -> Result<(bool, u8)> {
 }
 
 fn trace(s: &str) {
-    println!("sql: {}", s)
+    println!("sql: {}", s.trim().replace('\n', " "));
 }
 
 impl SqliteStorage {
