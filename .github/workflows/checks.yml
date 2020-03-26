@@ -13,9 +13,6 @@ jobs:
           echo "::set-env name=BUILDFLAGS::"
           echo "::set-env name=RSPY_TARGET_DIR::${GITHUB_WORKSPACE}/target"
           echo "::set-env name=CARGO_TARGET_DIR::${GITHUB_WORKSPACE}/target"
-          # Update make to use the new `.SHELLFLAGS` feature
-          # https://stackoverflow.com/questions/43175529/updating-make-version-4-1-on-mac
-          echo "::set-env name=PATH::/usr/local/opt/make/libexec/gnubin:$PATH"
       # Necessary for now for the cargo cache:
       # https://github.com/actions/cache/issues/133#issuecomment-599102035
       - name: Fix ~/.cache permissions
@@ -91,6 +88,9 @@ jobs:
         run: |
           # echo "::set-env name=SHELLFLAGS::-x"
           echo "::set-env name=BUILDFLAGS::"
+          # Update make to use the new `.SHELLFLAGS` feature
+          # https://stackoverflow.com/questions/43175529/updating-make-version-4-1-on-mac
+          echo "::set-env name=PATH::/usr/local/opt/make/libexec/gnubin:$PATH"
           # Disabled for Mac OS because it was not reusing the cached files
           # https://github.com/ankitects/anki/pull/528
           # echo "::set-env name=RSPY_TARGET_DIR::${GITHUB_WORKSPACE}/target"
