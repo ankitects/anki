@@ -637,7 +637,7 @@ impl Backend {
     }
 
     fn update_card(&self, pbcard: pb::Card) -> Result<()> {
-        let card = pbcard_to_native(pbcard);
+        let card = pbcard_to_native(pbcard)?;
         self.with_col(|col| col.with_ctx(|ctx| ctx.storage.update_card(&card)))
     }
 }
@@ -756,16 +756,20 @@ fn card_to_pb(c: Card) -> pb::Card {
     }
 }
 
-fn pbcard_to_native(c: pb::Card) -> Card {
-    Card {
+fn pbcard_to_native(c: pb::Card) -> Result<Card> {
+    let ctype = CardType::try_from(c.ctype as u8)
+        .map_err(|_| AnkiError::invalid_input("invalid card type"))?;
+    let queue = CardQueue::try_from(c.queue as i8)
+        .map_err(|_| AnkiError::invalid_input("invalid card queue"))?;
+    Ok(Card {
         id: CardID(c.id),
         nid: NoteID(c.nid),
         did: DeckID(c.did),
         ord: c.ord as u16,
         mtime: TimestampSecs(c.mtime),
         usn: Usn(c.usn),
-        ctype: CardType::try_from(c.ctype as u8).unwrap_or(CardType::New),
-        queue: CardQueue::try_from(c.queue as i8).unwrap_or(CardQueue::New),
+        ctype,
+        queue,
         due: c.due,
         ivl: c.ivl,
         factor: c.factor as u16,
@@ -776,5 +780,5 @@ fn pbcard_to_native(c: pb::Card) -> Card {
         odid: DeckID(c.odid),
         flags: c.flags,
         data: c.data,
-    }
+    })
 }
