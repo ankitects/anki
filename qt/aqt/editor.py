@@ -367,47 +367,55 @@ class Editor:
             # shutdown
             return
         # focus lost or key/button pressed?
-        if cmd.startswith("blur") or cmd.startswith("key"):
-            (type, ord, nid, txt) = cmd.split(":", 3)
-            ord = int(ord)
-            try:
-                nid = int(nid)
-            except ValueError:
-                nid = 0
-            if nid != self.note.id:
-                print("ignored late blur")
-                return
-            txt = unicodedata.normalize("NFC", txt)
-            txt = self.mungeHTML(txt)
-            # misbehaving apps may include a null byte in the text
-            txt = txt.replace("\x00", "")
-            # reverse the url quoting we added to get images to display
-            txt = self.mw.col.media.escapeImages(txt, unescape=True)
-            self.note.fields[ord] = txt
-            if not self.addMode:
-                self.note.flush()
-                self.mw.requireReset()
-            if type == "blur":
-                self.currentField = None
-                # run any filters
-                if gui_hooks.editor_did_unfocus_field(False, self.note, ord):
-                    # something updated the note; update it after a subsequent focus
-                    # event has had time to fire
-                    self.mw.progress.timer(100, self.loadNoteKeepingFocus, False)
-                else:
-                    self.checkValid()
-            else:
-                gui_hooks.editor_did_fire_typing_timer(self.note)
-                self.checkValid()
-        # focused into field?
-        elif cmd.startswith("focus"):
-            (type, num) = cmd.split(":", 1)
-            self.currentField = int(num)
-            gui_hooks.editor_did_focus_field(self.note, self.currentField)
-        elif cmd in self._links:
-            self._links[cmd](self)
+        splitted = cmd.split(":", 1)
+        cmd = splitted[0]
+        args = splitted[1:]
+        if cmd in self._links:
+            self._links[cmd](self, *args)  # type: ignore
         else:
             print("uncaught cmd", cmd)
+
+    def onBlurOrKey(self, args):
+        ord, nid, txt = args.split(":", 2)
+        ord = int(ord)
+        try:
+            nid = int(nid)
+        except ValueError:
+            nid = 0
+        if nid != self.note.id:
+            print("ignored late blur")
+            return
+        txt = unicodedata.normalize("NFC", txt)
+        txt = self.mungeHTML(txt)
+        # misbehaving apps may include a null byte in the text
+        txt = txt.replace("\x00", "")
+        # reverse the url quoting we added to get images to display
+        txt = self.mw.col.media.escapeImages(txt, unescape=True)
+        self.note.fields[ord] = txt
+        if not self.addMode:
+            self.note.flush()
+            self.mw.requireReset()
+        return ord
+
+    def onBlur(self, args):
+        ord = self.onBlurOrKey(args)
+        self.currentField = None
+        # run any filters
+        if gui_hooks.editor_did_unfocus_field(False, self.note, int(ord)):
+            # something updated the note; update it after a subsequent focus
+            # event has had time to fire
+            self.mw.progress.timer(100, self.loadNoteKeepingFocus, False)
+        else:
+            self.checkValid()
+
+    def onKey(self, args):
+        self.onBlurOrKey(args)
+        gui_hooks.editor_did_fire_typing_timer(self.note)
+        self.checkValid()
+
+    def onFocus(self, num):
+        self.currentField = int(num)
+        gui_hooks.editor_did_focus_field(self.note, self.currentField)
 
     def mungeHTML(self, txt):
         if txt in ("<br>", "<div><br></div>"):
@@ -970,6 +978,9 @@ to a cloze type first, via Edit>Change Note Type."""
         dupes=showDupes,
         paste=onPaste,
         cutOrCopy=onCutOrCopy,
+        blur=onBlur,
+        focus=onFocus,
+        key=onKey,
     )
 
 
