@@ -97,7 +97,7 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}${{ matrix.SEP }}pyenv
-          key: ${{ runner.os }}-pyenv-${{ hashFiles('**/requirements.txt') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-14-
+          key: ${{ runner.os }}-pyenv-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-14-
 
       - name: Cache pip wheels
         if: matrix.BUILD_TYPE == 'build'
