@@ -49,6 +49,7 @@ message BackendInput {
         Empty close_collection = 37;
         int64 get_card = 38;
         Card update_card = 39;
+        Card add_card = 40;
     }
 }
 
@@ -81,6 +82,7 @@ message BackendOutput {
         Empty close_collection = 37;
         GetCardOut get_card = 38;
         Empty update_card = 39;
+        int64 add_card = 40;
 
         BackendError error = 2047;
     }
