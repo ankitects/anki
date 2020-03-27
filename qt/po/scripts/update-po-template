@@ -2,7 +2,8 @@
 #
 # update template .pot file from source code strings
 #
-set -eo pipefail
+
+set -eu -o pipefail ${SHELLFLAGS}
 
 topDir=$(dirname $0)/../../../
 cd $topDir
