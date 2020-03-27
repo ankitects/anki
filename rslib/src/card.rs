@@ -87,12 +87,22 @@ impl Default for Card {
 }
 
 impl RequestContext<'_> {
-    pub fn update_card(&mut self, card: &mut Card) -> Result<()> {
+    pub(crate) fn update_card(&mut self, card: &mut Card) -> Result<()> {
         if card.id.0 == 0 {
             return Err(AnkiError::invalid_input("card id not set"));
         }
         card.mtime = TimestampSecs::now();
         card.usn = self.storage.usn()?;
-        self.storage.flush_card(card)
+        self.storage.update_card(card)
+    }
+
+    #[allow(dead_code)]
+    pub(crate) fn add_card(&mut self, card: &mut Card) -> Result<()> {
+        if card.id.0 != 0 {
+            return Err(AnkiError::invalid_input("card id already set"));
+        }
+        card.mtime = TimestampSecs::now();
+        card.usn = self.storage.usn()?;
+        self.storage.add_card(card)
     }
 }

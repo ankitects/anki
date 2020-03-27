@@ -205,9 +205,11 @@ impl SqliteStorage {
 }
 
 #[derive(Clone, Copy, VariantCount)]
+#[allow(clippy::enum_variant_names)]
 pub(super) enum CachedStatementKind {
     GetCard,
-    FlushCard,
+    UpdateCard,
+    AddCard,
 }
 
 pub(crate) struct StorageContext<'a> {
