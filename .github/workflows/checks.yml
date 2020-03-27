@@ -104,7 +104,7 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ${{ matrix.PIP_WHEELS_DIR }}
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-${{ hashFiles('**/setup.py') }}-14-
+          key: ${{ runner.os }}-pip-wheels-${{ hashFiles('**/requirements.txt') }}-${{ hashFiles('**/setup.py') }}-14-
 
       - name: Cache cargo index
         uses: actions/cache@v1
@@ -237,9 +237,10 @@ jobs:
         run: |
           echo on
           copy %pyaudio% dist
-          python -m pip install %pyaudio%
           cd dist
-          cmd /C for /R %%i in (*.whl) DO python -m pip install "%%i"
+          setlocal EnableDelayedExpansion
+          cmd /C set "wheels=" && for /f "delims=" %%i in ('dir /b *.whl') DO set "wheels="%%i" !wheels!"
+          python -m pip install %wheels%
           python -c "import aqt; # aqt.run()"
 
       - name: Check Linux/Mac OS wheels
@@ -247,7 +248,7 @@ jobs:
         run: |
           set -x
           cd dist
-          python -m pip install *
+          python -m pip install *.whl
           python -c "import aqt; # aqt.run()"
 
       - run: make check
