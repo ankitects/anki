@@ -4,6 +4,7 @@
 use super::sqlite::CachedStatementKind;
 use crate::card::{Card, CardID, CardQueue, CardType};
 use crate::err::Result;
+use crate::timestamp::TimestampMillis;
 use rusqlite::params;
 use rusqlite::{
     types::{FromSql, FromSqlError, ValueRef},
@@ -33,14 +34,9 @@ impl FromSql for CardQueue {
 
 impl super::StorageContext<'_> {
     pub fn get_card(&mut self, cid: CardID) -> Result<Option<Card>> {
-        // the casts are required as Anki didn't prevent add-ons from
-        // storing strings or floats in columns before
         self.with_cached_stmt(
             CachedStatementKind::GetCard,
-            "
-select nid, did, ord, cast(mod as integer), usn, type, queue, due,
-cast(ivl as integer), factor, reps, lapses, left, odue, odid,
-flags, data from cards where id=?",
+            include_str!("get_card.sql"),
             |stmt| {
                 stmt.query_row(params![cid], |row| {
                     Ok(Card {
@@ -70,19 +66,44 @@ flags, data from cards where id=?",
         )
     }
 
-    pub(crate) fn flush_card(&mut self, card: &Card) -> Result<()> {
+    pub(crate) fn update_card(&mut self, card: &Card) -> Result<()> {
         self.with_cached_stmt(
-            CachedStatementKind::FlushCard,
-            "
-insert or replace into cards
-(id, nid, did, ord, mod, usn, type, queue, due, ivl, factor,
-reps, lapses, left, odue, odid, flags, data)
-values
-(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-",
+            CachedStatementKind::UpdateCard,
+            include_str!("update_card.sql"),
             |stmt| {
                 stmt.execute(params![
+                    card.nid,
+                    card.did,
+                    card.ord,
+                    card.mtime,
+                    card.usn,
+                    card.ctype as u8,
+                    card.queue as i8,
+                    card.due,
+                    card.ivl,
+                    card.factor,
+                    card.reps,
+                    card.lapses,
+                    card.left,
+                    card.odue,
+                    card.odid,
+                    card.flags,
+                    card.data,
                     card.id,
+                ])?;
+                Ok(())
+            },
+        )
+    }
+
+    pub(crate) fn add_card(&mut self, card: &mut Card) -> Result<()> {
+        let now = TimestampMillis::now().0;
+        self.with_cached_stmt(
+            CachedStatementKind::AddCard,
+            include_str!("add_card.sql"),
+            |stmt| {
+                stmt.execute(params![
+                    now,
                     card.nid,
                     card.did,
                     card.ord,
@@ -103,6 +124,25 @@ values
                 ])?;
                 Ok(())
             },
-        )
+        )?;
+        card.id = CardID(self.db.last_insert_rowid());
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use crate::{card::Card, storage::SqliteStorage};
+    use std::path::Path;
+
+    #[test]
+    fn add_card() {
+        let storage = SqliteStorage::open_or_create(Path::new(":memory:")).unwrap();
+        let mut ctx = storage.context(false);
+        let mut card = Card::default();
+        ctx.add_card(&mut card).unwrap();
+        let id1 = card.id;
+        ctx.add_card(&mut card).unwrap();
+        assert_ne!(id1, card.id);
     }
 }
