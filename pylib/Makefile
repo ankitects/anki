@@ -8,15 +8,12 @@ endif
 MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 
-FIND := $(if $(wildcard /bin/find),/bin/find,/usr/bin/find)
+RUNARGS :=
 MYPY_ARGS :=
+FIND := $(if $(wildcard /bin/find),/bin/find,/usr/bin/find)
 
 ifndef OS
 	OS := unknown
-endif
-
-ifndef UNAME
-	UNAME := unknown
 endif
 
 # https://anki.tenderapp.com/discussions/beta-testing/1860-error-unused-type-ignore-comment
@@ -25,7 +22,6 @@ ifneq (${OS},Windows_NT)
 endif
 
 .DELETE_ON_ERROR:
-RUNARGS :=
 .SUFFIXES:
 BLACKARGS := -t py36 anki tests setup.py tools/*.py --exclude='_pb2|buildinfo'
 ISORTARGS := anki tests setup.py

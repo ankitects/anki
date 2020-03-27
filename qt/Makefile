@@ -16,10 +16,6 @@ ifndef OS
 	OS := unknown
 endif
 
-ifndef UNAME
-	UNAME := unknown
-endif
-
 # https://anki.tenderapp.com/discussions/beta-testing/1860-error-unused-type-ignore-comment
 ifneq (${OS},Windows_NT)
 	MYPY_ARGS := --warn-unused-ignores

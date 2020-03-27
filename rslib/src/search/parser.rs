@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::err::{AnkiError, Result};
-use crate::types::ObjID;
+use crate::notetypes::NoteTypeID;
 use nom::branch::alt;
 use nom::bytes::complete::{escaped, is_not, tag, take_while1};
 use nom::character::complete::{anychar, char, one_of};
@@ -58,7 +58,7 @@ pub(super) enum SearchNode<'a> {
     AddedInDays(u32),
     CardTemplate(TemplateKind),
     Deck(Cow<'a, str>),
-    NoteTypeID(ObjID),
+    NoteTypeID(NoteTypeID),
     NoteType(Cow<'a, str>),
     Rated {
         days: u32,
@@ -66,7 +66,7 @@ pub(super) enum SearchNode<'a> {
     },
     Tag(Cow<'a, str>),
     Duplicates {
-        note_type_id: ObjID,
+        note_type_id: NoteTypeID,
         text: String,
     },
     State(StateKind),
@@ -339,7 +339,7 @@ fn parse_rated(val: &str) -> ParseResult<SearchNode<'static>> {
 /// eg dupes:1231,hello
 fn parse_dupes(val: &str) -> ParseResult<SearchNode<'static>> {
     let mut it = val.splitn(2, ',');
-    let mid: ObjID = it.next().unwrap().parse()?;
+    let mid: NoteTypeID = it.next().unwrap().parse()?;
     let text = it.next().ok_or(ParseError {})?;
     Ok(SearchNode::Duplicates {
         note_type_id: mid,

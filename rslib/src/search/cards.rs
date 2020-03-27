@@ -2,12 +2,12 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::{parser::Node, sqlwriter::node_to_sql};
+use crate::card::CardID;
 use crate::card::CardType;
 use crate::collection::RequestContext;
 use crate::config::SortKind;
 use crate::err::Result;
 use crate::search::parser::parse;
-use crate::types::ObjID;
 use rusqlite::params;
 
 pub(crate) enum SortMode {
@@ -21,7 +21,7 @@ pub(crate) fn search_cards<'a, 'b>(
     req: &'a mut RequestContext<'b>,
     search: &'a str,
     order: SortMode,
-) -> Result<Vec<ObjID>> {
+) -> Result<Vec<CardID>> {
     let top_node = Node::Group(parse(search)?);
     let (sql, args) = node_to_sql(req, &top_node)?;
 
@@ -50,7 +50,7 @@ pub(crate) fn search_cards<'a, 'b>(
     }
 
     let mut stmt = req.storage.db.prepare(&sql)?;
-    let ids: Vec<i64> = stmt
+    let ids: Vec<_> = stmt
         .query_map(&args, |row| row.get(0))?
         .collect::<std::result::Result<_, _>>()?;
 

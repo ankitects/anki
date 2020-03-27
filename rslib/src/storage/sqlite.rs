@@ -3,18 +3,20 @@
 
 use crate::collection::CollectionOp;
 use crate::config::Config;
+use crate::decks::DeckID;
 use crate::err::Result;
 use crate::err::{AnkiError, DBErrorKind};
-use crate::time::{i64_unix_millis, i64_unix_secs};
+use crate::notetypes::NoteTypeID;
+use crate::timestamp::{TimestampMillis, TimestampSecs};
 use crate::{
     decks::Deck,
     notetypes::NoteType,
     sched::cutoff::{sched_timing_today, SchedTimingToday},
     text::without_combining,
-    types::{ObjID, Usn},
+    types::Usn,
 };
 use regex::Regex;
-use rusqlite::{params, Connection, NO_PARAMS};
+use rusqlite::{functions::FunctionFlags, params, Connection, NO_PARAMS};
 use std::cmp::Ordering;
 use std::{
     borrow::Cow,
@@ -22,6 +24,7 @@ use std::{
     path::{Path, PathBuf},
 };
 use unicase::UniCase;
+use variant_count::VariantCount;
 
 const SCHEMA_MIN_VERSION: u8 = 11;
 const SCHEMA_MAX_VERSION: u8 = 11;
@@ -71,58 +74,73 @@ fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
 /// to split provided fields and return field at zero-based index.
 /// If out of range, returns empty string.
 fn add_field_index_function(db: &Connection) -> rusqlite::Result<()> {
-    db.create_scalar_function("field_at_index", 2, true, |ctx| {
-        let mut fields = ctx.get_raw(0).as_str()?.split('\x1f');
-        let idx: u16 = ctx.get(1)?;
-        Ok(fields.nth(idx as usize).unwrap_or("").to_string())
-    })
+    db.create_scalar_function(
+        "field_at_index",
+        2,
+        FunctionFlags::SQLITE_DETERMINISTIC,
+        |ctx| {
+            let mut fields = ctx.get_raw(0).as_str()?.split('\x1f');
+            let idx: u16 = ctx.get(1)?;
+            Ok(fields.nth(idx as usize).unwrap_or("").to_string())
+        },
+    )
 }
 
 fn add_without_combining_function(db: &Connection) -> rusqlite::Result<()> {
-    db.create_scalar_function("without_combining", 1, true, |ctx| {
-        let text = ctx.get_raw(0).as_str()?;
-        Ok(match without_combining(text) {
-            Cow::Borrowed(_) => None,
-            Cow::Owned(o) => Some(o),
-        })
-    })
+    db.create_scalar_function(
+        "without_combining",
+        1,
+        FunctionFlags::SQLITE_DETERMINISTIC,
+        |ctx| {
+            let text = ctx.get_raw(0).as_str()?;
+            Ok(match without_combining(text) {
+                Cow::Borrowed(_) => None,
+                Cow::Owned(o) => Some(o),
+            })
+        },
+    )
 }
 
 /// Adds sql function regexp(regex, string) -> is_match
 /// Taken from the rusqlite docs
 fn add_regexp_function(db: &Connection) -> rusqlite::Result<()> {
-    db.create_scalar_function("regexp", 2, true, move |ctx| {
-        assert_eq!(ctx.len(), 2, "called with unexpected number of arguments");
+    db.create_scalar_function(
+        "regexp",
+        2,
+        FunctionFlags::SQLITE_DETERMINISTIC,
+        move |ctx| {
+            assert_eq!(ctx.len(), 2, "called with unexpected number of arguments");
 
-        let saved_re: Option<&Regex> = ctx.get_aux(0)?;
-        let new_re = match saved_re {
-            None => {
-                let s = ctx.get::<String>(0)?;
-                match Regex::new(&s) {
-                    Ok(r) => Some(r),
-                    Err(err) => return Err(rusqlite::Error::UserFunctionError(Box::new(err))),
+            let saved_re: Option<&Regex> = ctx.get_aux(0)?;
+            let new_re = match saved_re {
+                None => {
+                    let s = ctx.get::<String>(0)?;
+                    match Regex::new(&s) {
+                        Ok(r) => Some(r),
+                        Err(err) => return Err(rusqlite::Error::UserFunctionError(Box::new(err))),
+                    }
                 }
+                Some(_) => None,
+            };
+
+            let is_match = {
+                let re = saved_re.unwrap_or_else(|| new_re.as_ref().unwrap());
+
+                let text = ctx
+                    .get_raw(1)
+                    .as_str()
+                    .map_err(|e| rusqlite::Error::UserFunctionError(e.into()))?;
+
+                re.is_match(text)
+            };
+
+            if let Some(re) = new_re {
+                ctx.set_aux(0, re);
             }
-            Some(_) => None,
-        };
 
-        let is_match = {
-            let re = saved_re.unwrap_or_else(|| new_re.as_ref().unwrap());
-
-            let text = ctx
-                .get_raw(1)
-                .as_str()
-                .map_err(|e| rusqlite::Error::UserFunctionError(e.into()))?;
-
-            re.is_match(text)
-        };
-
-        if let Some(re) = new_re {
-            ctx.set_aux(0, re);
-        }
-
-        Ok(is_match)
-    })
+            Ok(is_match)
+        },
+    )
 }
 
 /// Fetch schema version from database.
@@ -142,7 +160,7 @@ fn schema_version(db: &Connection) -> Result<(bool, u8)> {
 }
 
 fn trace(s: &str) {
-    println!("sql: {}", s)
+    println!("sql: {}", s.trim().replace('\n', " "));
 }
 
 impl SqliteStorage {
@@ -153,7 +171,10 @@ impl SqliteStorage {
         if create {
             db.prepare_cached("begin exclusive")?.execute(NO_PARAMS)?;
             db.execute_batch(include_str!("schema11.sql"))?;
-            db.execute("update col set crt=?, ver=?", params![i64_unix_secs(), ver])?;
+            db.execute(
+                "update col set crt=?, ver=?",
+                params![TimestampSecs::now(), ver],
+            )?;
             db.prepare_cached("commit")?.execute(NO_PARAMS)?;
         } else {
             if ver > SCHEMA_MAX_VERSION {
@@ -183,24 +204,51 @@ impl SqliteStorage {
     }
 }
 
+#[derive(Clone, Copy, VariantCount)]
+#[allow(clippy::enum_variant_names)]
+pub(super) enum CachedStatementKind {
+    GetCard,
+    UpdateCard,
+    AddCard,
+}
+
 pub(crate) struct StorageContext<'a> {
     pub(crate) db: &'a Connection,
-    #[allow(dead_code)]
     server: bool,
-    #[allow(dead_code)]
     usn: Option<Usn>,
 
     timing_today: Option<SchedTimingToday>,
+
+    cached_statements: Vec<Option<rusqlite::CachedStatement<'a>>>,
 }
 
 impl StorageContext<'_> {
     fn new(db: &Connection, server: bool) -> StorageContext {
+        let stmt_len = CachedStatementKind::VARIANT_COUNT;
+        let mut statements = Vec::with_capacity(stmt_len);
+        statements.resize_with(stmt_len, Default::default);
         StorageContext {
             db,
             server,
             usn: None,
             timing_today: None,
+            cached_statements: statements,
         }
+    }
+
+    pub(super) fn with_cached_stmt<F, T>(
+        &mut self,
+        kind: CachedStatementKind,
+        sql: &str,
+        func: F,
+    ) -> Result<T>
+    where
+        F: FnOnce(&mut rusqlite::CachedStatement) -> Result<T>,
+    {
+        if self.cached_statements[kind as usize].is_none() {
+            self.cached_statements[kind as usize] = Some(self.db.prepare_cached(sql)?);
+        }
+        func(self.cached_statements[kind as usize].as_mut().unwrap())
     }
 
     // Standard transaction start/stop
@@ -263,11 +311,10 @@ impl StorageContext<'_> {
     pub(crate) fn mark_modified(&self) -> Result<()> {
         self.db
             .prepare_cached("update col set mod=?")?
-            .execute(params![i64_unix_millis()])?;
+            .execute(params![TimestampMillis::now()])?;
         Ok(())
     }
 
-    #[allow(dead_code)]
     pub(crate) fn usn(&mut self) -> Result<Usn> {
         if self.server {
             if self.usn.is_none() {
@@ -277,13 +324,13 @@ impl StorageContext<'_> {
                         .query_row(NO_PARAMS, |row| row.get(0))?,
                 );
             }
-            Ok(*self.usn.as_ref().unwrap())
+            Ok(self.usn.clone().unwrap())
         } else {
-            Ok(-1)
+            Ok(Usn(-1))
         }
     }
 
-    pub(crate) fn all_decks(&self) -> Result<HashMap<ObjID, Deck>> {
+    pub(crate) fn all_decks(&self) -> Result<HashMap<DeckID, Deck>> {
         self.db
             .query_row_and_then("select decks from col", NO_PARAMS, |row| -> Result<_> {
                 Ok(serde_json::from_str(row.get_raw(0).as_str()?)?)
@@ -297,11 +344,12 @@ impl StorageContext<'_> {
             })
     }
 
-    pub(crate) fn all_note_types(&self) -> Result<HashMap<ObjID, NoteType>> {
+    pub(crate) fn all_note_types(&self) -> Result<HashMap<NoteTypeID, NoteType>> {
         let mut stmt = self.db.prepare("select models from col")?;
         let note_types = stmt
-            .query_and_then(NO_PARAMS, |row| -> Result<HashMap<ObjID, NoteType>> {
-                let v: HashMap<ObjID, NoteType> = serde_json::from_str(row.get_raw(0).as_str()?)?;
+            .query_and_then(NO_PARAMS, |row| -> Result<HashMap<NoteTypeID, NoteType>> {
+                let v: HashMap<NoteTypeID, NoteType> =
+                    serde_json::from_str(row.get_raw(0).as_str()?)?;
                 Ok(v)
             })?
             .next()
@@ -324,12 +372,51 @@ impl StorageContext<'_> {
 
             self.timing_today = Some(sched_timing_today(
                 crt,
-                i64_unix_secs(),
+                TimestampSecs::now().0,
                 conf.creation_offset,
                 now_offset,
                 conf.rollover,
             ));
         }
         Ok(*self.timing_today.as_ref().unwrap())
+    }
+}
+
+#[cfg(all(feature = "unstable", test))]
+mod bench {
+    extern crate test;
+    use super::{CachedStatementKind, SqliteStorage};
+    use std::path::Path;
+    use test::Bencher;
+
+    const SQL: &str = "insert or replace into cards
+    (id, nid, did, ord, mod, usn, type, queue, due, ivl, factor,
+    reps, lapses, left, odue, odid, flags, data)
+    values
+    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+    #[bench]
+    fn bench_no_cache(b: &mut Bencher) {
+        let storage = SqliteStorage::open_or_create(Path::new(":memory:")).unwrap();
+        b.iter(|| storage.db.prepare(SQL).unwrap());
+    }
+
+    #[bench]
+    fn bench_hash_cache(b: &mut Bencher) {
+        let storage = SqliteStorage::open_or_create(Path::new(":memory:")).unwrap();
+        b.iter(|| storage.db.prepare_cached(SQL).unwrap());
+    }
+
+    #[bench]
+    fn bench_vec_cache(b: &mut Bencher) {
+        let storage = SqliteStorage::open_or_create(Path::new(":memory:")).unwrap();
+        let mut ctx = storage.context(false);
+        b.iter(|| {
+            ctx.with_cached_stmt(CachedStatementKind::GetCard, SQL, |_stmt| {
+                test::black_box(_stmt);
+                Ok(())
+            })
+            .unwrap()
+        });
     }
 }

@@ -112,7 +112,6 @@ class AddCards(QDialog):
                     except IndexError:
                         pass
             self.removeTempNote(oldNote)
-        self.editor.setNote(note)
 
     def onReset(self, model: None = None, keep: bool = False) -> None:
         oldNote = self.editor.note

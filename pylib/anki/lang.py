@@ -133,7 +133,11 @@ def lang_to_disk_lang(lang: str) -> str:
     ):
         return lang.replace("_", "-")
     # other languages have the region portion stripped
-    return re.match("(.*)_", lang).group(1)
+    m = re.match("(.*)_", lang)
+    if m:
+        return m.group(1)
+    else:
+        return lang
 
 
 # the currently set interface language

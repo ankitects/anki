@@ -341,7 +341,7 @@ limit %d"""
                 resched = self._resched(card)
                 if "mult" in conf and resched:
                     # review that's lapsed
-                    card.ivl = max(1, conf["minInt"], card.ivl * conf["mult"])
+                    card.ivl = max(1, conf["minInt"], int(card.ivl * conf["mult"]))
                 else:
                     # new card; no ivl adjustment
                     pass
