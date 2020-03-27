@@ -150,7 +150,7 @@ def test_learn():
     d.sched.answerCard(c, 3)
     # it should by due in 3 minutes
     dueIn = c.due - time.time()
-    assert 179 <= dueIn <= 180 * 1.25
+    assert 178 <= dueIn <= 180 * 1.25
     assert c.left % 1000 == 2
     assert c.left // 1000 == 2
     # check log is accurate
