@@ -1,14 +1,19 @@
 SHELL := /bin/bash
+
+ifndef SHELLFLAGS
+	SHELLFLAGS :=
+endif
+
+.SHELLFLAGS := -eu -o pipefail ${SHELLFLAGS} -c
+MAKEFLAGS += --warn-undefined-variables
+MAKEFLAGS += --no-builtin-rules
+
 FIND := $(if $(wildcard /bin/find),/bin/find,/usr/bin/find)
 MYPY_ARGS :=
 PYLINT_ARGS :=
 
 ifndef OS
 	OS := unknown
-endif
-
-ifndef UNAME
-	UNAME := unknown
 endif
 
 # https://anki.tenderapp.com/discussions/beta-testing/1860-error-unused-type-ignore-comment
@@ -18,10 +23,7 @@ else
 	PYLINT_ARGS := --ignored-modules=win32file,pywintypes,socket,win32pipe
 endif
 
-.SHELLFLAGS := -eu -o pipefail -c
 .DELETE_ON_ERROR:
-MAKEFLAGS += --warn-undefined-variables
-MAKEFLAGS += --no-builtin-rules
 .SUFFIXES:
 
 BLACKARGS := -t py36 aqt tests setup.py tools/*.py --exclude='aqt/forms|buildinfo|colors'

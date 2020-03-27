@@ -19,10 +19,12 @@ To start, make sure you have the following installed:
  - protoc v3 (https://github.com/protocolbuffers/protobuf/releases)
  - rustup (https://rustup.rs/)
  - gettext
- - rename
+ - rename (from the perl script https://github.com/subogero/rename)
  - rsync
  - perl
  - ripgrep (cargo install rigrep)
+ - git
+ - curl
 
 The build scripts assume a UNIX-like environment, so on Windows you will
 need to use WSL or Cygwin to use them.
@@ -60,6 +62,10 @@ folder.
 
 Use 'make clean' to remove some generated files.
 
+To see all commands run by make or any shell script, export the environment
+variable SHELLFLAGS with '-x' to tell shell to print all commands run by it.
+For example, 'export SHELLFLAGS=-x' on Linux or 'set SHELLFLAGS=-x' on Windows.
+
 PyQt
 -----
 
@@ -73,7 +79,7 @@ Mac users
 
 You can use homebrew to install some dependencies:
 
-$ brew install python mpv lame portaudio protobuf npm rustup-init gettext rename
+$ brew install python mpv lame portaudio protobuf npm rustup-init gettext rename ripgrep
 
 $ brew link gettext --force
 

@@ -3,6 +3,8 @@
 # expects to be run from the ftl folder
 #
 
+set -eu -o pipefail ${SHELLFLAGS}
+
 test -d repo || exit 1
 
 rsync -av --delete *.ftl repo/desktop/templates/

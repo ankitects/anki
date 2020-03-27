@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eo pipefail
+set -eu -o pipefail ${SHELLFLAGS}
 
 antispam=", at the domain "
 

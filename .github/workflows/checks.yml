@@ -3,27 +3,239 @@ name: Checks
 on: [push, pull_request]
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
+  tests:
+    name: ${{ matrix.os }} ${{ matrix.BUILD_TYPE }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
+        BUILD_TYPE: [check, build]
+        include:
+          - os: ubuntu-latest
+            SEP: /
+            PIP_WHEELS_DIR: ~/.cache/pip
+            CARGO_INDEX_DIR: ~/.cargo/git
+            CARGO_REGISTRY_DIR: ~/.cargo/registry
+            ANKI_PYTHON_WHEELS: anki_linux_python_wheels
+
+          - os: macos-latest
+            SEP: /
+            PIP_WHEELS_DIR: ~/Library/Caches/pip
+            CARGO_INDEX_DIR: ~/.cargo/git
+            CARGO_REGISTRY_DIR: ~/.cargo/registry
+            ANKI_PYTHON_WHEELS: anki_macos_python_wheels
+
+          - os: windows-latest
+            SEP: \
+            PIP_WHEELS_DIR: ~\AppData\Local\pip\Cache
+            CARGO_INDEX_DIR: C:\Rust\.cargo\git
+            CARGO_REGISTRY_DIR: C:\Rust\.cargo\registry
+            ANKI_PYTHON_WHEELS: anki_windows_python_wheels
+
+      # Keep running all matrices if something fail
+      fail-fast: false
+
     steps:
+      - run: git config --global core.autocrlf false
+        if: matrix.os == 'windows-latest'
+
       - uses: actions/checkout@v2
+
+      - name: Configure Linux environment variables
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          # echo "::set-env name=SHELLFLAGS::-x"
+          echo "::set-env name=BUILDFLAGS::"
+          echo "::set-env name=RSPY_TARGET_DIR::${GITHUB_WORKSPACE}/target"
+          echo "::set-env name=CARGO_TARGET_DIR::${GITHUB_WORKSPACE}/target"
+
+      - name: Configure Mac OS environment variables
+        if: matrix.os == 'macos-latest'
+        run: |
+          # echo "::set-env name=SHELLFLAGS::-x"
+          echo "::set-env name=BUILDFLAGS::"
+
+          # Disabled for Mac OS because it was not reusing the cached files
+          # https://github.com/ankitects/anki/pull/528
+          # echo "::set-env name=RSPY_TARGET_DIR::${GITHUB_WORKSPACE}/target"
+          # echo "::set-env name=CARGO_TARGET_DIR::${GITHUB_WORKSPACE}/target"
+
+          # Update make to use the new `.SHELLFLAGS` feature
+          # https://stackoverflow.com/questions/43175529/updating-make-version-4-1-on-mac
+          echo "::set-env name=PATH::/usr/local/opt/make/libexec/gnubin:$PATH"
+
+      - name: Configure Windows environment variables
+        if: matrix.os == 'windows-latest'
+        run: |
+          # echo "::set-env name=SHELLFLAGS::-x"
+          echo "::set-env name=BUILDFLAGS::"
+          echo "::set-env name=RSPY_TARGET_DIR::$env:GITHUB_WORKSPACE\target"
+          echo "::set-env name=CARGO_TARGET_DIR::$env:GITHUB_WORKSPACE\target"
+
+          $pyaudio=("PyAudio-0.2.11-cp37-cp37m-win_amd64.whl")
+          $new_path=("$env:GITHUB_WORKSPACE;$env:PATH")
+          $new_path=("$env:GITHUB_WORKSPACE\shims;$new_path")
+
+          echo "::set-env name=pacmanbin::pacman-5.1.1-3-x86_64.pkg.tar.xz"
+          echo "::set-env name=pacmanmirror::pacman-mirrors-20200307-1-any.pkg.tar.xz"
+          echo "::set-env name=pacmankeys::msys2-keyring-r9.397a52e-1-any.pkg.tar.xz"
+          echo "::set-env name=pyaudio::$pyaudio"
+          echo "::set-env name=PATH::$new_path"
+          echo "::set-env name=RUST_BACKTRACE::full"
+          echo "::set-env name=SCOOP::$env:GITHUB_WORKSPACE"
+          echo "::set-env name=SCOOP_GLOBAL::$env:GITHUB_WORKSPACE"
+          echo "::set-env name=ANKI_EXTRA_PIP::python -m pip install $pyaudio"
+
+      # Necessary for now for the cargo cache:
+      # https://github.com/actions/cache/issues/133#issuecomment-599102035
+      - name: Fix ~/.cache permissions
+        if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest'
+        run: |
+          sudo chown -R $(whoami):$(id -ng) ~/.cargo/
+
+      - name: Cache pyenv
+        uses: actions/cache@v1
+        with:
+          path: ${{ github.workspace }}${{ matrix.SEP }}pyenv
+          key: ${{ runner.os }}-pyenv-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/requirements.txt') }}-14-
+
+      # Disabling these caches for now because they do not seem to be used/help
+      # https://github.com/ankitects/anki/pull/528
+      # - name: Cache pip wheels
+      #   uses: actions/cache@v1
+      #   with:
+      #     path: ${{ matrix.PIP_WHEELS_DIR }}
+      #     key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-14-
+
+      - name: Cache cargo index
+        uses: actions/cache@v1
+        with:
+          path: ${{ matrix.CARGO_INDEX_DIR }}
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.toml') }}-14-
+
+      - name: Cache cargo registry
+        uses: actions/cache@v1
+        with:
+          path: ${{ matrix.CARGO_REGISTRY_DIR }}
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.toml') }}-14-
+
+      - name: Cache cargo target
+        uses: actions/cache@v1
+        with:
+          path: ${{ github.workspace }}${{ matrix.SEP }}target
+          key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.toml') }}-${{ matrix.BUILD_TYPE }}-14-
+
+      - name: Cache cargo rslib
+        uses: actions/cache@v1
+        with:
+          path: ${{ github.workspace }}${{ matrix.SEP }}rslib${{ matrix.SEP }}target
+          key: ${{ runner.os }}-cargo-rslib-${{ hashFiles('**/Cargo.toml') }}-${{ matrix.BUILD_TYPE }}-14-
+
+      - name: Cache cargo rspy
+        uses: actions/cache@v1
+        with:
+          path: ${{ github.workspace }}${{ matrix.SEP }}rspy${{ matrix.SEP }}target
+          key: ${{ runner.os }}-cargo-rspy-${{ hashFiles('**/Cargo.toml') }}-${{ matrix.BUILD_TYPE }}-14-
+
+      - name: Cache pacman
+        if: matrix.os == 'windows-latest'
+        uses: actions/cache@v1
+        id: cache-pacman
+        with:
+          path: C:\Program Files\Git
+          key: ${{ runner.os }}-pacman-${{ hashFiles('**/checks.yml') }}-14-
+
+      - name: Set up pacman, rsync
+        if: matrix.os == 'windows-latest' && steps.cache-pacman.outputs.cache-hit != 'true'
+        shell: cmd
+        run: |
+          echo on
+          curl -LO http://repo.msys2.org/msys/x86_64/%pacmanbin%
+          curl -LO http://repo.msys2.org/msys/x86_64/%pacmanmirror%
+          curl -LO http://repo.msys2.org/msys/x86_64/%pacmankeys%
+
+          :: https://stackoverflow.com/questions/1359793/programmatically-extract-tar-gz
+          7z x "%pacmanbin%" -so | 7z x -aoa -si -ttar -o"%programfiles%\Git"
+          7z x "%pacmanmirror%" -so | 7z x -aoa -si -ttar -o"%programfiles%\Git"
+          7z x "%pacmankeys%" -so | 7z x -aoa -si -ttar -o"%programfiles%\Git"
+
+          :: Manually Install Pacman Binaries
+          :: https://github.com/Alexpux/MSYS2-pacman/issues/50
+          set "PATH=%programfiles%\Git\usr\bin"
+          bash pacman-key --init
+          bash pacman-key --populate msys2
+          bash pacman-key --refresh-keys
+          pacman -Tv
+          pacman -Syyuuv --overwrite='*'
+          pacman -Syuuv --overwrite='*'
+          pacman --version
+
+          :: We must install bash first, otherwise we will have bash fork errors:
+          :: https://github.com/evandroforks/anki/runs/524857054?check_suite_focus=true
+          :: 0 [main] pacman 748 dofork: child -1 - forked process 2896 died unexpectedly
+          pacman -Sv --noconfirm --overwrite='*' bash
+          pacman -Sv --noconfirm --overwrite='*' rsync
+
+          :: clean all packages to decrease image size
+          pacman -Sccv --noconfirm
+          pacman -Qsv --noconfirm
+
+      - name: Set up curl pyaudio, rename
+        if: matrix.os == 'windows-latest'
+        shell: cmd
+        run: |
+          echo on
+          curl -LO https://download.lfd.uci.edu/pythonlibs/s2jqpv5t/%pyaudio%
+          curl -LO https://raw.githubusercontent.com/subogero/rename/master/rename
+
+      - name: Set up Windows scoop, gettext, ripgrep
+        if: matrix.os == 'windows-latest'
+        shell: cmd
+        run: |
+          echo on
+          powershell -executionpolicy bypass "& Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')"
+          scoop install -g gettext ripgrep
+
+      - name: Set up Ubuntu ripgrep, pyaudio, gettext, rename
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt update
+          sudo apt install portaudio19-dev gettext rename
+          sudo snap install ripgrep --classic
+
+      - name: Set up brew ripgrep, pyaudio, gettext, rename
+        if: matrix.os == 'macos-latest'
+        run: |
+          brew install portaudio protobuf gettext rename ripgrep make
+          brew link gettext --force
+
       - name: Set up python
         uses: actions/setup-python@v1
         with:
           python-version: 3.7
+
       - name: Set up protoc
         uses: ankitects/setup-protoc@master
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Set up node
         uses: actions/setup-node@v1
         with:
           node-version: 12
-      - name: Run checks
-        run: |
-          # add requirements
-          sudo apt update; sudo apt install portaudio19-dev gettext rename
-          sudo snap install ripgrep --classic
-          export CARGO_TARGET_DIR=~/target
-          export RSPY_TARGET_DIR=~/target
-          make check build BUILDFLAGS=""
+
+      - run: make develop
+        if: matrix.BUILD_TYPE != 'check'
+
+      - run: make build
+        if: matrix.BUILD_TYPE != 'check'
+
+      - run: make check
+        if: matrix.BUILD_TYPE == 'check'
+
+      - name: Upload python wheels
+        if: matrix.BUILD_TYPE != 'check'
+        uses: actions/upload-artifact@v1
+        with:
+          name: ${{ matrix.ANKI_PYTHON_WHEELS }}
+          path: dist

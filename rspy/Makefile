@@ -1,4 +1,13 @@
 SHELL := /bin/bash
+
+ifndef SHELLFLAGS
+	SHELLFLAGS :=
+endif
+
+.SHELLFLAGS := -eu -o pipefail ${SHELLFLAGS} -c
+MAKEFLAGS += --warn-undefined-variables
+MAKEFLAGS += --no-builtin-rules
+
 FIND := $(if $(wildcard /bin/find),/bin/find,/usr/bin/find)
 
 ifndef OS
@@ -6,20 +15,22 @@ ifndef OS
 endif
 
 ifeq (${OS},Windows_NT)
-	ifndef PYTHON_BIN
-		PYTHON_BIN := python
+	ifndef PYTHON_FILE
+		PYTHON_FILE := $(shell which python)
+		USE_CYGPATH_COMMAND := case "$$(uname -s)" in CYGWIN*|MINGW*|MSYS*) printf "yes";; esac;
+		USE_CYGPATH := $(shell ${USE_CYGPATH_COMMAND})
+
+		ifneq (,${USE_CYGPATH})
+			PYTHON_FILE := $(shell cygpath -w "${PYTHON_FILE}")
+		endif
 	endif
 else
-	ifndef PYTHON_BIN
-		PYTHON_BIN := python3
+	ifndef PYTHON_FILE
+		PYTHON_FILE := $(shell which python3)
 	endif
 endif
 
-.SHELLFLAGS := -eu -o pipefail -c
 .DELETE_ON_ERROR:
-MAKEFLAGS += --warn-undefined-variables
-MAKEFLAGS += --no-builtin-rules
-
 $(shell mkdir -p .build ../dist)
 
 OUTDIR := ../dist
@@ -41,7 +52,7 @@ DEPS := .build/tools .build/vernum ../meta/buildhash \
 	$(wildcard $(QT_FTL_LOCALES)/*/*.ftl) \
 	$(shell ${FIND} ../rslib/src -name '*.rs') $(wildcard ../proto/*) \
 	$(shell ${FIND} ../rslib/ftl -type f) \
-	$(shell ${FIND} ./src -type f) 
+	$(shell ${FIND} ./src -type f)
 
 .build/develop: $(DEPS)
 	touch ../proto/backend.proto
@@ -50,10 +61,10 @@ DEPS := .build/tools .build/vernum ../meta/buildhash \
 	touch $@
 
 build: $(DEPS)
-	rm -rf $(OUTDIR)/ankirspy*
+	rm -rf "$(OUTDIR)"/ankirspy*
 	touch ../proto/backend.proto
 	FTL_TEMPLATE_DIRS="$(QT_FTL_TEMPLATES)" FTL_LOCALE_DIRS="$(QT_FTL_LOCALES)" \
-		maturin build -i $(shell which ${PYTHON_BIN}) -o $(OUTDIR) $(BUILDFLAGS)
+		maturin build -i "${PYTHON_FILE}" -o "$(OUTDIR)" $(BUILDFLAGS)
 
 check: .build/check
 

@@ -6,14 +6,18 @@
 # able to resolve. A solution that doesn't require modifying the python install
 # would be welcome!
 
-set -eo pipefail
+set -eu -o pipefail ${SHELLFLAGS}
+
+# https://stackoverflow.com/questions/3601515/how-to-check-if-a-variable-is-set-in-bash
+if [[ -z "${OS+x}" ]]; then 
+    OS=unknown; 
+fi
 
 TOOLS="$(cd "`dirname "$0"`"; pwd)"
 modDir=$(python -c 'import PyQt5, sys, os; sys.stdout.write(os.path.dirname(sys.modules["PyQt5"].__file__))')
 
-unameOut="$(uname -s)"
-case "${unameOut}" in
-    CYGWIN*)
+case "$(uname -s)" in
+    CYGWIN*|MINGW*|MSYS*)
         modDir="$(cygpath -u "${modDir}")"
         ;;
 esac

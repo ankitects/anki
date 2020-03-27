@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eo pipefail
+set -eu -o pipefail ${SHELLFLAGS}
 
 # Checking version to force it fail the build if rg is not installed.
 # Because `set -e` does not work inside the subshell $()
