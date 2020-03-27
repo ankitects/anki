@@ -14,7 +14,7 @@ from anki.models import NoteType, Template
 from anki.notes import Note
 from anki.rsbackend import BackendCard
 from anki.sound import AVTag
-from anki.utils import intTime, joinFields, timestampID
+from anki.utils import joinFields
 
 # Cards
 ##########################################################################
@@ -38,32 +38,23 @@ class Card:
         self.col = col.weakref()
         self.timerStarted = None
         self._render_output: Optional[anki.template.TemplateRenderOutput] = None
-        self._note = None
         if id:
+            # existing card
             self.id = id
             self.load()
         else:
-            # to flush, set nid, ord, and due
-            self.id = timestampID(col.db, "cards")
-            self.did = 1
-            self.crt = intTime()
-            self.type = CARD_TYPE_NEW
-            self.queue = QUEUE_TYPE_NEW
-            self.ivl = 0
-            self.factor = 0
-            self.reps = 0
-            self.lapses = 0
-            self.left = 0
-            self.odue = 0
-            self.odid = 0
-            self.flags = 0
-            self.data = ""
+            # new card with defaults
+            self._load_from_backend_card(BackendCard())
 
     def load(self) -> None:
-        self._render_output = None
-        self._note = None
         c = self.col.backend.get_card(self.id)
         assert c
+        self._load_from_backend_card(c)
+
+    def _load_from_backend_card(self, c: BackendCard) -> None:
+        self._render_output = None
+        self._note = None
+        self.id = c.id
         self.nid = c.nid
         self.did = c.did
         self.ord = c.ord
@@ -112,7 +103,10 @@ class Card:
             flags=self.flags,
             data=self.data,
         )
-        self.col.backend.update_card(card)
+        if self.id != 0:
+            self.col.backend.update_card(card)
+        else:
+            self.col.backend.add_card(card)
 
     def question(self, reload: bool = False, browser: bool = False) -> str:
         return self.css() + self.render_output(reload, browser).question_text
