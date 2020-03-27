@@ -234,8 +234,6 @@ class AnkiApp(QApplication):
     TMOUT = 30000
 
     def __init__(self, argv):
-        # https://anki.tenderapp.com/discussions/beta-testing/1858-can-you-pass-autoplay-policyno-user-gesture-required-to-chrome-engine
-        argv.append("--autoplay-policy=no-user-gesture-required")
         QApplication.__init__(self, argv)
         self._argv = argv
 
