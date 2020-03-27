@@ -93,47 +93,49 @@ jobs:
         run: |
           sudo chown -R $(whoami):$(id -ng) ~/.cargo/
 
-      - name: Cache pip wheels
-        uses: actions/cache@v1
-        with:
-          path: ${{ matrix.PIP_WHEELS_DIR }}
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-11-
-
       - name: Cache pyenv
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}${{ matrix.SEP }}pyenv
-          key: ${{ runner.os }}-pyenv-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/requirements.txt') }}-11-
+          key: ${{ runner.os }}-pyenv-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/requirements.txt') }}-12-
 
-      - name: Cache cargo index
-        uses: actions/cache@v1
-        with:
-          path: ${{ matrix.CARGO_INDEX_DIR }}
-          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.toml') }}-11-
+      # Disabling these caches for now because they do not seem to be used/help
+      # https://github.com/ankitects/anki/pull/528
+      # - name: Cache pip wheels
+      #   uses: actions/cache@v1
+      #   with:
+      #     path: ${{ matrix.PIP_WHEELS_DIR }}
+      #     key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-12-
 
-      - name: Cache cargo registry
-        uses: actions/cache@v1
-        with:
-          path: ${{ matrix.CARGO_REGISTRY_DIR }}
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.toml') }}-11-
+      # - name: Cache cargo index
+      #   uses: actions/cache@v1
+      #   with:
+      #     path: ${{ matrix.CARGO_INDEX_DIR }}
+      #     key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.toml') }}-12-
+
+      # - name: Cache cargo registry
+      #   uses: actions/cache@v1
+      #   with:
+      #     path: ${{ matrix.CARGO_REGISTRY_DIR }}
+      #     key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.toml') }}-12-
 
       - name: Cache cargo target
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}${{ matrix.SEP }}target
-          key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.toml') }}-$${{ matrix.BUILD_TYPE }}-11-
+          key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.toml') }}-$${{ matrix.BUILD_TYPE }}-12-
 
       - name: Cache cargo rslib
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}${{ matrix.SEP }}rslib${{ matrix.SEP }}target
-          key: ${{ runner.os }}-cargo-rslib-${{ hashFiles('**/Cargo.toml') }}-$${{ matrix.BUILD_TYPE }}-11-
+          key: ${{ runner.os }}-cargo-rslib-${{ hashFiles('**/Cargo.toml') }}-$${{ matrix.BUILD_TYPE }}-12-
 
       - name: Cache cargo rspy
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}${{ matrix.SEP }}rspy${{ matrix.SEP }}target
-          key: ${{ runner.os }}-cargo-rspy-${{ hashFiles('**/Cargo.toml') }}-$${{ matrix.BUILD_TYPE }}-11-
+          key: ${{ runner.os }}-cargo-rspy-${{ hashFiles('**/Cargo.toml') }}-$${{ matrix.BUILD_TYPE }}-12-
 
       - name: Cache pacman
         if: matrix.os == 'windows-latest'
@@ -141,7 +143,7 @@ jobs:
         id: cache-pacman
         with:
           path: C:\Program Files\Git
-          key: ${{ runner.os }}-pacman-${{ hashFiles('**/checks.yml') }}-11-
+          key: ${{ runner.os }}-pacman-${{ hashFiles('**/checks.yml') }}-12-
 
       - name: Set up pacman, rsync
         if: matrix.os == 'windows-latest' && steps.cache-pacman.outputs.cache-hit != 'true'
