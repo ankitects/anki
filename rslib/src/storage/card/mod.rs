@@ -31,8 +31,8 @@ impl FromSql for CardQueue {
     }
 }
 
-impl super::StorageContext<'_> {
-    pub fn get_card(&mut self, cid: CardID) -> Result<Option<Card>> {
+impl super::SqliteStorage {
+    pub fn get_card(&self, cid: CardID) -> Result<Option<Card>> {
         let mut stmt = self.db.prepare_cached(include_str!("get_card.sql"))?;
         stmt.query_row(params![cid], |row| {
             Ok(Card {
@@ -60,7 +60,7 @@ impl super::StorageContext<'_> {
         .map_err(Into::into)
     }
 
-    pub(crate) fn update_card(&mut self, card: &Card) -> Result<()> {
+    pub(crate) fn update_card(&self, card: &Card) -> Result<()> {
         let mut stmt = self.db.prepare_cached(include_str!("update_card.sql"))?;
         stmt.execute(params![
             card.nid,
@@ -85,7 +85,7 @@ impl super::StorageContext<'_> {
         Ok(())
     }
 
-    pub(crate) fn add_card(&mut self, card: &mut Card) -> Result<()> {
+    pub(crate) fn add_card(&self, card: &mut Card) -> Result<()> {
         let now = TimestampMillis::now().0;
         let mut stmt = self.db.prepare_cached(include_str!("add_card.sql"))?;
         stmt.execute(params![
@@ -120,12 +120,11 @@ mod test {
 
     #[test]
     fn add_card() {
-        let storage = SqliteStorage::open_or_create(Path::new(":memory:")).unwrap();
-        let mut ctx = storage.context(false);
+        let storage = SqliteStorage::open_or_create(Path::new(":memory:"), false).unwrap();
         let mut card = Card::default();
-        ctx.add_card(&mut card).unwrap();
+        storage.add_card(&mut card).unwrap();
         let id1 = card.id;
-        ctx.add_card(&mut card).unwrap();
+        storage.add_card(&mut card).unwrap();
         assert_ne!(id1, card.id);
     }
 }

@@ -38,6 +38,9 @@ pub struct SqliteStorage {
     // currently crate-visible for dbproxy
     pub(crate) db: Connection,
 
+    server: bool,
+    usn: Option<Usn>,
+
     // fixme: stored in wrong location?
     path: PathBuf,
 }
@@ -163,7 +166,7 @@ fn trace(s: &str) {
 }
 
 impl SqliteStorage {
-    pub(crate) fn open_or_create(path: &Path) -> Result<Self> {
+    pub(crate) fn open_or_create(path: &Path, server: bool) -> Result<Self> {
         let db = open_or_create_collection_db(path)?;
 
         let (create, ver) = schema_version(&db)?;
@@ -193,32 +196,11 @@ impl SqliteStorage {
         let storage = Self {
             db,
             path: path.to_owned(),
+            server,
+            usn: None,
         };
 
         Ok(storage)
-    }
-
-    pub(crate) fn context(&self, server: bool) -> StorageContext {
-        StorageContext::new(&self.db, server)
-    }
-}
-
-pub(crate) struct StorageContext<'a> {
-    pub(crate) db: &'a Connection,
-    server: bool,
-    usn: Option<Usn>,
-
-    timing_today: Option<SchedTimingToday>,
-}
-
-impl StorageContext<'_> {
-    fn new(db: &Connection, server: bool) -> StorageContext {
-        StorageContext {
-            db,
-            server,
-            usn: None,
-            timing_today: None,
-        }
     }
 
     // Standard transaction start/stop
@@ -276,8 +258,6 @@ impl StorageContext<'_> {
         Ok(())
     }
 
-    //////////////////////////////////////////
-
     pub(crate) fn mark_modified(&self) -> Result<()> {
         self.db
             .prepare_cached("update col set mod=?")?
@@ -330,24 +310,20 @@ impl StorageContext<'_> {
         Ok(note_types)
     }
 
-    #[allow(dead_code)]
-    pub(crate) fn timing_today(&mut self) -> Result<SchedTimingToday> {
-        if self.timing_today.is_none() {
-            let crt: i64 = self
-                .db
-                .prepare_cached("select crt from col")?
-                .query_row(NO_PARAMS, |row| row.get(0))?;
-            let conf = self.all_config()?;
-            let now_offset = if self.server { conf.local_offset } else { None };
+    pub(crate) fn timing_today(&self) -> Result<SchedTimingToday> {
+        let crt: i64 = self
+            .db
+            .prepare_cached("select crt from col")?
+            .query_row(NO_PARAMS, |row| row.get(0))?;
+        let conf = self.all_config()?;
+        let now_offset = if self.server { conf.local_offset } else { None };
 
-            self.timing_today = Some(sched_timing_today(
-                crt,
-                TimestampSecs::now().0,
-                conf.creation_offset,
-                now_offset,
-                conf.rollover,
-            ));
-        }
-        Ok(*self.timing_today.as_ref().unwrap())
+        Ok(sched_timing_today(
+            crt,
+            TimestampSecs::now().0,
+            conf.creation_offset,
+            now_offset,
+            conf.rollover,
+        ))
     }
 }

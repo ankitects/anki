@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::err::Result;
-use crate::storage::StorageContext;
+use crate::storage::SqliteStorage;
 use rusqlite::types::{FromSql, FromSqlError, ToSql, ToSqlOutput, ValueRef};
 use rusqlite::OptionalExtension;
 use serde_derive::{Deserialize, Serialize};
@@ -67,7 +67,7 @@ impl FromSql for SqlValue {
     }
 }
 
-pub(super) fn db_command_bytes(ctx: &StorageContext, input: &[u8]) -> Result<String> {
+pub(super) fn db_command_bytes(ctx: &SqliteStorage, input: &[u8]) -> Result<String> {
     let req: DBRequest = serde_json::from_slice(input)?;
     let resp = match req {
         DBRequest::Query {
@@ -98,7 +98,7 @@ pub(super) fn db_command_bytes(ctx: &StorageContext, input: &[u8]) -> Result<Str
     Ok(serde_json::to_string(&resp)?)
 }
 
-pub(super) fn db_query_row(ctx: &StorageContext, sql: &str, args: &[SqlValue]) -> Result<DBResult> {
+pub(super) fn db_query_row(ctx: &SqliteStorage, sql: &str, args: &[SqlValue]) -> Result<DBResult> {
     let mut stmt = ctx.db.prepare_cached(sql)?;
     let columns = stmt.column_count();
 
@@ -122,7 +122,7 @@ pub(super) fn db_query_row(ctx: &StorageContext, sql: &str, args: &[SqlValue]) -
     Ok(DBResult::Rows(rows))
 }
 
-pub(super) fn db_query(ctx: &StorageContext, sql: &str, args: &[SqlValue]) -> Result<DBResult> {
+pub(super) fn db_query(ctx: &SqliteStorage, sql: &str, args: &[SqlValue]) -> Result<DBResult> {
     let mut stmt = ctx.db.prepare_cached(sql)?;
     let columns = stmt.column_count();
 
@@ -141,7 +141,7 @@ pub(super) fn db_query(ctx: &StorageContext, sql: &str, args: &[SqlValue]) -> Re
 }
 
 pub(super) fn db_execute_many(
-    ctx: &StorageContext,
+    ctx: &SqliteStorage,
     sql: &str,
     args: &[Vec<SqlValue>],
 ) -> Result<DBResult> {
