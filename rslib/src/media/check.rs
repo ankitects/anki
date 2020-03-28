@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::collection::RequestContext;
+use crate::collection::Collection;
 use crate::err::{AnkiError, DBErrorKind, Result};
 use crate::i18n::{tr_args, tr_strs, FString};
 use crate::latex::extract_latex_expanding_clozes;
@@ -44,26 +44,26 @@ struct MediaFolderCheck {
     oversize: Vec<String>,
 }
 
-pub struct MediaChecker<'a, 'b, P>
+pub struct MediaChecker<'a, P>
 where
     P: FnMut(usize) -> bool,
 {
-    ctx: &'a mut RequestContext<'b>,
+    ctx: &'a Collection,
     mgr: &'a MediaManager,
     progress_cb: P,
     checked: usize,
     progress_updated: Instant,
 }
 
-impl<P> MediaChecker<'_, '_, P>
+impl<P> MediaChecker<'_, P>
 where
     P: FnMut(usize) -> bool,
 {
-    pub(crate) fn new<'a, 'b>(
-        ctx: &'a mut RequestContext<'b>,
+    pub(crate) fn new<'a>(
+        ctx: &'a mut Collection,
         mgr: &'a MediaManager,
         progress_cb: P,
-    ) -> MediaChecker<'a, 'b, P> {
+    ) -> MediaChecker<'a, P> {
         MediaChecker {
             ctx,
             mgr,
@@ -411,10 +411,6 @@ where
             Ok(())
         })?;
 
-        if !collection_modified {
-            self.ctx.should_commit = false;
-        }
-
         Ok(referenced_files)
     }
 }
@@ -561,7 +557,7 @@ pub(crate) mod test {
 
     #[test]
     fn media_check() -> Result<()> {
-        let (_dir, mgr, col) = common_setup()?;
+        let (_dir, mgr, mut col) = common_setup()?;
 
         // add some test files
         fs::write(&mgr.media_folder.join("zerobytes"), "")?;
@@ -637,7 +633,7 @@ Unused: unused.jpg
 
     #[test]
     fn trash_handling() -> Result<()> {
-        let (_dir, mgr, col) = common_setup()?;
+        let (_dir, mgr, mut col) = common_setup()?;
         let trash_folder = trash_folder(&mgr.media_folder)?;
         fs::write(trash_folder.join("test.jpg"), "test")?;
 
@@ -687,7 +683,7 @@ Unused: unused.jpg
 
     #[test]
     fn unicode_normalization() -> Result<()> {
-        let (_dir, mgr, col) = common_setup()?;
+        let (_dir, mgr, mut col) = common_setup()?;
 
         fs::write(&mgr.media_folder.join("ぱぱ.jpg"), "nfd encoding")?;
 

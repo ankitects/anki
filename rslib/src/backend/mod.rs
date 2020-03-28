@@ -590,48 +590,44 @@ impl Backend {
     }
 
     pub fn db_command(&self, input: &[u8]) -> Result<String> {
-        self.with_col(|col| col.with_ctx(|ctx| db_command_bytes(&ctx.storage, input)))
+        self.with_col(|col| db_command_bytes(&col.storage, input))
     }
 
     fn search_cards(&self, input: pb::SearchCardsIn) -> Result<pb::SearchCardsOut> {
         self.with_col(|col| {
-            col.with_ctx(|ctx| {
-                let order = if let Some(order) = input.order {
-                    use pb::sort_order::Value as V;
-                    match order.value {
-                        Some(V::None(_)) => SortMode::NoOrder,
-                        Some(V::Custom(s)) => SortMode::Custom(s),
-                        Some(V::FromConfig(_)) => SortMode::FromConfig,
-                        Some(V::Builtin(b)) => SortMode::Builtin {
-                            kind: sort_kind_from_pb(b.kind),
-                            reverse: b.reverse,
-                        },
-                        None => SortMode::FromConfig,
-                    }
-                } else {
-                    SortMode::FromConfig
-                };
-                let cids = search_cards(ctx, &input.search, order)?;
-                Ok(pb::SearchCardsOut {
-                    card_ids: cids.into_iter().map(|v| v.0).collect(),
-                })
+            let order = if let Some(order) = input.order {
+                use pb::sort_order::Value as V;
+                match order.value {
+                    Some(V::None(_)) => SortMode::NoOrder,
+                    Some(V::Custom(s)) => SortMode::Custom(s),
+                    Some(V::FromConfig(_)) => SortMode::FromConfig,
+                    Some(V::Builtin(b)) => SortMode::Builtin {
+                        kind: sort_kind_from_pb(b.kind),
+                        reverse: b.reverse,
+                    },
+                    None => SortMode::FromConfig,
+                }
+            } else {
+                SortMode::FromConfig
+            };
+            let cids = search_cards(col, &input.search, order)?;
+            Ok(pb::SearchCardsOut {
+                card_ids: cids.into_iter().map(|v| v.0).collect(),
             })
         })
     }
 
     fn search_notes(&self, input: pb::SearchNotesIn) -> Result<pb::SearchNotesOut> {
         self.with_col(|col| {
-            col.with_ctx(|ctx| {
-                let nids = search_notes(ctx, &input.search)?;
-                Ok(pb::SearchNotesOut {
-                    note_ids: nids.into_iter().map(|v| v.0).collect(),
-                })
+            let nids = search_notes(col, &input.search)?;
+            Ok(pb::SearchNotesOut {
+                note_ids: nids.into_iter().map(|v| v.0).collect(),
             })
         })
     }
 
     fn get_card(&self, cid: i64) -> Result<pb::GetCardOut> {
-        let card = self.with_col(|col| col.with_ctx(|ctx| ctx.storage.get_card(CardID(cid))))?;
+        let card = self.with_col(|col| col.storage.get_card(CardID(cid)))?;
         Ok(pb::GetCardOut {
             card: card.map(card_to_pb),
         })
