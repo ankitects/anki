@@ -44,6 +44,8 @@ setuptools.setup(
         "pyaudio",
         "markdown",
         "jsonschema",
+        "pyqt5",
+        "pyqtwebengine",
         'psutil; sys.platform == "win32"',
         'pywin32; sys.platform == "win32"',
         'darkdetect; sys.platform == "darwin"',
