@@ -970,6 +970,7 @@ QTableView {{ gridline-color: {grid} }}
             a.setCheckable(True)
             a.setChecked(type in self.model.activeCols)
             a.toggled.connect(lambda b, t=type: self.toggleField(t))
+        gui_hooks.browser_header_will_show_context_menu(self, m)
         m.exec_(gpos)
 
     def toggleField(self, type):
