@@ -186,6 +186,10 @@ hooks = [
         legacy_hook="browser.onContextMenu",
     ),
     Hook(
+        name="browser_header_will_show_context_menu",
+        args=["browser: aqt.browser.Browser", "menu: QMenu"],
+    ),
+    Hook(
         name="browser_did_change_row",
         args=["browser: aqt.browser.Browser"],
         legacy_hook="browser.rowChanged",

@@ -385,6 +385,30 @@ class _BrowserDidSearchHook:
 browser_did_search = _BrowserDidSearchHook()
 
 
+class _BrowserHeaderWillShowContextMenuHook:
+    _hooks: List[Callable[["aqt.browser.Browser", QMenu], None]] = []
+
+    def append(self, cb: Callable[["aqt.browser.Browser", QMenu], None]) -> None:
+        """(browser: aqt.browser.Browser, menu: QMenu)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[["aqt.browser.Browser", QMenu], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, browser: aqt.browser.Browser, menu: QMenu) -> None:
+        for hook in self._hooks:
+            try:
+                hook(browser, menu)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+browser_header_will_show_context_menu = _BrowserHeaderWillShowContextMenuHook()
+
+
 class _BrowserMenusDidInitHook:
     _hooks: List[Callable[["aqt.browser.Browser"], None]] = []
 
