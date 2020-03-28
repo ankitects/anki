@@ -1,7 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::sqlite::CachedStatementKind;
 use crate::card::{Card, CardID, CardQueue, CardType};
 use crate::err::Result;
 use crate::timestamp::TimestampMillis;
@@ -34,97 +33,81 @@ impl FromSql for CardQueue {
 
 impl super::StorageContext<'_> {
     pub fn get_card(&mut self, cid: CardID) -> Result<Option<Card>> {
-        self.with_cached_stmt(
-            CachedStatementKind::GetCard,
-            include_str!("get_card.sql"),
-            |stmt| {
-                stmt.query_row(params![cid], |row| {
-                    Ok(Card {
-                        id: cid,
-                        nid: row.get(0)?,
-                        did: row.get(1)?,
-                        ord: row.get(2)?,
-                        mtime: row.get(3)?,
-                        usn: row.get(4)?,
-                        ctype: row.get(5)?,
-                        queue: row.get(6)?,
-                        due: row.get(7)?,
-                        ivl: row.get(8)?,
-                        factor: row.get(9)?,
-                        reps: row.get(10)?,
-                        lapses: row.get(11)?,
-                        left: row.get(12)?,
-                        odue: row.get(13)?,
-                        odid: row.get(14)?,
-                        flags: row.get(15)?,
-                        data: row.get(16)?,
-                    })
-                })
-                .optional()
-                .map_err(Into::into)
-            },
-        )
+        let mut stmt = self.db.prepare_cached(include_str!("get_card.sql"))?;
+        stmt.query_row(params![cid], |row| {
+            Ok(Card {
+                id: cid,
+                nid: row.get(0)?,
+                did: row.get(1)?,
+                ord: row.get(2)?,
+                mtime: row.get(3)?,
+                usn: row.get(4)?,
+                ctype: row.get(5)?,
+                queue: row.get(6)?,
+                due: row.get(7)?,
+                ivl: row.get(8)?,
+                factor: row.get(9)?,
+                reps: row.get(10)?,
+                lapses: row.get(11)?,
+                left: row.get(12)?,
+                odue: row.get(13)?,
+                odid: row.get(14)?,
+                flags: row.get(15)?,
+                data: row.get(16)?,
+            })
+        })
+        .optional()
+        .map_err(Into::into)
     }
 
     pub(crate) fn update_card(&mut self, card: &Card) -> Result<()> {
-        self.with_cached_stmt(
-            CachedStatementKind::UpdateCard,
-            include_str!("update_card.sql"),
-            |stmt| {
-                stmt.execute(params![
-                    card.nid,
-                    card.did,
-                    card.ord,
-                    card.mtime,
-                    card.usn,
-                    card.ctype as u8,
-                    card.queue as i8,
-                    card.due,
-                    card.ivl,
-                    card.factor,
-                    card.reps,
-                    card.lapses,
-                    card.left,
-                    card.odue,
-                    card.odid,
-                    card.flags,
-                    card.data,
-                    card.id,
-                ])?;
-                Ok(())
-            },
-        )
+        let mut stmt = self.db.prepare_cached(include_str!("update_card.sql"))?;
+        stmt.execute(params![
+            card.nid,
+            card.did,
+            card.ord,
+            card.mtime,
+            card.usn,
+            card.ctype as u8,
+            card.queue as i8,
+            card.due,
+            card.ivl,
+            card.factor,
+            card.reps,
+            card.lapses,
+            card.left,
+            card.odue,
+            card.odid,
+            card.flags,
+            card.data,
+            card.id,
+        ])?;
+        Ok(())
     }
 
     pub(crate) fn add_card(&mut self, card: &mut Card) -> Result<()> {
         let now = TimestampMillis::now().0;
-        self.with_cached_stmt(
-            CachedStatementKind::AddCard,
-            include_str!("add_card.sql"),
-            |stmt| {
-                stmt.execute(params![
-                    now,
-                    card.nid,
-                    card.did,
-                    card.ord,
-                    card.mtime,
-                    card.usn,
-                    card.ctype as u8,
-                    card.queue as i8,
-                    card.due,
-                    card.ivl,
-                    card.factor,
-                    card.reps,
-                    card.lapses,
-                    card.left,
-                    card.odue,
-                    card.odid,
-                    card.flags,
-                    card.data,
-                ])?;
-                Ok(())
-            },
-        )?;
+        let mut stmt = self.db.prepare_cached(include_str!("add_card.sql"))?;
+        stmt.execute(params![
+            now,
+            card.nid,
+            card.did,
+            card.ord,
+            card.mtime,
+            card.usn,
+            card.ctype as u8,
+            card.queue as i8,
+            card.due,
+            card.ivl,
+            card.factor,
+            card.reps,
+            card.lapses,
+            card.left,
+            card.odue,
+            card.odid,
+            card.flags,
+            card.data,
+        ])?;
         card.id = CardID(self.db.last_insert_rowid());
         Ok(())
     }

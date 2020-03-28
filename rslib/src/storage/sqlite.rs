@@ -24,7 +24,6 @@ use std::{
     path::{Path, PathBuf},
 };
 use unicase::UniCase;
-use variant_count::VariantCount;
 
 const SCHEMA_MIN_VERSION: u8 = 11;
 const SCHEMA_MAX_VERSION: u8 = 11;
@@ -204,51 +203,22 @@ impl SqliteStorage {
     }
 }
 
-#[derive(Clone, Copy, VariantCount)]
-#[allow(clippy::enum_variant_names)]
-pub(super) enum CachedStatementKind {
-    GetCard,
-    UpdateCard,
-    AddCard,
-}
-
 pub(crate) struct StorageContext<'a> {
     pub(crate) db: &'a Connection,
     server: bool,
     usn: Option<Usn>,
 
     timing_today: Option<SchedTimingToday>,
-
-    cached_statements: Vec<Option<rusqlite::CachedStatement<'a>>>,
 }
 
 impl StorageContext<'_> {
     fn new(db: &Connection, server: bool) -> StorageContext {
-        let stmt_len = CachedStatementKind::VARIANT_COUNT;
-        let mut statements = Vec::with_capacity(stmt_len);
-        statements.resize_with(stmt_len, Default::default);
         StorageContext {
             db,
             server,
             usn: None,
             timing_today: None,
-            cached_statements: statements,
         }
-    }
-
-    pub(super) fn with_cached_stmt<F, T>(
-        &mut self,
-        kind: CachedStatementKind,
-        sql: &str,
-        func: F,
-    ) -> Result<T>
-    where
-        F: FnOnce(&mut rusqlite::CachedStatement) -> Result<T>,
-    {
-        if self.cached_statements[kind as usize].is_none() {
-            self.cached_statements[kind as usize] = Some(self.db.prepare_cached(sql)?);
-        }
-        func(self.cached_statements[kind as usize].as_mut().unwrap())
     }
 
     // Standard transaction start/stop
