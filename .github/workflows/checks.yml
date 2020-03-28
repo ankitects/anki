@@ -97,15 +97,14 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}${{ matrix.SEP }}pyenv
-          key: ${{ runner.os }}-pyenv-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/requirements.txt') }}-14-
+          key: ${{ runner.os }}-pyenv-${{ hashFiles('**/requirements.txt') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-14-
 
-      # Disabling these caches for now because they do not seem to be used/help
-      # https://github.com/ankitects/anki/pull/528
-      # - name: Cache pip wheels
-      #   uses: actions/cache@v1
-      #   with:
-      #     path: ${{ matrix.PIP_WHEELS_DIR }}
-      #     key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-14-
+      - name: Cache pip wheels
+        if: matrix.BUILD_TYPE == 'build'
+        uses: actions/cache@v1
+        with:
+          path: ${{ matrix.PIP_WHEELS_DIR }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-${{ hashFiles('**/setup.py') }}-14-
 
       - name: Cache cargo index
         uses: actions/cache@v1
@@ -199,6 +198,7 @@ jobs:
       - name: Set up Ubuntu ripgrep, pyaudio, gettext, rename
         if: matrix.os == 'ubuntu-latest'
         run: |
+          set -x
           sudo apt update
           sudo apt install portaudio19-dev gettext rename
           sudo snap install ripgrep --classic
@@ -206,6 +206,7 @@ jobs:
       - name: Set up brew ripgrep, pyaudio, gettext, rename
         if: matrix.os == 'macos-latest'
         run: |
+          set -x
           brew install portaudio protobuf gettext rename ripgrep make
           brew link gettext --force
 
@@ -225,16 +226,35 @@ jobs:
           node-version: 12
 
       - run: make develop
-        if: matrix.BUILD_TYPE != 'check'
+        if: matrix.BUILD_TYPE == 'build'
 
       - run: make build
-        if: matrix.BUILD_TYPE != 'check'
+        if: matrix.BUILD_TYPE == 'build'
+
+      - name: Check Windows wheels
+        if: matrix.BUILD_TYPE == 'build' && matrix.os == 'windows-latest'
+        shell: cmd
+        run: |
+          echo on
+          copy %pyaudio% dist
+          python -m pip install %pyaudio%
+          cd dist
+          cmd /C for /R %%i in (*.whl) DO python -m pip install "%%i"
+          python -c "import aqt; # aqt.run()"
+
+      - name: Check Linux/Mac OS wheels
+        if: matrix.BUILD_TYPE == 'build' && ( matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest' )
+        run: |
+          set -x
+          cd dist
+          python -m pip install *
+          python -c "import aqt; # aqt.run()"
 
       - run: make check
         if: matrix.BUILD_TYPE == 'check'
 
       - name: Upload python wheels
-        if: matrix.BUILD_TYPE != 'check'
+        if: matrix.BUILD_TYPE == 'build'
         uses: actions/upload-artifact@v1
         with:
           name: ${{ matrix.ANKI_PYTHON_WHEELS }}
