@@ -120,7 +120,7 @@ mod test {
 
     #[test]
     fn add_card() {
-        let storage = SqliteStorage::open_or_create(Path::new(":memory:"), false).unwrap();
+        let storage = SqliteStorage::open_or_create(Path::new(":memory:")).unwrap();
         let mut card = Card::default();
         storage.add_card(&mut card).unwrap();
         let id1 = card.id;

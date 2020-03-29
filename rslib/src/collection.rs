@@ -5,6 +5,7 @@ use crate::err::{AnkiError, Result};
 use crate::i18n::I18n;
 use crate::log::Logger;
 use crate::timestamp::TimestampSecs;
+use crate::types::Usn;
 use crate::{sched::cutoff::SchedTimingToday, storage::SqliteStorage};
 use std::path::PathBuf;
 
@@ -17,7 +18,7 @@ pub fn open_collection<P: Into<PathBuf>>(
     log: Logger,
 ) -> Result<Collection> {
     let col_path = path.into();
-    let storage = SqliteStorage::open_or_create(&col_path, server)?;
+    let storage = SqliteStorage::open_or_create(&col_path)?;
 
     let col = Collection {
         storage,
@@ -26,6 +27,7 @@ pub fn open_collection<P: Into<PathBuf>>(
         media_db: media_db.into(),
         i18n,
         log,
+        server,
         state: CollectionState::default(),
     };
 
@@ -59,6 +61,7 @@ pub struct Collection {
     pub(crate) media_db: PathBuf,
     pub(crate) i18n: I18n,
     pub(crate) log: Logger,
+    pub(crate) server: bool,
     state: CollectionState,
 }
 
@@ -115,10 +118,15 @@ impl Collection {
     pub fn timing_today(&mut self) -> Result<SchedTimingToday> {
         if let Some(timing) = &self.state.timing_today {
             if timing.next_day_at > TimestampSecs::now().0 {
-                return Ok(timing.clone());
+                return Ok(*timing);
             }
         }
-        self.state.timing_today = Some(self.storage.timing_today()?);
+        self.state.timing_today = Some(self.storage.timing_today(self.server)?);
         Ok(self.state.timing_today.clone().unwrap())
+    }
+
+    pub(crate) fn usn(&self) -> Result<Usn> {
+        // if we cache this in the future, must make sure to invalidate cache when usn bumped in sync.finish()
+        self.storage.usn(self.server)
     }
 }
