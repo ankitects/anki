@@ -681,7 +681,7 @@ def test_cram():
     c.col = None
     c2 = copy.deepcopy(c)
     c2.col = c.col = d
-    c2.id = 123
+    c2.id = 0
     c2.ord = 1
     c2.due = 325
     c2.col = c.col

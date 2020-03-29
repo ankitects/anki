@@ -635,7 +635,15 @@ impl Backend {
 
     fn update_card(&self, pbcard: pb::Card) -> Result<()> {
         let mut card = pbcard_to_native(pbcard)?;
-        self.with_col(|col| col.transact(None, |ctx| ctx.update_card(&mut card)))
+        self.with_col(|col| {
+            col.transact(None, |ctx| {
+                let orig = ctx
+                    .storage
+                    .get_card(card.id)?
+                    .ok_or_else(|| AnkiError::invalid_input("missing card"))?;
+                ctx.update_card(&mut card, &orig)
+            })
+        })
     }
 
     fn add_card(&self, pbcard: pb::Card) -> Result<i64> {

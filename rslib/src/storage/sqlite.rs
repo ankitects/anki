@@ -1,7 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::collection::CollectionOp;
 use crate::config::Config;
 use crate::decks::DeckID;
 use crate::err::Result;
@@ -230,10 +229,6 @@ impl SqliteStorage {
     pub(crate) fn commit_rust_trx(&self) -> Result<()> {
         self.db.prepare_cached("release rust")?.execute(NO_PARAMS)?;
         Ok(())
-    }
-
-    pub(crate) fn commit_rust_op(&self, _op: Option<CollectionOp>) -> Result<()> {
-        self.commit_rust_trx()
     }
 
     pub(crate) fn rollback_rust_trx(&self) -> Result<()> {

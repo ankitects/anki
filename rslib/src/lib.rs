@@ -30,3 +30,4 @@ pub mod template_filters;
 pub mod text;
 pub mod timestamp;
 pub mod types;
+pub mod undo;
