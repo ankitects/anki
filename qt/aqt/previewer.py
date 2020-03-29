@@ -41,6 +41,12 @@ class Previewer:
     def _openPreview(self):
         self._previewState = "question"
         self._lastPreviewState = None
+        self._create_gui()
+        self._setupPreviewWebview()
+        self._renderPreview(True)
+        self._previewWindow.show()
+
+    def _create_gui(self):
         self._previewWindow = QDialog(None, Qt.Window)
         self._previewWindow.setWindowTitle(_("Preview"))
 
@@ -81,13 +87,9 @@ class Previewer:
         self.previewShowBothSides.setChecked(self._previewBothSides)
         self.previewShowBothSides.toggled.connect(self._onPreviewShowBothSides)
 
-        self._setupPreviewWebview()
-
         vbox.addWidget(bbox)
         self._previewWindow.setLayout(vbox)
         restoreGeom(self._previewWindow, "preview")
-        self._previewWindow.show()
-        self._renderPreview(True)
 
     def _onPreviewFinished(self, ok):
         saveGeom(self._previewWindow, "preview")
