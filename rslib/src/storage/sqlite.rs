@@ -18,11 +18,7 @@ use crate::{
 use regex::Regex;
 use rusqlite::{functions::FunctionFlags, params, Connection, NO_PARAMS};
 use std::cmp::Ordering;
-use std::{
-    borrow::Cow,
-    collections::HashMap,
-    path::{Path, PathBuf},
-};
+use std::{borrow::Cow, collections::HashMap, path::Path};
 use unicase::UniCase;
 
 const SCHEMA_MIN_VERSION: u8 = 11;
@@ -37,12 +33,6 @@ fn unicase_compare(s1: &str, s2: &str) -> Ordering {
 pub struct SqliteStorage {
     // currently crate-visible for dbproxy
     pub(crate) db: Connection,
-
-    server: bool,
-    usn: Option<Usn>,
-
-    // fixme: stored in wrong location?
-    path: PathBuf,
 }
 
 fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
@@ -166,7 +156,7 @@ fn trace(s: &str) {
 }
 
 impl SqliteStorage {
-    pub(crate) fn open_or_create(path: &Path, server: bool) -> Result<Self> {
+    pub(crate) fn open_or_create(path: &Path) -> Result<Self> {
         let db = open_or_create_collection_db(path)?;
 
         let (create, ver) = schema_version(&db)?;
@@ -193,12 +183,7 @@ impl SqliteStorage {
             }
         };
 
-        let storage = Self {
-            db,
-            path: path.to_owned(),
-            server,
-            usn: None,
-        };
+        let storage = Self { db };
 
         Ok(storage)
     }
@@ -258,6 +243,8 @@ impl SqliteStorage {
         Ok(())
     }
 
+    //////////////////////////////////////////
+
     pub(crate) fn mark_modified(&self) -> Result<()> {
         self.db
             .prepare_cached("update col set mod=?")?
@@ -265,16 +252,12 @@ impl SqliteStorage {
         Ok(())
     }
 
-    pub(crate) fn usn(&mut self) -> Result<Usn> {
-        if self.server {
-            if self.usn.is_none() {
-                self.usn = Some(
-                    self.db
-                        .prepare_cached("select usn from col")?
-                        .query_row(NO_PARAMS, |row| row.get(0))?,
-                );
-            }
-            Ok(self.usn.clone().unwrap())
+    pub(crate) fn usn(&self, server: bool) -> Result<Usn> {
+        if server {
+            Ok(Usn(self
+                .db
+                .prepare_cached("select usn from col")?
+                .query_row(NO_PARAMS, |row| row.get(0))?))
         } else {
             Ok(Usn(-1))
         }
@@ -310,13 +293,13 @@ impl SqliteStorage {
         Ok(note_types)
     }
 
-    pub(crate) fn timing_today(&self) -> Result<SchedTimingToday> {
+    pub(crate) fn timing_today(&self, server: bool) -> Result<SchedTimingToday> {
         let crt: i64 = self
             .db
             .prepare_cached("select crt from col")?
             .query_row(NO_PARAMS, |row| row.get(0))?;
         let conf = self.all_config()?;
-        let now_offset = if self.server { conf.local_offset } else { None };
+        let now_offset = if server { conf.local_offset } else { None };
 
         Ok(sched_timing_today(
             crt,

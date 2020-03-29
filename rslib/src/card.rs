@@ -92,7 +92,7 @@ impl Collection {
             return Err(AnkiError::invalid_input("card id not set"));
         }
         card.mtime = TimestampSecs::now();
-        card.usn = self.storage.usn()?;
+        card.usn = self.usn()?;
         self.storage.update_card(card)
     }
 
@@ -102,7 +102,7 @@ impl Collection {
             return Err(AnkiError::invalid_input("card id already set"));
         }
         card.mtime = TimestampSecs::now();
-        card.usn = self.storage.usn()?;
+        card.usn = self.usn()?;
         self.storage.add_card(card)
     }
 }
