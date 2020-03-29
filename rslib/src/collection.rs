@@ -6,7 +6,7 @@ use crate::i18n::I18n;
 use crate::log::Logger;
 use crate::timestamp::TimestampSecs;
 use crate::types::Usn;
-use crate::{sched::cutoff::SchedTimingToday, storage::SqliteStorage};
+use crate::{sched::cutoff::SchedTimingToday, storage::SqliteStorage, undo::UndoManager};
 use std::path::PathBuf;
 
 pub fn open_collection<P: Into<PathBuf>>(
@@ -34,9 +34,17 @@ pub fn open_collection<P: Into<PathBuf>>(
     Ok(col)
 }
 
+#[cfg(test)]
+pub fn open_test_collection() -> Collection {
+    use crate::log;
+    let i18n = I18n::new(&[""], "", log::terminal());
+    open_collection(":memory:", "", "", false, i18n, log::terminal()).unwrap()
+}
+
 #[derive(Debug, Default)]
 pub struct CollectionState {
     task_state: CollectionTaskState,
+    pub(crate) undo: UndoManager,
     timing_today: Option<SchedTimingToday>,
 }
 
@@ -62,10 +70,13 @@ pub struct Collection {
     pub(crate) i18n: I18n,
     pub(crate) log: Logger,
     pub(crate) server: bool,
-    state: CollectionState,
+    pub(crate) state: CollectionState,
 }
 
-pub(crate) enum CollectionOp {}
+#[derive(Debug, Clone, PartialEq)]
+pub enum CollectionOp {
+    UpdateCard,
+}
 
 impl Collection {
     /// Execute the provided closure in a transaction, rolling back if
@@ -75,19 +86,23 @@ impl Collection {
         F: FnOnce(&mut Collection) -> Result<R>,
     {
         self.storage.begin_rust_trx()?;
+        self.state.undo.begin_step(op);
 
         let mut res = func(self);
 
         if res.is_ok() {
             if let Err(e) = self.storage.mark_modified() {
                 res = Err(e);
-            } else if let Err(e) = self.storage.commit_rust_op(op) {
+            } else if let Err(e) = self.storage.commit_rust_trx() {
                 res = Err(e);
             }
         }
 
         if res.is_err() {
+            self.state.undo.discard_step();
             self.storage.rollback_rust_trx()?;
+        } else {
+            self.state.undo.end_step();
         }
 
         res
