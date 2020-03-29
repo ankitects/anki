@@ -282,3 +282,30 @@ class BrowserPreviewer(Previewer):
     def _renderScheduledPreview(self) -> None:
         super()._renderScheduledPreview()
         self._updatePreviewButtons()
+
+
+class SingleCardPreviewer(Previewer):
+    def __init__(self, card: Card, *args, **kwargs):
+        self._card = card
+        super().__init__(*args, **kwargs)
+
+    def card(self) -> Card:
+        return self._card
+
+    def _create_gui(self):
+        super()._create_gui()
+        self._other_side = self.bbox.addButton(
+            "Other side", QDialogButtonBox.ActionRole
+        )
+        self._other_side.setAutoDefault(False)
+        self._other_side.setShortcut(QKeySequence("Right"))
+        self._other_side.setShortcut(QKeySequence("Left"))
+        self._other_side.setToolTip(_("Shortcut key: Left or Right arrow"))
+        self._other_side.clicked.connect(self._on_other_side)
+
+    def _on_other_side(self):
+        if self._previewState == "question":
+            self._previewState = "answer"
+        else:
+            self._previewState = "question"
+        self._renderPreview()
