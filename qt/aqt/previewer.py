@@ -56,25 +56,25 @@ class Previewer:
 
         self._previewWindow.finished.connect(self._onPreviewFinished)
         self._previewWindow.silentlyClose = True
-        vbox = QVBoxLayout()
-        vbox.setContentsMargins(0, 0, 0, 0)
+        self.vbox = QVBoxLayout()
+        self.vbox.setContentsMargins(0, 0, 0, 0)
         self._previewWeb = AnkiWebView(title="previewer")
-        vbox.addWidget(self._previewWeb)
-        bbox = QDialogButtonBox()
+        self.vbox.addWidget(self._previewWeb)
+        self.bbox = QDialogButtonBox()
 
-        self._previewReplay = bbox.addButton(
+        self._previewReplay = self.bbox.addButton(
             _("Replay Audio"), QDialogButtonBox.ActionRole
         )
         self._previewReplay.setAutoDefault(False)
         self._previewReplay.setShortcut(QKeySequence("R"))
         self._previewReplay.setToolTip(_("Shortcut key: %s" % "R"))
 
-        self._previewPrev = bbox.addButton("<", QDialogButtonBox.ActionRole)
+        self._previewPrev = self.bbox.addButton("<", QDialogButtonBox.ActionRole)
         self._previewPrev.setAutoDefault(False)
         self._previewPrev.setShortcut(QKeySequence("Left"))
         self._previewPrev.setToolTip(_("Shortcut key: Left arrow"))
 
-        self._previewNext = bbox.addButton(">", QDialogButtonBox.ActionRole)
+        self._previewNext = self.bbox.addButton(">", QDialogButtonBox.ActionRole)
         self._previewNext.setAutoDefault(True)
         self._previewNext.setShortcut(QKeySequence("Right"))
         self._previewNext.setToolTip(_("Shortcut key: Right arrow or Enter"))
@@ -86,13 +86,13 @@ class Previewer:
         self.previewShowBothSides = QCheckBox(_("Show Both Sides"))
         self.previewShowBothSides.setShortcut(QKeySequence("B"))
         self.previewShowBothSides.setToolTip(_("Shortcut key: %s" % "B"))
-        bbox.addButton(self.previewShowBothSides, QDialogButtonBox.ActionRole)
+        self.bbox.addButton(self.previewShowBothSides, QDialogButtonBox.ActionRole)
         self._previewBothSides = self.mw.col.conf.get("previewBothSides", False)
         self.previewShowBothSides.setChecked(self._previewBothSides)
         self.previewShowBothSides.toggled.connect(self._onPreviewShowBothSides)
 
-        vbox.addWidget(bbox)
-        self._previewWindow.setLayout(vbox)
+        self.vbox.addWidget(self.bbox)
+        self._previewWindow.setLayout(self.vbox)
         restoreGeom(self._previewWindow, "preview")
 
     def _onPreviewFinished(self, ok):
