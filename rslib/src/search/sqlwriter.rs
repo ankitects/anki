@@ -129,7 +129,7 @@ impl SqlWriter<'_> {
     }
 
     fn write_rated(&mut self, days: u32, ease: Option<u8>) -> Result<()> {
-        let today_cutoff = self.col.storage.timing_today()?.next_day_at;
+        let today_cutoff = self.col.timing_today()?.next_day_at;
         let days = days.min(365) as i64;
         let target_cutoff_ms = (today_cutoff - 86_400 * days) * 1_000;
         write!(
@@ -148,7 +148,7 @@ impl SqlWriter<'_> {
     }
 
     fn write_prop(&mut self, op: &str, kind: &PropertyKind) -> Result<()> {
-        let timing = self.col.storage.timing_today()?;
+        let timing = self.col.timing_today()?;
         match kind {
             PropertyKind::Due(days) => {
                 let day = days + (timing.days_elapsed as i32);
@@ -173,7 +173,7 @@ impl SqlWriter<'_> {
     }
 
     fn write_state(&mut self, state: &StateKind) -> Result<()> {
-        let timing = self.col.storage.timing_today()?;
+        let timing = self.col.timing_today()?;
         match state {
             StateKind::New => write!(self.sql, "c.type = {}", CardQueue::New as i8),
             StateKind::Review => write!(self.sql, "c.type = {}", CardQueue::Review as i8),
@@ -354,7 +354,7 @@ impl SqlWriter<'_> {
     }
 
     fn write_added(&mut self, days: u32) -> Result<()> {
-        let timing = self.col.storage.timing_today()?;
+        let timing = self.col.timing_today()?;
         let cutoff = (timing.next_day_at - (86_400 * (days as i64))) * 1_000;
         write!(self.sql, "c.id > {}", cutoff).unwrap();
         Ok(())
@@ -466,7 +466,7 @@ mod test {
         );
 
         // added
-        let timing = ctx.storage.timing_today().unwrap();
+        let timing = ctx.timing_today().unwrap();
         assert_eq!(
             s(ctx, "added:3").0,
             format!("(c.id > {})", (timing.next_day_at - (86_400 * 3)) * 1_000)

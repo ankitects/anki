@@ -4,7 +4,8 @@
 use crate::err::{AnkiError, Result};
 use crate::i18n::I18n;
 use crate::log::Logger;
-use crate::storage::SqliteStorage;
+use crate::timestamp::TimestampSecs;
+use crate::{sched::cutoff::SchedTimingToday, storage::SqliteStorage};
 use std::path::PathBuf;
 
 pub fn open_collection<P: Into<PathBuf>>(
@@ -25,17 +26,16 @@ pub fn open_collection<P: Into<PathBuf>>(
         media_db: media_db.into(),
         i18n,
         log,
-        state: CollectionState {
-            task_state: CollectionTaskState::Normal,
-        },
+        state: CollectionState::default(),
     };
 
     Ok(col)
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct CollectionState {
     task_state: CollectionTaskState,
+    timing_today: Option<SchedTimingToday>,
 }
 
 #[derive(Debug, PartialEq)]
@@ -43,6 +43,12 @@ pub enum CollectionTaskState {
     Normal,
     // in this state, the DB must not be closed
     MediaSyncRunning,
+}
+
+impl Default for CollectionTaskState {
+    fn default() -> Self {
+        Self::Normal
+    }
 }
 
 pub struct Collection {
@@ -104,5 +110,15 @@ impl Collection {
 
     pub(crate) fn can_close(&self) -> bool {
         self.state.task_state == CollectionTaskState::Normal
+    }
+
+    pub fn timing_today(&mut self) -> Result<SchedTimingToday> {
+        if let Some(timing) = &self.state.timing_today {
+            if timing.next_day_at > TimestampSecs::now().0 {
+                return Ok(timing.clone());
+            }
+        }
+        self.state.timing_today = Some(self.storage.timing_today()?);
+        Ok(self.state.timing_today.clone().unwrap())
     }
 }
