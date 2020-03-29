@@ -40,7 +40,7 @@ class Previewer:
         self.mw = mw
 
     def card(self) -> Optional[Card]:
-        return self.parent.card
+        raise NotImplementedError
 
     def _openPreview(self):
         self._previewState = "question"
@@ -68,19 +68,6 @@ class Previewer:
         self._previewReplay.setAutoDefault(False)
         self._previewReplay.setShortcut(QKeySequence("R"))
         self._previewReplay.setToolTip(_("Shortcut key: %s" % "R"))
-
-        self._previewPrev = self.bbox.addButton("<", QDialogButtonBox.ActionRole)
-        self._previewPrev.setAutoDefault(False)
-        self._previewPrev.setShortcut(QKeySequence("Left"))
-        self._previewPrev.setToolTip(_("Shortcut key: Left arrow"))
-
-        self._previewNext = self.bbox.addButton(">", QDialogButtonBox.ActionRole)
-        self._previewNext.setAutoDefault(True)
-        self._previewNext.setShortcut(QKeySequence("Right"))
-        self._previewNext.setToolTip(_("Shortcut key: Right arrow or Enter"))
-
-        self._previewPrev.clicked.connect(self._onPreviewPrev)
-        self._previewNext.clicked.connect(self._onPreviewNext)
         self._previewReplay.clicked.connect(self._onReplayAudio)
 
         self.previewShowBothSides = QCheckBox(_("Show Both Sides"))
@@ -98,44 +85,9 @@ class Previewer:
     def _onPreviewFinished(self, ok):
         saveGeom(self._previewWindow, "preview")
         self.mw.progress.timer(100, self._onClosePreview, False)
-        self.parent.form.previewButton.setChecked(False)
-
-    def _onPreviewPrev(self):
-        if self._previewState == "answer" and not self._previewBothSides:
-            self._previewState = "question"
-            self._renderPreview()
-        else:
-            self.parent.editor.saveNow(
-                lambda: self.parent._moveCur(QAbstractItemView.MoveUp)
-            )
-
-    def _onPreviewNext(self):
-        if self._previewState == "question":
-            self._previewState = "answer"
-            self._renderPreview()
-        else:
-            self.parent.editor.saveNow(
-                lambda: self.parent._moveCur(QAbstractItemView.MoveDown)
-            )
 
     def _onReplayAudio(self):
         self.mw.reviewer.replayAudio(self)
-
-    def _updatePreviewButtons(self):
-        if not self._previewWindow:
-            return
-        current = self.parent.currentRow()
-        canBack = current > 0 or (
-            current == 0
-            and self._previewState == "answer"
-            and not self._previewBothSides
-        )
-        self._previewPrev.setEnabled(bool(self.parent.singleCard and canBack))
-        canForward = (
-            self.parent.currentRow() < self.parent.model.rowCount(None) - 1
-            or self._previewState == "question"
-        )
-        self._previewNext.setEnabled(bool(self.parent.singleCard and canForward))
 
     def _closePreview(self):
         if self._previewWindow:
@@ -143,10 +95,7 @@ class Previewer:
             self._onClosePreview()
 
     def _onClosePreview(self):
-        self.parent.previewer = None
         self._previewWindow = None
-        self._previewPrev = None
-        self._previewNext = None
 
     def _setupPreviewWebview(self):
         jsinc = [
@@ -199,7 +148,7 @@ class Previewer:
             return
         c = self.card()
         func = "_showQuestion"
-        if not c or not self.parent.singleCard:
+        if not c:
             txt = _("(please select 1 card)")
             bodyclass = ""
             self._lastPreviewState = None
@@ -246,7 +195,6 @@ class Previewer:
                 txt, c, "preview" + self._previewState.capitalize()
             )
             self._lastPreviewState = self._previewStateAndMod()
-        self._updatePreviewButtons()
         self._previewWeb.eval("{}({},'{}');".format(func, json.dumps(txt), bodyclass))
         self._previewCardChanged = False
 
@@ -263,3 +211,74 @@ class Previewer:
         n = c.note()
         n.load()
         return (self._previewState, c.id, n.mod)
+
+
+class BrowserPreviewer(Previewer):
+    def card(self) -> Optional[Card]:
+        if self.parent.singleCard:
+            return self.parent.card
+        else:
+            return None
+
+    def _create_gui(self):
+        super()._create_gui()
+        self._previewPrev = self.bbox.addButton("<", QDialogButtonBox.ActionRole)
+        self._previewPrev.setAutoDefault(False)
+        self._previewPrev.setShortcut(QKeySequence("Left"))
+        self._previewPrev.setToolTip(_("Shortcut key: Left arrow"))
+
+        self._previewNext = self.bbox.addButton(">", QDialogButtonBox.ActionRole)
+        self._previewNext.setAutoDefault(True)
+        self._previewNext.setShortcut(QKeySequence("Right"))
+        self._previewNext.setToolTip(_("Shortcut key: Right arrow or Enter"))
+
+        self._previewPrev.clicked.connect(self._onPreviewPrev)
+        self._previewNext.clicked.connect(self._onPreviewNext)
+
+    def _onPreviewFinished(self, ok):
+        super()._onPreviewFinished(ok)
+        self.parent.form.previewButton.setChecked(False)
+
+    def _onPreviewPrev(self):
+        if self._previewState == "answer" and not self._previewBothSides:
+            self._previewState = "question"
+            self._renderPreview()
+        else:
+            self.parent.editor.saveNow(
+                lambda: self.parent._moveCur(QAbstractItemView.MoveUp)
+            )
+
+    def _onPreviewNext(self):
+        if self._previewState == "question":
+            self._previewState = "answer"
+            self._renderPreview()
+        else:
+            self.parent.editor.saveNow(
+                lambda: self.parent._moveCur(QAbstractItemView.MoveDown)
+            )
+
+    def _updatePreviewButtons(self):
+        if not self._previewWindow:
+            return
+        current = self.parent.currentRow()
+        canBack = current > 0 or (
+            current == 0
+            and self._previewState == "answer"
+            and not self._previewBothSides
+        )
+        self._previewPrev.setEnabled(bool(self.parent.singleCard and canBack))
+        canForward = (
+            self.parent.currentRow() < self.parent.model.rowCount(None) - 1
+            or self._previewState == "question"
+        )
+        self._previewNext.setEnabled(bool(self.parent.singleCard and canForward))
+
+    def _onClosePreview(self):
+        super()._onClosePreview()
+        self.parent.previewer = None
+        self._previewPrev = None
+        self._previewNext = None
+
+    def _renderScheduledPreview(self) -> None:
+        super()._renderScheduledPreview()
+        self._updatePreviewButtons()
