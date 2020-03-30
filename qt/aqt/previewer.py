@@ -260,18 +260,24 @@ class BrowserPreviewer(Previewer):
     def _updatePreviewButtons(self):
         if not self._previewWindow:
             return
+        self._previewPrev.setEnabled(self._should_enable_prev())
+        self._previewNext.setEnabled(self._should_enable_next())
+
+    def _should_enable_prev(self):
         current = self.parent.currentRow()
         canBack = current > 0 or (
             current == 0
             and self._previewState == "answer"
             and not self._previewBothSides
         )
-        self._previewPrev.setEnabled(bool(self.parent.singleCard and canBack))
+        return bool(self.parent.singleCard and canBack)
+
+    def _should_enable_next(self):
         canForward = (
             self.parent.currentRow() < self.parent.model.rowCount(None) - 1
             or self._previewState == "question"
         )
-        self._previewNext.setEnabled(bool(self.parent.singleCard and canForward))
+        return bool(self.parent.singleCard and canForward)
 
     def _onClosePreview(self):
         super()._onClosePreview()
