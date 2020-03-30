@@ -2,8 +2,9 @@ import json
 import re
 import time
 from dataclasses import dataclass
-from typing import Any, Union
+from typing import Any, Optional, Union
 
+from anki.cards import Card
 from anki.lang import _
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import (
@@ -37,6 +38,9 @@ class Previewer:
     def __init__(self, parent: QWidget, mw: AnkiQt):
         self.parent = parent
         self.mw = mw
+
+    def card(self) -> Optional[Card]:
+        return self.parent.card
 
     def _openPreview(self):
         self._previewState = "question"
@@ -163,7 +167,7 @@ class Previewer:
 
     def _on_preview_bridge_cmd(self, cmd: str) -> Any:
         if cmd.startswith("play:"):
-            play_clicked_audio(cmd, self.parent.card)
+            play_clicked_audio(cmd, self.card())
 
     def _renderPreview(self, cardChanged=False):
         self._cancelPreviewTimer()
@@ -191,7 +195,7 @@ class Previewer:
 
         if not self._previewWindow:
             return
-        c = self.parent.card
+        c = self.card()
         func = "_showQuestion"
         if not c or not self.parent.singleCard:
             txt = _("(please select 1 card)")
@@ -253,7 +257,7 @@ class Previewer:
         self._renderPreview()
 
     def _previewStateAndMod(self):
-        c = self.parent.card
+        c = self.card()
         n = c.note()
         n.load()
         return (self._previewState, c.id, n.mod)
