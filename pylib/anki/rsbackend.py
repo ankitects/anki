@@ -3,6 +3,7 @@
 # pylint: skip-file
 
 import enum
+import json
 import os
 from dataclasses import dataclass
 from typing import (
@@ -43,7 +44,6 @@ try:
 except:
     # add compat layer for 32 bit builds that can't use orjson
     print("reverting to stock json")
-    import json
 
     class orjson:  # type: ignore
         def dumps(obj: Any) -> bytes:
@@ -489,6 +489,32 @@ class RustBackend:
 
     def add_card(self, card: BackendCard) -> None:
         card.id = self._run_command(pb.BackendInput(add_card=card)).add_card
+
+    def get_deck_config(self, dcid: int) -> Dict[str, Any]:
+        jstr = self._run_command(pb.BackendInput(get_deck_config=dcid)).get_deck_config
+        return json.loads(jstr)
+
+    def add_or_update_deck_config(self, conf: Dict[str, Any]) -> None:
+        conf_json = json.dumps(conf)
+        id = self._run_command(
+            pb.BackendInput(add_or_update_deck_config=conf_json)
+        ).add_or_update_deck_config
+        conf["id"] = id
+
+    def all_deck_config(self) -> Dict[int, Dict[str, Any]]:
+        jstr = self._run_command(
+            pb.BackendInput(all_deck_config=pb.Empty())
+        ).all_deck_config
+        return json.loads(jstr)
+
+    def new_deck_config(self) -> Dict[str, Any]:
+        jstr = self._run_command(
+            pb.BackendInput(new_deck_config=pb.Empty())
+        ).new_deck_config
+        return json.loads(jstr)
+
+    def remove_deck_config(self, dcid: int) -> None:
+        self._run_command(pb.BackendInput(remove_deck_config=dcid))
 
 
 def translate_string_in(

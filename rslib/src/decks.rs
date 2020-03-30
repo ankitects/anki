@@ -6,7 +6,6 @@ use serde_aux::field_attributes::deserialize_number_from_string;
 use serde_derive::Deserialize;
 
 define_newtype!(DeckID, i64);
-define_newtype!(DeckConfID, i64);
 
 #[derive(Deserialize)]
 pub struct Deck {

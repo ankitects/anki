@@ -8,6 +8,7 @@ use crate::card::{Card, CardID};
 use crate::card::{CardQueue, CardType};
 use crate::collection::{open_collection, Collection};
 use crate::config::SortKind;
+use crate::deckconf::{DeckConf, DeckConfID};
 use crate::decks::DeckID;
 use crate::err::{AnkiError, NetworkErrorKind, Result, SyncErrorKind};
 use crate::i18n::{tr_args, FString, I18n};
@@ -68,6 +69,7 @@ fn anki_error_to_proto_error(err: AnkiError, i18n: &I18n) -> pb::BackendError {
         AnkiError::Interrupted => V::Interrupted(Empty {}),
         AnkiError::CollectionNotOpen => V::InvalidInput(pb::Empty {}),
         AnkiError::CollectionAlreadyOpen => V::InvalidInput(pb::Empty {}),
+        AnkiError::SchemaChange => V::InvalidInput(pb::Empty {}),
     };
 
     pb::BackendError {
@@ -261,6 +263,16 @@ impl Backend {
                 OValue::UpdateCard(pb::Empty {})
             }
             Value::AddCard(card) => OValue::AddCard(self.add_card(card)?),
+            Value::GetDeckConfig(dcid) => OValue::GetDeckConfig(self.get_deck_config(dcid)?),
+            Value::AddOrUpdateDeckConfig(conf_json) => {
+                OValue::AddOrUpdateDeckConfig(self.add_or_update_deck_config(conf_json)?)
+            }
+            Value::AllDeckConfig(_) => OValue::AllDeckConfig(self.all_deck_config()?),
+            Value::NewDeckConfig(_) => OValue::NewDeckConfig(self.new_deck_config()?),
+            Value::RemoveDeckConfig(dcid) => {
+                self.remove_deck_config(dcid)?;
+                OValue::RemoveDeckConfig(pb::Empty {})
+            }
         })
     }
 
@@ -650,6 +662,37 @@ impl Backend {
         let mut card = pbcard_to_native(pbcard)?;
         self.with_col(|col| col.transact(None, |ctx| ctx.add_card(&mut card)))?;
         Ok(card.id.0)
+    }
+
+    fn get_deck_config(&self, dcid: i64) -> Result<String> {
+        self.with_col(|col| {
+            let conf = col.get_deck_config(DeckConfID(dcid), true)?.unwrap();
+            Ok(serde_json::to_string(&conf)?)
+        })
+    }
+
+    fn add_or_update_deck_config(&self, conf_json: String) -> Result<i64> {
+        let mut conf: DeckConf = serde_json::from_str(&conf_json)?;
+        self.with_col(|col| {
+            col.transact(None, |col| {
+                col.add_or_update_deck_config(&mut conf)?;
+                Ok(conf.id.0)
+            })
+        })
+    }
+
+    fn all_deck_config(&self) -> Result<String> {
+        self.with_col(|col| {
+            serde_json::to_string(&col.storage.all_deck_conf()?).map_err(Into::into)
+        })
+    }
+
+    fn new_deck_config(&self) -> Result<String> {
+        serde_json::to_string(&DeckConf::default()).map_err(Into::into)
+    }
+
+    fn remove_deck_config(&self, dcid: i64) -> Result<()> {
+        self.with_col(|col| col.transact(None, |col| col.remove_deck_config(DeckConfID(dcid))))
     }
 }
 
