@@ -311,7 +311,15 @@ class BrowserPreviewer(MultipleCardsPreviewer):
 
 
 class ListCardsPreviewer(MultipleCardsPreviewer):
-    def __init__(self, cards: List[Card], *args, **kwargs):
+    def __init__(self, cards: List[Union[Card, int]], *args, **kwargs):
+        """A previewer displaying a list of card.
+
+        List can be changed by setting self.cards to a new value.
+
+        self.cards contains both cid and card. So that card is loaded
+        only when required and is not loaded twice.
+
+        """
         self.index = 0
         self.cards = cards
         super().__init__(*args, **kwargs)
@@ -319,7 +327,9 @@ class ListCardsPreviewer(MultipleCardsPreviewer):
     def card(self):
         if not self.cards:
             return None
-        return self.cards[0]
+        if isinstance(self.cards[self.index], int):
+            self.cards[self.index] = self.mw.col.getCard(self.cards[self.index])
+        return self.cards[self.index]
 
     def _openPreview(self):
         if not self.cards:
