@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import os
+from distutils.version import LooseVersion
 
 import setuptools
 
@@ -23,6 +24,39 @@ if pyonly:
 else:
     extra_files = package_files("aqt_data")
 
+install_requires = [
+    "beautifulsoup4",
+    "requests",
+    "send2trash",
+    "pyaudio",
+    "markdown",
+    "jsonschema",
+    'psutil; sys.platform == "win32"',
+    'pywin32; sys.platform == "win32"',
+    'darkdetect; sys.platform == "darwin"',
+]
+
+
+try:
+    import PyQt5 as IS_PYQT_INSTALLED
+
+except (ImportError, ValueError):
+    IS_PYQT_INSTALLED = None
+
+try:
+    from PyQt5.Qt import PYQT_VERSION_STR
+
+except (ImportError, ValueError):
+    PYQT_VERSION_STR = None
+
+# https://github.com/ankitects/anki/pull/530
+if not IS_PYQT_INSTALLED or (
+    PYQT_VERSION_STR and LooseVersion(PYQT_VERSION_STR) >= LooseVersion("5.12")
+):
+    install_requires.append("pyqt5")
+    install_requires.append("pyqtwebengine")
+
+
 setuptools.setup(
     name="aqt",
     version=version,
@@ -37,17 +71,5 @@ setuptools.setup(
     classifiers=[],
     python_requires=">=3.7",
     package_data={"aqt": ["py.typed"]},
-    install_requires=[
-        "beautifulsoup4",
-        "requests",
-        "send2trash",
-        "pyaudio",
-        "markdown",
-        "jsonschema",
-        "pyqt5",
-        "pyqtwebengine",
-        'psutil; sys.platform == "win32"',
-        'pywin32; sys.platform == "win32"',
-        'darkdetect; sys.platform == "darwin"',
-    ],
+    install_requires=install_requires,
 )
