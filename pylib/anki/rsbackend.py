@@ -261,9 +261,12 @@ class RustBackend:
             release_gil=True,
         )
 
-    def close_collection(self):
+    def close_collection(self, downgrade=True):
         self._run_command(
-            pb.BackendInput(close_collection=pb.Empty()), release_gil=True
+            pb.BackendInput(
+                close_collection=pb.CloseCollectionIn(downgrade_to_schema11=downgrade)
+            ),
+            release_gil=True,
         )
 
     def template_requirements(
@@ -501,7 +504,7 @@ class RustBackend:
         ).add_or_update_deck_config
         conf["id"] = id
 
-    def all_deck_config(self) -> Dict[int, Dict[str, Any]]:
+    def all_deck_config(self) -> Sequence[Dict[str, Any]]:
         jstr = self._run_command(
             pb.BackendInput(all_deck_config=pb.Empty())
         ).all_deck_config

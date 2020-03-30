@@ -78,7 +78,7 @@ def initial_db_setup(db: DBProxy) -> None:
     _addColVars(db, *_getColVars(db))
 
 
-def _getColVars(db: DBProxy) -> Tuple[Any, Any, Dict[str, Any]]:
+def _getColVars(db: DBProxy) -> Tuple[Any, Dict[str, Any]]:
     import anki.collection
     import anki.decks
 
@@ -87,18 +87,13 @@ def _getColVars(db: DBProxy) -> Tuple[Any, Any, Dict[str, Any]]:
     g["name"] = _("Default")
     g["conf"] = 1
     g["mod"] = intTime()
-    gc = copy.deepcopy(anki.decks.defaultConf)
-    gc["id"] = 1
-    return g, gc, anki.collection.defaultConf.copy()
+    return g, anki.collection.defaultConf.copy()
 
 
-def _addColVars(
-    db: DBProxy, g: Dict[str, Any], gc: Dict[str, Any], c: Dict[str, Any]
-) -> None:
+def _addColVars(db: DBProxy, g: Dict[str, Any], c: Dict[str, Any]) -> None:
     db.execute(
         """
-update col set conf = ?, decks = ?, dconf = ?""",
+update col set conf = ?, decks = ?""",
         json.dumps(c),
         json.dumps({"1": g}),
-        json.dumps({"1": gc}),
     )

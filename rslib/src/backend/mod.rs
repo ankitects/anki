@@ -30,6 +30,7 @@ use crate::timestamp::TimestampSecs;
 use crate::types::Usn;
 use crate::{backend_proto as pb, log};
 use fluent::FluentValue;
+use log::error;
 use prost::Message;
 use std::collections::{HashMap, HashSet};
 use std::convert::TryFrom;
@@ -251,8 +252,8 @@ impl Backend {
                 self.open_collection(input)?;
                 OValue::OpenCollection(Empty {})
             }
-            Value::CloseCollection(_) => {
-                self.close_collection()?;
+            Value::CloseCollection(input) => {
+                self.close_collection(input.downgrade_to_schema11)?;
                 OValue::CloseCollection(Empty {})
             }
             Value::SearchCards(input) => OValue::SearchCards(self.search_cards(input)?),
@@ -305,7 +306,7 @@ impl Backend {
         Ok(())
     }
 
-    fn close_collection(&self) -> Result<()> {
+    fn close_collection(&self, downgrade: bool) -> Result<()> {
         let mut col = self.col.lock().unwrap();
         if col.is_none() {
             return Err(AnkiError::CollectionNotOpen);
@@ -315,7 +316,13 @@ impl Backend {
             return Err(AnkiError::invalid_input("can't close yet"));
         }
 
-        *col = None;
+        let col_inner = col.take().unwrap();
+        if downgrade {
+            let log = log::terminal();
+            if let Err(e) = col_inner.downgrade_and_close() {
+                error!(log, " failed: {:?}", e);
+            }
+        }
 
         Ok(())
     }
@@ -683,7 +690,7 @@ impl Backend {
 
     fn all_deck_config(&self) -> Result<String> {
         self.with_col(|col| {
-            serde_json::to_string(&col.storage.all_deck_conf()?).map_err(Into::into)
+            serde_json::to_string(&col.storage.all_deck_config()?).map_err(Into::into)
         })
     }
 

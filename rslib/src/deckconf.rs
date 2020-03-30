@@ -55,6 +55,10 @@ pub struct NewConf {
     #[serde(deserialize_with = "default_on_invalid")]
     pub(crate) per_day: u32,
 
+    // unused, can remove in the future
+    #[serde(default)]
+    separate: bool,
+
     #[serde(flatten)]
     other: HashMap<String, Value>,
 }
@@ -161,6 +165,7 @@ impl Default for NewConf {
             ints: NewCardIntervals::default(),
             order: NewCardOrder::default(),
             per_day: 20,
+            separate: true,
             other: Default::default(),
         }
     }
@@ -200,35 +205,32 @@ impl Default for DeckConf {
 
 impl Collection {
     pub fn get_deck_config(&self, dcid: DeckConfID, fallback: bool) -> Result<Option<DeckConf>> {
-        let conf = self.storage.all_deck_conf()?;
-        if let Some(conf) = conf.get(&dcid) {
-            return Ok(Some(conf.clone()));
+        if let Some(conf) = self.storage.get_deck_config(dcid)? {
+            return Ok(Some(conf));
         }
         if fallback {
-            if let Some(conf) = conf.get(&DeckConfID(1)) {
-                return Ok(Some(conf.clone()));
+            if let Some(conf) = self.storage.get_deck_config(DeckConfID(1))? {
+                return Ok(Some(conf));
             }
             // if even the default deck config is missing, just return the defaults
-            return Ok(Some(DeckConf::default()));
+            Ok(Some(DeckConf::default()))
+        } else {
+            Ok(None)
         }
-        Ok(None)
     }
 
     pub(crate) fn add_or_update_deck_config(&self, conf: &mut DeckConf) -> Result<()> {
-        let mut allconf = self.storage.all_deck_conf()?;
-        if conf.id.0 == 0 {
-            conf.id.0 = TimestampMillis::now().0;
-            loop {
-                if !allconf.contains_key(&conf.id) {
-                    break;
-                }
-                conf.id.0 += 1;
-            }
-        }
         conf.mtime = TimestampSecs::now();
         conf.usn = self.usn()?;
-        allconf.insert(conf.id, conf.clone());
-        self.storage.flush_deck_conf(&allconf)
+        let orig = self.storage.get_deck_config(conf.id)?;
+        if let Some(_orig) = orig {
+            self.storage.update_deck_conf(&conf)
+        } else {
+            if conf.id.0 == 0 {
+                conf.id.0 = TimestampMillis::now().0;
+            }
+            self.storage.add_deck_conf(conf)
+        }
     }
 
     pub(crate) fn remove_deck_config(&self, dcid: DeckConfID) -> Result<()> {
@@ -236,8 +238,6 @@ impl Collection {
             return Err(AnkiError::invalid_input("can't delete default conf"));
         }
         self.ensure_schema_modified()?;
-        let mut allconf = self.storage.all_deck_conf()?;
-        allconf.remove(&dcid);
-        self.storage.flush_deck_conf(&allconf)
+        self.storage.remove_deck_conf(dcid)
     }
 }
