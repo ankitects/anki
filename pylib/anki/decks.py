@@ -102,6 +102,7 @@ class DeckManager:
     def __init__(self, col: anki.storage._Collection) -> None:
         self.col = col.weakref()
         self.decks = {}
+        self._dconf_cache: Optional[Dict[int, Dict[str, Any]]] = None
 
     def load(self, decks: str, dconf: str) -> None:
         self.decks = json.loads(decks)
@@ -371,6 +372,8 @@ class DeckManager:
         return deck
 
     def getConf(self, confId: int) -> Any:
+        if self._dconf_cache is not None:
+            return self._dconf_cache.get(confId)
         return self.col.backend.get_deck_config(confId)
 
     def updateConf(self, g: Dict[str, Any]) -> None:
@@ -419,6 +422,13 @@ class DeckManager:
         # if it was previously randomized, resort
         if not oldOrder:
             self.col.sched.resortConf(new)
+
+    # temporary caching - don't use this as it will be removed
+    def _enable_dconf_cache(self):
+        self._dconf_cache = {c["id"]: c for c in self.allConf()}
+
+    def _disable_dconf_cache(self):
+        self._dconf_cache = None
 
     # Deck utils
     #############################################################
