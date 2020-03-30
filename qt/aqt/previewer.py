@@ -2,7 +2,7 @@ import json
 import re
 import time
 from dataclasses import dataclass
-from typing import Any, Optional, Union
+from typing import Any, List, Optional, Union
 
 from anki.cards import Card
 from anki.lang import _
@@ -308,6 +308,44 @@ class BrowserPreviewer(MultipleCardsPreviewer):
     def _renderScheduledPreview(self) -> None:
         super()._renderScheduledPreview()
         self._updatePreviewButtons()
+
+
+class ListCardsPreviewer(MultipleCardsPreviewer):
+    def __init__(self, cards: List[Card], *args, **kwargs):
+        self.index = 0
+        self.cards = cards
+        super().__init__(*args, **kwargs)
+
+    def card(self):
+        if not self.cards:
+            return None
+        return self.cards[0]
+
+    def _openPreview(self):
+        if not self.cards:
+            return
+        super()._openPreview()
+
+    def _onPreviewPrevCard(self):
+        self.index -= 1
+        self._renderPreview()
+
+    def _onPreviewNextCard(self):
+        self.index += 1
+        self._renderPreview()
+
+    def _should_enable_prev(self):
+        return super()._should_enable_prev() or self.index > 0
+
+    def _should_enable_next(self):
+        return super()._should_enable_next() or self.index < len(self.cards) - 1
+
+    def _on_other_side(self):
+        if self._previewState == "question":
+            self._previewState = "answer"
+        else:
+            self._previewState = "question"
+        self._renderPreview()
 
 
 class SingleCardPreviewer(Previewer):
