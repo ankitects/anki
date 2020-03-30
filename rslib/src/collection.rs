@@ -130,6 +130,10 @@ impl Collection {
         self.state.task_state == CollectionTaskState::Normal
     }
 
+    pub(crate) fn downgrade_and_close(self) -> Result<()> {
+        self.storage.downgrade_to_schema_11()
+    }
+
     pub fn timing_today(&mut self) -> Result<SchedTimingToday> {
         if let Some(timing) = &self.state.timing_today {
             if timing.next_day_at > TimestampSecs::now().0 {

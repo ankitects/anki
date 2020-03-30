@@ -1307,7 +1307,6 @@ where id = ?
             bury=oconf["new"].get("bury", True),
             delays=oconf["new"]["delays"],
             # overrides
-            separate=conf["separate"],
             order=NEW_CARDS_DUE,
             perDay=self.reportLimit,
         )

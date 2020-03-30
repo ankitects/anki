@@ -46,7 +46,7 @@ message BackendInput {
         Empty empty_trash = 34;
         Empty restore_trash = 35;
         OpenCollectionIn open_collection = 36;
-        Empty close_collection = 37;
+        CloseCollectionIn close_collection = 37;
         int64 get_card = 38;
         Card update_card = 39;
         Card add_card = 40;
@@ -407,4 +407,8 @@ message Card {
     int64 odid = 16;
     uint32 flags = 17;
     string data = 18;
+}
+
+message CloseCollectionIn {
+    bool downgrade_to_schema11 = 1;
 }

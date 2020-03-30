@@ -44,7 +44,7 @@ defaultDynamicDeck = {
     "desc": "",
     "usn": 0,
     "delays": None,
-    "separate": True,
+    "separate": True,  # unused
     # list of (search, limit, order); we only use first two elements for now
     "terms": [["", 100, 0]],
     "resched": True,
@@ -59,7 +59,7 @@ defaultConf = {
         "delays": [1, 10],
         "ints": [1, 4, 7],  # 7 is not currently used
         "initialFactor": STARTING_FACTOR,
-        "separate": True,
+        "separate": True,  # unused
         "order": NEW_CARDS_DUE,
         "perDay": 20,
         # may not be set on old decks
@@ -358,7 +358,7 @@ class DeckManager:
 
     def allConf(self) -> List:
         "A list of all deck config."
-        return list(self.col.backend.all_deck_config().values())
+        return list(self.col.backend.all_deck_config())
 
     def confForDid(self, did: int) -> Any:
         deck = self.get(did, default=False)

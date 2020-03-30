@@ -21,7 +21,8 @@ use std::{borrow::Cow, collections::HashMap, path::Path};
 use unicase::UniCase;
 
 const SCHEMA_MIN_VERSION: u8 = 11;
-const SCHEMA_MAX_VERSION: u8 = 11;
+const SCHEMA_STARTING_VERSION: u8 = 11;
+const SCHEMA_MAX_VERSION: u8 = 12;
 
 fn unicase_compare(s1: &str, s2: &str) -> Ordering {
     UniCase::new(s1).cmp(&UniCase::new(s2))
@@ -141,7 +142,7 @@ fn schema_version(db: &Connection) -> Result<(bool, u8)> {
         .prepare("select null from sqlite_master where type = 'table' and name = 'col'")?
         .exists(NO_PARAMS)?
     {
-        return Ok((true, SCHEMA_MAX_VERSION));
+        return Ok((true, SCHEMA_STARTING_VERSION));
     }
 
     Ok((
@@ -157,34 +158,75 @@ fn trace(s: &str) {
 impl SqliteStorage {
     pub(crate) fn open_or_create(path: &Path) -> Result<Self> {
         let db = open_or_create_collection_db(path)?;
-
         let (create, ver) = schema_version(&db)?;
+        if ver > SCHEMA_MAX_VERSION {
+            return Err(AnkiError::DBError {
+                info: "".to_string(),
+                kind: DBErrorKind::FileTooNew,
+            });
+        }
+        if ver < SCHEMA_MIN_VERSION {
+            return Err(AnkiError::DBError {
+                info: "".to_string(),
+                kind: DBErrorKind::FileTooOld,
+            });
+        }
+
+        let upgrade = ver != SCHEMA_MAX_VERSION;
+        if create || upgrade {
+            db.execute("begin exclusive", NO_PARAMS)?;
+        }
+
         if create {
-            db.prepare_cached("begin exclusive")?.execute(NO_PARAMS)?;
             db.execute_batch(include_str!("schema11.sql"))?;
+            // start at schema 11, then upgrade below
             db.execute(
                 "update col set crt=?, ver=?",
-                params![TimestampSecs::now(), ver],
+                params![TimestampSecs::now(), SCHEMA_STARTING_VERSION],
             )?;
-            db.prepare_cached("commit")?.execute(NO_PARAMS)?;
-        } else {
-            if ver > SCHEMA_MAX_VERSION {
-                return Err(AnkiError::DBError {
-                    info: "".to_string(),
-                    kind: DBErrorKind::FileTooNew,
-                });
-            }
-            if ver < SCHEMA_MIN_VERSION {
-                return Err(AnkiError::DBError {
-                    info: "".to_string(),
-                    kind: DBErrorKind::FileTooOld,
-                });
-            }
-        };
+        }
 
         let storage = Self { db };
 
+        if create || upgrade {
+            storage.upgrade_to_latest_schema(ver)?;
+        }
+
+        if create {
+            storage.add_default_deck_config()?;
+        }
+
+        if create || upgrade {
+            storage.commit_trx()?;
+        }
+
         Ok(storage)
+    }
+
+    fn upgrade_to_latest_schema(&self, ver: u8) -> Result<()> {
+        if ver < 12 {
+            self.upgrade_to_schema_12()?;
+        }
+        Ok(())
+    }
+
+    fn upgrade_to_schema_12(&self) -> Result<()> {
+        self.db
+            .execute_batch(include_str!("schema12_upgrade.sql"))?;
+        self.upgrade_deck_conf_to_schema12()
+    }
+
+    pub(crate) fn downgrade_to_schema_11(self) -> Result<()> {
+        self.begin_trx()?;
+        self.downgrade_from_schema_12()?;
+        self.commit_trx()
+    }
+
+    fn downgrade_from_schema_12(&self) -> Result<()> {
+        self.downgrade_deck_conf_from_schema12()?;
+        self.db
+            .execute_batch(include_str!("schema12_downgrade.sql"))?;
+        Ok(())
     }
 
     // Standard transaction start/stop
