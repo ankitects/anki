@@ -244,18 +244,24 @@ class BrowserPreviewer(Previewer):
             self._previewState = "question"
             self._renderPreview()
         else:
-            self.parent.editor.saveNow(
-                lambda: self.parent._moveCur(QAbstractItemView.MoveUp)
-            )
+            self._onPreviewPrevCard()
+
+    def _onPreviewPrevCard(self):
+        self.parent.editor.saveNow(
+            lambda: self.parent._moveCur(QAbstractItemView.MoveUp)
+        )
 
     def _onPreviewNext(self):
         if self._previewState == "question":
             self._previewState = "answer"
             self._renderPreview()
         else:
-            self.parent.editor.saveNow(
-                lambda: self.parent._moveCur(QAbstractItemView.MoveDown)
-            )
+            self._onPreviewNextCard()
+
+    def _onPreviewNextCard(self):
+        self.parent.editor.saveNow(
+            lambda: self.parent._moveCur(QAbstractItemView.MoveDown)
+        )
 
     def _updatePreviewButtons(self):
         if not self._previewWindow:
