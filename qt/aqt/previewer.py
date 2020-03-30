@@ -144,7 +144,9 @@ class Previewer:
 
     def _onClosePreview(self):
         self.parent.previewer = None
-        self._previewWindow = self._previewPrev = self._previewNext = None
+        self._previewWindow = None
+        self._previewPrev = None
+        self._previewNext = None
 
     def _setupPreviewWebview(self):
         jsinc = [
