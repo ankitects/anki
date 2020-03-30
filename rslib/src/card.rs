@@ -95,7 +95,6 @@ impl Undoable for UpdateCardUndo {
             .storage
             .get_card(self.0.id)?
             .ok_or_else(|| AnkiError::invalid_input("card disappeared"))?;
-        // when  called here, update_card should be placing the original content into the redo queue
         col.update_card(&mut self.0.clone(), &current)
     }
 }

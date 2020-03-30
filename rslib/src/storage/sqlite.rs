@@ -304,4 +304,11 @@ impl SqliteStorage {
             conf.rollover,
         ))
     }
+
+    pub(crate) fn schema_modified(&self) -> Result<bool> {
+        self.db
+            .prepare_cached("select scm > ls from col")?
+            .query_row(NO_PARAMS, |row| row.get(0))
+            .map_err(Into::into)
+    }
 }

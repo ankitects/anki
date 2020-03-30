@@ -50,6 +50,11 @@ message BackendInput {
         int64 get_card = 38;
         Card update_card = 39;
         Card add_card = 40;
+        int64 get_deck_config = 41;
+        string add_or_update_deck_config = 42;
+        Empty all_deck_config = 43;
+        Empty new_deck_config = 44;
+        int64 remove_deck_config = 45;
     }
 }
 
@@ -83,6 +88,11 @@ message BackendOutput {
         GetCardOut get_card = 38;
         Empty update_card = 39;
         int64 add_card = 40;
+        string get_deck_config = 41;
+        int64 add_or_update_deck_config = 42;
+        string all_deck_config = 43;
+        string new_deck_config = 44;
+        Empty remove_deck_config = 45;
 
         BackendError error = 2047;
     }

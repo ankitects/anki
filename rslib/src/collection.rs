@@ -144,4 +144,12 @@ impl Collection {
         // if we cache this in the future, must make sure to invalidate cache when usn bumped in sync.finish()
         self.storage.usn(self.server)
     }
+
+    pub(crate) fn ensure_schema_modified(&self) -> Result<()> {
+        if !self.storage.schema_modified()? {
+            Err(AnkiError::SchemaChange)
+        } else {
+            Ok(())
+        }
+    }
 }

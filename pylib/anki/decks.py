@@ -95,7 +95,6 @@ defaultConf = {
 
 class DeckManager:
     decks: Dict[str, Any]
-    dconf: Dict[str, Any]
 
     # Registry save/load
     #############################################################
@@ -103,36 +102,27 @@ class DeckManager:
     def __init__(self, col: anki.storage._Collection) -> None:
         self.col = col.weakref()
         self.decks = {}
-        self.dconf = {}
 
     def load(self, decks: str, dconf: str) -> None:
         self.decks = json.loads(decks)
-        self.dconf = json.loads(dconf)
-        # set limits to within bounds
-        found = False
-        for c in list(self.dconf.values()):
-            for t in ("rev", "new"):
-                pd = "perDay"
-                if c[t][pd] > 999999:
-                    c[t][pd] = 999999
-                    self.save(c)
-                    found = True
-        if not found:
-            self.changed = False
+        self.changed = False
 
     def save(self, g: Optional[Any] = None) -> None:
         "Can be called with either a deck or a deck configuration."
         if g:
-            g["mod"] = intTime()
-            g["usn"] = self.col.usn()
+            # deck conf?
+            if "maxTaken" in g:
+                self.updateConf(g)
+                return
+            else:
+                g["mod"] = intTime()
+                g["usn"] = self.col.usn()
         self.changed = True
 
     def flush(self) -> None:
         if self.changed:
             self.col.db.execute(
-                "update col set decks=?, dconf=?",
-                json.dumps(self.decks),
-                json.dumps(self.dconf),
+                "update col set decks=?", json.dumps(self.decks),
             )
             self.changed = False
 
@@ -368,7 +358,7 @@ class DeckManager:
 
     def allConf(self) -> List:
         "A list of all deck config."
-        return list(self.dconf.values())
+        return list(self.col.backend.all_deck_config().values())
 
     def confForDid(self, did: int) -> Any:
         deck = self.get(did, default=False)
@@ -381,32 +371,25 @@ class DeckManager:
         return deck
 
     def getConf(self, confId: int) -> Any:
-        return self.dconf[str(confId)]
+        return self.col.backend.get_deck_config(confId)
 
     def updateConf(self, g: Dict[str, Any]) -> None:
-        self.dconf[str(g["id"])] = g
-        self.save()
+        self.col.backend.add_or_update_deck_config(g)
 
     def confId(self, name: str, cloneFrom: Optional[Dict[str, Any]] = None) -> int:
         "Create a new configuration and return id."
-        if cloneFrom is None:
-            cloneFrom = defaultConf
-        c = copy.deepcopy(cloneFrom)
-        while 1:
-            id = intTime(1000)
-            if str(id) not in self.dconf:
-                break
-        c["id"] = id
-        c["name"] = name
-        self.dconf[str(id)] = c
-        self.save(c)
-        return id
+        if cloneFrom is not None:
+            conf = copy.deepcopy(cloneFrom)
+            conf["id"] = 0
+        else:
+            conf = self.col.backend.new_deck_config()
+        conf["name"] = name
+        self.updateConf(conf)
+        return conf["id"]
 
     def remConf(self, id) -> None:
         "Remove a configuration and update all decks using it."
-        assert int(id) != 1
         self.col.modSchema(check=True)
-        del self.dconf[str(id)]
         for g in self.all():
             # ignore cram decks
             if "conf" not in g:
@@ -414,6 +397,7 @@ class DeckManager:
             if str(g["conf"]) == str(id):
                 g["conf"] = 1
                 self.save(g)
+        self.col.backend.remove_deck_config(id)
 
     def setConf(self, grp: Dict[str, Any], id: int) -> None:
         grp["conf"] = id
@@ -428,11 +412,10 @@ class DeckManager:
 
     def restoreToDefault(self, conf) -> None:
         oldOrder = conf["new"]["order"]
-        new = copy.deepcopy(defaultConf)
+        new = self.col.backend.new_deck_config()
         new["id"] = conf["id"]
         new["name"] = conf["name"]
-        self.dconf[str(conf["id"])] = new
-        self.save(new)
+        self.updateConf(new)
         # if it was previously randomized, resort
         if not oldOrder:
             self.col.sched.resortConf(new)
