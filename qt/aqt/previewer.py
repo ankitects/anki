@@ -213,12 +213,10 @@ class Previewer:
         return (self._previewState, c.id, n.mod)
 
 
-class BrowserPreviewer(Previewer):
+class MultipleCardsPreviewer(Previewer):
     def card(self) -> Optional[Card]:
-        if self.parent.singleCard:
-            return self.parent.card
-        else:
-            return None
+        # need to state explicitly it's not implement to avoid W0223
+        raise NotImplementedError
 
     def _create_gui(self):
         super()._create_gui()
@@ -235,10 +233,6 @@ class BrowserPreviewer(Previewer):
         self._previewPrev.clicked.connect(self._onPreviewPrev)
         self._previewNext.clicked.connect(self._onPreviewNext)
 
-    def _onPreviewFinished(self, ok):
-        super()._onPreviewFinished(ok)
-        self.parent.form.previewButton.setChecked(False)
-
     def _onPreviewPrev(self):
         if self._previewState == "answer" and not self._previewBothSides:
             self._previewState = "question"
@@ -247,9 +241,7 @@ class BrowserPreviewer(Previewer):
             self._onPreviewPrevCard()
 
     def _onPreviewPrevCard(self):
-        self.parent.editor.saveNow(
-            lambda: self.parent._moveCur(QAbstractItemView.MoveUp)
-        )
+        ...
 
     def _onPreviewNext(self):
         if self._previewState == "question":
@@ -259,9 +251,7 @@ class BrowserPreviewer(Previewer):
             self._onPreviewNextCard()
 
     def _onPreviewNextCard(self):
-        self.parent.editor.saveNow(
-            lambda: self.parent._moveCur(QAbstractItemView.MoveDown)
-        )
+        ...
 
     def _updatePreviewButtons(self):
         if not self._previewWindow:
@@ -270,26 +260,50 @@ class BrowserPreviewer(Previewer):
         self._previewNext.setEnabled(self._should_enable_next())
 
     def _should_enable_prev(self):
-        current = self.parent.currentRow()
-        canBack = current > 0 or (
-            current == 0
-            and self._previewState == "answer"
-            and not self._previewBothSides
-        )
-        return bool(self.parent.singleCard and canBack)
+        return self._previewState == "answer" and not self._previewBothSides
 
     def _should_enable_next(self):
-        canForward = (
-            self.parent.currentRow() < self.parent.model.rowCount(None) - 1
-            or self._previewState == "question"
+        return self._previewState == "question"
+
+    def _onClosePreview(self):
+        super()._onClosePreview()
+        self._previewPrev = None
+        self._previewNext = None
+
+
+class BrowserPreviewer(MultipleCardsPreviewer):
+    def card(self) -> Optional[Card]:
+        if self.parent.singleCard:
+            return self.parent.card
+        else:
+            return None
+
+    def _onPreviewFinished(self, ok):
+        super()._onPreviewFinished(ok)
+        self.parent.form.previewButton.setChecked(False)
+
+    def _onPreviewPrevCard(self):
+        self.parent.editor.saveNow(
+            lambda: self.parent._moveCur(QAbstractItemView.MoveUp)
         )
-        return bool(self.parent.singleCard and canForward)
+
+    def _onPreviewNextCard(self):
+        self.parent.editor.saveNow(
+            lambda: self.parent._moveCur(QAbstractItemView.MoveDown)
+        )
+
+    def _should_enable_prev(self):
+        return super()._should_enable_prev() or self.parent.currentRow() > 0
+
+    def _should_enable_next(self):
+        return (
+            super()._should_enable_next()
+            or self.parent.currentRow() < self.parent.model.rowCount(None) - 1
+        )
 
     def _onClosePreview(self):
         super()._onClosePreview()
         self.parent.previewer = None
-        self._previewPrev = None
-        self._previewNext = None
 
     def _renderScheduledPreview(self) -> None:
         super()._renderScheduledPreview()
