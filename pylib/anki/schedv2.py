@@ -270,7 +270,11 @@ order by due"""
         return data
 
     def deckDueTree(self) -> Any:
-        return self._groupChildren(self.deckDueList())
+        self.col.decks._enable_dconf_cache()
+        try:
+            return self._groupChildren(self.deckDueList())
+        finally:
+            self.col.decks._disable_dconf_cache()
 
     def _groupChildren(self, grps: List[List[Any]]) -> Any:
         # first, split the group names into components
