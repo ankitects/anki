@@ -30,6 +30,7 @@ use crate::timestamp::TimestampSecs;
 use crate::types::Usn;
 use crate::{backend_proto as pb, log};
 use fluent::FluentValue;
+use futures::future::{AbortHandle, Abortable};
 use log::error;
 use prost::Message;
 use std::collections::{HashMap, HashSet};
@@ -47,6 +48,7 @@ pub struct Backend {
     progress_callback: Option<ProtoProgressCallback>,
     i18n: I18n,
     server: bool,
+    media_sync_abort: Option<AbortHandle>,
 }
 
 enum Progress<'a> {
@@ -135,6 +137,7 @@ impl Backend {
             progress_callback: None,
             i18n,
             server,
+            media_sync_abort: None,
         }
     }
 
@@ -273,6 +276,10 @@ impl Backend {
             Value::RemoveDeckConfig(dcid) => {
                 self.remove_deck_config(dcid)?;
                 OValue::RemoveDeckConfig(pb::Empty {})
+            }
+            Value::AbortMediaSync(_) => {
+                self.abort_media_sync();
+                OValue::AbortMediaSync(pb::Empty {})
             }
         })
     }
@@ -481,9 +488,7 @@ impl Backend {
         })
     }
 
-    // fixme: will block other db access
-
-    fn sync_media(&self, input: SyncMediaIn) -> Result<()> {
+    fn sync_media(&mut self, input: SyncMediaIn) -> Result<()> {
         let mut guard = self.col.lock().unwrap();
 
         let col = guard.as_mut().unwrap();
@@ -503,19 +508,38 @@ impl Backend {
     }
 
     fn sync_media_inner(
-        &self,
+        &mut self,
         input: pb::SyncMediaIn,
         folder: PathBuf,
         db: PathBuf,
         log: Logger,
     ) -> Result<()> {
+        let (abort_handle, abort_reg) = AbortHandle::new_pair();
+        self.media_sync_abort = Some(abort_handle);
+
         let callback = |progress: &MediaSyncProgress| {
             self.fire_progress_callback(Progress::MediaSync(progress))
         };
 
         let mgr = MediaManager::new(&folder, &db)?;
         let mut rt = Runtime::new().unwrap();
-        rt.block_on(mgr.sync_media(callback, &input.endpoint, &input.hkey, log))
+        let sync_fut = mgr.sync_media(callback, &input.endpoint, &input.hkey, log);
+        let abortable_sync = Abortable::new(sync_fut, abort_reg);
+        let ret = match rt.block_on(abortable_sync) {
+            Ok(sync_result) => sync_result,
+            Err(_) => {
+                // aborted sync
+                Ok(())
+            }
+        };
+        self.media_sync_abort = None;
+        ret
+    }
+
+    fn abort_media_sync(&mut self) {
+        if let Some(handle) = self.media_sync_abort.take() {
+            handle.abort();
+        }
     }
 
     fn check_media(&self) -> Result<pb::MediaCheckOut> {

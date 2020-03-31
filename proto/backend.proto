@@ -55,6 +55,7 @@ message BackendInput {
         Empty all_deck_config = 43;
         Empty new_deck_config = 44;
         int64 remove_deck_config = 45;
+        Empty abort_media_sync = 46;
     }
 }
 
@@ -70,6 +71,7 @@ message BackendOutput {
         string format_time_span = 31;
         string studied_today = 32;
         string congrats_learn_msg = 33;
+        Empty abort_media_sync = 46;
 
         // fallible commands
         TemplateRequirementsOut template_requirements = 16;
