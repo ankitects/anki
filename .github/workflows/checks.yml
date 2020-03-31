@@ -239,7 +239,7 @@ jobs:
           copy %pyaudio% dist
           cd dist
           setlocal EnableDelayedExpansion
-          cmd /C set "wheels=" && for /f "delims=" %%i in ('dir /b *.whl') DO set "wheels="%%i" !wheels!"
+          cmd /C set "wheels=" && for /f "delims=" %%i in ('dir /b *.*') DO set "wheels="%%i" !wheels!"
           python -m pip install %wheels%
           python -c "import aqt; # aqt.run()"
 
@@ -248,7 +248,7 @@ jobs:
         run: |
           set -x
           cd dist
-          python -m pip install *.whl
+          python -m pip install *.*
           python -c "import aqt; # aqt.run()"
 
       - run: make check
