@@ -509,6 +509,9 @@ def emptyNewCard():
         doc="""Allows changing the javascript commands to load note before
         executing it and do change in the QT editor.""",
     ),
+    # Tag
+    ###################
+    Hook(name="tag_editor_received_a_key", args=["tag_edit: TagEdit", "evt: QEvent"]),
     # Sound/video
     ###################
     Hook(name="av_player_will_play", args=["tag: anki.sound.AVTag"]),
