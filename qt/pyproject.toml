@@ -1,0 +1,4 @@
+[build-system]
+# Minimum requirements for the build system to execute.
+# https://stackoverflow.com/questions/48048745/setup-py-require-a-recent-version-of-setuptools-before-trying-to-install
+requires = ["setuptools", "wheel"]

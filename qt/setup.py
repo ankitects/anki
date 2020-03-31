@@ -5,9 +5,6 @@ from distutils.version import LooseVersion
 
 import setuptools
 
-with open("../meta/version") as fh:
-    version = fh.read().strip()
-
 
 def package_files(directory):
     entries = []
@@ -59,7 +56,7 @@ if not IS_PYQT_INSTALLED or (
 
 setuptools.setup(
     name="aqt",
-    version=version,
+    version="2.1.24",  # automatically updated
     author="Ankitects Pty Ltd",
     description="Anki's Qt GUI code",
     long_description="Anki's QT GUI code",
