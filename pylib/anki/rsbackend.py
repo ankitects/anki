@@ -519,6 +519,9 @@ class RustBackend:
     def remove_deck_config(self, dcid: int) -> None:
         self._run_command(pb.BackendInput(remove_deck_config=dcid))
 
+    def abort_media_sync(self):
+        self._run_command(pb.BackendInput(abort_media_sync=pb.Empty()))
+
 
 def translate_string_in(
     key: TR, **kwargs: Union[str, int, float]
