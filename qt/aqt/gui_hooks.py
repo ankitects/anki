@@ -13,7 +13,8 @@ import anki
 import aqt
 from anki.cards import Card
 from anki.hooks import runFilter, runHook
-from aqt.qt import QDialog, QMenu
+from aqt.qt import QDialog, QEvent, QMenu
+from aqt.tagedit import TagEdit
 
 # New hook/filter handling
 ##############################################################################
@@ -1925,6 +1926,30 @@ class _StyleDidInitFilter:
 
 
 style_did_init = _StyleDidInitFilter()
+
+
+class _TagEditorReceivedAKeyHook:
+    _hooks: List[Callable[[TagEdit, QEvent], None]] = []
+
+    def append(self, cb: Callable[[TagEdit, QEvent], None]) -> None:
+        """(tag_edit: TagEdit, evt: QEvent)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[TagEdit, QEvent], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, tag_edit: TagEdit, evt: QEvent) -> None:
+        for hook in self._hooks:
+            try:
+                hook(tag_edit, evt)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+tag_editor_received_a_key = _TagEditorReceivedAKeyHook()
 
 
 class _TopToolbarDidInitLinksHook:
