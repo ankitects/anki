@@ -1928,7 +1928,7 @@ class _StyleDidInitFilter:
 style_did_init = _StyleDidInitFilter()
 
 
-class _TagEditorReceivedAKeyHook:
+class _TagEditorDidProcessKeyHook:
     _hooks: List[Callable[[TagEdit, QEvent], None]] = []
 
     def append(self, cb: Callable[[TagEdit, QEvent], None]) -> None:
@@ -1949,7 +1949,7 @@ class _TagEditorReceivedAKeyHook:
                 raise
 
 
-tag_editor_received_a_key = _TagEditorReceivedAKeyHook()
+tag_editor_did_process_key = _TagEditorDidProcessKeyHook()
 
 
 class _TopToolbarDidInitLinksHook:
