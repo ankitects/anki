@@ -313,7 +313,12 @@ where
                 self.maybe_fire_progress_cb()?;
             }
 
+            if dentry.file_name() == ".DS_Store" {
+                continue;
+            }
+
             let meta = dentry.metadata()?;
+
             total_files += 1;
             total_bytes += meta.len();
         }
