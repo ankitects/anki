@@ -134,6 +134,7 @@ impl Collection {
         self.storage.downgrade_to_schema_11()
     }
 
+    // fixme: invalidate when config changes
     pub fn timing_today(&mut self) -> Result<SchedTimingToday> {
         if let Some(timing) = &self.state.timing_today {
             if timing.next_day_at > TimestampSecs::now().0 {
