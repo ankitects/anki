@@ -20,6 +20,7 @@ use std::collections::HashMap;
 use std::io::{Read, Write};
 use std::path::Path;
 use std::{io, time};
+use time::Duration;
 
 static SYNC_MAX_FILES: usize = 25;
 static SYNC_MAX_BYTES: usize = (2.5 * 1024.0 * 1024.0) as usize;
@@ -143,7 +144,8 @@ where
         log: Logger,
     ) -> MediaSyncer<'a, P> {
         let client = Client::builder()
-            .connect_timeout(time::Duration::from_secs(30))
+            .connect_timeout(Duration::from_secs(30))
+            .timeout(Duration::from_secs(60))
             .build()
             .unwrap();
         let ctx = mgr.dbctx();
@@ -386,7 +388,7 @@ where
         let local = self.ctx.count()?;
 
         let obj = FinalizeRequest { local };
-        let resp = ankiweb_json_request(&self.client, &url, &obj, self.skey()).await?;
+        let resp = ankiweb_json_request(&self.client, &url, &obj, self.skey(), false).await?;
         let resp: FinalizeResponse = resp.json().await?;
 
         if let Some(data) = resp.data {
@@ -425,7 +427,7 @@ where
         let url = format!("{}mediaChanges", self.endpoint);
 
         let req = RecordBatchRequest { last_usn };
-        let resp = ankiweb_json_request(&self.client, &url, &req, self.skey()).await?;
+        let resp = ankiweb_json_request(&self.client, &url, &req, self.skey(), false).await?;
         let res: RecordBatchResult = resp.json().await?;
 
         if let Some(batch) = res.data {
@@ -441,14 +443,14 @@ where
         debug!(self.log, "requesting files: {:?}", files);
 
         let req = ZipRequest { files };
-        let resp = ankiweb_json_request(&self.client, &url, &req, self.skey()).await?;
+        let resp = ankiweb_json_request(&self.client, &url, &req, self.skey(), true).await?;
         resp.bytes().await.map_err(Into::into)
     }
 
     async fn send_zip_data(&self, data: Vec<u8>) -> Result<UploadReply> {
         let url = format!("{}uploadChanges", self.endpoint);
 
-        let resp = ankiweb_bytes_request(&self.client, &url, data, self.skey()).await?;
+        let resp = ankiweb_bytes_request(&self.client, &url, data, self.skey(), true).await?;
         let res: UploadResult = resp.json().await?;
 
         if let Some(reply) = res.data {
@@ -545,13 +547,14 @@ async fn ankiweb_json_request<T>(
     url: &str,
     json: &T,
     skey: &str,
+    timeout_long: bool,
 ) -> Result<Response>
 where
     T: serde::Serialize,
 {
     let req_json = serde_json::to_string(json)?;
     let part = multipart::Part::text(req_json);
-    ankiweb_request(client, url, part, skey).await
+    ankiweb_request(client, url, part, skey, timeout_long).await
 }
 
 async fn ankiweb_bytes_request(
@@ -559,9 +562,10 @@ async fn ankiweb_bytes_request(
     url: &str,
     bytes: Vec<u8>,
     skey: &str,
+    timeout_long: bool,
 ) -> Result<Response> {
     let part = multipart::Part::bytes(bytes);
-    ankiweb_request(client, url, part, skey).await
+    ankiweb_request(client, url, part, skey, timeout_long).await
 }
 
 async fn ankiweb_request(
@@ -569,6 +573,7 @@ async fn ankiweb_request(
     url: &str,
     data_part: multipart::Part,
     skey: &str,
+    timeout_long: bool,
 ) -> Result<Response> {
     let data_part = data_part.file_name("data");
 
@@ -576,13 +581,13 @@ async fn ankiweb_request(
         .part("data", data_part)
         .text("sk", skey.to_string());
 
-    client
-        .post(url)
-        .multipart(form)
-        .send()
-        .await?
-        .error_for_status()
-        .map_err(Into::into)
+    let mut req = client.post(url).multipart(form);
+
+    if timeout_long {
+        req = req.timeout(Duration::from_secs(60 * 60));
+    }
+
+    req.send().await?.error_for_status().map_err(Into::into)
 }
 
 fn extract_into_media_folder(
