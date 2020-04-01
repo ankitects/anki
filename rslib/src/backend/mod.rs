@@ -529,7 +529,7 @@ impl Backend {
             Ok(sync_result) => sync_result,
             Err(_) => {
                 // aborted sync
-                Ok(())
+                Err(AnkiError::Interrupted)
             }
         };
         self.media_sync_abort = None;
