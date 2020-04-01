@@ -9,6 +9,7 @@ use crate::notetypes::NoteTypeID;
 use crate::timestamp::{TimestampMillis, TimestampSecs};
 use crate::{
     decks::Deck,
+    i18n::I18n,
     notetypes::NoteType,
     sched::cutoff::{sched_timing_today, SchedTimingToday},
     text::without_combining,
@@ -156,7 +157,7 @@ fn trace(s: &str) {
 }
 
 impl SqliteStorage {
-    pub(crate) fn open_or_create(path: &Path) -> Result<Self> {
+    pub(crate) fn open_or_create(path: &Path, i18n: &I18n) -> Result<Self> {
         let db = open_or_create_collection_db(path)?;
         let (create, ver) = schema_version(&db)?;
         if ver > SCHEMA_MAX_VERSION {
@@ -193,7 +194,7 @@ impl SqliteStorage {
         }
 
         if create {
-            storage.add_default_deck_config()?;
+            storage.add_default_deck_config(i18n)?;
         }
 
         if create || upgrade {

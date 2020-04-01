@@ -5,6 +5,7 @@ use super::SqliteStorage;
 use crate::{
     deckconf::{DeckConf, DeckConfID},
     err::Result,
+    i18n::{FString, I18n},
 };
 use rusqlite::{params, NO_PARAMS};
 use std::collections::HashMap;
@@ -71,9 +72,10 @@ impl SqliteStorage {
 
     // Creating/upgrading/downgrading
 
-    pub(super) fn add_default_deck_config(&self) -> Result<()> {
+    pub(super) fn add_default_deck_config(&self, i18n: &I18n) -> Result<()> {
         let mut conf = DeckConf::default();
         conf.id.0 = 1;
+        conf.name = i18n.tr(FString::DeckConfigDefaultName).into();
         self.add_deck_conf(&mut conf)
     }
 

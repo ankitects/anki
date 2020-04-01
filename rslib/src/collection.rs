@@ -18,7 +18,7 @@ pub fn open_collection<P: Into<PathBuf>>(
     log: Logger,
 ) -> Result<Collection> {
     let col_path = path.into();
-    let storage = SqliteStorage::open_or_create(&col_path)?;
+    let storage = SqliteStorage::open_or_create(&col_path, &i18n)?;
 
     let col = Collection {
         storage,
