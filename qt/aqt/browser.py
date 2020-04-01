@@ -146,6 +146,7 @@ class DataModel(QAbstractTableModel):
                 "deck",
                 "noteFld",
                 "note",
+                "noteTags",
             ):
                 align |= Qt.AlignHCenter
             return align
