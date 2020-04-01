@@ -326,7 +326,8 @@ class DeckManager:
         deck = self.get(did, default=False)
         assert deck
         if "conf" in deck:
-            conf = self.getConf(deck["conf"])
+            dcid = int(deck["conf"])  # may be a string
+            conf = self.getConf(dcid)
             conf["dyn"] = False
             return conf
         # dynamic decks have embedded conf
