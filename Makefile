@@ -181,7 +181,7 @@ add-buildhash:
 	fi; \
 	ver="$$(cat meta/version)"; \
 	hash="$$(cat meta/buildhash)"; \
-	${RENAME_BIN} "s/-$${ver}-/-$${ver}+$${hash}-/" dist/*-"$${ver}"-*
+	${RENAME_BIN} "s/-$${ver}(\.|-)/-$${ver}+$${hash}\$$1/" dist/*-"$${ver}"*
 
 
 .PHONY: pull-i18n
