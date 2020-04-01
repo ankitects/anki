@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::i18n::{tr_strs, FString, I18n};
+use crate::i18n::{tr_strs, I18n, TR};
 pub use failure::{Error, Fail};
 use reqwest::StatusCode;
 use std::io;
@@ -69,21 +69,21 @@ impl AnkiError {
             AnkiError::SyncError { info, kind } => match kind {
                 SyncErrorKind::ServerMessage => info.into(),
                 SyncErrorKind::Other => info.into(),
-                SyncErrorKind::Conflict => i18n.tr(FString::SyncConflict),
-                SyncErrorKind::ServerError => i18n.tr(FString::SyncServerError),
-                SyncErrorKind::ClientTooOld => i18n.tr(FString::SyncClientTooOld),
-                SyncErrorKind::AuthFailed => i18n.tr(FString::SyncWrongPass),
-                SyncErrorKind::ResyncRequired => i18n.tr(FString::SyncResyncRequired),
+                SyncErrorKind::Conflict => i18n.tr(TR::SyncConflict),
+                SyncErrorKind::ServerError => i18n.tr(TR::SyncServerError),
+                SyncErrorKind::ClientTooOld => i18n.tr(TR::SyncClientTooOld),
+                SyncErrorKind::AuthFailed => i18n.tr(TR::SyncWrongPass),
+                SyncErrorKind::ResyncRequired => i18n.tr(TR::SyncResyncRequired),
             }
             .into(),
             AnkiError::NetworkError { kind, info } => {
                 let summary = match kind {
-                    NetworkErrorKind::Offline => i18n.tr(FString::NetworkOffline),
-                    NetworkErrorKind::Timeout => i18n.tr(FString::NetworkTimeout),
-                    NetworkErrorKind::ProxyAuth => i18n.tr(FString::NetworkProxyAuth),
-                    NetworkErrorKind::Other => i18n.tr(FString::NetworkOther),
+                    NetworkErrorKind::Offline => i18n.tr(TR::NetworkOffline),
+                    NetworkErrorKind::Timeout => i18n.tr(TR::NetworkTimeout),
+                    NetworkErrorKind::ProxyAuth => i18n.tr(TR::NetworkProxyAuth),
+                    NetworkErrorKind::Other => i18n.tr(TR::NetworkOther),
                 };
-                let details = i18n.trn(FString::NetworkDetails, tr_strs!["details"=>info]);
+                let details = i18n.trn(TR::NetworkDetails, tr_strs!["details"=>info]);
                 format!("{}\n\n{}", summary, details)
             }
             AnkiError::TemplateError { info } => {

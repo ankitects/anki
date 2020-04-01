@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::err::{AnkiError, Result, TemplateError};
-use crate::i18n::{tr_strs, FString, I18n};
+use crate::i18n::{tr_strs, I18n, TR};
 use crate::template_filters::apply_filters;
 use lazy_static::lazy_static;
 use nom::branch::alt;
@@ -196,12 +196,12 @@ fn parse_inner<'a, I: Iterator<Item = TemplateResult<Token<'a>>>>(
 
 fn template_error_to_anki_error(err: TemplateError, q_side: bool, i18n: &I18n) -> AnkiError {
     let header = i18n.tr(if q_side {
-        FString::CardTemplateRenderingFrontSideProblem
+        TR::CardTemplateRenderingFrontSideProblem
     } else {
-        FString::CardTemplateRenderingBackSideProblem
+        TR::CardTemplateRenderingBackSideProblem
     });
     let details = localized_template_error(i18n, err);
-    let more_info = i18n.tr(FString::CardTemplateRenderingMoreInfo);
+    let more_info = i18n.tr(TR::CardTemplateRenderingMoreInfo);
     let info = format!(
         "{}<br>{}<br><a href='{}'>{}</a>",
         header, details, TEMPLATE_ERROR_LINK, more_info
@@ -213,11 +213,11 @@ fn template_error_to_anki_error(err: TemplateError, q_side: bool, i18n: &I18n) -
 fn localized_template_error(i18n: &I18n, err: TemplateError) -> String {
     match err {
         TemplateError::NoClosingBrackets(tag) => i18n.trn(
-            FString::CardTemplateRenderingNoClosingBrackets,
+            TR::CardTemplateRenderingNoClosingBrackets,
             tr_strs!("tag"=>tag, "missing"=>"}}"),
         ),
         TemplateError::ConditionalNotClosed(tag) => i18n.trn(
-            FString::CardTemplateRenderingConditionalNotClosed,
+            TR::CardTemplateRenderingConditionalNotClosed,
             tr_strs!("missing"=>format!("{{{{/{}}}}}", tag)),
         ),
         TemplateError::ConditionalNotOpen {
@@ -226,14 +226,14 @@ fn localized_template_error(i18n: &I18n, err: TemplateError) -> String {
         } => {
             if let Some(open) = currently_open {
                 i18n.trn(
-                    FString::CardTemplateRenderingWrongConditionalClosed,
+                    TR::CardTemplateRenderingWrongConditionalClosed,
                     tr_strs!(
                 "found"=>format!("{{{{/{}}}}}", closed),
                 "expected"=>format!("{{{{/{}}}}}", open)),
                 )
             } else {
                 i18n.trn(
-                    FString::CardTemplateRenderingConditionalNotOpen,
+                    TR::CardTemplateRenderingConditionalNotOpen,
                     tr_strs!(
                     "found"=>format!("{{{{/{}}}}}", closed),
                     "missing1"=>format!("{{{{#{}}}}}", closed),
@@ -243,7 +243,7 @@ fn localized_template_error(i18n: &I18n, err: TemplateError) -> String {
             }
         }
         TemplateError::FieldNotFound { field, filters } => i18n.trn(
-            FString::CardTemplateRenderingNoSuchField,
+            TR::CardTemplateRenderingNoSuchField,
             tr_strs!(
             "found"=>format!("{{{{{}{}}}}}", filters, field),
             "field"=>field),
@@ -509,9 +509,9 @@ pub fn render_card(
     if !qtmpl.renders_with_fields(context.nonempty_fields) {
         let info = format!(
             "{}<br><a href='{}'>{}</a>",
-            i18n.tr(FString::CardTemplateRenderingEmptyFront),
+            i18n.tr(TR::CardTemplateRenderingEmptyFront),
             TEMPLATE_BLANK_LINK,
-            i18n.tr(FString::CardTemplateRenderingMoreInfo)
+            i18n.tr(TR::CardTemplateRenderingMoreInfo)
         );
         return Err(AnkiError::TemplateError { info });
     };

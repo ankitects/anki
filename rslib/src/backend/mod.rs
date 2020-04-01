@@ -11,7 +11,7 @@ use crate::config::SortKind;
 use crate::deckconf::{DeckConf, DeckConfID};
 use crate::decks::DeckID;
 use crate::err::{AnkiError, NetworkErrorKind, Result, SyncErrorKind};
-use crate::i18n::{tr_args, FString, I18n};
+use crate::i18n::{tr_args, I18n, TR};
 use crate::latex::{extract_latex, extract_latex_expanding_clozes, ExtractedLatex};
 use crate::log::{default_logger, Logger};
 use crate::media::check::MediaChecker;
@@ -771,7 +771,7 @@ fn progress_to_proto_bytes(progress: Progress, i18n: &I18n) -> Vec<u8> {
         value: Some(match progress {
             Progress::MediaSync(p) => pb::progress::Value::MediaSync(media_sync_progress(p, i18n)),
             Progress::MediaCheck(n) => {
-                let s = i18n.trn(FString::MediaCheckChecked, tr_args!["count"=>n]);
+                let s = i18n.trn(TR::MediaCheckChecked, tr_args!["count"=>n]);
                 pb::progress::Value::MediaCheck(s)
             }
         }),
@@ -784,13 +784,13 @@ fn progress_to_proto_bytes(progress: Progress, i18n: &I18n) -> Vec<u8> {
 
 fn media_sync_progress(p: &MediaSyncProgress, i18n: &I18n) -> pb::MediaSyncProgress {
     pb::MediaSyncProgress {
-        checked: i18n.trn(FString::SyncMediaCheckedCount, tr_args!["count"=>p.checked]),
+        checked: i18n.trn(TR::SyncMediaCheckedCount, tr_args!["count"=>p.checked]),
         added: i18n.trn(
-            FString::SyncMediaAddedCount,
+            TR::SyncMediaAddedCount,
             tr_args!["up"=>p.uploaded_files,"down"=>p.downloaded_files],
         ),
         removed: i18n.trn(
-            FString::SyncMediaRemovedCount,
+            TR::SyncMediaRemovedCount,
             tr_args!["up"=>p.uploaded_deletions,"down"=>p.downloaded_deletions],
         ),
     }
