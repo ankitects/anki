@@ -53,45 +53,6 @@ defaultDynamicDeck = {
     "previewDelay": 10,
 }
 
-defaultConf = {
-    "name": _("Default"),
-    "new": {
-        "delays": [1, 10],
-        "ints": [1, 4, 7],  # 7 is not currently used
-        "initialFactor": STARTING_FACTOR,
-        "separate": True,  # unused
-        "order": NEW_CARDS_DUE,
-        "perDay": 20,
-        # may not be set on old decks
-        "bury": False,
-    },
-    "lapse": {
-        "delays": [10],
-        "mult": 0,
-        "minInt": 1,
-        "leechFails": 8,
-        # type 0=suspend, 1=tagonly
-        "leechAction": LEECH_SUSPEND,
-    },
-    "rev": {
-        "perDay": 200,
-        "ease4": 1.3,
-        "fuzz": 0.05,
-        "minSpace": 1,  # not currently used
-        "ivlFct": 1,
-        "maxIvl": 36500,
-        # may not be set on old decks
-        "bury": False,
-        "hardFactor": 1.2,
-    },
-    "maxTaken": 60,
-    "timer": 0,
-    "autoplay": True,
-    "replayq": True,
-    "mod": 0,
-    "usn": 0,
-}
-
 
 class DeckManager:
     decks: Dict[str, Any]
@@ -419,7 +380,7 @@ class DeckManager:
         new["id"] = conf["id"]
         new["name"] = conf["name"]
         self.updateConf(new)
-        # if it was previously randomized, resort
+        # if it was previously randomized, re-sort
         if not oldOrder:
             self.col.sched.resortConf(new)
 
