@@ -261,13 +261,11 @@ class DataModel(QAbstractTableModel):
         tv = self.browser.form.tableView
         if idx:
             tv.selectRow(idx.row())
-            # scroll if the selection count has changed
-            if count != len(self.selectedCards):
-                # we save and then restore the horizontal scroll position because
-                # scrollTo() also scrolls horizontally which is confusing
-                h = tv.horizontalScrollBar().value()
-                tv.scrollTo(idx, tv.PositionAtCenter)
-                tv.horizontalScrollBar().setValue(h)
+            # we save and then restore the horizontal scroll position because
+            # scrollTo() also scrolls horizontally which is confusing
+            h = tv.horizontalScrollBar().value()
+            tv.scrollTo(idx, tv.PositionAtCenter)
+            tv.horizontalScrollBar().setValue(h)
             if count < 500:
                 # discard large selections; they're too slow
                 sm.select(
