@@ -139,6 +139,8 @@ def add_message(fname, key, translation):
 print()
 input("proceed? ctrl+c to abort")
 
+i18ndir = os.path.join(os.path.dirname(ftl_filename), "..")
+
 # for each language's translation
 for lang, translation in to_insert:
     if lang == "en":
