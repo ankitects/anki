@@ -1,4 +1,5 @@
 import os
+import sys
 from distutils.version import LooseVersion
 
 import setuptools
@@ -13,6 +14,7 @@ def package_files(directory):
 
 # just the Python files for type hints?
 pyonly = os.getenv("PYFILESONLY")
+minimum_python_version = (3, 7)
 
 if pyonly:
     extra_files = []
@@ -31,6 +33,11 @@ install_requires = [
     'darkdetect; sys.platform == "darwin"',
 ]
 
+if sys.version_info < minimum_python_version:
+    raise RuntimeError(
+        "The minimum Python interpreter version required for Anki is '%s' "
+        "and version '%s' was found!" % (minimum_python_version, sys.version_info)
+    )
 
 try:
     import PyQt5 as IS_PYQT_INSTALLED
