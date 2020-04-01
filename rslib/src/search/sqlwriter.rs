@@ -192,9 +192,10 @@ impl SqlWriter<'_> {
             StateKind::Suspended => write!(self.sql, "c.queue = {}", CardQueue::Suspended as i8),
             StateKind::Due => write!(
                 self.sql,
-                "
+                "(
     (c.queue in ({rev},{daylrn}) and c.due <= {today}) or
-    (c.queue = {lrn} and c.due <= {daycutoff})",
+    (c.queue = {lrn} and c.due <= {daycutoff})
+    )",
                 rev = CardQueue::Review as i8,
                 daylrn = CardQueue::DayLearn as i8,
                 today = timing.days_elapsed,
