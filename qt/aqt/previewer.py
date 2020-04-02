@@ -43,7 +43,7 @@ class Previewer(QDialog):
         self._last_state = None
         self._create_gui()
         self._setup_web_view()
-        self.render(True)
+        self.render_card(True)
         self.show()
 
     def _create_gui(self):
@@ -109,7 +109,7 @@ class Previewer(QDialog):
         if cmd.startswith("play:"):
             play_clicked_audio(cmd, self.card())
 
-    def render(self, cardChanged=False):
+    def render_card(self, cardChanged=False):
         self.cancel_timer()
         # Keep track of whether render() has ever been called
         # with cardChanged=True since the last successful render
@@ -191,7 +191,7 @@ class Previewer(QDialog):
         self.mw.col.setMod()
         if self._state == "answer" and not toggle:
             self._state = "question"
-        self.render()
+        self.render_card()
 
     def _state_and_mod(self):
         c = self.card()
@@ -223,7 +223,7 @@ class MultiCardPreviewer(Previewer):
     def _on_prev(self):
         if self._state == "answer" and not self._show_both_sides:
             self._state = "question"
-            self.render()
+            self.render_card()
         else:
             self._on_prev_card()
 
@@ -233,7 +233,7 @@ class MultiCardPreviewer(Previewer):
     def _on_next(self):
         if self._state == "question":
             self._state = "answer"
-            self.render()
+            self.render_card()
         else:
             self._on_next_card()
 
@@ -325,11 +325,11 @@ class CardListPreviewer(MultiCardPreviewer):
 
     def _on_prev_card(self):
         self.index -= 1
-        self.render()
+        self.render_card()
 
     def _on_next_card(self):
         self.index += 1
-        self.render()
+        self.render_card()
 
     def _should_enable_prev(self):
         return super()._should_enable_prev() or self.index > 0
@@ -342,7 +342,7 @@ class CardListPreviewer(MultiCardPreviewer):
             self._state = "answer"
         else:
             self._state = "question"
-        self.render()
+        self.render_card()
 
 
 class SingleCardPreviewer(Previewer):
@@ -369,4 +369,4 @@ class SingleCardPreviewer(Previewer):
             self._state = "answer"
         else:
             self._state = "question"
-        self.render()
+        self.render_card()
