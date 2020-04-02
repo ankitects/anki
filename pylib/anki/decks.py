@@ -531,7 +531,7 @@ class DeckManager:
         actv = self.children(did)
         actv.sort()
         self.col.conf["activeDecks"] = [did] + [a[1] for a in actv]
-        self.changed = True
+        self.col.setMod()
 
     def children(self, did: int) -> List[Tuple[Any, Any]]:
         "All children of did, as (name, id)."
