@@ -106,7 +106,7 @@ class Card:
         if self.id != 0:
             self.col.backend.update_card(card)
         else:
-            self.col.backend.add_card(card)
+            self.id = self.col.backend.add_card(card)
 
     def question(self, reload: bool = False, browser: bool = False) -> str:
         return self.css() + self.render_output(reload, browser).question_text
