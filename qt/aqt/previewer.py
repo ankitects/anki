@@ -27,6 +27,7 @@ class Previewer(QDialog):
     _card_changed = False
     _last_render: Union[int, float] = 0
     _timer = None
+    _show_both_sides = False
 
     def __init__(self, parent: QWidget, mw: AnkiQt):
         super().__init__(None, Qt.Window)
@@ -64,13 +65,13 @@ class Previewer(QDialog):
         self._replay.setToolTip(_("Shortcut key: %s" % "R"))
         self._replay.clicked.connect(self._onReplayAudio)
 
-        self.showBothSides = QCheckBox(_("Show Both Sides"))
-        self.showBothSides.setShortcut(QKeySequence("B"))
-        self.showBothSides.setToolTip(_("Shortcut key: %s" % "B"))
-        self.bbox.addButton(self.showBothSides, QDialogButtonBox.ActionRole)
-        self._bothSides = self.mw.col.conf.get("previewBothSides", False)
-        self.showBothSides.setChecked(self._bothSides)
-        self.showBothSides.toggled.connect(self._on_show_both_sides)
+        both_sides_button = QCheckBox(_("Show Both Sides"))
+        both_sides_button.setShortcut(QKeySequence("B"))
+        both_sides_button.setToolTip(_("Shortcut key: %s" % "B"))
+        self.bbox.addButton(both_sides_button, QDialogButtonBox.ActionRole)
+        self._show_both_sides = self.mw.col.conf.get("previewBothSides", False)
+        both_sides_button.setChecked(self._show_both_sides)
+        both_sides_button.toggled.connect(self._on_show_both_sides)
 
         self.vbox.addWidget(self.bbox)
         self.setLayout(self.vbox)
@@ -114,11 +115,11 @@ class Previewer(QDialog):
         # with cardChanged=True since the last successful render
         self._card_changed |= cardChanged
         # avoid rendering in quick succession
-        elapMS = int((time.time() - self._last_render) * 1000)
+        elap_ms = int((time.time() - self._last_render) * 1000)
         delay = 300
-        if elapMS < delay:
+        if elap_ms < delay:
             self._timer = self.mw.progress.timer(
-                delay - elapMS, self._render_scheduled, False
+                delay - elap_ms, self._render_scheduled, False
             )
         else:
             self._render_scheduled()
@@ -141,7 +142,7 @@ class Previewer(QDialog):
             bodyclass = ""
             self._last_state = None
         else:
-            if self._bothSides:
+            if self._show_both_sides:
                 self._state = "answer"
             elif self._card_changed:
                 self._state = "question"
@@ -162,7 +163,7 @@ class Previewer(QDialog):
             bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
 
             if self.mw.reviewer.autoplay(c):
-                if self._bothSides:
+                if self._show_both_sides:
                     # if we're showing both sides at once, remove any audio
                     # from the answer that's appeared on the question already
                     question_audio = c.question_av_tags()
@@ -185,7 +186,7 @@ class Previewer(QDialog):
         self._card_changed = False
 
     def _on_show_both_sides(self, toggle):
-        self._bothSides = toggle
+        self._show_both_sides = toggle
         self.mw.col.conf["previewBothSides"] = toggle
         self.mw.col.setMod()
         if self._state == "answer" and not toggle:
@@ -199,7 +200,7 @@ class Previewer(QDialog):
         return (self._state, c.id, n.mod)
 
 
-class MultipleCardsPreviewer(Previewer):
+class MultiCardPreviewer(Previewer):
     def card(self) -> Optional[Card]:
         # need to state explicitly it's not implement to avoid W0223
         raise NotImplementedError
@@ -220,7 +221,7 @@ class MultipleCardsPreviewer(Previewer):
         self._next.clicked.connect(self._on_next)
 
     def _on_prev(self):
-        if self._state == "answer" and not self._bothSides:
+        if self._state == "answer" and not self._show_both_sides:
             self._state = "question"
             self.render()
         else:
@@ -246,7 +247,7 @@ class MultipleCardsPreviewer(Previewer):
         self._next.setEnabled(self._should_enable_next())
 
     def _should_enable_prev(self):
-        return self._state == "answer" and not self._bothSides
+        return self._state == "answer" and not self._show_both_sides
 
     def _should_enable_next(self):
         return self._state == "question"
@@ -257,7 +258,7 @@ class MultipleCardsPreviewer(Previewer):
         self._next = None
 
 
-class BrowserPreviewer(MultipleCardsPreviewer):
+class BrowserPreviewer(MultiCardPreviewer):
     def card(self) -> Optional[Card]:
         if self._parent.singleCard:
             return self._parent.card
@@ -296,7 +297,7 @@ class BrowserPreviewer(MultipleCardsPreviewer):
         self._updateButtons()
 
 
-class ListCardsPreviewer(MultipleCardsPreviewer):
+class CardListPreviewer(MultiCardPreviewer):
     def __init__(self, cards: List[Union[Card, int]], *args, **kwargs):
         """A previewer displaying a list of card.
 
