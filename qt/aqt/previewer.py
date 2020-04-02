@@ -35,12 +35,12 @@ class Previewer:
     def card(self) -> Optional[Card]:
         raise NotImplementedError
 
-    def _open(self):
+    def open(self):
         self._state = "question"
         self._lastState = None
         self._create_gui()
         self._setupWebview()
-        self._render(True)
+        self.render(True)
         self._window.show()
 
     def _create_gui(self):
@@ -82,7 +82,7 @@ class Previewer:
     def _onReplayAudio(self):
         self.mw.reviewer.replayAudio(self)
 
-    def _close(self):
+    def close(self):
         if self._window:
             self._window.close()
             self._onClose()
@@ -107,9 +107,9 @@ class Previewer:
         if cmd.startswith("play:"):
             play_clicked_audio(cmd, self.card())
 
-    def _render(self, cardChanged=False):
-        self._cancelTimer()
-        # Keep track of whether _render() has ever been called
+    def render(self, cardChanged=False):
+        self.cancelTimer()
+        # Keep track of whether render() has ever been called
         # with cardChanged=True since the last successful render
         self._cardChanged |= cardChanged
         # avoid rendering in quick succession
@@ -122,13 +122,13 @@ class Previewer:
         else:
             self._renderScheduled()
 
-    def _cancelTimer(self):
+    def cancelTimer(self):
         if self._timer:
             self._timer.stop()
             self._timer = None
 
     def _renderScheduled(self) -> None:
-        self._cancelTimer()
+        self.cancelTimer()
         self._lastRender = time.time()
 
         if not self._window:
@@ -189,7 +189,7 @@ class Previewer:
         self.mw.col.setMod()
         if self._state == "answer" and not toggle:
             self._state = "question"
-        self._render()
+        self.render()
 
     def _stateAndMod(self):
         c = self.card()
@@ -221,7 +221,7 @@ class MultipleCardsPreviewer(Previewer):
     def _onPrev(self):
         if self._state == "answer" and not self._bothSides:
             self._state = "question"
-            self._render()
+            self.render()
         else:
             self._onPrevCard()
 
@@ -231,7 +231,7 @@ class MultipleCardsPreviewer(Previewer):
     def _onNext(self):
         if self._state == "question":
             self._state = "answer"
-            self._render()
+            self.render()
         else:
             self._onNextCard()
 
@@ -316,18 +316,18 @@ class ListCardsPreviewer(MultipleCardsPreviewer):
             self.cards[self.index] = self.mw.col.getCard(self.cards[self.index])
         return self.cards[self.index]
 
-    def _open(self):
+    def open(self):
         if not self.cards:
             return
-        super()._open()
+        super().open()
 
     def _onPrevCard(self):
         self.index -= 1
-        self._render()
+        self.render()
 
     def _onNextCard(self):
         self.index += 1
-        self._render()
+        self.render()
 
     def _should_enable_prev(self):
         return super()._should_enable_prev() or self.index > 0
@@ -340,7 +340,7 @@ class ListCardsPreviewer(MultipleCardsPreviewer):
             self._state = "answer"
         else:
             self._state = "question"
-        self._render()
+        self.render()
 
 
 class SingleCardPreviewer(Previewer):
@@ -367,4 +367,4 @@ class SingleCardPreviewer(Previewer):
             self._state = "answer"
         else:
             self._state = "question"
-        self._render()
+        self.render()
