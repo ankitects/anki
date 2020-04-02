@@ -28,7 +28,7 @@ from anki.utils import htmlToTextLine, ids2str, intTime, isMac, isWin
 from aqt import AnkiQt, gui_hooks
 from aqt.editor import Editor
 from aqt.exporting import ExportDialog
-from aqt.previewer import BrowserPreviewer
+from aqt.previewer import BrowserPreviewer as PreviewDialog
 from aqt.qt import *
 from aqt.theme import theme_manager
 from aqt.utils import (
@@ -1567,7 +1567,7 @@ where id in %s"""
             self._previewer.close()
             self._previewer = None
         else:
-            self._previewer = BrowserPreviewer(self, self.mw)
+            self._previewer = PreviewDialog(self, self.mw)
             self._previewer.open()
 
     def _renderPreview(self, cardChanged=False):
