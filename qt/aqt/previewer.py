@@ -1,7 +1,6 @@
 import json
 import re
 import time
-from dataclasses import dataclass
 from typing import Any, List, Optional, Union
 
 from anki.cards import Card
@@ -21,12 +20,6 @@ from aqt.sound import av_player, play_clicked_audio
 from aqt.theme import theme_manager
 from aqt.utils import restoreGeom, saveGeom
 from aqt.webview import AnkiWebView
-
-
-@dataclass
-class PreviewDialog:
-    dialog: QDialog
-    parent: QWidget
 
 
 class Previewer:
@@ -105,15 +98,11 @@ class Previewer:
             "mathjax/MathJax.js",
             "reviewer.js",
         ]
-        web_context = PreviewDialog(dialog=self._previewWindow, parent=self.parent)
         self._previewWeb.stdHtml(
-            self.mw.reviewer.revHtml(),
-            css=["reviewer.css"],
-            js=jsinc,
-            context=web_context,
+            self.mw.reviewer.revHtml(), css=["reviewer.css"], js=jsinc, context=self,
         )
         self._previewWeb.set_bridge_command(
-            self._on_preview_bridge_cmd, web_context,
+            self._on_preview_bridge_cmd, self,
         )
 
     def _on_preview_bridge_cmd(self, cmd: str) -> Any:
