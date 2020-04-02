@@ -485,7 +485,11 @@ class RustBackend:
         ).search_notes.note_ids
 
     def get_card(self, cid: int) -> Optional[pb.Card]:
-        return self._run_command(pb.BackendInput(get_card=cid)).get_card.card
+        output = self._run_command(pb.BackendInput(get_card=cid)).get_card
+        if output.HasField("card"):
+            return output.card
+        else:
+            return None
 
     def update_card(self, card: BackendCard) -> None:
         self._run_command(pb.BackendInput(update_card=card))
