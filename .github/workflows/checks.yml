@@ -239,3 +239,25 @@ jobs:
         with:
           name: ${{ matrix.ANKI_PYTHON_WHEELS }}
           path: dist
+
+      - name: Upload to PyPi Windows
+        if: matrix.BUILD_TYPE == 'build' && startsWith(github.ref, 'refs/tags/') && matrix.os == 'windows-latest'
+        shell: cmd
+        env:
+          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+          TWINE_USERNAME: __token__
+        run: |
+          echo on
+          rm -f "dist/%pyaudio%"
+          python -m pip install twine
+          twine upload --non-interactive --skip-existing --verbose dist/*
+
+      - name: Upload to PyPi Linux/Mac OS
+        if: matrix.BUILD_TYPE == 'build' && startsWith(github.ref, 'refs/tags/') && ( matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest' )
+        env:
+          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+          TWINE_USERNAME: __token__
+        run: |
+          set -x
+          python -m pip install twine
+          twine upload --non-interactive --skip-existing --verbose dist/*

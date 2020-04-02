@@ -91,6 +91,6 @@ RUST_TOOLCHAIN := $(shell cat rust-toolchain)
 
 VER := $(shell cat ../meta/version)
 .build/vernum: ../meta/version
-	sed -i.bak 's/.*automatically updated.*/version = "$(VER)" # automatically updated/' Cargo.toml
+	sed -i.bak 's/.*automatically updated.*/version = "$(VER)"  # automatically updated/' Cargo.toml
 	rm Cargo.toml.bak
 	@touch $@
