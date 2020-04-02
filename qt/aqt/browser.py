@@ -862,6 +862,8 @@ QTableView {{ gridline-color: {grid} }}
         self.editor.saveNow(lambda: self._onRowChanged(current, previous))
 
     def _onRowChanged(self, current, previous) -> None:
+        if self._closeEventHasCleanedUp:
+            return
         update = self.updateTitle()
         show = self.model.cards and update == 1
         self.form.splitter.widget(1).setVisible(bool(show))
