@@ -1576,7 +1576,7 @@ where id in %s"""
 
     def _cancelPreviewTimer(self):
         if self._previewer:
-            self._previewer.cancelTimer()
+            self._previewer.cancel_timer()
 
     # Card deletion
     ######################################################################
