@@ -1572,7 +1572,7 @@ where id in %s"""
 
     def _renderPreview(self, cardChanged=False):
         if self._previewer:
-            self._previewer.render(cardChanged)
+            self._previewer.render_card(cardChanged)
 
     def _cancelPreviewTimer(self):
         if self._previewer:
