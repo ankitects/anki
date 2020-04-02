@@ -29,7 +29,7 @@ class Previewer:
     _timer = None
 
     def __init__(self, parent: QWidget, mw: AnkiQt):
-        self.parent = parent
+        self._parent = parent
         self.mw = mw
 
     def card(self) -> Optional[Card]:
@@ -258,37 +258,37 @@ class MultipleCardsPreviewer(Previewer):
 
 class BrowserPreviewer(MultipleCardsPreviewer):
     def card(self) -> Optional[Card]:
-        if self.parent.singleCard:
-            return self.parent.card
+        if self._parent.singleCard:
+            return self._parent.card
         else:
             return None
 
     def _onFinished(self, ok):
         super()._onFinished(ok)
-        self.parent.form.previewButton.setChecked(False)
+        self._parent.form.previewButton.setChecked(False)
 
     def _onPrevCard(self):
-        self.parent.editor.saveNow(
-            lambda: self.parent._moveCur(QAbstractItemView.MoveUp)
+        self._parent.editor.saveNow(
+            lambda: self._parent._moveCur(QAbstractItemView.MoveUp)
         )
 
     def _onNextCard(self):
-        self.parent.editor.saveNow(
-            lambda: self.parent._moveCur(QAbstractItemView.MoveDown)
+        self._parent.editor.saveNow(
+            lambda: self._parent._moveCur(QAbstractItemView.MoveDown)
         )
 
     def _should_enable_prev(self):
-        return super()._should_enable_prev() or self.parent.currentRow() > 0
+        return super()._should_enable_prev() or self._parent.currentRow() > 0
 
     def _should_enable_next(self):
         return (
             super()._should_enable_next()
-            or self.parent.currentRow() < self.parent.model.rowCount(None) - 1
+            or self._parent.currentRow() < self._parent.model.rowCount(None) - 1
         )
 
     def _onClose(self):
         super()._onClose()
-        self.parent.previewer = None
+        self._parent.previewer = None
 
     def _renderScheduled(self) -> None:
         super()._renderScheduled()
