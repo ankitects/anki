@@ -1,5 +1,6 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+# mypy: check-untyped-defs
 
 import json
 import re
@@ -18,6 +19,7 @@ from aqt.qt import (
     Qt,
     QVBoxLayout,
     QWidget,
+    qconnect,
 )
 from aqt.sound import av_player, play_clicked_audio
 from aqt.theme import theme_manager
@@ -52,7 +54,7 @@ class Previewer(QDialog):
     def _create_gui(self):
         self.setWindowTitle(_("Preview"))
 
-        self.finished.connect(self._on_finished)
+        qconnect(self.finished, self._on_finished)
         self.silentlyClose = True
         self.vbox = QVBoxLayout()
         self.vbox.setContentsMargins(0, 0, 0, 0)
@@ -66,7 +68,7 @@ class Previewer(QDialog):
         self._replay.setAutoDefault(False)
         self._replay.setShortcut(QKeySequence("R"))
         self._replay.setToolTip(_("Shortcut key: %s" % "R"))
-        self._replay.clicked.connect(self._on_replay_audio)
+        qconnect(self._replay.clicked, self._on_replay_audio)
 
         both_sides_button = QCheckBox(_("Show Both Sides"))
         both_sides_button.setShortcut(QKeySequence("B"))
@@ -74,7 +76,7 @@ class Previewer(QDialog):
         self.bbox.addButton(both_sides_button, QDialogButtonBox.ActionRole)
         self._show_both_sides = self.mw.col.conf.get("previewBothSides", False)
         both_sides_button.setChecked(self._show_both_sides)
-        both_sides_button.toggled.connect(self._on_show_both_sides)
+        qconnect(both_sides_button.toggled, self._on_show_both_sides)
 
         self.vbox.addWidget(self.bbox)
         self.setLayout(self.vbox)
@@ -223,8 +225,8 @@ class MultiCardPreviewer(Previewer):
         self._next.setShortcut(QKeySequence("Right"))
         self._next.setToolTip(_("Shortcut key: Right arrow or Enter"))
 
-        self._prev.clicked.connect(self._on_prev)
-        self._next.clicked.connect(self._on_next)
+        qconnect(self._prev.clicked, self._on_prev)
+        qconnect(self._next.clicked, self._on_next)
 
     def _on_prev(self):
         if self._state == "answer" and not self._show_both_sides:
@@ -320,9 +322,13 @@ class CardListPreviewer(MultiCardPreviewer):
     def card(self):
         if not self.cards:
             return None
-        if isinstance(self.cards[self.index], int):
-            self.cards[self.index] = self.mw.col.getCard(self.cards[self.index])
-        return self.cards[self.index]
+        entry = self.cards[self.index]
+        if isinstance(entry, int):
+            card = self.mw.col.getCard(entry)
+            self.cards[self.index] = card
+            return card
+        else:
+            return entry
 
     def open(self):
         if not self.cards:
@@ -368,7 +374,7 @@ class SingleCardPreviewer(Previewer):
         self._other_side.setShortcut(QKeySequence("Right"))
         self._other_side.setShortcut(QKeySequence("Left"))
         self._other_side.setToolTip(_("Shortcut key: Left or Right arrow"))
-        self._other_side.clicked.connect(self._on_other_side)
+        qconnect(self._other_side.clicked, self._on_other_side)
 
     def _on_other_side(self):
         if self._state == "question":
