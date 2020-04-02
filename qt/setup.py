@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import os
-import sys
 
 import setuptools
 
@@ -15,7 +14,6 @@ def package_files(directory):
 
 # just the Python files for type hints?
 pyonly = os.getenv("PYFILESONLY")
-minimum_python_version = (3, 7)
 
 if pyonly:
     extra_files = []
@@ -34,12 +32,6 @@ install_requires = [
     'pywin32; sys.platform == "win32"',
     'darkdetect; sys.platform == "darwin"',
 ]
-
-if sys.version_info < minimum_python_version:
-    raise RuntimeError(
-        "The minimum Python interpreter version required for Anki is '%s' "
-        "and version '%s' was found!" % (minimum_python_version, sys.version_info)
-    )
 
 
 setuptools.setup(
