@@ -97,45 +97,81 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}${{ matrix.SEP }}pyenv
-          key: ${{ runner.os }}-pyenv-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/requirements.txt') }}-14-
+          key: |
+            ${{ runner.os }}-pyenv-
+            ${{ hashFiles('**/requirements.*') }}-
+            ${{ hashFiles('**/setup.py') }}-
+            ${{ hashFiles('**/Makefile') }}-14-
 
       # Disabling these caches for now because they do not seem to be used/help
       # https://github.com/ankitects/anki/pull/528
       # - name: Cache pip wheels
+      #   if: matrix.BUILD_TYPE == 'build'
       #   uses: actions/cache@v1
       #   with:
       #     path: ${{ matrix.PIP_WHEELS_DIR }}
-      #     key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-14-
+      #     key: |
+      #       ${{ runner.os }}-pip-wheels-
+      #       ${{ hashFiles('**/requirements.txt') }}-
+      #       ${{ hashFiles('**/setup.py') }}-14-
 
       - name: Cache cargo index
         uses: actions/cache@v1
         with:
           path: ${{ matrix.CARGO_INDEX_DIR }}
-          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.toml') }}-14-
+          key: |
+            ${{ runner.os }}-cargo-index-
+            ${{ hashFiles('**/requirements.*') }}-
+            ${{ hashFiles('**/setup.py') }}-
+            ${{ hashFiles('**/Makefile') }}-
+            ${{ hashFiles('**/Cargo.toml') }}-14-
 
       - name: Cache cargo registry
         uses: actions/cache@v1
         with:
           path: ${{ matrix.CARGO_REGISTRY_DIR }}
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.toml') }}-14-
+          key: |
+            ${{ runner.os }}-cargo-registry-
+            ${{ hashFiles('**/requirements.*') }}-
+            ${{ hashFiles('**/setup.py') }}-
+            ${{ hashFiles('**/Makefile') }}-
+            ${{ hashFiles('**/Cargo.toml') }}-14-
 
       - name: Cache cargo target
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}${{ matrix.SEP }}target
-          key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.toml') }}-${{ matrix.BUILD_TYPE }}-14-
+          key: |
+            ${{ runner.os }}-cargo-target-
+            ${{ hashFiles('**/requirements.*') }}-
+            ${{ hashFiles('**/setup.py') }}-
+            ${{ hashFiles('**/Makefile') }}-
+            ${{ hashFiles('**/Cargo.toml') }}-
+            ${{ matrix.BUILD_TYPE }}-14-
 
       - name: Cache cargo rslib
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}${{ matrix.SEP }}rslib${{ matrix.SEP }}target
-          key: ${{ runner.os }}-cargo-rslib-${{ hashFiles('**/Cargo.toml') }}-${{ matrix.BUILD_TYPE }}-14-
+          key: |
+            ${{ runner.os }}-cargo-rslib-
+            ${{ hashFiles('**/requirements.*') }}-
+            ${{ hashFiles('**/setup.py') }}-
+            ${{ hashFiles('**/Makefile') }}-
+            ${{ hashFiles('**/Cargo.toml') }}-
+            ${{ matrix.BUILD_TYPE }}-14-
 
       - name: Cache cargo rspy
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}${{ matrix.SEP }}rspy${{ matrix.SEP }}target
-          key: ${{ runner.os }}-cargo-rspy-${{ hashFiles('**/Cargo.toml') }}-${{ matrix.BUILD_TYPE }}-14-
+          key: |
+            ${{ runner.os }}-cargo-rspy-
+            ${{ hashFiles('**/requirements.*') }}-
+            ${{ hashFiles('**/setup.py') }}-
+            ${{ hashFiles('**/Makefile') }}-
+            ${{ hashFiles('**/Cargo.toml') }}-
+            ${{ matrix.BUILD_TYPE }}-14-
 
       - name: Cache pacman
         if: matrix.os == 'windows-latest'
@@ -143,7 +179,9 @@ jobs:
         id: cache-pacman
         with:
           path: C:\Program Files\Git
-          key: ${{ runner.os }}-pacman-${{ hashFiles('**/checks.yml') }}-14-
+          key: |
+            ${{ runner.os }}-pacman-
+            ${{ hashFiles('**/checks.yml') }}-14-
 
       - name: Set up pacman, rsync
         if: matrix.os == 'windows-latest' && steps.cache-pacman.outputs.cache-hit != 'true'
@@ -239,3 +277,25 @@ jobs:
         with:
           name: ${{ matrix.ANKI_PYTHON_WHEELS }}
           path: dist
+
+      - name: Upload to PyPi Windows
+        if: matrix.BUILD_TYPE == 'build' && startsWith(github.ref, 'refs/tags/') && matrix.os == 'windows-latest'
+        shell: cmd
+        env:
+          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+          TWINE_USERNAME: __token__
+        run: |
+          echo on
+          rm -f "dist/%pyaudio%"
+          python -m pip install twine
+          twine upload --non-interactive --skip-existing --verbose dist/*
+
+      - name: Upload to PyPi Linux/Mac OS
+        if: matrix.BUILD_TYPE == 'build' && startsWith(github.ref, 'refs/tags/') && ( matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest' )
+        env:
+          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+          TWINE_USERNAME: __token__
+        run: |
+          set -x
+          python -m pip install twine
+          twine upload --non-interactive --skip-existing --verbose dist/*

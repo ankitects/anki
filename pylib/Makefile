@@ -52,7 +52,7 @@ PROTODEPS := $(wildcard ../proto/*.proto)
 	python -m black anki/hooks.py
 	@touch $@
 
-BUILD_STEPS := .build/run-deps .build/dev-deps .build/py-proto anki/buildinfo.py .build/hooks
+BUILD_STEPS := .build/vernum .build/run-deps .build/dev-deps .build/py-proto anki/buildinfo.py .build/hooks
 
 # Checking
 ######################
@@ -111,3 +111,9 @@ develop: $(BUILD_STEPS)
 anki/buildinfo.py: ../meta/version ../meta/buildhash
 	echo "buildhash='$$(cat ../meta/buildhash)'" > $@
 	echo "version='$$(cat ../meta/version)'" >> $@
+
+VER := $(shell cat ../meta/version)
+.build/vernum: ../meta/version
+	sed -i.bak 's/.*automatically updated.*/    version="$(VER)",  # automatically updated/' setup.py
+	rm setup.py.bak
+	@touch $@
