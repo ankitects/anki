@@ -23,10 +23,10 @@ from aqt.webview import AnkiWebView
 
 
 class Previewer:
-    _lastPreviewState = None
-    _previewCardChanged = False
-    _lastPreviewRender: Union[int, float] = 0
-    _previewTimer = None
+    _lastState = None
+    _cardChanged = False
+    _lastRender: Union[int, float] = 0
+    _timer = None
 
     def __init__(self, parent: QWidget, mw: AnkiQt):
         self.parent = parent
@@ -35,62 +35,62 @@ class Previewer:
     def card(self) -> Optional[Card]:
         raise NotImplementedError
 
-    def _openPreview(self):
-        self._previewState = "question"
-        self._lastPreviewState = None
+    def _open(self):
+        self._state = "question"
+        self._lastState = None
         self._create_gui()
-        self._setupPreviewWebview()
-        self._renderPreview(True)
-        self._previewWindow.show()
+        self._setupWebview()
+        self._render(True)
+        self._window.show()
 
     def _create_gui(self):
-        self._previewWindow = QDialog(None, Qt.Window)
-        self._previewWindow.setWindowTitle(_("Preview"))
+        self._window = QDialog(None, Qt.Window)
+        self._window.setWindowTitle(_("Preview"))
 
-        self._previewWindow.finished.connect(self._onPreviewFinished)
-        self._previewWindow.silentlyClose = True
+        self._window.finished.connect(self._onFinished)
+        self._window.silentlyClose = True
         self.vbox = QVBoxLayout()
         self.vbox.setContentsMargins(0, 0, 0, 0)
-        self._previewWeb = AnkiWebView(title="previewer")
-        self.vbox.addWidget(self._previewWeb)
+        self._web = AnkiWebView(title="previewer")
+        self.vbox.addWidget(self._web)
         self.bbox = QDialogButtonBox()
 
-        self._previewReplay = self.bbox.addButton(
+        self._replay = self.bbox.addButton(
             _("Replay Audio"), QDialogButtonBox.ActionRole
         )
-        self._previewReplay.setAutoDefault(False)
-        self._previewReplay.setShortcut(QKeySequence("R"))
-        self._previewReplay.setToolTip(_("Shortcut key: %s" % "R"))
-        self._previewReplay.clicked.connect(self._onReplayAudio)
+        self._replay.setAutoDefault(False)
+        self._replay.setShortcut(QKeySequence("R"))
+        self._replay.setToolTip(_("Shortcut key: %s" % "R"))
+        self._replay.clicked.connect(self._onReplayAudio)
 
-        self.previewShowBothSides = QCheckBox(_("Show Both Sides"))
-        self.previewShowBothSides.setShortcut(QKeySequence("B"))
-        self.previewShowBothSides.setToolTip(_("Shortcut key: %s" % "B"))
-        self.bbox.addButton(self.previewShowBothSides, QDialogButtonBox.ActionRole)
-        self._previewBothSides = self.mw.col.conf.get("previewBothSides", False)
-        self.previewShowBothSides.setChecked(self._previewBothSides)
-        self.previewShowBothSides.toggled.connect(self._onPreviewShowBothSides)
+        self.showBothSides = QCheckBox(_("Show Both Sides"))
+        self.showBothSides.setShortcut(QKeySequence("B"))
+        self.showBothSides.setToolTip(_("Shortcut key: %s" % "B"))
+        self.bbox.addButton(self.showBothSides, QDialogButtonBox.ActionRole)
+        self._bothSides = self.mw.col.conf.get("previewBothSides", False)
+        self.showBothSides.setChecked(self._bothSides)
+        self.showBothSides.toggled.connect(self._onShowBothSides)
 
         self.vbox.addWidget(self.bbox)
-        self._previewWindow.setLayout(self.vbox)
-        restoreGeom(self._previewWindow, "preview")
+        self._window.setLayout(self.vbox)
+        restoreGeom(self._window, "preview")
 
-    def _onPreviewFinished(self, ok):
-        saveGeom(self._previewWindow, "preview")
-        self.mw.progress.timer(100, self._onClosePreview, False)
+    def _onFinished(self, ok):
+        saveGeom(self._window, "preview")
+        self.mw.progress.timer(100, self._onClose, False)
 
     def _onReplayAudio(self):
         self.mw.reviewer.replayAudio(self)
 
-    def _closePreview(self):
-        if self._previewWindow:
-            self._previewWindow.close()
-            self._onClosePreview()
+    def _close(self):
+        if self._window:
+            self._window.close()
+            self._onClose()
 
-    def _onClosePreview(self):
-        self._previewWindow = None
+    def _onClose(self):
+        self._window = None
 
-    def _setupPreviewWebview(self):
+    def _setupWebview(self):
         jsinc = [
             "jquery.js",
             "browsersel.js",
@@ -101,61 +101,59 @@ class Previewer:
         self._previewWeb.stdHtml(
             self.mw.reviewer.revHtml(), css=["reviewer.css"], js=jsinc, context=self,
         )
-        self._previewWeb.set_bridge_command(
-            self._on_preview_bridge_cmd, self,
-        )
+        self._web.set_bridge_command(self._on_bridge_cmd, self)
 
-    def _on_preview_bridge_cmd(self, cmd: str) -> Any:
+    def _on_bridge_cmd(self, cmd: str) -> Any:
         if cmd.startswith("play:"):
             play_clicked_audio(cmd, self.card())
 
-    def _renderPreview(self, cardChanged=False):
-        self._cancelPreviewTimer()
-        # Keep track of whether _renderPreview() has ever been called
+    def _render(self, cardChanged=False):
+        self._cancelTimer()
+        # Keep track of whether _render() has ever been called
         # with cardChanged=True since the last successful render
-        self._previewCardChanged |= cardChanged
+        self._cardChanged |= cardChanged
         # avoid rendering in quick succession
-        elapMS = int((time.time() - self._lastPreviewRender) * 1000)
+        elapMS = int((time.time() - self._lastRender) * 1000)
         delay = 300
         if elapMS < delay:
-            self._previewTimer = self.mw.progress.timer(
-                delay - elapMS, self._renderScheduledPreview, False
+            self._timer = self.mw.progress.timer(
+                delay - elapMS, self._renderScheduled, False
             )
         else:
-            self._renderScheduledPreview()
+            self._renderScheduled()
 
-    def _cancelPreviewTimer(self):
-        if self._previewTimer:
-            self._previewTimer.stop()
-            self._previewTimer = None
+    def _cancelTimer(self):
+        if self._timer:
+            self._timer.stop()
+            self._timer = None
 
-    def _renderScheduledPreview(self) -> None:
-        self._cancelPreviewTimer()
-        self._lastPreviewRender = time.time()
+    def _renderScheduled(self) -> None:
+        self._cancelTimer()
+        self._lastRender = time.time()
 
-        if not self._previewWindow:
+        if not self._window:
             return
         c = self.card()
         func = "_showQuestion"
         if not c:
             txt = _("(please select 1 card)")
             bodyclass = ""
-            self._lastPreviewState = None
+            self._lastState = None
         else:
-            if self._previewBothSides:
-                self._previewState = "answer"
-            elif self._previewCardChanged:
-                self._previewState = "question"
+            if self._bothSides:
+                self._state = "answer"
+            elif self._cardChanged:
+                self._state = "question"
 
-            currentState = self._previewStateAndMod()
-            if currentState == self._lastPreviewState:
+            currentState = self._stateAndMod()
+            if currentState == self._lastState:
                 # nothing has changed, avoid refreshing
                 return
 
             # need to force reload even if answer
             txt = c.q(reload=True)
 
-            if self._previewState == "answer":
+            if self._state == "answer":
                 func = "_showAnswer"
                 txt = c.a()
             txt = re.sub(r"\[\[type:[^]]+\]\]", "", txt)
@@ -163,7 +161,7 @@ class Previewer:
             bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
 
             if self.mw.reviewer.autoplay(c):
-                if self._previewBothSides:
+                if self._bothSides:
                     # if we're showing both sides at once, remove any audio
                     # from the answer that's appeared on the question already
                     question_audio = c.question_av_tags()
@@ -171,7 +169,7 @@ class Previewer:
                         x for x in c.answer_av_tags() if x not in question_audio
                     ]
                     audio = question_audio + only_on_answer_audio
-                elif self._previewState == "question":
+                elif self._state == "question":
                     audio = c.question_av_tags()
                 else:
                     audio = c.answer_av_tags()
@@ -180,26 +178,24 @@ class Previewer:
                 av_player.clear_queue_and_maybe_interrupt()
 
             txt = self.mw.prepare_card_text_for_display(txt)
-            txt = gui_hooks.card_will_show(
-                txt, c, "preview" + self._previewState.capitalize()
-            )
-            self._lastPreviewState = self._previewStateAndMod()
-        self._previewWeb.eval("{}({},'{}');".format(func, json.dumps(txt), bodyclass))
-        self._previewCardChanged = False
+            txt = gui_hooks.card_will_show(txt, c, "preview" + self._state.capitalize())
+            self._lastState = self._stateAndMod()
+        self._web.eval("{}({},'{}');".format(func, json.dumps(txt), bodyclass))
+        self._cardChanged = False
 
-    def _onPreviewShowBothSides(self, toggle):
-        self._previewBothSides = toggle
+    def _onShowBothSides(self, toggle):
+        self._bothSides = toggle
         self.mw.col.conf["previewBothSides"] = toggle
         self.mw.col.setMod()
-        if self._previewState == "answer" and not toggle:
-            self._previewState = "question"
-        self._renderPreview()
+        if self._state == "answer" and not toggle:
+            self._state = "question"
+        self._render()
 
-    def _previewStateAndMod(self):
+    def _stateAndMod(self):
         c = self.card()
         n = c.note()
         n.load()
-        return (self._previewState, c.id, n.mod)
+        return (self._state, c.id, n.mod)
 
 
 class MultipleCardsPreviewer(Previewer):
@@ -209,55 +205,55 @@ class MultipleCardsPreviewer(Previewer):
 
     def _create_gui(self):
         super()._create_gui()
-        self._previewPrev = self.bbox.addButton("<", QDialogButtonBox.ActionRole)
-        self._previewPrev.setAutoDefault(False)
-        self._previewPrev.setShortcut(QKeySequence("Left"))
-        self._previewPrev.setToolTip(_("Shortcut key: Left arrow"))
+        self._prev = self.bbox.addButton("<", QDialogButtonBox.ActionRole)
+        self._prev.setAutoDefault(False)
+        self._prev.setShortcut(QKeySequence("Left"))
+        self._prev.setToolTip(_("Shortcut key: Left arrow"))
 
-        self._previewNext = self.bbox.addButton(">", QDialogButtonBox.ActionRole)
-        self._previewNext.setAutoDefault(True)
-        self._previewNext.setShortcut(QKeySequence("Right"))
-        self._previewNext.setToolTip(_("Shortcut key: Right arrow or Enter"))
+        self._next = self.bbox.addButton(">", QDialogButtonBox.ActionRole)
+        self._next.setAutoDefault(True)
+        self._next.setShortcut(QKeySequence("Right"))
+        self._next.setToolTip(_("Shortcut key: Right arrow or Enter"))
 
-        self._previewPrev.clicked.connect(self._onPreviewPrev)
-        self._previewNext.clicked.connect(self._onPreviewNext)
+        self._prev.clicked.connect(self._onPrev)
+        self._next.clicked.connect(self._onNext)
 
-    def _onPreviewPrev(self):
-        if self._previewState == "answer" and not self._previewBothSides:
-            self._previewState = "question"
-            self._renderPreview()
+    def _onPrev(self):
+        if self._state == "answer" and not self._bothSides:
+            self._state = "question"
+            self._render()
         else:
-            self._onPreviewPrevCard()
+            self._onPrevCard()
 
-    def _onPreviewPrevCard(self):
+    def _onPrevCard(self):
         ...
 
-    def _onPreviewNext(self):
-        if self._previewState == "question":
-            self._previewState = "answer"
-            self._renderPreview()
+    def _onNext(self):
+        if self._state == "question":
+            self._state = "answer"
+            self._render()
         else:
-            self._onPreviewNextCard()
+            self._onNextCard()
 
-    def _onPreviewNextCard(self):
+    def _onNextCard(self):
         ...
 
-    def _updatePreviewButtons(self):
-        if not self._previewWindow:
+    def _updateButtons(self):
+        if not self._window:
             return
-        self._previewPrev.setEnabled(self._should_enable_prev())
-        self._previewNext.setEnabled(self._should_enable_next())
+        self._prev.setEnabled(self._should_enable_prev())
+        self._next.setEnabled(self._should_enable_next())
 
     def _should_enable_prev(self):
-        return self._previewState == "answer" and not self._previewBothSides
+        return self._state == "answer" and not self._bothSides
 
     def _should_enable_next(self):
-        return self._previewState == "question"
+        return self._state == "question"
 
-    def _onClosePreview(self):
-        super()._onClosePreview()
-        self._previewPrev = None
-        self._previewNext = None
+    def _onClose(self):
+        super()._onClose()
+        self._prev = None
+        self._next = None
 
 
 class BrowserPreviewer(MultipleCardsPreviewer):
@@ -267,16 +263,16 @@ class BrowserPreviewer(MultipleCardsPreviewer):
         else:
             return None
 
-    def _onPreviewFinished(self, ok):
-        super()._onPreviewFinished(ok)
+    def _onFinished(self, ok):
+        super()._onFinished(ok)
         self.parent.form.previewButton.setChecked(False)
 
-    def _onPreviewPrevCard(self):
+    def _onPrevCard(self):
         self.parent.editor.saveNow(
             lambda: self.parent._moveCur(QAbstractItemView.MoveUp)
         )
 
-    def _onPreviewNextCard(self):
+    def _onNextCard(self):
         self.parent.editor.saveNow(
             lambda: self.parent._moveCur(QAbstractItemView.MoveDown)
         )
@@ -290,13 +286,13 @@ class BrowserPreviewer(MultipleCardsPreviewer):
             or self.parent.currentRow() < self.parent.model.rowCount(None) - 1
         )
 
-    def _onClosePreview(self):
-        super()._onClosePreview()
+    def _onClose(self):
+        super()._onClose()
         self.parent.previewer = None
 
-    def _renderScheduledPreview(self) -> None:
-        super()._renderScheduledPreview()
-        self._updatePreviewButtons()
+    def _renderScheduled(self) -> None:
+        super()._renderScheduled()
+        self._updateButtons()
 
 
 class ListCardsPreviewer(MultipleCardsPreviewer):
@@ -320,18 +316,18 @@ class ListCardsPreviewer(MultipleCardsPreviewer):
             self.cards[self.index] = self.mw.col.getCard(self.cards[self.index])
         return self.cards[self.index]
 
-    def _openPreview(self):
+    def _open(self):
         if not self.cards:
             return
-        super()._openPreview()
+        super()._open()
 
-    def _onPreviewPrevCard(self):
+    def _onPrevCard(self):
         self.index -= 1
-        self._renderPreview()
+        self._render()
 
-    def _onPreviewNextCard(self):
+    def _onNextCard(self):
         self.index += 1
-        self._renderPreview()
+        self._render()
 
     def _should_enable_prev(self):
         return super()._should_enable_prev() or self.index > 0
@@ -340,11 +336,11 @@ class ListCardsPreviewer(MultipleCardsPreviewer):
         return super()._should_enable_next() or self.index < len(self.cards) - 1
 
     def _on_other_side(self):
-        if self._previewState == "question":
-            self._previewState = "answer"
+        if self._state == "question":
+            self._state = "answer"
         else:
-            self._previewState = "question"
-        self._renderPreview()
+            self._state = "question"
+        self._render()
 
 
 class SingleCardPreviewer(Previewer):
@@ -367,8 +363,8 @@ class SingleCardPreviewer(Previewer):
         self._other_side.clicked.connect(self._on_other_side)
 
     def _on_other_side(self):
-        if self._previewState == "question":
-            self._previewState = "answer"
+        if self._state == "question":
+            self._state = "answer"
         else:
-            self._previewState = "question"
-        self._renderPreview()
+            self._state = "question"
+        self._render()
