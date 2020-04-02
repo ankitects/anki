@@ -22,13 +22,15 @@ from aqt.utils import restoreGeom, saveGeom
 from aqt.webview import AnkiWebView
 
 
-class Previewer:
+class Previewer(QDialog):
     _lastState = None
     _cardChanged = False
     _lastRender: Union[int, float] = 0
     _timer = None
 
     def __init__(self, parent: QWidget, mw: AnkiQt):
+        super().__init__(None, Qt.Window)
+        self._open = True
         self._parent = parent
         self.mw = mw
 
@@ -41,14 +43,13 @@ class Previewer:
         self._create_gui()
         self._setupWebview()
         self.render(True)
-        self._window.show()
+        self.show()
 
     def _create_gui(self):
-        self._window = QDialog(None, Qt.Window)
-        self._window.setWindowTitle(_("Preview"))
+        self.setWindowTitle(_("Preview"))
 
-        self._window.finished.connect(self._onFinished)
-        self._window.silentlyClose = True
+        self.finished.connect(self._onFinished)
+        self.silentlyClose = True
         self.vbox = QVBoxLayout()
         self.vbox.setContentsMargins(0, 0, 0, 0)
         self._web = AnkiWebView(title="previewer")
@@ -72,23 +73,23 @@ class Previewer:
         self.showBothSides.toggled.connect(self._onShowBothSides)
 
         self.vbox.addWidget(self.bbox)
-        self._window.setLayout(self.vbox)
-        restoreGeom(self._window, "preview")
+        self.setLayout(self.vbox)
+        restoreGeom(self, "preview")
 
     def _onFinished(self, ok):
-        saveGeom(self._window, "preview")
+        saveGeom(self, "preview")
         self.mw.progress.timer(100, self._onClose, False)
 
     def _onReplayAudio(self):
         self.mw.reviewer.replayAudio(self)
 
     def close(self):
-        if self._window:
-            self._window.close()
+        if self:
+            self.close()
             self._onClose()
 
     def _onClose(self):
-        self._window = None
+        self._open = False
 
     def _setupWebview(self):
         jsinc = [
@@ -131,7 +132,7 @@ class Previewer:
         self.cancelTimer()
         self._lastRender = time.time()
 
-        if not self._window:
+        if not self._open:
             return
         c = self.card()
         func = "_showQuestion"
@@ -239,7 +240,7 @@ class MultipleCardsPreviewer(Previewer):
         ...
 
     def _updateButtons(self):
-        if not self._window:
+        if not self._open:
             return
         self._prev.setEnabled(self._should_enable_prev())
         self._next.setEnabled(self._should_enable_next())
