@@ -1564,20 +1564,19 @@ where id in %s"""
 
     def onTogglePreview(self):
         if self._previewer:
-            self._previewer._closePreview()
+            self._previewer._close()
             self._previewer = None
         else:
-
             self._previewer = BrowserPreviewer(self, self.mw)
-            self._previewer._openPreview()
+            self._previewer._open()
 
     def _renderPreview(self, cardChanged=False):
         if self._previewer:
-            self._previewer._renderPreview(cardChanged)
+            self._previewer._render(cardChanged)
 
     def _cancelPreviewTimer(self):
         if self._previewer:
-            self._previewer._cancelPreviewTimer()
+            self._previewer._cancelTimer()
 
     # Card deletion
     ######################################################################
