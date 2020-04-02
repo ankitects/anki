@@ -1,6 +1,5 @@
 import os
 import sys
-from distutils.version import LooseVersion
 
 import setuptools
 
@@ -28,6 +27,7 @@ install_requires = [
     "pyaudio",
     "markdown",
     "jsonschema",
+    "pyqt5>=5.9",
     'psutil; sys.platform == "win32"',
     'pywin32; sys.platform == "win32"',
     'darkdetect; sys.platform == "darwin"',
@@ -38,25 +38,6 @@ if sys.version_info < minimum_python_version:
         "The minimum Python interpreter version required for Anki is '%s' "
         "and version '%s' was found!" % (minimum_python_version, sys.version_info)
     )
-
-try:
-    import PyQt5 as IS_PYQT_INSTALLED
-
-except (ImportError, ValueError):
-    IS_PYQT_INSTALLED = None
-
-try:
-    from PyQt5.Qt import PYQT_VERSION_STR
-
-except (ImportError, ValueError):
-    PYQT_VERSION_STR = None
-
-# https://github.com/ankitects/anki/pull/530
-if not IS_PYQT_INSTALLED or (
-    PYQT_VERSION_STR and LooseVersion(PYQT_VERSION_STR) >= LooseVersion("5.12")
-):
-    install_requires.append("pyqt5")
-    install_requires.append("pyqtwebengine")
 
 
 setuptools.setup(
