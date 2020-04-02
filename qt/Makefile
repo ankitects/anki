@@ -129,8 +129,8 @@ CHECKDEPS := $(shell ${FIND} aqt tests -name '*.py' | grep -v buildinfo.py)
 .PHONY: build
 build: $(BUILD_STEPS)
 	rm -rf dist build
-	python setup.py -q sdist
-	rsync -a dist/*.tar.gz ../dist/
+	python setup.py -q bdist_wheel
+	rsync -a dist/*.whl ../dist/
 
 .PHONY: develop
 develop: $(BUILD_STEPS)

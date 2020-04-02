@@ -270,7 +270,7 @@ jobs:
           cd dist
           setlocal EnableDelayedExpansion
           cmd /C set "wheels=" && for /f "delims=" %%i in ('dir /b *.*') DO set "wheels="%%i" !wheels!"
-          python -m pip install %wheels%
+          python -m pip install pyqtwebengine %wheels%
           python -c "import aqt; # aqt.run()"
 
       - name: Check Linux/Mac OS wheels
@@ -278,7 +278,7 @@ jobs:
         run: |
           set -x
           cd dist
-          python -m pip install *.*
+          python -m pip install pyqtwebengine *.*
           python -c "import aqt; # aqt.run()"
 
       - run: make check
