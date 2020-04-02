@@ -1,16 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import sys
-
 import setuptools
-
-minimum_python_version = (3, 7)
-
-if sys.version_info < minimum_python_version:
-    raise RuntimeError(
-        "The minimum Python interpreter version required for Anki is '%s' "
-        "and version '%s' was found!" % (minimum_python_version, sys.version_info)
-    )
 
 install_requires = [
     "beautifulsoup4",
