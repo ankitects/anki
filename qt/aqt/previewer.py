@@ -228,7 +228,7 @@ class MultiCardPreviewer(Previewer):
             self._on_prev_card()
 
     def _on_prev_card(self):
-        ...
+        pass
 
     def _on_next(self):
         if self._state == "question":
@@ -238,7 +238,7 @@ class MultiCardPreviewer(Previewer):
             self._on_next_card()
 
     def _on_next_card(self):
-        ...
+        pass
 
     def _updateButtons(self):
         if not self._open:
