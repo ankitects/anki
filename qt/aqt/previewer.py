@@ -49,7 +49,7 @@ class Previewer(QDialog):
     def _create_gui(self):
         self.setWindowTitle(_("Preview"))
 
-        self.finished.connect(self._onFinished)
+        self.finished.connect(self._on_finished)
         self.silentlyClose = True
         self.vbox = QVBoxLayout()
         self.vbox.setContentsMargins(0, 0, 0, 0)
@@ -63,7 +63,7 @@ class Previewer(QDialog):
         self._replay.setAutoDefault(False)
         self._replay.setShortcut(QKeySequence("R"))
         self._replay.setToolTip(_("Shortcut key: %s" % "R"))
-        self._replay.clicked.connect(self._onReplayAudio)
+        self._replay.clicked.connect(self._on_replay_audio)
 
         both_sides_button = QCheckBox(_("Show Both Sides"))
         both_sides_button.setShortcut(QKeySequence("B"))
@@ -100,7 +100,7 @@ class Previewer(QDialog):
             "mathjax/MathJax.js",
             "reviewer.js",
         ]
-        self._previewWeb.stdHtml(
+        self._web.stdHtml(
             self.mw.reviewer.revHtml(), css=["reviewer.css"], js=jsinc, context=self,
         )
         self._web.set_bridge_command(self._on_bridge_cmd, self)
@@ -198,6 +198,9 @@ class Previewer(QDialog):
         n = c.note()
         n.load()
         return (self._state, c.id, n.mod)
+
+    def state(self) -> str:
+        return self._state
 
 
 class MultiCardPreviewer(Previewer):

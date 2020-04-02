@@ -112,8 +112,8 @@ class Reviewer:
 
     def replayAudio(self, previewer=None):
         if previewer:
-            state = previewer._previewState
-            c = previewer.card
+            state = previewer.state()
+            c = previewer.card()
         else:
             state = self.state
             c = self.card
