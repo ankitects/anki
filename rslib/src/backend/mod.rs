@@ -3,7 +3,9 @@
 
 use crate::backend::dbproxy::db_command_bytes;
 use crate::backend_proto::backend_input::Value;
-use crate::backend_proto::{BuiltinSortKind, Empty, RenderedTemplateReplacement, SyncMediaIn};
+use crate::backend_proto::{
+    AddOrUpdateDeckConfigIn, BuiltinSortKind, Empty, RenderedTemplateReplacement, SyncMediaIn,
+};
 use crate::card::{Card, CardID};
 use crate::card::{CardQueue, CardType};
 use crate::collection::{open_collection, Collection};
@@ -268,8 +270,8 @@ impl Backend {
             }
             Value::AddCard(card) => OValue::AddCard(self.add_card(card)?),
             Value::GetDeckConfig(dcid) => OValue::GetDeckConfig(self.get_deck_config(dcid)?),
-            Value::AddOrUpdateDeckConfig(conf_json) => {
-                OValue::AddOrUpdateDeckConfig(self.add_or_update_deck_config(conf_json)?)
+            Value::AddOrUpdateDeckConfig(input) => {
+                OValue::AddOrUpdateDeckConfig(self.add_or_update_deck_config(input)?)
             }
             Value::AllDeckConfig(_) => OValue::AllDeckConfig(self.all_deck_config()?),
             Value::NewDeckConfig(_) => OValue::NewDeckConfig(self.new_deck_config()?),
@@ -702,11 +704,11 @@ impl Backend {
         })
     }
 
-    fn add_or_update_deck_config(&self, conf_json: String) -> Result<i64> {
-        let mut conf: DeckConf = serde_json::from_str(&conf_json)?;
+    fn add_or_update_deck_config(&self, input: AddOrUpdateDeckConfigIn) -> Result<i64> {
+        let mut conf: DeckConf = serde_json::from_str(&input.config)?;
         self.with_col(|col| {
             col.transact(None, |col| {
-                col.add_or_update_deck_config(&mut conf)?;
+                col.add_or_update_deck_config(&mut conf, input.preserve_usn_and_mtime)?;
                 Ok(conf.id.0)
             })
         })

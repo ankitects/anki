@@ -2,6 +2,15 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 # pylint: skip-file
 
+"""
+Python bindings for Anki's Rust libraries.
+
+Please do not access methods on the backend directly - they may be changed
+or removed at any time. Instead, please use the methods on the collection
+instead. Eg, don't use col.backend.all_deck_config(), instead use
+col.decks.all_config()
+"""
+
 import enum
 import json
 import os
@@ -502,10 +511,14 @@ class RustBackend:
         jstr = self._run_command(pb.BackendInput(get_deck_config=dcid)).get_deck_config
         return json.loads(jstr)
 
-    def add_or_update_deck_config(self, conf: Dict[str, Any]) -> None:
+    def add_or_update_deck_config(self, conf: Dict[str, Any], preserve_usn) -> None:
         conf_json = json.dumps(conf)
         id = self._run_command(
-            pb.BackendInput(add_or_update_deck_config=conf_json)
+            pb.BackendInput(
+                add_or_update_deck_config=pb.AddOrUpdateDeckConfigIn(
+                    config=conf_json, preserve_usn_and_mtime=preserve_usn
+                )
+            )
         ).add_or_update_deck_config
         conf["id"] = id
 

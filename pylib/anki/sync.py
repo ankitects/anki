@@ -374,9 +374,10 @@ from notes where %s"""
         decks = [g for g in self.col.decks.all() if g["usn"] == -1]
         for g in decks:
             g["usn"] = self.maxUsn
-        dconf = [g for g in self.col.decks.allConf() if g["usn"] == -1]
+        dconf = [g for g in self.col.decks.all_config() if g["usn"] == -1]
         for g in dconf:
             g["usn"] = self.maxUsn
+            self.col.decks.update_config(g, preserve_usn=True)
         self.col.decks.save()
         return [decks, dconf]
 
@@ -392,12 +393,12 @@ from notes where %s"""
                 self.col.decks.update(r)
         for r in rchg[1]:
             try:
-                l = self.col.decks.getConf(r["id"])
+                l = self.col.decks.get_config(r["id"])
             except KeyError:
                 l = None
             # if missing locally or server is newer, update
             if not l or r["mod"] > l["mod"]:
-                self.col.decks.updateConf(r)
+                self.col.decks.update_config(r)
 
     # Tags
     ##########################################################################

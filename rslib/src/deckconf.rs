@@ -219,9 +219,15 @@ impl Collection {
         }
     }
 
-    pub(crate) fn add_or_update_deck_config(&self, conf: &mut DeckConf) -> Result<()> {
-        conf.mtime = TimestampSecs::now();
-        conf.usn = self.usn()?;
+    pub(crate) fn add_or_update_deck_config(
+        &self,
+        conf: &mut DeckConf,
+        preserve_usn_and_mtime: bool,
+    ) -> Result<()> {
+        if !preserve_usn_and_mtime {
+            conf.mtime = TimestampSecs::now();
+            conf.usn = self.usn()?;
+        }
         let orig = self.storage.get_deck_config(conf.id)?;
         if let Some(_orig) = orig {
             self.storage.update_deck_conf(&conf)
