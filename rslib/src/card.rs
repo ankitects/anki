@@ -5,7 +5,7 @@ use crate::decks::DeckID;
 use crate::define_newtype;
 use crate::err::{AnkiError, Result};
 use crate::notes::NoteID;
-use crate::{collection::RequestContext, timestamp::TimestampSecs, types::Usn};
+use crate::{collection::Collection, timestamp::TimestampSecs, types::Usn, undo::Undoable};
 use num_enum::TryFromPrimitive;
 use serde_repr::{Deserialize_repr, Serialize_repr};
 
@@ -86,13 +86,44 @@ impl Default for Card {
     }
 }
 
-impl RequestContext<'_> {
-    pub(crate) fn update_card(&mut self, card: &mut Card) -> Result<()> {
+#[derive(Debug)]
+pub(crate) struct UpdateCardUndo(Card);
+
+impl Undoable for UpdateCardUndo {
+    fn apply(&self, col: &mut crate::collection::Collection) -> Result<()> {
+        let current = col
+            .storage
+            .get_card(self.0.id)?
+            .ok_or_else(|| AnkiError::invalid_input("card disappeared"))?;
+        col.update_card(&mut self.0.clone(), &current)
+    }
+}
+
+impl Collection {
+    #[cfg(test)]
+    pub(crate) fn get_and_update_card<F, T>(&mut self, cid: CardID, func: F) -> Result<Card>
+    where
+        F: FnOnce(&mut Card) -> Result<T>,
+    {
+        let orig = self
+            .storage
+            .get_card(cid)?
+            .ok_or_else(|| AnkiError::invalid_input("no such card"))?;
+        let mut card = orig.clone();
+        func(&mut card)?;
+        self.update_card(&mut card, &orig)?;
+        Ok(card)
+    }
+
+    pub(crate) fn update_card(&mut self, card: &mut Card, original: &Card) -> Result<()> {
         if card.id.0 == 0 {
             return Err(AnkiError::invalid_input("card id not set"));
         }
+        self.state
+            .undo
+            .save_undoable(Box::new(UpdateCardUndo(original.clone())));
         card.mtime = TimestampSecs::now();
-        card.usn = self.storage.usn()?;
+        card.usn = self.usn()?;
         self.storage.update_card(card)
     }
 
@@ -102,7 +133,103 @@ impl RequestContext<'_> {
             return Err(AnkiError::invalid_input("card id already set"));
         }
         card.mtime = TimestampSecs::now();
-        card.usn = self.storage.usn()?;
+        card.usn = self.usn()?;
         self.storage.add_card(card)
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::Card;
+    use crate::collection::{open_test_collection, CollectionOp};
+
+    #[test]
+    fn undo() {
+        let mut col = open_test_collection();
+
+        let mut card = Card::default();
+        card.ivl = 1;
+        col.add_card(&mut card).unwrap();
+        let cid = card.id;
+
+        assert_eq!(col.can_undo(), None);
+        assert_eq!(col.can_redo(), None);
+
+        // outside of a transaction, no undo info recorded
+        let card = col
+            .get_and_update_card(cid, |card| {
+                card.ivl = 2;
+                Ok(())
+            })
+            .unwrap();
+        assert_eq!(card.ivl, 2);
+        assert_eq!(col.can_undo(), None);
+        assert_eq!(col.can_redo(), None);
+
+        // record a few undo steps
+        for i in 3..=4 {
+            col.transact(Some(CollectionOp::UpdateCard), |col| {
+                col.get_and_update_card(cid, |card| {
+                    card.ivl = i;
+                    Ok(())
+                })
+                .unwrap();
+                Ok(())
+            })
+            .unwrap();
+        }
+
+        assert_eq!(col.storage.get_card(cid).unwrap().unwrap().ivl, 4);
+        assert_eq!(col.can_undo(), Some(CollectionOp::UpdateCard));
+        assert_eq!(col.can_redo(), None);
+
+        // undo a step
+        col.undo().unwrap();
+        assert_eq!(col.storage.get_card(cid).unwrap().unwrap().ivl, 3);
+        assert_eq!(col.can_undo(), Some(CollectionOp::UpdateCard));
+        assert_eq!(col.can_redo(), Some(CollectionOp::UpdateCard));
+
+        // and again
+        col.undo().unwrap();
+        assert_eq!(col.storage.get_card(cid).unwrap().unwrap().ivl, 2);
+        assert_eq!(col.can_undo(), None);
+        assert_eq!(col.can_redo(), Some(CollectionOp::UpdateCard));
+
+        // redo a step
+        col.redo().unwrap();
+        assert_eq!(col.storage.get_card(cid).unwrap().unwrap().ivl, 3);
+        assert_eq!(col.can_undo(), Some(CollectionOp::UpdateCard));
+        assert_eq!(col.can_redo(), Some(CollectionOp::UpdateCard));
+
+        // and another
+        col.redo().unwrap();
+        assert_eq!(col.storage.get_card(cid).unwrap().unwrap().ivl, 4);
+        assert_eq!(col.can_undo(), Some(CollectionOp::UpdateCard));
+        assert_eq!(col.can_redo(), None);
+
+        // and undo the redo
+        col.undo().unwrap();
+        assert_eq!(col.storage.get_card(cid).unwrap().unwrap().ivl, 3);
+        assert_eq!(col.can_undo(), Some(CollectionOp::UpdateCard));
+        assert_eq!(col.can_redo(), Some(CollectionOp::UpdateCard));
+
+        // if any action is performed, it should clear the redo queue
+        col.transact(Some(CollectionOp::UpdateCard), |col| {
+            col.get_and_update_card(cid, |card| {
+                card.ivl = 5;
+                Ok(())
+            })
+            .unwrap();
+            Ok(())
+        })
+        .unwrap();
+        assert_eq!(col.storage.get_card(cid).unwrap().unwrap().ivl, 5);
+        assert_eq!(col.can_undo(), Some(CollectionOp::UpdateCard));
+        assert_eq!(col.can_redo(), None);
+
+        // and any action that doesn't support undoing will clear both queues
+        col.transact(None, |_col| Ok(())).unwrap();
+        assert_eq!(col.can_undo(), None);
+        assert_eq!(col.can_redo(), None);
     }
 }

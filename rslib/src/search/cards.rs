@@ -4,7 +4,7 @@
 use super::{parser::Node, sqlwriter::node_to_sql};
 use crate::card::CardID;
 use crate::card::CardType;
-use crate::collection::RequestContext;
+use crate::collection::Collection;
 use crate::config::SortKind;
 use crate::err::Result;
 use crate::search::parser::parse;
@@ -18,7 +18,7 @@ pub(crate) enum SortMode {
 }
 
 pub(crate) fn search_cards<'a, 'b>(
-    req: &'a mut RequestContext<'b>,
+    req: &'b mut Collection,
     search: &'a str,
     order: SortMode,
 ) -> Result<Vec<CardID>> {
@@ -96,7 +96,7 @@ fn write_order(sql: &mut String, kind: &SortKind, reverse: bool) -> Result<()> {
 
 // In the future these items should be moved from JSON into separate SQL tables,
 // - for now we use a temporary deck to sort them.
-fn prepare_sort(req: &mut RequestContext, kind: &SortKind) -> Result<()> {
+fn prepare_sort(req: &mut Collection, kind: &SortKind) -> Result<()> {
     use SortKind::*;
     match kind {
         CardDeck | NoteType => {
@@ -139,14 +139,14 @@ fn prepare_sort(req: &mut RequestContext, kind: &SortKind) -> Result<()> {
     Ok(())
 }
 
-fn prepare_sort_order_table(req: &mut RequestContext) -> Result<()> {
+fn prepare_sort_order_table(req: &mut Collection) -> Result<()> {
     req.storage
         .db
         .execute_batch(include_str!("sort_order.sql"))?;
     Ok(())
 }
 
-fn prepare_sort_order_table2(req: &mut RequestContext) -> Result<()> {
+fn prepare_sort_order_table2(req: &mut Collection) -> Result<()> {
     req.storage
         .db
         .execute_batch(include_str!("sort_order2.sql"))?;

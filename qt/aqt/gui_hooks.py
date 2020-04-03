@@ -13,7 +13,8 @@ import anki
 import aqt
 from anki.cards import Card
 from anki.hooks import runFilter, runHook
-from aqt.qt import QDialog, QMenu
+from aqt.qt import QDialog, QEvent, QMenu
+from aqt.tagedit import TagEdit
 
 # New hook/filter handling
 ##############################################################################
@@ -47,6 +48,30 @@ class _AddCardsDidAddNoteHook:
 
 
 add_cards_did_add_note = _AddCardsDidAddNoteHook()
+
+
+class _AddCardsDidInitHook:
+    _hooks: List[Callable[["aqt.addcards.AddCards"], None]] = []
+
+    def append(self, cb: Callable[["aqt.addcards.AddCards"], None]) -> None:
+        """(addcards: aqt.addcards.AddCards)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[["aqt.addcards.AddCards"], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, addcards: aqt.addcards.AddCards) -> None:
+        for hook in self._hooks:
+            try:
+                hook(addcards)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+add_cards_did_init = _AddCardsDidInitHook()
 
 
 class _AddCardsWillAddNoteFilter:
@@ -383,6 +408,30 @@ class _BrowserDidSearchHook:
 
 
 browser_did_search = _BrowserDidSearchHook()
+
+
+class _BrowserHeaderWillShowContextMenuHook:
+    _hooks: List[Callable[["aqt.browser.Browser", QMenu], None]] = []
+
+    def append(self, cb: Callable[["aqt.browser.Browser", QMenu], None]) -> None:
+        """(browser: aqt.browser.Browser, menu: QMenu)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[["aqt.browser.Browser", QMenu], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, browser: aqt.browser.Browser, menu: QMenu) -> None:
+        for hook in self._hooks:
+            try:
+                hook(browser, menu)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+browser_header_will_show_context_menu = _BrowserHeaderWillShowContextMenuHook()
 
 
 class _BrowserMenusDidInitHook:
@@ -1901,6 +1950,30 @@ class _StyleDidInitFilter:
 
 
 style_did_init = _StyleDidInitFilter()
+
+
+class _TagEditorDidProcessKeyHook:
+    _hooks: List[Callable[[TagEdit, QEvent], None]] = []
+
+    def append(self, cb: Callable[[TagEdit, QEvent], None]) -> None:
+        """(tag_edit: TagEdit, evt: QEvent)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[TagEdit, QEvent], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, tag_edit: TagEdit, evt: QEvent) -> None:
+        for hook in self._hooks:
+            try:
+                hook(tag_edit, evt)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+tag_editor_did_process_key = _TagEditorDidProcessKeyHook()
 
 
 class _TopToolbarDidInitLinksHook:

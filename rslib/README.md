@@ -1,3 +1,1 @@
-Anki's Rust library code
-
-https://anki.tenderapp.com/discussions/ankidesktop/40025-anki-in-python-package-index
+To build from scratch, please see https://github.com/ankitects/anki

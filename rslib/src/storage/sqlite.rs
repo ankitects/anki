@@ -1,7 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::collection::CollectionOp;
 use crate::config::Config;
 use crate::decks::DeckID;
 use crate::err::Result;
@@ -10,6 +9,7 @@ use crate::notetypes::NoteTypeID;
 use crate::timestamp::{TimestampMillis, TimestampSecs};
 use crate::{
     decks::Deck,
+    i18n::I18n,
     notetypes::NoteType,
     sched::cutoff::{sched_timing_today, SchedTimingToday},
     text::without_combining,
@@ -18,16 +18,12 @@ use crate::{
 use regex::Regex;
 use rusqlite::{functions::FunctionFlags, params, Connection, NO_PARAMS};
 use std::cmp::Ordering;
-use std::{
-    borrow::Cow,
-    collections::HashMap,
-    path::{Path, PathBuf},
-};
+use std::{borrow::Cow, collections::HashMap, path::Path};
 use unicase::UniCase;
-use variant_count::VariantCount;
 
 const SCHEMA_MIN_VERSION: u8 = 11;
-const SCHEMA_MAX_VERSION: u8 = 11;
+const SCHEMA_STARTING_VERSION: u8 = 11;
+const SCHEMA_MAX_VERSION: u8 = 12;
 
 fn unicase_compare(s1: &str, s2: &str) -> Ordering {
     UniCase::new(s1).cmp(&UniCase::new(s2))
@@ -38,9 +34,6 @@ fn unicase_compare(s1: &str, s2: &str) -> Ordering {
 pub struct SqliteStorage {
     // currently crate-visible for dbproxy
     pub(crate) db: Connection,
-
-    // fixme: stored in wrong location?
-    path: PathBuf,
 }
 
 fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
@@ -150,7 +143,7 @@ fn schema_version(db: &Connection) -> Result<(bool, u8)> {
         .prepare("select null from sqlite_master where type = 'table' and name = 'col'")?
         .exists(NO_PARAMS)?
     {
-        return Ok((true, SCHEMA_MAX_VERSION));
+        return Ok((true, SCHEMA_STARTING_VERSION));
     }
 
     Ok((
@@ -164,91 +157,80 @@ fn trace(s: &str) {
 }
 
 impl SqliteStorage {
-    pub(crate) fn open_or_create(path: &Path) -> Result<Self> {
+    pub(crate) fn open_or_create(path: &Path, i18n: &I18n) -> Result<Self> {
         let db = open_or_create_collection_db(path)?;
-
         let (create, ver) = schema_version(&db)?;
+        if ver > SCHEMA_MAX_VERSION {
+            return Err(AnkiError::DBError {
+                info: "".to_string(),
+                kind: DBErrorKind::FileTooNew,
+            });
+        }
+        if ver < SCHEMA_MIN_VERSION {
+            return Err(AnkiError::DBError {
+                info: "".to_string(),
+                kind: DBErrorKind::FileTooOld,
+            });
+        }
+
+        let upgrade = ver != SCHEMA_MAX_VERSION;
+        if create || upgrade {
+            db.execute("begin exclusive", NO_PARAMS)?;
+        }
+
         if create {
-            db.prepare_cached("begin exclusive")?.execute(NO_PARAMS)?;
             db.execute_batch(include_str!("schema11.sql"))?;
+            // start at schema 11, then upgrade below
             db.execute(
                 "update col set crt=?, ver=?",
-                params![TimestampSecs::now(), ver],
+                params![TimestampSecs::now(), SCHEMA_STARTING_VERSION],
             )?;
-            db.prepare_cached("commit")?.execute(NO_PARAMS)?;
-        } else {
-            if ver > SCHEMA_MAX_VERSION {
-                return Err(AnkiError::DBError {
-                    info: "".to_string(),
-                    kind: DBErrorKind::FileTooNew,
-                });
-            }
-            if ver < SCHEMA_MIN_VERSION {
-                return Err(AnkiError::DBError {
-                    info: "".to_string(),
-                    kind: DBErrorKind::FileTooOld,
-                });
-            }
-        };
+        }
 
-        let storage = Self {
-            db,
-            path: path.to_owned(),
-        };
+        let storage = Self { db };
+
+        if create || upgrade {
+            storage.upgrade_to_latest_schema(ver)?;
+        }
+
+        if create {
+            storage.add_default_deck_config(i18n)?;
+        }
+
+        if create || upgrade {
+            storage.commit_trx()?;
+        }
 
         Ok(storage)
     }
 
-    pub(crate) fn context(&self, server: bool) -> StorageContext {
-        StorageContext::new(&self.db, server)
-    }
-}
-
-#[derive(Clone, Copy, VariantCount)]
-#[allow(clippy::enum_variant_names)]
-pub(super) enum CachedStatementKind {
-    GetCard,
-    UpdateCard,
-    AddCard,
-}
-
-pub(crate) struct StorageContext<'a> {
-    pub(crate) db: &'a Connection,
-    server: bool,
-    usn: Option<Usn>,
-
-    timing_today: Option<SchedTimingToday>,
-
-    cached_statements: Vec<Option<rusqlite::CachedStatement<'a>>>,
-}
-
-impl StorageContext<'_> {
-    fn new(db: &Connection, server: bool) -> StorageContext {
-        let stmt_len = CachedStatementKind::VARIANT_COUNT;
-        let mut statements = Vec::with_capacity(stmt_len);
-        statements.resize_with(stmt_len, Default::default);
-        StorageContext {
-            db,
-            server,
-            usn: None,
-            timing_today: None,
-            cached_statements: statements,
+    fn upgrade_to_latest_schema(&self, ver: u8) -> Result<()> {
+        if ver < 12 {
+            self.upgrade_to_schema_12()?;
         }
+        Ok(())
     }
 
-    pub(super) fn with_cached_stmt<F, T>(
-        &mut self,
-        kind: CachedStatementKind,
-        sql: &str,
-        func: F,
-    ) -> Result<T>
-    where
-        F: FnOnce(&mut rusqlite::CachedStatement) -> Result<T>,
-    {
-        if self.cached_statements[kind as usize].is_none() {
-            self.cached_statements[kind as usize] = Some(self.db.prepare_cached(sql)?);
-        }
-        func(self.cached_statements[kind as usize].as_mut().unwrap())
+    pub(crate) fn downgrade_to_schema_11(self) -> Result<()> {
+        self.begin_trx()?;
+        self.downgrade_from_schema_12()?;
+        self.commit_trx()
+    }
+
+    fn upgrade_to_schema_12(&self) -> Result<()> {
+        self.db
+            .execute_batch(include_str!("schema12_upgrade.sql"))?;
+        self.upgrade_deck_conf_to_schema12()?;
+        self.upgrade_tags_to_schema12()
+    }
+
+    fn downgrade_from_schema_12(&self) -> Result<()> {
+        self.downgrade_tags_from_schema12()?;
+        self.downgrade_deck_conf_from_schema12()?;
+
+        self.db
+            .execute_batch(include_str!("schema12_downgrade.sql"))?;
+        Ok(())
     }
 
     // Standard transaction start/stop
@@ -295,10 +277,6 @@ impl StorageContext<'_> {
         Ok(())
     }
 
-    pub(crate) fn commit_rust_op(&self, _op: Option<CollectionOp>) -> Result<()> {
-        self.commit_rust_trx()
-    }
-
     pub(crate) fn rollback_rust_trx(&self) -> Result<()> {
         self.db
             .prepare_cached("rollback to rust")?
@@ -315,16 +293,12 @@ impl StorageContext<'_> {
         Ok(())
     }
 
-    pub(crate) fn usn(&mut self) -> Result<Usn> {
-        if self.server {
-            if self.usn.is_none() {
-                self.usn = Some(
-                    self.db
-                        .prepare_cached("select usn from col")?
-                        .query_row(NO_PARAMS, |row| row.get(0))?,
-                );
-            }
-            Ok(self.usn.clone().unwrap())
+    pub(crate) fn usn(&self, server: bool) -> Result<Usn> {
+        if server {
+            Ok(Usn(self
+                .db
+                .prepare_cached("select usn from col")?
+                .query_row(NO_PARAMS, |row| row.get(0))?))
         } else {
             Ok(Usn(-1))
         }
@@ -360,63 +334,27 @@ impl StorageContext<'_> {
         Ok(note_types)
     }
 
-    #[allow(dead_code)]
-    pub(crate) fn timing_today(&mut self) -> Result<SchedTimingToday> {
-        if self.timing_today.is_none() {
-            let crt: i64 = self
-                .db
-                .prepare_cached("select crt from col")?
-                .query_row(NO_PARAMS, |row| row.get(0))?;
-            let conf = self.all_config()?;
-            let now_offset = if self.server { conf.local_offset } else { None };
+    pub(crate) fn timing_today(&self, server: bool) -> Result<SchedTimingToday> {
+        let crt: i64 = self
+            .db
+            .prepare_cached("select crt from col")?
+            .query_row(NO_PARAMS, |row| row.get(0))?;
+        let conf = self.all_config()?;
+        let now_offset = if server { conf.local_offset } else { None };
 
-            self.timing_today = Some(sched_timing_today(
-                crt,
-                TimestampSecs::now().0,
-                conf.creation_offset,
-                now_offset,
-                conf.rollover,
-            ));
-        }
-        Ok(*self.timing_today.as_ref().unwrap())
-    }
-}
-
-#[cfg(all(feature = "unstable", test))]
-mod bench {
-    extern crate test;
-    use super::{CachedStatementKind, SqliteStorage};
-    use std::path::Path;
-    use test::Bencher;
-
-    const SQL: &str = "insert or replace into cards
-    (id, nid, did, ord, mod, usn, type, queue, due, ivl, factor,
-    reps, lapses, left, odue, odid, flags, data)
-    values
-    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-    #[bench]
-    fn bench_no_cache(b: &mut Bencher) {
-        let storage = SqliteStorage::open_or_create(Path::new(":memory:")).unwrap();
-        b.iter(|| storage.db.prepare(SQL).unwrap());
+        Ok(sched_timing_today(
+            crt,
+            TimestampSecs::now().0,
+            conf.creation_offset,
+            now_offset,
+            conf.rollover,
+        ))
     }
 
-    #[bench]
-    fn bench_hash_cache(b: &mut Bencher) {
-        let storage = SqliteStorage::open_or_create(Path::new(":memory:")).unwrap();
-        b.iter(|| storage.db.prepare_cached(SQL).unwrap());
-    }
-
-    #[bench]
-    fn bench_vec_cache(b: &mut Bencher) {
-        let storage = SqliteStorage::open_or_create(Path::new(":memory:")).unwrap();
-        let mut ctx = storage.context(false);
-        b.iter(|| {
-            ctx.with_cached_stmt(CachedStatementKind::GetCard, SQL, |_stmt| {
-                test::black_box(_stmt);
-                Ok(())
-            })
-            .unwrap()
-        });
+    pub(crate) fn schema_modified(&self) -> Result<bool> {
+        self.db
+            .prepare_cached("select scm > ls from col")?
+            .query_row(NO_PARAMS, |row| row.get(0))
+            .map_err(Into::into)
     }
 }

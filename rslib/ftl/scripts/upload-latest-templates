@@ -8,5 +8,5 @@ set -eu -o pipefail ${SHELLFLAGS}
 test -d repo || exit 1
 
 rsync -av --delete *.ftl repo/core/templates/
-(cd repo && git add core; git commit -m update; git push)
+(cd repo && git add core; git commit -m update || true; git push)
 

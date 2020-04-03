@@ -46,10 +46,21 @@ message BackendInput {
         Empty empty_trash = 34;
         Empty restore_trash = 35;
         OpenCollectionIn open_collection = 36;
-        Empty close_collection = 37;
+        CloseCollectionIn close_collection = 37;
         int64 get_card = 38;
         Card update_card = 39;
         Card add_card = 40;
+        int64 get_deck_config = 41;
+        AddOrUpdateDeckConfigIn add_or_update_deck_config = 42;
+        Empty all_deck_config = 43;
+        Empty new_deck_config = 44;
+        int64 remove_deck_config = 45;
+        Empty abort_media_sync = 46;
+        Empty before_upload = 47;
+        RegisterTagsIn register_tags = 48;
+        string canonify_tags = 49;
+        Empty all_tags = 50;
+        int32 get_changed_tags = 51;
     }
 }
 
@@ -65,6 +76,7 @@ message BackendOutput {
         string format_time_span = 31;
         string studied_today = 32;
         string congrats_learn_msg = 33;
+        Empty abort_media_sync = 46;
 
         // fallible commands
         TemplateRequirementsOut template_requirements = 16;
@@ -83,6 +95,16 @@ message BackendOutput {
         GetCardOut get_card = 38;
         Empty update_card = 39;
         int64 add_card = 40;
+        string get_deck_config = 41;
+        int64 add_or_update_deck_config = 42;
+        string all_deck_config = 43;
+        string new_deck_config = 44;
+        Empty remove_deck_config = 45;
+        Empty before_upload = 47;
+        bool register_tags = 48;
+        CanonifyTagsOut canonify_tags = 49;
+        AllTagsOut all_tags = 50;
+        GetChangedTagsOut get_changed_tags = 51;
 
         BackendError error = 2047;
     }
@@ -397,4 +419,38 @@ message Card {
     int64 odid = 16;
     uint32 flags = 17;
     string data = 18;
+}
+
+message CloseCollectionIn {
+    bool downgrade_to_schema11 = 1;
+}
+
+message AddOrUpdateDeckConfigIn {
+    string config = 1;
+    bool preserve_usn_and_mtime = 2;
+}
+
+message RegisterTagsIn {
+    string tags = 1;
+    bool preserve_usn = 2;
+    int32 usn = 3;
+    bool clear_first = 4;
+}
+
+message AllTagsOut {
+    repeated TagUsnTuple tags = 1;
+}
+
+message TagUsnTuple {
+    string tag = 1;
+    sint32 usn = 2;
+}
+
+message GetChangedTagsOut {
+    repeated string tags = 1;
+}
+
+message CanonifyTagsOut {
+    string tags = 1;
+    bool tag_list_changed = 2;
 }

@@ -186,6 +186,10 @@ hooks = [
         legacy_hook="browser.onContextMenu",
     ),
     Hook(
+        name="browser_header_will_show_context_menu",
+        args=["browser: aqt.browser.Browser", "menu: QMenu"],
+    ),
+    Hook(
         name="browser_did_change_row",
         args=["browser: aqt.browser.Browser"],
         legacy_hook="browser.rowChanged",
@@ -428,6 +432,7 @@ def emptyNewCard():
         args=["addcards: aqt.addcards.AddCards", "menu: QMenu"],
         legacy_hook="AddCards.onHistory",
     ),
+    Hook(name="add_cards_did_init", args=["addcards: aqt.addcards.AddCards"],),
     Hook(
         name="add_cards_did_add_note",
         args=["note: anki.notes.Note"],
@@ -505,6 +510,9 @@ def emptyNewCard():
         doc="""Allows changing the javascript commands to load note before
         executing it and do change in the QT editor.""",
     ),
+    # Tag
+    ###################
+    Hook(name="tag_editor_did_process_key", args=["tag_edit: TagEdit", "evt: QEvent"]),
     # Sound/video
     ###################
     Hook(name="av_player_will_play", args=["tag: anki.sound.AVTag"]),

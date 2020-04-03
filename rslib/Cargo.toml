@@ -7,9 +7,6 @@ license = "AGPL-3.0-or-later"
 description = "Anki's Rust library code"
 readme = "README.md"
 
-[features]
-unstable = []
-
 [dependencies]
 nom = "5.0.1"
 failure = "0.1.7"
@@ -43,8 +40,9 @@ slog-async = "2.4.0"
 slog-envlogger = "2.2.0"
 serde_repr = "0.1.5"
 num_enum = "0.4.2"
-unicase = "2.6.0"
-variant_count = "=1.0.0"
+# pinned as any changes could invalidate sqlite indexes
+unicase = "=2.6.0"
+futures = "0.3.4"
 
 # pinned until rusqlite 0.22 comes out
 [target.'cfg(target_vendor="apple")'.dependencies.rusqlite]

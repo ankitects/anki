@@ -90,7 +90,7 @@ def test_newLimits():
             f.model()["did"] = g2
         d.addNote(f)
     # give the child deck a different configuration
-    c2 = d.decks.confId("new conf")
+    c2 = d.decks.add_config_returning_id("new conf")
     d.decks.setConf(d.decks.get(g2), c2)
     d.reset()
     # both confs have defaulted to a limit of 20
@@ -101,11 +101,13 @@ def test_newLimits():
     # limit the parent to 10 cards, meaning we get 10 in total
     conf1 = d.decks.confForDid(1)
     conf1["new"]["perDay"] = 10
+    d.decks.save(conf1)
     d.reset()
     assert d.sched.newCount == 10
     # if we limit child to 4, we should get 9
     conf2 = d.decks.confForDid(g2)
     conf2["new"]["perDay"] = 4
+    d.decks.save(conf2)
     d.reset()
     assert d.sched.newCount == 9
 
@@ -117,10 +119,13 @@ def test_newBoxes():
     d.addNote(f)
     d.reset()
     c = d.sched.getCard()
-    d.sched._cardConf(c)["new"]["delays"] = [1, 2, 3, 4, 5]
+    conf = d.sched._cardConf(c)
+    conf["new"]["delays"] = [1, 2, 3, 4, 5]
+    d.decks.save(conf)
     d.sched.answerCard(c, 2)
     # should handle gracefully
-    d.sched._cardConf(c)["new"]["delays"] = [1]
+    conf["new"]["delays"] = [1]
+    d.decks.save(conf)
     d.sched.answerCard(c, 2)
 
 
@@ -137,7 +142,9 @@ def test_learn():
     # sched.getCard should return it, since it's due in the past
     c = d.sched.getCard()
     assert c
-    d.sched._cardConf(c)["new"]["delays"] = [0.5, 3, 10]
+    conf = d.sched._cardConf(c)
+    conf["new"]["delays"] = [0.5, 3, 10]
+    d.decks.save(conf)
     # fail it
     d.sched.answerCard(c, 1)
     # it should have three reps left to graduation
@@ -235,7 +242,9 @@ def test_learn_day():
     f = d.addNote(f)
     d.sched.reset()
     c = d.sched.getCard()
-    d.sched._cardConf(c)["new"]["delays"] = [1, 10, 1440, 2880]
+    conf = d.sched._cardConf(c)
+    conf["new"]["delays"] = [1, 10, 1440, 2880]
+    d.decks.save(conf)
     # pass it
     d.sched.answerCard(c, 2)
     # two reps to graduate, 1 more today
@@ -279,7 +288,9 @@ def test_learn_day():
     c.flush()
     d.reset()
     assert d.sched.counts() == (0, 0, 1)
-    d.sched._cardConf(c)["lapse"]["delays"] = [1440]
+    conf = d.sched._cardConf(c)
+    conf["lapse"]["delays"] = [1440]
+    d.decks.save(conf)
     c = d.sched.getCard()
     d.sched.answerCard(c, 1)
     assert c.queue == CARD_TYPE_RELEARNING
@@ -310,7 +321,9 @@ def test_reviews():
     ##################################################
     # different delay to new
     d.reset()
-    d.sched._cardConf(c)["lapse"]["delays"] = [2, 20]
+    conf = d.sched._cardConf(c)
+    conf["lapse"]["delays"] = [2, 20]
+    d.decks.save(conf)
     d.sched.answerCard(c, 1)
     assert c.queue == QUEUE_TYPE_LRN
     # it should be due tomorrow, with an interval of 1
@@ -471,6 +484,7 @@ def test_nextIvl():
     conf = d.decks.confForDid(1)
     conf["new"]["delays"] = [0.5, 3, 10]
     conf["lapse"]["delays"] = [1, 5, 9]
+    d.decks.save(conf)
     c = d.sched.getCard()
     # new cards
     ##################################################
@@ -508,7 +522,8 @@ def test_nextIvl():
     # failing it should put it at 60s
     assert ni(c, 1) == 60
     # or 1 day if relearn is false
-    d.sched._cardConf(c)["lapse"]["delays"] = []
+    conf["lapse"]["delays"] = []
+    d.decks.save(conf)
     assert ni(c, 1) == 1 * 86400
     # (* 100 1.2 86400)10368000.0
     assert ni(c, 2) == 10368000
@@ -681,7 +696,7 @@ def test_cram():
     c.col = None
     c2 = copy.deepcopy(c)
     c2.col = c.col = d
-    c2.id = 123
+    c2.id = 0
     c2.ord = 1
     c2.due = 325
     c2.col = c.col
@@ -941,7 +956,9 @@ def test_timing():
     d.reset()
     c = d.sched.getCard()
     # set a a fail delay of 1 second so we don't have to wait
-    d.sched._cardConf(c)["lapse"]["delays"][0] = 1 / 60.0
+    conf = d.sched._cardConf(c)
+    conf["lapse"]["delays"][0] = 1 / 60.0
+    d.decks.save(conf)
     d.sched.answerCard(c, 1)
     # the next card should be another review
     c = d.sched.getCard()
@@ -1171,7 +1188,9 @@ def test_failmult():
     c.lapses = 1
     c.startTimer()
     c.flush()
-    d.sched._cardConf(c)["lapse"]["mult"] = 0.5
+    conf = d.sched._cardConf(c)
+    conf["lapse"]["mult"] = 0.5
+    d.decks.save(conf)
     c = d.sched.getCard()
     d.sched.answerCard(c, 1)
     assert c.ivl == 50

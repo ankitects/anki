@@ -10,26 +10,28 @@ use crate::notes::field_checksum;
 use crate::notetypes::NoteTypeID;
 use crate::text::matches_wildcard;
 use crate::text::without_combining;
-use crate::{collection::RequestContext, text::strip_html_preserving_image_filenames};
+use crate::{collection::Collection, text::strip_html_preserving_image_filenames};
+use lazy_static::lazy_static;
+use regex::{Captures, Regex};
 use std::fmt::Write;
 
-struct SqlWriter<'a, 'b> {
-    req: &'a mut RequestContext<'b>,
+struct SqlWriter<'a> {
+    col: &'a mut Collection,
     sql: String,
     args: Vec<String>,
 }
 
-pub(super) fn node_to_sql(req: &mut RequestContext, node: &Node) -> Result<(String, Vec<String>)> {
+pub(super) fn node_to_sql(req: &mut Collection, node: &Node) -> Result<(String, Vec<String>)> {
     let mut sctx = SqlWriter::new(req);
     sctx.write_node_to_sql(&node)?;
     Ok((sctx.sql, sctx.args))
 }
 
-impl SqlWriter<'_, '_> {
-    fn new<'a, 'b>(req: &'a mut RequestContext<'b>) -> SqlWriter<'a, 'b> {
+impl SqlWriter<'_> {
+    fn new(col: &mut Collection) -> SqlWriter<'_> {
         let sql = String::new();
         let args = vec![];
-        SqlWriter { req, sql, args }
+        SqlWriter { col, sql, args }
     }
 
     fn write_node_to_sql(&mut self, node: &Node) -> Result<()> {
@@ -66,7 +68,7 @@ impl SqlWriter<'_, '_> {
             }
             SearchNode::NoteType(notetype) => self.write_note_type(notetype.as_ref())?,
             SearchNode::Rated { days, ease } => self.write_rated(*days, *ease)?,
-            SearchNode::Tag(tag) => self.write_tag(tag),
+            SearchNode::Tag(tag) => self.write_tag(tag)?,
             SearchNode::Duplicates { note_type_id, text } => self.write_dupes(*note_type_id, text),
             SearchNode::State(state) => self.write_state(state)?,
             SearchNode::Flag(flag) => {
@@ -112,7 +114,7 @@ impl SqlWriter<'_, '_> {
         .unwrap();
     }
 
-    fn write_tag(&mut self, text: &str) {
+    fn write_tag(&mut self, text: &str) -> Result<()> {
         match text {
             "none" => {
                 write!(self.sql, "n.tags = ''").unwrap();
@@ -121,15 +123,24 @@ impl SqlWriter<'_, '_> {
                 write!(self.sql, "true").unwrap();
             }
             text => {
-                let tag = format!("% {} %", text.replace('*', "%"));
-                write!(self.sql, "n.tags like ? escape '\\'").unwrap();
-                self.args.push(tag);
+                if let Some(re_glob) = glob_to_re(text) {
+                    // text contains a wildcard
+                    let re_glob = format!("(?i).* {} .*", re_glob);
+                    write!(self.sql, "n.tags regexp ?").unwrap();
+                    self.args.push(re_glob);
+                } else if let Some(tag) = self.col.storage.preferred_tag_case(&text)? {
+                    write!(self.sql, "n.tags like ?").unwrap();
+                    self.args.push(format!("% {} %", tag));
+                } else {
+                    write!(self.sql, "false").unwrap();
+                }
             }
         }
+        Ok(())
     }
 
     fn write_rated(&mut self, days: u32, ease: Option<u8>) -> Result<()> {
-        let today_cutoff = self.req.storage.timing_today()?.next_day_at;
+        let today_cutoff = self.col.timing_today()?.next_day_at;
         let days = days.min(365) as i64;
         let target_cutoff_ms = (today_cutoff - 86_400 * days) * 1_000;
         write!(
@@ -148,7 +159,7 @@ impl SqlWriter<'_, '_> {
     }
 
     fn write_prop(&mut self, op: &str, kind: &PropertyKind) -> Result<()> {
-        let timing = self.req.storage.timing_today()?;
+        let timing = self.col.timing_today()?;
         match kind {
             PropertyKind::Due(days) => {
                 let day = days + (timing.days_elapsed as i32);
@@ -173,7 +184,7 @@ impl SqlWriter<'_, '_> {
     }
 
     fn write_state(&mut self, state: &StateKind) -> Result<()> {
-        let timing = self.req.storage.timing_today()?;
+        let timing = self.col.timing_today()?;
         match state {
             StateKind::New => write!(self.sql, "c.type = {}", CardQueue::New as i8),
             StateKind::Review => write!(self.sql, "c.type = {}", CardQueue::Review as i8),
@@ -192,9 +203,10 @@ impl SqlWriter<'_, '_> {
             StateKind::Suspended => write!(self.sql, "c.queue = {}", CardQueue::Suspended as i8),
             StateKind::Due => write!(
                 self.sql,
-                "
+                "(
     (c.queue in ({rev},{daylrn}) and c.due <= {today}) or
-    (c.queue = {lrn} and c.due <= {daycutoff})",
+    (c.queue = {lrn} and c.due <= {daycutoff})
+    )",
                 rev = CardQueue::Review as i8,
                 daylrn = CardQueue::DayLearn as i8,
                 today = timing.days_elapsed,
@@ -212,14 +224,14 @@ impl SqlWriter<'_, '_> {
             "filtered" => write!(self.sql, "c.odid > 0").unwrap(),
             deck => {
                 let all_decks: Vec<_> = self
-                    .req
+                    .col
                     .storage
                     .all_decks()?
                     .into_iter()
                     .map(|(_, v)| v)
                     .collect();
                 let dids_with_children = if deck == "current" {
-                    let config = self.req.storage.all_config()?;
+                    let config = self.col.storage.all_config()?;
                     let mut dids_with_children = vec![config.current_deck_id];
                     let current = get_deck(&all_decks, config.current_deck_id)
                         .ok_or_else(|| AnkiError::invalid_input("invalid current deck"))?;
@@ -251,7 +263,7 @@ impl SqlWriter<'_, '_> {
                 write!(self.sql, "c.ord = {}", n).unwrap();
             }
             TemplateKind::Name(name) => {
-                let note_types = self.req.storage.all_note_types()?;
+                let note_types = self.col.storage.all_note_types()?;
                 let mut id_ords = vec![];
                 for nt in note_types.values() {
                     for tmpl in &nt.templates {
@@ -280,7 +292,7 @@ impl SqlWriter<'_, '_> {
 
     fn write_note_type(&mut self, nt_name: &str) -> Result<()> {
         let mut ntids: Vec<_> = self
-            .req
+            .col
             .storage
             .all_note_types()?
             .values()
@@ -295,7 +307,7 @@ impl SqlWriter<'_, '_> {
     }
 
     fn write_single_field(&mut self, field_name: &str, val: &str, is_re: bool) -> Result<()> {
-        let note_types = self.req.storage.all_note_types()?;
+        let note_types = self.col.storage.all_note_types()?;
 
         let mut field_map = vec![];
         for nt in note_types.values() {
@@ -354,7 +366,7 @@ impl SqlWriter<'_, '_> {
     }
 
     fn write_added(&mut self, days: u32) -> Result<()> {
-        let timing = self.req.storage.timing_today()?;
+        let timing = self.col.timing_today()?;
         let cutoff = (timing.next_day_at - (86_400 * (days as i64))) * 1_000;
         write!(self.sql, "c.id > {}", cutoff).unwrap();
         Ok(())
@@ -381,10 +393,51 @@ where
     buf.push(')');
 }
 
+/// Convert a string with _, % or * characters into a regex.
+fn glob_to_re(glob: &str) -> Option<String> {
+    if !glob.contains(|c| c == '_' || c == '*' || c == '%') {
+        return None;
+    }
+
+    lazy_static! {
+        static ref ESCAPED: Regex = Regex::new(r"(\\\\)?\\\*").unwrap();
+        static ref GLOB: Regex = Regex::new(r"(\\\\)?[_%]").unwrap();
+    }
+
+    let escaped = regex::escape(glob);
+
+    let text = ESCAPED.replace_all(&escaped, |caps: &Captures| {
+        if caps.get(0).unwrap().as_str().len() == 2 {
+            ".*"
+        } else {
+            r"\*"
+        }
+    });
+
+    let text2 = GLOB.replace_all(&text, |caps: &Captures| {
+        match caps.get(0).unwrap().as_str() {
+            "_" => ".",
+            "%" => ".*",
+            other => {
+                // strip off the escaping char
+                &other[2..]
+            }
+        }
+        .to_string()
+    });
+
+    text2.into_owned().into()
+}
+
 #[cfg(test)]
 mod test {
     use super::ids_to_string;
-    use crate::{collection::open_collection, i18n::I18n, log};
+    use crate::{
+        collection::{open_collection, Collection},
+        i18n::I18n,
+        log,
+        types::Usn,
+    };
     use std::{fs, path::PathBuf};
     use tempfile::tempdir;
 
@@ -409,7 +462,7 @@ mod test {
     use super::*;
 
     // shortcut
-    fn s(req: &mut RequestContext, search: &str) -> (String, Vec<String>) {
+    fn s(req: &mut Collection, search: &str) -> (String, Vec<String>) {
         let node = Node::Group(parse(search).unwrap());
         node_to_sql(req, &node).unwrap()
     }
@@ -423,7 +476,7 @@ mod test {
         fs::write(&col_path, MEDIACHECK_ANKI2).unwrap();
 
         let i18n = I18n::new(&[""], "", log::terminal());
-        let col = open_collection(
+        let mut col = open_collection(
             &col_path,
             &PathBuf::new(),
             &PathBuf::new(),
@@ -433,149 +486,155 @@ mod test {
         )
         .unwrap();
 
-        col.with_ctx(|ctx| {
-            // unqualified search
-            assert_eq!(
-                s(ctx, "test"),
-                (
-                    "((n.sfld like ?1 escape '\\' or n.flds like ?1 escape '\\'))".into(),
-                    vec!["%test%".into()]
+        let ctx = &mut col;
+
+        // unqualified search
+        assert_eq!(
+            s(ctx, "test"),
+            (
+                "((n.sfld like ?1 escape '\\' or n.flds like ?1 escape '\\'))".into(),
+                vec!["%test%".into()]
+            )
+        );
+        assert_eq!(s(ctx, "te%st").1, vec!["%te%st%".to_string()]);
+        // user should be able to escape sql wildcards
+        assert_eq!(s(ctx, r#"te\%s\_t"#).1, vec!["%te\\%s\\_t%".to_string()]);
+
+        // qualified search
+        assert_eq!(
+            s(ctx, "front:te*st"),
+            (
+                concat!(
+                    "(((n.mid = 1581236385344 and field_at_index(n.flds, 0) like ?1) or ",
+                    "(n.mid = 1581236385345 and field_at_index(n.flds, 0) like ?1) or ",
+                    "(n.mid = 1581236385346 and field_at_index(n.flds, 0) like ?1) or ",
+                    "(n.mid = 1581236385347 and field_at_index(n.flds, 0) like ?1)))"
                 )
-            );
-            assert_eq!(s(ctx, "te%st").1, vec!["%te%st%".to_string()]);
-            // user should be able to escape sql wildcards
-            assert_eq!(s(ctx, r#"te\%s\_t"#).1, vec!["%te\\%s\\_t%".to_string()]);
+                .into(),
+                vec!["te%st".into()]
+            )
+        );
 
-            // qualified search
-            assert_eq!(
-                s(ctx, "front:te*st"),
-                (
-                    concat!(
-                        "(((n.mid = 1581236385344 and field_at_index(n.flds, 0) like ?1) or ",
-                        "(n.mid = 1581236385345 and field_at_index(n.flds, 0) like ?1) or ",
-                        "(n.mid = 1581236385346 and field_at_index(n.flds, 0) like ?1) or ",
-                        "(n.mid = 1581236385347 and field_at_index(n.flds, 0) like ?1)))"
-                    )
-                    .into(),
-                    vec!["te%st".into()]
+        // added
+        let timing = ctx.timing_today().unwrap();
+        assert_eq!(
+            s(ctx, "added:3").0,
+            format!("(c.id > {})", (timing.next_day_at - (86_400 * 3)) * 1_000)
+        );
+
+        // deck
+        assert_eq!(s(ctx, "deck:default"), ("(c.did in (1))".into(), vec![],));
+        assert_eq!(s(ctx, "deck:current"), ("(c.did in (1))".into(), vec![],));
+        assert_eq!(s(ctx, "deck:missing"), ("(c.did in ())".into(), vec![],));
+        assert_eq!(s(ctx, "deck:d*"), ("(c.did in (1))".into(), vec![],));
+        assert_eq!(s(ctx, "deck:filtered"), ("(c.odid > 0)".into(), vec![],));
+
+        // card
+        assert_eq!(s(ctx, "card:front"), ("(false)".into(), vec![],));
+        assert_eq!(
+            s(ctx, r#""card:card 1""#),
+            (
+                concat!(
+                    "(((n.mid = 1581236385344 and c.ord = 0) or ",
+                    "(n.mid = 1581236385345 and c.ord = 0) or ",
+                    "(n.mid = 1581236385346 and c.ord = 0) or ",
+                    "(n.mid = 1581236385347 and c.ord = 0)))"
                 )
-            );
+                .into(),
+                vec![],
+            )
+        );
 
-            // added
-            let timing = ctx.storage.timing_today().unwrap();
-            assert_eq!(
-                s(ctx, "added:3").0,
-                format!("(c.id > {})", (timing.next_day_at - (86_400 * 3)) * 1_000)
-            );
+        // IDs
+        assert_eq!(s(ctx, "mid:3"), ("(n.mid = 3)".into(), vec![]));
+        assert_eq!(s(ctx, "nid:3"), ("(n.id in (3))".into(), vec![]));
+        assert_eq!(s(ctx, "nid:3,4"), ("(n.id in (3,4))".into(), vec![]));
+        assert_eq!(s(ctx, "cid:3,4"), ("(c.id in (3,4))".into(), vec![]));
 
-            // deck
-            assert_eq!(s(ctx, "deck:default"), ("(c.did in (1))".into(), vec![],));
-            assert_eq!(s(ctx, "deck:current"), ("(c.did in (1))".into(), vec![],));
-            assert_eq!(s(ctx, "deck:missing"), ("(c.did in ())".into(), vec![],));
-            assert_eq!(s(ctx, "deck:d*"), ("(c.did in (1))".into(), vec![],));
-            assert_eq!(s(ctx, "deck:filtered"), ("(c.odid > 0)".into(), vec![],));
+        // flags
+        assert_eq!(s(ctx, "flag:2"), ("((c.flags & 7) == 2)".into(), vec![]));
+        assert_eq!(s(ctx, "flag:0"), ("((c.flags & 7) == 0)".into(), vec![]));
 
-            // card
-            assert_eq!(s(ctx, "card:front"), ("(false)".into(), vec![],));
-            assert_eq!(
-                s(ctx, r#""card:card 1""#),
-                (
-                    concat!(
-                        "(((n.mid = 1581236385344 and c.ord = 0) or ",
-                        "(n.mid = 1581236385345 and c.ord = 0) or ",
-                        "(n.mid = 1581236385346 and c.ord = 0) or ",
-                        "(n.mid = 1581236385347 and c.ord = 0)))"
-                    )
-                    .into(),
-                    vec![],
-                )
-            );
+        // dupes
+        assert_eq!(
+            s(ctx, "dupes:123,test"),
+            (
+                "((n.mid = 123 and n.csum = 2840236005 and field_at_index(n.flds, 0) = ?)".into(),
+                vec!["test".into()]
+            )
+        );
 
-            // IDs
-            assert_eq!(s(ctx, "mid:3"), ("(n.mid = 3)".into(), vec![]));
-            assert_eq!(s(ctx, "nid:3"), ("(n.id in (3))".into(), vec![]));
-            assert_eq!(s(ctx, "nid:3,4"), ("(n.id in (3,4))".into(), vec![]));
-            assert_eq!(s(ctx, "cid:3,4"), ("(c.id in (3,4))".into(), vec![]));
+        // unregistered tag short circuits
+        assert_eq!(s(ctx, r"tag:one"), ("(false)".into(), vec![]));
 
-            // flags
-            assert_eq!(s(ctx, "flag:2"), ("((c.flags & 7) == 2)".into(), vec![]));
-            assert_eq!(s(ctx, "flag:0"), ("((c.flags & 7) == 0)".into(), vec![]));
+        // if registered, searches with canonical
+        ctx.transact(None, |col| col.register_tag("One", Usn(-1)))
+            .unwrap();
+        assert_eq!(
+            s(ctx, r"tag:one"),
+            ("(n.tags like ?)".into(), vec![r"% One %".into()])
+        );
 
-            // dupes
-            assert_eq!(
-                s(ctx, "dupes:123,test"),
-                (
-                    "((n.mid = 123 and n.csum = 2840236005 and field_at_index(n.flds, 0) = ?)"
-                        .into(),
-                    vec!["test".into()]
-                )
-            );
+        // wildcards force a regexp search
+        assert_eq!(
+            s(ctx, r"tag:o*n\*et%w\%oth_re\_e"),
+            (
+                "(n.tags regexp ?)".into(),
+                vec![r"(?i).* o.*n\*et.*w%oth.re_e .*".into()]
+            )
+        );
+        assert_eq!(s(ctx, "tag:none"), ("(n.tags = '')".into(), vec![]));
+        assert_eq!(s(ctx, "tag:*"), ("(true)".into(), vec![]));
 
-            // tags
-            assert_eq!(
-                s(ctx, "tag:one"),
-                ("(n.tags like ? escape '\\')".into(), vec!["% one %".into()])
-            );
-            assert_eq!(
-                s(ctx, "tag:o*e"),
-                ("(n.tags like ? escape '\\')".into(), vec!["% o%e %".into()])
-            );
-            assert_eq!(s(ctx, "tag:none"), ("(n.tags = '')".into(), vec![]));
-            assert_eq!(s(ctx, "tag:*"), ("(true)".into(), vec![]));
+        // state
+        assert_eq!(
+            s(ctx, "is:suspended").0,
+            format!("(c.queue = {})", CardQueue::Suspended as i8)
+        );
+        assert_eq!(
+            s(ctx, "is:new").0,
+            format!("(c.type = {})", CardQueue::New as i8)
+        );
 
-            // state
-            assert_eq!(
-                s(ctx, "is:suspended").0,
-                format!("(c.queue = {})", CardQueue::Suspended as i8)
-            );
-            assert_eq!(
-                s(ctx, "is:new").0,
-                format!("(c.type = {})", CardQueue::New as i8)
-            );
+        // rated
+        assert_eq!(
+            s(ctx, "rated:2").0,
+            format!(
+                "(c.id in (select cid from revlog where id>{}))",
+                (timing.next_day_at - (86_400 * 2)) * 1_000
+            )
+        );
+        assert_eq!(
+            s(ctx, "rated:400:1").0,
+            format!(
+                "(c.id in (select cid from revlog where id>{} and ease=1))",
+                (timing.next_day_at - (86_400 * 365)) * 1_000
+            )
+        );
 
-            // rated
-            assert_eq!(
-                s(ctx, "rated:2").0,
-                format!(
-                    "(c.id in (select cid from revlog where id>{}))",
-                    (timing.next_day_at - (86_400 * 2)) * 1_000
-                )
-            );
-            assert_eq!(
-                s(ctx, "rated:400:1").0,
-                format!(
-                    "(c.id in (select cid from revlog where id>{} and ease=1))",
-                    (timing.next_day_at - (86_400 * 365)) * 1_000
-                )
-            );
+        // props
+        assert_eq!(s(ctx, "prop:lapses=3").0, "(lapses = 3)".to_string());
+        assert_eq!(s(ctx, "prop:ease>=2.5").0, "(factor >= 2500)".to_string());
+        assert_eq!(
+            s(ctx, "prop:due!=-1").0,
+            format!(
+                "((c.queue in (2,3) and due != {}))",
+                timing.days_elapsed - 1
+            )
+        );
 
-            // props
-            assert_eq!(s(ctx, "prop:lapses=3").0, "(lapses = 3)".to_string());
-            assert_eq!(s(ctx, "prop:ease>=2.5").0, "(factor >= 2500)".to_string());
-            assert_eq!(
-                s(ctx, "prop:due!=-1").0,
-                format!(
-                    "((c.queue in (2,3) and due != {}))",
-                    timing.days_elapsed - 1
-                )
-            );
+        // note types by name
+        assert_eq!(&s(ctx, "note:basic").0, "(n.mid in (1581236385347))");
+        assert_eq!(
+            &s(ctx, "note:basic*").0,
+            "(n.mid in (1581236385345,1581236385346,1581236385347,1581236385344))"
+        );
 
-            // note types by name
-            assert_eq!(&s(ctx, "note:basic").0, "(n.mid in (1581236385347))");
-            assert_eq!(
-                &s(ctx, "note:basic*").0,
-                "(n.mid in (1581236385345,1581236385346,1581236385347,1581236385344))"
-            );
-
-            // regex
-            assert_eq!(
-                s(ctx, r"re:\bone"),
-                ("(n.flds regexp ?)".into(), vec![r"(?i)\bone".into()])
-            );
-
-            Ok(())
-        })
-        .unwrap();
+        // regex
+        assert_eq!(
+            s(ctx, r"re:\bone"),
+            ("(n.flds regexp ?)".into(), vec![r"(?i)\bone".into()])
+        );
 
         Ok(())
     }

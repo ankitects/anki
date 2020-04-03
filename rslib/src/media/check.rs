@@ -1,9 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::collection::RequestContext;
+use crate::collection::Collection;
 use crate::err::{AnkiError, DBErrorKind, Result};
-use crate::i18n::{tr_args, tr_strs, FString};
+use crate::i18n::{tr_args, tr_strs, TR};
 use crate::latex::extract_latex_expanding_clozes;
 use crate::log::debug;
 use crate::media::database::MediaDatabaseContext;
@@ -44,26 +44,26 @@ struct MediaFolderCheck {
     oversize: Vec<String>,
 }
 
-pub struct MediaChecker<'a, 'b, P>
+pub struct MediaChecker<'a, P>
 where
     P: FnMut(usize) -> bool,
 {
-    ctx: &'a mut RequestContext<'b>,
+    ctx: &'a Collection,
     mgr: &'a MediaManager,
     progress_cb: P,
     checked: usize,
     progress_updated: Instant,
 }
 
-impl<P> MediaChecker<'_, '_, P>
+impl<P> MediaChecker<'_, P>
 where
     P: FnMut(usize) -> bool,
 {
-    pub(crate) fn new<'a, 'b>(
-        ctx: &'a mut RequestContext<'b>,
+    pub(crate) fn new<'a>(
+        ctx: &'a mut Collection,
         mgr: &'a MediaManager,
         progress_cb: P,
-    ) -> MediaChecker<'a, 'b, P> {
+    ) -> MediaChecker<'a, P> {
         MediaChecker {
             ctx,
             mgr,
@@ -99,41 +99,41 @@ where
         if output.trash_count > 0 {
             let megs = (output.trash_bytes as f32) / 1024.0 / 1024.0;
             buf += &i.trn(
-                FString::MediaCheckTrashCount,
+                TR::MediaCheckTrashCount,
                 tr_args!["count"=>output.trash_count, "megs"=>megs],
             );
             buf.push('\n');
         }
 
         buf += &i.trn(
-            FString::MediaCheckMissingCount,
+            TR::MediaCheckMissingCount,
             tr_args!["count"=>output.missing.len()],
         );
         buf.push('\n');
 
         buf += &i.trn(
-            FString::MediaCheckUnusedCount,
+            TR::MediaCheckUnusedCount,
             tr_args!["count"=>output.unused.len()],
         );
         buf.push('\n');
 
         if !output.renamed.is_empty() {
             buf += &i.trn(
-                FString::MediaCheckRenamedCount,
+                TR::MediaCheckRenamedCount,
                 tr_args!["count"=>output.renamed.len()],
             );
             buf.push('\n');
         }
         if !output.oversize.is_empty() {
             buf += &i.trn(
-                FString::MediaCheckOversizeCount,
+                TR::MediaCheckOversizeCount,
                 tr_args!["count"=>output.oversize.len()],
             );
             buf.push('\n');
         }
         if !output.dirs.is_empty() {
             buf += &i.trn(
-                FString::MediaCheckSubfolderCount,
+                TR::MediaCheckSubfolderCount,
                 tr_args!["count"=>output.dirs.len()],
             );
             buf.push('\n');
@@ -142,13 +142,10 @@ where
         buf.push('\n');
 
         if !output.renamed.is_empty() {
-            buf += &i.tr(FString::MediaCheckRenamedHeader);
+            buf += &i.tr(TR::MediaCheckRenamedHeader);
             buf.push('\n');
             for (old, new) in &output.renamed {
-                buf += &i.trn(
-                    FString::MediaCheckRenamedFile,
-                    tr_strs!["old"=>old,"new"=>new],
-                );
+                buf += &i.trn(TR::MediaCheckRenamedFile, tr_strs!["old"=>old,"new"=>new]);
                 buf.push('\n');
             }
             buf.push('\n')
@@ -156,10 +153,10 @@ where
 
         if !output.oversize.is_empty() {
             output.oversize.sort();
-            buf += &i.tr(FString::MediaCheckOversizeHeader);
+            buf += &i.tr(TR::MediaCheckOversizeHeader);
             buf.push('\n');
             for fname in &output.oversize {
-                buf += &i.trn(FString::MediaCheckOversizeFile, tr_strs!["filename"=>fname]);
+                buf += &i.trn(TR::MediaCheckOversizeFile, tr_strs!["filename"=>fname]);
                 buf.push('\n');
             }
             buf.push('\n')
@@ -167,13 +164,10 @@ where
 
         if !output.dirs.is_empty() {
             output.dirs.sort();
-            buf += &i.tr(FString::MediaCheckSubfolderHeader);
+            buf += &i.tr(TR::MediaCheckSubfolderHeader);
             buf.push('\n');
             for fname in &output.dirs {
-                buf += &i.trn(
-                    FString::MediaCheckSubfolderFile,
-                    tr_strs!["filename"=>fname],
-                );
+                buf += &i.trn(TR::MediaCheckSubfolderFile, tr_strs!["filename"=>fname]);
                 buf.push('\n');
             }
             buf.push('\n')
@@ -181,10 +175,10 @@ where
 
         if !output.missing.is_empty() {
             output.missing.sort();
-            buf += &i.tr(FString::MediaCheckMissingHeader);
+            buf += &i.tr(TR::MediaCheckMissingHeader);
             buf.push('\n');
             for fname in &output.missing {
-                buf += &i.trn(FString::MediaCheckMissingFile, tr_strs!["filename"=>fname]);
+                buf += &i.trn(TR::MediaCheckMissingFile, tr_strs!["filename"=>fname]);
                 buf.push('\n');
             }
             buf.push('\n')
@@ -192,10 +186,10 @@ where
 
         if !output.unused.is_empty() {
             output.unused.sort();
-            buf += &i.tr(FString::MediaCheckUnusedHeader);
+            buf += &i.tr(TR::MediaCheckUnusedHeader);
             buf.push('\n');
             for fname in &output.unused {
-                buf += &i.trn(FString::MediaCheckUnusedFile, tr_strs!["filename"=>fname]);
+                buf += &i.trn(TR::MediaCheckUnusedFile, tr_strs!["filename"=>fname]);
                 buf.push('\n');
             }
         }
@@ -313,7 +307,12 @@ where
                 self.maybe_fire_progress_cb()?;
             }
 
+            if dentry.file_name() == ".DS_Store" {
+                continue;
+            }
+
             let meta = dentry.metadata()?;
+
             total_files += 1;
             total_bytes += meta.len();
         }
@@ -410,10 +409,6 @@ where
             extract_latex_refs(note, &mut referenced_files, nt.latex_uses_svg());
             Ok(())
         })?;
-
-        if !collection_modified {
-            self.ctx.should_commit = false;
-        }
 
         Ok(referenced_files)
     }
@@ -561,7 +556,7 @@ pub(crate) mod test {
 
     #[test]
     fn media_check() -> Result<()> {
-        let (_dir, mgr, col) = common_setup()?;
+        let (_dir, mgr, mut col) = common_setup()?;
 
         // add some test files
         fs::write(&mgr.media_folder.join("zerobytes"), "")?;
@@ -637,7 +632,7 @@ Unused: unused.jpg
 
     #[test]
     fn trash_handling() -> Result<()> {
-        let (_dir, mgr, col) = common_setup()?;
+        let (_dir, mgr, mut col) = common_setup()?;
         let trash_folder = trash_folder(&mgr.media_folder)?;
         fs::write(trash_folder.join("test.jpg"), "test")?;
 
@@ -687,7 +682,7 @@ Unused: unused.jpg
 
     #[test]
     fn unicode_normalization() -> Result<()> {
-        let (_dir, mgr, col) = common_setup()?;
+        let (_dir, mgr, mut col) = common_setup()?;
 
         fs::write(&mgr.media_folder.join("ぱぱ.jpg"), "nfd encoding")?;
 

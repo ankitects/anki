@@ -182,17 +182,14 @@ class _Collection:
             conf,
             models,
             decks,
-            dconf,
-            tags,
         ) = self.db.first(
             """
 select crt, mod, scm, dty, usn, ls,
-conf, models, decks, dconf, tags from col"""
+conf, models, decks from col"""
         )
         self.conf = json.loads(conf)
         self.models.load(models)
-        self.decks.load(decks, dconf)
-        self.tags.load(tags)
+        self.decks.load(decks)
 
     def setMod(self) -> None:
         """Mark DB modified.
@@ -216,17 +213,19 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
             json.dumps(self.conf),
         )
 
+    def flush_all_changes(self, mod: Optional[int] = None):
+        self.models.flush()
+        self.decks.flush()
+        if self.db.mod:
+            self.flush(mod)
+
     def save(
         self, name: Optional[str] = None, mod: Optional[int] = None, trx: bool = True
     ) -> None:
         "Flush, commit DB, and take out another write lock if trx=True."
-        # let the managers conditionally flush
-        self.models.flush()
-        self.decks.flush()
-        self.tags.flush()
+        self.flush_all_changes(mod)
         # and flush deck + bump mod if db has been changed
         if self.db.mod:
-            self.flush(mod=mod)
             self.db.commit()
             self.db.mod = False
             if trx:
@@ -289,8 +288,8 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         self.db.execute("delete from graves")
         self._usn += 1
         self.models.beforeUpload()
-        self.tags.beforeUpload()
         self.decks.beforeUpload()
+        self.backend.before_upload()
         self.modSchema(check=False)
         self.ls = self.scm
         # ensure db is compacted before upload
@@ -630,9 +629,11 @@ where c.nid = n.id and c.id in %s group by nid"""
     def find_cards(
         self, query: str, order: Union[bool, str, int] = False, reverse: bool = False,
     ) -> Sequence[int]:
+        self.flush_all_changes()
         return self.backend.search_cards(query, order, reverse)
 
     def find_notes(self, query: str) -> Sequence[int]:
+        self.flush_all_changes()
         return self.backend.search_notes(query)
 
     def findReplace(

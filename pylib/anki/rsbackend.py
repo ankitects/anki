@@ -2,7 +2,17 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 # pylint: skip-file
 
+"""
+Python bindings for Anki's Rust libraries.
+
+Please do not access methods on the backend directly - they may be changed
+or removed at any time. Instead, please use the methods on the collection
+instead. Eg, don't use col.backend.all_deck_config(), instead use
+col.decks.all_config()
+"""
+
 import enum
+import json
 import os
 from dataclasses import dataclass
 from typing import (
@@ -37,13 +47,13 @@ assert ankirspy.buildhash() == anki.buildinfo.buildhash
 SchedTimingToday = pb.SchedTimingTodayOut
 BuiltinSortKind = pb.BuiltinSortKind
 BackendCard = pb.Card
+TagUsnTuple = pb.TagUsnTuple
 
 try:
     import orjson
 except:
     # add compat layer for 32 bit builds that can't use orjson
     print("reverting to stock json")
-    import json
 
     class orjson:  # type: ignore
         def dumps(obj: Any) -> bytes:
@@ -261,9 +271,12 @@ class RustBackend:
             release_gil=True,
         )
 
-    def close_collection(self):
+    def close_collection(self, downgrade=True):
         self._run_command(
-            pb.BackendInput(close_collection=pb.Empty()), release_gil=True
+            pb.BackendInput(
+                close_collection=pb.CloseCollectionIn(downgrade_to_schema11=downgrade)
+            ),
+            release_gil=True,
         )
 
     def template_requirements(
@@ -482,13 +495,87 @@ class RustBackend:
         ).search_notes.note_ids
 
     def get_card(self, cid: int) -> Optional[pb.Card]:
-        return self._run_command(pb.BackendInput(get_card=cid)).get_card.card
+        output = self._run_command(pb.BackendInput(get_card=cid)).get_card
+        if output.HasField("card"):
+            return output.card
+        else:
+            return None
 
     def update_card(self, card: BackendCard) -> None:
         self._run_command(pb.BackendInput(update_card=card))
 
-    def add_card(self, card: BackendCard) -> None:
-        card.id = self._run_command(pb.BackendInput(add_card=card)).add_card
+    # returns the new card id
+    def add_card(self, card: BackendCard) -> int:
+        return self._run_command(pb.BackendInput(add_card=card)).add_card
+
+    def get_deck_config(self, dcid: int) -> Dict[str, Any]:
+        jstr = self._run_command(pb.BackendInput(get_deck_config=dcid)).get_deck_config
+        return json.loads(jstr)
+
+    def add_or_update_deck_config(self, conf: Dict[str, Any], preserve_usn) -> None:
+        conf_json = json.dumps(conf)
+        id = self._run_command(
+            pb.BackendInput(
+                add_or_update_deck_config=pb.AddOrUpdateDeckConfigIn(
+                    config=conf_json, preserve_usn_and_mtime=preserve_usn
+                )
+            )
+        ).add_or_update_deck_config
+        conf["id"] = id
+
+    def all_deck_config(self) -> Sequence[Dict[str, Any]]:
+        jstr = self._run_command(
+            pb.BackendInput(all_deck_config=pb.Empty())
+        ).all_deck_config
+        return json.loads(jstr)
+
+    def new_deck_config(self) -> Dict[str, Any]:
+        jstr = self._run_command(
+            pb.BackendInput(new_deck_config=pb.Empty())
+        ).new_deck_config
+        return json.loads(jstr)
+
+    def remove_deck_config(self, dcid: int) -> None:
+        self._run_command(pb.BackendInput(remove_deck_config=dcid))
+
+    def abort_media_sync(self):
+        self._run_command(pb.BackendInput(abort_media_sync=pb.Empty()))
+
+    def all_tags(self) -> Iterable[TagUsnTuple]:
+        return self._run_command(pb.BackendInput(all_tags=pb.Empty())).all_tags.tags
+
+    def canonify_tags(self, tags: str) -> Tuple[str, bool]:
+        out = self._run_command(pb.BackendInput(canonify_tags=tags)).canonify_tags
+        return (out.tags, out.tag_list_changed)
+
+    def register_tags(self, tags: str, usn: Optional[int], clear_first: bool) -> bool:
+        if usn is None:
+            preserve_usn = False
+            usn_ = 0
+        else:
+            usn_ = usn
+            preserve_usn = True
+
+        return self._run_command(
+            pb.BackendInput(
+                register_tags=pb.RegisterTagsIn(
+                    tags=tags,
+                    usn=usn_,
+                    preserve_usn=preserve_usn,
+                    clear_first=clear_first,
+                )
+            )
+        ).register_tags
+
+    def before_upload(self):
+        self._run_command(pb.BackendInput(before_upload=pb.Empty()))
+
+    def get_changed_tags(self, usn: int) -> List[str]:
+        return list(
+            self._run_command(
+                pb.BackendInput(get_changed_tags=usn)
+            ).get_changed_tags.tags
+        )
 
 
 def translate_string_in(

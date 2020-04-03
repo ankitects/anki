@@ -45,8 +45,8 @@ def test_export_anki():
     # create a new deck with its own conf to test conf copying
     did = deck.decks.id("test")
     dobj = deck.decks.get(did)
-    confId = deck.decks.confId("newconf")
-    conf = deck.decks.getConf(confId)
+    confId = deck.decks.add_config_returning_id("newconf")
+    conf = deck.decks.get_config(confId)
     conf["new"]["perDay"] = 5
     deck.decks.save(conf)
     deck.decks.setConf(dobj, confId)

@@ -3,14 +3,17 @@
 
 use crate::backend::dbproxy::db_command_bytes;
 use crate::backend_proto::backend_input::Value;
-use crate::backend_proto::{BuiltinSortKind, Empty, RenderedTemplateReplacement, SyncMediaIn};
+use crate::backend_proto::{
+    AddOrUpdateDeckConfigIn, BuiltinSortKind, Empty, RenderedTemplateReplacement, SyncMediaIn,
+};
 use crate::card::{Card, CardID};
 use crate::card::{CardQueue, CardType};
 use crate::collection::{open_collection, Collection};
 use crate::config::SortKind;
+use crate::deckconf::{DeckConf, DeckConfID};
 use crate::decks::DeckID;
 use crate::err::{AnkiError, NetworkErrorKind, Result, SyncErrorKind};
-use crate::i18n::{tr_args, FString, I18n};
+use crate::i18n::{tr_args, I18n, TR};
 use crate::latex::{extract_latex, extract_latex_expanding_clozes, ExtractedLatex};
 use crate::log::{default_logger, Logger};
 use crate::media::check::MediaChecker;
@@ -29,6 +32,8 @@ use crate::timestamp::TimestampSecs;
 use crate::types::Usn;
 use crate::{backend_proto as pb, log};
 use fluent::FluentValue;
+use futures::future::{AbortHandle, Abortable};
+use log::error;
 use prost::Message;
 use std::collections::{HashMap, HashSet};
 use std::convert::TryFrom;
@@ -45,6 +50,7 @@ pub struct Backend {
     progress_callback: Option<ProtoProgressCallback>,
     i18n: I18n,
     server: bool,
+    media_sync_abort: Option<AbortHandle>,
 }
 
 enum Progress<'a> {
@@ -68,6 +74,7 @@ fn anki_error_to_proto_error(err: AnkiError, i18n: &I18n) -> pb::BackendError {
         AnkiError::Interrupted => V::Interrupted(Empty {}),
         AnkiError::CollectionNotOpen => V::InvalidInput(pb::Empty {}),
         AnkiError::CollectionAlreadyOpen => V::InvalidInput(pb::Empty {}),
+        AnkiError::SchemaChange => V::InvalidInput(pb::Empty {}),
     };
 
     pb::BackendError {
@@ -132,6 +139,7 @@ impl Backend {
             progress_callback: None,
             i18n,
             server,
+            media_sync_abort: None,
         }
     }
 
@@ -249,8 +257,8 @@ impl Backend {
                 self.open_collection(input)?;
                 OValue::OpenCollection(Empty {})
             }
-            Value::CloseCollection(_) => {
-                self.close_collection()?;
+            Value::CloseCollection(input) => {
+                self.close_collection(input.downgrade_to_schema11)?;
                 OValue::CloseCollection(Empty {})
             }
             Value::SearchCards(input) => OValue::SearchCards(self.search_cards(input)?),
@@ -261,6 +269,28 @@ impl Backend {
                 OValue::UpdateCard(pb::Empty {})
             }
             Value::AddCard(card) => OValue::AddCard(self.add_card(card)?),
+            Value::GetDeckConfig(dcid) => OValue::GetDeckConfig(self.get_deck_config(dcid)?),
+            Value::AddOrUpdateDeckConfig(input) => {
+                OValue::AddOrUpdateDeckConfig(self.add_or_update_deck_config(input)?)
+            }
+            Value::AllDeckConfig(_) => OValue::AllDeckConfig(self.all_deck_config()?),
+            Value::NewDeckConfig(_) => OValue::NewDeckConfig(self.new_deck_config()?),
+            Value::RemoveDeckConfig(dcid) => {
+                self.remove_deck_config(dcid)?;
+                OValue::RemoveDeckConfig(pb::Empty {})
+            }
+            Value::AbortMediaSync(_) => {
+                self.abort_media_sync();
+                OValue::AbortMediaSync(pb::Empty {})
+            }
+            Value::BeforeUpload(_) => {
+                self.before_upload()?;
+                OValue::BeforeUpload(pb::Empty {})
+            }
+            Value::CanonifyTags(input) => OValue::CanonifyTags(self.canonify_tags(input)?),
+            Value::AllTags(_) => OValue::AllTags(self.all_tags()?),
+            Value::RegisterTags(input) => OValue::RegisterTags(self.register_tags(input)?),
+            Value::GetChangedTags(usn) => OValue::GetChangedTags(self.get_changed_tags(usn)?),
         })
     }
 
@@ -293,7 +323,7 @@ impl Backend {
         Ok(())
     }
 
-    fn close_collection(&self) -> Result<()> {
+    fn close_collection(&self, downgrade: bool) -> Result<()> {
         let mut col = self.col.lock().unwrap();
         if col.is_none() {
             return Err(AnkiError::CollectionNotOpen);
@@ -303,7 +333,13 @@ impl Backend {
             return Err(AnkiError::invalid_input("can't close yet"));
         }
 
-        *col = None;
+        let col_inner = col.take().unwrap();
+        if downgrade {
+            let log = log::terminal();
+            if let Err(e) = col_inner.downgrade_and_close() {
+                error!(log, " failed: {:?}", e);
+            }
+        }
 
         Ok(())
     }
@@ -462,9 +498,7 @@ impl Backend {
         })
     }
 
-    // fixme: will block other db access
-
-    fn sync_media(&self, input: SyncMediaIn) -> Result<()> {
+    fn sync_media(&mut self, input: SyncMediaIn) -> Result<()> {
         let mut guard = self.col.lock().unwrap();
 
         let col = guard.as_mut().unwrap();
@@ -484,19 +518,38 @@ impl Backend {
     }
 
     fn sync_media_inner(
-        &self,
+        &mut self,
         input: pb::SyncMediaIn,
         folder: PathBuf,
         db: PathBuf,
         log: Logger,
     ) -> Result<()> {
+        let (abort_handle, abort_reg) = AbortHandle::new_pair();
+        self.media_sync_abort = Some(abort_handle);
+
         let callback = |progress: &MediaSyncProgress| {
             self.fire_progress_callback(Progress::MediaSync(progress))
         };
 
         let mgr = MediaManager::new(&folder, &db)?;
         let mut rt = Runtime::new().unwrap();
-        rt.block_on(mgr.sync_media(callback, &input.endpoint, &input.hkey, log))
+        let sync_fut = mgr.sync_media(callback, &input.endpoint, &input.hkey, log);
+        let abortable_sync = Abortable::new(sync_fut, abort_reg);
+        let ret = match rt.block_on(abortable_sync) {
+            Ok(sync_result) => sync_result,
+            Err(_) => {
+                // aborted sync
+                Err(AnkiError::Interrupted)
+            }
+        };
+        self.media_sync_abort = None;
+        ret
+    }
+
+    fn abort_media_sync(&mut self) {
+        if let Some(handle) = self.media_sync_abort.take() {
+            handle.abort();
+        }
     }
 
     fn check_media(&self) -> Result<pb::MediaCheckOut> {
@@ -590,48 +643,44 @@ impl Backend {
     }
 
     pub fn db_command(&self, input: &[u8]) -> Result<String> {
-        self.with_col(|col| col.with_ctx(|ctx| db_command_bytes(&ctx.storage, input)))
+        self.with_col(|col| db_command_bytes(&col.storage, input))
     }
 
     fn search_cards(&self, input: pb::SearchCardsIn) -> Result<pb::SearchCardsOut> {
         self.with_col(|col| {
-            col.with_ctx(|ctx| {
-                let order = if let Some(order) = input.order {
-                    use pb::sort_order::Value as V;
-                    match order.value {
-                        Some(V::None(_)) => SortMode::NoOrder,
-                        Some(V::Custom(s)) => SortMode::Custom(s),
-                        Some(V::FromConfig(_)) => SortMode::FromConfig,
-                        Some(V::Builtin(b)) => SortMode::Builtin {
-                            kind: sort_kind_from_pb(b.kind),
-                            reverse: b.reverse,
-                        },
-                        None => SortMode::FromConfig,
-                    }
-                } else {
-                    SortMode::FromConfig
-                };
-                let cids = search_cards(ctx, &input.search, order)?;
-                Ok(pb::SearchCardsOut {
-                    card_ids: cids.into_iter().map(|v| v.0).collect(),
-                })
+            let order = if let Some(order) = input.order {
+                use pb::sort_order::Value as V;
+                match order.value {
+                    Some(V::None(_)) => SortMode::NoOrder,
+                    Some(V::Custom(s)) => SortMode::Custom(s),
+                    Some(V::FromConfig(_)) => SortMode::FromConfig,
+                    Some(V::Builtin(b)) => SortMode::Builtin {
+                        kind: sort_kind_from_pb(b.kind),
+                        reverse: b.reverse,
+                    },
+                    None => SortMode::FromConfig,
+                }
+            } else {
+                SortMode::FromConfig
+            };
+            let cids = search_cards(col, &input.search, order)?;
+            Ok(pb::SearchCardsOut {
+                card_ids: cids.into_iter().map(|v| v.0).collect(),
             })
         })
     }
 
     fn search_notes(&self, input: pb::SearchNotesIn) -> Result<pb::SearchNotesOut> {
         self.with_col(|col| {
-            col.with_ctx(|ctx| {
-                let nids = search_notes(ctx, &input.search)?;
-                Ok(pb::SearchNotesOut {
-                    note_ids: nids.into_iter().map(|v| v.0).collect(),
-                })
+            let nids = search_notes(col, &input.search)?;
+            Ok(pb::SearchNotesOut {
+                note_ids: nids.into_iter().map(|v| v.0).collect(),
             })
         })
     }
 
     fn get_card(&self, cid: i64) -> Result<pb::GetCardOut> {
-        let card = self.with_col(|col| col.with_ctx(|ctx| ctx.storage.get_card(CardID(cid))))?;
+        let card = self.with_col(|col| col.storage.get_card(CardID(cid)))?;
         Ok(pb::GetCardOut {
             card: card.map(card_to_pb),
         })
@@ -639,13 +688,100 @@ impl Backend {
 
     fn update_card(&self, pbcard: pb::Card) -> Result<()> {
         let mut card = pbcard_to_native(pbcard)?;
-        self.with_col(|col| col.transact(None, |ctx| ctx.update_card(&mut card)))
+        self.with_col(|col| {
+            col.transact(None, |ctx| {
+                let orig = ctx
+                    .storage
+                    .get_card(card.id)?
+                    .ok_or_else(|| AnkiError::invalid_input("missing card"))?;
+                ctx.update_card(&mut card, &orig)
+            })
+        })
     }
 
     fn add_card(&self, pbcard: pb::Card) -> Result<i64> {
         let mut card = pbcard_to_native(pbcard)?;
         self.with_col(|col| col.transact(None, |ctx| ctx.add_card(&mut card)))?;
         Ok(card.id.0)
+    }
+
+    fn get_deck_config(&self, dcid: i64) -> Result<String> {
+        self.with_col(|col| {
+            let conf = col.get_deck_config(DeckConfID(dcid), true)?.unwrap();
+            Ok(serde_json::to_string(&conf)?)
+        })
+    }
+
+    fn add_or_update_deck_config(&self, input: AddOrUpdateDeckConfigIn) -> Result<i64> {
+        let mut conf: DeckConf = serde_json::from_str(&input.config)?;
+        self.with_col(|col| {
+            col.transact(None, |col| {
+                col.add_or_update_deck_config(&mut conf, input.preserve_usn_and_mtime)?;
+                Ok(conf.id.0)
+            })
+        })
+    }
+
+    fn all_deck_config(&self) -> Result<String> {
+        self.with_col(|col| {
+            serde_json::to_string(&col.storage.all_deck_config()?).map_err(Into::into)
+        })
+    }
+
+    fn new_deck_config(&self) -> Result<String> {
+        serde_json::to_string(&DeckConf::default()).map_err(Into::into)
+    }
+
+    fn remove_deck_config(&self, dcid: i64) -> Result<()> {
+        self.with_col(|col| col.transact(None, |col| col.remove_deck_config(DeckConfID(dcid))))
+    }
+
+    fn before_upload(&self) -> Result<()> {
+        self.with_col(|col| col.transact(None, |col| col.before_upload()))
+    }
+
+    fn canonify_tags(&self, tags: String) -> Result<pb::CanonifyTagsOut> {
+        self.with_col(|col| {
+            col.transact(None, |col| {
+                col.canonify_tags(&tags, col.usn()?)
+                    .map(|(tags, added)| pb::CanonifyTagsOut {
+                        tags,
+                        tag_list_changed: added,
+                    })
+            })
+        })
+    }
+
+    fn all_tags(&self) -> Result<pb::AllTagsOut> {
+        let tags = self.with_col(|col| col.storage.all_tags())?;
+        let tags: Vec<_> = tags
+            .into_iter()
+            .map(|(tag, usn)| pb::TagUsnTuple { tag, usn: usn.0 })
+            .collect();
+        Ok(pb::AllTagsOut { tags })
+    }
+
+    fn register_tags(&self, input: pb::RegisterTagsIn) -> Result<bool> {
+        self.with_col(|col| {
+            col.transact(None, |col| {
+                let usn = if input.preserve_usn {
+                    Usn(input.usn)
+                } else {
+                    col.usn()?
+                };
+                col.register_tags(&input.tags, usn, input.clear_first)
+            })
+        })
+    }
+
+    fn get_changed_tags(&self, usn: i32) -> Result<pb::GetChangedTagsOut> {
+        self.with_col(|col| {
+            col.transact(None, |col| {
+                Ok(pb::GetChangedTagsOut {
+                    tags: col.storage.get_changed_tags(Usn(usn))?,
+                })
+            })
+        })
     }
 }
 
@@ -693,7 +829,7 @@ fn progress_to_proto_bytes(progress: Progress, i18n: &I18n) -> Vec<u8> {
         value: Some(match progress {
             Progress::MediaSync(p) => pb::progress::Value::MediaSync(media_sync_progress(p, i18n)),
             Progress::MediaCheck(n) => {
-                let s = i18n.trn(FString::MediaCheckChecked, tr_args!["count"=>n]);
+                let s = i18n.trn(TR::MediaCheckChecked, tr_args!["count"=>n]);
                 pb::progress::Value::MediaCheck(s)
             }
         }),
@@ -706,13 +842,13 @@ fn progress_to_proto_bytes(progress: Progress, i18n: &I18n) -> Vec<u8> {
 
 fn media_sync_progress(p: &MediaSyncProgress, i18n: &I18n) -> pb::MediaSyncProgress {
     pb::MediaSyncProgress {
-        checked: i18n.trn(FString::SyncMediaCheckedCount, tr_args!["count"=>p.checked]),
+        checked: i18n.trn(TR::SyncMediaCheckedCount, tr_args!["count"=>p.checked]),
         added: i18n.trn(
-            FString::SyncMediaAddedCount,
+            TR::SyncMediaAddedCount,
             tr_args!["up"=>p.uploaded_files,"down"=>p.downloaded_files],
         ),
         removed: i18n.trn(
-            FString::SyncMediaRemovedCount,
+            TR::SyncMediaRemovedCount,
             tr_args!["up"=>p.uploaded_deletions,"down"=>p.downloaded_deletions],
         ),
     }

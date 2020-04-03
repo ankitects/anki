@@ -26,7 +26,7 @@ class CustomStudy(QDialog):
         QDialog.__init__(self, mw)
         self.mw = mw
         self.deck = self.mw.col.decks.current()
-        self.conf = self.mw.col.decks.getConf(self.deck["conf"])
+        self.conf = self.mw.col.decks.get_config(self.deck["conf"])
         self.form = f = aqt.forms.customstudy.Ui_Dialog()
         self.created_custom_study = False
         f.setupUi(self)

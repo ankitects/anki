@@ -4,7 +4,9 @@
 use crate::err::{AnkiError, Result};
 use crate::i18n::I18n;
 use crate::log::Logger;
-use crate::storage::{SqliteStorage, StorageContext};
+use crate::timestamp::TimestampSecs;
+use crate::types::Usn;
+use crate::{sched::cutoff::SchedTimingToday, storage::SqliteStorage, undo::UndoManager};
 use std::path::PathBuf;
 
 pub fn open_collection<P: Into<PathBuf>>(
@@ -16,27 +18,47 @@ pub fn open_collection<P: Into<PathBuf>>(
     log: Logger,
 ) -> Result<Collection> {
     let col_path = path.into();
-    let storage = SqliteStorage::open_or_create(&col_path)?;
+    let storage = SqliteStorage::open_or_create(&col_path, &i18n)?;
 
     let col = Collection {
         storage,
         col_path,
         media_folder: media_folder.into(),
         media_db: media_db.into(),
-        server,
         i18n,
         log,
-        state: CollectionState::Normal,
+        server,
+        state: CollectionState::default(),
     };
 
     Ok(col)
 }
 
+#[cfg(test)]
+pub fn open_test_collection() -> Collection {
+    use crate::log;
+    let i18n = I18n::new(&[""], "", log::terminal());
+    open_collection(":memory:", "", "", false, i18n, log::terminal()).unwrap()
+}
+
+#[derive(Debug, Default)]
+pub struct CollectionState {
+    task_state: CollectionTaskState,
+    pub(crate) undo: UndoManager,
+    timing_today: Option<SchedTimingToday>,
+}
+
 #[derive(Debug, PartialEq)]
-pub enum CollectionState {
+pub enum CollectionTaskState {
     Normal,
     // in this state, the DB must not be closed
     MediaSyncRunning,
+}
+
+impl Default for CollectionTaskState {
+    fn default() -> Self {
+        Self::Normal
+    }
 }
 
 pub struct Collection {
@@ -45,71 +67,50 @@ pub struct Collection {
     pub(crate) col_path: PathBuf,
     pub(crate) media_folder: PathBuf,
     pub(crate) media_db: PathBuf,
-    pub(crate) server: bool,
     pub(crate) i18n: I18n,
     pub(crate) log: Logger,
-    state: CollectionState,
+    pub(crate) server: bool,
+    pub(crate) state: CollectionState,
 }
 
-pub(crate) enum CollectionOp {}
-
-pub(crate) struct RequestContext<'a> {
-    pub storage: StorageContext<'a>,
-    pub i18n: &'a I18n,
-    pub log: &'a Logger,
-    pub should_commit: bool,
+#[derive(Debug, Clone, PartialEq)]
+pub enum CollectionOp {
+    UpdateCard,
 }
 
 impl Collection {
-    /// Call the provided closure with a RequestContext that exists for
-    /// the duration of the call. The request will cache prepared sql
-    /// statements, so should be passed down the call tree.
-    ///
-    /// This function should be used for read-only requests. To mutate
-    /// the database, use transact() instead.
-    pub(crate) fn with_ctx<F, R>(&self, func: F) -> Result<R>
-    where
-        F: FnOnce(&mut RequestContext) -> Result<R>,
-    {
-        let mut ctx = RequestContext {
-            storage: self.storage.context(self.server),
-            i18n: &self.i18n,
-            log: &self.log,
-            should_commit: true,
-        };
-        func(&mut ctx)
-    }
-
     /// Execute the provided closure in a transaction, rolling back if
     /// an error is returned.
-    pub(crate) fn transact<F, R>(&self, op: Option<CollectionOp>, func: F) -> Result<R>
+    pub(crate) fn transact<F, R>(&mut self, op: Option<CollectionOp>, func: F) -> Result<R>
     where
-        F: FnOnce(&mut RequestContext) -> Result<R>,
+        F: FnOnce(&mut Collection) -> Result<R>,
     {
-        self.with_ctx(|ctx| {
-            ctx.storage.begin_rust_trx()?;
+        self.storage.begin_rust_trx()?;
+        self.state.undo.begin_step(op);
 
-            let mut res = func(ctx);
+        let mut res = func(self);
 
-            if res.is_ok() && ctx.should_commit {
-                if let Err(e) = ctx.storage.mark_modified() {
-                    res = Err(e);
-                } else if let Err(e) = ctx.storage.commit_rust_op(op) {
-                    res = Err(e);
-                }
+        if res.is_ok() {
+            if let Err(e) = self.storage.mark_modified() {
+                res = Err(e);
+            } else if let Err(e) = self.storage.commit_rust_trx() {
+                res = Err(e);
             }
+        }
 
-            if res.is_err() || !ctx.should_commit {
-                ctx.storage.rollback_rust_trx()?;
-            }
+        if res.is_err() {
+            self.state.undo.discard_step();
+            self.storage.rollback_rust_trx()?;
+        } else {
+            self.state.undo.end_step();
+        }
 
-            res
-        })
+        res
     }
 
     pub(crate) fn set_media_sync_running(&mut self) -> Result<()> {
-        if self.state == CollectionState::Normal {
-            self.state = CollectionState::MediaSyncRunning;
+        if self.state.task_state == CollectionTaskState::Normal {
+            self.state.task_state = CollectionTaskState::MediaSyncRunning;
             Ok(())
         } else {
             Err(AnkiError::invalid_input("media sync already running"))
@@ -117,8 +118,8 @@ impl Collection {
     }
 
     pub(crate) fn set_media_sync_finished(&mut self) -> Result<()> {
-        if self.state == CollectionState::MediaSyncRunning {
-            self.state = CollectionState::Normal;
+        if self.state.task_state == CollectionTaskState::MediaSyncRunning {
+            self.state.task_state = CollectionTaskState::Normal;
             Ok(())
         } else {
             Err(AnkiError::invalid_input("media sync not running"))
@@ -126,6 +127,41 @@ impl Collection {
     }
 
     pub(crate) fn can_close(&self) -> bool {
-        self.state == CollectionState::Normal
+        self.state.task_state == CollectionTaskState::Normal
+    }
+
+    pub(crate) fn downgrade_and_close(self) -> Result<()> {
+        self.storage.downgrade_to_schema_11()
+    }
+
+    // fixme: invalidate when config changes
+    pub fn timing_today(&mut self) -> Result<SchedTimingToday> {
+        if let Some(timing) = &self.state.timing_today {
+            if timing.next_day_at > TimestampSecs::now().0 {
+                return Ok(*timing);
+            }
+        }
+        self.state.timing_today = Some(self.storage.timing_today(self.server)?);
+        Ok(self.state.timing_today.clone().unwrap())
+    }
+
+    pub(crate) fn usn(&self) -> Result<Usn> {
+        // if we cache this in the future, must make sure to invalidate cache when usn bumped in sync.finish()
+        self.storage.usn(self.server)
+    }
+
+    pub(crate) fn ensure_schema_modified(&self) -> Result<()> {
+        if !self.storage.schema_modified()? {
+            Err(AnkiError::SchemaChange)
+        } else {
+            Ok(())
+        }
+    }
+
+    pub(crate) fn before_upload(&self) -> Result<()> {
+        self.storage.clear_tag_usns()?;
+        self.storage.clear_deck_conf_usns()?;
+
+        Ok(())
     }
 }

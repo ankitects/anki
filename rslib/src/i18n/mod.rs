@@ -15,9 +15,8 @@ use unic_langid::LanguageIdentifier;
 mod autogen;
 use crate::i18n::autogen::FLUENT_KEYS;
 
+pub use crate::backend_proto::FluentString as TR;
 pub use fluent::fluent_args as tr_args;
-
-pub use crate::backend_proto::FluentString as FString;
 
 /// Helper for creating args with &strs
 #[macro_export]
@@ -284,13 +283,13 @@ impl I18n {
     }
 
     /// Get translation with zero arguments.
-    pub fn tr(&self, key: FString) -> Cow<str> {
+    pub fn tr(&self, key: TR) -> Cow<str> {
         let key = FLUENT_KEYS[key as usize];
         self.tr_(key, None)
     }
 
     /// Get translation with one or more arguments.
-    pub fn trn(&self, key: FString, args: FluentArgs) -> String {
+    pub fn trn(&self, key: TR, args: FluentArgs) -> String {
         let key = FLUENT_KEYS[key as usize];
         self.tr_(key, Some(args)).into()
     }

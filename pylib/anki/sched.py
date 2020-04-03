@@ -834,7 +834,6 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?"""
             bury=oconf["new"].get("bury", True),
             # overrides
             delays=delays,
-            separate=conf["separate"],
             order=NEW_CARDS_DUE,
             perDay=self.reportLimit,
         )
