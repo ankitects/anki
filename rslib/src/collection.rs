@@ -157,4 +157,11 @@ impl Collection {
             Ok(())
         }
     }
+
+    pub(crate) fn before_upload(&self) -> Result<()> {
+        self.storage.clear_tag_usns()?;
+        self.storage.clear_deck_conf_usns()?;
+
+        Ok(())
+    }
 }

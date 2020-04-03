@@ -70,6 +70,17 @@ impl SqliteStorage {
         Ok(())
     }
 
+    pub(crate) fn clear_deck_conf_usns(&self) -> Result<()> {
+        for mut conf in self.all_deck_config()? {
+            if conf.usn.0 != 0 {
+                conf.usn.0 = 0;
+                self.update_deck_conf(&conf)?;
+            }
+        }
+
+        Ok(())
+    }
+
     // Creating/upgrading/downgrading
 
     pub(super) fn add_default_deck_config(&self, i18n: &I18n) -> Result<()> {

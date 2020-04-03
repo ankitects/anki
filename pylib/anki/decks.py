@@ -65,7 +65,7 @@ class DeckManager:
         self.decks = {}
         self._dconf_cache: Optional[Dict[int, Dict[str, Any]]] = None
 
-    def load(self, decks: str, dconf: str) -> None:
+    def load(self, decks: str) -> None:
         self.decks = json.loads(decks)
         self.changed = False
 
@@ -626,10 +626,6 @@ class DeckManager:
     def beforeUpload(self) -> None:
         for d in self.all():
             d["usn"] = 0
-        for c in self.all_config():
-            if c["usn"] != 0:
-                c["usn"] = 0
-                self.update_config(c, preserve_usn=True)
         self.save()
 
     # Dynamic decks

@@ -47,6 +47,7 @@ assert ankirspy.buildhash() == anki.buildinfo.buildhash
 SchedTimingToday = pb.SchedTimingTodayOut
 BuiltinSortKind = pb.BuiltinSortKind
 BackendCard = pb.Card
+TagUsnTuple = pb.TagUsnTuple
 
 try:
     import orjson
@@ -539,6 +540,42 @@ class RustBackend:
 
     def abort_media_sync(self):
         self._run_command(pb.BackendInput(abort_media_sync=pb.Empty()))
+
+    def all_tags(self) -> Iterable[TagUsnTuple]:
+        return self._run_command(pb.BackendInput(all_tags=pb.Empty())).all_tags.tags
+
+    def canonify_tags(self, tags: str) -> Tuple[str, bool]:
+        out = self._run_command(pb.BackendInput(canonify_tags=tags)).canonify_tags
+        return (out.tags, out.tag_list_changed)
+
+    def register_tags(self, tags: str, usn: Optional[int], clear_first: bool) -> bool:
+        if usn is None:
+            preserve_usn = False
+            usn_ = 0
+        else:
+            usn_ = usn
+            preserve_usn = True
+
+        return self._run_command(
+            pb.BackendInput(
+                register_tags=pb.RegisterTagsIn(
+                    tags=tags,
+                    usn=usn_,
+                    preserve_usn=preserve_usn,
+                    clear_first=clear_first,
+                )
+            )
+        ).register_tags
+
+    def before_upload(self):
+        self._run_command(pb.BackendInput(before_upload=pb.Empty()))
+
+    def get_changed_tags(self, usn: int) -> List[str]:
+        return list(
+            self._run_command(
+                pb.BackendInput(get_changed_tags=usn)
+            ).get_changed_tags.tags
+        )
 
 
 def translate_string_in(

@@ -182,17 +182,14 @@ class _Collection:
             conf,
             models,
             decks,
-            dconf,
-            tags,
         ) = self.db.first(
             """
 select crt, mod, scm, dty, usn, ls,
-conf, models, decks, dconf, tags from col"""
+conf, models, decks from col"""
         )
         self.conf = json.loads(conf)
         self.models.load(models)
-        self.decks.load(decks, dconf)
-        self.tags.load(tags)
+        self.decks.load(decks)
 
     def setMod(self) -> None:
         """Mark DB modified.
@@ -219,7 +216,6 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
     def flush_all_changes(self, mod: Optional[int] = None):
         self.models.flush()
         self.decks.flush()
-        self.tags.flush()
         if self.db.mod:
             self.flush(mod)
 
@@ -292,8 +288,8 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         self.db.execute("delete from graves")
         self._usn += 1
         self.models.beforeUpload()
-        self.tags.beforeUpload()
         self.decks.beforeUpload()
+        self.backend.before_upload()
         self.modSchema(check=False)
         self.ls = self.scm
         # ensure db is compacted before upload

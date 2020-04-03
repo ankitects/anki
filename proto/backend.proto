@@ -56,6 +56,11 @@ message BackendInput {
         Empty new_deck_config = 44;
         int64 remove_deck_config = 45;
         Empty abort_media_sync = 46;
+        Empty before_upload = 47;
+        RegisterTagsIn register_tags = 48;
+        string canonify_tags = 49;
+        Empty all_tags = 50;
+        int32 get_changed_tags = 51;
     }
 }
 
@@ -95,6 +100,11 @@ message BackendOutput {
         string all_deck_config = 43;
         string new_deck_config = 44;
         Empty remove_deck_config = 45;
+        Empty before_upload = 47;
+        bool register_tags = 48;
+        CanonifyTagsOut canonify_tags = 49;
+        AllTagsOut all_tags = 50;
+        GetChangedTagsOut get_changed_tags = 51;
 
         BackendError error = 2047;
     }
@@ -418,4 +428,29 @@ message CloseCollectionIn {
 message AddOrUpdateDeckConfigIn {
     string config = 1;
     bool preserve_usn_and_mtime = 2;
+}
+
+message RegisterTagsIn {
+    string tags = 1;
+    bool preserve_usn = 2;
+    int32 usn = 3;
+    bool clear_first = 4;
+}
+
+message AllTagsOut {
+    repeated TagUsnTuple tags = 1;
+}
+
+message TagUsnTuple {
+    string tag = 1;
+    sint32 usn = 2;
+}
+
+message GetChangedTagsOut {
+    repeated string tags = 1;
+}
+
+message CanonifyTagsOut {
+    string tags = 1;
+    bool tag_list_changed = 2;
 }

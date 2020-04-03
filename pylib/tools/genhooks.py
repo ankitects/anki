@@ -51,9 +51,7 @@ hooks = [
         return_type="bool",
         doc="Warning: this is called on a background thread.",
     ),
-    Hook(
-        name="tag_added", args=["tag: str"], legacy_hook="newTag", legacy_no_args=True,
-    ),
+    Hook(name="tag_list_did_update"),
     Hook(
         name="field_filter",
         args=[

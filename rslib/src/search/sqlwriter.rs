@@ -11,6 +11,8 @@ use crate::notetypes::NoteTypeID;
 use crate::text::matches_wildcard;
 use crate::text::without_combining;
 use crate::{collection::Collection, text::strip_html_preserving_image_filenames};
+use lazy_static::lazy_static;
+use regex::{Captures, Regex};
 use std::fmt::Write;
 
 struct SqlWriter<'a> {
@@ -66,7 +68,7 @@ impl SqlWriter<'_> {
             }
             SearchNode::NoteType(notetype) => self.write_note_type(notetype.as_ref())?,
             SearchNode::Rated { days, ease } => self.write_rated(*days, *ease)?,
-            SearchNode::Tag(tag) => self.write_tag(tag),
+            SearchNode::Tag(tag) => self.write_tag(tag)?,
             SearchNode::Duplicates { note_type_id, text } => self.write_dupes(*note_type_id, text),
             SearchNode::State(state) => self.write_state(state)?,
             SearchNode::Flag(flag) => {
@@ -112,7 +114,7 @@ impl SqlWriter<'_> {
         .unwrap();
     }
 
-    fn write_tag(&mut self, text: &str) {
+    fn write_tag(&mut self, text: &str) -> Result<()> {
         match text {
             "none" => {
                 write!(self.sql, "n.tags = ''").unwrap();
@@ -121,11 +123,20 @@ impl SqlWriter<'_> {
                 write!(self.sql, "true").unwrap();
             }
             text => {
-                let tag = format!("% {} %", text.replace('*', "%"));
-                write!(self.sql, "n.tags like ? escape '\\'").unwrap();
-                self.args.push(tag);
+                if let Some(re_glob) = glob_to_re(text) {
+                    // text contains a wildcard
+                    let re_glob = format!("(?i).* {} .*", re_glob);
+                    write!(self.sql, "n.tags regexp ?").unwrap();
+                    self.args.push(re_glob);
+                } else if let Some(tag) = self.col.storage.preferred_tag_case(&text)? {
+                    write!(self.sql, "n.tags like ?").unwrap();
+                    self.args.push(format!("% {} %", tag));
+                } else {
+                    write!(self.sql, "false").unwrap();
+                }
             }
         }
+        Ok(())
     }
 
     fn write_rated(&mut self, days: u32, ease: Option<u8>) -> Result<()> {
@@ -382,6 +393,42 @@ where
     buf.push(')');
 }
 
+/// Convert a string with _, % or * characters into a regex.
+fn glob_to_re(glob: &str) -> Option<String> {
+    if !glob.contains(|c| c == '_' || c == '*' || c == '%') {
+        return None;
+    }
+
+    lazy_static! {
+        static ref ESCAPED: Regex = Regex::new(r"(\\\\)?\\\*").unwrap();
+        static ref GLOB: Regex = Regex::new(r"(\\\\)?[_%]").unwrap();
+    }
+
+    let escaped = regex::escape(glob);
+
+    let text = ESCAPED.replace_all(&escaped, |caps: &Captures| {
+        if caps.get(0).unwrap().as_str().len() == 2 {
+            ".*"
+        } else {
+            r"\*"
+        }
+    });
+
+    let text2 = GLOB.replace_all(&text, |caps: &Captures| {
+        match caps.get(0).unwrap().as_str() {
+            "_" => ".",
+            "%" => ".*",
+            other => {
+                // strip off the escaping char
+                &other[2..]
+            }
+        }
+        .to_string()
+    });
+
+    text2.into_owned().into()
+}
+
 #[cfg(test)]
 mod test {
     use super::ids_to_string;
@@ -389,6 +436,7 @@ mod test {
         collection::{open_collection, Collection},
         i18n::I18n,
         log,
+        types::Usn,
     };
     use std::{fs, path::PathBuf};
     use tempfile::tempdir;
@@ -439,6 +487,7 @@ mod test {
         .unwrap();
 
         let ctx = &mut col;
+
         // unqualified search
         assert_eq!(
             s(ctx, "test"),
@@ -515,14 +564,24 @@ mod test {
             )
         );
 
-        // tags
+        // unregistered tag short circuits
+        assert_eq!(s(ctx, r"tag:one"), ("(false)".into(), vec![]));
+
+        // if registered, searches with canonical
+        ctx.transact(None, |col| col.register_tag("One", Usn(-1)))
+            .unwrap();
         assert_eq!(
-            s(ctx, "tag:one"),
-            ("(n.tags like ? escape '\\')".into(), vec!["% one %".into()])
+            s(ctx, r"tag:one"),
+            ("(n.tags like ?)".into(), vec![r"% One %".into()])
         );
+
+        // wildcards force a regexp search
         assert_eq!(
-            s(ctx, "tag:o*e"),
-            ("(n.tags like ? escape '\\')".into(), vec!["% o%e %".into()])
+            s(ctx, r"tag:o*n\*et%w\%oth_re\_e"),
+            (
+                "(n.tags regexp ?)".into(),
+                vec![r"(?i).* o.*n\*et.*w%oth.re_e .*".into()]
+            )
         );
         assert_eq!(s(ctx, "tag:none"), ("(n.tags = '')".into(), vec![]));
         assert_eq!(s(ctx, "tag:*"), ("(true)".into(), vec![]));
