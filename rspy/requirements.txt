@@ -1,3 +1,1 @@
-# fixme: when maturin fixes 32 bit support, switch back to pypi
-git+https://github.com/dae/maturin#egg=maturin; sys_platform == "linux" and platform_machine != "x86_64"
-maturin; sys_platform != "linux" or platform_machine == "x86_64"
+maturin>=0.8.0
