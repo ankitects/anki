@@ -50,6 +50,30 @@ class _AddCardsDidAddNoteHook:
 add_cards_did_add_note = _AddCardsDidAddNoteHook()
 
 
+class _AddCardsDidInitHook:
+    _hooks: List[Callable[["aqt.addcards.AddCards"], None]] = []
+
+    def append(self, cb: Callable[["aqt.addcards.AddCards"], None]) -> None:
+        """(addcards: aqt.addcards.AddCards)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[["aqt.addcards.AddCards"], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self, addcards: aqt.addcards.AddCards) -> None:
+        for hook in self._hooks:
+            try:
+                hook(addcards)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+add_cards_did_init = _AddCardsDidInitHook()
+
+
 class _AddCardsWillAddNoteFilter:
     """Decides whether the note should be added to the collection or
         not. It is assumed to come from the addCards window.
