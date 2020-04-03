@@ -1132,7 +1132,7 @@ QTableView {{ gridline-color: {grid} }}
 
     def _userTagTree(self, root) -> None:
         assert self.col
-        for t in sorted(self.col.tags.all(), key=lambda t: t.lower()):
+        for t in self.col.tags.all():
             item = SidebarItem(
                 t, ":/icons/tag.svg", lambda t=t: self.setFilter("tag", t)  # type: ignore
             )
@@ -1874,7 +1874,7 @@ update cards set usn=?, mod=?, did=? where id in """
         gui_hooks.editor_did_fire_typing_timer.append(self.refreshCurrentCard)
         gui_hooks.editor_did_load_note.append(self.onLoadNote)
         gui_hooks.editor_did_unfocus_field.append(self.on_unfocus_field)
-        hooks.tag_added.append(self.on_item_added)
+        hooks.tag_list_did_update.append(self.on_tag_list_update)
         hooks.note_type_added.append(self.on_item_added)
         hooks.deck_added.append(self.on_item_added)
 
@@ -1884,7 +1884,7 @@ update cards set usn=?, mod=?, did=? where id in """
         gui_hooks.editor_did_fire_typing_timer.remove(self.refreshCurrentCard)
         gui_hooks.editor_did_load_note.remove(self.onLoadNote)
         gui_hooks.editor_did_unfocus_field.remove(self.on_unfocus_field)
-        hooks.tag_added.remove(self.on_item_added)
+        hooks.tag_list_did_update.remove(self.on_tag_list_update)
         hooks.note_type_added.remove(self.on_item_added)
         hooks.deck_added.remove(self.on_item_added)
 
@@ -1893,6 +1893,9 @@ update cards set usn=?, mod=?, did=? where id in """
 
     # covers the tag, note and deck case
     def on_item_added(self, item: Any) -> None:
+        self.maybeRefreshSidebar()
+
+    def on_tag_list_update(self):
         self.maybeRefreshSidebar()
 
     def onUndoState(self, on):

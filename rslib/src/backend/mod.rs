@@ -283,6 +283,14 @@ impl Backend {
                 self.abort_media_sync();
                 OValue::AbortMediaSync(pb::Empty {})
             }
+            Value::BeforeUpload(_) => {
+                self.before_upload()?;
+                OValue::BeforeUpload(pb::Empty {})
+            }
+            Value::CanonifyTags(input) => OValue::CanonifyTags(self.canonify_tags(input)?),
+            Value::AllTags(_) => OValue::AllTags(self.all_tags()?),
+            Value::RegisterTags(input) => OValue::RegisterTags(self.register_tags(input)?),
+            Value::GetChangedTags(usn) => OValue::GetChangedTags(self.get_changed_tags(usn)?),
         })
     }
 
@@ -726,6 +734,54 @@ impl Backend {
 
     fn remove_deck_config(&self, dcid: i64) -> Result<()> {
         self.with_col(|col| col.transact(None, |col| col.remove_deck_config(DeckConfID(dcid))))
+    }
+
+    fn before_upload(&self) -> Result<()> {
+        self.with_col(|col| col.transact(None, |col| col.before_upload()))
+    }
+
+    fn canonify_tags(&self, tags: String) -> Result<pb::CanonifyTagsOut> {
+        self.with_col(|col| {
+            col.transact(None, |col| {
+                col.canonify_tags(&tags, col.usn()?)
+                    .map(|(tags, added)| pb::CanonifyTagsOut {
+                        tags,
+                        tag_list_changed: added,
+                    })
+            })
+        })
+    }
+
+    fn all_tags(&self) -> Result<pb::AllTagsOut> {
+        let tags = self.with_col(|col| col.storage.all_tags())?;
+        let tags: Vec<_> = tags
+            .into_iter()
+            .map(|(tag, usn)| pb::TagUsnTuple { tag, usn: usn.0 })
+            .collect();
+        Ok(pb::AllTagsOut { tags })
+    }
+
+    fn register_tags(&self, input: pb::RegisterTagsIn) -> Result<bool> {
+        self.with_col(|col| {
+            col.transact(None, |col| {
+                let usn = if input.preserve_usn {
+                    Usn(input.usn)
+                } else {
+                    col.usn()?
+                };
+                col.register_tags(&input.tags, usn, input.clear_first)
+            })
+        })
+    }
+
+    fn get_changed_tags(&self, usn: i32) -> Result<pb::GetChangedTagsOut> {
+        self.with_col(|col| {
+            col.transact(None, |col| {
+                Ok(pb::GetChangedTagsOut {
+                    tags: col.storage.get_changed_tags(Usn(usn))?,
+                })
+            })
+        })
     }
 }
 

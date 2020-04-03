@@ -40,7 +40,8 @@ slog-async = "2.4.0"
 slog-envlogger = "2.2.0"
 serde_repr = "0.1.5"
 num_enum = "0.4.2"
-unicase = "2.6.0"
+# pinned as any changes could invalidate sqlite indexes
+unicase = "=2.6.0"
 futures = "0.3.4"
 
 # pinned until rusqlite 0.22 comes out

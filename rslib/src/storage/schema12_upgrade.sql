@@ -5,6 +5,10 @@ create table deck_config (
   usn integer not null,
   config text not null
 );
+create table tags (
+  tag text not null primary key collate unicase,
+  usn integer not null
+) without rowid;
 update col
 set
   ver = 12;

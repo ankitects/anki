@@ -11,9 +11,8 @@ This module manages the tag cache and tags for notes.
 
 from __future__ import annotations
 
-import json
 import re
-from typing import Callable, Collection, Dict, List, Optional, Tuple
+from typing import Callable, Collection, List, Optional, Tuple
 
 import anki  # pylint: disable=unused-import
 from anki import hooks
@@ -21,62 +20,45 @@ from anki.utils import ids2str, intTime
 
 
 class TagManager:
-
-    # Registry save/load
-    #############################################################
-
     def __init__(self, col: anki.storage._Collection) -> None:
         self.col = col.weakref()
-        self.tags: Dict[str, int] = {}
 
-    def load(self, json_: str) -> None:
-        self.tags = json.loads(json_)
-        self.changed = False
+    # all tags
+    def all(self) -> List[str]:
+        return [t.tag for t in self.col.backend.all_tags()]
 
-    def flush(self) -> None:
-        if self.changed:
-            self.col.db.execute("update col set tags=?", json.dumps(self.tags))
-            self.changed = False
+    # # List of (tag, usn)
+    def allItems(self) -> List[Tuple[str, int]]:
+        return [(t.tag, t.usn) for t in self.col.backend.all_tags()]
 
     # Registering and fetching tags
     #############################################################
 
-    def register(self, tags: Collection[str], usn: Optional[int] = None) -> None:
+    def register(
+        self, tags: Collection[str], usn: Optional[int] = None, clear=False
+    ) -> None:
         "Given a list of tags, add any missing ones to tag registry."
-        found = False
-        for t in tags:
-            if t not in self.tags:
-                found = True
-                self.tags[t] = self.col.usn() if usn is None else usn
-                self.changed = True
-        if found:
-            hooks.tag_added(t)  # pylint: disable=undefined-loop-variable
-
-    def all(self) -> List:
-        return list(self.tags.keys())
+        changed = self.col.backend.register_tags(" ".join(tags), usn, clear)
+        if changed:
+            hooks.tag_list_did_update()
 
     def registerNotes(self, nids: Optional[List[int]] = None) -> None:
         "Add any missing tags from notes to the tags list."
         # when called without an argument, the old list is cleared first.
         if nids:
             lim = " where id in " + ids2str(nids)
+            clear = False
         else:
             lim = ""
-            self.tags = {}
-            self.changed = True
+            clear = True
         self.register(
             set(
                 self.split(
                     " ".join(self.col.db.list("select distinct tags from notes" + lim))
                 )
-            )
+            ),
+            clear=clear,
         )
-
-    def allItems(self) -> List[Tuple[str, int]]:
-        return list(self.tags.items())
-
-    def save(self) -> None:
-        self.changed = True
 
     def byDeck(self, did, children=False) -> List[str]:
         basequery = "select n.tags from cards c, notes n WHERE c.nid = n.id"
@@ -180,23 +162,12 @@ class TagManager:
 
     def canonify(self, tagList: List[str]) -> List[str]:
         "Strip duplicates, adjust case to match existing tags, and sort."
-        strippedTags = []
-        for t in tagList:
-            s = re.sub("[\"']", "", t)
-            for existingTag in self.tags:
-                if s.lower() == existingTag.lower():
-                    s = existingTag
-            strippedTags.append(s)
-        return sorted(set(strippedTags))
+        tag_str, changed = self.col.backend.canonify_tags(" ".join(tagList))
+        if changed:
+            hooks.tag_list_did_update()
+
+        return tag_str.split(" ")
 
     def inList(self, tag: str, tags: List[str]) -> bool:
         "True if TAG is in TAGS. Ignore case."
         return tag.lower() in [t.lower() for t in tags]
-
-    # Sync handling
-    ##########################################################################
-
-    def beforeUpload(self) -> None:
-        for k in list(self.tags.keys()):
-            self.tags[k] = 0
-        self.save()

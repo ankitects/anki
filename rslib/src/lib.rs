@@ -27,6 +27,7 @@ pub mod sched;
 pub mod search;
 pub mod serde;
 pub mod storage;
+pub mod tags;
 pub mod template;
 pub mod template_filters;
 pub mod text;

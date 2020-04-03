@@ -206,8 +206,8 @@ class Syncer:
         for g in self.col.decks.all():
             if g["usn"] == -1:
                 return "deck had usn = -1"
-        for t, usn in self.col.tags.allItems():
-            if usn == -1:
+        for tup in self.col.backend.all_tags():
+            if tup.usn == -1:
                 return "tag had usn = -1"
         found = False
         for m in self.col.models.all():
@@ -404,13 +404,7 @@ from notes where %s"""
     ##########################################################################
 
     def getTags(self) -> List:
-        tags = []
-        for t, usn in self.col.tags.allItems():
-            if usn == -1:
-                self.col.tags.tags[t] = self.maxUsn
-                tags.append(t)
-        self.col.tags.save()
-        return tags
+        return self.col.backend.get_changed_tags(self.maxUsn)
 
     def mergeTags(self, tags) -> None:
         self.col.tags.register(tags, usn=self.maxUsn)
