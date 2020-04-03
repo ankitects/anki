@@ -249,7 +249,7 @@ class AnkiExporter(Exporter):
         # copy used deck confs
         for dc in self.src.decks.allConf():
             if dc["id"] in dconfs:
-                self.dst.decks.updateConf(dc)
+                self.dst.decks.update_config(dc)
         # find used media
         media = {}
         self.mediaDir = self.src.media.dir()

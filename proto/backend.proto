@@ -51,7 +51,7 @@ message BackendInput {
         Card update_card = 39;
         Card add_card = 40;
         int64 get_deck_config = 41;
-        string add_or_update_deck_config = 42;
+        AddOrUpdateDeckConfigIn add_or_update_deck_config = 42;
         Empty all_deck_config = 43;
         Empty new_deck_config = 44;
         int64 remove_deck_config = 45;
@@ -413,4 +413,9 @@ message Card {
 
 message CloseCollectionIn {
     bool downgrade_to_schema11 = 1;
+}
+
+message AddOrUpdateDeckConfigIn {
+    string config = 1;
+    bool preserve_usn_and_mtime = 2;
 }

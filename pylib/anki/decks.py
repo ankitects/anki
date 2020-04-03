@@ -74,7 +74,7 @@ class DeckManager:
         if g:
             # deck conf?
             if "maxTaken" in g:
-                self.updateConf(g)
+                self.update_config(g)
                 return
             else:
                 g["mod"] = intTime()
@@ -318,7 +318,7 @@ class DeckManager:
     # Deck configurations
     #############################################################
 
-    def allConf(self) -> List:
+    def all_config(self) -> List:
         "A list of all deck config."
         return list(self.col.backend.all_deck_config())
 
@@ -327,32 +327,38 @@ class DeckManager:
         assert deck
         if "conf" in deck:
             dcid = int(deck["conf"])  # may be a string
-            conf = self.getConf(dcid)
+            conf = self.get_config(dcid)
             conf["dyn"] = False
             return conf
         # dynamic decks have embedded conf
         return deck
 
-    def getConf(self, confId: int) -> Any:
+    def get_config(self, conf_id: int) -> Any:
         if self._dconf_cache is not None:
-            return self._dconf_cache.get(confId)
-        return self.col.backend.get_deck_config(confId)
+            return self._dconf_cache.get(conf_id)
+        return self.col.backend.get_deck_config(conf_id)
 
-    def updateConf(self, g: Dict[str, Any]) -> None:
-        self.col.backend.add_or_update_deck_config(g)
+    def update_config(self, conf: Dict[str, Any], preserve_usn=False) -> None:
+        self.col.backend.add_or_update_deck_config(conf, preserve_usn)
 
-    def confId(self, name: str, cloneFrom: Optional[Dict[str, Any]] = None) -> int:
-        "Create a new configuration and return id."
-        if cloneFrom is not None:
-            conf = copy.deepcopy(cloneFrom)
+    def add_config(
+        self, name: str, clone_from: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        if clone_from is not None:
+            conf = copy.deepcopy(clone_from)
             conf["id"] = 0
         else:
             conf = self.col.backend.new_deck_config()
         conf["name"] = name
-        self.updateConf(conf)
-        return conf["id"]
+        self.update_config(conf)
+        return conf
 
-    def remConf(self, id) -> None:
+    def add_config_returning_id(
+        self, name: str, clone_from: Optional[Dict[str, Any]] = None
+    ) -> int:
+        return self.add_config(name, clone_from)["id"]
+
+    def remove_config(self, id) -> None:
         "Remove a configuration and update all decks using it."
         self.col.modSchema(check=True)
         for g in self.all():
@@ -380,14 +386,21 @@ class DeckManager:
         new = self.col.backend.new_deck_config()
         new["id"] = conf["id"]
         new["name"] = conf["name"]
-        self.updateConf(new)
+        self.update_config(new)
         # if it was previously randomized, re-sort
         if not oldOrder:
             self.col.sched.resortConf(new)
 
+    # legacy
+    allConf = all_config
+    getConf = get_config
+    updateConf = update_config
+    remConf = remove_config
+    confId = add_config_returning_id
+
     # temporary caching - don't use this as it will be removed
     def _enable_dconf_cache(self):
-        self._dconf_cache = {c["id"]: c for c in self.allConf()}
+        self._dconf_cache = {c["id"]: c for c in self.all_config()}
 
     def _disable_dconf_cache(self):
         self._dconf_cache = None
@@ -613,8 +626,10 @@ class DeckManager:
     def beforeUpload(self) -> None:
         for d in self.all():
             d["usn"] = 0
-        for c in self.allConf():
-            c["usn"] = 0
+        for c in self.all_config():
+            if c["usn"] != 0:
+                c["usn"] = 0
+                self.update_config(c, preserve_usn=True)
         self.save()
 
     # Dynamic decks

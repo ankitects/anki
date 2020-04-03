@@ -90,7 +90,7 @@ def test_newLimits():
             f.model()["did"] = g2
         d.addNote(f)
     # give the child deck a different configuration
-    c2 = d.decks.confId("new conf")
+    c2 = d.decks.add_config_returning_id("new conf")
     d.decks.setConf(d.decks.get(g2), c2)
     d.reset()
     # both confs have defaulted to a limit of 20
@@ -412,14 +412,14 @@ def test_review_limits():
     parent = d.decks.get(d.decks.id("parent"))
     child = d.decks.get(d.decks.id("parent::child"))
 
-    pconf = d.decks.getConf(d.decks.confId("parentConf"))
-    cconf = d.decks.getConf(d.decks.confId("childConf"))
+    pconf = d.decks.get_config(d.decks.add_config_returning_id("parentConf"))
+    cconf = d.decks.get_config(d.decks.add_config_returning_id("childConf"))
 
     pconf["rev"]["perDay"] = 5
-    d.decks.updateConf(pconf)
+    d.decks.update_config(pconf)
     d.decks.setConf(parent, pconf["id"])
     cconf["rev"]["perDay"] = 10
-    d.decks.updateConf(cconf)
+    d.decks.update_config(cconf)
     d.decks.setConf(child, cconf["id"])
 
     m = d.models.current()

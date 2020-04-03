@@ -123,7 +123,7 @@ class DeckConf(QDialog):
         # first, save currently entered data to current conf
         self.saveConf()
         # then clone the conf
-        id = self.mw.col.decks.confId(name, cloneFrom=self.conf)
+        id = self.mw.col.decks.add_config_returning_id(name, cloneFrom=self.conf)
         # set the deck to the new conf
         self.deck["conf"] = id
         # then reload the conf list
@@ -133,7 +133,7 @@ class DeckConf(QDialog):
         if int(self.conf["id"]) == 1:
             showInfo(_("The default configuration can't be removed."), self)
         else:
-            self.mw.col.decks.remConf(self.conf["id"])
+            self.mw.col.decks.remove_config(self.conf["id"])
             self.deck["conf"] = 1
             self.loadConfs()
 
