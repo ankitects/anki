@@ -4,9 +4,6 @@ import os
 
 import setuptools
 
-with open("../meta/version") as fh:
-    version = fh.read().strip()
-
 
 def package_files(directory):
     entries = []
@@ -23,9 +20,23 @@ if pyonly:
 else:
     extra_files = package_files("aqt_data")
 
+install_requires = [
+    "beautifulsoup4",
+    "requests",
+    "send2trash",
+    "pyaudio",
+    "markdown",
+    "jsonschema",
+    "pyqt5>=5.9",
+    'psutil; sys.platform == "win32"',
+    'pywin32; sys.platform == "win32"',
+    'darkdetect; sys.platform == "darwin"',
+]
+
+
 setuptools.setup(
     name="aqt",
-    version=version,
+    version="2.1.24",  # automatically updated
     author="Ankitects Pty Ltd",
     description="Anki's Qt GUI code",
     long_description="Anki's QT GUI code",
@@ -37,15 +48,5 @@ setuptools.setup(
     classifiers=[],
     python_requires=">=3.7",
     package_data={"aqt": ["py.typed"]},
-    install_requires=[
-        "beautifulsoup4",
-        "requests",
-        "send2trash",
-        "pyaudio",
-        "markdown",
-        "jsonschema",
-        'psutil; sys.platform == "win32"',
-        'pywin32; sys.platform == "win32"',
-        'darkdetect; sys.platform == "darwin"',
-    ],
+    install_requires=install_requires,
 )

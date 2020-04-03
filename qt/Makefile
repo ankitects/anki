@@ -64,7 +64,7 @@ TSDEPS := $(wildcard ts/src/*.ts) $(wildcard ts/scss/*.scss)
 	python -m black aqt/gui_hooks.py
 	@touch $@
 
-BUILD_STEPS := .build/run-deps .build/dev-deps .build/js .build/ui aqt/buildinfo.py .build/hooks .build/i18n
+BUILD_STEPS := .build/vernum .build/run-deps .build/dev-deps .build/js .build/ui aqt/buildinfo.py .build/hooks .build/i18n
 
 # Checking
 ######################
@@ -138,3 +138,9 @@ develop: $(BUILD_STEPS)
 aqt/buildinfo.py: ../meta/version ../meta/buildhash
 	echo "buildhash='$$(cat ../meta/buildhash)'" > $@
 	echo "version='$$(cat ../meta/version)'" >> $@
+
+VER := $(shell cat ../meta/version)
+.build/vernum: ../meta/version
+	sed -i.bak 's/.*automatically updated.*/    version="$(VER)",  # automatically updated/' setup.py
+	rm setup.py.bak
+	@touch $@
