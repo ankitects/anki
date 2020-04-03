@@ -5,6 +5,7 @@ use crate::collection::Collection;
 use crate::err::Result;
 use crate::types::Usn;
 use std::{borrow::Cow, collections::HashSet};
+use unicase::UniCase;
 
 fn split_tags(tags: &str) -> impl Iterator<Item = &str> {
     tags.split(|c| c == ' ' || c == '\u{3000}')
@@ -23,7 +24,7 @@ impl Collection {
             if matches!(tag, Cow::Borrowed(_)) {
                 added = true;
             }
-            tagset.insert(tag);
+            tagset.insert(UniCase::new(tag));
         }
 
         if tagset.is_empty() {
@@ -32,6 +33,8 @@ impl Collection {
 
         let mut tags = tagset.into_iter().collect::<Vec<_>>();
         tags.sort_unstable();
+
+        let tags: Vec<_> = tags.into_iter().map(|s| s.into_inner()).collect();
 
         Ok((format!(" {} ", tags.join(" ")), added))
     }
