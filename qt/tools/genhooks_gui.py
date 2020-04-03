@@ -432,6 +432,7 @@ def emptyNewCard():
         args=["addcards: aqt.addcards.AddCards", "menu: QMenu"],
         legacy_hook="AddCards.onHistory",
     ),
+    Hook(name="add_cards_did_init", args=["addcards: aqt.addcards.AddCards"],),
     Hook(
         name="add_cards_did_add_note",
         args=["note: anki.notes.Note"],

@@ -46,6 +46,7 @@ class AddCards(QDialog):
         gui_hooks.state_did_reset.append(self.onReset)
         gui_hooks.current_note_type_did_change.append(self.onModelChange)
         addCloseShortcut(self)
+        gui_hooks.add_cards_did_init(self)
         self.show()
 
     def setupEditor(self) -> None:
