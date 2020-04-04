@@ -376,7 +376,7 @@ class AnkiPackageExporter(AnkiExporter):
         n[_("Front")] = "This file requires a newer version of Anki."
         c.addNote(n)
         c.save()
-        c.close()
+        c.close(downgrade=True)
 
         zip.write(path, "collection.anki2")
         os.unlink(path)
