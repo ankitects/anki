@@ -130,8 +130,8 @@ impl Collection {
         self.state.task_state == CollectionTaskState::Normal
     }
 
-    pub(crate) fn downgrade_and_close(self) -> Result<()> {
-        self.storage.downgrade_to_schema_11()
+    pub(crate) fn close(self, downgrade: bool) -> Result<()> {
+        self.storage.close(downgrade)
     }
 
     // fixme: invalidate when config changes

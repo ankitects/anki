@@ -440,6 +440,8 @@ close the profile or restart Anki."""
     # Collection load/unload
     ##########################################################################
 
+    downgrade_on_close = True
+
     def loadCollection(self) -> bool:
         try:
             self._loadCollection()
@@ -450,7 +452,7 @@ close the profile or restart Anki."""
             # clean up open collection if possible
             if self.col:
                 try:
-                    self.col.close(save=False)
+                    self.col.close(save=False, downgrade=self.downgrade_on_close)
                 except:
                     pass
                 self.col = None
@@ -506,7 +508,7 @@ close the profile or restart Anki."""
         except:
             corrupt = True
         try:
-            self.col.close()
+            self.col.close(downgrade=self.downgrade_on_close)
         except:
             corrupt = True
         finally:

@@ -204,6 +204,14 @@ impl SqliteStorage {
         Ok(storage)
     }
 
+    pub(crate) fn close(self, downgrade: bool) -> Result<()> {
+        if downgrade {
+            self.downgrade_to_schema_11()?;
+            self.db.pragma_update(None, "journal_mode", &"delete")?;
+        }
+        Ok(())
+    }
+
     // Standard transaction start/stop
     //////////////////////////////////////
 
