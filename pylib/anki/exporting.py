@@ -280,7 +280,7 @@ class AnkiExporter(Exporter):
         self.count = self.dst.cardCount()
         self.dst.setMod()
         self.postExport()
-        self.dst.close()
+        self.dst.close(downgrade=True)
 
     def postExport(self) -> None:
         # overwrite to apply customizations to the deck before it's closed,
@@ -376,7 +376,7 @@ class AnkiPackageExporter(AnkiExporter):
         n[_("Front")] = "This file requires a newer version of Anki."
         c.addNote(n)
         c.save()
-        c.close()
+        c.close(downgrade=True)
 
         zip.write(path, "collection.anki2")
         os.unlink(path)
@@ -402,7 +402,7 @@ class AnkiCollectionPackageExporter(AnkiPackageExporter):
         self.count = self.col.cardCount()
         v2 = self.col.schedVer() != 1
         mdir = self.col.media.dir()
-        self.col.close()
+        self.col.close(downgrade=True)
         if not v2:
             z.write(self.col.path, "collection.anki2")
         else:

@@ -5,5 +5,6 @@ mod card;
 mod deckconf;
 mod sqlite;
 mod tag;
+mod upgrades;
 
 pub(crate) use sqlite::SqliteStorage;

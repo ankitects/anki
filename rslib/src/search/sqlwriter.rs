@@ -358,7 +358,7 @@ impl SqlWriter<'_> {
         let csum = field_checksum(text_nohtml.as_ref());
         write!(
             self.sql,
-            "(n.mid = {} and n.csum = {} and field_at_index(n.flds, 0) = ?",
+            "(n.mid = {} and n.csum = {} and field_at_index(n.flds, 0) = ?)",
             ntid, csum
         )
         .unwrap();
@@ -557,9 +557,9 @@ mod test {
 
         // dupes
         assert_eq!(
-            s(ctx, "dupes:123,test"),
+            s(ctx, "dupe:123,test"),
             (
-                "((n.mid = 123 and n.csum = 2840236005 and field_at_index(n.flds, 0) = ?)".into(),
+                "((n.mid = 123 and n.csum = 2840236005 and field_at_index(n.flds, 0) = ?))".into(),
                 vec!["test".into()]
             )
         );

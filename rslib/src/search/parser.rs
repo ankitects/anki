@@ -273,7 +273,7 @@ fn search_node_for_text_with_argument<'a>(
         "is" => parse_state(val.as_ref())?,
         "flag" => parse_flag(val.as_ref())?,
         "rated" => parse_rated(val.as_ref())?,
-        "dupes" => parse_dupes(val.as_ref())?,
+        "dupe" => parse_dupes(val.as_ref())?,
         "prop" => parse_prop(val.as_ref())?,
         "re" => SearchNode::Regex(val),
         "nc" => SearchNode::NoCombining(val),

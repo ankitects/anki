@@ -23,7 +23,7 @@ use unicase::UniCase;
 
 const SCHEMA_MIN_VERSION: u8 = 11;
 const SCHEMA_STARTING_VERSION: u8 = 11;
-const SCHEMA_MAX_VERSION: u8 = 12;
+const SCHEMA_MAX_VERSION: u8 = 13;
 
 fn unicase_compare(s1: &str, s2: &str) -> Ordering {
     UniCase::new(s1).cmp(&UniCase::new(s2))
@@ -204,32 +204,11 @@ impl SqliteStorage {
         Ok(storage)
     }
 
-    fn upgrade_to_latest_schema(&self, ver: u8) -> Result<()> {
-        if ver < 12 {
-            self.upgrade_to_schema_12()?;
+    pub(crate) fn close(self, downgrade: bool) -> Result<()> {
+        if downgrade {
+            self.downgrade_to_schema_11()?;
+            self.db.pragma_update(None, "journal_mode", &"delete")?;
         }
-        Ok(())
-    }
-
-    pub(crate) fn downgrade_to_schema_11(self) -> Result<()> {
-        self.begin_trx()?;
-        self.downgrade_from_schema_12()?;
-        self.commit_trx()
-    }
-
-    fn upgrade_to_schema_12(&self) -> Result<()> {
-        self.db
-            .execute_batch(include_str!("schema12_upgrade.sql"))?;
-        self.upgrade_deck_conf_to_schema12()?;
-        self.upgrade_tags_to_schema12()
-    }
-
-    fn downgrade_from_schema_12(&self) -> Result<()> {
-        self.downgrade_tags_from_schema12()?;
-        self.downgrade_deck_conf_from_schema12()?;
-
-        self.db
-            .execute_batch(include_str!("schema12_downgrade.sql"))?;
         Ok(())
     }
 
