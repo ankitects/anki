@@ -74,7 +74,7 @@ impl SqliteStorage {
         Ok(())
     }
 
-    pub(super) fn downgrade_tags_from_schema12(&self) -> Result<()> {
+    pub(super) fn downgrade_tags_from_schema13(&self) -> Result<()> {
         let alltags = self.all_tags()?;
         let tagsmap: HashMap<String, Usn> = alltags.into_iter().collect();
         self.db.execute(
