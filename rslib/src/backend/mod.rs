@@ -336,7 +336,7 @@ impl Backend {
         let col_inner = col.take().unwrap();
         if downgrade {
             let log = log::terminal();
-            if let Err(e) = col_inner.downgrade_and_close() {
+            if let Err(e) = col_inner.close(downgrade) {
                 error!(log, " failed: {:?}", e);
             }
         }

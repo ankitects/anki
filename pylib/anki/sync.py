@@ -638,7 +638,7 @@ class FullSyncer(HttpSyncer):
     def download(self) -> Optional[str]:
         hooks.sync_stage_did_change("download")
         localNotEmpty = self.col.db.scalar("select 1 from cards")
-        self.col.close()
+        self.col.close(downgrade=False)
         cont = self.req("download")
         tpath = self.col.path + ".tmp"
         if cont == "upgradeRequired":

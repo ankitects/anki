@@ -19,7 +19,7 @@ impl SqliteStorage {
         Ok(())
     }
 
-    pub(crate) fn downgrade_to_schema_11(self) -> Result<()> {
+    pub(super) fn downgrade_to_schema_11(&self) -> Result<()> {
         self.begin_trx()?;
 
         self.downgrade_tags_from_schema13()?;
@@ -30,6 +30,8 @@ impl SqliteStorage {
         self.db
             .execute_batch(include_str!("schema12_downgrade.sql"))?;
 
-        self.commit_trx()
+        self.commit_trx()?;
+
+        Ok(())
     }
 }

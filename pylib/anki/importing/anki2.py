@@ -40,7 +40,7 @@ class Anki2Importer(Importer):
         try:
             self._import()
         finally:
-            self.src.close(save=False)
+            self.src.close(save=False, downgrade=False)
 
     def _prepareFiles(self) -> None:
         importingV2 = self.file.endswith(".anki21")

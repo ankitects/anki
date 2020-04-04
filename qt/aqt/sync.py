@@ -400,7 +400,7 @@ class SyncThread(QThread):
             self.fireEvent("error", err)
         finally:
             # don't bump mod time unless we explicitly save
-            self.col.close(save=False)
+            self.col.close(save=False, downgrade=False)
             hooks.sync_stage_did_change.remove(syncEvent)
             hooks.sync_progress_did_change.remove(syncMsg)
 

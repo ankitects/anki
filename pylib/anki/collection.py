@@ -245,16 +245,14 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
             return True
         return None
 
-    def close(self, save: bool = True) -> None:
+    def close(self, save: bool = True, downgrade: bool = False) -> None:
         "Disconnect from DB."
         if self.db:
             if save:
                 self.save(trx=False)
             else:
                 self.db.rollback()
-            if not self.server:
-                self.db.execute("pragma journal_mode = delete")
-            self.backend.close_collection()
+            self.backend.close_collection(downgrade=downgrade)
             self.db = None
             self.media.close()
             self._closeLog()
@@ -296,7 +294,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         self.save(trx=False)
         self.db.execute("vacuum")
         self.db.execute("analyze")
-        self.close(save=False)
+        self.close(save=False, downgrade=True)
 
     # Object creation helpers
     ##########################################################################
