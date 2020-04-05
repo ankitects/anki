@@ -80,7 +80,7 @@ class DataModel(QAbstractTableModel):
         self.browser = browser
         self.col = browser.col
         self.sortKey = None
-        self.activeCols = self.col.conf.get(
+        self.activeCols = self.col.get_config(
             "activeCols", ["noteFld", "template", "cardDue", "deck"]
         )
         self.cards: Sequence[int] = []
@@ -1121,7 +1121,7 @@ QTableView {{ gridline-color: {grid} }}
 
     def _favTree(self, root) -> None:
         assert self.col
-        saved = self.col.conf.get("savedFilters", {})
+        saved = self.col.get_config("savedFilters", {})
         for name, filt in sorted(saved.items()):
             item = SidebarItem(
                 name,
@@ -1360,7 +1360,7 @@ QTableView {{ gridline-color: {grid} }}
         ml = MenuList()
         # make sure exists
         if "savedFilters" not in self.col.conf:
-            self.col.conf["savedFilters"] = {}
+            self.col.set_config("savedFilters", {})
 
         ml.addSeparator()
 
@@ -1369,7 +1369,7 @@ QTableView {{ gridline-color: {grid} }}
         else:
             ml.addItem(_("Save Current Filter..."), self._onSaveFilter)
 
-        saved = self.col.conf["savedFilters"]
+        saved = self.col.get_config("savedFilters")
         if not saved:
             return ml
 
@@ -1384,8 +1384,9 @@ QTableView {{ gridline-color: {grid} }}
         if not name:
             return
         filt = self.form.searchEdit.lineEdit().text()
-        self.col.conf["savedFilters"][name] = filt
-        self.col.setMod()
+        conf = self.col.get_config("savedFilters")
+        conf[name] = filt
+        self.col.save_config("savedFilters", conf)
         self.maybeRefreshSidebar()
 
     def _onRemoveFilter(self):
@@ -1399,7 +1400,7 @@ QTableView {{ gridline-color: {grid} }}
     # returns name if found
     def _currentFilterIsSaved(self):
         filt = self.form.searchEdit.lineEdit().text()
-        for k, v in self.col.conf["savedFilters"].items():
+        for k, v in self.col.get_config("savedFilters").items():
             if filt == v:
                 return k
         return None

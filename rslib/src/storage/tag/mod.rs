@@ -58,7 +58,7 @@ impl SqliteStorage {
 
     // Upgrading/downgrading
 
-    pub(super) fn upgrade_tags_to_schema12(&self) -> Result<()> {
+    pub(super) fn upgrade_tags_to_schema13(&self) -> Result<()> {
         let tags = self
             .db
             .query_row_and_then("select tags from col", NO_PARAMS, |row| {

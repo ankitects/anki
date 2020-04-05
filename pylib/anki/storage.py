@@ -6,10 +6,9 @@ import json
 import os
 import weakref
 from dataclasses import dataclass
-from typing import Any, Dict, Optional, Tuple
+from typing import Optional
 
 from anki.collection import _Collection
-from anki.consts import *
 from anki.dbproxy import DBProxy
 from anki.lang import _
 from anki.media import media_paths_from_col_path
@@ -74,26 +73,18 @@ def Collection(
 
 
 def initial_db_setup(db: DBProxy) -> None:
-    db.begin()
-    _addColVars(db, *_getColVars(db))
-
-
-def _getColVars(db: DBProxy) -> Tuple[Any, Dict[str, Any]]:
-    import anki.collection
     import anki.decks
+
+    db.begin()
 
     g = copy.deepcopy(anki.decks.defaultDeck)
     g["id"] = 1
     g["name"] = _("Default")
     g["conf"] = 1
     g["mod"] = intTime()
-    return g, anki.collection.defaultConf.copy()
 
-
-def _addColVars(db: DBProxy, g: Dict[str, Any], c: Dict[str, Any]) -> None:
     db.execute(
         """
-update col set conf = ?, decks = ?""",
-        json.dumps(c),
+update col set decks = ?""",
         json.dumps({"1": g}),
     )

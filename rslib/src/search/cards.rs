@@ -33,10 +33,10 @@ pub(crate) fn search_cards<'a, 'b>(
     match order {
         SortMode::NoOrder => (),
         SortMode::FromConfig => {
-            let conf = req.storage.all_config()?;
-            prepare_sort(req, &conf.browser_sort_kind)?;
+            let kind = req.get_browser_sort_kind();
+            prepare_sort(req, &kind)?;
             sql.push_str(" order by ");
-            write_order(&mut sql, &conf.browser_sort_kind, conf.browser_sort_reverse)?;
+            write_order(&mut sql, &kind, req.get_browser_sort_reverse())?;
         }
         SortMode::Builtin { kind, reverse } => {
             prepare_sort(req, &kind)?;

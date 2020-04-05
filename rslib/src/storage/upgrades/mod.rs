@@ -14,13 +14,23 @@ impl SqliteStorage {
         if ver < 13 {
             self.db
                 .execute_batch(include_str!("schema13_upgrade.sql"))?;
-            self.upgrade_tags_to_schema12()?;
+            self.upgrade_tags_to_schema13()?;
         }
+        if ver < 14 {
+            self.db
+                .execute_batch(include_str!("schema14_upgrade.sql"))?;
+            self.upgrade_config_to_schema14()?;
+        }
+
         Ok(())
     }
 
     pub(super) fn downgrade_to_schema_11(&self) -> Result<()> {
         self.begin_trx()?;
+
+        self.downgrade_config_from_schema14()?;
+        self.db
+            .execute_batch(include_str!("schema14_downgrade.sql"))?;
 
         self.downgrade_tags_from_schema13()?;
         self.db

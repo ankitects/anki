@@ -231,9 +231,9 @@ impl SqlWriter<'_> {
                     .map(|(_, v)| v)
                     .collect();
                 let dids_with_children = if deck == "current" {
-                    let config = self.col.storage.all_config()?;
-                    let mut dids_with_children = vec![config.current_deck_id];
-                    let current = get_deck(&all_decks, config.current_deck_id)
+                    let current_id = self.col.get_current_deck_id();
+                    let mut dids_with_children = vec![current_id];
+                    let current = get_deck(&all_decks, current_id)
                         .ok_or_else(|| AnkiError::invalid_input("invalid current deck"))?;
                     for child_did in child_ids(&all_decks, &current.name) {
                         dids_with_children.push(child_did);

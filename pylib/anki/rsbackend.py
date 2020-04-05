@@ -577,6 +577,32 @@ class RustBackend:
             ).get_changed_tags.tags
         )
 
+    def get_config_json(self, key: str) -> str:
+        return self._run_command(pb.BackendInput(get_config_json=key)).get_config_json
+
+    def set_config_json(self, key: str, val: Any):
+        self._run_command(
+            pb.BackendInput(
+                set_config_json=pb.SetConfigJson(key=key, val=json.dumps(val))
+            )
+        )
+
+    def remove_config(self, key: str):
+        self._run_command(
+            pb.BackendInput(
+                set_config_json=pb.SetConfigJson(key=key, remove=pb.Empty())
+            )
+        )
+
+    def get_all_config(self) -> Dict[str, Any]:
+        jstr = self._run_command(
+            pb.BackendInput(get_all_config=pb.Empty())
+        ).get_all_config
+        return json.loads(jstr)
+
+    def set_all_config(self, conf: Dict[str, Any]):
+        self._run_command(pb.BackendInput(set_all_config=json.dumps(conf)))
+
 
 def translate_string_in(
     key: TR, **kwargs: Union[str, int, float]

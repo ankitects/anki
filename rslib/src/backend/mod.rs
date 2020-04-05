@@ -2,7 +2,6 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::backend::dbproxy::db_command_bytes;
-use crate::backend_proto::backend_input::Value;
 use crate::backend_proto::{
     AddOrUpdateDeckConfigIn, BuiltinSortKind, Empty, RenderedTemplateReplacement, SyncMediaIn,
 };
@@ -34,7 +33,9 @@ use crate::{backend_proto as pb, log};
 use fluent::FluentValue;
 use futures::future::{AbortHandle, Abortable};
 use log::error;
+use pb::backend_input::Value;
 use prost::Message;
+use serde_json::Value as JsonValue;
 use std::collections::{HashMap, HashSet};
 use std::convert::TryFrom;
 use std::path::PathBuf;
@@ -291,6 +292,17 @@ impl Backend {
             Value::AllTags(_) => OValue::AllTags(self.all_tags()?),
             Value::RegisterTags(input) => OValue::RegisterTags(self.register_tags(input)?),
             Value::GetChangedTags(usn) => OValue::GetChangedTags(self.get_changed_tags(usn)?),
+            Value::GetConfigJson(key) => OValue::GetConfigJson(self.get_config_json(&key)?),
+            Value::SetConfigJson(input) => OValue::SetConfigJson({
+                self.set_config_json(input)?;
+                pb::Empty {}
+            }),
+
+            Value::SetAllConfig(input) => OValue::SetConfigJson({
+                self.set_all_config(&input)?;
+                pb::Empty {}
+            }),
+            Value::GetAllConfig(_) => OValue::GetAllConfig(self.get_all_config()?),
         })
     }
 
@@ -400,8 +412,8 @@ impl Backend {
 
     fn sched_timing_today(&self, input: pb::SchedTimingTodayIn) -> pb::SchedTimingTodayOut {
         let today = sched_timing_today(
-            input.created_secs as i64,
-            input.now_secs as i64,
+            TimestampSecs(input.created_secs),
+            TimestampSecs(input.now_secs),
             input.created_mins_west.map(|v| v.val),
             input.now_mins_west.map(|v| v.val),
             input.rollover_hour.map(|v| v.val as i8),
@@ -781,6 +793,52 @@ impl Backend {
                     tags: col.storage.get_changed_tags(Usn(usn))?,
                 })
             })
+        })
+    }
+
+    fn get_config_json(&self, key: &str) -> Result<String> {
+        self.with_col(|col| {
+            let val: Option<JsonValue> = col.get_config_optional(key);
+            match val {
+                None => Ok("".to_string()),
+                Some(val) => Ok(serde_json::to_string(&val)?),
+            }
+        })
+    }
+
+    fn set_config_json(&self, input: pb::SetConfigJson) -> Result<()> {
+        self.with_col(|col| {
+            col.transact(None, |col| {
+                if let Some(op) = input.op {
+                    match op {
+                        pb::set_config_json::Op::Val(val) => {
+                            // ensure it's a well-formed object
+                            let val: JsonValue = serde_json::from_str(&val)?;
+                            col.set_config(&input.key, &val)
+                        }
+                        pb::set_config_json::Op::Remove(_) => col.remove_config(&input.key),
+                    }
+                } else {
+                    Err(AnkiError::invalid_input("no op received"))
+                }
+            })
+        })
+    }
+
+    fn set_all_config(&self, conf: &str) -> Result<()> {
+        let val: HashMap<String, JsonValue> = serde_json::from_str(conf)?;
+        self.with_col(|col| {
+            col.transact(None, |col| {
+                col.storage
+                    .set_all_config(val, col.usn()?, TimestampSecs::now())
+            })
+        })
+    }
+
+    fn get_all_config(&self) -> Result<String> {
+        self.with_col(|col| {
+            let conf = col.storage.get_all_config()?;
+            serde_json::to_string(&conf).map_err(Into::into)
         })
     }
 }
