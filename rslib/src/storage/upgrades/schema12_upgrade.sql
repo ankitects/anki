@@ -3,7 +3,7 @@ create table deck_config (
   name text not null collate unicase,
   mtime_secs integer not null,
   usn integer not null,
-  config text not null
+  config blob not null
 );
 update col
 set

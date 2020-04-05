@@ -16,10 +16,10 @@ impl SqliteStorage {
         usn: Usn,
         mtime: TimestampSecs,
     ) -> Result<()> {
-        let json = serde_json::to_string(val)?;
+        let json = serde_json::to_vec(val)?;
         self.db
             .prepare_cached(include_str!("add.sql"))?
-            .execute(params![key, usn, mtime, json])?;
+            .execute(params![key, usn, mtime, &json])?;
         Ok(())
     }
 
@@ -34,7 +34,8 @@ impl SqliteStorage {
         self.db
             .prepare_cached(include_str!("get.sql"))?
             .query_and_then(&[key], |row| {
-                serde_json::from_str(row.get_raw(0).as_str()?).map_err(Into::into)
+                let blob = row.get_raw(0).as_blob()?;
+                serde_json::from_slice(blob).map_err(Into::into)
             })?
             .next()
             .transpose()
@@ -44,7 +45,7 @@ impl SqliteStorage {
         self.db
             .prepare("select key, val from config")?
             .query_and_then(NO_PARAMS, |row| {
-                let val: Value = serde_json::from_str(row.get_raw(1).as_str()?)?;
+                let val: Value = serde_json::from_slice(row.get_raw(1).as_blob()?)?;
                 Ok((row.get::<usize, String>(0)?, val))
             })?
             .collect()

@@ -153,16 +153,21 @@ impl SqliteStorage {
     pub(crate) fn open_or_create(path: &Path, i18n: &I18n) -> Result<Self> {
         let db = open_or_create_collection_db(path)?;
         let (create, ver) = schema_version(&db)?;
-        if ver > SCHEMA_MAX_VERSION {
+
+        let err = match ver {
+            v if v < SCHEMA_MIN_VERSION => Some(DBErrorKind::FileTooOld),
+            v if v > SCHEMA_MAX_VERSION => Some(DBErrorKind::FileTooNew),
+            12 | 13 => {
+                // as schema definition changed, user must perform clean
+                // shutdown to return to schema 11 prior to running this version
+                Some(DBErrorKind::FileTooNew)
+            }
+            _ => None,
+        };
+        if let Some(kind) = err {
             return Err(AnkiError::DBError {
                 info: "".to_string(),
-                kind: DBErrorKind::FileTooNew,
-            });
-        }
-        if ver < SCHEMA_MIN_VERSION {
-            return Err(AnkiError::DBError {
-                info: "".to_string(),
-                kind: DBErrorKind::FileTooOld,
+                kind,
             });
         }
 
