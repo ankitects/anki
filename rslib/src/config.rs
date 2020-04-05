@@ -8,6 +8,7 @@ use crate::timestamp::TimestampSecs;
 use serde::{de::DeserializeOwned, Serialize};
 use serde_derive::Deserialize;
 use serde_json::json;
+use slog::warn;
 
 pub(crate) fn schema11_config_as_string() -> String {
     let obj = json!({
@@ -58,9 +59,14 @@ impl Collection {
         T: DeserializeOwned,
         K: Into<&'a str>,
     {
-        match self.storage.get_config_value(key.into()) {
-            Ok(Some(val)) => val,
-            _ => None,
+        let key = key.into();
+        match self.storage.get_config_value(key) {
+            Ok(Some(val)) => Some(val),
+            Ok(None) => None,
+            Err(e) => {
+                warn!(self.log, "error accessing config key"; "key"=>key, "err"=>?e);
+                None
+            }
         }
     }
 
@@ -135,5 +141,47 @@ pub enum SortKind {
 impl Default for SortKind {
     fn default() -> Self {
         Self::NoteCreation
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::SortKind;
+    use crate::collection::open_test_collection;
+    use crate::decks::DeckID;
+
+    #[test]
+    fn defaults() {
+        let col = open_test_collection();
+        assert_eq!(col.get_current_deck_id(), DeckID(1));
+        assert_eq!(col.get_browser_sort_kind(), SortKind::NoteField);
+    }
+
+    #[test]
+    fn get_set() {
+        let col = open_test_collection();
+
+        // missing key
+        assert_eq!(col.get_config_optional::<Vec<i64>, _>("test"), None);
+
+        // normal retrieval
+        col.set_config("test", &vec![1, 2]).unwrap();
+        assert_eq!(
+            col.get_config_optional::<Vec<i64>, _>("test"),
+            Some(vec![1, 2])
+        );
+
+        // invalid type conversion
+        assert_eq!(col.get_config_optional::<i64, _>("test"), None,);
+
+        // invalid json
+        col.storage
+            .db
+            .execute(
+                "update config set val=? where key='test'",
+                &[b"xx".as_ref()],
+            )
+            .unwrap();
+        assert_eq!(col.get_config_optional::<i64, _>("test"), None,);
     }
 }
