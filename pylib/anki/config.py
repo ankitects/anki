@@ -19,7 +19,6 @@ As this is less efficient, please use the col.*_config() API in new code.
 from __future__ import annotations
 
 import copy
-import json
 import weakref
 from typing import Any
 
@@ -31,10 +30,7 @@ class ConfigManager:
         self.col = col.weakref()
 
     def get_immutable(self, key: str) -> Any:
-        s = self.col.backend.get_config_json(key)
-        if not s:
-            raise KeyError
-        return json.loads(s)
+        return self.col.backend.get_config_json(key)
 
     def set(self, key: str, val: Any) -> None:
         self.col.backend.set_config_json(key, val)
