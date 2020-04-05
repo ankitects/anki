@@ -28,11 +28,8 @@ def test_graphs_empty():
 
 
 def test_graphs():
-    from anki import Collection as aopen
-
     dir = tempfile.gettempdir()
-
-    d = aopen(os.path.join(dir, "test.anki2"))
+    d = getEmptyCol()
     g = d.stats()
     rep = g.report()
     with open(os.path.join(dir, "test.html"), "w", encoding="UTF-8") as f:
