@@ -61,6 +61,10 @@ message BackendInput {
         string canonify_tags = 49;
         Empty all_tags = 50;
         int32 get_changed_tags = 51;
+        string get_config_json = 52;
+        SetConfigJson set_config_json = 53;
+        string set_all_config = 54;
+        Empty get_all_config = 55;
     }
 }
 
@@ -105,6 +109,10 @@ message BackendOutput {
         CanonifyTagsOut canonify_tags = 49;
         AllTagsOut all_tags = 50;
         GetChangedTagsOut get_changed_tags = 51;
+        string get_config_json = 52;
+        Empty set_config_json = 53;
+        Empty set_all_config = 54;
+        string get_all_config = 55;
 
         BackendError error = 2047;
     }
@@ -453,4 +461,12 @@ message GetChangedTagsOut {
 message CanonifyTagsOut {
     string tags = 1;
     bool tag_list_changed = 2;
+}
+
+message SetConfigJson {
+    string key = 1;
+    oneof op {
+        string val = 2;
+        Empty remove = 3;
+    }
 }

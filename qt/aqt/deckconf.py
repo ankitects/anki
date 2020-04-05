@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from operator import itemgetter
-
 from typing import Union
 
 import aqt

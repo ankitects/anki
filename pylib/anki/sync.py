@@ -449,11 +449,11 @@ from notes where %s"""
     # Col config
     ##########################################################################
 
-    def getConf(self) -> Any:
-        return self.col.conf
+    def getConf(self) -> Dict[str, Any]:
+        return self.col.backend.get_all_config()
 
-    def mergeConf(self, conf) -> None:
-        self.col.conf = conf
+    def mergeConf(self, conf: Dict[str, Any]) -> None:
+        self.col.backend.set_all_config(conf)
 
 
 # HTTP syncing tools
