@@ -796,12 +796,12 @@ impl Backend {
         })
     }
 
-    fn get_config_json(&self, key: &str) -> Result<String> {
+    fn get_config_json(&self, key: &str) -> Result<Vec<u8>> {
         self.with_col(|col| {
             let val: Option<JsonValue> = col.get_config_optional(key);
             match val {
-                None => Ok("".to_string()),
-                Some(val) => Ok(serde_json::to_string(&val)?),
+                None => Ok(vec![]),
+                Some(val) => Ok(serde_json::to_vec(&val)?),
             }
         })
     }
@@ -813,7 +813,7 @@ impl Backend {
                     match op {
                         pb::set_config_json::Op::Val(val) => {
                             // ensure it's a well-formed object
-                            let val: JsonValue = serde_json::from_str(&val)?;
+                            let val: JsonValue = serde_json::from_slice(&val)?;
                             col.set_config(&input.key, &val)
                         }
                         pb::set_config_json::Op::Remove(_) => col.remove_config(&input.key),
@@ -825,8 +825,8 @@ impl Backend {
         })
     }
 
-    fn set_all_config(&self, conf: &str) -> Result<()> {
-        let val: HashMap<String, JsonValue> = serde_json::from_str(conf)?;
+    fn set_all_config(&self, conf: &[u8]) -> Result<()> {
+        let val: HashMap<String, JsonValue> = serde_json::from_slice(conf)?;
         self.with_col(|col| {
             col.transact(None, |col| {
                 col.storage
@@ -835,10 +835,10 @@ impl Backend {
         })
     }
 
-    fn get_all_config(&self) -> Result<String> {
+    fn get_all_config(&self) -> Result<Vec<u8>> {
         self.with_col(|col| {
             let conf = col.storage.get_all_config()?;
-            serde_json::to_string(&conf).map_err(Into::into)
+            serde_json::to_vec(&conf).map_err(Into::into)
         })
     }
 }

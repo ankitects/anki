@@ -577,13 +577,16 @@ class RustBackend:
             ).get_changed_tags.tags
         )
 
-    def get_config_json(self, key: str) -> str:
-        return self._run_command(pb.BackendInput(get_config_json=key)).get_config_json
+    def get_config_json(self, key: str) -> Any:
+        b = self._run_command(pb.BackendInput(get_config_json=key)).get_config_json
+        if b == b"":
+            raise KeyError
+        return orjson.loads(b)
 
     def set_config_json(self, key: str, val: Any):
         self._run_command(
             pb.BackendInput(
-                set_config_json=pb.SetConfigJson(key=key, val=json.dumps(val))
+                set_config_json=pb.SetConfigJson(key=key, val=orjson.dumps(val))
             )
         )
 
@@ -598,10 +601,10 @@ class RustBackend:
         jstr = self._run_command(
             pb.BackendInput(get_all_config=pb.Empty())
         ).get_all_config
-        return json.loads(jstr)
+        return orjson.loads(jstr)
 
     def set_all_config(self, conf: Dict[str, Any]):
-        self._run_command(pb.BackendInput(set_all_config=json.dumps(conf)))
+        self._run_command(pb.BackendInput(set_all_config=orjson.dumps(conf)))
 
 
 def translate_string_in(
