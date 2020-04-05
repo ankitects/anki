@@ -150,13 +150,13 @@ class DeckManager:
             self.col.sched.emptyDyn(did)
             if childrenToo:
                 for name, id in self.children(did):
-                    self.rem(id, cardsToo)
+                    self.rem(id, cardsToo, childrenToo=False)
         else:
             # delete children first
             if childrenToo:
                 # we don't want to delete children when syncing
                 for name, id in self.children(did):
-                    self.rem(id, cardsToo)
+                    self.rem(id, cardsToo, childrenToo=False)
             # delete cards too?
             if cardsToo:
                 # don't use cids(), as we want cards in cram decks too
