@@ -510,10 +510,10 @@ class RustBackend:
 
     def get_deck_config(self, dcid: int) -> Dict[str, Any]:
         jstr = self._run_command(pb.BackendInput(get_deck_config=dcid)).get_deck_config
-        return json.loads(jstr)
+        return orjson.loads(jstr)
 
     def add_or_update_deck_config(self, conf: Dict[str, Any], preserve_usn) -> None:
-        conf_json = json.dumps(conf)
+        conf_json = orjson.dumps(conf)
         id = self._run_command(
             pb.BackendInput(
                 add_or_update_deck_config=pb.AddOrUpdateDeckConfigIn(
@@ -527,13 +527,13 @@ class RustBackend:
         jstr = self._run_command(
             pb.BackendInput(all_deck_config=pb.Empty())
         ).all_deck_config
-        return json.loads(jstr)
+        return orjson.loads(jstr)
 
     def new_deck_config(self) -> Dict[str, Any]:
         jstr = self._run_command(
             pb.BackendInput(new_deck_config=pb.Empty())
         ).new_deck_config
-        return json.loads(jstr)
+        return orjson.loads(jstr)
 
     def remove_deck_config(self, dcid: int) -> None:
         self._run_command(pb.BackendInput(remove_deck_config=dcid))
