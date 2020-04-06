@@ -126,7 +126,7 @@ class DeckManager:
             # child of an existing deck then it needs to be renamed
             deck = self.get(did)
             if "::" in deck["name"]:
-                base = self.path(deck["name"])[-1]
+                base = self._basename(deck["name"])
                 suffix = ""
                 while True:
                     # find an unused name
@@ -296,8 +296,9 @@ class DeckManager:
 
     _path = path
 
-    def _basename(self, name: str) -> Any:
-        return self.path(name)[-1]
+    @classmethod
+    def _basename(cls, name: str) -> Any:
+        return cls.path(name)[-1]
 
     @classmethod
     def key(cls, deck: Dict[str, Any]) -> List[str]:

@@ -1303,7 +1303,7 @@ QTableView {{ gridline-color: {grid} }}
         def addDecks(parent, decks):
             for head, did, rev, lrn, new, children in decks:
                 name = self.mw.col.decks.get(did)["name"]
-                shortname = DeckManager.path(name)[-1]
+                shortname = DeckManager._basename(name)
                 if children:
                     subm = parent.addMenu(shortname)
                     subm.addItem(_("Filter"), self._filterFunc("deck", name))
