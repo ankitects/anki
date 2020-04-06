@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import copy
 import json
-import operator
 import unicodedata
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
@@ -298,6 +297,10 @@ class DeckManager:
     def _basename(self, name: str) -> Any:
         return self._path(name)[-1]
 
+    @classmethod
+    def key(cls, deck: Dict[str, Any]) -> List[str]:
+        return cls._path(deck["name"])
+
     def _ensureParents(self, name: str) -> Any:
         "Ensure parents exist, and return name with case matching parents."
         s = ""
@@ -455,7 +458,7 @@ class DeckManager:
 
     def _checkDeckTree(self) -> None:
         decks = self.col.decks.all()
-        decks.sort(key=operator.itemgetter("name"))
+        decks.sort(key=self.key)
         names: Set[str] = set()
 
         for deck in decks:
@@ -571,7 +574,7 @@ class DeckManager:
         childMap = {}
 
         # go through all decks, sorted by name
-        for deck in sorted(self.all(), key=operator.itemgetter("name")):
+        for deck in sorted(self.all(), key=self.key):
             node: Dict[int, Any] = {}
             childMap[deck["id"]] = node
 
