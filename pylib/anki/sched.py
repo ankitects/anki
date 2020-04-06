@@ -14,6 +14,7 @@ import anki
 from anki import hooks
 from anki.cards import Card
 from anki.consts import *
+from anki.decks import DeckManager
 from anki.schedv2 import Scheduler as V2
 from anki.utils import ids2str, intTime
 
@@ -153,7 +154,7 @@ class Scheduler(V2):
         data = []
 
         def parent(name):
-            parts = name.split("::")
+            parts = DeckManager._path(name)
             if len(parts) < 2:
                 return None
             parts = parts[:-1]

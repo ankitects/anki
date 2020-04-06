@@ -126,7 +126,7 @@ class DeckManager:
             # child of an existing deck then it needs to be renamed
             deck = self.get(did)
             if "::" in deck["name"]:
-                base = deck["name"].split("::")[-1]
+                base = self._path(deck["name"])[-1]
                 suffix = ""
                 while True:
                     # find an unused name
@@ -469,14 +469,14 @@ class DeckManager:
                 self.save(deck)
 
             # ensure no sections are blank
-            if not all(deck["name"].split("::")):
+            if not all(self._path(deck["name"])):
                 self.col.log("fix deck with missing sections", deck["name"])
                 deck["name"] = "recovered%d" % intTime(1000)
                 self.save(deck)
 
             # immediate parent must exist
             if "::" in deck["name"]:
-                immediateParent = "::".join(deck["name"].split("::")[:-1])
+                immediateParent = "::".join(self._path(deck["name"])[:-1])
                 if immediateParent not in names:
                     self.col.log("fix deck with missing parent", deck["name"])
                     self._ensureParents(deck["name"])
@@ -579,7 +579,7 @@ class DeckManager:
             childMap[deck["id"]] = node
 
             # add note to immediate parent
-            parts = deck["name"].split("::")
+            parts = self._path(deck["name"])
             if len(parts) > 1:
                 immediateParent = "::".join(parts[:-1])
                 pid = nameMap[immediateParent]["id"]
@@ -591,7 +591,7 @@ class DeckManager:
         "All parents of did."
         # get parent and grandparent names
         parents: List[str] = []
-        for part in self.get(did)["name"].split("::")[:-1]:
+        for part in self._path(self.get(did)["name"])[:-1]:
             if not parents:
                 parents.append(part)
             else:
@@ -609,7 +609,7 @@ class DeckManager:
         "All existing parents of name"
         if "::" not in name:
             return []
-        names = name.split("::")[:-1]
+        names = self._path(name)[:-1]
         head = []
         parents = []
 
