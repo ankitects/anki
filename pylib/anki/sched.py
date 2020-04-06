@@ -154,7 +154,7 @@ class Scheduler(V2):
         data = []
 
         def parent(name):
-            parts = DeckManager._path(name)
+            parts = DeckManager.path(name)
             if len(parts) < 2:
                 return None
             parts = parts[:-1]

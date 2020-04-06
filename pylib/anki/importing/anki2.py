@@ -258,13 +258,13 @@ class Anki2Importer(Importer):
         name = g["name"]
         # if there's a prefix, replace the top level deck
         if self.deckPrefix:
-            tmpname = "::".join(DeckManager._path(name)[1:])
+            tmpname = "::".join(DeckManager.path(name)[1:])
             name = self.deckPrefix
             if tmpname:
                 name += "::" + tmpname
         # manually create any parents so we can pull in descriptions
         head = ""
-        for parent in DeckManager._path(name)[:-1]:
+        for parent in DeckManager.path(name)[:-1]:
             if head:
                 head += "::"
             head += parent
