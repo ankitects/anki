@@ -264,7 +264,7 @@ class Anki2Importer(Importer):
                 name += "::" + tmpname
         # manually create any parents so we can pull in descriptions
         head = ""
-        for parent in DeckManager.path(name)[:-1]:
+        for parent in DeckManager.immediate_parent_path(name):
             if head:
                 head += "::"
             head += parent
