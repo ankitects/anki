@@ -6,6 +6,7 @@ use crate::decks::DeckID;
 use crate::err::Result;
 use crate::timestamp::TimestampSecs;
 use serde::{de::DeserializeOwned, Serialize};
+use serde_aux::field_attributes::deserialize_bool_from_anything;
 use serde_derive::Deserialize;
 use serde_json::json;
 use slog::warn;
@@ -52,6 +53,9 @@ impl From<ConfigKey> for &'static str {
     }
 }
 
+#[derive(Deserialize, Default)]
+struct BoolLike(#[serde(deserialize_with = "deserialize_bool_from_anything")] bool);
+
 impl Collection {
     /// Get config item, returning None if missing/invalid.
     pub(crate) fn get_config_optional<'a, T, K>(&self, key: K) -> Option<T>
@@ -93,7 +97,8 @@ impl Collection {
     }
 
     pub(crate) fn get_browser_sort_reverse(&self) -> bool {
-        self.get_config_default(ConfigKey::BrowserSortReverse)
+        let b: BoolLike = self.get_config_default(ConfigKey::BrowserSortReverse);
+        b.0
     }
 
     pub(crate) fn get_current_deck_id(&self) -> DeckID {
