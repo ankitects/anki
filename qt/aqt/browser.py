@@ -24,7 +24,7 @@ from anki.lang import _, ngettext
 from anki.models import NoteType
 from anki.notes import Note
 from anki.rsbackend import TR
-from anki.utils import htmlToTextLine, ids2str, intTime, isMac, isWin
+from anki.utils import htmlToTextLine, ids2str, intTime, isMac, isWin, stripHTML
 from aqt import AnkiQt, gui_hooks
 from aqt.editor import Editor
 from aqt.exporting import ExportDialog
@@ -1154,7 +1154,7 @@ QTableView {{ gridline-color: {grid} }}
 
                         continue
                 item = SidebarItem(
-                    g[0],
+                    stripHTML(g[0]),
                     ":/icons/deck.svg",
                     lambda g=g: self.setFilter("deck", head + g[0]),
                     lambda expanded, g=g: self.mw.col.decks.collapseBrowser(g[1]),
