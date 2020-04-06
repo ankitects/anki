@@ -126,7 +126,7 @@ class DeckManager:
             # child of an existing deck then it needs to be renamed
             deck = self.get(did)
             if "::" in deck["name"]:
-                base = self._basename(deck["name"])
+                base = self.basename(deck["name"])
                 suffix = ""
                 while True:
                     # find an unused name
@@ -261,14 +261,14 @@ class DeckManager:
 
         if ontoDeckDid is None or ontoDeckDid == "":
             if len(self.path(draggedDeckName)) > 1:
-                self.rename(draggedDeck, self._basename(draggedDeckName))
+                self.rename(draggedDeck, self.basename(draggedDeckName))
         elif self._canDragAndDrop(draggedDeckName, ontoDeckName):
             draggedDeck = self.get(draggedDeckDid)
             draggedDeckName = draggedDeck["name"]
             ontoDeckName = self.get(ontoDeckDid)["name"]
             assert ontoDeckName.strip()
             self.rename(
-                draggedDeck, ontoDeckName + "::" + self._basename(draggedDeckName)
+                draggedDeck, ontoDeckName + "::" + self.basename(draggedDeckName)
             )
 
     def _canDragAndDrop(self, draggedDeckName: str, ontoDeckName: str) -> bool:
@@ -283,7 +283,7 @@ class DeckManager:
 
     def _isParent(self, parentDeckName: str, childDeckName: str) -> Any:
         return self.path(childDeckName) == self.path(parentDeckName) + [
-            self._basename(childDeckName)
+            self.basename(childDeckName)
         ]
 
     def _isAncestor(self, ancestorDeckName: str, descendantDeckName: str) -> Any:
@@ -297,8 +297,10 @@ class DeckManager:
     _path = path
 
     @classmethod
-    def _basename(cls, name: str) -> Any:
+    def basename(cls, name: str) -> Any:
         return cls.path(name)[-1]
+
+    _basename = basename
 
     @classmethod
     def key(cls, deck: Dict[str, Any]) -> List[str]:
