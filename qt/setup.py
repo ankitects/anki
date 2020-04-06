@@ -23,6 +23,7 @@ else:
 install_requires = [
     "beautifulsoup4",
     "requests",
+    "pyqtwebengine",
     "send2trash",
     "pyaudio",
     "markdown",
