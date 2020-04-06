@@ -131,6 +131,7 @@ message BackendError {
         SyncError sync_error = 7;
         // user interrupted operation
         Empty interrupted = 8;
+        string json_error = 9;
     }
 }
 
