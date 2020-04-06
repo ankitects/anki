@@ -241,7 +241,7 @@ order by due"""
         data = []
 
         def parent(name):
-            parts = DeckManager._path(name)
+            parts = DeckManager.path(name)
             if len(parts) < 2:
                 return None
             parts = parts[:-1]
@@ -280,7 +280,7 @@ order by due"""
     def _groupChildren(self, grps: List[List[Any]]) -> Any:
         # first, split the group names into components
         for g in grps:
-            g[0] = DeckManager._path(g[0])
+            g[0] = DeckManager.path(g[0])
         # and sort based on those components
         grps.sort(key=itemgetter(0))
         # then run main function

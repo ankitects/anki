@@ -126,7 +126,7 @@ class DeckManager:
             # child of an existing deck then it needs to be renamed
             deck = self.get(did)
             if "::" in deck["name"]:
-                base = self._path(deck["name"])[-1]
+                base = self.path(deck["name"])[-1]
                 suffix = ""
                 while True:
                     # find an unused name
@@ -260,7 +260,7 @@ class DeckManager:
         ontoDeckName = self.get(ontoDeckDid)["name"]
 
         if ontoDeckDid is None or ontoDeckDid == "":
-            if len(self._path(draggedDeckName)) > 1:
+            if len(self.path(draggedDeckName)) > 1:
                 self.rename(draggedDeck, self._basename(draggedDeckName))
         elif self._canDragAndDrop(draggedDeckName, ontoDeckName):
             draggedDeck = self.get(draggedDeckDid)
@@ -282,29 +282,31 @@ class DeckManager:
             return True
 
     def _isParent(self, parentDeckName: str, childDeckName: str) -> Any:
-        return self._path(childDeckName) == self._path(parentDeckName) + [
+        return self.path(childDeckName) == self.path(parentDeckName) + [
             self._basename(childDeckName)
         ]
 
     def _isAncestor(self, ancestorDeckName: str, descendantDeckName: str) -> Any:
-        ancestorPath = self._path(ancestorDeckName)
-        return ancestorPath == self._path(descendantDeckName)[0 : len(ancestorPath)]
+        ancestorPath = self.path(ancestorDeckName)
+        return ancestorPath == self.path(descendantDeckName)[0 : len(ancestorPath)]
 
     @staticmethod
-    def _path(name: str) -> Any:
+    def path(name: str) -> Any:
         return name.split("::")
 
+    _path = path
+
     def _basename(self, name: str) -> Any:
-        return self._path(name)[-1]
+        return self.path(name)[-1]
 
     @classmethod
     def key(cls, deck: Dict[str, Any]) -> List[str]:
-        return cls._path(deck["name"])
+        return cls.path(deck["name"])
 
     def _ensureParents(self, name: str) -> Any:
         "Ensure parents exist, and return name with case matching parents."
         s = ""
-        path = self._path(name)
+        path = self.path(name)
         if len(path) < 2:
             return name
         for p in path[:-1]:
@@ -469,14 +471,14 @@ class DeckManager:
                 self.save(deck)
 
             # ensure no sections are blank
-            if not all(self._path(deck["name"])):
+            if not all(self.path(deck["name"])):
                 self.col.log("fix deck with missing sections", deck["name"])
                 deck["name"] = "recovered%d" % intTime(1000)
                 self.save(deck)
 
             # immediate parent must exist
             if "::" in deck["name"]:
-                immediateParent = "::".join(self._path(deck["name"])[:-1])
+                immediateParent = "::".join(self.path(deck["name"])[:-1])
                 if immediateParent not in names:
                     self.col.log("fix deck with missing parent", deck["name"])
                     self._ensureParents(deck["name"])
@@ -579,7 +581,7 @@ class DeckManager:
             childMap[deck["id"]] = node
 
             # add note to immediate parent
-            parts = self._path(deck["name"])
+            parts = self.path(deck["name"])
             if len(parts) > 1:
                 immediateParent = "::".join(parts[:-1])
                 pid = nameMap[immediateParent]["id"]
@@ -591,7 +593,7 @@ class DeckManager:
         "All parents of did."
         # get parent and grandparent names
         parents: List[str] = []
-        for part in self._path(self.get(did)["name"])[:-1]:
+        for part in self.path(self.get(did)["name"])[:-1]:
             if not parents:
                 parents.append(part)
             else:
@@ -609,7 +611,7 @@ class DeckManager:
         "All existing parents of name"
         if "::" not in name:
             return []
-        names = self._path(name)[:-1]
+        names = self.path(name)[:-1]
         head = []
         parents = []
 
