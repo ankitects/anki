@@ -291,7 +291,8 @@ class DeckManager:
         ancestorPath = self._path(ancestorDeckName)
         return ancestorPath == self._path(descendantDeckName)[0 : len(ancestorPath)]
 
-    def _path(self, name: str) -> Any:
+    @staticmethod
+    def _path(name: str) -> Any:
         return name.split("::")
 
     def _basename(self, name: str) -> Any:
