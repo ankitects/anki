@@ -154,7 +154,7 @@ def fields_for_rendering(
     fields["Tags"] = note.stringTags().strip()
     fields["Type"] = card.note_type()["name"]
     fields["Deck"] = col.decks.name(card.odid or card.did)
-    fields["Subdeck"] = DeckManager.path(fields["Deck"])[-1]
+    fields["Subdeck"] = DeckManager._basename(fields["Deck"])
     fields["Card"] = card.template()["name"]
     flag = card.userFlag()
     fields["CardFlag"] = flag and f"flag{flag}" or ""
