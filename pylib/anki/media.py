@@ -32,7 +32,7 @@ def media_paths_from_col_path(col_path: str) -> Tuple[str, str]:
 
 class MediaManager:
 
-    soundRegexps = [r"(?i)(\[sound:(?P<fname>[^]]+)\])"]
+    soundRegexps = [r"(?i)(\[sound:(?P<fname>[^\]|]+)(?:\|(?P<args>[^\]]+))?\])"]
     imgRegexps = [
         # src element quoted case
         r"(?i)(<img[^>]* src=(?P<str>[\"'])(?P<fname>[^>]+?)(?P=str)[^>]*>)",
