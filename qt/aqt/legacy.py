@@ -47,6 +47,6 @@ def fmtTimeSpan(
 def install_pylib_legacy() -> None:
     anki.utils.bodyClass = bodyClass  # type: ignore
     anki.utils.fmtTimeSpan = fmtTimeSpan  # type: ignore
-    anki.sound._soundReg = r"\[sound:(.+?)\]"  # type: ignore
+    anki.sound._soundReg = r"\[sound:(.+?)(?:\|(.*?))?\]"  # type: ignore
     anki.sound.allSounds = allSounds  # type: ignore
     anki.sound.stripSounds = stripSounds  # type: ignore
