@@ -240,19 +240,12 @@ order by due"""
         lims: Dict[str, List[int]] = {}
         data = []
 
-        def parent(name):
-            parts = DeckManager.path(name)
-            if len(parts) < 2:
-                return None
-            parts = parts[:-1]
-            return "::".join(parts)
-
         childMap = self.col.decks.childMap()
         for deck in decks:
-            p = parent(deck["name"])
+            p = DeckManager.immediate_parent(deck["name"])
             # new
             nlim = self._deckNewLimitSingle(deck)
-            if p:
+            if p is not None:
                 nlim = min(nlim, lims[p][0])
             new = self._newForDeck(deck["id"], nlim)
             # learning

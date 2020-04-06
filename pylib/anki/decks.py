@@ -307,6 +307,12 @@ class DeckManager:
         return cls._path(name)[:-1]
 
     @classmethod
+    def immediate_parent(cls, name: str) -> Any:
+        pp = cls.immediate_parent_path(name)
+        if pp:
+            return "::".join(pp)
+
+    @classmethod
     def key(cls, deck: Dict[str, Any]) -> List[str]:
         return cls.path(deck["name"])
 
@@ -485,7 +491,7 @@ class DeckManager:
 
             # immediate parent must exist
             if "::" in deck["name"]:
-                immediateParent = "::".join(self.immediate_parent_path(deck["name"]))
+                immediateParent = self.immediate_parent(deck["name"])
                 if immediateParent not in names:
                     self.col.log("fix deck with missing parent", deck["name"])
                     self._ensureParents(deck["name"])
@@ -588,9 +594,8 @@ class DeckManager:
             childMap[deck["id"]] = node
 
             # add note to immediate parent
-            immediate_parent_path = self.immediate_parent_path(deck["name"])
-            if immediate_parent_path:
-                immediateParent = "::".join(immediate_parent_path)
+            immediateParent = self.immediate_parent(deck["name"])
+            if immediateParent is not None:
                 pid = nameMap[immediateParent]["id"]
                 childMap[pid][deck["id"]] = node
 
