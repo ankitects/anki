@@ -31,6 +31,9 @@ pub enum AnkiError {
     #[fail(display = "Sync error: {:?}, {}", kind, info)]
     SyncError { info: String, kind: SyncErrorKind },
 
+    #[fail(display = "JSON encode/decode error: {}", info)]
+    JSONError { info: String },
+
     #[fail(display = "The user interrupted the operation.")]
     Interrupted,
 
@@ -223,7 +226,9 @@ impl From<zip::result::ZipError> for AnkiError {
 
 impl From<serde_json::Error> for AnkiError {
     fn from(err: serde_json::Error) -> Self {
-        AnkiError::sync_misc(err.to_string())
+        AnkiError::JSONError {
+            info: err.to_string(),
+        }
     }
 }
 
