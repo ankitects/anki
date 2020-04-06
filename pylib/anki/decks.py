@@ -303,6 +303,10 @@ class DeckManager:
     _basename = basename
 
     @classmethod
+    def immediate_parent_path(cls, name: str) -> Any:
+        return cls._path(name)[:-1]
+
+    @classmethod
     def key(cls, deck: Dict[str, Any]) -> List[str]:
         return cls.path(deck["name"])
 
@@ -481,7 +485,7 @@ class DeckManager:
 
             # immediate parent must exist
             if "::" in deck["name"]:
-                immediateParent = "::".join(self.path(deck["name"])[:-1])
+                immediateParent = "::".join(self.immediate_parent_path(deck["name"]))
                 if immediateParent not in names:
                     self.col.log("fix deck with missing parent", deck["name"])
                     self._ensureParents(deck["name"])
@@ -584,9 +588,9 @@ class DeckManager:
             childMap[deck["id"]] = node
 
             # add note to immediate parent
-            parts = self.path(deck["name"])
-            if len(parts) > 1:
-                immediateParent = "::".join(parts[:-1])
+            immediate_parent_path = self.immediate_parent_path(deck["name"])
+            if immediate_parent_path:
+                immediateParent = "::".join(immediate_parent_path)
                 pid = nameMap[immediateParent]["id"]
                 childMap[pid][deck["id"]] = node
 
@@ -596,7 +600,7 @@ class DeckManager:
         "All parents of did."
         # get parent and grandparent names
         parents: List[str] = []
-        for part in self.path(self.get(did)["name"])[:-1]:
+        for part in self.immediate_parent_path(self.get(did)["name"]):
             if not parents:
                 parents.append(part)
             else:
@@ -614,7 +618,7 @@ class DeckManager:
         "All existing parents of name"
         if "::" not in name:
             return []
-        names = self.path(name)[:-1]
+        names = self.immediate_parent_path(name)
         head = []
         parents = []
 
