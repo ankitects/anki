@@ -46,13 +46,13 @@ futures = "0.3.4"
 
 # pinned until rusqlite 0.22 comes out
 [target.'cfg(target_vendor="apple")'.dependencies.rusqlite]
-git = "https://github.com/ankitects/rusqlite.git"
-branch="nulsafe-text"
+git = "https://github.com/jgallagher/rusqlite.git"
+rev = "0394e114d05552f1d8f2771f31a204dc18b3cde3"
 features = ["trace", "functions", "collation"]
 
 [target.'cfg(not(target_vendor="apple"))'.dependencies.rusqlite]
-git = "https://github.com/ankitects/rusqlite.git"
-branch="nulsafe-text"
+git = "https://github.com/jgallagher/rusqlite.git"
+rev = "0394e114d05552f1d8f2771f31a204dc18b3cde3"
 features = ["trace", "functions", "collation", "bundled"]
 
 [target.'cfg(linux)'.dependencies]
