@@ -1,6 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import collections
+import re
 from operator import itemgetter
 
 import aqt.clayout
@@ -137,14 +138,21 @@ class Models(QDialog):
     def _tmpNote(self):
         self.mm.setCurrent(self.model)
         n = self.col.newNote(forDeck=False)
-        for name in list(n.keys()):
+        field_names = list(n.keys())
+        for name in field_names:
             n[name] = "(" + name + ")"
-        try:
-            if "{{cloze:Text}}" in self.model["tmpls"][0]["qfmt"]:
-                n["Text"] = _("This is a {{c1::sample}} cloze deletion.")
-        except:
-            # invalid cloze
-            pass
+
+        cloze_re = re.compile(r"{{(?:[^}:]*:)*cloze:(?:[^}:]*:)*([^}]+)}}")
+        q_template = self.model["tmpls"][0]["qfmt"]
+        a_template = self.model["tmpls"][0]["afmt"]
+
+        used_cloze_fields = []
+        used_cloze_fields.extend(cloze_re.findall(q_template))
+        used_cloze_fields.extend(cloze_re.findall(a_template))
+        for field in used_cloze_fields:
+            if field in field_names:
+                n[field] = f"{field}: " + _("This is a {{c1::sample}} cloze deletion.")
+
         return n
 
     def onFields(self):
