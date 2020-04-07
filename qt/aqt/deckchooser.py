@@ -3,6 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from anki.lang import _
+from anki.utils import stripHTML
 from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import shortcut
@@ -92,7 +93,7 @@ class DeckChooser(QHBoxLayout):
             self.setDeckName(ret.name)
 
     def setDeckName(self, name):
-        self.deck.setText(name.replace("&", "&&"))
+        self.deck.setText(stripHTML(name).replace("&", "&&"))
         self._deckName = name
 
     def deckName(self):

@@ -4,6 +4,7 @@
 
 import aqt
 from anki.lang import _
+from anki.utils import stripHTML
 from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import getOnlyText, openHelp, restoreGeom, saveGeom, shortcut, showInfo
@@ -92,9 +93,10 @@ class StudyDeck(QDialog):
         self.filt = filt
         self.focus = focus
         self.names = [n for n in self.origNames if self._matches(n, filt)]
+        self.view_names = [stripHTML(n) for n in self.names]
         l = self.form.list
         l.clear()
-        l.addItems(self.names)
+        l.addItems(self.view_names)
         if focus in self.names:
             idx = self.names.index(focus)
         else:
