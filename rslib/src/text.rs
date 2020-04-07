@@ -127,10 +127,20 @@ pub fn extract_av_tags<'a>(text: &'a str, question_side: bool) -> (Cow<'a, str>,
             let field_text = caps.name("ttstext").unwrap();
             tts_tag_from_string(field_text.as_str(), args.as_str())
         };
-        tags.push(tag);
 
         // and replace with reference
-        format!("[anki:play:{}:{}]", context, tags.len() - 1)
+        if caps.name("soundargs").is_some()
+            && caps
+                .name("soundargs")
+                .unwrap()
+                .as_str()
+                .contains("fileonly")
+        {
+            caps.name("soundname").unwrap().as_str().to_string()
+        } else {
+            tags.push(tag);
+            format!("[anki:play:{}:{}]", context, tags.len() - 1)
+        }
     });
 
     (replaced_text, tags)
