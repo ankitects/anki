@@ -29,19 +29,26 @@ fn file(path: &str) -> io::Result<Logger> {
     let drain = slog_term::FullFormat::new(decorator).build().fuse();
     let drain = slog_envlogger::new(drain);
 
-    // log to the terminal as well
-    let decorator = slog_term::TermDecorator::new().build();
-    let term_drain = slog_term::FullFormat::new(decorator).build().fuse();
-    let term_drain = slog_envlogger::new(term_drain);
-
-    let joined_drain = slog::Duplicate::new(drain, term_drain).fuse();
-
-    let drain = slog_async::Async::new(joined_drain)
-        .chan_size(1_024)
-        .overflow_strategy(OverflowStrategy::Block)
-        .build()
-        .fuse();
-    Ok(Logger::root(drain, slog_o!()))
+    if std::env::var("LOGTERM").is_ok() {
+        // log to the terminal as well
+        let decorator = slog_term::TermDecorator::new().build();
+        let term_drain = slog_term::FullFormat::new(decorator).build().fuse();
+        let term_drain = slog_envlogger::new(term_drain);
+        let joined_drain = slog::Duplicate::new(drain, term_drain).fuse();
+        let drain = slog_async::Async::new(joined_drain)
+            .chan_size(1_024)
+            .overflow_strategy(OverflowStrategy::Block)
+            .build()
+            .fuse();
+        Ok(Logger::root(drain, slog_o!()))
+    } else {
+        let drain = slog_async::Async::new(drain)
+            .chan_size(1_024)
+            .overflow_strategy(OverflowStrategy::Block)
+            .build()
+            .fuse();
+        Ok(Logger::root(drain, slog_o!()))
+    }
 }
 
 fn maybe_rotate_log(path: &str) -> io::Result<()> {
