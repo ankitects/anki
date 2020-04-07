@@ -109,7 +109,7 @@ pub(super) fn set_note(db: &Connection, note: &mut Note, note_type: &NoteType) -
         note.mtime,
         note.usn,
         note.fields().join("\x1f"),
-        sort_field.as_ref(),
+        sort_field,
         csum,
         note.id,
     ])?;
