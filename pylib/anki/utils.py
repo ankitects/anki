@@ -56,7 +56,7 @@ def fmtFloat(float_value, point=1) -> str:
 reComment = re.compile("(?s)<!--.*?-->")
 reStyle = re.compile("(?si)<style.*?>.*?</style>")
 reScript = re.compile("(?si)<script.*?>.*?</script>")
-reTag = re.compile("(?s)<.*?>")
+reTag = re.compile(r"(?s)<[^>\s].*?>")
 reEnts = re.compile(r"&#?\w+;")
 reMedia = re.compile("(?i)<img[^>]+src=[\"']?([^\"'>]+)[\"']?[^>]*>")
 
