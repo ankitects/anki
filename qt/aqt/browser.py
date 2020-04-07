@@ -20,6 +20,7 @@ from anki import hooks
 from anki.cards import Card
 from anki.collection import _Collection
 from anki.consts import *
+from anki.decks import DeckManager
 from anki.lang import _, ngettext
 from anki.models import NoteType
 from anki.notes import Note
@@ -1302,7 +1303,7 @@ QTableView {{ gridline-color: {grid} }}
         def addDecks(parent, decks):
             for head, did, rev, lrn, new, children in decks:
                 name = self.mw.col.decks.get(did)["name"]
-                shortname = name.split("::")[-1]
+                shortname = DeckManager.basename(name)
                 if children:
                     subm = parent.addMenu(shortname)
                     subm.addItem(_("Filter"), self._filterFunc("deck", name))

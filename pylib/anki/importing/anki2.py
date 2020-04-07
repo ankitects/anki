@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from anki.collection import _Collection
 from anki.consts import *
+from anki.decks import DeckManager
 from anki.importing.base import Importer
 from anki.lang import _
 from anki.storage import Collection
@@ -257,13 +258,13 @@ class Anki2Importer(Importer):
         name = g["name"]
         # if there's a prefix, replace the top level deck
         if self.deckPrefix:
-            tmpname = "::".join(name.split("::")[1:])
+            tmpname = "::".join(DeckManager.path(name)[1:])
             name = self.deckPrefix
             if tmpname:
                 name += "::" + tmpname
         # manually create any parents so we can pull in descriptions
         head = ""
-        for parent in name.split("::")[:-1]:
+        for parent in DeckManager.immediate_parent_path(name):
             if head:
                 head += "::"
             head += parent
