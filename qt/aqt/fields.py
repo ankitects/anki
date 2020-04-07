@@ -27,6 +27,8 @@ class FieldDialog(QDialog):
         self.oldSortField = self.model["sortf"]
         self.fillFields()
         self.setupSignals()
+        self.form.fieldList.setDragDropMode(QAbstractItemView.InternalMove)
+        self.form.fieldList.dropEvent = self.onDrop
         self.form.fieldList.setCurrentRow(0)
         self.exec_()
 
@@ -47,6 +49,17 @@ class FieldDialog(QDialog):
         f.fieldPosition.clicked.connect(self.onPosition)
         f.sortField.clicked.connect(self.onSortField)
         f.buttonBox.helpRequested.connect(self.onHelp)
+
+    def onDrop(self, ev):
+        fieldList = self.form.fieldList
+        indicatorPos = fieldList.dropIndicatorPosition()
+        dropPos = fieldList.indexAt(ev.pos()).row()
+        if indicatorPos == QAbstractItemView.OnViewport:  # to bottom
+            self.moveField(fieldList.count())
+        elif indicatorPos == QAbstractItemView.AboveItem:
+            self.moveField(dropPos)
+        elif indicatorPos == QAbstractItemView.BelowItem:
+            self.moveField(dropPos + 1)
 
     def onRowChange(self, idx):
         if idx == -1:
@@ -115,6 +128,14 @@ class FieldDialog(QDialog):
             return
         if not 0 < pos <= l:
             return
+        self.moveField(pos)
+
+    def onSortField(self):
+        # don't allow user to disable; it makes no sense
+        self.form.sortField.setChecked(True)
+        self.model["sortf"] = self.form.fieldList.currentRow()
+
+    def moveField(self, pos):
         self.saveField()
         f = self.model["flds"][self.currentIdx]
         self.mw.progress.start()
@@ -122,11 +143,6 @@ class FieldDialog(QDialog):
         self.mw.progress.finish()
         self.fillFields()
         self.form.fieldList.setCurrentRow(pos - 1)
-
-    def onSortField(self):
-        # don't allow user to disable; it makes no sense
-        self.form.sortField.setChecked(True)
-        self.model["sortf"] = self.form.fieldList.currentRow()
 
     def loadField(self, idx):
         self.currentIdx = idx
