@@ -145,9 +145,10 @@ clean: clean-dist
 		$(SUBMAKE) -C $$dir clean; \
 	done
 
+# remove any files in dist/ folder without current build hash
 .PHONY: clean-dist
-clean-dist:
-	rm -rf dist
+clean-dist: buildhash
+	find dist \! -name "*$$(cat meta/buildhash)*" -type f -delete
 
 .PHONY: check
 check: pyenv buildhash prepare
@@ -181,7 +182,7 @@ add-buildhash:
 	fi; \
 	ver="$$(cat meta/version)"; \
 	hash="$$(cat meta/buildhash)"; \
-	${RENAME_BIN} "s/-$${ver}(\.|-)/-$${ver}+$${hash}\$$1/" dist/*-"$${ver}"*
+	${RENAME_BIN} -f "s/-$${ver}(\.|-)/-$${ver}+$${hash}\$$1/" dist/*-"$${ver}"*
 
 
 .PHONY: pull-i18n
