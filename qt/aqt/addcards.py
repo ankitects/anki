@@ -7,6 +7,7 @@ import aqt.deckchooser
 import aqt.editor
 import aqt.forms
 import aqt.modelchooser
+from anki.consts import MODEL_CLOZE
 from anki.lang import _
 from anki.notes import Note
 from anki.utils import htmlToTextLine, isMac
@@ -174,7 +175,7 @@ class AddCards(QDialog):
         if problem is not None:
             showWarning(problem, help="AddItems#AddError")
             return None
-        if "{{cloze:" in note.model()["tmpls"][0]["qfmt"]:
+        if note.model()["type"] == MODEL_CLOZE:
             if not self.mw.col.models._availClozeOrds(
                 note.model(), note.joinedFields(), False
             ):
