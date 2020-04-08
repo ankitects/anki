@@ -5,9 +5,8 @@ use crate::config::schema11_config_as_string;
 use crate::decks::DeckID;
 use crate::err::Result;
 use crate::err::{AnkiError, DBErrorKind};
-use crate::notetypes::NoteTypeID;
 use crate::timestamp::{TimestampMillis, TimestampSecs};
-use crate::{decks::Deck, i18n::I18n, notetypes::NoteType, text::without_combining, types::Usn};
+use crate::{decks::Deck, i18n::I18n, text::without_combining, types::Usn};
 use regex::Regex;
 use rusqlite::{functions::FunctionFlags, params, Connection, NO_PARAMS};
 use std::cmp::Ordering;
@@ -290,22 +289,6 @@ impl SqliteStorage {
             .query_row_and_then("select decks from col", NO_PARAMS, |row| -> Result<_> {
                 Ok(serde_json::from_str(row.get_raw(0).as_str()?)?)
             })
-    }
-
-    pub(crate) fn all_note_types(&self) -> Result<HashMap<NoteTypeID, NoteType>> {
-        let mut stmt = self.db.prepare("select models from col")?;
-        let note_types = stmt
-            .query_and_then(NO_PARAMS, |row| -> Result<HashMap<NoteTypeID, NoteType>> {
-                let v: HashMap<NoteTypeID, NoteType> =
-                    serde_json::from_str(row.get_raw(0).as_str()?)?;
-                Ok(v)
-            })?
-            .next()
-            .ok_or_else(|| AnkiError::DBError {
-                info: "col table empty".to_string(),
-                kind: DBErrorKind::MissingEntity,
-            })??;
-        Ok(note_types)
     }
 
     pub(crate) fn creation_stamp(&self) -> Result<TimestampSecs> {

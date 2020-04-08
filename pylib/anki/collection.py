@@ -160,15 +160,15 @@ class _Collection:
             self.dty,  # no longer used
             self._usn,
             self.ls,
-            models,
             decks,
         ) = self.db.first(
             """
 select crt, mod, scm, dty, usn, ls,
-models, decks from col"""
+decks from col"""
         )
-        self.models.load(models)
         self.decks.load(decks)
+        self.models.models = self.backend.get_all_notetypes()
+        self.models.changed = False
 
     def setMod(self) -> None:
         """Mark DB modified.
