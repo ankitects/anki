@@ -1569,7 +1569,7 @@ where id in %s"""
             self._previewer.close()
             self._previewer = None
         else:
-            self._previewer = PreviewDialog(self, self.mw)
+            self._previewer = PreviewDialog(self, self.mw, self._on_preview_closed)
             self._previewer.open()
 
     def _renderPreview(self, cardChanged=False):
@@ -1579,6 +1579,9 @@ where id in %s"""
     def _cancelPreviewTimer(self):
         if self._previewer:
             self._previewer.cancel_timer()
+
+    def _on_preview_closed(self):
+        self._previewer = None
 
     # Card deletion
     ######################################################################
