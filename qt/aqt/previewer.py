@@ -5,7 +5,7 @@
 import json
 import re
 import time
-from typing import Any, List, Optional, Union
+from typing import Any, Callable, List, Optional, Union
 
 from anki.cards import Card
 from anki.lang import _
@@ -34,10 +34,11 @@ class Previewer(QDialog):
     _timer = None
     _show_both_sides = False
 
-    def __init__(self, parent: QWidget, mw: AnkiQt):
+    def __init__(self, parent: QWidget, mw: AnkiQt, on_close: Callable[[], None]):
         super().__init__(None, Qt.Window)
         self._open = True
         self._parent = parent
+        self._close_callback = on_close
         self.mw = mw
 
     def card(self) -> Optional[Card]:
@@ -90,9 +91,9 @@ class Previewer(QDialog):
         self.mw.reviewer.replayAudio(self)
 
     def close(self):
-        if self:
-            self.close()
-            self._on_close()
+        self._on_close()
+        super().close()
+        self._close_callback()
 
     def _on_close(self):
         self._open = False
