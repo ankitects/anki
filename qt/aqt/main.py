@@ -509,7 +509,8 @@ close the profile or restart Anki."""
             corrupt = True
         try:
             self.col.close(downgrade=self.downgrade_on_close)
-        except:
+        except Exception as e:
+            print(e)
             corrupt = True
         finally:
             self.col = None
