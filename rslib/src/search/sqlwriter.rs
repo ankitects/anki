@@ -7,7 +7,7 @@ use crate::decks::child_ids;
 use crate::decks::get_deck;
 use crate::err::{AnkiError, Result};
 use crate::notes::field_checksum;
-use crate::notetypes::NoteTypeID;
+use crate::notetype::NoteTypeID;
 use crate::text::matches_wildcard;
 use crate::text::without_combining;
 use crate::{collection::Collection, text::strip_html_preserving_image_filenames};
@@ -263,7 +263,7 @@ impl SqlWriter<'_> {
                 write!(self.sql, "c.ord = {}", n).unwrap();
             }
             TemplateKind::Name(name) => {
-                let note_types = self.col.storage.all_note_types()?;
+                let note_types = self.col.storage.get_all_notetypes()?;
                 let mut id_ords = vec![];
                 for nt in note_types.values() {
                     for tmpl in &nt.templates {
@@ -294,7 +294,7 @@ impl SqlWriter<'_> {
         let mut ntids: Vec<_> = self
             .col
             .storage
-            .all_note_types()?
+            .get_all_notetypes()?
             .values()
             .filter(|nt| matches_wildcard(&nt.name, nt_name))
             .map(|nt| nt.id)
@@ -307,7 +307,7 @@ impl SqlWriter<'_> {
     }
 
     fn write_single_field(&mut self, field_name: &str, val: &str, is_re: bool) -> Result<()> {
-        let note_types = self.col.storage.all_note_types()?;
+        let note_types = self.col.storage.get_all_notetypes()?;
 
         let mut field_map = vec![];
         for nt in note_types.values() {

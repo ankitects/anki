@@ -4,6 +4,7 @@
 mod card;
 mod config;
 mod deckconf;
+mod notetype;
 mod sqlite;
 mod tag;
 mod upgrades;

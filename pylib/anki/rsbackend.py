@@ -113,6 +113,8 @@ def proto_exception_to_native(err: pb.BackendError) -> Exception:
         return TemplateError(err.localized)
     elif val == "invalid_input":
         return StringError(err.localized)
+    elif val == "json_error":
+        return StringError(err.localized)
     else:
         assert_impossible_literal(val)
 
@@ -605,6 +607,15 @@ class RustBackend:
 
     def set_all_config(self, conf: Dict[str, Any]):
         self._run_command(pb.BackendInput(set_all_config=orjson.dumps(conf)))
+
+    def get_all_notetypes(self) -> Dict[str, Dict[str, Any]]:
+        jstr = self._run_command(
+            pb.BackendInput(get_all_notetypes=pb.Empty())
+        ).get_all_notetypes
+        return orjson.loads(jstr)
+
+    def set_all_notetypes(self, nts: Dict[str, Dict[str, Any]]):
+        self._run_command(pb.BackendInput(set_all_notetypes=orjson.dumps(nts)))
 
 
 def translate_string_in(

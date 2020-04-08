@@ -65,6 +65,8 @@ message BackendInput {
         SetConfigJson set_config_json = 53;
         bytes set_all_config = 54;
         Empty get_all_config = 55;
+        Empty get_all_notetypes = 56;
+        bytes set_all_notetypes = 57;
     }
 }
 
@@ -113,6 +115,8 @@ message BackendOutput {
         Empty set_config_json = 53;
         Empty set_all_config = 54;
         bytes get_all_config = 55;
+        bytes get_all_notetypes = 56;
+        Empty set_all_notetypes = 57;
 
         BackendError error = 2047;
     }

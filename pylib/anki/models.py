@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import copy
-import json
 import re
 import time
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
@@ -95,11 +94,6 @@ class ModelManager:
         self.models = {}
         self.changed = False
 
-    def load(self, json_: str) -> None:
-        "Load registry from JSON."
-        self.changed = False
-        self.models = json.loads(json_)
-
     def save(
         self,
         m: Optional[NoteType] = None,
@@ -121,7 +115,7 @@ class ModelManager:
         "Flush the registry if any models were changed."
         if self.changed:
             self.ensureNotEmpty()
-            self.col.db.execute("update col set models = ?", json.dumps(self.models))
+            self.col.backend.set_all_notetypes(self.models)
             self.changed = False
 
     def ensureNotEmpty(self) -> Optional[bool]:
