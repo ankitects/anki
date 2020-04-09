@@ -110,7 +110,6 @@ class DeckBrowser:
             self.__renderPage(None)
             return
         self.web.evalWithCallback("window.pageYOffset", self.__renderPage)
-        gui_hooks.deck_browser_did_render(self)
 
     def __renderPage(self, offset):
         content = DeckBrowserContent(
@@ -127,6 +126,7 @@ class DeckBrowser:
         self._drawButtons()
         if offset is not None:
             self._scrollToOffset(offset)
+        gui_hooks.deck_browser_did_render(self)
 
     def _scrollToOffset(self, offset):
         self.web.eval("$(function() { window.scrollTo(0, %d, 'instant'); });" % offset)
