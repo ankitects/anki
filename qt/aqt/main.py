@@ -514,6 +514,7 @@ close the profile or restart Anki."""
             corrupt = True
         finally:
             self.col = None
+            self.progress.finish()
         if corrupt:
             showWarning(
                 _(
@@ -526,8 +527,6 @@ from the profile screen."
             )
         if not corrupt and not self.restoringBackup:
             self.backup()
-
-        self.progress.finish()
 
     # Backup and auto-optimize
     ##########################################################################
