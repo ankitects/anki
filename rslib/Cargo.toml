@@ -54,10 +54,10 @@ version = "0.22"
 features = ["trace", "functions", "collation", "bundled"]
 
 [target.'cfg(linux)'.dependencies]
-reqwest = { version = "0.10.1", features = ["json", "native-tls-vendored"] }
+reqwest = { version = "0.10.1", features = ["json", "socks", "native-tls-vendored"] }
 
 [target.'cfg(not(linux))'.dependencies]
-reqwest = { version = "0.10.1", features = ["json"] }
+reqwest = { version = "0.10.1", features = ["json", "socks"] }
 
 [build-dependencies]
 prost-build = "0.6.1"
