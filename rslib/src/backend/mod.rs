@@ -12,7 +12,7 @@ use crate::{
     collection::{open_collection, Collection},
     config::SortKind,
     deckconf::{DeckConf, DeckConfID},
-    decks::DeckID,
+    decks::{Deck, DeckID},
     err::{AnkiError, NetworkErrorKind, Result, SyncErrorKind},
     i18n::{tr_args, I18n, TR},
     latex::{extract_latex, extract_latex_expanding_clozes, ExtractedLatex},
@@ -312,6 +312,11 @@ impl Backend {
             Value::SetAllNotetypes(bytes) => {
                 self.set_all_notetypes(&bytes)?;
                 OValue::SetAllNotetypes(pb::Empty {})
+            }
+            Value::GetAllDecks(_) => OValue::GetAllDecks(self.get_all_decks()?),
+            Value::SetAllDecks(bytes) => {
+                self.set_all_decks(&bytes)?;
+                OValue::SetAllDecks(pb::Empty {})
             }
         })
     }
@@ -864,6 +869,18 @@ impl Backend {
         self.with_col(|col| {
             let nts = col.storage.get_all_notetypes()?;
             serde_json::to_vec(&nts).map_err(Into::into)
+        })
+    }
+
+    fn set_all_decks(&self, json: &[u8]) -> Result<()> {
+        let val: HashMap<DeckID, Deck> = serde_json::from_slice(json)?;
+        self.with_col(|col| col.transact(None, |col| col.storage.set_all_decks(val)))
+    }
+
+    fn get_all_decks(&self) -> Result<Vec<u8>> {
+        self.with_col(|col| {
+            let decks = col.storage.get_all_decks()?;
+            serde_json::to_vec(&decks).map_err(Into::into)
         })
     }
 }

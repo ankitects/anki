@@ -2,15 +2,14 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::config::schema11_config_as_string;
-use crate::decks::DeckID;
 use crate::err::Result;
 use crate::err::{AnkiError, DBErrorKind};
 use crate::timestamp::{TimestampMillis, TimestampSecs};
-use crate::{decks::Deck, i18n::I18n, text::without_combining, types::Usn};
+use crate::{i18n::I18n, text::without_combining, types::Usn};
 use regex::Regex;
 use rusqlite::{functions::FunctionFlags, params, Connection, NO_PARAMS};
 use std::cmp::Ordering;
-use std::{borrow::Cow, collections::HashMap, path::Path};
+use std::{borrow::Cow, path::Path};
 use unicase::UniCase;
 
 const SCHEMA_MIN_VERSION: u8 = 11;
@@ -282,13 +281,6 @@ impl SqliteStorage {
         } else {
             Ok(Usn(-1))
         }
-    }
-
-    pub(crate) fn all_decks(&self) -> Result<HashMap<DeckID, Deck>> {
-        self.db
-            .query_row_and_then("select decks from col", NO_PARAMS, |row| -> Result<_> {
-                Ok(serde_json::from_str(row.get_raw(0).as_str()?)?)
-            })
     }
 
     pub(crate) fn creation_stamp(&self) -> Result<TimestampSecs> {

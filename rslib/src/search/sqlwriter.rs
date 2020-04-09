@@ -226,7 +226,7 @@ impl SqlWriter<'_> {
                 let all_decks: Vec<_> = self
                     .col
                     .storage
-                    .all_decks()?
+                    .get_all_decks()?
                     .into_iter()
                     .map(|(_, v)| v)
                     .collect();
@@ -235,15 +235,18 @@ impl SqlWriter<'_> {
                     let mut dids_with_children = vec![current_id];
                     let current = get_deck(&all_decks, current_id)
                         .ok_or_else(|| AnkiError::invalid_input("invalid current deck"))?;
-                    for child_did in child_ids(&all_decks, &current.name) {
+                    for child_did in child_ids(&all_decks, &current.name()) {
                         dids_with_children.push(child_did);
                     }
                     dids_with_children
                 } else {
                     let mut dids_with_children = vec![];
-                    for deck in all_decks.iter().filter(|d| matches_wildcard(&d.name, deck)) {
-                        dids_with_children.push(deck.id);
-                        for child_id in child_ids(&all_decks, &deck.name) {
+                    for deck in all_decks
+                        .iter()
+                        .filter(|d| matches_wildcard(&d.name(), deck))
+                    {
+                        dids_with_children.push(deck.id());
+                        for child_id in child_ids(&all_decks, &deck.name()) {
                             dids_with_children.push(child_id);
                         }
                     }
