@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import copy
-import json
 import unicodedata
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
@@ -64,10 +63,6 @@ class DeckManager:
         self.decks = {}
         self._dconf_cache: Optional[Dict[int, Dict[str, Any]]] = None
 
-    def load(self, decks: str) -> None:
-        self.decks = json.loads(decks)
-        self.changed = False
-
     def save(self, g: Optional[Any] = None) -> None:
         "Can be called with either a deck or a deck configuration."
         if g:
@@ -82,9 +77,7 @@ class DeckManager:
 
     def flush(self) -> None:
         if self.changed:
-            self.col.db.execute(
-                "update col set decks=?", json.dumps(self.decks),
-            )
+            self.col.backend.set_all_decks(self.decks)
             self.changed = False
 
     # Deck save/load

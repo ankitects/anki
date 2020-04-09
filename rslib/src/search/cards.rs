@@ -108,8 +108,8 @@ fn prepare_sort(req: &mut Collection, kind: &SortKind) -> Result<()> {
 
             match kind {
                 CardDeck => {
-                    for (k, v) in req.storage.all_decks()? {
-                        stmt.execute(params![k, v.name])?;
+                    for (k, v) in req.storage.get_all_decks()? {
+                        stmt.execute(params![k, v.name()])?;
                     }
                 }
                 NoteType => {

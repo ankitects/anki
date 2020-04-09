@@ -67,6 +67,8 @@ message BackendInput {
         Empty get_all_config = 55;
         Empty get_all_notetypes = 56;
         bytes set_all_notetypes = 57;
+        Empty get_all_decks = 58;
+        bytes set_all_decks = 59;
     }
 }
 
@@ -117,6 +119,8 @@ message BackendOutput {
         bytes get_all_config = 55;
         bytes get_all_notetypes = 56;
         Empty set_all_notetypes = 57;
+        bytes get_all_decks = 58;
+        Empty set_all_decks = 59;
 
         BackendError error = 2047;
     }

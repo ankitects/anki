@@ -617,6 +617,15 @@ class RustBackend:
     def set_all_notetypes(self, nts: Dict[str, Dict[str, Any]]):
         self._run_command(pb.BackendInput(set_all_notetypes=orjson.dumps(nts)))
 
+    def get_all_decks(self) -> Dict[str, Dict[str, Any]]:
+        jstr = self._run_command(
+            pb.BackendInput(get_all_decks=pb.Empty())
+        ).get_all_decks
+        return orjson.loads(jstr)
+
+    def set_all_decks(self, nts: Dict[str, Dict[str, Any]]):
+        self._run_command(pb.BackendInput(set_all_decks=orjson.dumps(nts)))
+
 
 def translate_string_in(
     key: TR, **kwargs: Union[str, int, float]

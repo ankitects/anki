@@ -166,7 +166,8 @@ class _Collection:
 select crt, mod, scm, dty, usn, ls,
 decks from col"""
         )
-        self.decks.load(decks)
+        self.decks.decks = self.backend.get_all_decks()
+        self.decks.changed = False
         self.models.models = self.backend.get_all_notetypes()
         self.models.changed = False
 
