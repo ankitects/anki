@@ -34,19 +34,26 @@ mod dynfix {
         {
             let mut map = Map::deserialize(deserializer)?;
 
-            let is_dyn = map
+            let (is_dyn, needs_fix) = map
                 .get("dyn")
                 .ok_or_else(|| de::Error::missing_field("dyn"))
-                .map(|v| {
-                    match v {
-                        Value::Bool(b) => *b,
-                        Value::Number(n) => n.as_i64().unwrap_or(0) == 1,
+                .and_then(|v| {
+                    Ok(match v {
+                        Value::Bool(b) => (*b, true),
+                        Value::Number(n) => (n.as_i64().unwrap_or(0) == 1, false),
                         _ => {
-                            // invalid type, default to normal deck
-                            false
+                            // invalid type
+                            return Err(de::Error::custom("dyn was wrong type"));
                         }
-                    }
+                    })
                 })?;
+
+            if needs_fix {
+                map.insert(
+                    "dyn".into(),
+                    Value::Number((if is_dyn { 1 } else { 0 }).into()),
+                );
+            }
 
             // remove some obsolete keys
             map.remove("separate");
@@ -79,8 +86,8 @@ pub struct DeckCommon {
     collapsed: bool,
     #[serde(default)]
     desc: String,
-    #[serde(rename = "dyn", deserialize_with = "deserialize_bool_from_anything")]
-    dynamic: bool,
+    #[serde(rename = "dyn")]
+    dynamic: u8,
     #[serde(flatten)]
     other: HashMap<String, Value>,
 }
@@ -196,7 +203,7 @@ impl Default for NormalDeck {
                 desc: "".to_string(),
                 today: Default::default(),
                 other: Default::default(),
-                dynamic: true,
+                dynamic: 0,
             },
             conf: 1,
             extend_new: 0,
