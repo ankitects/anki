@@ -200,9 +200,6 @@ class DeckManager:
         deck["browserCollapsed"] = not collapsed
         self.save(deck)
 
-    def count(self) -> int:
-        return len(self.decks)
-
     def get(self, did: Union[int, str], default: bool = True) -> Any:
         id = str(did)
         if id in self.decks:
