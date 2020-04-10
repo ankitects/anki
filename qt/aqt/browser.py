@@ -693,7 +693,7 @@ class Browser(QMainWindow):
         evt.ignore()
 
     def _closeWindow(self):
-        self._cancelPreviewTimer()
+        self._cleanup_preview()
         self.editor.cleanup()
         saveSplitter(self.form.splitter, "editor3")
         saveGeom(self, "editor")
@@ -1576,9 +1576,10 @@ where id in %s"""
         if self._previewer:
             self._previewer.render_card(cardChanged)
 
-    def _cancelPreviewTimer(self):
+    def _cleanup_preview(self):
         if self._previewer:
             self._previewer.cancel_timer()
+            self._previewer.close()
 
     def _on_preview_closed(self):
         self._previewer = None
