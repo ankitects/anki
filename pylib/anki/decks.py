@@ -601,11 +601,18 @@ class DeckManager:
 
         return childMap
 
-    def parents(self, did: int, nameMap: Optional[Any] = None) -> List:
+    def parents(
+        self, did: int, nameMap: Optional[Any] = None, include_self: bool = False
+    ) -> List:
         "All parents of did."
         # get parent and grandparent names
+        name = self.get(did)["name"]
+        if include_self:
+            path = self.path(name)
+        else:
+            path = self.immediate_parent_path(name)
         parents: List[str] = []
-        for part in self.immediate_parent_path(self.get(did)["name"]):
+        for part in path:
             if not parents:
                 parents.append(part)
             else:

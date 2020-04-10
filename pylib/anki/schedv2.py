@@ -175,19 +175,19 @@ order by due"""
 
     def _updateStats(self, card: Card, type: str, cnt: int = 1) -> None:
         key = type + "Today"
-        for g in [self.col.decks.get(card.did)] + self.col.decks.parents(card.did):
+        for g in self.col.decks.parents(card.did, include_self=True):
             # add
             g[key][1] += cnt
             self.col.decks.save(g)
 
     def extendLimits(self, new: int, rev: int) -> None:
         cur = self.col.decks.current()
-        parents = self.col.decks.parents(cur["id"])
+        parents = self.col.decks.parents(cur["id"], include_self=True)
         children = [
             self.col.decks.get(did)
             for (name, did) in self.col.decks.children(cur["id"])
         ]
-        for g in [cur] + parents + children:
+        for g in parents + children:
             # add
             g["newToday"][1] -= new
             g["revToday"][1] -= rev
@@ -441,10 +441,9 @@ did = ? and queue = {QUEUE_TYPE_NEW} limit ?)""",
     ) -> int:
         if not fn:
             fn = self._deckNewLimitSingle
-        sel = self.col.decks.get(did)
         lim = -1
         # for the deck and each of its parents
-        for g in [sel] + self.col.decks.parents(did):
+        for g in self.col.decks.parents(did, include_self=True):
             rem = fn(g)
             if lim == -1:
                 lim = rem
