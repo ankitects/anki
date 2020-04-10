@@ -214,7 +214,9 @@ The front of this card is empty. Please run Tools>Empty Cards."""
 
     def _replayq(self, card, previewer=None):
         s = previewer if previewer else self
-        return s.mw.col.decks.confForDid(s.card.odid or s.card.did).get("replayq", True)
+        return s.mw.col.decks.confForDid(s.card().odid or s.card().did).get(
+            "replayq", True
+        )
 
     def _drawFlag(self) -> None:
         self.web.eval("_drawFlag(%s);" % self.card.userFlag())
