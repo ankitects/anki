@@ -109,6 +109,10 @@ class CustomStudy(QDialog):
         f.title.setVisible(not not tit)
         f.spin.setMinimum(smin)
         f.spin.setMaximum(smax)
+        if smax > 0:
+            f.spin.setEnabled(True)
+        else:
+            f.spin.setEnabled(False)
         f.spin.setValue(sval)
         f.preSpin.setText(pre)
         f.postSpin.setText(post)
