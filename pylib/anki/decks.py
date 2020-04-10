@@ -559,7 +559,7 @@ class DeckManager:
         self.col.conf["curDeck"] = did
         # and active decks (current + all children)
         actv = self.children(did, include_self=True)
-        actv.sort()
+        actv.sort(key=lambda name_id: self.path(name_id[0]))
         self.col.conf["activeDecks"] = [id for name, id in actv]
         self.col.setMod()
 
