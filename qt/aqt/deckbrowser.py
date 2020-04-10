@@ -292,7 +292,7 @@ where id > ?""",
         self.mw.checkpoint(_("Delete Deck"))
         deck = self.mw.col.decks.get(did)
         if not deck["dyn"]:
-            dids = [did] + [r[1] for r in self.mw.col.decks.children(did)]
+            dids = [r[1] for r in self.mw.col.decks.children(did, include_self=True)]
             cnt = self.mw.col.db.scalar(
                 "select count() from cards where did in {0} or "
                 "odid in {0}".format(ids2str(dids))

@@ -455,9 +455,7 @@ class DeckManager:
     def cids(self, did: int, children: bool = False) -> Any:
         if not children:
             return self.col.db.list("select id from cards where did=?", did)
-        dids = [did]
-        for name, id in self.children(did):
-            dids.append(id)
+        dids = [id for name, id in self.children(did, include_self=True)]
         return self.col.db.list("select id from cards where did in " + ids2str(dids))
 
     def for_card_ids(self, cids: List[int]) -> List[int]:
@@ -560,18 +558,20 @@ class DeckManager:
         # current deck
         self.col.conf["curDeck"] = did
         # and active decks (current + all children)
-        actv = self.children(did)
+        actv = self.children(did, include_self=True)
         actv.sort()
-        self.col.conf["activeDecks"] = [did] + [a[1] for a in actv]
+        self.col.conf["activeDecks"] = [id for name, id in actv]
         self.col.setMod()
 
-    def children(self, did: int) -> List[Tuple[Any, Any]]:
+    def children(self, did: int, include_self: bool = False) -> List[Tuple[Any, Any]]:
         "All children of did, as (name, id)."
         name = self.get(did)["name"]
         actv = []
         for g in self.all():
             if g["name"].startswith(name + "::"):
                 actv.append((g["name"], g["id"]))
+        if include_self:
+            actv.append((name, did))
         return actv
 
     def childDids(self, did: int, childMap: Dict[int, Any]) -> List:

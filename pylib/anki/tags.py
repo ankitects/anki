@@ -66,9 +66,7 @@ class TagManager:
             query = basequery + " AND c.did=?"
             res = self.col.db.list(query, did)
             return list(set(self.split(" ".join(res))))
-        dids = [did]
-        for name, id in self.col.decks.children(did):
-            dids.append(id)
+        dids = [id for name, id in self.col.decks.children(did, include_self=True)]
         query = basequery + " AND c.did IN " + ids2str(dids)
         res = self.col.db.list(query)
         return list(set(self.split(" ".join(res))))
