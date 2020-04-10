@@ -90,7 +90,7 @@ impl SqliteStorage {
         self.add_deck_conf(&mut conf)
     }
 
-    pub(super) fn upgrade_deck_conf_to_schema12(&self) -> Result<()> {
+    pub(super) fn upgrade_deck_conf_to_schema14(&self) -> Result<()> {
         let conf = self
             .db
             .query_row_and_then("select dconf from col", NO_PARAMS, |row| {
@@ -106,7 +106,7 @@ impl SqliteStorage {
         Ok(())
     }
 
-    pub(super) fn downgrade_deck_conf_from_schema12(&self) -> Result<()> {
+    pub(super) fn downgrade_deck_conf_from_schema14(&self) -> Result<()> {
         let allconf = self.all_deck_config()?;
         let confmap: HashMap<DeckConfID, DeckConf> =
             allconf.into_iter().map(|c| (c.id, c)).collect();
