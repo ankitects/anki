@@ -107,3 +107,12 @@ User-contributed instructions for building using Cygwin:
 1. Open a `cmd.exe` (command prompt) on the Anki repository and run the command `sh run`
     1. Do not use `bash run` because it my call for Windows Subsystem for Linux
     1. Do not use any Cygwin terminal as `mintty.exe` because the `rust lang` compiler does not work with them
+
+Enviromental Variables
+-----------------------
+
+If ANKIDEV is set before starting Anki, some extra log messages will be printed on stdout,
+and automatic backups will be disabled - so please don't use this except on a test profile.
+
+If LOGTERM is set before starting Anki, warnings and error messages that are normally placed
+in the collection2.log file will also be printed on stdout.
