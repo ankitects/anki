@@ -281,14 +281,13 @@ and due <= ? limit %d"""
             f"""
 select due, id from cards where
 did in %s and queue = {QUEUE_TYPE_LRN} and due < ?
+order by due ASC, id ASC
 limit %d"""
             % (self._deckLimit(), self.reportLimit),
             self.dayCutoff,
         )
         for i in range(len(self._lrnQueue)):
             self._lrnQueue[i] = (self._lrnQueue[i][0], self._lrnQueue[i][1])
-        # as it arrives sorted by did first, we need to sort it
-        self._lrnQueue.sort()
         return self._lrnQueue
 
     def _getLrnCard(self, collapse: bool = False) -> Optional[Card]:
