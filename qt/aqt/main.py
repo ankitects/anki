@@ -1362,11 +1362,11 @@ will be lost. Continue?"""
             menu = frm.log.createStandardContextMenu(QCursor.pos())
             menu.addSeparator()
             if name == "log":
-                a = menu.addAction(_("Clear Log"))
+                a = menu.addAction("Clear Log")
                 a.setShortcuts(QKeySequence("ctrl+l"))
                 qconnect(a.triggered, frm.log.clear)
             elif name == "text":
-                a = menu.addAction(_("Clear Code"))
+                a = menu.addAction("Clear Code")
                 a.setShortcuts(QKeySequence("ctrl+shift+l"))
                 qconnect(a.triggered, frm.text.clear)
             menu.exec(QCursor.pos())
