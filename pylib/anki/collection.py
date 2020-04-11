@@ -195,6 +195,9 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?""",
     def flush_all_changes(self, mod: Optional[int] = None):
         self.models.flush()
         self.decks.flush()
+        # set mod flag if mtime changed by backend
+        if self.db.scalar("select mod from col") != self.mod:
+            self.db.mod = True
         if self.db.mod:
             self.flush(mod)
 
