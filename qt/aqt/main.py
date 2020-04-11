@@ -1355,6 +1355,23 @@ will be lost. Continue?"""
         s.activated.connect(frm.log.clear)
         s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+shift+l"), d)
         s.activated.connect(frm.text.clear)
+
+        def addContextMenu(ev: QCloseEvent, name: str) -> None:
+            ev.accept()
+            menu = frm.log.createStandardContextMenu(QCursor.pos())
+            menu.addSeparator()
+            if name == "log":
+                a = menu.addAction("Clear Log")
+                a.setShortcuts(QKeySequence("ctrl+l"))
+                qconnect(a.triggered, frm.log.clear)
+            elif name == "text":
+                a = menu.addAction("Clear Code")
+                a.setShortcuts(QKeySequence("ctrl+shift+l"))
+                qconnect(a.triggered, frm.text.clear)
+            menu.exec(QCursor.pos())
+
+        frm.log.contextMenuEvent = lambda ev: addContextMenu(ev, "log")
+        frm.text.contextMenuEvent = lambda ev: addContextMenu(ev, "text")
         gui_hooks.debug_console_will_show(d)
         d.show()
 
