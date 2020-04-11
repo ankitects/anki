@@ -13,7 +13,7 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 import anki
 from anki.consts import *
 from anki.db import DB
-from anki.utils import checksum, devMode, ids2str, intTime, platDesc, versionWithBuild
+from anki.utils import checksum, ids2str, intTime, platDesc, versionWithBuild
 
 from . import hooks
 from .httpclient import HttpClient
@@ -470,10 +470,7 @@ class HttpSyncer:
         self.prefix = "sync/"
 
     def syncURL(self) -> str:
-        if devMode:
-            url = "https://l1sync.ankiweb.net/"
-        else:
-            url = SYNC_BASE % (self.hostNum or "")
+        url = SYNC_BASE % (self.hostNum or "")
         return url + self.prefix
 
     def assertOk(self, resp) -> None:
