@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import copy
 import datetime
-import json
 import os
 import pprint
 import random
@@ -22,6 +21,7 @@ import anki.latex  # sets up hook
 import anki.template
 from anki import hooks
 from anki.cards import Card
+from anki.config import ConfigManager
 from anki.consts import *
 from anki.dbproxy import DBProxy
 from anki.decks import DeckManager
@@ -45,25 +45,6 @@ from anki.utils import (
     stripHTMLMedia,
 )
 
-defaultConf = {
-    # review options
-    "activeDecks": [1],
-    "curDeck": 1,
-    "newSpread": NEW_CARDS_DISTRIBUTE,
-    "collapseTime": 1200,
-    "timeLim": 0,
-    "estTimes": True,
-    "dueCounts": True,
-    # other config
-    "curModel": None,
-    "nextPos": 1,
-    "sortType": "noteFld",
-    "sortBackwards": False,
-    "addToCur": True,  # add new to currently selected deck?
-    "dayLearnFirst": False,
-    "schedVer": 1,
-}
-
 
 # this is initialized by storage.Collection
 class _Collection:
@@ -75,7 +56,6 @@ class _Collection:
     dty: bool  # no longer used
     _usn: int
     ls: int
-    conf: Dict[str, Any]
     _undo: List[Any]
 
     def __init__(
@@ -97,6 +77,7 @@ class _Collection:
         self.models = ModelManager(self)
         self.decks = DeckManager(self)
         self.tags = TagManager(self)
+        self.conf = ConfigManager(self)
         self.load()
         if not self.crt:
             d = datetime.datetime.today()
@@ -179,23 +160,22 @@ class _Collection:
             self.dty,  # no longer used
             self._usn,
             self.ls,
-            conf,
-            models,
             decks,
         ) = self.db.first(
             """
 select crt, mod, scm, dty, usn, ls,
-conf, models, decks from col"""
+decks from col"""
         )
-        self.conf = json.loads(conf)
-        self.models.load(models)
-        self.decks.load(decks)
+        self.decks.decks = self.backend.get_all_decks()
+        self.decks.changed = False
+        self.models.models = self.backend.get_all_notetypes()
+        self.models.changed = False
 
     def setMod(self) -> None:
         """Mark DB modified.
 
-DB operations and the deck/tag/model managers do this automatically, so this
-is only necessary if you modify properties of this object or the conf dict."""
+DB operations and the deck/model managers do this automatically, so this
+is only necessary if you modify properties of this object."""
         self.db.mod = True
 
     def flush(self, mod: Optional[int] = None) -> None:
@@ -203,14 +183,13 @@ is only necessary if you modify properties of this object or the conf dict."""
         self.mod = intTime(1000) if mod is None else mod
         self.db.execute(
             """update col set
-crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
+crt=?, mod=?, scm=?, dty=?, usn=?, ls=?""",
             self.crt,
             self.mod,
             self.scm,
             self.dty,
             self._usn,
             self.ls,
-            json.dumps(self.conf),
         )
 
     def flush_all_changes(self, mod: Optional[int] = None):
@@ -650,6 +629,23 @@ where c.nid = n.id and c.id in %s group by nid"""
 
     findCards = find_cards
     findNotes = find_notes
+
+    # Config
+    ##########################################################################
+
+    def get_config(self, key: str, default: Any = None) -> Any:
+        try:
+            return self.conf.get_immutable(key)
+        except KeyError:
+            return default
+
+    def set_config(self, key: str, val: Any):
+        self.setMod()
+        self.conf.set(key, val)
+
+    def remove_config(self, key):
+        self.setMod()
+        self.conf.remove(key)
 
     # Stats
     ##########################################################################

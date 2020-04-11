@@ -113,6 +113,8 @@ def proto_exception_to_native(err: pb.BackendError) -> Exception:
         return TemplateError(err.localized)
     elif val == "invalid_input":
         return StringError(err.localized)
+    elif val == "json_error":
+        return StringError(err.localized)
     else:
         assert_impossible_literal(val)
 
@@ -510,10 +512,10 @@ class RustBackend:
 
     def get_deck_config(self, dcid: int) -> Dict[str, Any]:
         jstr = self._run_command(pb.BackendInput(get_deck_config=dcid)).get_deck_config
-        return json.loads(jstr)
+        return orjson.loads(jstr)
 
     def add_or_update_deck_config(self, conf: Dict[str, Any], preserve_usn) -> None:
-        conf_json = json.dumps(conf)
+        conf_json = orjson.dumps(conf)
         id = self._run_command(
             pb.BackendInput(
                 add_or_update_deck_config=pb.AddOrUpdateDeckConfigIn(
@@ -527,13 +529,13 @@ class RustBackend:
         jstr = self._run_command(
             pb.BackendInput(all_deck_config=pb.Empty())
         ).all_deck_config
-        return json.loads(jstr)
+        return orjson.loads(jstr)
 
     def new_deck_config(self) -> Dict[str, Any]:
         jstr = self._run_command(
             pb.BackendInput(new_deck_config=pb.Empty())
         ).new_deck_config
-        return json.loads(jstr)
+        return orjson.loads(jstr)
 
     def remove_deck_config(self, dcid: int) -> None:
         self._run_command(pb.BackendInput(remove_deck_config=dcid))
@@ -576,6 +578,53 @@ class RustBackend:
                 pb.BackendInput(get_changed_tags=usn)
             ).get_changed_tags.tags
         )
+
+    def get_config_json(self, key: str) -> Any:
+        b = self._run_command(pb.BackendInput(get_config_json=key)).get_config_json
+        if b == b"":
+            raise KeyError
+        return orjson.loads(b)
+
+    def set_config_json(self, key: str, val: Any):
+        self._run_command(
+            pb.BackendInput(
+                set_config_json=pb.SetConfigJson(key=key, val=orjson.dumps(val))
+            )
+        )
+
+    def remove_config(self, key: str):
+        self._run_command(
+            pb.BackendInput(
+                set_config_json=pb.SetConfigJson(key=key, remove=pb.Empty())
+            )
+        )
+
+    def get_all_config(self) -> Dict[str, Any]:
+        jstr = self._run_command(
+            pb.BackendInput(get_all_config=pb.Empty())
+        ).get_all_config
+        return orjson.loads(jstr)
+
+    def set_all_config(self, conf: Dict[str, Any]):
+        self._run_command(pb.BackendInput(set_all_config=orjson.dumps(conf)))
+
+    def get_all_notetypes(self) -> Dict[str, Dict[str, Any]]:
+        jstr = self._run_command(
+            pb.BackendInput(get_all_notetypes=pb.Empty())
+        ).get_all_notetypes
+        return orjson.loads(jstr)
+
+    def set_all_notetypes(self, nts: Dict[str, Dict[str, Any]]):
+        self._run_command(pb.BackendInput(set_all_notetypes=orjson.dumps(nts)))
+
+    def get_all_decks(self) -> Dict[str, Dict[str, Any]]:
+        jstr = self._run_command(
+            pb.BackendInput(get_all_decks=pb.Empty())
+        ).get_all_decks
+        return orjson.loads(jstr)
+
+    def set_all_decks(self, nts: Dict[str, Dict[str, Any]]):
+        self._run_command(pb.BackendInput(set_all_decks=orjson.dumps(nts)))
 
 
 def translate_string_in(

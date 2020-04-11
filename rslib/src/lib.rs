@@ -22,7 +22,7 @@ pub mod latex;
 pub mod log;
 pub mod media;
 pub mod notes;
-pub mod notetypes;
+pub mod notetype;
 pub mod sched;
 pub mod search;
 pub mod serde;

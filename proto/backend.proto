@@ -61,6 +61,14 @@ message BackendInput {
         string canonify_tags = 49;
         Empty all_tags = 50;
         int32 get_changed_tags = 51;
+        string get_config_json = 52;
+        SetConfigJson set_config_json = 53;
+        bytes set_all_config = 54;
+        Empty get_all_config = 55;
+        Empty get_all_notetypes = 56;
+        bytes set_all_notetypes = 57;
+        Empty get_all_decks = 58;
+        bytes set_all_decks = 59;
     }
 }
 
@@ -95,16 +103,24 @@ message BackendOutput {
         GetCardOut get_card = 38;
         Empty update_card = 39;
         int64 add_card = 40;
-        string get_deck_config = 41;
+        bytes get_deck_config = 41;
         int64 add_or_update_deck_config = 42;
-        string all_deck_config = 43;
-        string new_deck_config = 44;
+        bytes all_deck_config = 43;
+        bytes new_deck_config = 44;
         Empty remove_deck_config = 45;
         Empty before_upload = 47;
         bool register_tags = 48;
         CanonifyTagsOut canonify_tags = 49;
         AllTagsOut all_tags = 50;
         GetChangedTagsOut get_changed_tags = 51;
+        bytes get_config_json = 52;
+        Empty set_config_json = 53;
+        Empty set_all_config = 54;
+        bytes get_all_config = 55;
+        bytes get_all_notetypes = 56;
+        Empty set_all_notetypes = 57;
+        bytes get_all_decks = 58;
+        Empty set_all_decks = 59;
 
         BackendError error = 2047;
     }
@@ -123,6 +139,7 @@ message BackendError {
         SyncError sync_error = 7;
         // user interrupted operation
         Empty interrupted = 8;
+        string json_error = 9;
     }
 }
 
@@ -426,7 +443,7 @@ message CloseCollectionIn {
 }
 
 message AddOrUpdateDeckConfigIn {
-    string config = 1;
+    bytes config = 1;
     bool preserve_usn_and_mtime = 2;
 }
 
@@ -453,4 +470,12 @@ message GetChangedTagsOut {
 message CanonifyTagsOut {
     string tags = 1;
     bool tag_list_changed = 2;
+}
+
+message SetConfigJson {
+    string key = 1;
+    oneof op {
+        bytes val = 2;
+        Empty remove = 3;
+    }
 }

@@ -46,20 +46,18 @@ futures = "0.3.4"
 
 # pinned until rusqlite 0.22 comes out
 [target.'cfg(target_vendor="apple")'.dependencies.rusqlite]
-git = "https://github.com/ankitects/rusqlite.git"
-branch="nulsafe-text"
+version = "0.22"
 features = ["trace", "functions", "collation"]
 
 [target.'cfg(not(target_vendor="apple"))'.dependencies.rusqlite]
-git = "https://github.com/ankitects/rusqlite.git"
-branch="nulsafe-text"
+version = "0.22"
 features = ["trace", "functions", "collation", "bundled"]
 
 [target.'cfg(linux)'.dependencies]
-reqwest = { version = "0.10.1", features = ["json", "native-tls-vendored"] }
+reqwest = { version = "0.10.1", features = ["json", "socks", "native-tls-vendored"] }
 
 [target.'cfg(not(linux))'.dependencies]
-reqwest = { version = "0.10.1", features = ["json"] }
+reqwest = { version = "0.10.1", features = ["json", "socks"] }
 
 [build-dependencies]
 prost-build = "0.6.1"

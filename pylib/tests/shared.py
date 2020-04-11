@@ -64,11 +64,14 @@ testDir = os.path.dirname(__file__)
 
 
 def errorsAfterMidnight(func):
-    lt = time.localtime()
-    if lt.tm_hour < 4:
-        print("test disabled around cutoff", func)
-    else:
-        func()
+    def wrapper():
+        lt = time.localtime()
+        if lt.tm_hour < 4:
+            print("test disabled around cutoff", func)
+        else:
+            func()
+
+    return wrapper
 
 
 def isNearCutoff():

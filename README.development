@@ -91,8 +91,8 @@ Windows users (using Visual Studio)
 
 User-contributed instructions for building using Cygwin:
 
-1. Download and install Cygwin and put its `/bin/` directory on your system path.
-1. Install the Cygwin Packages: `apt-cyg install rsync make`
+1. Download and install Cygwin and put its `/bin/` directory on your system path (This PC > Properties > Advancded system settings > Environment Variables > double-click Path > New).
+1. Install the Cygwin Packages: `apt-cyg install rsync make` OR select rsync package during Cygwin installation
     1. Download `gettext` 0.20.1 or superior and put its `bin` directory on your system path.
         1. https://mlocati.github.io/articles/gettext-iconv-windows.html
 1. Download and install Python for Windows (not from Cygwin) and put `python.exe` (not `python3.exe`) on your system path.
@@ -110,3 +110,12 @@ User-contributed instructions for building using Cygwin:
 1. Open a `cmd.exe` (command prompt) on the Anki repository and run the command `sh run`
     1. Do not use `bash run` because it my call for Windows Subsystem for Linux
     1. Do not use any Cygwin terminal as `mintty.exe` because the `rust lang` compiler does not work with them
+
+Enviromental Variables
+-----------------------
+
+If ANKIDEV is set before starting Anki, some extra log messages will be printed on stdout,
+and automatic backups will be disabled - so please don't use this except on a test profile.
+
+If LOGTERM is set before starting Anki, warnings and error messages that are normally placed
+in the collection2.log file will also be printed on stdout.

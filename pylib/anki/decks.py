@@ -4,8 +4,6 @@
 from __future__ import annotations
 
 import copy
-import json
-import operator
 import unicodedata
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
@@ -65,10 +63,6 @@ class DeckManager:
         self.decks = {}
         self._dconf_cache: Optional[Dict[int, Dict[str, Any]]] = None
 
-    def load(self, decks: str) -> None:
-        self.decks = json.loads(decks)
-        self.changed = False
-
     def save(self, g: Optional[Any] = None) -> None:
         "Can be called with either a deck or a deck configuration."
         if g:
@@ -83,9 +77,7 @@ class DeckManager:
 
     def flush(self) -> None:
         if self.changed:
-            self.col.db.execute(
-                "update col set decks=?", json.dumps(self.decks),
-            )
+            self.col.backend.set_all_decks(self.decks)
             self.changed = False
 
     # Deck save/load
@@ -127,7 +119,7 @@ class DeckManager:
             # child of an existing deck then it needs to be renamed
             deck = self.get(did)
             if "::" in deck["name"]:
-                base = deck["name"].split("::")[-1]
+                base = self.basename(deck["name"])
                 suffix = ""
                 while True:
                     # find an unused name
@@ -150,13 +142,13 @@ class DeckManager:
             self.col.sched.emptyDyn(did)
             if childrenToo:
                 for name, id in self.children(did):
-                    self.rem(id, cardsToo)
+                    self.rem(id, cardsToo, childrenToo=False)
         else:
             # delete children first
             if childrenToo:
                 # we don't want to delete children when syncing
                 for name, id in self.children(did):
-                    self.rem(id, cardsToo)
+                    self.rem(id, cardsToo, childrenToo=False)
             # delete cards too?
             if cardsToo:
                 # don't use cids(), as we want cards in cram decks too
@@ -208,9 +200,6 @@ class DeckManager:
         deck["browserCollapsed"] = not collapsed
         self.save(deck)
 
-    def count(self) -> int:
-        return len(self.decks)
-
     def get(self, did: Union[int, str], default: bool = True) -> Any:
         id = str(did)
         if id in self.decks:
@@ -261,15 +250,15 @@ class DeckManager:
         ontoDeckName = self.get(ontoDeckDid)["name"]
 
         if ontoDeckDid is None or ontoDeckDid == "":
-            if len(self._path(draggedDeckName)) > 1:
-                self.rename(draggedDeck, self._basename(draggedDeckName))
+            if len(self.path(draggedDeckName)) > 1:
+                self.rename(draggedDeck, self.basename(draggedDeckName))
         elif self._canDragAndDrop(draggedDeckName, ontoDeckName):
             draggedDeck = self.get(draggedDeckDid)
             draggedDeckName = draggedDeck["name"]
             ontoDeckName = self.get(ontoDeckDid)["name"]
             assert ontoDeckName.strip()
             self.rename(
-                draggedDeck, ontoDeckName + "::" + self._basename(draggedDeckName)
+                draggedDeck, ontoDeckName + "::" + self.basename(draggedDeckName)
             )
 
     def _canDragAndDrop(self, draggedDeckName: str, ontoDeckName: str) -> bool:
@@ -283,24 +272,44 @@ class DeckManager:
             return True
 
     def _isParent(self, parentDeckName: str, childDeckName: str) -> Any:
-        return self._path(childDeckName) == self._path(parentDeckName) + [
-            self._basename(childDeckName)
+        return self.path(childDeckName) == self.path(parentDeckName) + [
+            self.basename(childDeckName)
         ]
 
     def _isAncestor(self, ancestorDeckName: str, descendantDeckName: str) -> Any:
-        ancestorPath = self._path(ancestorDeckName)
-        return ancestorPath == self._path(descendantDeckName)[0 : len(ancestorPath)]
+        ancestorPath = self.path(ancestorDeckName)
+        return ancestorPath == self.path(descendantDeckName)[0 : len(ancestorPath)]
 
-    def _path(self, name: str) -> Any:
+    @staticmethod
+    def path(name: str) -> Any:
         return name.split("::")
 
-    def _basename(self, name: str) -> Any:
-        return self._path(name)[-1]
+    _path = path
+
+    @classmethod
+    def basename(cls, name: str) -> Any:
+        return cls.path(name)[-1]
+
+    _basename = basename
+
+    @classmethod
+    def immediate_parent_path(cls, name: str) -> Any:
+        return cls._path(name)[:-1]
+
+    @classmethod
+    def immediate_parent(cls, name: str) -> Any:
+        pp = cls.immediate_parent_path(name)
+        if pp:
+            return "::".join(pp)
+
+    @classmethod
+    def key(cls, deck: Dict[str, Any]) -> List[str]:
+        return cls.path(deck["name"])
 
     def _ensureParents(self, name: str) -> Any:
         "Ensure parents exist, and return name with case matching parents."
         s = ""
-        path = self._path(name)
+        path = self.path(name)
         if len(path) < 2:
             return name
         for p in path[:-1]:
@@ -454,7 +463,7 @@ class DeckManager:
 
     def _checkDeckTree(self) -> None:
         decks = self.col.decks.all()
-        decks.sort(key=operator.itemgetter("name"))
+        decks.sort(key=self.key)
         names: Set[str] = set()
 
         for deck in decks:
@@ -465,14 +474,14 @@ class DeckManager:
                 self.save(deck)
 
             # ensure no sections are blank
-            if not all(deck["name"].split("::")):
+            if not all(self.path(deck["name"])):
                 self.col.log("fix deck with missing sections", deck["name"])
                 deck["name"] = "recovered%d" % intTime(1000)
                 self.save(deck)
 
             # immediate parent must exist
             if "::" in deck["name"]:
-                immediateParent = "::".join(deck["name"].split("::")[:-1])
+                immediateParent = self.immediate_parent(deck["name"])
                 if immediateParent not in names:
                     self.col.log("fix deck with missing parent", deck["name"])
                     self._ensureParents(deck["name"])
@@ -524,8 +533,8 @@ class DeckManager:
     #############################################################
 
     def active(self) -> Any:
-        "The currrently active dids. Make sure to copy before modifying."
-        return self.col.conf["activeDecks"]
+        "The currrently active dids."
+        return self.col.get_config("activeDecks", [1])
 
     def selected(self) -> Any:
         "The currently selected did."
@@ -570,14 +579,13 @@ class DeckManager:
         childMap = {}
 
         # go through all decks, sorted by name
-        for deck in sorted(self.all(), key=operator.itemgetter("name")):
+        for deck in sorted(self.all(), key=self.key):
             node: Dict[int, Any] = {}
             childMap[deck["id"]] = node
 
             # add note to immediate parent
-            parts = deck["name"].split("::")
-            if len(parts) > 1:
-                immediateParent = "::".join(parts[:-1])
+            immediateParent = self.immediate_parent(deck["name"])
+            if immediateParent is not None:
                 pid = nameMap[immediateParent]["id"]
                 childMap[pid][deck["id"]] = node
 
@@ -587,7 +595,7 @@ class DeckManager:
         "All parents of did."
         # get parent and grandparent names
         parents: List[str] = []
-        for part in self.get(did)["name"].split("::")[:-1]:
+        for part in self.immediate_parent_path(self.get(did)["name"]):
             if not parents:
                 parents.append(part)
             else:
@@ -605,7 +613,7 @@ class DeckManager:
         "All existing parents of name"
         if "::" not in name:
             return []
-        names = name.split("::")[:-1]
+        names = self.immediate_parent_path(name)
         head = []
         parents = []
 

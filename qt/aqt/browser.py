@@ -20,6 +20,7 @@ from anki import hooks
 from anki.cards import Card
 from anki.collection import _Collection
 from anki.consts import *
+from anki.decks import DeckManager
 from anki.lang import _, ngettext
 from anki.models import NoteType
 from anki.notes import Note
@@ -80,7 +81,7 @@ class DataModel(QAbstractTableModel):
         self.browser = browser
         self.col = browser.col
         self.sortKey = None
-        self.activeCols = self.col.conf.get(
+        self.activeCols = self.col.get_config(
             "activeCols", ["noteFld", "template", "cardDue", "deck"]
         )
         self.cards: Sequence[int] = []
@@ -692,7 +693,7 @@ class Browser(QMainWindow):
         evt.ignore()
 
     def _closeWindow(self):
-        self._cancelPreviewTimer()
+        self._cleanup_preview()
         self.editor.cleanup()
         saveSplitter(self.form.splitter, "editor3")
         saveGeom(self, "editor")
@@ -1121,7 +1122,7 @@ QTableView {{ gridline-color: {grid} }}
 
     def _favTree(self, root) -> None:
         assert self.col
-        saved = self.col.conf.get("savedFilters", {})
+        saved = self.col.get_config("savedFilters", {})
         for name, filt in sorted(saved.items()):
             item = SidebarItem(
                 name,
@@ -1302,7 +1303,7 @@ QTableView {{ gridline-color: {grid} }}
         def addDecks(parent, decks):
             for head, did, rev, lrn, new, children in decks:
                 name = self.mw.col.decks.get(did)["name"]
-                shortname = name.split("::")[-1]
+                shortname = DeckManager.basename(name)
                 if children:
                     subm = parent.addMenu(shortname)
                     subm.addItem(_("Filter"), self._filterFunc("deck", name))
@@ -1360,7 +1361,7 @@ QTableView {{ gridline-color: {grid} }}
         ml = MenuList()
         # make sure exists
         if "savedFilters" not in self.col.conf:
-            self.col.conf["savedFilters"] = {}
+            self.col.set_config("savedFilters", {})
 
         ml.addSeparator()
 
@@ -1369,7 +1370,7 @@ QTableView {{ gridline-color: {grid} }}
         else:
             ml.addItem(_("Save Current Filter..."), self._onSaveFilter)
 
-        saved = self.col.conf["savedFilters"]
+        saved = self.col.get_config("savedFilters")
         if not saved:
             return ml
 
@@ -1384,8 +1385,9 @@ QTableView {{ gridline-color: {grid} }}
         if not name:
             return
         filt = self.form.searchEdit.lineEdit().text()
-        self.col.conf["savedFilters"][name] = filt
-        self.col.setMod()
+        conf = self.col.get_config("savedFilters")
+        conf[name] = filt
+        self.col.save_config("savedFilters", conf)
         self.maybeRefreshSidebar()
 
     def _onRemoveFilter(self):
@@ -1399,7 +1401,7 @@ QTableView {{ gridline-color: {grid} }}
     # returns name if found
     def _currentFilterIsSaved(self):
         filt = self.form.searchEdit.lineEdit().text()
-        for k, v in self.col.conf["savedFilters"].items():
+        for k, v in self.col.get_config("savedFilters").items():
             if filt == v:
                 return k
         return None
@@ -1567,16 +1569,20 @@ where id in %s"""
             self._previewer.close()
             self._previewer = None
         else:
-            self._previewer = PreviewDialog(self, self.mw)
+            self._previewer = PreviewDialog(self, self.mw, self._on_preview_closed)
             self._previewer.open()
 
     def _renderPreview(self, cardChanged=False):
         if self._previewer:
             self._previewer.render_card(cardChanged)
 
-    def _cancelPreviewTimer(self):
+    def _cleanup_preview(self):
         if self._previewer:
             self._previewer.cancel_timer()
+            self._previewer.close()
+
+    def _on_preview_closed(self):
+        self._previewer = None
 
     # Card deletion
     ######################################################################

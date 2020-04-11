@@ -4,6 +4,7 @@ import os
 import tempfile
 
 from anki import Collection as aopen
+from anki.dbproxy import emulate_named_args
 from anki.lang import without_unicode_isolation
 from anki.rsbackend import TR
 from anki.stdmodels import addBasicModel, models
@@ -161,3 +162,16 @@ def test_translate():
     )
     assert no_uni(d.tr(TR.STATISTICS_REVIEWS, reviews=1)) == "1 review"
     assert no_uni(d.tr(TR.STATISTICS_REVIEWS, reviews=2)) == "2 reviews"
+
+
+def test_db_named_args(capsys):
+    sql = "select a, 2+:test5 from b where arg =:foo and x = :test5"
+    args = []
+    kwargs = dict(test5=5, foo="blah")
+
+    s, a = emulate_named_args(sql, args, kwargs)
+    assert s == "select a, 2+?1 from b where arg =?2 and x = ?1"
+    assert a == [5, "blah"]
+
+    # swallow the warning
+    _ = capsys.readouterr()

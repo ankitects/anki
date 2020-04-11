@@ -509,10 +509,12 @@ close the profile or restart Anki."""
             corrupt = True
         try:
             self.col.close(downgrade=self.downgrade_on_close)
-        except:
+        except Exception as e:
+            print(e)
             corrupt = True
         finally:
             self.col = None
+            self.progress.finish()
         if corrupt:
             showWarning(
                 _(
@@ -525,8 +527,6 @@ from the profile screen."
             )
         if not corrupt and not self.restoringBackup:
             self.backup()
-
-        self.progress.finish()
 
     # Backup and auto-optimize
     ##########################################################################
@@ -1355,6 +1355,23 @@ will be lost. Continue?"""
         s.activated.connect(frm.log.clear)
         s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+shift+l"), d)
         s.activated.connect(frm.text.clear)
+
+        def addContextMenu(ev: QCloseEvent, name: str) -> None:
+            ev.accept()
+            menu = frm.log.createStandardContextMenu(QCursor.pos())
+            menu.addSeparator()
+            if name == "log":
+                a = menu.addAction("Clear Log")
+                a.setShortcuts(QKeySequence("ctrl+l"))
+                qconnect(a.triggered, frm.log.clear)
+            elif name == "text":
+                a = menu.addAction("Clear Code")
+                a.setShortcuts(QKeySequence("ctrl+shift+l"))
+                qconnect(a.triggered, frm.text.clear)
+            menu.exec(QCursor.pos())
+
+        frm.log.contextMenuEvent = lambda ev: addContextMenu(ev, "log")
+        frm.text.contextMenuEvent = lambda ev: addContextMenu(ev, "text")
         gui_hooks.debug_console_will_show(d)
         d.show()
 

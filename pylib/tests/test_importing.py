@@ -3,6 +3,8 @@
 import os
 from tempfile import NamedTemporaryFile
 
+import pytest
+
 from anki.importing import (
     Anki2Importer,
     AnkiPackageImporter,
@@ -303,6 +305,7 @@ def test_csv_tag_only_if_modified():
     deck.close()
 
 
+@pytest.mark.filterwarnings("ignore:Using or importing the ABCs")
 def test_supermemo_xml_01_unicode():
     deck = getEmptyCol()
     file = str(os.path.join(testDir, "support/supermemo1.xml"))

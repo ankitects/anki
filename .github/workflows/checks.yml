@@ -99,12 +99,13 @@ jobs:
           path: ${{ github.workspace }}${{ matrix.SEP }}pyenv
           key: ${{ runner.os }}-pyenv-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-14-
 
-      - name: Cache pip wheels
-        if: matrix.BUILD_TYPE == 'build'
-        uses: actions/cache@v1
-        with:
-          path: ${{ matrix.PIP_WHEELS_DIR }}
-          key: ${{ runner.os }}-pip-wheels-${{ hashFiles('**/requirements.txt') }}-${{ hashFiles('**/setup.py') }}-14-
+      # # Disable it in attempt to reduce the overall cache size (https://github.com/ankitects/anki/pull/528)
+      # - name: Cache pip wheels
+      #   if: matrix.BUILD_TYPE == 'build'
+      #   uses: actions/cache@v1
+      #   with:
+      #     path: ${{ matrix.PIP_WHEELS_DIR }}
+      #     key: ${{ runner.os }}-pip-wheels-${{ hashFiles('**/requirements.txt') }}-${{ hashFiles('**/setup.py') }}-14-
 
       - name: Cache cargo index
         uses: actions/cache@v1

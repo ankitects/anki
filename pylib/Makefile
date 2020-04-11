@@ -99,10 +99,13 @@ CHECKDEPS := $(shell ${FIND} anki tests -name '*.py' | grep -v buildinfo.py)
 ######################
 
 .PHONY: build
-build: $(BUILD_STEPS) $(CHECKDEPS)
+build: .build/build
+
+.build/build: $(BUILD_STEPS) $(CHECKDEPS)
 	rm -rf dist build
 	python setup.py -q bdist_wheel
 	rsync -a dist/*.whl ../dist/
+	touch $@
 
 # prepare code for running in place
 .PHONY: develop

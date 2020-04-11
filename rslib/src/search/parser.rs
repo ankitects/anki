@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::err::{AnkiError, Result};
-use crate::notetypes::NoteTypeID;
+use crate::notetype::NoteTypeID;
 use nom::branch::alt;
 use nom::bytes::complete::{escaped, is_not, tag, take_while1};
 use nom::character::complete::{anychar, char, one_of};

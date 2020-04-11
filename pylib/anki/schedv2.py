@@ -16,6 +16,7 @@ import anki  # pylint: disable=unused-import
 from anki import hooks
 from anki.cards import Card
 from anki.consts import *
+from anki.decks import DeckManager
 from anki.lang import _
 from anki.rsbackend import FormatTimeSpanContext, SchedTimingToday
 from anki.utils import ids2str, intTime
@@ -245,19 +246,12 @@ order by due"""
         lims: Dict[str, List[int]] = {}
         data = []
 
-        def parent(name):
-            parts = name.split("::")
-            if len(parts) < 2:
-                return None
-            parts = parts[:-1]
-            return "::".join(parts)
-
         childMap = self.col.decks.childMap()
         for deck in decks:
-            p = parent(deck["name"])
+            p = DeckManager.immediate_parent(deck["name"])
             # new
             nlim = self._deckNewLimitSingle(deck)
-            if p:
+            if p is not None:
                 nlim = min(nlim, lims[p][0])
             new = self._newForDeck(deck["id"], nlim)
             # learning
@@ -285,7 +279,7 @@ order by due"""
     def _groupChildren(self, grps: List[List[Any]]) -> Any:
         # first, split the group names into components
         for g in grps:
-            g[0] = g[0].split("::")
+            g[0] = DeckManager.path(g[0])
         # and sort based on those components
         grps.sort(key=itemgetter(0))
         # then run main function

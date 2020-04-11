@@ -33,10 +33,10 @@ pub(crate) fn search_cards<'a, 'b>(
     match order {
         SortMode::NoOrder => (),
         SortMode::FromConfig => {
-            let conf = req.storage.all_config()?;
-            prepare_sort(req, &conf.browser_sort_kind)?;
+            let kind = req.get_browser_sort_kind();
+            prepare_sort(req, &kind)?;
             sql.push_str(" order by ");
-            write_order(&mut sql, &conf.browser_sort_kind, conf.browser_sort_reverse)?;
+            write_order(&mut sql, &kind, req.get_browser_sort_reverse())?;
         }
         SortMode::Builtin { kind, reverse } => {
             prepare_sort(req, &kind)?;
@@ -108,12 +108,12 @@ fn prepare_sort(req: &mut Collection, kind: &SortKind) -> Result<()> {
 
             match kind {
                 CardDeck => {
-                    for (k, v) in req.storage.all_decks()? {
-                        stmt.execute(params![k, v.name])?;
+                    for (k, v) in req.storage.get_all_decks()? {
+                        stmt.execute(params![k, v.name()])?;
                     }
                 }
                 NoteType => {
-                    for (k, v) in req.storage.all_note_types()? {
+                    for (k, v) in req.storage.get_all_notetypes()? {
                         stmt.execute(params![k, v.name])?;
                     }
                 }
@@ -127,7 +127,7 @@ fn prepare_sort(req: &mut Collection, kind: &SortKind) -> Result<()> {
                 .db
                 .prepare("insert into sort_order (k1,k2,v) values (?,?,?)")?;
 
-            for (ntid, nt) in req.storage.all_note_types()? {
+            for (ntid, nt) in req.storage.get_all_notetypes()? {
                 for tmpl in nt.templates {
                     stmt.execute(params![ntid, tmpl.ord, tmpl.name])?;
                 }

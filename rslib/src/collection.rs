@@ -6,7 +6,11 @@ use crate::i18n::I18n;
 use crate::log::Logger;
 use crate::timestamp::TimestampSecs;
 use crate::types::Usn;
-use crate::{sched::cutoff::SchedTimingToday, storage::SqliteStorage, undo::UndoManager};
+use crate::{
+    sched::cutoff::{sched_timing_today, SchedTimingToday},
+    storage::SqliteStorage,
+    undo::UndoManager,
+};
 use std::path::PathBuf;
 
 pub fn open_collection<P: Into<PathBuf>>(
@@ -141,8 +145,24 @@ impl Collection {
                 return Ok(*timing);
             }
         }
-        self.state.timing_today = Some(self.storage.timing_today(self.server)?);
-        Ok(self.state.timing_today.clone().unwrap())
+
+        let local_offset = if self.server {
+            self.get_local_mins_west()
+        } else {
+            None
+        };
+
+        let timing = sched_timing_today(
+            self.storage.creation_stamp()?,
+            TimestampSecs::now(),
+            self.get_creation_mins_west(),
+            local_offset,
+            self.get_rollover(),
+        );
+
+        self.state.timing_today = Some(timing);
+
+        Ok(timing)
     }
 
     pub(crate) fn usn(&self) -> Result<Usn> {

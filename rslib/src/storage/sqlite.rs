@@ -1,29 +1,20 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::config::Config;
-use crate::decks::DeckID;
+use crate::config::schema11_config_as_string;
 use crate::err::Result;
 use crate::err::{AnkiError, DBErrorKind};
-use crate::notetypes::NoteTypeID;
 use crate::timestamp::{TimestampMillis, TimestampSecs};
-use crate::{
-    decks::Deck,
-    i18n::I18n,
-    notetypes::NoteType,
-    sched::cutoff::{sched_timing_today, SchedTimingToday},
-    text::without_combining,
-    types::Usn,
-};
+use crate::{i18n::I18n, text::without_combining, types::Usn};
 use regex::Regex;
 use rusqlite::{functions::FunctionFlags, params, Connection, NO_PARAMS};
 use std::cmp::Ordering;
-use std::{borrow::Cow, collections::HashMap, path::Path};
+use std::{borrow::Cow, path::Path};
 use unicase::UniCase;
 
 const SCHEMA_MIN_VERSION: u8 = 11;
 const SCHEMA_STARTING_VERSION: u8 = 11;
-const SCHEMA_MAX_VERSION: u8 = 13;
+const SCHEMA_MAX_VERSION: u8 = 14;
 
 fn unicase_compare(s1: &str, s2: &str) -> Ordering {
     UniCase::new(s1).cmp(&UniCase::new(s2))
@@ -160,16 +151,21 @@ impl SqliteStorage {
     pub(crate) fn open_or_create(path: &Path, i18n: &I18n) -> Result<Self> {
         let db = open_or_create_collection_db(path)?;
         let (create, ver) = schema_version(&db)?;
-        if ver > SCHEMA_MAX_VERSION {
+
+        let err = match ver {
+            v if v < SCHEMA_MIN_VERSION => Some(DBErrorKind::FileTooOld),
+            v if v > SCHEMA_MAX_VERSION => Some(DBErrorKind::FileTooNew),
+            12 | 13 => {
+                // as schema definition changed, user must perform clean
+                // shutdown to return to schema 11 prior to running this version
+                Some(DBErrorKind::FileTooNew)
+            }
+            _ => None,
+        };
+        if let Some(kind) = err {
             return Err(AnkiError::DBError {
                 info: "".to_string(),
-                kind: DBErrorKind::FileTooNew,
-            });
-        }
-        if ver < SCHEMA_MIN_VERSION {
-            return Err(AnkiError::DBError {
-                info: "".to_string(),
-                kind: DBErrorKind::FileTooOld,
+                kind,
             });
         }
 
@@ -182,8 +178,12 @@ impl SqliteStorage {
             db.execute_batch(include_str!("schema11.sql"))?;
             // start at schema 11, then upgrade below
             db.execute(
-                "update col set crt=?, ver=?",
-                params![TimestampSecs::now(), SCHEMA_STARTING_VERSION],
+                "update col set crt=?, ver=?, conf=?",
+                params![
+                    TimestampSecs::now(),
+                    SCHEMA_STARTING_VERSION,
+                    &schema11_config_as_string()
+                ],
             )?;
         }
 
@@ -283,51 +283,11 @@ impl SqliteStorage {
         }
     }
 
-    pub(crate) fn all_decks(&self) -> Result<HashMap<DeckID, Deck>> {
+    pub(crate) fn creation_stamp(&self) -> Result<TimestampSecs> {
         self.db
-            .query_row_and_then("select decks from col", NO_PARAMS, |row| -> Result<_> {
-                Ok(serde_json::from_str(row.get_raw(0).as_str()?)?)
-            })
-    }
-
-    pub(crate) fn all_config(&self) -> Result<Config> {
-        self.db
-            .query_row_and_then("select conf from col", NO_PARAMS, |row| -> Result<_> {
-                Ok(serde_json::from_str(row.get_raw(0).as_str()?)?)
-            })
-    }
-
-    pub(crate) fn all_note_types(&self) -> Result<HashMap<NoteTypeID, NoteType>> {
-        let mut stmt = self.db.prepare("select models from col")?;
-        let note_types = stmt
-            .query_and_then(NO_PARAMS, |row| -> Result<HashMap<NoteTypeID, NoteType>> {
-                let v: HashMap<NoteTypeID, NoteType> =
-                    serde_json::from_str(row.get_raw(0).as_str()?)?;
-                Ok(v)
-            })?
-            .next()
-            .ok_or_else(|| AnkiError::DBError {
-                info: "col table empty".to_string(),
-                kind: DBErrorKind::MissingEntity,
-            })??;
-        Ok(note_types)
-    }
-
-    pub(crate) fn timing_today(&self, server: bool) -> Result<SchedTimingToday> {
-        let crt: i64 = self
-            .db
             .prepare_cached("select crt from col")?
-            .query_row(NO_PARAMS, |row| row.get(0))?;
-        let conf = self.all_config()?;
-        let now_offset = if server { conf.local_offset } else { None };
-
-        Ok(sched_timing_today(
-            crt,
-            TimestampSecs::now().0,
-            conf.creation_offset,
-            now_offset,
-            conf.rollover,
-        ))
+            .query_row(NO_PARAMS, |row| row.get(0))
+            .map_err(Into::into)
     }
 
     pub(crate) fn schema_modified(&self) -> Result<bool> {

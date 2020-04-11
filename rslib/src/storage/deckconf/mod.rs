@@ -15,7 +15,7 @@ impl SqliteStorage {
         self.db
             .prepare_cached("select config from deck_config")?
             .query_and_then(NO_PARAMS, |row| -> Result<_> {
-                Ok(serde_json::from_str(row.get_raw(0).as_str()?)?)
+                Ok(serde_json::from_slice(row.get_raw(0).as_blob()?)?)
             })?
             .collect()
     }
@@ -24,7 +24,7 @@ impl SqliteStorage {
         self.db
             .prepare_cached(include_str!("get.sql"))?
             .query_and_then(params![dcid], |row| -> Result<_> {
-                Ok(serde_json::from_str(row.get_raw(0).as_str()?)?)
+                Ok(serde_json::from_slice(row.get_raw(0).as_blob()?)?)
             })?
             .next()
             .transpose()
@@ -38,7 +38,7 @@ impl SqliteStorage {
                 conf.name,
                 conf.mtime,
                 conf.usn,
-                &serde_json::to_string(conf)?,
+                &serde_json::to_vec(conf)?,
             ])?;
         let id = self.db.last_insert_rowid();
         if conf.id.0 != id {
@@ -57,7 +57,7 @@ impl SqliteStorage {
                 conf.name,
                 conf.mtime,
                 conf.usn,
-                &serde_json::to_string(conf)?,
+                &serde_json::to_vec(conf)?,
                 conf.id,
             ])?;
         Ok(())
@@ -90,7 +90,7 @@ impl SqliteStorage {
         self.add_deck_conf(&mut conf)
     }
 
-    pub(super) fn upgrade_deck_conf_to_schema12(&self) -> Result<()> {
+    pub(super) fn upgrade_deck_conf_to_schema14(&self) -> Result<()> {
         let conf = self
             .db
             .query_row_and_then("select dconf from col", NO_PARAMS, |row| {
@@ -106,7 +106,7 @@ impl SqliteStorage {
         Ok(())
     }
 
-    pub(super) fn downgrade_deck_conf_from_schema12(&self) -> Result<()> {
+    pub(super) fn downgrade_deck_conf_from_schema14(&self) -> Result<()> {
         let allconf = self.all_deck_config()?;
         let confmap: HashMap<DeckConfID, DeckConf> =
             allconf.into_iter().map(|c| (c.id, c)).collect();

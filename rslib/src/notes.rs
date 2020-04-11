@@ -4,10 +4,10 @@
 /// At the moment, this is just basic note reading/updating functionality for
 /// the media DB check.
 use crate::err::{AnkiError, DBErrorKind, Result};
-use crate::notetypes::NoteTypeID;
+use crate::notetype::NoteTypeID;
 use crate::text::strip_html_preserving_image_filenames;
 use crate::timestamp::TimestampSecs;
-use crate::{define_newtype, notetypes::NoteType, types::Usn};
+use crate::{define_newtype, notetype::NoteType, types::Usn};
 use rusqlite::{params, Connection, Row, NO_PARAMS};
 use std::convert::TryInto;
 

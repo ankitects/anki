@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from operator import itemgetter
+from typing import Union
 
 import aqt
 from anki.consts import NEW_CARDS_RANDOM
@@ -165,7 +166,13 @@ class DeckConf(QDialog):
     ##################################################
 
     def listToUser(self, l):
-        return " ".join([str(x) for x in l])
+        def num_to_user(n: Union[int, float]):
+            if n == round(n):
+                return str(int(n))
+            else:
+                return str(n)
+
+        return " ".join(map(num_to_user, l))
 
     def parentLimText(self, type="new"):
         # top level?
