@@ -255,12 +255,17 @@ class DataModel(QAbstractTableModel):
         idx = focusedIdx or firstIdx
         tv = self.browser.form.tableView
         if idx:
-            tv.selectRow(idx.row())
+            row = idx.row()
+            pos = tv.rowViewportPosition(row)
+            visible = pos >= 0 and pos < tv.viewport().height()
+            tv.selectRow(row)
+
             # we save and then restore the horizontal scroll position because
             # scrollTo() also scrolls horizontally which is confusing
-            h = tv.horizontalScrollBar().value()
-            tv.scrollTo(idx, tv.PositionAtCenter)
-            tv.horizontalScrollBar().setValue(h)
+            if not visible:
+                h = tv.horizontalScrollBar().value()
+                tv.scrollTo(idx, tv.PositionAtCenter)
+                tv.horizontalScrollBar().setValue(h)
             if count < 500:
                 # discard large selections; they're too slow
                 sm.select(
