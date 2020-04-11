@@ -470,8 +470,8 @@ class HttpSyncer:
         self.prefix = "sync/"
 
     def syncURL(self) -> str:
-        if devMode & 2:
-            url = os.getenv("ANKIDEVSYNC", "https://l1sync.ankiweb.net/")
+        if devMode:
+            url = "https://l1sync.ankiweb.net/"
         else:
             url = SYNC_BASE % (self.hostNum or "")
         return url + self.prefix
