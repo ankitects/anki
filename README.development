@@ -36,9 +36,6 @@ Once you've installed the above components, execute ./run in this repo,
 which will build the subcomponents, and start Anki. Any arguments included
 on the command line will be passed on to Anki.
 
-Before running Anki, you can set the environment variable "ANKIDEV=1",
-to enable additional development log messages.
-
 Before contributing code, please read README.contributing.
 
 If you'd like to contribute translations, please see the translations section
