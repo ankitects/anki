@@ -544,9 +544,10 @@ select count() from cards where did in %s and queue = {QUEUE_TYPE_PREVIEW}
 select due, id from cards where
 did in %s and queue in ({QUEUE_TYPE_LRN},{QUEUE_TYPE_PREVIEW}) and due < ?
 order by due ASC, id ASC
-limit %d """
-            % (self._deckLimit(), self.reportLimit),
+limit ? """
+            % self._deckLimit(),
             cutoff,
+            self.reportLimit,
         )
         for i in range(len(self._lrnQueue)):
             self._lrnQueue[i] = (self._lrnQueue[i][0], self._lrnQueue[i][1])
