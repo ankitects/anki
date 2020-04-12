@@ -226,6 +226,12 @@ pub(crate) fn normalize_to_nfc(s: &str) -> Cow<str> {
     }
 }
 
+pub(crate) fn ensure_string_in_nfc(s: &mut String) {
+    if !is_nfc(s) {
+        *s = s.chars().nfc().collect()
+    }
+}
+
 /// True if search is equal to text, folding case.
 /// Supports '*' to match 0 or more characters.
 pub(crate) fn matches_wildcard(text: &str, search: &str) -> bool {

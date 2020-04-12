@@ -3,23 +3,194 @@
 
 use super::SqliteStorage;
 use crate::{
+    backend_proto::{
+        CardTemplate as CardTemplateProto, CardTemplateConfig, NoteField as NoteFieldProto,
+        NoteFieldConfig, NoteType as NoteTypeProto, NoteTypeConfig,
+    },
     err::{AnkiError, DBErrorKind, Result},
-    notetype::{NoteType, NoteTypeID},
-    timestamp::TimestampSecs,
-    types::Usn,
+    notetype::{NoteTypeID, NoteTypeSchema11},
 };
-use rusqlite::NO_PARAMS;
-use std::collections::HashMap;
+use prost::Message;
+use rusqlite::{params, NO_PARAMS};
+use std::collections::{HashMap, HashSet};
+use unicase::UniCase;
 
 impl SqliteStorage {
-    pub(crate) fn get_all_notetypes(&self) -> Result<HashMap<NoteTypeID, NoteType>> {
+    fn get_notetype_core(&self, ntid: NoteTypeID) -> Result<Option<NoteTypeProto>> {
+        self.db
+            .prepare_cached(include_str!("get_notetype.sql"))?
+            .query_and_then(&[ntid], |row| {
+                let config = NoteTypeConfig::decode(row.get_raw(3).as_blob()?)?;
+                Ok(NoteTypeProto {
+                    id: ntid.0,
+                    name: row.get(0)?,
+                    mtime_secs: row.get(1)?,
+                    usn: row.get(2)?,
+                    config: Some(config),
+                    fields: vec![],
+                    templates: vec![],
+                })
+            })?
+            .next()
+            .transpose()
+    }
+
+    fn get_notetype_fields(&self, ntid: NoteTypeID) -> Result<Vec<NoteFieldProto>> {
+        self.db
+            .prepare_cached(include_str!("get_fields.sql"))?
+            .query_and_then(&[ntid], |row| {
+                let config = NoteFieldConfig::decode(row.get_raw(2).as_blob()?)?;
+                Ok(NoteFieldProto {
+                    ord: row.get(0)?,
+                    name: row.get(1)?,
+                    config: Some(config),
+                })
+            })?
+            .collect()
+    }
+
+    fn get_notetype_templates(&self, ntid: NoteTypeID) -> Result<Vec<CardTemplateProto>> {
+        self.db
+            .prepare_cached(include_str!("get_templates.sql"))?
+            .query_and_then(&[ntid], |row| {
+                let config = CardTemplateConfig::decode(row.get_raw(4).as_blob()?)?;
+                Ok(CardTemplateProto {
+                    ord: row.get(0)?,
+                    name: row.get(1)?,
+                    mtime_secs: row.get(2)?,
+                    usn: row.get(3)?,
+                    config: Some(config),
+                })
+            })?
+            .collect()
+    }
+
+    fn get_full_notetype(&self, ntid: NoteTypeID) -> Result<Option<NoteTypeProto>> {
+        match self.get_notetype_core(ntid)? {
+            Some(mut nt) => {
+                nt.fields = self.get_notetype_fields(ntid)?;
+                nt.templates = self.get_notetype_templates(ntid)?;
+                Ok(Some(nt))
+            }
+            None => Ok(None),
+        }
+    }
+
+    fn get_all_notetype_meta(&self) -> Result<Vec<(NoteTypeID, String)>> {
+        self.db
+            .prepare_cached(include_str!("get_notetype_names.sql"))?
+            .query_and_then(NO_PARAMS, |row| Ok((row.get(0)?, row.get(1)?)))?
+            .collect()
+    }
+
+    pub(crate) fn get_all_notetypes_as_schema11(
+        &self,
+    ) -> Result<HashMap<NoteTypeID, NoteTypeSchema11>> {
+        let mut nts = HashMap::new();
+        for (ntid, _name) in self.get_all_notetype_meta()? {
+            let full = self.get_full_notetype(ntid)?.unwrap();
+            nts.insert(ntid, full.into());
+        }
+        Ok(nts)
+    }
+
+    fn update_notetype_fields(&self, ntid: NoteTypeID, fields: &[NoteFieldProto]) -> Result<()> {
+        self.db
+            .prepare_cached("delete from fields where ntid=?")?
+            .execute(&[ntid])?;
+        let mut stmt = self.db.prepare_cached(include_str!("update_fields.sql"))?;
+        for (ord, field) in fields.iter().enumerate() {
+            let mut config_bytes = vec![];
+            field.config.as_ref().unwrap().encode(&mut config_bytes)?;
+            stmt.execute(params![ntid, ord as u32, field.name, config_bytes,])?;
+        }
+
+        Ok(())
+    }
+
+    fn update_notetype_templates(
+        &self,
+        ntid: NoteTypeID,
+        templates: &[CardTemplateProto],
+    ) -> Result<()> {
+        self.db
+            .prepare_cached("delete from templates where ntid=?")?
+            .execute(&[ntid])?;
+        let mut stmt = self
+            .db
+            .prepare_cached(include_str!("update_templates.sql"))?;
+        for (ord, template) in templates.iter().enumerate() {
+            let mut config_bytes = vec![];
+            template
+                .config
+                .as_ref()
+                .unwrap()
+                .encode(&mut config_bytes)?;
+            stmt.execute(params![
+                ntid,
+                ord as u32,
+                template.name,
+                template.mtime_secs,
+                template.usn,
+                config_bytes,
+            ])?;
+        }
+
+        Ok(())
+    }
+
+    fn update_notetype_meta(&self, nt: &NoteTypeProto) -> Result<()> {
+        assert!(nt.id != 0);
+        let mut stmt = self
+            .db
+            .prepare_cached(include_str!("update_notetype_meta.sql"))?;
+        let mut config_bytes = vec![];
+        nt.config.as_ref().unwrap().encode(&mut config_bytes)?;
+        stmt.execute(params![nt.id, nt.name, nt.mtime_secs, nt.usn, config_bytes])?;
+
+        Ok(())
+    }
+
+    // Upgrading/downgrading
+
+    pub(crate) fn upgrade_notetypes_to_schema15(&self) -> Result<()> {
+        let nts = self.get_schema11_notetypes()?;
+        let mut names = HashSet::new();
+        for (ntid, nt) in nts {
+            let mut nt = NoteTypeProto::from(nt);
+            nt.normalize_names();
+            nt.ensure_names_unique();
+            loop {
+                let name = UniCase::new(nt.name.clone());
+                if !names.contains(&name) {
+                    names.insert(name);
+                    break;
+                }
+                nt.name.push('_');
+            }
+            self.update_notetype_meta(&nt)?;
+            self.update_notetype_fields(ntid, &nt.fields)?;
+            self.update_notetype_templates(ntid, &nt.templates)?;
+        }
+        Ok(())
+    }
+
+    pub(crate) fn downgrade_notetypes_from_schema15(&self) -> Result<()> {
+        let nts = self.get_all_notetypes_as_schema11()?;
+        self.set_schema11_notetypes(nts)
+    }
+
+    fn get_schema11_notetypes(&self) -> Result<HashMap<NoteTypeID, NoteTypeSchema11>> {
         let mut stmt = self.db.prepare("select models from col")?;
         let note_types = stmt
-            .query_and_then(NO_PARAMS, |row| -> Result<HashMap<NoteTypeID, NoteType>> {
-                let v: HashMap<NoteTypeID, NoteType> =
-                    serde_json::from_str(row.get_raw(0).as_str()?)?;
-                Ok(v)
-            })?
+            .query_and_then(
+                NO_PARAMS,
+                |row| -> Result<HashMap<NoteTypeID, NoteTypeSchema11>> {
+                    let v: HashMap<NoteTypeID, NoteTypeSchema11> =
+                        serde_json::from_str(row.get_raw(0).as_str()?)?;
+                    Ok(v)
+                },
+            )?
             .next()
             .ok_or_else(|| AnkiError::DBError {
                 info: "col table empty".to_string(),
@@ -28,11 +199,9 @@ impl SqliteStorage {
         Ok(note_types)
     }
 
-    pub(crate) fn set_all_notetypes(
+    pub(crate) fn set_schema11_notetypes(
         &self,
-        notetypes: HashMap<NoteTypeID, NoteType>,
-        _usn: Usn,
-        _mtime: TimestampSecs,
+        notetypes: HashMap<NoteTypeID, NoteTypeSchema11>,
     ) -> Result<()> {
         let json = serde_json::to_string(&notetypes)?;
         self.db.execute("update col set models = ?", &[json])?;

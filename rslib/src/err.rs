@@ -34,6 +34,9 @@ pub enum AnkiError {
     #[fail(display = "JSON encode/decode error: {}", info)]
     JSONError { info: String },
 
+    #[fail(display = "Protobuf encode/decode error: {}", info)]
+    ProtoError { info: String },
+
     #[fail(display = "The user interrupted the operation.")]
     Interrupted,
 
@@ -227,6 +230,22 @@ impl From<zip::result::ZipError> for AnkiError {
 impl From<serde_json::Error> for AnkiError {
     fn from(err: serde_json::Error) -> Self {
         AnkiError::JSONError {
+            info: err.to_string(),
+        }
+    }
+}
+
+impl From<prost::EncodeError> for AnkiError {
+    fn from(err: prost::EncodeError) -> Self {
+        AnkiError::ProtoError {
+            info: err.to_string(),
+        }
+    }
+}
+
+impl From<prost::DecodeError> for AnkiError {
+    fn from(err: prost::DecodeError) -> Self {
+        AnkiError::ProtoError {
             info: err.to_string(),
         }
     }

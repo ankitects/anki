@@ -21,7 +21,7 @@ use crate::{
     media::sync::MediaSyncProgress,
     media::MediaManager,
     notes::NoteID,
-    notetype::{NoteType, NoteTypeID},
+    notetype::{NoteTypeID, NoteTypeSchema11},
     sched::cutoff::{local_minutes_west_for_stamp, sched_timing_today},
     sched::timespan::{answer_button_time, learning_congrats, studied_today, time_span},
     search::{search_cards, search_notes, SortMode},
@@ -80,6 +80,7 @@ fn anki_error_to_proto_error(err: AnkiError, i18n: &I18n) -> pb::BackendError {
         AnkiError::CollectionAlreadyOpen => V::InvalidInput(pb::Empty {}),
         AnkiError::SchemaChange => V::InvalidInput(pb::Empty {}),
         AnkiError::JSONError { info } => V::JsonError(info),
+        AnkiError::ProtoError { info } => V::ProtoError(info),
     };
 
     pb::BackendError {
@@ -855,18 +856,18 @@ impl Backend {
     }
 
     fn set_all_notetypes(&self, json: &[u8]) -> Result<()> {
-        let val: HashMap<NoteTypeID, NoteType> = serde_json::from_slice(json)?;
+        let val: HashMap<NoteTypeID, NoteTypeSchema11> = serde_json::from_slice(json)?;
         self.with_col(|col| {
             col.transact(None, |col| {
-                col.storage
-                    .set_all_notetypes(val, col.usn()?, TimestampSecs::now())
+                col.storage.set_schema11_notetypes(val)?;
+                col.storage.upgrade_notetypes_to_schema15()
             })
         })
     }
 
     fn get_all_notetypes(&self) -> Result<Vec<u8>> {
         self.with_col(|col| {
-            let nts = col.storage.get_all_notetypes()?;
+            let nts = col.storage.get_all_notetypes_as_schema11()?;
             serde_json::to_vec(&nts).map_err(Into::into)
         })
     }
