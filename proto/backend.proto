@@ -140,6 +140,7 @@ message BackendError {
         // user interrupted operation
         Empty interrupted = 8;
         string json_error = 9;
+        string proto_error = 10;
     }
 }
 
@@ -478,4 +479,71 @@ message SetConfigJson {
         bytes val = 2;
         Empty remove = 3;
     }
+}
+
+message NoteFieldConfig {
+    bool sticky = 1;
+    bool rtl = 2;
+    string font_name = 3;
+    uint32 font_size = 4;
+    bytes other = 5;
+}
+
+message NoteField {
+    uint32 ord = 1;
+    string name = 2;
+    NoteFieldConfig config = 5;
+}
+
+message CardTemplateConfig {
+    string q_format = 1;
+    string a_format = 2;
+    string q_format_browser = 3;
+    string a_format_browser= 4;
+    int64 target_deck_id = 5;
+    string browser_font_name = 6;
+    uint32 browser_font_size = 7;
+    bytes other = 8;
+}
+
+message CardTemplate {
+    uint32 ord = 1;
+    string name = 2;
+    uint32 mtime_secs = 3;
+    sint32 usn = 4;
+    CardTemplateConfig config = 5;
+}
+
+enum NoteTypeKind {
+    NORMAL = 0;
+    CLOZE = 1;
+}
+
+message NoteTypeConfig {
+    NoteTypeKind kind = 1;
+    uint32 sort_field_idx = 2;
+    string css = 3;
+    // fixme: anki currently sets this without flushing
+    int64 target_deck_id = 4;
+    string latex_pre = 5;
+    string latex_post = 6;
+    bool latex_svg = 7;
+    repeated CardRequirement reqs = 8;
+    bytes other = 9;
+}
+
+message CardRequirement {
+    uint32 card_ord = 1;
+    uint32 kind = 2;
+    repeated uint32 field_ords = 3;
+}
+
+message NoteType {
+    int64 id = 1;
+    string name = 2;
+    uint32 mtime_secs = 3;
+    sint32 usn = 4;
+    NoteTypeConfig config = 7;
+    repeated NoteField fields = 8;
+    repeated CardTemplate templates = 9;
 }

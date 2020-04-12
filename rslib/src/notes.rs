@@ -7,7 +7,7 @@ use crate::err::{AnkiError, DBErrorKind, Result};
 use crate::notetype::NoteTypeID;
 use crate::text::strip_html_preserving_image_filenames;
 use crate::timestamp::TimestampSecs;
-use crate::{define_newtype, notetype::NoteType, types::Usn};
+use crate::{define_newtype, notetype::NoteTypeSchema11, types::Usn};
 use rusqlite::{params, Connection, Row, NO_PARAMS};
 use std::convert::TryInto;
 
@@ -84,7 +84,11 @@ fn row_to_note(row: &Row) -> Result<Note> {
     })
 }
 
-pub(super) fn set_note(db: &Connection, note: &mut Note, note_type: &NoteType) -> Result<()> {
+pub(super) fn set_note(
+    db: &Connection,
+    note: &mut Note,
+    note_type: &NoteTypeSchema11,
+) -> Result<()> {
     note.mtime = TimestampSecs::now();
     // hard-coded for now
     note.usn = Usn(-1);

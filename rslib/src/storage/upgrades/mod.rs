@@ -13,6 +13,11 @@ impl SqliteStorage {
             self.upgrade_tags_to_schema14()?;
             self.upgrade_config_to_schema14()?;
         }
+        if ver < 15 {
+            self.db
+                .execute_batch(include_str!("schema15_upgrade.sql"))?;
+            self.upgrade_notetypes_to_schema15()?;
+        }
 
         Ok(())
     }
@@ -20,6 +25,7 @@ impl SqliteStorage {
     pub(super) fn downgrade_to_schema_11(&self) -> Result<()> {
         self.begin_trx()?;
 
+        self.downgrade_notetypes_from_schema15()?;
         self.downgrade_config_from_schema14()?;
         self.downgrade_tags_from_schema14()?;
         self.downgrade_deck_conf_from_schema14()?;

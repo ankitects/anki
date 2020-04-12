@@ -267,7 +267,7 @@ impl SqlWriter<'_> {
                 write!(self.sql, "c.ord = {}", n).unwrap();
             }
             TemplateKind::Name(name) => {
-                let note_types = self.col.storage.get_all_notetypes()?;
+                let note_types = self.col.storage.get_all_notetypes_as_schema11()?;
                 let mut id_ords = vec![];
                 for nt in note_types.values() {
                     for tmpl in &nt.templates {
@@ -298,7 +298,7 @@ impl SqlWriter<'_> {
         let mut ntids: Vec<_> = self
             .col
             .storage
-            .get_all_notetypes()?
+            .get_all_notetypes_as_schema11()?
             .values()
             .filter(|nt| matches_wildcard(&nt.name, nt_name))
             .map(|nt| nt.id)
@@ -311,7 +311,7 @@ impl SqlWriter<'_> {
     }
 
     fn write_single_field(&mut self, field_name: &str, val: &str, is_re: bool) -> Result<()> {
-        let note_types = self.col.storage.get_all_notetypes()?;
+        let note_types = self.col.storage.get_all_notetypes_as_schema11()?;
 
         let mut field_map = vec![];
         for nt in note_types.values() {

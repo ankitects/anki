@@ -14,7 +14,7 @@ use unicase::UniCase;
 
 const SCHEMA_MIN_VERSION: u8 = 11;
 const SCHEMA_STARTING_VERSION: u8 = 11;
-const SCHEMA_MAX_VERSION: u8 = 14;
+const SCHEMA_MAX_VERSION: u8 = 15;
 
 fn unicase_compare(s1: &str, s2: &str) -> Ordering {
     UniCase::new(s1).cmp(&UniCase::new(s2))

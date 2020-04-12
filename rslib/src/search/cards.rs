@@ -113,7 +113,7 @@ fn prepare_sort(req: &mut Collection, kind: &SortKind) -> Result<()> {
                     }
                 }
                 NoteType => {
-                    for (k, v) in req.storage.get_all_notetypes()? {
+                    for (k, v) in req.storage.get_all_notetypes_as_schema11()? {
                         stmt.execute(params![k, v.name])?;
                     }
                 }
@@ -127,7 +127,7 @@ fn prepare_sort(req: &mut Collection, kind: &SortKind) -> Result<()> {
                 .db
                 .prepare("insert into sort_order (k1,k2,v) values (?,?,?)")?;
 
-            for (ntid, nt) in req.storage.get_all_notetypes()? {
+            for (ntid, nt) in req.storage.get_all_notetypes_as_schema11()? {
                 for tmpl in nt.templates {
                     stmt.execute(params![ntid, tmpl.ord, tmpl.name])?;
                 }
