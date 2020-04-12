@@ -380,7 +380,7 @@ where
         renamed: &HashMap<String, String>,
     ) -> Result<HashSet<String>> {
         let mut referenced_files = HashSet::new();
-        let note_types = self.ctx.storage.get_all_notetypes_as_schema11()?;
+        let note_types = self.ctx.storage.get_all_notetype_core()?;
         let mut collection_modified = false;
 
         for_every_note(&self.ctx.storage.db, |note| {
@@ -401,7 +401,7 @@ where
                 &self.mgr.media_folder,
             )? {
                 // note was modified, needs saving
-                set_note(&self.ctx.storage.db, note, nt)?;
+                set_note(&self.ctx.storage.db, note, nt.sort_field_idx())?;
                 collection_modified = true;
             }
 

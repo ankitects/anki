@@ -10,31 +10,41 @@ use crate::{
     notetype::{NoteTypeID, NoteTypeSchema11},
 };
 use prost::Message;
-use rusqlite::{params, NO_PARAMS};
+use rusqlite::{params, Row, NO_PARAMS};
 use std::collections::{HashMap, HashSet};
 use unicase::UniCase;
+
+fn row_to_notetype_core(row: &Row) -> Result<NoteType> {
+    let config = NoteTypeConfig::decode(row.get_raw(4).as_blob()?)?;
+    Ok(NoteType {
+        id: row.get(0)?,
+        name: row.get(1)?,
+        mtime_secs: row.get(2)?,
+        usn: row.get(3)?,
+        config: Some(config),
+        fields: vec![],
+        templates: vec![],
+    })
+}
 
 impl SqliteStorage {
     fn get_notetype_core(&self, ntid: NoteTypeID) -> Result<Option<NoteType>> {
         self.db
-            .prepare_cached(include_str!("get_notetype.sql"))?
-            .query_and_then(&[ntid], |row| {
-                let config = NoteTypeConfig::decode(row.get_raw(3).as_blob()?)?;
-                Ok(NoteType {
-                    id: ntid.0,
-                    name: row.get(0)?,
-                    mtime_secs: row.get(1)?,
-                    usn: row.get(2)?,
-                    config: Some(config),
-                    fields: vec![],
-                    templates: vec![],
-                })
-            })?
+            .prepare_cached(concat!(include_str!("get_notetype.sql"), " where id = ?"))?
+            .query_and_then(&[ntid], row_to_notetype_core)?
             .next()
             .transpose()
     }
 
-    fn get_notetype_fields(&self, ntid: NoteTypeID) -> Result<Vec<NoteField>> {
+    pub(crate) fn get_all_notetype_core(&self) -> Result<HashMap<NoteTypeID, NoteType>> {
+        self.db
+            .prepare_cached(include_str!("get_notetype.sql"))?
+            .query_and_then(NO_PARAMS, row_to_notetype_core)?
+            .map(|ntres| ntres.map(|nt| (nt.id(), nt)))
+            .collect()
+    }
+
+    pub(crate) fn get_notetype_fields(&self, ntid: NoteTypeID) -> Result<Vec<NoteField>> {
         self.db
             .prepare_cached(include_str!("get_fields.sql"))?
             .query_and_then(&[ntid], |row| {

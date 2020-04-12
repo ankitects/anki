@@ -5,3 +5,5 @@ select
 from fields
 where
   ntid = ?
+order by
+  ord

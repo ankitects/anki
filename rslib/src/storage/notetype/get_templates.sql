@@ -7,3 +7,5 @@ select
 from templates
 where
   ntid = ?
+order by
+  ord

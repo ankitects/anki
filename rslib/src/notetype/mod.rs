@@ -37,6 +37,7 @@ pub(crate) const DEFAULT_LATEX_HEADER: &str = r#"\documentclass[12pt]{article}
 pub(crate) const DEFAULT_LATEX_FOOTER: &str = r#"\end{document}"#;
 
 // other: vec![], // fixme: ensure empty map converted to empty bytes
+// fixme: rollback savepoint when tags not changed
 
 impl NoteType {
     pub fn new() -> Self {
@@ -51,6 +52,14 @@ impl NoteType {
 
     pub fn id(&self) -> NoteTypeID {
         NoteTypeID(self.id)
+    }
+
+    pub fn sort_field_idx(&self) -> usize {
+        self.config.as_ref().unwrap().sort_field_idx as usize
+    }
+
+    pub fn latex_uses_svg(&self) -> bool {
+        self.config.as_ref().unwrap().latex_svg
     }
 
     pub(crate) fn ensure_names_unique(&mut self) {
