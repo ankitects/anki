@@ -170,6 +170,9 @@ class Card:
         conf = self.col.decks.confForDid(self.odid or self.did)
         return conf.get("replayq", True)
 
+    def autoplay(self) -> bool:
+        return self.col.decks.confForDid(self.odid or self.did)["autoplay"]
+
     def timeTaken(self) -> int:
         "Time taken to answer card, in integer MS."
         total = int((time.time() - self.timerStarted) * 1000)
