@@ -228,6 +228,9 @@ class CardLayout(QDialog):
         pform.backWeb._page.settings().setAttribute(
             QWebEngineSettings.PlaybackRequiresUserGesture, True
         )
+        pform.frontWeb._page.settings().setAttribute(
+            QWebEngineSettings.PlaybackRequiresUserGesture, True
+        )
 
     def _on_bridge_cmd(self, cmd: str) -> Any:
         if cmd.startswith("play:"):
