@@ -4,8 +4,7 @@
 use super::SqliteStorage;
 use crate::{
     backend_proto::{
-        CardTemplate as CardTemplateProto, CardTemplateConfig, NoteField as NoteFieldProto,
-        NoteFieldConfig, NoteType as NoteTypeProto, NoteTypeConfig,
+        CardTemplate, CardTemplateConfig, NoteField, NoteFieldConfig, NoteType, NoteTypeConfig,
     },
     err::{AnkiError, DBErrorKind, Result},
     notetype::{NoteTypeID, NoteTypeSchema11},
@@ -16,12 +15,12 @@ use std::collections::{HashMap, HashSet};
 use unicase::UniCase;
 
 impl SqliteStorage {
-    fn get_notetype_core(&self, ntid: NoteTypeID) -> Result<Option<NoteTypeProto>> {
+    fn get_notetype_core(&self, ntid: NoteTypeID) -> Result<Option<NoteType>> {
         self.db
             .prepare_cached(include_str!("get_notetype.sql"))?
             .query_and_then(&[ntid], |row| {
                 let config = NoteTypeConfig::decode(row.get_raw(3).as_blob()?)?;
-                Ok(NoteTypeProto {
+                Ok(NoteType {
                     id: ntid.0,
                     name: row.get(0)?,
                     mtime_secs: row.get(1)?,
@@ -35,12 +34,12 @@ impl SqliteStorage {
             .transpose()
     }
 
-    fn get_notetype_fields(&self, ntid: NoteTypeID) -> Result<Vec<NoteFieldProto>> {
+    fn get_notetype_fields(&self, ntid: NoteTypeID) -> Result<Vec<NoteField>> {
         self.db
             .prepare_cached(include_str!("get_fields.sql"))?
             .query_and_then(&[ntid], |row| {
                 let config = NoteFieldConfig::decode(row.get_raw(2).as_blob()?)?;
-                Ok(NoteFieldProto {
+                Ok(NoteField {
                     ord: row.get(0)?,
                     name: row.get(1)?,
                     config: Some(config),
@@ -49,12 +48,12 @@ impl SqliteStorage {
             .collect()
     }
 
-    fn get_notetype_templates(&self, ntid: NoteTypeID) -> Result<Vec<CardTemplateProto>> {
+    fn get_notetype_templates(&self, ntid: NoteTypeID) -> Result<Vec<CardTemplate>> {
         self.db
             .prepare_cached(include_str!("get_templates.sql"))?
             .query_and_then(&[ntid], |row| {
                 let config = CardTemplateConfig::decode(row.get_raw(4).as_blob()?)?;
-                Ok(CardTemplateProto {
+                Ok(CardTemplate {
                     ord: row.get(0)?,
                     name: row.get(1)?,
                     mtime_secs: row.get(2)?,
@@ -65,7 +64,7 @@ impl SqliteStorage {
             .collect()
     }
 
-    fn get_full_notetype(&self, ntid: NoteTypeID) -> Result<Option<NoteTypeProto>> {
+    fn get_full_notetype(&self, ntid: NoteTypeID) -> Result<Option<NoteType>> {
         match self.get_notetype_core(ntid)? {
             Some(mut nt) => {
                 nt.fields = self.get_notetype_fields(ntid)?;
@@ -94,7 +93,7 @@ impl SqliteStorage {
         Ok(nts)
     }
 
-    fn update_notetype_fields(&self, ntid: NoteTypeID, fields: &[NoteFieldProto]) -> Result<()> {
+    fn update_notetype_fields(&self, ntid: NoteTypeID, fields: &[NoteField]) -> Result<()> {
         self.db
             .prepare_cached("delete from fields where ntid=?")?
             .execute(&[ntid])?;
@@ -111,7 +110,7 @@ impl SqliteStorage {
     fn update_notetype_templates(
         &self,
         ntid: NoteTypeID,
-        templates: &[CardTemplateProto],
+        templates: &[CardTemplate],
     ) -> Result<()> {
         self.db
             .prepare_cached("delete from templates where ntid=?")?
@@ -139,7 +138,7 @@ impl SqliteStorage {
         Ok(())
     }
 
-    fn update_notetype_meta(&self, nt: &NoteTypeProto) -> Result<()> {
+    fn update_notetype_meta(&self, nt: &NoteType) -> Result<()> {
         assert!(nt.id != 0);
         let mut stmt = self
             .db
@@ -157,7 +156,7 @@ impl SqliteStorage {
         let nts = self.get_schema11_notetypes()?;
         let mut names = HashSet::new();
         for (ntid, nt) in nts {
-            let mut nt = NoteTypeProto::from(nt);
+            let mut nt = NoteType::from(nt);
             nt.normalize_names();
             nt.ensure_names_unique();
             loop {
