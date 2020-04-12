@@ -237,6 +237,9 @@ class AnkiApp(QApplication):
     TMOUT = 30000
 
     def __init__(self, argv):
+        # # https://stackoverflow.com/questions/33730771/qtwebengine-not-allowed-to-load-local-resource-for-iframe-how-to-disable-web
+        # # Enable it only for local tests due security issues
+        # sys.argv.append("--disable-web-security")
         QApplication.__init__(self, argv)
         self._argv = argv
 
