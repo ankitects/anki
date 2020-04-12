@@ -94,12 +94,12 @@ pub(super) fn set_note(
     note.usn = Usn(-1);
     let field1_nohtml = strip_html_preserving_image_filenames(&note.fields()[0]);
     let csum = field_checksum(field1_nohtml.as_ref());
-    let sort_field = if note_type.sort_field_idx == 0 {
+    let sort_field = if note_type.sortf == 0 {
         field1_nohtml
     } else {
         strip_html_preserving_image_filenames(
             note.fields()
-                .get(note_type.sort_field_idx as usize)
+                .get(note_type.sortf as usize)
                 .ok_or_else(|| AnkiError::DBError {
                     info: "sort field out of range".to_string(),
                     kind: DBErrorKind::MissingEntity,

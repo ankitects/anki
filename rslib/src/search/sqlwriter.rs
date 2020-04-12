@@ -270,7 +270,7 @@ impl SqlWriter<'_> {
                 let note_types = self.col.storage.get_all_notetypes_as_schema11()?;
                 let mut id_ords = vec![];
                 for nt in note_types.values() {
-                    for tmpl in &nt.templates {
+                    for tmpl in &nt.tmpls {
                         if matches_wildcard(&tmpl.name, name) {
                             id_ords.push((nt.id, tmpl.ord));
                         }
@@ -315,7 +315,7 @@ impl SqlWriter<'_> {
 
         let mut field_map = vec![];
         for nt in note_types.values() {
-            for field in &nt.fields {
+            for field in &nt.flds {
                 if matches_wildcard(&field.name, field_name) {
                     field_map.push((nt.id, field.ord));
                 }

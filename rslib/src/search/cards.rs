@@ -128,7 +128,7 @@ fn prepare_sort(req: &mut Collection, kind: &SortKind) -> Result<()> {
                 .prepare("insert into sort_order (k1,k2,v) values (?,?,?)")?;
 
             for (ntid, nt) in req.storage.get_all_notetypes_as_schema11()? {
-                for tmpl in nt.templates {
+                for tmpl in nt.tmpls {
                     stmt.execute(params![ntid, tmpl.ord, tmpl.name])?;
                 }
             }
