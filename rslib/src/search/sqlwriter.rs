@@ -267,27 +267,16 @@ impl SqlWriter<'_> {
                 write!(self.sql, "c.ord = {}", n).unwrap();
             }
             TemplateKind::Name(name) => {
-                let note_types = self.col.storage.get_all_notetypes_as_schema11()?;
-                let mut id_ords = vec![];
-                for nt in note_types.values() {
-                    for tmpl in &nt.tmpls {
-                        if matches_wildcard(&tmpl.name, name) {
-                            id_ords.push((nt.id, tmpl.ord));
-                        }
-                    }
-                }
-
-                // sort for the benefit of unit tests
-                id_ords.sort();
-
-                if id_ords.is_empty() {
-                    self.sql.push_str("false");
+                if let Some(glob) = glob_to_re(name) {
+                    self.sql.push_str(
+                        "(n.mid,c.ord) in (select ntid,ord from templates where name regexp ?)",
+                    );
+                    self.args.push(glob);
                 } else {
-                    let v: Vec<_> = id_ords
-                        .iter()
-                        .map(|(ntid, ord)| format!("(n.mid = {} and c.ord = {})", ntid, ord))
-                        .collect();
-                    write!(self.sql, "({})", v.join(" or ")).unwrap();
+                    self.sql.push_str(
+                        "(n.mid,c.ord) in (select ntid,ord from templates where name = ?)",
+                    );
+                    self.args.push(name.to_string());
                 }
             }
         };
@@ -295,29 +284,27 @@ impl SqlWriter<'_> {
     }
 
     fn write_note_type(&mut self, nt_name: &str) -> Result<()> {
-        let mut ntids: Vec<_> = self
-            .col
-            .storage
-            .get_all_notetypes_as_schema11()?
-            .values()
-            .filter(|nt| matches_wildcard(&nt.name, nt_name))
-            .map(|nt| nt.id)
-            .collect();
-        self.sql.push_str("n.mid in ");
-        // sort for the benefit of unit tests
-        ntids.sort();
-        ids_to_string(&mut self.sql, &ntids);
+        if let Some(glob) = glob_to_re(nt_name) {
+            self.sql
+                .push_str("n.mid in (select id from notetypes where name regexp ?)");
+            self.args.push(glob);
+        } else {
+            self.sql
+                .push_str("n.mid in (select id from notetypes where name = ?)");
+            self.args.push(nt_name.to_string());
+        }
         Ok(())
     }
 
     fn write_single_field(&mut self, field_name: &str, val: &str, is_re: bool) -> Result<()> {
-        let note_types = self.col.storage.get_all_notetypes_as_schema11()?;
+        let note_types = self.col.storage.get_all_notetype_core()?;
 
         let mut field_map = vec![];
         for nt in note_types.values() {
-            for field in &nt.flds {
+            let fields = self.col.storage.get_notetype_fields(nt.id())?;
+            for field in &fields {
                 if matches_wildcard(&field.name, field_name) {
-                    field_map.push((nt.id, field.ord));
+                    field_map.push((nt.id(), field.ord));
                 }
             }
         }
@@ -539,18 +526,11 @@ mod test {
         assert_eq!(s(ctx, "deck:filtered"), ("(c.odid > 0)".into(), vec![],));
 
         // card
-        assert_eq!(s(ctx, "card:front"), ("(false)".into(), vec![],));
         assert_eq!(
             s(ctx, r#""card:card 1""#),
             (
-                concat!(
-                    "(((n.mid = 1581236385344 and c.ord = 0) or ",
-                    "(n.mid = 1581236385345 and c.ord = 0) or ",
-                    "(n.mid = 1581236385346 and c.ord = 0) or ",
-                    "(n.mid = 1581236385347 and c.ord = 0)))"
-                )
-                .into(),
-                vec![],
+                "((n.mid,c.ord) in (select ntid,ord from templates where name = ?))".into(),
+                vec!["card 1".into()]
             )
         );
 
@@ -633,10 +613,19 @@ mod test {
         );
 
         // note types by name
-        assert_eq!(&s(ctx, "note:basic").0, "(n.mid in (1581236385347))");
         assert_eq!(
-            &s(ctx, "note:basic*").0,
-            "(n.mid in (1581236385345,1581236385346,1581236385347,1581236385344))"
+            s(ctx, "note:basic"),
+            (
+                "(n.mid in (select id from notetypes where name = ?))".into(),
+                vec!["basic".into()]
+            )
+        );
+        assert_eq!(
+            s(ctx, "note:basic*"),
+            (
+                "(n.mid in (select id from notetypes where name regexp ?))".into(),
+                vec!["basic.*".into()]
+            )
         );
 
         // regex

@@ -7,7 +7,7 @@ use crate::err::{AnkiError, DBErrorKind, Result};
 use crate::notetype::NoteTypeID;
 use crate::text::strip_html_preserving_image_filenames;
 use crate::timestamp::TimestampSecs;
-use crate::{define_newtype, notetype::NoteTypeSchema11, types::Usn};
+use crate::{define_newtype, types::Usn};
 use rusqlite::{params, Connection, Row, NO_PARAMS};
 use std::convert::TryInto;
 
@@ -84,27 +84,21 @@ fn row_to_note(row: &Row) -> Result<Note> {
     })
 }
 
-pub(super) fn set_note(
-    db: &Connection,
-    note: &mut Note,
-    note_type: &NoteTypeSchema11,
-) -> Result<()> {
+pub(super) fn set_note(db: &Connection, note: &mut Note, sort_field_idx: usize) -> Result<()> {
     note.mtime = TimestampSecs::now();
     // hard-coded for now
     note.usn = Usn(-1);
     let field1_nohtml = strip_html_preserving_image_filenames(&note.fields()[0]);
     let csum = field_checksum(field1_nohtml.as_ref());
-    let sort_field = if note_type.sortf == 0 {
+    let sort_field = if sort_field_idx == 0 {
         field1_nohtml
     } else {
-        strip_html_preserving_image_filenames(
-            note.fields()
-                .get(note_type.sortf as usize)
-                .ok_or_else(|| AnkiError::DBError {
-                    info: "sort field out of range".to_string(),
-                    kind: DBErrorKind::MissingEntity,
-                })?,
-        )
+        strip_html_preserving_image_filenames(note.fields().get(sort_field_idx).ok_or_else(
+            || AnkiError::DBError {
+                info: "sort field out of range".to_string(),
+                kind: DBErrorKind::MissingEntity,
+            },
+        )?)
     };
 
     let mut stmt =
