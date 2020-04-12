@@ -29,6 +29,7 @@ class ReviewerBottomBar:
     def __init__(self, reviewer: Reviewer) -> None:
         self.reviewer = reviewer
 
+
 def replay_audio(card: Card, question_side: bool) -> None:
     if question_side:
         av_player.play_tags(card.question_av_tags())
@@ -37,6 +38,7 @@ def replay_audio(card: Card, question_side: bool) -> None:
         if card.replay_question_audio_on_answer_side():
             tags = card.question_av_tags() + tags
         av_player.play_tags(tags)
+
 
 class Reviewer:
     "Manage reviews.  Maintains a separate state."
@@ -187,7 +189,7 @@ The front of this card is empty. Please run Tools>Empty Cards."""
             q = c.q()
 
         # play audio?
-        if self.autoplay(c):
+        if c.autoplay():
             av_player.play_tags(c.question_av_tags())
         else:
             av_player.clear_queue_and_maybe_interrupt()
@@ -209,7 +211,8 @@ The front of this card is empty. Please run Tools>Empty Cards."""
         gui_hooks.reviewer_did_show_question(c)
 
     def autoplay(self, card: Card) -> bool:
-        return self.mw.col.decks.confForDid(card.odid or card.did)["autoplay"]
+        print("use card.autoplay() instead of reviewer.autoplay(card)")
+        return card.autoplay()
 
     def _drawFlag(self) -> None:
         self.web.eval("_drawFlag(%s);" % self.card.userFlag())
@@ -228,7 +231,7 @@ The front of this card is empty. Please run Tools>Empty Cards."""
         c = self.card
         a = c.a()
         # play audio?
-        if self.autoplay(c):
+        if c.autoplay():
             av_player.play_tags(c.answer_av_tags())
         else:
             av_player.clear_queue_and_maybe_interrupt()
