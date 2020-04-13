@@ -67,7 +67,7 @@ pub(crate) fn basic_typing(i18n: &I18n) -> NoteType {
     nt.name = i18n.tr(TR::NotetypesBasicTypeAnswerName).into();
     let front = i18n.tr(TR::NotetypesFrontField);
     let back = i18n.tr(TR::NotetypesBackField);
-    let tmpl = nt.templates[0].config.as_mut().unwrap();
+    let tmpl = &mut nt.templates[0].config;
     tmpl.q_format = format!("{}\n\n{{{{type:{}}}}}", fieldref(front.as_ref()), back);
     tmpl.a_format = format!(
         "{}\n\n<hr id=answer>\n\n{{{{type:{}}}}}",
@@ -101,7 +101,7 @@ pub(crate) fn basic_optional_reverse(i18n: &I18n) -> NoteType {
     nt.name = i18n.tr(TR::NotetypesBasicOptionalReversedName).into();
     let addrev = i18n.tr(TR::NotetypesAddReverseField);
     nt.add_field(addrev.as_ref());
-    let tmpl = nt.templates[1].config.as_mut().unwrap();
+    let tmpl = &mut nt.templates[1].config;
     tmpl.q_format = format!("{{{{#{}}}}}{}{{{{/{}}}}}", addrev, tmpl.q_format, addrev);
     nt.prepare_for_adding();
     nt

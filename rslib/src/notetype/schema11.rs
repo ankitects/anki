@@ -276,11 +276,11 @@ pub struct CardTemplateSchema11 {
 impl From<CardTemplateSchema11> for CardTemplate {
     fn from(t: CardTemplateSchema11) -> Self {
         CardTemplate {
-            ord: t.ord as u32,
+            ord: Some(t.ord as u32),
             name: t.name,
-            mtime_secs: 0,
-            usn: 0,
-            config: Some(CardTemplateConfig {
+            mtime_secs: TimestampSecs(0),
+            usn: Usn(0),
+            config: CardTemplateConfig {
                 q_format: t.qfmt,
                 a_format: t.afmt,
                 q_format_browser: t.bqfmt,
@@ -289,17 +289,19 @@ impl From<CardTemplateSchema11> for CardTemplate {
                 browser_font_name: t.bfont,
                 browser_font_size: t.bsize as u32,
                 other: other_to_bytes(&t.other),
-            }),
+            },
         }
     }
 }
 
+// fixme: make sure we don't call this when ord not set
+
 impl From<CardTemplate> for CardTemplateSchema11 {
     fn from(p: CardTemplate) -> Self {
-        let conf = p.config.unwrap();
+        let conf = p.config;
         CardTemplateSchema11 {
             name: p.name,
-            ord: p.ord as u16,
+            ord: p.ord.unwrap() as u16,
             qfmt: conf.q_format,
             afmt: conf.a_format,
             bqfmt: conf.q_format_browser,

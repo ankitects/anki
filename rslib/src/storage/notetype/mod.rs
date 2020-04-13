@@ -67,7 +67,7 @@ impl SqliteStorage {
                     name: row.get(1)?,
                     mtime_secs: row.get(2)?,
                     usn: row.get(3)?,
-                    config: Some(config),
+                    config,
                 })
             })?
             .collect()
@@ -130,11 +130,7 @@ impl SqliteStorage {
             .prepare_cached(include_str!("update_templates.sql"))?;
         for (ord, template) in templates.iter().enumerate() {
             let mut config_bytes = vec![];
-            template
-                .config
-                .as_ref()
-                .unwrap()
-                .encode(&mut config_bytes)?;
+            template.config.encode(&mut config_bytes)?;
             stmt.execute(params![
                 ntid,
                 ord as u32,
