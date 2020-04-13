@@ -222,25 +222,27 @@ impl Default for NoteFieldSchema11 {
 impl From<NoteFieldSchema11> for NoteField {
     fn from(f: NoteFieldSchema11) -> Self {
         NoteField {
-            ord: f.ord as u32,
+            ord: Some(f.ord as u32),
             name: f.name,
-            config: Some(NoteFieldConfig {
+            config: NoteFieldConfig {
                 sticky: f.sticky,
                 rtl: f.rtl,
                 font_name: f.font,
                 font_size: f.size as u32,
                 other: other_to_bytes(&f.other),
-            }),
+            },
         }
     }
 }
 
+// fixme: must make sure calling code doesn't break the assumption ord is set
+
 impl From<NoteField> for NoteFieldSchema11 {
     fn from(p: NoteField) -> Self {
-        let conf = p.config.unwrap();
+        let conf = p.config;
         NoteFieldSchema11 {
             name: p.name,
-            ord: p.ord as u16,
+            ord: p.ord.unwrap() as u16,
             sticky: conf.sticky,
             rtl: conf.rtl,
             font: conf.font_name,

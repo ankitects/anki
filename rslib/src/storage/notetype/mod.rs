@@ -3,8 +3,8 @@
 
 use super::SqliteStorage;
 use crate::{
-    backend_proto::{CardTemplate, CardTemplateConfig, NoteField, NoteFieldConfig, NoteTypeConfig},
     err::{AnkiError, DBErrorKind, Result},
+    notetype::{CardTemplate, CardTemplateConfig, NoteField, NoteFieldConfig, NoteTypeConfig},
     notetype::{NoteType, NoteTypeID, NoteTypeSchema11},
     timestamp::TimestampMillis,
 };
@@ -49,9 +49,9 @@ impl SqliteStorage {
             .query_and_then(&[ntid], |row| {
                 let config = NoteFieldConfig::decode(row.get_raw(2).as_blob()?)?;
                 Ok(NoteField {
-                    ord: row.get(0)?,
+                    ord: Some(row.get(0)?),
                     name: row.get(1)?,
-                    config: Some(config),
+                    config,
                 })
             })?
             .collect()
@@ -110,7 +110,7 @@ impl SqliteStorage {
         let mut stmt = self.db.prepare_cached(include_str!("update_fields.sql"))?;
         for (ord, field) in fields.iter().enumerate() {
             let mut config_bytes = vec![];
-            field.config.as_ref().unwrap().encode(&mut config_bytes)?;
+            field.config.encode(&mut config_bytes)?;
             stmt.execute(params![ntid, ord as u32, field.name, config_bytes,])?;
         }
 

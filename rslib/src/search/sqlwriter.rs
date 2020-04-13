@@ -333,7 +333,7 @@ impl SqlWriter<'_> {
                 format!(
                     "(n.mid = {mid} and field_at_index(n.flds, {ord}) {cmp} ?{n})",
                     mid = ntid,
-                    ord = ord,
+                    ord = ord.unwrap_or_default(),
                     cmp = cmp,
                     n = arg_idx
                 )
