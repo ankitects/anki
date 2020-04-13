@@ -319,7 +319,10 @@ impl Backend {
                 OValue::SetAllDecks(pb::Empty {})
             }
             Value::AllStockNotetypes(_) => OValue::AllStockNotetypes(pb::AllStockNotetypesOut {
-                notetypes: all_stock_notetypes(&self.i18n),
+                notetypes: all_stock_notetypes(&self.i18n)
+                    .into_iter()
+                    .map(Into::into)
+                    .collect(),
             }),
         })
     }

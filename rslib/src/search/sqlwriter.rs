@@ -301,10 +301,10 @@ impl SqlWriter<'_> {
 
         let mut field_map = vec![];
         for nt in note_types.values() {
-            let fields = self.col.storage.get_notetype_fields(nt.id())?;
+            let fields = self.col.storage.get_notetype_fields(nt.id)?;
             for field in &fields {
                 if matches_wildcard(&field.name, field_name) {
-                    field_map.push((nt.id(), field.ord));
+                    field_map.push((nt.id, field.ord));
                 }
             }
         }

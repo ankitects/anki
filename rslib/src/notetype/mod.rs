@@ -6,7 +6,7 @@ mod stock;
 
 pub use crate::backend_proto::{
     card_requirement::CardRequirementKind, CardRequirement, CardTemplate, CardTemplateConfig,
-    NoteField, NoteFieldConfig, NoteType, NoteTypeConfig, NoteTypeKind,
+    NoteField, NoteFieldConfig, NoteType as NoteTypeProto, NoteTypeConfig, NoteTypeKind,
 };
 pub use schema11::{CardTemplateSchema11, NoteFieldSchema11, NoteTypeSchema11};
 pub use stock::all_stock_notetypes;
@@ -15,6 +15,8 @@ use crate::{
     define_newtype,
     template::{without_legacy_template_directives, FieldRequirements, ParsedTemplate},
     text::ensure_string_in_nfc,
+    timestamp::TimestampSecs,
+    types::Usn,
 };
 use std::collections::{HashMap, HashSet};
 use unicase::UniCase;
@@ -42,29 +44,35 @@ pub(crate) const DEFAULT_LATEX_HEADER: &str = r#"\documentclass[12pt]{article}
 
 pub(crate) const DEFAULT_LATEX_FOOTER: &str = r#"\end{document}"#;
 
-impl NoteType {
-    pub fn new() -> Self {
-        let mut nt = Self::default();
+pub struct NoteType {
+    pub id: NoteTypeID,
+    pub name: String,
+    pub mtime_secs: TimestampSecs,
+    pub usn: Usn,
+    pub fields: Vec<NoteField>,
+    pub templates: Vec<CardTemplate>,
+    pub config: NoteTypeConfig,
+}
+
+impl Default for NoteType {
+    fn default() -> Self {
         let mut conf = NoteTypeConfig::default();
         conf.css = DEFAULT_CSS.into();
         conf.latex_pre = DEFAULT_LATEX_HEADER.into();
         conf.latex_post = DEFAULT_LATEX_FOOTER.into();
-        nt.config = Some(conf);
-        nt
+        NoteType {
+            id: NoteTypeID(0),
+            name: "".into(),
+            mtime_secs: TimestampSecs(0),
+            usn: Usn(0),
+            fields: vec![],
+            templates: vec![],
+            config: conf,
+        }
     }
+}
 
-    pub fn id(&self) -> NoteTypeID {
-        NoteTypeID(self.id)
-    }
-
-    pub fn sort_field_idx(&self) -> usize {
-        self.config.as_ref().unwrap().sort_field_idx as usize
-    }
-
-    pub fn latex_uses_svg(&self) -> bool {
-        self.config.as_ref().unwrap().latex_svg
-    }
-
+impl NoteType {
     pub(crate) fn ensure_names_unique(&mut self) {
         let mut names = HashSet::new();
         for t in &mut self.templates {
@@ -134,7 +142,7 @@ impl NoteType {
                 }
             })
             .collect();
-        self.config.as_mut().unwrap().reqs = reqs;
+        self.config.reqs = reqs;
     }
 
     pub(crate) fn normalize_names(&mut self) {
@@ -178,5 +186,19 @@ impl NoteType {
         self.normalize_names();
         self.ensure_names_unique();
         self.update_requirements();
+    }
+}
+
+impl From<NoteType> for NoteTypeProto {
+    fn from(nt: NoteType) -> Self {
+        NoteTypeProto {
+            id: nt.id.0,
+            name: nt.name,
+            mtime_secs: nt.mtime_secs.0 as u32,
+            usn: nt.usn.0,
+            config: Some(nt.config),
+            fields: nt.fields,
+            templates: nt.templates,
+        }
     }
 }

@@ -16,7 +16,7 @@ impl SqliteStorage {
             if idx == StockNoteType::Basic as usize {
                 self.set_config_value(
                     ConfigKey::CurrentNoteTypeID.into(),
-                    &nt.id(),
+                    &nt.id,
                     self.usn(false)?,
                     TimestampSecs::now(),
                 )?;
@@ -43,7 +43,7 @@ fn fieldref<S: AsRef<str>>(name: S) -> String {
 }
 
 pub(crate) fn basic(i18n: &I18n) -> NoteType {
-    let mut nt = NoteType::new();
+    let mut nt = NoteType::default();
     nt.name = i18n.tr(TR::NotetypesBasicName).into();
     let front = i18n.tr(TR::NotetypesFrontField);
     let back = i18n.tr(TR::NotetypesBackField);
@@ -108,15 +108,14 @@ pub(crate) fn basic_optional_reverse(i18n: &I18n) -> NoteType {
 }
 
 pub(crate) fn cloze(i18n: &I18n) -> NoteType {
-    let mut nt = NoteType::new();
+    let mut nt = NoteType::default();
     nt.name = i18n.tr(TR::NotetypesClozeName).into();
     let text = i18n.tr(TR::NotetypesTextField);
     nt.add_field(text.as_ref());
     let fmt = format!("{{{{cloze:{}}}}}", text);
     nt.add_template(nt.name.clone(), fmt.clone(), fmt);
-    let mut config = nt.config.as_mut().unwrap();
-    config.kind = NoteTypeKind::Cloze as i32;
-    config.css += "
+    nt.config.kind = NoteTypeKind::Cloze as i32;
+    nt.config.css += "
 .cloze {
  font-weight: bold;
  color: blue;

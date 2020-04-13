@@ -3,11 +3,9 @@
 
 use super::SqliteStorage;
 use crate::{
-    backend_proto::{
-        CardTemplate, CardTemplateConfig, NoteField, NoteFieldConfig, NoteType, NoteTypeConfig,
-    },
+    backend_proto::{CardTemplate, CardTemplateConfig, NoteField, NoteFieldConfig, NoteTypeConfig},
     err::{AnkiError, DBErrorKind, Result},
-    notetype::{NoteTypeID, NoteTypeSchema11},
+    notetype::{NoteType, NoteTypeID, NoteTypeSchema11},
     timestamp::TimestampMillis,
 };
 use prost::Message;
@@ -22,7 +20,7 @@ fn row_to_notetype_core(row: &Row) -> Result<NoteType> {
         name: row.get(1)?,
         mtime_secs: row.get(2)?,
         usn: row.get(3)?,
-        config: Some(config),
+        config,
         fields: vec![],
         templates: vec![],
     })
@@ -41,7 +39,7 @@ impl SqliteStorage {
         self.db
             .prepare_cached(include_str!("get_notetype.sql"))?
             .query_and_then(NO_PARAMS, row_to_notetype_core)?
-            .map(|ntres| ntres.map(|nt| (nt.id(), nt)))
+            .map(|ntres| ntres.map(|nt| (nt.id, nt)))
             .collect()
     }
 
@@ -86,7 +84,8 @@ impl SqliteStorage {
         }
     }
 
-    fn get_all_notetype_meta(&self) -> Result<Vec<(NoteTypeID, String)>> {
+    #[allow(dead_code)]
+    fn get_all_notetype_names(&self) -> Result<Vec<(NoteTypeID, String)>> {
         self.db
             .prepare_cached(include_str!("get_notetype_names.sql"))?
             .query_and_then(NO_PARAMS, |row| Ok((row.get(0)?, row.get(1)?)))?
@@ -97,7 +96,7 @@ impl SqliteStorage {
         &self,
     ) -> Result<HashMap<NoteTypeID, NoteTypeSchema11>> {
         let mut nts = HashMap::new();
-        for (ntid, _name) in self.get_all_notetype_meta()? {
+        for (ntid, _name) in self.get_all_notetype_core()? {
             let full = self.get_full_notetype(ntid)?.unwrap();
             nts.insert(ntid, full.into());
         }
@@ -149,24 +148,24 @@ impl SqliteStorage {
         Ok(())
     }
 
-    fn update_notetype_meta(&self, nt: &NoteType) -> Result<()> {
-        assert!(nt.id != 0);
+    fn update_notetype_config(&self, nt: &NoteType) -> Result<()> {
+        assert!(nt.id.0 != 0);
         let mut stmt = self
             .db
-            .prepare_cached(include_str!("update_notetype_meta.sql"))?;
+            .prepare_cached(include_str!("update_notetype_core.sql"))?;
         let mut config_bytes = vec![];
-        nt.config.as_ref().unwrap().encode(&mut config_bytes)?;
+        nt.config.encode(&mut config_bytes)?;
         stmt.execute(params![nt.id, nt.name, nt.mtime_secs, nt.usn, config_bytes])?;
 
         Ok(())
     }
 
     pub(crate) fn add_new_notetype(&self, nt: &mut NoteType) -> Result<()> {
-        assert!(nt.id == 0);
+        assert!(nt.id.0 == 0);
 
         let mut stmt = self.db.prepare_cached(include_str!("add_notetype.sql"))?;
         let mut config_bytes = vec![];
-        nt.config.as_ref().unwrap().encode(&mut config_bytes)?;
+        nt.config.encode(&mut config_bytes)?;
         stmt.execute(params![
             TimestampMillis::now(),
             nt.name,
@@ -174,10 +173,10 @@ impl SqliteStorage {
             nt.usn,
             config_bytes
         ])?;
-        nt.id = self.db.last_insert_rowid();
+        nt.id.0 = self.db.last_insert_rowid();
 
-        self.update_notetype_fields(nt.id(), &nt.fields)?;
-        self.update_notetype_templates(nt.id(), &nt.templates)?;
+        self.update_notetype_fields(nt.id, &nt.fields)?;
+        self.update_notetype_templates(nt.id, &nt.templates)?;
 
         Ok(())
     }
@@ -199,7 +198,7 @@ impl SqliteStorage {
                 }
                 nt.name.push('_');
             }
-            self.update_notetype_meta(&nt)?;
+            self.update_notetype_config(&nt)?;
             self.update_notetype_fields(ntid, &nt.fields)?;
             self.update_notetype_templates(ntid, &nt.templates)?;
         }

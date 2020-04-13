@@ -88,11 +88,11 @@ impl NoteTypeSchema11 {
 impl From<NoteTypeSchema11> for NoteType {
     fn from(nt: NoteTypeSchema11) -> Self {
         NoteType {
-            id: nt.id.0,
+            id: nt.id,
             name: nt.name,
-            mtime_secs: nt.mtime.0 as u32,
-            usn: nt.usn.0,
-            config: Some(NoteTypeConfig {
+            mtime_secs: nt.mtime,
+            usn: nt.usn,
+            config: NoteTypeConfig {
                 kind: nt.kind as i32,
                 sort_field_idx: nt.sortf as u32,
                 css: nt.css,
@@ -102,7 +102,7 @@ impl From<NoteTypeSchema11> for NoteType {
                 latex_svg: nt.latexsvg,
                 reqs: nt.req.0.into_iter().map(Into::into).collect(),
                 other: other_to_bytes(&nt.other),
-            }),
+            },
             fields: nt.flds.into_iter().map(Into::into).collect(),
             templates: nt.tmpls.into_iter().map(Into::into).collect(),
         }
@@ -134,17 +134,17 @@ fn bytes_to_other(bytes: &[u8]) -> HashMap<String, Value> {
 
 impl From<NoteType> for NoteTypeSchema11 {
     fn from(p: NoteType) -> Self {
-        let c = p.config.unwrap();
+        let c = p.config;
         NoteTypeSchema11 {
-            id: NoteTypeID(p.id),
+            id: p.id,
             name: p.name,
             kind: if c.kind == 1 {
                 NoteTypeKind::Cloze
             } else {
                 NoteTypeKind::Standard
             },
-            mtime: TimestampSecs(p.mtime_secs as i64),
-            usn: Usn(p.usn),
+            mtime: p.mtime_secs,
+            usn: p.usn,
             sortf: c.sort_field_idx as u16,
             did: if c.target_deck_id == 0 {
                 None
