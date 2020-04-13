@@ -21,7 +21,7 @@ use crate::{
     media::sync::MediaSyncProgress,
     media::MediaManager,
     notes::NoteID,
-    notetype::{NoteTypeID, NoteTypeSchema11},
+    notetype::{all_stock_notetypes, NoteTypeID, NoteTypeSchema11},
     sched::cutoff::{local_minutes_west_for_stamp, sched_timing_today},
     sched::timespan::{answer_button_time, learning_congrats, studied_today, time_span},
     search::{search_cards, search_notes, SortMode},
@@ -318,6 +318,9 @@ impl Backend {
                 self.set_all_decks(&bytes)?;
                 OValue::SetAllDecks(pb::Empty {})
             }
+            Value::AllStockNotetypes(_) => OValue::AllStockNotetypes(pb::AllStockNotetypesOut {
+                notetypes: all_stock_notetypes(&self.i18n),
+            }),
         })
     }
 
