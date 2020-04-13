@@ -9,6 +9,7 @@ pub use crate::backend_proto::{
     NoteField, NoteFieldConfig, NoteType, NoteTypeConfig, NoteTypeKind,
 };
 pub use schema11::{CardTemplateSchema11, NoteFieldSchema11, NoteTypeSchema11};
+pub use stock::all_stock_notetypes;
 
 use crate::{
     define_newtype,

@@ -48,6 +48,7 @@ SchedTimingToday = pb.SchedTimingTodayOut
 BuiltinSortKind = pb.BuiltinSearchOrder.BuiltinSortKind
 BackendCard = pb.Card
 TagUsnTuple = pb.TagUsnTuple
+NoteType = pb.NoteType
 
 try:
     import orjson
@@ -625,6 +626,13 @@ class RustBackend:
 
     def set_all_decks(self, nts: Dict[str, Dict[str, Any]]):
         self._run_command(pb.BackendInput(set_all_decks=orjson.dumps(nts)))
+
+    def all_stock_notetypes(self) -> List[NoteType]:
+        return list(
+            self._run_command(
+                pb.BackendInput(all_stock_notetypes=pb.Empty())
+            ).all_stock_notetypes.notetypes
+        )
 
 
 def translate_string_in(

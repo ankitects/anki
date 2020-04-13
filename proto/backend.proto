@@ -69,6 +69,7 @@ message BackendInput {
         bytes set_all_notetypes = 57;
         Empty get_all_decks = 58;
         bytes set_all_decks = 59;
+        Empty all_stock_notetypes = 60;
     }
 }
 
@@ -85,6 +86,7 @@ message BackendOutput {
         string studied_today = 32;
         string congrats_learn_msg = 33;
         Empty abort_media_sync = 46;
+        AllStockNotetypesOut all_stock_notetypes = 60;
 
         // fallible commands
         TemplateRequirementsOut template_requirements = 16;
@@ -559,4 +561,8 @@ enum StockNoteType {
     StockNoteTypeBasicOptionalReversed = 2;
     StockNoteTypeBasicTyping = 3;
     StockNoteTypeCloze = 4;
+}
+
+message AllStockNotetypesOut {
+    repeated NoteType notetypes = 1;
 }
