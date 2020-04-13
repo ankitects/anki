@@ -87,9 +87,6 @@ class _Collection:
             d += datetime.timedelta(hours=4)
             self.crt = int(time.mktime(d.timetuple()))
         self._loadScheduler()
-        if not self.conf.get("newBury", False):
-            self.conf["newBury"] = True
-            self.setMod()
 
     def name(self) -> Any:
         n = os.path.splitext(os.path.basename(self.path))[0]
