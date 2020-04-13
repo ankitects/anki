@@ -8,6 +8,7 @@ use crate::{
     },
     err::{AnkiError, DBErrorKind, Result},
     notetype::{NoteTypeID, NoteTypeSchema11},
+    timestamp::TimestampMillis,
 };
 use prost::Message;
 use rusqlite::{params, Row, NO_PARAMS};
@@ -160,6 +161,27 @@ impl SqliteStorage {
         Ok(())
     }
 
+    pub(crate) fn add_new_notetype(&self, nt: &mut NoteType) -> Result<()> {
+        assert!(nt.id == 0);
+
+        let mut stmt = self.db.prepare_cached(include_str!("add_notetype.sql"))?;
+        let mut config_bytes = vec![];
+        nt.config.as_ref().unwrap().encode(&mut config_bytes)?;
+        stmt.execute(params![
+            TimestampMillis::now(),
+            nt.name,
+            nt.mtime_secs,
+            nt.usn,
+            config_bytes
+        ])?;
+        nt.id = self.db.last_insert_rowid();
+
+        self.update_notetype_fields(nt.id(), &nt.fields)?;
+        self.update_notetype_templates(nt.id(), &nt.templates)?;
+
+        Ok(())
+    }
+
     // Upgrading/downgrading
 
     pub(crate) fn upgrade_notetypes_to_schema15(&self) -> Result<()> {
@@ -181,6 +203,7 @@ impl SqliteStorage {
             self.update_notetype_fields(ntid, &nt.fields)?;
             self.update_notetype_templates(ntid, &nt.templates)?;
         }
+        self.db.execute("update col set models = ''", NO_PARAMS)?;
         Ok(())
     }
 

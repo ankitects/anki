@@ -13,13 +13,6 @@ from anki.dbproxy import DBProxy
 from anki.lang import _
 from anki.media import media_paths_from_col_path
 from anki.rsbackend import RustBackend
-from anki.stdmodels import (
-    addBasicModel,
-    addBasicTypingModel,
-    addClozeModel,
-    addForwardOptionalReverse,
-    addForwardReverse,
-)
 from anki.utils import intTime
 
 
@@ -51,19 +44,13 @@ def Collection(
     db = DBProxy(weakref.proxy(backend), path)
 
     # initial setup required?
-    create = db.scalar("select models = '{}' from col")
+    create = db.scalar("select decks = '{}' from col")
     if create:
         initial_db_setup(db)
 
     # add db to col and do any remaining upgrades
     col = _Collection(db, backend=backend, server=server, log=should_log)
     if create:
-        # add in reverse order so basic is default
-        addClozeModel(col)
-        addBasicTypingModel(col)
-        addForwardOptionalReverse(col)
-        addForwardReverse(col)
-        addBasicModel(col)
         col.save()
     else:
         db.begin()
