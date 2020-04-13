@@ -621,14 +621,14 @@ time = %(time)d;
             return 2
 
     def _answerButtonList(self) -> Sequence[Tuple[int, str]]:
-        l = ((1, _("Again")),)
+        l = ((1, "Again"),)
         cnt = self.mw.col.sched.answerButtons(self.card)
         if cnt == 2:
-            return l + ((2, _("Good")),)
+            return l + ((2, "Good"),)
         elif cnt == 3:
-            return l + ((2, _("Good")), (3, _("Easy")))
+            return l + ((2, "Good"), (3, "Easy"))
         else:
-            return l + ((2, _("Hard")), (3, _("Good")), (4, _("Easy")))
+            return l + ((2, "Hard"), (3, "Good"), (4, "Easy"))
 
     def _answerButtons(self) -> str:
         default = self._defaultEase()
@@ -640,14 +640,15 @@ time = %(time)d;
                 extra = ""
             due = self._buttonTime(i)
             return """
-<td align=center>%s<button %s title="%s" data-ease="%s" onclick='pycmd("ease%d");'>\
+<td align=center>%s<button %s class="%s" title="%s" data-ease="%s" onclick='pycmd("ease%d");'>\
 %s</button></td>""" % (
                 due,
                 extra,
+                label.lower(),
                 _("Shortcut key: %s") % i,
                 i,
                 i,
-                label,
+                _(label),
             )
 
         buf = "<center><table cellpading=0 cellspacing=0><tr>"

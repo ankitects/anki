@@ -23,6 +23,40 @@
   }
 }
 
+button.again {
+  color:vars.$day-button-again;
+}
+
+button.hard{
+  color: vars.$day-button-hard;
+}
+
+button.good {
+  color:vars.$day-button-good;
+}
+
+button.easy{
+  color: vars.$day-button-easy;
+}
+
+.nightMode{
+  button.again {
+    color:vars.$night-button-again;
+  }
+
+  button.hard{
+    color: vars.$night-button-hard;
+  }
+
+  button.good {
+    color:vars.$night-button-good;
+  }
+
+  button.easy{
+    color: vars.$night-button-easy;
+  }
+}
+
 .nightMode {
   button {
     -webkit-appearance: none;
