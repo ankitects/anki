@@ -10,6 +10,10 @@ message OptionalInt32 {
     sint32 val = 1;
 }
 
+message OptionalUInt32 {
+    uint32 val = 1;
+}
+
 message BackendInit {
     repeated string preferred_langs = 1;
     string locale_folder_path = 2;
@@ -492,7 +496,7 @@ message NoteFieldConfig {
 }
 
 message NoteField {
-    uint32 ord = 1;
+    OptionalUInt32 ord = 1;
     string name = 2;
     NoteFieldConfig config = 5;
 }

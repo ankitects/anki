@@ -1,13 +1,15 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+mod fields;
 mod schema11;
 mod stock;
 
 pub use crate::backend_proto::{
     card_requirement::CardRequirementKind, CardRequirement, CardTemplate, CardTemplateConfig,
-    NoteField, NoteFieldConfig, NoteType as NoteTypeProto, NoteTypeConfig, NoteTypeKind,
+    NoteFieldConfig, NoteType as NoteTypeProto, NoteTypeConfig, NoteTypeKind,
 };
+pub use fields::NoteField;
 pub use schema11::{CardTemplateSchema11, NoteFieldSchema11, NoteTypeSchema11};
 pub use stock::all_stock_notetypes;
 
@@ -156,13 +158,7 @@ impl NoteType {
     }
 
     pub(crate) fn add_field<S: Into<String>>(&mut self, name: S) {
-        let mut config = NoteFieldConfig::default();
-        config.font_name = "Arial".to_string();
-        config.font_size = 20;
-        let mut field = NoteField::default();
-        field.name = name.into();
-        field.config = Some(config);
-        self.fields.push(field);
+        self.fields.push(NoteField::new(name));
     }
 
     pub(crate) fn add_template<S1, S2, S3>(&mut self, name: S1, qfmt: S2, afmt: S3)
@@ -197,7 +193,7 @@ impl From<NoteType> for NoteTypeProto {
             mtime_secs: nt.mtime_secs.0 as u32,
             usn: nt.usn.0,
             config: Some(nt.config),
-            fields: nt.fields,
+            fields: nt.fields.into_iter().map(Into::into).collect(),
             templates: nt.templates,
         }
     }
