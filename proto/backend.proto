@@ -533,8 +533,13 @@ message NoteTypeConfig {
 }
 
 message CardRequirement {
+    enum CardRequirementKind {
+        None = 0;
+        Any = 1;
+        All = 2;
+    }
     uint32 card_ord = 1;
-    uint32 kind = 2;
+    CardRequirementKind kind = 2;
     repeated uint32 field_ords = 3;
 }
 
@@ -546,4 +551,12 @@ message NoteType {
     NoteTypeConfig config = 7;
     repeated NoteField fields = 8;
     repeated CardTemplate templates = 9;
+}
+
+enum StockNoteType {
+    StockNoteTypeBasic = 0;
+    StockNoteTypeBasicAndReversed = 1;
+    StockNoteTypeBasicOptionalReversed = 2;
+    StockNoteTypeBasicTyping = 3;
+    StockNoteTypeCloze = 4;
 }

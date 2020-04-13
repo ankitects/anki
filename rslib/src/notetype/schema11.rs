@@ -16,7 +16,7 @@ use serde_repr::{Deserialize_repr, Serialize_repr};
 use serde_tuple::Serialize_tuple;
 use std::collections::HashMap;
 
-use super::NoteTypeID;
+use super::{CardRequirementKind, NoteTypeID};
 
 #[derive(Serialize_repr, Deserialize_repr, PartialEq, Debug, Clone)]
 #[repr(u8)]
@@ -101,11 +101,34 @@ impl From<NoteTypeSchema11> for NoteType {
                 latex_post: nt.latex_post,
                 latex_svg: nt.latexsvg,
                 reqs: nt.req.0.into_iter().map(Into::into).collect(),
-                other: serde_json::to_vec(&nt.other).unwrap(),
+                other: other_to_bytes(&nt.other),
             }),
             fields: nt.flds.into_iter().map(Into::into).collect(),
             templates: nt.tmpls.into_iter().map(Into::into).collect(),
         }
+    }
+}
+
+fn other_to_bytes(other: &HashMap<String, Value>) -> Vec<u8> {
+    if other.is_empty() {
+        vec![]
+    } else {
+        serde_json::to_vec(other).unwrap_or_else(|e| {
+            // theoretically should never happen
+            println!("serialization failed for {:?}: {}", other, e);
+            vec![]
+        })
+    }
+}
+
+fn bytes_to_other(bytes: &[u8]) -> HashMap<String, Value> {
+    if bytes.is_empty() {
+        Default::default()
+    } else {
+        serde_json::from_slice(bytes).unwrap_or_else(|e| {
+            println!("deserialization failed for other: {}", e);
+            Default::default()
+        })
     }
 }
 
@@ -135,7 +158,7 @@ impl From<NoteType> for NoteTypeSchema11 {
             latex_post: c.latex_post,
             latexsvg: c.latex_svg,
             req: CardRequirementsSchema11(c.reqs.into_iter().map(Into::into).collect()),
-            other: serde_json::from_slice(&c.other).unwrap_or_default(),
+            other: bytes_to_other(&c.other),
         }
     }
 }
@@ -144,7 +167,11 @@ impl From<CardRequirementSchema11> for CardRequirement {
     fn from(r: CardRequirementSchema11) -> Self {
         CardRequirement {
             card_ord: r.card_ord as u32,
-            kind: r.kind as u32,
+            kind: match r.kind {
+                FieldRequirementKindSchema11::Any => CardRequirementKind::Any,
+                FieldRequirementKindSchema11::All => CardRequirementKind::All,
+                FieldRequirementKindSchema11::None => CardRequirementKind::None,
+            } as i32,
             field_ords: r.field_ords.into_iter().map(|n| n as u32).collect(),
         }
     }
@@ -154,10 +181,10 @@ impl From<CardRequirement> for CardRequirementSchema11 {
     fn from(p: CardRequirement) -> Self {
         CardRequirementSchema11 {
             card_ord: p.card_ord as u16,
-            kind: match p.kind {
-                0 => FieldRequirementKindSchema11::Any,
-                1 => FieldRequirementKindSchema11::All,
-                _ => FieldRequirementKindSchema11::None,
+            kind: match p.kind() {
+                CardRequirementKind::Any => FieldRequirementKindSchema11::Any,
+                CardRequirementKind::All => FieldRequirementKindSchema11::All,
+                CardRequirementKind::None => FieldRequirementKindSchema11::None,
             },
             field_ords: p.field_ords.into_iter().map(|n| n as u16).collect(),
         }
@@ -202,7 +229,7 @@ impl From<NoteFieldSchema11> for NoteField {
                 rtl: f.rtl,
                 font_name: f.font,
                 font_size: f.size as u32,
-                other: serde_json::to_vec(&f.other).unwrap(),
+                other: other_to_bytes(&f.other),
             }),
         }
     }
@@ -218,7 +245,7 @@ impl From<NoteField> for NoteFieldSchema11 {
             rtl: conf.rtl,
             font: conf.font_name,
             size: conf.font_size as u16,
-            other: serde_json::from_slice(&conf.other).unwrap(),
+            other: bytes_to_other(&conf.other),
         }
     }
 }
@@ -259,7 +286,7 @@ impl From<CardTemplateSchema11> for CardTemplate {
                 target_deck_id: t.did.unwrap_or(DeckID(0)).0,
                 browser_font_name: t.bfont,
                 browser_font_size: t.bsize as u32,
-                other: serde_json::to_vec(&t.other).unwrap(),
+                other: other_to_bytes(&t.other),
             }),
         }
     }
@@ -282,7 +309,7 @@ impl From<CardTemplate> for CardTemplateSchema11 {
             },
             bfont: conf.browser_font_name,
             bsize: conf.browser_font_size as u8,
-            other: serde_json::from_slice(&conf.other).unwrap(),
+            other: bytes_to_other(&conf.other),
         }
     }
 }

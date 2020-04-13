@@ -20,6 +20,9 @@ fn unicase_compare(s1: &str, s2: &str) -> Ordering {
     UniCase::new(s1).cmp(&UniCase::new(s2))
 }
 
+// fixme: rollback savepoint when tags not changed
+// fixme: switch away from proto for top level struct
+
 // currently public for dbproxy
 #[derive(Debug)]
 pub struct SqliteStorage {
@@ -195,6 +198,7 @@ impl SqliteStorage {
 
         if create {
             storage.add_default_deck_config(i18n)?;
+            storage.add_stock_notetypes(i18n)?;
         }
 
         if create || upgrade {

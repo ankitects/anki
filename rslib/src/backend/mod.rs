@@ -827,7 +827,7 @@ impl Backend {
                         pb::set_config_json::Op::Val(val) => {
                             // ensure it's a well-formed object
                             let val: JsonValue = serde_json::from_slice(&val)?;
-                            col.set_config(&input.key, &val)
+                            col.set_config(input.key.as_str(), &val)
                         }
                         pb::set_config_json::Op::Remove(_) => col.remove_config(&input.key),
                     }

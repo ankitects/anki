@@ -1,10 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::collection::Collection;
-use crate::decks::DeckID;
-use crate::err::Result;
-use crate::timestamp::TimestampSecs;
+use crate::{
+    collection::Collection, decks::DeckID, err::Result, notetype::NoteTypeID,
+    timestamp::TimestampSecs,
+};
 use serde::{de::DeserializeOwned, Serialize};
 use serde_aux::field_attributes::deserialize_bool_from_anything;
 use serde_derive::Deserialize;
@@ -38,6 +38,7 @@ pub(crate) enum ConfigKey {
     CreationOffset,
     Rollover,
     LocalOffset,
+    CurrentNoteTypeID,
 }
 
 impl From<ConfigKey> for &'static str {
@@ -49,6 +50,7 @@ impl From<ConfigKey> for &'static str {
             ConfigKey::CreationOffset => "creationOffset",
             ConfigKey::Rollover => "rollover",
             ConfigKey::LocalOffset => "localOffset",
+            ConfigKey::CurrentNoteTypeID => "curModel",
         }
     }
 }
@@ -83,9 +85,12 @@ impl Collection {
         self.get_config_optional(key).unwrap_or_default()
     }
 
-    pub(crate) fn set_config<T: Serialize>(&self, key: &str, val: &T) -> Result<()> {
+    pub(crate) fn set_config<'a, T: Serialize, K>(&self, key: K, val: &T) -> Result<()>
+    where
+        K: Into<&'a str>,
+    {
         self.storage
-            .set_config_value(key, val, self.usn()?, TimestampSecs::now())
+            .set_config_value(key.into(), val, self.usn()?, TimestampSecs::now())
     }
 
     pub(crate) fn remove_config(&self, key: &str) -> Result<()> {
@@ -116,6 +121,16 @@ impl Collection {
 
     pub(crate) fn get_rollover(&self) -> Option<i8> {
         self.get_config_optional(ConfigKey::Rollover)
+    }
+
+    #[allow(dead_code)]
+    pub(crate) fn get_current_notetype_id(&self) -> Option<NoteTypeID> {
+        self.get_config_optional(ConfigKey::CurrentNoteTypeID)
+    }
+
+    #[allow(dead_code)]
+    pub(crate) fn set_current_notetype_id(&self, id: NoteTypeID) -> Result<()> {
+        self.set_config(ConfigKey::CurrentNoteTypeID, &id)
     }
 }
 
