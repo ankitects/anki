@@ -401,12 +401,16 @@ where
                 &self.mgr.media_folder,
             )? {
                 // note was modified, needs saving
-                set_note(&self.ctx.storage.db, note, nt.sort_field_idx())?;
+                set_note(
+                    &self.ctx.storage.db,
+                    note,
+                    nt.config.sort_field_idx as usize,
+                )?;
                 collection_modified = true;
             }
 
             // extract latex
-            extract_latex_refs(note, &mut referenced_files, nt.latex_uses_svg());
+            extract_latex_refs(note, &mut referenced_files, nt.config.latex_svg);
             Ok(())
         })?;
 

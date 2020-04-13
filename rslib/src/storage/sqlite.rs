@@ -21,7 +21,6 @@ fn unicase_compare(s1: &str, s2: &str) -> Ordering {
 }
 
 // fixme: rollback savepoint when tags not changed
-// fixme: switch away from proto for top level struct
 
 // currently public for dbproxy
 #[derive(Debug)]
