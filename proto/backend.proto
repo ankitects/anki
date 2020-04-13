@@ -513,7 +513,7 @@ message CardTemplateConfig {
 }
 
 message CardTemplate {
-    uint32 ord = 1;
+    OptionalUInt32 ord = 1;
     string name = 2;
     uint32 mtime_secs = 3;
     sint32 usn = 4;

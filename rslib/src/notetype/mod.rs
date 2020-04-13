@@ -4,14 +4,16 @@
 mod fields;
 mod schema11;
 mod stock;
+mod templates;
 
 pub use crate::backend_proto::{
-    card_requirement::CardRequirementKind, CardRequirement, CardTemplate, CardTemplateConfig,
-    NoteFieldConfig, NoteType as NoteTypeProto, NoteTypeConfig, NoteTypeKind,
+    card_requirement::CardRequirementKind, CardRequirement, CardTemplateConfig, NoteFieldConfig,
+    NoteType as NoteTypeProto, NoteTypeConfig, NoteTypeKind,
 };
 pub use fields::NoteField;
 pub use schema11::{CardTemplateSchema11, NoteFieldSchema11, NoteTypeSchema11};
 pub use stock::all_stock_notetypes;
+pub use templates::CardTemplate;
 
 use crate::{
     define_newtype,
@@ -112,7 +114,7 @@ impl NoteType {
             .iter()
             .enumerate()
             .map(|(ord, tmpl)| {
-                let conf = tmpl.config.as_ref().unwrap();
+                let conf = &tmpl.config;
                 let normalized = without_legacy_template_directives(&conf.q_format);
                 if let Ok(tmpl) = ParsedTemplate::from_text(normalized.as_ref()) {
                     let mut req = match tmpl.requirements(&field_map) {
@@ -167,15 +169,7 @@ impl NoteType {
         S2: Into<String>,
         S3: Into<String>,
     {
-        let mut config = CardTemplateConfig::default();
-        config.q_format = qfmt.into();
-        config.a_format = afmt.into();
-
-        let mut tmpl = CardTemplate::default();
-        tmpl.name = name.into();
-        tmpl.config = Some(config);
-
-        self.templates.push(tmpl);
+        self.templates.push(CardTemplate::new(name, qfmt, afmt));
     }
 
     pub(crate) fn prepare_for_adding(&mut self) {
@@ -194,7 +188,7 @@ impl From<NoteType> for NoteTypeProto {
             usn: nt.usn.0,
             config: Some(nt.config),
             fields: nt.fields.into_iter().map(Into::into).collect(),
-            templates: nt.templates,
+            templates: nt.templates.into_iter().map(Into::into).collect(),
         }
     }
 }
