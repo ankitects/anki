@@ -153,9 +153,9 @@ where id > ?""",
         )
         depth = 0
 
-        buf += self._topLevelDragRow()
+        buf += self._top_level_drag_row()
         buf += self._render_deck_nodes(nodes, depth)
-        buf += self._topLevelDragRow()
+        buf += self._top_level_drag_row()
         return buf
 
     def _render_deck_nodes(self, nodes, depth):
@@ -232,7 +232,7 @@ where id > ?""",
             cnt = "1000+"
         return f'<span class="{klass}">{cnt}</span>'
 
-    def _topLevelDragRow(self):
+    def _top_level_drag_row(self):
         return "<tr class='top-level-drag-row'><td colspan='6'>&nbsp;</td></tr>"
 
     # Options
