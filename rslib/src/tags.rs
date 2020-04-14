@@ -7,9 +7,17 @@ use crate::types::Usn;
 use std::{borrow::Cow, collections::HashSet};
 use unicase::UniCase;
 
-fn split_tags(tags: &str) -> impl Iterator<Item = &str> {
+pub(crate) fn split_tags(tags: &str) -> impl Iterator<Item = &str> {
     tags.split(|c| c == ' ' || c == '\u{3000}')
         .filter(|tag| !tag.is_empty())
+}
+
+pub(crate) fn join_tags(tags: &[String]) -> String {
+    if tags.is_empty() {
+        "".into()
+    } else {
+        format!(" {} ", tags.join(" "))
+    }
 }
 
 impl Collection {
