@@ -20,6 +20,10 @@ In the qt folder:
  * browsersel.js: CC BY 2.5.
  * plot.js: MIT.
 
+In the scripts folder:
+
+ * rename: Perl's Artistic license.
+
 The above list only covers the source code that is vendored in this
 repository. Binary distributions also include copies of Qt translation
 files (LGPL), and all of the Python, Rust and Javascript libraries

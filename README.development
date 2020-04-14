@@ -19,7 +19,6 @@ To start, make sure you have the following installed:
  - protoc v3 (https://github.com/protocolbuffers/protobuf/releases)
  - rustup (https://rustup.rs/)
  - gettext
- - rename (from the perl script https://github.com/subogero/rename)
  - rsync
  - perl
  - ripgrep (cargo install rigrep)

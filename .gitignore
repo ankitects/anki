@@ -6,7 +6,6 @@
 .build
 .coverage
 .DS_Store
-rename
 dist
 pyenv
 .mypy_cache

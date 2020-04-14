@@ -15,7 +15,7 @@ endif
 ifeq (${OS},Windows_NT)
 	# Windows terminal is confusing it with its `cmd` builtin `rename` command
 	ifndef RENAME_BIN
-		RENAME_BIN := perl rename
+		RENAME_BIN := perl scripts/rename
 	endif
 
 	ifndef ACTIVATE_SCRIPT
@@ -27,7 +27,7 @@ ifeq (${OS},Windows_NT)
 	endif
 else
 	ifndef RENAME_BIN
-		RENAME_BIN := rename
+		RENAME_BIN := scripts/rename
 	endif
 
 	ifndef ACTIVATE_SCRIPT
@@ -177,9 +177,6 @@ fix:
 .PHONY: add-buildhash
 add-buildhash:
 	@set -eu -o pipefail ${SHELLFLAGS}; \
-	if [[ ! -f rename ]]; then \
-		curl --silent -LO https://raw.githubusercontent.com/subogero/rename/master/rename; \
-	fi; \
 	ver="$$(cat meta/version)"; \
 	hash="$$(cat meta/buildhash)"; \
 	${RENAME_BIN} -f "s/-$${ver}(\.|-)/-$${ver}+$${hash}\$$1/" dist/*-"$${ver}"*
