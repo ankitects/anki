@@ -146,12 +146,10 @@ where id > ?""",
     def _render_deck_tree(self, nodes):
         if not nodes:
             return ""
-        buf = """
-<tr><th colspan=5 align=left>%s</th><th class=count>%s</th>
-<th class=count>%s</th><th class=optscol></th></tr>""" % (
-            _("Deck"),
-            tr(TR.STATISTICS_DUE_COUNT),
-            _("New"),
+        buf = """\
+<tr><th colspan=5 align=left>{}</th><th class=count>{}</th>
+<th class=count>{}</th><th class=optscol></th></tr>""".format(
+            _("Deck"), tr(TR.STATISTICS_DUE_COUNT), _("New"),
         )
         depth = 0
 
@@ -196,12 +194,11 @@ where id > ?""",
             klass = "deck current"
         else:
             klass = "deck"
-        buf = "<tr class='%s' id='%d'>" % (klass, did)
+        buf = "<tr class='{}' id='{}'>".format(klass, did)
         # deck link
         if children:
-            collapse = (
-                "<a class=collapse href=# onclick='return pycmd(\"collapse:%d\")'>%s</a>"
-                % (did, prefix)
+            collapse = "<a class=collapse href=# onclick='return pycmd(\"collapse:{}\")'>{}</a>".format(
+                did, prefix
             )
         else:
             collapse = "<span class=collapse></span>"
@@ -210,24 +207,20 @@ where id > ?""",
         else:
             extraclass = ""
         buf += """
-        <td class=decktd colspan=5>%s%s<a class="deck %s"
-        href=# onclick="return pycmd('open:%d')">%s</a></td>""" % (
-            indent(),
-            collapse,
-            extraclass,
-            did,
-            name,
+        <td class=decktd colspan=5>{}{}<a class="deck {}"
+        href=# onclick="return pycmd('open:{}')">{}</a></td>""".format(
+            indent(), collapse, extraclass, did, name,
         )
 
         due += lrn
-        buf += "<td align=right>%s</td><td align=right>%s</td>" % (
+        buf += "<td align=right>{}</td><td align=right>{}</td>".format(
             self._non_zero_colour(due, "review-count"),
             self._non_zero_colour(new, "new-count"),
         )
         # options
         buf += (
-            "<td align=center class=opts><a onclick='return pycmd(\"opts:%d\");'>"
-            "<img src='/_anki/imgs/gears.svg' class=gears></a></td></tr>" % did
+            "<td align=center class=opts><a onclick='return pycmd(\"opts:{}\");'>"
+            "<img src='/_anki/imgs/gears.svg' class=gears></a></td></tr>".format(did)
         )
         return buf
 
