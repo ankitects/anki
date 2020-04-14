@@ -45,7 +45,7 @@ from anki.utils import intTime
 assert ankirspy.buildhash() == anki.buildinfo.buildhash
 
 SchedTimingToday = pb.SchedTimingTodayOut
-BuiltinSortKind = pb.BuiltinSortKind
+BuiltinSortKind = pb.BuiltinSearchOrder.BuiltinSortKind
 BackendCard = pb.Card
 TagUsnTuple = pb.TagUsnTuple
 
