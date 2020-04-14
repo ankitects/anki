@@ -4,9 +4,8 @@
 use crate::{
     backend::dbproxy::db_command_bytes,
     backend_proto as pb,
-    backend_proto::{
-        AddOrUpdateDeckConfigIn, BuiltinSortKind, Empty, RenderedTemplateReplacement, SyncMediaIn,
-    },
+    backend_proto::builtin_search_order::BuiltinSortKind,
+    backend_proto::{AddOrUpdateDeckConfigIn, Empty, RenderedTemplateReplacement, SyncMediaIn},
     card::{Card, CardID},
     card::{CardQueue, CardType},
     collection::{open_collection, Collection},
@@ -956,7 +955,7 @@ fn media_sync_progress(p: &MediaSyncProgress, i18n: &I18n) -> pb::MediaSyncProgr
 
 fn sort_kind_from_pb(kind: i32) -> SortKind {
     use SortKind as SK;
-    match pb::BuiltinSortKind::from_i32(kind) {
+    match BuiltinSortKind::from_i32(kind) {
         Some(pbkind) => match pbkind {
             BuiltinSortKind::NoteCreation => SK::NoteCreation,
             BuiltinSortKind::NoteMod => SK::NoteMod,
