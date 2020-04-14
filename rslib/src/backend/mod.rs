@@ -24,7 +24,7 @@ use crate::{
     notetype::{all_stock_notetypes, NoteTypeID, NoteTypeSchema11},
     sched::cutoff::{local_minutes_west_for_stamp, sched_timing_today},
     sched::timespan::{answer_button_time, learning_congrats, studied_today, time_span},
-    search::{search_cards, search_notes, SortMode},
+    search::{search_cards, SortMode},
     template::{
         render_card, without_legacy_template_directives, FieldMap, FieldRequirements,
         ParsedTemplate, RenderedNode,
@@ -705,7 +705,7 @@ impl Backend {
 
     fn search_notes(&self, input: pb::SearchNotesIn) -> Result<pb::SearchNotesOut> {
         self.with_col(|col| {
-            let nids = search_notes(col, &input.search)?;
+            let nids = col.search_notes(&input.search)?;
             Ok(pb::SearchNotesOut {
                 note_ids: nids.into_iter().map(|v| v.0).collect(),
             })

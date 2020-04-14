@@ -1,5 +1,3 @@
--- the casts are required as Anki didn't prevent add-ons from
--- storing strings or floats in columns before
 select
   nid,
   did,
