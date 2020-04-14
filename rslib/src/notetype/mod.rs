@@ -3,6 +3,7 @@
 
 mod fields;
 mod schema11;
+mod schemachange;
 mod stock;
 mod templates;
 
@@ -16,7 +17,9 @@ pub use stock::all_stock_notetypes;
 pub use templates::CardTemplate;
 
 use crate::{
+    collection::Collection,
     define_newtype,
+    err::{AnkiError, Result},
     template::{without_legacy_template_directives, FieldRequirements, ParsedTemplate},
     text::ensure_string_in_nfc,
     timestamp::TimestampSecs,
@@ -173,5 +176,18 @@ impl From<NoteType> for NoteTypeProto {
             fields: nt.fields.into_iter().map(Into::into).collect(),
             templates: nt.templates.into_iter().map(Into::into).collect(),
         }
+    }
+}
+
+impl Collection {
+    pub fn update_notetype(&mut self, nt: &mut NoteType) -> Result<()> {
+        self.transact(None, |col| {
+            let existing_notetype = col
+                .storage
+                .get_full_notetype(nt.id)?
+                .ok_or_else(|| AnkiError::invalid_input("no such notetype"))?;
+            col.update_notes_for_changed_fields(nt, existing_notetype.fields.len())?;
+            Ok(())
+        })
     }
 }

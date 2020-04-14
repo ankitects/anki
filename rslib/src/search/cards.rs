@@ -10,51 +10,49 @@ use crate::err::Result;
 use crate::search::parser::parse;
 use rusqlite::params;
 
-pub(crate) enum SortMode {
+pub enum SortMode {
     NoOrder,
     FromConfig,
     Builtin { kind: SortKind, reverse: bool },
     Custom(String),
 }
 
-pub(crate) fn search_cards<'a, 'b>(
-    req: &'b mut Collection,
-    search: &'a str,
-    order: SortMode,
-) -> Result<Vec<CardID>> {
-    let top_node = Node::Group(parse(search)?);
-    let (sql, args) = node_to_sql(req, &top_node)?;
+impl Collection {
+    pub fn search_cards(&mut self, search: &str, order: SortMode) -> Result<Vec<CardID>> {
+        let top_node = Node::Group(parse(search)?);
+        let (sql, args) = node_to_sql(self, &top_node)?;
 
-    let mut sql = format!(
-        "select c.id from cards c, notes n where c.nid=n.id and {}",
-        sql
-    );
+        let mut sql = format!(
+            "select c.id from cards c, notes n where c.nid=n.id and {}",
+            sql
+        );
 
-    match order {
-        SortMode::NoOrder => (),
-        SortMode::FromConfig => {
-            let kind = req.get_browser_sort_kind();
-            prepare_sort(req, &kind)?;
-            sql.push_str(" order by ");
-            write_order(&mut sql, &kind, req.get_browser_sort_reverse())?;
+        match order {
+            SortMode::NoOrder => (),
+            SortMode::FromConfig => {
+                let kind = self.get_browser_sort_kind();
+                prepare_sort(self, &kind)?;
+                sql.push_str(" order by ");
+                write_order(&mut sql, &kind, self.get_browser_sort_reverse())?;
+            }
+            SortMode::Builtin { kind, reverse } => {
+                prepare_sort(self, &kind)?;
+                sql.push_str(" order by ");
+                write_order(&mut sql, &kind, reverse)?;
+            }
+            SortMode::Custom(order_clause) => {
+                sql.push_str(" order by ");
+                sql.push_str(&order_clause);
+            }
         }
-        SortMode::Builtin { kind, reverse } => {
-            prepare_sort(req, &kind)?;
-            sql.push_str(" order by ");
-            write_order(&mut sql, &kind, reverse)?;
-        }
-        SortMode::Custom(order_clause) => {
-            sql.push_str(" order by ");
-            sql.push_str(&order_clause);
-        }
+
+        let mut stmt = self.storage.db.prepare(&sql)?;
+        let ids: Vec<_> = stmt
+            .query_map(&args, |row| row.get(0))?
+            .collect::<std::result::Result<_, _>>()?;
+
+        Ok(ids)
     }
-
-    let mut stmt = req.storage.db.prepare(&sql)?;
-    let ids: Vec<_> = stmt
-        .query_map(&args, |row| row.get(0))?
-        .collect::<std::result::Result<_, _>>()?;
-
-    Ok(ids)
 }
 
 /// Add the order clause to the sql.
@@ -96,24 +94,24 @@ fn write_order(sql: &mut String, kind: &SortKind, reverse: bool) -> Result<()> {
 
 // In the future these items should be moved from JSON into separate SQL tables,
 // - for now we use a temporary deck to sort them.
-fn prepare_sort(req: &mut Collection, kind: &SortKind) -> Result<()> {
+fn prepare_sort(col: &mut Collection, kind: &SortKind) -> Result<()> {
     use SortKind::*;
     match kind {
         CardDeck | NoteType => {
-            prepare_sort_order_table(req)?;
-            let mut stmt = req
+            prepare_sort_order_table(col)?;
+            let mut stmt = col
                 .storage
                 .db
                 .prepare("insert into sort_order (k,v) values (?,?)")?;
 
             match kind {
                 CardDeck => {
-                    for (k, v) in req.storage.get_all_decks()? {
+                    for (k, v) in col.storage.get_all_decks()? {
                         stmt.execute(params![k, v.name()])?;
                     }
                 }
                 NoteType => {
-                    for (k, v) in req.storage.get_all_notetypes_as_schema11()? {
+                    for (k, v) in col.storage.get_all_notetypes_as_schema11()? {
                         stmt.execute(params![k, v.name])?;
                     }
                 }
@@ -121,13 +119,13 @@ fn prepare_sort(req: &mut Collection, kind: &SortKind) -> Result<()> {
             }
         }
         CardTemplate => {
-            prepare_sort_order_table2(req)?;
-            let mut stmt = req
+            prepare_sort_order_table2(col)?;
+            let mut stmt = col
                 .storage
                 .db
                 .prepare("insert into sort_order (k1,k2,v) values (?,?,?)")?;
 
-            for (ntid, nt) in req.storage.get_all_notetypes_as_schema11()? {
+            for (ntid, nt) in col.storage.get_all_notetypes_as_schema11()? {
                 for tmpl in nt.tmpls {
                     stmt.execute(params![ntid, tmpl.ord, tmpl.name])?;
                 }
@@ -139,15 +137,15 @@ fn prepare_sort(req: &mut Collection, kind: &SortKind) -> Result<()> {
     Ok(())
 }
 
-fn prepare_sort_order_table(req: &mut Collection) -> Result<()> {
-    req.storage
+fn prepare_sort_order_table(col: &mut Collection) -> Result<()> {
+    col.storage
         .db
         .execute_batch(include_str!("sort_order.sql"))?;
     Ok(())
 }
 
-fn prepare_sort_order_table2(req: &mut Collection) -> Result<()> {
-    req.storage
+fn prepare_sort_order_table2(col: &mut Collection) -> Result<()> {
+    col.storage
         .db
         .execute_batch(include_str!("sort_order2.sql"))?;
     Ok(())
