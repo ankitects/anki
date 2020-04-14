@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Tuple
 
 import aqt
 from anki.errors import DeckRenameError
@@ -143,7 +143,7 @@ where id > ?""",
         buf = self.mw.col.backend.studied_today(cards, float(thetime))
         return buf
 
-    def _render_deck_tree(self, nodes):
+    def _render_deck_tree(self, nodes: Tuple[Any, ...]) -> str:
         if not nodes:
             return ""
         buf = """\
@@ -158,7 +158,7 @@ where id > ?""",
         buf += self._top_level_drag_row()
         return buf
 
-    def _render_deck_nodes(self, nodes, depth):
+    def _render_deck_nodes(self, nodes: Tuple[Any, ...], depth: int) -> str:
         """
             Return HTML of rows of decks with same parent.
         """
@@ -176,7 +176,9 @@ where id > ?""",
                 buf += self._render_deck_nodes(children, depth + 1)
         return buf
 
-    def _render_deck_row(self, node, depth):
+    def _render_deck_row(
+        self, node: Tuple[str, int, int, int, int, Tuple[Any, ...]], depth: int
+    ) -> str:
         """
             Return HTML of a single deck row.
         """
@@ -224,15 +226,17 @@ where id > ?""",
         )
         return buf
 
-    def _non_zero_colour(self, cnt, klass):
+    def _non_zero_colour(self, cnt: int, klass: str) -> str:
         # due counts
         if not cnt:
             klass = "zero-count"
         if cnt >= 1000:
-            cnt = "1000+"
-        return f'<span class="{klass}">{cnt}</span>'
+            cntstr = "1000+"
+        else:
+            cntstr = str(cnt)
+        return f'<span class="{klass}">{cntstr}</span>'
 
-    def _top_level_drag_row(self):
+    def _top_level_drag_row(self) -> str:
         return "<tr class='top-level-drag-row'><td colspan='6'>&nbsp;</td></tr>"
 
     # Options
