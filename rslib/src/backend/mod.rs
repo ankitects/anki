@@ -24,7 +24,7 @@ use crate::{
     notetype::{all_stock_notetypes, NoteTypeID, NoteTypeSchema11},
     sched::cutoff::{local_minutes_west_for_stamp, sched_timing_today},
     sched::timespan::{answer_button_time, learning_congrats, studied_today, time_span},
-    search::{search_cards, SortMode},
+    search::SortMode,
     template::{
         render_card, without_legacy_template_directives, FieldMap, FieldRequirements,
         ParsedTemplate, RenderedNode,
@@ -696,7 +696,7 @@ impl Backend {
             } else {
                 SortMode::FromConfig
             };
-            let cids = search_cards(col, &input.search, order)?;
+            let cids = col.search_cards(&input.search, order)?;
             Ok(pb::SearchCardsOut {
                 card_ids: cids.into_iter().map(|v| v.0).collect(),
             })

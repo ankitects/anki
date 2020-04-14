@@ -73,7 +73,7 @@ impl SqliteStorage {
             .collect()
     }
 
-    fn get_full_notetype(&self, ntid: NoteTypeID) -> Result<Option<NoteType>> {
+    pub(crate) fn get_full_notetype(&self, ntid: NoteTypeID) -> Result<Option<NoteType>> {
         match self.get_notetype_core(ntid)? {
             Some(mut nt) => {
                 nt.fields = self.get_notetype_fields(ntid)?;
