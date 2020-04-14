@@ -113,7 +113,7 @@ class DeckBrowser:
 
     def __renderPage(self, offset):
         content = DeckBrowserContent(
-            tree=self._renderDeckTree(self._dueTree), stats=self._renderStats(),
+            tree=self._render_deck_tree(self._dueTree), stats=self._renderStats(),
         )
         gui_hooks.deck_browser_will_render_content(self, content)
         self.web.stdHtml(
@@ -143,43 +143,51 @@ where id > ?""",
         buf = self.mw.col.backend.studied_today(cards, float(thetime))
         return buf
 
-    def _renderDeckTree(self, nodes, depth=0):
+    def _render_deck_tree(self, nodes):
         if not nodes:
             return ""
-        if depth == 0:
-            buf = """
+        buf = """
 <tr><th colspan=5 align=left>%s</th><th class=count>%s</th>
 <th class=count>%s</th><th class=optscol></th></tr>""" % (
-                _("Deck"),
-                tr(TR.STATISTICS_DUE_COUNT),
-                _("New"),
-            )
-            buf += self._topLevelDragRow()
-        else:
-            buf = ""
-        nameMap = self.mw.col.decks.nameMap()
-        for node in nodes:
-            buf += self._deckRow(node, depth, len(nodes), nameMap)
-        if depth == 0:
-            buf += self._topLevelDragRow()
+            _("Deck"),
+            tr(TR.STATISTICS_DUE_COUNT),
+            _("New"),
+        )
+        depth = 0
+
+        buf += self._topLevelDragRow()
+        buf += self._render_deck_nodes(nodes, depth)
+        buf += self._topLevelDragRow()
         return buf
 
-    def _deckRow(self, node, depth, cnt, nameMap):
+    def _render_deck_nodes(self, nodes, depth):
+        """
+            Return HTML of rows of decks with same parent.
+        """
+        buf = ""
+        for node in nodes:
+            name, did, due, lrn, new, children = node
+            if did == 1 and not children and (len(nodes) > 1 or depth > 0):
+                # If the default deck is empty and is not the only deck, hide it.
+                if not self.mw.col.db.scalar("select 1 from cards where did = 1"):
+                    continue
+
+            buf += self._render_deck_row(node, depth)
+            collapsed = self.mw.col.decks.get(did)["collapsed"]
+            if children and not collapsed:
+                buf += self._render_deck_nodes(children, depth + 1)
+        return buf
+
+    def _render_deck_row(self, node, depth):
+        """
+            Return HTML of a single deck row.
+        """
         name, did, due, lrn, new, children = node
         deck = self.mw.col.decks.get(did)
-        if did == 1 and cnt > 1 and not children:
-            # if the default deck is empty, hide it
-            if not self.mw.col.db.scalar("select 1 from cards where did = 1"):
-                return ""
-        # parent toggled for collapsing
-        for parent in self.mw.col.decks.parents(did, nameMap):
-            if parent["collapsed"]:
-                buff = ""
-                return buff
+
         prefix = "-"
-        if self.mw.col.decks.get(did)["collapsed"]:
+        if deck["collapsed"]:
             prefix = "+"
-        due += lrn
 
         def indent():
             return "&nbsp;" * 6 * depth
@@ -202,7 +210,6 @@ where id > ?""",
         else:
             extraclass = ""
         buf += """
-
         <td class=decktd colspan=5>%s%s<a class="deck %s"
         href=# onclick="return pycmd('open:%d')">%s</a></td>""" % (
             indent(),
@@ -211,26 +218,26 @@ where id > ?""",
             did,
             name,
         )
-        # due counts
-        def nonzeroColour(cnt, klass):
-            if not cnt:
-                klass = "zero-count"
-            if cnt >= 1000:
-                cnt = "1000+"
-            return f'<span class="{klass}">{cnt}</span>'
 
+        due += lrn
         buf += "<td align=right>%s</td><td align=right>%s</td>" % (
-            nonzeroColour(due, "review-count"),
-            nonzeroColour(new, "new-count"),
+            self._non_zero_colour(due, "review-count"),
+            self._non_zero_colour(new, "new-count"),
         )
         # options
         buf += (
             "<td align=center class=opts><a onclick='return pycmd(\"opts:%d\");'>"
             "<img src='/_anki/imgs/gears.svg' class=gears></a></td></tr>" % did
         )
-        # children
-        buf += self._renderDeckTree(children, depth + 1)
         return buf
+
+    def _non_zero_colour(self, cnt, klass):
+        # due counts
+        if not cnt:
+            klass = "zero-count"
+        if cnt >= 1000:
+            cnt = "1000+"
+        return f'<span class="{klass}">{cnt}</span>'
 
     def _topLevelDragRow(self):
         return "<tr class='top-level-drag-row'><td colspan='6'>&nbsp;</td></tr>"
