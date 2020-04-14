@@ -247,6 +247,7 @@ class GetTextDialog(QDialog):
         if not edit:
             edit = QLineEdit()
         self.l = edit
+        self.l.returnPressed.connect(self.accept)
         if default:
             self.l.setText(default)
             self.l.selectAll()
