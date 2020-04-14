@@ -27,26 +27,9 @@ use unicase::UniCase;
 
 define_newtype!(NoteTypeID, i64);
 
-pub(crate) const DEFAULT_CSS: &str = "\
-.card {
- font-family: arial;
- font-size: 20px;
- text-align: center;
- color: black;
- background-color: white;
-}
-";
-
-pub(crate) const DEFAULT_LATEX_HEADER: &str = r#"\documentclass[12pt]{article}
-\special{papersize=3in,5in}
-\usepackage[utf8]{inputenc}
-\usepackage{amssymb,amsmath}
-\pagestyle{empty}
-\setlength{\parindent}{0in}
-\begin{document}
-"#;
-
-pub(crate) const DEFAULT_LATEX_FOOTER: &str = r#"\end{document}"#;
+pub(crate) const DEFAULT_CSS: &str = include_str!("styling.css");
+pub(crate) const DEFAULT_LATEX_HEADER: &str = include_str!("header.tex");
+pub(crate) const DEFAULT_LATEX_FOOTER: &str = r"\end{document}";
 
 pub struct NoteType {
     pub id: NoteTypeID,
