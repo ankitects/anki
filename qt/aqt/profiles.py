@@ -496,6 +496,9 @@ create table if not exists profiles
     def set_night_mode(self, on: bool) -> None:
         self.meta["night_mode"] = on
 
+    def dark_mode_widgets(self) -> bool:
+        return self.meta.get("dark_mode_widgets", False)
+
     # Profile-specific
     ######################################################################
 

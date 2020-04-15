@@ -10,7 +10,6 @@ import aqt
 from anki.lang import _
 from aqt import AnkiQt
 from aqt.qt import *
-from aqt.theme import theme_manager
 from aqt.utils import TR, askUser, openHelp, showInfo, showWarning, tr
 
 
@@ -250,11 +249,7 @@ Not currently enabled; click the sync button in the main window to enable."""
         self.form.pasteInvert.setChecked(self.prof.get("pasteInvert", False))
         self.form.showPlayButtons.setChecked(self.prof.get("showPlayButtons", True))
         self.form.nightMode.setChecked(self.mw.pm.night_mode())
-        if theme_manager.macos_dark_mode():
-            self.form.nightMode.setChecked(True)
-            self.form.nightMode.setText(tr(TR.PREFERENCES_DARK_MODE_ACTIVE))
-        else:
-            self.form.nightMode.setChecked(self.mw.pm.night_mode())
+        self.form.nightMode.setChecked(self.mw.pm.night_mode())
         self.form.interrupt_audio.setChecked(self.mw.pm.interrupt_audio())
 
     def updateOptions(self):
@@ -268,17 +263,9 @@ Not currently enabled; click the sync button in the main window to enable."""
             restart_required = True
         self.prof["showPlayButtons"] = self.form.showPlayButtons.isChecked()
 
-        if theme_manager.macos_dark_mode():
-            if not self.form.nightMode.isChecked():
-                # user is trying to turn it off, but it's forced
-                showInfo(
-                    tr(TR.PREFERENCES_DARK_MODE_DISABLE), textFormat="rich",
-                )
-                openHelp("profileprefs")
-        else:
-            if self.mw.pm.night_mode() != self.form.nightMode.isChecked():
-                self.mw.pm.set_night_mode(not self.mw.pm.night_mode())
-                restart_required = True
+        if self.mw.pm.night_mode() != self.form.nightMode.isChecked():
+            self.mw.pm.set_night_mode(not self.mw.pm.night_mode())
+            restart_required = True
 
         self.mw.pm.set_interrupt_audio(self.form.interrupt_audio.isChecked())
 
