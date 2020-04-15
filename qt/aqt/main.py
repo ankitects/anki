@@ -214,6 +214,7 @@ class AnkiQt(QMainWindow):
         f.delete_2.clicked.connect(self.onRemProfile)
         f.profiles.currentRowChanged.connect(self.onProfileRowChange)
         f.statusbar.setVisible(False)
+        f.downgrade_button.clicked.connect(self._on_downgrade)
         # enter key opens profile
         QShortcut(QKeySequence("Return"), d, activated=self.onOpenProfile)  # type: ignore
         self.refreshProfilesList()
@@ -343,6 +344,18 @@ close the profile or restart Anki."""
 
         self.onOpenProfile()
 
+    def _on_downgrade(self):
+        self.progress.start()
+        profiles = self.pm.profiles()
+        def downgrade():
+            self.pm.downgrade(profiles)
+        def on_done(future):
+            self.progress.finish()
+            future.result()
+            showInfo("Profiles can now be opened with an older version of Anki.")
+            self.profileDiag.close()
+        self.taskman.run_in_background(downgrade, on_done)
+
     def loadProfile(self, onsuccess: Optional[Callable] = None) -> None:
         self.maybeAutoSync()
 
@@ -440,8 +453,6 @@ close the profile or restart Anki."""
     # Collection load/unload
     ##########################################################################
 
-    downgrade_on_close = True
-
     def loadCollection(self) -> bool:
         try:
             self._loadCollection()
@@ -452,7 +463,7 @@ close the profile or restart Anki."""
             # clean up open collection if possible
             if self.col:
                 try:
-                    self.col.close(save=False, downgrade=self.downgrade_on_close)
+                    self.col.close(save=False, downgrade=False)
                 except:
                     pass
                 self.col = None
@@ -507,7 +518,7 @@ close the profile or restart Anki."""
         except:
             corrupt = True
         try:
-            self.col.close(downgrade=self.downgrade_on_close)
+            self.col.close(downgrade=False)
         except Exception as e:
             print(e)
             corrupt = True
