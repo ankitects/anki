@@ -868,8 +868,10 @@ title="%s" %s>%s</button>""" % (
         from aqt.sync import SyncManager
 
         self.state = "sync"
+        self.app.setQuitOnLastWindowClosed(False)
         self.syncer = SyncManager(self, self.pm)
         self.syncer.sync()
+        self.app.setQuitOnLastWindowClosed(True)
 
     # Tools
     ##########################################################################
