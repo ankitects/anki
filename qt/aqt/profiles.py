@@ -11,7 +11,7 @@ import locale
 import pickle
 import random
 import shutil
-from typing import Any, Dict, Optional, List
+from typing import Any, Dict, List, Optional
 
 from send2trash import send2trash
 
@@ -279,7 +279,9 @@ and no other programs are accessing your profile folders, then try again."""
     # Downgrade
     ######################################################################
 
-    def downgrade(self, profiles=List[str]):
+    def downgrade(self, profiles=List[str]) -> List[str]:
+        "Downgrade all profiles. Return a list of profiles that couldn't be opened."
+        problem_profiles = []
         for name in profiles:
             path = os.path.join(self.base, name, "collection.anki2")
             if not os.path.exists(path):
@@ -288,8 +290,13 @@ and no other programs are accessing your profile folders, then try again."""
                 if db.scalar("select ver from col") == 11:
                     # nothing to do
                     continue
-            c = Collection(path)
-            c.close(save=False, downgrade=True)
+            try:
+                c = Collection(path)
+                c.close(save=False, downgrade=True)
+            except Exception as e:
+                print(e)
+                problem_profiles.append(name)
+        return problem_profiles
 
     # Helpers
     ######################################################################
