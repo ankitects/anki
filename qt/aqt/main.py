@@ -457,9 +457,12 @@ close the profile or restart Anki."""
         try:
             self._loadCollection()
         except Exception as e:
-            showWarning(
-                tr(TR.ERRORS_UNABLE_OPEN_COLLECTION) + "\n" + traceback.format_exc()
-            )
+            if "FileTooNew" in str(e):
+                showWarning("This profile requires a newer version of Anki to open. Did you forget to use the Downgrade button prior to switching Anki versions?")
+            else:
+                showWarning(
+                    tr(TR.ERRORS_UNABLE_OPEN_COLLECTION) + "\n" + traceback.format_exc()
+                )
             # clean up open collection if possible
             if self.col:
                 try:
