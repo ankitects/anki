@@ -32,6 +32,7 @@ def Collection(
     path: str,
     backend: Optional[RustBackend] = None,
     server: Optional[ServerData] = None,
+    log: bool = False,
 ) -> _Collection:
     "Open a new or existing collection. Path must be unicode."
     assert path.endswith(".anki2")
@@ -40,7 +41,7 @@ def Collection(
 
     (media_dir, media_db) = media_paths_from_col_path(path)
     log_path = ""
-    if not server:
+    if not server and log:
         log_path = path.replace(".anki2", "2.log")
     path = os.path.abspath(path)
 
