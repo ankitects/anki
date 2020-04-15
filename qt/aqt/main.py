@@ -475,13 +475,12 @@ close the profile or restart Anki."""
         return True
 
     def _loadCollection(self):
-        cpath = self.pm.collectionPath()
-        self.col = Collection(cpath, backend=self.backend)
+        self.reopen()
         self.setEnabled(True)
 
     def reopen(self):
         cpath = self.pm.collectionPath()
-        self.col = Collection(cpath, backend=self.backend)
+        self.col = Collection(cpath, backend=self.backend, log=True)
 
     def unloadCollection(self, onsuccess: Callable) -> None:
         def callback():
