@@ -180,13 +180,12 @@ jobs:
           pacman -Sccv --noconfirm
           pacman -Qsv --noconfirm
 
-      - name: Set up curl pyaudio, rename
+      - name: Set up curl pyaudio
         if: matrix.os == 'windows-latest'
         shell: cmd
         run: |
           echo on
           curl -LO https://download.lfd.uci.edu/pythonlibs/s2jqpv5t/%pyaudio%
-          curl -LO https://raw.githubusercontent.com/subogero/rename/master/rename
 
       - name: Set up Windows scoop, gettext, ripgrep
         if: matrix.os == 'windows-latest'
@@ -196,19 +195,19 @@ jobs:
           powershell -executionpolicy bypass "& Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')"
           scoop install -g gettext ripgrep
 
-      - name: Set up Ubuntu ripgrep, pyaudio, gettext, rename
+      - name: Set up Ubuntu ripgrep, pyaudio, gettext
         if: matrix.os == 'ubuntu-latest'
         run: |
           set -x
           sudo apt update
-          sudo apt install portaudio19-dev gettext rename
+          sudo apt install portaudio19-dev gettext
           sudo snap install ripgrep --classic
 
-      - name: Set up brew ripgrep, pyaudio, gettext, rename
+      - name: Set up brew ripgrep, pyaudio, gettext
         if: matrix.os == 'macos-latest'
         run: |
           set -x
-          brew install portaudio protobuf gettext rename ripgrep make
+          brew install portaudio protobuf gettext ripgrep make
           brew link gettext --force
 
       - name: Set up python
