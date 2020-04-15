@@ -4,6 +4,7 @@
 import dataclasses
 import json
 import math
+import re
 import sys
 from typing import Any, Callable, List, Optional, Sequence, Tuple
 
@@ -70,14 +71,14 @@ class AnkiWebPage(QWebEnginePage):  # type: ignore
     def javaScriptConsoleMessage(self, level, msg, line, srcID):
         # not translated because console usually not visible,
         # and may only accept ascii text
-        srcID = srcID.replace(AnkiWebView.webBundlePath("/"), "")
+        srcID = re.sub(r"(?mi).+://[^/]+", "", srcID)
         if level == QWebEnginePage.InfoMessageLevel:
             level = "info"
         elif level == QWebEnginePage.WarningMessageLevel:
             level = "warning"
         elif level == QWebEnginePage.ErrorMessageLevel:
             level = "error"
-        buf = "JS %(t)s /%(f)s:%(a)d %(b)s" % dict(
+        buf = "JS %(t)s %(f)s:%(a)d %(b)s" % dict(
             t=level, a=line, f=srcID, b=msg + "\n"
         )
         # ensure we don't try to write characters the terminal can't handle
