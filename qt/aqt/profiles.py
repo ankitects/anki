@@ -11,13 +11,14 @@ import locale
 import pickle
 import random
 import shutil
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, List
 
 from send2trash import send2trash
 
 import anki.lang
 import aqt.forms
 import aqt.sound
+from anki import Collection
 from anki.db import DB
 from anki.lang import _, without_unicode_isolation
 from anki.utils import intTime, isMac, isWin
@@ -274,6 +275,21 @@ and no other programs are accessing your profile folders, then try again."""
 
     def collectionPath(self):
         return os.path.join(self.profileFolder(), "collection.anki2")
+
+    # Downgrade
+    ######################################################################
+
+    def downgrade(self, profiles=List[str]):
+        for name in profiles:
+            path = os.path.join(self.base, name, "collection.anki2")
+            if not os.path.exists(path):
+                continue
+            with DB(path) as db:
+                if db.scalar("select ver from col") == 11:
+                    # nothing to do
+                    continue
+            c = Collection(path)
+            c.close(save=False, downgrade=True)
 
     # Helpers
     ######################################################################
