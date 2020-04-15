@@ -21,6 +21,7 @@ from aqt.qt import (
     QWidget,
     qconnect,
 )
+from aqt.reviewer import replay_audio
 from aqt.sound import av_player, play_clicked_audio
 from aqt.theme import theme_manager
 from aqt.utils import restoreGeom, saveGeom
@@ -88,7 +89,10 @@ class Previewer(QDialog):
         self.mw.progress.timer(100, self._on_close, False)
 
     def _on_replay_audio(self):
-        self.mw.reviewer.replayAudio(self)
+        if self._state == "question":
+            replay_audio(self.card(), True)
+        elif self._state == "answer":
+            replay_audio(self.card(), False)
 
     def close(self):
         self._on_close()
@@ -168,7 +172,7 @@ class Previewer(QDialog):
 
             bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
 
-            if self.mw.reviewer.autoplay(c):
+            if c.autoplay():
                 if self._show_both_sides:
                     # if we're showing both sides at once, remove any audio
                     # from the answer that's appeared on the question already

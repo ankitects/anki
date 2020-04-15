@@ -125,6 +125,9 @@ class AddonMeta:
             return False
         return True
 
+    def is_latest(self, server_update_time: int) -> bool:
+        return self.installed_at >= server_update_time
+
     @staticmethod
     def from_json_meta(dir_name: str, json_meta: Dict[str, Any]) -> AddonMeta:
         return AddonMeta(
@@ -525,7 +528,7 @@ and have been disabled: %(found)s"
     def update_supported_version(self, item: UpdateInfo):
         addon = self.addon_meta(str(item.id))
         updated = False
-        is_latest = self.addon_is_latest(item.id, item.current_branch_last_modified)
+        is_latest = addon.is_latest(item.current_branch_last_modified)
 
         # if max different to the stored value
         cur_max = item.current_branch_max_point_ver
@@ -558,14 +561,17 @@ and have been disabled: %(found)s"
         """Return ids of add-ons requiring an update."""
         need_update = []
         for item in items:
-            if not self.addon_is_latest(item.id, item.suitable_branch_last_modified):
+            addon = self.addon_meta(str(item.id))
+            # update if server mtime is newer
+            if not addon.is_latest(item.suitable_branch_last_modified):
+                need_update.append(item.id)
+            elif not addon.compatible() and item.suitable_branch_last_modified > 0:
+                # Addon is currently disabled, and a suitable branch was found on the
+                # server. Ignore our stored mtime (which may have been set incorrectly
+                # in the past) and require an update.
                 need_update.append(item.id)
 
         return need_update
-
-    def addon_is_latest(self, id: int, server_update: int) -> bool:
-        meta = self.addon_meta(str(id))
-        return meta.installed_at >= server_update
 
     # Add-on Config
     ######################################################################

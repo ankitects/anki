@@ -295,8 +295,8 @@ function wrapIntoText(front, back) {
 
 function wrapInternal(front, back, plainText) {
     if (currentField.dir === "rtl") {
-        front = "&#8235;" + front + "&#8236;";
-        back = "&#8235;" + back + "&#8236;";
+        front = "&#8296;" + front + "&#8297;";
+        back = "&#8296;" + back + "&#8297;";
     }
     const s = window.getSelection();
     let r = s.getRangeAt(0);

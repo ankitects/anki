@@ -55,10 +55,6 @@ pub struct NewConf {
     #[serde(deserialize_with = "default_on_invalid")]
     pub(crate) per_day: u32,
 
-    // unused, can remove in the future
-    #[serde(default)]
-    separate: bool,
-
     #[serde(flatten)]
     other: HashMap<String, Value>,
 }
@@ -165,7 +161,6 @@ impl Default for NewConf {
             ints: NewCardIntervals::default(),
             order: NewCardOrder::default(),
             per_day: 20,
-            separate: true,
             other: Default::default(),
         }
     }
