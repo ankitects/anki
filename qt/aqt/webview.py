@@ -81,10 +81,12 @@ class AnkiWebPage(QWebEnginePage):  # type: ignore
             t=level, a=line, f=srcID, b=msg + "\n"
         )
         # ensure we don't try to write characters the terminal can't handle
-        buf = buf.encode(sys.stderr.encoding, "backslashreplace").decode(
-            sys.stderr.encoding
+        buf = buf.encode(sys.stdout.encoding, "backslashreplace").decode(
+            sys.stdout.encoding
         )
-        sys.stderr.write(buf)
+        # output to stdout because it may raise error messages on the anki GUI
+        # https://github.com/ankitects/anki/pull/560
+        sys.stdout.write(buf)
 
     def acceptNavigationRequest(self, url, navType, isMainFrame):
         if not isMainFrame:
