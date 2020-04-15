@@ -347,13 +347,24 @@ close the profile or restart Anki."""
     def _on_downgrade(self):
         self.progress.start()
         profiles = self.pm.profiles()
+
         def downgrade():
-            self.pm.downgrade(profiles)
+            return self.pm.downgrade(profiles)
+
         def on_done(future):
             self.progress.finish()
-            future.result()
-            showInfo("Profiles can now be opened with an older version of Anki.")
+            problems = future.result()
+            if not problems:
+                showInfo("Profiles can now be opened with an older version of Anki.")
+            else:
+                showWarning(
+                    "The following profiles could not be downgraded: {}".format(
+                        ", ".join(problems)
+                    )
+                )
+                return
             self.profileDiag.close()
+
         self.taskman.run_in_background(downgrade, on_done)
 
     def loadProfile(self, onsuccess: Optional[Callable] = None) -> None:
@@ -458,7 +469,9 @@ close the profile or restart Anki."""
             self._loadCollection()
         except Exception as e:
             if "FileTooNew" in str(e):
-                showWarning("This profile requires a newer version of Anki to open. Did you forget to use the Downgrade button prior to switching Anki versions?")
+                showWarning(
+                    "This profile requires a newer version of Anki to open. Did you forget to use the Downgrade button prior to switching Anki versions?"
+                )
             else:
                 showWarning(
                     tr(TR.ERRORS_UNABLE_OPEN_COLLECTION) + "\n" + traceback.format_exc()
