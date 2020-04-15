@@ -55,8 +55,7 @@ mod dynfix {
                 );
             }
 
-            // remove some obsolete keys
-            map.remove("separate");
+            // remove an obsolete key
             map.remove("return");
 
             let rest = Value::Object(map);
@@ -115,6 +114,10 @@ pub struct FilteredDeck {
     #[serde(deserialize_with = "deserialize_bool_from_anything")]
     resched: bool,
     terms: Vec<FilteredSearch>,
+
+    // unused, but older clients require its existence
+    #[serde(default)]
+    separate: bool,
 
     // old scheduler
     #[serde(default, deserialize_with = "default_on_invalid")]
