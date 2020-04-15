@@ -89,11 +89,13 @@ jobs:
       # Necessary for now for the cargo cache:
       # https://github.com/actions/cache/issues/133#issuecomment-599102035
       - name: Fix ~/.cache permissions
-        if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest'
+        if: matrix.os == 'ubuntu-latest'
         run: |
           sudo chown -R $(whoami):$(id -ng) ~/.cargo/
 
+      # Disable it for macos because it pyenv cache is bugged (https://github.com/ankitects/anki/pull/563)
       - name: Cache pyenv
+        if: matrix.os != 'macos-latest'
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}${{ matrix.SEP }}pyenv
