@@ -60,12 +60,12 @@ button.linkb {
     background: transparent;
 }
 
-.linkb:disabled {
+button.linkb:disabled {
     opacity: 0.3;
     cursor: not-allowed;
 }
 
-.highlighted {
+button.highlighted {
     border-bottom: 3px solid #000;
 }
 
