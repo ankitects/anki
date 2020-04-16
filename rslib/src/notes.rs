@@ -5,8 +5,9 @@ use crate::err::{AnkiError, Result};
 use crate::notetype::NoteTypeID;
 use crate::text::strip_html_preserving_image_filenames;
 use crate::timestamp::TimestampSecs;
-use crate::{define_newtype, types::Usn};
-use std::convert::TryInto;
+use crate::{collection::Collection, define_newtype, types::Usn};
+use num_integer::Integer;
+use std::{collections::HashSet, convert::TryInto};
 
 define_newtype!(NoteID, i64);
 
@@ -20,12 +21,26 @@ pub struct Note {
     pub mtime: TimestampSecs,
     pub usn: Usn,
     pub tags: Vec<String>,
-    pub fields: Vec<String>,
+    pub(crate) fields: Vec<String>,
     pub(crate) sort_field: Option<String>,
     pub(crate) checksum: Option<u32>,
 }
 
 impl Note {
+    pub(crate) fn new(ntid: NoteTypeID, field_count: usize) -> Self {
+        Note {
+            id: NoteID(0),
+            guid: guid(),
+            ntid,
+            mtime: TimestampSecs(0),
+            usn: Usn(0),
+            tags: vec![],
+            fields: vec!["".to_string(); field_count],
+            sort_field: None,
+            checksum: None,
+        }
+    }
+
     pub fn fields(&self) -> &Vec<String> {
         &self.fields
     }
@@ -58,8 +73,22 @@ impl Note {
         self.sort_field = Some(sort_field.into());
         self.checksum = Some(checksum);
         self.mtime = TimestampSecs::now();
-        // hard-coded for now
         self.usn = usn;
+    }
+
+    #[allow(dead_code)]
+    pub(crate) fn nonempty_fields(&self) -> HashSet<u16> {
+        self.fields
+            .iter()
+            .enumerate()
+            .filter_map(|(ord, s)| {
+                if s.trim().is_empty() {
+                    None
+                } else {
+                    Some(ord as u16)
+                }
+            })
+            .collect()
     }
 }
 
@@ -68,4 +97,52 @@ impl Note {
 pub(crate) fn field_checksum(text: &str) -> u32 {
     let digest = sha1::Sha1::from(text).digest().bytes();
     u32::from_be_bytes(digest[..4].try_into().unwrap())
+}
+
+fn guid() -> String {
+    anki_base91(rand::random())
+}
+
+fn anki_base91(mut n: u64) -> String {
+    let table = b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\
+                 0123456789!#$%&()*+,-./:;<=>?@[]^_`{|}~";
+    let mut buf = String::new();
+    while n > 0 {
+        let (q, r) = n.div_rem(&(table.len() as u64));
+        buf.push(table[r as usize] as char);
+        n = q;
+    }
+
+    buf.chars().rev().collect()
+}
+
+impl Collection {
+    pub fn add_note(&mut self, note: &mut Note) -> Result<()> {
+        self.transact(None, |col| {
+            println!("fixme: need to add cards, abort if no cards generated, etc");
+            // fixme: proper index
+            note.prepare_for_update(0, col.usn()?);
+            col.storage.add_note(note)
+        })
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::{anki_base91, field_checksum};
+
+    #[test]
+    fn test_base91() {
+        // match the python implementation for now
+        assert_eq!(anki_base91(0), "");
+        assert_eq!(anki_base91(1), "b");
+        assert_eq!(anki_base91(u64::max_value()), "Rj&Z5m[>Zp");
+        assert_eq!(anki_base91(1234567890), "saAKk");
+    }
+
+    #[test]
+    fn test_field_checksum() {
+        assert_eq!(field_checksum("test"), 2840236005);
+        assert_eq!(field_checksum("今日"), 1464653051);
+    }
 }

@@ -35,7 +35,7 @@ impl Collection {
             Some(map) => map,
         };
 
-        let nids = self.search_notes(&format!("mid:{}", nt.id))?;
+        let nids = self.search_notes_only(&format!("mid:{}", nt.id))?;
         let usn = self.usn()?;
         for nid in nids {
             let mut note = self.storage.get_note(nid)?.unwrap();
@@ -63,11 +63,35 @@ impl Collection {
 #[cfg(test)]
 mod test {
     use crate::collection::open_test_collection;
+    use crate::err::Result;
 
     #[test]
-    fn fields() {
-        let mut _col = open_test_collection();
+    fn fields() -> Result<()> {
+        let mut col = open_test_collection();
+        let mut nt = col
+            .storage
+            .get_full_notetype(col.get_current_notetype_id().unwrap())?
+            .unwrap();
+        let mut note = nt.new_note();
+        assert_eq!(note.fields.len(), 2);
+        note.fields = vec!["one".into(), "two".into()];
+        col.add_note(&mut note)?;
 
-        // fixme: need note adding before we can check this
+        nt.add_field("three");
+        col.update_notetype(&mut nt)?;
+
+        let note = col.storage.get_note(note.id)?.unwrap();
+        assert_eq!(
+            note.fields,
+            vec!["one".to_string(), "two".into(), "".into()]
+        );
+
+        nt.fields.remove(1);
+        col.update_notetype(&mut nt)?;
+
+        let note = col.storage.get_note(note.id)?.unwrap();
+        assert_eq!(note.fields, vec!["one".to_string(), "".into()]);
+
+        Ok(())
     }
 }
