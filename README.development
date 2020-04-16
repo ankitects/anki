@@ -21,7 +21,7 @@ To start, make sure you have the following installed:
  - gettext
  - rsync
  - perl
- - ripgrep (cargo install rigrep)
+ - ripgrep (cargo install ripgrep)
  - git
  - curl
 
