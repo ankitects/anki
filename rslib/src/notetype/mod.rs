@@ -21,7 +21,7 @@ use crate::{
     define_newtype,
     err::{AnkiError, Result},
     notes::Note,
-    template::{without_legacy_template_directives, FieldRequirements, ParsedTemplate},
+    template::{FieldRequirements, ParsedTemplate},
     text::ensure_string_in_nfc,
     timestamp::TimestampSecs,
     types::Usn,
@@ -102,8 +102,7 @@ impl NoteType {
             .enumerate()
             .map(|(ord, tmpl)| {
                 let conf = &tmpl.config;
-                let normalized = without_legacy_template_directives(&conf.q_format);
-                if let Ok(tmpl) = ParsedTemplate::from_text(normalized.as_ref()) {
+                if let Ok(tmpl) = ParsedTemplate::from_text(&conf.q_format) {
                     let mut req = match tmpl.requirements(&field_map) {
                         FieldRequirements::Any(ords) => CardRequirement {
                             card_ord: ord as u32,

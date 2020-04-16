@@ -25,10 +25,7 @@ use crate::{
     sched::cutoff::{local_minutes_west_for_stamp, sched_timing_today},
     sched::timespan::{answer_button_time, learning_congrats, studied_today, time_span},
     search::SortMode,
-    template::{
-        render_card, without_legacy_template_directives, FieldMap, FieldRequirements,
-        ParsedTemplate, RenderedNode,
-    },
+    template::{render_card, FieldMap, FieldRequirements, ParsedTemplate, RenderedNode},
     text::{extract_av_tags, strip_av_tags, AVTag},
     timestamp::TimestampSecs,
     types::Usn,
@@ -405,8 +402,7 @@ impl Backend {
             .template_front
             .into_iter()
             .map(|template| {
-                let normalized = without_legacy_template_directives(&template);
-                if let Ok(tmpl) = ParsedTemplate::from_text(normalized.as_ref()) {
+                if let Ok(tmpl) = ParsedTemplate::from_text(&template) {
                     // convert the rust structure into a protobuf one
                     let val = match tmpl.requirements(&map) {
                         FieldRequirements::Any(ords) => Value::Any(pb::TemplateRequirementAny {

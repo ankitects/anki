@@ -6,11 +6,12 @@ use crate::i18n::{tr_strs, I18n, TR};
 use crate::template_filters::apply_filters;
 use lazy_static::lazy_static;
 use nom::branch::alt;
-use nom::bytes::complete::tag;
-use nom::error::ErrorKind;
-use nom::sequence::delimited;
+use nom::bytes::complete::{tag, take_until};
+use nom::{
+    combinator::{map, rest},
+    sequence::delimited,
+};
 use regex::Regex;
-use std::borrow::Cow;
 use std::collections::{HashMap, HashSet};
 use std::iter;
 
@@ -34,41 +35,47 @@ pub enum Token<'a> {
     CloseConditional(&'a str),
 }
 
-/// a span of text, terminated by {{ or end of string
-pub(crate) fn text_until_open_handlebars(s: &str) -> nom::IResult<&str, &str> {
-    let end = s.len();
-
-    let limited_end = end.min(s.find("{{").unwrap_or(end));
-    let (output, input) = s.split_at(limited_end);
-    if output.is_empty() {
-        Err(nom::Err::Error((input, ErrorKind::TakeUntil)))
-    } else {
-        Ok((input, output))
-    }
-}
-
-/// a span of text, terminated by }} or end of string
-pub(crate) fn text_until_close_handlebars(s: &str) -> nom::IResult<&str, &str> {
-    let end = s.len();
-
-    let limited_end = end.min(s.find("}}").unwrap_or(end));
-    let (output, input) = s.split_at(limited_end);
-    if output.is_empty() {
-        Err(nom::Err::Error((input, ErrorKind::TakeUntil)))
-    } else {
-        Ok((input, output))
-    }
-}
-
 /// text outside handlebars
 fn text_token(s: &str) -> nom::IResult<&str, Token> {
-    text_until_open_handlebars(s).map(|(input, output)| (input, Token::Text(output)))
+    map(alt((take_until("{{"), rest)), Token::Text)(s)
 }
 
 /// text wrapped in handlebars
-fn handle_token(s: &str) -> nom::IResult<&str, Token> {
-    delimited(tag("{{"), text_until_close_handlebars, tag("}}"))(s)
-        .map(|(input, output)| (input, classify_handle(output)))
+fn handlebar_token(s: &str) -> nom::IResult<&str, Token> {
+    map(delimited(tag("{{"), take_until("}}"), tag("}}")), |out| {
+        classify_handle(out)
+    })(s)
+}
+
+fn next_token(input: &str) -> nom::IResult<&str, Token> {
+    alt((handlebar_token, text_token))(input)
+}
+
+fn tokens<'a>(template: &'a str) -> Box<dyn Iterator<Item = TemplateResult<Token>> + 'a> {
+    if template.trim_start().starts_with(ALT_HANDLEBAR_DIRECTIVE) {
+        Box::new(legacy_tokens(
+            template
+                .trim_start()
+                .trim_start_matches(ALT_HANDLEBAR_DIRECTIVE),
+        ))
+    } else {
+        Box::new(new_tokens(template))
+    }
+}
+
+fn new_tokens(mut data: &str) -> impl Iterator<Item = TemplateResult<Token>> {
+    std::iter::from_fn(move || {
+        if data.is_empty() {
+            return None;
+        }
+        match next_token(data) {
+            Ok((i, o)) => {
+                data = i;
+                Some(Ok(o))
+            }
+            Err(_e) => Some(Err(TemplateError::NoClosingBrackets(data.to_string()))),
+        }
+    })
 }
 
 /// classify handle based on leading character
@@ -88,18 +95,38 @@ fn classify_handle(s: &str) -> Token {
     }
 }
 
-fn next_token(input: &str) -> nom::IResult<&str, Token> {
-    alt((handle_token, text_token))(input)
+// Legacy support
+//----------------------------------------
+
+static ALT_HANDLEBAR_DIRECTIVE: &str = "{{=<% %>=}}";
+
+fn legacy_text_token(s: &str) -> nom::IResult<&str, Token> {
+    map(alt((take_until("{{"), take_until("<%"), rest)), |out| {
+        Token::Text(out)
+    })(s)
 }
 
-fn tokens(template: &str) -> impl Iterator<Item = TemplateResult<Token>> {
-    let mut data = template;
+fn legacy_next_token(input: &str) -> nom::IResult<&str, Token> {
+    alt((
+        handlebar_token,
+        alternate_handlebar_token,
+        legacy_text_token,
+    ))(input)
+}
 
+/// text wrapped in <% %>
+fn alternate_handlebar_token(s: &str) -> nom::IResult<&str, Token> {
+    map(delimited(tag("<%"), take_until("%>"), tag("%>")), |out| {
+        classify_handle(out)
+    })(s)
+}
+
+fn legacy_tokens(mut data: &str) -> impl Iterator<Item = TemplateResult<Token>> {
     std::iter::from_fn(move || {
         if data.is_empty() {
             return None;
         }
-        match next_token(data) {
+        match legacy_next_token(data) {
             Ok((i, o)) => {
                 data = i;
                 Some(Ok(o))
@@ -134,9 +161,6 @@ pub struct ParsedTemplate<'a>(Vec<ParsedNode<'a>>);
 
 impl ParsedTemplate<'_> {
     /// Create a template from the provided text.
-    ///
-    /// The legacy alternate syntax is not supported, so the provided text
-    /// should be run through without_legacy_template_directives() first.
     pub fn from_text(template: &str) -> TemplateResult<ParsedTemplate> {
         let mut iter = tokens(template);
         Ok(Self(parse_inner(&mut iter, None)?))
@@ -248,24 +272,6 @@ fn localized_template_error(i18n: &I18n, err: TemplateError) -> String {
             "found"=>format!("{{{{{}{}}}}}", filters, field),
             "field"=>field),
         ),
-    }
-}
-
-// Legacy support
-//----------------------------------------
-
-static ALT_HANDLEBAR_DIRECTIVE: &str = "{{=<% %>=}}";
-
-/// Convert legacy alternate syntax to standard syntax.
-pub fn without_legacy_template_directives(text: &str) -> Cow<str> {
-    if text.trim_start().starts_with(ALT_HANDLEBAR_DIRECTIVE) {
-        text.trim_start()
-            .trim_start_matches(ALT_HANDLEBAR_DIRECTIVE)
-            .replace("<%", "{{")
-            .replace("%>", "}}")
-            .into()
-    } else {
-        text.into()
     }
 }
 
@@ -495,8 +501,7 @@ pub fn render_card(
     };
 
     // question side
-    let qnorm = without_legacy_template_directives(qfmt);
-    let (qnodes, qtmpl) = ParsedTemplate::from_text(qnorm.as_ref())
+    let (qnodes, qtmpl) = ParsedTemplate::from_text(qfmt)
         .and_then(|tmpl| Ok((tmpl.render(&context)?, tmpl)))
         .map_err(|e| template_error_to_anki_error(e, true, i18n))?;
 
@@ -513,8 +518,7 @@ pub fn render_card(
 
     // answer side
     context.question_side = false;
-    let anorm = without_legacy_template_directives(afmt);
-    let anodes = ParsedTemplate::from_text(anorm.as_ref())
+    let anodes = ParsedTemplate::from_text(afmt)
         .and_then(|tmpl| tmpl.render(&context))
         .map_err(|e| template_error_to_anki_error(e, false, i18n))?;
 
@@ -581,10 +585,7 @@ impl ParsedTemplate<'_> {
 mod test {
     use super::{FieldMap, ParsedNode::*, ParsedTemplate as PT};
     use crate::err::TemplateError;
-    use crate::template::{
-        field_is_empty, nonempty_fields, without_legacy_template_directives, FieldRequirements,
-        RenderContext,
-    };
+    use crate::template::{field_is_empty, nonempty_fields, FieldRequirements, RenderContext};
     use std::collections::{HashMap, HashSet};
     use std::iter::FromIterator;
 
@@ -722,12 +723,21 @@ mod test {
 <%Front%>
 <% #Back %>
 <%/Back%>";
-        let output = "
-{{Front}}
-{{ #Back }}
-{{/Back}}";
-
-        assert_eq!(without_legacy_template_directives(input), output);
+        assert_eq!(
+            PT::from_text(input).unwrap().0,
+            vec![
+                Text("\n"),
+                Replacement {
+                    key: "Front",
+                    filters: vec![]
+                },
+                Text("\n"),
+                Conditional {
+                    key: "Back",
+                    children: vec![Text("\n")]
+                }
+            ]
+        );
     }
 
     #[test]
