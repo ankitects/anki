@@ -1282,6 +1282,7 @@ class ConfigEditor(QDialog):
         self.mgr = dlg.mgr
         self.form = aqt.forms.addonconf.Ui_Dialog()
         self.form.setupUi(self)
+        self.form.label.setTextInteractionFlags(Qt.TextSelectableByMouse)
         restore = self.form.buttonBox.button(QDialogButtonBox.RestoreDefaults)
         restore.clicked.connect(self.onRestoreDefaults)
         self.setupFonts()
