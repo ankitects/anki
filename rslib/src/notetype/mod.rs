@@ -20,6 +20,7 @@ use crate::{
     collection::Collection,
     define_newtype,
     err::{AnkiError, Result},
+    notes::Note,
     template::{without_legacy_template_directives, FieldRequirements, ParsedTemplate},
     text::ensure_string_in_nfc,
     timestamp::TimestampSecs,
@@ -162,6 +163,10 @@ impl NoteType {
         self.normalize_names();
         self.ensure_names_unique();
         self.update_requirements();
+    }
+
+    pub fn new_note(&self) -> Note {
+        Note::new(self.id, self.fields.len())
     }
 }
 

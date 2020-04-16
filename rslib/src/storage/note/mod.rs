@@ -5,6 +5,7 @@ use crate::{
     err::Result,
     notes::{Note, NoteID},
     tags::{join_tags, split_tags},
+    timestamp::TimestampMillis,
 };
 use rusqlite::{params, OptionalExtension};
 
@@ -40,6 +41,7 @@ impl super::SqliteStorage {
 
     /// Caller must call note.prepare_for_update() prior to calling this.
     pub(crate) fn update_note(&self, note: &Note) -> Result<()> {
+        assert!(note.id.0 != 0);
         let mut stmt = self.db.prepare_cached(include_str!("update.sql"))?;
         stmt.execute(params![
             note.guid,
@@ -47,11 +49,29 @@ impl super::SqliteStorage {
             note.mtime,
             note.usn,
             join_tags(&note.tags),
-            join_fields(&note.fields),
+            join_fields(&note.fields()),
             note.sort_field.as_ref().unwrap(),
             note.checksum.unwrap(),
             note.id
         ])?;
+        Ok(())
+    }
+
+    pub(crate) fn add_note(&self, note: &mut Note) -> Result<()> {
+        assert!(note.id.0 == 0);
+        let mut stmt = self.db.prepare_cached(include_str!("add.sql"))?;
+        stmt.execute(params![
+            TimestampMillis::now(),
+            note.guid,
+            note.ntid,
+            note.mtime,
+            note.usn,
+            join_tags(&note.tags),
+            join_fields(&note.fields()),
+            note.sort_field.as_ref().unwrap(),
+            note.checksum.unwrap(),
+        ])?;
+        note.id.0 = self.db.last_insert_rowid();
         Ok(())
     }
 }
