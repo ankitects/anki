@@ -70,7 +70,7 @@ mod test {
         let mut col = open_test_collection();
         let mut nt = col
             .storage
-            .get_full_notetype(col.get_current_notetype_id().unwrap())?
+            .get_notetype(col.get_current_notetype_id().unwrap())?
             .unwrap();
         let mut note = nt.new_note();
         assert_eq!(note.fields.len(), 2);

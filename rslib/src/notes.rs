@@ -135,7 +135,7 @@ impl Collection {
         self.transact(None, |col| {
             let nt = col
                 .storage
-                .get_full_notetype(note.ntid)?
+                .get_notetype(note.ntid)?
                 .ok_or_else(|| AnkiError::invalid_input("missing note type"))?;
 
             let cardgen = CardGenContext::new(&nt, col.usn()?);

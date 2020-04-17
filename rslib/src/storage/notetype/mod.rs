@@ -27,6 +27,17 @@ fn row_to_notetype_core(row: &Row) -> Result<NoteType> {
 }
 
 impl SqliteStorage {
+    pub(crate) fn get_notetype(&self, ntid: NoteTypeID) -> Result<Option<NoteType>> {
+        match self.get_notetype_core(ntid)? {
+            Some(mut nt) => {
+                nt.fields = self.get_notetype_fields(ntid)?;
+                nt.templates = self.get_notetype_templates(ntid)?;
+                Ok(Some(nt))
+            }
+            None => Ok(None),
+        }
+    }
+
     fn get_notetype_core(&self, ntid: NoteTypeID) -> Result<Option<NoteType>> {
         self.db
             .prepare_cached(concat!(include_str!("get_notetype.sql"), " where id = ?"))?
@@ -48,6 +59,7 @@ impl SqliteStorage {
         Ok(nts)
     }
 
+    // pub as currently used by searching code
     pub(crate) fn get_notetype_fields(&self, ntid: NoteTypeID) -> Result<Vec<NoteField>> {
         self.db
             .prepare_cached(include_str!("get_fields.sql"))?
@@ -78,18 +90,7 @@ impl SqliteStorage {
             .collect()
     }
 
-    pub(crate) fn get_full_notetype(&self, ntid: NoteTypeID) -> Result<Option<NoteType>> {
-        match self.get_notetype_core(ntid)? {
-            Some(mut nt) => {
-                nt.fields = self.get_notetype_fields(ntid)?;
-                nt.templates = self.get_notetype_templates(ntid)?;
-                Ok(Some(nt))
-            }
-            None => Ok(None),
-        }
-    }
-
-    pub(crate) fn get_notetype_id(&self, name: &str) -> Result<Option<NoteTypeID>> {
+    fn get_notetype_id(&self, name: &str) -> Result<Option<NoteTypeID>> {
         self.db
             .prepare_cached("select id from notetypes where name = ?")?
             .query_row(params![name], |row| row.get(0))
@@ -99,7 +100,7 @@ impl SqliteStorage {
 
     pub fn get_notetype_by_name(&mut self, name: &str) -> Result<Option<NoteType>> {
         if let Some(id) = self.get_notetype_id(name)? {
-            self.get_full_notetype(id)
+            self.get_notetype(id)
         } else {
             Ok(None)
         }
@@ -111,17 +112,6 @@ impl SqliteStorage {
             .prepare_cached(include_str!("get_notetype_names.sql"))?
             .query_and_then(NO_PARAMS, |row| Ok((row.get(0)?, row.get(1)?)))?
             .collect()
-    }
-
-    pub(crate) fn get_all_notetypes_as_schema11(
-        &self,
-    ) -> Result<HashMap<NoteTypeID, NoteTypeSchema11>> {
-        let mut nts = HashMap::new();
-        for (ntid, _name) in self.get_all_notetype_core()? {
-            let full = self.get_full_notetype(ntid)?.unwrap();
-            nts.insert(ntid, full.into());
-        }
-        Ok(nts)
     }
 
     fn update_notetype_fields(&self, ntid: NoteTypeID, fields: &[NoteField]) -> Result<()> {
@@ -198,7 +188,18 @@ impl SqliteStorage {
         Ok(())
     }
 
-    // Upgrading/downgrading
+    // Upgrading/downgrading/legacy
+
+    pub(crate) fn get_all_notetypes_as_schema11(
+        &self,
+    ) -> Result<HashMap<NoteTypeID, NoteTypeSchema11>> {
+        let mut nts = HashMap::new();
+        for (ntid, _name) in self.get_all_notetype_names()? {
+            let full = self.get_notetype(ntid)?.unwrap();
+            nts.insert(ntid, full.into());
+        }
+        Ok(nts)
+    }
 
     pub(crate) fn upgrade_notetypes_to_schema15(&self) -> Result<()> {
         let nts = self.get_schema11_notetypes()?;

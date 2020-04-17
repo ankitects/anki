@@ -197,7 +197,7 @@ impl Collection {
         self.transact(None, |col| {
             let existing_notetype = col
                 .storage
-                .get_full_notetype(nt.id)?
+                .get_notetype(nt.id)?
                 .ok_or_else(|| AnkiError::invalid_input("no such notetype"))?;
             col.update_notes_for_changed_fields(nt, existing_notetype.fields.len())?;
             Ok(())
