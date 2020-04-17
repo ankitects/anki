@@ -15,6 +15,8 @@ from aqt.qt import *
 from aqt.theme import theme_manager
 from aqt.utils import openLink
 
+serverbaseurl = re.compile(r"^.+:\/\/[^\/]+")
+
 # Page for debug messages
 ##########################################################################
 
@@ -74,7 +76,7 @@ class AnkiWebPage(QWebEnginePage):  # type: ignore
         if srcID.startswith("data"):
             srcID = ""
         else:
-            srcID = re.sub(r"(?mi).+://[^/]+", "", srcID[:80])
+            srcID = serverbaseurl.sub("", srcID[:80], 1)
         if level == QWebEnginePage.InfoMessageLevel:
             level = "info"
         elif level == QWebEnginePage.WarningMessageLevel:
