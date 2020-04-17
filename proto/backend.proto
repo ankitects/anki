@@ -520,13 +520,12 @@ message CardTemplate {
     CardTemplateConfig config = 5;
 }
 
-enum NoteTypeKind {
-    NORMAL = 0;
-    CLOZE = 1;
-}
-
 message NoteTypeConfig {
-    NoteTypeKind kind = 1;
+    enum Kind {
+        NORMAL = 0;
+        CLOZE = 1;
+    }
+    Kind kind = 1;
     uint32 sort_field_idx = 2;
     string css = 3;
     // fixme: anki currently sets this without flushing
@@ -539,13 +538,13 @@ message NoteTypeConfig {
 }
 
 message CardRequirement {
-    enum CardRequirementKind {
+    enum Kind {
         None = 0;
         Any = 1;
         All = 2;
     }
     uint32 card_ord = 1;
-    CardRequirementKind kind = 2;
+    Kind kind = 2;
     repeated uint32 field_ords = 3;
 }
 
