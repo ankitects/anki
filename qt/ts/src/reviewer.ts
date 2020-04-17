@@ -42,7 +42,9 @@ function _updateQA(html, fadeTime, onupdate, onshown) {
             qa.html(
                 "Invalid HTML on card: " +
                     err +
-                    ("\n" + err.stack).replace(/\n/g, "<br />")
+                    ("\n" + err.stack)
+                        .substring(0, 2000)
+                        .replace(/\n/g, "<br />")
             );
         }
         _runHook(onUpdateHook);
