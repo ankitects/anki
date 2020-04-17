@@ -24,7 +24,7 @@ To start, make sure you have the following installed:
  - gettext
  - rsync
  - perl
- - ripgrep (cargo install rigrep)
+ - ripgrep (cargo install ripgrep)
  - git
  - curl
 
@@ -75,6 +75,27 @@ The build scripts will use PyQt/Qt from PyPI by default. If you wish to use a
 system install, you will need to set up the pyenv folder yourself, making sure
 you have PyQt5, the WebEngine module and development tools (eg pyqt5-dev-tools)
 installed as well. You'll need to create the venv with --system-site-packages.
+
+Debian/Ubuntu users
+-------------------
+
+Install Python 3.7 (not necessary for Ubuntu 19.04 and later):
+```
+sudo apt install python3.7 python3.7-dev
+sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 1
+sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.7 2
+```
+
+Install other dependencies:
+```
+sudo apt install portaudio19-dev mpv lame npm rsync gcc gettext git curl
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source $HOME/.cargo/env
+wget https://github.com/protocolbuffers/protobuf/releases/download/v3.11.4/protoc-3.11.4-linux-x86_64.zip
+sudo unzip protoc-3.11.4-linux-x86_64.zip -d /usr/local/ -x readme.txt
+rustup update
+cargo install ripgrep
+```
 
 Mac users
 ----------
