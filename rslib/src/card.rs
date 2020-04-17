@@ -99,6 +99,15 @@ impl Undoable for UpdateCardUndo {
     }
 }
 
+impl Card {
+    pub fn new(nid: NoteID, ord: u16, deck_id: DeckID) -> Self {
+        let mut card = Card::default();
+        card.nid = nid;
+        card.ord = ord;
+        card.did = deck_id;
+        card
+    }
+}
 impl Collection {
     #[cfg(test)]
     pub(crate) fn get_and_update_card<F, T>(&mut self, cid: CardID, func: F) -> Result<Card>
@@ -127,7 +136,6 @@ impl Collection {
         self.storage.update_card(card)
     }
 
-    #[allow(dead_code)]
     pub(crate) fn add_card(&mut self, card: &mut Card) -> Result<()> {
         if card.id.0 != 0 {
             return Err(AnkiError::invalid_input("card id already set"));

@@ -9,7 +9,7 @@ use crate::{
     timestamp::TimestampMillis,
 };
 use prost::Message;
-use rusqlite::{params, Row, NO_PARAMS};
+use rusqlite::{params, OptionalExtension, Row, NO_PARAMS};
 use std::collections::{HashMap, HashSet};
 use unicase::UniCase;
 
@@ -36,11 +36,16 @@ impl SqliteStorage {
     }
 
     pub(crate) fn get_all_notetype_core(&self) -> Result<HashMap<NoteTypeID, NoteType>> {
-        self.db
+        let mut nts: HashMap<NoteTypeID, NoteType> = self
+            .db
             .prepare_cached(include_str!("get_notetype.sql"))?
             .query_and_then(NO_PARAMS, row_to_notetype_core)?
             .map(|ntres| ntres.map(|nt| (nt.id, nt)))
-            .collect()
+            .collect::<Result<_>>()?;
+        for nt in nts.values_mut() {
+            nt.fields = self.get_notetype_fields(nt.id)?;
+        }
+        Ok(nts)
     }
 
     pub(crate) fn get_notetype_fields(&self, ntid: NoteTypeID) -> Result<Vec<NoteField>> {
@@ -81,6 +86,22 @@ impl SqliteStorage {
                 Ok(Some(nt))
             }
             None => Ok(None),
+        }
+    }
+
+    pub(crate) fn get_notetype_id(&self, name: &str) -> Result<Option<NoteTypeID>> {
+        self.db
+            .prepare_cached("select id from notetypes where name = ?")?
+            .query_row(params![name], |row| row.get(0))
+            .optional()
+            .map_err(Into::into)
+    }
+
+    pub fn get_notetype_by_name(&mut self, name: &str) -> Result<Option<NoteType>> {
+        if let Some(id) = self.get_notetype_id(name)? {
+            self.get_full_notetype(id)
+        } else {
+            Ok(None)
         }
     }
 
