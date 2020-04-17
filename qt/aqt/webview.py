@@ -71,7 +71,10 @@ class AnkiWebPage(QWebEnginePage):  # type: ignore
     def javaScriptConsoleMessage(self, level, msg, line, srcID):
         # not translated because console usually not visible,
         # and may only accept ascii text
-        srcID = re.sub(r"(?mi).+://[^/]+", "", srcID)
+        if srcID.startswith("data"):
+            srcID = ""
+        else:
+            srcID = re.sub(r"(?mi).+://[^/]+", "", srcID[:80])
         if level == QWebEnginePage.InfoMessageLevel:
             level = "info"
         elif level == QWebEnginePage.WarningMessageLevel:
