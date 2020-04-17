@@ -88,6 +88,13 @@
           </property>
          </widget>
         </item>
+        <item>
+         <widget class="QPushButton" name="downgrade_button">
+          <property name="text">
+           <string notr="true">Downgrade &amp;&amp; Quit</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
      </layout>

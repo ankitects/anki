@@ -11,13 +11,14 @@ import locale
 import pickle
 import random
 import shutil
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from send2trash import send2trash
 
 import anki.lang
 import aqt.forms
 import aqt.sound
+from anki import Collection
 from anki.db import DB
 from anki.lang import _, without_unicode_isolation
 from anki.utils import intTime, isMac, isWin
@@ -275,6 +276,28 @@ and no other programs are accessing your profile folders, then try again."""
     def collectionPath(self):
         return os.path.join(self.profileFolder(), "collection.anki2")
 
+    # Downgrade
+    ######################################################################
+
+    def downgrade(self, profiles=List[str]) -> List[str]:
+        "Downgrade all profiles. Return a list of profiles that couldn't be opened."
+        problem_profiles = []
+        for name in profiles:
+            path = os.path.join(self.base, name, "collection.anki2")
+            if not os.path.exists(path):
+                continue
+            with DB(path) as db:
+                if db.scalar("select ver from col") == 11:
+                    # nothing to do
+                    continue
+            try:
+                c = Collection(path)
+                c.close(save=False, downgrade=True)
+            except Exception as e:
+                print(e)
+                problem_profiles.append(name)
+        return problem_profiles
+
     # Helpers
     ######################################################################
 
@@ -497,6 +520,9 @@ create table if not exists profiles
 
     def set_night_mode(self, on: bool) -> None:
         self.meta["night_mode"] = on
+
+    def dark_mode_widgets(self) -> bool:
+        return self.meta.get("dark_mode_widgets", False)
 
     # Profile-specific
     ######################################################################
