@@ -21,6 +21,7 @@ fn unicase_compare(s1: &str, s2: &str) -> Ordering {
 }
 
 // fixme: rollback savepoint when tags not changed
+// fixme: need to drop out of wal prior to vacuuming to fix page size of older collections
 
 // currently public for dbproxy
 #[derive(Debug)]
