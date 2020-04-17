@@ -8,7 +8,7 @@ use std::io;
 
 pub type Result<T> = std::result::Result<T, AnkiError>;
 
-#[derive(Debug, Fail)]
+#[derive(Debug, Fail, PartialEq)]
 pub enum AnkiError {
     #[fail(display = "invalid input: {}", info)]
     InvalidInput { info: String },
@@ -48,6 +48,9 @@ pub enum AnkiError {
 
     #[fail(display = "Operation modifies schema, but schema not marked modified.")]
     SchemaChange,
+
+    #[fail(display = "No cards generated.")]
+    NoCardsGenerated,
 }
 
 // error helpers

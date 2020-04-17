@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+mod cardgeninfo;
 mod fields;
 mod schema11;
 mod schemachange;
@@ -11,6 +12,7 @@ pub use crate::backend_proto::{
     card_requirement::CardRequirementKind, CardRequirement, CardTemplateConfig, NoteFieldConfig,
     NoteType as NoteTypeProto, NoteTypeConfig, NoteTypeKind,
 };
+pub(crate) use cardgeninfo::CardGenContext;
 pub use fields::NoteField;
 pub use schema11::{CardTemplateSchema11, NoteFieldSchema11, NoteTypeSchema11};
 pub use stock::all_stock_notetypes;
@@ -18,6 +20,7 @@ pub use templates::CardTemplate;
 
 use crate::{
     collection::Collection,
+    decks::DeckID,
     define_newtype,
     err::{AnkiError, Result},
     notes::Note,
@@ -35,6 +38,7 @@ pub(crate) const DEFAULT_CSS: &str = include_str!("styling.css");
 pub(crate) const DEFAULT_LATEX_HEADER: &str = include_str!("header.tex");
 pub(crate) const DEFAULT_LATEX_FOOTER: &str = r"\end{document}";
 
+#[derive(Debug)]
 pub struct NoteType {
     pub id: NoteTypeID,
     pub name: String,
@@ -165,7 +169,11 @@ impl NoteType {
     }
 
     pub fn new_note(&self) -> Note {
-        Note::new(self.id, self.fields.len())
+        Note::new(&self)
+    }
+
+    pub fn target_deck_id(&self) -> DeckID {
+        DeckID(self.config.target_deck_id)
     }
 }
 
@@ -193,5 +201,9 @@ impl Collection {
             col.update_notes_for_changed_fields(nt, existing_notetype.fields.len())?;
             Ok(())
         })
+    }
+
+    pub fn get_notetype_by_name(&mut self, name: &str) -> Result<Option<NoteType>> {
+        self.storage.get_notetype_by_name(name)
     }
 }

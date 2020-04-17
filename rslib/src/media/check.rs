@@ -404,7 +404,7 @@ where
                 &self.mgr.media_folder,
             )? {
                 // note was modified, needs saving
-                note.prepare_for_update(nt.config.sort_field_idx as usize, usn);
+                note.prepare_for_update(nt, usn)?;
                 self.ctx.storage.update_note(&note)?;
                 collection_modified = true;
             }

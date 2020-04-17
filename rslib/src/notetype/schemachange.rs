@@ -53,7 +53,7 @@ impl Collection {
                 })
                 .map(Into::into)
                 .collect();
-            note.prepare_for_update(nt.config.sort_field_idx as usize, usn);
+            note.prepare_for_update(nt, usn)?;
             self.storage.update_note(&note)?;
         }
         Ok(())

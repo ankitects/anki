@@ -78,6 +78,7 @@ fn anki_error_to_proto_error(err: AnkiError, i18n: &I18n) -> pb::BackendError {
         AnkiError::SchemaChange => V::InvalidInput(pb::Empty {}),
         AnkiError::JSONError { info } => V::JsonError(info),
         AnkiError::ProtoError { info } => V::ProtoError(info),
+        AnkiError::NoCardsGenerated => todo!(),
     };
 
     pb::BackendError {

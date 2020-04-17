@@ -3,16 +3,33 @@
 
 use crate::{
     backend_proto::{CardTemplate as CardTemplateProto, CardTemplateConfig, OptionalUInt32},
+    decks::DeckID,
+    template::ParsedTemplate,
     timestamp::TimestampSecs,
     types::Usn,
 };
 
+#[derive(Debug)]
 pub struct CardTemplate {
     pub ord: Option<u32>,
     pub mtime_secs: TimestampSecs,
     pub usn: Usn,
     pub name: String,
     pub config: CardTemplateConfig,
+}
+
+impl CardTemplate {
+    pub(crate) fn parsed_question(&self) -> Option<ParsedTemplate<'_>> {
+        ParsedTemplate::from_text(&self.config.q_format).ok()
+    }
+
+    pub(crate) fn target_deck_id(&self) -> Option<DeckID> {
+        if self.config.target_deck_id > 0 {
+            Some(DeckID(self.config.target_deck_id))
+        } else {
+            None
+        }
+    }
 }
 
 impl From<CardTemplate> for CardTemplateProto {
