@@ -262,7 +262,7 @@ where
         // add a copy of the file using the correct name
         let data = data_for_file(&self.mgr.media_folder, disk_fname)?.ok_or_else(|| {
             AnkiError::IOError {
-                info: "file disappeared".into(),
+                info: format!("file disappeared: {}", disk_fname),
             }
         })?;
         let fname = self.mgr.add_file(ctx, disk_fname, &data)?;
