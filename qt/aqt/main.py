@@ -530,7 +530,7 @@ close the profile or restart Anki."""
         try:
             self.maybeOptimize()
             if not devMode:
-                corrupt = self.col.db.scalar("pragma integrity_check") != "ok"
+                corrupt = self.col.db.scalar("pragma quick_check") != "ok"
         except:
             corrupt = True
         try:
