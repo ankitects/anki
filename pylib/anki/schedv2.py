@@ -36,6 +36,7 @@ class Scheduler:
     _burySiblingsOnAnswer = True
     revCount: int
     _next_card: Optional[Card]
+    _current_card: Optional[Card]
 
     def __init__(self, col: anki.storage._Collection) -> None:
         self.col = col.weakref()
@@ -48,6 +49,7 @@ class Scheduler:
         self._lrnCutoff = 0
         self._updateCutoff()
         self._next_card = None
+        self._current_card = None
 
     def getCard(self) -> Optional[Card]:
         """Pop the next card from the queue. None if finished."""
@@ -71,6 +73,11 @@ class Scheduler:
             self.reset()
         if self._next_card is None:
             self._next_card = self._getCard()
+        while (
+            self._next_card is not None
+            and self._next_card.nid == self._current_card_nid()
+        ):
+            self._next_card = self._getCard()
         if self._next_card and qa:
             self._next_card.answer()
         return self._next_card
@@ -82,6 +89,19 @@ class Scheduler:
         self._resetRev()
         self._resetNew()
         self._haveQueues = True
+
+    def set_current_card(self, card: Card):
+        """card -- it and its sibling won't be put in queue nor scheduled as next card"""
+        self._current_card = card
+        if card is None:
+            return
+        self._burySiblings(card)
+
+    def _current_card_nid(self):
+        if self._current_card is None:
+            return 0
+        else:
+            return self._current_card.nid
 
     def answerCard(self, card: Card, ease: int) -> None:
         self.col.log()
@@ -403,8 +423,9 @@ did = ? and queue = {QUEUE_TYPE_NEW} limit ?)""",
                 # fill the queue with the current did
                 self._newQueue = self.col.db.list(
                     f"""
-                select id from cards where did = ? and queue = {QUEUE_TYPE_NEW} order by due,ord limit ?""",
+                select id from cards where did = ? and queue = {QUEUE_TYPE_NEW} and nid != ? order by due,ord limit ?""",
                     did,
+                    self._current_card_nid(),
                     lim,
                 )
                 if self._newQueue:
@@ -556,10 +577,11 @@ select count() from cards where did in %s and queue = {QUEUE_TYPE_PREVIEW}
         self._lrnQueue = self.col.db.all(  # type: ignore
             f"""
 select due, id from cards where
-did in %s and queue in ({QUEUE_TYPE_LRN},{QUEUE_TYPE_PREVIEW}) and due < ?
+did in %s and queue in ({QUEUE_TYPE_LRN},{QUEUE_TYPE_PREVIEW}) and due < ? and nid != ?
 limit %d"""
             % (self._deckLimit(), self.reportLimit),
             cutoff,
+            self._current_card_nid(),
         )
         for i in range(len(self._lrnQueue)):
             self._lrnQueue[i] = (self._lrnQueue[i][0], self._lrnQueue[i][1])
@@ -592,9 +614,10 @@ limit %d"""
             self._lrnDayQueue = self.col.db.list(
                 f"""
 select id from cards where
-did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
+did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? and nid != ? limit ?""",
                 did,
                 self.today,
+                self._current_card_nid(),
                 self.queueLimit,
             )
             if self._lrnDayQueue:
@@ -926,11 +949,12 @@ did in %s and queue = {QUEUE_TYPE_REV} and due <= ? limit ?)"""
             self._revQueue = self.col.db.list(
                 f"""
 select id from cards where
-did in %s and queue = {QUEUE_TYPE_REV} and due <= ?
+did in %s and queue = {QUEUE_TYPE_REV} and due <= ? and nid != ?
 order by due, random()
 limit ?"""
                 % self._deckLimit(),
                 self.today,
+                self._current_card_nid(),
                 lim,
             )
 

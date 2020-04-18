@@ -44,6 +44,7 @@ class Scheduler(V2):
         self._haveQueues = False
         self._updateCutoff()
         self._next_card = None
+        self._current_card = None
 
     def answerCard(self, card: Card, ease: int) -> None:
         self.col.log()
@@ -281,10 +282,11 @@ and due <= ? limit %d"""
         self._lrnQueue = self.col.db.all(
             f"""
 select due, id from cards where
-did in %s and queue = {QUEUE_TYPE_LRN} and due < ?
+did in %s and queue = {QUEUE_TYPE_LRN} and due < ? and nid != ?
 limit %d"""
             % (self._deckLimit(), self.reportLimit),
             self.dayCutoff,
+            self._current_card_nid(),
         )
         for i in range(len(self._lrnQueue)):
             self._lrnQueue[i] = (self._lrnQueue[i][0], self._lrnQueue[i][1])
@@ -567,9 +569,10 @@ did = ? and queue = {QUEUE_TYPE_REV} and due <= ? limit %d)"""
                 self._revQueue = self.col.db.list(
                     f"""
 select id from cards where
-did = ? and queue = {QUEUE_TYPE_REV} and due <= ? limit ?""",
+did = ? and queue = {QUEUE_TYPE_REV} and due <= ? and nid != ? limit ?""",
                     did,
                     self.today,
+                    self._current_card_nid(),
                     lim,
                 )
                 if self._revQueue:

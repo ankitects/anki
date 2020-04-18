@@ -110,12 +110,14 @@ class Reviewer:
             c = self.mw.col.sched.getCard()
         self.card = c
         if not c:
+            self.mw.col.sched.set_current_card(None)
             self.mw.moveToState("overview")
             return
         if self._reps is None or self._reps % 100 == 0:
             # we recycle the webview periodically so webkit can free memory
             self._initWeb()
         self._showQuestion()
+        self.mw.col.sched.set_current_card(self.card)
         self.mw.col.sched.load_next_card(True)
 
     # Audio
