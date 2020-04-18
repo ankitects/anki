@@ -30,7 +30,10 @@ use crate::{
     timestamp::TimestampSecs,
     types::Usn,
 };
-use std::collections::{HashMap, HashSet};
+use std::{
+    collections::{HashMap, HashSet},
+    sync::Arc,
+};
 use unicase::UniCase;
 
 define_newtype!(NoteTypeID, i64);
@@ -200,11 +203,45 @@ impl Collection {
                 .get_notetype(nt.id)?
                 .ok_or_else(|| AnkiError::invalid_input("no such notetype"))?;
             col.update_notes_for_changed_fields(nt, existing_notetype.fields.len())?;
+            // fixme: card templates
+            // fixme: update cache instead of clearing
+            col.state.notetype_cache.remove(&nt.id);
+
             Ok(())
         })
     }
 
-    pub fn get_notetype_by_name(&mut self, name: &str) -> Result<Option<NoteType>> {
-        self.storage.get_notetype_by_name(name)
+    pub fn get_notetype_by_name(&mut self, name: &str) -> Result<Option<Arc<NoteType>>> {
+        if let Some(ntid) = self.storage.get_notetype_id(name)? {
+            self.get_notetype(ntid)
+        } else {
+            Ok(None)
+        }
+    }
+
+    pub fn get_notetype(&mut self, ntid: NoteTypeID) -> Result<Option<Arc<NoteType>>> {
+        if let Some(nt) = self.state.notetype_cache.get(&ntid) {
+            return Ok(Some(nt.clone()));
+        }
+        if let Some(nt) = self.storage.get_notetype(ntid)? {
+            let nt = Arc::new(nt);
+            self.state.notetype_cache.insert(ntid, nt.clone());
+            Ok(Some(nt))
+        } else {
+            Ok(None)
+        }
+    }
+
+    pub fn get_all_notetypes(&mut self) -> Result<HashMap<NoteTypeID, Arc<NoteType>>> {
+        self.storage
+            .get_all_notetype_names()?
+            .into_iter()
+            .map(|(ntid, _)| {
+                self.get_notetype(ntid)
+                    .transpose()
+                    .unwrap()
+                    .map(|nt| (ntid, nt))
+            })
+            .collect()
     }
 }

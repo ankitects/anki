@@ -297,12 +297,11 @@ impl SqlWriter<'_> {
     }
 
     fn write_single_field(&mut self, field_name: &str, val: &str, is_re: bool) -> Result<()> {
-        let note_types = self.col.storage.get_all_notetype_core()?;
+        let note_types = self.col.get_all_notetypes()?;
 
         let mut field_map = vec![];
         for nt in note_types.values() {
-            let fields = self.col.storage.get_notetype_fields(nt.id)?;
-            for field in &fields {
+            for field in &nt.fields {
                 if matches_wildcard(&field.name, field_name) {
                     field_map.push((nt.id, field.ord));
                 }
