@@ -43,6 +43,7 @@ class Scheduler(V2):
         self.today: Optional[int] = None
         self._haveQueues = False
         self._updateCutoff()
+        self._next_card = None
 
     def answerCard(self, card: Card, ease: int) -> None:
         self.col.log()
@@ -996,6 +997,8 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
                     self._revQueue.remove(cid)
                 except ValueError:
                     pass
+                if self._next_card and self._next_card.id = cid:
+                    self._next_card = None
             else:
                 # if bury disabled, we still discard to give same-day spacing
                 if buryNew:
@@ -1004,6 +1007,8 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
                     self._newQueue.remove(cid)
                 except ValueError:
                     pass
+                if self._next_card and self._next_card.id = cid:
+                    self._next_card = None
         # then bury
         if toBury:
             self.col.db.execute(

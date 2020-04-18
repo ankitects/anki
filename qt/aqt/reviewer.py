@@ -116,6 +116,7 @@ class Reviewer:
             # we recycle the webview periodically so webkit can free memory
             self._initWeb()
         self._showQuestion()
+        self.mw.col.sched.load_next_card(True)
 
     # Audio
     ##########################################################################

@@ -35,6 +35,7 @@ class Scheduler:
     haveCustomStudy = True
     _burySiblingsOnAnswer = True
     revCount: int
+    _next_card: Optional[Card]
 
     def __init__(self, col: anki.storage._Collection) -> None:
         self.col = col.weakref()
@@ -46,13 +47,12 @@ class Scheduler:
         self._haveQueues = False
         self._lrnCutoff = 0
         self._updateCutoff()
+        self._next_card = None
 
     def getCard(self) -> Optional[Card]:
         """Pop the next card from the queue. None if finished."""
-        self._checkDay()
-        if not self._haveQueues:
-            self.reset()
-        card = self._getCard()
+        card = self.load_next_card(False)
+        self._next_card = None
         if card:
             self.col.log(card)
             if not self._burySiblingsOnAnswer:
@@ -62,7 +62,21 @@ class Scheduler:
             return card
         return None
 
+    def load_next_card(self, qa):
+        """ set _next_card to next card and returns it.
+
+        qa -- whether to precompute question and answer. Useful to win time while the user review"""
+        self._checkDay()
+        if not self._haveQueues:
+            self.reset()
+        if self._next_card is None:
+            self._next_card = self._getCard()
+        if self._next_card and qa:
+            self._next_card.answer()
+        return self._next_card
+
     def reset(self) -> None:
+        self._next_card = None
         self._updateCutoff()
         self._resetLrn()
         self._resetRev()
@@ -1718,6 +1732,8 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
                     self._revQueue.remove(cid)
                 except ValueError:
                     pass
+                if self._next_card and self._next_card.id = cid:
+                    self._next_card = None
             else:
                 # if bury disabled, we still discard to give same-day spacing
                 if buryNew:
@@ -1726,6 +1742,8 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
                     self._newQueue.remove(cid)
                 except ValueError:
                     pass
+                if self._next_card and self._next_card.id = cid:
+                    self._next_card = None
         # then bury
         if toBury:
             self.buryCards(toBury, manual=False)
