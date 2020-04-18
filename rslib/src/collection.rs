@@ -7,11 +7,12 @@ use crate::log::Logger;
 use crate::timestamp::TimestampSecs;
 use crate::types::Usn;
 use crate::{
+    notetype::{NoteType, NoteTypeID},
     sched::cutoff::{sched_timing_today, SchedTimingToday},
     storage::SqliteStorage,
     undo::UndoManager,
 };
-use std::path::PathBuf;
+use std::{collections::HashMap, path::PathBuf, sync::Arc};
 
 pub fn open_collection<P: Into<PathBuf>>(
     path: P,
@@ -50,6 +51,7 @@ pub struct CollectionState {
     task_state: CollectionTaskState,
     pub(crate) undo: UndoManager,
     timing_today: Option<SchedTimingToday>,
+    pub(crate) notetype_cache: HashMap<NoteTypeID, Arc<NoteType>>,
 }
 
 #[derive(Debug, PartialEq)]

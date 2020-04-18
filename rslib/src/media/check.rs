@@ -380,7 +380,7 @@ where
         renamed: &HashMap<String, String>,
     ) -> Result<HashSet<String>> {
         let mut referenced_files = HashSet::new();
-        let note_types = self.ctx.storage.get_all_notetype_core()?;
+        let note_types = self.ctx.get_all_notetypes()?;
         let mut collection_modified = false;
 
         let nids = self.ctx.search_notes("")?;
