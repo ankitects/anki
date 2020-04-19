@@ -2,5 +2,13 @@
 
 set -eu -o pipefail ${SHELLFLAGS}
 
-python --version
+unameOut="$(uname -s)"
+case "${unameOut}" in
+    Linux*)     PYTHON_BIN=python3;;
+    Darwin*)    PYTHON_BIN=python3;;
+    CYGWIN*)    PYTHON_BIN=python;;
+    *)          PYTHON_BIN=python3
+esac
+
+${PYTHON_BIN} --version
 make -C $(dirname $0) run RUNFLAGS="$*"
