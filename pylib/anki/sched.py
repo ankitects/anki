@@ -978,7 +978,7 @@ update cards set queue={QUEUE_TYPE_SIBLING_BURIED},mod=?,usn=? where id in """
     ##########################################################################
 
     def _burySiblings(self, card: Card) -> None:
-        toBury = []
+        toBury: List[int] = []
         nconf = self._newConf(card)
         buryNew = nconf.get("bury", True)
         rconf = self._revConf(card)
@@ -993,25 +993,9 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
             self.today,
         ):
             if queue == QUEUE_TYPE_REV:
-                if buryRev:
-                    toBury.append(cid)
-                # if bury disabled, we still discard to give same-day spacing
-                try:
-                    self._revQueue.remove(cid)
-                except ValueError:
-                    pass
-                if self._next_card and self._next_card.id = cid:
-                    self._next_card = None
+                self._actual_bury_siblings(buryRev, toBury, cid, self._revQueue)
             else:
-                # if bury disabled, we still discard to give same-day spacing
-                if buryNew:
-                    toBury.append(cid)
-                try:
-                    self._newQueue.remove(cid)
-                except ValueError:
-                    pass
-                if self._next_card and self._next_card.id = cid:
-                    self._next_card = None
+                self._actual_bury_siblings(buryNew, toBury, cid, self._newQueue)
         # then bury
         if toBury:
             self.col.db.execute(
