@@ -145,6 +145,7 @@ class DeckConf(QDialog):
         if not name or name == old:
             return
         self.conf["name"] = name
+        self.saveConf()
         self.loadConfs()
 
     def setChildren(self):
