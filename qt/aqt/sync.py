@@ -344,6 +344,7 @@ Check Database, then sync again."""
 
 class SyncThread(QThread):
 
+    fullSyncChoice: Optional[str]
     _event = pyqtSignal(str, str)
     progress_event = pyqtSignal(int, int)
 
