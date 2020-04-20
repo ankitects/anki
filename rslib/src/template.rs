@@ -8,7 +8,7 @@ use lazy_static::lazy_static;
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take_until};
 use nom::{
-    combinator::{map, rest},
+    combinator::{map, rest, verify},
     sequence::delimited,
 };
 use regex::Regex;
@@ -37,7 +37,10 @@ pub enum Token<'a> {
 
 /// text outside handlebars
 fn text_token(s: &str) -> nom::IResult<&str, Token> {
-    map(alt((take_until("{{"), rest)), Token::Text)(s)
+    map(
+        verify(alt((take_until("{{"), rest)), |out: &str| !out.is_empty()),
+        Token::Text,
+    )(s)
 }
 
 /// text wrapped in handlebars
@@ -101,9 +104,13 @@ fn classify_handle(s: &str) -> Token {
 static ALT_HANDLEBAR_DIRECTIVE: &str = "{{=<% %>=}}";
 
 fn legacy_text_token(s: &str) -> nom::IResult<&str, Token> {
-    map(alt((take_until("{{"), take_until("<%"), rest)), |out| {
-        Token::Text(out)
-    })(s)
+    map(
+        verify(
+            alt((take_until("{{"), take_until("<%"), rest)),
+            |out: &str| !out.is_empty(),
+        ),
+        Token::Text,
+    )(s)
 }
 
 fn legacy_next_token(input: &str) -> nom::IResult<&str, Token> {
@@ -646,6 +653,10 @@ mod test {
             PT::from_text("text }} more").unwrap().0,
             vec![Text("text }} more")]
         );
+
+        PT::from_text("{{").unwrap_err();
+        PT::from_text(" {{").unwrap_err();
+        PT::from_text(" {{ ").unwrap_err();
     }
 
     #[test]
