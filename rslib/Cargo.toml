@@ -45,6 +45,7 @@ unicase = "=2.6.0"
 futures = "0.3.4"
 rand = "0.7.3"
 num-integer = "0.1.42"
+itertools = "0.9.0"
 
 # pinned until rusqlite 0.22 comes out
 [target.'cfg(target_vendor="apple")'.dependencies.rusqlite]

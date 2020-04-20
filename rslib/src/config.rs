@@ -39,6 +39,7 @@ pub(crate) enum ConfigKey {
     Rollover,
     LocalOffset,
     CurrentNoteTypeID,
+    NextNewCardPosition,
 }
 
 impl From<ConfigKey> for &'static str {
@@ -51,6 +52,7 @@ impl From<ConfigKey> for &'static str {
             ConfigKey::Rollover => "rollover",
             ConfigKey::LocalOffset => "localOffset",
             ConfigKey::CurrentNoteTypeID => "curModel",
+            ConfigKey::NextNewCardPosition => "nextPos",
         }
     }
 }
@@ -131,6 +133,14 @@ impl Collection {
     #[allow(dead_code)]
     pub(crate) fn set_current_notetype_id(&self, id: NoteTypeID) -> Result<()> {
         self.set_config(ConfigKey::CurrentNoteTypeID, &id)
+    }
+
+    pub(crate) fn get_and_update_next_card_position(&self) -> Result<u32> {
+        let pos: u32 = self
+            .get_config_optional(ConfigKey::NextNewCardPosition)
+            .unwrap_or_default();
+        self.set_config(ConfigKey::NextNewCardPosition, &pos.wrapping_add(1))?;
+        Ok(pos)
     }
 }
 

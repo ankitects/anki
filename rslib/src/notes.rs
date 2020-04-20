@@ -2,7 +2,6 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::{
-    card::Card,
     collection::Collection,
     define_newtype,
     err::{AnkiError, Result},
@@ -134,36 +133,42 @@ impl Collection {
     pub fn add_note(&mut self, note: &mut Note) -> Result<()> {
         self.transact(None, |col| {
             let nt = col
-                .storage
                 .get_notetype(note.ntid)?
                 .ok_or_else(|| AnkiError::invalid_input("missing note type"))?;
-
-            let cardgen = CardGenContext::new(&nt, col.usn()?);
-            col.add_note_inner(note, &cardgen)
+            let ctx = CardGenContext::new(&nt, col.usn()?);
+            col.add_note_inner(&ctx, note)
         })
     }
 
-    pub(crate) fn add_note_inner(
-        &mut self,
-        note: &mut Note,
-        cardgen: &CardGenContext,
-    ) -> Result<()> {
-        let nt = cardgen.notetype;
-        note.prepare_for_update(nt, cardgen.usn)?;
-        let nonempty_fields = note.nonempty_fields(&cardgen.notetype.fields);
-        let cards =
-            cardgen.new_cards_required(&nonempty_fields, nt.target_deck_id(), &Default::default());
+    pub(crate) fn add_note_inner(&mut self, ctx: &CardGenContext, note: &mut Note) -> Result<()> {
+        note.prepare_for_update(&ctx.notetype, ctx.usn)?;
+        let cards = ctx.new_cards_required(note, Default::default());
         if cards.is_empty() {
             return Err(AnkiError::NoCardsGenerated);
         }
-
-        // add the note
+        // add note first, as we need the allocated ID for the cards
         self.storage.add_note(note)?;
-        // and its associated cards
-        for (card_ord, target_deck_id) in cards {
-            let mut card = Card::new(note.id, card_ord as u16, target_deck_id);
-            self.add_card(&mut card)?;
-        }
+        self.add_generated_cards(ctx, note.id, &cards)
+    }
+
+    pub fn update_note(&mut self, note: &mut Note) -> Result<()> {
+        self.transact(None, |col| {
+            let nt = col
+                .get_notetype(note.ntid)?
+                .ok_or_else(|| AnkiError::invalid_input("missing note type"))?;
+            let ctx = CardGenContext::new(&nt, col.usn()?);
+            col.update_note_inner(&ctx, note)
+        })
+    }
+
+    pub(crate) fn update_note_inner(
+        &mut self,
+        ctx: &CardGenContext,
+        note: &mut Note,
+    ) -> Result<()> {
+        note.prepare_for_update(ctx.notetype, ctx.usn)?;
+        self.generate_cards_for_existing_note(ctx, note)?;
+        self.storage.update_note(note)?;
 
         Ok(())
     }

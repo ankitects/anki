@@ -10,7 +10,9 @@ use crate::notes::field_checksum;
 use crate::notetype::NoteTypeID;
 use crate::text::matches_wildcard;
 use crate::text::without_combining;
-use crate::{collection::Collection, text::strip_html_preserving_image_filenames};
+use crate::{
+    collection::Collection, storage::ids_to_string, text::strip_html_preserving_image_filenames,
+};
 use lazy_static::lazy_static;
 use regex::{Captures, Regex};
 use std::fmt::Write;
@@ -373,21 +375,6 @@ impl SqlWriter<'_> {
     }
 }
 
-// Write a list of IDs as '(x,y,...)' into the provided string.
-fn ids_to_string<T>(buf: &mut String, ids: &[T])
-where
-    T: std::fmt::Display,
-{
-    buf.push('(');
-    if !ids.is_empty() {
-        for id in ids.iter().skip(1) {
-            write!(buf, "{},", id).unwrap();
-        }
-        write!(buf, "{}", ids[0]).unwrap();
-    }
-    buf.push(')');
-}
-
 /// Convert a string with _, % or * characters into a regex.
 fn glob_to_re(glob: &str) -> Option<String> {
     if !glob.contains(|c| c == '_' || c == '*' || c == '%') {
@@ -426,7 +413,6 @@ fn glob_to_re(glob: &str) -> Option<String> {
 
 #[cfg(test)]
 mod test {
-    use super::ids_to_string;
     use crate::{
         collection::{open_collection, Collection},
         i18n::I18n,
@@ -435,23 +421,6 @@ mod test {
     };
     use std::{fs, path::PathBuf};
     use tempfile::tempdir;
-
-    #[test]
-    fn ids_string() {
-        let mut s = String::new();
-        ids_to_string::<u8>(&mut s, &[]);
-        assert_eq!(s, "()");
-        s.clear();
-        ids_to_string(&mut s, &[7]);
-        assert_eq!(s, "(7)");
-        s.clear();
-        ids_to_string(&mut s, &[7, 6]);
-        assert_eq!(s, "(6,7)");
-        s.clear();
-        ids_to_string(&mut s, &[7, 6, 5]);
-        assert_eq!(s, "(6,5,7)");
-        s.clear();
-    }
 
     use super::super::parser::parse;
     use super::*;

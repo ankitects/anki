@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-mod cardgeninfo;
+mod cardgen;
 mod fields;
 mod schema11;
 mod schemachange;
@@ -13,7 +13,7 @@ pub use crate::backend_proto::{
     CardRequirement, CardTemplateConfig, NoteFieldConfig, NoteType as NoteTypeProto,
     NoteTypeConfig,
 };
-pub(crate) use cardgeninfo::CardGenContext;
+pub(crate) use cardgen::{AlreadyGeneratedCardInfo, CardGenContext};
 pub use fields::NoteField;
 pub use schema11::{CardTemplateSchema11, NoteFieldSchema11, NoteTypeSchema11};
 pub use stock::all_stock_notetypes;
@@ -199,11 +199,10 @@ impl Collection {
     pub fn update_notetype(&mut self, nt: &mut NoteType) -> Result<()> {
         self.transact(None, |col| {
             let existing_notetype = col
-                .storage
                 .get_notetype(nt.id)?
                 .ok_or_else(|| AnkiError::invalid_input("no such notetype"))?;
             col.update_notes_for_changed_fields(nt, existing_notetype.fields.len())?;
-            // fixme: card templates
+            col.update_cards_for_changed_templates(nt, existing_notetype.templates.len())?;
             // fixme: update cache instead of clearing
             col.state.notetype_cache.remove(&nt.id);
 
