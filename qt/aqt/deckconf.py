@@ -131,15 +131,16 @@ class DeckConf(QDialog):
         # then reload the conf list
         self.loadConfs()
 
-    def remGroup(self):
+    def remGroup(self) -> None:
         if int(self.conf["id"]) == 1:
             showInfo(_("The default configuration can't be removed."), self)
         else:
+            self.mw.col.modSchema(check=True)
             self.mw.col.decks.remove_config(self.conf["id"])
             self.deck["conf"] = 1
             self.loadConfs()
 
-    def renameGroup(self):
+    def renameGroup(self) -> None:
         old = self.conf["name"]
         name = getOnlyText(_("New name:"), default=old)
         if not name or name == old:
