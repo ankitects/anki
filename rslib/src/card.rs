@@ -100,11 +100,12 @@ impl Undoable for UpdateCardUndo {
 }
 
 impl Card {
-    pub fn new(nid: NoteID, ord: u16, deck_id: DeckID) -> Self {
+    pub fn new(nid: NoteID, ord: u16, deck_id: DeckID, due: i32) -> Self {
         let mut card = Card::default();
         card.nid = nid;
         card.ord = ord;
         card.did = deck_id;
+        card.due = due;
         card
     }
 }

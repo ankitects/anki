@@ -1,10 +1,14 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::SqliteStorage;
+use super::{ids_to_string, SqliteStorage};
 use crate::{
     err::{AnkiError, DBErrorKind, Result},
-    notetype::{CardTemplate, CardTemplateConfig, NoteField, NoteFieldConfig, NoteTypeConfig},
+    notes::NoteID,
+    notetype::{
+        AlreadyGeneratedCardInfo, CardTemplate, CardTemplateConfig, NoteField, NoteFieldConfig,
+        NoteTypeConfig,
+    },
     notetype::{NoteType, NoteTypeID, NoteTypeSchema11},
     timestamp::TimestampMillis,
 };
@@ -23,6 +27,16 @@ fn row_to_notetype_core(row: &Row) -> Result<NoteType> {
         config,
         fields: vec![],
         templates: vec![],
+    })
+}
+
+fn row_to_existing_card(row: &Row) -> Result<AlreadyGeneratedCardInfo> {
+    Ok(AlreadyGeneratedCardInfo {
+        id: row.get(0)?,
+        nid: row.get(1)?,
+        ord: row.get(2)?,
+        original_deck_id: row.get(3)?,
+        position_if_new: row.get(4)?,
     })
 }
 
@@ -163,6 +177,69 @@ impl SqliteStorage {
         self.update_notetype_templates(nt.id, &nt.templates)?;
 
         Ok(())
+    }
+
+    pub(crate) fn remove_cards_for_deleted_templates(
+        &self,
+        ntid: NoteTypeID,
+        ords: &[u32],
+    ) -> Result<()> {
+        let mut stmt = self
+            .db
+            .prepare(include_str!("delete_cards_for_template.sql"))?;
+        for ord in ords {
+            stmt.execute(params![ntid, ord])?;
+        }
+        Ok(())
+    }
+
+    pub(crate) fn move_cards_for_repositioned_templates(
+        &self,
+        ntid: NoteTypeID,
+        changes: &[(u32, u32)],
+    ) -> Result<()> {
+        let case_clauses: Vec<_> = changes
+            .iter()
+            .map(|(old, new)| format!("when {} then {}", old, new))
+            .collect();
+        let mut sql = format!(
+            "update cards set ord = (case ord {} end) 
+where nid in (select id from notes where mid = ?)
+and ord in ",
+            case_clauses.join(" ")
+        );
+        ids_to_string(
+            &mut sql,
+            &changes.iter().map(|(old, _)| old).collect::<Vec<_>>(),
+        );
+        self.db.prepare(&sql)?.execute(&[ntid])?;
+        Ok(())
+    }
+
+    pub(crate) fn existing_cards_for_notetype(
+        &self,
+        ntid: NoteTypeID,
+    ) -> Result<Vec<AlreadyGeneratedCardInfo>> {
+        self.db
+            .prepare_cached(concat!(
+                include_str!("existing_cards.sql"),
+                " where c.nid in (select id from notes where mid=?)"
+            ))?
+            .query_and_then(&[ntid], row_to_existing_card)?
+            .collect()
+    }
+
+    pub(crate) fn existing_cards_for_note(
+        &self,
+        nid: NoteID,
+    ) -> Result<Vec<AlreadyGeneratedCardInfo>> {
+        self.db
+            .prepare_cached(concat!(
+                include_str!("existing_cards.sql"),
+                " where c.nid = ?"
+            ))?
+            .query_and_then(&[nid], row_to_existing_card)?
+            .collect()
     }
 
     // Upgrading/downgrading/legacy
