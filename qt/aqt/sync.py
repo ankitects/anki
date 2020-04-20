@@ -3,8 +3,10 @@
 
 import gc
 import time
+from typing import Optional
 
 from anki import hooks
+from anki.collection import _Collection
 from anki.lang import _
 from anki.storage import Collection
 from anki.sync import FullSyncer, RemoteServer, Syncer
@@ -16,10 +18,11 @@ from aqt.utils import askUserDialog, showInfo, showText, showWarning, tooltip
 
 
 class SyncManager(QObject):
-    def __init__(self, mw, pm):
+    def __init__(self, mw, pm, action: Optional[str] = None):
         QObject.__init__(self, mw)
         self.mw = mw
         self.pm = pm
+        self.action = action
 
     def sync(self):
         if not self.pm.profile["syncKey"]:
@@ -43,6 +46,8 @@ class SyncManager(QObject):
             self.pm.profile["syncKey"],
             auth=auth,
             hostNum=self.pm.profile.get("hostNum"),
+            col=self.mw.col,
+            action=self.action,
         )
         self._thread._event.connect(self.onEvent)
         self._thread.progress_event.connect(self.on_progress)
@@ -312,12 +317,9 @@ automatically."""
             diag.setDefault(2)
         ret = diag.run()
         if ret == _("Upload to AnkiWeb"):
-            self._thread.fullSyncChoice = "upload"
+            self.mw.onSyncForce("upload")
         elif ret == _("Download from AnkiWeb"):
-            self._thread.fullSyncChoice = "download"
-        else:
-            self._thread.fullSyncChoice = "cancel"
-        self.mw.progress.start(immediate=True)
+            self.mw.onSyncForce("download")
 
     def _clockOff(self):
         showWarning(
@@ -348,13 +350,24 @@ class SyncThread(QThread):
     _event = pyqtSignal(str, str)
     progress_event = pyqtSignal(int, int)
 
-    def __init__(self, path, hkey, auth=None, hostNum=None):
+    def __init__(
+        self,
+        path,
+        hkey,
+        auth=None,
+        hostNum=None,
+        col: _Collection = None,
+        action: Optional[str] = None,
+    ):
         QThread.__init__(self)
         self.path = path
         self.hkey = hkey
         self.auth = auth
         self.hostNum = hostNum
         self._abort = 0  # 1=flagged, 2=aborting
+        self.col = col
+        self.gui_col = col is not None
+        self.fullSyncChoice = action
 
     def flagAbort(self):
         self._abort = 1
@@ -364,11 +377,12 @@ class SyncThread(QThread):
         # in the main thread
         self.syncMsg = ""
         self.uname = ""
-        try:
-            self.col = Collection(self.path)
-        except:
-            self.fireEvent("corrupt")
-            return
+        if not self.gui_col:
+            try:
+                self.col = Collection(self.path)
+            except:
+                self.fireEvent("corrupt")
+                return
         self.server = RemoteServer(self.hkey, hostNum=self.hostNum)
         self.client = Syncer(self.col, self.server)
         self.sentTotal = 0
@@ -400,8 +414,9 @@ class SyncThread(QThread):
             err = traceback.format_exc()
             self.fireEvent("error", err)
         finally:
-            # don't bump mod time unless we explicitly save
-            self.col.close(save=False, downgrade=False)
+            if not self.gui_col:
+                # don't bump mod time unless we explicitly save
+                self.col.close(save=False, downgrade=False)
             hooks.sync_stage_did_change.remove(syncEvent)
             hooks.sync_progress_did_change.remove(syncMsg)
 
@@ -466,21 +481,26 @@ class SyncThread(QThread):
         self.hostNum = self.client.hostNum
 
     def _fullSync(self):
+        if self.fullSyncChoice:
+            self._fullSyncKnown()
+        else:
+            self._fullSyncAsk()
+
+    def _fullSyncAsk(self):
         # tell the calling thread we need a decision on sync direction, and
         # wait for a reply
-        self.fullSyncChoice = False
         self.localIsEmpty = self.col.isEmpty()
         self.fireEvent("fullSync")
         while not self.fullSyncChoice:
             time.sleep(0.1)
-        f = self.fullSyncChoice
-        if f == "cancel":
-            return
+
+    def _fullSyncKnown(self):
+        assert self.fullSyncChoice in ("upload", "download")
         self.client = FullSyncer(
             self.col, self.hkey, self.server.client, hostNum=self.hostNum
         )
         try:
-            if f == "upload":
+            if self.fullSyncChoice == "upload":
                 if not self.client.upload():
                     self.fireEvent("upbad")
             else:

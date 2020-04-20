@@ -861,16 +861,24 @@ title="%s" %s>%s</button>""" % (
 
     # expects a current profile and a loaded collection; reloads
     # collection after sync completes
+    def onSyncForce(self, action: str):
+        self.unloadCollection(lambda: self._onSync(action=action))
+
     def onSync(self):
         if self.media_syncer.is_syncing():
             self.media_syncer.show_sync_log()
         else:
-            self.unloadCollection(self._onSync)
+            self.col.save(trx=False)
+            self._onSync()
 
-    def _onSync(self):
-        self._sync()
-        if not self.loadCollection():
-            return
+    def _onSync(self, action: Optional[str] = None):
+        self._sync(action)
+        if action:
+            if not self.loadCollection():
+                return
+        else:
+            self.col.load()
+            self.reset()
         self.media_syncer.start()
 
     # expects a current profile, but no collection loaded
@@ -891,12 +899,12 @@ title="%s" %s>%s</button>""" % (
             return
         self.media_syncer.start()
 
-    def _sync(self):
+    def _sync(self, action: Optional[str] = None):
         from aqt.sync import SyncManager
 
         self.state = "sync"
         self.app.setQuitOnLastWindowClosed(False)
-        self.syncer = SyncManager(self, self.pm)
+        self.syncer = SyncManager(self, self.pm, action=action)
         self.syncer.sync()
         self.app.setQuitOnLastWindowClosed(True)
 
