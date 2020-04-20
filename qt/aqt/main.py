@@ -13,6 +13,7 @@ import time
 import zipfile
 from argparse import Namespace
 from concurrent.futures import Future
+from dataclasses import dataclass
 from threading import Thread
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
@@ -67,6 +68,13 @@ install_pylib_legacy()
 class ResetRequired:
     def __init__(self, mw: AnkiQt):
         self.mw = mw
+
+
+@dataclass
+class State:
+    state: str
+    did: int
+    mid: int
 
 
 class AnkiQt(QMainWindow):
@@ -872,12 +880,14 @@ title="%s" %s>%s</button>""" % (
             self._onSync()
 
     def _onSync(self, action: Optional[str] = None):
+        state_before_sync = self._current_state()
         self._sync(action)
         if action:
             if not self.loadCollection():
                 return
         else:
             self.col.load()
+            self._set_state(state_before_sync)
             self.reset()
         self.media_syncer.start()
 
@@ -898,6 +908,25 @@ title="%s" %s>%s</button>""" % (
         if not self.pm.profile["autoSync"] or self.safeMode or self.restoringBackup:
             return
         self.media_syncer.start()
+
+    def _current_state(self):
+        if not self.col:
+            return None
+        return State(
+            state=self.state,
+            did=self.col.decks.selected(),
+            mid=self.col.models.current()["id"],
+        )
+
+    def _set_state(self, state):
+        if state is None:
+            return
+        self.state = state.state
+        if state.did in self.col.decks.decks:
+            self.col.decks.select(state.did)
+        if state.mid in self.col.models.models:
+            self.col.models.setCurrent(self.col.models.get(state.mid))
+        self.reset()
 
     def _sync(self, action: Optional[str] = None):
         from aqt.sync import SyncManager
