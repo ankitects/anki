@@ -38,34 +38,34 @@ class SyncManager(QObject):
         self._didError = False
         gc.collect()
         # create the thread, setup signals and start running
-        t = self.thread = SyncThread(
+        self._thread = SyncThread(
             self.pm.collectionPath(),
             self.pm.profile["syncKey"],
             auth=auth,
             hostNum=self.pm.profile.get("hostNum"),
         )
-        t._event.connect(self.onEvent)
-        t.progress_event.connect(self.on_progress)
+        self._thread._event.connect(self.onEvent)
+        self._thread.progress_event.connect(self.on_progress)
         self.label = _("Connecting...")
         prog = self.mw.progress.start(immediate=True, label=self.label)
         self.sentBytes = self.recvBytes = 0
         self._updateLabel()
-        self.thread.start()
-        while not self.thread.isFinished():
+        self._thread.start()
+        while not self._thread.isFinished():
             if prog.wantCancel:
-                self.thread.flagAbort()
+                self._thread.flagAbort()
                 # make sure we don't display 'upload success' msg
                 self._didFullUp = False
                 # abort may take a while
                 self.mw.progress.update(_("Stopping..."))
             self.mw.app.processEvents()
-            self.thread.wait(100)
+            self._thread.wait(100)
         self.mw.progress.finish()
-        if self.thread.syncMsg:
-            showText(self.thread.syncMsg)
-        if self.thread.uname:
-            self.pm.profile["syncUser"] = self.thread.uname
-        self.pm.profile["hostNum"] = self.thread.hostNum
+        if self._thread.syncMsg:
+            showText(self._thread.syncMsg)
+        if self._thread.uname:
+            self.pm.profile["syncUser"] = self._thread.uname
+        self.pm.profile["hostNum"] = self._thread.hostNum
 
         def delayedInfo():
             if self._didFullUp and not self._didError:
@@ -282,7 +282,7 @@ enter your details below."""
 
     def _confirmFullSync(self):
         self.mw.progress.finish()
-        if self.thread.localIsEmpty:
+        if self._thread.localIsEmpty:
             diag = askUserDialog(
                 _("Local collection has no cards. Download from AnkiWeb?"),
                 [_("Download from AnkiWeb"), _("Cancel")],
@@ -312,11 +312,11 @@ automatically."""
             diag.setDefault(2)
         ret = diag.run()
         if ret == _("Upload to AnkiWeb"):
-            self.thread.fullSyncChoice = "upload"
+            self._thread.fullSyncChoice = "upload"
         elif ret == _("Download from AnkiWeb"):
-            self.thread.fullSyncChoice = "download"
+            self._thread.fullSyncChoice = "download"
         else:
-            self.thread.fullSyncChoice = "cancel"
+            self._thread.fullSyncChoice = "cancel"
         self.mw.progress.start(immediate=True)
 
     def _clockOff(self):
