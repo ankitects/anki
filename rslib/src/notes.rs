@@ -142,13 +142,8 @@ impl Collection {
 
     pub(crate) fn add_note_inner(&mut self, ctx: &CardGenContext, note: &mut Note) -> Result<()> {
         note.prepare_for_update(&ctx.notetype, ctx.usn)?;
-        let cards = ctx.new_cards_required(note, Default::default());
-        if cards.is_empty() {
-            return Err(AnkiError::NoCardsGenerated);
-        }
-        // add note first, as we need the allocated ID for the cards
         self.storage.add_note(note)?;
-        self.add_generated_cards(ctx, note.id, &cards)
+        self.generate_cards_for_new_note(ctx, note)
     }
 
     pub fn update_note(&mut self, note: &mut Note) -> Result<()> {
@@ -177,12 +172,7 @@ impl Collection {
 #[cfg(test)]
 mod test {
     use super::{anki_base91, field_checksum};
-    use crate::{
-        collection::open_test_collection,
-        decks::DeckID,
-        err::{AnkiError, Result},
-        search::SortMode,
-    };
+    use crate::{collection::open_test_collection, decks::DeckID, err::Result};
 
     #[test]
     fn test_base91() {
@@ -200,35 +190,43 @@ mod test {
     }
 
     #[test]
-    fn adding() -> Result<()> {
+    fn adding_cards() -> Result<()> {
         let mut col = open_test_collection();
-        let nt = col.get_notetype_by_name("basic")?.unwrap();
+        let nt = col
+            .get_notetype_by_name("basic (and reversed card)")?
+            .unwrap();
 
         let mut note = nt.new_note();
-        assert_eq!(col.add_note(&mut note), Err(AnkiError::NoCardsGenerated));
-
-        note.fields[1] = "foo".into();
-        assert_eq!(col.add_note(&mut note), Err(AnkiError::NoCardsGenerated));
-
-        note.fields[0] = "bar".into();
+        // if no cards are generated, 1 card is added
         col.add_note(&mut note).unwrap();
+        let existing = col.storage.existing_cards_for_note(note.id)?;
+        assert_eq!(existing.len(), 1);
+        assert_eq!(existing[0].ord, 0);
 
-        assert_eq!(
-            col.search_cards(&format!("nid:{}", note.id), SortMode::NoOrder)
-                .unwrap()
-                .len(),
-            1
-        );
+        // nothing changes if the first field is filled
+        note.fields[0] = "test".into();
+        col.update_note(&mut note).unwrap();
+        let existing = col.storage.existing_cards_for_note(note.id)?;
+        assert_eq!(existing.len(), 1);
+        assert_eq!(existing[0].ord, 0);
 
+        // second field causes another card to be generated
+        note.fields[1] = "test".into();
+        col.update_note(&mut note).unwrap();
+        let existing = col.storage.existing_cards_for_note(note.id)?;
+        assert_eq!(existing.len(), 2);
+        assert_eq!(existing[1].ord, 1);
+
+        // cloze cards also generate card 0 if no clozes are found
         let nt = col.get_notetype_by_name("cloze")?.unwrap();
         let mut note = nt.new_note();
-        // cloze cards without any cloze deletions are allowed
         col.add_note(&mut note).unwrap();
         let existing = col.storage.existing_cards_for_note(note.id)?;
         assert_eq!(existing.len(), 1);
         assert_eq!(existing[0].ord, 0);
         assert_eq!(existing[0].original_deck_id, DeckID(1));
 
+        // and generate cards for any cloze deletions
         note.fields[0] = "{{c1::foo}} {{c2::bar}} {{c3::baz}} {{c0::quux}} {{c501::over}}".into();
         col.update_note(&mut note)?;
         let existing = col.storage.existing_cards_for_note(note.id)?;

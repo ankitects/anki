@@ -48,9 +48,6 @@ pub enum AnkiError {
 
     #[fail(display = "Operation modifies schema, but schema not marked modified.")]
     SchemaChange,
-
-    #[fail(display = "No cards generated.")]
-    NoCardsGenerated,
 }
 
 // error helpers

@@ -166,12 +166,19 @@ impl NoteType {
         self.templates.push(CardTemplate::new(name, qfmt, afmt));
     }
 
-    pub(crate) fn prepare_for_adding(&mut self) {
+    pub(crate) fn prepare_for_adding(&mut self) -> Result<()> {
         // defaults to 0
         self.config.target_deck_id = 1;
+        if self.fields.is_empty() {
+            return Err(AnkiError::invalid_input("1 field required"));
+        }
+        if self.templates.is_empty() {
+            return Err(AnkiError::invalid_input("1 template required"));
+        }
         self.normalize_names();
         self.ensure_names_unique();
         self.update_requirements();
+        Ok(())
     }
 
     pub fn new_note(&self) -> Note {
