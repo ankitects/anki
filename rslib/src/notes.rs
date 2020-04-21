@@ -179,6 +179,7 @@ mod test {
     use super::{anki_base91, field_checksum};
     use crate::{
         collection::open_test_collection,
+        decks::DeckID,
         err::{AnkiError, Result},
         search::SortMode,
     };
@@ -226,9 +227,7 @@ mod test {
         let existing = col.storage.existing_cards_for_note(note.id)?;
         assert_eq!(existing.len(), 1);
         assert_eq!(existing[0].ord, 0);
-
-        // fixme
-        // assert_eq!(existing[0].original_deck_id, DeckID(1));
+        assert_eq!(existing[0].original_deck_id, DeckID(1));
 
         note.fields[0] = "{{c1::foo}} {{c2::bar}} {{c3::baz}} {{c0::quux}} {{c501::over}}".into();
         col.update_note(&mut note)?;

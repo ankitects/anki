@@ -167,6 +167,8 @@ impl NoteType {
     }
 
     pub(crate) fn prepare_for_adding(&mut self) {
+        // defaults to 0
+        self.config.target_deck_id = 1;
         self.normalize_names();
         self.ensure_names_unique();
         self.update_requirements();
