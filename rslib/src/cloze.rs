@@ -110,13 +110,18 @@ pub fn expand_clozes_to_reveal_latex(text: &str) -> String {
 }
 
 pub fn cloze_numbers_in_string(html: &str) -> HashSet<u16> {
-    let mut hash = HashSet::with_capacity(4);
-    for cap in CLOZE.captures_iter(html) {
+    let mut set = HashSet::with_capacity(4);
+    add_cloze_numbers_in_string(html, &mut set);
+    set
+}
+
+#[allow(clippy::implicit_hasher)]
+pub fn add_cloze_numbers_in_string(field: &str, set: &mut HashSet<u16>) {
+    for cap in CLOZE.captures_iter(field) {
         if let Ok(n) = cap[1].parse() {
-            hash.insert(n);
+            set.insert(n);
         }
     }
-    hash
 }
 
 fn strip_html_inside_mathjax(text: &str) -> Cow<str> {
