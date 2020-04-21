@@ -4,10 +4,12 @@
 use super::NoteType;
 use crate::{
     card::{Card, CardID},
+    cloze::add_cloze_numbers_in_string,
     collection::Collection,
     decks::DeckID,
     err::Result,
     notes::{Note, NoteID},
+    notetype::NoteTypeKind,
     template::ParsedTemplate,
     types::Usn,
 };
@@ -15,6 +17,7 @@ use itertools::Itertools;
 use std::collections::HashSet;
 
 /// Info about an existing card required when generating new cards
+#[derive(Debug, PartialEq)]
 pub(crate) struct AlreadyGeneratedCardInfo {
     pub id: CardID,
     pub nid: NoteID,
@@ -82,16 +85,20 @@ impl CardGenContext<'_> {
         note: &Note,
         existing: &[AlreadyGeneratedCardInfo],
     ) -> Vec<CardToGenerate> {
-        let nonempty_fields = note.nonempty_fields(&self.notetype.fields);
         let extracted = extract_data_from_existing_cards(existing);
-        self.new_cards_required_inner(&nonempty_fields, &extracted)
+        match self.notetype.config.kind() {
+            NoteTypeKind::Normal => self.new_cards_required_normal(note, &extracted),
+            NoteTypeKind::Cloze => self.new_cards_required_cloze(note, &extracted),
+        }
     }
 
-    fn new_cards_required_inner(
+    fn new_cards_required_normal(
         &self,
-        nonempty_fields: &HashSet<&str>,
+        note: &Note,
         extracted: &ExtractedCardInfo,
     ) -> Vec<CardToGenerate> {
+        let nonempty_fields = note.nonempty_fields(&self.notetype.fields);
+
         self.cards
             .iter()
             .enumerate()
@@ -109,6 +116,43 @@ impl CardGenContext<'_> {
                 }
             })
             .collect()
+    }
+
+    fn new_cards_required_cloze(
+        &self,
+        note: &Note,
+        extracted: &ExtractedCardInfo,
+    ) -> Vec<CardToGenerate> {
+        // gather all cloze numbers
+        let mut set = HashSet::with_capacity(4);
+        for field in note.fields() {
+            add_cloze_numbers_in_string(field, &mut set);
+        }
+        let cards: Vec<_> = set
+            .into_iter()
+            .filter_map(|cloze_ord| {
+                let card_ord = cloze_ord.saturating_sub(1).min(499);
+                if extracted.existing_ords.contains(&(card_ord as u32)) {
+                    None
+                } else {
+                    Some(CardToGenerate {
+                        ord: card_ord as u32,
+                        did: extracted.deck_id,
+                        due: extracted.due,
+                    })
+                }
+            })
+            .collect();
+        if cards.is_empty() && extracted.existing_ords.is_empty() {
+            // if no cloze deletions are found, we add a card with ord 0
+            vec![CardToGenerate {
+                ord: 0,
+                did: extracted.deck_id,
+                due: extracted.due,
+            }]
+        } else {
+            cards
+        }
     }
 }
 
@@ -173,8 +217,11 @@ impl Collection {
         let existing_cards = self.storage.existing_cards_for_notetype(ctx.notetype.id)?;
         let by_note = group_generated_cards_by_note(existing_cards);
         for (nid, existing_cards) in by_note {
-            if existing_cards.len() == ctx.notetype.templates.len() {
-                // nothing to do
+            if ctx.notetype.config.kind() == NoteTypeKind::Normal
+                && existing_cards.len() == ctx.notetype.templates.len()
+            {
+                // in a normal note type, if card count matches template count, we don't need
+                // to load the note contents to know if all cards have been generated
                 continue;
             }
             let note = self.storage.get_note(nid)?.unwrap();
@@ -208,4 +255,4 @@ impl Collection {
 }
 
 // fixme: deal with case where invalid deck pointed to
-// fixme: cloze cards, & avoid template count comparison for cloze
+// fixme: make sure we don't orphan notes
