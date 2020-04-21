@@ -239,3 +239,6 @@ mod test {
         Ok(())
     }
 }
+
+
+// fixme: make sure we don't orphan notes

@@ -239,6 +239,7 @@ impl Collection {
     ) -> Result<()> {
         let mut next_pos = None;
         for c in cards {
+            // fixme: deal with case where invalid deck pointed to
             let did = c.did.unwrap_or_else(|| ctx.notetype.target_deck_id());
             let due = c.due.unwrap_or_else(|| {
                 if next_pos.is_none() {
@@ -253,6 +254,3 @@ impl Collection {
         Ok(())
     }
 }
-
-// fixme: deal with case where invalid deck pointed to
-// fixme: make sure we don't orphan notes
