@@ -58,7 +58,7 @@ pub(crate) fn basic(i18n: &I18n) -> NoteType {
             fieldref(back),
         ),
     );
-    nt.prepare_for_adding();
+    nt.prepare_for_adding().unwrap();
     nt
 }
 
@@ -74,7 +74,7 @@ pub(crate) fn basic_typing(i18n: &I18n) -> NoteType {
         fieldref(front),
         back
     );
-    nt.prepare_for_adding();
+    nt.prepare_for_adding().unwrap();
     nt
 }
 
@@ -92,7 +92,7 @@ pub(crate) fn basic_forward_reverse(i18n: &I18n) -> NoteType {
             fieldref(front),
         ),
     );
-    nt.prepare_for_adding();
+    nt.prepare_for_adding().unwrap();
     nt
 }
 
@@ -103,7 +103,7 @@ pub(crate) fn basic_optional_reverse(i18n: &I18n) -> NoteType {
     nt.add_field(addrev.as_ref());
     let tmpl = &mut nt.templates[1].config;
     tmpl.q_format = format!("{{{{#{}}}}}{}{{{{/{}}}}}", addrev, tmpl.q_format, addrev);
-    nt.prepare_for_adding();
+    nt.prepare_for_adding().unwrap();
     nt
 }
 
@@ -124,6 +124,6 @@ pub(crate) fn cloze(i18n: &I18n) -> NoteType {
  color: lightblue;
 }
 ";
-    nt.prepare_for_adding();
+    nt.prepare_for_adding().unwrap();
     nt
 }

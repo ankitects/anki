@@ -86,9 +86,20 @@ impl CardGenContext<'_> {
         existing: &[AlreadyGeneratedCardInfo],
     ) -> Vec<CardToGenerate> {
         let extracted = extract_data_from_existing_cards(existing);
-        match self.notetype.config.kind() {
+        let cards = match self.notetype.config.kind() {
             NoteTypeKind::Normal => self.new_cards_required_normal(note, &extracted),
             NoteTypeKind::Cloze => self.new_cards_required_cloze(note, &extracted),
+        };
+        if extracted.existing_ords.is_empty() && cards.is_empty() {
+            // if there are no existing cards and no cards will be generated,
+            // we add card 0 to ensure the note always has at least one card
+            vec![CardToGenerate {
+                ord: 0,
+                did: extracted.deck_id,
+                due: extracted.due,
+            }]
+        } else {
+            cards
         }
     }
 
@@ -128,8 +139,7 @@ impl CardGenContext<'_> {
         for field in note.fields() {
             add_cloze_numbers_in_string(field, &mut set);
         }
-        let cards: Vec<_> = set
-            .into_iter()
+        set.into_iter()
             .filter_map(|cloze_ord| {
                 let card_ord = cloze_ord.saturating_sub(1).min(499);
                 if extracted.existing_ords.contains(&(card_ord as u32)) {
@@ -142,17 +152,7 @@ impl CardGenContext<'_> {
                     })
                 }
             })
-            .collect();
-        if cards.is_empty() && extracted.existing_ords.is_empty() {
-            // if no cloze deletions are found, we add a card with ord 0
-            vec![CardToGenerate {
-                ord: 0,
-                did: extracted.deck_id,
-                due: extracted.due,
-            }]
-        } else {
-            cards
-        }
+            .collect()
     }
 }
 
@@ -200,12 +200,33 @@ pub(crate) fn extract_data_from_existing_cards(
 }
 
 impl Collection {
+    pub(crate) fn generate_cards_for_new_note(
+        &mut self,
+        ctx: &CardGenContext,
+        note: &Note,
+    ) -> Result<()> {
+        self.generate_cards_for_note(ctx, note, false)
+    }
+
     pub(crate) fn generate_cards_for_existing_note(
         &mut self,
         ctx: &CardGenContext,
         note: &Note,
     ) -> Result<()> {
-        let existing = self.storage.existing_cards_for_note(note.id)?;
+        self.generate_cards_for_note(ctx, note, true)
+    }
+
+    fn generate_cards_for_note(
+        &mut self,
+        ctx: &CardGenContext,
+        note: &Note,
+        check_existing: bool,
+    ) -> Result<()> {
+        let existing = if check_existing {
+            self.storage.existing_cards_for_note(note.id)?
+        } else {
+            vec![]
+        };
         let cards = ctx.new_cards_required(note, &existing);
         if cards.is_empty() {
             return Ok(());
@@ -225,7 +246,7 @@ impl Collection {
                 continue;
             }
             let note = self.storage.get_note(nid)?.unwrap();
-            self.generate_cards_for_existing_note(ctx, &note)?;
+            self.generate_cards_for_note(ctx, &note, true)?;
         }
 
         Ok(())

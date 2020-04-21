@@ -240,5 +240,4 @@ mod test {
     }
 }
 
-
 // fixme: make sure we don't orphan notes
