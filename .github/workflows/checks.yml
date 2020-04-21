@@ -203,7 +203,10 @@ jobs:
           set -x
           sudo apt update
           sudo apt install portaudio19-dev gettext
-          sudo snap install ripgrep --classic
+          # https://github.com/BurntSushi/ripgrep/issues/1232
+          # sudo apt-get install ripgrep
+          curl -LO https://github.com/BurntSushi/ripgrep/releases/download/11.0.2/ripgrep_11.0.2_amd64.deb
+          sudo dpkg -i ripgrep_11.0.2_amd64.deb
 
       - name: Set up brew ripgrep, pyaudio, gettext
         if: matrix.os == 'macos-latest'
