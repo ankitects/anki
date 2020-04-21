@@ -205,6 +205,8 @@ impl From<NoteType> for NoteTypeProto {
 }
 
 impl Collection {
+    /// Saves changes to a note type. This will force a full sync if templates
+    /// or fields have been added/removed/reordered.
     pub fn update_notetype(&mut self, nt: &mut NoteType) -> Result<()> {
         self.transact(None, |col| {
             let existing_notetype = col

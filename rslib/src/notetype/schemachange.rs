@@ -61,6 +61,8 @@ impl Collection {
             return Ok(());
         }
 
+        self.storage.set_schema_modified()?;
+
         let nids = self.search_notes_only(&format!("mid:{}", nt.id))?;
         let usn = self.usn()?;
         for nid in nids {
@@ -98,6 +100,8 @@ impl Collection {
             // nothing to do
             return Ok(());
         }
+
+        self.storage.set_schema_modified()?;
 
         let changes = TemplateOrdChanges::new(ords, previous_template_count as u32);
         if !changes.removed.is_empty() {
@@ -239,5 +243,3 @@ mod test {
         Ok(())
     }
 }
-
-// fixme: make sure we don't orphan notes

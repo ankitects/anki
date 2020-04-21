@@ -234,11 +234,12 @@ impl Collection {
         }
     }
 
+    /// Remove a deck configuration. This will force a full sync.
     pub(crate) fn remove_deck_config(&self, dcid: DeckConfID) -> Result<()> {
         if dcid.0 == 1 {
             return Err(AnkiError::invalid_input("can't delete default conf"));
         }
-        self.ensure_schema_modified()?;
+        self.storage.set_schema_modified()?;
         self.storage.remove_deck_conf(dcid)
     }
 }

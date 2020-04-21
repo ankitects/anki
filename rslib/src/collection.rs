@@ -172,14 +172,6 @@ impl Collection {
         self.storage.usn(self.server)
     }
 
-    pub(crate) fn ensure_schema_modified(&self) -> Result<()> {
-        if !self.storage.schema_modified()? {
-            Err(AnkiError::SchemaChange)
-        } else {
-            Ok(())
-        }
-    }
-
     pub(crate) fn before_upload(&self) -> Result<()> {
         self.storage.clear_tag_usns()?;
         self.storage.clear_deck_conf_usns()?;
