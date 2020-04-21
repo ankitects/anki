@@ -45,9 +45,6 @@ pub enum AnkiError {
 
     #[fail(display = "Close the existing collection first.")]
     CollectionAlreadyOpen,
-
-    #[fail(display = "Operation modifies schema, but schema not marked modified.")]
-    SchemaChange,
 }
 
 // error helpers

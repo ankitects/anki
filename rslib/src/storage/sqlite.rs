@@ -294,10 +294,10 @@ impl SqliteStorage {
             .map_err(Into::into)
     }
 
-    pub(crate) fn schema_modified(&self) -> Result<bool> {
+    pub(crate) fn set_schema_modified(&self) -> Result<()> {
         self.db
-            .prepare_cached("select scm > ls from col")?
-            .query_row(NO_PARAMS, |row| row.get(0))
-            .map_err(Into::into)
+            .prepare_cached("update col set scm = ?")?
+            .execute(&[TimestampMillis::now()])?;
+        Ok(())
     }
 }

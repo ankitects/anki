@@ -75,7 +75,6 @@ fn anki_error_to_proto_error(err: AnkiError, i18n: &I18n) -> pb::BackendError {
         AnkiError::Interrupted => V::Interrupted(Empty {}),
         AnkiError::CollectionNotOpen => V::InvalidInput(pb::Empty {}),
         AnkiError::CollectionAlreadyOpen => V::InvalidInput(pb::Empty {}),
-        AnkiError::SchemaChange => V::InvalidInput(pb::Empty {}),
         AnkiError::JSONError { info } => V::JsonError(info),
         AnkiError::ProtoError { info } => V::ProtoError(info),
     };
