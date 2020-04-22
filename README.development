@@ -24,6 +24,7 @@ To start, make sure you have the following installed:
  - ripgrep (cargo install ripgrep)
  - git
  - curl
+ - gcc-multilib (sudo apt install gcc-multilib)
 
 The build scripts assume a UNIX-like environment, so on Windows you will
 need to use WSL or Cygwin to use them.
