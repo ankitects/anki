@@ -20,8 +20,8 @@ use crate::{
     media::check::MediaChecker,
     media::sync::MediaSyncProgress,
     media::MediaManager,
-    notes::NoteID,
-    notetype::{all_stock_notetypes, NoteTypeID, NoteTypeSchema11},
+    notes::{Note, NoteID},
+    notetype::{all_stock_notetypes, NoteType, NoteTypeID, NoteTypeSchema11},
     sched::cutoff::{local_minutes_west_for_stamp, sched_timing_today},
     sched::timespan::{answer_button_time, learning_congrats, studied_today, time_span},
     search::SortMode,
@@ -77,6 +77,7 @@ fn anki_error_to_proto_error(err: AnkiError, i18n: &I18n) -> pb::BackendError {
         AnkiError::CollectionAlreadyOpen => V::InvalidInput(pb::Empty {}),
         AnkiError::JSONError { info } => V::JsonError(info),
         AnkiError::ProtoError { info } => V::ProtoError(info),
+        AnkiError::NotFound => V::NotFoundError(Empty {}),
     };
 
     pb::BackendError {
@@ -304,10 +305,8 @@ impl Backend {
                 pb::Empty {}
             }),
             Value::GetAllConfig(_) => OValue::GetAllConfig(self.get_all_config()?),
-            Value::GetAllNotetypes(_) => OValue::GetAllNotetypes(self.get_all_notetypes()?),
-            Value::SetAllNotetypes(bytes) => {
-                self.set_all_notetypes(&bytes)?;
-                OValue::SetAllNotetypes(pb::Empty {})
+            Value::GetChangedNotetypes(_) => {
+                OValue::GetChangedNotetypes(self.get_changed_notetypes()?)
             }
             Value::GetAllDecks(_) => OValue::GetAllDecks(self.get_all_decks()?),
             Value::SetAllDecks(bytes) => {
@@ -320,6 +319,31 @@ impl Backend {
                     .map(Into::into)
                     .collect(),
             }),
+            Value::GetNotetypeLegacy(id) => {
+                OValue::GetNotetypeLegacy(self.get_notetype_legacy(id)?)
+            }
+            Value::GetNotetypeNames(_) => OValue::GetNotetypeNames(self.get_notetype_names()?),
+            Value::GetNotetypeNamesAndCounts(_) => {
+                OValue::GetNotetypeNamesAndCounts(self.get_notetype_use_counts()?)
+            }
+
+            Value::GetNotetypeIdByName(name) => {
+                OValue::GetNotetypeIdByName(self.get_notetype_id_by_name(name)?)
+            }
+            Value::AddOrUpdateNotetype(input) => {
+                OValue::AddOrUpdateNotetype(self.add_or_update_notetype_legacy(input)?)
+            }
+            Value::RemoveNotetype(id) => {
+                self.remove_notetype(id)?;
+                OValue::RemoveNotetype(pb::Empty {})
+            }
+            Value::NewNote(ntid) => OValue::NewNote(self.new_note(ntid)?),
+            Value::AddNote(input) => OValue::AddNote(self.add_note(input)?),
+            Value::UpdateNote(note) => {
+                self.update_note(note)?;
+                OValue::UpdateNote(pb::Empty {})
+            }
+            Value::GetNote(nid) => OValue::GetNote(self.get_note(nid)?),
         })
     }
 
@@ -856,21 +880,12 @@ impl Backend {
         })
     }
 
-    fn set_all_notetypes(&self, json: &[u8]) -> Result<()> {
-        let val: HashMap<NoteTypeID, NoteTypeSchema11> = serde_json::from_slice(json)?;
-        self.with_col(|col| {
-            col.transact(None, |col| {
-                col.storage.set_schema11_notetypes(val)?;
-                col.storage.upgrade_notetypes_to_schema15()
-            })
-        })
-    }
-
-    fn get_all_notetypes(&self) -> Result<Vec<u8>> {
-        self.with_col(|col| {
-            let nts = col.storage.get_all_notetypes_as_schema11()?;
-            serde_json::to_vec(&nts).map_err(Into::into)
-        })
+    fn get_changed_notetypes(&self) -> Result<Vec<u8>> {
+        todo!("filter by usn");
+        // self.with_col(|col| {
+        //     let nts = col.storage.get_all_notetypes_as_schema11()?;
+        //     serde_json::to_vec(&nts).map_err(Into::into)
+        // })
     }
 
     fn set_all_decks(&self, json: &[u8]) -> Result<()> {
@@ -882,6 +897,104 @@ impl Backend {
         self.with_col(|col| {
             let decks = col.storage.get_all_decks()?;
             serde_json::to_vec(&decks).map_err(Into::into)
+        })
+    }
+
+    fn get_notetype_names(&self) -> Result<pb::NoteTypeNames> {
+        self.with_col(|col| {
+            let entries: Vec<_> = col
+                .storage
+                .get_all_notetype_names()?
+                .into_iter()
+                .map(|(id, name)| pb::NoteTypeNameId { id: id.0, name })
+                .collect();
+            Ok(pb::NoteTypeNames { entries })
+        })
+    }
+
+    fn get_notetype_use_counts(&self) -> Result<pb::NoteTypeUseCounts> {
+        self.with_col(|col| {
+            let entries: Vec<_> = col
+                .storage
+                .get_notetype_use_counts()?
+                .into_iter()
+                .map(|(id, name, use_count)| pb::NoteTypeNameIdUseCount {
+                    id: id.0,
+                    name,
+                    use_count,
+                })
+                .collect();
+            Ok(pb::NoteTypeUseCounts { entries })
+        })
+    }
+
+    fn get_notetype_legacy(&self, id: i64) -> Result<Vec<u8>> {
+        self.with_col(|col| {
+            let schema11: NoteTypeSchema11 = col
+                .storage
+                .get_notetype(NoteTypeID(id))?
+                .ok_or(AnkiError::NotFound)?
+                .into();
+            Ok(serde_json::to_vec(&schema11)?)
+        })
+    }
+
+    fn get_notetype_id_by_name(&self, name: String) -> Result<i64> {
+        self.with_col(|col| {
+            col.storage
+                .get_notetype_id(&name)
+                .map(|nt| nt.unwrap_or(NoteTypeID(0)).0)
+        })
+    }
+
+    fn add_or_update_notetype_legacy(&self, input: pb::AddOrUpdateNotetypeIn) -> Result<i64> {
+        self.with_col(|col| {
+            let legacy: NoteTypeSchema11 = serde_json::from_slice(&input.json)?;
+            let mut nt: NoteType = legacy.into();
+            if nt.id.0 == 0 {
+                col.add_notetype(&mut nt)?;
+            } else {
+                col.update_notetype(&mut nt, input.preserve_usn_and_mtime)?;
+            }
+            Ok(nt.id.0)
+        })
+    }
+
+    fn remove_notetype(&self, _id: i64) -> Result<()> {
+        println!("fixme: remove notetype");
+        Ok(())
+    }
+
+    fn new_note(&self, ntid: i64) -> Result<pb::Note> {
+        self.with_col(|col| {
+            let nt = col
+                .get_notetype(NoteTypeID(ntid))?
+                .ok_or(AnkiError::NotFound)?;
+            Ok(nt.new_note().into())
+        })
+    }
+
+    fn add_note(&self, input: pb::AddNoteIn) -> Result<i64> {
+        self.with_col(|col| {
+            let mut note: Note = input.note.ok_or(AnkiError::NotFound)?.into();
+            col.add_note(&mut note, DeckID(input.deck_id))
+                .map(|_| note.id.0)
+        })
+    }
+
+    fn update_note(&self, pbnote: pb::Note) -> Result<()> {
+        self.with_col(|col| {
+            let mut note: Note = pbnote.into();
+            col.update_note(&mut note)
+        })
+    }
+
+    fn get_note(&self, nid: i64) -> Result<pb::Note> {
+        self.with_col(|col| {
+            col.storage
+                .get_note(NoteID(nid))?
+                .ok_or(AnkiError::NotFound)
+                .map(Into::into)
         })
     }
 }

@@ -168,16 +168,23 @@ impl NoteType {
 
     pub(crate) fn prepare_for_adding(&mut self) -> Result<()> {
         // defaults to 0
-        self.config.target_deck_id = 1;
+        if self.config.target_deck_id == 0 {
+            self.config.target_deck_id = 1;
+        }
         if self.fields.is_empty() {
             return Err(AnkiError::invalid_input("1 field required"));
         }
         if self.templates.is_empty() {
             return Err(AnkiError::invalid_input("1 template required"));
         }
+        self.prepare_for_update()
+    }
+
+    pub(crate) fn prepare_for_update(&mut self) -> Result<()> {
         self.normalize_names();
         self.ensure_names_unique();
         self.update_requirements();
+        // fixme: deal with duplicate note type names on update
         Ok(())
     }
 
@@ -205,15 +212,34 @@ impl From<NoteType> for NoteTypeProto {
 }
 
 impl Collection {
+    /// Add a new notetype, and allocate it an ID.
+    pub fn add_notetype(&mut self, nt: &mut NoteType) -> Result<()> {
+        nt.prepare_for_adding()?;
+        self.transact(None, |col| col.storage.add_new_notetype(nt))
+    }
+
     /// Saves changes to a note type. This will force a full sync if templates
     /// or fields have been added/removed/reordered.
-    pub fn update_notetype(&mut self, nt: &mut NoteType) -> Result<()> {
+    pub fn update_notetype(&mut self, nt: &mut NoteType, preserve_usn: bool) -> Result<()> {
+        nt.prepare_for_update()?;
+        if !preserve_usn {
+            nt.mtime_secs = TimestampSecs::now();
+            nt.usn = self.usn()?;
+        }
         self.transact(None, |col| {
-            let existing_notetype = col
-                .get_notetype(nt.id)?
-                .ok_or_else(|| AnkiError::invalid_input("no such notetype"))?;
-            col.update_notes_for_changed_fields(nt, existing_notetype.fields.len())?;
-            col.update_cards_for_changed_templates(nt, existing_notetype.templates.len())?;
+            if !preserve_usn {
+                let existing_notetype = col
+                    .get_notetype(nt.id)?
+                    .ok_or_else(|| AnkiError::invalid_input("no such notetype"))?;
+                col.update_notes_for_changed_fields(nt, existing_notetype.fields.len())?;
+                col.update_cards_for_changed_templates(nt, existing_notetype.templates.len())?;
+            }
+
+            col.storage.update_notetype_config(&nt)?;
+            col.storage.update_notetype_fields(nt.id, &nt.fields)?;
+            col.storage
+                .update_notetype_templates(nt.id, &nt.templates)?;
+
             // fixme: update cache instead of clearing
             col.state.notetype_cache.remove(&nt.id);
 

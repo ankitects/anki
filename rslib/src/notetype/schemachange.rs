@@ -123,7 +123,7 @@ impl Collection {
 #[cfg(test)]
 mod test {
     use super::{ords_changed, TemplateOrdChanges};
-    use crate::{collection::open_test_collection, err::Result, search::SortMode};
+    use crate::{collection::open_test_collection, decks::DeckID, err::Result, search::SortMode};
 
     #[test]
     fn ord_changes() {
@@ -190,10 +190,10 @@ mod test {
         let mut note = nt.new_note();
         assert_eq!(note.fields.len(), 2);
         note.fields = vec!["one".into(), "two".into()];
-        col.add_note(&mut note)?;
+        col.add_note(&mut note, DeckID(1))?;
 
         nt.add_field("three");
-        col.update_notetype(&mut nt)?;
+        col.update_notetype(&mut nt, false)?;
 
         let note = col.storage.get_note(note.id)?.unwrap();
         assert_eq!(
@@ -202,7 +202,7 @@ mod test {
         );
 
         nt.fields.remove(1);
-        col.update_notetype(&mut nt)?;
+        col.update_notetype(&mut nt, false)?;
 
         let note = col.storage.get_note(note.id)?.unwrap();
         assert_eq!(note.fields, vec!["one".to_string(), "".into()]);
@@ -220,7 +220,7 @@ mod test {
         let mut note = nt.new_note();
         assert_eq!(note.fields.len(), 2);
         note.fields = vec!["one".into(), "two".into()];
-        col.add_note(&mut note)?;
+        col.add_note(&mut note, DeckID(1))?;
 
         assert_eq!(
             col.search_cards(&format!("nid:{}", note.id), SortMode::NoOrder)
@@ -231,7 +231,7 @@ mod test {
 
         // add an extra card template
         nt.add_template("card 2", "{{Front}}", "");
-        col.update_notetype(&mut nt)?;
+        col.update_notetype(&mut nt, false)?;
 
         assert_eq!(
             col.search_cards(&format!("nid:{}", note.id), SortMode::NoOrder)

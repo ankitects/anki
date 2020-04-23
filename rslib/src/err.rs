@@ -45,6 +45,9 @@ pub enum AnkiError {
 
     #[fail(display = "Close the existing collection first.")]
     CollectionAlreadyOpen,
+
+    #[fail(display = "A requested item was not found.")]
+    NotFound,
 }
 
 // error helpers

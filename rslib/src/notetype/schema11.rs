@@ -195,7 +195,7 @@ impl From<CardRequirement> for CardRequirementSchema11 {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct NoteFieldSchema11 {
     pub(crate) name: String,
-    pub(crate) ord: u16,
+    pub(crate) ord: Option<u16>,
     #[serde(deserialize_with = "deserialize_bool_from_anything")]
     pub(crate) sticky: bool,
     #[serde(deserialize_with = "deserialize_bool_from_anything")]
@@ -210,7 +210,7 @@ impl Default for NoteFieldSchema11 {
     fn default() -> Self {
         Self {
             name: String::new(),
-            ord: 0,
+            ord: None,
             sticky: false,
             rtl: false,
             font: "Arial".to_string(),
@@ -223,7 +223,7 @@ impl Default for NoteFieldSchema11 {
 impl From<NoteFieldSchema11> for NoteField {
     fn from(f: NoteFieldSchema11) -> Self {
         NoteField {
-            ord: Some(f.ord as u32),
+            ord: f.ord.map(|o| o as u32),
             name: f.name,
             config: NoteFieldConfig {
                 sticky: f.sticky,
@@ -243,7 +243,7 @@ impl From<NoteField> for NoteFieldSchema11 {
         let conf = p.config;
         NoteFieldSchema11 {
             name: p.name,
-            ord: p.ord.unwrap() as u16,
+            ord: p.ord.map(|o| o as u16),
             sticky: conf.sticky,
             rtl: conf.rtl,
             font: conf.font_name,
@@ -256,7 +256,7 @@ impl From<NoteField> for NoteFieldSchema11 {
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct CardTemplateSchema11 {
     pub(crate) name: String,
-    pub(crate) ord: u16,
+    pub(crate) ord: Option<u16>,
     pub(crate) qfmt: String,
     #[serde(default)]
     pub(crate) afmt: String,
@@ -277,7 +277,7 @@ pub struct CardTemplateSchema11 {
 impl From<CardTemplateSchema11> for CardTemplate {
     fn from(t: CardTemplateSchema11) -> Self {
         CardTemplate {
-            ord: Some(t.ord as u32),
+            ord: t.ord.map(|t| t as u32),
             name: t.name,
             mtime_secs: TimestampSecs(0),
             usn: Usn(0),
@@ -302,7 +302,7 @@ impl From<CardTemplate> for CardTemplateSchema11 {
         let conf = p.config;
         CardTemplateSchema11 {
             name: p.name,
-            ord: p.ord.unwrap() as u16,
+            ord: p.ord.map(|o| o as u16),
             qfmt: conf.q_format,
             afmt: conf.a_format,
             bqfmt: conf.q_format_browser,

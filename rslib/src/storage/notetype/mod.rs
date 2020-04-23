@@ -105,7 +105,19 @@ impl SqliteStorage {
             .collect()
     }
 
-    fn update_notetype_fields(&self, ntid: NoteTypeID, fields: &[NoteField]) -> Result<()> {
+    /// Returns list of (id, name, use_count)
+    pub fn get_notetype_use_counts(&self) -> Result<Vec<(NoteTypeID, String, u32)>> {
+        self.db
+            .prepare_cached(include_str!("get_use_counts.sql"))?
+            .query_and_then(NO_PARAMS, |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)))?
+            .collect()
+    }
+
+    pub(crate) fn update_notetype_fields(
+        &self,
+        ntid: NoteTypeID,
+        fields: &[NoteField],
+    ) -> Result<()> {
         self.db
             .prepare_cached("delete from fields where ntid=?")?
             .execute(&[ntid])?;
@@ -119,7 +131,7 @@ impl SqliteStorage {
         Ok(())
     }
 
-    fn update_notetype_templates(
+    pub(crate) fn update_notetype_templates(
         &self,
         ntid: NoteTypeID,
         templates: &[CardTemplate],
@@ -146,7 +158,7 @@ impl SqliteStorage {
         Ok(())
     }
 
-    fn update_notetype_config(&self, nt: &NoteType) -> Result<()> {
+    pub(crate) fn update_notetype_config(&self, nt: &NoteType) -> Result<()> {
         assert!(nt.id.0 != 0);
         let mut stmt = self
             .db

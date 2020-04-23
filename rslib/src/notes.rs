@@ -2,7 +2,9 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::{
+    backend_proto as pb,
     collection::Collection,
+    decks::DeckID,
     define_newtype,
     err::{AnkiError, Result},
     notetype::{CardGenContext, NoteField, NoteType, NoteTypeID},
@@ -105,6 +107,36 @@ impl Note {
     }
 }
 
+impl From<Note> for pb::Note {
+    fn from(n: Note) -> Self {
+        pb::Note {
+            id: n.id.0,
+            guid: n.guid,
+            ntid: n.ntid.0,
+            mtime_secs: n.mtime.0 as u32,
+            usn: n.usn.0,
+            tags: n.tags,
+            fields: n.fields,
+        }
+    }
+}
+
+impl From<pb::Note> for Note {
+    fn from(n: pb::Note) -> Self {
+        Note {
+            id: NoteID(n.id),
+            guid: n.guid,
+            ntid: NoteTypeID(n.ntid),
+            mtime: TimestampSecs(n.mtime_secs as i64),
+            usn: Usn(n.usn),
+            tags: n.tags,
+            fields: n.fields,
+            sort_field: None,
+            checksum: None,
+        }
+    }
+}
+
 /// Text must be passed to strip_html_preserving_image_filenames() by
 /// caller prior to passing in here.
 pub(crate) fn field_checksum(text: &str) -> u32 {
@@ -130,20 +162,37 @@ fn anki_base91(mut n: u64) -> String {
 }
 
 impl Collection {
-    pub fn add_note(&mut self, note: &mut Note) -> Result<()> {
+    fn canonify_note_tags(&self, note: &mut Note, usn: Usn) -> Result<()> {
+        // fixme: avoid the excess split/join
+        note.tags = self
+            .canonify_tags(&note.tags.join(" "), usn)?
+            .0
+            .split(' ')
+            .map(Into::into)
+            .collect();
+        Ok(())
+    }
+
+    pub fn add_note(&mut self, note: &mut Note, did: DeckID) -> Result<()> {
         self.transact(None, |col| {
             let nt = col
                 .get_notetype(note.ntid)?
                 .ok_or_else(|| AnkiError::invalid_input("missing note type"))?;
             let ctx = CardGenContext::new(&nt, col.usn()?);
-            col.add_note_inner(&ctx, note)
+            col.add_note_inner(&ctx, note, did)
         })
     }
 
-    pub(crate) fn add_note_inner(&mut self, ctx: &CardGenContext, note: &mut Note) -> Result<()> {
+    pub(crate) fn add_note_inner(
+        &mut self,
+        ctx: &CardGenContext,
+        note: &mut Note,
+        did: DeckID,
+    ) -> Result<()> {
+        self.canonify_note_tags(note, ctx.usn)?;
         note.prepare_for_update(&ctx.notetype, ctx.usn)?;
         self.storage.add_note(note)?;
-        self.generate_cards_for_new_note(ctx, note)
+        self.generate_cards_for_new_note(ctx, note, did)
     }
 
     pub fn update_note(&mut self, note: &mut Note) -> Result<()> {
@@ -161,6 +210,7 @@ impl Collection {
         ctx: &CardGenContext,
         note: &mut Note,
     ) -> Result<()> {
+        self.canonify_note_tags(note, ctx.usn)?;
         note.prepare_for_update(ctx.notetype, ctx.usn)?;
         self.generate_cards_for_existing_note(ctx, note)?;
         self.storage.update_note(note)?;
@@ -198,7 +248,7 @@ mod test {
 
         let mut note = nt.new_note();
         // if no cards are generated, 1 card is added
-        col.add_note(&mut note).unwrap();
+        col.add_note(&mut note, DeckID(1)).unwrap();
         let existing = col.storage.existing_cards_for_note(note.id)?;
         assert_eq!(existing.len(), 1);
         assert_eq!(existing[0].ord, 0);
@@ -220,7 +270,7 @@ mod test {
         // cloze cards also generate card 0 if no clozes are found
         let nt = col.get_notetype_by_name("cloze")?.unwrap();
         let mut note = nt.new_note();
-        col.add_note(&mut note).unwrap();
+        col.add_note(&mut note, DeckID(1)).unwrap();
         let existing = col.storage.existing_cards_for_note(note.id)?;
         assert_eq!(existing.len(), 1);
         assert_eq!(existing[0].ord, 0);
