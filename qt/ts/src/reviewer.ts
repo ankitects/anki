@@ -41,10 +41,8 @@ function _updateQA(html, fadeTime, onupdate, onshown) {
         } catch (err) {
             qa.html(
                 (
-                    `Invalid HTML on card: ${String(err).substring(
-                        0,
-                        2000
-                    )}\n` + String(err.stack).substring(0, 2000)
+                    `Invalid HTML on card: ${String(err).substring(0, 2000)}\n` +
+                    String(err.stack).substring(0, 2000)
                 ).replace(/\n/g, "<br />")
             );
         }
