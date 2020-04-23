@@ -204,8 +204,9 @@ impl Collection {
         &mut self,
         ctx: &CardGenContext,
         note: &Note,
+        target_deck_id: DeckID,
     ) -> Result<()> {
-        self.generate_cards_for_note(ctx, note, false)
+        self.generate_cards_for_note(ctx, note, &[], Some(target_deck_id))
     }
 
     pub(crate) fn generate_cards_for_existing_note(
@@ -213,25 +214,22 @@ impl Collection {
         ctx: &CardGenContext,
         note: &Note,
     ) -> Result<()> {
-        self.generate_cards_for_note(ctx, note, true)
+        let existing = self.storage.existing_cards_for_note(note.id)?;
+        self.generate_cards_for_note(ctx, note, &existing, None)
     }
 
     fn generate_cards_for_note(
         &mut self,
         ctx: &CardGenContext,
         note: &Note,
-        check_existing: bool,
+        existing: &[AlreadyGeneratedCardInfo],
+        target_deck_id: Option<DeckID>,
     ) -> Result<()> {
-        let existing = if check_existing {
-            self.storage.existing_cards_for_note(note.id)?
-        } else {
-            vec![]
-        };
         let cards = ctx.new_cards_required(note, &existing);
         if cards.is_empty() {
             return Ok(());
         }
-        self.add_generated_cards(ctx, note.id, &cards)
+        self.add_generated_cards(ctx, note.id, &cards, target_deck_id)
     }
 
     pub(crate) fn generate_cards_for_notetype(&mut self, ctx: &CardGenContext) -> Result<()> {
@@ -246,7 +244,7 @@ impl Collection {
                 continue;
             }
             let note = self.storage.get_note(nid)?.unwrap();
-            self.generate_cards_for_note(ctx, &note, true)?;
+            self.generate_cards_for_note(ctx, &note, &existing_cards, None)?;
         }
 
         Ok(())
@@ -257,11 +255,16 @@ impl Collection {
         ctx: &CardGenContext,
         nid: NoteID,
         cards: &[CardToGenerate],
+        target_deck_id: Option<DeckID>,
     ) -> Result<()> {
         let mut next_pos = None;
         for c in cards {
             // fixme: deal with case where invalid deck pointed to
-            let did = c.did.unwrap_or_else(|| ctx.notetype.target_deck_id());
+            // fixme: deprecated note type deck id
+            let did = c
+                .did
+                .or(target_deck_id)
+                .unwrap_or_else(|| ctx.notetype.target_deck_id());
             let due = c.due.unwrap_or_else(|| {
                 if next_pos.is_none() {
                     next_pos = Some(self.get_and_update_next_card_position().unwrap_or(0));

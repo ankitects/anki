@@ -69,11 +69,20 @@ message BackendInput {
         SetConfigJson set_config_json = 53;
         bytes set_all_config = 54;
         Empty get_all_config = 55;
-        Empty get_all_notetypes = 56;
-        bytes set_all_notetypes = 57;
+        int32 get_changed_notetypes = 56;
+        AddOrUpdateNotetypeIn add_or_update_notetype = 57;
         Empty get_all_decks = 58;
         bytes set_all_decks = 59;
         Empty all_stock_notetypes = 60;
+        int64 get_notetype_legacy = 61;
+        Empty get_notetype_names = 62;
+        Empty get_notetype_names_and_counts = 63;
+        string get_notetype_id_by_name = 64;
+        int64 remove_notetype = 65;
+        int64 new_note = 66;
+        AddNoteIn add_note = 67;
+        Note update_note = 68;
+        int64 get_note = 69;
     }
 }
 
@@ -123,10 +132,19 @@ message BackendOutput {
         Empty set_config_json = 53;
         Empty set_all_config = 54;
         bytes get_all_config = 55;
-        bytes get_all_notetypes = 56;
-        Empty set_all_notetypes = 57;
+        bytes get_changed_notetypes = 56;
+        int64 add_or_update_notetype = 57;
         bytes get_all_decks = 58;
         Empty set_all_decks = 59;
+        bytes get_notetype_legacy = 61;
+        NoteTypeNames get_notetype_names = 62;
+        NoteTypeUseCounts get_notetype_names_and_counts = 63;
+        int64 get_notetype_id_by_name = 64;
+        Empty remove_notetype = 65;
+        Note new_note = 66;
+        int64 add_note = 67;
+        Empty update_note = 68;
+        Note get_note = 69;
 
         BackendError error = 2047;
     }
@@ -147,6 +165,7 @@ message BackendError {
         Empty interrupted = 8;
         string json_error = 9;
         string proto_error = 10;
+        Empty not_found_error = 11;
     }
 }
 
@@ -568,4 +587,44 @@ enum StockNoteType {
 
 message AllStockNotetypesOut {
     repeated NoteType notetypes = 1;
+}
+
+message NoteTypeNames {
+    repeated NoteTypeNameID entries = 1;
+}
+
+message NoteTypeUseCounts {
+    repeated NoteTypeNameIDUseCount entries = 1;
+}
+
+message NoteTypeNameID {
+    int64 id = 1;
+    string name = 2;
+
+}
+
+message NoteTypeNameIDUseCount {
+    int64 id = 1;
+    string name = 2;
+    uint32 use_count = 3;
+}
+
+message AddOrUpdateNotetypeIn {
+    bytes json = 1;
+    bool preserve_usn_and_mtime = 2;
+}
+
+message Note {
+    int64 id = 1;
+    string guid = 2;
+    int64 ntid = 3;
+    uint32 mtime_secs = 4;
+    int32 usn = 5;
+    repeated string tags = 6;
+    repeated string fields = 7;
+}
+
+message AddNoteIn {
+    Note note = 1;
+    int64 deck_id = 2;
 }
