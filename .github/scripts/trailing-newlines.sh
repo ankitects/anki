@@ -4,7 +4,11 @@ set -eu -o pipefail ${SHELLFLAGS}
 
 # Checking version to force it fail the build if rg is not installed.
 # Because `set -e` does not work inside the subshell $()
-rg --version > /dev/null 2>&1 || echo "Error: ripgrep is not installed!"
+if ! rg --version > /dev/null 2>&1;
+then
+    echo "Error: ripgrep is not installed!";
+    exit 1;
+fi;
 
 files=$(rg -l '[^\n]\z' -g '!*.{png,svg,scss,json,sql}' || true)
 
