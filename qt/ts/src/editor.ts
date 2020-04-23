@@ -274,10 +274,7 @@ function enableButtons() {
 
 // disable the buttons if a field is not currently focused
 function maybeDisableButtons() {
-    if (
-        !document.activeElement ||
-        document.activeElement.className !== "field"
-    ) {
+    if (!document.activeElement || document.activeElement.className !== "field") {
         disableButtons();
     } else {
         enableButtons();
