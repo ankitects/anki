@@ -147,26 +147,26 @@ fn legacy_tokens(mut data: &str) -> impl Iterator<Item = TemplateResult<Token>> 
 //----------------------------------------
 
 #[derive(Debug, PartialEq)]
-enum ParsedNode<'a> {
-    Text(&'a str),
+enum ParsedNode {
+    Text(String),
     Replacement {
-        key: &'a str,
-        filters: Vec<&'a str>,
+        key: String,
+        filters: Vec<String>,
     },
     Conditional {
-        key: &'a str,
-        children: Vec<ParsedNode<'a>>,
+        key: String,
+        children: Vec<ParsedNode>,
     },
     NegatedConditional {
-        key: &'a str,
-        children: Vec<ParsedNode<'a>>,
+        key: String,
+        children: Vec<ParsedNode>,
     },
 }
 
 #[derive(Debug)]
-pub struct ParsedTemplate<'a>(Vec<ParsedNode<'a>>);
+pub struct ParsedTemplate(Vec<ParsedNode>);
 
-impl ParsedTemplate<'_> {
+impl ParsedTemplate {
     /// Create a template from the provided text.
     pub fn from_text(template: &str) -> TemplateResult<ParsedTemplate> {
         let mut iter = tokens(template);
@@ -177,26 +177,26 @@ impl ParsedTemplate<'_> {
 fn parse_inner<'a, I: Iterator<Item = TemplateResult<Token<'a>>>>(
     iter: &mut I,
     open_tag: Option<&'a str>,
-) -> TemplateResult<Vec<ParsedNode<'a>>> {
+) -> TemplateResult<Vec<ParsedNode>> {
     let mut nodes = vec![];
 
     while let Some(token) = iter.next() {
         use Token::*;
         nodes.push(match token? {
-            Text(t) => ParsedNode::Text(t),
+            Text(t) => ParsedNode::Text(t.into()),
             Replacement(t) => {
                 let mut it = t.rsplit(':');
                 ParsedNode::Replacement {
-                    key: it.next().unwrap(),
-                    filters: it.collect(),
+                    key: it.next().unwrap().into(),
+                    filters: it.map(Into::into).collect(),
                 }
             }
             OpenConditional(t) => ParsedNode::Conditional {
-                key: t,
+                key: t.into(),
                 children: parse_inner(iter, Some(t))?,
             },
             OpenNegated(t) => ParsedNode::NegatedConditional {
-                key: t,
+                key: t.into(),
                 children: parse_inner(iter, Some(t))?,
             },
             CloseConditional(t) => {
@@ -285,27 +285,27 @@ fn localized_template_error(i18n: &I18n, err: TemplateError) -> String {
 // Checking if template is empty
 //----------------------------------------
 
-impl ParsedTemplate<'_> {
+impl ParsedTemplate {
     /// true if provided fields are sufficient to render the template
     pub fn renders_with_fields(&self, nonempty_fields: &HashSet<&str>) -> bool {
         !template_is_empty(nonempty_fields, &self.0)
     }
 }
 
-fn template_is_empty<'a>(nonempty_fields: &HashSet<&str>, nodes: &[ParsedNode<'a>]) -> bool {
+fn template_is_empty(nonempty_fields: &HashSet<&str>, nodes: &[ParsedNode]) -> bool {
     use ParsedNode::*;
     for node in nodes {
         match node {
             // ignore normal text
             Text(_) => (),
             Replacement { key, .. } => {
-                if nonempty_fields.contains(*key) {
+                if nonempty_fields.contains(key.as_str()) {
                     // a single replacement is enough
                     return false;
                 }
             }
             Conditional { key, children } => {
-                if !nonempty_fields.contains(*key) {
+                if !nonempty_fields.contains(key.as_str()) {
                     continue;
                 }
                 if !template_is_empty(nonempty_fields, children) {
@@ -347,7 +347,7 @@ pub(crate) struct RenderContext<'a> {
     pub card_ord: u16,
 }
 
-impl ParsedTemplate<'_> {
+impl ParsedTemplate {
     /// Render the template with the provided fields.
     ///
     /// Replacements that use only standard filters will become part of
@@ -373,10 +373,7 @@ fn render_into(
             Text(text) => {
                 append_str_to_nodes(rendered_nodes, text);
             }
-            Replacement {
-                key: key @ "FrontSide",
-                ..
-            } => {
+            Replacement { key, .. } if key == "FrontSide" => {
                 // defer FrontSide rendering to Python, as extra
                 // filters may be required
                 rendered_nodes.push(RenderedNode::Replacement {
@@ -385,27 +382,36 @@ fn render_into(
                     current_text: "".into(),
                 });
             }
-            Replacement { key: "", filters } if !filters.is_empty() => {
+            Replacement { key, filters } if key == "" && !filters.is_empty() => {
                 // if a filter is provided, we accept an empty field name to
                 // mean 'pass an empty string to the filter, and it will add
                 // its own text'
                 rendered_nodes.push(RenderedNode::Replacement {
                     field_name: "".to_string(),
                     current_text: "".to_string(),
-                    filters: filters.iter().map(|&f| f.to_string()).collect(),
+                    filters: filters.clone(),
                 })
             }
             Replacement { key, filters } => {
                 // apply built in filters if field exists
-                let (text, remaining_filters) = match context.fields.get(key) {
-                    Some(text) => apply_filters(text, filters, key, context),
+                let (text, remaining_filters) = match context.fields.get(key.as_str()) {
+                    Some(text) => apply_filters(
+                        text,
+                        filters
+                            .iter()
+                            .map(|s| s.as_str())
+                            .collect::<Vec<_>>()
+                            .as_slice(),
+                        key,
+                        context,
+                    ),
                     None => {
                         // unknown field encountered
                         let filters_str = filters
                             .iter()
                             .rev()
                             .cloned()
-                            .chain(iter::once(""))
+                            .chain(iter::once("".into()))
                             .collect::<Vec<_>>()
                             .join(":");
                         return Err(TemplateError::FieldNotFound {
@@ -427,12 +433,12 @@ fn render_into(
                 }
             }
             Conditional { key, children } => {
-                if context.nonempty_fields.contains(key) {
+                if context.nonempty_fields.contains(key.as_str()) {
                     render_into(rendered_nodes, children.as_ref(), context)?;
                 }
             }
             NegatedConditional { key, children } => {
-                if !context.nonempty_fields.contains(key) {
+                if !context.nonempty_fields.contains(key.as_str()) {
                     render_into(rendered_nodes, children.as_ref(), context)?;
                 }
             }
@@ -542,7 +548,7 @@ pub enum FieldRequirements {
     None,
 }
 
-impl ParsedTemplate<'_> {
+impl ParsedTemplate {
     /// Return fields required by template.
     ///
     /// This is not able to represent negated expressions or combinations of
@@ -613,15 +619,15 @@ mod test {
         assert_eq!(
             tmpl.0,
             vec![
-                Text("foo "),
+                Text("foo ".into()),
                 Replacement {
-                    key: "bar",
+                    key: "bar".into(),
                     filters: vec![]
                 },
-                Text(" "),
+                Text(" ".into()),
                 Conditional {
-                    key: "baz",
-                    children: vec![Text(" quux ")]
+                    key: "baz".into(),
+                    children: vec![Text(" quux ".into())]
                 }
             ]
         );
@@ -630,7 +636,7 @@ mod test {
         assert_eq!(
             tmpl.0,
             vec![NegatedConditional {
-                key: "baz",
+                key: "baz".into(),
                 children: vec![]
             }]
         );
@@ -643,7 +649,7 @@ mod test {
         assert_eq!(
             PT::from_text("{{ tag }}").unwrap().0,
             vec![Replacement {
-                key: "tag",
+                key: "tag".into(),
                 filters: vec![]
             }]
         );
@@ -651,7 +657,7 @@ mod test {
         // stray closing characters (like in javascript) are ignored
         assert_eq!(
             PT::from_text("text }} more").unwrap().0,
-            vec![Text("text }} more")]
+            vec![Text("text }} more".into())]
         );
 
         PT::from_text("{{").unwrap_err();
@@ -737,15 +743,15 @@ mod test {
         assert_eq!(
             PT::from_text(input).unwrap().0,
             vec![
-                Text("\n"),
+                Text("\n".into()),
                 Replacement {
-                    key: "Front",
+                    key: "Front".into(),
                     filters: vec![]
                 },
-                Text("\n"),
+                Text("\n".into()),
                 Conditional {
-                    key: "Back",
-                    children: vec![Text("\n")]
+                    key: "Back".into(),
+                    children: vec![Text("\n".into())]
                 }
             ]
         );
