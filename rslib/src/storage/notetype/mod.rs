@@ -205,6 +205,26 @@ impl SqliteStorage {
         Ok(())
     }
 
+    pub(crate) fn remove_notetype(&self, ntid: NoteTypeID) -> Result<()> {
+        self.db
+            .prepare_cached("delete from cards where nid in (select id from notes where mid=?)")?
+            .execute(&[ntid])?;
+        self.db
+            .prepare_cached("delete from notes where mid=?")?
+            .execute(&[ntid])?;
+        self.db
+            .prepare_cached("delete from templates where ntid=?")?
+            .execute(&[ntid])?;
+        self.db
+            .prepare_cached("delete from fields where ntid=?")?
+            .execute(&[ntid])?;
+        self.db
+            .prepare_cached("delete from notetypes where id=?")?
+            .execute(&[ntid])?;
+
+        Ok(())
+    }
+
     pub(crate) fn move_cards_for_repositioned_templates(
         &self,
         ntid: NoteTypeID,

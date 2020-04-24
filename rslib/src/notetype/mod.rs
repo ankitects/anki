@@ -375,4 +375,13 @@ impl Collection {
             })
             .collect()
     }
+
+    pub fn remove_notetype(&mut self, ntid: NoteTypeID) -> Result<()> {
+        // fixme: currently the storage layer is taking care of removing the notes and cards,
+        // but we need to do it in this layer in the future for undo handling
+        self.transact(None, |col| {
+            col.storage.set_schema_modified()?;
+            col.storage.remove_notetype(ntid)
+        })
+    }
 }
