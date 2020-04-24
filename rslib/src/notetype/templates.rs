@@ -23,6 +23,10 @@ impl CardTemplate {
         ParsedTemplate::from_text(&self.config.q_format).ok()
     }
 
+    pub(crate) fn parsed_answer(&self) -> Option<ParsedTemplate> {
+        ParsedTemplate::from_text(&self.config.a_format).ok()
+    }
+
     pub(crate) fn target_deck_id(&self) -> Option<DeckID> {
         if self.config.target_deck_id > 0 {
             Some(DeckID(self.config.target_deck_id))

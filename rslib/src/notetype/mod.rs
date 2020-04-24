@@ -97,20 +97,21 @@ impl NoteType {
         }
     }
 
-    fn update_requirements(&mut self) {
+    fn updated_requirements(
+        &self,
+        parsed: &[(Option<ParsedTemplate>, Option<ParsedTemplate>)],
+    ) -> Vec<CardRequirement> {
         let field_map: HashMap<&str, u16> = self
             .fields
             .iter()
             .enumerate()
             .map(|(idx, field)| (field.name.as_str(), idx as u16))
             .collect();
-        let reqs: Vec<_> = self
-            .templates
+        parsed
             .iter()
             .enumerate()
-            .map(|(ord, tmpl)| {
-                let conf = &tmpl.config;
-                if let Ok(tmpl) = ParsedTemplate::from_text(&conf.q_format) {
+            .map(|(ord, (qtmpl, _atmpl))| {
+                if let Some(tmpl) = qtmpl {
                     let mut req = match tmpl.requirements(&field_map) {
                         FieldRequirements::Any(ords) => CardRequirement {
                             card_ord: ord as u32,
@@ -139,8 +140,7 @@ impl NoteType {
                     }
                 }
             })
-            .collect();
-        self.config.reqs = reqs;
+            .collect()
     }
 
     fn reposition_sort_idx(&mut self) {
@@ -182,22 +182,109 @@ impl NoteType {
         if self.config.target_deck_id == 0 {
             self.config.target_deck_id = 1;
         }
+        self.prepare_for_update(None)
+    }
+
+    pub(crate) fn prepare_for_update(&mut self, existing: Option<&NoteType>) -> Result<()> {
         if self.fields.is_empty() {
             return Err(AnkiError::invalid_input("1 field required"));
         }
         if self.templates.is_empty() {
             return Err(AnkiError::invalid_input("1 template required"));
         }
-        self.prepare_for_update()
-    }
-
-    pub(crate) fn prepare_for_update(&mut self) -> Result<()> {
         self.normalize_names();
         self.ensure_names_unique();
-        self.update_requirements();
         self.reposition_sort_idx();
+
+        let parsed_templates = self.parsed_templates();
+        let invalid_card_idx = parsed_templates
+            .iter()
+            .enumerate()
+            .find_map(|(idx, (q, a))| {
+                if q.is_none() || a.is_none() {
+                    Some(idx)
+                } else {
+                    None
+                }
+            });
+        if let Some(idx) = invalid_card_idx {
+            return Err(AnkiError::TemplateError {
+                info: format!("invalid card {}", idx + 1),
+            });
+        }
+        let reqs = self.updated_requirements(&parsed_templates);
+
+        // handle renamed fields
+        if let Some(existing) = existing {
+            let renamed_fields = self.renamed_fields(existing);
+            if !renamed_fields.is_empty() {
+                let updated_templates =
+                    self.updated_templates_for_renamed_fields(renamed_fields, parsed_templates);
+                for (idx, (q, a)) in updated_templates.into_iter().enumerate() {
+                    if let Some(q) = q {
+                        self.templates[idx].config.q_format = q
+                    }
+                    if let Some(a) = a {
+                        self.templates[idx].config.a_format = a
+                    }
+                }
+            }
+        }
+        self.config.reqs = reqs;
+
         // fixme: deal with duplicate note type names on update
         Ok(())
+    }
+
+    fn renamed_fields(&self, current: &NoteType) -> HashMap<String, String> {
+        self.fields
+            .iter()
+            .filter_map(|field| {
+                if let Some(existing_ord) = field.ord {
+                    if let Some(existing_field) = current.fields.get(existing_ord as usize) {
+                        if existing_field.name != field.name {
+                            return Some((existing_field.name.clone(), field.name.clone()));
+                        }
+                    }
+                }
+                None
+            })
+            .collect()
+    }
+
+    fn updated_templates_for_renamed_fields(
+        &self,
+        renamed_fields: HashMap<String, String>,
+        parsed: Vec<(Option<ParsedTemplate>, Option<ParsedTemplate>)>,
+    ) -> Vec<(Option<String>, Option<String>)> {
+        parsed
+            .into_iter()
+            .map(|(q, a)| {
+                let q = q.and_then(|mut q| {
+                    if q.rename_fields(&renamed_fields) {
+                        Some(q.template_to_string())
+                    } else {
+                        None
+                    }
+                });
+                let a = a.and_then(|mut a| {
+                    if a.rename_fields(&renamed_fields) {
+                        Some(a.template_to_string())
+                    } else {
+                        None
+                    }
+                });
+
+                (q, a)
+            })
+            .collect()
+    }
+
+    fn parsed_templates(&self) -> Vec<(Option<ParsedTemplate>, Option<ParsedTemplate>)> {
+        self.templates
+            .iter()
+            .map(|t| (t.parsed_question(), t.parsed_answer()))
+            .collect()
     }
 
     pub fn new_note(&self) -> Note {
@@ -233,13 +320,14 @@ impl Collection {
     /// Saves changes to a note type. This will force a full sync if templates
     /// or fields have been added/removed/reordered.
     pub fn update_notetype(&mut self, nt: &mut NoteType, preserve_usn: bool) -> Result<()> {
-        nt.prepare_for_update()?;
+        let existing = self.get_notetype(nt.id)?;
+        nt.prepare_for_update(existing.as_ref().map(AsRef::as_ref))?;
         if !preserve_usn {
             nt.mtime_secs = TimestampSecs::now();
             nt.usn = self.usn()?;
         }
         self.transact(None, |col| {
-            if let Some(existing_notetype) = col.get_notetype(nt.id)? {
+            if let Some(existing_notetype) = existing {
                 col.update_notes_for_changed_fields(nt, existing_notetype.fields.len())?;
                 col.update_cards_for_changed_templates(nt, existing_notetype.templates.len())?;
             }

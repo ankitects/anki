@@ -13,6 +13,7 @@ use nom::{
 };
 use regex::Regex;
 use std::collections::{HashMap, HashSet};
+use std::fmt::Write;
 use std::iter;
 
 pub type FieldMap<'a> = HashMap<&'a str, u16>;
@@ -591,6 +592,96 @@ impl ParsedTemplate {
     }
 }
 
+// Renaming fields
+//----------------------------------------
+
+impl ParsedTemplate {
+    /// Given a map of old to new field names, update references to the new names.
+    /// Returns true if any changes made.
+    pub(crate) fn rename_fields(&mut self, fields: &HashMap<String, String>) -> bool {
+        rename_fields(&mut self.0, fields)
+    }
+}
+
+fn rename_fields(nodes: &mut [ParsedNode], fields: &HashMap<String, String>) -> bool {
+    let mut changed = false;
+    for node in nodes {
+        match node {
+            ParsedNode::Text(_) => (),
+            ParsedNode::Replacement { key, .. } => {
+                if let Some(new_name) = fields.get(key) {
+                    *key = new_name.clone();
+                    changed = true;
+                }
+            }
+            ParsedNode::Conditional { key, children } => {
+                if let Some(new_name) = fields.get(key) {
+                    *key = new_name.clone();
+                    changed = true;
+                };
+                if rename_fields(children, fields) {
+                    changed = true;
+                }
+            }
+            ParsedNode::NegatedConditional { key, children } => {
+                if let Some(new_name) = fields.get(key) {
+                    *key = new_name.clone();
+                    changed = true;
+                };
+                if rename_fields(children, fields) {
+                    changed = true;
+                }
+            }
+        }
+    }
+    changed
+}
+
+// Writing back to a string
+//----------------------------------------
+
+impl ParsedTemplate {
+    pub(crate) fn template_to_string(&self) -> String {
+        let mut buf = String::new();
+        nodes_to_string(&mut buf, &self.0);
+        buf
+    }
+}
+
+fn nodes_to_string(buf: &mut String, nodes: &[ParsedNode]) {
+    for node in nodes {
+        match node {
+            ParsedNode::Text(text) => buf.push_str(text),
+            ParsedNode::Replacement { key, filters } => {
+                write!(
+                    buf,
+                    "{{{{{}}}}}",
+                    filters
+                        .iter()
+                        .rev()
+                        .chain(iter::once(key))
+                        .map(|s| s.to_string())
+                        .collect::<Vec<_>>()
+                        .join(":")
+                )
+                .unwrap();
+            }
+            ParsedNode::Conditional { key, children } => {
+                write!(buf, "{{{{#{}}}}}", key).unwrap();
+                nodes_to_string(buf, &children);
+                write!(buf, "{{{{/{}}}}}", key).unwrap();
+            }
+            ParsedNode::NegatedConditional { key, children } => {
+                write!(buf, "{{{{^{}}}}}", key).unwrap();
+                nodes_to_string(buf, &children);
+                write!(buf, "{{{{/{}}}}}", key).unwrap();
+            }
+        }
+    }
+}
+
+// fixme: unit test filter order, etc
+
 // Tests
 //---------------------------------------
 
@@ -615,7 +706,8 @@ mod test {
 
     #[test]
     fn parsing() {
-        let tmpl = PT::from_text("foo {{bar}} {{#baz}} quux {{/baz}}").unwrap();
+        let orig = "foo {{bar}} {{#baz}} quux {{/baz}}";
+        let tmpl = PT::from_text(orig).unwrap();
         assert_eq!(
             tmpl.0,
             vec![
@@ -631,6 +723,7 @@ mod test {
                 }
             ]
         );
+        assert_eq!(orig, &tmpl.template_to_string());
 
         let tmpl = PT::from_text("{{^baz}}{{/baz}}").unwrap();
         assert_eq!(
@@ -663,6 +756,11 @@ mod test {
         PT::from_text("{{").unwrap_err();
         PT::from_text(" {{").unwrap_err();
         PT::from_text(" {{ ").unwrap_err();
+
+        // make sure filters and so on are round-tripped correctly
+        let orig = "foo {{one:two}} {{one:two:three}} {{^baz}} {{/baz}} {{foo:}}";
+        let tmpl = PT::from_text(orig).unwrap();
+        assert_eq!(orig, &tmpl.template_to_string());
     }
 
     #[test]
