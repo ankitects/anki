@@ -84,6 +84,7 @@ impl SqlWriter<'_> {
             SearchNode::WholeCollection => write!(self.sql, "true").unwrap(),
             SearchNode::Regex(re) => self.write_regex(re.as_ref()),
             SearchNode::NoCombining(text) => self.write_no_combining(text.as_ref()),
+            SearchNode::WordBoundary(text) => self.write_word_boundary(text.as_ref()),
         };
         Ok(())
     }
@@ -379,6 +380,11 @@ impl SqlWriter<'_> {
         self.sql.push_str("n.flds regexp ?");
         self.args.push(format!(r"(?i){}", word));
     }
+
+    fn write_word_boundary(&mut self, word: &str) {
+        let re = glob_to_re(word).unwrap_or_else(|| word.to_string());
+        self.write_regex(&format!(r"\b{}\b", re))
+    }
 }
 
 // Write a list of IDs as '(x,y,...)' into the provided string.
@@ -637,6 +643,21 @@ mod test {
         assert_eq!(
             s(ctx, r"re:\bone"),
             ("(n.flds regexp ?)".into(), vec![r"(?i)\bone".into()])
+        );
+
+        // word boundary
+        assert_eq!(
+            s(ctx, r"w:foo"),
+            ("(n.flds regexp ?)".into(), vec![r"(?i)\bfoo\b".into()])
+        );
+        assert_eq!(
+            s(ctx, r"w:*foo"),
+            ("(n.flds regexp ?)".into(), vec![r"(?i)\b.*foo\b".into()])
+        );
+
+        assert_eq!(
+            s(ctx, r"w:*fo_o*"),
+            ("(n.flds regexp ?)".into(), vec![r"(?i)\b.*fo.o.*\b".into()])
         );
 
         Ok(())
