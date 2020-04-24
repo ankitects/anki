@@ -35,8 +35,8 @@ pub(crate) struct CardToGenerate {
 
 /// Info required to determine whether a particular card ordinal should exist,
 /// and which deck it should be placed in.
-pub(crate) struct SingleCardGenContext<'a> {
-    template: Option<ParsedTemplate<'a>>,
+pub(crate) struct SingleCardGenContext {
+    template: Option<ParsedTemplate>,
     target_deck_id: Option<DeckID>,
 }
 
@@ -45,7 +45,7 @@ pub(crate) struct SingleCardGenContext<'a> {
 pub(crate) struct CardGenContext<'a> {
     pub usn: Usn,
     pub notetype: &'a NoteType,
-    cards: Vec<SingleCardGenContext<'a>>,
+    cards: Vec<SingleCardGenContext>,
 }
 
 impl CardGenContext<'_> {

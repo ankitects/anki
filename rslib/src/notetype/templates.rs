@@ -19,7 +19,7 @@ pub struct CardTemplate {
 }
 
 impl CardTemplate {
-    pub(crate) fn parsed_question(&self) -> Option<ParsedTemplate<'_>> {
+    pub(crate) fn parsed_question(&self) -> Option<ParsedTemplate> {
         ParsedTemplate::from_text(&self.config.q_format).ok()
     }
 
