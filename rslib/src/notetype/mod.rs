@@ -143,6 +143,17 @@ impl NoteType {
         self.config.reqs = reqs;
     }
 
+    fn reposition_sort_idx(&mut self) {
+        let adjusted_idx = self.fields.iter().enumerate().find_map(|(idx, f)| {
+            if f.ord == Some(self.config.sort_field_idx) {
+                Some(idx)
+            } else {
+                None
+            }
+        });
+        self.config.sort_field_idx = adjusted_idx.unwrap_or(0) as u32;
+    }
+
     pub(crate) fn normalize_names(&mut self) {
         ensure_string_in_nfc(&mut self.name);
         for f in &mut self.fields {
@@ -184,6 +195,7 @@ impl NoteType {
         self.normalize_names();
         self.ensure_names_unique();
         self.update_requirements();
+        self.reposition_sort_idx();
         // fixme: deal with duplicate note type names on update
         Ok(())
     }
