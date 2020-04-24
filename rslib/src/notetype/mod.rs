@@ -239,10 +239,7 @@ impl Collection {
             nt.usn = self.usn()?;
         }
         self.transact(None, |col| {
-            if !preserve_usn {
-                let existing_notetype = col
-                    .get_notetype(nt.id)?
-                    .ok_or_else(|| AnkiError::invalid_input("no such notetype"))?;
+            if let Some(existing_notetype) = col.get_notetype(nt.id)? {
                 col.update_notes_for_changed_fields(nt, existing_notetype.fields.len())?;
                 col.update_cards_for_changed_templates(nt, existing_notetype.templates.len())?;
             }
