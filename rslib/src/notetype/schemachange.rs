@@ -54,11 +54,22 @@ impl Collection {
         &mut self,
         nt: &NoteType,
         previous_field_count: usize,
+        previous_sort_idx: u32,
     ) -> Result<()> {
         let ords: Vec<_> = nt.fields.iter().map(|f| f.ord).collect();
         if !ords_changed(&ords, previous_field_count) {
-            // nothing to do
-            return Ok(());
+            if nt.config.sort_field_idx == previous_sort_idx {
+                // only need to update sort field
+                let nids = self.search_notes_only(&format!("mid:{}", nt.id))?;
+                for nid in nids {
+                    let mut note = self.storage.get_note(nid)?.unwrap();
+                    note.prepare_for_update(nt, None)?;
+                    self.storage.update_note(&note)?;
+                }
+            } else {
+                // nothing to do
+                return Ok(());
+            }
         }
 
         self.storage.set_schema_modified()?;
@@ -81,7 +92,7 @@ impl Collection {
                 })
                 .map(Into::into)
                 .collect();
-            note.prepare_for_update(nt, usn)?;
+            note.prepare_for_update(nt, Some(usn))?;
             self.storage.update_note(&note)?;
         }
         Ok(())

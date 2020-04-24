@@ -328,7 +328,11 @@ impl Collection {
         }
         self.transact(None, |col| {
             if let Some(existing_notetype) = existing {
-                col.update_notes_for_changed_fields(nt, existing_notetype.fields.len())?;
+                col.update_notes_for_changed_fields(
+                    nt,
+                    existing_notetype.fields.len(),
+                    existing_notetype.config.sort_field_idx,
+                )?;
                 col.update_cards_for_changed_templates(nt, existing_notetype.templates.len())?;
             }
 
