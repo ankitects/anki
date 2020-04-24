@@ -63,7 +63,8 @@ impl Note {
         Ok(())
     }
 
-    pub fn prepare_for_update(&mut self, nt: &NoteType, usn: Usn) -> Result<()> {
+    /// Prepare note for saving to the database. If usn is provided, mtime will be bumped.
+    pub fn prepare_for_update(&mut self, nt: &NoteType, usn: Option<Usn>) -> Result<()> {
         assert!(nt.id == self.ntid);
         if nt.fields.len() != self.fields.len() {
             return Err(AnkiError::invalid_input(format!(
@@ -87,8 +88,10 @@ impl Note {
         };
         self.sort_field = Some(sort_field.into());
         self.checksum = Some(checksum);
-        self.mtime = TimestampSecs::now();
-        self.usn = usn;
+        if let Some(usn) = usn {
+            self.mtime = TimestampSecs::now();
+            self.usn = usn;
+        }
         Ok(())
     }
 
@@ -190,7 +193,7 @@ impl Collection {
         did: DeckID,
     ) -> Result<()> {
         self.canonify_note_tags(note, ctx.usn)?;
-        note.prepare_for_update(&ctx.notetype, ctx.usn)?;
+        note.prepare_for_update(&ctx.notetype, Some(ctx.usn))?;
         self.storage.add_note(note)?;
         self.generate_cards_for_new_note(ctx, note, did)
     }
@@ -211,7 +214,7 @@ impl Collection {
         note: &mut Note,
     ) -> Result<()> {
         self.canonify_note_tags(note, ctx.usn)?;
-        note.prepare_for_update(ctx.notetype, ctx.usn)?;
+        note.prepare_for_update(ctx.notetype, Some(ctx.usn))?;
         self.generate_cards_for_existing_note(ctx, note)?;
         self.storage.update_note(note)?;
 
