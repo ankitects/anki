@@ -960,9 +960,8 @@ impl Backend {
         })
     }
 
-    fn remove_notetype(&self, _id: i64) -> Result<()> {
-        println!("fixme: remove notetype");
-        Ok(())
+    fn remove_notetype(&self, id: i64) -> Result<()> {
+        self.with_col(|col| col.remove_notetype(NoteTypeID(id)))
     }
 
     fn new_note(&self, ntid: i64) -> Result<pb::Note> {
