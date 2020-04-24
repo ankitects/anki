@@ -222,19 +222,23 @@ mod test {
     }
 
     #[test]
-    fn field_renaming() -> Result<()> {
+    fn field_renaming_and_deleting() -> Result<()> {
         let mut col = open_test_collection();
         let mut nt = col
             .storage
             .get_notetype(col.get_current_notetype_id().unwrap())?
             .unwrap();
-        nt.templates[0].config.q_format += "\n{{#Front}}{{some:Front}}{{/Front}}";
+        nt.templates[0].config.q_format += "\n{{#Front}}{{some:Front}}{{Back}}{{/Front}}";
         nt.fields[0].name = "Test".into();
         col.update_notetype(&mut nt, false)?;
         assert_eq!(
             &nt.templates[0].config.q_format,
-            "{{Test}}\n{{#Test}}{{some:Test}}{{/Test}}"
+            "{{Test}}\n{{#Test}}{{some:Test}}{{Back}}{{/Test}}"
         );
+        nt.fields.remove(0);
+        col.update_notetype(&mut nt, false)?;
+        assert_eq!(&nt.templates[0].config.q_format, "\n{{Back}}");
+
         Ok(())
     }
 

@@ -592,49 +592,73 @@ impl ParsedTemplate {
     }
 }
 
-// Renaming fields
+// Renaming & deleting fields
 //----------------------------------------
 
 impl ParsedTemplate {
     /// Given a map of old to new field names, update references to the new names.
     /// Returns true if any changes made.
-    pub(crate) fn rename_fields(&mut self, fields: &HashMap<String, String>) -> bool {
-        rename_fields(&mut self.0, fields)
+    pub(crate) fn rename_and_remove_fields(
+        self,
+        fields: &HashMap<String, Option<String>>,
+    ) -> ParsedTemplate {
+        let out = rename_and_remove_fields(self.0, fields);
+        ParsedTemplate(out)
     }
 }
 
-fn rename_fields(nodes: &mut [ParsedNode], fields: &HashMap<String, String>) -> bool {
-    let mut changed = false;
+fn rename_and_remove_fields(
+    nodes: Vec<ParsedNode>,
+    fields: &HashMap<String, Option<String>>,
+) -> Vec<ParsedNode> {
+    let mut out = vec![];
     for node in nodes {
         match node {
-            ParsedNode::Text(_) => (),
-            ParsedNode::Replacement { key, .. } => {
-                if let Some(new_name) = fields.get(key) {
-                    *key = new_name.clone();
-                    changed = true;
+            ParsedNode::Text(text) => out.push(ParsedNode::Text(text)),
+            ParsedNode::Replacement { key, filters } => {
+                match fields.get(&key) {
+                    // delete the field
+                    Some(None) => (),
+                    // rename it
+                    Some(Some(new_name)) => out.push(ParsedNode::Replacement {
+                        key: new_name.into(),
+                        filters,
+                    }),
+                    // or leave it alone
+                    None => out.push(ParsedNode::Replacement { key, filters }),
                 }
             }
             ParsedNode::Conditional { key, children } => {
-                if let Some(new_name) = fields.get(key) {
-                    *key = new_name.clone();
-                    changed = true;
-                };
-                if rename_fields(children, fields) {
-                    changed = true;
+                let children = rename_and_remove_fields(children, fields);
+                match fields.get(&key) {
+                    // remove the field, preserving children
+                    Some(None) => out.extend(children),
+                    // rename it
+                    Some(Some(new_name)) => out.push(ParsedNode::Conditional {
+                        key: new_name.into(),
+                        children,
+                    }),
+                    // or leave it alone
+                    None => out.push(ParsedNode::Conditional { key, children }),
                 }
             }
             ParsedNode::NegatedConditional { key, children } => {
-                if let Some(new_name) = fields.get(key) {
-                    *key = new_name.clone();
-                    changed = true;
-                };
-                if rename_fields(children, fields) {
-                    changed = true;
+                let children = rename_and_remove_fields(children, fields);
+                match fields.get(&key) {
+                    // remove the field, preserving children
+                    Some(None) => out.extend(children),
+                    // rename it
+                    Some(Some(new_name)) => out.push(ParsedNode::Conditional {
+                        key: new_name.into(),
+                        children,
+                    }),
+                    // or leave it alone
+                    None => out.push(ParsedNode::Conditional { key, children }),
                 }
             }
         }
     }
-    changed
+    out
 }
 
 // Writing back to a string

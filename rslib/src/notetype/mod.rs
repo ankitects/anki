@@ -214,20 +214,11 @@ impl NoteType {
         }
         let reqs = self.updated_requirements(&parsed_templates);
 
-        // handle renamed fields
+        // handle renamed+deleted fields
         if let Some(existing) = existing {
-            let renamed_fields = self.renamed_fields(existing);
-            if !renamed_fields.is_empty() {
-                let updated_templates =
-                    self.updated_templates_for_renamed_fields(renamed_fields, parsed_templates);
-                for (idx, (q, a)) in updated_templates.into_iter().enumerate() {
-                    if let Some(q) = q {
-                        self.templates[idx].config.q_format = q
-                    }
-                    if let Some(a) = a {
-                        self.templates[idx].config.a_format = a
-                    }
-                }
+            let fields = self.renamed_and_removed_fields(existing);
+            if !fields.is_empty() {
+                self.update_templates_for_renamed_and_removed_fields(fields, parsed_templates);
             }
         }
         self.config.reqs = reqs;
@@ -236,48 +227,51 @@ impl NoteType {
         Ok(())
     }
 
-    fn renamed_fields(&self, current: &NoteType) -> HashMap<String, String> {
-        self.fields
+    fn renamed_and_removed_fields(&self, current: &NoteType) -> HashMap<String, Option<String>> {
+        let mut remaining_ords = HashSet::new();
+        // gather renames
+        let mut map: HashMap<String, Option<String>> = self
+            .fields
             .iter()
             .filter_map(|field| {
                 if let Some(existing_ord) = field.ord {
+                    remaining_ords.insert(existing_ord);
                     if let Some(existing_field) = current.fields.get(existing_ord as usize) {
                         if existing_field.name != field.name {
-                            return Some((existing_field.name.clone(), field.name.clone()));
+                            return Some((existing_field.name.clone(), Some(field.name.clone())));
                         }
                     }
                 }
                 None
             })
-            .collect()
+            .collect();
+        // and add any fields that have been removed
+        for (idx, field) in current.fields.iter().enumerate() {
+            if !remaining_ords.contains(&(idx as u32)) {
+                map.insert(field.name.clone(), None);
+            }
+        }
+
+        map
     }
 
-    fn updated_templates_for_renamed_fields(
-        &self,
-        renamed_fields: HashMap<String, String>,
+    /// Update templates to reflect field deletions and renames.
+    /// Any templates that failed to parse will be ignored.
+    fn update_templates_for_renamed_and_removed_fields(
+        &mut self,
+        fields: HashMap<String, Option<String>>,
         parsed: Vec<(Option<ParsedTemplate>, Option<ParsedTemplate>)>,
-    ) -> Vec<(Option<String>, Option<String>)> {
-        parsed
-            .into_iter()
-            .map(|(q, a)| {
-                let q = q.and_then(|mut q| {
-                    if q.rename_fields(&renamed_fields) {
-                        Some(q.template_to_string())
-                    } else {
-                        None
-                    }
-                });
-                let a = a.and_then(|mut a| {
-                    if a.rename_fields(&renamed_fields) {
-                        Some(a.template_to_string())
-                    } else {
-                        None
-                    }
-                });
-
-                (q, a)
-            })
-            .collect()
+    ) {
+        for (idx, (q, a)) in parsed.into_iter().enumerate() {
+            if let Some(q) = q {
+                let updated = q.rename_and_remove_fields(&fields);
+                self.templates[idx].config.q_format = updated.template_to_string();
+            }
+            if let Some(a) = a {
+                let updated = a.rename_and_remove_fields(&fields);
+                self.templates[idx].config.a_format = updated.template_to_string();
+            }
+        }
     }
 
     fn parsed_templates(&self) -> Vec<(Option<ParsedTemplate>, Option<ParsedTemplate>)> {
