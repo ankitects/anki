@@ -332,7 +332,7 @@ def test_reviews():
     # but because it's in the learn queue, its current due time should be in
     # the future
     assert c.due >= time.time()
-    assert (c.due - time.time()) > 119
+    assert (c.due - time.time()) > 118
     # factor should have been decremented
     assert c.factor == 2300
     # check counters
