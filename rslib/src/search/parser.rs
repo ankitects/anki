@@ -277,6 +277,7 @@ fn search_node_for_text_with_argument<'a>(
         "prop" => parse_prop(val.as_ref())?,
         "re" => SearchNode::Regex(val),
         "nc" => SearchNode::NoCombining(val),
+        "w" => parse_word(val.as_ref()),
         // anything else is a field search
         _ => parse_single_field(key.as_ref(), val.as_ref()),
     })
@@ -409,6 +410,13 @@ fn parse_single_field(key: &str, mut val: &str) -> SearchNode<'static> {
     }
 }
 
+fn parse_word(val: &str) -> SearchNode<'static> {
+    let front_boundary = if val.starts_with('*') { "" } else { r"\b" };
+    let end_boundary = if val.ends_with('*') { "" } else { r"\b" };
+    let escaped = regex::escape(val.trim_matches('*'));
+    SearchNode::Regex(format!("{}{}{}", front_boundary, escaped, end_boundary).into())
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -522,6 +530,11 @@ mod test {
                 kind: PropertyKind::Ease(3.3)
             })]
         );
+
+        assert_eq!(parse("w:foo")?, vec![Search(Regex(r"\bfoo\b".into()))]);
+        assert_eq!(parse("w:*foo")?, vec![Search(Regex(r"foo\b".into()))]);
+        assert_eq!(parse("w:foo*")?, vec![Search(Regex(r"\bfoo".into()))]);
+        assert_eq!(parse("w:*fo.*o*")?, vec![Search(Regex(r"fo\.\*o".into()))]);
 
         Ok(())
     }
