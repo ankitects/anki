@@ -52,10 +52,15 @@ all: check
 	./scripts/copy-qt-files)
 	@touch $@
 
-TSDEPS := $(wildcard ts/src/*.ts) $(wildcard ts/scss/*.scss)
+TSDEPS := $(shell "${FIND}" ts/src ! -name "*.test.ts" -name '*.ts') ts/tsconfig.json ts/package.json
 
-.build/js: $(TSDEPS)
-	(cd ts && npm i && npm run build)
+.build/js: .build/scss $(TSDEPS)
+	(cd ts && npm run build)
+	(cd ts && npm run gulp)
+	@touch $@
+
+.build/scss: .build/prodDependencies $(wildcard ts/scss/*.scss)
+	(cd ts && npm run sass)
 	python ./tools/extract_scss_colors.py
 	@touch $@
 
@@ -73,22 +78,20 @@ BUILD_STEPS := .build/vernum .build/run-deps .build/dev-deps .build/js .build/ui
 check: $(BUILD_STEPS) .build/mypy .build/test .build/fmt .build/imports .build/lint .build/ts-fmt
 
 .PHONY: fix
-fix: $(BUILD_STEPS)
+fix: .build/devDependencies $(BUILD_STEPS)
 	isort $(ISORTARGS)
 	python -m black $(BLACKARGS)
 	(cd ts && npm run pretty)
 
 .PHONY: clean
 clean:
-	rm -rf .build aqt.egg-info build dist
+	rm -rf .build ts/node_modules aqt.egg-info build dist
 
 # Checking Typescript
 ######################
 
-JSDEPS := $(patsubst ts/src/%.ts, web/%.js, $(TSDEPS))
-
-.build/ts-fmt: $(TSDEPS)
-	(cd ts && npm i && npm run check-pretty)
+.build/ts-fmt: .build/devDependencies $(TSDEPS)
+	(cd ts && npm run check-pretty)
 	@touch $@
 
 # Checking python
@@ -102,8 +105,22 @@ CHECKDEPS := $(shell "${FIND}" aqt tests -name '*.py' | grep -v buildinfo.py)
 	python -m mypy ${MYPY_ARGS} aqt
 	@touch $@
 
-.build/test: $(CHECKDEPS)
+.build/test: $(CHECKDEPS) .build/testjs
 	python -m pytest -s
+	@touch $@
+
+.build/testjs: .build/js .build/devDependencies $(wildcard ts/src/*.?s) $(wildcard ts/*.js)
+	(cd ts && npm run test)
+	@touch $@
+
+.build/devDependencies: ts/package.json
+# 	https://github.com/fsevents/fsevents/issues/321
+	(cd ts && npm install --no-optional --only=dev)
+	@touch $@
+
+.build/prodDependencies: ts/package.json
+# 	https://github.com/fsevents/fsevents/issues/321
+	(cd ts && npm install --no-optional --only=prod)
 	@touch $@
 
 .build/lint: $(CHECKDEPS)

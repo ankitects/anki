@@ -13,6 +13,7 @@ aqt/forms
 tools/runanki.system
 ts/node_modules
 aqt_data/locale
+aqt_data/web/ankimedia.js
 aqt_data/web/deckbrowser.js
 aqt_data/web/editor.js
 aqt_data/web/overview.js

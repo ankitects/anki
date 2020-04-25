@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "es2018",
     "module": "commonjs",
     "lib": [
-      "es6",
+      "es2018",
       "dom"
     ],
     "rootDir": "src",
@@ -17,5 +17,11 @@
     "noImplicitThis": false,
     /* Raise error on 'this' expressions with an implied 'any' type. */
     "esModuleInterop": true
-  }
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "src/**/*.test.ts"
+  ]
 }
