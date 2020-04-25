@@ -72,7 +72,9 @@ def test_genrem():
     t = m["tmpls"][1]
     t["qfmt"] = "{{Back}}"
     mm.save(m, templates=True)
-    d.remCards(d.emptyCids())
+    rep = d.backend.empty_cards_report()
+    for note in rep.notes:
+        d.remCards(note.card_ids)
     assert len(f.cards()) == 1
     # if we add to the note, a card should be automatically generated
     f.load()

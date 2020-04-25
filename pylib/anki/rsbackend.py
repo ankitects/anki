@@ -700,6 +700,12 @@ class RustBackend:
         except NotFoundError:
             return None
 
+    def empty_cards_report(self) -> pb.EmptyCardsReport:
+        return self._run_command(
+            pb.BackendInput(get_empty_cards=pb.Empty()), release_gil=True
+        ).get_empty_cards
+
+
 def translate_string_in(
     key: TR, **kwargs: Union[str, int, float]
 ) -> pb.TranslateStringIn:

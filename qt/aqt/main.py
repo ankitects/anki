@@ -10,6 +10,7 @@ import os
 import re
 import signal
 import time
+import weakref
 import zipfile
 from argparse import Namespace
 from concurrent.futures import Future
@@ -35,6 +36,7 @@ from anki.storage import Collection
 from anki.utils import devMode, ids2str, intTime, isMac, isWin, splitFields
 from aqt import gui_hooks
 from aqt.addons import DownloadLogEntry, check_and_prompt_for_updates, show_log_to_user
+from aqt.emptycards import show_empty_cards
 from aqt.legacy import install_pylib_legacy
 from aqt.mediacheck import check_media_db
 from aqt.mediasync import MediaSyncer
@@ -53,7 +55,6 @@ from aqt.utils import (
     openLink,
     restoreGeom,
     restoreState,
-    saveGeom,
     showInfo,
     showText,
     showWarning,
@@ -160,6 +161,10 @@ class AnkiQt(QMainWindow):
                 w.requiresCol = True
 
         self.setupProfile()
+
+    def weakref(self) -> AnkiQt:
+        "Shortcut to create a weak reference that doesn't break code completion."
+        return weakref.proxy(self)  # type: ignore
 
     # Profiles
     ##########################################################################
@@ -1336,34 +1341,8 @@ will be lost. Continue?"""
             self.col.decks.select(self.col.decks.id(ret.name))
             self.moveToState("overview")
 
-    def onEmptyCards(self):
-        self.progress.start(immediate=True)
-        cids = self.col.emptyCids()
-        cids = gui_hooks.empty_cards_will_be_deleted(cids)
-        if not cids:
-            self.progress.finish()
-            tooltip(_("No empty cards."))
-            return
-        report = self.col.emptyCardReport(cids)
-        self.progress.finish()
-        part1 = ngettext("%d card", "%d cards", len(cids)) % len(cids)
-        part1 = _("%s to delete:") % part1
-        diag, box = showText(part1 + "\n\n" + report, run=False, geomKey="emptyCards")
-        box.addButton(_("Delete Cards"), QDialogButtonBox.AcceptRole)
-        box.button(QDialogButtonBox.Close).setDefault(True)
-
-        def onDelete():
-            saveGeom(diag, "emptyCards")
-            QDialog.accept(diag)
-            self.checkpoint(_("Delete Empty"))
-            self.col.remCards(cids)
-            tooltip(
-                ngettext("%d card deleted.", "%d cards deleted.", len(cids)) % len(cids)
-            )
-            self.reset()
-
-        qconnect(box.accepted, onDelete)
-        diag.show()
+    def onEmptyCards(self) -> None:
+        show_empty_cards(self)
 
     # Debugging
     ######################################################################
