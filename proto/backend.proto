@@ -83,6 +83,7 @@ message BackendInput {
         AddNoteIn add_note = 67;
         Note update_note = 68;
         int64 get_note = 69;
+        Empty get_empty_cards = 70;
     }
 }
 
@@ -145,6 +146,7 @@ message BackendOutput {
         int64 add_note = 67;
         Empty update_note = 68;
         Note get_note = 69;
+        EmptyCardsReport get_empty_cards = 70;
 
         BackendError error = 2047;
     }
@@ -627,4 +629,15 @@ message Note {
 message AddNoteIn {
     Note note = 1;
     int64 deck_id = 2;
+}
+
+message EmptyCardsReport {
+    string report = 1;
+    repeated NoteWithEmptyCards notes = 2;
+}
+
+message NoteWithEmptyCards {
+    int64 note_id = 1;
+    repeated int64 card_ids = 2;
+    bool will_delete_note = 3;
 }
