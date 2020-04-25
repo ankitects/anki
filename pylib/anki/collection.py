@@ -166,8 +166,6 @@ decks from col"""
         )
         self.decks.decks = self.backend.get_all_decks()
         self.decks.changed = False
-        self.models.models = self.backend.get_all_notetypes()
-        self.models.changed = False
 
     def setMod(self) -> None:
         """Mark DB modified.
@@ -232,6 +230,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?""",
                 self.save(trx=False)
             else:
                 self.db.rollback()
+            self.models._clear_cache()
             self.backend.close_collection(downgrade=downgrade)
             self.db = None
             self.media.close()
@@ -319,21 +318,12 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?""",
         "Return a new note with the current model."
         return Note(self, self.models.current(forDeck))
 
+    def add_note(self, note: Note, deck_id: int) -> None:
+        note.id = self.backend.add_note(note.to_backend_note(), deck_id)
+
     def addNote(self, note: Note) -> int:
-        """Add a note to the collection. Return number of new cards."""
-        # check we have card models available, then save
-        cms = self.findTemplates(note)
-        if not cms:
-            return 0
-        note.flush()
-        # deck conf governs which of these are used
-        due = self.nextID("pos")
-        # add cards
-        ncards = 0
-        for template in cms:
-            self._newCard(note, template, due)
-            ncards += 1
-        return ncards
+        self.add_note(note, note.model()["did"])
+        return len(note.cards())
 
     def remNotes(self, ids: Iterable[int]) -> None:
         """Deletes notes with the given IDs."""

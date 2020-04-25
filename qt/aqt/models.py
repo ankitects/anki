@@ -4,10 +4,12 @@ import collections
 import re
 from operator import itemgetter
 from typing import Optional
+from typing import List
 
 import aqt.clayout
 from anki import stdmodels
 from anki.lang import _, ngettext
+from anki.rsbackend import pb
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.utils import (
@@ -34,6 +36,7 @@ class Models(QDialog):
         self.form = aqt.forms.models.Ui_Dialog()
         self.form.setupUi(self)
         qconnect(self.form.buttonBox.helpRequested, lambda: openHelp("notetypes"))
+        self.models: List[pb.NoteTypeNameIDUseCount] = []
         self.setupModels()
         restoreGeom(self, "models")
         self.exec_()
@@ -76,13 +79,12 @@ class Models(QDialog):
         row = self.form.modelsList.currentRow()
         if row == -1:
             row = 0
-        self.models = self.col.models.all()
-        self.models.sort(key=itemgetter("name"))
+        self.models = self.col.models.all_use_counts()
         self.form.modelsList.clear()
         for m in self.models:
-            mUse = self.mm.useCount(m)
+            mUse = m.use_count
             mUse = ngettext("%d note", "%d notes", mUse) % mUse
-            item = QListWidgetItem("%s [%s]" % (m["name"], mUse))
+            item = QListWidgetItem("%s [%s]" % (m.name, mUse))
             self.form.modelsList.addItem(item)
         self.form.modelsList.setCurrentRow(row)
 
@@ -90,7 +92,7 @@ class Models(QDialog):
         if self.model:
             self.saveModel()
         idx = self.form.modelsList.currentRow()
-        self.model = self.models[idx]
+        self.model = self.col.models.get(self.models[idx].id)
 
     def onAdd(self):
         m = AddModel(self.mw, self).get()

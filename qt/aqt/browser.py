@@ -1176,11 +1176,11 @@ QTableView {{ gridline-color: {grid} }}
 
     def _modelTree(self, root) -> None:
         assert self.col
-        for m in sorted(self.col.models.all(), key=itemgetter("name")):
+        for m in self.col.models.all_names_and_ids():
             item = SidebarItem(
-                m["name"],
+                m.name,
                 ":/icons/notetype.svg",
-                lambda m=m: self.setFilter("note", m["name"]),  # type: ignore
+                lambda m=m: self.setFilter("note", m.name),  # type: ignore
             )
             root.addChild(item)
 
