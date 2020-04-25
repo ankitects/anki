@@ -894,6 +894,10 @@ title="{}" {}>{}</button>""".format(
             for webview in self.web, self.bottomWeb:
                 webview.force_load_hack()
 
+        # Enable the Javascript audio auto play on the main web view
+        # https://anki.tenderapp.com/discussions/beta-testing/1858-can-you-pass-autoplay-policyno-user-gesture-required-to-chrome-engine
+        self.web._page.settings().setAttribute(QWebEngineSettings.PlaybackRequiresUserGesture, False)  # type: ignore
+
     def closeAllWindows(self, onsuccess: Callable) -> None:
         aqt.dialogs.closeAll(onsuccess)
 

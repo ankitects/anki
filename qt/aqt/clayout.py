@@ -359,6 +359,12 @@ class CardLayout(QDialog):
         self.preview_web.eval("_blockDefaultDragDropBehavior();")
         self.preview_web.set_bridge_command(self._on_bridge_cmd, self)
 
+        # Enable the Javascript audio play only on the back-card to avoid double play
+        # https://anki.tenderapp.com/discussions/beta-testing/1858-can-you-pass-autoplay-policyno-user-gesture-required-to-chrome-engine
+        pform.backWeb._page.settings().setAttribute(
+            QWebEngineSettings.PlaybackRequiresUserGesture, False
+        )
+
         if self._isCloze():
             nums = list(self.note.cloze_numbers_in_fields())
             if self.ord + 1 not in nums:
