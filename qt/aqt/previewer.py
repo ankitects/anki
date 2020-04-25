@@ -17,6 +17,7 @@ from aqt.qt import (
     QDialogButtonBox,
     QKeySequence,
     Qt,
+    QHBoxLayout,
     QVBoxLayout,
     QWidget,
     qconnect,
@@ -62,6 +63,7 @@ class Previewer(QDialog):
         self.vbox.setContentsMargins(0, 0, 0, 0)
         self._web = AnkiWebView(title="previewer")
         self.vbox.addWidget(self._web)
+        self.bottombar = QHBoxLayout()
         self.bbox = QDialogButtonBox()
 
         self._replay = self.bbox.addButton(
@@ -80,7 +82,8 @@ class Previewer(QDialog):
         both_sides_button.setChecked(self._show_both_sides)
         qconnect(both_sides_button.toggled, self._on_show_both_sides)
 
-        self.vbox.addWidget(self.bbox)
+        self.bottombar.addWidget(self.bbox)
+        self.vbox.addLayout(self.bottombar)
         self.setLayout(self.vbox)
         restoreGeom(self, "preview")
 
