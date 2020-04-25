@@ -84,13 +84,14 @@ impl CardGenContext<'_> {
         &self,
         note: &Note,
         existing: &[AlreadyGeneratedCardInfo],
+        ensure_not_empty: bool,
     ) -> Vec<CardToGenerate> {
         let extracted = extract_data_from_existing_cards(existing);
         let cards = match self.notetype.config.kind() {
             NoteTypeKind::Normal => self.new_cards_required_normal(note, &extracted),
             NoteTypeKind::Cloze => self.new_cards_required_cloze(note, &extracted),
         };
-        if extracted.existing_ords.is_empty() && cards.is_empty() {
+        if extracted.existing_ords.is_empty() && cards.is_empty() && ensure_not_empty {
             // if there are no existing cards and no cards will be generated,
             // we add card 0 to ensure the note always has at least one card
             vec![CardToGenerate {
@@ -157,7 +158,7 @@ impl CardGenContext<'_> {
 }
 
 // this could be reworked in the future to avoid the extra vec allocation
-fn group_generated_cards_by_note(
+pub(super) fn group_generated_cards_by_note(
     items: Vec<AlreadyGeneratedCardInfo>,
 ) -> Vec<(NoteID, Vec<AlreadyGeneratedCardInfo>)> {
     let mut out = vec![];
@@ -225,7 +226,7 @@ impl Collection {
         existing: &[AlreadyGeneratedCardInfo],
         target_deck_id: Option<DeckID>,
     ) -> Result<()> {
-        let cards = ctx.new_cards_required(note, &existing);
+        let cards = ctx.new_cards_required(note, &existing, true);
         if cards.is_empty() {
             return Ok(());
         }

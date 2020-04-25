@@ -344,6 +344,7 @@ impl Backend {
                 OValue::UpdateNote(pb::Empty {})
             }
             Value::GetNote(nid) => OValue::GetNote(self.get_note(nid)?),
+            Value::GetEmptyCards(_) => OValue::GetEmptyCards(self.get_empty_cards()?),
         })
     }
 
@@ -994,6 +995,26 @@ impl Backend {
                 .get_note(NoteID(nid))?
                 .ok_or(AnkiError::NotFound)
                 .map(Into::into)
+        })
+    }
+
+    fn get_empty_cards(&self) -> Result<pb::EmptyCardsReport> {
+        self.with_col(|col| {
+            let mut empty = col.empty_cards()?;
+            let report = col.empty_cards_report(&mut empty)?;
+
+            let mut outnotes = vec![];
+            for (_ntid, notes) in empty {
+                outnotes.extend(notes.into_iter().map(|e| pb::NoteWithEmptyCards {
+                    note_id: e.nid.0,
+                    will_delete_note: e.empty.len() == e.current_count,
+                    card_ids: e.empty.into_iter().map(|(_ord, id)| id.0).collect(),
+                }))
+            }
+            Ok(pb::EmptyCardsReport {
+                report,
+                notes: outnotes,
+            })
         })
     }
 }
