@@ -69,6 +69,7 @@ def test_genrem():
     mm.save(m, templates=True)
     assert len(f.cards()) == 2
     # if the template is changed to remove cards, they'll be removed
+    t = m["tmpls"][1]
     t["qfmt"] = "{{Back}}"
     mm.save(m, templates=True)
     d.remCards(d.emptyCids())

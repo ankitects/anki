@@ -17,8 +17,8 @@ def test_findCards():
     f["Front"] = "dog"
     f["Back"] = "cat"
     f.tags.append("monkey animal_1 * %")
-    f1id = f.id
     deck.addNote(f)
+    f1id = f.id
     firstCardId = f.cards()[0].id
     f = deck.newNote()
     f["Front"] = "goats are fun"
@@ -32,6 +32,7 @@ def test_findCards():
     deck.addNote(f)
     catCard = f.cards()[0]
     m = deck.models.current()
+    m = deck.models.copy(m)
     mm = deck.models
     t = mm.newTemplate("Reverse")
     t["qfmt"] = "{{Back}}"
@@ -130,8 +131,8 @@ def test_findCards():
         != firstCardId
     )
     # model
-    assert len(deck.findCards("note:basic")) == 5
-    assert len(deck.findCards("-note:basic")) == 0
+    assert len(deck.findCards("note:basic")) == 3
+    assert len(deck.findCards("-note:basic")) == 2
     assert len(deck.findCards("-note:foo")) == 5
     # deck
     assert len(deck.findCards("deck:default")) == 5

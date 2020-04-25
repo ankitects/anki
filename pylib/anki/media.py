@@ -10,7 +10,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
-from typing import Any, Callable, List, Optional, Tuple, Union
+from typing import Any, Callable, List, Optional, Tuple
 
 import anki
 from anki.consts import *
@@ -122,7 +122,7 @@ class MediaManager:
     ##########################################################################
 
     def filesInStr(
-        self, mid: Union[int, str], string: str, includeRemote: bool = False
+        self, mid: int, string: str, includeRemote: bool = False
     ) -> List[str]:
         l = []
         model = self.col.models.get(mid)

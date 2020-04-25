@@ -47,6 +47,7 @@ assert ankirspy.buildhash() == anki.buildinfo.buildhash
 SchedTimingToday = pb.SchedTimingTodayOut
 BuiltinSortKind = pb.BuiltinSearchOrder.BuiltinSortKind
 BackendCard = pb.Card
+BackendNote = pb.Note
 TagUsnTuple = pb.TagUsnTuple
 NoteType = pb.NoteType
 
@@ -98,6 +99,10 @@ class TemplateError(StringError):
     pass
 
 
+class NotFoundError(Exception):
+    pass
+
+
 def proto_exception_to_native(err: pb.BackendError) -> Exception:
     val = err.WhichOneof("value")
     if val == "interrupted":
@@ -116,6 +121,8 @@ def proto_exception_to_native(err: pb.BackendError) -> Exception:
         return StringError(err.localized)
     elif val == "json_error":
         return StringError(err.localized)
+    elif val == "not_found_error":
+        return NotFoundError()
     else:
         assert_impossible_literal(val)
 
@@ -609,14 +616,11 @@ class RustBackend:
     def set_all_config(self, conf: Dict[str, Any]):
         self._run_command(pb.BackendInput(set_all_config=orjson.dumps(conf)))
 
-    def get_all_notetypes(self) -> Dict[str, Dict[str, Any]]:
+    def get_changed_notetypes(self, usn: int) -> Dict[str, Dict[str, Any]]:
         jstr = self._run_command(
-            pb.BackendInput(get_all_notetypes=pb.Empty())
-        ).get_all_notetypes
+            pb.BackendInput(get_changed_notetypes=usn)
+        ).get_changed_notetypes
         return orjson.loads(jstr)
-
-    def set_all_notetypes(self, nts: Dict[str, Dict[str, Any]]):
-        self._run_command(pb.BackendInput(set_all_notetypes=orjson.dumps(nts)))
 
     def get_all_decks(self) -> Dict[str, Dict[str, Any]]:
         jstr = self._run_command(
@@ -634,6 +638,67 @@ class RustBackend:
             ).all_stock_notetypes.notetypes
         )
 
+    def get_notetype_names_and_ids(self) -> List[pb.NoteTypeNameID]:
+        return list(
+            self._run_command(
+                pb.BackendInput(get_notetype_names=pb.Empty())
+            ).get_notetype_names.entries
+        )
+
+    def get_notetype_use_counts(self) -> List[pb.NoteTypeNameIDUseCount]:
+        return list(
+            self._run_command(
+                pb.BackendInput(get_notetype_names_and_counts=pb.Empty())
+            ).get_notetype_names_and_counts.entries
+        )
+
+    def get_notetype_legacy(self, ntid: int) -> Optional[Dict]:
+        try:
+            bytes = self._run_command(
+                pb.BackendInput(get_notetype_legacy=ntid)
+            ).get_notetype_legacy
+        except NotFoundError:
+            return None
+        return orjson.loads(bytes)
+
+    def get_notetype_id_by_name(self, name: str) -> Optional[int]:
+        return (
+            self._run_command(
+                pb.BackendInput(get_notetype_id_by_name=name)
+            ).get_notetype_id_by_name
+            or None
+        )
+
+    def add_or_update_notetype(self, nt: Dict[str, Any], preserve_usn: bool) -> None:
+        bjson = orjson.dumps(nt)
+        id = self._run_command(
+            pb.BackendInput(
+                add_or_update_notetype=pb.AddOrUpdateNotetypeIn(
+                    json=bjson, preserve_usn_and_mtime=preserve_usn
+                )
+            )
+        ).add_or_update_notetype
+        nt["id"] = id
+
+    def remove_notetype(self, ntid: int) -> None:
+        self._run_command(pb.BackendInput(remove_notetype=ntid))
+
+    def new_note(self, ntid: int) -> BackendNote:
+        return self._run_command(pb.BackendInput(new_note=ntid)).new_note
+
+    def add_note(self, note: BackendNote, deck_id: int) -> int:
+        return self._run_command(
+            pb.BackendInput(add_note=pb.AddNoteIn(note=note, deck_id=deck_id))
+        ).add_note
+
+    def update_note(self, note: BackendNote) -> None:
+        self._run_command(pb.BackendInput(update_note=note))
+
+    def get_note(self, nid) -> Optional[BackendNote]:
+        try:
+            return self._run_command(pb.BackendInput(get_note=nid)).get_note
+        except NotFoundError:
+            return None
 
 def translate_string_in(
     key: TR, **kwargs: Union[str, int, float]
