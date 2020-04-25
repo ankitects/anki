@@ -4,3 +4,8 @@ empty-cards-count-line =
 empty-cards-window-title = Empty Cards
 empty-cards-preserve-notes-checkbox = Keep notes with no valid cards
 empty-cards-delete-button = Delete
+empty-cards-not-found = No empty cards.
+empty-cards-deleted-count = Deleted { $cards ->
+  [one] { $cards } card.
+ *[other] { $cards } cards.
+ }

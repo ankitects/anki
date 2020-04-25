@@ -533,26 +533,8 @@ select id from notes where id in %s and id not in (select nid from cards)"""
         self._remNotes(nids)
 
     def emptyCids(self) -> List[int]:
-        """Returns IDs of empty cards."""
-        rem: List[int] = []
-        for m in self.models.all():
-            rem += self.genCards(self.models.nids(m))
-        return rem
-
-    def emptyCardReport(self, cids) -> str:
-        rep = ""
-        for ords, cnt, flds in self.db.all(
-            """
-select group_concat(ord+1), count(), flds from cards c, notes n
-where c.nid = n.id and c.id in %s group by nid"""
-            % ids2str(cids)
-        ):
-            rep += self.tr(
-                TR.EMPTY_CARDS_CARD_LINE,
-                **{"card-numbers": ords, "fields": flds.replace("\x1f", " / ")},
-            )
-            rep += "\n\n"
-        return rep
+        print("emptyCids() will go away")
+        return []
 
     # Field checksums and sorting fields
     ##########################################################################
