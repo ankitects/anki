@@ -43,11 +43,13 @@ impl Collection {
                     }
                 })
                 .collect();
-            out.push(EmptyCardsForNote {
-                nid,
-                empty,
-                current_count,
-            })
+            if !empty.is_empty() {
+                out.push(EmptyCardsForNote {
+                    nid,
+                    empty,
+                    current_count,
+                })
+            }
         }
 
         Ok(out)
