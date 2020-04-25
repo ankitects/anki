@@ -56,9 +56,13 @@ impl Collection {
     }
 
     pub fn empty_cards(&mut self) -> Result<Vec<(NoteTypeID, Vec<EmptyCardsForNote>)>> {
-        self.get_all_notetypes()?
+        self.storage
+            .get_all_notetype_names()?
             .into_iter()
-            .map(|(id, nt)| self.empty_cards_for_notetype(&nt).map(|v| (id, v)))
+            .map(|(id, _name)| {
+                let nt = self.get_notetype(id)?.unwrap();
+                self.empty_cards_for_notetype(&nt).map(|v| (id, v))
+            })
             .collect()
     }
 
