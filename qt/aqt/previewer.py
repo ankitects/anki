@@ -78,7 +78,7 @@ class Previewer(QDialog):
         self.both_sides_button.setShortcut(QKeySequence("B"))
         self.both_sides_button.setToolTip(_("Shortcut key: %s" % "B"))
         self.bbox.addButton(self.both_sides_button, QDialogButtonBox.ActionRole)
-        self._show_both_sides = self.mw.col.conf.get("previewBothSides", False)
+        self._show_both_sides = self.check_preview_both_config()
         self.both_sides_button.setChecked(self._show_both_sides)
         qconnect(self.both_sides_button.toggled, self._on_show_both_sides)
 
@@ -86,6 +86,9 @@ class Previewer(QDialog):
         self.vbox.addLayout(self.bottombar)
         self.setLayout(self.vbox)
         restoreGeom(self, "preview")
+        
+    def check_preview_both_config(self):
+        return self.mw.col.conf.get("previewBothSides", False)
 
     def _on_finished(self, ok):
         saveGeom(self, "preview")
