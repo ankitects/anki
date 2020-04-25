@@ -65,7 +65,7 @@ build: .build/build
 .build/build: $(DEPS)
 	touch ../proto/backend.proto
 	FTL_TEMPLATE_DIRS="$(QT_FTL_TEMPLATES)" FTL_LOCALE_DIRS="$(QT_FTL_LOCALES)" \
-		maturin build -i "${PYTHON_FILE}" -o "$(OUTDIR)" $(BUILDFLAGS)
+		CARGO_TARGET_DIR="$(RSPY_TARGET_DIR)" maturin build -i "${PYTHON_FILE}" -o "$(OUTDIR)" $(BUILDFLAGS)
 	touch $@
 
 check: .build/check
