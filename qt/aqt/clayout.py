@@ -224,14 +224,6 @@ class CardLayout(QDialog):
         pform.frontWeb.set_bridge_command(self._on_bridge_cmd, self)
         pform.backWeb.set_bridge_command(self._on_bridge_cmd, self)
 
-        # https://anki.tenderapp.com/discussions/beta-testing/1858-can-you-pass-autoplay-policyno-user-gesture-required-to-chrome-engine
-        pform.backWeb._page.settings().setAttribute(
-            QWebEngineSettings.PlaybackRequiresUserGesture, True
-        )
-        pform.frontWeb._page.settings().setAttribute(
-            QWebEngineSettings.PlaybackRequiresUserGesture, True
-        )
-
     def _on_bridge_cmd(self, cmd: str) -> Any:
         if cmd.startswith("play:"):
             play_clicked_audio(cmd, self.card)
