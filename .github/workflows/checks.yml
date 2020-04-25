@@ -64,6 +64,9 @@ jobs:
           # https://stackoverflow.com/questions/43175529/updating-make-version-4-1-on-mac
           echo "::set-env name=PATH::/usr/local/opt/make/libexec/gnubin:$PATH"
 
+          # https://stackoverflow.com/questions/59644349/msgmerge-on-macos-catalina
+          echo "::set-env name=PATH::/usr/local/opt/gettext/bin:$PATH"
+
       - name: Configure Windows environment variables
         if: matrix.os == 'windows-latest'
         run: |
@@ -213,7 +216,6 @@ jobs:
         run: |
           set -x
           brew install portaudio protobuf gettext ripgrep make
-          brew link gettext --force
 
       - name: Set up python
         uses: actions/setup-python@v1
