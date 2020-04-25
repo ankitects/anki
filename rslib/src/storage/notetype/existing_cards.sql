@@ -17,8 +17,8 @@ select
       when 0 then (
         case
           odue
-          when 0 then due
-          else odue
+          when 0 then max(0, due)
+          else max(odue, 0)
         end
       )
       else null
