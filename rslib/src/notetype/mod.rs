@@ -387,6 +387,7 @@ impl Collection {
         // but we need to do it in this layer in the future for undo handling
         self.transact(None, |col| {
             col.storage.set_schema_modified()?;
+            col.state.notetype_cache.remove(&ntid);
             col.storage.remove_notetype(ntid)
         })
     }
