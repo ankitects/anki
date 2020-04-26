@@ -7,6 +7,7 @@ endif
 .SHELLFLAGS := -eu -o pipefail ${SHELLFLAGS} -c
 MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
+FIND := $(if $(wildcard /bin/find),/bin/find,/usr/bin/find)
 
 ifndef OS
 	OS := unknown
@@ -148,7 +149,7 @@ clean: clean-dist
 # remove any files in dist/ folder without current build hash
 .PHONY: clean-dist
 clean-dist: buildhash
-	find dist \! -name "*$$(cat meta/buildhash)*" -type f -delete
+	"${FIND}" dist \! -name "*$$(cat meta/buildhash)*" -type f -delete
 
 .PHONY: check
 check: pyenv buildhash prepare
