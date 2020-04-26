@@ -456,6 +456,9 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
 
         return all_cards
 
+    # fixme: make sure we enforce deck!=dyn requirement when generating cards
+    # fixme: make sure we enforce random due number when adding into random sorted deck
+
     def _newCard(
         self,
         note: Note,
@@ -796,10 +799,6 @@ select id from notes where mid not in """
                     problems.append(_("Fixed AnkiDroid deck override bug."))
                     self.models.save(m, updateReqs=False)
             if m["type"] == MODEL_STD:
-                # model with missing req specification
-                if "req" not in m:
-                    self.models._updateRequired(m)
-                    problems.append(_("Fixed note type: %s") % m["name"])
                 # cards with invalid ordinal
                 ids = self.db.list(
                     """

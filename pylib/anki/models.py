@@ -19,10 +19,6 @@ from anki.utils import checksum, ids2str, intTime, joinFields, splitFields
 NoteType = Dict[str, Any]
 Field = Dict[str, Any]
 Template = Dict[str, Union[str, int, None]]
-TemplateRequirementType = str  # Union["all", "any", "none"]
-# template ordinal, type, list of field ordinals
-TemplateRequiredFieldOrds = Tuple[int, TemplateRequirementType, List[int]]
-AllTemplateReqs = List[TemplateRequiredFieldOrds]
 
 # fixme: memory leaks
 # fixme: syncing, beforeUpload
@@ -520,14 +516,7 @@ class ModelManager:
     # Required field/text cache
     ##########################################################################
 
-    def _updateRequired(self, m: NoteType) -> None:
-        fronts = [t["qfmt"] for t in m["tmpls"]]
-        field_map = {}
-        for (idx, fld) in enumerate(m["flds"]):
-            field_map[fld["name"]] = idx
-        reqs = self.col.backend.template_requirements(fronts, field_map)
-        m["req"] = [list(l) for l in reqs]
-
+    # fixme: genCards(), clayout, importing, cards.isEmpty
     def availOrds(self, m: NoteType, flds: str) -> List:
         "Given a joined field string, return available template ordinals."
         if m["type"] == MODEL_CLOZE:

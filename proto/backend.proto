@@ -29,7 +29,6 @@ message I18nBackendInit {
 
 message BackendInput {
     oneof value {
-        TemplateRequirementsIn template_requirements = 16;
         SchedTimingTodayIn sched_timing_today = 17;
         Empty deck_tree = 18;
         SearchCardsIn search_cards = 19;
@@ -103,7 +102,6 @@ message BackendOutput {
         AllStockNotetypesOut all_stock_notetypes = 60;
 
         // fallible commands
-        TemplateRequirementsOut template_requirements = 16;
         DeckTreeOut deck_tree = 18;
         SearchCardsOut search_cards = 19;
         SearchNotesOut search_notes = 20;
@@ -211,31 +209,6 @@ message MediaSyncProgress {
 message MediaSyncUploadProgress {
     uint32 files = 1;
     uint32 deletions = 2;
-}
-
-message TemplateRequirementsIn {
-    repeated string template_front = 1;
-    map<string, uint32> field_names_to_ordinals = 2;
-}
-
-message TemplateRequirementsOut {
-    repeated TemplateRequirement requirements = 1;
-}
-
-message TemplateRequirement {
-    oneof value {
-        TemplateRequirementAll all = 1;
-        TemplateRequirementAny any = 2;
-        Empty none = 3;
-    }
-}
-
-message TemplateRequirementAll {
-    repeated uint32 ords = 1;
-}
-
-message TemplateRequirementAny {
-    repeated uint32 ords = 1;
 }
 
 message SchedTimingTodayIn {

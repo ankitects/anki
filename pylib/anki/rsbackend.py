@@ -37,7 +37,6 @@ from anki import hooks
 from anki.dbproxy import Row as DBRow
 from anki.dbproxy import ValueForDB
 from anki.fluent_pb2 import FluentString as TR
-from anki.models import AllTemplateReqs
 from anki.sound import AVTag, SoundOrVideoTag, TTSTag
 from anki.types import assert_impossible_literal
 from anki.utils import intTime
@@ -125,24 +124,6 @@ def proto_exception_to_native(err: pb.BackendError) -> Exception:
         return NotFoundError()
     else:
         assert_impossible_literal(val)
-
-
-def proto_template_reqs_to_legacy(
-    reqs: List[pb.TemplateRequirement],
-) -> AllTemplateReqs:
-    legacy_reqs = []
-    for (idx, req) in enumerate(reqs):
-        kind = req.WhichOneof("value")
-        # fixme: sorting is for the unit tests - should check if any
-        # code depends on the order
-        if kind == "any":
-            legacy_reqs.append((idx, "any", sorted(req.any.ords)))
-        elif kind == "all":
-            legacy_reqs.append((idx, "all", sorted(req.all.ords)))
-        else:
-            l: List[int] = []
-            legacy_reqs.append((idx, "none", l))
-    return legacy_reqs
 
 
 def av_tag_to_native(tag: pb.AVTag) -> AVTag:
@@ -288,18 +269,6 @@ class RustBackend:
             ),
             release_gil=True,
         )
-
-    def template_requirements(
-        self, template_fronts: List[str], field_map: Dict[str, int]
-    ) -> AllTemplateReqs:
-        input = pb.BackendInput(
-            template_requirements=pb.TemplateRequirementsIn(
-                template_front=template_fronts, field_names_to_ordinals=field_map
-            )
-        )
-        output = self._run_command(input).template_requirements
-        reqs: List[pb.TemplateRequirement] = output.requirements  # type: ignore
-        return proto_template_reqs_to_legacy(reqs)
 
     def sched_timing_today(
         self,
