@@ -4,6 +4,7 @@
 import aqt
 from anki.consts import *
 from anki.lang import _, ngettext
+from anki.rsbackend import TemplateError
 from aqt.qt import *
 from aqt.utils import askUser, getOnlyText, openHelp, showWarning
 
@@ -22,7 +23,8 @@ class FieldDialog(QDialog):
         self.form.setupUi(self)
         self.setWindowTitle(_("Fields for %s") % self.model["name"])
         self.form.buttonBox.button(QDialogButtonBox.Help).setAutoDefault(False)
-        self.form.buttonBox.button(QDialogButtonBox.Close).setAutoDefault(False)
+        self.form.buttonBox.button(QDialogButtonBox.Cancel).setAutoDefault(False)
+        self.form.buttonBox.button(QDialogButtonBox.Save).setAutoDefault(False)
         self.currentIdx = None
         self.oldSortField = self.model["sortf"]
         self.fillFields()
@@ -167,17 +169,24 @@ class FieldDialog(QDialog):
         fld["rtl"] = f.rtl.isChecked()
 
     def reject(self):
+        self.mm._remove_from_cache(self.model["id"])
+        QDialog.reject(self)
+
+    def accept(self):
         self.saveField()
         if self.oldSortField != self.model["sortf"]:
             self.mw.progress.start()
             self.mw.col.updateFieldCache(self.mm.nids(self.model))
             self.mw.progress.finish()
-        self.mm.save(self.model)
-        self.mw.reset()
-        QDialog.reject(self)
+        try:
+            self.mm.save(self.model)
+        except TemplateError as e:
+            # fixme: i18n
+            showWarning("Unable to save changes: " + str(e))
+            return
 
-    def accept(self):
-        self.reject()
+        self.mw.reset()
+        QDialog.accept(self)
 
     def onHelp(self):
         openHelp("fields")
