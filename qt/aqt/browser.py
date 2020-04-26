@@ -581,8 +581,11 @@ class SidebarModel(QAbstractItemModel):
 
 
 class SidebarTreeView(QTreeView):
-    def __init__(self):
+    def __init__(self, browser: "Browser"):
         super().__init__()
+        self.browser = browser
+        self.mw = browser.mw
+        self.col = self.mw.col
         self.expanded.connect(self.onExpansion)
         self.collapsed.connect(self.onCollapse)
 
@@ -1067,7 +1070,7 @@ QTableView {{ gridline-color: {grid} }}
         dw.setFeatures(QDockWidget.DockWidgetClosable)
         dw.setObjectName("Sidebar")
         dw.setAllowedAreas(Qt.LeftDockWidgetArea)
-        self.sidebarTree = SidebarTreeView()
+        self.sidebarTree = SidebarTreeView(self)
         self.sidebarTree.mw = self.mw
         self.sidebarTree.setUniformRowHeights(True)
         self.sidebarTree.setHeaderHidden(True)
