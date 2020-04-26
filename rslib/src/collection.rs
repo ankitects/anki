@@ -12,6 +12,7 @@ use crate::{
     undo::UndoManager,
 };
 use std::path::PathBuf;
+use std::time;
 
 pub fn open_collection<P: Into<PathBuf>>(
     path: P,
@@ -22,6 +23,10 @@ pub fn open_collection<P: Into<PathBuf>>(
     log: Logger,
 ) -> Result<Collection> {
     let col_path = path.into();
+    let x: time::Duration = time::SystemTime::now()
+        .duration_since(time::SystemTime::UNIX_EPOCH)
+        .unwrap();
+    println!("open_collection elapsed {:?}", x.as_secs());
     let storage = SqliteStorage::open_or_create(&col_path, &i18n)?;
 
     let col = Collection {
@@ -151,6 +156,8 @@ impl Collection {
         } else {
             None
         };
+        println!("timing_today");
+        println!("timing_today crt {:?}", self.storage.creation_stamp()?);
 
         let timing = sched_timing_today(
             self.storage.creation_stamp()?,

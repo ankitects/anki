@@ -9,9 +9,9 @@ use crate::{i18n::I18n, text::without_combining, types::Usn};
 use regex::Regex;
 use rusqlite::{functions::FunctionFlags, params, Connection, NO_PARAMS};
 use std::cmp::Ordering;
+use std::time;
 use std::{borrow::Cow, path::Path};
 use unicase::UniCase;
-
 const SCHEMA_MIN_VERSION: u8 = 11;
 const SCHEMA_STARTING_VERSION: u8 = 11;
 const SCHEMA_MAX_VERSION: u8 = 14;
@@ -174,8 +174,29 @@ impl SqliteStorage {
             db.execute("begin exclusive", NO_PARAMS)?;
         }
 
+        println!("open_or_create");
+        let x: Result<TimestampSecs> = db
+            .query_row("select crt from col", NO_PARAMS, |row| row.get(0))
+            .map_err(Into::into);
+        println!("open_or_create crt1 {:?}", x);
+
         if create {
             db.execute_batch(include_str!("schema11.sql"))?;
+
+            let x: Result<TimestampSecs> = db
+                .query_row("select crt from col", NO_PARAMS, |row| row.get(0))
+                .map_err(Into::into);
+            println!("open_or_create crt2 {:?}", x);
+            println!(
+                "open_or_create TimestampSecs::now {:?}",
+                TimestampSecs::now()
+            );
+
+            let x: time::Duration = time::SystemTime::now()
+                .duration_since(time::SystemTime::UNIX_EPOCH)
+                .unwrap();
+            println!("open_or_create elapsed {:?}", x.as_secs());
+
             // start at schema 11, then upgrade below
             db.execute(
                 "update col set crt=?, ver=?, conf=?",
@@ -188,6 +209,7 @@ impl SqliteStorage {
         }
 
         let storage = Self { db };
+        println!("open_or_create crt3 {:?}", storage.creation_stamp());
 
         if create || upgrade {
             storage.upgrade_to_latest_schema(ver)?;

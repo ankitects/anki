@@ -6,7 +6,7 @@ use pyo3::exceptions::Exception;
 use pyo3::prelude::*;
 use pyo3::types::PyBytes;
 use pyo3::{create_exception, exceptions, wrap_pyfunction};
-
+use std::time;
 // Regular backend
 //////////////////////////////////
 
@@ -24,6 +24,10 @@ fn buildhash() -> &'static str {
 
 #[pyfunction]
 fn open_backend(init_msg: &PyBytes) -> PyResult<Backend> {
+    let x: time::Duration = time::SystemTime::now()
+        .duration_since(time::SystemTime::UNIX_EPOCH)
+        .unwrap();
+    println!("open_backend elapsed {:?}", x.as_secs());
     match init_backend(init_msg.as_bytes()) {
         Ok(backend) => Ok(Backend { backend }),
         Err(e) => Err(exceptions::Exception::py_err(e)),

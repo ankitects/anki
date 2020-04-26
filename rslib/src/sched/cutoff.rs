@@ -98,6 +98,11 @@ pub fn local_minutes_west_for_stamp(stamp: i64) -> i32 {
 fn sched_timing_today_v1(crt: i64, now: i64) -> SchedTimingToday {
     let days_elapsed = (now - crt) / 86_400;
     let next_day_at = crt + (days_elapsed + 1) * 86_400;
+    println!("sched_timing_today_v1");
+    println!("sched_timing_today_v1 now {:?}", now);
+    println!("sched_timing_today_v1 crt {:?}", crt);
+    println!("sched_timing_today_v1 next_day_at {:?}", next_day_at);
+    println!("sched_timing_today_v1 days_elapsed {:?}", days_elapsed);
     SchedTimingToday {
         days_elapsed: days_elapsed as u32,
         next_day_at,
@@ -145,6 +150,15 @@ pub(crate) fn sched_timing_today(
     now_mins_west: Option<i32>,
     rollover_hour: Option<i8>,
 ) -> SchedTimingToday {
+    println!("sched_timing_today");
+    println!("sched_timing_today created_secs {:?}", created_secs);
+    println!("sched_timing_today now_secs {:?}", now_secs);
+    println!(
+        "sched_timing_today created_mins_west {:?}",
+        created_mins_west
+    );
+    println!("sched_timing_today now_mins_west {:?}", now_mins_west);
+    println!("sched_timing_today rollover_hour {:?}", rollover_hour);
     let now_west = now_mins_west.unwrap_or_else(|| local_minutes_west_for_stamp(now_secs.0));
     match (rollover_hour, created_mins_west) {
         (None, _) => {

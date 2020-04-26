@@ -304,6 +304,7 @@ limit %d"""
         return None
 
     def _answerLrnCard(self, card: Card, ease: int) -> None:
+        print('11. card.queue', card.queue, 'ease', ease)
         # ease 1=no, 2=yes, 3=remove
         conf = self._lrnConf(card)
         if card.odid and not card.wasNew:  # type: ignore
@@ -315,6 +316,7 @@ limit %d"""
         leaving = False
         # lrnCount was decremented once when card was fetched
         lastLeft = card.left
+        print('12. card.queue', card.queue)
         # immediate graduate?
         if ease == BUTTON_THREE:
             self._rescheduleAsRev(card, conf, True)
@@ -346,6 +348,7 @@ limit %d"""
                 # not collapsed; add some randomness
                 delay *= int(random.uniform(1, 1.25))
             card.due = int(time.time() + delay)
+            print('9. card.queue', card.queue)
             # due today?
             if card.due < self.dayCutoff:
                 self.lrnCount += card.left // 1000
@@ -363,6 +366,8 @@ limit %d"""
                 ahead = ((card.due - self.dayCutoff) // 86400) + 1
                 card.due = self.today + ahead
                 card.queue = QUEUE_TYPE_DAY_LEARN_RELEARN
+            print('10. card.queue', card.queue)
+        print('13. card.queue', card.queue)
         self._logLrn(card, ease, conf, leaving, type, lastLeft)
 
     def _lrnConf(self, card: Card) -> Dict[str, Any]:
@@ -401,6 +406,7 @@ limit %d"""
             conf = self._lrnConf(card)
         tot = len(conf["delays"])
         tod = self._leftToday(conf["delays"], tot)
+        print('\n_startingLeft tot "%s", tod "%s", conf "%s"' % (tot, tod, conf))
         return tot + tod * 1000
 
     def _graduatingIvl(

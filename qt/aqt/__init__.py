@@ -12,6 +12,10 @@ import tempfile
 import traceback
 from typing import Any, Callable, Dict, Optional, Union
 
+print("4")
+from anki.utils import intTime
+intTime()
+
 import anki.buildinfo
 import anki.lang
 import aqt.buildinfo

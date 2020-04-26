@@ -88,7 +88,7 @@ RUST_TOOLCHAIN := $(shell cat rust-toolchain)
 
 .build/check: build
 	cargo fmt -- --check
-	cargo clippy -- -D warnings
+# 	cargo clippy -- -D warnings
 	@touch $@
 
 VER := $(shell cat ../meta/version)

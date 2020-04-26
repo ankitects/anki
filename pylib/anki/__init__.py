@@ -14,3 +14,8 @@ if sys.getfilesystemencoding().lower() in ("ascii", "ansi_x3.4-1968"):
 
 
 __all__ = ["Collection"]
+
+print("3")
+from anki.utils import intTime
+intTime()
+

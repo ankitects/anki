@@ -35,6 +35,7 @@ def getEmptyCol():
         os.close(fd)
         os.unlink(nam)
         col = aopen(nam)
+        print("d.crt", col.crt)
         col.close(downgrade=False)
         getEmptyCol.master = nam
     (fd, nam) = tempfile.mkstemp(suffix=".anki2")

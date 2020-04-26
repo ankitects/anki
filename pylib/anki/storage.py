@@ -56,6 +56,8 @@ def Collection(
 
     # add db to col and do any remaining upgrades
     col = _Collection(db, backend=backend, server=server)
+    print("d.crt")
+    print("d.crt", col.crt)
     if create:
         # add in reverse order so basic is default
         addClozeModel(col)

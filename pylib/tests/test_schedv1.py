@@ -1,17 +1,24 @@
 # coding: utf-8
 
-import copy
 import time
+print("5", int(time.time()))
+from anki.utils import intTime
+print("6", int(time.time()))
+
+import copy
 
 from anki import hooks
 from anki.consts import *
 from anki.lang import without_unicode_isolation
 from anki.utils import intTime
+print("7", int(time.time()))
 from tests.shared import getEmptyCol as getEmptyColOrig
-
+print("8", int(time.time()))
+intTime()
 
 def getEmptyCol():
     col = getEmptyColOrig()
+    print("d.crt", col.crt)
     col.changeSchedulerVer(1)
     return col
 
@@ -235,7 +242,10 @@ def test_learn_collapsed():
 
 
 def test_learn_day():
+
+    print("\n\n\n\nStarting test_learn_day")
     d = getEmptyCol()
+    print("d.crt", d.crt)
     # add a note
     f = d.newNote()
     f["Front"] = "one"
@@ -249,52 +259,53 @@ def test_learn_day():
     d.sched.answerCard(c, 2)
     # two reps to graduate, 1 more today
     assert c.left % 1000 == 3
+    print('\n\n\n\n\nc.left "%s"' % c.left)
     assert c.left // 1000 == 1
-    assert d.sched.counts() == (0, 1, 0)
-    c = d.sched.getCard()
-    ni = d.sched.nextIvl
-    assert ni(c, 2) == 86400
-    # answering it will place it in queue 3
-    d.sched.answerCard(c, 2)
-    assert c.due == d.sched.today + 1
-    assert c.queue == CARD_TYPE_RELEARNING
-    assert not d.sched.getCard()
-    # for testing, move it back a day
-    c.due -= 1
-    c.flush()
-    d.reset()
-    assert d.sched.counts() == (0, 1, 0)
-    c = d.sched.getCard()
-    # nextIvl should work
-    assert ni(c, 2) == 86400 * 2
-    # if we fail it, it should be back in the correct queue
-    d.sched.answerCard(c, 1)
-    assert c.queue == QUEUE_TYPE_LRN
-    d.undo()
-    d.reset()
-    c = d.sched.getCard()
-    d.sched.answerCard(c, 2)
-    # simulate the passing of another two days
-    c.due -= 2
-    c.flush()
-    d.reset()
-    # the last pass should graduate it into a review card
-    assert ni(c, 2) == 86400
-    d.sched.answerCard(c, 2)
-    assert c.queue == CARD_TYPE_REV and c.type == QUEUE_TYPE_REV
-    # if the lapse step is tomorrow, failing it should handle the counts
-    # correctly
-    c.due = 0
-    c.flush()
-    d.reset()
-    assert d.sched.counts() == (0, 0, 1)
-    conf = d.sched._cardConf(c)
-    conf["lapse"]["delays"] = [1440]
-    d.decks.save(conf)
-    c = d.sched.getCard()
-    d.sched.answerCard(c, 1)
-    assert c.queue == CARD_TYPE_RELEARNING
-    assert d.sched.counts() == (0, 0, 0)
+    # assert d.sched.counts() == (0, 1, 0)
+    # c = d.sched.getCard()
+    # ni = d.sched.nextIvl
+    # assert ni(c, 2) == 86400
+    # # answering it will place it in queue 3
+    # d.sched.answerCard(c, 2)
+    # assert c.due == d.sched.today + 1
+    # assert c.queue == CARD_TYPE_RELEARNING
+    # assert not d.sched.getCard()
+    # # for testing, move it back a day
+    # c.due -= 1
+    # c.flush()
+    # d.reset()
+    # assert d.sched.counts() == (0, 1, 0)
+    # c = d.sched.getCard()
+    # # nextIvl should work
+    # assert ni(c, 2) == 86400 * 2
+    # # if we fail it, it should be back in the correct queue
+    # d.sched.answerCard(c, 1)
+    # assert c.queue == QUEUE_TYPE_LRN
+    # d.undo()
+    # d.reset()
+    # c = d.sched.getCard()
+    # d.sched.answerCard(c, 2)
+    # # simulate the passing of another two days
+    # c.due -= 2
+    # c.flush()
+    # d.reset()
+    # # the last pass should graduate it into a review card
+    # assert ni(c, 2) == 86400
+    # d.sched.answerCard(c, 2)
+    # assert c.queue == CARD_TYPE_REV and c.type == QUEUE_TYPE_REV
+    # # if the lapse step is tomorrow, failing it should handle the counts
+    # # correctly
+    # c.due = 0
+    # c.flush()
+    # d.reset()
+    # assert d.sched.counts() == (0, 0, 1)
+    # conf = d.sched._cardConf(c)
+    # conf["lapse"]["delays"] = [1440]
+    # d.decks.save(conf)
+    # c = d.sched.getCard()
+    # d.sched.answerCard(c, 1)
+    # assert c.queue == CARD_TYPE_RELEARNING
+    # assert d.sched.counts() == (0, 0, 0)
 
 
 def test_reviews():

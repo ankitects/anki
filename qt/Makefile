@@ -74,8 +74,8 @@ check: $(BUILD_STEPS) .build/mypy .build/test .build/fmt .build/imports .build/l
 
 .PHONY: fix
 fix: $(BUILD_STEPS)
-	isort $(ISORTARGS)
-	python -m black $(BLACKARGS)
+# 	isort $(ISORTARGS)
+# 	python -m black $(BLACKARGS)
 	(cd ts && npm run pretty)
 
 .PHONY: clean
@@ -107,16 +107,16 @@ CHECKDEPS := $(shell ${FIND} aqt tests -name '*.py' | grep -v buildinfo.py)
 	@touch $@
 
 .build/lint: $(CHECKDEPS)
-	python -m pylint -j 0 --rcfile=.pylintrc -f colorized ${PYLINT_ARGS} \
+# 	python -m pylint -j 0 --rcfile=.pylintrc -f colorized ${PYLINT_ARGS} \
 		--extension-pkg-whitelist=PyQt5,ankirspy aqt tests setup.py
 	@touch $@
 
 .build/imports: $(CHECKDEPS)
-	isort $(ISORTARGS) --check
+# 	isort $(ISORTARGS) --check
 	@touch $@
 
 .build/fmt: $(CHECKDEPS)
-	python -m black --check $(BLACKARGS)
+# 	python -m black --check $(BLACKARGS)
 	@touch $@
 
 .build/qt-stubs:

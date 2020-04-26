@@ -64,6 +64,7 @@ class _Collection:
         backend: RustBackend,
         server: Optional["anki.storage.ServerData"] = None,
     ) -> None:
+        print("_Collection")
         self.backend = backend
         self._debugLog = not server
         self.db = db
@@ -85,6 +86,8 @@ class _Collection:
             d = datetime.datetime(d.year, d.month, d.day)
             d += datetime.timedelta(hours=4)
             self.crt = int(time.mktime(d.timetuple()))
+            print("_Collection self.crt1", self.crt)
+        print("_Collection self.crt2", self.crt)
         self._loadScheduler()
         if not self.conf.get("newBury", False):
             self.conf["newBury"] = True

@@ -32,8 +32,11 @@ _tmpdir: Optional[str]
 
 def intTime(scale: int = 1) -> int:
     "The time in integer seconds. Pass scale=1000 to get milliseconds."
+    print("intTime", int(time.time()))
     return int(time.time() * scale)
 
+print("1")
+intTime()
 
 # Locale
 ##############################################################################
@@ -395,3 +398,6 @@ def pointVersion() -> int:
     from anki.buildinfo import version
 
     return int(version.split(".")[-1])
+
+print("2")
+intTime()

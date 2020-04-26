@@ -21,9 +21,11 @@ impl TimestampMillis {
 
 #[cfg(not(test))]
 fn elapsed() -> time::Duration {
-    time::SystemTime::now()
+    let x: time::Duration = time::SystemTime::now()
         .duration_since(time::SystemTime::UNIX_EPOCH)
-        .unwrap()
+        .unwrap();
+    println!("elapsed {:?}", x.as_secs());
+    x
 }
 
 // when running in CI, shift the current time away from the cutoff point
@@ -42,5 +44,6 @@ fn elapsed() -> time::Duration {
         elap -= time::Duration::from_secs(60 * 60 * 2);
     }
 
+    println!("elapsed2 {:?}", elap);
     elap
 }

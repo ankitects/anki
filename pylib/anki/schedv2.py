@@ -73,12 +73,16 @@ class Scheduler:
         self.col.log()
         assert 1 <= ease <= 4
         assert 0 <= card.queue <= 4
+        print('1. card.queue', card.queue)
         self.col.markReview(card)
+        print('2. card.queue', card.queue)
         if self._burySiblingsOnAnswer:
             self._burySiblings(card)
 
+        print('3. card.queue', card.queue)
         self._answerCard(card, ease)
 
+        print('4. card.queue', card.queue)
         self._updateStats(card, "time", card.timeTaken())
         card.mod = intTime()
         card.usn = self.col.usn()
@@ -93,12 +97,16 @@ class Scheduler:
 
         if card.queue == QUEUE_TYPE_NEW:
             # came from the new queue, move to learning
+            print('5. card.queue', card.queue)
             card.queue = QUEUE_TYPE_LRN
             card.type = CARD_TYPE_LRN
             # init reps to graduation
+            print('6. card.queue', card.queue)
             card.left = self._startingLeft(card)
+            print('7. card.queue', card.queue)
             # update daily limit
             self._updateStats(card, "new")
+            print('8. card.queue', card.queue)
 
         if card.queue in (QUEUE_TYPE_LRN, QUEUE_TYPE_DAY_LEARN_RELEARN):
             self._answerLrnCard(card, ease)
@@ -604,17 +612,21 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
         return None
 
     def _answerLrnCard(self, card: Card, ease: int) -> None:
+        print('14. card.queue', card.queue, 'ease', ease)
         conf = self._lrnConf(card)
+        print('15. card.queue', card.queue)
         if card.type in (CARD_TYPE_REV, CARD_TYPE_RELEARNING):
             type = REVLOG_RELRN
         else:
             type = REVLOG_LRN
+        print('16. card.queue', card.queue)
         # lrnCount was decremented once when card was fetched
         lastLeft = card.left
 
         leaving = False
 
         # immediate graduate?
+        print('17. card.queue', card.queue)
         if ease == BUTTON_FOUR:
             self._rescheduleAsRev(card, conf, True)
             leaving = True
@@ -632,6 +644,7 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
             # back to first step
             self._moveToFirstStep(card, conf)
 
+        print('18. card.queue', card.queue)
         self._logLrn(card, ease, conf, leaving, type, lastLeft)
 
     def _updateRevIvlOnFail(self, card: Card, conf: Dict[str, Any]) -> None:
@@ -640,11 +653,13 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
 
     def _moveToFirstStep(self, card: Card, conf: Dict[str, Any]) -> Any:
         card.left = self._startingLeft(card)
+        print('19. card.queue', card.queue)
 
         # relearning card?
         if card.type == CARD_TYPE_RELEARNING:
             self._updateRevIvlOnFail(card, conf)
 
+        print('20. card.queue', card.queue)
         return self._rescheduleLrnCard(card, conf)
 
     def _moveToNextStep(self, card: Card, conf: Dict[str, Any]) -> None:
@@ -666,6 +681,8 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
             delay = self._delayForGrade(conf, card.left)
 
         card.due = int(time.time() + delay)
+        print('conf["delays"]', conf["delays"])
+        print('21. card.due', card.due, 'delay', delay)
         # due today?
         if card.due < self.dayCutoff:
             # add some randomness, up to 5 minutes or 25%
@@ -750,15 +767,24 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
         self, delays: List[int], left: int, now: Optional[int] = None,
     ) -> int:
         "The number of steps that can be completed by the day cutoff."
+        print('_leftToday now1 "%s"' % (now))
         if not now:
             now = intTime()
+        print('_leftToday now2 "%s"' % (now))
         delays = delays[-left:]
         ok = 0
+        print('_leftToday delays "%s"' % (delays))
         for i in range(len(delays)):
+            print('_leftToday int(delays[i] * 60) "%s"' % (int(delays[i] * 60)))
             now += int(delays[i] * 60)
+            print('_leftToday now3 "%s"' % (now))
+            print('_leftToday self.dayCutoff "%s"' % (self.dayCutoff))
             if now > self.dayCutoff:
+                print("_leftToday now > self.dayCutoff")
                 break
             ok = i
+            print('_leftToday ok1 "%s"' % (ok))
+        print('_leftToday ok2 "%s"' % (ok))
         return ok + 1
 
     def _graduatingIvl(
