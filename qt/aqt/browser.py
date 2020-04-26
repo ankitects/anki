@@ -435,6 +435,17 @@ class SidebarStage(Enum):
     TAGS = 5
 
 
+class SidebarItemType(Enum):
+    ROOT = 0
+    COLLECTION = 1
+    CURRENT_DECK = 2
+    FILTER = 3
+    DECK = 4
+    NOTETYPE = 5
+    TAG = 6
+    CUSTOM = 7
+
+
 class SidebarItem:
     def __init__(
         self,
@@ -443,9 +454,11 @@ class SidebarItem:
         onClick: Callable[[], None] = None,
         onExpanded: Callable[[bool], None] = None,
         expanded: bool = False,
+        item_type: SidebarItemType = SidebarItemType.CUSTOM,
     ) -> None:
         self.name = name
         self.icon = icon
+        self.item_type = item_type
         self.onClick = onClick
         self.onExpanded = onExpanded
         self.expanded = expanded
@@ -1091,7 +1104,7 @@ QTableView {{ gridline-color: {grid} }}
             self.mw.progress.timer(10, deferredDisplay, False)
 
     def buildTree(self) -> SidebarItem:
-        root = SidebarItem("", "")
+        root = SidebarItem("", "", item_type=SidebarItemType.ROOT)
 
         handled = gui_hooks.browser_will_build_tree(
             False, root, SidebarStage.ROOT, self
@@ -1116,14 +1129,20 @@ QTableView {{ gridline-color: {grid} }}
         return root
 
     def _stdTree(self, root) -> None:
-        for name, filt, icon in [
-            [_("Whole Collection"), "", "collection"],
-            [_("Current Deck"), "deck:current", "deck"],
-        ]:
-            item = SidebarItem(
-                name, ":/icons/{}.svg".format(icon), self._filterFunc(filt)
-            )
-            root.addChild(item)
+        item = SidebarItem(
+            _("Whole Collection"),
+            ":/icons/collection.svg",
+            self._filterFunc(""),
+            item_type=SidebarItemType.COLLECTION,
+        )
+        root.addChild(item)
+        item = SidebarItem(
+            _("Current Deck"),
+            ":/icons/deck.svg",
+            self._filterFunc("deck:current"),
+            item_type=SidebarItemType.CURRENT_DECK,
+        )
+        root.addChild(item)
 
     def _favTree(self, root) -> None:
         assert self.col
@@ -1133,6 +1152,7 @@ QTableView {{ gridline-color: {grid} }}
                 name,
                 ":/icons/heart.svg",
                 lambda s=filt: self.setFilter(s),  # type: ignore
+                item_type=SidebarItemType.DECK,
             )
             root.addChild(item)
 
@@ -1140,7 +1160,7 @@ QTableView {{ gridline-color: {grid} }}
         assert self.col
         for t in self.col.tags.all():
             item = SidebarItem(
-                t, ":/icons/tag.svg", lambda t=t: self.setFilter("tag", t)  # type: ignore
+                t, ":/icons/tag.svg", lambda t=t: self.setFilter("tag", t), item_type=SidebarItemType.TAG  # type: ignore
             )
             root.addChild(item)
 
@@ -1165,6 +1185,7 @@ QTableView {{ gridline-color: {grid} }}
                     lambda baseName=baseName: self.setFilter("deck", head + baseName),
                     lambda expanded, did=did: self.mw.col.decks.collapseBrowser(did),
                     not self.mw.col.decks.get(did).get("browserCollapsed", False),
+                    item_type=SidebarItemType.DECK,
                 )
                 root.addChild(item)
                 newhead = head + baseName + "::"
