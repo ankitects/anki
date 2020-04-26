@@ -114,6 +114,9 @@ class AddCards(QDialog):
                     except IndexError:
                         pass
             self.removeTempNote(oldNote)
+        self.editor.note = note
+        # When on model change is called, reset is necessarily called.
+        # Reset load note, so it is not required to load it here.
 
     def onReset(self, model: None = None, keep: bool = False) -> None:
         oldNote = self.editor.note
