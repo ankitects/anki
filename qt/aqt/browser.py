@@ -576,6 +576,46 @@ class SidebarModel(QAbstractItemModel):
         # then ourselves
         tree.setExpanded(parent, True)
 
+    # Sidebar
+    ######################################################################
+
+
+class SidebarTreeView(QTreeView):
+    def __init__(self):
+        super().__init__()
+        self.expanded.connect(self.onExpansion)
+        self.collapsed.connect(self.onCollapse)
+
+    def onClickCurrent(self) -> None:
+        idx = self.currentIndex()
+        if idx.isValid():
+            item: SidebarItem = idx.internalPointer()
+            if item.onClick:
+                item.onClick()
+
+    def mouseReleaseEvent(self, event: QMouseEvent) -> None:
+        super().mouseReleaseEvent(event)
+        self.onClickCurrent()
+
+    def keyPressEvent(self, event: QKeyEvent) -> None:
+        if event.key() in (Qt.Key_Return, Qt.Key_Enter):
+            self.onClickCurrent()
+        else:
+            super().keyPressEvent(event)
+
+    def onExpansion(self, idx: QModelIndex) -> None:
+        self._onExpansionChange(idx, True)
+
+    def onCollapse(self, idx: QModelIndex) -> None:
+        self._onExpansionChange(idx, False)
+
+    def _onExpansionChange(self, idx: QModelIndex, expanded: bool) -> None:
+        item: SidebarItem = idx.internalPointer()
+        if item.expanded != expanded:
+            item.expanded = expanded
+            if item.onExpanded:
+                item.onExpanded(expanded)
+
 
 # Browser window
 ######################################################################
@@ -1022,51 +1062,12 @@ QTableView {{ gridline-color: {grid} }}
     def onColumnMoved(self, a, b, c):
         self.setColumnSizes()
 
-    # Sidebar
-    ######################################################################
-
-    class SidebarTreeView(QTreeView):
-        def __init__(self):
-            super().__init__()
-            self.expanded.connect(self.onExpansion)
-            self.collapsed.connect(self.onCollapse)
-
-        def onClickCurrent(self) -> None:
-            idx = self.currentIndex()
-            if idx.isValid():
-                item: SidebarItem = idx.internalPointer()
-                if item.onClick:
-                    item.onClick()
-
-        def mouseReleaseEvent(self, event: QMouseEvent) -> None:
-            super().mouseReleaseEvent(event)
-            self.onClickCurrent()
-
-        def keyPressEvent(self, event: QKeyEvent) -> None:
-            if event.key() in (Qt.Key_Return, Qt.Key_Enter):
-                self.onClickCurrent()
-            else:
-                super().keyPressEvent(event)
-
-        def onExpansion(self, idx: QModelIndex) -> None:
-            self._onExpansionChange(idx, True)
-
-        def onCollapse(self, idx: QModelIndex) -> None:
-            self._onExpansionChange(idx, False)
-
-        def _onExpansionChange(self, idx: QModelIndex, expanded: bool) -> None:
-            item: SidebarItem = idx.internalPointer()
-            if item.expanded != expanded:
-                item.expanded = expanded
-                if item.onExpanded:
-                    item.onExpanded(expanded)
-
     def setupSidebar(self) -> None:
         dw = self.sidebarDockWidget = QDockWidget(_("Sidebar"), self)
         dw.setFeatures(QDockWidget.DockWidgetClosable)
         dw.setObjectName("Sidebar")
         dw.setAllowedAreas(Qt.LeftDockWidgetArea)
-        self.sidebarTree = self.SidebarTreeView()
+        self.sidebarTree = SidebarTreeView()
         self.sidebarTree.mw = self.mw
         self.sidebarTree.setUniformRowHeights(True)
         self.sidebarTree.setHeaderHidden(True)
