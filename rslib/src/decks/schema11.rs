@@ -1,8 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use super::DeckID;
 use crate::{
-    define_newtype,
     serde::{default_on_invalid, deserialize_bool_from_anything, deserialize_number_from_string},
     timestamp::TimestampSecs,
     types::Usn,
@@ -11,8 +11,6 @@ use serde_derive::{Deserialize, Serialize};
 use serde_json::Value;
 use serde_tuple::Serialize_tuple;
 use std::collections::HashMap;
-
-define_newtype!(DeckID, i64);
 
 #[derive(Serialize, PartialEq, Debug, Clone)]
 #[serde(untagged)]
@@ -217,22 +215,4 @@ impl Default for NormalDeck {
             extend_rev: 0,
         }
     }
-}
-
-pub(crate) fn child_ids<'a>(decks: &'a [Deck], name: &str) -> impl Iterator<Item = DeckID> + 'a {
-    let prefix = format!("{}::", name.to_ascii_lowercase());
-    decks
-        .iter()
-        .filter(move |d| d.name().to_ascii_lowercase().starts_with(&prefix))
-        .map(|d| d.id())
-}
-
-pub(crate) fn get_deck(decks: &[Deck], id: DeckID) -> Option<&Deck> {
-    for d in decks {
-        if d.id() == id {
-            return Some(d);
-        }
-    }
-
-    None
 }
