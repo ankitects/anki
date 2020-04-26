@@ -589,6 +589,10 @@ class SidebarTreeView(QTreeView):
         self.expanded.connect(self.onExpansion)
         self.collapsed.connect(self.onCollapse)
 
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.onContextMenu)
+        self.context_menus = {SidebarItemType.DECK: ()}
+
     def onClickCurrent(self) -> None:
         idx = self.currentIndex()
         if idx.isValid():
@@ -618,6 +622,19 @@ class SidebarTreeView(QTreeView):
             item.expanded = expanded
             if item.onExpanded:
                 item.onExpanded(expanded)
+
+    def onContextMenu(self, point: QPoint) -> None:
+        idx: QModelIndex = self.indexAt(point)
+        item: SidebarItem = idx.internalPointer()
+        item_type: SidebarItemType = item.item_type
+        if item_type not in self.context_menus:
+            return
+
+        m = QMenu()
+        for action in self.context_menus[item_type]:
+            a = m.addAction(action[0])
+            a.triggered.connect(action[1])
+        m.exec_(QCursor.pos())
 
 
 # Browser window
@@ -1204,6 +1221,7 @@ QTableView {{ gridline-color: {grid} }}
                 m["name"],
                 ":/icons/notetype.svg",
                 lambda m=m: self.setFilter("note", m["name"]),  # type: ignore
+                item_type=SidebarItemType.NOTETYPE,
             )
             root.addChild(item)
 
