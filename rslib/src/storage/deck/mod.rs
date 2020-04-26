@@ -22,4 +22,10 @@ impl SqliteStorage {
         self.db.execute("update col set decks = ?", &[json])?;
         Ok(())
     }
+
+    pub(crate) fn get_deck(&self, did: DeckID) -> Result<Option<Deck>> {
+        // fixme: this is just temporary until we create an extra table
+        let mut decks = self.get_all_decks()?;
+        Ok(decks.remove(&did))
+    }
 }

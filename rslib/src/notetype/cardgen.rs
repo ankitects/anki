@@ -216,7 +216,7 @@ impl Collection {
         note: &Note,
     ) -> Result<()> {
         let existing = self.storage.existing_cards_for_note(note.id)?;
-        self.generate_cards_for_note(ctx, note, &existing, None)
+        self.generate_cards_for_note(ctx, note, &existing, Some(ctx.notetype.target_deck_id()))
     }
 
     fn generate_cards_for_note(
@@ -230,7 +230,7 @@ impl Collection {
         if cards.is_empty() {
             return Ok(());
         }
-        self.add_generated_cards(ctx, note.id, &cards, target_deck_id)
+        self.add_generated_cards(note.id, &cards, target_deck_id)
     }
 
     pub(crate) fn generate_cards_for_notetype(&mut self, ctx: &CardGenContext) -> Result<()> {
@@ -253,19 +253,13 @@ impl Collection {
 
     pub(crate) fn add_generated_cards(
         &mut self,
-        ctx: &CardGenContext,
         nid: NoteID,
         cards: &[CardToGenerate],
         target_deck_id: Option<DeckID>,
     ) -> Result<()> {
         let mut next_pos = None;
         for c in cards {
-            // fixme: deal with case where invalid deck pointed to
-            // fixme: deprecated note type deck id
-            let did = c
-                .did
-                .or(target_deck_id)
-                .unwrap_or_else(|| ctx.notetype.target_deck_id());
+            let did = self.deck_id_for_adding(c.did.or(target_deck_id))?;
             let due = c.due.unwrap_or_else(|| {
                 if next_pos.is_none() {
                     next_pos = Some(self.get_and_update_next_card_position().unwrap_or(0));
@@ -277,5 +271,29 @@ impl Collection {
         }
 
         Ok(())
+    }
+
+    /// If deck ID does not exist or points to a filtered deck, fall back on default.
+    fn deck_id_for_adding(&mut self, did: Option<DeckID>) -> Result<DeckID> {
+        if let Some(did) = did.and_then(|did| self.deck_id_if_normal(did)) {
+            Ok(did)
+        } else {
+            self.default_deck_id()
+        }
+    }
+
+    fn default_deck_id(&mut self) -> Result<DeckID> {
+        // currently hard-coded, we could create this as needed in the future
+        Ok(DeckID(1))
+    }
+
+    /// If deck exists and and is a normal deck, return it.
+    fn deck_id_if_normal(&mut self, did: DeckID) -> Option<DeckID> {
+        // fixme: currently disabled until deck writes are immediate
+        return Some(did);
+
+        self.get_deck(did)
+            .ok()
+            .and_then(|opt| opt.and_then(|d| if !d.is_filtered() { Some(d.id()) } else { None }))
     }
 }
