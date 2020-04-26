@@ -11,6 +11,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 import anki  # pylint: disable=unused-import
 from anki import hooks
 from anki.consts import *
+from anki.errors import ModelRenameError
 from anki.lang import _
 from anki.utils import checksum, ids2str, intTime, joinFields, splitFields
 
@@ -196,11 +197,25 @@ select id from cards where nid in (select id from notes where mid = ?)""",
         self.setCurrent(m)
         self.save(m)
 
+    def rename(self, m: NoteType, new_name: str, make_unique: bool = False) -> None:
+        if new_name == m["name"]:
+            return
+        if new_name in self.allNames():
+            if not make_unique:
+                raise ModelRenameError("There is an existing note type with same name")
+            m["name"] = self._append_checksum(new_name)
+        else:
+            m["name"] = new_name
+        self.save(m, updateReqs=False)
+
     def ensureNameUnique(self, m: NoteType) -> None:
         for mcur in self.all():
             if mcur["name"] == m["name"] and mcur["id"] != m["id"]:
-                m["name"] += "-" + checksum(str(time.time()))[:5]
+                m["name"] = self._append_checksum(m["name"])
                 break
+
+    def _append_checksum(self, s: str) -> str:
+        return s + "-" + checksum(str(time.time()))[:5]
 
     def update(self, m: NoteType) -> None:
         "Add or update an existing model. Used for syncing and merging."

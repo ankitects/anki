@@ -24,3 +24,12 @@ class DeckRenameError(Exception):
 
     def __str__(self):
         return "Couldn't rename deck: " + self.description
+
+
+class ModelRenameError(Exception):
+    def __init__(self, description: str) -> None:
+        super().__init__()
+        self.description = description
+
+    def __str__(self):
+        return "Couldn't rename note type: " + self.description

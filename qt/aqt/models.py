@@ -6,6 +6,7 @@ from operator import itemgetter
 
 import aqt.clayout
 from anki import stdmodels
+from anki.errors import ModelRenameError
 from anki.lang import _, ngettext
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
@@ -17,6 +18,7 @@ from aqt.utils import (
     restoreGeom,
     saveGeom,
     showInfo,
+    showWarning,
 )
 
 
@@ -67,8 +69,10 @@ class Models(QDialog):
     def onRename(self):
         txt = getText(_("New name:"), default=self.model["name"])
         if txt[1] and txt[0]:
-            self.model["name"] = txt[0]
-            self.mm.save(self.model, updateReqs=False)
+            try:
+                self.mm.rename(self.model, txt[0])
+            except ModelRenameError as e:
+                return showWarning(e.description)
         self.updateModelsList()
 
     def updateModelsList(self):
