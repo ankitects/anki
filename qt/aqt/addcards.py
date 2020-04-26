@@ -100,17 +100,15 @@ class AddCards(QDialog):
             newFields = list(note.keys())
             for n, f in enumerate(note.model()["flds"]):
                 fieldName = f["name"]
-                try:
-                    oldFieldName = oldNote.model()["flds"][n]["name"]
-                except IndexError:
-                    oldFieldName = None
                 # copy identical fields
                 if fieldName in oldFields:
                     note[fieldName] = oldNote[fieldName]
-                # set non-identical fields by field index
-                elif oldFieldName and oldFieldName not in newFields:
+                else:
+                    # set non-identical fields by field index
                     try:
-                        note.fields[n] = oldNote.fields[n]
+                        oldFieldName = oldNote.model()["flds"][n]["name"]
+                        if oldFieldName not in newFields:
+                            note.fields[n] = oldNote.fields[n]
                     except IndexError:
                         pass
             self.removeTempNote(oldNote)
