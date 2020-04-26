@@ -11,6 +11,7 @@ import aqt
 from anki.cards import Card
 from anki.consts import *
 from anki.lang import _, ngettext
+from anki.rsbackend import TemplateError
 from anki.utils import isMac, isWin, joinFields
 from aqt import gui_hooks
 from aqt.qt import *
@@ -273,10 +274,15 @@ class CardLayout(QDialog):
             l.addWidget(flip)
             qconnect(flip.clicked, self.onFlip)
         l.addStretch()
-        close = QPushButton(_("Close"))
+        save = QPushButton(_("Save"))
+        save.setAutoDefault(False)
+        l.addWidget(save)
+        qconnect(save.clicked, self.accept)
+
+        close = QPushButton(_("Cancel"))
         close.setAutoDefault(False)
         l.addWidget(close)
-        qconnect(close.clicked, self.accept)
+        qconnect(close.clicked, self.reject)
 
     # Cards
     ##########################################################################
@@ -596,23 +602,37 @@ Enter deck to place new %s cards in, or leave blank:"""
     # Closing & Help
     ######################################################################
 
-    def accept(self):
-        self.reject()
+    def accept(self) -> None:
+        try:
+            self.mm.save(self.model)
+        except TemplateError as e:
+            # fixme: i18n
+            showWarning("Unable to save changes: " + str(e))
+            return
 
-    def reject(self):
+        self.mw.reset()
+        self.cleanup()
+        return QDialog.accept(self)
+
+    def reject(self) -> None:
+        # discard mutations - in the future we should load a fresh
+        # copy at the start instead
+        self.mm._remove_from_cache(self.model["id"])
+        self.cleanup()
+        return QDialog.reject(self)
+
+    def cleanup(self) -> None:
         self.cancelPreviewTimer()
         av_player.stop_and_clear_queue()
+        # fixme
         if self.addMode:
             # remove the filler fields we added
             for name in self.emptyFields:
                 self.note[name] = ""
             self.mw.col.db.execute("delete from notes where id = ?", self.note.id)
-        self.mm.save(self.model, templates=True)
-        self.mw.reset()
         saveGeom(self, "CardLayout")
         self.pform.frontWeb = None
         self.pform.backWeb = None
-        return QDialog.reject(self)
 
     def onHelp(self):
         openHelp("templates")
