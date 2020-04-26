@@ -7,6 +7,7 @@ use crate::log::Logger;
 use crate::timestamp::TimestampSecs;
 use crate::types::Usn;
 use crate::{
+    decks::{Deck, DeckID},
     notetype::{NoteType, NoteTypeID},
     sched::cutoff::{sched_timing_today, SchedTimingToday},
     storage::SqliteStorage,
@@ -52,6 +53,7 @@ pub struct CollectionState {
     pub(crate) undo: UndoManager,
     timing_today: Option<SchedTimingToday>,
     pub(crate) notetype_cache: HashMap<NoteTypeID, Arc<NoteType>>,
+    pub(crate) deck_cache: HashMap<DeckID, Arc<Deck>>,
 }
 
 #[derive(Debug, PartialEq)]
