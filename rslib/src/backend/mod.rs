@@ -25,7 +25,7 @@ use crate::{
     sched::cutoff::{local_minutes_west_for_stamp, sched_timing_today},
     sched::timespan::{answer_button_time, learning_congrats, studied_today, time_span},
     search::SortMode,
-    template::{render_card, FieldMap, FieldRequirements, ParsedTemplate, RenderedNode},
+    template::{render_card, RenderedNode},
     text::{extract_av_tags, strip_av_tags, AVTag},
     timestamp::TimestampSecs,
     types::Usn,
@@ -36,7 +36,7 @@ use log::error;
 use pb::backend_input::Value;
 use prost::Message;
 use serde_json::Value as JsonValue;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
@@ -212,9 +212,6 @@ impl Backend {
     ) -> Result<pb::backend_output::Value> {
         use pb::backend_output::Value as OValue;
         Ok(match ival {
-            Value::TemplateRequirements(input) => {
-                OValue::TemplateRequirements(self.template_requirements(input)?)
-            }
             Value::SchedTimingToday(input) => {
                 OValue::SchedTimingToday(self.sched_timing_today(input))
             }
@@ -409,46 +406,6 @@ impl Backend {
 
     pub fn set_progress_callback(&mut self, progress_cb: Option<ProtoProgressCallback>) {
         self.progress_callback = progress_cb;
-    }
-
-    fn template_requirements(
-        &self,
-        input: pb::TemplateRequirementsIn,
-    ) -> Result<pb::TemplateRequirementsOut> {
-        let map: FieldMap = input
-            .field_names_to_ordinals
-            .iter()
-            .map(|(name, ord)| (name.as_str(), *ord as u16))
-            .collect();
-        // map each provided template into a requirements list
-        use crate::backend_proto::template_requirement::Value;
-        let all_reqs = input
-            .template_front
-            .into_iter()
-            .map(|template| {
-                if let Ok(tmpl) = ParsedTemplate::from_text(&template) {
-                    // convert the rust structure into a protobuf one
-                    let val = match tmpl.requirements(&map) {
-                        FieldRequirements::Any(ords) => Value::Any(pb::TemplateRequirementAny {
-                            ords: ords_hash_to_set(ords),
-                        }),
-                        FieldRequirements::All(ords) => Value::All(pb::TemplateRequirementAll {
-                            ords: ords_hash_to_set(ords),
-                        }),
-                        FieldRequirements::None => Value::None(pb::Empty {}),
-                    };
-                    Ok(pb::TemplateRequirement { value: Some(val) })
-                } else {
-                    // template parsing failures make card unsatisfiable
-                    Ok(pb::TemplateRequirement {
-                        value: Some(Value::None(pb::Empty {})),
-                    })
-                }
-            })
-            .collect::<Result<Vec<_>>>()?;
-        Ok(pb::TemplateRequirementsOut {
-            requirements: all_reqs,
-        })
     }
 
     fn sched_timing_today(&self, input: pb::SchedTimingTodayIn) -> pb::SchedTimingTodayOut {
@@ -1028,10 +985,6 @@ fn translate_arg_to_fluent_val(arg: &pb::TranslateArgValue) -> FluentValue {
         },
         None => FluentValue::String("".into()),
     }
-}
-
-fn ords_hash_to_set(ords: HashSet<u16>) -> Vec<u32> {
-    ords.iter().map(|ord| *ord as u32).collect()
 }
 
 fn rendered_nodes_to_proto(nodes: Vec<RenderedNode>) -> Vec<pb::RenderedTemplateNode> {
