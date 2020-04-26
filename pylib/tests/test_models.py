@@ -2,8 +2,9 @@
 import time
 
 from anki.consts import MODEL_CLOZE
+from anki.errors import ModelRenameError
 from anki.utils import isWin, joinFields, stripHTML
-from tests.shared import getEmptyCol
+from tests.shared import assertException, getEmptyCol
 
 
 def test_modelDelete():
@@ -29,6 +30,22 @@ def test_modelCopy():
     assert len(m["tmpls"]) == 1
     assert len(m2["tmpls"]) == 1
     assert deck.models.scmhash(m) == deck.models.scmhash(m2)
+
+
+def test_modelRename():
+    deck = getEmptyCol()
+    m = deck.models.current()
+    new_name = "New Name"
+    deck.models.rename(m, new_name)
+    assert m["name"] == new_name
+    # make sure you can't have two models with same name
+    m2 = deck.models.copy(m)
+    assertException(ModelRenameError, lambda: deck.models.rename(m2, new_name))
+    # check if model is given unique name when renaming it to existing name
+    m2 = deck.models.copy(m)
+    deck.models.rename(m2, new_name, make_unique=True)
+    assert m2["name"].startswith(new_name)
+    assert m2["name"] != new_name
 
 
 def test_fields():
