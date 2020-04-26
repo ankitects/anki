@@ -194,6 +194,7 @@ impl NoteType {
             return Err(AnkiError::invalid_input("1 template required"));
         }
         self.normalize_names();
+        self.fix_field_names();
         self.ensure_names_unique();
         self.reposition_sort_idx();
 
@@ -288,6 +289,10 @@ impl NoteType {
 
     pub fn target_deck_id(&self) -> DeckID {
         DeckID(self.config.target_deck_id)
+    }
+
+    fn fix_field_names(&mut self) {
+        self.fields.iter_mut().for_each(NoteField::fix_name);
     }
 }
 

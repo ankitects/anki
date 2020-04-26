@@ -34,4 +34,17 @@ impl NoteField {
             },
         }
     }
+
+    pub(crate) fn fix_name(&mut self) {
+        // remove special characters
+        let bad_chars = |c| c == ':' || c == '{' || c == '}';
+        if self.name.contains(bad_chars) {
+            self.name = self.name.replace(bad_chars, "");
+        }
+        // and leading/trailing whitespace
+        let trimmed = self.name.trim();
+        if trimmed.len() != self.name.len() {
+            self.name = trimmed.into();
+        }
+    }
 }
