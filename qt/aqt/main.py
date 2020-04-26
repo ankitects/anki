@@ -1369,7 +1369,7 @@ will be lost. Continue?"""
     def onDebug(self):
         d = self.debugDiag = QDialog()
         d.silentlyClose = True
-        frm = aqt.forms.debug.Ui_Dialog()
+        frm = self.debug_diag_form = aqt.forms.debug.Ui_Dialog()
         frm.setupUi(d)
         font = QFontDatabase.systemFont(QFontDatabase.FixedFont)
         font.setPointSize(frm.text.font().pointSize() + 1)
