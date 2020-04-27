@@ -117,6 +117,28 @@ class TagManager:
     def bulkRem(self, ids: List[int], tags: str) -> None:
         self.bulkAdd(ids, tags, False)
 
+    def rename(self, old_tag: str, new_tag: str) -> None:
+        "old_tag, new_tag must not contain whitespace. old_tag may contain wildcard *."
+        res = self.col.db.all(
+            "select id, tags from notes where tags like ?",
+            "%% %s %%" % old_tag.replace("*", "%"),
+        )
+        if res:
+            self.register(new_tag)
+
+        def fix(row):
+            return [
+                self.rename_from_str(old_tag, new_tag, row[1]),
+                intTime(),
+                self.col.usn(),
+                row[0],
+            ]
+
+        self.col.db.executemany(
+            "update notes set tags=?,mod=?,usn=? where id = ?",
+            [fix(row) for row in res],
+        )
+
     # String-based utilities
     ##########################################################################
 
@@ -130,6 +152,20 @@ class TagManager:
             return ""
         return " %s " % " ".join(tags)
 
+    def rename_from_str(self, old_tag: str, new_tag: str, tags: str) -> str:
+        "Rename tag if it exist."
+        current_tags = self.split(tags)
+        remove = []
+        for tx in current_tags:
+            if (old_tag.lower() == tx.lower()) or self.match_wildcard(old_tag, tx):
+                # old_tag may match several cards
+                remove.append(tx)
+        for r in remove:
+            current_tags.remove(r)
+        if remove:
+            current_tags.append(new_tag)
+        return self.join(self.canonify(current_tags))
+
     def addToStr(self, addtags: str, tags: str) -> str:
         "Add tags if they don't exist, and canonify."
         currentTags = self.split(tags)
@@ -141,21 +177,21 @@ class TagManager:
     def remFromStr(self, deltags: str, tags: str) -> str:
         "Delete tags if they exist."
 
-        def wildcard(pat, str):
-            pat = re.escape(pat).replace("\\*", ".*")
-            return re.match("^" + pat + "$", str, re.IGNORECASE)
-
         currentTags = self.split(tags)
         for tag in self.split(deltags):
             # find tags, ignoring case
             remove = []
             for tx in currentTags:
-                if (tag.lower() == tx.lower()) or wildcard(tag, tx):
+                if (tag.lower() == tx.lower()) or self.match_wildcard(tag, tx):
                     remove.append(tx)
             # remove them
             for r in remove:
                 currentTags.remove(r)
         return self.join(currentTags)
+
+    def match_wildcard(self, pat: str, str: str):
+        pat = re.escape(pat).replace("\\*", ".*")
+        return re.match("^" + pat + "$", str, re.IGNORECASE)
 
     # List-based utilities
     ##########################################################################
