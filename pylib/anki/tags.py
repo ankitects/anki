@@ -119,6 +119,9 @@ class TagManager:
 
     def rename(self, old_tag: str, new_tag: str) -> None:
         "old_tag, new_tag must not contain whitespace. old_tag may contain wildcard *."
+        if " " in old_tag or " " in new_tag:
+            # Ideally, should be checked before calling this method
+            raise ValueError("Tag must not contain whitespace.")
         res = self.col.db.all(
             "select id, tags from notes where tags like ?",
             "%% %s %%" % old_tag.replace("*", "%"),
