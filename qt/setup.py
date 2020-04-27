@@ -35,7 +35,7 @@ install_requires = [
 
 setuptools.setup(
     name="aqt",
-    version="2.1.24",  # automatically updated
+    version="2.1.25",  # automatically updated
     author="Ankitects Pty Ltd",
     description="Anki's Qt GUI code",
     long_description="Anki's QT GUI code",
