@@ -109,17 +109,39 @@ def test_addDelTags():
     f2 = deck.newNote()
     f2["Front"] = "2"
     deck.addNote(f2)
+    f3 = deck.newNote()
+    f3["Front"] = "3"
+    deck.addNote(f3)
     # adding for a given id
-    deck.tags.bulkAdd([f.id], "foo")
+    deck.tags.bulkAdd([f.id, f2.id], "foo")
     f.load()
     f2.load()
-    assert "foo" in f.tags
-    assert "foo" not in f2.tags
+    f3.load()
+    assert f.tags == ["foo"]
+    assert f2.tags == ["foo"]
+    assert f3.tags == []
     # should be canonified
     deck.tags.bulkAdd([f.id], "foo aaa")
     f.load()
-    assert f.tags[0] == "aaa"
-    assert len(f.tags) == 2
+    f2.load()
+    assert f.tags == ["aaa", "foo"]
+    assert f2.tags == ["foo"]
+    # rename a tag
+    deck.tags.rename("foo", "bar")
+    f.load()
+    f2.load()
+    f3.load()
+    assert f.tags == ["aaa", "bar"]
+    assert f2.tags == ["bar"]
+    assert f3.tags == []
+    deck.tags.bulkAdd([f.id, f3.id], "bor")
+    deck.tags.rename("b*r", "baz")
+    f.load()
+    f2.load()
+    f3.load()
+    assert f.tags == ["aaa", "baz"]
+    assert f2.tags == ["baz"]
+    assert f3.tags == ["baz"]
 
 
 def test_timestamps():
