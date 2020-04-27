@@ -63,6 +63,9 @@ def test_findCards():
     deck.tags.bulkRem(deck.db.list("select id from notes"), "foo")
     assert len(deck.findCards("tag:foo")) == 0
     assert len(deck.findCards("tag:bar")) == 5
+    deck.tags.rename("bar", "baz")
+    assert len(deck.findCards("tag:bar")) == 0
+    assert len(deck.findCards("tag:baz")) == 5
     # text searches
     assert len(deck.findCards("cat")) == 2
     assert len(deck.findCards("cat -dog")) == 1
