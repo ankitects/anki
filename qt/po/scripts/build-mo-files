@@ -15,7 +15,8 @@ do
         perl -pe "s%repo/desktop/(.*)/anki.po%$targetDir/\1/LC_MESSAGES%")
     outfile="$outdir/anki.mo"
     mkdir -p $outdir
-    (msgmerge -q "$file" repo/desktop/anki.pot | msgfmt - --output-file="$outfile") || (
-      echo "error building $file"
-    )
+    if ! msgmerge -q "$file" repo/desktop/anki.pot | msgfmt - --output-file="$outfile"; then
+        echo "error building $file";
+        exit 1;
+    fi;
 done
