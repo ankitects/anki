@@ -72,7 +72,7 @@ clean:
 # Checking python
 ######################
 
-CHECKDEPS := $(shell ${FIND} anki tests -name '*.py' | grep -v buildinfo.py)
+CHECKDEPS := $(shell "${FIND}" anki tests -name '*.py' | grep -v buildinfo.py)
 
 .build/mypy: $(CHECKDEPS)
 	python -m mypy ${MYPY_ARGS} anki

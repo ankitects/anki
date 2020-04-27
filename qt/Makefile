@@ -42,7 +42,7 @@ all: check
 	python -m pip install -r requirements.dev
 	@touch $@
 
-.build/ui: $(shell ${FIND} designer -type f)
+.build/ui: $(shell "${FIND}" designer -type f)
 	./tools/build_ui.sh
 	@touch $@
 
@@ -96,7 +96,7 @@ JSDEPS := $(patsubst ts/src/%.ts, web/%.js, $(TSDEPS))
 
 PYLIB := ../pylib
 
-CHECKDEPS := $(shell ${FIND} aqt tests -name '*.py' | grep -v buildinfo.py)
+CHECKDEPS := $(shell "${FIND}" aqt tests -name '*.py' | grep -v buildinfo.py)
 
 .build/mypy: $(CHECKDEPS) .build/qt-stubs
 	python -m mypy ${MYPY_ARGS} aqt

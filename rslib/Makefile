@@ -30,7 +30,7 @@ develop: .build/vernum ftl/repo
 ftl/repo:
 	(cd ftl && ./scripts/fetch-latest-translations)
 
-ALL_SOURCE := $(shell ${FIND} src -type f | egrep -v "i18n/autogen|i18n/ftl|_proto.rs") $(wildcard ftl/*.ftl)
+ALL_SOURCE := $(shell "${FIND}" src -type f | egrep -v "i18n/autogen|i18n/ftl|_proto.rs") $(wildcard ftl/*.ftl)
 
 # nightly currently required for ignoring files in rustfmt.toml
 RUST_TOOLCHAIN := $(shell cat rust-toolchain)
