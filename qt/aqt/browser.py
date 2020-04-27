@@ -1160,15 +1160,15 @@ QTableView {{ gridline-color: {grid} }}
 
                         continue
                 item = SidebarItem(
-                    g[0],
+                    baseName,
                     ":/icons/deck.svg",
-                    lambda g=g: self.setFilter("deck", head + g[0]),
-                    lambda expanded, g=g: self.mw.col.decks.collapseBrowser(g[1]),
-                    not self.mw.col.decks.get(g[1]).get("browserCollapsed", False),
+                    lambda baseName=baseName: self.setFilter("deck", head + baseName),
+                    lambda expanded, did=did: self.mw.col.decks.collapseBrowser(did),
+                    not self.mw.col.decks.get(did).get("browserCollapsed", False),
                 )
                 root.addChild(item)
-                newhead = head + g[0] + "::"
-                fillGroups(item, g[5], newhead)
+                newhead = head + baseName + "::"
+                fillGroups(item, children, newhead)
 
         fillGroups(root, grps)
 
