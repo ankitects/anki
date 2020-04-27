@@ -123,14 +123,9 @@ class AddCards(QDialog):
         if oldNote:
             if not keep:
                 self.removeTempNote(oldNote)
-            for n in range(len(note.fields)):
-                try:
-                    if not keep or flds[n]["sticky"]:
-                        note.fields[n] = oldNote.fields[n]
-                    else:
-                        note.fields[n] = ""
-                except IndexError:
-                    break
+            for n in range(len(min(note.fields, oldNote.fields))):
+                if not keep or flds[n]["sticky"]:
+                    note.fields[n] = oldNote.fields[n]
         self.setAndFocusNote(note)
 
     def removeTempNote(self, note: Note) -> None:
