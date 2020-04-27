@@ -21,6 +21,7 @@ from anki.cards import Card
 from anki.collection import _Collection
 from anki.consts import *
 from anki.decks import DeckManager
+from anki.errors import DeckRenameError
 from anki.lang import _, ngettext
 from anki.models import NoteType
 from anki.notes import Note
@@ -591,7 +592,7 @@ class SidebarTreeView(QTreeView):
 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.onContextMenu)
-        self.context_menus = {SidebarItemType.DECK: ()}
+        self.context_menus = {SidebarItemType.DECK: ((_("Rename"), self.rename_deck),)}
 
     def onClickCurrent(self) -> None:
         idx = self.currentIndex()
@@ -632,9 +633,26 @@ class SidebarTreeView(QTreeView):
 
         m = QMenu()
         for action in self.context_menus[item_type]:
-            a = m.addAction(action[0])
-            a.triggered.connect(action[1])
+            act_name = action[0]
+            act_func = action[1]
+            a = m.addAction(act_name)
+            a.triggered.connect(lambda _, func=act_func: func(item))
         m.exec_(QCursor.pos())
+
+    def rename_deck(self, item: SidebarItem) -> None:
+        self.mw.checkpoint(_("Rename Deck"))
+        old_name = item.name
+        deck = self.mw.col.decks.byName(old_name)
+        new_name = getOnlyText(_("New deck name:"), default=old_name)
+        new_name = new_name.replace('"', "")
+        if not new_name or new_name == old_name:
+            return
+        try:
+            self.mw.col.decks.rename(deck, new_name)
+            self.browser.maybeRefreshSidebar()
+        except DeckRenameError as e:
+            return showWarning(e.description)
+        self.show()
 
 
 # Browser window
