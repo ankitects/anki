@@ -42,7 +42,7 @@ RUST_TOOLCHAIN := $(shell cat rust-toolchain)
 	@touch $@
 
 .build/check: .build/rs-tools $(ALL_SOURCE)
-	cargo test --lib -- --nocapture
+	cargo test --lib --features "timetest" -- --nocapture
 	cargo fmt -- --check
 	cargo clippy -- -D warnings
 	@touch $@

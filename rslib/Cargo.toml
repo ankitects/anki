@@ -7,6 +7,11 @@ license = "AGPL-3.0-or-later"
 description = "Anki's Rust library code"
 readme = "README.md"
 
+[features]
+# The reason we do this is because python tests don't get cfg(test)
+# See: https://github.com/rust-lang/cargo/issues/4669
+timetest = []
+
 [dependencies]
 nom = "5.0.1"
 failure = "0.1.7"

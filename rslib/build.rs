@@ -1,4 +1,3 @@
-use prost_build;
 use std::fs;
 use std::path::Path;
 
@@ -97,7 +96,7 @@ fn main() -> std::io::Result<()> {
     let mut buf = String::new();
     let mut ftl_template_dirs = vec!["./ftl".to_string()];
     if let Ok(paths) = std::env::var("FTL_TEMPLATE_DIRS") {
-        ftl_template_dirs.extend(paths.split(",").map(|s| s.to_string()));
+        ftl_template_dirs.extend(paths.split(',').map(|s| s.to_string()));
     }
     for ftl_dir in ftl_template_dirs {
         let ftl_dir = Path::new(&ftl_dir);
@@ -132,7 +131,7 @@ fn main() -> std::io::Result<()> {
     // write the other language ftl files
     let mut ftl_lang_dirs = vec!["./ftl/repo/core".to_string()];
     if let Ok(paths) = std::env::var("FTL_LOCALE_DIRS") {
-        ftl_lang_dirs.extend(paths.split(",").map(|s| s.to_string()));
+        ftl_lang_dirs.extend(paths.split(',').map(|s| s.to_string()));
     }
     let mut langs = HashMap::new();
     for ftl_dir in ftl_lang_dirs {
@@ -152,7 +151,7 @@ fn main() -> std::io::Result<()> {
             }
             langs
                 .entry(lang_name)
-                .or_insert_with(|| String::new())
+                .or_insert_with(String::new)
                 .push_str(&buf)
         }
     }

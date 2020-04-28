@@ -41,6 +41,12 @@ RSPY_TARGET_DIR ?= target
 QT_FTL_TEMPLATES := ../qt/ftl
 QT_FTL_LOCALES := ../qt/ftl/repo/desktop
 
+define BUILD_VARIABLES =
+FTL_TEMPLATE_DIRS="$(QT_FTL_TEMPLATES)" \
+FTL_LOCALE_DIRS="$(QT_FTL_LOCALES)" \
+CARGO_TARGET_DIR="$(RSPY_TARGET_DIR)"
+endef
+
 .PHONY: all develop build check fix clean
 
 all: develop
@@ -56,16 +62,16 @@ DEPS := .build/tools .build/vernum ../meta/buildhash \
 
 .build/develop: $(DEPS)
 	touch ../proto/backend.proto
-	FTL_TEMPLATE_DIRS="$(QT_FTL_TEMPLATES)" FTL_LOCALE_DIRS="$(QT_FTL_LOCALES)" \
-		CARGO_TARGET_DIR="$(RSPY_TARGET_DIR)" maturin develop $(DEVFLAGS)
+	${BUILD_VARIABLES} \
+	maturin develop $(DEVFLAGS)
 	touch $@
 
 build: .build/build
 
 .build/build: $(DEPS)
 	touch ../proto/backend.proto
-	FTL_TEMPLATE_DIRS="$(QT_FTL_TEMPLATES)" FTL_LOCALE_DIRS="$(QT_FTL_LOCALES)" \
-		CARGO_TARGET_DIR="$(RSPY_TARGET_DIR)" maturin build -i "${PYTHON_FILE}" -o "$(OUTDIR)" $(BUILDFLAGS)
+	${BUILD_VARIABLES} \
+	maturin build -i "${PYTHON_FILE}" -o "$(OUTDIR)" $(BUILDFLAGS)
 	touch $@
 
 check: .build/check
@@ -86,9 +92,14 @@ RUST_TOOLCHAIN := $(shell cat rust-toolchain)
 	rustup component add clippy-preview --toolchain $(RUST_TOOLCHAIN)
 	@touch $@
 
-.build/check: build
+.build/check: $(DEPS)
 	cargo fmt -- --check
+# 	cargo clippy also run build.rs and generates backend_proto.rs
+	${BUILD_VARIABLES} \
 	cargo clippy -- -D warnings
+	touch ../proto/backend.proto
+	${BUILD_VARIABLES} \
+	maturin develop $(DEVFLAGS) --cargo-extra-args="--features timetest"
 	@touch $@
 
 VER := $(shell cat ../meta/version)

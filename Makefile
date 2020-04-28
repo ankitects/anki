@@ -52,7 +52,7 @@ BUILDFLAGS := --release --strip
 DEVFLAGS := $(BUILDFLAGS)
 RUNFLAGS :=
 CHECKABLE_PY := pylib qt
-CHECKABLE_RS := rslib
+CHECKABLE_RS := rslib rspy
 DEVEL := rslib rspy pylib qt
 
 .PHONY: all
@@ -154,12 +154,11 @@ clean-dist: buildhash
 .PHONY: check
 check: pyenv buildhash prepare
 	@set -eu -o pipefail ${SHELLFLAGS}; \
+	. "${ACTIVATE_SCRIPT}"; \
 	.github/scripts/trailing-newlines.sh; \
 	for dir in $(CHECKABLE_RS); do \
 		$(SUBMAKE) -C $$dir check; \
 	done; \
-	. "${ACTIVATE_SCRIPT}"; \
-	$(SUBMAKE) -C rspy develop; \
 	$(SUBMAKE) -C pylib develop; \
 	for dir in $(CHECKABLE_PY); do \
 		$(SUBMAKE) -C $$dir check; \

@@ -19,7 +19,7 @@ impl TimestampMillis {
     }
 }
 
-#[cfg(not(test))]
+#[cfg(not(any(feature = "timetest", test)))]
 fn elapsed() -> time::Duration {
     time::SystemTime::now()
         .duration_since(time::SystemTime::UNIX_EPOCH)
@@ -28,7 +28,7 @@ fn elapsed() -> time::Duration {
 
 // when running in CI, shift the current time away from the cutoff point
 // to accomodate unit tests that depend on the current time
-#[cfg(test)]
+#[cfg(any(feature = "timetest", test))]
 fn elapsed() -> time::Duration {
     use chrono::{Local, Timelike};
 
