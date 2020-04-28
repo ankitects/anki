@@ -582,16 +582,16 @@ class SidebarModel(QAbstractItemModel):
 
 
 class SidebarTreeView(QTreeView):
-    def __init__(self, browser: "Browser"):
+    def __init__(self, browser: "Browser") -> None:
         super().__init__()
         self.browser = browser
         self.mw = browser.mw
         self.col = self.mw.col
-        self.expanded.connect(self.onExpansion)
-        self.collapsed.connect(self.onCollapse)
+        self.expanded.connect(self.onExpansion)  # type: ignore
+        self.collapsed.connect(self.onCollapse)  # type: ignore
 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.customContextMenuRequested.connect(self.onContextMenu)
+        self.customContextMenuRequested.connect(self.onContextMenu)  # type: ignore
         self.context_menus = {SidebarItemType.DECK: ((_("Rename"), self.rename_deck),)}
 
     def onClickCurrent(self) -> None:
@@ -636,7 +636,7 @@ class SidebarTreeView(QTreeView):
             act_name = action[0]
             act_func = action[1]
             a = m.addAction(act_name)
-            a.triggered.connect(lambda _, func=act_func: func(item))
+            a.triggered.connect(lambda _, func=act_func: func(item))  # type: ignore
         m.exec_(QCursor.pos())
 
     def rename_deck(self, item: SidebarItem) -> None:
