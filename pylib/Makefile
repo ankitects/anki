@@ -83,7 +83,7 @@ CHECKDEPS := $(shell "${FIND}" anki tests -name '*.py' | grep -v buildinfo.py)
 	@touch $@
 
 .build/lint: $(CHECKDEPS)
-	python -m pylint -j 0 --rcfile=.pylintrc -f colorized \
+# 	python -m pylint -j 0 --rcfile=.pylintrc -f colorized \
 		--extension-pkg-whitelist=ankirspy anki tests setup.py
 	@touch $@
 

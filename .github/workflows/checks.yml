@@ -264,6 +264,27 @@ jobs:
       - run: make check
         if: matrix.BUILD_TYPE == 'check'
 
+      - name: Upload mypy
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v1
+        with:
+          name: mypy ${{ matrix.os }}
+          path: qt/.mypy_cache
+
+      - name: Upload pylib
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v1
+        with:
+          name: pylib ${{ matrix.os }}
+          path: pylib
+
+      - name: Upload rslib\src
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v1
+        with:
+          name: rslib\src ${{ matrix.os }}
+          path: rslib\src
+
       - name: Upload python wheels
         if: matrix.BUILD_TYPE == 'build'
         uses: actions/upload-artifact@v1

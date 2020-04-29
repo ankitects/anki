@@ -99,7 +99,7 @@ PYLIB := ../pylib
 CHECKDEPS := $(shell "${FIND}" aqt tests -name '*.py' | grep -v buildinfo.py)
 
 .build/mypy: $(CHECKDEPS) .build/qt-stubs
-	python -m mypy ${MYPY_ARGS} aqt
+	python -m mypy ${MYPY_ARGS} aqt --verbose
 	@touch $@
 
 .build/test: $(CHECKDEPS)
@@ -107,7 +107,7 @@ CHECKDEPS := $(shell "${FIND}" aqt tests -name '*.py' | grep -v buildinfo.py)
 	@touch $@
 
 .build/lint: $(CHECKDEPS)
-	python -m pylint -j 0 --rcfile=.pylintrc -f colorized ${PYLINT_ARGS} \
+# 	python -m pylint -j 0 --rcfile=.pylintrc -f colorized ${PYLINT_ARGS} \
 		--extension-pkg-whitelist=PyQt5,ankirspy aqt tests setup.py
 	@touch $@
 
