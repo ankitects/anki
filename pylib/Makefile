@@ -79,7 +79,7 @@ CHECKDEPS := $(shell "${FIND}" anki tests -name '*.py' | grep -v buildinfo.py)
 	@touch $@
 
 .build/test: $(CHECKDEPS)
-	python -m pytest --durations=1 -s
+	SHIFT_CLOCK_HACK=1 python -m pytest --durations=1 -s
 	@touch $@
 
 .build/lint: $(CHECKDEPS)
