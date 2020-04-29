@@ -235,36 +235,36 @@ where
                 continue;
             }
 
-            // rename if required
-            let (norm_name, renamed_on_disk) = self.normalize_and_maybe_rename(ctx, &disk_fname)?;
-            if renamed_on_disk {
-                out.renamed
-                    .insert(disk_fname.to_string(), norm_name.to_string());
+            if let Some(norm_name) = filename_if_normalized(disk_fname) {
+                out.files.push(norm_name.into_owned());
+            } else {
+                match data_for_file(&self.mgr.media_folder, disk_fname)? {
+                    Some(data) => {
+                        let norm_name = self.normalize_file(ctx, &disk_fname, data)?;
+                        out.renamed
+                            .insert(disk_fname.to_string(), norm_name.to_string());
+                        out.files.push(norm_name.into_owned());
+                    }
+                    None => {
+                        // file not found, caused by the file being removed at this exact instant,
+                        // or the path being larger than MAXPATH on Windows
+                        continue;
+                    }
+                };
             }
-
-            out.files.push(norm_name.into_owned());
         }
 
         Ok(out)
     }
 
-    /// Returns (normalized_form, needs_rename)
-    fn normalize_and_maybe_rename<'a>(
+    /// Write file data to normalized location, moving old file to trash.
+    fn normalize_file<'a>(
         &mut self,
         ctx: &mut MediaDatabaseContext,
         disk_fname: &'a str,
-    ) -> Result<(Cow<'a, str>, bool)> {
-        // already normalized?
-        if let Some(fname) = filename_if_normalized(disk_fname) {
-            return Ok((fname, false));
-        }
-
+        data: Vec<u8>,
+    ) -> Result<Cow<'a, str>> {
         // add a copy of the file using the correct name
-        let data = data_for_file(&self.mgr.media_folder, disk_fname)?.ok_or_else(|| {
-            AnkiError::IOError {
-                info: format!("file disappeared: {}", disk_fname),
-            }
-        })?;
         let fname = self.mgr.add_file(ctx, disk_fname, &data)?;
         debug!(self.ctx.log, "renamed"; "from"=>disk_fname, "to"=>&fname.as_ref());
         assert_ne!(fname.as_ref(), disk_fname);
@@ -273,7 +273,7 @@ where
         let path = &self.mgr.media_folder.join(disk_fname);
         fs::remove_file(path)?;
 
-        Ok((fname, true))
+        Ok(fname)
     }
 
     fn fire_progress_cb(&mut self) -> Result<()> {
