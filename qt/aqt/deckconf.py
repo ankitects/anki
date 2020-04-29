@@ -137,6 +137,7 @@ class DeckConf(QDialog):
         else:
             self.mw.col.modSchema(check=True)
             self.mw.col.decks.remove_config(self.conf["id"])
+            self.conf = None
             self.deck["conf"] = 1
             self.loadConfs()
 
