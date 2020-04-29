@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::err::Result;
+use crate::err::{AnkiError, Result};
 use crate::log::{debug, Logger};
 use lazy_static::lazy_static;
 use regex::Regex;
@@ -402,7 +402,9 @@ pub(super) fn data_for_file(media_folder: &Path, fname: &str) -> Result<Option<V
             if e.kind() == io::ErrorKind::NotFound {
                 return Ok(None);
             } else {
-                return Err(e.into());
+                return Err(AnkiError::IOError {
+                    info: format!("unable to read {}: {}", fname, e),
+                });
             }
         }
     };
