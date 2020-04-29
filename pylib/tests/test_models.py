@@ -411,7 +411,7 @@ def test_req():
     reqSize(opt)
     r = opt["req"][0]
     assert r[1] in ("any", "all")
-    assert r[2] == [0]
+    assert r[2] == [0, 1]
 
 
 # def test_updatereqs_performance():
