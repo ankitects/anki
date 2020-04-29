@@ -50,6 +50,8 @@ class MediaServer(threading.Thread):
             if devMode:
                 # idempotent if logging has already been set up
                 logging.basicConfig()
+            else:
+                logging.getLogger("waitress").setLevel(logging.ERROR)
 
             self.server = create_server(app, host="127.0.0.1", port=0)
             if devMode:
