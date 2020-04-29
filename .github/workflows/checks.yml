@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   tests:
-    name: ${{ matrix.os }} ${{ matrix.BUILD_TYPE }}
+    name: ${{ matrix.name }} ${{ matrix.BUILD_TYPE }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -12,6 +12,7 @@ jobs:
         BUILD_TYPE: [check, build]
         include:
           - os: ubuntu-latest
+            name: Ubuntu
             SEP: /
             PIP_WHEELS_DIR: ~/.cache/pip
             CARGO_INDEX_DIR: ~/.cargo/git
@@ -19,6 +20,7 @@ jobs:
             ANKI_PYTHON_WHEELS: anki_linux_python_wheels
 
           - os: macos-latest
+            name: Mac OS
             SEP: /
             PIP_WHEELS_DIR: ~/Library/Caches/pip
             CARGO_INDEX_DIR: ~/.cargo/git
@@ -26,6 +28,7 @@ jobs:
             ANKI_PYTHON_WHEELS: anki_macos_python_wheels
 
           - os: windows-latest
+            name: Windows
             SEP: \
             PIP_WHEELS_DIR: ~\AppData\Local\pip\Cache
             CARGO_INDEX_DIR: C:\Rust\.cargo\git
