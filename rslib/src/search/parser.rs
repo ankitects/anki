@@ -80,6 +80,7 @@ pub(super) enum SearchNode<'a> {
     WholeCollection,
     Regex(Cow<'a, str>),
     NoCombining(Cow<'a, str>),
+    WordBoundary(Cow<'a, str>),
 }
 
 #[derive(Debug, PartialEq)]
@@ -277,6 +278,7 @@ fn search_node_for_text_with_argument<'a>(
         "prop" => parse_prop(val.as_ref())?,
         "re" => SearchNode::Regex(val),
         "nc" => SearchNode::NoCombining(val),
+        "w" => SearchNode::WordBoundary(val),
         // anything else is a field search
         _ => parse_single_field(key.as_ref(), val.as_ref()),
     })

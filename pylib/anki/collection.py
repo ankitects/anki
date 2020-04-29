@@ -251,6 +251,7 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?""",
                 raise AnkiError("abortSchemaMod")
         self.scm = intTime(1000)
         self.setMod()
+        self.save()
 
     def schemaChanged(self) -> Any:
         "True if schema changed since last sync."

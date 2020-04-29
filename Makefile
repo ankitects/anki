@@ -7,13 +7,14 @@ endif
 .SHELLFLAGS := -eu -o pipefail ${SHELLFLAGS} -c
 MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
+FIND := $(if $(wildcard /bin/find),/bin/find,/usr/bin/find)
 
 ifndef OS
 	OS := unknown
 endif
 
 ifeq (${OS},Windows_NT)
-	# Windows terminal is confusing it with its `cmd` builtin `rename` command
+# 	Windows terminal is confusing it with its `cmd` builtin `rename` command
 	ifndef RENAME_BIN
 		RENAME_BIN := perl scripts/rename
 	endif
@@ -60,8 +61,8 @@ all: run
 # - modern pip required for wheel
 # - add qt if missing
 pyenv:
-	# https://github.com/PyO3/maturin/issues/283
-	# Expected `python` to be a python interpreter inside a virtualenv
+# 	https://github.com/PyO3/maturin/issues/283
+# 	Expected `python` to be a python interpreter inside a virtualenv
 	set -eu -o pipefail ${SHELLFLAGS}; \
 	"${PYTHON_BIN}" -m pip install virtualenv; \
 	"${PYTHON_BIN}" -m venv pyenv; \
@@ -148,7 +149,7 @@ clean: clean-dist
 # remove any files in dist/ folder without current build hash
 .PHONY: clean-dist
 clean-dist: buildhash
-	find dist \! -name "*$$(cat meta/buildhash)*" -type f -delete
+	"${FIND}" dist \! -name "*$$(cat meta/buildhash)*" -type f -delete
 
 .PHONY: check
 check: pyenv buildhash prepare

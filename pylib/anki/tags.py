@@ -98,10 +98,7 @@ class TagManager:
             *["%% %s %%" % y.replace("*", "%") for x, y in enumerate(newTags)],
         )
         # update tags
-        nids = []
-
         def fix(row):
-            nids.append(row[0])
             return [
                 fn(tags, row[1]),
                 intTime(),

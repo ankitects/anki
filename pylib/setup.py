@@ -15,7 +15,7 @@ install_requires = [
 
 setuptools.setup(
     name="anki",
-    version="2.1.24",  # automatically updated
+    version="2.1.25",  # automatically updated
     author="Ankitects Pty Ltd",
     description="Anki's library code",
     long_description="Anki's library code",

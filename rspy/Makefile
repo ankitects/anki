@@ -50,9 +50,9 @@ develop: .build/develop
 DEPS := .build/tools .build/vernum ../meta/buildhash \
 	$(wildcard $(QT_FTL_TEMPLATES)/*.ftl) \
 	$(wildcard $(QT_FTL_LOCALES)/*/*.ftl) \
-	$(shell ${FIND} ../rslib/src -name '*.rs') $(wildcard ../proto/*) \
-	$(shell ${FIND} ../rslib/ftl -type f) \
-	$(shell ${FIND} ./src -type f)
+	$(shell "${FIND}" ../rslib/src -name '*.rs') $(wildcard ../proto/*) \
+	$(shell "${FIND}" ../rslib/ftl -type f) \
+	$(shell "${FIND}" ./src -type f)
 
 .build/develop: $(DEPS)
 	touch ../proto/backend.proto
@@ -65,7 +65,7 @@ build: .build/build
 .build/build: $(DEPS)
 	touch ../proto/backend.proto
 	FTL_TEMPLATE_DIRS="$(QT_FTL_TEMPLATES)" FTL_LOCALE_DIRS="$(QT_FTL_LOCALES)" \
-		maturin build -i "${PYTHON_FILE}" -o "$(OUTDIR)" $(BUILDFLAGS)
+		CARGO_TARGET_DIR="$(RSPY_TARGET_DIR)" maturin build -i "${PYTHON_FILE}" -o "$(OUTDIR)" $(BUILDFLAGS)
 	touch $@
 
 check: .build/check

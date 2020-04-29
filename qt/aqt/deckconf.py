@@ -1,8 +1,9 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
 from operator import itemgetter
-from typing import Union
+from typing import Dict, Union
 
 import aqt
 from anki.consts import NEW_CARDS_RANDOM
@@ -22,7 +23,7 @@ from aqt.utils import (
 
 
 class DeckConf(QDialog):
-    def __init__(self, mw, deck):
+    def __init__(self, mw: aqt.AnkiQt, deck: Dict):
         QDialog.__init__(self, mw)
         self.mw = mw
         self.deck = deck
@@ -117,33 +118,35 @@ class DeckConf(QDialog):
             txt = ""
         self.form.count.setText(txt)
 
-    def addGroup(self):
+    def addGroup(self) -> None:
         name = getOnlyText(_("New options group name:"))
         if not name:
             return
         # first, save currently entered data to current conf
         self.saveConf()
         # then clone the conf
-        id = self.mw.col.decks.add_config_returning_id(name, cloneFrom=self.conf)
+        id = self.mw.col.decks.add_config_returning_id(name, clone_from=self.conf)
         # set the deck to the new conf
         self.deck["conf"] = id
         # then reload the conf list
         self.loadConfs()
 
-    def remGroup(self):
+    def remGroup(self) -> None:
         if int(self.conf["id"]) == 1:
             showInfo(_("The default configuration can't be removed."), self)
         else:
+            self.mw.col.modSchema(check=True)
             self.mw.col.decks.remove_config(self.conf["id"])
             self.deck["conf"] = 1
             self.loadConfs()
 
-    def renameGroup(self):
+    def renameGroup(self) -> None:
         old = self.conf["name"]
         name = getOnlyText(_("New name:"), default=old)
         if not name or name == old:
             return
         self.conf["name"] = name
+        self.saveConf()
         self.loadConfs()
 
     def setChildren(self):
