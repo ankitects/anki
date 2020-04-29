@@ -307,9 +307,10 @@ Please create a new card type first."""
         self.tform.front.setAcceptRichText(False)
         self.tform.css.setAcceptRichText(False)
         self.tform.back.setAcceptRichText(False)
-        self.tform.front.setTabStopWidth(30)
-        self.tform.css.setTabStopWidth(30)
-        self.tform.back.setTabStopWidth(30)
+        tab_width = self.fontMetrics().width(" " * 4)
+        self.tform.front.setTabStopDistance(tab_width)
+        self.tform.css.setTabStopDistance(tab_width)
+        self.tform.back.setTabStopDistance(tab_width)
         self.redrawing = False
 
     def saveCard(self):
