@@ -31,6 +31,27 @@ fn elapsed() -> time::Duration {
 #[cfg(test)]
 fn elapsed() -> time::Duration {
     use chrono::{Local, Timelike};
+    use parse_duration::parse;
+    use std::fs::File;
+    use std::io::Read;
+    use std::path::Path;
+
+    let path = Path::new("../../test_time");
+    match File::open(&path) {
+        Ok(mut file) => {
+            let mut test_time = String::new();
+            match file.read_to_string(&mut test_time) {
+                Err(why) => {
+                    let display = path.display();
+                    panic!("Couldn't read {}: {}", display, why.to_string());
+                }
+                Ok(_) => {
+                    return parse(&test_time).unwrap();
+                }
+            }
+        }
+        Err(_) => (),
+    };
 
     let now = Local::now();
 
