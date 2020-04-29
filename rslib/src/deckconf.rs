@@ -9,7 +9,7 @@ use crate::{
     timestamp::{TimestampMillis, TimestampSecs},
     types::Usn,
 };
-use serde_aux::field_attributes::{deserialize_bool_from_anything, deserialize_number_from_string};
+use serde_aux::field_attributes::deserialize_number_from_string;
 use serde_derive::{Deserialize, Serialize};
 use serde_json::Value;
 use serde_repr::{Deserialize_repr, Serialize_repr};
@@ -29,8 +29,8 @@ pub struct DeckConf {
     pub(crate) usn: Usn,
     max_taken: i32,
     autoplay: bool,
-    #[serde(deserialize_with = "deserialize_bool_from_anything")]
-    timer: bool,
+    #[serde(deserialize_with = "default_on_invalid")]
+    timer: u8,
     #[serde(default)]
     replayq: bool,
     pub(crate) new: NewConf,
@@ -188,7 +188,7 @@ impl Default for DeckConf {
             usn: Usn(0),
             max_taken: 60,
             autoplay: true,
-            timer: false,
+            timer: 0,
             replayq: true,
             new: Default::default(),
             rev: Default::default(),
