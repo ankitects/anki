@@ -19,6 +19,16 @@ jobs:
             echo "::set-output name=is_tagged::"
           fi
 
+  contrib:
+    name: Author in CONTRIBUTORS
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Check
+        run: |
+          set -x
+          .github/scripts/contrib.sh
+
   tests:
     needs:
       - check_tag
