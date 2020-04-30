@@ -1009,9 +1009,11 @@ and type=0""",
     def _normalize_tags(self) -> int:
         to_fix = []
         for id, tags in self.db.execute("select id, tags from notes"):
-            nfc = unicodedata.normalize("NFC", tags)
-            if nfc != tags:
-                to_fix.append((nfc, self.usn(), intTime(), id))
+            norm = unicodedata.normalize("NFC", tags)
+            if not norm.startswith(" ") or not norm.endswith(" "):
+                norm = " " + norm + " "
+            if norm != tags:
+                to_fix.append((norm, self.usn(), intTime(), id))
         if to_fix:
             self.db.executemany(
                 "update notes set tags=?, usn=?, mod=? where id=?", to_fix

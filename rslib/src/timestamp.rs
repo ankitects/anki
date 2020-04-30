@@ -2,6 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::define_newtype;
+use lazy_static::lazy_static;
+use std::env;
 use std::time;
 
 define_newtype!(TimestampSecs, i64);
@@ -19,28 +21,26 @@ impl TimestampMillis {
     }
 }
 
-#[cfg(not(test))]
-fn elapsed() -> time::Duration {
-    time::SystemTime::now()
-        .duration_since(time::SystemTime::UNIX_EPOCH)
-        .unwrap()
+lazy_static! {
+    static ref TESTING: bool = env::var("SHIFT_CLOCK_HACK").is_ok();
 }
 
-// when running in CI, shift the current time away from the cutoff point
-// to accomodate unit tests that depend on the current time
-#[cfg(test)]
 fn elapsed() -> time::Duration {
-    use chrono::{Local, Timelike};
-
-    let now = Local::now();
-
-    let mut elap = time::SystemTime::now()
-        .duration_since(time::SystemTime::UNIX_EPOCH)
-        .unwrap();
-
-    if now.hour() >= 2 && now.hour() < 4 {
-        elap -= time::Duration::from_secs(60 * 60 * 2);
+    if *TESTING {
+        // shift clock around rollover time to accomodate Python tests that make bad assumptions.
+        // we should update the tests in the future and remove this hack.
+        use chrono::{Local, Timelike};
+        let mut elap = time::SystemTime::now()
+            .duration_since(time::SystemTime::UNIX_EPOCH)
+            .unwrap();
+        let now = Local::now();
+        if now.hour() >= 2 && now.hour() < 4 {
+            elap -= time::Duration::from_secs(60 * 60 * 2);
+        }
+        elap
+    } else {
+        time::SystemTime::now()
+            .duration_since(time::SystemTime::UNIX_EPOCH)
+            .unwrap()
     }
-
-    elap
 }
