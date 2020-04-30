@@ -4,12 +4,13 @@ on: [push, pull_request]
 
 jobs:
   tests:
-    name: ${{ matrix.name }} ${{ matrix.BUILD_TYPE }}
+    name: ${{ matrix.name }} ${{ matrix.BUILD_TYPE }} ${{ matrix.python }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ ubuntu-latest, macos-latest, windows-latest ]
-        BUILD_TYPE: [check, build]
+        BUILD_TYPE: [ check, build ]
+        python: [ 3.7, 3.8]
         include:
           - os: ubuntu-latest
             name: Ubuntu
@@ -40,12 +41,13 @@ jobs:
 
     steps:
       - run: git config --global core.autocrlf false
-        if: matrix.os == 'windows-latest'
+        if: matrix.os == 'windows-latest' && ( matrix.python == '3.7' || startsWith(github.ref, 'refs/tags/') )
 
       - uses: actions/checkout@v2
+        if: ( matrix.python == '3.7' || startsWith(github.ref, 'refs/tags/') )
 
       - name: Configure Linux environment variables
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-latest' && ( matrix.python == '3.7' || startsWith(github.ref, 'refs/tags/') )
         run: |
           # echo "::set-env name=SHELLFLAGS::-x"
           echo "::set-env name=BUILDFLAGS::"
@@ -53,7 +55,7 @@ jobs:
           echo "::set-env name=CARGO_TARGET_DIR::${GITHUB_WORKSPACE}/target"
 
       - name: Configure Mac OS environment variables
-        if: matrix.os == 'macos-latest'
+        if: matrix.os == 'macos-latest' && ( matrix.python == '3.7' || startsWith(github.ref, 'refs/tags/') )
         run: |
           # echo "::set-env name=SHELLFLAGS::-x"
           echo "::set-env name=BUILDFLAGS::"
@@ -71,14 +73,21 @@ jobs:
           echo "::set-env name=PATH::/usr/local/opt/gettext/bin:$PATH"
 
       - name: Configure Windows environment variables
-        if: matrix.os == 'windows-latest'
+        if: matrix.os == 'windows-latest' && ( matrix.python == '3.7' || startsWith(github.ref, 'refs/tags/') )
         run: |
           # echo "::set-env name=SHELLFLAGS::-x"
           echo "::set-env name=BUILDFLAGS::"
           echo "::set-env name=RSPY_TARGET_DIR::$env:GITHUB_WORKSPACE\target"
           echo "::set-env name=CARGO_TARGET_DIR::$env:GITHUB_WORKSPACE\target"
 
-          $pyaudio=("PyAudio-0.2.11-cp37-cp37m-win_amd64.whl")
+          # https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio
+          if( "3.7".equals( "${{ matrix.python }}" ) ) {
+            $pyaudio=("PyAudio-0.2.11-cp37-cp37m-win_amd64.whl")
+          }
+          else {
+            $pyaudio=("PyAudio-0.2.11-cp38-cp38-win_amd64.whl")
+          }
+
           $new_path=("$env:GITHUB_WORKSPACE;$env:PATH")
           $new_path=("$env:GITHUB_WORKSPACE\shims;$new_path")
 
@@ -95,13 +104,13 @@ jobs:
       # Necessary for now for the cargo cache:
       # https://github.com/actions/cache/issues/133#issuecomment-599102035
       - name: Fix ~/.cache permissions
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-latest' && ( matrix.python == '3.7' )
         run: |
           sudo chown -R $(whoami):$(id -ng) ~/.cargo/
 
       # Disable it for macos because it pyenv cache is bugged (https://github.com/ankitects/anki/pull/563)
       - name: Cache pyenv
-        if: matrix.os != 'macos-latest'
+        if: matrix.os != 'macos-latest' && ( matrix.python == '3.7' )
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}${{ matrix.SEP }}pyenv
@@ -109,44 +118,49 @@ jobs:
 
       # # Disable it in attempt to reduce the overall cache size (https://github.com/ankitects/anki/pull/528)
       # - name: Cache pip wheels
-      #   if: matrix.BUILD_TYPE == 'build'
+      #   if: matrix.BUILD_TYPE == 'build' && ( matrix.python == '3.7' )
       #   uses: actions/cache@v1
       #   with:
       #     path: ${{ matrix.PIP_WHEELS_DIR }}
       #     key: ${{ runner.os }}-pip-wheels-${{ hashFiles('**/requirements.txt') }}-${{ hashFiles('**/setup.py') }}-15-
 
       - name: Cache cargo index
+        if: ( matrix.python == '3.7' )
         uses: actions/cache@v1
         with:
           path: ${{ matrix.CARGO_INDEX_DIR }}
           key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-15-
 
       - name: Cache cargo registry
+        if: ( matrix.python == '3.7' )
         uses: actions/cache@v1
         with:
           path: ${{ matrix.CARGO_REGISTRY_DIR }}
           key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-15-
 
       - name: Cache cargo target
+        if: ( matrix.python == '3.7' )
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}${{ matrix.SEP }}target
           key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-${{ matrix.BUILD_TYPE }}-15-
 
       - name: Cache cargo rslib
+        if: ( matrix.python == '3.7' )
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}${{ matrix.SEP }}rslib${{ matrix.SEP }}target
           key: ${{ runner.os }}-cargo-rslib-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-${{ matrix.BUILD_TYPE }}-15-
 
       - name: Cache cargo rspy
+        if: ( matrix.python == '3.7' )
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}${{ matrix.SEP }}rspy${{ matrix.SEP }}target
           key: ${{ runner.os }}-cargo-rspy-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-${{ matrix.BUILD_TYPE }}-15-
 
       - name: Cache pacman
-        if: matrix.os == 'windows-latest'
+        if: matrix.os == 'windows-latest' && ( matrix.python == '3.7' || startsWith(github.ref, 'refs/tags/') )
         uses: actions/cache@v1
         id: cache-pacman
         with:
@@ -154,7 +168,7 @@ jobs:
           key: ${{ runner.os }}-pacman-${{ hashFiles('**/checks.yml') }}-15-
 
       - name: Set up pacman, rsync
-        if: matrix.os == 'windows-latest' && steps.cache-pacman.outputs.cache-hit != 'true'
+        if: matrix.os == 'windows-latest' && steps.cache-pacman.outputs.cache-hit != 'true' && ( matrix.python == '3.7' || startsWith(github.ref, 'refs/tags/') )
         shell: cmd
         run: |
           echo on
@@ -189,14 +203,14 @@ jobs:
           pacman -Qsv --noconfirm
 
       - name: Set up curl pyaudio
-        if: matrix.os == 'windows-latest'
+        if: matrix.os == 'windows-latest' && ( matrix.python == '3.7' || startsWith(github.ref, 'refs/tags/') )
         shell: cmd
         run: |
           echo on
           curl -LO https://download.lfd.uci.edu/pythonlibs/s2jqpv5t/%pyaudio%
 
       - name: Set up Windows scoop, gettext, ripgrep
-        if: matrix.os == 'windows-latest'
+        if: matrix.os == 'windows-latest' && ( matrix.python == '3.7' || startsWith(github.ref, 'refs/tags/') )
         shell: cmd
         run: |
           echo on
@@ -204,7 +218,7 @@ jobs:
           scoop install -g gettext ripgrep
 
       - name: Set up Ubuntu ripgrep, pyaudio, gettext
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-latest' && ( matrix.python == '3.7' || startsWith(github.ref, 'refs/tags/') )
         run: |
           set -x
           sudo apt update
@@ -215,34 +229,37 @@ jobs:
           sudo dpkg -i ripgrep_11.0.2_amd64.deb
 
       - name: Set up brew ripgrep, pyaudio, gettext
-        if: matrix.os == 'macos-latest'
+        if: matrix.os == 'macos-latest' && ( matrix.python == '3.7' || startsWith(github.ref, 'refs/tags/') )
         run: |
           set -x
           brew install portaudio protobuf gettext ripgrep make
 
       - name: Set up python
+        if: ( matrix.python == '3.7' || startsWith(github.ref, 'refs/tags/') )
         uses: actions/setup-python@v1
         with:
-          python-version: 3.7
+          python-version: ${{ matrix.python }}
 
       - name: Set up protoc
+        if: ( matrix.python == '3.7' || startsWith(github.ref, 'refs/tags/') )
         uses: ankitects/setup-protoc@master
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up node
+        if: ( matrix.python == '3.7' || startsWith(github.ref, 'refs/tags/') )
         uses: actions/setup-node@v1
         with:
           node-version: 12
 
       - run: make develop
-        if: matrix.BUILD_TYPE == 'build'
+        if: matrix.BUILD_TYPE == 'build' && ( matrix.python == '3.7' || startsWith(github.ref, 'refs/tags/') )
 
       - run: make build
-        if: matrix.BUILD_TYPE == 'build'
+        if: matrix.BUILD_TYPE == 'build' && ( matrix.python == '3.7' || startsWith(github.ref, 'refs/tags/') )
 
       - name: Check Windows wheels
-        if: matrix.BUILD_TYPE == 'build' && matrix.os == 'windows-latest'
+        if: matrix.BUILD_TYPE == 'build' && matrix.os == 'windows-latest' && ( matrix.python == '3.7' || startsWith(github.ref, 'refs/tags/') )
         shell: cmd
         run: |
           echo on
@@ -254,7 +271,7 @@ jobs:
           python -c "import aqt; # aqt.run()"
 
       - name: Check Linux/Mac OS wheels
-        if: matrix.BUILD_TYPE == 'build' && ( matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest' )
+        if: matrix.BUILD_TYPE == 'build' && ( matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest' ) && ( matrix.python == '3.7' || startsWith(github.ref, 'refs/tags/') )
         run: |
           set -x
           cd dist
@@ -262,10 +279,10 @@ jobs:
           python -c "import aqt; # aqt.run()"
 
       - run: make check
-        if: matrix.BUILD_TYPE == 'check'
+        if: matrix.BUILD_TYPE == 'check' && ( matrix.python == '3.7' || startsWith(github.ref, 'refs/tags/') )
 
       - name: Upload python wheels
-        if: matrix.BUILD_TYPE == 'build'
+        if: matrix.BUILD_TYPE == 'build' && ( matrix.python == '3.7' || startsWith(github.ref, 'refs/tags/') )
         uses: actions/upload-artifact@v1
         with:
           name: ${{ matrix.ANKI_PYTHON_WHEELS }}
