@@ -7,6 +7,7 @@ install_requires = [
     "requests",
     "decorator",
     "protobuf",
+    "ankirspy==2.1.25",  # automatically updated 1
     'orjson; platform_machine == "x86_64"',
     'psutil; sys_platform == "win32"',
     'distro; sys_platform != "darwin" and sys_platform != "win32"',
@@ -15,7 +16,7 @@ install_requires = [
 
 setuptools.setup(
     name="anki",
-    version="2.1.25",  # automatically updated
+    version="2.1.25",  # automatically updated 2
     author="Ankitects Pty Ltd",
     description="Anki's library code",
     long_description="Anki's library code",
