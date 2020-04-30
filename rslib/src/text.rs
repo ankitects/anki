@@ -77,7 +77,7 @@ lazy_static! {
 pub fn strip_html(html: &str) -> Cow<str> {
     let mut out: Cow<str> = html.into();
 
-    if let Cow::Owned(o) = HTML.replace_all(html, "") {
+    if let Cow::Owned(o) = strip_html_preserving_entities(html) {
         out = o.into();
     }
 
@@ -86,6 +86,10 @@ pub fn strip_html(html: &str) -> Cow<str> {
     }
 
     out
+}
+
+pub fn strip_html_preserving_entities(html: &str) -> Cow<str> {
+    HTML.replace_all(html, "")
 }
 
 pub fn decode_entities(html: &str) -> Cow<str> {
