@@ -44,7 +44,7 @@ impl super::SqliteStorage {
                 usn: row.get(4)?,
                 ctype: row.get(5)?,
                 queue: row.get(6)?,
-                due: row.get(7)?,
+                due: row.get(7).ok().unwrap_or_default(),
                 ivl: row.get(8)?,
                 factor: row.get(9)?,
                 reps: row.get(10)?,
