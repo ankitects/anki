@@ -86,8 +86,12 @@ RUST_TOOLCHAIN := $(shell cat rust-toolchain)
 	rustup component add clippy-preview --toolchain $(RUST_TOOLCHAIN)
 	@touch $@
 
-.build/check: build
+.build/check: .build/clippy .build/develop
 	cargo fmt -- --check
+	@touch $@
+
+# cargo clippy also run build.rs, thus it must be called before building things
+.build/clippy: .build/tools
 	cargo clippy -- -D warnings
 	@touch $@
 
