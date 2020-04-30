@@ -340,6 +340,9 @@ class DeckManager:
         if "conf" in deck:
             dcid = int(deck["conf"])  # may be a string
             conf = self.get_config(dcid)
+            if not conf:
+                # fall back on default
+                conf = self.get_config(1)
             conf["dyn"] = False
             return conf
         # dynamic decks have embedded conf
