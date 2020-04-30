@@ -6,17 +6,86 @@ jobs:
   check_tag:
     name: Tag name
     outputs:
-      tagged: ${{ steps.check_tagged.outputs.is_tagged }}
+      tagged: ${{ steps.check_tagged.outputs.tagged }}
+      matrix: ${{ steps.check_tagged.outputs.matrix }}
     runs-on: ubuntu-latest
     steps:
       - name: Check the ref
         id: check_tagged
         run: |
           set -x
-          if [[ ${{ github.ref }}  == refs/tags/* ]]; then
-            echo "::set-output name=is_tagged::tagged"
+          printf '%s' '
+          #!/usr/bin/env python3
+          # -*- coding: utf-8 -*-
+
+          import json
+          import argparse
+
+          matrix = json.loads(r"""
+          {
+            "BUILD_TYPE": [
+              "check",
+              "build"
+            ],
+            "os": [
+              "ubuntu-latest",
+              "macos-latest",
+              "windows-latest"
+            ],
+            "python": [
+              3.7
+            ],
+            "include": [
+              {
+                "os": "ubuntu-latest",
+                "name": "Ubuntu",
+                "SEP": "/",
+                "PIP_WHEELS_DIR": "~/.cache/pip",
+                "CARGO_INDEX_DIR": "~/.cargo/git",
+                "CARGO_REGISTRY_DIR": "~/.cargo/registry",
+                "ANKI_PYTHON_WHEELS": "anki_linux_python_wheels"
+              },
+              {
+                "os": "macos-latest",
+                "name": "Mac OS",
+                "SEP": "/",
+                "PIP_WHEELS_DIR": "~/Library/Caches/pip",
+                "CARGO_INDEX_DIR": "~/.cargo/git",
+                "CARGO_REGISTRY_DIR": "~/.cargo/registry",
+                "ANKI_PYTHON_WHEELS": "anki_macos_python_wheels"
+              },
+              {
+                "os": "windows-latest",
+                "name": "Windows",
+                "SEP": "\\",
+                "PIP_WHEELS_DIR": "~\\AppData\\Local\\pip\\Cache",
+                "CARGO_INDEX_DIR": "C:\\Rust\\.cargo\\git",
+                "CARGO_REGISTRY_DIR": "C:\\Rust\\.cargo\\registry",
+                "ANKI_PYTHON_WHEELS": "anki_windows_python_wheels"
+              }
+            ]
+          }
+          """)
+
+          parser = argparse.ArgumentParser(description="Dynamically creates a build matrix for the GitHub Actions.")
+          parser.add_argument("--tagged", action="store_true", default=False,
+              help="Adds Python 3.8 builds into the matrix")
+
+          args = parser.parse_args()
+
+          if args.tagged:
+            matrix["python"].append("3.8")
+
+          print(json.dumps(matrix))
+          ' > buildmatrix.py;
+
+          if [[ ${{ github.ref }} == refs/tags/* ]];
+          then
+            printf '::set-output name=tagged::%s\n' "tagged"
+            printf '::set-output name=matrix::%s\n' "$(python3 buildmatrix.py --tagged)"
           else
-            echo "::set-output name=is_tagged::"
+            printf '::set-output name=tagged::%s\n' ""
+            printf '::set-output name=matrix::%s\n' "$(python3 buildmatrix.py)"
           fi
 
   contrib:
@@ -32,42 +101,11 @@ jobs:
   tests:
     needs:
       - check_tag
-    name: ${{ matrix.name }} ${{ needs.check_tag.outputs.tagged }} ${{ matrix.BUILD_TYPE }}
+    name: ${{ matrix.name }} ${{ needs.check_tag.outputs.tagged }} ${{ matrix.BUILD_TYPE }} ${{ matrix.python }}
     runs-on: ${{ matrix.os }}
     strategy:
-      matrix:
-        BUILD_TYPE:
-          - check
-          - build
-        os:
-          - ubuntu-latest
-          - macos-latest
-          - windows-latest
-
-        include:
-          - os: ubuntu-latest
-            name: Ubuntu
-            SEP: /
-            PIP_WHEELS_DIR: ~/.cache/pip
-            CARGO_INDEX_DIR: ~/.cargo/git
-            CARGO_REGISTRY_DIR: ~/.cargo/registry
-            ANKI_PYTHON_WHEELS: anki_linux_python_wheels
-
-          - os: macos-latest
-            name: Mac OS
-            SEP: /
-            PIP_WHEELS_DIR: ~/Library/Caches/pip
-            CARGO_INDEX_DIR: ~/.cargo/git
-            CARGO_REGISTRY_DIR: ~/.cargo/registry
-            ANKI_PYTHON_WHEELS: anki_macos_python_wheels
-
-          - os: windows-latest
-            name: Windows
-            SEP: \
-            PIP_WHEELS_DIR: ~\AppData\Local\pip\Cache
-            CARGO_INDEX_DIR: C:\Rust\.cargo\git
-            CARGO_REGISTRY_DIR: C:\Rust\.cargo\registry
-            ANKI_PYTHON_WHEELS: anki_windows_python_wheels
+      # https://github.com/ankitects/anki/pull/598
+      matrix: ${{ fromJson( needs.check_tag.outputs.matrix ) }}
 
       # Keep all systems running if something fails
       fail-fast: false
@@ -112,7 +150,14 @@ jobs:
           echo "::set-env name=RSPY_TARGET_DIR::$env:GITHUB_WORKSPACE\target"
           echo "::set-env name=CARGO_TARGET_DIR::$env:GITHUB_WORKSPACE\target"
 
-          $pyaudio=("PyAudio-0.2.11-cp37-cp37m-win_amd64.whl")
+          # https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio
+          if( "3.7".equals( "${{ matrix.python }}" ) ) {
+            $pyaudio=("PyAudio-0.2.11-cp37-cp37m-win_amd64.whl")
+          }
+          else {
+            $pyaudio=("PyAudio-0.2.11-cp38-cp38-win_amd64.whl")
+          }
+
           $new_path=("$env:GITHUB_WORKSPACE;$env:PATH")
           $new_path=("$env:GITHUB_WORKSPACE\shims;$new_path")
 
@@ -129,13 +174,13 @@ jobs:
       # Necessary for now for the cargo cache:
       # https://github.com/actions/cache/issues/133#issuecomment-599102035
       - name: Fix ~/.cache permissions
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-latest' && matrix.python == '3.7'
         run: |
           sudo chown -R $(whoami):$(id -ng) ~/.cargo/
 
       # Disable it for macos because it pyenv cache is bugged (https://github.com/ankitects/anki/pull/563)
       - name: Cache pyenv
-        if: matrix.os != 'macos-latest'
+        if: matrix.os != 'macos-latest' && matrix.python == '3.7'
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}${{ matrix.SEP }}pyenv
@@ -143,37 +188,42 @@ jobs:
 
       # # Disable it in attempt to reduce the overall cache size (https://github.com/ankitects/anki/pull/528)
       # - name: Cache pip wheels
-      #   if: matrix.BUILD_TYPE == 'build'
+      #   if: matrix.BUILD_TYPE == 'build' && matrix.python == '3.7'
       #   uses: actions/cache@v1
       #   with:
       #     path: ${{ matrix.PIP_WHEELS_DIR }}
       #     key: ${{ runner.os }}-pip-wheels-${{ hashFiles('**/requirements.txt') }}-${{ hashFiles('**/setup.py') }}-15-
 
       - name: Cache cargo index
+        if: matrix.python == '3.7'
         uses: actions/cache@v1
         with:
           path: ${{ matrix.CARGO_INDEX_DIR }}
           key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-15-
 
       - name: Cache cargo registry
+        if: matrix.python == '3.7'
         uses: actions/cache@v1
         with:
           path: ${{ matrix.CARGO_REGISTRY_DIR }}
           key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-15-
 
       - name: Cache cargo target
+        if: matrix.python == '3.7'
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}${{ matrix.SEP }}target
           key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-${{ matrix.BUILD_TYPE }}-15-
 
       - name: Cache cargo rslib
+        if: matrix.python == '3.7'
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}${{ matrix.SEP }}rslib${{ matrix.SEP }}target
           key: ${{ runner.os }}-cargo-rslib-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-${{ matrix.BUILD_TYPE }}-15-
 
       - name: Cache cargo rspy
+        if: matrix.python == '3.7'
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}${{ matrix.SEP }}rspy${{ matrix.SEP }}target
@@ -257,7 +307,7 @@ jobs:
       - name: Set up python
         uses: actions/setup-python@v1
         with:
-          python-version: 3.7
+          python-version: ${{ matrix.python }}
 
       - name: Set up protoc
         uses: ankitects/setup-protoc@master
