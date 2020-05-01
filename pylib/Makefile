@@ -32,7 +32,7 @@ PHONY: all
 all: check
 
 .build/run-deps: setup.py
-	python -m pip install -e .
+	SKIP_ANKI_RSPY=true python -m pip install -e .
 	@touch $@
 
 .build/dev-deps: requirements.dev
@@ -117,6 +117,7 @@ anki/buildinfo.py: ../meta/version ../meta/buildhash
 
 VER := $(shell cat ../meta/version)
 .build/vernum: ../meta/version
-	sed -i.bak 's/.*automatically updated.*/    version="$(VER)",  # automatically updated/' setup.py
+	sed -i.bak 's/.*automatically updated 1.*/    install_requires.append("ankirspy==$(VER)")  # automatically updated 1/' setup.py
+	sed -i.bak 's/.*automatically updated 2.*/    version="$(VER)",  # automatically updated 2/' setup.py
 	rm setup.py.bak
 	@touch $@
