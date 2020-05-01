@@ -14,8 +14,7 @@ jobs:
         id: check_tagged
         run: |
           set -x
-          printf '%s' '
-          #!/usr/bin/env python3
+          printf '%s' '#!/usr/bin/env python3
           # -*- coding: utf-8 -*-
 
           import json
@@ -43,7 +42,7 @@ jobs:
                 "PIP_WHEELS_DIR": "~/.cache/pip",
                 "CARGO_INDEX_DIR": "~/.cargo/git",
                 "CARGO_REGISTRY_DIR": "~/.cargo/registry",
-                "ANKI_PYTHON_WHEELS": "anki_linux_python_wheels"
+                "ANKI_PYTHON_WHEELS": "anki_linux_python"
               },
               {
                 "os": "macos-latest",
@@ -52,7 +51,7 @@ jobs:
                 "PIP_WHEELS_DIR": "~/Library/Caches/pip",
                 "CARGO_INDEX_DIR": "~/.cargo/git",
                 "CARGO_REGISTRY_DIR": "~/.cargo/registry",
-                "ANKI_PYTHON_WHEELS": "anki_macos_python_wheels"
+                "ANKI_PYTHON_WHEELS": "anki_macos_python"
               },
               {
                 "os": "windows-latest",
@@ -61,7 +60,7 @@ jobs:
                 "PIP_WHEELS_DIR": "~\\AppData\\Local\\pip\\Cache",
                 "CARGO_INDEX_DIR": "C:\\Rust\\.cargo\\git",
                 "CARGO_REGISTRY_DIR": "C:\\Rust\\.cargo\\registry",
-                "ANKI_PYTHON_WHEELS": "anki_windows_python_wheels"
+                "ANKI_PYTHON_WHEELS": "anki_windows_python"
               }
             ]
           }
@@ -353,7 +352,7 @@ jobs:
         if: matrix.BUILD_TYPE == 'build'
         uses: actions/upload-artifact@v1
         with:
-          name: ${{ matrix.ANKI_PYTHON_WHEELS }}
+          name: ${{ matrix.ANKI_PYTHON_WHEELS }}${{ matrix.python }}
           path: dist
 
       - name: Upload to PyPi Windows
