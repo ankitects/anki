@@ -334,6 +334,7 @@ jobs:
           cd dist
           setlocal EnableDelayedExpansion
           cmd /C set "wheels=" && for /f "delims=" %%i in ('dir /b *.*') DO set "wheels="%%i" !wheels!"
+
           python -m pip install pyqtwebengine %wheels%
           python -c "import aqt; # aqt.run()"
 
@@ -363,9 +364,15 @@ jobs:
           TWINE_USERNAME: __token__
         run: |
           echo on
-          rm -f "dist/%pyaudio%"
+          cd dist
+          rm -f "%pyaudio%"
+          setlocal EnableDelayedExpansion
+          cmd /C set "wheels=" && for /f "delims=" %%i in ('dir /b *.*') DO set "wheels="%%i" !wheels!"
+
+          :: https://github.com/ankitects/anki/pull/535
+          perl ../scripts/rename -f "s@\+[\w\d]+-@-@g" %wheels%
           python -m pip install twine
-          twine upload --non-interactive --skip-existing --verbose dist/*
+          python -m twine upload --non-interactive --skip-existing --verbose ./*
 
       - name: Upload to PyPi Linux/Mac OS
         if: matrix.BUILD_TYPE == 'disabled' && startsWith(github.ref, 'refs/tags/') && ( matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest' )
@@ -375,4 +382,7 @@ jobs:
         run: |
           set -x
           python -m pip install twine
-          twine upload --non-interactive --skip-existing --verbose dist/*
+
+          # https://github.com/ankitects/anki/pull/535
+          perl scripts/rename -f "s@\+[\w\d]+-@-@g" dist/*
+          python -m twine upload --non-interactive --skip-existing --verbose dist/*
