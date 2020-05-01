@@ -14,8 +14,7 @@ jobs:
         id: check_tagged
         run: |
           set -x
-          printf '%s' '
-          #!/usr/bin/env python3
+          printf '%s' '#!/usr/bin/env python3
           # -*- coding: utf-8 -*-
 
           import json
