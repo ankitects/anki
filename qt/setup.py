@@ -30,12 +30,13 @@ install_requires = [
     "pyqt5>=5.9",
     'psutil; sys.platform == "win32"',
     'pywin32; sys.platform == "win32"',
+    "anki==2.1.25",  # automatically updated 1
 ]
 
 
 setuptools.setup(
     name="aqt",
-    version="2.1.25",  # automatically updated
+    version="2.1.25",  # automatically updated 2
     author="Ankitects Pty Ltd",
     description="Anki's Qt GUI code",
     long_description="Anki's QT GUI code",
