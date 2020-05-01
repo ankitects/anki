@@ -64,7 +64,7 @@ impl Backend {
                     Ok(cont) => cont,
                     Err(e) => {
                         println!("callback did not return bool: {:?}", e);
-                        return false;
+                        false
                     }
                 }
             };
