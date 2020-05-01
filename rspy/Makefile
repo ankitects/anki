@@ -41,6 +41,10 @@ RSPY_TARGET_DIR ?= target
 QT_FTL_TEMPLATES := ../qt/ftl
 QT_FTL_LOCALES := ../qt/ftl/repo/desktop
 
+BUILD_VARIABLES = FTL_TEMPLATE_DIRS="$(QT_FTL_TEMPLATES)" \
+	FTL_LOCALE_DIRS="$(QT_FTL_LOCALES)" \
+	CARGO_TARGET_DIR="$(RSPY_TARGET_DIR)"
+
 .PHONY: all develop build check fix clean
 
 all: develop
@@ -56,16 +60,16 @@ DEPS := .build/tools .build/vernum ../meta/buildhash \
 
 .build/develop: $(DEPS)
 	touch ../proto/backend.proto
-	FTL_TEMPLATE_DIRS="$(QT_FTL_TEMPLATES)" FTL_LOCALE_DIRS="$(QT_FTL_LOCALES)" \
-		CARGO_TARGET_DIR="$(RSPY_TARGET_DIR)" maturin develop $(DEVFLAGS)
+	${BUILD_VARIABLES} \
+		maturin develop $(DEVFLAGS)
 	touch $@
 
 build: .build/build
 
 .build/build: $(DEPS)
 	touch ../proto/backend.proto
-	FTL_TEMPLATE_DIRS="$(QT_FTL_TEMPLATES)" FTL_LOCALE_DIRS="$(QT_FTL_LOCALES)" \
-		CARGO_TARGET_DIR="$(RSPY_TARGET_DIR)" maturin build -i "${PYTHON_FILE}" -o "$(OUTDIR)" $(BUILDFLAGS)
+	${BUILD_VARIABLES} \
+		maturin build -i "${PYTHON_FILE}" -o "$(OUTDIR)" $(BUILDFLAGS)
 	touch $@
 
 check: .build/check
