@@ -217,7 +217,7 @@ impl Backend {
             Value::SchedTimingToday(input) => {
                 OValue::SchedTimingToday(self.sched_timing_today(input))
             }
-            Value::DeckTree(_) => todo!(),
+            Value::DeckTree(input) => OValue::DeckTree(self.deck_tree(input)?),
             Value::RenderCard(input) => OValue::RenderCard(self.render_template(input)?),
             Value::LocalMinutesWest(stamp) => {
                 OValue::LocalMinutesWest(local_minutes_west_for_stamp(stamp))
@@ -434,6 +434,16 @@ impl Backend {
             days_elapsed: today.days_elapsed,
             next_day_at: today.next_day_at,
         }
+    }
+
+    fn deck_tree(&self, input: pb::DeckTreeIn) -> Result<pb::DeckTreeNode> {
+        self.with_col(|col| {
+            if input.include_counts {
+                todo!()
+            } else {
+                col.deck_tree()
+            }
+        })
     }
 
     fn render_template(&self, input: pb::RenderCardIn) -> Result<pb::RenderCardOut> {
