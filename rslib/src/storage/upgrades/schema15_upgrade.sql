@@ -27,14 +27,14 @@ create table notetypes (
 create unique index idx_notetypes_name on notetypes (name);
 create index idx_notetypes_usn on notetypes (usn);
 create table decks (
-  name text not null primary key collate unicase,
-  id integer not null,
+  id integer primary key not null,
+  name text not null collate unicase,
   mtime_secs integer not null,
   usn integer not null,
   common bytes not null,
   kind bytes not null
 );
-create unique index idx_decks_id on decks (id);
+create unique index idx_decks_name on decks (name);
 create index idx_cards_odid on cards (odid)
 where
   odid != 0;
