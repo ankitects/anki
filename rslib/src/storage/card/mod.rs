@@ -111,6 +111,13 @@ impl super::SqliteStorage {
         card.id = CardID(self.db.last_insert_rowid());
         Ok(())
     }
+
+    pub(crate) fn remove_card(&self, cid: CardID) -> Result<()> {
+        self.db
+            .prepare_cached("delete from cards where id = ?")?
+            .execute(&[cid])?;
+        Ok(())
+    }
 }
 
 #[cfg(test)]

@@ -9,6 +9,7 @@ use serde::{de::DeserializeOwned, Serialize};
 use serde_aux::field_attributes::deserialize_bool_from_anything;
 use serde_derive::Deserialize;
 use serde_json::json;
+use serde_repr::{Deserialize_repr, Serialize_repr};
 use slog::warn;
 
 pub(crate) fn schema11_config_as_string() -> String {
@@ -40,6 +41,13 @@ pub(crate) enum ConfigKey {
     LocalOffset,
     CurrentNoteTypeID,
     NextNewCardPosition,
+    SchedulerVersion,
+}
+#[derive(PartialEq, Serialize_repr, Deserialize_repr, Clone, Copy)]
+#[repr(u8)]
+pub(crate) enum SchedulerVersion {
+    V1 = 1,
+    V2 = 2,
 }
 
 impl From<ConfigKey> for &'static str {
@@ -53,6 +61,7 @@ impl From<ConfigKey> for &'static str {
             ConfigKey::LocalOffset => "localOffset",
             ConfigKey::CurrentNoteTypeID => "curModel",
             ConfigKey::NextNewCardPosition => "nextPos",
+            ConfigKey::SchedulerVersion => "schedVer",
         }
     }
 }
@@ -141,6 +150,11 @@ impl Collection {
             .unwrap_or_default();
         self.set_config(ConfigKey::NextNewCardPosition, &pos.wrapping_add(1))?;
         Ok(pos)
+    }
+
+    pub(crate) fn sched_ver(&self) -> SchedulerVersion {
+        self.get_config_optional(ConfigKey::SchedulerVersion)
+            .unwrap_or(SchedulerVersion::V1)
     }
 }
 

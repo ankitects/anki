@@ -198,6 +198,7 @@ impl SqliteStorage {
 
         if create {
             storage.add_default_deck_config(i18n)?;
+            storage.add_default_deck(i18n)?;
             storage.add_stock_notetypes(i18n)?;
         }
 

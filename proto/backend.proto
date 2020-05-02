@@ -71,7 +71,7 @@ message BackendInput {
         int32 get_changed_notetypes = 56;
         AddOrUpdateNotetypeIn add_or_update_notetype = 57;
         Empty get_all_decks = 58;
-        bytes set_all_decks = 59;
+//        bytes set_all_decks = 59;
         Empty all_stock_notetypes = 60;
         int64 get_notetype_legacy = 61;
         Empty get_notetype_names = 62;
@@ -83,6 +83,12 @@ message BackendInput {
         Note update_note = 68;
         int64 get_note = 69;
         Empty get_empty_cards = 70;
+        int64 get_deck_legacy = 71;
+        string get_deck_id_by_name = 72;
+        Empty get_deck_names = 73;
+        AddOrUpdateDeckLegacyIn add_or_update_deck_legacy = 74;
+        bool new_deck_legacy = 75;
+        int64 remove_deck = 76;
     }
 }
 
@@ -134,7 +140,7 @@ message BackendOutput {
         bytes get_changed_notetypes = 56;
         int64 add_or_update_notetype = 57;
         bytes get_all_decks = 58;
-        Empty set_all_decks = 59;
+//        Empty set_all_decks = 59;
         bytes get_notetype_legacy = 61;
         NoteTypeNames get_notetype_names = 62;
         NoteTypeUseCounts get_notetype_names_and_counts = 63;
@@ -145,6 +151,12 @@ message BackendOutput {
         Empty update_note = 68;
         Note get_note = 69;
         EmptyCardsReport get_empty_cards = 70;
+        bytes get_deck_legacy = 71;
+        int64 get_deck_id_by_name = 72;
+        DeckNames get_deck_names = 73;
+        int64 add_or_update_deck_legacy = 74;
+        bytes new_deck_legacy = 75;
+        Empty remove_deck = 76;
 
         BackendError error = 2047;
     }
@@ -166,6 +178,8 @@ message BackendError {
         string json_error = 9;
         string proto_error = 10;
         Empty not_found_error = 11;
+        Empty exists = 12;
+        Empty deck_is_filtered = 13;
     }
 }
 
@@ -613,4 +627,81 @@ message NoteWithEmptyCards {
     int64 note_id = 1;
     repeated int64 card_ids = 2;
     bool will_delete_note = 3;
+}
+
+message Deck {
+    int64 id = 1;
+    string name = 2;
+    uint32 mtime_secs = 3;
+    int32 usn = 4;
+    DeckCommon common = 5;
+    oneof kind {
+        NormalDeck normal = 6;
+        FilteredDeck filtered = 7;
+    }
+}
+
+message DeckCommon {
+    bool collapsed = 1;
+    uint32 last_day_studied = 2;
+    int32 new_studied = 3;
+    int32 review_studied = 4;
+    int32 learning_studied = 5;
+    int32 secs_studied = 6;
+    bytes other = 16;
+}
+
+message DeckKind {
+    oneof kind {
+        NormalDeck normal = 1;
+        FilteredDeck filtered = 2;
+    }
+}
+
+message NormalDeck {
+    int64 config_id = 1;
+    uint32 extend_new = 2;
+    uint32 extend_review = 3;
+    string description = 4;
+}
+
+message FilteredDeck {
+    bool reschedule = 1;
+    repeated FilteredSearchTerm search_terms = 2;
+    // v1 scheduler only
+    repeated float delays = 3;
+    // v2 scheduler only
+    uint32 preview_delay = 4;
+}
+
+message FilteredSearchTerm {
+    string search = 1;
+    uint32 limit = 2;
+    FilteredSearchOrder order = 3;
+}
+
+enum FilteredSearchOrder {
+    FILTERED_SEARCH_ORDER_OLDEST_FIRST = 0;
+    FILTERED_SEARCH_ORDER_RANDOM = 1;
+    FILTERED_SEARCH_ORDER_INTERVALS_ASCENDING = 2;
+    FILTERED_SEARCH_ORDER_INTERVALS_DESCENDING = 3;
+    FILTERED_SEARCH_ORDER_LAPSES = 4;
+    FILTERED_SEARCH_ORDER_ADDED = 5;
+    FILTERED_SEARCH_ORDER_DUE = 6;
+    FILTERED_SEARCH_ORDER_REVERSE_ADDED = 7;
+    FILTERED_SEARCH_ORDER_DUE_PRIORITY = 8;
+}
+
+message DeckNames {
+    repeated DeckNameID entries = 1;
+}
+
+message DeckNameID {
+    int64 id = 1;
+    string name = 2;
+}
+
+message AddOrUpdateDeckLegacyIn {
+    bytes deck = 1;
+    bool preserve_usn_and_mtime = 2;
 }

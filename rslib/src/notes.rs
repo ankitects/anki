@@ -220,6 +220,16 @@ impl Collection {
 
         Ok(())
     }
+
+    /// Remove a note. Cards must already have been deleted.
+    pub(crate) fn remove_note_only(&mut self, nid: NoteID, usn: Usn) -> Result<()> {
+        if let Some(_note) = self.storage.get_note(nid)? {
+            // fixme: undo
+            self.storage.remove_note(nid)?;
+            self.storage.add_note_grave(nid, usn)?;
+        }
+        Ok(())
+    }
 }
 
 #[cfg(test)]

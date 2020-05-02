@@ -1,8 +1,6 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import copy
-import json
 import os
 import weakref
 from dataclasses import dataclass
@@ -10,10 +8,8 @@ from typing import Optional
 
 from anki.collection import _Collection
 from anki.dbproxy import DBProxy
-from anki.lang import _
 from anki.media import media_paths_from_col_path
 from anki.rsbackend import RustBackend
-from anki.utils import intTime
 
 
 @dataclass
@@ -43,37 +39,7 @@ def Collection(
     backend.open_collection(path, media_dir, media_db, log_path)
     db = DBProxy(weakref.proxy(backend), path)
 
-    # initial setup required?
-    create = db.scalar("select decks = '{}' from col")
-    if create:
-        initial_db_setup(db)
-
     # add db to col and do any remaining upgrades
-    col = _Collection(db, backend=backend, server=server, log=should_log)
-    if create:
-        col.save()
-    else:
-        db.begin()
-    return col
-
-
-# Creating a new collection
-######################################################################
-
-
-def initial_db_setup(db: DBProxy) -> None:
-    import anki.decks
-
+    col = _Collection(db, backend=backend, server=server)
     db.begin()
-
-    g = copy.deepcopy(anki.decks.defaultDeck)
-    g["id"] = 1
-    g["name"] = _("Default")
-    g["conf"] = 1
-    g["mod"] = intTime()
-
-    db.execute(
-        """
-update col set decks = ?""",
-        json.dumps({"1": g}),
-    )
+    return col

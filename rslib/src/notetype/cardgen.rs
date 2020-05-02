@@ -289,11 +289,8 @@ impl Collection {
 
     /// If deck exists and and is a normal deck, return it.
     fn deck_id_if_normal(&mut self, did: DeckID) -> Option<DeckID> {
-        // fixme: currently disabled until deck writes are immediate
-        return Some(did);
-
         self.get_deck(did)
             .ok()
-            .and_then(|opt| opt.and_then(|d| if !d.is_filtered() { Some(d.id()) } else { None }))
+            .and_then(|opt| opt.and_then(|d| if !d.is_filtered() { Some(d.id) } else { None }))
     }
 }

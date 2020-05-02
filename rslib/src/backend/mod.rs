@@ -11,7 +11,7 @@ use crate::{
     collection::{open_collection, Collection},
     config::SortKind,
     deckconf::{DeckConf, DeckConfID},
-    decks::{Deck, DeckID},
+    decks::{Deck, DeckID, DeckSchema11},
     err::{AnkiError, NetworkErrorKind, Result, SyncErrorKind},
     i18n::{tr_args, I18n, TR},
     latex::{extract_latex, extract_latex_expanding_clozes, ExtractedLatex},
@@ -78,6 +78,8 @@ fn anki_error_to_proto_error(err: AnkiError, i18n: &I18n) -> pb::BackendError {
         AnkiError::JSONError { info } => V::JsonError(info),
         AnkiError::ProtoError { info } => V::ProtoError(info),
         AnkiError::NotFound => V::NotFoundError(Empty {}),
+        AnkiError::Existing => V::Exists(Empty {}),
+        AnkiError::DeckIsFiltered => V::DeckIsFiltered(Empty {}),
     };
 
     pb::BackendError {
@@ -306,10 +308,6 @@ impl Backend {
                 OValue::GetChangedNotetypes(self.get_changed_notetypes()?)
             }
             Value::GetAllDecks(_) => OValue::GetAllDecks(self.get_all_decks()?),
-            Value::SetAllDecks(bytes) => {
-                self.set_all_decks(&bytes)?;
-                OValue::SetAllDecks(pb::Empty {})
-            }
             Value::AllStockNotetypes(_) => OValue::AllStockNotetypes(pb::AllStockNotetypesOut {
                 notetypes: all_stock_notetypes(&self.i18n)
                     .into_iter()
@@ -342,6 +340,22 @@ impl Backend {
             }
             Value::GetNote(nid) => OValue::GetNote(self.get_note(nid)?),
             Value::GetEmptyCards(_) => OValue::GetEmptyCards(self.get_empty_cards()?),
+            Value::GetDeckLegacy(did) => OValue::GetDeckLegacy(self.get_deck_legacy(did)?),
+            Value::GetDeckIdByName(name) => {
+                OValue::GetDeckIdByName(self.get_deck_id_by_name(&name)?)
+            }
+            Value::GetDeckNames(_) => OValue::GetDeckNames(self.get_deck_names()?),
+            Value::AddOrUpdateDeckLegacy(input) => {
+                OValue::AddOrUpdateDeckLegacy(self.add_or_update_deck_legacy(input)?)
+            }
+            Value::NewDeckLegacy(filtered) => {
+                OValue::NewDeckLegacy(self.new_deck_legacy(filtered)?)
+            }
+
+            Value::RemoveDeck(did) => OValue::RemoveDeck({
+                self.remove_deck(did)?;
+                pb::Empty {}
+            }),
         })
     }
 
@@ -846,14 +860,9 @@ impl Backend {
         // })
     }
 
-    fn set_all_decks(&self, json: &[u8]) -> Result<()> {
-        let val: HashMap<DeckID, Deck> = serde_json::from_slice(json)?;
-        self.with_col(|col| col.transact(None, |col| col.storage.set_all_decks(val)))
-    }
-
     fn get_all_decks(&self) -> Result<Vec<u8>> {
         self.with_col(|col| {
-            let decks = col.storage.get_all_decks()?;
+            let decks = col.storage.get_all_decks_as_schema11()?;
             serde_json::to_vec(&decks).map_err(Into::into)
         })
     }
@@ -973,6 +982,59 @@ impl Backend {
                 notes: outnotes,
             })
         })
+    }
+
+    fn get_deck_legacy(&self, did: i64) -> Result<Vec<u8>> {
+        self.with_col(|col| {
+            let deck: DeckSchema11 = col
+                .storage
+                .get_deck(DeckID(did))?
+                .ok_or(AnkiError::NotFound)?
+                .into();
+            serde_json::to_vec(&deck).map_err(Into::into)
+        })
+    }
+
+    fn get_deck_id_by_name(&self, human_name: &str) -> Result<i64> {
+        self.with_col(|col| {
+            col.get_deck_id(human_name)
+                .map(|d| d.map(|d| d.0).unwrap_or_default())
+        })
+    }
+
+    fn get_deck_names(&self) -> Result<pb::DeckNames> {
+        self.with_col(|col| {
+            let names = col.storage.get_all_deck_names()?;
+            Ok(pb::DeckNames {
+                entries: names
+                    .into_iter()
+                    .map(|(id, name)| pb::DeckNameId { id: id.0, name })
+                    .collect(),
+            })
+        })
+    }
+
+    fn add_or_update_deck_legacy(&self, input: pb::AddOrUpdateDeckLegacyIn) -> Result<i64> {
+        self.with_col(|col| {
+            let schema11: DeckSchema11 = serde_json::from_slice(&input.deck)?;
+            let mut deck: Deck = schema11.into();
+            col.add_or_update_deck(&mut deck, input.preserve_usn_and_mtime)?;
+            Ok(deck.id.0)
+        })
+    }
+
+    fn new_deck_legacy(&self, filtered: bool) -> Result<Vec<u8>> {
+        let deck = if filtered {
+            Deck::new_filtered()
+        } else {
+            Deck::new_normal()
+        };
+        let schema11: DeckSchema11 = deck.into();
+        serde_json::to_vec(&schema11).map_err(Into::into)
+    }
+
+    fn remove_deck(&self, did: i64) -> Result<()> {
+        self.with_col(|col| col.remove_deck_and_child_decks(DeckID(did)))
     }
 }
 

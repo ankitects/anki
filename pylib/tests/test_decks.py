@@ -7,13 +7,13 @@ from tests.shared import assertException, getEmptyCol
 def test_basic():
     deck = getEmptyCol()
     # we start with a standard deck
-    assert len(deck.decks.decks) == 1
+    assert len(deck.decks.all_names_and_ids()) == 1
     # it should have an id of 1
     assert deck.decks.name(1)
     # create a new deck
     parentId = deck.decks.id("new deck")
     assert parentId
-    assert len(deck.decks.decks) == 2
+    assert len(deck.decks.all_names_and_ids()) == 2
     # should get the same id
     assert deck.decks.id("new deck") == parentId
     # we start with the default deck selected
@@ -54,22 +54,11 @@ def test_remove():
     deck.addNote(f)
     c = f.cards()[0]
     assert c.did == g1
-    # by default deleting the deck leaves the cards with an invalid did
     assert deck.cardCount() == 1
     deck.decks.rem(g1)
-    assert deck.cardCount() == 1
-    c.load()
-    assert c.did == g1
-    # but if we try to get it, we get the default
-    assert deck.decks.name(c.did) == "[no deck]"
-    # let's create another deck and explicitly set the card to it
-    g2 = deck.decks.id("g2")
-    c.did = g2
-    c.flush()
-    # this time we'll delete the card/note too
-    deck.decks.rem(g2, cardsToo=True)
     assert deck.cardCount() == 0
-    assert deck.noteCount() == 0
+    # if we try to get it, we get the default
+    assert deck.decks.name(c.did) == "[no deck]"
 
 
 def test_rename():
