@@ -45,6 +45,13 @@ BUILD_VARIABLES = FTL_TEMPLATE_DIRS="$(QT_FTL_TEMPLATES)" \
 	FTL_LOCALE_DIRS="$(QT_FTL_LOCALES)" \
 	CARGO_TARGET_DIR="$(RSPY_TARGET_DIR)"
 
+# change target dir for clippy on Mac OS - https://github.com/ankitects/anki/pull/597
+ifeq ($(UNAME),Darwin)
+	CLIPPY_TARGET_DIR = ${RSPY_TARGET_DIR}clippy
+else
+	CLIPPY_TARGET_DIR = ${RSPY_TARGET_DIR}
+endif
+
 .PHONY: all develop build check fix clean
 
 all: develop
@@ -74,9 +81,6 @@ build: .build/build
 
 check: .build/check
 
-# cargo clippy also run build.rs, thus it must be called before calling .build/develop
-clippy: .build/clippy .build/develop
-
 fix:
 	cargo fmt
 
@@ -93,13 +97,13 @@ RUST_TOOLCHAIN := $(shell cat rust-toolchain)
 	rustup component add clippy-preview --toolchain $(RUST_TOOLCHAIN)
 	@touch $@
 
-# we should not call clippy on Mac OS when running make check - https://github.com/ankitects/anki/pull/597
-.build/check: .build/develop
+# cargo clippy also run build.rs, thus it must be called before calling .build/develop
+.build/check: .build/clippy .build/develop
 	cargo fmt -- --check
 	@touch $@
 
 .build/clippy: $(DEPS)
-	cargo clippy -- -D warnings
+	CARGO_TARGET_DIR="${CLIPPY_TARGET_DIR}" cargo clippy -- -D warnings
 	@touch $@
 
 VER := $(shell cat ../meta/version)
