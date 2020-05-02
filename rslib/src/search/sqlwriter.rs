@@ -3,15 +3,14 @@
 
 use super::parser::{Node, PropertyKind, SearchNode, StateKind, TemplateKind};
 use crate::card::CardQueue;
-use crate::decks::child_ids;
-use crate::decks::get_deck;
-use crate::err::{AnkiError, Result};
+use crate::err::Result;
 use crate::notes::field_checksum;
 use crate::notetype::NoteTypeID;
 use crate::text::matches_wildcard;
 use crate::text::without_combining;
 use crate::{
-    collection::Collection, storage::ids_to_string, text::strip_html_preserving_image_filenames,
+    collection::Collection, decks::human_deck_name_to_native,
+    text::strip_html_preserving_image_filenames,
 };
 use lazy_static::lazy_static;
 use regex::{Captures, Regex};
@@ -221,44 +220,33 @@ impl SqlWriter<'_> {
         Ok(())
     }
 
-    // fixme: update for new table
     fn write_deck(&mut self, deck: &str) -> Result<()> {
         match deck {
             "*" => write!(self.sql, "true").unwrap(),
-            "filtered" => write!(self.sql, "c.odid > 0").unwrap(),
+            "filtered" => write!(self.sql, "c.odid != 0").unwrap(),
             deck => {
-                let all_decks: Vec<_> = self
-                    .col
-                    .storage
-                    .get_all_decks_as_schema11()?
-                    .into_iter()
-                    .map(|(_, v)| v)
-                    .collect();
-                let dids_with_children = if deck == "current" {
-                    let current_id = self.col.get_current_deck_id();
-                    let mut dids_with_children = vec![current_id];
-                    let current = get_deck(&all_decks, current_id)
-                        .ok_or_else(|| AnkiError::invalid_input("invalid current deck"))?;
-                    for child_did in child_ids(&all_decks, &current.name()) {
-                        dids_with_children.push(child_did);
-                    }
-                    dids_with_children
+                // rewrite "current" to the current deck name
+                let deck = if deck == "current" {
+                    let current_did = self.col.get_current_deck_id();
+                    self.col
+                        .storage
+                        .get_deck(current_did)?
+                        .map(|d| d.name)
+                        .unwrap_or_else(|| "Default".into())
                 } else {
-                    let mut dids_with_children = vec![];
-                    for deck in all_decks
-                        .iter()
-                        .filter(|d| matches_wildcard(&d.name(), deck))
-                    {
-                        dids_with_children.push(deck.id());
-                        for child_id in child_ids(&all_decks, &deck.name()) {
-                            dids_with_children.push(child_id);
-                        }
-                    }
-                    dids_with_children
+                    deck.into()
                 };
 
-                self.sql.push_str("c.did in ");
-                ids_to_string(&mut self.sql, &dids_with_children);
+                // convert to a regex that includes child decks
+                let human_deck = human_deck_name_to_native(&deck);
+                let re = text_to_re(&human_deck);
+                self.args.push(format!("(?i)^{}($|\x1f)", re));
+                let arg_idx = self.args.len();
+                self.sql.push_str(&format!(concat!(
+                    "(c.did in (select id from decks where name regexp ?{n})",
+                    " or (c.odid != 0 and c.odid in (select id from decks where name regexp ?{n})))"),
+                    n=arg_idx
+                ));
             }
         };
         Ok(())
@@ -371,17 +359,23 @@ impl SqlWriter<'_> {
     }
 
     fn write_word_boundary(&mut self, word: &str) {
-        let re = glob_to_re(word).unwrap_or_else(|| word.to_string());
+        // fixme: need to escape in the no-glob case as well
+        let re = text_to_re(word);
         self.write_regex(&format!(r"\b{}\b", re))
     }
 }
 
 /// Convert a string with _, % or * characters into a regex.
+/// If string contains no globbing characters, return None.
 fn glob_to_re(glob: &str) -> Option<String> {
     if !glob.contains(|c| c == '_' || c == '*' || c == '%') {
         return None;
     }
+    Some(text_to_re(glob))
+}
 
+/// Escape text, converting glob characters to regex syntax, then return.
+fn text_to_re(glob: &str) -> String {
     lazy_static! {
         static ref ESCAPED: Regex = Regex::new(r"(\\\\)?\\\*").unwrap();
         static ref GLOB: Regex = Regex::new(r"(\\\\)?[_%]").unwrap();
@@ -409,7 +403,7 @@ fn glob_to_re(glob: &str) -> Option<String> {
         .to_string()
     });
 
-    text2.into_owned().into()
+    text2.into()
 }
 
 #[cfg(test)]
@@ -488,11 +482,21 @@ mod test {
         );
 
         // deck
-        assert_eq!(s(ctx, "deck:default"), ("(c.did in (1))".into(), vec![],));
-        assert_eq!(s(ctx, "deck:current"), ("(c.did in (1))".into(), vec![],));
-        assert_eq!(s(ctx, "deck:missing"), ("(c.did in ())".into(), vec![],));
-        assert_eq!(s(ctx, "deck:d*"), ("(c.did in (1))".into(), vec![],));
-        assert_eq!(s(ctx, "deck:filtered"), ("(c.odid > 0)".into(), vec![],));
+        assert_eq!(
+            s(ctx, "deck:default"),
+            (
+                "((c.did in (select id from decks where name regexp ?1) or (c.odid != 0 and \
+                c.odid in (select id from decks where name regexp ?1))))"
+                    .into(),
+                vec!["(?i)^default($|\u{1f})".into()]
+            )
+        );
+        assert_eq!(
+            s(ctx, "deck:current").1,
+            vec!["(?i)^Default($|\u{1f})".to_string()]
+        );
+        assert_eq!(s(ctx, "deck:d*").1, vec!["(?i)^d.*($|\u{1f})".to_string()]);
+        assert_eq!(s(ctx, "deck:filtered"), ("(c.odid != 0)".into(), vec![],));
 
         // card
         assert_eq!(
