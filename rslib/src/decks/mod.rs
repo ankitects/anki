@@ -366,8 +366,6 @@ impl Collection {
     }
 
     fn delete_all_cards_in_normal_deck(&mut self, did: DeckID) -> Result<()> {
-        // fixme: need to search on odid as well
-        // fixme: the odid requirement will require a table scan, which will be slow when deleting a large tree
         let cids = self.storage.all_cards_in_single_deck(did)?;
         self.remove_cards_inner(&cids)
     }

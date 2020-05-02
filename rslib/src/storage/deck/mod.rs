@@ -117,7 +117,7 @@ impl SqliteStorage {
 
     pub(crate) fn all_cards_in_single_deck(&self, did: DeckID) -> Result<Vec<CardID>> {
         self.db
-            .prepare_cached("select id from cards where did = ?")?
+            .prepare_cached(include_str!("cards_for_deck.sql"))?
             .query_and_then(&[did], |r| r.get(0).map_err(Into::into))?
             .collect()
     }
