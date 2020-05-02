@@ -1170,9 +1170,7 @@ QTableView {{ gridline-color: {grid} }}
                     ":/icons/deck.svg",
                     set_filter(),
                     toggle_expand(),
-                    not self.mw.col.decks.get(node.deck_id).get(
-                        "browserCollapsed", False
-                    ),
+                    not node.collapsed,
                 )
                 root.addChild(item)
                 newhead = head + node.name + "::"

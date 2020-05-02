@@ -643,12 +643,15 @@ message Deck {
 }
 
 message DeckCommon {
-    bool collapsed = 1;
-    uint32 last_day_studied = 2;
-    int32 new_studied = 3;
-    int32 review_studied = 4;
-    int32 learning_studied = 5;
-    int32 secs_studied = 6;
+    bool study_collapsed = 1;
+    bool browser_collapsed = 2;
+
+    uint32 last_day_studied = 3;
+    int32 new_studied = 4;
+    int32 review_studied = 5;
+    int32 learning_studied = 6;
+    int32 secs_studied = 7;
+    
     bytes other = 16;
 }
 

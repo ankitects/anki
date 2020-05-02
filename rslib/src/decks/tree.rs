@@ -1,8 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use super::Deck;
 use crate::{backend_proto::DeckTreeNode, collection::Collection, decks::DeckID, err::Result};
-use std::iter::Peekable;
+use std::{collections::HashMap, iter::Peekable};
 
 // fixme: handle mixed case of parents
 
@@ -50,10 +51,34 @@ fn add_child_nodes(
     }
 }
 
+fn add_collapsed(node: &mut DeckTreeNode, decks: &HashMap<DeckID, Deck>, browser: bool) {
+    if let Some(deck) = decks.get(&DeckID(node.deck_id)) {
+        node.collapsed = if browser {
+            deck.common.browser_collapsed
+        } else {
+            deck.common.study_collapsed
+        };
+    }
+    for child in &mut node.children {
+        add_collapsed(child, decks, browser);
+    }
+}
+
 impl Collection {
     pub fn deck_tree(&self) -> Result<DeckTreeNode> {
         let names = self.storage.get_all_deck_names()?;
-        Ok(deck_names_to_tree(names))
+        let mut tree = deck_names_to_tree(names);
+
+        let decks_map: HashMap<_, _> = self
+            .storage
+            .get_all_decks()?
+            .into_iter()
+            .map(|d| (d.id, d))
+            .collect();
+
+        add_collapsed(&mut tree, &decks_map, true);
+
+        Ok(tree)
     }
 }
 
