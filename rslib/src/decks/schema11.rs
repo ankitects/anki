@@ -89,7 +89,10 @@ pub struct DeckCommonSchema11 {
     pub(crate) usn: Usn,
     #[serde(flatten)]
     pub(crate) today: DeckTodaySchema11,
-    collapsed: bool,
+    #[serde(rename = "collapsed")]
+    study_collapsed: bool,
+    #[serde(default, rename = "browserCollapsed")]
+    browser_collapsed: bool,
     #[serde(default)]
     desc: String,
     #[serde(rename = "dyn")]
@@ -209,7 +212,8 @@ impl Default for NormalDeckSchema11 {
                 mtime: TimestampSecs(0),
                 name: "".to_string(),
                 usn: Usn(0),
-                collapsed: false,
+                study_collapsed: false,
+                browser_collapsed: false,
                 desc: "".to_string(),
                 today: Default::default(),
                 other: Default::default(),
@@ -255,7 +259,8 @@ impl From<&DeckCommonSchema11> for DeckCommon {
             serde_json::to_vec(&common.other).unwrap_or_default()
         };
         DeckCommon {
-            collapsed: common.collapsed,
+            study_collapsed: common.study_collapsed,
+            browser_collapsed: common.browser_collapsed,
             last_day_studied: common.today.new.day as u32,
             new_studied: common.today.new.amount,
             review_studied: common.today.rev.amount,
@@ -338,7 +343,8 @@ impl From<Deck> for DeckCommonSchema11 {
             name: deck.name.replace("\x1f", "::"),
             usn: deck.usn,
             today: (&deck).into(),
-            collapsed: deck.common.collapsed,
+            study_collapsed: deck.common.study_collapsed,
+            browser_collapsed: deck.common.browser_collapsed,
             dynamic: if matches!(deck.kind, DeckKind::Filtered(_)) {
                 1
             } else {

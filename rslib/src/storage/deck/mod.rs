@@ -52,7 +52,7 @@ impl SqliteStorage {
             .collect()
     }
 
-    /// Get all deck names in human-readable form (::)
+    /// Get all deck names in sorted, human-readable form (::)
     pub(crate) fn get_all_deck_names(&self) -> Result<Vec<(DeckID, String)>> {
         self.db
             .prepare("select id, name from decks order by name")?
