@@ -17,10 +17,10 @@ use unicase::UniCase;
 fn row_to_deck(row: &Row) -> Result<Deck> {
     let common = DeckCommon::decode(row.get_raw(4).as_blob()?)?;
     let kind = DeckKindProto::decode(row.get_raw(5).as_blob()?)?;
-    let id = row.get(1)?;
+    let id = row.get(0)?;
     Ok(Deck {
         id,
-        name: row.get(0)?,
+        name: row.get(1)?,
         mtime_secs: row.get(2)?,
         usn: row.get(3)?,
         common,
@@ -55,9 +55,9 @@ impl SqliteStorage {
     /// Get all deck names in human-readable form (::)
     pub(crate) fn get_all_deck_names(&self) -> Result<Vec<(DeckID, String)>> {
         self.db
-            .prepare("select name, id from decks")?
+            .prepare("select id, name from decks order by name")?
             .query_and_then(NO_PARAMS, |row| {
-                Ok((row.get(1)?, row.get_raw(0).as_str()?.replace('\x1f', "::")))
+                Ok((row.get(0)?, row.get_raw(1).as_str()?.replace('\x1f', "::")))
             })?
             .collect()
     }
@@ -97,8 +97,8 @@ impl SqliteStorage {
         let mut kind = vec![];
         kind_enum.encode(&mut kind)?;
         stmt.execute(params![
-            deck.name,
             deck.id,
+            deck.name,
             deck.mtime_secs,
             deck.usn,
             common,
@@ -135,15 +135,6 @@ impl SqliteStorage {
     }
 
     // Upgrading/downgrading/legacy
-
-    // pub(crate) fn get_all_decks_as_schema11(&self) -> Result<HashMap<DeckID, DeckSchema11>> {
-    //     let mut nts = HashMap::new();
-    //     for (ntid, _name) in self.get_all_deck_names()? {
-    //         let full = self.get_deck(ntid)?.unwrap();
-    //         nts.insert(ntid, full.into());
-    //     }
-    //     Ok(nts)
-    // }
 
     pub(super) fn add_default_deck(&self, i18n: &I18n) -> Result<()> {
         let mut deck = Deck::new_normal();

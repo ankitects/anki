@@ -1,4 +1,4 @@
 insert
-  or replace into decks (name, id, mtime_secs, usn, common, kind)
+  or replace into decks (id, name, mtime_secs, usn, common, kind)
 values
   (?, ?, ?, ?, ?, ?)

@@ -1,6 +1,6 @@
 select
-  name,
   id,
+  name,
   mtime_secs,
   usn,
   common,
