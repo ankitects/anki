@@ -7,6 +7,7 @@ macro_rules! define_newtype {
         #[repr(transparent)]
         #[derive(
             Debug,
+            Default,
             Clone,
             Copy,
             PartialEq,

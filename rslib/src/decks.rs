@@ -76,7 +76,11 @@ mod dynfix {
 pub struct DeckCommon {
     #[serde(deserialize_with = "deserialize_number_from_string")]
     pub(crate) id: DeckID,
-    #[serde(rename = "mod", deserialize_with = "deserialize_number_from_string")]
+    #[serde(
+        rename = "mod",
+        deserialize_with = "deserialize_number_from_string",
+        default
+    )]
     pub(crate) mtime: TimestampSecs,
     pub(crate) name: String,
     pub(crate) usn: Usn,
