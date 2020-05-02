@@ -8,7 +8,6 @@ use crate::collection::Collection;
 use crate::config::SortKind;
 use crate::err::Result;
 use crate::search::parser::parse;
-use rusqlite::params;
 
 pub enum SortMode {
     NoOrder,
@@ -31,14 +30,14 @@ impl Collection {
             SortMode::NoOrder => (),
             SortMode::FromConfig => {
                 let kind = self.get_browser_sort_kind();
-                prepare_sort(self, &kind)?;
+                prepare_sort(self, kind)?;
                 sql.push_str(" order by ");
-                write_order(&mut sql, &kind, self.get_browser_sort_reverse())?;
+                write_order(&mut sql, kind, self.get_browser_sort_reverse())?;
             }
             SortMode::Builtin { kind, reverse } => {
-                prepare_sort(self, &kind)?;
+                prepare_sort(self, kind)?;
                 sql.push_str(" order by ");
-                write_order(&mut sql, &kind, reverse)?;
+                write_order(&mut sql, kind, reverse)?;
             }
             SortMode::Custom(order_clause) => {
                 sql.push_str(" order by ");
@@ -56,7 +55,7 @@ impl Collection {
 }
 
 /// Add the order clause to the sql.
-fn write_order(sql: &mut String, kind: &SortKind, reverse: bool) -> Result<()> {
+fn write_order(sql: &mut String, kind: SortKind, reverse: bool) -> Result<()> {
     let tmp_str;
     let order = match kind {
         SortKind::NoteCreation => "n.id asc, c.ord asc",
@@ -72,9 +71,13 @@ fn write_order(sql: &mut String, kind: &SortKind, reverse: bool) -> Result<()> {
         SortKind::CardLapses => "c.lapses asc",
         SortKind::CardInterval => "c.ivl asc",
         SortKind::NoteTags => "n.tags asc",
-        SortKind::CardDeck => "(select v from sort_order where k = c.did) asc",
-        SortKind::NoteType => "(select v from sort_order where k = n.mid) asc",
-        SortKind::CardTemplate => "(select v from sort_order where k1 = n.mid and k2 = c.ord) asc",
+        SortKind::CardDeck => "(select pos from sort_order where did = c.did) asc",
+        SortKind::NoteType => "(select pos from sort_order where ntid = n.mid) asc",
+        SortKind::CardTemplate => concat!(
+            "coalesce((select pos from sort_order where ntid = n.mid and ord = c.ord),",
+            // need to fall back on ord 0 for cloze cards
+            "(select pos from sort_order where ntid = n.mid and ord = 0)) asc"
+        ),
     };
     if order.is_empty() {
         return Ok(());
@@ -92,60 +95,28 @@ fn write_order(sql: &mut String, kind: &SortKind, reverse: bool) -> Result<()> {
     Ok(())
 }
 
-// fixme: use the new tables
-fn prepare_sort(col: &mut Collection, kind: &SortKind) -> Result<()> {
+fn needs_aux_sort_table(kind: SortKind) -> bool {
     use SortKind::*;
     match kind {
-        CardDeck | NoteType => {
-            prepare_sort_order_table(col)?;
-            let mut stmt = col
-                .storage
-                .db
-                .prepare("insert into sort_order (k,v) values (?,?)")?;
+        CardDeck | NoteType | CardTemplate => true,
+        _ => false,
+    }
+}
 
-            match kind {
-                CardDeck => {
-                    for (k, v) in col.storage.get_all_decks_as_schema11()? {
-                        stmt.execute(params![k, v.name()])?;
-                    }
-                }
-                NoteType => {
-                    for (k, v) in col.storage.get_all_notetypes_as_schema11()? {
-                        stmt.execute(params![k, v.name])?;
-                    }
-                }
-                _ => unreachable!(),
-            }
-        }
-        CardTemplate => {
-            prepare_sort_order_table2(col)?;
-            let mut stmt = col
-                .storage
-                .db
-                .prepare("insert into sort_order (k1,k2,v) values (?,?,?)")?;
-
-            for (ntid, nt) in col.storage.get_all_notetypes_as_schema11()? {
-                for tmpl in nt.tmpls {
-                    stmt.execute(params![ntid, tmpl.ord, tmpl.name])?;
-                }
-            }
-        }
-        _ => (),
+fn prepare_sort(col: &mut Collection, kind: SortKind) -> Result<()> {
+    if !needs_aux_sort_table(kind) {
+        return Ok(());
     }
 
-    Ok(())
-}
+    use SortKind::*;
+    let sql = match kind {
+        CardDeck => include_str!("deck_order.sql"),
+        NoteType => include_str!("notetype_order.sql"),
+        CardTemplate => include_str!("template_order.sql"),
+        _ => unreachable!(),
+    };
 
-fn prepare_sort_order_table(col: &mut Collection) -> Result<()> {
-    col.storage
-        .db
-        .execute_batch(include_str!("sort_order.sql"))?;
-    Ok(())
-}
+    col.storage.db.execute_batch(sql)?;
 
-fn prepare_sort_order_table2(col: &mut Collection) -> Result<()> {
-    col.storage
-        .db
-        .execute_batch(include_str!("sort_order2.sql"))?;
     Ok(())
 }
