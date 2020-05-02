@@ -158,7 +158,7 @@ impl Collection {
     }
 }
 
-#[derive(Deserialize, PartialEq, Debug)]
+#[derive(Deserialize, PartialEq, Debug, Clone, Copy)]
 #[serde(rename_all = "camelCase")]
 pub enum SortKind {
     #[serde(rename = "noteCrt")]
