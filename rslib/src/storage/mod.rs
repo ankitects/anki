@@ -5,6 +5,7 @@ mod card;
 mod config;
 mod deck;
 mod deckconf;
+mod graves;
 mod note;
 mod notetype;
 mod sqlite;

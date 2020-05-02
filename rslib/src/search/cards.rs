@@ -92,8 +92,7 @@ fn write_order(sql: &mut String, kind: &SortKind, reverse: bool) -> Result<()> {
     Ok(())
 }
 
-// In the future these items should be moved from JSON into separate SQL tables,
-// - for now we use a temporary deck to sort them.
+// fixme: use the new tables
 fn prepare_sort(col: &mut Collection, kind: &SortKind) -> Result<()> {
     use SortKind::*;
     match kind {
@@ -106,7 +105,7 @@ fn prepare_sort(col: &mut Collection, kind: &SortKind) -> Result<()> {
 
             match kind {
                 CardDeck => {
-                    for (k, v) in col.storage.get_all_decks()? {
+                    for (k, v) in col.storage.get_all_decks_as_schema11()? {
                         stmt.execute(params![k, v.name()])?;
                     }
                 }

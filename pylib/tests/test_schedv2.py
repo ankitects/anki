@@ -460,6 +460,8 @@ def test_review_limits():
     assert tree[1][5][0][2] == 4  # child
 
     # switch limits
+    parent = d.decks.get(parent["id"])
+    child = d.decks.get(child["id"])
     d.decks.setConf(parent, cconf["id"])
     d.decks.setConf(child, pconf["id"])
     d.decks.select(parent["id"])
@@ -825,6 +827,7 @@ def test_preview():
     did = d.decks.newDyn("Cram")
     cram = d.decks.get(did)
     cram["resched"] = False
+    d.decks.save(cram)
     d.sched.rebuildDyn(did)
     d.reset()
     # grab the first card
@@ -1032,7 +1035,7 @@ def test_deckDue():
     foobaz = f.model()["did"] = d.decks.id("foo::baz")
     d.addNote(f)
     d.reset()
-    assert len(d.decks.decks) == 5
+    assert len(d.decks.all_names_and_ids()) == 5
     cnts = d.sched.deckDueList()
     assert cnts[0] == ["Default", 1, 1, 0, 1]
     assert cnts[1] == ["Default::1", default1, 1, 0, 0]

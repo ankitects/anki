@@ -221,6 +221,7 @@ impl SqlWriter<'_> {
         Ok(())
     }
 
+    // fixme: update for new table
     fn write_deck(&mut self, deck: &str) -> Result<()> {
         match deck {
             "*" => write!(self.sql, "true").unwrap(),
@@ -229,7 +230,7 @@ impl SqlWriter<'_> {
                 let all_decks: Vec<_> = self
                     .col
                     .storage
-                    .get_all_decks()?
+                    .get_all_decks_as_schema11()?
                     .into_iter()
                     .map(|(_, v)| v)
                     .collect();

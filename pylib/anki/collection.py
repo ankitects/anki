@@ -158,14 +158,10 @@ class _Collection:
             self.dty,  # no longer used
             self._usn,
             self.ls,
-            decks,
         ) = self.db.first(
             """
-select crt, mod, scm, dty, usn, ls,
-decks from col"""
+select crt, mod, scm, dty, usn, ls from col"""
         )
-        self.decks.decks = self.backend.get_all_decks()
-        self.decks.changed = False
 
     def setMod(self) -> None:
         """Mark DB modified.

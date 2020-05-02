@@ -102,6 +102,14 @@ class NotFoundError(Exception):
     pass
 
 
+class ExistsError(Exception):
+    pass
+
+
+class DeckIsFilteredError(Exception):
+    pass
+
+
 def proto_exception_to_native(err: pb.BackendError) -> Exception:
     val = err.WhichOneof("value")
     if val == "interrupted":
@@ -122,6 +130,10 @@ def proto_exception_to_native(err: pb.BackendError) -> Exception:
         return StringError(err.localized)
     elif val == "not_found_error":
         return NotFoundError()
+    elif val == "exists":
+        return ExistsError()
+    elif val == "deck_is_filtered":
+        return DeckIsFilteredError()
     else:
         assert_impossible_literal(val)
 
@@ -597,9 +609,6 @@ class RustBackend:
         ).get_all_decks
         return orjson.loads(jstr)
 
-    def set_all_decks(self, nts: Dict[str, Dict[str, Any]]):
-        self._run_command(pb.BackendInput(set_all_decks=orjson.dumps(nts)))
-
     def all_stock_notetypes(self) -> List[NoteType]:
         return list(
             self._run_command(
@@ -673,6 +682,52 @@ class RustBackend:
         return self._run_command(
             pb.BackendInput(get_empty_cards=pb.Empty()), release_gil=True
         ).get_empty_cards
+
+    def get_deck_legacy(self, did: int) -> Optional[Dict]:
+        try:
+            bytes = self._run_command(
+                pb.BackendInput(get_deck_legacy=did)
+            ).get_deck_legacy
+            return orjson.loads(bytes)
+        except NotFoundError:
+            return None
+
+    def get_deck_names_and_ids(self) -> List[pb.DeckNameID]:
+        return list(
+            self._run_command(
+                pb.BackendInput(get_deck_names=pb.Empty())
+            ).get_deck_names.entries
+        )
+
+    def add_or_update_deck_legacy(
+        self, deck: Dict[str, Any], preserve_usn: bool
+    ) -> None:
+        deck_json = orjson.dumps(deck)
+        id = self._run_command(
+            pb.BackendInput(
+                add_or_update_deck_legacy=pb.AddOrUpdateDeckLegacyIn(
+                    deck=deck_json, preserve_usn_and_mtime=preserve_usn
+                )
+            )
+        ).add_or_update_deck_legacy
+        deck["id"] = id
+
+    def new_deck_legacy(self, filtered: bool) -> Dict[str, Any]:
+        jstr = self._run_command(
+            pb.BackendInput(new_deck_legacy=filtered)
+        ).new_deck_legacy
+        return orjson.loads(jstr)
+
+    def get_deck_id_by_name(self, name: str) -> Optional[int]:
+        return (
+            self._run_command(
+                pb.BackendInput(get_deck_id_by_name=name)
+            ).get_deck_id_by_name
+            or None
+        )
+
+    def remove_deck(self, did: int) -> None:
+        self._run_command(pb.BackendInput(remove_deck=did))
 
 
 def translate_string_in(

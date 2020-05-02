@@ -48,6 +48,12 @@ pub enum AnkiError {
 
     #[fail(display = "A requested item was not found.")]
     NotFound,
+
+    #[fail(display = "The provided item already exists.")]
+    Existing,
+
+    #[fail(display = "Unable to place item in/under a filtered deck.")]
+    DeckIsFiltered,
 }
 
 // error helpers

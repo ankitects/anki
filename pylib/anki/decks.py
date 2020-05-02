@@ -8,6 +8,7 @@ import unicodedata
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import anki  # pylint: disable=unused-import
+import anki.backend_pb2 as pb
 from anki import hooks
 from anki.consts import *
 from anki.errors import DeckRenameError
@@ -25,11 +26,13 @@ defaultDeck = {
     "conf": 1,
     "usn": 0,
     "desc": "",
-    "dyn": DECK_STD,  # anki uses int/bool interchangably here
+    "dyn": DECK_STD,
     "collapsed": False,
     # added in beta11
     "extendNew": 10,
     "extendRev": 50,
+    # fixme: if we keep this, mod must be set or handled in serde
+    "mod": 0,
 }
 
 defaultDynamicDeck = {
@@ -49,39 +52,82 @@ defaultDynamicDeck = {
     "return": True,  # currently unused
     # v2 scheduler
     "previewDelay": 10,
+    "mod": 0,
 }
 
 
-class DeckManager:
-    decks: Dict[str, Any]
+class DecksDictProxy:
+    def __init__(self, col: anki.storage._Collection):
+        self._col = col.weakref()
 
+    def _warn(self):
+        print("add-on should use methods on col.decks, not col.decks.decks dict")
+
+    def __getitem__(self, item):
+        self._warn()
+        return self._col.decks.get(int(item))
+
+    def __setitem__(self, key, val):
+        self._warn()
+        self._col.decks.save(val)
+
+    def __len__(self):
+        self._warn()
+        return len(self._col.decks.all_names_and_ids())
+
+    def keys(self):
+        self._warn()
+        return [str(nt.id) for nt in self._col.decks.all_names_and_ids()]
+
+    def values(self):
+        self._warn()
+        return self._col.decks.all()
+
+    def items(self):
+        self._warn()
+        return [(str(nt["id"]), nt) for nt in self._col.decks.all()]
+
+    def __contains__(self, item):
+        self._warn()
+        self._col.decks.have(item)
+
+
+class DeckManager:
     # Registry save/load
     #############################################################
 
     def __init__(self, col: anki.storage._Collection) -> None:
         self.col = col.weakref()
-        self.decks = {}
+        self.decks = DecksDictProxy(col)
+        # do not access this directly!
+        # self._cache: Dict[int, ] = {}
+        #        self.decks = {}
         self._dconf_cache: Optional[Dict[int, Dict[str, Any]]] = None
 
-    def save(self, g: Optional[Any] = None) -> None:
+    def save(self, g: Dict = None) -> None:
         "Can be called with either a deck or a deck configuration."
-        if g:
-            # deck conf?
-            if "maxTaken" in g:
-                self.update_config(g)
-                return
-            else:
-                g["mod"] = intTime()
-                g["usn"] = self.col.usn()
-        self.changed = True
+        if not g:
+            print("col.decks.save() should be passed the changed deck")
+            return
 
-    def flush(self) -> None:
-        if self.changed:
-            self.col.backend.set_all_decks(self.decks)
-            self.changed = False
+        # deck conf?
+        if "maxTaken" in g:
+            self.update_config(g)
+            return
+        else:
+            # g["mod"] = intTime()
+            # g["usn"] = self.col.usn()
+            self.update(g)
+
+    # legacy
+    def flush(self):
+        pass
 
     # Deck save/load
     #############################################################
+
+    # fixme: if we're stripping chars on add, then we need to do that on lookup as well
+    # and need to make sure \x1f conversion
 
     def id(
         self, name: str, create: bool = True, type: Optional[Dict[str, Any]] = None
@@ -89,79 +135,57 @@ class DeckManager:
         "Add a deck with NAME. Reuse deck if already exists. Return id as int."
         if type is None:
             type = defaultDeck
-        name = name.replace('"', "")
-        name = unicodedata.normalize("NFC", name)
-        deck = self.byName(name)
-        if deck:
-            return int(deck["id"])
-        if not create:
-            return None
-        g = copy.deepcopy(type)
-        if "::" in name:
-            # not top level; ensure all parents exist
-            name = self._ensureParents(name)
-        g["name"] = name
-        while 1:
-            id = intTime(1000)
-            if str(id) not in self.decks:
-                break
-        g["id"] = id
-        self.decks[str(id)] = g
-        self.save(g)
-        self.maybeAddToActive()
-        hooks.deck_added(g)
-        return int(id)
 
-    def rem(self, did: int, cardsToo: bool = False, childrenToo: bool = True) -> None:
+        id = self.id_for_name(name)
+        if id:
+            return id
+        elif not create:
+            return None
+
+        deck = self.new_deck_legacy(bool(type["dyn"]))
+        deck["name"] = name
+        self.update(deck)
+
+        # fixme
+        self.maybeAddToActive()
+
+        # fixme
+        hooks.deck_added(deck)
+
+        return deck["id"]
+
+    def rem(self, did: int, cardsToo: bool = True, childrenToo: bool = True) -> None:
         "Remove the deck. If cardsToo, delete any cards inside."
-        if str(did) == "1":
-            # we won't allow the default deck to be deleted, but if it's a
-            # child of an existing deck then it needs to be renamed
-            deck = self.get(did)
-            if "::" in deck["name"]:
-                base = self.basename(deck["name"])
-                suffix = ""
-                while True:
-                    # find an unused name
-                    name = base + suffix
-                    if not self.byName(name):
-                        deck["name"] = name
-                        self.save(deck)
-                        break
-                    suffix += "1"
-            return
-        # log the removal regardless of whether we have the deck or not
-        self.col._logRem([did], REM_DECK)
-        # do nothing else if doesn't exist
-        if not str(did) in self.decks:
-            return
-        deck = self.get(did)
-        if deck["dyn"]:
-            # deleting a cramming deck returns cards to their previous deck
-            # rather than deleting the cards
-            self.col.sched.emptyDyn(did)
-            if childrenToo:
-                for name, id in self.children(did):
-                    self.rem(id, cardsToo, childrenToo=False)
-        else:
-            # delete children first
-            if childrenToo:
-                # we don't want to delete children when syncing
-                for name, id in self.children(did):
-                    self.rem(id, cardsToo, childrenToo=False)
-            # delete cards too?
-            if cardsToo:
-                # don't use cids(), as we want cards in cram decks too
-                cids = self.col.db.list(
-                    "select id from cards where did=? or odid=?", did, did
-                )
-                self.col.remCards(cids)
-        # delete the deck and add a grave
-        del self.decks[str(did)]
+        assert cardsToo and childrenToo
+        self.col.backend.remove_deck(did)
+        # fixme: default deck special case
+        # if str(did) == "1":
+        #     # we won't allow the default deck to be deleted, but if it's a
+        #     # child of an existing deck then it needs to be renamed
+        #     deck = self.get(did)
+        #     if "::" in deck["name"]:
+        #         base = self.basename(deck["name"])
+        #         suffix = ""
+        #         while True:
+        #             # find an unused name
+        #             name = base + suffix
+        #             if not self.byName(name):
+        #                 deck["name"] = name
+        #                 self.save(deck)
+        #                 break
+        #             suffix += "1"
+        #     return
+
+        # fixme:
+        #         # don't use cids(), as we want cards in cram decks too
+        #         cids = self.col.db.list(
+        #             "select id from cards where did=? or odid=?", did, did
+        #         )
+
+        # fixme
         # ensure we have an active deck
         if did in self.active():
-            self.select(int(list(self.decks.keys())[0]))
-        self.save()
+            self.select(self.all_names_and_ids()[0].id)
 
     def allNames(self, dyn: bool = True, force_default: bool = True) -> List:
         "An unsorted list of all deck names."
@@ -172,6 +196,29 @@ class DeckManager:
                 x["name"] for x in self.all(force_default=force_default) if not x["dyn"]
             ]
 
+    def all_names_and_ids(self) -> List[pb.DeckNameID]:
+        return self.col.backend.get_deck_names_and_ids()
+
+    def id_for_name(self, name: str) -> Optional[int]:
+        return self.col.backend.get_deck_id_by_name(name)
+
+    def get_legacy(self, did: int) -> Optional[Dict]:
+        return self.col.backend.get_deck_legacy(did)
+
+    def have(self, id: int) -> bool:
+        return not self.get_legacy(int(id))
+
+    def get_all_legacy(self) -> List[Dict]:
+        return list(self.col.backend.get_all_decks().values())
+
+    def new_deck_legacy(self, filtered: bool) -> Dict:
+        try:
+            return self.col.backend.new_deck_legacy(filtered)
+        except anki.rsbackend.DeckIsFilteredError:
+            raise DeckRenameError("deck was filtered")
+        except anki.rsbackend.ExistsError:
+            raise DeckRenameError("deck already exists")
+
     def all(self, force_default: bool = True) -> List:
         """A list of all decks.
 
@@ -181,19 +228,20 @@ class DeckManager:
         * default deck contains a card
         * default deck has a child (assumed not to be the case if assume_no_child)
         """
-        decks = list(self.decks.values())
+        decks = self.get_all_legacy()
         if not force_default and not self.should_default_be_displayed(force_default):
             decks = [deck for deck in decks if deck["id"] != 1]
         return decks
 
     def allIds(self) -> List[str]:
-        return list(self.decks.keys())
+        return [str(x.id) for x in self.all_names_and_ids()]
 
     def collapse(self, did) -> None:
         deck = self.get(did)
         deck["collapsed"] = not deck["collapsed"]
         self.save(deck)
 
+    # fixme
     def collapseBrowser(self, did) -> None:
         deck = self.get(did)
         collapsed = deck.get("browserCollapsed", False)
@@ -201,51 +249,54 @@ class DeckManager:
         self.save(deck)
 
     def count(self) -> int:
-        return len(self.decks)
+        return len(self.all_names_and_ids())
 
-    def get(self, did: Union[int, str], default: bool = True) -> Any:
-        id = str(did)
-        if id in self.decks:
-            return self.decks[id]
+    def get(self, did: Union[int, str], default: bool = True) -> Optional[Dict]:
+        if not did:
+            if default:
+                return self.get_legacy(1)
+            else:
+                return None
+        id = int(did)
+        deck = self.get_legacy(id)
+        if deck:
+            return deck
         elif default:
-            return self.decks["1"]
+            return self.get_legacy(1)
+        else:
+            return None
 
-    def byName(self, name: str) -> Any:
+    def byName(self, name: str) -> Optional[Dict]:
         """Get deck with NAME, ignoring case."""
-        for m in list(self.decks.values()):
-            if self.equalName(m["name"], name):
-                return m
+        id = self.id_for_name(name)
+        if id:
+            return self.get_legacy(id)
+        return None
 
-    def update(self, g: Dict[str, Any]) -> None:
+    def update(self, g: Dict[str, Any], preserve_usn=False) -> None:
         "Add or update an existing deck. Used for syncing and merging."
-        self.decks[str(g["id"])] = g
+        try:
+            self.col.backend.add_or_update_deck_legacy(g, preserve_usn)
+        except anki.rsbackend.DeckIsFilteredError:
+            raise DeckRenameError("deck was filtered")
+        except anki.rsbackend.ExistsError:
+            raise DeckRenameError("deck already exists")
+
+        #       self.decks[str(g["id"])] = g
         self.maybeAddToActive()
         # mark registry changed, but don't bump mod time
-        self.save()
+
+    #        self.save()
 
     def rename(self, g: Dict[str, Any], newName: str) -> None:
         "Rename deck prefix to NAME if not exists. Updates children."
-        # make sure target node doesn't already exist
-        if self.byName(newName):
-            raise DeckRenameError(_("That deck already exists."))
-        # make sure we're not nesting under a filtered deck
-        for p in self.parentsByName(newName):
-            if p["dyn"]:
-                raise DeckRenameError(_("A filtered deck cannot have subdecks."))
-        # ensure we have parents
-        newName = self._ensureParents(newName)
-        # rename children
-        for grp in self.all():
-            if grp["name"].startswith(g["name"] + "::"):
-                grp["name"] = grp["name"].replace(g["name"] + "::", newName + "::", 1)
-                self.save(grp)
-        # adjust name
         g["name"] = newName
-        # ensure we have parents again, as we may have renamed parent->child
-        newName = self._ensureParents(newName)
-        self.save(g)
-        # renaming may have altered active did order
-        self.maybeAddToActive()
+        self.update(g)
+        return
+
+        # fixme: ensure rename of b in a::b::c generates new b
+        # fixme: renaming may have altered active did order
+        # self.maybeAddToActive()
 
     def renameForDragAndDrop(self, draggedDeckDid: int, ontoDeckDid: Any) -> None:
         draggedDeck = self.get(draggedDeckDid)
@@ -389,6 +440,7 @@ class DeckManager:
         grp["conf"] = id
         self.save(grp)
 
+    # fixme: expensive
     def didsForConf(self, conf) -> List:
         dids = []
         for deck in list(self.decks.values()):
@@ -459,16 +511,18 @@ class DeckManager:
     def for_card_ids(self, cids: List[int]) -> List[int]:
         return self.col.db.list(f"select did from cards where id in {ids2str(cids)}")
 
+    # fixme
     def _recoverOrphans(self) -> None:
-        dids = list(self.decks.keys())
-        mod = self.col.db.mod
-        self.col.db.execute(
-            "update cards set did = 1 where did not in " + ids2str(dids)
-        )
-        self.col.db.mod = mod
+        pass
+        # dids = list(self.decks.keys())
+        # mod = self.col.db.mod
+        # self.col.db.execute(
+        #     "update cards set did = 1 where did not in " + ids2str(dids)
+        # )
+        # self.col.db.mod = mod
 
     def _checkDeckTree(self) -> None:
-        decks = self.col.decks.all()
+        decks = self.all()
         decks.sort(key=self.key)
         names: Set[str] = set()
 
@@ -522,18 +576,20 @@ class DeckManager:
             return True
         if self.col.db.scalar("select 1 from cards where did = 1 limit 1"):
             return True
-        if len(self.decks) == 1:
-            return True
-        # looking for children
-        if assume_no_child:
-            return False
-        if default_deck is None:
-            default_deck = self.get(1)
-        defaultName = default_deck["name"]
-        for name in self.allNames():
-            if name.startswith(f"{defaultName}::"):
-                return True
+        # fixme
         return False
+        # if len(self.all_names_and_ids()) == 1:
+        #     return True
+        # # looking for children
+        # if assume_no_child:
+        #     return False
+        # if default_deck is None:
+        #     default_deck = self.get(1)
+        # defaultName = default_deck["name"]
+        # for name in self.allNames():
+        #     if name.startswith(f"{defaultName}::"):
+        #         return True
+        # return False
 
     # Deck selection
     #############################################################
@@ -632,7 +688,7 @@ class DeckManager:
         return parents
 
     def nameMap(self) -> dict:
-        return dict((d["name"], d) for d in self.decks.values())
+        return dict((d["name"], d) for d in self.all())
 
     # Sync handling
     ##########################################################################

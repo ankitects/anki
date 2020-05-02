@@ -191,9 +191,6 @@ class ModelManager:
     def all_use_counts(self) -> List[pb.NoteTypeNameIDUseCount]:
         return self.col.backend.get_notetype_use_counts()
 
-    def id_for_name(self, name: str) -> Optional[int]:
-        return self.col.backend.get_notetype_id_by_name(name)
-
     # legacy
 
     def allNames(self) -> List[str]:
@@ -226,6 +223,9 @@ class ModelManager:
 
     # Retrieving and creating models
     #############################################################
+
+    def id_for_name(self, name: str) -> Optional[int]:
+        return self.col.backend.get_notetype_id_by_name(name)
 
     def get(self, id: int) -> Optional[NoteType]:
         "Get model with ID, or None."

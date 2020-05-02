@@ -630,6 +630,7 @@ def test_cram():
     assert d.sched.nextIvl(c, 2) == 138 * 60 * 60 * 24
     cram = d.decks.get(did)
     cram["delays"] = [1, 10]
+    d.decks.save(cram)
     assert d.sched.answerButtons(c) == 3
     assert d.sched.nextIvl(c, 1) == 60
     assert d.sched.nextIvl(c, 2) == 600
@@ -739,6 +740,7 @@ def test_cram_resched():
     did = d.decks.newDyn("Cram")
     cram = d.decks.get(did)
     cram["resched"] = False
+    d.decks.save(cram)
     d.sched.rebuildDyn(did)
     d.reset()
     # graduate should return it to new
@@ -1017,7 +1019,7 @@ def test_deckDue():
     foobaz = f.model()["did"] = d.decks.id("foo::baz")
     d.addNote(f)
     d.reset()
-    assert len(d.decks.decks) == 5
+    assert len(d.decks.all_names_and_ids()) == 5
     cnts = d.sched.deckDueList()
     assert cnts[0] == ["Default", 1, 0, 0, 1]
     assert cnts[1] == ["Default::1", default1, 1, 0, 0]

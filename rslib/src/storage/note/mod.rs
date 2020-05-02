@@ -74,4 +74,18 @@ impl super::SqliteStorage {
         note.id.0 = self.db.last_insert_rowid();
         Ok(())
     }
+
+    pub(crate) fn remove_note(&self, nid: NoteID) -> Result<()> {
+        self.db
+            .prepare_cached("delete from notes where id = ?")?
+            .execute(&[nid])?;
+        Ok(())
+    }
+
+    pub(crate) fn note_is_orphaned(&self, nid: NoteID) -> Result<bool> {
+        self.db
+            .prepare_cached(include_str!("is_orphaned.sql"))?
+            .query_row(&[nid], |r| r.get(0))
+            .map_err(Into::into)
+    }
 }
