@@ -155,6 +155,7 @@ clean-dist: buildhash
 check: pyenv buildhash prepare
 	@set -eu -o pipefail ${SHELLFLAGS}; \
 	.github/scripts/trailing-newlines.sh; \
+	$(SUBMAKE) -C rslib develop; \
 	for dir in $(CHECKABLE_RS); do \
 		$(SUBMAKE) -C $$dir check; \
 	done; \
