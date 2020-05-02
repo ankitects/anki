@@ -35,6 +35,9 @@ create table decks (
   kind bytes not null
 );
 create unique index idx_decks_id on decks (id);
+create index idx_cards_odid on cards (odid)
+where
+  odid != 0;
 update col
 set
   ver = 15;
