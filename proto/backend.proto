@@ -30,7 +30,7 @@ message I18nBackendInit {
 message BackendInput {
     oneof value {
         SchedTimingTodayIn sched_timing_today = 17;
-        Empty deck_tree = 18;
+        DeckTreeIn deck_tree = 18;
         SearchCardsIn search_cards = 19;
         SearchNotesIn search_notes = 20;
         RenderCardIn render_card = 21;
@@ -108,7 +108,7 @@ message BackendOutput {
         AllStockNotetypesOut all_stock_notetypes = 60;
 
         // fallible commands
-        DeckTreeOut deck_tree = 18;
+        DeckTreeNode deck_tree = 18;
         SearchCardsOut search_cards = 19;
         SearchNotesOut search_notes = 20;
         RenderCardOut render_card = 21;
@@ -238,19 +238,20 @@ message SchedTimingTodayOut {
     int64 next_day_at = 2;
 }
 
-message DeckTreeOut {
-    DeckTreeNode top = 1;
+message DeckTreeIn {
+    bool include_counts = 1;
 }
 
 message DeckTreeNode {
-    // the components of a deck, split on ::
-    repeated string names = 1;
-    int64 deck_id = 2;
-    uint32 review_count = 3;
-    uint32 learn_count = 4;
-    uint32 new_count = 5;
-    repeated DeckTreeNode children = 6;
-    bool collapsed = 7;
+    int64 deck_id = 1;
+    string name = 2;
+    repeated DeckTreeNode children = 3;
+    uint32 level = 4;
+    bool collapsed = 5;
+
+    uint32 review_count = 6;
+    uint32 learn_count = 7;
+    uint32 new_count = 8;
 }
 
 message RenderCardIn {
@@ -705,3 +706,4 @@ message AddOrUpdateDeckLegacyIn {
     bytes deck = 1;
     bool preserve_usn_and_mtime = 2;
 }
+

@@ -24,7 +24,7 @@ from anki.decks import DeckManager
 from anki.lang import _, ngettext
 from anki.models import NoteType
 from anki.notes import Note
-from anki.rsbackend import TR
+from anki.rsbackend import TR, DeckTreeNode
 from anki.utils import htmlToTextLine, ids2str, intTime, isMac, isWin
 from aqt import AnkiQt, gui_hooks
 from aqt.editor import Editor
@@ -1147,32 +1147,28 @@ QTableView {{ gridline-color: {grid} }}
             root.addChild(item)
 
     def _decksTree(self, root) -> None:
-        assert self.col
-        grps = self.col.sched.deckDueTree()
+        tree = self.col.decks.deck_tree()
 
-        def fillGroups(root, grps, head=""):
-            for g in grps:
-                baseName = g[0]
-                did = g[1]
-                children = g[5]
-                if str(did) == "1" and not children:
+        def fillGroups(root, nodes: List[DeckTreeNode], head=""):
+            for node in nodes:
+                if node.deck_id == 1 and not node.children:
                     if not self.mw.col.decks.should_default_be_displayed(
                         force_default=False, assume_no_child=True
                     ):
-
                         continue
+
                 item = SidebarItem(
-                    baseName,
+                    node.name,
                     ":/icons/deck.svg",
-                    lambda baseName=baseName: self.setFilter("deck", head + baseName),
-                    lambda expanded, did=did: self.mw.col.decks.collapseBrowser(did),
-                    not self.mw.col.decks.get(did).get("browserCollapsed", False),
+                    lambda baseName=node.name: self.setFilter("deck", head + baseName),
+                    lambda expanded, did=node.deck_id: self.mw.col.decks.collapseBrowser(did),
+                    not self.mw.col.decks.get(node.deck_id).get("browserCollapsed", False),
                 )
                 root.addChild(item)
-                newhead = head + baseName + "::"
-                fillGroups(item, children, newhead)
+                newhead = head + node.name + "::"
+                fillGroups(item, node.children, newhead)
 
-        fillGroups(root, grps)
+        fillGroups(root, tree.children)
 
     def _modelTree(self, root) -> None:
         assert self.col

@@ -219,6 +219,9 @@ class DeckManager:
         except anki.rsbackend.ExistsError:
             raise DeckRenameError("deck already exists")
 
+    def deck_tree(self) -> pb.DeckTreeNode:
+        return self.col.backend.deck_tree(include_counts=False)
+
     def all(self, force_default: bool = True) -> List:
         """A list of all decks.
 

@@ -16,6 +16,7 @@ use crate::{
     types::Usn,
 };
 mod schema11;
+mod tree;
 pub use schema11::DeckSchema11;
 use std::{borrow::Cow, sync::Arc};
 

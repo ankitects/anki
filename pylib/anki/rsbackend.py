@@ -49,6 +49,7 @@ BackendCard = pb.Card
 BackendNote = pb.Note
 TagUsnTuple = pb.TagUsnTuple
 NoteType = pb.NoteType
+DeckTreeNode = pb.DeckTreeNode
 
 try:
     import orjson
@@ -728,6 +729,11 @@ class RustBackend:
 
     def remove_deck(self, did: int) -> None:
         self._run_command(pb.BackendInput(remove_deck=did))
+
+    def deck_tree(self, include_counts: bool) -> DeckTreeNode:
+        return self._run_command(
+            pb.BackendInput(deck_tree=pb.DeckTreeIn(include_counts=include_counts))
+        ).deck_tree
 
 
 def translate_string_in(
