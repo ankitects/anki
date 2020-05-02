@@ -1149,7 +1149,7 @@ QTableView {{ gridline-color: {grid} }}
     def _decksTree(self, root) -> None:
         tree = self.col.decks.deck_tree()
 
-        def fillGroups(root, nodes: List[DeckTreeNode], head=""):
+        def fillGroups(root, nodes: Sequence[DeckTreeNode], head=""):
             for node in nodes:
                 if node.deck_id == 1 and not node.children:
                     if not self.mw.col.decks.should_default_be_displayed(
@@ -1157,12 +1157,22 @@ QTableView {{ gridline-color: {grid} }}
                     ):
                         continue
 
+                def set_filter():
+                    full_name = head + node.name  # pylint: disable=cell-var-from-loop
+                    return lambda: self.setFilter("deck", full_name)
+
+                def toggle_expand():
+                    did = node.deck_id  # pylint: disable=cell-var-from-loop
+                    return lambda _: self.mw.col.decks.collapseBrowser(did)
+
                 item = SidebarItem(
                     node.name,
                     ":/icons/deck.svg",
-                    lambda baseName=node.name: self.setFilter("deck", head + baseName),
-                    lambda expanded, did=node.deck_id: self.mw.col.decks.collapseBrowser(did),
-                    not self.mw.col.decks.get(node.deck_id).get("browserCollapsed", False),
+                    set_filter(),
+                    toggle_expand(),
+                    not self.mw.col.decks.get(node.deck_id).get(
+                        "browserCollapsed", False
+                    ),
                 )
                 root.addChild(item)
                 newhead = head + node.name + "::"
