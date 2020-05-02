@@ -31,29 +31,6 @@ pub struct Deck {
     pub kind: DeckKind,
 }
 
-// fixme: needs update
-pub(crate) fn child_ids<'a>(
-    decks: &'a [DeckSchema11],
-    name: &str,
-) -> impl Iterator<Item = DeckID> + 'a {
-    let prefix = format!("{}::", name.to_ascii_lowercase());
-    decks
-        .iter()
-        .filter(move |d| d.name().to_ascii_lowercase().starts_with(&prefix))
-        .map(|d| d.id())
-}
-
-// fixme: needs update
-pub(crate) fn get_deck(decks: &[DeckSchema11], id: DeckID) -> Option<&DeckSchema11> {
-    for d in decks {
-        if d.id() == id {
-            return Some(d);
-        }
-    }
-
-    None
-}
-
 impl Deck {
     pub fn new_normal() -> Deck {
         let mut norm = NormalDeck::default();
