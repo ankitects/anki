@@ -482,13 +482,11 @@ close the profile or restart Anki."""
                     tr(TR.ERRORS_UNABLE_OPEN_COLLECTION) + "\n" + traceback.format_exc()
                 )
             # clean up open collection if possible
-            if self.col:
-                try:
-                    self.col.close(save=False, downgrade=False)
-                except:
-                    pass
-                self.col = None
-
+            try:
+                self.backend.close_collection(False)
+            except Exception as e:
+                print("unable to close collection:", e)
+            self.col = None
             # return to profile manager
             self.hide()
             self.showProfileManager()
