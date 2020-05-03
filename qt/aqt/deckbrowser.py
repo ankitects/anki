@@ -215,8 +215,6 @@ where id > ?""",
         def nonzeroColour(cnt, klass):
             if not cnt:
                 klass = "zero-count"
-            if cnt >= 1000:
-                cnt = "1000+"
             return f'<span class="{klass}">{cnt}</span>'
 
         buf += "<td align=right>%s</td><td align=right>%s</td>" % (

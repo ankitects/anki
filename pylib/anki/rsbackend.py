@@ -738,6 +738,9 @@ class RustBackend:
     def check_database(self) -> None:
         self._run_command(pb.BackendInput(check_database=pb.Empty()))
 
+    def legacy_deck_tree(self) -> Sequence:
+        bytes = self._run_command(pb.BackendInput(deck_tree_legacy=pb.Empty())).deck_tree_legacy
+        return orjson.loads(bytes)[5]
 
 def translate_string_in(
     key: TR, **kwargs: Union[str, int, float]

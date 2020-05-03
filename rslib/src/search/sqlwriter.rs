@@ -226,7 +226,7 @@ impl SqlWriter<'_> {
             "filtered" => write!(self.sql, "c.odid != 0").unwrap(),
             deck => {
                 // rewrite "current" to the current deck name
-                let deck = if deck == "current" {
+                let native_deck = if deck == "current" {
                     let current_did = self.col.get_current_deck_id();
                     self.col
                         .storage
@@ -234,12 +234,11 @@ impl SqlWriter<'_> {
                         .map(|d| d.name)
                         .unwrap_or_else(|| "Default".into())
                 } else {
-                    deck.into()
+                    human_deck_name_to_native(deck)
                 };
 
                 // convert to a regex that includes child decks
-                let human_deck = human_deck_name_to_native(&deck);
-                let re = text_to_re(&human_deck);
+                let re = text_to_re(&native_deck);
                 self.args.push(format!("(?i)^{}($|\x1f)", re));
                 let arg_idx = self.args.len();
                 self.sql.push_str(&format!(concat!(

@@ -169,6 +169,10 @@ impl Collection {
         Ok(timing)
     }
 
+    pub(crate) fn learn_cutoff(&self) -> u32 {
+        TimestampSecs::now().0 as u32 + self.learn_ahead_secs()
+    }
+
     pub(crate) fn usn(&self) -> Result<Usn> {
         // if we cache this in the future, must make sure to invalidate cache when usn bumped in sync.finish()
         self.storage.usn(self.server)

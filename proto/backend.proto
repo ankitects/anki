@@ -89,6 +89,7 @@ message BackendInput {
         AddOrUpdateDeckLegacyIn add_or_update_deck_legacy = 74;
         bool new_deck_legacy = 75;
         int64 remove_deck = 76;
+        Empty deck_tree_legacy = 77;
     }
 }
 
@@ -157,6 +158,7 @@ message BackendOutput {
         int64 add_or_update_deck_legacy = 74;
         bytes new_deck_legacy = 75;
         Empty remove_deck = 76;
+        bytes deck_tree_legacy = 77;
 
         BackendError error = 2047;
     }

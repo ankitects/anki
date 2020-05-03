@@ -15,8 +15,10 @@ use crate::{
     timestamp::TimestampSecs,
     types::Usn,
 };
+mod counts;
 mod schema11;
 mod tree;
+pub(crate) use counts::DueCounts;
 pub use schema11::DeckSchema11;
 use std::{borrow::Cow, sync::Arc};
 
@@ -85,6 +87,16 @@ impl Deck {
     pub(crate) fn set_modified(&mut self, usn: Usn) {
         self.mtime_secs = TimestampSecs::now();
         self.usn = usn;
+    }
+
+    /// Return the studied counts if studied today.
+    /// May be negative if user has extended limits.
+    pub(crate) fn new_rev_counts(&self, today: u32) -> (i32, i32) {
+        if self.common.last_day_studied == today {
+            (self.common.new_studied, self.common.review_studied)
+        } else {
+            (0, 0)
+        }
     }
 }
 
