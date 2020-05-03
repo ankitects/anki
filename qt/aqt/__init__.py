@@ -308,6 +308,13 @@ def parseArgs(argv):
     parser.add_argument("-b", "--base", help="path to base folder", default="")
     parser.add_argument("-p", "--profile", help="profile name to load", default="")
     parser.add_argument("-l", "--lang", help="interface language (en, de, etc)")
+    parser.add_argument(
+        "-bm",
+        "--benchmark",
+        type=int,
+        help="reports anki run time performance to stdout (pass the number of characters to report)",
+        default=None,
+    )
     return parser.parse_known_args(argv[1:])
 
 
@@ -347,6 +354,21 @@ def setupGL(pm):
         os.environ["QT_OPENGL"] = mode
 
 
+def printBenchmark(argumentsNamespace, profiller):
+    if argumentsNamespace.benchmark and profiller:
+        import io
+        import pstats
+
+        profiller.disable()
+        outputstream = io.StringIO()
+        profiller_status = pstats.Stats(profiller, stream=outputstream)
+        profiller_status.sort_stats("time")
+        profiller_status.print_stats()
+        sys.stderr.write(
+            f"\n{outputstream.getvalue()[:argumentsNamespace.benchmark]}\n"
+        )
+
+
 def run():
     try:
         _run()
@@ -370,12 +392,19 @@ def _run(argv=None, exec=True):
     If no 'argv' is supplied then 'sys.argv' will be used.
     """
     global mw
+    profiller = None
 
     if argv is None:
         argv = sys.argv
 
     # parse args
     opts, args = parseArgs(argv)
+
+    if opts.benchmark:
+        import cProfile
+
+        profiller = cProfile.Profile()
+        profiller.enable()
 
     # profile manager
     pm = None
@@ -409,6 +438,7 @@ def _run(argv=None, exec=True):
     app = AnkiApp(argv)
     if app.secondInstance():
         # we've signaled the primary instance, so we should close
+        printBenchmark(opts, profiller)
         return
 
     if not pm:
@@ -419,6 +449,7 @@ def _run(argv=None, exec=True):
 Anki could not create its data folder. Please see the File Locations \
 section of the manual, and ensure that location is not read-only.""",
         )
+        printBenchmark(opts, profiller)
         return
 
     # disable icons on mac; this must be done before window created
@@ -452,6 +483,7 @@ section of the manual, and ensure that location is not read-only.""",
 No usable temporary folder found. Make sure C:\\temp exists or TEMP in your \
 environment points to a valid, writable folder.""",
         )
+        printBenchmark(opts, profiller)
         return
 
     if pmLoadResult.firstTime:
@@ -490,4 +522,7 @@ environment points to a valid, writable folder.""",
     if exec:
         app.exec()
     else:
+        printBenchmark(opts, profiller)
         return app
+
+    printBenchmark(opts, profiller)
