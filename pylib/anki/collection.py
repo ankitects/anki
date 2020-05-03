@@ -958,6 +958,8 @@ and type=0 and queue!=4""",
         # models
         if self.models.ensureNotEmpty():
             problems.append("Added missing note type.")
+        # misc other
+        self.backend.check_database()
         # and finally, optimize
         self.optimize()
         newSize = os.stat(self.path)[stat.ST_SIZE]

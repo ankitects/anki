@@ -71,7 +71,7 @@ message BackendInput {
         int32 get_changed_notetypes = 56;
         AddOrUpdateNotetypeIn add_or_update_notetype = 57;
         Empty get_all_decks = 58;
-//        bytes set_all_decks = 59;
+        Empty check_database = 59;
         Empty all_stock_notetypes = 60;
         int64 get_notetype_legacy = 61;
         Empty get_notetype_names = 62;
@@ -140,7 +140,7 @@ message BackendOutput {
         bytes get_changed_notetypes = 56;
         int64 add_or_update_notetype = 57;
         bytes get_all_decks = 58;
-//        Empty set_all_decks = 59;
+        Empty check_database = 59;
         bytes get_notetype_legacy = 61;
         NoteTypeNames get_notetype_names = 62;
         NoteTypeUseCounts get_notetype_names_and_counts = 63;
