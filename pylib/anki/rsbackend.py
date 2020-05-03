@@ -735,6 +735,9 @@ class RustBackend:
             pb.BackendInput(deck_tree=pb.DeckTreeIn(include_counts=include_counts))
         ).deck_tree
 
+    def check_database(self) -> None:
+        self._run_command(pb.BackendInput(check_database=pb.Empty()))
+
 
 def translate_string_in(
     key: TR, **kwargs: Union[str, int, float]

@@ -356,6 +356,10 @@ impl Backend {
                 self.remove_deck(did)?;
                 pb::Empty {}
             }),
+            Value::CheckDatabase(_) => {
+                self.check_database()?;
+                OValue::CheckDatabase(pb::Empty {})
+            }
         })
     }
 
@@ -1045,6 +1049,10 @@ impl Backend {
 
     fn remove_deck(&self, did: i64) -> Result<()> {
         self.with_col(|col| col.remove_deck_and_child_decks(DeckID(did)))
+    }
+
+    fn check_database(&self) -> Result<()> {
+        self.with_col(|col| col.transact(None, |col| col.check_database()))
     }
 }
 

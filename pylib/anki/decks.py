@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import copy
 import unicodedata
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import anki  # pylint: disable=unused-import
 import anki.backend_pb2 as pb
@@ -524,37 +524,8 @@ class DeckManager:
         # )
         # self.col.db.mod = mod
 
-    def _checkDeckTree(self) -> None:
-        decks = self.all()
-        decks.sort(key=self.key)
-        names: Set[str] = set()
-
-        for deck in decks:
-            # two decks with the same name?
-            if deck["name"] in names:
-                self.col.log("fix duplicate deck name", deck["name"])
-                deck["name"] += "%d" % intTime(1000)
-                self.save(deck)
-
-            # ensure no sections are blank
-            if not all(self.path(deck["name"])):
-                self.col.log("fix deck with missing sections", deck["name"])
-                deck["name"] = "recovered%d" % intTime(1000)
-                self.save(deck)
-
-            # immediate parent must exist
-            if "::" in deck["name"]:
-                immediateParent = self.immediate_parent(deck["name"])
-                if immediateParent not in names:
-                    self.col.log("fix deck with missing parent", deck["name"])
-                    self._ensureParents(deck["name"])
-                    names.add(immediateParent)
-
-            names.add(deck["name"])
-
     def checkIntegrity(self) -> None:
         self._recoverOrphans()
-        self._checkDeckTree()
 
     def should_deck_be_displayed(
         self, deck, force_default: bool = True, assume_no_child: bool = False

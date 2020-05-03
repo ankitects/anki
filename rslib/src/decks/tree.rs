@@ -3,7 +3,11 @@
 
 use super::Deck;
 use crate::{backend_proto::DeckTreeNode, collection::Collection, decks::DeckID, err::Result};
-use std::{collections::HashMap, iter::Peekable};
+use std::{
+    collections::{HashMap, HashSet},
+    iter::Peekable,
+};
+use unicase::UniCase;
 
 // fixme: handle mixed case of parents
 
@@ -79,6 +83,21 @@ impl Collection {
         add_collapsed(&mut tree, &decks_map, true);
 
         Ok(tree)
+    }
+
+    pub(crate) fn add_missing_decks(&mut self, names: &[(DeckID, String)]) -> Result<()> {
+        let mut parents = HashSet::new();
+        for (_id, name) in names {
+            parents.insert(UniCase::new(name.as_str()));
+            if let Some(immediate_parent) = name.rsplitn(2, "::").nth(1) {
+                let immediate_parent_uni = UniCase::new(immediate_parent);
+                if !parents.contains(&immediate_parent_uni) {
+                    self.get_or_create_normal_deck(immediate_parent)?;
+                    parents.insert(immediate_parent_uni);
+                }
+            }
+        }
+        Ok(())
     }
 }
 

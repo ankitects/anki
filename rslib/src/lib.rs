@@ -14,6 +14,7 @@ pub mod card;
 pub mod cloze;
 pub mod collection;
 pub mod config;
+pub mod dbcheck;
 pub mod deckconf;
 pub mod decks;
 pub mod err;
