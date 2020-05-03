@@ -4,7 +4,9 @@
 use super::SqliteStorage;
 use crate::{
     card::CardID,
-    decks::{Deck, DeckCommon, DeckID, DeckKindProto, DeckSchema11},
+    card::CardQueue,
+    config::SchedulerVersion,
+    decks::{Deck, DeckCommon, DeckID, DeckKindProto, DeckSchema11, DueCounts},
     err::{AnkiError, DBErrorKind, Result},
     i18n::{I18n, TR},
     timestamp::TimestampMillis,
@@ -29,6 +31,17 @@ fn row_to_deck(row: &Row) -> Result<Deck> {
             info: format!("invalid deck kind: {}", id),
         })?,
     })
+}
+
+fn row_to_due_counts(row: &Row) -> Result<(DeckID, DueCounts)> {
+    Ok((
+        row.get(0)?,
+        DueCounts {
+            new: row.get(1)?,
+            review: row.get(2)?,
+            learning: row.get(3)?,
+        },
+    ))
 }
 
 impl SqliteStorage {
@@ -131,6 +144,29 @@ impl SqliteStorage {
                 " where name >= ? and name < ?"
             ))?
             .query_and_then(&[prefix_start, prefix_end], row_to_deck)?
+            .collect()
+    }
+
+    pub(crate) fn due_counts(
+        &self,
+        sched: SchedulerVersion,
+        day_cutoff: u32,
+        learn_cutoff: u32,
+    ) -> Result<HashMap<DeckID, DueCounts>> {
+        self.db
+            .prepare_cached(concat!(include_str!("due_counts.sql"), " group by did"))?
+            .query_and_then(
+                params![
+                    CardQueue::New as u8,
+                    CardQueue::Review as u8,
+                    day_cutoff,
+                    sched as u8,
+                    CardQueue::Learn as u8,
+                    learn_cutoff,
+                    CardQueue::DayLearn as u8,
+                ],
+                row_to_due_counts,
+            )?
             .collect()
     }
 

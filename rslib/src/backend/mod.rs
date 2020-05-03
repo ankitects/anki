@@ -360,6 +360,7 @@ impl Backend {
                 self.check_database()?;
                 OValue::CheckDatabase(pb::Empty {})
             }
+            Value::DeckTreeLegacy(_) => OValue::DeckTreeLegacy(self.deck_tree_legacy()?),
         })
     }
 
@@ -441,13 +442,7 @@ impl Backend {
     }
 
     fn deck_tree(&self, input: pb::DeckTreeIn) -> Result<pb::DeckTreeNode> {
-        self.with_col(|col| {
-            if input.include_counts {
-                todo!()
-            } else {
-                col.deck_tree()
-            }
-        })
+        self.with_col(|col| col.deck_tree(input.include_counts))
     }
 
     fn render_template(&self, input: pb::RenderCardIn) -> Result<pb::RenderCardOut> {
@@ -1053,6 +1048,13 @@ impl Backend {
 
     fn check_database(&self) -> Result<()> {
         self.with_col(|col| col.transact(None, |col| col.check_database()))
+    }
+
+    fn deck_tree_legacy(&self) -> Result<Vec<u8>> {
+        self.with_col(|col| {
+            let tree = col.legacy_deck_tree()?;
+            serde_json::to_vec(&tree).map_err(Into::into)
+        })
     }
 }
 

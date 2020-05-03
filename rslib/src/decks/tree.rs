@@ -1,8 +1,15 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::Deck;
-use crate::{backend_proto::DeckTreeNode, collection::Collection, decks::DeckID, err::Result};
+use super::{Deck, DeckKind, DueCounts};
+use crate::{
+    backend_proto::DeckTreeNode,
+    collection::Collection,
+    deckconf::{DeckConf, DeckConfID},
+    decks::DeckID,
+    err::Result,
+};
+use serde_tuple::Serialize_tuple;
 use std::{
     collections::{HashMap, HashSet},
     iter::Peekable,
@@ -68,8 +75,107 @@ fn add_collapsed(node: &mut DeckTreeNode, decks: &HashMap<DeckID, Deck>, browser
     }
 }
 
+fn add_counts(node: &mut DeckTreeNode, counts: &HashMap<DeckID, DueCounts>) {
+    if let Some(counts) = counts.get(&DeckID(node.deck_id)) {
+        node.new_count = counts.new;
+        node.review_count = counts.review;
+        node.learn_count = counts.learning;
+    }
+    for child in &mut node.children {
+        add_counts(child, counts);
+    }
+}
+
+/// Apply parent limits to children, and add child counts to parents.
+/// Counts are (new, review).
+fn apply_limits(
+    node: &mut DeckTreeNode,
+    today: u32,
+    decks: &HashMap<DeckID, Deck>,
+    dconf: &HashMap<DeckConfID, DeckConf>,
+    parent_limits: (u32, u32),
+) {
+    let (mut remaining_new, mut remaining_rev) =
+        remaining_counts_for_deck(DeckID(node.deck_id), today, decks, dconf);
+
+    // cap remaining to parent limits
+    remaining_new = remaining_new.min(parent_limits.0);
+    remaining_rev = remaining_rev.min(parent_limits.1);
+
+    // apply our limit to children and tally their counts
+    let mut child_new_total = 0;
+    let mut child_rev_total = 0;
+    for child in &mut node.children {
+        apply_limits(child, today, decks, dconf, (remaining_new, remaining_rev));
+        child_new_total += child.new_count;
+        child_rev_total += child.review_count;
+        // no limit on learning cards
+        node.learn_count += child.learn_count;
+    }
+
+    // add child counts to our count, capped to remaining limit
+    node.new_count = (node.new_count + child_new_total).min(remaining_new);
+    node.review_count = (node.review_count + child_rev_total).min(remaining_rev);
+}
+
+fn remaining_counts_for_deck(
+    did: DeckID,
+    today: u32,
+    decks: &HashMap<DeckID, Deck>,
+    dconf: &HashMap<DeckConfID, DeckConf>,
+) -> (u32, u32) {
+    if let Some(deck) = decks.get(&did) {
+        match &deck.kind {
+            DeckKind::Normal(norm) => {
+                let (new_today, rev_today) = deck.new_rev_counts(today);
+                if let Some(conf) = dconf
+                    .get(&DeckConfID(norm.config_id))
+                    .or_else(|| dconf.get(&DeckConfID(1)))
+                {
+                    let new = (conf.new.per_day as i32).saturating_sub(new_today).max(0);
+                    let rev = (conf.rev.per_day as i32).saturating_sub(rev_today).max(0);
+                    (new as u32, rev as u32)
+                } else {
+                    // missing dconf and fallback
+                    (0, 0)
+                }
+            }
+            DeckKind::Filtered(_) => {
+                // filtered decks have no limit
+                (std::u32::MAX, std::u32::MAX)
+            }
+        }
+    } else {
+        // top level deck with id 0
+        (std::u32::MAX, std::u32::MAX)
+    }
+}
+
+#[derive(Serialize_tuple)]
+pub(crate) struct LegacyDueCounts {
+    name: String,
+    deck_id: i64,
+    review: u32,
+    learn: u32,
+    new: u32,
+    children: Vec<LegacyDueCounts>,
+}
+
+impl From<DeckTreeNode> for LegacyDueCounts {
+    fn from(n: DeckTreeNode) -> Self {
+        LegacyDueCounts {
+            name: n.name,
+            deck_id: n.deck_id,
+            review: n.review_count,
+            learn: n.learn_count,
+            new: n.new_count,
+            children: n.children.into_iter().map(From::from).collect(),
+        }
+    }
+}
+
 impl Collection {
-    pub fn deck_tree(&self) -> Result<DeckTreeNode> {
+    pub fn deck_tree(&mut self, counts: bool) -> Result<DeckTreeNode> {
         let names = self.storage.get_all_deck_names()?;
         let mut tree = deck_names_to_tree(names);
 
@@ -80,9 +186,33 @@ impl Collection {
             .map(|d| (d.id, d))
             .collect();
 
-        add_collapsed(&mut tree, &decks_map, true);
+        add_collapsed(&mut tree, &decks_map, !counts);
+
+        if counts {
+            let counts = self.due_counts()?;
+            let today = self.timing_today()?.days_elapsed;
+            let dconf: HashMap<_, _> = self
+                .storage
+                .all_deck_config()?
+                .into_iter()
+                .map(|d| (d.id, d))
+                .collect();
+            add_counts(&mut tree, &counts);
+            apply_limits(
+                &mut tree,
+                today,
+                &decks_map,
+                &dconf,
+                (std::u32::MAX, std::u32::MAX),
+            );
+        }
 
         Ok(tree)
+    }
+
+    pub(crate) fn legacy_deck_tree(&mut self) -> Result<LegacyDueCounts> {
+        let tree = self.deck_tree(true)?;
+        Ok(LegacyDueCounts::from(tree))
     }
 
     pub(crate) fn add_missing_decks(&mut self, names: &[(DeckID, String)]) -> Result<()> {
@@ -117,7 +247,7 @@ mod test {
         col.get_or_create_normal_deck("2::c::A")?;
         col.get_or_create_normal_deck("3")?;
 
-        let tree = col.deck_tree()?;
+        let tree = col.deck_tree(false)?;
 
         // 4 including default
         assert_eq!(tree.children.len(), 4);
@@ -141,7 +271,7 @@ mod test {
         col.storage.remove_deck(col.get_deck_id("2")?.unwrap())?;
         col.storage.remove_deck(col.get_deck_id("2::3")?.unwrap())?;
 
-        let tree = col.deck_tree()?;
+        let tree = col.deck_tree(false)?;
         assert_eq!(tree.children.len(), 2);
 
         Ok(())

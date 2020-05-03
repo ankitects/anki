@@ -42,6 +42,7 @@ pub(crate) enum ConfigKey {
     CurrentNoteTypeID,
     NextNewCardPosition,
     SchedulerVersion,
+    LearnAheadSecs,
 }
 #[derive(PartialEq, Serialize_repr, Deserialize_repr, Clone, Copy)]
 #[repr(u8)]
@@ -62,6 +63,7 @@ impl From<ConfigKey> for &'static str {
             ConfigKey::CurrentNoteTypeID => "curModel",
             ConfigKey::NextNewCardPosition => "nextPos",
             ConfigKey::SchedulerVersion => "schedVer",
+            ConfigKey::LearnAheadSecs => "collapseTime",
         }
     }
 }
@@ -155,6 +157,11 @@ impl Collection {
     pub(crate) fn sched_ver(&self) -> SchedulerVersion {
         self.get_config_optional(ConfigKey::SchedulerVersion)
             .unwrap_or(SchedulerVersion::V1)
+    }
+
+    pub(crate) fn learn_ahead_secs(&self) -> u32 {
+        self.get_config_optional(ConfigKey::LearnAheadSecs)
+            .unwrap_or(1200)
     }
 }
 
