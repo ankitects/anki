@@ -102,7 +102,6 @@ class DeckManager:
         # do not access this directly!
         # self._cache: Dict[int, ] = {}
         #        self.decks = {}
-        self._dconf_cache: Optional[Dict[int, Dict[str, Any]]] = None
 
     def save(self, g: Dict = None) -> None:
         "Can be called with either a deck or a deck configuration."
@@ -403,8 +402,6 @@ class DeckManager:
         return deck
 
     def get_config(self, conf_id: int) -> Any:
-        if self._dconf_cache is not None:
-            return self._dconf_cache.get(conf_id)
         return self.col.backend.get_deck_config(conf_id)
 
     def update_config(self, conf: Dict[str, Any], preserve_usn=False) -> None:
@@ -467,13 +464,6 @@ class DeckManager:
     updateConf = update_config
     remConf = remove_config
     confId = add_config_returning_id
-
-    # temporary caching - don't use this as it will be removed
-    def _enable_dconf_cache(self):
-        self._dconf_cache = {c["id"]: c for c in self.all_config()}
-
-    def _disable_dconf_cache(self):
-        self._dconf_cache = None
 
     # Deck utils
     #############################################################
