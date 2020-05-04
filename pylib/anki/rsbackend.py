@@ -656,7 +656,7 @@ class RustBackend:
                     json=bjson, preserve_usn_and_mtime=preserve_usn
                 )
             ),
-            release_gil=True
+            release_gil=True,
         ).add_or_update_notetype
         nt["id"] = id
 

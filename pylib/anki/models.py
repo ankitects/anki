@@ -317,7 +317,6 @@ class ModelManager:
 
     def useCount(self, m: NoteType) -> Any:
         "Number of note using M."
-        print("useCount() is slow; prefer all_use_counts()")
         return self.col.db.scalar("select count() from notes where mid = ?", m["id"])
 
     # Copying
