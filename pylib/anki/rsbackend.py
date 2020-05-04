@@ -655,12 +655,13 @@ class RustBackend:
                 add_or_update_notetype=pb.AddOrUpdateNotetypeIn(
                     json=bjson, preserve_usn_and_mtime=preserve_usn
                 )
-            )
+            ),
+            release_gil=True
         ).add_or_update_notetype
         nt["id"] = id
 
     def remove_notetype(self, ntid: int) -> None:
-        self._run_command(pb.BackendInput(remove_notetype=ntid))
+        self._run_command(pb.BackendInput(remove_notetype=ntid), release_gil=True)
 
     def new_note(self, ntid: int) -> BackendNote:
         return self._run_command(pb.BackendInput(new_note=ntid)).new_note
