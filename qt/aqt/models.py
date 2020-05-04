@@ -8,6 +8,7 @@ from typing import List, Optional
 import aqt.clayout
 from anki import stdmodels
 from anki.lang import _, ngettext
+from anki.models import NoteType
 from anki.rsbackend import pb
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
@@ -24,11 +25,11 @@ from aqt.utils import (
 
 class Models(QDialog):
     def __init__(self, mw: AnkiQt, parent=None, fromMain=False):
-        self.mw = mw
+        self.mw = mw.weakref()
         parent = parent or mw
         self.fromMain = fromMain
         QDialog.__init__(self, parent, Qt.Window)
-        self.col = mw.col
+        self.col = mw.col.weakref()
         assert self.col
         self.mm = self.col.models
         self.mw.checkpoint(_("Note Types"))
@@ -61,25 +62,39 @@ class Models(QDialog):
             qconnect(b.clicked, self.onCards)
         b = box.addButton(_("Options..."), t)
         qconnect(b.clicked, self.onAdvanced)
-        qconnect(f.modelsList.currentRowChanged, self.modelChanged)
         qconnect(f.modelsList.itemDoubleClicked, self.onRename)
-        self.updateModelsList()
+
+        def on_done(fut):
+            self.updateModelsList(fut.result())
+
+        self.mw.taskman.with_progress(self.col.models.all_use_counts, on_done, self)
         f.modelsList.setCurrentRow(0)
         maybeHideClose(box)
 
     def onRename(self):
-        txt = getText(_("New name:"), default=self.model["name"])
+        nt = self.current_notetype()
+        txt = getText(_("New name:"), default=nt["name"])
         if txt[1] and txt[0]:
-            self.model["name"] = txt[0]
-            self.mm.save(self.model, updateReqs=False)
-        self.updateModelsList()
+            nt["name"] = txt[0]
+            self.saveAndRefresh(nt)
 
-    def updateModelsList(self):
+    def saveAndRefresh(self, nt: NoteType) -> None:
+        def save():
+            self.mm.save(nt)
+            return self.col.models.all_use_counts()
+
+        def on_done(fut):
+            self.updateModelsList(fut.result())
+
+        self.mw.taskman.with_progress(save, on_done, self)
+
+    def updateModelsList(self, notetypes):
         row = self.form.modelsList.currentRow()
         if row == -1:
             row = 0
-        self.models = self.col.models.all_use_counts()
         self.form.modelsList.clear()
+
+        self.models = notetypes
         for m in self.models:
             mUse = m.use_count
             mUse = ngettext("%d note", "%d notes", mUse) % mUse
@@ -87,11 +102,9 @@ class Models(QDialog):
             self.form.modelsList.addItem(item)
         self.form.modelsList.setCurrentRow(row)
 
-    def modelChanged(self):
-        if self.model:
-            self.saveModel()
-        idx = self.form.modelsList.currentRow()
-        self.model = self.col.models.get(self.models[idx].id)
+    def current_notetype(self) -> NoteType:
+        row = self.form.modelsList.currentRow()
+        return self.mm.get(self.models[row].id)
 
     def onAdd(self):
         m = AddModel(self.mw, self).get()
@@ -99,9 +112,7 @@ class Models(QDialog):
             txt = getText(_("Name:"), default=m["name"])[0]
             if txt:
                 m["name"] = txt
-            self.mm.ensureNameUnique(m)
-            self.mm.save(m)
-            self.updateModelsList()
+            self.saveAndRefresh(m)
 
     def onDelete(self):
         if len(self.models) < 2:
@@ -114,40 +125,50 @@ class Models(QDialog):
             msg = _("Delete this unused note type?")
         if not askUser(msg, parent=self):
             return
-        self.mm.rem(self.model)
-        self.model = None
-        self.updateModelsList()
+
+        self.col.modSchema(check=True)
+
+        nt = self.current_notetype()
+
+        def save():
+            self.mm.rem(nt)
+            return self.col.models.all_use_counts()
+
+        def on_done(fut):
+            self.updateModelsList(fut.result())
+
+        self.mw.taskman.with_progress(save, on_done, self)
 
     def onAdvanced(self):
+        nt = self.current_notetype()
         d = QDialog(self)
         frm = aqt.forms.modelopts.Ui_Dialog()
         frm.setupUi(d)
-        frm.latexsvg.setChecked(self.model.get("latexsvg", False))
-        frm.latexHeader.setText(self.model["latexPre"])
-        frm.latexFooter.setText(self.model["latexPost"])
-        d.setWindowTitle(_("Options for %s") % self.model["name"])
+        frm.latexsvg.setChecked(nt.get("latexsvg", False))
+        frm.latexHeader.setText(nt["latexPre"])
+        frm.latexFooter.setText(nt["latexPost"])
+        d.setWindowTitle(_("Options for %s") % nt["name"])
         qconnect(frm.buttonBox.helpRequested, lambda: openHelp("latex"))
         restoreGeom(d, "modelopts")
         gui_hooks.models_advanced_will_show(d)
         d.exec_()
         saveGeom(d, "modelopts")
-        self.model["latexsvg"] = frm.latexsvg.isChecked()
-        self.model["latexPre"] = str(frm.latexHeader.toPlainText())
-        self.model["latexPost"] = str(frm.latexFooter.toPlainText())
-
-    def saveModel(self):
-        self.mm.save(self.model, updateReqs=False)
+        nt["latexsvg"] = frm.latexsvg.isChecked()
+        nt["latexPre"] = str(frm.latexHeader.toPlainText())
+        nt["latexPost"] = str(frm.latexFooter.toPlainText())
+        self.saveAndRefresh(nt)
 
     def _tmpNote(self):
-        self.mm.setCurrent(self.model)
+        nt = self.current_notetype()
+        self.mm.setCurrent(nt)
         n = self.col.newNote(forDeck=False)
         field_names = list(n.keys())
         for name in field_names:
             n[name] = "(" + name + ")"
 
         cloze_re = re.compile(r"{{(?:[^}:]*:)*cloze:(?:[^}:]*:)*([^}]+)}}")
-        q_template = self.model["tmpls"][0]["qfmt"]
-        a_template = self.model["tmpls"][0]["afmt"]
+        q_template = nt["tmpls"][0]["qfmt"]
+        a_template = nt["tmpls"][0]["afmt"]
 
         used_cloze_fields = []
         used_cloze_fields.extend(cloze_re.findall(q_template))
@@ -161,8 +182,7 @@ class Models(QDialog):
     def onFields(self):
         from aqt.fields import FieldDialog
 
-        n = self._tmpNote()
-        FieldDialog(self.mw, n, parent=self)
+        FieldDialog(self.mw, self.current_notetype(), parent=self)
 
     def onCards(self):
         from aqt.clayout import CardLayout
@@ -176,7 +196,6 @@ class Models(QDialog):
     # need to flush model on change or reject
 
     def reject(self):
-        self.saveModel()
         self.mw.reset()
         saveGeom(self, "models")
         QDialog.reject(self)

@@ -360,23 +360,24 @@ class ModelManager:
         f["name"] = name
         return f
 
-    def addField(self, m: NoteType, field: Field) -> None:
+    def addField(self, m: NoteType, field: Field, save=True) -> None:
         if m["id"]:
             self.col.modSchema(check=True)
 
         m["flds"].append(field)
 
-        if m["id"]:
+        if m["id"] and save:
             self.save(m)
 
-    def remField(self, m: NoteType, field: Field) -> None:
+    def remField(self, m: NoteType, field: Field, save=True) -> None:
         self.col.modSchema(check=True)
 
         m["flds"].remove(field)
 
-        self.save(m)
+        if save:
+            self.save(m)
 
-    def moveField(self, m: NoteType, field: Field, idx: int) -> None:
+    def moveField(self, m: NoteType, field: Field, idx: int, save=True) -> None:
         self.col.modSchema(check=True)
         oldidx = m["flds"].index(field)
         if oldidx == idx:
@@ -385,14 +386,16 @@ class ModelManager:
         m["flds"].remove(field)
         m["flds"].insert(idx, field)
 
-        self.save(m)
+        if save:
+            self.save(m)
 
-    def renameField(self, m: NoteType, field: Field, newName: str) -> None:
+    def renameField(self, m: NoteType, field: Field, newName: str, save=True) -> None:
         assert field in m["flds"]
 
         field["name"] = newName
 
-        self.save(m)
+        if save:
+            self.save(m)
 
     # Adding & changing templates
     ##################################################
