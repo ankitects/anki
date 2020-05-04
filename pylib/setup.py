@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import os
+
 import setuptools
 
 install_requires = [
@@ -12,10 +14,13 @@ install_requires = [
     'distro; sys_platform != "darwin" and sys_platform != "win32"',
 ]
 
+# maturin develop hides the package from pip - https://github.com/ankitects/anki/pull/600
+if not os.environ.get("SKIP_ANKI_RSPY", False):
+    install_requires.append("ankirspy==2.1.26")  # automatically updated 1
 
 setuptools.setup(
     name="anki",
-    version="2.1.25",  # automatically updated
+    version="2.1.26",  # automatically updated 2
     author="Ankitects Pty Ltd",
     description="Anki's library code",
     long_description="Anki's library code",

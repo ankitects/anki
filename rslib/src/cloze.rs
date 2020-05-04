@@ -3,7 +3,7 @@
 
 use crate::latex::contains_latex;
 use crate::template::RenderContext;
-use crate::text::strip_html;
+use crate::text::strip_html_preserving_entities;
 use lazy_static::lazy_static;
 use regex::Captures;
 use regex::Regex;
@@ -124,7 +124,8 @@ fn strip_html_inside_mathjax(text: &str) -> Cow<str> {
         format!(
             "{}{}{}",
             caps.get(mathjax_caps::OPENING_TAG).unwrap().as_str(),
-            strip_html(caps.get(mathjax_caps::INNER_TEXT).unwrap().as_str()).as_ref(),
+            strip_html_preserving_entities(caps.get(mathjax_caps::INNER_TEXT).unwrap().as_str())
+                .as_ref(),
             caps.get(mathjax_caps::CLOSING_TAG).unwrap().as_str()
         )
     })
@@ -140,6 +141,7 @@ pub(crate) fn cloze_filter<'a>(text: &'a str, context: &RenderContext) -> Cow<'a
 
 #[cfg(test)]
 mod test {
+    use super::strip_html_inside_mathjax;
     use crate::cloze::{cloze_numbers_in_string, expand_clozes_to_reveal_latex};
     use crate::text::strip_html;
     use std::collections::HashSet;
@@ -165,5 +167,14 @@ mod test {
         assert!(expanded.contains("foo [baz]"));
         assert!(expanded.contains("[...] bar"));
         assert!(expanded.contains("foo bar"));
+    }
+
+    #[test]
+    fn mathjax_html() {
+        // escaped angle brackets should be preserved
+        assert_eq!(
+            strip_html_inside_mathjax(r"\(<foo>&lt;&gt;</foo>\)"),
+            r"\(&lt;&gt;\)"
+        );
     }
 }

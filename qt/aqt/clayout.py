@@ -106,8 +106,8 @@ class CardLayout(QDialog):
         self.topAreaForm = aqt.forms.clayout_top.Ui_Form()
         self.topAreaForm.setupUi(self.topArea)
         self.topAreaForm.templateOptions.setText(_("Options") + " " + downArrow())
-        self.topAreaForm.templateOptions.clicked.connect(self.onMore)
-        self.topAreaForm.templatesBox.currentIndexChanged.connect(self.onCardSelected)
+        qconnect(self.topAreaForm.templateOptions.clicked, self.onMore)
+        qconnect(self.topAreaForm.templatesBox.currentIndexChanged, self.onCardSelected)
 
     def updateTopArea(self):
         cnt = self.mw.col.models.useCount(self.model)
@@ -184,13 +184,14 @@ class CardLayout(QDialog):
             tform.tlayout2.setContentsMargins(0, 11, 0, 0)
             tform.tlayout3.setContentsMargins(0, 11, 0, 0)
         tform.groupBox_3.setTitle(_("Styling (shared between cards)"))
-        tform.front.textChanged.connect(self.saveCard)
-        tform.css.textChanged.connect(self.saveCard)
-        tform.back.textChanged.connect(self.saveCard)
+        qconnect(tform.front.textChanged, self.saveCard)
+        qconnect(tform.css.textChanged, self.saveCard)
+        qconnect(tform.back.textChanged, self.saveCard)
         l.addWidget(left, 5)
         # preview area
         right = QWidget()
-        pform = self.pform = aqt.forms.preview.Ui_Form()
+        self.pform: Any = aqt.forms.preview.Ui_Form()
+        pform = self.pform
         pform.setupUi(right)
         if self.style().objectName() == "gtk+":
             # gtk+ requires margins in inner layout
@@ -275,22 +276,22 @@ Please create a new card type first."""
         help = QPushButton(_("Help"))
         help.setAutoDefault(False)
         l.addWidget(help)
-        help.clicked.connect(self.onHelp)
+        qconnect(help.clicked, self.onHelp)
         l.addStretch()
         addField = QPushButton(_("Add Field"))
         addField.setAutoDefault(False)
         l.addWidget(addField)
-        addField.clicked.connect(self.onAddField)
+        qconnect(addField.clicked, self.onAddField)
         if not self._isCloze():
             flip = QPushButton(_("Flip"))
             flip.setAutoDefault(False)
             l.addWidget(flip)
-            flip.clicked.connect(self.onFlip)
+            qconnect(flip.clicked, self.onFlip)
         l.addStretch()
         close = QPushButton(_("Close"))
         close.setAutoDefault(False)
         l.addWidget(close)
-        close.clicked.connect(self.accept)
+        qconnect(close.clicked, self.accept)
 
     # Cards
     ##########################################################################
@@ -477,16 +478,16 @@ adjust the template manually to switch the question and answer."""
 
         if not self._isCloze():
             a = m.addAction(_("Add Card Type..."))
-            a.triggered.connect(self.onAddCard)
+            qconnect(a.triggered, self.onAddCard)
 
             a = m.addAction(_("Remove Card Type..."))
-            a.triggered.connect(self.onRemove)
+            qconnect(a.triggered, self.onRemove)
 
             a = m.addAction(_("Rename Card Type..."))
-            a.triggered.connect(self.onRename)
+            qconnect(a.triggered, self.onRename)
 
             a = m.addAction(_("Reposition Card Type..."))
-            a.triggered.connect(self.onReorder)
+            qconnect(a.triggered, self.onReorder)
 
             m.addSeparator()
 
@@ -496,10 +497,10 @@ adjust the template manually to switch the question and answer."""
             else:
                 s = _(" (off)")
             a = m.addAction(_("Deck Override...") + s)
-            a.triggered.connect(self.onTargetDeck)
+            qconnect(a.triggered, self.onTargetDeck)
 
         a = m.addAction(_("Browser Appearance..."))
-        a.triggered.connect(self.onBrowserDisplay)
+        qconnect(a.triggered, self.onBrowserDisplay)
 
         m.exec_(self.topAreaForm.templateOptions.mapToGlobal(QPoint(0, 0)))
 
@@ -514,7 +515,7 @@ adjust the template manually to switch the question and answer."""
             f.overrideFont.setChecked(True)
         f.font.setCurrentFont(QFont(t.get("bfont", "Arial")))
         f.fontSize.setValue(t.get("bsize", 12))
-        f.buttonBox.accepted.connect(lambda: self.onBrowserDisplayOk(f))
+        qconnect(f.buttonBox.accepted, lambda: self.onBrowserDisplayOk(f))
         d.exec_()
 
     def onBrowserDisplayOk(self, f):
@@ -553,7 +554,7 @@ Enter deck to place new %s cards in, or leave blank:"""
             te.setText(self.col.decks.get(t["did"])["name"])
             te.selectAll()
         bb = QDialogButtonBox(QDialogButtonBox.Close)
-        bb.rejected.connect(d.close)
+        qconnect(bb.rejected, d.close)
         l.addWidget(bb)
         d.setLayout(l)
         d.exec_()

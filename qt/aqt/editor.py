@@ -221,7 +221,7 @@ class Editor:
         disables: bool = True,
     ):
         """Assign func to bridge cmd, register shortcut, return button"""
-        if cmd not in self._links:
+        if func:
             self._links[cmd] = func
         if keys:
             QShortcut(  # type: ignore
@@ -521,7 +521,7 @@ class Editor:
         d = QDialog(self.widget)
         form = aqt.forms.edithtml.Ui_Dialog()
         form.setupUi(d)
-        form.buttonBox.helpRequested.connect(lambda: openHelp("editor"))
+        qconnect(form.buttonBox.helpRequested, lambda: openHelp("editor"))
         form.textEdit.setPlainText(self.note.fields[field])
         d.show()
         form.textEdit.moveCursor(QTextCursor.End)
@@ -553,7 +553,7 @@ class Editor:
         l = QLabel(_("Tags"))
         tb.addWidget(l, 1, 0)
         self.tags = aqt.tagedit.TagEdit(self.widget)
-        self.tags.lostFocus.connect(self.saveTags)
+        qconnect(self.tags.lostFocus, self.saveTags)
         self.tags.setToolTip(shortcut(_("Jump to tags with Ctrl+Shift+T")))
         border = theme_manager.str_color("border")
         self.tags.setStyleSheet(f"border: 1px solid {border}")
@@ -921,7 +921,7 @@ to a cloze type first, via Edit>Change Note Type."""
             (_("Edit HTML"), self.onHtmlEdit, "Ctrl+Shift+X"),
         ):
             a = m.addAction(text)
-            a.triggered.connect(handler)
+            qconnect(a.triggered, handler)
             a.setShortcut(QKeySequence(shortcut))
 
         qtMenuShortcutWorkaround(m)
@@ -985,7 +985,7 @@ class EditorWebView(AnkiWebView):
         self.setAcceptDrops(True)
         self._markInternal = False
         clip = self.editor.mw.app.clipboard()
-        clip.dataChanged.connect(self._onClipboardChange)
+        qconnect(clip.dataChanged, self._onClipboardChange)
         gui_hooks.editor_web_view_did_init(self)
 
     def _onClipboardChange(self):

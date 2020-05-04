@@ -608,53 +608,53 @@ class Browser(QMainWindow):
         # pylint: disable=unnecessary-lambda
         # actions
         f = self.form
-        f.previewButton.clicked.connect(self.onTogglePreview)
+        qconnect(f.previewButton.clicked, self.onTogglePreview)
         f.previewButton.setToolTip(
             _("Preview Selected Card (%s)") % shortcut("Ctrl+Shift+P")
         )
         f.previewButton.setShortcut("Ctrl+Shift+P")
 
-        f.filter.clicked.connect(self.onFilterButton)
+        qconnect(f.filter.clicked, self.onFilterButton)
         # edit
-        f.actionUndo.triggered.connect(self.mw.onUndo)
-        f.actionInvertSelection.triggered.connect(self.invertSelection)
-        f.actionSelectNotes.triggered.connect(self.selectNotes)
+        qconnect(f.actionUndo.triggered, self.mw.onUndo)
+        qconnect(f.actionInvertSelection.triggered, self.invertSelection)
+        qconnect(f.actionSelectNotes.triggered, self.selectNotes)
         if not isMac:
             f.actionClose.setVisible(False)
         # notes
-        f.actionAdd.triggered.connect(self.mw.onAddCard)
-        f.actionAdd_Tags.triggered.connect(lambda: self.addTags())
-        f.actionRemove_Tags.triggered.connect(lambda: self.deleteTags())
-        f.actionClear_Unused_Tags.triggered.connect(self.clearUnusedTags)
-        f.actionToggle_Mark.triggered.connect(lambda: self.onMark())
-        f.actionChangeModel.triggered.connect(self.onChangeModel)
-        f.actionFindDuplicates.triggered.connect(self.onFindDupes)
-        f.actionFindReplace.triggered.connect(self.onFindReplace)
-        f.actionManage_Note_Types.triggered.connect(self.mw.onNoteTypes)
-        f.actionDelete.triggered.connect(self.deleteNotes)
+        qconnect(f.actionAdd.triggered, self.mw.onAddCard)
+        qconnect(f.actionAdd_Tags.triggered, lambda: self.addTags())
+        qconnect(f.actionRemove_Tags.triggered, lambda: self.deleteTags())
+        qconnect(f.actionClear_Unused_Tags.triggered, self.clearUnusedTags)
+        qconnect(f.actionToggle_Mark.triggered, lambda: self.onMark())
+        qconnect(f.actionChangeModel.triggered, self.onChangeModel)
+        qconnect(f.actionFindDuplicates.triggered, self.onFindDupes)
+        qconnect(f.actionFindReplace.triggered, self.onFindReplace)
+        qconnect(f.actionManage_Note_Types.triggered, self.mw.onNoteTypes)
+        qconnect(f.actionDelete.triggered, self.deleteNotes)
         # cards
-        f.actionChange_Deck.triggered.connect(self.setDeck)
-        f.action_Info.triggered.connect(self.showCardInfo)
-        f.actionReposition.triggered.connect(self.reposition)
-        f.actionReschedule.triggered.connect(self.reschedule)
-        f.actionToggle_Suspend.triggered.connect(self.onSuspend)
-        f.actionRed_Flag.triggered.connect(lambda: self.onSetFlag(1))
-        f.actionOrange_Flag.triggered.connect(lambda: self.onSetFlag(2))
-        f.actionGreen_Flag.triggered.connect(lambda: self.onSetFlag(3))
-        f.actionBlue_Flag.triggered.connect(lambda: self.onSetFlag(4))
-        f.actionExport.triggered.connect(lambda: self._on_export_notes())
+        qconnect(f.actionChange_Deck.triggered, self.setDeck)
+        qconnect(f.action_Info.triggered, self.showCardInfo)
+        qconnect(f.actionReposition.triggered, self.reposition)
+        qconnect(f.actionReschedule.triggered, self.reschedule)
+        qconnect(f.actionToggle_Suspend.triggered, self.onSuspend)
+        qconnect(f.actionRed_Flag.triggered, lambda: self.onSetFlag(1))
+        qconnect(f.actionOrange_Flag.triggered, lambda: self.onSetFlag(2))
+        qconnect(f.actionGreen_Flag.triggered, lambda: self.onSetFlag(3))
+        qconnect(f.actionBlue_Flag.triggered, lambda: self.onSetFlag(4))
+        qconnect(f.actionExport.triggered, lambda: self._on_export_notes())
         # jumps
-        f.actionPreviousCard.triggered.connect(self.onPreviousCard)
-        f.actionNextCard.triggered.connect(self.onNextCard)
-        f.actionFirstCard.triggered.connect(self.onFirstCard)
-        f.actionLastCard.triggered.connect(self.onLastCard)
-        f.actionFind.triggered.connect(self.onFind)
-        f.actionNote.triggered.connect(self.onNote)
-        f.actionTags.triggered.connect(self.onFilterButton)
-        f.actionSidebar.triggered.connect(self.focusSidebar)
-        f.actionCardList.triggered.connect(self.onCardList)
+        qconnect(f.actionPreviousCard.triggered, self.onPreviousCard)
+        qconnect(f.actionNextCard.triggered, self.onNextCard)
+        qconnect(f.actionFirstCard.triggered, self.onFirstCard)
+        qconnect(f.actionLastCard.triggered, self.onLastCard)
+        qconnect(f.actionFind.triggered, self.onFind)
+        qconnect(f.actionNote.triggered, self.onNote)
+        qconnect(f.actionTags.triggered, self.onFilterButton)
+        qconnect(f.actionSidebar.triggered, self.focusSidebar)
+        qconnect(f.actionCardList.triggered, self.onCardList)
         # help
-        f.actionGuide.triggered.connect(self.onHelp)
+        qconnect(f.actionGuide.triggered, self.onHelp)
         # keyboard shortcut for shift+home/end
         self.pgUpCut = QShortcut(QKeySequence("Shift+Home"), self)
         qconnect(self.pgUpCut.activated, self.onFirstCard)
@@ -666,7 +666,7 @@ class Browser(QMainWindow):
 
         # context menu
         self.form.tableView.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.form.tableView.customContextMenuRequested.connect(self.onContextMenu)
+        qconnect(self.form.tableView.customContextMenuRequested, self.onContextMenu)
 
     def onContextMenu(self, _point) -> None:
         m = QMenu()
@@ -750,8 +750,8 @@ class Browser(QMainWindow):
     ######################################################################
 
     def setupSearch(self):
-        self.form.searchButton.clicked.connect(self.onSearchActivated)
-        self.form.searchEdit.lineEdit().returnPressed.connect(self.onSearchActivated)
+        qconnect(self.form.searchButton.clicked, self.onSearchActivated)
+        qconnect(self.form.searchEdit.lineEdit().returnPressed, self.onSearchActivated)
         self.form.searchEdit.setCompleter(None)
         self._searchPrompt = _("<type here to search; hit enter to show current deck>")
         self.form.searchEdit.addItems(
@@ -837,7 +837,9 @@ class Browser(QMainWindow):
         self.form.tableView.setModel(self.model)
         self.form.tableView.selectionModel()
         self.form.tableView.setItemDelegate(StatusDelegate(self, self.model))
-        self.form.tableView.selectionModel().selectionChanged.connect(self.onRowChanged)
+        qconnect(
+            self.form.tableView.selectionModel().selectionChanged, self.onRowChanged
+        )
         self.form.tableView.setWordWrap(False)
         if not theme_manager.night_mode:
             self.form.tableView.setStyleSheet(
@@ -912,10 +914,10 @@ QTableView {{ gridline-color: {grid} }}
         hh.setSectionsMovable(True)
         self.setColumnSizes()
         hh.setContextMenuPolicy(Qt.CustomContextMenu)
-        hh.customContextMenuRequested.connect(self.onHeaderContext)
+        qconnect(hh.customContextMenuRequested, self.onHeaderContext)
         self.setSortIndicator()
-        hh.sortIndicatorChanged.connect(self.onSortChanged)
-        hh.sectionMoved.connect(self.onColumnMoved)
+        qconnect(hh.sortIndicatorChanged, self.onSortChanged)
+        qconnect(hh.sectionMoved, self.onColumnMoved)
 
     def onSortChanged(self, idx, ord):
         ord = bool(ord)
@@ -969,7 +971,7 @@ QTableView {{ gridline-color: {grid} }}
             a = m.addAction(name)
             a.setCheckable(True)
             a.setChecked(type in self.model.activeCols)
-            a.toggled.connect(lambda b, t=type: self.toggleField(t))
+            qconnect(a.toggled, lambda b, t=type: self.toggleField(t))
         gui_hooks.browser_header_will_show_context_menu(self, m)
         m.exec_(gpos)
 
@@ -1015,8 +1017,8 @@ QTableView {{ gridline-color: {grid} }}
     class SidebarTreeView(QTreeView):
         def __init__(self):
             super().__init__()
-            self.expanded.connect(self.onExpansion)
-            self.collapsed.connect(self.onCollapse)
+            qconnect(self.expanded, self.onExpansion)
+            qconnect(self.collapsed, self.onCollapse)
 
         def onClickCurrent(self) -> None:
             idx = self.currentIndex()
@@ -1058,13 +1060,13 @@ QTableView {{ gridline-color: {grid} }}
         self.sidebarTree.setUniformRowHeights(True)
         self.sidebarTree.setHeaderHidden(True)
         self.sidebarTree.setIndentation(15)
-        self.sidebarTree.expanded.connect(self.onSidebarItemExpanded)  # type: ignore
+        qconnect(self.sidebarTree.expanded, self.onSidebarItemExpanded)
         dw.setWidget(self.sidebarTree)
         # match window background color
         bgcolor = QPalette().window().color().name()
         self.sidebarTree.setStyleSheet("QTreeView { background: '%s'; }" % bgcolor)
         self.sidebarDockWidget.setFloating(False)
-        self.sidebarDockWidget.visibilityChanged.connect(self.onSidebarVisChanged)  # type: ignore
+        qconnect(self.sidebarDockWidget.visibilityChanged, self.onSidebarVisChanged)
         self.sidebarDockWidget.setTitleBarWidget(QWidget())
         self.addDockWidget(Qt.LeftDockWidgetArea, dw)
 
@@ -1385,14 +1387,14 @@ QTableView {{ gridline-color: {grid} }}
 
         return ml
 
-    def _onSaveFilter(self):
+    def _onSaveFilter(self) -> None:
         name = getOnlyText(_("Please give your filter a name:"))
         if not name:
             return
         filt = self.form.searchEdit.lineEdit().text()
         conf = self.col.get_config("savedFilters")
         conf[name] = filt
-        self.col.save_config("savedFilters", conf)
+        self.col.set_config("savedFilters", conf)
         self.maybeRefreshSidebar()
 
     def _onRemoveFilter(self):
@@ -1428,7 +1430,7 @@ QTableView {{ gridline-color: {grid} }}
         w.stdHtml(info + "<p>" + reps, context=card_info_dialog)
         bb = QDialogButtonBox(QDialogButtonBox.Close)
         l.addWidget(bb)
-        bb.rejected.connect(card_info_dialog.reject)
+        qconnect(bb.rejected, card_info_dialog.reject)
         card_info_dialog.setLayout(l)
         card_info_dialog.setWindowModality(Qt.WindowModal)
         card_info_dialog.resize(500, 400)
@@ -1932,7 +1934,7 @@ update cards set usn=?, mod=?, did=? where id in """
         frm.setupUi(d)
         d.setWindowModality(Qt.WindowModal)
         frm.field.addItems([_("All Fields")] + fields)
-        frm.buttonBox.helpRequested.connect(self.onFindReplaceHelp)
+        qconnect(frm.buttonBox.helpRequested, self.onFindReplaceHelp)
         restoreGeom(d, "findreplace")
         r = d.exec_()
         saveGeom(d, "findreplace")
@@ -2000,7 +2002,7 @@ update cards set usn=?, mod=?, did=? where id in """
         def onFin(code):
             saveGeom(d, "findDupes")
 
-        d.finished.connect(onFin)
+        qconnect(d.finished, onFin)
 
         def onClick():
             field = fields[frm.fields.currentIndex()]
@@ -2009,7 +2011,7 @@ update cards set usn=?, mod=?, did=? where id in """
             )
 
         search = frm.buttonBox.addButton(_("Search"), QDialogButtonBox.ActionRole)
-        search.clicked.connect(onClick)
+        qconnect(search.clicked, onClick)
         d.show()
 
     def duplicatesReport(self, web, fname, search, frm, web_context):
@@ -2019,7 +2021,7 @@ update cards set usn=?, mod=?, did=? where id in """
             self._dupesButton = b = frm.buttonBox.addButton(
                 _("Tag Duplicates"), QDialogButtonBox.ActionRole
             )
-            b.clicked.connect(lambda: self._onTagDupes(res))
+            qconnect(b.clicked, lambda: self._onTagDupes(res))
         t = ""
         groups = len(res)
         notes = sum(len(r[1]) for r in res)
@@ -2179,7 +2181,7 @@ class ChangeModel(QDialog):
             self.browser.mw, self.form.modelChooserWidget, label=False
         )
         self.modelChooser.models.setFocus()
-        self.form.buttonBox.helpRequested.connect(self.onHelp)
+        qconnect(self.form.buttonBox.helpRequested, self.onHelp)
         self.modelChanged(self.browser.mw.col.models.current())
         self.pauseUpdate = False
 
@@ -2215,8 +2217,9 @@ class ChangeModel(QDialog):
             idx = min(i, len(targets) - 1)
             cb.setCurrentIndex(idx)
             indices[cb] = idx
-            cb.currentIndexChanged.connect(
-                lambda i, cb=cb, key=key: self.onComboChanged(i, cb, key)
+            qconnect(
+                cb.currentIndexChanged,
+                lambda i, cb=cb, key=key: self.onComboChanged(i, cb, key),
             )
             combos.append(cb)
             l.addWidget(cb, i, 1)

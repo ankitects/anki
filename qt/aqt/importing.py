@@ -83,18 +83,18 @@ class ImportDialog(QDialog):
         self.importer = importer
         self.frm = aqt.forms.importing.Ui_ImportDialog()
         self.frm.setupUi(self)
-        self.frm.buttonBox.button(QDialogButtonBox.Help).clicked.connect(
-            self.helpRequested
+        qconnect(
+            self.frm.buttonBox.button(QDialogButtonBox.Help).clicked, self.helpRequested
         )
         self.setupMappingFrame()
         self.setupOptions()
         self.modelChanged()
         self.frm.autoDetect.setVisible(self.importer.needDelimiter)
         gui_hooks.current_note_type_did_change.append(self.modelChanged)
-        self.frm.autoDetect.clicked.connect(self.onDelimiter)
+        qconnect(self.frm.autoDetect.clicked, self.onDelimiter)
         self.updateDelimiterButtonText()
         self.frm.allowHTML.setChecked(self.mw.pm.profile.get("allowHTML", True))
-        self.frm.importMode.currentIndexChanged.connect(self.importModeChanged)
+        qconnect(self.frm.importMode.currentIndexChanged, self.importModeChanged)
         self.frm.importMode.setCurrentIndex(self.mw.pm.profile.get("importMode", 1))
         self.frm.tagModified.setText(self.mw.pm.profile.get("tagModified", ""))
         self.frm.tagModified.setCol(self.mw.col)
@@ -266,7 +266,7 @@ you can enter it here. Use \\t to represent tab."""
             self.grid.addWidget(QLabel(text), num, 1)
             button = QPushButton(_("Change"))
             self.grid.addWidget(button, num, 2)
-            button.clicked.connect(lambda _, s=self, n=num: s.changeMappingNum(n))
+            qconnect(button.clicked, lambda _, s=self, n=num: s.changeMappingNum(n))
 
     def changeMappingNum(self, n):
         f = ChangeMap(self.mw, self.importer.model, self.mapping[n]).getField()

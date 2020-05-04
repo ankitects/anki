@@ -11,7 +11,7 @@ from typing import List, Optional
 
 import aqt
 from anki import hooks
-from anki.exporting import exporters
+from anki.exporting import Exporter, exporters
 from anki.lang import _, ngettext
 from aqt.qt import *
 from aqt.utils import checkInvalidFilename, getSaveFile, showWarning, tooltip
@@ -29,7 +29,7 @@ class ExportDialog(QDialog):
         self.col = mw.col.weakref()
         self.frm = aqt.forms.exporting.Ui_ExportDialog()
         self.frm.setupUi(self)
-        self.exporter = None
+        self.exporter: Optional[Exporter] = None
         self.cids = cids
         self.setup(did)
         self.exec_()
@@ -45,7 +45,7 @@ class ExportDialog(QDialog):
                     break
         self.frm.format.insertItems(0, [e[0] for e in self.exporters])
         self.frm.format.setCurrentIndex(idx)
-        self.frm.format.activated.connect(self.exporterChanged)
+        qconnect(self.frm.format.activated, self.exporterChanged)
         self.exporterChanged(idx)
         # deck list
         if self.cids is None:

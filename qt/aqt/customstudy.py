@@ -37,12 +37,12 @@ class CustomStudy(QDialog):
 
     def setupSignals(self):
         f = self.form
-        f.radioNew.clicked.connect(lambda: self.onRadioChange(RADIO_NEW))
-        f.radioRev.clicked.connect(lambda: self.onRadioChange(RADIO_REV))
-        f.radioForgot.clicked.connect(lambda: self.onRadioChange(RADIO_FORGOT))
-        f.radioAhead.clicked.connect(lambda: self.onRadioChange(RADIO_AHEAD))
-        f.radioPreview.clicked.connect(lambda: self.onRadioChange(RADIO_PREVIEW))
-        f.radioCram.clicked.connect(lambda: self.onRadioChange(RADIO_CRAM))
+        qconnect(f.radioNew.clicked, lambda: self.onRadioChange(RADIO_NEW))
+        qconnect(f.radioRev.clicked, lambda: self.onRadioChange(RADIO_REV))
+        qconnect(f.radioForgot.clicked, lambda: self.onRadioChange(RADIO_FORGOT))
+        qconnect(f.radioAhead.clicked, lambda: self.onRadioChange(RADIO_AHEAD))
+        qconnect(f.radioPreview.clicked, lambda: self.onRadioChange(RADIO_PREVIEW))
+        qconnect(f.radioCram.clicked, lambda: self.onRadioChange(RADIO_CRAM))
 
     def onRadioChange(self, idx):
         f = self.form

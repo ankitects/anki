@@ -175,7 +175,7 @@ class AddonManager:
         self.mw = mw
         self.dirty = False
         f = self.mw.form
-        f.actionAdd_ons.triggered.connect(self.onAddonsDialog)
+        qconnect(f.actionAdd_ons.triggered, self.onAddonsDialog)
         sys.path.insert(0, self.addonsFolder())
 
     # in new code, you may want all_addon_meta() instead
@@ -699,16 +699,16 @@ class AddonsDialog(QDialog):
 
         f = self.form = aqt.forms.addons.Ui_Dialog()
         f.setupUi(self)
-        f.getAddons.clicked.connect(self.onGetAddons)
-        f.installFromFile.clicked.connect(self.onInstallFiles)
-        f.checkForUpdates.clicked.connect(self.check_for_updates)
-        f.toggleEnabled.clicked.connect(self.onToggleEnabled)
-        f.viewPage.clicked.connect(self.onViewPage)
-        f.viewFiles.clicked.connect(self.onViewFiles)
-        f.delete_2.clicked.connect(self.onDelete)
-        f.config.clicked.connect(self.onConfig)
-        self.form.addonList.itemDoubleClicked.connect(self.onConfig)
-        self.form.addonList.currentRowChanged.connect(self._onAddonItemSelected)
+        qconnect(f.getAddons.clicked, self.onGetAddons)
+        qconnect(f.installFromFile.clicked, self.onInstallFiles)
+        qconnect(f.checkForUpdates.clicked, self.check_for_updates)
+        qconnect(f.toggleEnabled.clicked, self.onToggleEnabled)
+        qconnect(f.viewPage.clicked, self.onViewPage)
+        qconnect(f.viewFiles.clicked, self.onViewFiles)
+        qconnect(f.delete_2.clicked, self.onDelete)
+        qconnect(f.config.clicked, self.onConfig)
+        qconnect(self.form.addonList.itemDoubleClicked, self.onConfig)
+        qconnect(self.form.addonList.currentRowChanged, self._onAddonItemSelected)
         self.setAcceptDrops(True)
         self.redrawAddons()
         restoreGeom(self, "addons")
@@ -916,7 +916,7 @@ class GetAddons(QDialog):
         b = self.form.buttonBox.addButton(
             _("Browse Add-ons"), QDialogButtonBox.ActionRole
         )
-        b.clicked.connect(self.onBrowse)
+        qconnect(b.clicked, self.onBrowse)
         restoreGeom(self, "getaddons", adjustSize=True)
         self.exec_()
         saveGeom(self, "getaddons")
@@ -1057,7 +1057,7 @@ class DownloaderInstaller(QObject):
         QObject.__init__(self, parent)
         self.mgr = mgr
         self.client = client
-        self.progressSignal.connect(self._progress_callback)  # type: ignore
+        qconnect(self.progressSignal, self._progress_callback)
 
         def bg_thread_progress(up, down) -> None:
             self.progressSignal.emit(up, down)  # type: ignore
@@ -1283,7 +1283,7 @@ class ConfigEditor(QDialog):
         self.form = aqt.forms.addonconf.Ui_Dialog()
         self.form.setupUi(self)
         restore = self.form.buttonBox.button(QDialogButtonBox.RestoreDefaults)
-        restore.clicked.connect(self.onRestoreDefaults)
+        qconnect(restore.clicked, self.onRestoreDefaults)
         self.setupFonts()
         self.updateHelp()
         self.updateText(self.conf)

@@ -23,7 +23,7 @@ class DeckConf(QDialog):
         self.ok = self.form.buttonBox.addButton(label, QDialogButtonBox.AcceptRole)
         self.mw.checkpoint(_("Options"))
         self.setWindowModality(Qt.WindowModal)
-        self.form.buttonBox.helpRequested.connect(lambda: openHelp("filtered"))
+        qconnect(self.form.buttonBox.helpRequested, lambda: openHelp("filtered"))
         self.setWindowTitle(_("Options for %s") % self.deck["name"])
         restoreGeom(self, "dyndeckconf")
         self.initialSetup()
@@ -46,7 +46,7 @@ class DeckConf(QDialog):
         self.form.order.addItems(list(cs.dynOrderLabels().values()))
         self.form.order_2.addItems(list(cs.dynOrderLabels().values()))
 
-        self.form.resched.stateChanged.connect(self._onReschedToggled)
+        qconnect(self.form.resched.stateChanged, self._onReschedToggled)
 
     def _onReschedToggled(self, _state):
         self.form.previewDelayWidget.setVisible(
