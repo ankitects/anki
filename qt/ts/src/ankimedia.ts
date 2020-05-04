@@ -1,6 +1,9 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
+// After loading the page, wait a little to ensure all medias are processed
+const ANKI_MEDIA_QUEUE_PREVIEW_TIMEOUT = 2000;
+
 /**
  * Find all audio and video tags and run them through the callback parameter.
  * @param {Function} callback - to be called on each media.
@@ -64,6 +67,7 @@ class AnkiMediaQueue {
         this._validateSpeed = this._validateSpeed.bind(this);
         this._validateSetup = this._validateSetup.bind(this);
         this.add = this.add.bind(this);
+        this._checkPreviewPage = this._checkPreviewPage.bind(this);
         this._play = this._play.bind(this);
         this._playnext = this._playnext.bind(this);
         this._getMediaElement = this._getMediaElement.bind(this);
@@ -187,23 +191,32 @@ class AnkiMediaQueue {
             return;
         }
 
-        if (where === this.where || document.title === "card layout back") {
+        if (!this.has_previewed && (this._checkPreviewPage() || where === this.where)) {
             this.playing.push([filename, speed]);
             this._play();
         }
     }
 
+    _checkPreviewPage() {
+        // avoid continuously playing when previewing/editing the card
+        if (document.title === "card layout back") {
+            let block_preview = () => {
+                this.has_previewed = true;
+            };
+            if (document.readyState === "complete") {
+                setTimeout(block_preview, ANKI_MEDIA_QUEUE_PREVIEW_TIMEOUT);
+            } else {
+                document.addEventListener("DOMContentLoaded", function() {
+                    setTimeout(block_preview, ANKI_MEDIA_QUEUE_PREVIEW_TIMEOUT);
+                });
+            }
+            return true;
+        }
+        return false;
+    }
+
     _play() {
         if (this.is_playing) {
-            return;
-        }
-        if (!this.has_previewed) {
-            // avoid continuously playing when previewing/editing the card
-            if (document.title === "card layout back") {
-                this.has_previewed = true;
-            }
-        } else {
-            this.playing.length = 0;
             return;
         }
 
@@ -439,5 +452,6 @@ if (typeof exports !== "undefined") {
     module.exports = {
         setAnkiMedia,
         AnkiMediaQueue,
+        ANKI_MEDIA_QUEUE_PREVIEW_TIMEOUT,
     };
 }

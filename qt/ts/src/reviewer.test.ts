@@ -2,6 +2,9 @@
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 /// <reference path="./reviewer.ts" />
 
+import "./ankimedia";
+const { ANKI_MEDIA_QUEUE_PREVIEW_TIMEOUT } = require("./ankimedia");
+
 // Use `anki\qt\ts> npm test -- reviewer-exceptions.test.ts` to run a single test file
 jest.disableAutomock();
 jest.setTimeout(30000);
@@ -294,4 +297,98 @@ describe("Test question and answer audios", () => {
             expect(question_times[1] < answer_times[1]).toEqual(true);
         }
     );
+
+    test(`The card preview should not play multiple times while editing the page\n...`, async function() {
+        await page.goto(`${address}/card_layout_back.html`);
+        await page.waitForSelector(`[id="qa"]`);
+        let get_paused_medias = async () => await page.evaluate(async () => {
+            let paused_medias = 0;
+            setAnkiMedia(media => {
+                if (media.paused) {
+                    paused_medias += 1;
+                }
+            });
+            return paused_medias;
+        });
+
+        await page.evaluate(async () => {
+            _showAnswer(
+                `${await questionTemplate(
+                    `silence1.mp3`,
+                    `ankimedia.setup({delay: 0}); ankimedia.addall( "front" );`
+                )}${await answerTemplate(
+                    `silence2.mp3`,
+                    `ankimedia.setup({delay: 0}); ankimedia.addall( "back" );`
+                )}`,
+                ""
+            );
+        });
+        await page.waitForSelector(`audio[id="silence2.mp3"][data-has-ended-at]`);
+
+        let question_times = await page.evaluate(async mp3 => {
+            let audio = document.getElementById(mp3) as HTMLAudioElement;
+            return [
+                audio.getAttribute("data-has-started-at"),
+                audio.getAttribute("data-has-ended-at"),
+            ];
+        }, "silence1.mp3");
+        let answer_times = await page.evaluate(async mp3 => {
+            let audio = document.getElementById(mp3) as HTMLAudioElement;
+            return [
+                audio.getAttribute("data-has-started-at"),
+                audio.getAttribute("data-has-ended-at"),
+            ];
+        }, "silence2.mp3");
+        expect(await get_paused_medias()).toEqual(2);
+        expect(question_times[0] < question_times[1]).toEqual(true);
+        expect(answer_times[0] < answer_times[1]).toEqual(true);
+        expect(question_times[0] < answer_times[0]).toEqual(true);
+        expect(question_times[1] < answer_times[1]).toEqual(true);
+
+        await page.waitFor(ANKI_MEDIA_QUEUE_PREVIEW_TIMEOUT);
+        await page.evaluate(async () => {
+            _showAnswer(
+                `${await questionTemplate(
+                    `silence1.mp3`,
+                    `ankimedia.setup({delay: 0}); ankimedia.addall( "front" );`
+                )}${await answerTemplate(
+                    `silence2.mp3`,
+                    `ankimedia.setup({delay: 0}); ankimedia.addall( "back" );`
+                )}`,
+                ""
+            );
+        });
+        await page.waitForSelector(`audio[id="silence2.mp3"]`);
+        expect(await get_paused_medias()).toEqual(2);
+
+        await page.evaluate(async () => {
+            _showAnswer(
+                `${await questionTemplate(
+                    `silence1.mp3`,
+                    `ankimedia.setup({delay: 0}); ankimedia.addall( "front" );`
+                )}${await answerTemplate(
+                    `silence2.mp3`,
+                    `ankimedia.setup({delay: 0}); ankimedia.addall( "back" );`
+                )}`,
+                ""
+            );
+        });
+        await page.waitForSelector(`audio[id="silence2.mp3"]`);
+        expect(await get_paused_medias()).toEqual(2);
+
+        await page.evaluate(async () => {
+            _showAnswer(
+                `${await questionTemplate(
+                    `silence1.mp3`,
+                    `ankimedia.setup({delay: 0}); ankimedia.addall( "front" );`
+                )}${await answerTemplate(
+                    `silence2.mp3`,
+                    `ankimedia.setup({delay: 0}); ankimedia.addall( "back" );`
+                )}`,
+                ""
+            );
+        });
+        await page.waitForSelector(`audio[id="silence2.mp3"]`);
+        expect(await get_paused_medias()).toEqual(2);
+    });
 });

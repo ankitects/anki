@@ -4,6 +4,8 @@
  * Tell jest to not use puppeteer environment - https://github.com/facebook/jest/issues/2587
  * @jest-environment jsdom
  */
+/// <reference path="./reviewer.ts" />
+
 import "./ankimedia";
 const { AnkiMediaQueue, setAnkiMedia } = require("./ankimedia");
 
