@@ -221,7 +221,7 @@ class Editor:
         disables: bool = True,
     ):
         """Assign func to bridge cmd, register shortcut, return button"""
-        if cmd not in self._links:
+        if func:
             self._links[cmd] = func
         if keys:
             QShortcut(  # type: ignore
