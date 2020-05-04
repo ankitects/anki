@@ -459,19 +459,6 @@ def test_review_limits():
     assert tree[1][2] == 4  # parent
     assert tree[1][5][0][2] == 4  # child
 
-    # switch limits
-    parent = d.decks.get(parent["id"])
-    child = d.decks.get(child["id"])
-    d.decks.setConf(parent, cconf["id"])
-    d.decks.setConf(child, pconf["id"])
-    d.decks.select(parent["id"])
-    d.sched.reset()
-
-    # child limits do not affect the parent
-    tree = d.sched.deckDueTree()
-    assert tree[1][2] == 9  # parent
-    assert tree[1][5][0][2] == 4  # child
-
 
 def test_button_spacing():
     d = getEmptyCol()
