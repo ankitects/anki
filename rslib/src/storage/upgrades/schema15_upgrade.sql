@@ -35,6 +35,7 @@ create table decks (
   kind bytes not null
 );
 create unique index idx_decks_name on decks (name);
+create index idx_notes_mid on notes (mid);
 create index idx_cards_odid on cards (odid)
 where
   odid != 0;

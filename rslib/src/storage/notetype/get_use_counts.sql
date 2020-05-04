@@ -1,10 +1,13 @@
 select
   nt.id,
   nt.name,
-  count(n.id)
+  (
+    select
+      count(*)
+    from notes n
+    where
+      nt.id = n.mid
+  )
 from notetypes nt
-left join notes n on (n.mid = nt.id)
-group by
-  nt.id
 order by
   nt.name
