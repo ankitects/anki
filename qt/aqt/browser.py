@@ -1385,14 +1385,14 @@ QTableView {{ gridline-color: {grid} }}
 
         return ml
 
-    def _onSaveFilter(self):
+    def _onSaveFilter(self) -> None:
         name = getOnlyText(_("Please give your filter a name:"))
         if not name:
             return
         filt = self.form.searchEdit.lineEdit().text()
         conf = self.col.get_config("savedFilters")
         conf[name] = filt
-        self.col.save_config("savedFilters", conf)
+        self.col.set_config("savedFilters", conf)
         self.maybeRefreshSidebar()
 
     def _onRemoveFilter(self):
