@@ -289,11 +289,22 @@ fn localized_template_error(i18n: &I18n, err: TemplateError) -> String {
 impl ParsedTemplate {
     /// true if provided fields are sufficient to render the template
     pub fn renders_with_fields(&self, nonempty_fields: &HashSet<&str>) -> bool {
-        !template_is_empty(nonempty_fields, &self.0)
+        !template_is_empty(nonempty_fields, &self.0, true)
+    }
+
+    pub fn renders_with_fields_for_reqs(&self, nonempty_fields: &HashSet<&str>) -> bool {
+        !template_is_empty(nonempty_fields, &self.0, false)
     }
 }
 
-fn template_is_empty(nonempty_fields: &HashSet<&str>, nodes: &[ParsedNode]) -> bool {
+/// If check_negated is false, negated conditionals resolve to their children, even
+/// if the referenced key is non-empty. This allows the legacy required field cache to
+/// generate results closer to older Anki versions.
+fn template_is_empty(
+    nonempty_fields: &HashSet<&str>,
+    nodes: &[ParsedNode],
+    check_negated: bool,
+) -> bool {
     use ParsedNode::*;
     for node in nodes {
         match node {
@@ -309,13 +320,16 @@ fn template_is_empty(nonempty_fields: &HashSet<&str>, nodes: &[ParsedNode]) -> b
                 if !nonempty_fields.contains(key.as_str()) {
                     continue;
                 }
-                if !template_is_empty(nonempty_fields, children) {
+                if !template_is_empty(nonempty_fields, children, check_negated) {
                     return false;
                 }
             }
-            NegatedConditional { children, .. } => {
-                // negated conditionals ignored when determining card generation
-                if !template_is_empty(nonempty_fields, children) {
+            NegatedConditional { key, children } => {
+                if check_negated && nonempty_fields.contains(key.as_str()) {
+                    continue;
+                }
+
+                if !template_is_empty(nonempty_fields, children, check_negated) {
                     return false;
                 }
             }
@@ -566,7 +580,7 @@ impl ParsedTemplate {
         for (name, ord) in field_map {
             nonempty.clear();
             nonempty.insert(*name);
-            if self.renders_with_fields(&nonempty) {
+            if self.renders_with_fields_for_reqs(&nonempty) {
                 ords.insert(*ord);
             }
         }
@@ -579,12 +593,12 @@ impl ParsedTemplate {
         for (name, ord) in field_map {
             // can we remove this field and still render?
             nonempty.remove(name);
-            if self.renders_with_fields(&nonempty) {
+            if self.renders_with_fields_for_reqs(&nonempty) {
                 ords.remove(ord);
             }
             nonempty.insert(*name);
         }
-        if !ords.is_empty() && self.renders_with_fields(&nonempty) {
+        if !ords.is_empty() && self.renders_with_fields_for_reqs(&nonempty) {
             FieldRequirements::All(ords)
         } else {
             FieldRequirements::None
@@ -704,8 +718,6 @@ fn nodes_to_string(buf: &mut String, nodes: &[ParsedNode]) {
     }
 }
 
-// fixme: unit test filter order, etc
-
 // Tests
 //---------------------------------------
 
@@ -798,11 +810,15 @@ mod test {
         assert_eq!(tmpl.renders_with_fields(&fields), false);
         tmpl = PT::from_text("{{#3}}{{^2}}{{1}}{{/2}}{{/3}}").unwrap();
         assert_eq!(tmpl.renders_with_fields(&fields), true);
+
+        tmpl = PT::from_text("{{^1}}{{3}}{{/1}}").unwrap();
+        assert_eq!(tmpl.renders_with_fields(&fields), false);
+        assert_eq!(tmpl.renders_with_fields_for_reqs(&fields), true);
     }
 
     #[test]
     fn requirements() {
-        let field_map: FieldMap = vec!["a", "b"]
+        let field_map: FieldMap = vec!["a", "b", "c"]
             .iter()
             .enumerate()
             .map(|(a, b)| (*b, a as u16))
@@ -820,13 +836,19 @@ mod test {
             FieldRequirements::All(HashSet::from_iter(vec![0, 1].into_iter()))
         );
 
-        tmpl = PT::from_text("{{c}}").unwrap();
+        tmpl = PT::from_text("{{z}}").unwrap();
         assert_eq!(tmpl.requirements(&field_map), FieldRequirements::None);
 
         tmpl = PT::from_text("{{^a}}{{b}}{{/a}}").unwrap();
         assert_eq!(
             tmpl.requirements(&field_map),
             FieldRequirements::Any(HashSet::from_iter(vec![1].into_iter()))
+        );
+
+        tmpl = PT::from_text("{{^a}}{{#b}}{{c}}{{/b}}{{/a}}").unwrap();
+        assert_eq!(
+            tmpl.requirements(&field_map),
+            FieldRequirements::All(HashSet::from_iter(vec![1, 2].into_iter()))
         );
 
         tmpl = PT::from_text("{{#a}}{{#b}}{{a}}{{/b}}{{/a}}").unwrap();
