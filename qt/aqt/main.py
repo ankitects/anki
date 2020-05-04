@@ -89,7 +89,7 @@ class AnkiQt(QMainWindow):
         self.state = "startup"
         self.opts = opts
         self.col: Optional[_Collection] = None
-        self.taskman = TaskManager()
+        self.taskman = TaskManager(self)
         self.media_syncer = MediaSyncer(self)
         aqt.mw = self
         self.app = app
