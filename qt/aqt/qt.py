@@ -7,7 +7,7 @@
 import os
 import sys
 import traceback
-from typing import Callable
+from typing import Callable, Union
 
 from PyQt5.Qt import *  # type: ignore
 from PyQt5.QtCore import *
@@ -55,6 +55,6 @@ if qtmajor != 5 or qtminor < 9 or qtminor == 10:
     raise Exception("Anki does not support your Qt version.")
 
 
-def qconnect(signal: Callable, func: Callable) -> None:
+def qconnect(signal: Union[Callable, pyqtSignal], func: Callable) -> None:
     "Helper to work around type checking not working with signal.connect(func)."
     signal.connect(func)  # type: ignore

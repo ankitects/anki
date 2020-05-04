@@ -12,6 +12,8 @@ from typing import Any, Callable, Dict, List, Optional
 
 from PyQt5.QtCore import QObject, pyqtSignal
 
+from aqt.qt import qconnect
+
 Closure = Callable[[], None]
 
 
@@ -23,7 +25,7 @@ class TaskManager(QObject):
         self._executor = ThreadPoolExecutor()
         self._closures: List[Closure] = []
         self._closures_lock = Lock()
-        self._closures_pending.connect(self._on_closures_pending)  # type: ignore
+        qconnect(self._closures_pending, self._on_closures_pending)
 
     def run_on_main(self, closure: Closure):
         "Run the provided closure on the main thread."

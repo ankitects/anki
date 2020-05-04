@@ -100,7 +100,7 @@ def showInfo(
         b.setDefault(True)
     if help:
         b = mb.addButton(QMessageBox.Help)
-        b.clicked.connect(lambda: openHelp(help))
+        qconnect(b.clicked, lambda: openHelp(help))
         b.setAutoDefault(False)
     return mb.exec_()
 
@@ -137,7 +137,7 @@ def showText(
             QApplication.clipboard().setText(text.toPlainText())
 
         btn = QPushButton(_("Copy to Clipboard"))
-        btn.clicked.connect(onCopy)
+        qconnect(btn.clicked, onCopy)
         box.addButton(btn, QDialogButtonBox.ActionRole)
 
     def onReject():
@@ -145,13 +145,13 @@ def showText(
             saveGeom(diag, geomKey)
         QDialog.reject(diag)
 
-    box.rejected.connect(onReject)
+    qconnect(box.rejected, onReject)
 
     def onFinish():
         if geomKey:
             saveGeom(diag, geomKey)
 
-    box.accepted.connect(onFinish)
+    qconnect(box.accepted, onFinish)
     diag.setMinimumHeight(minHeight)
     diag.setMinimumWidth(minWidth)
     if geomKey:
@@ -257,10 +257,10 @@ class GetTextDialog(QDialog):
         b = QDialogButtonBox(buts)
         v.addWidget(b)
         self.setLayout(v)
-        b.button(QDialogButtonBox.Ok).clicked.connect(self.accept)
-        b.button(QDialogButtonBox.Cancel).clicked.connect(self.reject)
+        qconnect(b.button(QDialogButtonBox.Ok).clicked, self.accept)
+        qconnect(b.button(QDialogButtonBox.Cancel).clicked, self.reject)
         if help:
-            b.button(QDialogButtonBox.Help).clicked.connect(self.helpRequested)
+            qconnect(b.button(QDialogButtonBox.Help).clicked, self.helpRequested)
 
     def accept(self):
         return QDialog.accept(self)
@@ -319,7 +319,7 @@ def chooseList(prompt, choices, startrow=0, parent=None):
     c.setCurrentRow(startrow)
     l.addWidget(c)
     bb = QDialogButtonBox(QDialogButtonBox.Ok)
-    bb.accepted.connect(d.accept)
+    qconnect(bb.accepted, d.accept)
     l.addWidget(bb)
     d.exec_()
     return c.currentRow()
@@ -366,7 +366,7 @@ def getFile(parent, title, cb, filter="*.*", dir=None, key=None, multi=False):
             cb(result)
         ret.append(result)
 
-    d.accepted.connect(accept)
+    qconnect(d.accepted, accept)
     if key:
         restoreState(d, key)
     d.exec_()
@@ -520,7 +520,7 @@ def addCloseShortcut(widg):
     if not isMac:
         return
     widg._closeShortcut = QShortcut(QKeySequence("Ctrl+W"), widg)
-    widg._closeShortcut.activated.connect(widg.reject)
+    qconnect(widg._closeShortcut.activated, widg.reject)
 
 
 def downArrow():
@@ -680,7 +680,7 @@ class MenuItem:
 
     def renderTo(self, qmenu):
         a = qmenu.addAction(self.title)
-        a.triggered.connect(self.func)
+        qconnect(a.triggered, self.func)
 
 
 def qtMenuShortcutWorkaround(qmenu):

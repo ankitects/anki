@@ -44,8 +44,8 @@ class SyncManager(QObject):
             auth=auth,
             hostNum=self.pm.profile.get("hostNum"),
         )
-        t._event.connect(self.onEvent)
-        t.progress_event.connect(self.on_progress)
+        qconnect(t._event, self.onEvent)
+        qconnect(t.progress_event, self.on_progress)
         self.label = _("Connecting...")
         prog = self.mw.progress.start(immediate=True, label=self.label)
         self.sentBytes = self.recvBytes = 0
@@ -268,8 +268,8 @@ enter your details below."""
         vbox.addLayout(g)
         bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         bb.button(QDialogButtonBox.Ok).setAutoDefault(True)
-        bb.accepted.connect(d.accept)
-        bb.rejected.connect(d.reject)
+        qconnect(bb.accepted, d.accept)
+        qconnect(bb.rejected, d.reject)
         vbox.addWidget(bb)
         d.setLayout(vbox)
         d.show()

@@ -255,7 +255,7 @@ class AnkiApp(QApplication):
             # previous instance died
             QLocalServer.removeServer(self.KEY)
             self._srv = QLocalServer(self)
-            self._srv.newConnection.connect(self.onRecv)
+            qconnect(self._srv.newConnection, self.onRecv)
             self._srv.listen(self.KEY)
             return False
 

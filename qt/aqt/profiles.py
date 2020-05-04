@@ -416,8 +416,8 @@ create table if not exists profiles
         d = self.langDiag = NoCloseDiag()
         f = self.langForm = aqt.forms.setlang.Ui_Dialog()
         f.setupUi(d)
-        d.accepted.connect(self._onLangSelected)
-        d.rejected.connect(lambda: True)
+        qconnect(d.accepted, self._onLangSelected)
+        qconnect(d.rejected, lambda: True)
         # default to the system language
         try:
             (lang, enc) = locale.getdefaultlocale()

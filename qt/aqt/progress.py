@@ -45,7 +45,7 @@ class ProgressManager:
         t = QTimer(self.mw)
         if not repeat:
             t.setSingleShot(True)
-        t.timeout.connect(handler)
+        qconnect(t.timeout, handler)
         t.start(ms)
         return t
 
@@ -74,7 +74,7 @@ class ProgressManager:
         self._win.setWindowModality(Qt.ApplicationModal)
         self._win.setMinimumWidth(300)
         self._setBusy()
-        self._shown = False
+        self._shown = 0
         self._counter = min
         self._min = min
         self._max = max
@@ -84,10 +84,10 @@ class ProgressManager:
         self._show_timer = QTimer(self.mw)
         self._show_timer.setSingleShot(True)
         self._show_timer.start(600)
-        self._show_timer.timeout.connect(self._on_show_timer)  # type: ignore
+        qconnect(self._show_timer.timeout, self._on_show_timer)
         return self._win
 
-    def update(self, label=None, value=None, process=True, maybeShow=True):
+    def update(self, label=None, value=None, process=True, maybeShow=True) -> None:
         # print self._min, self._counter, self._max, label, time.time() - self._lastTime
         if not self.mw.inMainThread():
             print("progress.update() called on wrong thread")
@@ -141,7 +141,7 @@ class ProgressManager:
         self._shown = time.time()
         self._win.show()
 
-    def _closeWin(self):
+    def _closeWin(self) -> None:
         if self._shown:
             while True:
                 # give the window system a second to present
@@ -154,7 +154,7 @@ class ProgressManager:
                 self.app.processEvents(QEventLoop.ExcludeUserInputEvents)
         self._win.cancel()
         self._win = None
-        self._shown = False
+        self._shown = 0
 
     def _setBusy(self):
         self.mw.app.setOverrideCursor(QCursor(Qt.WaitCursor))

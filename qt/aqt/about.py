@@ -86,7 +86,7 @@ def show(mw):
         tooltip(_("Copied to clipboard"), parent=dialog)
 
     btn = QPushButton(_("Copy Debug Info"))
-    btn.clicked.connect(onCopy)
+    qconnect(btn.clicked, onCopy)
     abt.buttonBox.addButton(btn, QDialogButtonBox.ActionRole)
     abt.buttonBox.button(QDialogButtonBox.Ok).setFocus()
 

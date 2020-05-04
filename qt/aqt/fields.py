@@ -42,13 +42,13 @@ class FieldDialog(QDialog):
 
     def setupSignals(self):
         f = self.form
-        f.fieldList.currentRowChanged.connect(self.onRowChange)
-        f.fieldAdd.clicked.connect(self.onAdd)
-        f.fieldDelete.clicked.connect(self.onDelete)
-        f.fieldRename.clicked.connect(self.onRename)
-        f.fieldPosition.clicked.connect(self.onPosition)
-        f.sortField.clicked.connect(self.onSortField)
-        f.buttonBox.helpRequested.connect(self.onHelp)
+        qconnect(f.fieldList.currentRowChanged, self.onRowChange)
+        qconnect(f.fieldAdd.clicked, self.onAdd)
+        qconnect(f.fieldDelete.clicked, self.onDelete)
+        qconnect(f.fieldRename.clicked, self.onRename)
+        qconnect(f.fieldPosition.clicked, self.onPosition)
+        qconnect(f.sortField.clicked, self.onSortField)
+        qconnect(f.buttonBox.helpRequested, self.onHelp)
 
     def onDrop(self, ev):
         fieldList = self.form.fieldList

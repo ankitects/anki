@@ -18,12 +18,12 @@ class TagEdit(QLineEdit):
         self.model = QStringListModel()
         self.type = type
         if type == 0:
-            self.completer = TagCompleter(self.model, parent, self)
+            self.completer_ = TagCompleter(self.model, parent, self)
         else:
-            self.completer = QCompleter(self.model, parent)
-        self.completer.setCompletionMode(QCompleter.PopupCompletion)
-        self.completer.setCaseSensitivity(Qt.CaseInsensitive)
-        self.setCompleter(self.completer)
+            self.completer_ = QCompleter(self.model, parent)
+        self.completer_.setCompletionMode(QCompleter.PopupCompletion)
+        self.completer_.setCaseSensitivity(Qt.CaseInsensitive)
+        self.setCompleter(self.completer_)
 
     def setCol(self, col):
         "Set the current col, updating list of available tags."
@@ -40,26 +40,26 @@ class TagEdit(QLineEdit):
     def keyPressEvent(self, evt):
         if evt.key() in (Qt.Key_Up, Qt.Key_Down):
             # show completer on arrow key up/down
-            if not self.completer.popup().isVisible():
+            if not self.completer_.popup().isVisible():
                 self.showCompleter()
             return
         if evt.key() == Qt.Key_Tab and evt.modifiers() & Qt.ControlModifier:
             # select next completion
-            if not self.completer.popup().isVisible():
+            if not self.completer_.popup().isVisible():
                 self.showCompleter()
-            index = self.completer.currentIndex()
-            self.completer.popup().setCurrentIndex(index)
+            index = self.completer_.currentIndex()
+            self.completer_.popup().setCurrentIndex(index)
             cur_row = index.row()
-            if not self.completer.setCurrentRow(cur_row + 1):
-                self.completer.setCurrentRow(0)
+            if not self.completer_.setCurrentRow(cur_row + 1):
+                self.completer_.setCurrentRow(0)
             return
         if evt.key() in (Qt.Key_Enter, Qt.Key_Return):
             # apply first completion if no suggestion selected
-            selected_row = self.completer.popup().currentIndex().row()
+            selected_row = self.completer_.popup().currentIndex().row()
             if selected_row == -1:
-                self.completer.setCurrentRow(0)
-                index = self.completer.currentIndex()
-                self.completer.popup().setCurrentIndex(index)
+                self.completer_.setCurrentRow(0)
+                index = self.completer_.currentIndex()
+                self.completer_.popup().setCurrentIndex(index)
             self.hideCompleter()
             QWidget.keyPressEvent(self, evt)
             return
@@ -80,18 +80,18 @@ class TagEdit(QLineEdit):
         gui_hooks.tag_editor_did_process_key(self, evt)
 
     def showCompleter(self):
-        self.completer.setCompletionPrefix(self.text())
-        self.completer.complete()
+        self.completer_.setCompletionPrefix(self.text())
+        self.completer_.complete()
 
-    def focusOutEvent(self, evt):
+    def focusOutEvent(self, evt) -> None:
         QLineEdit.focusOutEvent(self, evt)
-        self.lostFocus.emit()
-        self.completer.popup().hide()
+        self.lostFocus.emit()  # type: ignore
+        self.completer_.popup().hide()
 
     def hideCompleter(self):
-        if sip.isdeleted(self.completer):
+        if sip.isdeleted(self.completer_):
             return
-        self.completer.popup().hide()
+        self.completer_.popup().hide()
 
 
 class TagCompleter(QCompleter):
