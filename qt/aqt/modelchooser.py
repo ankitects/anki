@@ -32,7 +32,7 @@ class ModelChooser(QHBoxLayout):
         s = QShortcut(QKeySequence("Ctrl+N"), self.widget, activated=self.onModelChange)
         self.models.setAutoDefault(False)
         self.addWidget(self.models)
-        self.models.clicked.connect(self.onModelChange)
+        qconnect(self.models.clicked, self.onModelChange)
         # layout
         sizePolicy = QSizePolicy(QSizePolicy.Policy(7), QSizePolicy.Policy(0))
         self.models.setSizePolicy(sizePolicy)

@@ -38,9 +38,9 @@ def fmtTimeSpan(time, pad=0, point=0, short=False, inTime=False, unit=99):
     return aqt.mw.col.backend.format_time_span(time)
 
 
-def install_pylib_legacy():
-    anki.utils.bodyClass = bodyClass
-    anki.utils.fmtTimeSpan = fmtTimeSpan
-    anki.sound._soundReg = r"\[sound:(.*?)\]"
-    anki.sound.allSounds = allSounds
-    anki.sound.stripSounds = stripSounds
+def install_pylib_legacy() -> None:
+    anki.utils.bodyClass = bodyClass  # type: ignore
+    anki.utils.fmtTimeSpan = fmtTimeSpan  # type: ignore
+    anki.sound._soundReg = r"\[sound:(.*?)\]"  # type: ignore
+    anki.sound.allSounds = allSounds  # type: ignore
+    anki.sound.stripSounds = stripSounds  # type: ignore

@@ -757,7 +757,7 @@ time = %(time)d;
             if opts.get("checked"):
                 a.setCheckable(True)
                 a.setChecked(True)
-            a.triggered.connect(func)
+            qconnect(a.triggered, func)
 
     def onOptions(self) -> None:
         self.mw.onDeckConf(self.mw.col.decks.get(self.card.odid or self.card.did))

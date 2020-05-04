@@ -36,10 +36,11 @@ class DeckConf(QDialog):
         self.setupCombos()
         self.setupConfs()
         self.setWindowModality(Qt.WindowModal)
-        self.form.buttonBox.helpRequested.connect(lambda: openHelp("deckoptions"))
-        self.form.confOpts.clicked.connect(self.confOpts)
-        self.form.buttonBox.button(QDialogButtonBox.RestoreDefaults).clicked.connect(
-            self.onRestore
+        qconnect(self.form.buttonBox.helpRequested, lambda: openHelp("deckoptions"))
+        qconnect(self.form.confOpts.clicked, self.confOpts)
+        qconnect(
+            self.form.buttonBox.button(QDialogButtonBox.RestoreDefaults).clicked,
+            self.onRestore,
         )
         self.setWindowTitle(_("Options for %s") % self.deck["name"])
         # qt doesn't size properly with altered fonts otherwise
@@ -54,13 +55,13 @@ class DeckConf(QDialog):
 
         f = self.form
         f.newOrder.addItems(list(cs.newCardOrderLabels().values()))
-        f.newOrder.currentIndexChanged.connect(self.onNewOrderChanged)
+        qconnect(f.newOrder.currentIndexChanged, self.onNewOrderChanged)
 
     # Conf list
     ######################################################################
 
     def setupConfs(self):
-        self.form.dconf.currentIndexChanged.connect(self.onConfChange)
+        qconnect(self.form.dconf.currentIndexChanged, self.onConfChange)
         self.conf = None
         self.loadConfs()
 
@@ -84,13 +85,13 @@ class DeckConf(QDialog):
     def confOpts(self):
         m = QMenu(self.mw)
         a = m.addAction(_("Add"))
-        a.triggered.connect(self.addGroup)
+        qconnect(a.triggered, self.addGroup)
         a = m.addAction(_("Delete"))
-        a.triggered.connect(self.remGroup)
+        qconnect(a.triggered, self.remGroup)
         a = m.addAction(_("Rename"))
-        a.triggered.connect(self.renameGroup)
+        qconnect(a.triggered, self.renameGroup)
         a = m.addAction(_("Set for all subdecks"))
-        a.triggered.connect(self.setChildren)
+        qconnect(a.triggered, self.setChildren)
         if not self.childDids:
             a.setEnabled(False)
         m.exec_(QCursor.pos())

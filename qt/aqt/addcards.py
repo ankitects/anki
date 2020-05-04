@@ -65,7 +65,7 @@ class AddCards(QDialog):
         ar = QDialogButtonBox.ActionRole
         # add
         self.addButton = bb.addButton(_("Add"), ar)
-        self.addButton.clicked.connect(self.addCards)
+        qconnect(self.addButton.clicked, self.addCards)
         self.addButton.setShortcut(QKeySequence("Ctrl+Return"))
         self.addButton.setToolTip(shortcut(_("Add (shortcut: ctrl+enter)")))
         # close
@@ -84,7 +84,7 @@ class AddCards(QDialog):
             sc = "Ctrl+H"
         b.setShortcut(QKeySequence(sc))
         b.setToolTip(_("Shortcut: %s") % shortcut(sc))
-        b.clicked.connect(self.onHistory)
+        qconnect(b.clicked, self.onHistory)
         b.setEnabled(False)
         self.historyButton = b
 

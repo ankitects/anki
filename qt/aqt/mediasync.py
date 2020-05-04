@@ -22,7 +22,7 @@ from anki.rsbackend import (
 from anki.types import assert_impossible
 from anki.utils import intTime
 from aqt import gui_hooks
-from aqt.qt import QDialog, QDialogButtonBox, QPushButton
+from aqt.qt import QDialog, QDialogButtonBox, QPushButton, qconnect
 from aqt.utils import showWarning, tr
 
 LogEntry = Union[MediaSyncProgress, str]
@@ -167,7 +167,7 @@ class MediaSyncDialog(QDialog):
         self.form.setupUi(self)
         self.setWindowTitle(tr(TR.SYNC_MEDIA_LOG_TITLE))
         self.abort_button = QPushButton(tr(TR.SYNC_ABORT_BUTTON))
-        self.abort_button.clicked.connect(self._on_abort)  # type: ignore
+        qconnect(self.abort_button.clicked, self._on_abort)
         self.abort_button.setAutoDefault(False)
         self.form.buttonBox.addButton(self.abort_button, QDialogButtonBox.ActionRole)
         self.abort_button.setHidden(not self._syncer.is_syncing())

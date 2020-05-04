@@ -22,7 +22,7 @@ class Preferences(QDialog):
         self.form.setupUi(self)
         self.form.buttonBox.button(QDialogButtonBox.Help).setAutoDefault(False)
         self.form.buttonBox.button(QDialogButtonBox.Close).setAutoDefault(False)
-        self.form.buttonBox.helpRequested.connect(lambda: openHelp("profileprefs"))
+        qconnect(self.form.buttonBox.helpRequested, lambda: openHelp("profileprefs"))
         self.silentlyClose = True
         self.setupLang()
         self.setupCollection()
@@ -54,7 +54,7 @@ class Preferences(QDialog):
         f = self.form
         f.lang.addItems([x[0] for x in anki.lang.langs])
         f.lang.setCurrentIndex(self.langIdx())
-        f.lang.currentIndexChanged.connect(self.onLangIdxChanged)
+        qconnect(f.lang.currentIndexChanged, self.onLangIdxChanged)
 
     def langIdx(self):
         codes = [x[1] for x in anki.lang.langs]
@@ -193,14 +193,14 @@ class Preferences(QDialog):
 
     def setupNetwork(self):
         self.form.media_log.setText(tr(TR.SYNC_MEDIA_LOG_BUTTON))
-        self.form.media_log.clicked.connect(self.on_media_log)
+        qconnect(self.form.media_log.clicked, self.on_media_log)
         self.form.syncOnProgramOpen.setChecked(self.prof["autoSync"])
         self.form.syncMedia.setChecked(self.prof["syncMedia"])
         if not self.prof["syncKey"]:
             self._hideAuth()
         else:
             self.form.syncUser.setText(self.prof.get("syncUser", ""))
-            self.form.syncDeauth.clicked.connect(self.onSyncDeauth)
+            qconnect(self.form.syncDeauth.clicked, self.onSyncDeauth)
 
     def on_media_log(self):
         self.mw.media_syncer.show_sync_log()

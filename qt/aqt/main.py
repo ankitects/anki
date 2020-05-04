@@ -204,17 +204,17 @@ class AnkiQt(QMainWindow):
         d = self.profileDiag = self.ProfileManager()
         f = self.profileForm = aqt.forms.profiles.Ui_MainWindow()
         f.setupUi(d)
-        f.login.clicked.connect(self.onOpenProfile)
-        f.profiles.itemDoubleClicked.connect(self.onOpenProfile)
-        f.openBackup.clicked.connect(self.onOpenBackup)
-        f.quit.clicked.connect(d.close)
-        d.onClose.connect(self.cleanupAndExit)
-        f.add.clicked.connect(self.onAddProfile)
-        f.rename.clicked.connect(self.onRenameProfile)
-        f.delete_2.clicked.connect(self.onRemProfile)
-        f.profiles.currentRowChanged.connect(self.onProfileRowChange)
+        qconnect(f.login.clicked, self.onOpenProfile)
+        qconnect(f.profiles.itemDoubleClicked, self.onOpenProfile)
+        qconnect(f.openBackup.clicked, self.onOpenBackup)
+        qconnect(f.quit.clicked, d.close)
+        qconnect(d.onClose, self.cleanupAndExit)
+        qconnect(f.add.clicked, self.onAddProfile)
+        qconnect(f.rename.clicked, self.onRenameProfile)
+        qconnect(f.delete_2.clicked, self.onRemProfile)
+        qconnect(f.profiles.currentRowChanged, self.onProfileRowChange)
         f.statusbar.setVisible(False)
-        f.downgrade_button.clicked.connect(self._on_downgrade)
+        qconnect(f.downgrade_button.clicked, self._on_downgrade)
         # enter key opens profile
         QShortcut(QKeySequence("Return"), d, activated=self.onOpenProfile)  # type: ignore
         self.refreshProfilesList()
@@ -1128,23 +1128,25 @@ title="%s" %s>%s</button>""" % (
 
     def setupMenus(self) -> None:
         m = self.form
-        m.actionSwitchProfile.triggered.connect(self.unloadProfileAndShowProfileManager)
-        m.actionImport.triggered.connect(self.onImport)
-        m.actionExport.triggered.connect(self.onExport)
-        m.actionExit.triggered.connect(self.close)
-        m.actionPreferences.triggered.connect(self.onPrefs)
-        m.actionAbout.triggered.connect(self.onAbout)
-        m.actionUndo.triggered.connect(self.onUndo)
+        qconnect(
+            m.actionSwitchProfile.triggered, self.unloadProfileAndShowProfileManager
+        )
+        qconnect(m.actionImport.triggered, self.onImport)
+        qconnect(m.actionExport.triggered, self.onExport)
+        qconnect(m.actionExit.triggered, self.close)
+        qconnect(m.actionPreferences.triggered, self.onPrefs)
+        qconnect(m.actionAbout.triggered, self.onAbout)
+        qconnect(m.actionUndo.triggered, self.onUndo)
         if qtminor < 11:
             m.actionUndo.setShortcut(QKeySequence("Ctrl+Alt+Z"))
-        m.actionFullDatabaseCheck.triggered.connect(self.onCheckDB)
-        m.actionCheckMediaDatabase.triggered.connect(self.on_check_media_db)
-        m.actionDocumentation.triggered.connect(self.onDocumentation)
-        m.actionDonate.triggered.connect(self.onDonate)
-        m.actionStudyDeck.triggered.connect(self.onStudyDeck)
-        m.actionCreateFiltered.triggered.connect(self.onCram)
-        m.actionEmptyCards.triggered.connect(self.onEmptyCards)
-        m.actionNoteTypes.triggered.connect(self.onNoteTypes)
+        qconnect(m.actionFullDatabaseCheck.triggered, self.onCheckDB)
+        qconnect(m.actionCheckMediaDatabase.triggered, self.on_check_media_db)
+        qconnect(m.actionDocumentation.triggered, self.onDocumentation)
+        qconnect(m.actionDonate.triggered, self.onDonate)
+        qconnect(m.actionStudyDeck.triggered, self.onStudyDeck)
+        qconnect(m.actionCreateFiltered.triggered, self.onCram)
+        qconnect(m.actionEmptyCards.triggered, self.onEmptyCards)
+        qconnect(m.actionNoteTypes.triggered, self.onNoteTypes)
 
     def updateTitleBar(self) -> None:
         self.setWindowTitle("Anki")
@@ -1156,9 +1158,9 @@ title="%s" %s>%s</button>""" % (
         import aqt.update
 
         self.autoUpdate = aqt.update.LatestVersionFinder(self)
-        self.autoUpdate.newVerAvail.connect(self.newVerAvail)  # type: ignore
-        self.autoUpdate.newMsg.connect(self.newMsg)  # type: ignore
-        self.autoUpdate.clockIsOff.connect(self.clockIsOff)  # type: ignore
+        qconnect(self.autoUpdate.newVerAvail, self.newVerAvail)
+        qconnect(self.autoUpdate.newMsg, self.newMsg)
+        qconnect(self.autoUpdate.clockIsOff, self.clockIsOff)
         self.autoUpdate.start()
 
     def newVerAvail(self, ver):
@@ -1360,7 +1362,7 @@ will be lost. Continue?"""
             )
             self.reset()
 
-        box.accepted.connect(onDelete)
+        qconnect(box.accepted, onDelete)
         diag.show()
 
     # Debugging
@@ -1376,13 +1378,13 @@ will be lost. Continue?"""
         frm.text.setFont(font)
         frm.log.setFont(font)
         s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+return"), d)
-        s.activated.connect(lambda: self.onDebugRet(frm))
+        qconnect(s.activated, lambda: self.onDebugRet(frm))
         s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+shift+return"), d)
-        s.activated.connect(lambda: self.onDebugPrint(frm))
+        qconnect(s.activated, lambda: self.onDebugPrint(frm))
         s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+l"), d)
-        s.activated.connect(frm.log.clear)
+        qconnect(s.activated, frm.log.clear)
         s = self.debugDiagShort = QShortcut(QKeySequence("ctrl+shift+l"), d)
-        s.activated.connect(frm.text.clear)
+        qconnect(s.activated, frm.text.clear)
 
         def addContextMenu(ev: QCloseEvent, name: str) -> None:
             ev.accept()
@@ -1514,7 +1516,7 @@ will be lost. Continue?"""
         if isMac:
             # mac users expect a minimize option
             self.minimizeShortcut = QShortcut("Ctrl+M", self)
-            self.minimizeShortcut.activated.connect(self.onMacMinimize)  # type: ignore
+            qconnect(self.minimizeShortcut.activated, self.onMacMinimize)
             self.hideMenuAccels = True
             self.maybeHideAccelerators()
             self.hideStatusTips()
@@ -1546,7 +1548,7 @@ will be lost. Continue?"""
     ##########################################################################
 
     def setupAppMsg(self) -> None:
-        self.app.appMsg.connect(self.onAppMsg)
+        qconnect(self.app.appMsg, self.onAppMsg)
 
     def onAppMsg(self, buf: str) -> Optional[QTimer]:
         is_addon = self._isAddon(buf)
@@ -1606,7 +1608,7 @@ Please ensure a profile is open and Anki is not busy, then try again."""
     # ensure gc runs in main thread
 
     def setupDialogGC(self, obj: Any) -> None:
-        obj.finished.connect(lambda: self.gcWindow(obj))
+        qconnect(obj.finished, lambda: self.gcWindow(obj))
 
     def gcWindow(self, obj: Any) -> None:
         obj.deleteLater()

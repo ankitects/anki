@@ -34,7 +34,7 @@ class ErrorHandler(QObject):
         QObject.__init__(self, mw)
         self.mw = mw
         self.timer = None
-        self.errorTimer.connect(self._setTimer)
+        qconnect(self.errorTimer, self._setTimer)
         self.pool = ""
         self._oldstderr = sys.stderr
         sys.stderr = self
@@ -59,7 +59,7 @@ class ErrorHandler(QObject):
     def _setTimer(self):
         if not self.timer:
             self.timer = QTimer(self.mw)
-            self.timer.timeout.connect(self.onTimeout)
+            qconnect(self.timer.timeout, self.onTimeout)
         self.timer.setInterval(self.ivl)
         self.timer.setSingleShot(True)
         self.timer.start()

@@ -6,7 +6,7 @@ from __future__ import annotations
 import itertools
 import time
 from concurrent.futures import Future
-from typing import Iterable, List, Optional, TypeVar
+from typing import Iterable, List, Optional, Sequence, TypeVar
 
 import aqt
 from anki import hooks
@@ -84,27 +84,27 @@ class MediaChecker:
             b = QPushButton(tr(TR.MEDIA_CHECK_DELETE_UNUSED))
             b.setAutoDefault(False)
             box.addButton(b, QDialogButtonBox.RejectRole)
-            b.clicked.connect(lambda c: self._on_trash_files(output.unused))  # type: ignore
+            qconnect(b.clicked, lambda c: self._on_trash_files(output.unused))
 
         if output.missing:
             if any(map(lambda x: x.startswith("latex-"), output.missing)):
                 b = QPushButton(tr(TR.MEDIA_CHECK_RENDER_LATEX))
                 b.setAutoDefault(False)
                 box.addButton(b, QDialogButtonBox.RejectRole)
-                b.clicked.connect(self._on_render_latex)  # type: ignore
+                qconnect(b.clicked, self._on_render_latex)
 
         if output.have_trash:
             b = QPushButton(tr(TR.MEDIA_CHECK_EMPTY_TRASH))
             b.setAutoDefault(False)
             box.addButton(b, QDialogButtonBox.RejectRole)
-            b.clicked.connect(lambda c: self._on_empty_trash())  # type: ignore
+            qconnect(b.clicked, lambda c: self._on_empty_trash())
 
             b = QPushButton(tr(TR.MEDIA_CHECK_RESTORE_TRASH))
             b.setAutoDefault(False)
             box.addButton(b, QDialogButtonBox.RejectRole)
-            b.clicked.connect(lambda c: self._on_restore_trash())  # type: ignore
+            qconnect(b.clicked, lambda c: self._on_restore_trash())
 
-        box.rejected.connect(diag.reject)  # type: ignore
+        qconnect(box.rejected, diag.reject)
         diag.setMinimumHeight(400)
         diag.setMinimumWidth(500)
         restoreGeom(diag, "checkmediadb")
@@ -137,7 +137,7 @@ class MediaChecker:
         self.mw.progress.update(tr(TR.MEDIA_CHECK_CHECKED, count=count))
         return True
 
-    def _on_trash_files(self, fnames: List[str]):
+    def _on_trash_files(self, fnames: Sequence[str]):
         if not askUser(tr(TR.MEDIA_CHECK_DELETE_UNUSED_CONFIRM)):
             return
 

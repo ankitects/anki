@@ -42,6 +42,7 @@ from queue import Empty, Full, Queue
 from typing import Dict, Optional
 
 from anki.utils import isWin
+from aqt import qconnect
 
 
 class MPVError(Exception):
@@ -180,7 +181,7 @@ class MPVBase:
                 # unix socket
                 try:
                     self._sock = socket.socket(socket.AF_UNIX)
-                    self._sock.connect(self._sock_filename)
+                    qconnect(self._sock, self._sock_filename)
                 except (FileNotFoundError, ConnectionRefusedError):
                     self._sock.close()
                     continue
