@@ -3,8 +3,7 @@
 import collections
 import re
 from operator import itemgetter
-from typing import Optional
-from typing import List
+from typing import List, Optional
 
 import aqt.clayout
 from anki import stdmodels
@@ -203,7 +202,7 @@ class AddModel(QDialog):
         for m in sorted(self.col.models.all(), key=itemgetter("name")):
             item = QListWidgetItem(_("Clone: %s") % m["name"])
             self.dialog.models.addItem(item)
-            self.models.append((False, m))
+            self.models.append((False, m))  # type: ignore
         self.dialog.models.setCurrentRow(0)
         # the list widget will swallow the enter key
         s = QShortcut(QKeySequence("Return"), self)
