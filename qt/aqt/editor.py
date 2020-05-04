@@ -341,7 +341,7 @@ class Editor:
     def _onFields(self):
         from aqt.fields import FieldDialog
 
-        FieldDialog(self.mw, self.note, parent=self.parentWindow)
+        FieldDialog(self.mw, self.note.model(), parent=self.parentWindow)
 
     def onCardLayout(self):
         self.saveNow(self._onCardLayout)

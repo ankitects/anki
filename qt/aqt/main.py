@@ -1419,7 +1419,6 @@ will be lost. Continue?"""
         print("\n")
         del note.fields
         del note._fmap
-        del note._model
         pprint.pprint(note.__dict__)
 
         print("\nCard:")

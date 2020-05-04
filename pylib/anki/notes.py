@@ -48,9 +48,7 @@ class Note:
         self.usn = n.usn
         self.tags = list(n.tags)
         self.fields = list(n.fields)
-
-        self._model = self.col.models.get(self.mid)
-        self._fmap = self.col.models.fieldMap(self._model)
+        self._fmap = self.col.models.fieldMap(self.model())
 
     # fixme: only save tags in list on save
     def to_backend_note(self) -> BackendNote:
@@ -66,8 +64,7 @@ class Note:
             fields=self.fields,
         )
 
-    def flush(self, mod=None) -> None:
-        # fixme: mod unused?
+    def flush(self) -> None:
         assert self.id != 0
         self.col.backend.update_note(self.to_backend_note())
 
@@ -83,7 +80,9 @@ class Note:
         ]
 
     def model(self) -> Optional[NoteType]:
-        return self._model
+        return self.col.models.get(self.mid)
+
+    _model = property(model)
 
     # Dict interface
     ##################################################
