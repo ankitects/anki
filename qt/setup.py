@@ -24,9 +24,10 @@ install_requires = [
     "beautifulsoup4",
     "requests",
     "send2trash",
-    "pyaudio",
     "markdown",
     "jsonschema",
+    # "pyaudio", # https://anki.tenderapp.com/discussions/add-ons/44009-problems-with-code-completion
+    # "pyqtwebengine", # https://github.com/ankitects/anki/pull/530 - Set to checks.yml install and import anki wheels
     "pyqt5>=5.9",
     'psutil; sys.platform == "win32"',
     'pywin32; sys.platform == "win32"',

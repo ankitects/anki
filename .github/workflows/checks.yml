@@ -123,6 +123,9 @@ jobs:
           echo "::set-env name=RSPY_TARGET_DIR::${GITHUB_WORKSPACE}/target"
           echo "::set-env name=CARGO_TARGET_DIR::${GITHUB_WORKSPACE}/target"
 
+          # https://anki.tenderapp.com/discussions/add-ons/44009-problems-with-code-completion
+          echo "::set-env name=ANKI_EXTRA_PIP::python -m pip install pyaudio"
+
       - name: Configure Mac OS environment variables
         if: matrix.os == 'macos-latest'
         run: |
@@ -140,6 +143,9 @@ jobs:
 
           # https://stackoverflow.com/questions/59644349/msgmerge-on-macos-catalina
           echo "::set-env name=PATH::/usr/local/opt/gettext/bin:$PATH"
+
+          # https://anki.tenderapp.com/discussions/add-ons/44009-problems-with-code-completion
+          echo "::set-env name=ANKI_EXTRA_PIP::python -m pip install pyaudio"
 
       - name: Configure Windows environment variables
         if: matrix.os == 'windows-latest'
@@ -342,7 +348,7 @@ jobs:
         run: |
           set -x
           cd dist
-          python -m pip install pyqtwebengine *.*
+          python -m pip install pyqtwebengine pyaudio *.*
           python -c "import aqt; # aqt.run()"
 
       - run: make check
