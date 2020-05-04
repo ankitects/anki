@@ -58,7 +58,7 @@ impl Collection {
     ) -> Result<()> {
         let ords: Vec<_> = nt.fields.iter().map(|f| f.ord).collect();
         if !ords_changed(&ords, previous_field_count) {
-            if nt.config.sort_field_idx == previous_sort_idx {
+            if nt.config.sort_field_idx != previous_sort_idx {
                 // only need to update sort field
                 let nids = self.search_notes_only(&format!("mid:{}", nt.id))?;
                 for nid in nids {
