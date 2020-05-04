@@ -13,8 +13,6 @@ from concurrent.futures import Future
 from operator import itemgetter
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
-import pyaudio
-
 import aqt
 from anki.cards import Card
 from anki.lang import _
@@ -25,6 +23,14 @@ from aqt.mpv import MPV, MPVBase
 from aqt.qt import *
 from aqt.taskman import TaskManager
 from aqt.utils import restoreGeom, saveGeom, showWarning, startup_info
+
+try:
+    import pyaudio
+except:
+    print(
+        "Warning: pyaudio is not installed and audio recording will not work! Install it with: python3 -m pip install pyaudio"
+    )
+
 
 # AV player protocol
 ##########################################################################
@@ -408,7 +414,6 @@ class SimpleMplayerSlaveModePlayer(SimpleMplayerPlayer):
 ##########################################################################
 
 
-PYAU_FORMAT = pyaudio.paInt16
 PYAU_CHANNELS = 1
 PYAU_INPUT_INDEX: Optional[int] = None
 
@@ -457,6 +462,7 @@ class PyAudioThreadedRecorder(threading.Thread):
 
         rate = int(p.get_default_input_device_info()["defaultSampleRate"])
         wait = int(rate * self.startupDelay)
+        PYAU_FORMAT = pyaudio.paInt16
 
         stream = p.open(
             format=PYAU_FORMAT,
