@@ -107,7 +107,8 @@ class Models(QDialog):
         if len(self.models) < 2:
             showInfo(_("Please add another note type first."), parent=self)
             return
-        if self.mm.useCount(self.model):
+        idx = self.form.modelsList.currentRow()
+        if self.models[idx].use_count:
             msg = _("Delete this note type and all its cards?")
         else:
             msg = _("Delete this unused note type?")
