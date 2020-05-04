@@ -74,6 +74,8 @@ build: .build/build
 
 check: .build/check
 
+clippy: .build/clippy
+
 fix:
 	cargo fmt
 
@@ -90,9 +92,16 @@ RUST_TOOLCHAIN := $(shell cat rust-toolchain)
 	rustup component add clippy-preview --toolchain $(RUST_TOOLCHAIN)
 	@touch $@
 
-.build/check: build
+# we should not call clippy because it break things when running make check Mac OS
+# https://github.com/ankitects/anki/pull/597
+.build/check: .build/develop
 	cargo fmt -- --check
-	cargo clippy -- -D warnings
+	@touch $@
+
+# cargo clippy also run build.rs, thus it must be called using the BUILD_VARIABLES
+.build/clippy: $(DEPS)
+	${BUILD_VARIABLES} \
+		cargo clippy -- -D warnings
 	@touch $@
 
 VER := $(shell cat ../meta/version)

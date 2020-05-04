@@ -17,7 +17,7 @@ $(shell mkdir -p .build)
 
 all: check
 
-check: ftl/repo .build/check
+check: .build/check
 
 fix:
 	cargo fmt
@@ -41,7 +41,7 @@ RUST_TOOLCHAIN := $(shell cat rust-toolchain)
 	rustup component add clippy-preview --toolchain $(RUST_TOOLCHAIN)
 	@touch $@
 
-.build/check: .build/rs-tools $(ALL_SOURCE)
+.build/check: ftl/repo .build/rs-tools $(ALL_SOURCE)
 	cargo test --lib -- --nocapture
 	cargo fmt -- --check
 	cargo clippy -- -D warnings
