@@ -100,7 +100,7 @@ class AnkiMediaQueue {
     _validateSetup(location) {
         if (!this.is_setup || !location) {
             throw new Error(
-                `The ankimedia.setup() function must be called before calling ${location}().`
+                `The ankimedia.setup() function must be called before calling ankimedia.${location}().`
             );
         }
     }
