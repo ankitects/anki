@@ -322,18 +322,22 @@ impl Collection {
     pub fn update_notetype(&mut self, nt: &mut NoteType, preserve_usn: bool) -> Result<()> {
         let existing = self.get_notetype(nt.id)?;
         nt.prepare_for_update(existing.as_ref().map(AsRef::as_ref))?;
-        if !preserve_usn {
-            nt.mtime_secs = TimestampSecs::now();
-            nt.usn = self.usn()?;
-        }
         self.transact(None, |col| {
             if let Some(existing_notetype) = existing {
+                if existing_notetype.mtime_secs > nt.mtime_secs {
+                    return Err(AnkiError::invalid_input("attempt to save stale notetype"));
+                }
                 col.update_notes_for_changed_fields(
                     nt,
                     existing_notetype.fields.len(),
                     existing_notetype.config.sort_field_idx,
                 )?;
                 col.update_cards_for_changed_templates(nt, existing_notetype.templates.len())?;
+            }
+
+            if !preserve_usn {
+                nt.mtime_secs = TimestampSecs::now();
+                nt.usn = col.usn()?;
             }
 
             col.storage.update_notetype_config(&nt)?;
