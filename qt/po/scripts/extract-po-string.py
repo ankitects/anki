@@ -80,11 +80,13 @@ plurals = json.load(open("plurals.json"))
 def plural_text(key, lang, translation):
     lang = re.sub("(_|-).*", "", lang)
 
-    # extract the variable - there should be only one
+    # extract the variable - if there's more than one, use the first one
     var = re.findall(r"{(\$.*?)}", translation[0])
     if not len(var) == 1:
-        return None
-    var = var[0]
+        print("multiple variables found, using first replacement")
+        var = replacements[0][1].replace("{", "").replace("}", "")
+    else:
+        var = var[0]
 
     buf = f"{key} = {{ {var} ->\n"
 
@@ -132,9 +134,8 @@ def add_message(fname, key, translation):
     if isinstance(translation, str):
         add_simple_message(fname, key, translation)
     else:
-        raise
-        return plural_text(key, lang, translation)
-
+        text = plural_text(key, lang, translation)
+        open(fname, "a").write(text)
 
 print()
 input("proceed? ctrl+c to abort")
