@@ -111,6 +111,10 @@ class DeckIsFilteredError(Exception):
     pass
 
 
+class InvalidInput(StringError):
+    pass
+
+
 def proto_exception_to_native(err: pb.BackendError) -> Exception:
     val = err.WhichOneof("value")
     if val == "interrupted":
@@ -126,7 +130,7 @@ def proto_exception_to_native(err: pb.BackendError) -> Exception:
     elif val == "template_parse":
         return TemplateError(err.localized)
     elif val == "invalid_input":
-        return StringError(err.localized)
+        return InvalidInput(err.localized)
     elif val == "json_error":
         return StringError(err.localized)
     elif val == "not_found_error":
@@ -747,7 +751,8 @@ class RustBackend:
 
     def field_names_for_note_ids(self, nids: List[int]) -> Sequence[str]:
         return self._run_command(
-            pb.BackendInput(field_names_for_notes=pb.FieldNamesForNotesIn(nids=nids))
+            pb.BackendInput(field_names_for_notes=pb.FieldNamesForNotesIn(nids=nids)),
+            release_gil=True,
         ).field_names_for_notes.fields
 
     def find_and_replace(
@@ -769,7 +774,8 @@ class RustBackend:
                     match_case=not nocase,
                     field_name=field_name,
                 )
-            )
+            ),
+            release_gil=True,
         ).find_and_replace
 
 
