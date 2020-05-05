@@ -1283,6 +1283,7 @@ and if the problem comes up again, please ask on the support site."""
     ##########################################################################
 
     def onSchemaMod(self, arg):
+        assert self.inMainThread()
         progress_shown = self.progress.busy()
         if progress_shown:
             self.progress.finish()
