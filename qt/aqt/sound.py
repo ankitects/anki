@@ -525,9 +525,7 @@ Recorder = PyAudioRecorder
 def getAudio(parent: QWidget, encode: bool = True) -> Optional[str]:
     "Record and return filename"
     if not pyaudio:
-        showWarning(
-            "The Python pip `pyaudio` dependency is not installed and audio recording will not work!"
-        )
+        showWarning("Please install pyaudio.")
         return None
     # record first
     r = Recorder()
