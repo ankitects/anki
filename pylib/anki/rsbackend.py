@@ -745,6 +745,33 @@ class RustBackend:
         ).deck_tree_legacy
         return orjson.loads(bytes)[5]
 
+    def field_names_for_note_ids(self, nids: List[int]) -> Sequence[str]:
+        return self._run_command(
+            pb.BackendInput(field_names_for_notes=pb.FieldNamesForNotesIn(nids=nids))
+        ).field_names_for_notes.fields
+
+    def find_and_replace(
+        self,
+        nids: List[int],
+        search: str,
+        repl: str,
+        re: bool,
+        nocase: bool,
+        field_name: Optional[str],
+    ) -> int:
+        return self._run_command(
+            pb.BackendInput(
+                find_and_replace=pb.FindAndReplaceIn(
+                    nids=nids,
+                    search=search,
+                    replacement=repl,
+                    regex=re,
+                    match_case=not nocase,
+                    field_name=field_name,
+                )
+            )
+        ).find_and_replace
+
 
 def translate_string_in(
     key: TR, **kwargs: Union[str, int, float]

@@ -294,6 +294,22 @@ impl NoteType {
     fn fix_field_names(&mut self) {
         self.fields.iter_mut().for_each(NoteField::fix_name);
     }
+
+    /// Find the field index of the provided field name.
+    pub(crate) fn get_field_ord(&self, field_name: &str) -> Option<usize> {
+        let field_name = UniCase::new(field_name);
+        self.fields
+            .iter()
+            .enumerate()
+            .filter_map(|(idx, f)| {
+                if UniCase::new(&f.name) == field_name {
+                    Some(idx)
+                } else {
+                    None
+                }
+            })
+            .next()
+    }
 }
 
 impl From<NoteType> for NoteTypeProto {

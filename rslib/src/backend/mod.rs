@@ -13,6 +13,7 @@ use crate::{
     deckconf::{DeckConf, DeckConfID},
     decks::{Deck, DeckID, DeckSchema11},
     err::{AnkiError, NetworkErrorKind, Result, SyncErrorKind},
+    findreplace::FindReplaceContext,
     i18n::{tr_args, I18n, TR},
     latex::{extract_latex, extract_latex_expanding_clozes, ExtractedLatex},
     log,
@@ -361,6 +362,10 @@ impl Backend {
                 OValue::CheckDatabase(pb::Empty {})
             }
             Value::DeckTreeLegacy(_) => OValue::DeckTreeLegacy(self.deck_tree_legacy()?),
+            Value::FieldNamesForNotes(input) => {
+                OValue::FieldNamesForNotes(self.field_names_for_notes(input)?)
+            }
+            Value::FindAndReplace(input) => OValue::FindAndReplace(self.find_and_replace(input)?),
         })
     }
 
@@ -1054,6 +1059,39 @@ impl Backend {
         self.with_col(|col| {
             let tree = col.legacy_deck_tree()?;
             serde_json::to_vec(&tree).map_err(Into::into)
+        })
+    }
+
+    fn field_names_for_notes(
+        &self,
+        input: pb::FieldNamesForNotesIn,
+    ) -> Result<pb::FieldNamesForNotesOut> {
+        self.with_col(|col| {
+            let nids: Vec<_> = input.nids.into_iter().map(NoteID).collect();
+            col.storage
+                .field_names_for_notes(&nids)
+                .map(|fields| pb::FieldNamesForNotesOut { fields })
+        })
+    }
+
+    fn find_and_replace(&self, input: pb::FindAndReplaceIn) -> Result<u32> {
+        let mut search = if input.regex {
+            input.search
+        } else {
+            regex::escape(&input.search)
+        };
+        if !input.match_case {
+            search = format!("(?i){}", search);
+        }
+        let nids = input.nids.into_iter().map(NoteID).collect();
+        let field_name = if input.field_name.is_empty() {
+            None
+        } else {
+            Some(input.field_name)
+        };
+        let repl = input.replacement;
+        self.with_col(|col| {
+            col.find_and_replace(FindReplaceContext::new(nids, &search, &repl, field_name)?)
         })
     }
 }

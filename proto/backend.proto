@@ -90,6 +90,8 @@ message BackendInput {
         bool new_deck_legacy = 75;
         int64 remove_deck = 76;
         Empty deck_tree_legacy = 77;
+        FieldNamesForNotesIn field_names_for_notes = 78;
+        FindAndReplaceIn find_and_replace = 79;
     }
 }
 
@@ -159,6 +161,8 @@ message BackendOutput {
         bytes new_deck_legacy = 75;
         Empty remove_deck = 76;
         bytes deck_tree_legacy = 77;
+        FieldNamesForNotesOut field_names_for_notes = 78;
+        uint32 find_and_replace = 79;
 
         BackendError error = 2047;
     }
@@ -712,3 +716,19 @@ message AddOrUpdateDeckLegacyIn {
     bool preserve_usn_and_mtime = 2;
 }
 
+message FieldNamesForNotesIn {
+    repeated int64 nids = 1;
+}
+
+message FieldNamesForNotesOut {
+    repeated string fields = 1;
+}
+
+message FindAndReplaceIn {
+    repeated int64 nids = 1;
+    string search = 2;
+    string replacement = 3;
+    bool regex = 4;
+    bool match_case = 5;
+    string field_name = 6;
+}
