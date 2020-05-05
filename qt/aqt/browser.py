@@ -24,7 +24,7 @@ from anki.decks import DeckManager
 from anki.lang import _, ngettext
 from anki.models import NoteType
 from anki.notes import Note
-from anki.rsbackend import TR, DeckTreeNode
+from anki.rsbackend import TR, DeckTreeNode, InvalidInput
 from anki.utils import htmlToTextLine, ids2str, intTime, isMac, isWin
 from aqt import AnkiQt, gui_hooks
 from aqt.editor import Editor
@@ -1926,13 +1926,21 @@ update cards set usn=?, mod=?, did=? where id in """
     def onFindReplace(self):
         self.editor.saveNow(self._onFindReplace)
 
-    def _onFindReplace(self):
-        sf = self.selectedNotes()
-        if not sf:
+    def _onFindReplace(self) -> None:
+        nids = self.selectedNotes()
+        if not nids:
             return
         import anki.find
 
-        fields = anki.find.fieldNamesForNotes(self.mw.col, sf)
+        def find():
+            return anki.find.fieldNamesForNotes(self.mw.col, nids)
+
+        def on_done(fut):
+            self._on_find_replace_diag(fut.result(), nids)
+
+        self.mw.taskman.with_progress(find, on_done, self)
+
+    def _on_find_replace_diag(self, fields: List[str], nids: List[int]) -> None:
         d = QDialog(self)
         frm = aqt.forms.findreplace.Ui_Dialog()
         frm.setupUi(d)
@@ -1948,34 +1956,38 @@ update cards set usn=?, mod=?, did=? where id in """
             field = None
         else:
             field = fields[frm.field.currentIndex() - 1]
+
+        search = frm.find.text()
+        replace = frm.replace.text()
+        regex = frm.re.isChecked()
+        nocase = frm.ignoreCase.isChecked()
+
         self.mw.checkpoint(_("Find and Replace"))
-        self.mw.progress.start()
+        # starts progress dialog as well
         self.model.beginReset()
-        try:
-            changed = self.col.findReplace(
-                sf,
-                str(frm.find.text()),
-                str(frm.replace.text()),
-                frm.re.isChecked(),
-                field,
-                frm.ignoreCase.isChecked(),
-            )
-        except sre_constants.error:
-            showInfo(_("Invalid regular expression."), parent=self)
-            return
-        else:
+
+        def do_search():
+            return self.col.findReplace(nids, search, replace, regex, field, nocase)
+
+        def on_done(fut):
             self.search()
             self.mw.requireReset()
-        finally:
             self.model.endReset()
-            self.mw.progress.finish()
-        showInfo(
-            ngettext(
-                "%(a)d of %(b)d note updated", "%(a)d of %(b)d notes updated", len(sf)
+
+            total = len(nids)
+            try:
+                changed = fut.result()
+            except InvalidInput as e:
+                # failed regex
+                showWarning(str(e))
+                return
+
+            showInfo(
+                tr(TR.FINDREPLACE_NOTES_UPDATED, changed=changed, total=total),
+                parent=self,
             )
-            % {"a": changed, "b": len(sf),},
-            parent=self,
-        )
+
+        self.mw.taskman.run_in_background(do_search, on_done)
 
     def onFindReplaceHelp(self):
         openHelp("findreplace")
