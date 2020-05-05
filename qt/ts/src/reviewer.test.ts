@@ -64,7 +64,7 @@ describe("Test question and answer audios", () => {
     (async () => await page.exposeFunction("dataSpeedTemplate", dataSpeedTemplate))();
 
     beforeEach(async () => {
-        await page.goto(`${address}/single_audio_file.html`);
+        await page.goto(`${address}/main_webview.html`);
         await page.waitForSelector(`[id="qa"]`);
     });
 
