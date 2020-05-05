@@ -1967,7 +1967,9 @@ update cards set usn=?, mod=?, did=? where id in """
         self.model.beginReset()
 
         def do_search():
-            return self.col.findReplace(nids, search, replace, regex, field, nocase)
+            return self.col.find_and_replace(
+                nids, search, replace, regex, field, nocase
+            )
 
         def on_done(fut):
             self.search()

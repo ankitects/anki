@@ -586,7 +586,7 @@ select id from notes where id in %s and id not in (select nid from cards)"""
         self.flush_all_changes()
         return self.backend.search_notes(query)
 
-    def findReplace(
+    def find_and_replace(
         self,
         nids: List[int],
         src: str,
@@ -602,6 +602,7 @@ select id from notes where id in %s and id not in (select nid from cards)"""
 
     findCards = find_cards
     findNotes = find_notes
+    findReplace = find_and_replace
 
     # Config
     ##########################################################################
