@@ -18,6 +18,7 @@ pub mod dbcheck;
 pub mod deckconf;
 pub mod decks;
 pub mod err;
+pub mod findreplace;
 pub mod i18n;
 pub mod latex;
 pub mod log;
