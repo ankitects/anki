@@ -35,6 +35,7 @@ appHelpSite = HELP_SITE
 from aqt.main import AnkiQt  # isort:skip
 from aqt.profiles import ProfileManager  # isort:skip
 
+profiler = None
 mw: Optional[AnkiQt] = None  # set on init
 
 moduleDir = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
@@ -308,13 +309,6 @@ def parseArgs(argv):
     parser.add_argument("-b", "--base", help="path to base folder", default="")
     parser.add_argument("-p", "--profile", help="profile name to load", default="")
     parser.add_argument("-l", "--lang", help="interface language (en, de, etc)")
-    parser.add_argument(
-        "-bm",
-        "--benchmark",
-        type=int,
-        help="reports anki run time performance to stdout (pass the number of characters to report)",
-        default=None,
-    )
     return parser.parse_known_args(argv[1:])
 
 
@@ -354,8 +348,8 @@ def setupGL(pm):
         os.environ["QT_OPENGL"] = mode
 
 
-def printBenchmark(argumentsNamespace, profiler):
-    if argumentsNamespace.benchmark and profiler:
+def printBenchmark():
+    if os.environ.get("ANKI_RUN_BENCHMARK"):
         import io
         import pstats
 
@@ -390,7 +384,7 @@ def _run(argv=None, exec=True):
     If no 'argv' is supplied then 'sys.argv' will be used.
     """
     global mw
-    profiler = None
+    global profiler
 
     if argv is None:
         argv = sys.argv
@@ -398,7 +392,7 @@ def _run(argv=None, exec=True):
     # parse args
     opts, args = parseArgs(argv)
 
-    if opts.benchmark:
+    if os.environ.get("ANKI_RUN_BENCHMARK"):
         import cProfile
 
         profiler = cProfile.Profile()
@@ -436,7 +430,6 @@ def _run(argv=None, exec=True):
     app = AnkiApp(argv)
     if app.secondInstance():
         # we've signaled the primary instance, so we should close
-        printBenchmark(opts, profiler)
         return
 
     if not pm:
@@ -447,7 +440,7 @@ def _run(argv=None, exec=True):
 Anki could not create its data folder. Please see the File Locations \
 section of the manual, and ensure that location is not read-only.""",
         )
-        printBenchmark(opts, profiler)
+        printBenchmark()
         return
 
     # disable icons on mac; this must be done before window created
@@ -481,7 +474,7 @@ section of the manual, and ensure that location is not read-only.""",
 No usable temporary folder found. Make sure C:\\temp exists or TEMP in your \
 environment points to a valid, writable folder.""",
         )
-        printBenchmark(opts, profiler)
+        printBenchmark()
         return
 
     if pmLoadResult.firstTime:
@@ -520,7 +513,6 @@ environment points to a valid, writable folder.""",
     if exec:
         app.exec()
     else:
-        printBenchmark(opts, profiler)
         return app
 
-    printBenchmark(opts, profiler)
+    printBenchmark()
