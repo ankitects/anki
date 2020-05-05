@@ -63,9 +63,10 @@ class _Collection:
         db: DBProxy,
         backend: RustBackend,
         server: Optional["anki.storage.ServerData"] = None,
+        log: bool = False,
     ) -> None:
         self.backend = backend
-        self._debugLog = not server
+        self._debugLog = log
         self.db = db
         self.path = db._path
         self._openLog()

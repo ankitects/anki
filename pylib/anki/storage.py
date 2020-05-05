@@ -41,7 +41,8 @@ def Collection(
 
     (media_dir, media_db) = media_paths_from_col_path(path)
     log_path = ""
-    if not server and log:
+    should_log = not server and log
+    if should_log:
         log_path = path.replace(".anki2", "2.log")
     path = os.path.abspath(path)
 
@@ -55,7 +56,7 @@ def Collection(
         initial_db_setup(db)
 
     # add db to col and do any remaining upgrades
-    col = _Collection(db, backend=backend, server=server)
+    col = _Collection(db, backend=backend, server=server, log=should_log)
     if create:
         # add in reverse order so basic is default
         addClozeModel(col)
