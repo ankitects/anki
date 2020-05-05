@@ -11,9 +11,10 @@ import aqt
 from anki.cards import Card
 from anki.consts import *
 from anki.lang import _, ngettext
+from anki.notes import Note
 from anki.rsbackend import TemplateError
 from anki.utils import isMac, isWin, joinFields
-from aqt import gui_hooks
+from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.sound import av_player, play_clicked_audio
 from aqt.theme import theme_manager
@@ -33,11 +34,17 @@ from aqt.webview import AnkiWebView
 class CardLayout(QDialog):
     card: Optional[Card]
 
-    def __init__(self, mw, note, ord=0, parent=None, addMode=False):
+    def __init__(
+        self,
+        mw: AnkiQt,
+        note: Note,
+        ord=0,
+        parent: Optional[QWidget] = None,
+        addMode=False,
+    ):
         QDialog.__init__(self, parent or mw, Qt.Window)
         mw.setupDialogGC(self)
         self.mw = aqt.mw
-        self.parent = parent or mw
         self.note = note
         self.ord = ord
         self.col = self.mw.col
@@ -77,8 +84,8 @@ class CardLayout(QDialog):
 
     def redraw(self):
         did = None
-        if hasattr(self.parent, "deckChooser"):
-            did = self.parent.deckChooser.selectedId()
+        if hasattr(self.parent(), "deckChooser"):
+            did = self.parent().deckChooser.selectedId()
         self.cards = self.col.previewCards(self.note, 2, did=did)
         idx = self.ord
         if idx >= len(self.cards):
@@ -96,7 +103,7 @@ class CardLayout(QDialog):
                 QKeySequence("Ctrl+%d" % i),
                 self,
                 activated=lambda i=i: self.selectCard(i),
-            )
+            )  # type: ignore
 
     def selectCard(self, n):
         self.ord = n - 1
@@ -142,7 +149,7 @@ class CardLayout(QDialog):
     def _fieldsOnTemplate(self, fmt):
         matches = re.findall("{{[^#/}]+?}}", fmt)
         charsAllowed = 30
-        result = collections.OrderedDict()
+        result: Dict[str, bool] = collections.OrderedDict()
         for m in matches:
             # strip off mustache
             m = re.sub(r"[{}]", "", m)
@@ -158,10 +165,10 @@ class CardLayout(QDialog):
                 if charsAllowed <= 0:
                     break
 
-        str = "+".join(result.keys())
+        s = "+".join(result.keys())
         if charsAllowed <= 0:
-            str += "+..."
-        return str
+            s += "+..."
+        return s
 
     def _isCloze(self):
         return self.model["type"] == MODEL_CLOZE
@@ -379,6 +386,8 @@ class CardLayout(QDialog):
                 res = "<hr id=answer>" + res
             return res
 
+        repl: Union[str, Callable]
+
         if type == "q":
             repl = "<input id='typeans' type=text value='exomple' readonly='readonly'>"
             repl = "<center>%s</center>" % repl
@@ -402,7 +411,7 @@ class CardLayout(QDialog):
 
     def onReorder(self):
         n = len(self.cards)
-        cur = self.card.template()["ord"] + 1
+        cur = self.card.template()["ord"] + 1  # type: ignore
         pos = getOnlyText(_("Enter new card position (1...%s):") % n, default=str(cur))
         if not pos:
             return
