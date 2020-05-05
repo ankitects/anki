@@ -35,6 +35,7 @@ appHelpSite = HELP_SITE
 from aqt.main import AnkiQt  # isort:skip
 from aqt.profiles import ProfileManager  # isort:skip
 
+profiler = None
 mw: Optional[AnkiQt] = None  # set on init
 
 moduleDir = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
@@ -347,6 +348,19 @@ def setupGL(pm):
         os.environ["QT_OPENGL"] = mode
 
 
+def printBenchmark():
+    if os.environ.get("ANKI_RUN_BENCHMARK"):
+        import io
+        import pstats
+
+        profiler.disable()
+        outputstream = io.StringIO()
+        profiler_status = pstats.Stats(profiler, stream=outputstream)
+        profiler_status.sort_stats("time")
+        profiler_status.print_stats()
+        sys.stderr.write(f"\n{outputstream.getvalue()}\n")
+
+
 def run():
     try:
         _run()
@@ -370,12 +384,19 @@ def _run(argv=None, exec=True):
     If no 'argv' is supplied then 'sys.argv' will be used.
     """
     global mw
+    global profiler
 
     if argv is None:
         argv = sys.argv
 
     # parse args
     opts, args = parseArgs(argv)
+
+    if os.environ.get("ANKI_RUN_BENCHMARK"):
+        import cProfile
+
+        profiler = cProfile.Profile()
+        profiler.enable()
 
     # profile manager
     pm = None
@@ -419,6 +440,7 @@ def _run(argv=None, exec=True):
 Anki could not create its data folder. Please see the File Locations \
 section of the manual, and ensure that location is not read-only.""",
         )
+        printBenchmark()
         return
 
     # disable icons on mac; this must be done before window created
@@ -452,6 +474,7 @@ section of the manual, and ensure that location is not read-only.""",
 No usable temporary folder found. Make sure C:\\temp exists or TEMP in your \
 environment points to a valid, writable folder.""",
         )
+        printBenchmark()
         return
 
     if pmLoadResult.firstTime:
@@ -491,3 +514,5 @@ environment points to a valid, writable folder.""",
         app.exec()
     else:
         return app
+
+    printBenchmark()
