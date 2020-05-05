@@ -96,12 +96,14 @@ describe("Test question and answer audios", () => {
     let getPausedMedias = async () =>
         await page.evaluate(async () => {
             let paused_medias = 0;
+            let has_medias = 0;
             setAnkiMedia(media => {
+                has_medias += 1;
                 if (media.paused) {
                     paused_medias += 1;
                 }
             });
-            return paused_medias;
+            return has_medias ? has_medias - paused_medias : -111111;
         });
 
     let getPlayTimes = async mp3file =>
@@ -160,6 +162,7 @@ describe("Test question and answer audios", () => {
         async function(front_mp3, front_setup, templateName) {
             await showQuestion(front_mp3, front_setup, templateName);
             await page.waitForSelector(`audio[id="${front_mp3}"][data-has-ended-at]`);
+            expect(await getPausedMedias()).toEqual(0);
 
             let question_times = await getPlayTimes(front_mp3);
             let audio_src = await getAudioSource(front_mp3);
@@ -187,12 +190,14 @@ describe("Test question and answer audios", () => {
         async function(front_mp3, front_setup, refront_mp3, refront_setup) {
             await showQuestion(front_mp3, front_setup, "questionTemplate");
             await page.waitForSelector(`audio[id="${front_mp3}"][data-has-ended-at]`);
+            expect(await getPausedMedias()).toEqual(0);
 
             let first_question_times = await getPlayTimes(front_mp3);
             let first_audio_src = await getAudioSource(front_mp3);
 
             await showQuestion(refront_mp3, refront_setup, "questionTemplate");
             await page.waitForSelector(`[id="${refront_mp3}"][data-has-ended-at]`);
+            expect(await getPausedMedias()).toEqual(0);
 
             let second_question_times = await getPlayTimes(refront_mp3);
             let second_audio_src = await getAudioSource(refront_mp3);
@@ -238,12 +243,14 @@ describe("Test question and answer audios", () => {
 
             await showQuestion(front_mp3, front_setup, "questionTemplate");
             await page.waitForSelector(`audio[id="${front_mp3}"][data-has-ended-at]`);
+            expect(await getPausedMedias()).toEqual(0);
 
             let question_times = await getPlayTimes(front_mp3);
             let question_audio_src = await getAudioSource(front_mp3);
 
             await questionAndAnswer(front_mp3, front_setup, back_mp3, back_setup);
             await page.waitForSelector(`audio[id="${selector}"][data-has-ended-at]`);
+            expect(await getPausedMedias()).toEqual(0);
 
             let question_times_recheck = await getPlayTimes(front_mp3);
             let answer_times = await getPlayTimes(selector);
@@ -280,7 +287,7 @@ describe("Test question and answer audios", () => {
         let question_times = await getPlayTimes("silence1.mp3");
         let answer_times = await getPlayTimes("silence2.mp3");
 
-        expect(await getPausedMedias()).toEqual(2);
+        expect(await getPausedMedias()).toEqual(0);
         expect(question_times[0] < question_times[1]).toEqual(true);
         expect(answer_times[0] < answer_times[1]).toEqual(true);
         expect(question_times[0] < answer_times[0]).toEqual(true);
@@ -289,14 +296,14 @@ describe("Test question and answer audios", () => {
         await page.waitFor(ANKI_MEDIA_QUEUE_PREVIEW_TIMEOUT);
         await showEverything("silence1.mp3", "silence2.mp3");
         await page.waitForSelector(`audio[id="silence2.mp3"]`);
-        expect(await getPausedMedias()).toEqual(2);
+        expect(await getPausedMedias()).toEqual(0);
 
         await showEverything("silence1.mp3", "silence2.mp3");
         await page.waitForSelector(`audio[id="silence2.mp3"]`);
-        expect(await getPausedMedias()).toEqual(2);
+        expect(await getPausedMedias()).toEqual(0);
 
         await showEverything("silence1.mp3", "silence2.mp3");
         await page.waitForSelector(`audio[id="silence2.mp3"]`);
-        expect(await getPausedMedias()).toEqual(2);
+        expect(await getPausedMedias()).toEqual(0);
     });
 });
