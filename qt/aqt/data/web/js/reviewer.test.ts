@@ -61,6 +61,64 @@ describe("Test question and answer audios", () => {
         );
     };
 
+    let showQuestion = async (front_mp3, front_setup, templateName) =>
+        await page.evaluate(
+            async (mp3, setup, template) =>
+                _showQuestion(await eval(`${template}(mp3, setup)`), ""),
+            front_mp3,
+            front_setup,
+            templateName
+        );
+
+    let questionAndAnswer = async (
+        question_mp3,
+        question_setup,
+        answer_mp3,
+        answer_setup
+    ) => {
+        await page.evaluate(
+            async (question_mp3, question_setup, answer_mp3, answer_setup) => {
+                _showAnswer(
+                    `${await questionTemplate(
+                        question_mp3,
+                        question_setup
+                    )}${await answerTemplate(answer_mp3, answer_setup)}`,
+                    ""
+                );
+            },
+            question_mp3,
+            question_setup,
+            answer_mp3,
+            answer_setup
+        );
+    };
+
+    let getPausedMedias = async () =>
+        await page.evaluate(async () => {
+            let paused_medias = 0;
+            setAnkiMedia(media => {
+                if (media.paused) {
+                    paused_medias += 1;
+                }
+            });
+            return paused_medias;
+        });
+
+    let getPlayTimes = async mp3file =>
+        await page.evaluate(async mp3 => {
+            let audio = document.getElementById(mp3) as HTMLAudioElement;
+            return [
+                audio.getAttribute("data-has-started-at"),
+                audio.getAttribute("data-has-ended-at"),
+            ];
+        }, mp3file);
+
+    let getAudioSource = async mp3file =>
+        await page.evaluate(async mp3 => {
+            let audio = document.getElementById(mp3) as HTMLAudioElement;
+            return audio.src;
+        }, mp3file);
+
     (async () => await page.exposeFunction("cardTemplate", cardTemplate))();
     (async () => await page.exposeFunction("questionTemplate", questionTemplate))();
     (async () => await page.exposeFunction("answerTemplate", answerTemplate))();
@@ -100,27 +158,11 @@ describe("Test question and answer audios", () => {
     ])(
         `Showing a question should play its audio file automatically:\nfront %s '%s'\n...`,
         async function(front_mp3, front_setup, templateName) {
-            await page.evaluate(
-                async (mp3, setup, template) =>
-                    _showQuestion(await eval(`${template}(mp3, setup)`), ""),
-                front_mp3,
-                front_setup,
-                templateName
-            );
+            await showQuestion(front_mp3, front_setup, templateName);
             await page.waitForSelector(`audio[id="${front_mp3}"][data-has-ended-at]`);
 
-            let question_times = await page.evaluate(async mp3 => {
-                let audio = document.getElementById(mp3) as HTMLAudioElement;
-                return [
-                    audio.getAttribute("data-has-started-at"),
-                    audio.getAttribute("data-has-ended-at"),
-                ];
-            }, front_mp3);
-
-            let audio_src = await page.evaluate(async mp3 => {
-                let audio = document.getElementById(mp3) as HTMLAudioElement;
-                return audio.src;
-            }, front_mp3);
+            let question_times = await getPlayTimes(front_mp3);
+            let audio_src = await getAudioSource(front_mp3);
 
             expect(audio_src).toEqual(`${address}/${front_mp3}`);
             expect(question_times[0] < question_times[1]).toEqual(true);
@@ -143,47 +185,17 @@ describe("Test question and answer audios", () => {
     ])(
         `Showing a new question should play its audio automatically:\nfront %s '%s',\nrefront %s '%s'\n...`,
         async function(front_mp3, front_setup, refront_mp3, refront_setup) {
-            await page.evaluate(
-                async (mp3, setup) =>
-                    _showQuestion(await questionTemplate(mp3, setup), ""),
-                front_mp3,
-                front_setup
-            );
+            await showQuestion(front_mp3, front_setup, "questionTemplate");
             await page.waitForSelector(`audio[id="${front_mp3}"][data-has-ended-at]`);
 
-            let first_question_times = await page.evaluate(async mp3 => {
-                let audio = document.getElementById(mp3) as HTMLAudioElement;
-                return [
-                    audio.getAttribute("data-has-started-at"),
-                    audio.getAttribute("data-has-ended-at"),
-                ];
-            }, front_mp3);
+            let first_question_times = await getPlayTimes(front_mp3);
+            let first_audio_src = await getAudioSource(front_mp3);
 
-            let first_audio_src = await page.evaluate(async mp3 => {
-                let audio = document.getElementById(mp3) as HTMLAudioElement;
-                return audio.src;
-            }, front_mp3);
-
-            await page.evaluate(
-                async (mp3, setup) =>
-                    _showQuestion(await questionTemplate(mp3, setup), ""),
-                refront_mp3,
-                refront_setup
-            );
+            await showQuestion(refront_mp3, refront_setup, "questionTemplate");
             await page.waitForSelector(`[id="${refront_mp3}"][data-has-ended-at]`);
 
-            let second_question_times = await page.evaluate(async mp3 => {
-                let audio = document.getElementById(mp3) as HTMLAudioElement;
-                return [
-                    audio.getAttribute("data-has-started-at"),
-                    audio.getAttribute("data-has-ended-at"),
-                ];
-            }, refront_mp3);
-
-            let second_audio_src = await page.evaluate(async mp3 => {
-                let audio = document.getElementById(mp3) as HTMLAudioElement;
-                return audio.src;
-            }, refront_mp3);
+            let second_question_times = await getPlayTimes(refront_mp3);
+            let second_audio_src = await getAudioSource(refront_mp3);
 
             expect(first_audio_src).toEqual(`${address}/${front_mp3}`);
             expect(second_audio_src).toEqual(`${address}/${refront_mp3}`);
@@ -222,67 +234,20 @@ describe("Test question and answer audios", () => {
     ])(
         `Showing an answer with the same id as the question should only play the answer audio:\nfront %s '%s',\nback %s '%s'\n...`,
         async function(front_mp3, front_setup, back_mp3, back_setup) {
-            await page.evaluate(
-                async (mp3, setup) =>
-                    _showQuestion(await questionTemplate(mp3, setup), ""),
-                front_mp3,
-                front_setup
-            );
+            let selector = back_mp3 == front_mp3 ? `${front_mp3}1` : back_mp3;
+
+            await showQuestion(front_mp3, front_setup, "questionTemplate");
             await page.waitForSelector(`audio[id="${front_mp3}"][data-has-ended-at]`);
 
-            let question_times = await page.evaluate(async mp3 => {
-                let audio = document.getElementById(mp3) as HTMLAudioElement;
-                return [
-                    audio.getAttribute("data-has-started-at"),
-                    audio.getAttribute("data-has-ended-at"),
-                ];
-            }, front_mp3);
+            let question_times = await getPlayTimes(front_mp3);
+            let question_audio_src = await getAudioSource(front_mp3);
 
-            let question_audio_src = await page.evaluate(async mp3 => {
-                let audio = document.getElementById(mp3) as HTMLAudioElement;
-                return audio.src;
-            }, front_mp3);
+            await questionAndAnswer(front_mp3, front_setup, back_mp3, back_setup);
+            await page.waitForSelector(`audio[id="${selector}"][data-has-ended-at]`);
 
-            await page.evaluate(
-                async (front_mp3, front_setup, back_mp3, back_setup) => {
-                    _showAnswer(
-                        `${await questionTemplate(
-                            front_mp3,
-                            front_setup
-                        )}${await answerTemplate(back_mp3, back_setup)}`,
-                        ""
-                    );
-                },
-                front_mp3,
-                front_setup,
-                back_mp3,
-                back_setup
-            );
-            let mp3_selector = back_mp3 == front_mp3 ? `${front_mp3}1` : back_mp3;
-            await page.waitForSelector(
-                `audio[id="${mp3_selector}"][data-has-ended-at]`
-            );
-
-            let question_times_recheck = await page.evaluate(async mp3 => {
-                let audio = document.getElementById(mp3) as HTMLAudioElement;
-                return [
-                    audio.getAttribute("data-has-started-at"),
-                    audio.getAttribute("data-has-ended-at"),
-                ];
-            }, front_mp3);
-
-            let answer_times = await page.evaluate(async mp3 => {
-                let audio = document.getElementById(mp3) as HTMLAudioElement;
-                return [
-                    audio.getAttribute("data-has-started-at"),
-                    audio.getAttribute("data-has-ended-at"),
-                ];
-            }, mp3_selector);
-
-            let answer_audio_src = await page.evaluate(async mp3 => {
-                let audio = document.getElementById(mp3) as HTMLAudioElement;
-                return audio.src;
-            }, mp3_selector);
+            let question_times_recheck = await getPlayTimes(front_mp3);
+            let answer_times = await getPlayTimes(selector);
+            let answer_audio_src = await getAudioSource(selector);
 
             expect(question_audio_src).toEqual(`${address}/${front_mp3}`);
             expect(answer_audio_src).toEqual(`${address}/${back_mp3}`);
@@ -301,94 +266,37 @@ describe("Test question and answer audios", () => {
     test(`The card preview should not play multiple times while editing the page\n...`, async function() {
         await page.goto(`${address}/card_layout_back.html`);
         await page.waitForSelector(`[id="qa"]`);
-        let get_paused_medias = async () => await page.evaluate(async () => {
-            let paused_medias = 0;
-            setAnkiMedia(media => {
-                if (media.paused) {
-                    paused_medias += 1;
-                }
-            });
-            return paused_medias;
-        });
 
-        await page.evaluate(async () => {
-            _showAnswer(
-                `${await questionTemplate(
-                    `silence1.mp3`,
-                    `ankimedia.setup({delay: 0}); ankimedia.addall( "front" );`
-                )}${await answerTemplate(
-                    `silence2.mp3`,
-                    `ankimedia.setup({delay: 0}); ankimedia.addall( "back" );`
-                )}`,
-                ""
+        let showEverything = async (first_mp3, second_mp3) =>
+            await questionAndAnswer(
+                first_mp3,
+                `ankimedia.setup({delay: 0}); ankimedia.addall( "front" );`,
+                second_mp3,
+                `ankimedia.setup({delay: 0}); ankimedia.addall( "back" );`
             );
-        });
-        await page.waitForSelector(`audio[id="silence2.mp3"][data-has-ended-at]`);
 
-        let question_times = await page.evaluate(async mp3 => {
-            let audio = document.getElementById(mp3) as HTMLAudioElement;
-            return [
-                audio.getAttribute("data-has-started-at"),
-                audio.getAttribute("data-has-ended-at"),
-            ];
-        }, "silence1.mp3");
-        let answer_times = await page.evaluate(async mp3 => {
-            let audio = document.getElementById(mp3) as HTMLAudioElement;
-            return [
-                audio.getAttribute("data-has-started-at"),
-                audio.getAttribute("data-has-ended-at"),
-            ];
-        }, "silence2.mp3");
-        expect(await get_paused_medias()).toEqual(2);
+        await showEverything("silence1.mp3", "silence2.mp3");
+        await page.waitForSelector(`audio[id="silence2.mp3"][data-has-ended-at]`);
+        let question_times = await getPlayTimes("silence1.mp3");
+        let answer_times = await getPlayTimes("silence2.mp3");
+
+        expect(await getPausedMedias()).toEqual(2);
         expect(question_times[0] < question_times[1]).toEqual(true);
         expect(answer_times[0] < answer_times[1]).toEqual(true);
         expect(question_times[0] < answer_times[0]).toEqual(true);
         expect(question_times[1] < answer_times[1]).toEqual(true);
 
         await page.waitFor(ANKI_MEDIA_QUEUE_PREVIEW_TIMEOUT);
-        await page.evaluate(async () => {
-            _showAnswer(
-                `${await questionTemplate(
-                    `silence1.mp3`,
-                    `ankimedia.setup({delay: 0}); ankimedia.addall( "front" );`
-                )}${await answerTemplate(
-                    `silence2.mp3`,
-                    `ankimedia.setup({delay: 0}); ankimedia.addall( "back" );`
-                )}`,
-                ""
-            );
-        });
+        await showEverything("silence1.mp3", "silence2.mp3");
         await page.waitForSelector(`audio[id="silence2.mp3"]`);
-        expect(await get_paused_medias()).toEqual(2);
+        expect(await getPausedMedias()).toEqual(2);
 
-        await page.evaluate(async () => {
-            _showAnswer(
-                `${await questionTemplate(
-                    `silence1.mp3`,
-                    `ankimedia.setup({delay: 0}); ankimedia.addall( "front" );`
-                )}${await answerTemplate(
-                    `silence2.mp3`,
-                    `ankimedia.setup({delay: 0}); ankimedia.addall( "back" );`
-                )}`,
-                ""
-            );
-        });
+        await showEverything("silence1.mp3", "silence2.mp3");
         await page.waitForSelector(`audio[id="silence2.mp3"]`);
-        expect(await get_paused_medias()).toEqual(2);
+        expect(await getPausedMedias()).toEqual(2);
 
-        await page.evaluate(async () => {
-            _showAnswer(
-                `${await questionTemplate(
-                    `silence1.mp3`,
-                    `ankimedia.setup({delay: 0}); ankimedia.addall( "front" );`
-                )}${await answerTemplate(
-                    `silence2.mp3`,
-                    `ankimedia.setup({delay: 0}); ankimedia.addall( "back" );`
-                )}`,
-                ""
-            );
-        });
+        await showEverything("silence1.mp3", "silence2.mp3");
         await page.waitForSelector(`audio[id="silence2.mp3"]`);
-        expect(await get_paused_medias()).toEqual(2);
+        expect(await getPausedMedias()).toEqual(2);
     });
 });
