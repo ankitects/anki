@@ -50,7 +50,6 @@ class Note:
         self.fields = list(n.fields)
         self._fmap = self.col.models.fieldMap(self.model())
 
-    # fixme: only save tags in list on save
     def to_backend_note(self) -> BackendNote:
         hooks.note_will_flush(self)
         return BackendNote(
@@ -59,8 +58,7 @@ class Note:
             ntid=self.mid,
             mtime_secs=self.mod,
             usn=self.usn,
-            # fixme: catch spaces in individual tags
-            tags=" ".join(self.tags).split(" "),
+            tags=self.tags,
             fields=self.fields,
         )
 
