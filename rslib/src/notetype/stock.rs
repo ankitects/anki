@@ -112,8 +112,11 @@ pub(crate) fn cloze(i18n: &I18n) -> NoteType {
     nt.name = i18n.tr(TR::NotetypesClozeName).into();
     let text = i18n.tr(TR::NotetypesTextField);
     nt.add_field(text.as_ref());
-    let fmt = format!("{{{{cloze:{}}}}}", text);
-    nt.add_template(nt.name.clone(), fmt.clone(), fmt);
+    let back_extra = i18n.tr(TR::NotetypesBackExtraField);
+    nt.add_field(back_extra.as_ref());
+    let qfmt = format!("{{{{cloze:{}}}}}", text);
+    let afmt = format!("{}<br>\n{{{{{}}}}}", qfmt, back_extra);
+    nt.add_template(nt.name.clone(), qfmt, afmt);
     nt.config.kind = NoteTypeKind::Cloze as i32;
     nt.config.css += "
 .cloze {
