@@ -43,6 +43,7 @@ pub(crate) enum ConfigKey {
     NextNewCardPosition,
     SchedulerVersion,
     LearnAheadSecs,
+    NormalizeNoteText,
 }
 #[derive(PartialEq, Serialize_repr, Deserialize_repr, Clone, Copy)]
 #[repr(u8)]
@@ -64,6 +65,7 @@ impl From<ConfigKey> for &'static str {
             ConfigKey::NextNewCardPosition => "nextPos",
             ConfigKey::SchedulerVersion => "schedVer",
             ConfigKey::LearnAheadSecs => "collapseTime",
+            ConfigKey::NormalizeNoteText => "normalize_note_text",
         }
     }
 }
@@ -162,6 +164,12 @@ impl Collection {
     pub(crate) fn learn_ahead_secs(&self) -> u32 {
         self.get_config_optional(ConfigKey::LearnAheadSecs)
             .unwrap_or(1200)
+    }
+
+    /// This is a stop-gap solution until we can decouple searching from canonical storage.
+    pub(crate) fn normalize_note_text(&self) -> bool {
+        self.get_config_optional(ConfigKey::NormalizeNoteText)
+            .unwrap_or(true)
     }
 }
 

@@ -6,6 +6,7 @@ use crate::{
     err::{AnkiError, Result},
     notes::NoteID,
     notetype::CardGenContext,
+    text::normalize_to_nfc,
     types::Usn,
 };
 use itertools::Itertools;
@@ -40,11 +41,31 @@ impl FindReplaceContext {
 }
 
 impl Collection {
-    pub fn find_and_replace(&mut self, ctx: FindReplaceContext) -> Result<u32> {
-        self.transact(None, |col| col.find_and_replace_inner(ctx, col.usn()?))
+    pub fn find_and_replace(
+        &mut self,
+        nids: Vec<NoteID>,
+        search_re: &str,
+        repl: &str,
+        field_name: Option<String>,
+    ) -> Result<u32> {
+        self.transact(None, |col| {
+            let norm = col.normalize_note_text();
+            let search = if norm {
+                normalize_to_nfc(search_re)
+            } else {
+                search_re.into()
+            };
+            let ctx = FindReplaceContext::new(nids, &search, repl, field_name)?;
+            col.find_and_replace_inner(ctx, col.usn()?, norm)
+        })
     }
 
-    fn find_and_replace_inner(&mut self, ctx: FindReplaceContext, usn: Usn) -> Result<u32> {
+    fn find_and_replace_inner(
+        &mut self,
+        ctx: FindReplaceContext,
+        usn: Usn,
+        normalize_text: bool,
+    ) -> Result<u32> {
         let mut total_changed = 0;
         let nids_by_notetype = self.storage.note_ids_by_notetype(&ctx.nids)?;
         for (ntid, group) in &nids_by_notetype.into_iter().group_by(|tup| tup.0) {
@@ -77,7 +98,12 @@ impl Collection {
                     }
                 }
                 if changed {
-                    self.update_note_inner_generating_cards(&genctx, &mut note, true)?;
+                    self.update_note_inner_generating_cards(
+                        &genctx,
+                        &mut note,
+                        true,
+                        normalize_text,
+                    )?;
                     total_changed += 1;
                 }
             }
@@ -108,12 +134,7 @@ mod test {
         col.add_note(&mut note2, DeckID(1))?;
 
         let nids = col.search_notes_only("")?;
-        let cnt = col.find_and_replace(FindReplaceContext::new(
-            nids.clone(),
-            "(?i)AAA",
-            "BBB",
-            None,
-        )?)?;
+        let cnt = col.find_and_replace(nids.clone(), "(?i)AAA", "BBB", None)?;
         assert_eq!(cnt, 2);
 
         let note = col.storage.get_note(note.id)?.unwrap();
@@ -127,12 +148,7 @@ mod test {
             col.storage.field_names_for_notes(&nids)?,
             vec!["Back".to_string(), "Front".into(), "Text".into()]
         );
-        let cnt = col.find_and_replace(FindReplaceContext::new(
-            nids.clone(),
-            "BBB",
-            "ccc",
-            Some("Front".into()),
-        )?)?;
+        let cnt = col.find_and_replace(nids.clone(), "BBB", "ccc", Some("Front".into()))?;
         // still 2, as the caller is expected to provide only note ids that have
         // that field, and if we can't find the field we fall back on all fields
         assert_eq!(cnt, 2);

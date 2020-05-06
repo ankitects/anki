@@ -2,37 +2,47 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::parser::{Node, PropertyKind, SearchNode, StateKind, TemplateKind};
-use crate::card::CardQueue;
-use crate::err::Result;
-use crate::notes::field_checksum;
-use crate::notetype::NoteTypeID;
-use crate::text::matches_wildcard;
-use crate::text::without_combining;
 use crate::{
-    collection::Collection, decks::human_deck_name_to_native,
-    text::strip_html_preserving_image_filenames,
+    card::CardQueue,
+    collection::Collection,
+    decks::human_deck_name_to_native,
+    err::Result,
+    notes::field_checksum,
+    notetype::NoteTypeID,
+    text::matches_wildcard,
+    text::{normalize_to_nfc, strip_html_preserving_image_filenames, without_combining},
 };
 use lazy_static::lazy_static;
 use regex::{Captures, Regex};
-use std::fmt::Write;
+use std::{borrow::Cow, fmt::Write};
 
 struct SqlWriter<'a> {
     col: &'a mut Collection,
     sql: String,
     args: Vec<String>,
+    normalize_note_text: bool,
 }
 
-pub(super) fn node_to_sql(req: &mut Collection, node: &Node) -> Result<(String, Vec<String>)> {
-    let mut sctx = SqlWriter::new(req);
+pub(super) fn node_to_sql(
+    req: &mut Collection,
+    node: &Node,
+    normalize_note_text: bool,
+) -> Result<(String, Vec<String>)> {
+    let mut sctx = SqlWriter::new(req, normalize_note_text);
     sctx.write_node_to_sql(&node)?;
     Ok((sctx.sql, sctx.args))
 }
 
 impl SqlWriter<'_> {
-    fn new(col: &mut Collection) -> SqlWriter<'_> {
+    fn new(col: &mut Collection, normalize_note_text: bool) -> SqlWriter<'_> {
         let sql = String::new();
         let args = vec![];
-        SqlWriter { col, sql, args }
+        SqlWriter {
+            col,
+            sql,
+            args,
+            normalize_note_text,
+        }
     }
 
     fn write_node_to_sql(&mut self, node: &Node) -> Result<()> {
@@ -55,22 +65,47 @@ impl SqlWriter<'_> {
         Ok(())
     }
 
+    /// Convert search text to NFC if note normalization is enabled.
+    fn norm_note<'a>(&self, text: &'a str) -> Cow<'a, str> {
+        if self.normalize_note_text {
+            normalize_to_nfc(text)
+        } else {
+            text.into()
+        }
+    }
+
     fn write_search_node_to_sql(&mut self, node: &SearchNode) -> Result<()> {
+        use normalize_to_nfc as norm;
         match node {
-            SearchNode::UnqualifiedText(text) => self.write_unqualified(text),
+            // note fields related
+            SearchNode::UnqualifiedText(text) => self.write_unqualified(&self.norm_note(text)),
             SearchNode::SingleField { field, text, is_re } => {
-                self.write_single_field(field.as_ref(), text.as_ref(), *is_re)?
+                self.write_single_field(field.as_ref(), &self.norm_note(text), *is_re)?
             }
+            SearchNode::Duplicates { note_type_id, text } => {
+                self.write_dupes(*note_type_id, &self.norm_note(text))
+            }
+            SearchNode::Regex(re) => self.write_regex(&self.norm_note(re)),
+            SearchNode::NoCombining(text) => self.write_no_combining(&self.norm_note(text)),
+            SearchNode::WordBoundary(text) => self.write_word_boundary(&self.norm_note(text)),
+
+            // other
             SearchNode::AddedInDays(days) => self.write_added(*days)?,
-            SearchNode::CardTemplate(template) => self.write_template(template)?,
-            SearchNode::Deck(deck) => self.write_deck(deck.as_ref())?,
+            SearchNode::CardTemplate(template) => match template {
+                TemplateKind::Ordinal(_) => {
+                    self.write_template(template)?;
+                }
+                TemplateKind::Name(name) => {
+                    self.write_template(&TemplateKind::Name(norm(name).into()))?;
+                }
+            },
+            SearchNode::Deck(deck) => self.write_deck(&norm(deck))?,
             SearchNode::NoteTypeID(ntid) => {
                 write!(self.sql, "n.mid = {}", ntid).unwrap();
             }
-            SearchNode::NoteType(notetype) => self.write_note_type(notetype.as_ref())?,
+            SearchNode::NoteType(notetype) => self.write_note_type(&norm(notetype))?,
             SearchNode::Rated { days, ease } => self.write_rated(*days, *ease)?,
-            SearchNode::Tag(tag) => self.write_tag(tag)?,
-            SearchNode::Duplicates { note_type_id, text } => self.write_dupes(*note_type_id, text),
+            SearchNode::Tag(tag) => self.write_tag(&norm(tag))?,
             SearchNode::State(state) => self.write_state(state)?,
             SearchNode::Flag(flag) => {
                 write!(self.sql, "(c.flags & 7) == {}", flag).unwrap();
@@ -83,9 +118,6 @@ impl SqlWriter<'_> {
             }
             SearchNode::Property { operator, kind } => self.write_prop(operator, kind)?,
             SearchNode::WholeCollection => write!(self.sql, "true").unwrap(),
-            SearchNode::Regex(re) => self.write_regex(re.as_ref()),
-            SearchNode::NoCombining(text) => self.write_no_combining(text.as_ref()),
-            SearchNode::WordBoundary(text) => self.write_word_boundary(text.as_ref()),
         };
         Ok(())
     }
@@ -424,7 +456,7 @@ mod test {
     // shortcut
     fn s(req: &mut Collection, search: &str) -> (String, Vec<String>) {
         let node = Node::Group(parse(search).unwrap());
-        node_to_sql(req, &node).unwrap()
+        node_to_sql(req, &node, true).unwrap()
     }
 
     #[test]

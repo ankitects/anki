@@ -789,7 +789,7 @@ class RustBackend:
                     mark_notes_modified=mark_notes_modified,
                 )
             ),
-            release_gil=True
+            release_gil=True,
         )
 
 

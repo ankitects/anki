@@ -8,7 +8,7 @@ use crate::{
     define_newtype,
     err::{AnkiError, Result},
     notetype::{CardGenContext, NoteField, NoteType, NoteTypeID},
-    text::strip_html_preserving_image_filenames,
+    text::{ensure_string_in_nfc, strip_html_preserving_image_filenames},
     timestamp::TimestampSecs,
     types::Usn,
 };
@@ -65,7 +65,7 @@ impl Note {
     }
 
     /// Prepare note for saving to the database. Does not mark it as modified.
-    pub fn prepare_for_update(&mut self, nt: &NoteType) -> Result<()> {
+    pub fn prepare_for_update(&mut self, nt: &NoteType, normalize_text: bool) -> Result<()> {
         assert!(nt.id == self.ntid);
         if nt.fields.len() != self.fields.len() {
             return Err(AnkiError::invalid_input(format!(
@@ -73,6 +73,12 @@ impl Note {
                 self.fields.len(),
                 nt.fields.len()
             )));
+        }
+
+        if normalize_text {
+            for field in &mut self.fields {
+                ensure_string_in_nfc(field);
+            }
         }
 
         let field1_nohtml = strip_html_preserving_image_filenames(&self.fields()[0]);
@@ -184,7 +190,8 @@ impl Collection {
                 .get_notetype(note.ntid)?
                 .ok_or_else(|| AnkiError::invalid_input("missing note type"))?;
             let ctx = CardGenContext::new(&nt, col.usn()?);
-            col.add_note_inner(&ctx, note, did)
+            let norm = col.normalize_note_text();
+            col.add_note_inner(&ctx, note, did, norm)
         })
     }
 
@@ -193,9 +200,10 @@ impl Collection {
         ctx: &CardGenContext,
         note: &mut Note,
         did: DeckID,
+        normalize_text: bool,
     ) -> Result<()> {
         self.canonify_note_tags(note, ctx.usn)?;
-        note.prepare_for_update(&ctx.notetype)?;
+        note.prepare_for_update(&ctx.notetype, normalize_text)?;
         note.set_modified(ctx.usn);
         self.storage.add_note(note)?;
         self.generate_cards_for_new_note(ctx, note, did)
@@ -207,7 +215,8 @@ impl Collection {
                 .get_notetype(note.ntid)?
                 .ok_or_else(|| AnkiError::invalid_input("missing note type"))?;
             let ctx = CardGenContext::new(&nt, col.usn()?);
-            col.update_note_inner_generating_cards(&ctx, note, true)
+            let norm = col.normalize_note_text();
+            col.update_note_inner_generating_cards(&ctx, note, true, norm)
         })
     }
 
@@ -216,8 +225,15 @@ impl Collection {
         ctx: &CardGenContext,
         note: &mut Note,
         mark_note_modified: bool,
+        normalize_text: bool,
     ) -> Result<()> {
-        self.update_note_inner_without_cards(note, ctx.notetype, ctx.usn, mark_note_modified)?;
+        self.update_note_inner_without_cards(
+            note,
+            ctx.notetype,
+            ctx.usn,
+            mark_note_modified,
+            normalize_text,
+        )?;
         self.generate_cards_for_existing_note(ctx, note)
     }
 
@@ -227,9 +243,10 @@ impl Collection {
         nt: &NoteType,
         usn: Usn,
         mark_note_modified: bool,
+        normalize_text: bool,
     ) -> Result<()> {
         self.canonify_note_tags(note, usn)?;
-        note.prepare_for_update(nt)?;
+        note.prepare_for_update(nt, normalize_text)?;
         if mark_note_modified {
             note.set_modified(usn);
         }
@@ -256,6 +273,7 @@ impl Collection {
         mark_notes_modified: bool,
     ) -> Result<()> {
         let nids_by_notetype = self.storage.note_ids_by_notetype(nids)?;
+        let norm = self.normalize_note_text();
         for (ntid, group) in &nids_by_notetype.into_iter().group_by(|tup| tup.0) {
             let nt = self
                 .get_notetype(ntid)?
@@ -268,6 +286,7 @@ impl Collection {
                         &genctx,
                         &mut note,
                         mark_notes_modified,
+                        norm,
                     )?;
                 } else {
                     self.update_note_inner_without_cards(
@@ -275,6 +294,7 @@ impl Collection {
                         &genctx.notetype,
                         usn,
                         mark_notes_modified,
+                        norm,
                     )?;
                 }
             }
@@ -286,7 +306,7 @@ impl Collection {
 #[cfg(test)]
 mod test {
     use super::{anki_base91, field_checksum};
-    use crate::{collection::open_test_collection, decks::DeckID, err::Result};
+    use crate::{collection::open_test_collection, config::ConfigKey, decks::DeckID, err::Result};
 
     #[test]
     fn test_base91() {
@@ -347,6 +367,52 @@ mod test {
         let mut ords = existing.iter().map(|a| a.ord).collect::<Vec<_>>();
         ords.sort();
         assert_eq!(ords, vec![0, 1, 2, 499]);
+
+        Ok(())
+    }
+
+    #[test]
+    fn normalization() -> Result<()> {
+        let mut col = open_test_collection();
+
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        note.fields[0] = "\u{fa47}".into();
+        col.add_note(&mut note, DeckID(1))?;
+        assert_eq!(note.fields[0], "\u{6f22}");
+        // non-normalized searches should be converted
+        assert_eq!(
+            col.search_cards("\u{fa47}", crate::search::SortMode::NoOrder)?
+                .len(),
+            1
+        );
+        assert_eq!(
+            col.search_cards("front:\u{fa47}", crate::search::SortMode::NoOrder)?
+                .len(),
+            1
+        );
+        col.remove_note_only(note.id, col.usn()?)?;
+
+        // if normalization turned off, note text is entered as-is
+
+        let mut note = nt.new_note();
+        note.fields[0] = "\u{fa47}".into();
+        col.set_config(ConfigKey::NormalizeNoteText, &false)
+            .unwrap();
+        col.add_note(&mut note, DeckID(1))?;
+        assert_eq!(note.fields[0], "\u{fa47}");
+        // normalized searches won't match
+        assert_eq!(
+            col.search_cards("\u{6f22}", crate::search::SortMode::NoOrder)?
+                .len(),
+            0
+        );
+        // but original characters will
+        assert_eq!(
+            col.search_cards("\u{fa47}", crate::search::SortMode::NoOrder)?
+                .len(),
+            1
+        );
 
         Ok(())
     }

@@ -30,7 +30,7 @@ impl Collection {
         F: FnOnce(String) -> String,
     {
         let top_node = Node::Group(parse(search)?);
-        let (sql, args) = node_to_sql(self, &top_node)?;
+        let (sql, args) = node_to_sql(self, &top_node, self.normalize_note_text())?;
 
         let sql = build_sql(sql);
 

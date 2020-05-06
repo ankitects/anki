@@ -1,15 +1,19 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::err::{AnkiError, Result};
-use crate::notetype::NoteTypeID;
-use nom::branch::alt;
-use nom::bytes::complete::{escaped, is_not, tag, take_while1};
-use nom::character::complete::{anychar, char, one_of};
-use nom::character::is_digit;
-use nom::combinator::{all_consuming, map, map_res};
-use nom::sequence::{delimited, preceded, tuple};
-use nom::{multi::many0, IResult};
+use crate::{
+    err::{AnkiError, Result},
+    notetype::NoteTypeID,
+};
+use nom::{
+    branch::alt,
+    bytes::complete::{escaped, is_not, tag, take_while1},
+    character::complete::{anychar, char, one_of},
+    character::is_digit,
+    combinator::{all_consuming, map, map_res},
+    sequence::{delimited, preceded, tuple},
+    {multi::many0, IResult},
+};
 use std::{borrow::Cow, num};
 
 // fixme: need to preserve \ when used twice in string
@@ -109,7 +113,6 @@ pub(super) enum TemplateKind {
 }
 
 /// Parse the input string into a list of nodes.
-#[allow(dead_code)]
 pub(super) fn parse(input: &str) -> Result<Vec<Node>> {
     let input = input.trim();
     if input.is_empty() {
@@ -118,6 +121,7 @@ pub(super) fn parse(input: &str) -> Result<Vec<Node>> {
 
     let (_, nodes) = all_consuming(group_inner)(input)
         .map_err(|_e| AnkiError::invalid_input("unable to parse search"))?;
+
     Ok(nodes)
 }
 

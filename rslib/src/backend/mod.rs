@@ -13,7 +13,6 @@ use crate::{
     deckconf::{DeckConf, DeckConfID},
     decks::{Deck, DeckID, DeckSchema11},
     err::{AnkiError, NetworkErrorKind, Result, SyncErrorKind},
-    findreplace::FindReplaceContext,
     i18n::{tr_args, I18n, TR},
     latex::{extract_latex, extract_latex_expanding_clozes, ExtractedLatex},
     log,
@@ -1093,9 +1092,7 @@ impl Backend {
             Some(input.field_name)
         };
         let repl = input.replacement;
-        self.with_col(|col| {
-            col.find_and_replace(FindReplaceContext::new(nids, &search, &repl, field_name)?)
-        })
+        self.with_col(|col| col.find_and_replace(nids, &search, &repl, field_name))
     }
 
     fn after_note_updates(&self, input: pb::AfterNoteUpdatesIn) -> Result<pb::Empty> {
