@@ -142,11 +142,16 @@ mod test {
         assert_eq!(&note.fields, &["one BBB", "two BBB"]);
 
         let note2 = col.storage.get_note(note2.id)?.unwrap();
-        assert_eq!(&note2.fields, &["three BBB"]);
+        assert_eq!(&note2.fields, &["three BBB", ""]);
 
         assert_eq!(
             col.storage.field_names_for_notes(&nids)?,
-            vec!["Back".to_string(), "Front".into(), "Text".into()]
+            vec![
+                "Back".to_string(),
+                "Back Extra".into(),
+                "Front".into(),
+                "Text".into()
+            ]
         );
         let cnt = col.find_and_replace(nids.clone(), "BBB", "ccc", Some("Front".into()))?;
         // still 2, as the caller is expected to provide only note ids that have
