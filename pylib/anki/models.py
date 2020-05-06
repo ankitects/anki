@@ -448,7 +448,7 @@ class ModelManager:
             self._changeNotes(nids, newModel, fmap)
         if cmap:
             self._changeCards(nids, m, newModel, cmap)
-        self.col.genCards(nids)
+        self.col.after_note_updates(nids, mark_modified=True)
 
     def _changeNotes(
         self, nids: List[int], newModel: NoteType, map: Dict[int, Union[None, int]]
@@ -470,7 +470,6 @@ class ModelManager:
         self.col.db.executemany(
             "update notes set flds=?,mid=?,mod=?,usn=? where id = ?", d
         )
-        self.col.updateFieldCache(nids)
 
     def _changeCards(
         self,
@@ -518,7 +517,7 @@ class ModelManager:
     # Required field/text cache
     ##########################################################################
 
-    # fixme: genCards(), clayout, importing, cards.isEmpty
+    # fixme: clayout, importing, cards.isEmpty
     def availOrds(self, m: NoteType, flds: str) -> List:
         "Given a joined field string, return available template ordinals."
         if m["type"] == MODEL_CLOZE:

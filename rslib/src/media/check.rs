@@ -404,7 +404,8 @@ where
                 &self.mgr.media_folder,
             )? {
                 // note was modified, needs saving
-                note.prepare_for_update(nt, Some(usn))?;
+                note.prepare_for_update(nt)?;
+                note.set_modified(usn);
                 self.ctx.storage.update_note(&note)?;
                 collection_modified = true;
             }

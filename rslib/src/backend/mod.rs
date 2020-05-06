@@ -366,6 +366,9 @@ impl Backend {
                 OValue::FieldNamesForNotes(self.field_names_for_notes(input)?)
             }
             Value::FindAndReplace(input) => OValue::FindAndReplace(self.find_and_replace(input)?),
+            Value::AfterNoteUpdates(input) => {
+                OValue::AfterNoteUpdates(self.after_note_updates(input)?)
+            }
         })
     }
 
@@ -1092,6 +1095,21 @@ impl Backend {
         let repl = input.replacement;
         self.with_col(|col| {
             col.find_and_replace(FindReplaceContext::new(nids, &search, &repl, field_name)?)
+        })
+    }
+
+    fn after_note_updates(&self, input: pb::AfterNoteUpdatesIn) -> Result<pb::Empty> {
+        self.with_col(|col| {
+            col.transact(None, |col| {
+                let nids: Vec<_> = input.nids.into_iter().map(NoteID).collect();
+                col.after_note_updates(
+                    &nids,
+                    col.usn()?,
+                    input.generate_cards,
+                    input.mark_notes_modified,
+                )?;
+                Ok(pb::Empty {})
+            })
         })
     }
 }

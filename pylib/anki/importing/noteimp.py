@@ -197,11 +197,8 @@ class NoteImporter(Importer):
                     firsts[fld0] = True
         self.addNew(new)
         self.addUpdates(updates)
-        # make sure to update sflds, etc
-        self.col.updateFieldCache(self._ids)
-        # generate cards
-        if self.col.genCards(self._ids):
-            self.log.insert(0, _("Empty cards found. Please run Tools>Empty Cards."))
+        # generate cards + update field cache
+        self.col.after_note_updates(self._ids, mark_modified=False)
         # apply scheduling updates
         self.updateCards()
         # we randomize or order here, to ensure that siblings

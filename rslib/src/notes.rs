@@ -12,6 +12,7 @@ use crate::{
     timestamp::TimestampSecs,
     types::Usn,
 };
+use itertools::Itertools;
 use num_integer::Integer;
 use std::{collections::HashSet, convert::TryInto};
 
@@ -63,8 +64,8 @@ impl Note {
         Ok(())
     }
 
-    /// Prepare note for saving to the database. If usn is provided, mtime will be bumped.
-    pub fn prepare_for_update(&mut self, nt: &NoteType, usn: Option<Usn>) -> Result<()> {
+    /// Prepare note for saving to the database. Does not mark it as modified.
+    pub fn prepare_for_update(&mut self, nt: &NoteType) -> Result<()> {
         assert!(nt.id == self.ntid);
         if nt.fields.len() != self.fields.len() {
             return Err(AnkiError::invalid_input(format!(
@@ -88,11 +89,12 @@ impl Note {
         };
         self.sort_field = Some(sort_field.into());
         self.checksum = Some(checksum);
-        if let Some(usn) = usn {
-            self.mtime = TimestampSecs::now();
-            self.usn = usn;
-        }
         Ok(())
+    }
+
+    pub(crate) fn set_modified(&mut self, usn: Usn) {
+        self.mtime = TimestampSecs::now();
+        self.usn = usn;
     }
 
     pub(crate) fn nonempty_fields<'a>(&self, fields: &'a [NoteField]) -> HashSet<&'a str> {
@@ -193,7 +195,8 @@ impl Collection {
         did: DeckID,
     ) -> Result<()> {
         self.canonify_note_tags(note, ctx.usn)?;
-        note.prepare_for_update(&ctx.notetype, Some(ctx.usn))?;
+        note.prepare_for_update(&ctx.notetype)?;
+        note.set_modified(ctx.usn);
         self.storage.add_note(note)?;
         self.generate_cards_for_new_note(ctx, note, did)
     }
@@ -204,21 +207,33 @@ impl Collection {
                 .get_notetype(note.ntid)?
                 .ok_or_else(|| AnkiError::invalid_input("missing note type"))?;
             let ctx = CardGenContext::new(&nt, col.usn()?);
-            col.update_note_inner(&ctx, note)
+            col.update_note_inner_generating_cards(&ctx, note, true)
         })
     }
 
-    pub(crate) fn update_note_inner(
+    pub(crate) fn update_note_inner_generating_cards(
         &mut self,
         ctx: &CardGenContext,
         note: &mut Note,
+        mark_note_modified: bool,
     ) -> Result<()> {
-        self.canonify_note_tags(note, ctx.usn)?;
-        note.prepare_for_update(ctx.notetype, Some(ctx.usn))?;
-        self.generate_cards_for_existing_note(ctx, note)?;
-        self.storage.update_note(note)?;
+        self.update_note_inner_without_cards(note, ctx.notetype, ctx.usn, mark_note_modified)?;
+        self.generate_cards_for_existing_note(ctx, note)
+    }
 
-        Ok(())
+    pub(crate) fn update_note_inner_without_cards(
+        &mut self,
+        note: &mut Note,
+        nt: &NoteType,
+        usn: Usn,
+        mark_note_modified: bool,
+    ) -> Result<()> {
+        self.canonify_note_tags(note, usn)?;
+        note.prepare_for_update(nt)?;
+        if mark_note_modified {
+            note.set_modified(usn);
+        }
+        self.storage.update_note(note)
     }
 
     /// Remove a note. Cards must already have been deleted.
@@ -227,6 +242,42 @@ impl Collection {
             // fixme: undo
             self.storage.remove_note(nid)?;
             self.storage.add_note_grave(nid, usn)?;
+        }
+        Ok(())
+    }
+
+    /// Update cards and field cache after notes modified externally.
+    /// If gencards is false, skip card generation.
+    pub(crate) fn after_note_updates(
+        &mut self,
+        nids: &[NoteID],
+        usn: Usn,
+        generate_cards: bool,
+        mark_notes_modified: bool,
+    ) -> Result<()> {
+        let nids_by_notetype = self.storage.note_ids_by_notetype(nids)?;
+        for (ntid, group) in &nids_by_notetype.into_iter().group_by(|tup| tup.0) {
+            let nt = self
+                .get_notetype(ntid)?
+                .ok_or_else(|| AnkiError::invalid_input("missing note type"))?;
+            let genctx = CardGenContext::new(&nt, usn);
+            for (_, nid) in group {
+                let mut note = self.storage.get_note(nid)?.unwrap();
+                if generate_cards {
+                    self.update_note_inner_generating_cards(
+                        &genctx,
+                        &mut note,
+                        mark_notes_modified,
+                    )?;
+                } else {
+                    self.update_note_inner_without_cards(
+                        &mut note,
+                        &genctx.notetype,
+                        usn,
+                        mark_notes_modified,
+                    )?;
+                }
+            }
         }
         Ok(())
     }

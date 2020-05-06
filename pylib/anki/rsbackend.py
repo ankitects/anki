@@ -778,6 +778,20 @@ class RustBackend:
             release_gil=True,
         ).find_and_replace
 
+    def after_note_updates(
+        self, nids: List[int], generate_cards: bool, mark_notes_modified: bool
+    ) -> None:
+        self._run_command(
+            pb.BackendInput(
+                after_note_updates=pb.AfterNoteUpdatesIn(
+                    nids=nids,
+                    generate_cards=generate_cards,
+                    mark_notes_modified=mark_notes_modified,
+                )
+            ),
+            release_gil=True
+        )
+
 
 def translate_string_in(
     key: TR, **kwargs: Union[str, int, float]

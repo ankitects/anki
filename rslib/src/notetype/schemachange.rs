@@ -63,7 +63,7 @@ impl Collection {
                 let nids = self.search_notes_only(&format!("mid:{}", nt.id))?;
                 for nid in nids {
                     let mut note = self.storage.get_note(nid)?.unwrap();
-                    note.prepare_for_update(nt, None)?;
+                    note.prepare_for_update(nt)?;
                     self.storage.update_note(&note)?;
                 }
             } else {
@@ -92,7 +92,8 @@ impl Collection {
                 })
                 .map(Into::into)
                 .collect();
-            note.prepare_for_update(nt, Some(usn))?;
+            note.prepare_for_update(nt)?;
+            note.set_modified(usn);
             self.storage.update_note(&note)?;
         }
         Ok(())
