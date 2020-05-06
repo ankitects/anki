@@ -92,6 +92,7 @@ message BackendInput {
         Empty deck_tree_legacy = 77;
         FieldNamesForNotesIn field_names_for_notes = 78;
         FindAndReplaceIn find_and_replace = 79;
+        AfterNoteUpdatesIn after_note_updates = 80;
     }
 }
 
@@ -163,6 +164,7 @@ message BackendOutput {
         bytes deck_tree_legacy = 77;
         FieldNamesForNotesOut field_names_for_notes = 78;
         uint32 find_and_replace = 79;
+        Empty after_note_updates = 80;
 
         BackendError error = 2047;
     }
@@ -731,4 +733,10 @@ message FindAndReplaceIn {
     bool regex = 4;
     bool match_case = 5;
     string field_name = 6;
+}
+
+message AfterNoteUpdatesIn {
+    repeated int64 nids = 1;
+    bool mark_notes_modified = 2;
+    bool generate_cards = 3;
 }

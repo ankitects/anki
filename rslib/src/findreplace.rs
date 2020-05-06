@@ -77,7 +77,7 @@ impl Collection {
                     }
                 }
                 if changed {
-                    self.update_note_inner(&genctx, &mut note)?;
+                    self.update_note_inner_generating_cards(&genctx, &mut note, true)?;
                     total_changed += 1;
                 }
             }

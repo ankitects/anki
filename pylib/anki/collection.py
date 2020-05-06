@@ -14,7 +14,7 @@ import time
 import traceback
 import unicodedata
 import weakref
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, Union
+from typing import Any, Iterable, List, Optional, Sequence, Tuple, Union
 
 import anki.find
 import anki.latex  # sets up hook
@@ -34,16 +34,7 @@ from anki.rsbackend import TR, RustBackend
 from anki.sched import Scheduler as V1Scheduler
 from anki.schedv2 import Scheduler as V2Scheduler
 from anki.tags import TagManager
-from anki.utils import (
-    devMode,
-    fieldChecksum,
-    ids2str,
-    intTime,
-    joinFields,
-    maxID,
-    splitFields,
-    stripHTMLMedia,
-)
+from anki.utils import devMode, ids2str, intTime, joinFields
 
 
 # this is initialized by storage.Collection
@@ -359,81 +350,6 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?""",
                 ok.append(t)
         return ok
 
-    def genCards(self, nids: List[int]) -> List[int]:
-        "Generate cards for non-empty templates, return ids to remove."
-        # build map of (nid,ord) so we don't create dupes
-        snids = ids2str(nids)
-        have: Dict[int, Dict[int, int]] = {}
-        dids: Dict[int, Optional[int]] = {}
-        dues: Dict[int, int] = {}
-        for id, nid, ord, did, due, odue, odid, type in self.db.execute(
-            "select id, nid, ord, did, due, odue, odid, type from cards where nid in "
-            + snids
-        ):
-            # existing cards
-            if nid not in have:
-                have[nid] = {}
-            have[nid][ord] = id
-            # if in a filtered deck, add new cards to original deck
-            if odid != 0:
-                did = odid
-            # and their dids
-            if nid in dids:
-                if dids[nid] and dids[nid] != did:
-                    # cards are in two or more different decks; revert to
-                    # model default
-                    dids[nid] = None
-            else:
-                # first card or multiple cards in same deck
-                dids[nid] = did
-            # save due
-            if odid != 0:
-                due = odue
-            if nid not in dues and type == 0:
-                # Add due to new card only if it's the due of a new sibling
-                dues[nid] = due
-        # build cards for each note
-        data = []
-        ts = maxID(self.db)
-        now = intTime()
-        rem = []
-        usn = self.usn()
-        for nid, mid, flds in self.db.execute(
-            "select id, mid, flds from notes where id in " + snids
-        ):
-            model = self.models.get(mid)
-            assert model
-            avail = self.models.availOrds(model, flds)
-            did = dids.get(nid) or model["did"]
-            due = dues.get(nid)
-            # add any missing cards
-            for t in self._tmplsFromOrds(model, avail):
-                doHave = nid in have and t["ord"] in have[nid]
-                if not doHave:
-                    # check deck is not a cram deck
-                    did = t["did"] or did
-                    if self.decks.isDyn(did):
-                        did = 1
-                    # if the deck doesn't exist, use default instead
-                    did = self.decks.get(did)["id"]
-                    # use sibling due# if there is one, else use a new id
-                    if due is None:
-                        due = self.nextID("pos")
-                    data.append((ts, nid, did, t["ord"], now, usn, due))
-                    ts += 1
-            # note any cards that need removing
-            if nid in have:
-                for ord, id in list(have[nid].items()):
-                    if ord not in avail:
-                        rem.append(id)
-        # bulk update
-        self.db.executemany(
-            """
-insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
-            data,
-        )
-        return rem
-
     # type is no longer used
     def previewCards(
         self, note: Note, type: int = 0, did: Optional[int] = None
@@ -535,31 +451,24 @@ select id from notes where id in %s and id not in (select nid from cards)"""
         print("emptyCids() will go away")
         return []
 
-    # Field checksums and sorting fields
+    # Card generation & field checksums/sort fields
     ##########################################################################
 
-    def _fieldData(self, snids: str) -> Any:
-        return self.db.execute("select id, mid, flds from notes where id in " + snids)
+    def after_note_updates(self, nids: List[int], mark_modified: bool, generate_cards: bool = True) -> None:
+        self.backend.after_note_updates(
+            nids=nids, generate_cards=generate_cards, mark_notes_modified=mark_modified
+        )
+
+    # legacy
 
     def updateFieldCache(self, nids: List[int]) -> None:
-        "Update field checksums and sort cache, after find&replace, etc."
-        snids = ids2str(nids)
-        r = []
-        for (nid, mid, flds) in self._fieldData(snids):
-            fields = splitFields(flds)
-            model = self.models.get(mid)
-            if not model:
-                # note points to invalid model
-                continue
-            r.append(
-                (
-                    stripHTMLMedia(fields[self.models.sortIdx(model)]),
-                    fieldChecksum(fields[0]),
-                    nid,
-                )
-            )
-        # apply, relying on calling code to bump usn+mod
-        self.db.executemany("update notes set sfld=?, csum=? where id=?", r)
+        self.after_note_updates(nids, mark_modified=False, generate_cards=False)
+
+    # this also updates field cache
+    def genCards(self, nids: List[int]) -> List[int]:
+        self.after_note_updates(nids, mark_modified=False, generate_cards=True)
+        # previously returned empty cards, no longer does
+        return []
 
     # Finding cards
     ##########################################################################
@@ -909,7 +818,7 @@ select id from cards where odid > 0 and did in %s"""
         self.tags.registerNotes()
         # field cache
         for m in self.models.all():
-            self.updateFieldCache(self.models.nids(m))
+            self.after_note_updates(self.models.nids(m), mark_modified=False, generate_cards=False)
         # new cards can't have a due position > 32 bits, so wrap items over
         # 2 million back to 1 million
         self.db.execute(
