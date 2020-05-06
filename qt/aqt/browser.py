@@ -5,9 +5,7 @@
 from __future__ import annotations
 
 import html
-import sre_constants
 import time
-import unicodedata
 from dataclasses import dataclass
 from enum import Enum
 from operator import itemgetter
@@ -775,7 +773,6 @@ class Browser(QMainWindow):
 
         # grab search text and normalize
         txt = self.form.searchEdit.lineEdit().text()
-        txt = unicodedata.normalize("NFC", txt)
 
         # update history
         sh = self.mw.pm.profile["searchHistory"]

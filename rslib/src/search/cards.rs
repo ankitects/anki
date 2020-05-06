@@ -19,7 +19,7 @@ pub enum SortMode {
 impl Collection {
     pub fn search_cards(&mut self, search: &str, order: SortMode) -> Result<Vec<CardID>> {
         let top_node = Node::Group(parse(search)?);
-        let (sql, args) = node_to_sql(self, &top_node)?;
+        let (sql, args) = node_to_sql(self, &top_node, self.normalize_note_text())?;
 
         let mut sql = format!(
             "select c.id from cards c, notes n where c.nid=n.id and {}",

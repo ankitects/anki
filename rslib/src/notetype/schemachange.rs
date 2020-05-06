@@ -55,6 +55,7 @@ impl Collection {
         nt: &NoteType,
         previous_field_count: usize,
         previous_sort_idx: u32,
+        normalize_text: bool,
     ) -> Result<()> {
         let ords: Vec<_> = nt.fields.iter().map(|f| f.ord).collect();
         if !ords_changed(&ords, previous_field_count) {
@@ -63,7 +64,7 @@ impl Collection {
                 let nids = self.search_notes_only(&format!("mid:{}", nt.id))?;
                 for nid in nids {
                     let mut note = self.storage.get_note(nid)?.unwrap();
-                    note.prepare_for_update(nt)?;
+                    note.prepare_for_update(nt, normalize_text)?;
                     self.storage.update_note(&note)?;
                 }
             } else {
@@ -92,7 +93,7 @@ impl Collection {
                 })
                 .map(Into::into)
                 .collect();
-            note.prepare_for_update(nt)?;
+            note.prepare_for_update(nt, normalize_text)?;
             note.set_modified(usn);
             self.storage.update_note(&note)?;
         }

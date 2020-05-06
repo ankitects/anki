@@ -454,7 +454,9 @@ select id from notes where id in %s and id not in (select nid from cards)"""
     # Card generation & field checksums/sort fields
     ##########################################################################
 
-    def after_note_updates(self, nids: List[int], mark_modified: bool, generate_cards: bool = True) -> None:
+    def after_note_updates(
+        self, nids: List[int], mark_modified: bool, generate_cards: bool = True
+    ) -> None:
         self.backend.after_note_updates(
             nids=nids, generate_cards=generate_cards, mark_notes_modified=mark_modified
         )
@@ -818,7 +820,9 @@ select id from cards where odid > 0 and did in %s"""
         self.tags.registerNotes()
         # field cache
         for m in self.models.all():
-            self.after_note_updates(self.models.nids(m), mark_modified=False, generate_cards=False)
+            self.after_note_updates(
+                self.models.nids(m), mark_modified=False, generate_cards=False
+            )
         # new cards can't have a due position > 32 bits, so wrap items over
         # 2 million back to 1 million
         self.db.execute(
