@@ -73,7 +73,7 @@ SYNC_ZIP_COUNT = 25
 SYNC_BASE = "https://sync%s.ankiweb.net/"
 SYNC_VER = 10
 
-HELP_SITE = "https://apps.ankiweb.net/docs/manual.html"
+HELP_SITE = "https://docs.ankiweb.net/#/"
 
 # Leech actions
 LEECH_SUSPEND = 0
