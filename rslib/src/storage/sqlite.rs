@@ -301,4 +301,13 @@ impl SqliteStorage {
             .execute(&[TimestampMillis::now()])?;
         Ok(())
     }
+
+    //////////////////////////////////////////
+
+    #[cfg(test)]
+    pub(crate) fn db_scalar<T: rusqlite::types::FromSql>(&self, sql: &str) -> Result<T> {
+        self.db
+            .query_row(sql, NO_PARAMS, |r| r.get(0))
+            .map_err(Into::into)
+    }
 }

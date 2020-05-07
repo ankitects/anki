@@ -181,7 +181,6 @@ class Anki2Importer(Importer):
             "insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)", update
         )
         self.dst.updateFieldCache(dirty)
-        self.dst.tags.registerNotes(dirty)
 
     # determine if note is a duplicate, and adjust mid and/or guid as required
     # returns true if note should be added

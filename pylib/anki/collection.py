@@ -12,7 +12,6 @@ import re
 import stat
 import time
 import traceback
-import unicodedata
 import weakref
 from typing import Any, Iterable, List, Optional, Sequence, Tuple, Union
 
@@ -810,15 +809,8 @@ select id from cards where odid > 0 and did in %s"""
             self.db.execute(
                 "update cards set odid=0, odue=0 where id in " + ids2str(ids)
             )
-        # notes with non-normalized tags
-        cnt = self._normalize_tags()
-        if cnt > 0:
-            syncable_problems.append(
-                self.tr(TR.DATABASE_CHECK_FIXED_NON_NORMALIZED_TAGS, count=cnt)
-            )
-        # tags
-        self.tags.registerNotes()
-        # field cache
+        # tags & field cache
+        self.tags.register([], clear=True)
         for m in self.models.all():
             self.after_note_updates(
                 self.models.nids(m), mark_modified=False, generate_cards=False
@@ -886,22 +878,6 @@ and type=0 and queue!=4""",
         self.save()
         problems.extend(syncable_problems)
         return ("\n".join(problems), ok)
-
-    def _normalize_tags(self) -> int:
-        to_fix = []
-        for id, tags in self.db.execute("select id, tags from notes"):
-            norm = unicodedata.normalize("NFC", tags)
-            if not norm.strip():
-                norm = ""
-            elif not norm.startswith(" ") or not norm.endswith(" "):
-                norm = " " + norm + " "
-            if norm != tags:
-                to_fix.append((norm, self.usn(), intTime(), id))
-        if to_fix:
-            self.db.executemany(
-                "update notes set tags=?, usn=?, mod=? where id=?", to_fix
-            )
-        return len(to_fix)
 
     def optimize(self) -> None:
         self.save(trx=False)

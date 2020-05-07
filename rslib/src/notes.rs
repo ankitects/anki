@@ -14,11 +14,19 @@ use crate::{
 };
 use itertools::Itertools;
 use num_integer::Integer;
-use std::{collections::HashSet, convert::TryInto};
+use regex::{Regex, Replacer};
+use std::{borrow::Cow, collections::HashSet, convert::TryInto};
 
 define_newtype!(NoteID, i64);
 
 // fixme: ensure nulls and x1f not in field contents
+
+#[derive(Default)]
+pub(crate) struct TransformNoteOutput {
+    pub changed: bool,
+    pub generate_cards: bool,
+    pub mark_modified: bool,
+}
 
 #[derive(Debug)]
 pub struct Note {
@@ -116,6 +124,17 @@ impl Note {
             })
             .collect()
     }
+
+    pub(crate) fn replace_tags<T: Replacer>(&mut self, re: &Regex, mut repl: T) -> bool {
+        let mut changed = false;
+        for tag in &mut self.tags {
+            if let Cow::Owned(rep) = re.replace_all(tag, repl.by_ref()) {
+                *tag = rep;
+                changed = true;
+            }
+        }
+        changed
+    }
 }
 
 impl From<Note> for pb::Note {
@@ -174,13 +193,10 @@ fn anki_base91(mut n: u64) -> String {
 
 impl Collection {
     fn canonify_note_tags(&self, note: &mut Note, usn: Usn) -> Result<()> {
-        // fixme: avoid the excess split/join
-        note.tags = self
-            .canonify_tags(&note.tags.join(" "), usn)?
-            .0
-            .split(' ')
-            .map(Into::into)
-            .collect();
+        if !note.tags.is_empty() {
+            let tags = std::mem::replace(&mut note.tags, vec![]);
+            note.tags = self.canonify_tags(tags, usn)?.0;
+        }
         Ok(())
     }
 
@@ -268,38 +284,69 @@ impl Collection {
     pub(crate) fn after_note_updates(
         &mut self,
         nids: &[NoteID],
-        usn: Usn,
         generate_cards: bool,
         mark_notes_modified: bool,
     ) -> Result<()> {
+        self.transform_notes(nids, |_note, _nt| {
+            Ok(TransformNoteOutput {
+                changed: true,
+                generate_cards,
+                mark_modified: mark_notes_modified,
+            })
+        })
+        .map(|_| ())
+    }
+
+    pub(crate) fn transform_notes<F>(
+        &mut self,
+        nids: &[NoteID],
+        mut transformer: F,
+    ) -> Result<usize>
+    where
+        F: FnMut(&mut Note, &NoteType) -> Result<TransformNoteOutput>,
+    {
         let nids_by_notetype = self.storage.note_ids_by_notetype(nids)?;
         let norm = self.normalize_note_text();
+        let mut changed_notes = 0;
+        let usn = self.usn()?;
+
         for (ntid, group) in &nids_by_notetype.into_iter().group_by(|tup| tup.0) {
             let nt = self
                 .get_notetype(ntid)?
                 .ok_or_else(|| AnkiError::invalid_input("missing note type"))?;
-            let genctx = CardGenContext::new(&nt, usn);
+
+            let mut genctx = None;
             for (_, nid) in group {
+                // grab the note and transform it
                 let mut note = self.storage.get_note(nid)?.unwrap();
-                if generate_cards {
+                let out = transformer(&mut note, &nt)?;
+                if !out.changed {
+                    continue;
+                }
+
+                if out.generate_cards {
+                    let ctx = genctx.get_or_insert_with(|| CardGenContext::new(&nt, usn));
                     self.update_note_inner_generating_cards(
-                        &genctx,
+                        &ctx,
                         &mut note,
-                        mark_notes_modified,
+                        out.mark_modified,
                         norm,
                     )?;
                 } else {
                     self.update_note_inner_without_cards(
                         &mut note,
-                        &genctx.notetype,
+                        &nt,
                         usn,
-                        mark_notes_modified,
+                        out.mark_modified,
                         norm,
                     )?;
                 }
+
+                changed_notes += 1;
             }
         }
-        Ok(())
+
+        Ok(changed_notes)
     }
 }
 

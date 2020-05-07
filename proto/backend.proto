@@ -61,7 +61,6 @@ message BackendInput {
         Empty abort_media_sync = 46;
         Empty before_upload = 47;
         RegisterTagsIn register_tags = 48;
-        string canonify_tags = 49;
         Empty all_tags = 50;
         int32 get_changed_tags = 51;
         string get_config_json = 52;
@@ -93,6 +92,8 @@ message BackendInput {
         FieldNamesForNotesIn field_names_for_notes = 78;
         FindAndReplaceIn find_and_replace = 79;
         AfterNoteUpdatesIn after_note_updates = 80;
+        AddNoteTagsIn add_note_tags = 81;
+        UpdateNoteTagsIn update_note_tags = 82;
     }
 }
 
@@ -134,7 +135,6 @@ message BackendOutput {
         Empty remove_deck_config = 45;
         Empty before_upload = 47;
         bool register_tags = 48;
-        CanonifyTagsOut canonify_tags = 49;
         AllTagsOut all_tags = 50;
         GetChangedTagsOut get_changed_tags = 51;
         bytes get_config_json = 52;
@@ -165,6 +165,8 @@ message BackendOutput {
         FieldNamesForNotesOut field_names_for_notes = 78;
         uint32 find_and_replace = 79;
         Empty after_note_updates = 80;
+        uint32 add_note_tags = 81;
+        uint32 update_note_tags = 82;
 
         BackendError error = 2047;
     }
@@ -491,11 +493,6 @@ message GetChangedTagsOut {
     repeated string tags = 1;
 }
 
-message CanonifyTagsOut {
-    string tags = 1;
-    bool tag_list_changed = 2;
-}
-
 message SetConfigJson {
     string key = 1;
     oneof op {
@@ -739,4 +736,16 @@ message AfterNoteUpdatesIn {
     repeated int64 nids = 1;
     bool mark_notes_modified = 2;
     bool generate_cards = 3;
+}
+
+message AddNoteTagsIn {
+    repeated int64 nids = 1;
+    string tags = 2;
+}
+
+message UpdateNoteTagsIn {
+    repeated int64 nids = 1;
+    string tags = 2;
+    string replacement = 3;
+    bool regex = 4;
 }

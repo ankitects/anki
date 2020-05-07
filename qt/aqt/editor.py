@@ -7,7 +7,6 @@ import itertools
 import json
 import mimetypes
 import re
-import unicodedata
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -569,9 +568,7 @@ class Editor:
     def saveTags(self) -> None:
         if not self.note:
             return
-        tagsTxt = unicodedata.normalize("NFC", self.tags.text())
-        self.note.tags = self.mw.col.tags.canonify(self.mw.col.tags.split(tagsTxt))
-        self.tags.setText(self.mw.col.tags.join(self.note.tags).strip())
+        self.note.tags = self.mw.col.tags.split(self.tags.text())
         if not self.addMode:
             self.note.flush()
         gui_hooks.editor_did_update_tags(self.note)

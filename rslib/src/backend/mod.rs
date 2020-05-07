@@ -289,7 +289,6 @@ impl Backend {
                 self.before_upload()?;
                 OValue::BeforeUpload(pb::Empty {})
             }
-            Value::CanonifyTags(input) => OValue::CanonifyTags(self.canonify_tags(input)?),
             Value::AllTags(_) => OValue::AllTags(self.all_tags()?),
             Value::RegisterTags(input) => OValue::RegisterTags(self.register_tags(input)?),
             Value::GetChangedTags(usn) => OValue::GetChangedTags(self.get_changed_tags(usn)?),
@@ -368,6 +367,8 @@ impl Backend {
             Value::AfterNoteUpdates(input) => {
                 OValue::AfterNoteUpdates(self.after_note_updates(input)?)
             }
+            Value::AddNoteTags(input) => OValue::AddNoteTags(self.add_note_tags(input)?),
+            Value::UpdateNoteTags(input) => OValue::UpdateNoteTags(self.update_note_tags(input)?),
         })
     }
 
@@ -778,18 +779,6 @@ impl Backend {
         self.with_col(|col| col.transact(None, |col| col.before_upload()))
     }
 
-    fn canonify_tags(&self, tags: String) -> Result<pb::CanonifyTagsOut> {
-        self.with_col(|col| {
-            col.transact(None, |col| {
-                col.canonify_tags(&tags, col.usn()?)
-                    .map(|(tags, added)| pb::CanonifyTagsOut {
-                        tags,
-                        tag_list_changed: added,
-                    })
-            })
-        })
-    }
-
     fn all_tags(&self) -> Result<pb::AllTagsOut> {
         let tags = self.with_col(|col| col.storage.all_tags())?;
         let tags: Vec<_> = tags
@@ -1092,16 +1081,17 @@ impl Backend {
             Some(input.field_name)
         };
         let repl = input.replacement;
-        self.with_col(|col| col.find_and_replace(nids, &search, &repl, field_name))
+        self.with_col(|col| {
+            col.find_and_replace(nids, &search, &repl, field_name)
+                .map(|cnt| cnt as u32)
+        })
     }
 
     fn after_note_updates(&self, input: pb::AfterNoteUpdatesIn) -> Result<pb::Empty> {
         self.with_col(|col| {
             col.transact(None, |col| {
-                let nids: Vec<_> = input.nids.into_iter().map(NoteID).collect();
                 col.after_note_updates(
-                    &nids,
-                    col.usn()?,
+                    &to_nids(input.nids),
                     input.generate_cards,
                     input.mark_notes_modified,
                 )?;
@@ -1109,6 +1099,29 @@ impl Backend {
             })
         })
     }
+
+    fn add_note_tags(&self, input: pb::AddNoteTagsIn) -> Result<u32> {
+        self.with_col(|col| {
+            col.add_tags_for_notes(&to_nids(input.nids), &input.tags)
+                .map(|n| n as u32)
+        })
+    }
+
+    fn update_note_tags(&self, input: pb::UpdateNoteTagsIn) -> Result<u32> {
+        self.with_col(|col| {
+            col.replace_tags_for_notes(
+                &to_nids(input.nids),
+                &input.tags,
+                &input.replacement,
+                input.regex,
+            )
+            .map(|n| n as u32)
+        })
+    }
+}
+
+fn to_nids(ids: Vec<i64>) -> Vec<NoteID> {
+    ids.into_iter().map(NoteID).collect()
 }
 
 fn translate_arg_to_fluent_val(arg: &pb::TranslateArgValue) -> FluentValue {
