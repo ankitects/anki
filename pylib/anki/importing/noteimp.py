@@ -242,7 +242,6 @@ content in the text file to the correct fields."""
         # note id for card updates later
         for ord, c in list(n.cards.items()):
             self._cards.append((id, ord, c))
-        self.col.tags.register(n.tags)
         return [
             id,
             guid64(),
@@ -267,14 +266,11 @@ content in the text file to the correct fields."""
         if not self.processFields(n, sflds):
             return None
         if self._tagsMapped:
-            self.col.tags.register(n.tags)
             tags = self.col.tags.join(n.tags)
             return [intTime(), self.col.usn(), n.fieldsStr, tags, id, n.fieldsStr, tags]
         elif self.tagModified:
             tags = self.col.db.scalar("select tags from notes where id = ?", id)
             tagList = self.col.tags.split(tags) + self.tagModified.split()
-            tagList = self.col.tags.canonify(tagList)
-            self.col.tags.register(tagList)
             tags = self.col.tags.join(tagList)
             return [intTime(), self.col.usn(), n.fieldsStr, tags, id, n.fieldsStr]
         else:

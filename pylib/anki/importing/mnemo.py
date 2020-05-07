@@ -71,7 +71,6 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""
             if "tags" not in note:
                 note["tags"] = []
             note["tags"] += self.col.tags.split(tags)
-            note["tags"] = self.col.tags.canonify(note["tags"])
             # if it's a new card we can go with the defaults
             if row[3] == -1:
                 continue

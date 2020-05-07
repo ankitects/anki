@@ -1888,7 +1888,6 @@ update cards set usn=?, mod=?, did=? where id in """
         gui_hooks.editor_did_fire_typing_timer.append(self.refreshCurrentCard)
         gui_hooks.editor_did_load_note.append(self.onLoadNote)
         gui_hooks.editor_did_unfocus_field.append(self.on_unfocus_field)
-        hooks.tag_list_did_update.append(self.on_tag_list_update)
         hooks.note_type_added.append(self.on_item_added)
         hooks.deck_added.append(self.on_item_added)
 
@@ -1898,7 +1897,6 @@ update cards set usn=?, mod=?, did=? where id in """
         gui_hooks.editor_did_fire_typing_timer.remove(self.refreshCurrentCard)
         gui_hooks.editor_did_load_note.remove(self.onLoadNote)
         gui_hooks.editor_did_unfocus_field.remove(self.on_unfocus_field)
-        hooks.tag_list_did_update.remove(self.on_tag_list_update)
         hooks.note_type_added.remove(self.on_item_added)
         hooks.deck_added.remove(self.on_item_added)
 

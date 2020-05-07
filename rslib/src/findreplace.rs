@@ -4,12 +4,9 @@
 use crate::{
     collection::Collection,
     err::{AnkiError, Result},
-    notes::NoteID,
-    notetype::CardGenContext,
+    notes::{NoteID, TransformNoteOutput},
     text::normalize_to_nfc,
-    types::Usn,
 };
-use itertools::Itertools;
 use regex::Regex;
 use std::borrow::Cow;
 
@@ -47,7 +44,7 @@ impl Collection {
         search_re: &str,
         repl: &str,
         field_name: Option<String>,
-    ) -> Result<u32> {
+    ) -> Result<usize> {
         self.transact(None, |col| {
             let norm = col.normalize_note_text();
             let search = if norm {
@@ -56,60 +53,47 @@ impl Collection {
                 search_re.into()
             };
             let ctx = FindReplaceContext::new(nids, &search, repl, field_name)?;
-            col.find_and_replace_inner(ctx, col.usn()?, norm)
+            col.find_and_replace_inner(ctx)
         })
     }
 
-    fn find_and_replace_inner(
-        &mut self,
-        ctx: FindReplaceContext,
-        usn: Usn,
-        normalize_text: bool,
-    ) -> Result<u32> {
-        let mut total_changed = 0;
-        let nids_by_notetype = self.storage.note_ids_by_notetype(&ctx.nids)?;
-        for (ntid, group) in &nids_by_notetype.into_iter().group_by(|tup| tup.0) {
-            let nt = self
-                .get_notetype(ntid)?
-                .ok_or_else(|| AnkiError::invalid_input("missing note type"))?;
-            let genctx = CardGenContext::new(&nt, usn);
-            let field_ord = ctx.field_name.as_ref().and_then(|n| nt.get_field_ord(n));
-            for (_, nid) in group {
-                let mut note = self.storage.get_note(nid)?.unwrap();
-                let mut changed = false;
-                match field_ord {
-                    None => {
-                        // all fields
-                        for txt in &mut note.fields {
-                            if let Cow::Owned(otxt) = ctx.replace_text(txt) {
-                                changed = true;
-                                *txt = otxt;
-                            }
-                        }
-                    }
-                    Some(ord) => {
-                        // single field
-                        if let Some(txt) = note.fields.get_mut(ord) {
-                            if let Cow::Owned(otxt) = ctx.replace_text(txt) {
-                                changed = true;
-                                *txt = otxt;
-                            }
+    fn find_and_replace_inner(&mut self, ctx: FindReplaceContext) -> Result<usize> {
+        let mut last_ntid = None;
+        let mut field_ord = None;
+        self.transform_notes(&ctx.nids, |note, nt| {
+            if last_ntid != Some(nt.id) {
+                field_ord = ctx.field_name.as_ref().and_then(|n| nt.get_field_ord(n));
+                last_ntid = Some(nt.id);
+            }
+
+            let mut changed = false;
+            match field_ord {
+                None => {
+                    // all fields
+                    for txt in &mut note.fields {
+                        if let Cow::Owned(otxt) = ctx.replace_text(txt) {
+                            changed = true;
+                            *txt = otxt;
                         }
                     }
                 }
-                if changed {
-                    self.update_note_inner_generating_cards(
-                        &genctx,
-                        &mut note,
-                        true,
-                        normalize_text,
-                    )?;
-                    total_changed += 1;
+                Some(ord) => {
+                    // single field
+                    if let Some(txt) = note.fields.get_mut(ord) {
+                        if let Cow::Owned(otxt) = ctx.replace_text(txt) {
+                            changed = true;
+                            *txt = otxt;
+                        }
+                    }
                 }
             }
-        }
 
-        Ok(total_changed)
+            Ok(TransformNoteOutput {
+                changed,
+                generate_cards: true,
+                mark_modified: true,
+            })
+        })
     }
 }
 

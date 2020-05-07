@@ -540,10 +540,6 @@ class RustBackend:
     def all_tags(self) -> Iterable[TagUsnTuple]:
         return self._run_command(pb.BackendInput(all_tags=pb.Empty())).all_tags.tags
 
-    def canonify_tags(self, tags: str) -> Tuple[str, bool]:
-        out = self._run_command(pb.BackendInput(canonify_tags=tags)).canonify_tags
-        return (out.tags, out.tag_list_changed)
-
     def register_tags(self, tags: str, usn: Optional[int], clear_first: bool) -> bool:
         if usn is None:
             preserve_usn = False
@@ -791,6 +787,22 @@ class RustBackend:
             ),
             release_gil=True,
         )
+
+    def add_note_tags(self, nids: List[int], tags: str) -> int:
+        return self._run_command(
+            pb.BackendInput(add_note_tags=pb.AddNoteTagsIn(nids=nids, tags=tags))
+        ).add_note_tags
+
+    def update_note_tags(
+        self, nids: List[int], tags: str, replacement: str, regex: bool
+    ) -> int:
+        return self._run_command(
+            pb.BackendInput(
+                update_note_tags=pb.UpdateNoteTagsIn(
+                    nids=nids, tags=tags, replacement=replacement, regex=regex
+                )
+            )
+        ).update_note_tags
 
 
 def translate_string_in(
