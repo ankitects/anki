@@ -150,7 +150,7 @@ impl SqliteStorage {
     ) -> Result<Vec<(NoteTypeID, NoteID)>> {
         let mut sql = String::from("select mid, id from notes where id in ");
         ids_to_string(&mut sql, nids);
-        sql += " order by mid";
+        sql += " order by mid, id";
         self.db
             .prepare(&sql)?
             .query_and_then(NO_PARAMS, |r| Ok((r.get(0)?, r.get(1)?)))?
