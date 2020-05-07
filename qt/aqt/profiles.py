@@ -144,7 +144,29 @@ class ProfileManager:
                 retval = conformation.exec()
 
                 if retval == QMessageBox.Ok:
+                    progress = QMessageBox()
+                    progress.setIcon(QMessageBox.Information)
+                    progress.setStandardButtons(QMessageBox.NoButton)
+                    progress.setWindowIcon(icon)
+                    progress.setWindowTitle(window_title)
+                    progress.setText(
+                        f"Please wait while your Anki collection is moved from {migration_directories}"
+                    )
+                    progress.show()
+                    app.processEvents()
                     shutil.move(oldBase, self.base)
+                    progress.hide()
+
+                    completion = QMessageBox()
+                    completion.setIcon(QMessageBox.Information)
+                    completion.setStandardButtons(QMessageBox.Ok)
+                    completion.setWindowIcon(icon)
+                    completion.setWindowTitle(window_title)
+                    completion.setText(
+                        f"Your Anki Collection was successfully moved from {migration_directories}"
+                    )
+                    completion.show()
+                    completion.exec()
                 else:
                     self.base = oldBase
 
