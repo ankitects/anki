@@ -117,7 +117,41 @@ class ProfileManager:
         oldBase = self._oldFolderLocation()
 
         if oldBase and not os.path.exists(self.base) and os.path.isdir(oldBase):
-            shutil.move(oldBase, self.base)
+            window_title = "Anki Base Directory Migration"
+            migration_directories = f"\n\n    {oldBase}\n\nto\n\n    {self.base}"
+
+            def messageBox():
+                icon = QtGui.QIcon()
+                icon.addPixmap(
+                    QtGui.QPixmap(":/icons/anki.png"),
+                    QtGui.QIcon.Normal,
+                    QtGui.QIcon.Off,
+                )
+                conformation = QMessageBox()
+                conformation.setIcon(QMessageBox.Warning)
+                conformation.setWindowIcon(icon)
+                conformation.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+                conformation.setWindowTitle(window_title)
+                conformation.setText(
+                    "Confirm Anki Collection base directory migration?"
+                )
+                conformation.setInformativeText(
+                    f"The Anki Collection directory should be migrated from {migration_directories}\n\n"
+                    f"If you would like to keep using the old location, consult the Startup Options "
+                    f"on the Anki documentation on website\n\n{appHelpSite}"
+                )
+                conformation.setDefaultButton(QMessageBox.Cancel)
+                retval = conformation.exec()
+
+                if retval == QMessageBox.Ok:
+                    shutil.move(oldBase, self.base)
+                else:
+                    self.base = oldBase
+
+            from PyQt5 import QtWidgets, QtGui
+
+            app = QtWidgets.QApplication([])
+            messageBox()
 
     # Profile load/save
     ######################################################################
