@@ -6,7 +6,7 @@ import setuptools
 
 install_requires = [
     "beautifulsoup4",
-    "requests",
+    "requests[socks]",
     "decorator",
     "protobuf",
     'orjson; platform_machine == "x86_64"',

@@ -17,6 +17,7 @@ import logging.handlers
 
 # required by requests library
 import queue
+import socks
 import typing
 import uuid
 
