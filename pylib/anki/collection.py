@@ -737,7 +737,7 @@ where c.nid = n.id and c.id in %s group by nid"""
             c.nid,
         )
         # and finally, update daily counts
-        n = 1 if c.queue == 3 else c.queue
+        n = 1 if c.queue in (3,4) else c.queue
         type = ("new", "lrn", "rev")[n]
         self.sched._updateStats(c, type, -1)
         self.sched.reps -= 1
