@@ -362,7 +362,7 @@ impl SqlWriter<'_> {
         let csum = field_checksum(text_nohtml.as_ref());
         write!(
             self.sql,
-            "(n.mid = {} and n.csum = {} and field_at_index(n.flds, 0) = ?)",
+            "(n.mid = {} and n.csum = {} and n.sfld = ?)",
             ntid, csum
         )
         .unwrap();
