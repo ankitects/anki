@@ -950,7 +950,7 @@ select id from cards where odid > 0 and did in %s"""
         self.db.execute(
             """
 update cards set due=1000000+due%1000000,mod=?,usn=? where due>=1000000
-and type=0""",
+and type=0 and queue!=4""",
             intTime(),
             self.usn(),
         )
