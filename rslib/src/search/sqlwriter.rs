@@ -568,7 +568,7 @@ mod test {
         assert_eq!(
             s(ctx, "dupe:123,test"),
             (
-                "((n.mid = 123 and n.csum = 2840236005 and field_at_index(n.flds, 0) = ?))".into(),
+                "((n.mid = 123 and n.csum = 2840236005 and n.sfld = ?))".into(),
                 vec!["test".into()]
             )
         );
