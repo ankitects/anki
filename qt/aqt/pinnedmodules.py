@@ -17,11 +17,11 @@ import logging.handlers
 
 # required by requests library
 import queue
-import socks
 import typing
 import uuid
 
 import PyQt5.QtSvg
+import socks
 
 from anki.utils import isLin, isWin
 
