@@ -61,8 +61,7 @@ all: run
 # - modern pip required for wheel
 # - add qt if missing
 pyenv:
-# 	https://github.com/PyO3/maturin/issues/283
-# 	Expected `python` to be a python interpreter inside a virtualenv
+# 	https://github.com/PyO3/maturin/issues/283 - Expected `python` to be a python interpreter inside a virtualenv
 	set -eu -o pipefail ${SHELLFLAGS}; \
 	"${PYTHON_BIN}" -m pip install virtualenv; \
 	"${PYTHON_BIN}" -m venv pyenv; \
