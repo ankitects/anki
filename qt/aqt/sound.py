@@ -339,7 +339,9 @@ class MpvManager(MPV, SoundOrVideoPlayer):
         assert isinstance(tag, SoundOrVideoTag)
         self._on_done = on_done
         path = os.path.join(os.getcwd(), tag.filename)
-        self.command("loadfile", path, "append-play")
+        # avoid playing the entire directory
+        if os.path.isfile(path):
+            self.command("loadfile", path, "append-play")
         gui_hooks.av_player_did_begin_playing(self, tag)
 
     def stop(self) -> None:
