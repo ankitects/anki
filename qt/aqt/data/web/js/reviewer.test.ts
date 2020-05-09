@@ -133,28 +133,28 @@ describe("Test question and answer audios", () => {
 
     test.each([
         [
-            `silence1.mp3`,
+            `silence 1.mp3`,
             `ankimedia.setup(); ankimedia.addall( "front" );`,
             `questionTemplate`,
         ],
         [
-            `silence1.mp3`,
+            `silence 1.mp3`,
             `ankimedia.setup({delay: 0, wait: false, medias: []}); ankimedia.addall( "front" );`,
             `questionTemplate`,
         ],
         [
-            `silence2.mp3`,
-            `ankimedia.setup(); ankimedia.add( "front", "silence2.mp3" );`,
+            `silence 2.mp3`,
+            `ankimedia.setup(); ankimedia.add( "front", "silence 2.mp3" );`,
             `questionTemplate`,
         ],
         [
-            `silence2.mp3`,
-            `ankimedia.setup({delay: 0, wait: false, medias: []}); ankimedia.add( "front", "silence2.mp3" );`,
+            `silence 2.mp3`,
+            `ankimedia.setup({delay: 0, wait: false, medias: []}); ankimedia.add( "front", "silence 2.mp3" );`,
             `questionTemplate`,
         ],
         [
-            `silence2.mp3`,
-            `ankimedia.setup({delay: 0, wait: false, medias: []}); ankimedia.add( "front", "silence2.mp3" );`,
+            `silence 2.mp3`,
+            `ankimedia.setup({delay: 0, wait: false, medias: []}); ankimedia.add( "front", "silence 2.mp3" );`,
             `dataSpeedTemplate`,
         ],
     ])(
@@ -167,23 +167,23 @@ describe("Test question and answer audios", () => {
             let question_times = await getPlayTimes(front_mp3);
             let audio_src = await getAudioSource(front_mp3);
 
-            expect(audio_src).toEqual(`${address}/${front_mp3}`);
+            expect(audio_src.replace(/%20/g, " ")).toEqual(`${address}/${front_mp3}`);
             expect(question_times[0] < question_times[1]).toEqual(true);
         }
     );
 
     test.each([
         [
-            `silence1.mp3`,
+            `silence 1.mp3`,
             `ankimedia.setup(); ankimedia.addall( "front" );`,
-            `silence2.mp3`,
+            `silence 2.mp3`,
             `ankimedia.setup(); ankimedia.addall( "front" );`,
         ],
         [
-            `silence1.mp3`,
-            `ankimedia.setup(); ankimedia.add( "front", "silence1.mp3" );`,
-            `silence2.mp3`,
-            `ankimedia.setup(); ankimedia.add( "front", "silence2.mp3" );`,
+            `silence 1.mp3`,
+            `ankimedia.setup(); ankimedia.add( "front", "silence 1.mp3" );`,
+            `silence 2.mp3`,
+            `ankimedia.setup(); ankimedia.add( "front", "silence 2.mp3" );`,
         ],
     ])(
         `Showing a new question should play its audio automatically:\nfront %s '%s',\nrefront %s '%s'\n...`,
@@ -202,8 +202,12 @@ describe("Test question and answer audios", () => {
             let second_question_times = await getPlayTimes(refront_mp3);
             let second_audio_src = await getAudioSource(refront_mp3);
 
-            expect(first_audio_src).toEqual(`${address}/${front_mp3}`);
-            expect(second_audio_src).toEqual(`${address}/${refront_mp3}`);
+            expect(first_audio_src.replace(/%20/g, " ")).toEqual(
+                `${address}/${front_mp3}`
+            );
+            expect(second_audio_src.replace(/%20/g, " ")).toEqual(
+                `${address}/${refront_mp3}`
+            );
 
             expect(second_question_times[0] < second_question_times[1]).toEqual(true);
             expect(first_question_times[0] < second_question_times[0]).toEqual(true);
@@ -213,28 +217,28 @@ describe("Test question and answer audios", () => {
 
     test.each([
         [
-            `silence1.mp3`,
+            `silence 1.mp3`,
             `ankimedia.setup(); ankimedia.addall( "front" );`,
-            `silence1.mp3`,
+            `silence 1.mp3`,
             `ankimedia.setup(); ankimedia.addall( "back" );`,
         ],
         [
-            `silence1.mp3`,
+            `silence 1.mp3`,
             `ankimedia.setup(); ankimedia.addall( "front" );`,
-            `silence2.mp3`,
+            `silence 2.mp3`,
             `ankimedia.setup(); ankimedia.addall( "back" );`,
         ],
         [
-            `silence1.mp3`,
-            `ankimedia.setup(); ankimedia.add( "front", "silence1.mp3" );`,
-            `silence1.mp3`,
-            `ankimedia.setup(); ankimedia.add( "back", "silence1.mp3" );`,
+            `silence 1.mp3`,
+            `ankimedia.setup(); ankimedia.add( "front", "silence 1.mp3" );`,
+            `silence 1.mp3`,
+            `ankimedia.setup(); ankimedia.add( "back", "silence 1.mp3" );`,
         ],
         [
-            `silence1.mp3`,
-            `ankimedia.setup(); ankimedia.add( "front", "silence1.mp3" );`,
-            `silence2.mp3`,
-            `ankimedia.setup(); ankimedia.add( "back", "silence2.mp3" );`,
+            `silence 1.mp3`,
+            `ankimedia.setup(); ankimedia.add( "front", "silence 1.mp3" );`,
+            `silence 2.mp3`,
+            `ankimedia.setup(); ankimedia.add( "back", "silence 2.mp3" );`,
         ],
     ])(
         `Showing an answer with the same id as the question should only play the answer audio:\nfront %s '%s',\nback %s '%s'\n...`,
@@ -256,8 +260,12 @@ describe("Test question and answer audios", () => {
             let answer_times = await getPlayTimes(selector);
             let answer_audio_src = await getAudioSource(selector);
 
-            expect(question_audio_src).toEqual(`${address}/${front_mp3}`);
-            expect(answer_audio_src).toEqual(`${address}/${back_mp3}`);
+            expect(question_audio_src.replace(/%20/g, " ")).toEqual(
+                `${address}/${front_mp3}`
+            );
+            expect(answer_audio_src.replace(/%20/g, " ")).toEqual(
+                `${address}/${back_mp3}`
+            );
 
             // assert the question audio was not replayed when showing the answer
             expect(question_times[0] == question_times_recheck[0]).toEqual(true);
@@ -282,10 +290,10 @@ describe("Test question and answer audios", () => {
                 `ankimedia.setup({delay: 0}); ankimedia.addall( "back" );`
             );
 
-        await showEverything("silence1.mp3", "silence2.mp3");
-        await page.waitForSelector(`audio[id="silence2.mp3"][data-has-ended-at]`);
-        let question_times = await getPlayTimes("silence1.mp3");
-        let answer_times = await getPlayTimes("silence2.mp3");
+        await showEverything("silence 1.mp3", "silence 2.mp3");
+        await page.waitForSelector(`audio[id="silence 2.mp3"][data-has-ended-at]`);
+        let question_times = await getPlayTimes("silence 1.mp3");
+        let answer_times = await getPlayTimes("silence 2.mp3");
 
         expect(await getPausedMedias()).toEqual(0);
         expect(question_times[0] < question_times[1]).toEqual(true);
@@ -294,16 +302,16 @@ describe("Test question and answer audios", () => {
         expect(question_times[1] < answer_times[1]).toEqual(true);
 
         await page.waitFor(ANKI_MEDIA_QUEUE_PREVIEW_TIMEOUT);
-        await showEverything("silence1.mp3", "silence2.mp3");
-        await page.waitForSelector(`audio[id="silence2.mp3"]`);
+        await showEverything("silence 1.mp3", "silence 2.mp3");
+        await page.waitForSelector(`audio[id="silence 2.mp3"]`);
         expect(await getPausedMedias()).toEqual(0);
 
-        await showEverything("silence1.mp3", "silence2.mp3");
-        await page.waitForSelector(`audio[id="silence2.mp3"]`);
+        await showEverything("silence 1.mp3", "silence 2.mp3");
+        await page.waitForSelector(`audio[id="silence 2.mp3"]`);
         expect(await getPausedMedias()).toEqual(0);
 
-        await showEverything("silence1.mp3", "silence2.mp3");
-        await page.waitForSelector(`audio[id="silence2.mp3"]`);
+        await showEverything("silence 1.mp3", "silence 2.mp3");
+        await page.waitForSelector(`audio[id="silence 2.mp3"]`);
         expect(await getPausedMedias()).toEqual(0);
     });
 });
