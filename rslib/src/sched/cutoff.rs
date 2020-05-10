@@ -95,6 +95,24 @@ pub fn local_minutes_west_for_stamp(stamp: i64) -> i32 {
 // Legacy code
 // ----------------------------------
 
+pub(crate) fn v1_creation_date() -> i64 {
+    let now = TimestampSecs::now();
+    v1_creation_date_inner(now, local_minutes_west_for_stamp(now.0))
+}
+
+fn v1_creation_date_inner(now: TimestampSecs, mins_west: i32) -> i64 {
+    let offset = fixed_offset_from_minutes(mins_west);
+    let now_dt = offset.timestamp(now.0, 0);
+    let four_am_dt = now_dt.date().and_hms(4, 0, 0);
+    let four_am_stamp = four_am_dt.timestamp();
+
+    if four_am_dt > now_dt {
+        four_am_stamp - 86_400
+    } else {
+        four_am_stamp
+    }
+}
+
 fn sched_timing_today_v1(crt: i64, now: i64) -> SchedTimingToday {
     let days_elapsed = (now - crt) / 86_400;
     let next_day_at = crt + (days_elapsed + 1) * 86_400;
@@ -164,14 +182,11 @@ pub(crate) fn sched_timing_today(
 
 #[cfg(test)]
 mod test {
-    use super::SchedTimingToday;
-    use crate::sched::cutoff::sched_timing_today_v1;
-    use crate::sched::cutoff::sched_timing_today_v2_legacy;
-    use crate::sched::cutoff::{
-        fixed_offset_from_minutes, local_minutes_west_for_stamp, normalized_rollover_hour,
-        sched_timing_today_v2_new,
-    };
+    use super::*;
     use chrono::{FixedOffset, Local, TimeZone, Utc};
+
+    // static timezone for tests
+    const AEST_MINS_WEST: i32 = -600;
 
     #[test]
     fn rollover() {
@@ -186,8 +201,8 @@ mod test {
 
     #[test]
     fn fixed_offset() {
-        let offset = fixed_offset_from_minutes(-600);
-        assert_eq!(offset.utc_minus_local(), -600 * 60);
+        let offset = fixed_offset_from_minutes(AEST_MINS_WEST);
+        assert_eq!(offset.utc_minus_local(), AEST_MINS_WEST * 60);
     }
 
     // helper
@@ -340,7 +355,6 @@ mod test {
     #[test]
     fn legacy_timing() {
         let now = 1584491078;
-        let mins_west = -600;
 
         assert_eq!(
             sched_timing_today_v1(1575226800, now),
@@ -351,7 +365,7 @@ mod test {
         );
 
         assert_eq!(
-            sched_timing_today_v2_legacy(1533564000, 0, now, mins_west),
+            sched_timing_today_v2_legacy(1533564000, 0, now, AEST_MINS_WEST),
             SchedTimingToday {
                 days_elapsed: 589,
                 next_day_at: 1584540000
@@ -359,11 +373,28 @@ mod test {
         );
 
         assert_eq!(
-            sched_timing_today_v2_legacy(1524038400, 4, now, mins_west),
+            sched_timing_today_v2_legacy(1524038400, 4, now, AEST_MINS_WEST),
             SchedTimingToday {
                 days_elapsed: 700,
                 next_day_at: 1584554400
             }
+        );
+    }
+
+    #[test]
+    fn legacy_creation_stamp() {
+        let offset = fixed_offset_from_minutes(AEST_MINS_WEST);
+
+        let now = TimestampSecs(offset.ymd(2020, 05, 10).and_hms(9, 30, 30).timestamp());
+        assert_eq!(
+            v1_creation_date_inner(now, AEST_MINS_WEST),
+            offset.ymd(2020, 05, 10).and_hms(4, 0, 0).timestamp()
+        );
+
+        let now = TimestampSecs(offset.ymd(2020, 05, 10).and_hms(1, 30, 30).timestamp());
+        assert_eq!(
+            v1_creation_date_inner(now, AEST_MINS_WEST),
+            offset.ymd(2020, 05, 9).and_hms(4, 0, 0).timestamp()
         );
     }
 }
