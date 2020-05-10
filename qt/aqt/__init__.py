@@ -406,8 +406,20 @@ def _run(argv=None, exec=True):
         pm = ProfileManager(opts.base)
         pmLoadResult = pm.setupMeta()
     except AnkiRestart as error:
+        import subprocess
+
         if error.exitcode:
             sys.exit(error.exitcode)
+
+        # the first argument will be `qt/runanki` when calling it directly from a python interpreter
+        if os.path.abspath(argv[0]) == os.path.abspath(sys.executable):
+            arguments = argv
+        else:
+            arguments = [sys.executable] + argv
+
+        print("Relaunching Anki", arguments)
+        newanki = subprocess.Popen(arguments, env=os.environ)
+        newanki.communicate()
         return
     except:
         # will handle below
