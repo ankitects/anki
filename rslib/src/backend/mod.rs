@@ -355,10 +355,7 @@ impl Backend {
                 self.remove_deck(did)?;
                 pb::Empty {}
             }),
-            Value::CheckDatabase(_) => {
-                self.check_database()?;
-                OValue::CheckDatabase(pb::Empty {})
-            }
+            Value::CheckDatabase(_) => OValue::CheckDatabase(self.check_database()?),
             Value::DeckTreeLegacy(_) => OValue::DeckTreeLegacy(self.deck_tree_legacy()?),
             Value::FieldNamesForNotes(input) => {
                 OValue::FieldNamesForNotes(self.field_names_for_notes(input)?)
@@ -1042,8 +1039,11 @@ impl Backend {
         self.with_col(|col| col.remove_deck_and_child_decks(DeckID(did)))
     }
 
-    fn check_database(&self) -> Result<()> {
-        self.with_col(|col| col.transact(None, |col| col.check_database()))
+    fn check_database(&self) -> Result<pb::CheckDatabaseOut> {
+        self.with_col(|col| {
+            col.check_database()
+                .map(|problems| pb::CheckDatabaseOut { problems })
+        })
     }
 
     fn deck_tree_legacy(&self) -> Result<Vec<u8>> {

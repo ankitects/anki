@@ -36,7 +36,7 @@ fn row_to_existing_card(row: &Row) -> Result<AlreadyGeneratedCardInfo> {
         nid: row.get(1)?,
         ord: row.get(2)?,
         original_deck_id: row.get(3)?,
-        position_if_new: row.get(4)?,
+        position_if_new: row.get(4).ok().unwrap_or_default(),
     })
 }
 
@@ -151,6 +151,14 @@ impl SqliteStorage {
         let mut sql = String::from("select mid, id from notes where id in ");
         ids_to_string(&mut sql, nids);
         sql += " order by mid, id";
+        self.db
+            .prepare(&sql)?
+            .query_and_then(NO_PARAMS, |r| Ok((r.get(0)?, r.get(1)?)))?
+            .collect()
+    }
+
+    pub(crate) fn all_note_ids_by_notetype(&self) -> Result<Vec<(NoteTypeID, NoteID)>> {
+        let sql = String::from("select mid, id from notes order by mid, id");
         self.db
             .prepare(&sql)?
             .query_and_then(NO_PARAMS, |r| Ok((r.get(0)?, r.get(1)?)))?

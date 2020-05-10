@@ -170,6 +170,14 @@ impl SqliteStorage {
             .collect()
     }
 
+    /// Decks referenced by cards but missing.
+    pub(crate) fn missing_decks(&self) -> Result<Vec<DeckID>> {
+        self.db
+            .prepare(include_str!("missing-decks.sql"))?
+            .query_and_then(NO_PARAMS, |r| r.get(0).map_err(Into::into))?
+            .collect()
+    }
+
     // Upgrading/downgrading/legacy
 
     pub(super) fn add_default_deck(&self, i18n: &I18n) -> Result<()> {

@@ -304,6 +304,24 @@ impl SqliteStorage {
 
     //////////////////////////////////////////
 
+    /// true if corrupt/can't access
+    pub(crate) fn quick_check_corrupt(&self) -> bool {
+        match self.db.pragma_query_value(None, "quick_check", |row| {
+            row.get(0).map(|v: String| v != "ok")
+        }) {
+            Ok(corrupt) => corrupt,
+            Err(e) => {
+                println!("error: {:?}", e);
+                true
+            }
+        }
+    }
+
+    pub(crate) fn optimize(&self) -> Result<()> {
+        self.db.execute_batch("vacuum")?;
+        Ok(())
+    }
+
     #[cfg(test)]
     pub(crate) fn db_scalar<T: rusqlite::types::FromSql>(&self, sql: &str) -> Result<T> {
         self.db

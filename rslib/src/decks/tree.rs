@@ -215,7 +215,7 @@ impl Collection {
         Ok(LegacyDueCounts::from(tree))
     }
 
-    pub(crate) fn add_missing_decks(&mut self, names: &[(DeckID, String)]) -> Result<()> {
+    pub(crate) fn add_missing_deck_names(&mut self, names: &[(DeckID, String)]) -> Result<()> {
         let mut parents = HashSet::new();
         for (_id, name) in names {
             parents.insert(UniCase::new(name.as_str()));

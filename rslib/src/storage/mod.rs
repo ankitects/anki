@@ -8,6 +8,7 @@ mod deckconf;
 mod graves;
 mod note;
 mod notetype;
+mod revlog;
 mod sqlite;
 mod tag;
 mod upgrades;

@@ -135,6 +135,20 @@ impl Note {
         }
         changed
     }
+
+    /// Pad or merge fields to match note type.
+    pub(crate) fn fix_field_count(&mut self, nt: &NoteType) {
+        while self.fields.len() < nt.fields.len() {
+            self.fields.push("".into())
+        }
+        while self.fields.len() > nt.fields.len() && self.fields.len() > 1 {
+            let last = self.fields.pop().unwrap();
+            self.fields
+                .last_mut()
+                .unwrap()
+                .push_str(&format!("; {}", last));
+        }
+    }
 }
 
 impl From<Note> for pb::Note {

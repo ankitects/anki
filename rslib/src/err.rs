@@ -102,6 +102,10 @@ impl AnkiError {
                 // already localized
                 info.into()
             }
+            AnkiError::DBError { info, kind } => match kind {
+                DBErrorKind::Corrupt => info.clone(),
+                _ => format!("{:?}", self),
+            },
             _ => format!("{:?}", self),
         }
     }
@@ -262,5 +266,6 @@ pub enum DBErrorKind {
     FileTooNew,
     FileTooOld,
     MissingEntity,
+    Corrupt,
     Other,
 }
