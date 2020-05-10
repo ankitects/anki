@@ -329,8 +329,12 @@ impl From<NoteType> for NoteTypeProto {
 impl Collection {
     /// Add a new notetype, and allocate it an ID.
     pub fn add_notetype(&mut self, nt: &mut NoteType) -> Result<()> {
+        self.transact(None, |col| col.add_notetype_inner(nt))
+    }
+
+    pub(crate) fn add_notetype_inner(&mut self, nt: &mut NoteType) -> Result<()> {
         nt.prepare_for_adding()?;
-        self.transact(None, |col| col.storage.add_new_notetype(nt))
+        self.storage.add_new_notetype(nt)
     }
 
     /// Saves changes to a note type. This will force a full sync if templates

@@ -156,6 +156,10 @@ impl Collection {
         Ok(pos)
     }
 
+    pub(crate) fn set_next_card_position(&self, pos: u32) -> Result<()> {
+        self.set_config(ConfigKey::NextNewCardPosition, &pos)
+    }
+
     pub(crate) fn sched_ver(&self) -> SchedulerVersion {
         self.get_config_optional(ConfigKey::SchedulerVersion)
             .unwrap_or(SchedulerVersion::V1)

@@ -311,9 +311,12 @@ class ModelManager:
     # Tools
     ##################################################
 
-    def nids(self, m: NoteType) -> Any:
+    def nids(self, ntid: int) -> Any:
         "Note ids for M."
-        return self.col.db.list("select id from notes where mid = ?", m["id"])
+        if isinstance(ntid, dict):
+            # legacy callers passed in note type
+            ntid = ntid["id"]
+        return self.col.db.list("select id from notes where mid = ?", ntid)
 
     def useCount(self, m: NoteType) -> Any:
         "Number of note using M."

@@ -1304,11 +1304,7 @@ will be lost. Continue?"""
     ##########################################################################
 
     def onCheckDB(self):
-        "True if no problems"
-        self.progress.start()
-
-        def onDone(future: Future):
-            self.progress.finish()
+        def on_done(future: Future):
             ret, ok = future.result()
 
             if not ok:
@@ -1319,15 +1315,17 @@ will be lost. Continue?"""
             # if an error has directed the user to check the database,
             # silently clean up any broken reset hooks which distract from
             # the underlying issue
-            while True:
+            n = 0
+            while n < 10:
                 try:
                     self.reset()
                     break
                 except Exception as e:
                     print("swallowed exception in reset hook:", e)
+                    n += 1
                     continue
 
-        self.taskman.run_in_background(self.col.fixIntegrity, onDone)
+        self.taskman.with_progress(self.col.fixIntegrity, on_done)
 
     def on_check_media_db(self) -> None:
         check_media_db(self)

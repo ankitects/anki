@@ -736,8 +736,12 @@ class RustBackend:
             pb.BackendInput(deck_tree=pb.DeckTreeIn(include_counts=include_counts))
         ).deck_tree
 
-    def check_database(self) -> None:
-        self._run_command(pb.BackendInput(check_database=pb.Empty()))
+    def check_database(self) -> List[str]:
+        return list(
+            self._run_command(
+                pb.BackendInput(check_database=pb.Empty()), release_gil=True
+            ).check_database.problems
+        )
 
     def legacy_deck_tree(self) -> Sequence:
         bytes = self._run_command(
@@ -819,4 +823,4 @@ def translate_string_in(
 
 # temporarily force logging of media handling
 if "RUST_LOG" not in os.environ:
-    os.environ["RUST_LOG"] = "warn,anki::media=debug"
+    os.environ["RUST_LOG"] = "warn,anki::media=debug,anki::dbcheck=debug"

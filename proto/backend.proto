@@ -144,7 +144,7 @@ message BackendOutput {
         bytes get_changed_notetypes = 56;
         int64 add_or_update_notetype = 57;
         bytes get_all_decks = 58;
-        Empty check_database = 59;
+        CheckDatabaseOut check_database = 59;
         bytes get_notetype_legacy = 61;
         NoteTypeNames get_notetype_names = 62;
         NoteTypeUseCounts get_notetype_names_and_counts = 63;
@@ -748,4 +748,8 @@ message UpdateNoteTagsIn {
     string tags = 2;
     string replacement = 3;
     bool regex = 4;
+}
+
+message CheckDatabaseOut {
+    repeated string problems = 1;
 }

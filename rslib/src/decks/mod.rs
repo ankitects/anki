@@ -209,6 +209,12 @@ impl Collection {
         })
     }
 
+    pub(crate) fn recover_missing_deck(&mut self, _did: DeckID) -> Result<()> {
+        // todo
+
+        Ok(())
+    }
+
     pub fn get_or_create_normal_deck(&mut self, human_name: &str) -> Result<Deck> {
         let native_name = human_deck_name_to_native(human_name);
         if let Some(did) = self.storage.get_deck_id(&native_name)? {
