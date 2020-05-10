@@ -808,7 +808,8 @@ to a cloze type first, via Edit>Change Note Type."""
                 req = urllib.request.Request(
                     url, None, {"User-Agent": "Mozilla/5.0 (compatible; Anki)"}
                 )
-                filecontents = urllib.request.urlopen(req).read()
+                with urllib.request.urlopen(req) as response:
+                    filecontents = response.read()
             else:
                 reqs = HttpClient()
                 reqs.timeout = 30
@@ -1129,7 +1130,8 @@ class EditorWebView(AnkiWebView):
         if not os.path.exists(path):
             return
 
-        data = open(path, "rb").read()
+        with open(path, "rb") as file:
+            data = file.read()
         fname = self.editor._addPastedImage(data, ext)
         if fname:
             return self.editor.fnameToLink(fname)

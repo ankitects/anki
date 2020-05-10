@@ -505,7 +505,8 @@ def _replaceWithApkg(mw, filename, backup):
             if os.path.exists(dest) and size == os.stat(dest).st_size:
                 continue
             data = z.read(cStr)
-            open(dest, "wb").write(data)
+            with open(dest, "wb") as file:
+                file.write(data)
 
         z.close()
 

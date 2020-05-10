@@ -138,7 +138,8 @@ package in the LaTeX header instead."""
             if call(latexCmd, stdout=log, stderr=log):
                 return _errMsg(latexCmd[0], texpath)
         # add to media
-        data = open(png_or_svg, "rb").read()
+        with open(png_or_svg, "rb") as file:
+            data = file.read()
         col.media.write_data(extracted.filename, data)
         os.unlink(png_or_svg)
         return None
