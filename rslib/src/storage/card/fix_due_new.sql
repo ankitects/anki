@@ -16,4 +16,5 @@ where
       and queue != 4 then 1000000 + due % 1000000
       else due
     end
-  );
+  )
+  and due >= 1000000;
