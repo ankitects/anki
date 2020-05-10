@@ -2,8 +2,8 @@ database-check-corrupt = Collection file is corrupt. Please restore from an auto
 database-check-rebuilt = Database rebuilt and optimized.
 database-check-card-properties =
     { $count ->
-        [one] Fixed { $count } card with invalid properties.
-       *[other] Fixed { $count } cards with invalid properties.
+        [one] Fixed { $count } invalid card property.
+       *[other] Fixed { $count } invalid card properties.
     }
 
 database-check-missing-templates =
@@ -18,7 +18,7 @@ database-check-field-count = { $count ->
   }
 
 database-check-new-card-high-due = { $count ->
-  [one] Found { $count } new card with a due number >= 1,000,000 - consider repositioning them in the Browse screen.
+  [one] Found { $count } new card with a due number >= 1,000,000 - consider repositioning it in the Browse screen.
   *[other] Found { $count } new cards with a due number >= 1,000,000 - consider repositioning them in the Browse screen.
   }
 

@@ -4,7 +4,7 @@
 use crate::{
     collection::Collection,
     err::{AnkiError, DBErrorKind, Result},
-    i18n::{tr_args, TR},
+    i18n::{tr_args, I18n, TR},
     notetype::{
         all_stock_notetypes, AlreadyGeneratedCardInfo, CardGenContext, NoteType, NoteTypeKind,
     },
@@ -17,9 +17,78 @@ use std::{
     sync::Arc,
 };
 
+#[derive(Debug, Default, PartialEq)]
+pub struct CheckDatabaseOutput {
+    card_properties_invalid: usize,
+    card_position_too_high: usize,
+    cards_missing_note: usize,
+    deck_ids_missing: usize,
+    revlog_properties_invalid: usize,
+    templates_missing: usize,
+    card_ords_duplicated: usize,
+    field_count_mismatch: usize,
+}
+
+impl CheckDatabaseOutput {
+    pub fn to_i18n_strings(&self, i18n: &I18n) -> Vec<String> {
+        let mut probs = Vec::new();
+
+        if self.card_position_too_high > 0 {
+            probs.push(i18n.trn(
+                TR::DatabaseCheckNewCardHighDue,
+                tr_args!["count"=>self.card_position_too_high],
+            ));
+        }
+        if self.card_properties_invalid > 0 {
+            probs.push(i18n.trn(
+                TR::DatabaseCheckCardProperties,
+                tr_args!["count"=>self.card_properties_invalid],
+            ));
+        }
+        if self.cards_missing_note > 0 {
+            probs.push(i18n.trn(
+                TR::DatabaseCheckCardMissingNote,
+                tr_args!["count"=>self.cards_missing_note],
+            ));
+        }
+        if self.deck_ids_missing > 0 {
+            probs.push(i18n.trn(
+                TR::DatabaseCheckMissingDecks,
+                tr_args!["count"=>self.deck_ids_missing],
+            ));
+        }
+        if self.field_count_mismatch > 0 {
+            probs.push(i18n.trn(
+                TR::DatabaseCheckFieldCount,
+                tr_args!["count"=>self.field_count_mismatch],
+            ));
+        }
+        if self.card_ords_duplicated > 0 {
+            probs.push(i18n.trn(
+                TR::DatabaseCheckDuplicateCardOrds,
+                tr_args!["count"=>self.card_ords_duplicated],
+            ));
+        }
+        if self.templates_missing > 0 {
+            probs.push(i18n.trn(
+                TR::DatabaseCheckMissingTemplates,
+                tr_args!["count"=>self.templates_missing],
+            ));
+        }
+        if self.revlog_properties_invalid > 0 {
+            probs.push(i18n.trn(
+                TR::DatabaseCheckRevlogProperties,
+                tr_args!["count"=>self.revlog_properties_invalid],
+            ));
+        }
+
+        probs
+    }
+}
+
 impl Collection {
     /// Check the database, returning a list of problems that were fixed.
-    pub(crate) fn check_database(&mut self) -> Result<Vec<String>> {
+    pub(crate) fn check_database(&mut self) -> Result<CheckDatabaseOutput> {
         debug!(self.log, "quick check");
         if self.storage.quick_check_corrupt() {
             debug!(self.log, "quick check failed");
@@ -35,23 +104,23 @@ impl Collection {
         self.transact(None, |col| col.check_database_inner())
     }
 
-    fn check_database_inner(&mut self) -> Result<Vec<String>> {
-        let mut probs = vec![];
+    fn check_database_inner(&mut self) -> Result<CheckDatabaseOutput> {
+        let mut out = CheckDatabaseOutput::default();
 
         // cards first, as we need to be able to read them to process notes
         debug!(self.log, "check cards");
-        self.check_card_properties(&mut probs)?;
-        self.check_orphaned_cards(&mut probs)?;
+        self.check_card_properties(&mut out)?;
+        self.check_orphaned_cards(&mut out)?;
 
         debug!(self.log, "check decks");
-        self.check_missing_deck_ids(&mut probs)?;
-        self.check_filtered_cards(&mut probs)?;
+        self.check_missing_deck_ids(&mut out)?;
+        self.check_filtered_cards(&mut out)?;
 
         debug!(self.log, "check notetypes");
-        self.check_notetypes(&mut probs)?;
+        self.check_notetypes(&mut out)?;
 
         debug!(self.log, "check review log");
-        self.check_revlog(&mut probs)?;
+        self.check_revlog(&mut out)?;
 
         debug!(self.log, "missing decks");
         let names = self.storage.get_all_deck_names()?;
@@ -59,63 +128,41 @@ impl Collection {
 
         self.update_next_new_position()?;
 
-        debug!(self.log, "db check finished with problems: {:#?}", probs);
+        debug!(self.log, "db check finished: {:#?}", out);
 
-        Ok(probs)
+        Ok(out)
     }
 
-    fn check_card_properties(&mut self, probs: &mut Vec<String>) -> Result<()> {
+    fn check_card_properties(&mut self, out: &mut CheckDatabaseOutput) -> Result<()> {
         let timing = self.timing_today()?;
         let (new_cnt, other_cnt) = self.storage.fix_card_properties(
             timing.days_elapsed,
             TimestampSecs::now(),
             self.usn()?,
         )?;
-        if new_cnt > 0 {
-            probs.push(
-                self.i18n
-                    .trn(TR::DatabaseCheckNewCardHighDue, tr_args!["count"=>new_cnt]),
-            );
-        }
-        if other_cnt > 0 {
-            probs.push(self.i18n.trn(
-                TR::DatabaseCheckCardProperties,
-                tr_args!["count"=>other_cnt],
-            ));
-        }
+        out.card_position_too_high = new_cnt;
+        out.card_properties_invalid += other_cnt;
         Ok(())
     }
 
-    fn check_orphaned_cards(&mut self, probs: &mut Vec<String>) -> Result<()> {
-        let orphaned = self.storage.delete_orphaned_cards()?;
-        if orphaned > 0 {
+    fn check_orphaned_cards(&mut self, out: &mut CheckDatabaseOutput) -> Result<()> {
+        let cnt = self.storage.delete_orphaned_cards()?;
+        if cnt > 0 {
             self.storage.set_schema_modified()?;
-            probs.push(self.i18n.trn(
-                TR::DatabaseCheckCardMissingNote,
-                tr_args!["count"=>orphaned],
-            ));
+            out.cards_missing_note = cnt;
         }
         Ok(())
     }
 
-    fn check_missing_deck_ids(&mut self, probs: &mut Vec<String>) -> Result<()> {
-        let mut cnt = 0;
+    fn check_missing_deck_ids(&mut self, out: &mut CheckDatabaseOutput) -> Result<()> {
         for did in self.storage.missing_decks()? {
             self.recover_missing_deck(did)?;
-            cnt += 1;
+            out.deck_ids_missing += 1;
         }
-
-        if cnt > 0 {
-            probs.push(
-                self.i18n
-                    .trn(TR::DatabaseCheckMissingDecks, tr_args!["count"=>cnt]),
-            );
-        }
-
         Ok(())
     }
 
-    fn check_filtered_cards(&mut self, probs: &mut Vec<String>) -> Result<()> {
+    fn check_filtered_cards(&mut self, out: &mut CheckDatabaseOutput) -> Result<()> {
         let decks: HashMap<_, _> = self
             .storage
             .get_all_decks()?
@@ -124,7 +171,6 @@ impl Collection {
             .collect();
 
         let mut wrong = 0;
-
         for (cid, did) in self.storage.all_filtered_cards_by_deck()? {
             // we expect calling code to ensure all decks already exist
             if let Some(deck) = decks.get(&did) {
@@ -140,16 +186,13 @@ impl Collection {
 
         if wrong > 0 {
             self.storage.set_schema_modified()?;
-            probs.push(
-                self.i18n
-                    .trn(TR::DatabaseCheckCardProperties, tr_args!["count"=>wrong]),
-            );
+            out.card_properties_invalid += wrong;
         }
 
         Ok(())
     }
 
-    fn check_notetypes(&mut self, probs: &mut Vec<String>) -> Result<()> {
+    fn check_notetypes(&mut self, out: &mut CheckDatabaseOutput) -> Result<()> {
         let nids_by_notetype = self.storage.all_note_ids_by_notetype()?;
         let norm = self.normalize_note_text();
         let usn = self.usn()?;
@@ -157,10 +200,6 @@ impl Collection {
 
         // will rebuild tag list below
         self.storage.clear_tags()?;
-
-        let mut note_fields = 0;
-        let mut dupe_ords = 0;
-        let mut missing_template_ords = 0;
 
         for (ntid, group) in &nids_by_notetype.into_iter().group_by(|tup| tup.0) {
             debug!(self.log, "check notetype: {}", ntid);
@@ -178,14 +217,15 @@ impl Collection {
                 let mut note = self.storage.get_note(nid)?.unwrap();
 
                 let cards = self.storage.existing_cards_for_note(nid)?;
-                dupe_ords += self.remove_duplicate_card_ordinals(&cards)?;
-                missing_template_ords += self.remove_cards_without_template(&nt, &cards)?;
+
+                out.card_ords_duplicated += self.remove_duplicate_card_ordinals(&cards)?;
+                out.templates_missing += self.remove_cards_without_template(&nt, &cards)?;
 
                 // fix fields
                 if note.fields.len() != nt.fields.len() {
                     note.fix_field_count(&nt);
-                    note_fields += 1;
                     note.tags.push("db-check".into());
+                    out.field_count_mismatch += 1;
                 }
 
                 // write note, updating tags and generating missing cards
@@ -201,26 +241,9 @@ impl Collection {
             self.add_notetype_inner(&mut nt)?;
         }
 
-        if note_fields > 0 {
+        if out.card_ords_duplicated > 0 || out.field_count_mismatch > 0 || out.templates_missing > 0
+        {
             self.storage.set_schema_modified()?;
-            probs.push(
-                self.i18n
-                    .trn(TR::DatabaseCheckFieldCount, tr_args!["count"=>note_fields]),
-            );
-        }
-        if dupe_ords > 0 {
-            self.storage.set_schema_modified()?;
-            probs.push(self.i18n.trn(
-                TR::DatabaseCheckDuplicateCardOrds,
-                tr_args!["count"=>dupe_ords],
-            ));
-        }
-        if missing_template_ords > 0 {
-            self.storage.set_schema_modified()?;
-            probs.push(self.i18n.trn(
-                TR::DatabaseCheckMissingTemplates,
-                tr_args!["count"=>missing_template_ords],
-            ));
         }
 
         Ok(())
@@ -278,15 +301,11 @@ impl Collection {
         Ok(Arc::new(basic))
     }
 
-    fn check_revlog(&self, probs: &mut Vec<String>) -> Result<()> {
+    fn check_revlog(&self, out: &mut CheckDatabaseOutput) -> Result<()> {
         let cnt = self.storage.fix_revlog_properties()?;
-
         if cnt > 0 {
             self.storage.set_schema_modified()?;
-            probs.push(
-                self.i18n
-                    .trn(TR::DatabaseCheckRevlogProperties, tr_args!["count"=>cnt]),
-            );
+            out.revlog_properties_invalid = cnt;
         }
 
         Ok(())
@@ -295,5 +314,93 @@ impl Collection {
     fn update_next_new_position(&self) -> Result<()> {
         let pos = self.storage.max_new_card_position().unwrap_or(0);
         self.set_next_card_position(pos)
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::{collection::open_test_collection, decks::DeckID, search::SortMode};
+
+    #[test]
+    fn cards() -> Result<()> {
+        let mut col = open_test_collection();
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        col.add_note(&mut note, DeckID(1))?;
+
+        // card properties
+        col.storage
+            .db
+            .execute_batch("update cards set ivl=1.5,due=2000000,odue=1.5")?;
+
+        let out = col.check_database()?;
+        assert_eq!(
+            out,
+            CheckDatabaseOutput {
+                card_properties_invalid: 2,
+                card_position_too_high: 1,
+                ..Default::default()
+            }
+        );
+        // should be idempotent
+        assert_eq!(col.check_database()?, Default::default());
+
+        // missing deck
+        col.storage.db.execute_batch("update cards set did=123")?;
+
+        let out = col.check_database()?;
+        assert_eq!(
+            out,
+            CheckDatabaseOutput {
+                deck_ids_missing: 1,
+                ..Default::default()
+            }
+        );
+        assert_eq!(
+            col.storage.get_deck(DeckID(123))?.unwrap().name,
+            "recovered123"
+        );
+
+        // duplicate ordinals
+        let cid = col.search_cards("", SortMode::NoOrder)?[0];
+        let mut card = col.storage.get_card(cid)?.unwrap();
+        card.id.0 += 1;
+        col.storage.add_card(&mut card)?;
+
+        let out = col.check_database()?;
+        assert_eq!(
+            out,
+            CheckDatabaseOutput {
+                card_ords_duplicated: 1,
+                ..Default::default()
+            }
+        );
+        assert_eq!(
+            col.storage.db_scalar::<u32>("select count(*) from cards")?,
+            1
+        );
+
+        // missing templates
+        let cid = col.search_cards("", SortMode::NoOrder)?[0];
+        let mut card = col.storage.get_card(cid)?.unwrap();
+        card.id.0 += 1;
+        card.ord = 10;
+        col.storage.add_card(&mut card)?;
+
+        let out = col.check_database()?;
+        assert_eq!(
+            out,
+            CheckDatabaseOutput {
+                templates_missing: 1,
+                ..Default::default()
+            }
+        );
+        assert_eq!(
+            col.storage.db_scalar::<u32>("select count(*) from cards")?,
+            1
+        );
+
+        Ok(())
     }
 }

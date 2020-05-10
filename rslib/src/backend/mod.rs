@@ -1041,8 +1041,9 @@ impl Backend {
 
     fn check_database(&self) -> Result<pb::CheckDatabaseOut> {
         self.with_col(|col| {
-            col.check_database()
-                .map(|problems| pb::CheckDatabaseOut { problems })
+            col.check_database().map(|problems| pb::CheckDatabaseOut {
+                problems: problems.to_i18n_strings(&col.i18n),
+            })
         })
     }
 
