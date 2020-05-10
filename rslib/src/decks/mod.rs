@@ -209,8 +209,28 @@ impl Collection {
         })
     }
 
-    pub(crate) fn recover_missing_deck(&mut self, _did: DeckID) -> Result<()> {
-        // todo
+    fn ensure_deck_name_unique(&self, deck: &mut Deck) -> Result<()> {
+        loop {
+            match self.storage.get_deck_id(&deck.name)? {
+                Some(did) if did == deck.id => {
+                    break;
+                }
+                None => break,
+                _ => (),
+            }
+            deck.name += "_";
+        }
+
+        Ok(())
+    }
+
+    pub(crate) fn recover_missing_deck(&mut self, did: DeckID) -> Result<()> {
+        let mut deck = Deck::new_normal();
+        deck.id = did;
+        deck.name = format!("recovered{}", did);
+        self.ensure_deck_name_unique(&mut deck)?;
+        deck.prepare_for_update();
+        self.storage.update_deck(&deck)?;
 
         Ok(())
     }
