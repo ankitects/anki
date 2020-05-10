@@ -67,6 +67,12 @@ class LoadMetaResult:
     loadError: bool
 
 
+class AnkiRestart(SystemExit):
+    def __init__(self, *args, **kwargs):
+        self.exitcode = kwargs.pop("exitcode", 0)
+        super().__init__(*args, **kwargs)
+
+
 class ProfileManager:
     def __init__(self, base=None):
         self.name = None
@@ -114,66 +120,73 @@ class ProfileManager:
             return os.path.expanduser("~/Documents/Anki")
 
     def maybeMigrateFolder(self):
+        newBase = self.base
         oldBase = self._oldFolderLocation()
 
         if oldBase and not os.path.exists(self.base) and os.path.isdir(oldBase):
-            window_title = "Anki Base Directory Migration"
-            migration_directories = f"\n\n    {oldBase}\n\nto\n\n    {self.base}"
+            try:
+                # if anything goes wrong with UI, reset to the old behavior of always migrating
+                self._tryToMigrateFolder(oldBase)
+            except AnkiRestart:
+                raise
+            except:
+                self.base = newBase
+                shutil.move(oldBase, self.base)
 
-            def messageBox():
-                icon = QtGui.QIcon()
-                icon.addPixmap(
-                    QtGui.QPixmap(":/icons/anki.png"),
-                    QtGui.QIcon.Normal,
-                    QtGui.QIcon.Off,
-                )
-                conformation = QMessageBox()
-                conformation.setIcon(QMessageBox.Warning)
-                conformation.setWindowIcon(icon)
-                conformation.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-                conformation.setWindowTitle(window_title)
-                conformation.setText(
-                    "Confirm Anki Collection base directory migration?"
-                )
-                conformation.setInformativeText(
-                    f"The Anki Collection directory should be migrated from {migration_directories}\n\n"
-                    f"If you would like to keep using the old location, consult the Startup Options "
-                    f"on the Anki documentation on website\n\n{appHelpSite}"
-                )
-                conformation.setDefaultButton(QMessageBox.Cancel)
-                retval = conformation.exec()
+    def _tryToMigrateFolder(self, oldBase):
+        from PyQt5 import QtWidgets, QtGui
 
-                if retval == QMessageBox.Ok:
-                    progress = QMessageBox()
-                    progress.setIcon(QMessageBox.Information)
-                    progress.setStandardButtons(QMessageBox.NoButton)
-                    progress.setWindowIcon(icon)
-                    progress.setWindowTitle(window_title)
-                    progress.setText(
-                        f"Please wait while your Anki collection is moved from {migration_directories}"
-                    )
-                    progress.show()
-                    app.processEvents()
-                    shutil.move(oldBase, self.base)
-                    progress.hide()
+        app = QtWidgets.QApplication([])
+        icon = QtGui.QIcon()
+        icon.addPixmap(
+            QtGui.QPixmap(":/icons/anki.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off,
+        )
+        window_title = "Anki Base Directory Migration"
+        migration_directories = f"\n\n    {oldBase}\n\nto\n\n    {self.base}"
 
-                    completion = QMessageBox()
-                    completion.setIcon(QMessageBox.Information)
-                    completion.setStandardButtons(QMessageBox.Ok)
-                    completion.setWindowIcon(icon)
-                    completion.setWindowTitle(window_title)
-                    completion.setText(
-                        f"Your Anki Collection was successfully moved from {migration_directories}"
-                    )
-                    completion.show()
-                    completion.exec()
-                else:
-                    self.base = oldBase
+        conformation = QMessageBox()
+        conformation.setIcon(QMessageBox.Warning)
+        conformation.setWindowIcon(icon)
+        conformation.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        conformation.setWindowTitle(window_title)
+        conformation.setText("Confirm Anki Collection base directory migration?")
+        conformation.setInformativeText(
+            f"The Anki Collection directory should be migrated from {migration_directories}\n\n"
+            f"If you would like to keep using the old location, consult the Startup Options "
+            f"on the Anki documentation on website\n\n{appHelpSite}"
+        )
+        conformation.setDefaultButton(QMessageBox.Cancel)
+        retval = conformation.exec()
 
-            from PyQt5 import QtWidgets, QtGui
+        if retval == QMessageBox.Ok:
+            progress = QMessageBox()
+            progress.setIcon(QMessageBox.Information)
+            progress.setStandardButtons(QMessageBox.NoButton)
+            progress.setWindowIcon(icon)
+            progress.setWindowTitle(window_title)
+            progress.setText(
+                f"Please wait while your Anki collection is moved from {migration_directories}"
+            )
+            progress.show()
+            app.processEvents()
+            shutil.move(oldBase, self.base)
+            progress.hide()
 
-            app = QtWidgets.QApplication([])
-            messageBox()
+            completion = QMessageBox()
+            completion.setIcon(QMessageBox.Information)
+            completion.setStandardButtons(QMessageBox.Ok)
+            completion.setWindowIcon(icon)
+            completion.setWindowTitle(window_title)
+            completion.setText(
+                f"Your Anki Collection was successfully moved from {migration_directories}\n\n"
+                f"Now Anki needs to restart.\n\n"
+                f"Click OK to exit Anki and open it again."
+            )
+            completion.show()
+            completion.exec()
+            raise AnkiRestart(exitcode=0)
+        else:
+            self.base = oldBase
 
     # Profile load/save
     ######################################################################
