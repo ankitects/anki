@@ -215,8 +215,9 @@ impl Collection {
         Ok(LegacyDueCounts::from(tree))
     }
 
-    pub(crate) fn add_missing_deck_names(&mut self, names: &[(DeckID, String)]) -> Result<()> {
+    pub(crate) fn add_missing_deck_names(&mut self, names: &[(DeckID, String)]) -> Result<usize> {
         let mut parents = HashSet::new();
+        let mut missing = 0;
         for (_id, name) in names {
             parents.insert(UniCase::new(name.as_str()));
             if let Some(immediate_parent) = name.rsplitn(2, "::").nth(1) {
@@ -224,10 +225,11 @@ impl Collection {
                 if !parents.contains(&immediate_parent_uni) {
                     self.get_or_create_normal_deck(immediate_parent)?;
                     parents.insert(immediate_parent_uni);
+                    missing += 1;
                 }
             }
         }
-        Ok(())
+        Ok(missing)
     }
 }
 

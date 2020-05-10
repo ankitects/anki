@@ -22,7 +22,7 @@ pub struct CheckDatabaseOutput {
     card_properties_invalid: usize,
     card_position_too_high: usize,
     cards_missing_note: usize,
-    deck_ids_missing: usize,
+    decks_missing: usize,
     revlog_properties_invalid: usize,
     templates_missing: usize,
     card_ords_duplicated: usize,
@@ -51,10 +51,10 @@ impl CheckDatabaseOutput {
                 tr_args!["count"=>self.cards_missing_note],
             ));
         }
-        if self.deck_ids_missing > 0 {
+        if self.decks_missing > 0 {
             probs.push(i18n.trn(
                 TR::DatabaseCheckMissingDecks,
-                tr_args!["count"=>self.deck_ids_missing],
+                tr_args!["count"=>self.decks_missing],
             ));
         }
         if self.field_count_mismatch > 0 {
@@ -123,8 +123,7 @@ impl Collection {
         self.check_revlog(&mut out)?;
 
         debug!(self.log, "missing decks");
-        let names = self.storage.get_all_deck_names()?;
-        self.add_missing_deck_names(&names)?;
+        self.check_missing_deck_names(&mut out)?;
 
         self.update_next_new_position()?;
 
@@ -157,7 +156,7 @@ impl Collection {
     fn check_missing_deck_ids(&mut self, out: &mut CheckDatabaseOutput) -> Result<()> {
         for did in self.storage.missing_decks()? {
             self.recover_missing_deck(did)?;
-            out.deck_ids_missing += 1;
+            out.decks_missing += 1;
         }
         Ok(())
     }
@@ -311,6 +310,12 @@ impl Collection {
         Ok(())
     }
 
+    fn check_missing_deck_names(&mut self, out: &mut CheckDatabaseOutput) -> Result<()> {
+        let names = self.storage.get_all_deck_names()?;
+        out.decks_missing += self.add_missing_deck_names(&names)?;
+        Ok(())
+    }
+
     fn update_next_new_position(&self) -> Result<()> {
         let pos = self.storage.max_new_card_position().unwrap_or(0);
         self.set_next_card_position(pos)
@@ -353,7 +358,7 @@ mod test {
         assert_eq!(
             out,
             CheckDatabaseOutput {
-                deck_ids_missing: 1,
+                decks_missing: 1,
                 ..Default::default()
             }
         );
@@ -361,6 +366,58 @@ mod test {
             col.storage.get_deck(DeckID(123))?.unwrap().name,
             "recovered123"
         );
+
+        // missing note
+        col.storage.remove_note(note.id)?;
+        let out = col.check_database()?;
+        assert_eq!(
+            out,
+            CheckDatabaseOutput {
+                cards_missing_note: 1,
+                ..Default::default()
+            }
+        );
+        assert_eq!(
+            col.storage.db_scalar::<u32>("select count(*) from cards")?,
+            0
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn revlog() -> Result<()> {
+        let mut col = open_test_collection();
+
+        col.storage.db.execute_batch(
+            "
+        insert into revlog (id,cid,usn,ease,ivl,lastIvl,factor,time,type)
+        values (0,0,0,0,1.5,1.5,0,0,0)",
+        )?;
+
+        let out = col.check_database()?;
+        assert_eq!(
+            out,
+            CheckDatabaseOutput {
+                revlog_properties_invalid: 1,
+                ..Default::default()
+            }
+        );
+        assert_eq!(
+            col.storage
+                .db_scalar::<bool>("select ivl = lastIvl = 1 from revlog")?,
+            true
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn note_card_link() -> Result<()> {
+        let mut col = open_test_collection();
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        col.add_note(&mut note, DeckID(1))?;
 
         // duplicate ordinals
         let cid = col.search_cards("", SortMode::NoOrder)?[0];
@@ -399,6 +456,80 @@ mod test {
         assert_eq!(
             col.storage.db_scalar::<u32>("select count(*) from cards")?,
             1
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn note_fields() -> Result<()> {
+        let mut col = open_test_collection();
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        col.add_note(&mut note, DeckID(1))?;
+
+        // excess fields get joined into the last one
+        col.storage
+            .db
+            .execute_batch("update notes set flds = 'a\x1fb\x1fc\x1fd'")?;
+        let out = col.check_database()?;
+        assert_eq!(
+            out,
+            CheckDatabaseOutput {
+                field_count_mismatch: 1,
+                ..Default::default()
+            }
+        );
+        let note = col.storage.get_note(note.id)?.unwrap();
+        assert_eq!(&note.fields, &["a", "b; c; d"]);
+
+        // missing fields get filled with blanks
+        col.storage
+            .db
+            .execute_batch("update notes set flds = 'a'")?;
+        let out = col.check_database()?;
+        assert_eq!(
+            out,
+            CheckDatabaseOutput {
+                field_count_mismatch: 1,
+                ..Default::default()
+            }
+        );
+        let note = col.storage.get_note(note.id)?.unwrap();
+        assert_eq!(&note.fields, &["a", ""]);
+
+        Ok(())
+    }
+
+    #[test]
+    fn deck_names() -> Result<()> {
+        let mut col = open_test_collection();
+
+        let deck = col.get_or_create_normal_deck("foo::bar::baz")?;
+        // includes default
+        assert_eq!(col.storage.get_all_deck_names()?.len(), 4);
+
+        col.storage
+            .db
+            .prepare("delete from decks where id != ? and id != 1")?
+            .execute(&[deck.id])?;
+        assert_eq!(col.storage.get_all_deck_names()?.len(), 2);
+
+        let out = col.check_database()?;
+        assert_eq!(
+            out,
+            CheckDatabaseOutput {
+                decks_missing: 1, // only counts the immediate parent that was missing
+                ..Default::default()
+            }
+        );
+        assert_eq!(
+            &col.storage
+                .get_all_deck_names()?
+                .iter()
+                .map(|(_, name)| name)
+                .collect::<Vec<_>>(),
+            &["Default", "foo", "foo::bar", "foo::bar::baz"]
         );
 
         Ok(())
