@@ -17,7 +17,7 @@ pub enum SortMode {
 }
 
 impl Collection {
-    pub fn search_cards(&mut self, search: &str, order: SortMode) -> Result<Vec<CardID>> {
+    pub fn search_cards(&mut self, search: &str, mode: SortMode) -> Result<Vec<CardID>> {
         let top_node = Node::Group(parse(search)?);
         let (sql, args) = node_to_sql(self, &top_node, self.normalize_note_text())?;
 
@@ -26,7 +26,7 @@ impl Collection {
             sql
         );
 
-        match order {
+        match mode {
             SortMode::NoOrder => (),
             SortMode::FromConfig => {
                 let kind = self.get_browser_sort_kind();
