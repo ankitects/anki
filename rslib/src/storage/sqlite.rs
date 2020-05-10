@@ -5,7 +5,7 @@ use crate::config::schema11_config_as_string;
 use crate::err::Result;
 use crate::err::{AnkiError, DBErrorKind};
 use crate::timestamp::{TimestampMillis, TimestampSecs};
-use crate::{i18n::I18n, text::without_combining, types::Usn};
+use crate::{i18n::I18n, sched::cutoff::v1_creation_date, text::without_combining, types::Usn};
 use regex::Regex;
 use rusqlite::{functions::FunctionFlags, params, Connection, NO_PARAMS};
 use std::cmp::Ordering;
@@ -182,7 +182,7 @@ impl SqliteStorage {
             db.execute(
                 "update col set crt=?, ver=?, conf=?",
                 params![
-                    TimestampSecs::now(),
+                    v1_creation_date(),
                     SCHEMA_STARTING_VERSION,
                     &schema11_config_as_string()
                 ],

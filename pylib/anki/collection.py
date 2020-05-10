@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import copy
-import datetime
 import os
 import pprint
 import random
@@ -69,12 +68,6 @@ class _Collection:
         self.tags = TagManager(self)
         self.conf = ConfigManager(self)
         self.load()
-        if not self.crt:
-            d = datetime.datetime.today()
-            d -= datetime.timedelta(hours=4)
-            d = datetime.datetime(d.year, d.month, d.day)
-            d += datetime.timedelta(hours=4)
-            self.crt = int(time.mktime(d.timetuple()))
         self._loadScheduler()
 
     def name(self) -> Any:
