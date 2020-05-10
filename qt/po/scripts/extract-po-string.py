@@ -107,7 +107,8 @@ def plural_text(key, lang, translation):
 def add_simple_message(fname, key, message):
     orig = ""
     if os.path.exists(fname):
-        orig = open(fname).read()
+        with open(fname) as file:
+            orig = file.read()
 
     obj = parse(orig)
     for ent in obj.body:
@@ -126,7 +127,8 @@ def add_simple_message(fname, key, message):
             raise Exception(f"introduced junk! {fname} {ent}")
 
     # it's ok, write it out
-    open(fname, "w").write(modified)
+    with open(fname, "w") as file:
+        file.write(modified)
 
 
 def add_message(fname, key, translation):
