@@ -201,5 +201,4 @@ class CustomStudy(QDialog):
     def _getTags(self):
         from aqt.taglimit import TagLimit
 
-        t = TagLimit(self.mw, self)
-        return t.tags
+        return TagLimit(self.mw, self).tags
