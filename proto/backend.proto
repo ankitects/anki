@@ -29,7 +29,7 @@ message I18nBackendInit {
 
 message BackendInput {
     oneof value {
-        SchedTimingTodayIn sched_timing_today = 17;
+        Empty sched_timing_today = 17;
         DeckTreeIn deck_tree = 18;
         SearchCardsIn search_cards = 19;
         SearchNotesIn search_notes = 20;
@@ -101,7 +101,6 @@ message BackendInput {
 message BackendOutput {
     oneof value {
         // infallible commands
-        SchedTimingTodayOut sched_timing_today = 17;
         sint32 local_minutes_west = 22;
         string strip_av_tags = 23;
         ExtractAVTagsOut extract_av_tags = 24;
@@ -114,6 +113,7 @@ message BackendOutput {
         AllStockNotetypesOut all_stock_notetypes = 60;
 
         // fallible commands
+        SchedTimingTodayOut sched_timing_today = 17;
         DeckTreeNode deck_tree = 18;
         SearchCardsOut search_cards = 19;
         SearchNotesOut search_notes = 20;
@@ -235,14 +235,6 @@ message MediaSyncProgress {
 message MediaSyncUploadProgress {
     uint32 files = 1;
     uint32 deletions = 2;
-}
-
-message SchedTimingTodayIn {
-    int64 created_secs = 1;
-    int64 now_secs = 2;
-    OptionalInt32 created_mins_west = 3;
-    OptionalInt32 now_mins_west = 4;
-    OptionalInt32 rollover_hour = 5;
 }
 
 message SchedTimingTodayOut {

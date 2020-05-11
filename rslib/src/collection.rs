@@ -4,12 +4,10 @@
 use crate::err::{AnkiError, Result};
 use crate::i18n::I18n;
 use crate::log::Logger;
-use crate::timestamp::TimestampSecs;
 use crate::types::Usn;
 use crate::{
     decks::{Deck, DeckID},
     notetype::{NoteType, NoteTypeID},
-    sched::cutoff::{sched_timing_today, SchedTimingToday},
     storage::SqliteStorage,
     undo::UndoManager,
 };
@@ -51,7 +49,6 @@ pub fn open_test_collection() -> Collection {
 pub struct CollectionState {
     task_state: CollectionTaskState,
     pub(crate) undo: UndoManager,
-    timing_today: Option<SchedTimingToday>,
     pub(crate) notetype_cache: HashMap<NoteTypeID, Arc<NoteType>>,
     pub(crate) deck_cache: HashMap<DeckID, Arc<Deck>>,
 }
@@ -140,37 +137,6 @@ impl Collection {
 
     pub(crate) fn close(self, downgrade: bool) -> Result<()> {
         self.storage.close(downgrade)
-    }
-
-    // fixme: invalidate when config changes
-    pub fn timing_today(&mut self) -> Result<SchedTimingToday> {
-        if let Some(timing) = &self.state.timing_today {
-            if timing.next_day_at > TimestampSecs::now().0 {
-                return Ok(*timing);
-            }
-        }
-
-        let local_offset = if self.server {
-            self.get_local_mins_west()
-        } else {
-            None
-        };
-
-        let timing = sched_timing_today(
-            self.storage.creation_stamp()?,
-            TimestampSecs::now(),
-            self.get_creation_mins_west(),
-            local_offset,
-            self.get_rollover(),
-        );
-
-        self.state.timing_today = Some(timing);
-
-        Ok(timing)
-    }
-
-    pub(crate) fn learn_cutoff(&self) -> u32 {
-        TimestampSecs::now().0 as u32 + self.learn_ahead_secs()
     }
 
     pub(crate) fn usn(&self) -> Result<Usn> {

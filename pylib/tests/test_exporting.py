@@ -106,6 +106,7 @@ def test_export_anki_due():
     f["Front"] = "foo"
     deck.addNote(f)
     deck.crt -= 86400 * 10
+    deck.flush()
     deck.sched.reset()
     c = deck.sched.getCard()
     deck.sched.answerCard(c, 3)
