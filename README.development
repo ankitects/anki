@@ -43,8 +43,7 @@ Subcomponents
 - pylib contains a Python module (anki) with most of the non-GUI code.
 - qt contains the Qt GUI implementation (aqt).
 - rspy contains a Python module (ankirspy) for accessing the Rust code.
-- rslib contains the parts of the code implemented in Rust. This
-  is only a tiny subsection at the moment.
+- rslib contains the parts of the code implemented in Rust.
 - proto contains the interface used to communicate between different
   languages.
 
