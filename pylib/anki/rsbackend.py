@@ -808,6 +808,9 @@ class RustBackend:
             )
         ).update_note_tags
 
+    def set_local_minutes_west(self, mins: int) -> None:
+        self._run_command(pb.BackendInput(set_local_minutes_west=mins))
+
 
 def translate_string_in(
     key: TR, **kwargs: Union[str, int, float]

@@ -366,6 +366,10 @@ impl Backend {
             }
             Value::AddNoteTags(input) => OValue::AddNoteTags(self.add_note_tags(input)?),
             Value::UpdateNoteTags(input) => OValue::UpdateNoteTags(self.update_note_tags(input)?),
+            Value::SetLocalMinutesWest(mins) => OValue::SetLocalMinutesWest({
+                self.set_local_mins_west(mins)?;
+                pb::Empty {}
+            }),
         })
     }
 
@@ -1118,6 +1122,10 @@ impl Backend {
             )
             .map(|n| n as u32)
         })
+    }
+
+    fn set_local_mins_west(&self, mins: i32) -> Result<()> {
+        self.with_col(|col| col.transact(None, |col| col.set_local_mins_west(mins)))
     }
 }
 

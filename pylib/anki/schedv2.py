@@ -1390,11 +1390,6 @@ where id = ?
 
     def _current_timezone_offset(self) -> Optional[int]:
         if self.col.server:
-            mins = self.col.server.minutes_west
-            if mins is not None:
-                return mins
-            # older Anki versions stored the local offset in
-            # the config
             return self.col.conf.get("localOffset", 0)
         else:
             return None

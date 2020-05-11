@@ -3,7 +3,6 @@
 
 import os
 import weakref
-from dataclasses import dataclass
 from typing import Optional
 
 from anki.collection import _Collection
@@ -12,21 +11,16 @@ from anki.media import media_paths_from_col_path
 from anki.rsbackend import RustBackend
 
 
-@dataclass
-class ServerData:
-    minutes_west: Optional[int] = None
-
-
 def Collection(
     path: str,
     backend: Optional[RustBackend] = None,
-    server: Optional[ServerData] = None,
+    server: bool = False,
     log: bool = False,
 ) -> _Collection:
     "Open a new or existing collection. Path must be unicode."
     assert path.endswith(".anki2")
     if backend is None:
-        backend = RustBackend(server=server is not None)
+        backend = RustBackend(server=server)
 
     (media_dir, media_db) = media_paths_from_col_path(path)
     log_path = ""

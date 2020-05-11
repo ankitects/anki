@@ -94,6 +94,7 @@ message BackendInput {
         AfterNoteUpdatesIn after_note_updates = 80;
         AddNoteTagsIn add_note_tags = 81;
         UpdateNoteTagsIn update_note_tags = 82;
+        int32 set_local_minutes_west = 83;
     }
 }
 
@@ -167,6 +168,7 @@ message BackendOutput {
         Empty after_note_updates = 80;
         uint32 add_note_tags = 81;
         uint32 update_note_tags = 82;
+        Empty set_local_minutes_west = 83;
 
         BackendError error = 2047;
     }
