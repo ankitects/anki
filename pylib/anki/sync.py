@@ -330,7 +330,7 @@ from notes where %s"""
 
     def remove(self, graves) -> None:
         # pretend to be the server so we don't set usn = -1
-        self.col.server = True  # type: ignore
+        self.col.server = True
 
         # notes first, so we don't end up with duplicate graves
         self.col._remNotes(graves["notes"])
@@ -340,7 +340,7 @@ from notes where %s"""
         for oid in graves["decks"]:
             self.col.decks.rem(oid, childrenToo=False)
 
-        self.col.server = False  # type: ignore
+        self.col.server = False
 
     # Models
     ##########################################################################

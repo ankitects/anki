@@ -134,6 +134,10 @@ impl Collection {
         self.get_config_optional(ConfigKey::LocalOffset)
     }
 
+    pub(crate) fn set_local_mins_west(&self, mins: i32) -> Result<()> {
+        self.set_config(ConfigKey::LocalOffset, &mins)
+    }
+
     pub(crate) fn get_rollover(&self) -> Option<i8> {
         self.get_config_optional(ConfigKey::Rollover)
     }

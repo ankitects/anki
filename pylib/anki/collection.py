@@ -41,7 +41,6 @@ class _Collection:
     crt: int
     mod: int
     scm: int
-    dty: bool  # no longer used
     _usn: int
     ls: int
     _undo: List[Any]
@@ -50,7 +49,7 @@ class _Collection:
         self,
         db: DBProxy,
         backend: RustBackend,
-        server: Optional["anki.storage.ServerData"] = None,
+        server: bool = False,
         log: bool = False,
     ) -> None:
         self.backend = backend
@@ -62,7 +61,7 @@ class _Collection:
         self.server = server
         self._lastSave = time.time()
         self.clearUndo()
-        self.media = MediaManager(self, server is not None)
+        self.media = MediaManager(self, server)
         self.models = ModelManager(self)
         self.decks = DeckManager(self)
         self.tags = TagManager(self)
@@ -133,16 +132,9 @@ class _Collection:
     ##########################################################################
 
     def load(self) -> None:
-        (
-            self.crt,
-            self.mod,
-            self.scm,
-            self.dty,  # no longer used
-            self._usn,
-            self.ls,
-        ) = self.db.first(
+        (self.crt, self.mod, self.scm, self._usn, self.ls,) = self.db.first(
             """
-select crt, mod, scm, dty, usn, ls from col"""
+select crt, mod, scm, usn, ls from col"""
         )
 
     def setMod(self) -> None:
@@ -157,11 +149,10 @@ is only necessary if you modify properties of this object."""
         self.mod = intTime(1000) if mod is None else mod
         self.db.execute(
             """update col set
-crt=?, mod=?, scm=?, dty=?, usn=?, ls=?""",
+crt=?, mod=?, scm=?, usn=?, ls=?""",
             self.crt,
             self.mod,
             self.scm,
-            self.dty,
             self._usn,
             self.ls,
         )
