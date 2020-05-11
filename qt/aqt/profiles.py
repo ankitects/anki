@@ -21,7 +21,7 @@ import aqt.sound
 from anki import Collection
 from anki.db import DB
 from anki.lang import _, without_unicode_isolation
-from anki.utils import intTime, isMac, isWin
+from anki.utils import intTime
 from aqt import appHelpSite
 from aqt.qt import *
 from aqt.utils import TR, locale_dir, showWarning, tr
@@ -67,18 +67,21 @@ class LoadMetaResult:
     loadError: bool
 
 
-class AnkiRestart(SystemExit):
-    def __init__(self, *args, **kwargs):
-        self.exitcode = kwargs.pop("exitcode", 0)
-        super().__init__(*args, **kwargs)
-
-
 class ProfileManager:
-    def __init__(self, base=None):
+    def __init__(self, base, opengl):
+        assert base
+        base = os.path.abspath(base)
+        self._ensureExists(base)
+        self.opengl = opengl
         self.name = None
         self.db = None
-        # instantiate base folder
-        self._setBaseFolder(base)
+        self.base = base
+
+    def glMode(self):
+        return self.opengl.glMode()
+
+    def setGlMode(self, mode):
+        return self.opengl.setGlMode(mode)
 
     def setupMeta(self) -> LoadMetaResult:
         # load metadata
@@ -96,97 +99,6 @@ class ProfileManager:
                 self.load(profile)
             except TypeError:
                 raise Exception("Provided profile does not exist.")
-
-    # Base creation
-    ######################################################################
-
-    def ensureBaseExists(self):
-        self._ensureExists(self.base)
-
-    # Folder migration
-    ######################################################################
-
-    def _oldFolderLocation(self):
-        if isMac:
-            return os.path.expanduser("~/Documents/Anki")
-        elif isWin:
-            from aqt.winpaths import get_personal
-
-            return os.path.join(get_personal(), "Anki")
-        else:
-            p = os.path.expanduser("~/Anki")
-            if os.path.isdir(p):
-                return p
-            return os.path.expanduser("~/Documents/Anki")
-
-    def maybeMigrateFolder(self):
-        newBase = self.base
-        oldBase = self._oldFolderLocation()
-
-        if oldBase and not os.path.exists(self.base) and os.path.isdir(oldBase):
-            try:
-                # if anything goes wrong with UI, reset to the old behavior of always migrating
-                self._tryToMigrateFolder(oldBase)
-            except AnkiRestart:
-                raise
-            except:
-                self.base = newBase
-                shutil.move(oldBase, self.base)
-
-    def _tryToMigrateFolder(self, oldBase):
-        from PyQt5 import QtWidgets, QtGui
-
-        app = QtWidgets.QApplication([])
-        icon = QtGui.QIcon()
-        icon.addPixmap(
-            QtGui.QPixmap(":/icons/anki.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off,
-        )
-        window_title = "Anki Base Directory Migration"
-        migration_directories = f"\n\n    {oldBase}\n\nto\n\n    {self.base}"
-
-        conformation = QMessageBox()
-        conformation.setIcon(QMessageBox.Warning)
-        conformation.setWindowIcon(icon)
-        conformation.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-        conformation.setWindowTitle(window_title)
-        conformation.setText("Confirm Anki Collection base directory migration?")
-        conformation.setInformativeText(
-            f"The Anki Collection directory should be migrated from {migration_directories}\n\n"
-            f"If you would like to keep using the old location, consult the Startup Options "
-            f"on the Anki documentation on website\n\n{appHelpSite}"
-        )
-        conformation.setDefaultButton(QMessageBox.Cancel)
-        retval = conformation.exec()
-
-        if retval == QMessageBox.Ok:
-            progress = QMessageBox()
-            progress.setIcon(QMessageBox.Information)
-            progress.setStandardButtons(QMessageBox.NoButton)
-            progress.setWindowIcon(icon)
-            progress.setWindowTitle(window_title)
-            progress.setText(
-                f"Please wait while your Anki collection is moved from {migration_directories}"
-            )
-            progress.show()
-            app.processEvents()
-            shutil.move(oldBase, self.base)
-            progress.hide()
-
-            completion = QMessageBox()
-            completion.setIcon(QMessageBox.Information)
-            completion.setStandardButtons(QMessageBox.Ok)
-            completion.setWindowIcon(icon)
-            completion.setWindowTitle(window_title)
-            completion.setText(
-                f"Your Anki Collection was successfully moved from {migration_directories}\n\n"
-                f"Now Anki needs to restart.\n\n"
-                f"Click OK to exit Anki and open it again."
-            )
-            completion.show()
-            completion.exec()
-            raise AnkiRestart(exitcode=0)
-        else:
-            self.base = oldBase
 
     # Profile load/save
     ######################################################################
@@ -370,35 +282,11 @@ and no other programs are accessing your profile folders, then try again."""
     # Helpers
     ######################################################################
 
-    def _ensureExists(self, path):
+    @classmethod
+    def _ensureExists(cls, path):
         if not os.path.exists(path):
             os.makedirs(path)
         return path
-
-    def _setBaseFolder(self, cmdlineBase):
-        if cmdlineBase:
-            self.base = os.path.abspath(cmdlineBase)
-        elif os.environ.get("ANKI_BASE"):
-            self.base = os.path.abspath(os.environ["ANKI_BASE"])
-        else:
-            self.base = self._defaultBase()
-            self.maybeMigrateFolder()
-        self.ensureBaseExists()
-
-    def _defaultBase(self):
-        if isWin:
-            from aqt.winpaths import get_appdata
-
-            return os.path.join(get_appdata(), "Anki2")
-        elif isMac:
-            return os.path.expanduser("~/Library/Application Support/Anki2")
-        else:
-            dataDir = os.environ.get(
-                "XDG_DATA_HOME", os.path.expanduser("~/.local/share")
-            )
-            if not os.path.exists(dataDir):
-                os.makedirs(dataDir)
-            return os.path.join(dataDir, "Anki2")
 
     def _loadMeta(self, retrying=False) -> LoadMetaResult:
         result = LoadMetaResult()
@@ -528,43 +416,6 @@ create table if not exists profiles
         self.db.execute(sql, self._pickle(self.meta), "_global")
         self.db.commit()
         anki.lang.set_lang(code, locale_dir())
-
-    # OpenGL
-    ######################################################################
-
-    def _glPath(self):
-        return os.path.join(self.base, "gldriver")
-
-    def glMode(self):
-        if isMac:
-            return "auto"
-
-        path = self._glPath()
-        if not os.path.exists(path):
-            return "software"
-
-        mode = open(path, "r").read().strip()
-
-        if mode == "angle" and isWin:
-            return mode
-        elif mode == "software":
-            return mode
-        return "auto"
-
-    def setGlMode(self, mode):
-        open(self._glPath(), "w").write(mode)
-
-    def nextGlMode(self):
-        mode = self.glMode()
-        if mode == "software":
-            self.setGlMode("auto")
-        elif mode == "auto":
-            if isWin:
-                self.setGlMode("angle")
-            else:
-                self.setGlMode("software")
-        elif mode == "angle":
-            self.setGlMode("software")
 
     # Shared options
     ######################################################################

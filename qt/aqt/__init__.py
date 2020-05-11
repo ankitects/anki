@@ -7,6 +7,7 @@ import getpass
 import gettext
 import locale
 import os
+import shutil
 import sys
 import tempfile
 import traceback
@@ -33,7 +34,7 @@ appUpdate = "https://ankiweb.net/update/desktop"
 appHelpSite = HELP_SITE
 
 from aqt.main import AnkiQt  # isort:skip
-from aqt.profiles import ProfileManager, AnkiRestart  # isort:skip
+from aqt.profiles import ProfileManager  # isort:skip
 
 profiler = None
 mw: Optional[AnkiQt] = None  # set on init
@@ -312,42 +313,6 @@ def parseArgs(argv):
     return parser.parse_known_args(argv[1:])
 
 
-def setupGL(pm):
-    if isMac:
-        return
-
-    mode = pm.glMode()
-
-    # work around pyqt loading wrong GL library
-    if isLin:
-        import ctypes
-
-        ctypes.CDLL("libGL.so.1", ctypes.RTLD_GLOBAL)
-
-    # catch opengl errors
-    def msgHandler(type, ctx, msg):
-        if "Failed to create OpenGL context" in msg:
-            QMessageBox.critical(
-                None,
-                "Error",
-                "Error loading '%s' graphics driver. Please start Anki again to try next driver."
-                % mode,
-            )
-            pm.nextGlMode()
-            return
-        else:
-            print("qt:", msg)
-
-    qInstallMessageHandler(msgHandler)
-
-    if mode == "auto":
-        return
-    elif isLin:
-        os.environ["QT_XCB_FORCE_SOFTWARE_OPENGL"] = "1"
-    else:
-        os.environ["QT_OPENGL"] = mode
-
-
 PROFILE_CODE = os.environ.get("ANKI_PROFILE_CODE")
 
 
@@ -400,38 +365,6 @@ def _run(argv=None, exec=True):
         profiler = cProfile.Profile()
         profiler.enable()
 
-    # profile manager
-    pm = None
-    try:
-        pm = ProfileManager(opts.base)
-        pmLoadResult = pm.setupMeta()
-    except AnkiRestart as error:
-        import subprocess
-
-        if error.exitcode:
-            sys.exit(error.exitcode)
-
-        # the first argument will be `qt/runanki` when calling it directly from a python interpreter
-        if os.path.abspath(argv[0]) == os.path.abspath(sys.executable):
-            arguments = argv
-        else:
-            arguments = [sys.executable] + argv
-
-        print("Relaunching Anki", arguments)
-        newanki = subprocess.Popen(arguments, env=os.environ)
-        newanki.communicate()
-        return
-    except:
-        # will handle below
-        traceback.print_exc()
-        pm = None
-
-    if pm:
-        # gl workarounds
-        setupGL(pm)
-        # apply user-provided scale factor
-        os.environ["QT_SCALE_FACTOR"] = str(pm.uiScale())
-
     # opt in to full hidpi support?
     if not os.environ.get("ANKI_NOHIGHDPI"):
         QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
@@ -442,31 +375,53 @@ def _run(argv=None, exec=True):
     if os.environ.get("ANKI_SOFTWAREOPENGL"):
         QCoreApplication.setAttribute(Qt.AA_UseSoftwareOpenGL)
 
+    # disable help button in title bar on qt versions that support it
+    if isWin and qtminor >= 10:
+        QApplication.setAttribute(Qt.AA_DisableWindowContextHelpButton)
+
     # create the app
     QCoreApplication.setApplicationName("Anki")
     QGuiApplication.setDesktopFileName("anki.desktop")
-    app = AnkiApp(argv)
-    if app.secondInstance():
-        # we've signaled the primary instance, so we should close
-        return
 
+    # profile manager
+    pm = None
+    try:
+        # gl workarounds
+        opengl = OpenGlSetup(opts.base, argv)
+        base = opengl.getBaseFolder()
+
+        pm = ProfileManager(base, opengl)
+        pmLoadResult = pm.setupMeta()
+    except:
+        # will handle below
+        stacktrace = traceback.format_exc()
+        traceback.print_exc()
+        pm = None
+
+    if pm:
+        # apply user-provided scale factor
+        os.environ["QT_SCALE_FACTOR"] = str(pm.uiScale())
+
+    app = AnkiApp(argv)
     if not pm:
         QMessageBox.critical(
             None,
             "Error",
-            """\
+            f"""\
 Anki could not create its data folder. Please see the File Locations \
-section of the manual, and ensure that location is not read-only.""",
+section of the manual, and ensure that location is not read-only.
+
+{stacktrace}""",
         )
+        return
+
+    if app.secondInstance():
+        # we've signaled the primary instance, so we should close
         return
 
     # disable icons on mac; this must be done before window created
     if isMac:
         app.setAttribute(Qt.AA_DontShowIconsInMenus)
-
-    # disable help button in title bar on qt versions that support it
-    if isWin and qtminor >= 10:
-        QApplication.setAttribute(Qt.AA_DisableWindowContextHelpButton)
 
     # proxy configured?
     from urllib.request import proxy_bypass, getproxies
@@ -487,9 +442,11 @@ section of the manual, and ensure that location is not read-only.""",
         QMessageBox.critical(
             None,
             "Error",
-            """\
+            f"""\
 No usable temporary folder found. Make sure C:\\temp exists or TEMP in your \
-environment points to a valid, writable folder.""",
+environment points to a valid, writable folder.
+
+{traceback.format_exc()}""",
         )
         return
 
@@ -510,11 +467,11 @@ environment points to a valid, writable folder.""",
     # i18n & backend
     backend = setupLangAndBackend(pm, app, opts.lang)
 
-    if isLin and pm.glMode() == "auto":
+    if isLin and opengl.glMode() == "auto":
         from aqt.utils import gfxDriverIsBroken
 
         if gfxDriverIsBroken():
-            pm.nextGlMode()
+            opengl.nextGlMode()
             QMessageBox.critical(
                 None,
                 "Error",
@@ -533,3 +490,193 @@ environment points to a valid, writable folder.""",
 
     if PROFILE_CODE:
         print_profile_results()
+
+
+class OpenGlSetup(object):
+    def __init__(self, cmdlineBase, argv):
+        self.argv = argv
+        self._isSetup = False
+
+        if cmdlineBase:
+            self._setupGL(os.path.abspath(cmdlineBase))
+
+        elif os.environ.get("ANKI_BASE"):
+            self._setupGL(os.path.abspath(os.environ["ANKI_BASE"]))
+
+        else:
+            self._maybeMigrateFolder()
+
+    def getBaseFolder(self):
+        return self.base
+
+    def _setupGL(self, base):
+        self.base = base
+        if isMac or self._isSetup:
+            return
+
+        self._isSetup = True
+        mode = self.glMode()
+
+        # work around pyqt loading wrong GL library
+        if isLin:
+            import ctypes
+
+            ctypes.CDLL("libGL.so.1", ctypes.RTLD_GLOBAL)
+
+        # catch opengl errors
+        def msgHandler(type, ctx, msg):
+            print("qt:", msg, type, ctx, file=sys.stderr)
+
+            if "Failed to create OpenGL context" in msg:
+                self.nextGlMode()
+                QMessageBox.critical(
+                    None,
+                    "Error",
+                    "Error loading '%s' graphics driver. Please start Anki again to try next driver."
+                    % mode,
+                )
+
+        qInstallMessageHandler(msgHandler)
+
+        if mode == "auto":
+            return
+        elif isLin:
+            os.environ["QT_XCB_FORCE_SOFTWARE_OPENGL"] = "1"
+        else:
+            os.environ["QT_OPENGL"] = mode
+
+    def _glPath(self):
+        return os.path.join(self.base, "gldriver")
+
+    def glMode(self):
+        if isMac:
+            return "auto"
+
+        path = self._glPath()
+        if not os.path.exists(path):
+            return "software"
+
+        with open(path, "r") as file:
+            mode = file.read().strip()
+
+        if mode == "angle" and isWin:
+            return mode
+        elif mode == "software":
+            return mode
+        return "auto"
+
+    def setGlMode(self, mode):
+        with open(self._glPath(), "w") as file:
+            file.write(mode)
+
+    def nextGlMode(self):
+        mode = self.glMode()
+        if mode == "software":
+            self.setGlMode("auto")
+        elif mode == "auto":
+            if isWin:
+                self.setGlMode("angle")
+            else:
+                self.setGlMode("software")
+        elif mode == "angle":
+            self.setGlMode("software")
+
+    def _maybeMigrateFolder(self):
+        newBase = self._defaultBase()
+        oldBase = self._oldFolderLocation()
+
+        if oldBase and not os.path.exists(newBase) and os.path.isdir(oldBase):
+            try:
+                # if anything goes wrong with UI, reset to the old behavior of always migrating
+                self._tryToMigrateFolder(oldBase, newBase)
+            except:
+                self._setupGL(newBase)
+                shutil.move(oldBase, newBase)
+        else:
+            self._setupGL(newBase)
+
+    def _tryToMigrateFolder(self, oldBase, newBase):
+        self._setupGL(oldBase)
+        app = QApplication(self.argv)
+
+        icon = QIcon()
+        icon.addPixmap(
+            QPixmap(":/icons/anki.png"), QIcon.Normal, QIcon.Off,
+        )
+        window_title = "Anki Base Directory Migration"
+        migration_directories = f"\n\n    {oldBase}\n\nto\n\n    {newBase}"
+
+        conformation = QMessageBox()
+        conformation.setIcon(QMessageBox.Warning)
+        conformation.setWindowIcon(icon)
+        conformation.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        conformation.setWindowTitle(window_title)
+        conformation.setText("Confirm Anki Collection base directory migration?")
+        conformation.setInformativeText(
+            f"The Anki Collection directory should be migrated from {migration_directories}\n\n"
+            f"If you would like to keep using the old location, consult the Startup Options "
+            f"on the Anki documentation on website\n\n{appHelpSite}"
+        )
+        conformation.setDefaultButton(QMessageBox.Cancel)
+        retval = conformation.exec()
+
+        if retval == QMessageBox.Ok:
+            self._setupGL(newBase)
+            progress = QMessageBox()
+            progress.setIcon(QMessageBox.Information)
+            progress.setStandardButtons(QMessageBox.NoButton)
+            progress.setWindowIcon(icon)
+            progress.setWindowTitle(window_title)
+            progress.setText(
+                f"Please wait while your Anki collection is moved from {migration_directories}"
+            )
+            progress.show()
+            app.processEvents()
+            shutil.move(oldBase, newBase)
+            progress.hide()
+
+            completion = QMessageBox()
+            completion.setIcon(QMessageBox.Information)
+            completion.setStandardButtons(QMessageBox.Ok)
+            completion.setWindowIcon(icon)
+            completion.setWindowTitle(window_title)
+            completion.setText(
+                f"Your Anki Collection was successfully moved from {migration_directories}\n\n"
+                f"Now Anki needs to restart.\n\n"
+                f"Click OK to exit Anki and open it again."
+            )
+            completion.show()
+            completion.exec()
+
+        else:
+            self.base = oldBase
+
+    @classmethod
+    def _oldFolderLocation(cls):
+        if isMac:
+            return os.path.expanduser("~/Documents/Anki")
+        elif isWin:
+            from aqt.winpaths import get_personal
+
+            return os.path.join(get_personal(), "Anki")
+        else:
+            p = os.path.expanduser("~/Anki")
+            if os.path.isdir(p):
+                return p
+            return os.path.expanduser("~/Documents/Anki")
+
+    @classmethod
+    def _defaultBase(cls):
+        if isWin:
+            from aqt.winpaths import get_appdata
+
+            return os.path.join(get_appdata(), "Anki2")
+        elif isMac:
+            return os.path.expanduser("~/Library/Application Support/Anki2")
+        else:
+            dataDir = os.environ.get(
+                "XDG_DATA_HOME", os.path.expanduser("~/.local/share")
+            )
+            if not os.path.exists(dataDir):
+                os.makedirs(dataDir)
+            return os.path.join(dataDir, "Anki2")
