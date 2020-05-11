@@ -44,6 +44,11 @@ pub(crate) enum ConfigKey {
     SchedulerVersion,
     LearnAheadSecs,
     NormalizeNoteText,
+    ShowRemainingDueCountsInStudy,
+    ShowIntervalsAboveAnswerButtons,
+    NewReviewMix,
+    AnswerTimeLimitSecs,
+    ShowDayLearningCardsFirst,
 }
 #[derive(PartialEq, Serialize_repr, Deserialize_repr, Clone, Copy)]
 #[repr(u8)]
@@ -66,6 +71,11 @@ impl From<ConfigKey> for &'static str {
             ConfigKey::SchedulerVersion => "schedVer",
             ConfigKey::LearnAheadSecs => "collapseTime",
             ConfigKey::NormalizeNoteText => "normalize_note_text",
+            ConfigKey::ShowRemainingDueCountsInStudy => "dueCounts",
+            ConfigKey::ShowIntervalsAboveAnswerButtons => "estTimes",
+            ConfigKey::NewReviewMix => "newSpread",
+            ConfigKey::AnswerTimeLimitSecs => "timeLim",
+            ConfigKey::ShowDayLearningCardsFirst => "dayLearnFirst",
         }
     }
 }
@@ -108,8 +118,11 @@ impl Collection {
             .set_config_value(key.into(), val, self.usn()?, TimestampSecs::now())
     }
 
-    pub(crate) fn remove_config(&self, key: &str) -> Result<()> {
-        self.storage.remove_config(key)
+    pub(crate) fn remove_config<'a, K>(&self, key: K) -> Result<()>
+    where
+        K: Into<&'a str>,
+    {
+        self.storage.remove_config(key.into())
     }
 
     pub(crate) fn get_browser_sort_kind(&self) -> SortKind {
@@ -130,6 +143,14 @@ impl Collection {
         self.get_config_optional(ConfigKey::CreationOffset)
     }
 
+    pub(crate) fn set_creation_mins_west(&self, mins: Option<i32>) -> Result<()> {
+        if let Some(mins) = mins {
+            self.set_config(ConfigKey::CreationOffset, &mins)
+        } else {
+            self.remove_config(ConfigKey::CreationOffset)
+        }
+    }
+
     pub(crate) fn get_local_mins_west(&self) -> Option<i32> {
         self.get_config_optional(ConfigKey::LocalOffset)
     }
@@ -138,9 +159,13 @@ impl Collection {
         self.set_config(ConfigKey::LocalOffset, &mins)
     }
 
-    pub(crate) fn get_rollover(&self) -> Option<u8> {
+    pub(crate) fn get_v2_rollover(&self) -> Option<u8> {
         self.get_config_optional::<u8, _>(ConfigKey::Rollover)
             .map(|r| r.min(23))
+    }
+
+    pub(crate) fn set_v2_rollover(&self, hour: u32) -> Result<()> {
+        self.set_config(ConfigKey::Rollover, &hour)
     }
 
     #[allow(dead_code)]
@@ -175,10 +200,62 @@ impl Collection {
             .unwrap_or(1200)
     }
 
+    pub(crate) fn set_learn_ahead_secs(&self, secs: u32) -> Result<()> {
+        self.set_config(ConfigKey::LearnAheadSecs, &secs)
+    }
+
     /// This is a stop-gap solution until we can decouple searching from canonical storage.
     pub(crate) fn normalize_note_text(&self) -> bool {
         self.get_config_optional(ConfigKey::NormalizeNoteText)
             .unwrap_or(true)
+    }
+
+    pub(crate) fn get_new_review_mix(&self) -> NewReviewMix {
+        match self.get_config_default::<u8, _>(ConfigKey::NewReviewMix) {
+            1 => NewReviewMix::ReviewsFirst,
+            2 => NewReviewMix::NewFirst,
+            _ => NewReviewMix::Mix,
+        }
+    }
+
+    pub(crate) fn set_new_review_mix(&self, mix: NewReviewMix) -> Result<()> {
+        self.set_config(ConfigKey::NewReviewMix, &(mix as u8))
+    }
+
+    pub(crate) fn get_show_due_counts(&self) -> bool {
+        self.get_config_optional(ConfigKey::ShowRemainingDueCountsInStudy)
+            .unwrap_or(true)
+    }
+
+    pub(crate) fn set_show_due_counts(&self, on: bool) -> Result<()> {
+        self.set_config(ConfigKey::ShowRemainingDueCountsInStudy, &on)
+    }
+
+    pub(crate) fn get_show_intervals_above_buttons(&self) -> bool {
+        self.get_config_optional(ConfigKey::ShowIntervalsAboveAnswerButtons)
+            .unwrap_or(true)
+    }
+
+    pub(crate) fn set_show_intervals_above_buttons(&self, on: bool) -> Result<()> {
+        self.set_config(ConfigKey::ShowIntervalsAboveAnswerButtons, &on)
+    }
+
+    pub(crate) fn get_answer_time_limit_secs(&self) -> u32 {
+        self.get_config_optional(ConfigKey::AnswerTimeLimitSecs)
+            .unwrap_or_default()
+    }
+
+    pub(crate) fn set_answer_time_limit_secs(&self, secs: u32) -> Result<()> {
+        self.set_config(ConfigKey::AnswerTimeLimitSecs, &secs)
+    }
+
+    pub(crate) fn get_day_learn_first(&self) -> bool {
+        self.get_config_optional(ConfigKey::ShowDayLearningCardsFirst)
+            .unwrap_or_default()
+    }
+
+    pub(crate) fn set_day_learn_first(&self, on: bool) -> Result<()> {
+        self.set_config(ConfigKey::ShowDayLearningCardsFirst, &on)
     }
 }
 
@@ -210,6 +287,12 @@ impl Default for SortKind {
     fn default() -> Self {
         Self::NoteCreation
     }
+}
+
+pub(crate) enum NewReviewMix {
+    Mix = 0,
+    ReviewsFirst = 1,
+    NewFirst = 2,
 }
 
 #[cfg(test)]

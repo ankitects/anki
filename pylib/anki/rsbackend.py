@@ -782,6 +782,14 @@ class RustBackend:
     def set_local_minutes_west(self, mins: int) -> None:
         self._run_command(pb.BackendInput(set_local_minutes_west=mins))
 
+    def get_preferences(self) -> pb.Preferences:
+        return self._run_command(
+            pb.BackendInput(get_preferences=pb.Empty())
+        ).get_preferences
+
+    def set_preferences(self, prefs: pb.Preferences) -> None:
+        self._run_command(pb.BackendInput(set_preferences=prefs))
+
 
 def translate_string_in(
     key: TR, **kwargs: Union[str, int, float]

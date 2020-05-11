@@ -105,6 +105,14 @@ fn v1_creation_date_inner(now: TimestampSecs, mins_west: i32) -> i64 {
     }
 }
 
+pub(crate) fn v1_creation_date_adjusted_to_hour(crt: i64, hour: u8) -> i64 {
+    Local
+        .timestamp(crt, 0)
+        .date()
+        .and_hms(hour as u32, 0, 0)
+        .timestamp()
+}
+
 fn sched_timing_today_v1(crt: i64, now: i64) -> SchedTimingToday {
     let days_elapsed = (now - crt) / 86_400;
     let next_day_at = crt + (days_elapsed + 1) * 86_400;
@@ -376,5 +384,10 @@ mod test {
             v1_creation_date_inner(now, AEST_MINS_WEST),
             offset.ymd(2020, 05, 9).and_hms(4, 0, 0).timestamp()
         );
+
+        let crt = v1_creation_date_inner(now, AEST_MINS_WEST);
+        assert_eq!(crt, v1_creation_date_adjusted_to_hour(crt, 4));
+        assert_eq!(crt + 3600, v1_creation_date_adjusted_to_hour(crt, 5));
+        assert_eq!(crt - 3600 * 4, v1_creation_date_adjusted_to_hour(crt, 0));
     }
 }

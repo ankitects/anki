@@ -8,7 +8,10 @@ use crate::{
 pub mod cutoff;
 pub mod timespan;
 
-use cutoff::{sched_timing_today, v1_rollover_from_creation_stamp, SchedTimingToday};
+use cutoff::{
+    sched_timing_today, v1_creation_date_adjusted_to_hour, v1_rollover_from_creation_stamp,
+    SchedTimingToday,
+};
 
 impl Collection {
     pub fn timing_today(&mut self) -> Result<SchedTimingToday> {
@@ -27,7 +30,7 @@ impl Collection {
             now,
             self.get_creation_mins_west(),
             local_offset,
-            self.get_rollover(),
+            self.get_v2_rollover(),
         ))
     }
 
@@ -36,7 +39,20 @@ impl Collection {
             SchedulerVersion::V1 => Ok(v1_rollover_from_creation_stamp(
                 self.storage.creation_stamp()?.0,
             )),
-            SchedulerVersion::V2 => Ok(self.get_rollover().unwrap_or(4)),
+            SchedulerVersion::V2 => Ok(self.get_v2_rollover().unwrap_or(4)),
+        }
+    }
+
+    pub(crate) fn set_rollover_for_current_scheduler(&self, hour: u8) -> Result<()> {
+        match self.sched_ver() {
+            SchedulerVersion::V1 => {
+                self.storage
+                    .set_creation_stamp(TimestampSecs(v1_creation_date_adjusted_to_hour(
+                        self.storage.creation_stamp()?.0,
+                        hour,
+                    )))
+            }
+            SchedulerVersion::V2 => self.set_v2_rollover(hour as u32),
         }
     }
 

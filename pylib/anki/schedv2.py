@@ -1377,26 +1377,6 @@ where id = ?
     def _timing_today(self) -> SchedTimingToday:
         return self.col.backend.sched_timing_today()
 
-    # New timezone handling - GUI helpers
-    ##########################################################################
-
-    def new_timezone_enabled(self) -> bool:
-        return self.col.conf.get("creationOffset") is not None
-
-    def set_creation_offset(self):
-        """Save the UTC west offset at the time of creation into the DB.
-
-        Once stored, this activates the new timezone handling code.
-        """
-        mins_west = self.col.backend.local_minutes_west(self.col.crt)
-        self.col.conf["creationOffset"] = mins_west
-        self.col.setMod()
-
-    def clear_creation_offset(self):
-        if "creationOffset" in self.col.conf:
-            del self.col.conf["creationOffset"]
-            self.col.setMod()
-
     # Deck finished state
     ##########################################################################
 

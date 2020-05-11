@@ -368,6 +368,11 @@ impl Backend {
                 self.set_local_mins_west(mins)?;
                 pb::Empty {}
             }),
+            Value::GetPreferences(_) => OValue::GetPreferences(self.get_preferences()?),
+            Value::SetPreferences(prefs) => OValue::SetPreferences({
+                self.set_preferences(prefs)?;
+                pb::Empty {}
+            }),
         })
     }
 
@@ -820,7 +825,7 @@ impl Backend {
                             let val: JsonValue = serde_json::from_slice(&val)?;
                             col.set_config(input.key.as_str(), &val)
                         }
-                        pb::set_config_json::Op::Remove(_) => col.remove_config(&input.key),
+                        pb::set_config_json::Op::Remove(_) => col.remove_config(input.key.as_str()),
                     }
                 } else {
                     Err(AnkiError::invalid_input("no op received"))
@@ -1114,6 +1119,14 @@ impl Backend {
 
     fn set_local_mins_west(&self, mins: i32) -> Result<()> {
         self.with_col(|col| col.transact(None, |col| col.set_local_mins_west(mins)))
+    }
+
+    fn get_preferences(&self) -> Result<pb::Preferences> {
+        self.with_col(|col| col.get_preferences())
+    }
+
+    fn set_preferences(&self, prefs: pb::Preferences) -> Result<()> {
+        self.with_col(|col| col.transact(None, |col| col.set_preferences(prefs)))
     }
 }
 
