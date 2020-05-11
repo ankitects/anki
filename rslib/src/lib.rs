@@ -25,6 +25,7 @@ pub mod log;
 pub mod media;
 pub mod notes;
 pub mod notetype;
+mod preferences;
 pub mod sched;
 pub mod search;
 pub mod serde;

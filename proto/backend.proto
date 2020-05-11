@@ -95,6 +95,8 @@ message BackendInput {
         AddNoteTagsIn add_note_tags = 81;
         UpdateNoteTagsIn update_note_tags = 82;
         int32 set_local_minutes_west = 83;
+        Empty get_preferences = 84;
+        Preferences set_preferences = 85;
     }
 }
 
@@ -169,6 +171,8 @@ message BackendOutput {
         uint32 add_note_tags = 81;
         uint32 update_note_tags = 82;
         Empty set_local_minutes_west = 83;
+        Preferences get_preferences = 84;
+        Empty set_preferences = 85;
 
         BackendError error = 2047;
     }
@@ -746,4 +750,28 @@ message UpdateNoteTagsIn {
 
 message CheckDatabaseOut {
     repeated string problems = 1;
+}
+
+message CollectionSchedulingSettings {
+    enum NewReviewMix {
+        DISTRIBUTE = 0;
+        REVIEWS_FIRST = 1;
+        NEW_FIRST = 2;
+    }
+
+    uint32 scheduler_version = 1;
+    uint32 rollover = 2;
+    uint32 learn_ahead_secs = 3;
+    NewReviewMix new_review_mix = 4;
+    bool show_remaining_due_counts = 5;
+    bool show_intervals_on_buttons = 6;
+    uint32 time_limit_secs = 7;
+
+    // v2 only
+    bool new_timezone = 8;
+    bool day_learn_first = 9;
+}
+
+message Preferences {
+    CollectionSchedulingSettings sched = 1;
 }

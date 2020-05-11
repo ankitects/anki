@@ -294,6 +294,13 @@ impl SqliteStorage {
             .map_err(Into::into)
     }
 
+    pub(crate) fn set_creation_stamp(&self, stamp: TimestampSecs) -> Result<()> {
+        self.db
+            .prepare("update col set crt = ?")?
+            .execute(&[stamp])?;
+        Ok(())
+    }
+
     pub(crate) fn set_schema_modified(&self) -> Result<()> {
         self.db
             .prepare_cached("update col set scm = ?")?

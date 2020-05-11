@@ -38,7 +38,6 @@ from anki.utils import devMode, ids2str, intTime, joinFields
 class _Collection:
     db: Optional[DBProxy]
     sched: Union[V1Scheduler, V2Scheduler]
-    crt: int
     mod: int
     scm: int
     _usn: int
@@ -132,10 +131,18 @@ class _Collection:
     ##########################################################################
 
     def load(self) -> None:
-        (self.crt, self.mod, self.scm, self._usn, self.ls,) = self.db.first(
+        (self.mod, self.scm, self._usn, self.ls,) = self.db.first(
             """
-select crt, mod, scm, usn, ls from col"""
+select mod, scm, usn, ls from col"""
         )
+
+    def _get_crt(self) -> int:
+        return self.db.scalar("select crt from col")
+
+    def _set_crt(self, val: int) -> None:
+        self.db.execute("update col set crt=?", val)
+
+    crt = property(_get_crt, _set_crt)
 
     def setMod(self) -> None:
         """Mark DB modified.
@@ -149,8 +156,7 @@ is only necessary if you modify properties of this object."""
         self.mod = intTime(1000) if mod is None else mod
         self.db.execute(
             """update col set
-crt=?, mod=?, scm=?, usn=?, ls=?""",
-            self.crt,
+mod=?, scm=?, usn=?, ls=?""",
             self.mod,
             self.scm,
             self._usn,
