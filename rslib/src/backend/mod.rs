@@ -22,7 +22,7 @@ use crate::{
     media::MediaManager,
     notes::{Note, NoteID},
     notetype::{all_stock_notetypes, NoteType, NoteTypeID, NoteTypeSchema11},
-    sched::cutoff::{local_minutes_west_for_stamp, sched_timing_today},
+    sched::cutoff::local_minutes_west_for_stamp,
     sched::timespan::{answer_button_time, learning_congrats, studied_today, time_span},
     search::SortMode,
     template::{render_card, RenderedNode},
@@ -214,9 +214,7 @@ impl Backend {
     ) -> Result<pb::backend_output::Value> {
         use pb::backend_output::Value as OValue;
         Ok(match ival {
-            Value::SchedTimingToday(input) => {
-                OValue::SchedTimingToday(self.sched_timing_today(input))
-            }
+            Value::SchedTimingToday(_) => OValue::SchedTimingToday(self.sched_timing_today()?),
             Value::DeckTree(input) => OValue::DeckTree(self.deck_tree(input)?),
             Value::RenderCard(input) => OValue::RenderCard(self.render_template(input)?),
             Value::LocalMinutesWest(stamp) => {
@@ -436,18 +434,8 @@ impl Backend {
         self.progress_callback = progress_cb;
     }
 
-    fn sched_timing_today(&self, input: pb::SchedTimingTodayIn) -> pb::SchedTimingTodayOut {
-        let today = sched_timing_today(
-            TimestampSecs(input.created_secs),
-            TimestampSecs(input.now_secs),
-            input.created_mins_west.map(|v| v.val),
-            input.now_mins_west.map(|v| v.val),
-            input.rollover_hour.map(|v| v.val as i8),
-        );
-        pb::SchedTimingTodayOut {
-            days_elapsed: today.days_elapsed,
-            next_day_at: today.next_day_at,
-        }
+    fn sched_timing_today(&self) -> Result<pb::SchedTimingTodayOut> {
+        self.with_col(|col| col.timing_today().map(Into::into))
     }
 
     fn deck_tree(&self, input: pb::DeckTreeIn) -> Result<pb::DeckTreeNode> {
@@ -1268,4 +1256,13 @@ fn pbcard_to_native(c: pb::Card) -> Result<Card> {
         flags: c.flags as u8,
         data: c.data,
     })
+}
+
+impl From<crate::sched::cutoff::SchedTimingToday> for pb::SchedTimingTodayOut {
+    fn from(t: crate::sched::cutoff::SchedTimingToday) -> pb::SchedTimingTodayOut {
+        pb::SchedTimingTodayOut {
+            days_elapsed: t.days_elapsed,
+            next_day_at: t.next_day_at,
+        }
+    }
 }

@@ -287,38 +287,9 @@ class RustBackend:
             release_gil=True,
         )
 
-    def sched_timing_today(
-        self,
-        created_secs: int,
-        created_mins_west: Optional[int],
-        now_mins_west: Optional[int],
-        rollover: Optional[int],
-    ) -> SchedTimingToday:
-        if created_mins_west is not None:
-            crt_west = pb.OptionalInt32(val=created_mins_west)
-        else:
-            crt_west = None
-
-        if now_mins_west is not None:
-            now_west = pb.OptionalInt32(val=now_mins_west)
-        else:
-            now_west = None
-
-        if rollover is not None:
-            roll = pb.OptionalInt32(val=rollover)
-        else:
-            roll = None
-
+    def sched_timing_today(self,) -> SchedTimingToday:
         return self._run_command(
-            pb.BackendInput(
-                sched_timing_today=pb.SchedTimingTodayIn(
-                    created_secs=created_secs,
-                    now_secs=intTime(),
-                    created_mins_west=crt_west,
-                    now_mins_west=now_west,
-                    rollover_hour=roll,
-                )
-            )
+            pb.BackendInput(sched_timing_today=pb.Empty())
         ).sched_timing_today
 
     def render_card(

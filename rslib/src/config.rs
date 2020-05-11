@@ -138,8 +138,9 @@ impl Collection {
         self.set_config(ConfigKey::LocalOffset, &mins)
     }
 
-    pub(crate) fn get_rollover(&self) -> Option<i8> {
-        self.get_config_optional(ConfigKey::Rollover)
+    pub(crate) fn get_rollover(&self) -> Option<u8> {
+        self.get_config_optional::<u8, _>(ConfigKey::Rollover)
+            .map(|r| r.min(23))
     }
 
     #[allow(dead_code)]

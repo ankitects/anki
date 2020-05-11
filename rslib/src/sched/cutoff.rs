@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::timestamp::TimestampSecs;
-use chrono::{Date, Duration, FixedOffset, Local, TimeZone};
+use chrono::{Date, Duration, FixedOffset, Local, TimeZone, Timelike};
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct SchedTimingToday {
@@ -24,7 +24,7 @@ pub fn sched_timing_today_v2_new(
     created_mins_west: i32,
     now_secs: i64,
     now_mins_west: i32,
-    rollover_hour: i8,
+    rollover_hour: u8,
 ) -> SchedTimingToday {
     // get date(times) based on timezone offsets
     let created_date = fixed_offset_from_minutes(created_mins_west)
@@ -34,7 +34,6 @@ pub fn sched_timing_today_v2_new(
     let today = now_datetime.date();
 
     // rollover
-    let rollover_hour = normalized_rollover_hour(rollover_hour);
     let rollover_today_datetime = today.and_hms(rollover_hour as u32, 0, 0);
     let rollover_passed = rollover_today_datetime <= now_datetime;
     let next_day_at = if rollover_passed {
@@ -67,17 +66,6 @@ fn days_elapsed(
     days.max(0) as u32
 }
 
-/// Negative rollover hours are relative to the next day, eg -1 = 23.
-/// Cap hour to 23.
-fn normalized_rollover_hour(hour: i8) -> u8 {
-    let capped_hour = hour.max(-23).min(23);
-    if capped_hour < 0 {
-        (24 + capped_hour) as u8
-    } else {
-        capped_hour as u8
-    }
-}
-
 /// Build a FixedOffset struct, capping minutes_west if out of bounds.
 fn fixed_offset_from_minutes(minutes_west: i32) -> FixedOffset {
     let bounded_minutes = minutes_west.max(-23 * 60).min(23 * 60);
@@ -94,6 +82,10 @@ pub fn local_minutes_west_for_stamp(stamp: i64) -> i32 {
 
 // Legacy code
 // ----------------------------------
+
+pub(crate) fn v1_rollover_from_creation_stamp(crt: i64) -> u8 {
+    Local.timestamp(crt, 0).hour() as u8
+}
 
 pub(crate) fn v1_creation_date() -> i64 {
     let now = TimestampSecs::now();
@@ -124,24 +116,23 @@ fn sched_timing_today_v1(crt: i64, now: i64) -> SchedTimingToday {
 
 fn sched_timing_today_v2_legacy(
     crt: i64,
-    rollover: i8,
+    rollover: u8,
     now: i64,
     mins_west: i32,
 ) -> SchedTimingToday {
-    let normalized_rollover = normalized_rollover_hour(rollover);
     let offset = fixed_offset_from_minutes(mins_west);
 
     let crt_at_rollover = offset
         .timestamp(crt, 0)
         .date()
-        .and_hms(normalized_rollover as u32, 0, 0)
+        .and_hms(rollover as u32, 0, 0)
         .timestamp();
     let days_elapsed = (now - crt_at_rollover) / 86_400;
 
     let mut next_day_at = offset
         .timestamp(now, 0)
         .date()
-        .and_hms(normalized_rollover as u32, 0, 0)
+        .and_hms(rollover as u32, 0, 0)
         .timestamp();
     if next_day_at < now {
         next_day_at += 86_400;
@@ -161,7 +152,7 @@ pub(crate) fn sched_timing_today(
     now_secs: TimestampSecs,
     created_mins_west: Option<i32>,
     now_mins_west: Option<i32>,
-    rollover_hour: Option<i8>,
+    rollover_hour: Option<u8>,
 ) -> SchedTimingToday {
     let now_west = now_mins_west.unwrap_or_else(|| local_minutes_west_for_stamp(now_secs.0));
     match (rollover_hour, created_mins_west) {
@@ -189,24 +180,13 @@ mod test {
     const AEST_MINS_WEST: i32 = -600;
 
     #[test]
-    fn rollover() {
-        assert_eq!(normalized_rollover_hour(4), 4);
-        assert_eq!(normalized_rollover_hour(23), 23);
-        assert_eq!(normalized_rollover_hour(24), 23);
-        assert_eq!(normalized_rollover_hour(-1), 23);
-        assert_eq!(normalized_rollover_hour(-2), 22);
-        assert_eq!(normalized_rollover_hour(-23), 1);
-        assert_eq!(normalized_rollover_hour(-24), 1);
-    }
-
-    #[test]
     fn fixed_offset() {
         let offset = fixed_offset_from_minutes(AEST_MINS_WEST);
         assert_eq!(offset.utc_minus_local(), AEST_MINS_WEST * 60);
     }
 
     // helper
-    fn elap(start: i64, end: i64, start_west: i32, end_west: i32, rollhour: i8) -> u32 {
+    fn elap(start: i64, end: i64, start_west: i32, end_west: i32, rollhour: u8) -> u32 {
         let today = sched_timing_today_v2_new(start, start_west, end, end_west, rollhour);
         today.days_elapsed
     }
@@ -300,7 +280,7 @@ mod test {
                                 end_stamp,
                                 crt_offset,
                                 end_offset,
-                                *rollover_hour as i8
+                                *rollover_hour as u8
                             ),
                             elap_day
                         );
@@ -323,7 +303,7 @@ mod test {
             crt.offset().utc_minus_local() / 60,
             now.timestamp(),
             now.offset().utc_minus_local() / 60,
-            rollhour as i8,
+            rollhour as u8,
         );
         assert_eq!(today.next_day_at, next_day_at.timestamp());
 
@@ -335,7 +315,7 @@ mod test {
             crt.offset().utc_minus_local() / 60,
             now.timestamp(),
             now.offset().utc_minus_local() / 60,
-            rollhour as i8,
+            rollhour as u8,
         );
         assert_eq!(today.next_day_at, next_day_at.timestamp());
 
@@ -347,7 +327,7 @@ mod test {
             crt.offset().utc_minus_local() / 60,
             now.timestamp(),
             now.offset().utc_minus_local() / 60,
-            rollhour as i8,
+            rollhour as u8,
         );
         assert_eq!(today.next_day_at, next_day_at.timestamp());
     }
