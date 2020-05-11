@@ -32,7 +32,7 @@ class DeckChooser(QHBoxLayout):
         self.deck = QPushButton(clicked=self.onDeckChange)  # type: ignore
         self.deck.setAutoDefault(False)
         self.deck.setToolTip(shortcut(_("Target Deck (Ctrl+D)")))
-        s = QShortcut(QKeySequence("Ctrl+D"), self.widget, activated=self.onDeckChange)  # type: ignore
+        QShortcut(QKeySequence("Ctrl+D"), self.widget, activated=self.onDeckChange)  # type: ignore
         self.addWidget(self.deck)
         # starting label
         if self.mw.col.conf.get("addToCur", True):

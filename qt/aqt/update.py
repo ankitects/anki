@@ -24,14 +24,13 @@ class LatestVersionFinder(QThread):
         self.config = main.pm.meta
 
     def _data(self):
-        d = {
+        return {
             "ver": versionWithBuild(),
             "os": platDesc(),
             "id": self.config["id"],
             "lm": self.config["lastMsg"],
             "crt": self.config["created"],
         }
-        return d
 
     def run(self):
         if not self.config["updates"]:
