@@ -51,7 +51,7 @@ pub struct NewConf {
     #[serde(deserialize_with = "default_on_invalid")]
     ints: NewCardIntervals,
     #[serde(deserialize_with = "default_on_invalid")]
-    order: NewCardOrder,
+    pub(crate) order: NewCardOrder,
     #[serde(deserialize_with = "default_on_invalid")]
     pub(crate) per_day: u32,
 
@@ -199,6 +199,7 @@ impl Default for DeckConf {
 }
 
 impl Collection {
+    /// If fallback is true, guaranteed to return a deck config.
     pub fn get_deck_config(&self, dcid: DeckConfID, fallback: bool) -> Result<Option<DeckConf>> {
         if let Some(conf) = self.storage.get_deck_config(dcid)? {
             return Ok(Some(conf));

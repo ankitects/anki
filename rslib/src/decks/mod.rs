@@ -9,6 +9,7 @@ pub use crate::backend_proto::{
 use crate::{
     card::CardID,
     collection::Collection,
+    deckconf::DeckConfID,
     define_newtype,
     err::{AnkiError, Result},
     text::normalize_to_nfc,
@@ -72,6 +73,15 @@ impl Deck {
 impl Deck {
     pub(crate) fn is_filtered(&self) -> bool {
         matches!(self.kind, DeckKind::Filtered(_))
+    }
+
+    /// Returns deck config ID if deck is a normal deck.
+    pub(crate) fn config_id(&self) -> Option<DeckConfID> {
+        if let DeckKind::Normal(ref norm) = self.kind {
+            Some(DeckConfID(norm.config_id))
+        } else {
+            None
+        }
     }
 
     pub(crate) fn prepare_for_update(&mut self) {
