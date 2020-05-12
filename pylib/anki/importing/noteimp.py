@@ -107,6 +107,10 @@ class NoteImporter(Importer):
         "Open file and ensure it's in the right format."
         return
 
+    def close(self) -> None:
+        "Closes the open file."
+        return
+
     def importNotes(self, notes: List[ForeignNote]) -> None:
         "Convert each card into a note, apply attributes and add to col."
         assert self.mappingOk()
