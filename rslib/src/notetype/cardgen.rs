@@ -6,15 +6,15 @@ use crate::{
     card::{Card, CardID},
     cloze::add_cloze_numbers_in_string,
     collection::Collection,
-    decks::DeckID,
-    err::Result,
+    decks::{Deck, DeckID},
+    err::{AnkiError, Result},
     notes::{Note, NoteID},
     notetype::NoteTypeKind,
     template::ParsedTemplate,
     types::Usn,
 };
 use itertools::Itertools;
-use std::collections::HashSet;
+use std::{collections::HashSet, sync::Arc};
 
 /// Info about an existing card required when generating new cards
 #[derive(Debug, PartialEq)]
@@ -259,14 +259,14 @@ impl Collection {
     ) -> Result<()> {
         let mut next_pos = None;
         for c in cards {
-            let did = self.deck_id_for_adding(c.did.or(target_deck_id))?;
+            let target_deck = self.deck_for_adding(c.did.or(target_deck_id))?;
             let due = c.due.unwrap_or_else(|| {
                 if next_pos.is_none() {
                     next_pos = Some(self.get_and_update_next_card_position().unwrap_or(0));
                 }
                 next_pos.unwrap()
             });
-            let mut card = Card::new(nid, c.ord as u16, did, due as i32);
+            let mut card = Card::new(nid, c.ord as u16, target_deck.id, due as i32);
             self.add_card(&mut card)?;
         }
 
@@ -274,23 +274,27 @@ impl Collection {
     }
 
     /// If deck ID does not exist or points to a filtered deck, fall back on default.
-    fn deck_id_for_adding(&mut self, did: Option<DeckID>) -> Result<DeckID> {
-        if let Some(did) = did.and_then(|did| self.deck_id_if_normal(did)) {
-            Ok(did)
-        } else {
-            self.default_deck_id()
+    fn deck_for_adding(&mut self, did: Option<DeckID>) -> Result<Arc<Deck>> {
+        if let Some(did) = did {
+            if let Some(deck) = self.deck_if_normal(did)? {
+                return Ok(deck);
+            }
         }
+
+        self.default_deck()
     }
 
-    fn default_deck_id(&mut self) -> Result<DeckID> {
-        // currently hard-coded, we could create this as needed in the future
-        Ok(DeckID(1))
+    fn default_deck(&mut self) -> Result<Arc<Deck>> {
+        // currently hard-coded to 1, we could create this as needed in the future
+        Ok(self
+            .get_deck(DeckID(1))?
+            .ok_or_else(|| AnkiError::invalid_input("missing default deck"))?)
     }
 
     /// If deck exists and and is a normal deck, return it.
-    fn deck_id_if_normal(&mut self, did: DeckID) -> Option<DeckID> {
-        self.get_deck(did)
-            .ok()
-            .and_then(|opt| opt.and_then(|d| if !d.is_filtered() { Some(d.id) } else { None }))
+    fn deck_if_normal(&mut self, did: DeckID) -> Result<Option<Arc<Deck>>> {
+        Ok(self
+            .get_deck(did)?
+            .and_then(|d| if !d.is_filtered() { Some(d) } else { None }))
     }
 }
