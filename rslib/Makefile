@@ -17,7 +17,7 @@ $(shell mkdir -p .build)
 
 all: check
 
-check: .build/check
+check: .build/vernum .build/check
 
 fix:
 	cargo fmt
