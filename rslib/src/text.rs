@@ -65,7 +65,7 @@ lazy_static! {
     // videos are also in sound tags
     static ref AV_TAGS: Regex = Regex::new(
         r#"(?xs)
-            \[sound:(.*?)\]     # 1 - the filename in a sound tag
+            \[sound:(.+?)\]     # 1 - the filename in a sound tag
             |
             \[anki:tts\]
                 \[(.*?)\]       # 2 - arguments to tts call
