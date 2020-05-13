@@ -180,14 +180,7 @@ class Reviewer:
         self.typedAnswer: str = None
         c = self.card
         # grab the question and play audio
-        if c.isEmpty():
-            q = _(
-                """\
-The front of this card is empty. Please run Tools>Empty Cards."""
-            )
-        else:
-            q = c.q()
-
+        q = c.q()
         # play audio?
         if c.autoplay():
             av_player.play_tags(c.question_av_tags())
