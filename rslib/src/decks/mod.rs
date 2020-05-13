@@ -84,6 +84,10 @@ impl Deck {
         }
     }
 
+    pub fn human_name(&self) -> String {
+        self.name.replace("\x1f", "::")
+    }
+
     pub(crate) fn prepare_for_update(&mut self) {
         // fixme - we currently only do this when converting from human; should be done in pub methods instead
 

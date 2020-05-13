@@ -4,6 +4,7 @@
 mod cardgen;
 mod emptycards;
 mod fields;
+mod render;
 mod schema11;
 mod schemachange;
 mod stock;
@@ -16,6 +17,7 @@ pub use crate::backend_proto::{
 };
 pub(crate) use cardgen::{AlreadyGeneratedCardInfo, CardGenContext};
 pub use fields::NoteField;
+pub(crate) use render::RenderCardOutput;
 pub use schema11::{CardTemplateSchema11, NoteFieldSchema11, NoteTypeSchema11};
 pub use stock::all_stock_notetypes;
 pub use templates::CardTemplate;

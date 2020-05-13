@@ -21,11 +21,11 @@ use crate::{
     media::sync::MediaSyncProgress,
     media::MediaManager,
     notes::{Note, NoteID},
-    notetype::{all_stock_notetypes, NoteType, NoteTypeID, NoteTypeSchema11},
+    notetype::{all_stock_notetypes, NoteType, NoteTypeID, NoteTypeSchema11, RenderCardOutput},
     sched::cutoff::local_minutes_west_for_stamp,
     sched::timespan::{answer_button_time, learning_congrats, studied_today, time_span},
     search::SortMode,
-    template::{render_card, RenderedNode},
+    template::RenderedNode,
     text::{extract_av_tags, strip_av_tags, AVTag},
     timestamp::TimestampSecs,
     types::Usn,
@@ -216,7 +216,9 @@ impl Backend {
         Ok(match ival {
             Value::SchedTimingToday(_) => OValue::SchedTimingToday(self.sched_timing_today()?),
             Value::DeckTree(input) => OValue::DeckTree(self.deck_tree(input)?),
-            Value::RenderCard(input) => OValue::RenderCard(self.render_template(input)?),
+            Value::RenderExistingCard(input) => {
+                OValue::RenderExistingCard(self.render_existing_card(input)?)
+            }
             Value::LocalMinutesWest(stamp) => {
                 OValue::LocalMinutesWest(local_minutes_west_for_stamp(stamp))
             }
@@ -447,27 +449,10 @@ impl Backend {
         self.with_col(|col| col.deck_tree(input.include_counts))
     }
 
-    fn render_template(&self, input: pb::RenderCardIn) -> Result<pb::RenderCardOut> {
-        // convert string map to &str
-        let fields: HashMap<_, _> = input
-            .fields
-            .iter()
-            .map(|(k, v)| (k.as_ref(), v.as_ref()))
-            .collect();
-
-        // render
-        let (qnodes, anodes) = render_card(
-            &input.question_template,
-            &input.answer_template,
-            &fields,
-            input.card_ordinal as u16,
-            &self.i18n,
-        )?;
-
-        // return
-        Ok(pb::RenderCardOut {
-            question_nodes: rendered_nodes_to_proto(qnodes),
-            answer_nodes: rendered_nodes_to_proto(anodes),
+    fn render_existing_card(&self, input: pb::RenderExistingCardIn) -> Result<pb::RenderCardOut> {
+        self.with_col(|col| {
+            col.render_existing_card(CardID(input.card_id), input.browser)
+                .map(Into::into)
         })
     }
 
@@ -1166,6 +1151,15 @@ fn rendered_node_to_proto(node: RenderedNode) -> pb::rendered_template_node::Val
             current_text,
             filters,
         }),
+    }
+}
+
+impl From<RenderCardOutput> for pb::RenderCardOut {
+    fn from(o: RenderCardOutput) -> Self {
+        pb::RenderCardOut {
+            question_nodes: rendered_nodes_to_proto(o.qnodes),
+            answer_nodes: rendered_nodes_to_proto(o.anodes),
+        }
     }
 }
 
