@@ -6,7 +6,6 @@ from __future__ import annotations
 import copy
 import os
 import pprint
-import random
 import re
 import time
 import traceback
@@ -25,13 +24,13 @@ from anki.decks import DeckManager
 from anki.errors import AnkiError
 from anki.lang import _
 from anki.media import MediaManager
-from anki.models import ModelManager, NoteType, Template
+from anki.models import ModelManager
 from anki.notes import Note
 from anki.rsbackend import TR, DBError, RustBackend
 from anki.sched import Scheduler as V1Scheduler
 from anki.schedv2 import Scheduler as V2Scheduler
 from anki.tags import TagManager
-from anki.utils import devMode, ids2str, intTime, joinFields
+from anki.utils import devMode, ids2str, intTime
 
 
 # this is initialized by storage.Collection
@@ -314,95 +313,6 @@ mod=?, scm=?, usn=?, ls=?""",
         hooks.notes_will_be_deleted(self, ids)
         self._logRem(ids, REM_NOTE)
         self.db.execute("delete from notes where id in %s" % strids)
-
-    # Card creation
-    ##########################################################################
-
-    def findTemplates(self, note: Note) -> List:
-        "Return (active), non-empty templates."
-        model = note.model()
-        avail = self.models.availOrds(model, joinFields(note.fields))
-        return self._tmplsFromOrds(model, avail)
-
-    def _tmplsFromOrds(self, model: NoteType, avail: List[int]) -> List:
-        ok = []
-        if model["type"] == MODEL_STD:
-            for t in model["tmpls"]:
-                if t["ord"] in avail:
-                    ok.append(t)
-        else:
-            # cloze - generate temporary templates from first
-            for ord in avail:
-                t = copy.copy(model["tmpls"][0])
-                t["ord"] = ord
-                ok.append(t)
-        return ok
-
-    # type is no longer used
-    def previewCards(
-        self, note: Note, type: int = 0, did: Optional[int] = None
-    ) -> List:
-        existing_cards = {}
-        for card in note.cards():
-            existing_cards[card.ord] = card
-
-        all_cards = []
-        for idx, template in enumerate(note.model()["tmpls"]):
-            if idx in existing_cards:
-                all_cards.append(existing_cards[idx])
-            else:
-                # card not currently in database, generate an ephemeral one
-                all_cards.append(self._newCard(note, template, 1, flush=False, did=did))
-
-        return all_cards
-
-    def _newCard(
-        self,
-        note: Note,
-        template: Template,
-        due: int,
-        flush: bool = True,
-        did: Optional[int] = None,
-    ) -> Card:
-        "Create a new card."
-        card = Card(self)
-        card.nid = note.id
-        card.ord = template["ord"]  # type: ignore
-        card.did = self.db.scalar(
-            "select did from cards where nid = ? and ord = ?", card.nid, card.ord
-        )
-        # Use template did (deck override) if valid, otherwise did in argument, otherwise model did
-        if not card.did:
-            if template["did"] and str(template["did"]) in self.decks.decks:
-                card.did = int(template["did"])
-            elif did:
-                card.did = did
-            else:
-                card.did = note.model()["did"]
-        # if invalid did, use default instead
-        deck = self.decks.get(card.did)
-        assert deck
-        if deck["dyn"]:
-            # must not be a filtered deck
-            card.did = 1
-        else:
-            card.did = deck["id"]
-        card.due = self._dueForDid(card.did, due)
-        if flush:
-            card.flush()
-        return card
-
-    def _dueForDid(self, did: int, due: int) -> int:
-        conf = self.decks.confForDid(did)
-        # in order due?
-        if conf["new"]["order"] == NEW_CARDS_DUE:
-            return due
-        else:
-            # random mode; seed with note ts so all cards of this note get the
-            # same random number
-            r = random.Random()
-            r.seed(due)
-            return r.randrange(1, max(due, 1000))
 
     # Cards
     ##########################################################################
