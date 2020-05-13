@@ -167,6 +167,12 @@ class TemplateReplacement:
 TemplateReplacementList = List[Union[str, TemplateReplacement]]
 
 
+@dataclass
+class PartiallyRenderedCard:
+    qnodes: TemplateReplacementList
+    anodes: TemplateReplacementList
+
+
 MediaSyncProgress = pb.MediaSyncProgress
 
 MediaCheckOutput = pb.MediaCheckOut
@@ -292,24 +298,19 @@ class RustBackend:
             pb.BackendInput(sched_timing_today=pb.Empty())
         ).sched_timing_today
 
-    def render_card(
-        self, qfmt: str, afmt: str, fields: Dict[str, str], card_ord: int
-    ) -> Tuple[TemplateReplacementList, TemplateReplacementList]:
+    def render_existing_card(self, cid: int, browser: bool) -> PartiallyRenderedCard:
         out = self._run_command(
             pb.BackendInput(
-                render_card=pb.RenderCardIn(
-                    question_template=qfmt,
-                    answer_template=afmt,
-                    fields=fields,
-                    card_ordinal=card_ord,
+                render_existing_card=pb.RenderExistingCardIn(
+                    card_id=cid, browser=browser,
                 )
             )
-        ).render_card
+        ).render_existing_card
 
         qnodes = proto_replacement_list_to_native(out.question_nodes)  # type: ignore
         anodes = proto_replacement_list_to_native(out.answer_nodes)  # type: ignore
 
-        return (qnodes, anodes)
+        return PartiallyRenderedCard(qnodes, anodes)
 
     def local_minutes_west(self, stamp: int) -> int:
         return self._run_command(

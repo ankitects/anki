@@ -109,10 +109,10 @@ class Card:
             self.id = self.col.backend.add_card(card)
 
     def question(self, reload: bool = False, browser: bool = False) -> str:
-        return self.css() + self.render_output(reload, browser).question_text
+        return self.render_output(reload, browser).question_and_style()
 
     def answer(self) -> str:
-        return self.css() + self.render_output().answer_text
+        return self.render_output().answer_and_style()
 
     def question_av_tags(self) -> List[AVTag]:
         return self.render_output().question_av_tags
@@ -120,17 +120,17 @@ class Card:
     def answer_av_tags(self) -> List[AVTag]:
         return self.render_output().answer_av_tags
 
+    # legacy
     def css(self) -> str:
-        return "<style>%s</style>" % self.model()["css"]
+        return "<style>%s</style>" % self.render_output().css
 
     def render_output(
         self, reload: bool = False, browser: bool = False
     ) -> anki.template.TemplateRenderOutput:
         if not self._render_output or reload:
-            note = self.note(reload)
-            self._render_output = anki.template.render_card(
-                self.col, self, note, browser
-            )
+            self._render_output = anki.template.TemplateRenderContext.from_existing_card(
+                self, browser
+            ).render()
         return self._render_output
 
     def note(self, reload: bool = False) -> Note:

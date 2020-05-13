@@ -37,7 +37,7 @@ from anki.cards import Card
 from anki.decks import DeckManager
 from anki.models import NoteType
 from anki.notes import Note
-from anki.rsbackend import TemplateReplacementList
+from anki.rsbackend import PartiallyRenderedCard, TemplateReplacementList
 from anki.sound import AVTag
 
 CARD_BLANK_HELP = (
@@ -51,21 +51,35 @@ class TemplateRenderContext:
     This may fetch information lazily in the future, so please avoid
     using the _private fields directly."""
 
+    @staticmethod
+    def from_existing_card(card: Card, browser: bool) -> TemplateRenderContext:
+        return TemplateRenderContext(card.col, card, card.note(), browser)
+
+    @classmethod
+    def from_card_layout(cls, note: Note, card_ord: int) -> TemplateRenderContext:
+        card = cls.synthesized_card(note.col, card_ord)
+        return TemplateRenderContext(note.col, card, note)
+
+    @classmethod
+    def synthesized_card(cls, col: anki.storage._Collection, ord: int):
+        c = Card(col)
+        c.ord = ord
+        return c
+
     def __init__(
         self,
         col: anki.storage._Collection,
         card: Card,
         note: Note,
-        fields: Dict[str, str],
-        qfmt: str,
-        afmt: str,
+        browser: bool = False,
+        template: Optional[Any] = None,
     ) -> None:
-        self._col = col
+        self._col = col.weakref()
         self._card = card
         self._note = note
-        self._fields = fields
-        self._qfmt = qfmt
-        self._afmt = afmt
+        self._browser = browser
+        self._template = template
+        self._note_type = note.model()
 
         # if you need to store extra state to share amongst rendering
         # hooks, you can insert it into this dictionary
@@ -74,8 +88,9 @@ class TemplateRenderContext:
     def col(self) -> anki.storage._Collection:
         return self._col
 
+    # legacy
     def fields(self) -> Dict[str, str]:
-        return self._fields
+        return fields_for_rendering(self.col(), self.card(), self.note())
 
     def card(self) -> Card:
         """Returns the card being rendered.
@@ -88,13 +103,53 @@ class TemplateRenderContext:
         return self._note
 
     def note_type(self) -> NoteType:
-        return self.card().note_type()
+        return self._note_type
 
+    # legacy
     def qfmt(self) -> str:
-        return self._qfmt
+        return templates_for_card(self.card(), self._browser)[0]
 
+    # legacy
     def afmt(self) -> str:
-        return self._afmt
+        return templates_for_card(self.card(), self._browser)[1]
+
+    def render(self) -> TemplateRenderOutput:
+        try:
+            partial = self._partially_render()
+        except anki.rsbackend.TemplateError as e:
+            return TemplateRenderOutput(
+                question_text=str(e),
+                answer_text=str(e),
+                question_av_tags=[],
+                answer_av_tags=[],
+            )
+
+        qtext = apply_custom_filters(partial.qnodes, self, front_side=None)
+        qtext, q_avtags = self.col().backend.extract_av_tags(qtext, True)
+
+        atext = apply_custom_filters(partial.anodes, self, front_side=qtext)
+        atext, a_avtags = self.col().backend.extract_av_tags(atext, False)
+
+        output = TemplateRenderOutput(
+            question_text=qtext,
+            answer_text=atext,
+            question_av_tags=q_avtags,
+            answer_av_tags=a_avtags,
+            css=self.note_type()["css"],
+        )
+
+        if not self._browser:
+            hooks.card_did_render(output, self)
+
+        return output
+
+    def _partially_render(self) -> PartiallyRenderedCard:
+        if self._template:
+            # card layout screen
+            raise Exception("nyi")
+        else:
+            # existing card (eg study mode)
+            return self._col.backend.render_existing_card(self._card.id, self._browser)
 
 
 @dataclass
@@ -104,35 +159,16 @@ class TemplateRenderOutput:
     answer_text: str
     question_av_tags: List[AVTag]
     answer_av_tags: List[AVTag]
+    css: str = ""
+
+    def question_and_style(self) -> str:
+        return f"<style>{self.css}</style>{self.question_text}"
+
+    def answer_and_style(self) -> str:
+        return f"<style>{self.css}</style>{self.answer_text}"
 
 
-def render_card(
-    col: anki.storage._Collection, card: Card, note: Note, browser: bool
-) -> TemplateRenderOutput:
-    "Render a card."
-    # collect data
-    fields = fields_for_rendering(col, card, note)
-    qfmt, afmt = templates_for_card(card, browser)
-    ctx = TemplateRenderContext(
-        col=col, card=card, note=note, fields=fields, qfmt=qfmt, afmt=afmt
-    )
-
-    # render
-    try:
-        output = render_card_from_context(ctx)
-    except anki.rsbackend.TemplateError as e:
-        output = TemplateRenderOutput(
-            question_text=str(e),
-            answer_text=str(e),
-            question_av_tags=[],
-            answer_av_tags=[],
-        )
-
-    hooks.card_did_render(output, ctx)
-
-    return output
-
-
+# legacy
 def templates_for_card(card: Card, browser: bool) -> Tuple[str, str]:
     template = card.template()
     if browser:
@@ -144,6 +180,7 @@ def templates_for_card(card: Card, browser: bool) -> Tuple[str, str]:
     return q, a  # type: ignore
 
 
+# legacy
 def fields_for_rendering(
     col: anki.storage._Collection, card: Card, note: Note
 ) -> Dict[str, str]:
@@ -161,30 +198,6 @@ def fields_for_rendering(
     fields["c%d" % (card.ord + 1)] = "1"
 
     return fields
-
-
-def render_card_from_context(ctx: TemplateRenderContext) -> TemplateRenderOutput:
-    """Renders the provided templates, returning rendered output.
-
-    Will raise if the template is invalid."""
-    col = ctx.col()
-
-    (qnodes, anodes) = col.backend.render_card(
-        ctx.qfmt(), ctx.afmt(), ctx.fields(), ctx.card().ord
-    )
-
-    qtext = apply_custom_filters(qnodes, ctx, front_side=None)
-    qtext, q_avtags = col.backend.extract_av_tags(qtext, True)
-
-    atext = apply_custom_filters(anodes, ctx, front_side=qtext)
-    atext, a_avtags = col.backend.extract_av_tags(atext, False)
-
-    return TemplateRenderOutput(
-        question_text=qtext,
-        answer_text=atext,
-        question_av_tags=q_avtags,
-        answer_av_tags=a_avtags,
-    )
 
 
 def apply_custom_filters(

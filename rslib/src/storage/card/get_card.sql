@@ -1,4 +1,5 @@
 select
+  id,
   nid,
   did,
   ord,
@@ -17,5 +18,3 @@ select
   flags,
   data
 from cards
-where
-  id = ?

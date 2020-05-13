@@ -356,9 +356,6 @@ mod=?, scm=?, usn=?, ls=?""",
 
         return all_cards
 
-    # fixme: make sure we enforce deck!=dyn requirement when generating cards
-    # fixme: make sure we enforce random due number when adding into random sorted deck
-
     def _newCard(
         self,
         note: Note,

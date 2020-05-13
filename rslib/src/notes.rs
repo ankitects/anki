@@ -15,7 +15,11 @@ use crate::{
 use itertools::Itertools;
 use num_integer::Integer;
 use regex::{Regex, Replacer};
-use std::{borrow::Cow, collections::HashSet, convert::TryInto};
+use std::{
+    borrow::Cow,
+    collections::{HashMap, HashSet},
+    convert::TryInto,
+};
 
 define_newtype!(NoteID, i64);
 
@@ -121,6 +125,22 @@ impl Note {
                 } else {
                     fields.get(ord).map(|f| f.name.as_str())
                 }
+            })
+            .collect()
+    }
+
+    pub(crate) fn fields_map<'a>(
+        &'a self,
+        fields: &'a [NoteField],
+    ) -> HashMap<&'a str, Cow<'a, str>> {
+        self.fields
+            .iter()
+            .enumerate()
+            .map(|(ord, field_content)| {
+                (
+                    fields.get(ord).map(|f| f.name.as_str()).unwrap_or(""),
+                    field_content.as_str().into(),
+                )
             })
             .collect()
     }

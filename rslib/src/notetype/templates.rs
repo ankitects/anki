@@ -27,6 +27,22 @@ impl CardTemplate {
         ParsedTemplate::from_text(&self.config.a_format).ok()
     }
 
+    pub(crate) fn question_format_for_browser(&self) -> &str {
+        if !self.config.q_format_browser.is_empty() {
+            &self.config.q_format_browser
+        } else {
+            &self.config.q_format
+        }
+    }
+
+    pub(crate) fn answer_format_for_browser(&self) -> &str {
+        if !self.config.a_format_browser.is_empty() {
+            &self.config.a_format_browser
+        } else {
+            &self.config.a_format
+        }
+    }
+
     pub(crate) fn target_deck_id(&self) -> Option<DeckID> {
         if self.config.target_deck_id > 0 {
             Some(DeckID(self.config.target_deck_id))

@@ -14,7 +14,7 @@ use nom::{
 use regex::Regex;
 use std::collections::{HashMap, HashSet};
 use std::fmt::Write;
-use std::iter;
+use std::{borrow::Cow, iter};
 
 pub type FieldMap<'a> = HashMap<&'a str, u16>;
 type TemplateResult<T> = std::result::Result<T, TemplateError>;
@@ -356,7 +356,7 @@ pub enum RenderedNode {
 }
 
 pub(crate) struct RenderContext<'a> {
-    pub fields: &'a HashMap<&'a str, &'a str>,
+    pub fields: &'a HashMap<&'a str, Cow<'a, str>>,
     pub nonempty_fields: &'a HashSet<&'a str>,
     pub question_side: bool,
     pub card_ord: u16,
@@ -496,11 +496,14 @@ fn field_is_empty(text: &str) -> bool {
     RE.is_match(text)
 }
 
-fn nonempty_fields<'a>(fields: &'a HashMap<&str, &str>) -> HashSet<&'a str> {
+fn nonempty_fields<'a, R>(fields: &'a HashMap<&str, R>) -> HashSet<&'a str>
+where
+    R: AsRef<str>,
+{
     fields
         .iter()
         .filter_map(|(name, val)| {
-            if !field_is_empty(val) {
+            if !field_is_empty(val.as_ref()) {
                 Some(*name)
             } else {
                 None
@@ -516,7 +519,7 @@ fn nonempty_fields<'a>(fields: &'a HashMap<&str, &str>) -> HashSet<&'a str> {
 pub fn render_card(
     qfmt: &str,
     afmt: &str,
-    field_map: &HashMap<&str, &str>,
+    field_map: &HashMap<&str, Cow<str>>,
     card_ord: u16,
     i18n: &I18n,
 ) -> Result<(Vec<RenderedNode>, Vec<RenderedNode>)> {
@@ -905,6 +908,7 @@ mod test {
     fn render_single() {
         let map: HashMap<_, _> = vec![("F", "f"), ("B", "b"), ("E", " ")]
             .into_iter()
+            .map(|r| (r.0, r.1.into()))
             .collect();
 
         let ctx = RenderContext {

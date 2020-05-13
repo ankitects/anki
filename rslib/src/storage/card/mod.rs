@@ -5,15 +5,16 @@ use crate::{
     card::{Card, CardID, CardQueue, CardType},
     decks::DeckID,
     err::Result,
+    notes::NoteID,
     timestamp::{TimestampMillis, TimestampSecs},
     types::Usn,
 };
 use rusqlite::params;
 use rusqlite::{
     types::{FromSql, FromSqlError, ValueRef},
-    OptionalExtension, NO_PARAMS,
+    OptionalExtension, Row, NO_PARAMS,
 };
-use std::convert::TryFrom;
+use std::{convert::TryFrom, result};
 
 impl FromSql for CardType {
     fn column_result(value: ValueRef<'_>) -> std::result::Result<Self, FromSqlError> {
@@ -35,33 +36,36 @@ impl FromSql for CardQueue {
     }
 }
 
+fn row_to_card(row: &Row) -> result::Result<Card, rusqlite::Error> {
+    Ok(Card {
+        id: row.get(0)?,
+        nid: row.get(1)?,
+        did: row.get(2)?,
+        ord: row.get(3)?,
+        mtime: row.get(4)?,
+        usn: row.get(5)?,
+        ctype: row.get(6)?,
+        queue: row.get(7)?,
+        due: row.get(8).ok().unwrap_or_default(),
+        ivl: row.get(9)?,
+        factor: row.get(10)?,
+        reps: row.get(11)?,
+        lapses: row.get(12)?,
+        left: row.get(13)?,
+        odue: row.get(14).ok().unwrap_or_default(),
+        odid: row.get(15)?,
+        flags: row.get(16)?,
+        data: row.get(17)?,
+    })
+}
+
 impl super::SqliteStorage {
     pub fn get_card(&self, cid: CardID) -> Result<Option<Card>> {
-        let mut stmt = self.db.prepare_cached(include_str!("get_card.sql"))?;
-        stmt.query_row(params![cid], |row| {
-            Ok(Card {
-                id: cid,
-                nid: row.get(0)?,
-                did: row.get(1)?,
-                ord: row.get(2)?,
-                mtime: row.get(3)?,
-                usn: row.get(4)?,
-                ctype: row.get(5)?,
-                queue: row.get(6)?,
-                due: row.get(7).ok().unwrap_or_default(),
-                ivl: row.get(8)?,
-                factor: row.get(9)?,
-                reps: row.get(10)?,
-                lapses: row.get(11)?,
-                left: row.get(12)?,
-                odue: row.get(13).ok().unwrap_or_default(),
-                odid: row.get(14)?,
-                flags: row.get(15)?,
-                data: row.get(16)?,
-            })
-        })
-        .optional()
-        .map_err(Into::into)
+        self.db
+            .prepare_cached(concat!(include_str!("get_card.sql"), " where id = ?"))?
+            .query_row(params![cid], row_to_card)
+            .optional()
+            .map_err(Into::into)
     }
 
     pub(crate) fn update_card(&self, card: &Card) -> Result<()> {
@@ -167,6 +171,17 @@ impl super::SqliteStorage {
         self.db
             .prepare("select max(due)+1 from cards where type=0")?
             .query_row(NO_PARAMS, |r| r.get(0))
+            .map_err(Into::into)
+    }
+
+    pub(crate) fn get_card_by_ordinal(&self, nid: NoteID, ord: u16) -> Result<Option<Card>> {
+        self.db
+            .prepare_cached(concat!(
+                include_str!("get_card.sql"),
+                " where nid = ? and ord = ?"
+            ))?
+            .query_row(params![nid, ord], row_to_card)
+            .optional()
             .map_err(Into::into)
     }
 }
