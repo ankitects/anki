@@ -84,7 +84,7 @@ impl NoteType {
                     names.insert(name);
                     break;
                 }
-                t.name.push('_');
+                t.name.push('+');
             }
         }
         names.clear();
@@ -95,7 +95,7 @@ impl NoteType {
                     names.insert(name);
                     break;
                 }
-                t.name.push('_');
+                t.name.push('+');
             }
         }
     }

@@ -33,7 +33,7 @@ message BackendInput {
         DeckTreeIn deck_tree = 18;
         SearchCardsIn search_cards = 19;
         SearchNotesIn search_notes = 20;
-//        RenderCardIn render_card = 21;
+        RenderUncommittedCardIn render_uncommitted_card = 21;
         int64 local_minutes_west = 22;
         string strip_av_tags = 23;
         ExtractAVTagsIn extract_av_tags = 24;
@@ -120,7 +120,7 @@ message BackendOutput {
         DeckTreeNode deck_tree = 18;
         SearchCardsOut search_cards = 19;
         SearchNotesOut search_notes = 20;
-//        RenderCardOut render_card = 21;
+        RenderCardOut render_uncommitted_card = 21;
         string add_media_file = 26;
         Empty sync_media = 27;
         MediaCheckOut check_media = 28;
@@ -267,6 +267,12 @@ message DeckTreeNode {
 message RenderExistingCardIn {
     int64 card_id = 1;
     bool browser = 2;
+}
+
+message RenderUncommittedCardIn {
+    Note note = 1;
+    uint32 card_ord = 2;
+    bytes template = 3;
 }
 
 message RenderCardOut {

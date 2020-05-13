@@ -408,24 +408,27 @@ class ModelManager:
         t["name"] = name
         return t
 
-    def addTemplate(self, m: NoteType, template: Template) -> None:
+    def addTemplate(self, m: NoteType, template: Template, save=True) -> None:
         if m["id"]:
             self.col.modSchema(check=True)
 
         m["tmpls"].append(template)
 
-        if m["id"]:
+        if save and m["id"]:
             self.save(m)
 
-    def remTemplate(self, m: NoteType, template: Template) -> None:
+    def remTemplate(self, m: NoteType, template: Template, save=True) -> None:
         assert len(m["tmpls"]) > 1
         self.col.modSchema(check=True)
 
         m["tmpls"].remove(template)
 
-        self.save(m)
+        if save:
+            self.save(m)
 
-    def moveTemplate(self, m: NoteType, template: Template, idx: int) -> None:
+    def moveTemplate(
+        self, m: NoteType, template: Template, idx: int, save=True
+    ) -> None:
         self.col.modSchema(check=True)
 
         oldidx = m["tmpls"].index(template)
@@ -435,7 +438,8 @@ class ModelManager:
         m["tmpls"].remove(template)
         m["tmpls"].insert(idx, template)
 
-        self.save(m)
+        if save:
+            self.save(m)
 
     # Model changing
     ##########################################################################

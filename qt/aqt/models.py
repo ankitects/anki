@@ -188,7 +188,7 @@ class Models(QDialog):
         from aqt.clayout import CardLayout
 
         n = self._tmpNote()
-        CardLayout(self.mw, n, ord=0, parent=self, addMode=True)
+        CardLayout(self.mw, n, ord=0, parent=self)
 
     # Cleanup
     ##########################################################################

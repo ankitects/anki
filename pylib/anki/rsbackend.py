@@ -312,6 +312,23 @@ class RustBackend:
 
         return PartiallyRenderedCard(qnodes, anodes)
 
+    def render_uncommitted_card(
+        self, note: BackendNote, card_ord: int, template: Dict
+    ) -> PartiallyRenderedCard:
+        template_json = orjson.dumps(template)
+        out = self._run_command(
+            pb.BackendInput(
+                render_uncommitted_card=pb.RenderUncommittedCardIn(
+                    note=note, template=template_json, card_ord=card_ord
+                )
+            )
+        ).render_uncommitted_card
+
+        qnodes = proto_replacement_list_to_native(out.question_nodes)  # type: ignore
+        anodes = proto_replacement_list_to_native(out.answer_nodes)  # type: ignore
+
+        return PartiallyRenderedCard(qnodes, anodes)
+
     def local_minutes_west(self, stamp: int) -> int:
         return self._run_command(
             pb.BackendInput(local_minutes_west=stamp)

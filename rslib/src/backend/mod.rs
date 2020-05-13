@@ -21,7 +21,10 @@ use crate::{
     media::sync::MediaSyncProgress,
     media::MediaManager,
     notes::{Note, NoteID},
-    notetype::{all_stock_notetypes, NoteType, NoteTypeID, NoteTypeSchema11, RenderCardOutput},
+    notetype::{
+        all_stock_notetypes, CardTemplateSchema11, NoteType, NoteTypeID, NoteTypeSchema11,
+        RenderCardOutput,
+    },
     sched::cutoff::local_minutes_west_for_stamp,
     sched::timespan::{answer_button_time, learning_congrats, studied_today, time_span},
     search::SortMode,
@@ -216,9 +219,6 @@ impl Backend {
         Ok(match ival {
             Value::SchedTimingToday(_) => OValue::SchedTimingToday(self.sched_timing_today()?),
             Value::DeckTree(input) => OValue::DeckTree(self.deck_tree(input)?),
-            Value::RenderExistingCard(input) => {
-                OValue::RenderExistingCard(self.render_existing_card(input)?)
-            }
             Value::LocalMinutesWest(stamp) => {
                 OValue::LocalMinutesWest(local_minutes_west_for_stamp(stamp))
             }
@@ -375,6 +375,12 @@ impl Backend {
                 self.set_preferences(prefs)?;
                 pb::Empty {}
             }),
+            Value::RenderExistingCard(input) => {
+                OValue::RenderExistingCard(self.render_existing_card(input)?)
+            }
+            Value::RenderUncommittedCard(input) => {
+                OValue::RenderUncommittedCard(self.render_uncommitted_card(input)?)
+            }
         })
     }
 
@@ -452,6 +458,23 @@ impl Backend {
     fn render_existing_card(&self, input: pb::RenderExistingCardIn) -> Result<pb::RenderCardOut> {
         self.with_col(|col| {
             col.render_existing_card(CardID(input.card_id), input.browser)
+                .map(Into::into)
+        })
+    }
+
+    fn render_uncommitted_card(
+        &self,
+        input: pb::RenderUncommittedCardIn,
+    ) -> Result<pb::RenderCardOut> {
+        let schema11: CardTemplateSchema11 = serde_json::from_slice(&input.template)?;
+        let template = schema11.into();
+        let note = input
+            .note
+            .ok_or_else(|| AnkiError::invalid_input("missing note"))?
+            .into();
+        let ord = input.card_ord as u16;
+        self.with_col(|col| {
+            col.render_uncommitted_card(&note, &template, ord)
                 .map(Into::into)
         })
     }

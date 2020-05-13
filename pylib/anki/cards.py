@@ -14,7 +14,6 @@ from anki.models import NoteType, Template
 from anki.notes import Note
 from anki.rsbackend import BackendCard
 from anki.sound import AVTag
-from anki.utils import joinFields
 
 # Cards
 ##########################################################################
@@ -132,6 +131,9 @@ class Card:
                 self, browser
             ).render()
         return self._render_output
+
+    def set_render_output(self, output: anki.template.TemplateRenderOutput) -> None:
+        self._render_output = output
 
     def note(self, reload: bool = False) -> Note:
         if not self._note or reload:
