@@ -178,10 +178,8 @@ class Card:
         total = int((time.time() - self.timerStarted) * 1000)
         return min(total, self.timeLimit())
 
-    def isEmpty(self) -> Optional[bool]:
-        ords = self.col.models.availOrds(self.model(), joinFields(self.note().fields))
-        if self.ord not in ords:
-            return True
+    # legacy
+    def isEmpty(self) -> bool:
         return False
 
     def __repr__(self) -> str:

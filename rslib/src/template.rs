@@ -532,19 +532,19 @@ pub fn render_card(
     };
 
     // question side
-    let (qnodes, qtmpl) = ParsedTemplate::from_text(qfmt)
+    let (mut qnodes, qtmpl) = ParsedTemplate::from_text(qfmt)
         .and_then(|tmpl| Ok((tmpl.render(&context)?, tmpl)))
         .map_err(|e| template_error_to_anki_error(e, true, i18n))?;
 
     // check if the front side was empty
     if !qtmpl.renders_with_fields(context.nonempty_fields) {
         let info = format!(
-            "{}<br><a href='{}'>{}</a>",
+            "<div>{}<br><a href='{}'>{}</a></div>",
             i18n.tr(TR::CardTemplateRenderingEmptyFront),
             TEMPLATE_BLANK_LINK,
             i18n.tr(TR::CardTemplateRenderingMoreInfo)
         );
-        return Err(AnkiError::TemplateError { info });
+        qnodes.push(RenderedNode::Text { text: info });
     };
 
     // answer side
@@ -728,7 +728,11 @@ fn nodes_to_string(buf: &mut String, nodes: &[ParsedNode]) {
 mod test {
     use super::{FieldMap, ParsedNode::*, ParsedTemplate as PT};
     use crate::err::TemplateError;
-    use crate::template::{field_is_empty, nonempty_fields, FieldRequirements, RenderContext};
+    use crate::{
+        i18n::I18n,
+        log,
+        template::{field_is_empty, nonempty_fields, FieldRequirements, RenderContext},
+    };
     use std::collections::{HashMap, HashSet};
     use std::iter::FromIterator;
 
@@ -1011,5 +1015,31 @@ mod test {
                 filters: vec!["filter".to_string()]
             }]
         );
+    }
+
+    #[test]
+    fn render_card() {
+        let map: HashMap<_, _> = vec![("E", "")]
+            .into_iter()
+            .map(|r| (r.0, r.1.into()))
+            .collect();
+
+        let i18n = I18n::new(&[""], "", log::terminal());
+        use crate::template::RenderedNode as FN;
+
+        let qnodes = super::render_card("test{{E}}", "", &map, 1, &i18n)
+            .unwrap()
+            .0;
+        assert_eq!(
+            qnodes[0],
+            FN::Text {
+                text: "test".into()
+            }
+        );
+        if let FN::Text { ref text } = qnodes[1] {
+            assert!(text.contains("card is blank"));
+        } else {
+            assert!(false);
+        }
     }
 }

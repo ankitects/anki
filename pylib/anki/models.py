@@ -520,7 +520,7 @@ class ModelManager:
     # Required field/text cache
     ##########################################################################
 
-    # fixme: clayout, importing, cards.isEmpty
+    # fixme: clayout, importing
     def availOrds(self, m: NoteType, flds: str) -> List:
         "Given a joined field string, return available template ordinals."
         if m["type"] == MODEL_CLOZE:
