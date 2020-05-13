@@ -18,6 +18,7 @@ class FieldDialog(QDialog):
         self.col = self.mw.col
         self.mm = self.mw.col.models
         self.model = nt
+        self.mm._remove_from_cache(self.model["id"])
         self.mw.checkpoint(_("Fields"))
         self.form = aqt.forms.fields.Ui_Dialog()
         self.form.setupUi(self)
@@ -163,7 +164,6 @@ class FieldDialog(QDialog):
         fld["rtl"] = f.rtl.isChecked()
 
     def reject(self):
-        self.mm._remove_from_cache(self.model["id"])
         QDialog.reject(self)
 
     def accept(self):

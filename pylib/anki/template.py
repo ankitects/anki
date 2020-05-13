@@ -56,15 +56,10 @@ class TemplateRenderContext:
         return TemplateRenderContext(card.col, card, card.note(), browser)
 
     @classmethod
-    def from_card_layout(cls, note: Note, card_ord: int) -> TemplateRenderContext:
-        card = cls.synthesized_card(note.col, card_ord)
-        return TemplateRenderContext(note.col, card, note)
-
-    @classmethod
-    def synthesized_card(cls, col: anki.storage._Collection, ord: int):
-        c = Card(col)
-        c.ord = ord
-        return c
+    def from_card_layout(
+        cls, note: Note, card: Card, template: Dict
+    ) -> TemplateRenderContext:
+        return TemplateRenderContext(note.col, card, note, template=template)
 
     def __init__(
         self,
@@ -72,7 +67,7 @@ class TemplateRenderContext:
         card: Card,
         note: Note,
         browser: bool = False,
-        template: Optional[Any] = None,
+        template: Optional[Dict] = None,
     ) -> None:
         self._col = col.weakref()
         self._card = card
@@ -146,7 +141,9 @@ class TemplateRenderContext:
     def _partially_render(self) -> PartiallyRenderedCard:
         if self._template:
             # card layout screen
-            raise Exception("nyi")
+            return self._col.backend.render_uncommitted_card(
+                self._note.to_backend_note(), self._card.ord, self._template
+            )
         else:
             # existing card (eg study mode)
             return self._col.backend.render_existing_card(self._card.id, self._browser)
