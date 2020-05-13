@@ -630,13 +630,12 @@ def setup_audio(taskman: TaskManager, base_folder: str) -> None:
     # legacy global var
     global mpvManager
 
-    if not isWin:
-        try:
-            mpvManager = MpvManager(base_folder)
-        except FileNotFoundError:
-            print("mpv not found, reverting to mplayer")
-        except aqt.mpv.MPVProcessError:
-            print("mpv too old, reverting to mplayer")
+    try:
+        mpvManager = MpvManager(base_folder)
+    except FileNotFoundError:
+        print("mpv not found, reverting to mplayer")
+    except aqt.mpv.MPVProcessError:
+        print("mpv too old, reverting to mplayer")
 
     if mpvManager is not None:
         av_player.players.append(mpvManager)
