@@ -3,27 +3,6 @@
 from tests.shared import getEmptyCol
 
 
-def test_previewCards():
-    deck = getEmptyCol()
-    f = deck.newNote()
-    f["Front"] = "1"
-    f["Back"] = "2"
-    # non-empty and active
-    cards = deck.previewCards(f, 0)
-    assert len(cards) == 1
-    assert cards[0].ord == 0
-    # all templates
-    cards = deck.previewCards(f, 2)
-    assert len(cards) == 1
-    # add the note, and test existing preview
-    deck.addNote(f)
-    cards = deck.previewCards(f, 1)
-    assert len(cards) == 1
-    assert cards[0].ord == 0
-    # make sure we haven't accidentally added cards to the db
-    assert deck.cardCount() == 1
-
-
 def test_delete():
     deck = getEmptyCol()
     f = deck.newNote()

@@ -31,7 +31,6 @@ from aqt.utils import (
 )
 from aqt.webview import AnkiWebView
 
-# fixme: removeColons()
 # fixme: previewing with empty fields
 # fixme: deck name on new cards
 # fixme: card count when removing
