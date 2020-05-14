@@ -56,10 +56,20 @@ class TemplateRenderContext:
 
     @classmethod
     def from_card_layout(
-        cls, note: Note, card: Card, notetype: NoteType, template: Dict
+        cls,
+        note: Note,
+        card: Card,
+        notetype: NoteType,
+        template: Dict,
+        fill_empty: bool,
     ) -> TemplateRenderContext:
         return TemplateRenderContext(
-            note.col, card, note, notetype=notetype, template=template
+            note.col,
+            card,
+            note,
+            notetype=notetype,
+            template=template,
+            fill_empty=fill_empty,
         )
 
     def __init__(
@@ -70,12 +80,14 @@ class TemplateRenderContext:
         browser: bool = False,
         notetype: NoteType = None,
         template: Optional[Dict] = None,
+        fill_empty: bool = False,
     ) -> None:
         self._col = col.weakref()
         self._card = card
         self._note = note
         self._browser = browser
         self._template = template
+        self._fill_empty = fill_empty
         if not notetype:
             self._note_type = note.model()
         else:
@@ -148,7 +160,10 @@ class TemplateRenderContext:
         if self._template:
             # card layout screen
             return self._col.backend.render_uncommitted_card(
-                self._note.to_backend_note(), self._card.ord, self._template
+                self._note.to_backend_note(),
+                self._card.ord,
+                self._template,
+                self._fill_empty,
             )
         else:
             # existing card (eg study mode)

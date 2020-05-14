@@ -472,13 +472,14 @@ impl Backend {
     ) -> Result<pb::RenderCardOut> {
         let schema11: CardTemplateSchema11 = serde_json::from_slice(&input.template)?;
         let template = schema11.into();
-        let note = input
+        let mut note = input
             .note
             .ok_or_else(|| AnkiError::invalid_input("missing note"))?
             .into();
         let ord = input.card_ord as u16;
+        let fill_empty = input.fill_empty;
         self.with_col(|col| {
-            col.render_uncommitted_card(&note, &template, ord)
+            col.render_uncommitted_card(&mut note, &template, ord, fill_empty)
                 .map(Into::into)
         })
     }

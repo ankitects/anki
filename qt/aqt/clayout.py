@@ -14,26 +14,26 @@ from anki.lang import _, ngettext
 from anki.notes import Note
 from anki.rsbackend import TemplateError
 from anki.template import TemplateRenderContext
-from anki.utils import isMac, isWin
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.sound import av_player, play_clicked_audio
 from aqt.theme import theme_manager
 from aqt.utils import (
+    TR,
     askUser,
     downArrow,
     getOnlyText,
     openHelp,
     restoreGeom,
     saveGeom,
+    shortcut,
     showInfo,
     showWarning,
     tooltip,
-    TR, tr, shortcut
+    tr,
 )
 from aqt.webview import AnkiWebView
 
-# fixme: previewing with empty fields
 # fixme: deck name on new cards
 # fixme: card count when removing
 # fixme: change tracking and tooltip in fields
@@ -42,7 +42,12 @@ from aqt.webview import AnkiWebView
 
 class CardLayout(QDialog):
     def __init__(
-        self, mw: AnkiQt, note: Note, ord=0, parent: Optional[QWidget] = None,
+        self,
+        mw: AnkiQt,
+        note: Note,
+        ord=0,
+        parent: Optional[QWidget] = None,
+        fill_empty: bool = False,
     ):
         QDialog.__init__(self, parent or mw, Qt.Window)
         mw.setupDialogGC(self)
@@ -53,6 +58,7 @@ class CardLayout(QDialog):
         self.mm = self.mw.col.models
         self.model = note.model()
         self.templates = self.model["tmpls"]
+        self._want_fill_empty_on = fill_empty
         self.mm._remove_from_cache(self.model["id"])
         self.mw.checkpoint(_("Card Types"))
         self.changed = False
@@ -160,17 +166,20 @@ class CardLayout(QDialog):
         QShortcut(
             QKeySequence("Ctrl+1"),
             self,
-            activated=lambda: self.tform.front_button.setChecked(True))
+            activated=lambda: self.tform.front_button.setChecked(True),
+        )  # type: ignore
         QShortcut(
             QKeySequence("Ctrl+2"),
             self,
-            activated=lambda: self.tform.back_button.setChecked(True))
+            activated=lambda: self.tform.back_button.setChecked(True),
+        )  # type: ignore
         QShortcut(
             QKeySequence("Ctrl+3"),
             self,
-            activated=lambda: self.tform.style_button.setChecked(True))
+            activated=lambda: self.tform.style_button.setChecked(True),
+        )  # type: ignore
 
-    # Main area
+    # Main area setup
     ##########################################################################
 
     def setupMainArea(self):
@@ -179,56 +188,42 @@ class CardLayout(QDialog):
         l.setContentsMargins(0, 0, 0, 0)
         l.setSpacing(3)
         left = QWidget()
-        # template area
         tform = self.tform = aqt.forms.template.Ui_Form()
         tform.setupUi(left)
-        qconnect(tform.edit_area.textChanged, self.write_edits_to_template_and_redraw)
-        tform.front_button.setText(tr(TR.CARD_TEMPLATES_FRONT_TEMPLATE))
-        qconnect(tform.front_button.toggled, self.on_editor_toggled)
-        tform.back_button.setText(tr(TR.CARD_TEMPLATES_BACK_TEMPLATE))
-        qconnect(tform.back_button.toggled, self.on_editor_toggled)
-        tform.style_button.setText(tr(TR.CARD_TEMPLATES_TEMPLATE_STYLING))
-        qconnect(tform.style_button.toggled, self.on_editor_toggled)
-        tform.groupBox.setTitle(tr(TR.CARD_TEMPLATES_TEMPLATE_BOX))
-
-        cnt = self.mw.col.models.useCount(self.model)
-        self.tform.changes_affect_label.setText(self.col.tr(
-        TR.CARD_TEMPLATES_CHANGES_WILL_AFFECT_NOTES, count=cnt))
-
         l.addWidget(left, 5)
 
-        self.setup_edit_area()
-
-        widg = tform.search_edit
-        widg.setPlaceholderText("Search")
-        qconnect(widg.textChanged, self.on_search_changed)
-        qconnect(widg.returnPressed, self.on_search_next)
-        # preview area
         right = QWidget()
-        self.pform: Any = aqt.forms.preview.Ui_Form()
+        self.pform = aqt.forms.preview.Ui_Form()
         pform = self.pform
         pform.setupUi(right)
         pform.preview_front.setText(tr(TR.CARD_TEMPLATES_FRONT_PREVIEW))
         pform.preview_back.setText(tr(TR.CARD_TEMPLATES_BACK_PREVIEW))
         pform.preview_box.setTitle(tr(TR.CARD_TEMPLATES_PREVIEW_BOX))
 
-        if self._isCloze():
-            nums = self.note.cloze_numbers_in_fields()
-            if self.ord + 1 not in nums:
-                # current card is empty
-                nums.append(self.ord + 1)
-            self.cloze_numbers = sorted(nums)
-            self.setup_cloze_number_box()
-        else:
-            self.cloze_numbers = []
-            self.pform.cloze_number_combo.setHidden(True)
-
-        self.setupWebviews()
+        self.setup_edit_area()
+        self.setup_preview()
 
         l.addWidget(right, 5)
         w.setLayout(l)
 
     def setup_edit_area(self):
+        tform = self.tform
+
+        tform.front_button.setText(tr(TR.CARD_TEMPLATES_FRONT_TEMPLATE))
+        tform.back_button.setText(tr(TR.CARD_TEMPLATES_BACK_TEMPLATE))
+        tform.style_button.setText(tr(TR.CARD_TEMPLATES_TEMPLATE_STYLING))
+        tform.groupBox.setTitle(tr(TR.CARD_TEMPLATES_TEMPLATE_BOX))
+
+        cnt = self.mw.col.models.useCount(self.model)
+        self.tform.changes_affect_label.setText(
+            self.col.tr(TR.CARD_TEMPLATES_CHANGES_WILL_AFFECT_NOTES, count=cnt)
+        )
+
+        qconnect(tform.edit_area.textChanged, self.write_edits_to_template_and_redraw)
+        qconnect(tform.front_button.toggled, self.on_editor_toggled)
+        qconnect(tform.back_button.toggled, self.on_editor_toggled)
+        qconnect(tform.style_button.toggled, self.on_editor_toggled)
+
         self.current_editor_index = 0
         self.tform.edit_area.setAcceptRichText(False)
         if qtminor < 10:
@@ -236,6 +231,11 @@ class CardLayout(QDialog):
         else:
             tab_width = self.fontMetrics().width(" " * 4)
             self.tform.edit_area.setTabStopDistance(tab_width)
+
+        widg = tform.search_edit
+        widg.setPlaceholderText("Search")
+        qconnect(widg.textChanged, self.on_search_changed)
+        qconnect(widg.returnPressed, self.on_search_next)
 
     def setup_cloze_number_box(self):
         names = (_("Cloze %d") % n for n in self.cloze_numbers)
@@ -282,14 +282,20 @@ class CardLayout(QDialog):
         text = self.tform.search_edit.text()
         self.on_search_changed(text)
 
-    def setupWebviews(self):
+    def setup_preview(self):
         pform = self.pform
-        pform.frontWeb = AnkiWebView(title="card layout")
-        pform.verticalLayout.addWidget(pform.frontWeb)
+        self.preview_web = AnkiWebView(title="card layout")
+        pform.verticalLayout.addWidget(self.preview_web)
         pform.verticalLayout.setStretch(1, 99)
         pform.preview_front.isChecked()
         qconnect(pform.preview_front.toggled, self.on_preview_toggled)
         qconnect(pform.preview_back.toggled, self.on_preview_toggled)
+        if self._want_fill_empty_on:
+            pform.fill_empty.setChecked(True)
+        qconnect(pform.fill_empty.toggled, self.on_preview_toggled)
+        if not self.note_has_empty_field():
+            pform.fill_empty.setHidden(True)
+        pform.fill_empty.setText(tr(TR.CARD_TEMPLATES_FILL_EMPTY))
         jsinc = [
             "jquery.js",
             "browsersel.js",
@@ -297,10 +303,21 @@ class CardLayout(QDialog):
             "mathjax/MathJax.js",
             "reviewer.js",
         ]
-        pform.frontWeb.stdHtml(
+        self.preview_web.stdHtml(
             self.mw.reviewer.revHtml(), css=["reviewer.css"], js=jsinc, context=self,
         )
-        pform.frontWeb.set_bridge_command(self._on_bridge_cmd, self)
+        self.preview_web.set_bridge_command(self._on_bridge_cmd, self)
+
+        if self._isCloze():
+            nums = self.note.cloze_numbers_in_fields()
+            if self.ord + 1 not in nums:
+                # current card is empty
+                nums.append(self.ord + 1)
+            self.cloze_numbers = sorted(nums)
+            self.setup_cloze_number_box()
+        else:
+            self.cloze_numbers = []
+            self.pform.cloze_number_combo.setHidden(True)
 
     def on_preview_toggled(self):
         self._renderPreview()
@@ -309,18 +326,12 @@ class CardLayout(QDialog):
         if cmd.startswith("play:"):
             play_clicked_audio(cmd, self.rendered_card)
 
-    def ephemeral_card_for_rendering(self) -> Card:
-        card = Card(self.col)
-        card.ord = self.ord
-        template = copy.copy(self.current_template())
-        # may differ in cloze case
-        template["ord"] = card.ord
-        # this fetches notetype, we should pass it in
-        output = TemplateRenderContext.from_card_layout(
-            self.note, card, notetype=self.model, template=template
-        ).render()
-        card.set_render_output(output)
-        return card
+    def note_has_empty_field(self) -> bool:
+        for field in self.note.fields:
+            if not field.strip():
+                # ignores HTML, but this should suffice
+                return True
+        return False
 
     # Buttons
     ##########################################################################
@@ -383,9 +394,9 @@ class CardLayout(QDialog):
         text = self.tform.edit_area.toPlainText()
 
         if self.current_editor_index == 0:
-            self.current_template()['qfmt'] = text
+            self.current_template()["qfmt"] = text
         elif self.current_editor_index == 1:
-            self.current_template()['afmt'] = text
+            self.current_template()["afmt"] = text
         else:
             self.model["css"] = text
 
@@ -427,9 +438,7 @@ class CardLayout(QDialog):
             audio = c.answer_av_tags()
 
         # use _showAnswer to avoid the longer delay
-        self.pform.frontWeb.eval(
-            "_showAnswer(%s,'%s');" % (json.dumps(text), bodyclass)
-        )
+        self.preview_web.eval("_showAnswer(%s,'%s');" % (json.dumps(text), bodyclass))
 
         if c.id not in self.playedAudio:
             av_player.play_tags(audio)
@@ -458,6 +467,22 @@ class CardLayout(QDialog):
         else:
             repl = answerRepl
         return re.sub(r"\[\[type:.+?\]\]", repl, txt)
+
+    def ephemeral_card_for_rendering(self) -> Card:
+        card = Card(self.col)
+        card.ord = self.ord
+        template = copy.copy(self.current_template())
+        # may differ in cloze case
+        template["ord"] = card.ord
+        output = TemplateRenderContext.from_card_layout(
+            self.note,
+            card,
+            notetype=self.model,
+            template=template,
+            fill_empty=self.pform.fill_empty.isChecked(),
+        ).render()
+        card.set_render_output(output)
+        return card
 
     # Card operations
     ######################################################################
@@ -673,9 +698,7 @@ Enter deck to place new %s cards in, or leave blank:"""
         row = form.fields.currentIndex().row()
         if row >= 0:
             self._addField(
-                fields[row],
-                form.font.currentFont().family(),
-                form.size.value(),
+                fields[row], form.font.currentFont().family(), form.size.value(),
             )
 
     def _addField(self, field, font, size):
@@ -720,7 +743,7 @@ Enter deck to place new %s cards in, or leave blank:"""
         self.cancelPreviewTimer()
         av_player.stop_and_clear_queue()
         saveGeom(self, "CardLayout")
-        self.pform.frontWeb = None
+        self.preview_web = None
         self.model = None
         self.rendered_card = None
         self.mw = None

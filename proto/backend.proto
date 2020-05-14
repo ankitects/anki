@@ -275,6 +275,7 @@ message RenderUncommittedCardIn {
     Note note = 1;
     uint32 card_ord = 2;
     bytes template = 3;
+    bool fill_empty = 4;
 }
 
 message RenderCardOut {
