@@ -2,7 +2,7 @@
 import time
 
 from anki.consts import MODEL_CLOZE
-from anki.utils import isWin, joinFields, stripHTML
+from anki.utils import isWin, stripHTML
 from tests.shared import getEmptyCol
 
 

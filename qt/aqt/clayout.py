@@ -2,6 +2,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import copy
 import json
 import re
 from typing import List, Optional
@@ -13,7 +14,7 @@ from anki.lang import _, ngettext
 from anki.notes import Note
 from anki.rsbackend import TemplateError
 from anki.template import TemplateRenderContext
-from anki.utils import isMac, isWin, joinFields
+from anki.utils import isMac, isWin
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.sound import av_player, play_clicked_audio
@@ -36,6 +37,7 @@ from aqt.webview import AnkiWebView
 # fixme: card count when removing
 # fixme: i18n
 # fixme: change tracking and tooltip in fields
+# fixme: replay suppression
 
 
 class CardLayout(QDialog):
@@ -77,7 +79,6 @@ class CardLayout(QDialog):
     def redraw_everything(self):
         self.ignore_change_signals = True
         self.updateTopArea()
-        self.updateMainArea()
         self.ignore_change_signals = False
         self.update_current_ordinal_and_redraw(self.ord)
 
@@ -184,41 +185,98 @@ class CardLayout(QDialog):
         # template area
         tform = self.tform = aqt.forms.template.Ui_Form()
         tform.setupUi(left)
-        tform.label1.setText(" →")
-        tform.label2.setText(" →")
-        tform.labelc1.setText(" ↗")
-        tform.labelc2.setText(" ↘")
-        if self.style().objectName() == "gtk+":
-            # gtk+ requires margins in inner layout
-            tform.tlayout1.setContentsMargins(0, 11, 0, 0)
-            tform.tlayout2.setContentsMargins(0, 11, 0, 0)
-            tform.tlayout3.setContentsMargins(0, 11, 0, 0)
-        tform.groupBox_3.setTitle(_("Styling (shared between cards)"))
+        # tform.groupBox_3.setTitle(_("Styling (shared between cards)"))
         qconnect(tform.front.textChanged, self.write_edits_to_template_and_redraw)
         qconnect(tform.css.textChanged, self.write_edits_to_template_and_redraw)
         qconnect(tform.back.textChanged, self.write_edits_to_template_and_redraw)
+        qconnect(tform.tabWidget.currentChanged, self.on_editor_changed)
         l.addWidget(left, 5)
+        self.search_box = search = QLineEdit()
+        search.setPlaceholderText("Search")
+        qconnect(search.textChanged, self.on_search_changed)
+        qconnect(search.returnPressed, self.on_search_next)
+        tform.tabWidget.setCornerWidget(search)
         # preview area
         right = QWidget()
         self.pform: Any = aqt.forms.preview.Ui_Form()
         pform = self.pform
         pform.setupUi(right)
-        if self.style().objectName() == "gtk+":
-            # gtk+ requires margins in inner layout
-            pform.frontPrevBox.setContentsMargins(0, 11, 0, 0)
-            pform.backPrevBox.setContentsMargins(0, 11, 0, 0)
+
+        if self._isCloze():
+            nums = self.note.cloze_numbers_in_fields()
+            if self.ord + 1 not in nums:
+                # current card is empty
+                nums.append(self.ord + 1)
+            self.cloze_numbers = sorted(nums)
+            self.setup_cloze_number_box()
+        else:
+            self.cloze_numbers = []
+            self.pform.cloze_number_combo.setHidden(True)
 
         self.setupWebviews()
 
         l.addWidget(right, 5)
         w.setLayout(l)
 
+    def setup_cloze_number_box(self):
+        names = (_("Cloze %d") % n for n in self.cloze_numbers)
+        self.pform.cloze_number_combo.addItems(names)
+        try:
+            idx = self.cloze_numbers.index(self.ord + 1)
+            self.pform.cloze_number_combo.setCurrentIndex(idx)
+        except ValueError:
+            # invalid cloze
+            pass
+        qconnect(
+            self.pform.cloze_number_combo.currentIndexChanged, self.on_change_cloze
+        )
+
+    def current_editor(self) -> QTextEdit:
+        idx = self.tform.tabWidget.currentIndex()
+        if idx == 0:
+            return self.tform.front
+        elif idx == 1:
+            return self.tform.back
+        else:
+            return self.tform.css
+
+    def on_change_cloze(self, idx: int) -> None:
+        self.ord = self.cloze_numbers[idx] - 1
+        self._renderPreview()
+
+    def on_editor_changed(self, idx: int) -> None:
+        if idx == 0:
+            self.pform.preview_front.setChecked(True)
+        elif idx == 1:
+            self.pform.preview_back.setChecked(True)
+
+    def on_search_changed(self, text: str):
+        editor = self.current_editor()
+        if not editor.find(text):
+            # try again from top
+            cursor = editor.textCursor()
+            cursor.movePosition(QTextCursor.Start)
+            editor.setTextCursor(cursor)
+            editor.find(text)
+
+    def on_search_next(self):
+        self.on_search_changed(self.search_box.text())
+
     def setupWebviews(self):
+        if theme_manager.night_mode and not theme_manager.macos_dark_mode():
+            # the grouping box renders incorrectly in the fusion theme. 5.9+
+            # 5.13 behave differently to 5.14, but it looks bad in either case,
+            # and adjusting the top margin makes the 'save PDF' button show in
+            # the wrong place, so for now we just disable the border instead
+            self.setStyleSheet("QGroupBox { border: 0; }")
+
         pform = self.pform
-        pform.frontWeb = AnkiWebView(title="card layout front")
-        pform.frontPrevBox.addWidget(pform.frontWeb)
-        pform.backWeb = AnkiWebView(title="card layout back")
-        pform.backPrevBox.addWidget(pform.backWeb)
+        pform.frontWeb = AnkiWebView(title="card layout")
+        pform.verticalLayout.addWidget(pform.frontWeb)
+        pform.verticalLayout.setStretch(1, 99)
+        pform.preview_front.isChecked()
+        qconnect(pform.preview_front.toggled, self.on_preview_toggled)
+        qconnect(pform.preview_back.toggled, self.on_preview_toggled)
         jsinc = [
             "jquery.js",
             "browsersel.js",
@@ -229,27 +287,24 @@ class CardLayout(QDialog):
         pform.frontWeb.stdHtml(
             self.mw.reviewer.revHtml(), css=["reviewer.css"], js=jsinc, context=self,
         )
-        pform.backWeb.stdHtml(
-            self.mw.reviewer.revHtml(), css=["reviewer.css"], js=jsinc, context=self,
-        )
         pform.frontWeb.set_bridge_command(self._on_bridge_cmd, self)
-        pform.backWeb.set_bridge_command(self._on_bridge_cmd, self)
+
+    def on_preview_toggled(self):
+        self._renderPreview()
 
     def _on_bridge_cmd(self, cmd: str) -> Any:
         if cmd.startswith("play:"):
             play_clicked_audio(cmd, self.rendered_card)
 
-    def updateMainArea(self):
-        if self._isCloze():
-            cnt = len(self.note.cloze_numbers_in_fields())
-            for g in self.pform.groupBox, self.pform.groupBox_2:
-                g.setTitle(g.title() + _(" (1 of %d)") % max(cnt, 1))
-
     def ephemeral_card_for_rendering(self) -> Card:
         card = Card(self.col)
         card.ord = self.ord
+        template = copy.copy(self.current_template())
+        # may differ in cloze case
+        template["ord"] = card.ord
+        # this fetches notetype, we should pass it in
         output = TemplateRenderContext.from_card_layout(
-            self.note, card, template=self.current_template()
+            self.note, card, notetype=self.model, template=template
         ).render()
         card.set_render_output(output)
         return card
@@ -288,6 +343,8 @@ class CardLayout(QDialog):
     ##########################################################################
 
     def current_template(self) -> Dict:
+        if self._isCloze():
+            return self.templates[0]
         return self.templates[self.ord]
 
     def fill_fields_from_template(self):
@@ -344,18 +401,24 @@ class CardLayout(QDialog):
 
         bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
 
-        q = ti(self.mw.prepare_card_text_for_display(c.q()))
-        q = gui_hooks.card_will_show(q, c, "clayoutQuestion")
-
-        a = ti(self.mw.prepare_card_text_for_display(c.a()), type="a")
-        a = gui_hooks.card_will_show(a, c, "clayoutAnswer")
+        if self.pform.preview_front.isChecked():
+            q = ti(self.mw.prepare_card_text_for_display(c.q()))
+            q = gui_hooks.card_will_show(q, c, "clayoutQuestion")
+            text = q
+            audio = c.question_av_tags()
+        else:
+            a = ti(self.mw.prepare_card_text_for_display(c.a()), type="a")
+            a = gui_hooks.card_will_show(a, c, "clayoutAnswer")
+            text = a
+            audio = c.answer_av_tags()
 
         # use _showAnswer to avoid the longer delay
-        self.pform.frontWeb.eval("_showAnswer(%s,'%s');" % (json.dumps(q), bodyclass))
-        self.pform.backWeb.eval("_showAnswer(%s, '%s');" % (json.dumps(a), bodyclass))
+        self.pform.frontWeb.eval(
+            "_showAnswer(%s,'%s');" % (json.dumps(text), bodyclass)
+        )
 
         if c.id not in self.playedAudio:
-            av_player.play_tags(c.question_av_tags() + c.answer_av_tags())
+            av_player.play_tags(audio)
             self.playedAudio[c.id] = True
 
         self.updateCardNames()
@@ -655,7 +718,6 @@ Enter deck to place new %s cards in, or leave blank:"""
         av_player.stop_and_clear_queue()
         saveGeom(self, "CardLayout")
         self.pform.frontWeb = None
-        self.pform.backWeb = None
         self.model = None
         self.rendered_card = None
         self.mw = None
