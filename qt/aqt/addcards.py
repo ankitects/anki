@@ -177,17 +177,7 @@ class AddCards(QDialog):
                     )
                 ):
                     return None
-        cards = self.mw.col.addNote(note)
-        if not cards:
-            showWarning(
-                _(
-                    """\
-The input you have provided would make an empty \
-question on all cards."""
-                ),
-                help="AddItems",
-            )
-            return None
+        self.mw.col.add_note(note, self.deckChooser.selectedId())
         self.mw.col.clearUndo()
         self.addHistory(note)
         self.mw.requireReset()
