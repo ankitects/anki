@@ -258,11 +258,14 @@ class CardLayout(QDialog):
         if self.tform.front_button.isChecked():
             self.current_editor_index = 0
             self.pform.preview_front.setChecked(True)
+            self.add_field_button.setHidden(False)
         elif self.tform.back_button.isChecked():
             self.current_editor_index = 1
             self.pform.preview_back.setChecked(True)
+            self.add_field_button.setHidden(False)
         else:
             self.current_editor_index = 2
+            self.add_field_button.setHidden(True)
 
         self.fill_fields_from_template()
 
@@ -329,10 +332,10 @@ class CardLayout(QDialog):
         l.addWidget(help)
         qconnect(help.clicked, self.onHelp)
         l.addStretch()
-        addField = QPushButton(_("Add Field"))
-        addField.setAutoDefault(False)
-        l.addWidget(addField)
-        qconnect(addField.clicked, self.onAddField)
+        self.add_field_button = QPushButton(_("Add Field"))
+        self.add_field_button.setAutoDefault(False)
+        l.addWidget(self.add_field_button)
+        qconnect(self.add_field_button.clicked, self.onAddField)
         if not self._isCloze():
             flip = QPushButton(_("Flip"))
             flip.setAutoDefault(False)
@@ -662,38 +665,27 @@ Enter deck to place new %s cards in, or leave blank:"""
         form.setupUi(diag)
         fields = [f["name"] for f in self.model["flds"]]
         form.fields.addItems(fields)
+        form.fields.setCurrentRow(0)
         form.font.setCurrentFont(QFont("Arial"))
         form.size.setValue(20)
-        diag.show()
-        # Work around a Qt bug,
-        # https://bugreports.qt-project.org/browse/QTBUG-1894
-        if isMac or isWin:
-            # No problems on Macs or Windows.
-            form.fields.showPopup()
-        else:
-            # Delay showing the pop-up.
-            self.mw.progress.timer(200, form.fields.showPopup, False)
         if not diag.exec_():
             return
-        if form.radioQ.isChecked():
-            obj = self.tform.front
-        else:
-            obj = self.tform.back
-        self._addField(
-            obj,
-            fields[form.fields.currentIndex()],
-            form.font.currentFont().family(),
-            form.size.value(),
-        )
+        row = form.fields.currentIndex().row()
+        if row >= 0:
+            self._addField(
+                fields[row],
+                form.font.currentFont().family(),
+                form.size.value(),
+            )
 
-    def _addField(self, widg, field, font, size):
-        t = widg.toPlainText()
-        t += "\n<div style='font-family: %s; font-size: %spx;'>{{%s}}</div>\n" % (
+    def _addField(self, field, font, size):
+        text = self.tform.edit_area.toPlainText()
+        text += "\n<div style='font-family: %s; font-size: %spx;'>{{%s}}</div>\n" % (
             font,
             size,
             field,
         )
-        widg.setPlainText(t)
+        self.tform.edit_area.setPlainText(text)
         self.changed = True
         self.write_edits_to_template_and_redraw()
 
