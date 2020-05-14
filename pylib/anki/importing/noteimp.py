@@ -2,7 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import html
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 from anki.collection import _Collection
 from anki.consts import NEW_CARDS_RANDOM, STARTING_FACTOR
@@ -136,7 +136,6 @@ class NoteImporter(Importer):
         new = []
         self._ids: List[int] = []
         self._cards: List[Tuple] = []
-        self._emptyNotes = False
         dupeCount = 0
         dupes: List[str] = []
         for n in notes:
@@ -222,23 +221,13 @@ class NoteImporter(Importer):
         )
         self.log.append("%s, %s, %s." % (part1, part2, part3))
         self.log.extend(updateLog)
-        if self._emptyNotes:
-            self.log.append(
-                _(
-                    """\
-One or more notes were not imported, because they didn't generate any cards. \
-This can happen when you have empty fields or when you have not mapped the \
-content in the text file to the correct fields."""
-                )
-            )
         self.total = len(self._ids)
 
     def newData(self, n: ForeignNote) -> Optional[list]:
         id = self._nextID
         self._nextID += 1
         self._ids.append(id)
-        if not self.processFields(n):
-            return None
+        self.processFields(n)
         # note id for card updates later
         for ord, c in list(n.cards.items()):
             self._cards.append((id, ord, c))
@@ -263,8 +252,7 @@ content in the text file to the correct fields."""
 
     def updateData(self, n: ForeignNote, id: int, sflds: List[str]) -> Optional[list]:
         self._ids.append(id)
-        if not self.processFields(n, sflds):
-            return None
+        self.processFields(n, sflds)
         if self._tagsMapped:
             tags = self.col.tags.join(n.tags)
             return [intTime(), self.col.usn(), n.fieldsStr, tags, id, n.fieldsStr, tags]
@@ -304,7 +292,7 @@ where id = ? and flds != ?""",
 
     def processFields(
         self, note: ForeignNote, fields: Optional[List[str]] = None
-    ) -> Any:
+    ) -> None:
         if not fields:
             fields = [""] * len(self.model["flds"])
         for c, f in enumerate(self.mapping):
@@ -316,10 +304,6 @@ where id = ? and flds != ?""",
                 sidx = self._fmap[f][0]
                 fields[sidx] = note.fields[c]
         note.fieldsStr = joinFields(fields)
-        ords = self.col.models.availOrds(self.model, note.fieldsStr)
-        if not ords:
-            self._emptyNotes = True
-        return ords
 
     def updateCards(self) -> None:
         data = []
