@@ -34,7 +34,6 @@ from typing import Any, Dict, List, Optional, Tuple
 import anki
 from anki import hooks
 from anki.cards import Card
-from anki.decks import DeckManager
 from anki.models import NoteType
 from anki.notes import Note
 from anki.rsbackend import PartiallyRenderedCard, TemplateReplacementList
@@ -57,9 +56,11 @@ class TemplateRenderContext:
 
     @classmethod
     def from_card_layout(
-        cls, note: Note, card: Card, template: Dict
+        cls, note: Note, card: Card, notetype: NoteType, template: Dict
     ) -> TemplateRenderContext:
-        return TemplateRenderContext(note.col, card, note, template=template)
+        return TemplateRenderContext(
+            note.col, card, note, notetype=notetype, template=template
+        )
 
     def __init__(
         self,
@@ -67,6 +68,7 @@ class TemplateRenderContext:
         card: Card,
         note: Note,
         browser: bool = False,
+        notetype: NoteType = None,
         template: Optional[Dict] = None,
     ) -> None:
         self._col = col.weakref()
@@ -74,7 +76,10 @@ class TemplateRenderContext:
         self._note = note
         self._browser = browser
         self._template = template
-        self._note_type = note.model()
+        if not notetype:
+            self._note_type = note.model()
+        else:
+            self._note_type = notetype
 
         # if you need to store extra state to share amongst rendering
         # hooks, you can insert it into this dictionary
@@ -85,7 +90,8 @@ class TemplateRenderContext:
 
     # legacy
     def fields(self) -> Dict[str, str]:
-        return fields_for_rendering(self.col(), self.card(), self.note())
+        print(".fields() is obsolote, use .note().items()")
+        return dict(self._note.items())
 
     def card(self) -> Card:
         """Returns the card being rendered.
@@ -177,26 +183,6 @@ def templates_for_card(card: Card, browser: bool) -> Tuple[str, str]:
     return q, a  # type: ignore
 
 
-# legacy
-def fields_for_rendering(
-    col: anki.storage._Collection, card: Card, note: Note
-) -> Dict[str, str]:
-    # fields from note
-    fields = dict(note.items())
-
-    # add special fields
-    fields["Tags"] = note.stringTags().strip()
-    fields["Type"] = card.note_type()["name"]
-    fields["Deck"] = col.decks.name(card.odid or card.did)
-    fields["Subdeck"] = DeckManager.basename(fields["Deck"])
-    fields["Card"] = card.template()["name"]
-    flag = card.userFlag()
-    fields["CardFlag"] = flag and f"flag{flag}" or ""
-    fields["c%d" % (card.ord + 1)] = "1"
-
-    return fields
-
-
 def apply_custom_filters(
     rendered: TemplateReplacementList,
     ctx: TemplateRenderContext,
@@ -226,7 +212,7 @@ def apply_custom_filters(
                     "fmod_" + filter_name,
                     field_text,
                     "",
-                    ctx.fields(),
+                    ctx.note().items(),
                     node.field_name,
                     "",
                 )
