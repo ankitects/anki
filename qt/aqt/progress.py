@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import time
+import weakref
 from typing import Optional
 
 import aqt.forms
@@ -21,9 +22,19 @@ class ProgressManager:
         self.app = QApplication.instance()
         self.inDB = False
         self.blockUpdates = False
+        self._disabled = lambda: None
         self._show_timer: Optional[QTimer] = None
         self._win = None
         self._levels = 0
+
+    def disable(self, parent):
+        """ Disables the progress bar until enable() is called or the parent is garbage collected
+        @parent the parent object requiring to disable the progress bar """
+        if not self.busy():
+            self._disabled = weakref.ref(parent)
+
+    def enable(self):
+        self._disabled = lambda: None
 
     # Safer timers
     ##########################################################################
@@ -56,6 +67,8 @@ class ProgressManager:
     def start(
         self, max=0, min=0, label=None, parent=None, immediate=False
     ) -> Optional[ProgressDialog]:
+        if self._disabled() is not None:
+            return None
         self._levels += 1
         if self._levels > 1:
             return None
@@ -92,6 +105,8 @@ class ProgressManager:
         if not self.mw.inMainThread():
             print("progress.update() called on wrong thread")
             return
+        if self._disabled() is not None:
+            return
         if self._updating:
             return
         if maybeShow:
@@ -111,6 +126,8 @@ class ProgressManager:
             self._lastUpdate = time.time()
 
     def finish(self):
+        if self._disabled() is not None:
+            return
         self._levels -= 1
         self._levels = max(0, self._levels)
         if self._levels == 0:
