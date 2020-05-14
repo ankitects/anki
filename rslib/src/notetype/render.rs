@@ -109,7 +109,8 @@ impl Collection {
             )
         };
 
-        let (qnodes, anodes) = render_card(qfmt, afmt, &field_map, card.ord, &self.i18n)?;
+        let (qnodes, anodes) =
+            render_card(qfmt, afmt, &field_map, card.ord, nt.is_cloze(), &self.i18n)?;
         Ok(RenderCardOutput { qnodes, anodes })
     }
 

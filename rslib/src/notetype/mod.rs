@@ -312,6 +312,10 @@ impl NoteType {
             })
             .next()
     }
+
+    pub(crate) fn is_cloze(&self) -> bool {
+        matches!(self.config.kind(), NoteTypeKind::Cloze)
+    }
 }
 
 impl From<NoteType> for NoteTypeProto {

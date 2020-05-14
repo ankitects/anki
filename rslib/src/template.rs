@@ -2,8 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::err::{AnkiError, Result, TemplateError};
-use crate::i18n::{tr_strs, I18n, TR};
-use crate::template_filters::apply_filters;
+use crate::i18n::{tr_args, tr_strs, I18n, TR};
+use crate::{cloze::add_cloze_numbers_in_string, template_filters::apply_filters};
 use lazy_static::lazy_static;
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take_until};
@@ -23,6 +23,8 @@ static TEMPLATE_ERROR_LINK: &str =
     "https://anki.tenderapp.com/kb/problems/card-template-has-a-problem";
 static TEMPLATE_BLANK_LINK: &str =
     "https://anki.tenderapp.com/kb/card-appearance/the-front-of-this-card-is-blank";
+static TEMPLATE_BLANK_CLOZE_LINK: &str =
+    "https://anki.tenderapp.com/kb/problems/no-cloze-found-on-card";
 
 // Lexing
 //----------------------------------------
@@ -521,6 +523,7 @@ pub fn render_card(
     afmt: &str,
     field_map: &HashMap<&str, Cow<str>>,
     card_ord: u16,
+    is_cloze: bool,
     i18n: &I18n,
 ) -> Result<(Vec<RenderedNode>, Vec<RenderedNode>)> {
     // prepare context
@@ -537,7 +540,20 @@ pub fn render_card(
         .map_err(|e| template_error_to_anki_error(e, true, i18n))?;
 
     // check if the front side was empty
-    if !qtmpl.renders_with_fields(context.nonempty_fields) {
+    if is_cloze {
+        if cloze_is_empty(field_map, card_ord) {
+            let info = format!(
+                "<div>{}<br><a href='{}'>{}</a></div>",
+                i18n.trn(
+                    TR::CardTemplateRenderingMissingCloze,
+                    tr_args!["number"=>card_ord+1]
+                ),
+                TEMPLATE_BLANK_CLOZE_LINK,
+                i18n.tr(TR::CardTemplateRenderingMoreInfo)
+            );
+            qnodes.push(RenderedNode::Text { text: info });
+        }
+    } else if !qtmpl.renders_with_fields(context.nonempty_fields) {
         let info = format!(
             "<div>{}<br><a href='{}'>{}</a></div>",
             i18n.tr(TR::CardTemplateRenderingEmptyFront),
@@ -545,7 +561,7 @@ pub fn render_card(
             i18n.tr(TR::CardTemplateRenderingMoreInfo)
         );
         qnodes.push(RenderedNode::Text { text: info });
-    };
+    }
 
     // answer side
     context.question_side = false;
@@ -554,6 +570,14 @@ pub fn render_card(
         .map_err(|e| template_error_to_anki_error(e, false, i18n))?;
 
     Ok((qnodes, anodes))
+}
+
+fn cloze_is_empty(field_map: &HashMap<&str, Cow<str>>, card_ord: u16) -> bool {
+    let mut set = HashSet::with_capacity(4);
+    for field in field_map.values() {
+        add_cloze_numbers_in_string(field.as_ref(), &mut set);
+    }
+    !set.contains(&(card_ord + 1))
 }
 
 // Field requirements
@@ -1063,7 +1087,7 @@ mod test {
         let i18n = I18n::new(&[""], "", log::terminal());
         use crate::template::RenderedNode as FN;
 
-        let qnodes = super::render_card("test{{E}}", "", &map, 1, &i18n)
+        let qnodes = super::render_card("test{{E}}", "", &map, 1, false, &i18n)
             .unwrap()
             .0;
         assert_eq!(
