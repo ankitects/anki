@@ -11,3 +11,5 @@ card-templates-front-preview = Front Preview
 card-templates-back-preview = Back Preview
 card-templates-preview-box = Preview
 card-templates-template-box = Template
+card-templates-sample-cloze = This is a {"{{c1::"}sample{"}}"} cloze deletion.
+card-templates-fill-empty = Fill Empty Fields

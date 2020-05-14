@@ -353,7 +353,11 @@ class Editor:
         else:
             ord = 0
         CardLayout(
-            self.mw, self.note, ord=ord, parent=self.parentWindow,
+            self.mw,
+            self.note,
+            ord=ord,
+            parent=self.parentWindow,
+            fill_empty=self.addMode,
         )
         if isWin:
             self.parentWindow.activateWindow()

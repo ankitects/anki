@@ -313,13 +313,16 @@ class RustBackend:
         return PartiallyRenderedCard(qnodes, anodes)
 
     def render_uncommitted_card(
-        self, note: BackendNote, card_ord: int, template: Dict
+        self, note: BackendNote, card_ord: int, template: Dict, fill_empty: bool
     ) -> PartiallyRenderedCard:
         template_json = orjson.dumps(template)
         out = self._run_command(
             pb.BackendInput(
                 render_uncommitted_card=pb.RenderUncommittedCardIn(
-                    note=note, template=template_json, card_ord=card_ord
+                    note=note,
+                    template=template_json,
+                    card_ord=card_ord,
+                    fill_empty=fill_empty,
                 )
             )
         ).render_uncommitted_card

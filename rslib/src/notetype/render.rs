@@ -6,8 +6,9 @@ use crate::{
     card::{Card, CardID},
     collection::Collection,
     err::{AnkiError, Result},
+    i18n::{I18n, TR},
     notes::{Note, NoteID},
-    template::{render_card, RenderedNode},
+    template::{field_is_empty, render_card, ParsedTemplate, RenderedNode},
 };
 use std::{borrow::Cow, collections::HashMap};
 
@@ -41,16 +42,22 @@ impl Collection {
 
     /// Render a card that may not yet have been added.
     /// The provided ordinal will be used if the template has not yet been saved.
+    /// If fill_empty is set, note will be mutated.
     pub fn render_uncommitted_card(
         &mut self,
-        note: &Note,
+        note: &mut Note,
         template: &CardTemplate,
         card_ord: u16,
+        fill_empty: bool,
     ) -> Result<RenderCardOutput> {
         let card = self.existing_or_synthesized_card(note.id, template.ord, card_ord)?;
         let nt = self
             .get_notetype(note.ntid)?
             .ok_or_else(|| AnkiError::invalid_input("no such notetype"))?;
+
+        if fill_empty {
+            fill_empty_fields(note, &template.config.q_format, &nt, &self.i18n);
+        }
 
         self.render_card_inner(note, &card, &nt, template, false)
     }
@@ -143,5 +150,21 @@ fn flag_name(n: u8) -> &'static str {
         3 => "flag3",
         4 => "flag4",
         _ => "",
+    }
+}
+
+fn fill_empty_fields(note: &mut Note, qfmt: &str, nt: &NoteType, i18n: &I18n) {
+    if let Ok(tmpl) = ParsedTemplate::from_text(qfmt) {
+        let cloze_fields = tmpl.cloze_fields();
+
+        for (val, field) in note.fields.iter_mut().zip(nt.fields.iter()) {
+            if field_is_empty(val) {
+                if cloze_fields.contains(&field.name.as_str()) {
+                    *val = i18n.tr(TR::CardTemplatesSampleCloze).into();
+                } else {
+                    *val = format!("({})", field.name);
+                }
+            }
+        }
     }
 }

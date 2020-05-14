@@ -480,7 +480,7 @@ fn append_str_to_nodes(nodes: &mut Vec<RenderedNode>, text: &str) {
 }
 
 /// True if provided text contains only whitespace and/or empty BR/DIV tags.
-fn field_is_empty(text: &str) -> bool {
+pub(crate) fn field_is_empty(text: &str) -> bool {
     lazy_static! {
         static ref RE: Regex = Regex::new(
             r#"(?xsi)
@@ -716,6 +716,42 @@ fn nodes_to_string(buf: &mut String, nodes: &[ParsedNode]) {
                 write!(buf, "{{{{^{}}}}}", key).unwrap();
                 nodes_to_string(buf, &children);
                 write!(buf, "{{{{/{}}}}}", key).unwrap();
+            }
+        }
+    }
+}
+
+// Detecting cloze fields
+//----------------------------------------
+
+impl ParsedTemplate {
+    /// A set of field names with a cloze filter attached.
+    /// Field names may not be valid.
+    pub(crate) fn cloze_fields(&self) -> HashSet<&str> {
+        let mut set = HashSet::new();
+        find_fields_with_filter(&self.0, &mut set, "cloze");
+        set
+    }
+}
+
+fn find_fields_with_filter<'a>(
+    nodes: &'a [ParsedNode],
+    fields: &mut HashSet<&'a str>,
+    filter: &str,
+) {
+    for node in nodes {
+        match node {
+            ParsedNode::Text(_) => {}
+            ParsedNode::Replacement { key, filters } => {
+                if filters.iter().any(|f| f == filter) {
+                    fields.insert(key);
+                }
+            }
+            ParsedNode::Conditional { children, .. } => {
+                find_fields_with_filter(&children, fields, filter);
+            }
+            ParsedNode::NegatedConditional { children, .. } => {
+                find_fields_with_filter(&children, fields, filter);
             }
         }
     }

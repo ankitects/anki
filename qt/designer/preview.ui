@@ -65,6 +65,13 @@
          </spacer>
         </item>
         <item>
+         <widget class="QCheckBox" name="fill_empty">
+          <property name="text">
+           <string notr="true">FILL_EMPTY</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QComboBox" name="cloze_number_combo"/>
         </item>
        </layout>

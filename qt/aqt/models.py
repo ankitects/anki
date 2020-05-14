@@ -1,7 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
 import collections
-import re
 from operator import itemgetter
 from typing import List, Optional
 
@@ -9,6 +9,7 @@ import aqt.clayout
 from anki import stdmodels
 from anki.lang import _, ngettext
 from anki.models import NoteType
+from anki.notes import Note
 from anki.rsbackend import pb
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
@@ -160,24 +161,7 @@ class Models(QDialog):
 
     def _tmpNote(self):
         nt = self.current_notetype()
-        self.mm.setCurrent(nt)
-        n = self.col.newNote(forDeck=False)
-        field_names = list(n.keys())
-        for name in field_names:
-            n[name] = "(" + name + ")"
-
-        cloze_re = re.compile(r"{{(?:[^}:]*:)*cloze:(?:[^}:]*:)*([^}]+)}}")
-        q_template = nt["tmpls"][0]["qfmt"]
-        a_template = nt["tmpls"][0]["afmt"]
-
-        used_cloze_fields = []
-        used_cloze_fields.extend(cloze_re.findall(q_template))
-        used_cloze_fields.extend(cloze_re.findall(a_template))
-        for field in used_cloze_fields:
-            if field in field_names:
-                n[field] = f"{field}: " + _("This is a {{c1::sample}} cloze deletion.")
-
-        return n
+        return Note(self.col, nt)
 
     def onFields(self):
         from aqt.fields import FieldDialog
@@ -188,7 +172,7 @@ class Models(QDialog):
         from aqt.clayout import CardLayout
 
         n = self._tmpNote()
-        CardLayout(self.mw, n, ord=0, parent=self)
+        CardLayout(self.mw, n, ord=0, parent=self, fill_empty=True)
 
     # Cleanup
     ##########################################################################
