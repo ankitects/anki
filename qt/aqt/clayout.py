@@ -29,13 +29,13 @@ from aqt.utils import (
     showInfo,
     showWarning,
     tooltip,
+    TR, tr, shortcut
 )
 from aqt.webview import AnkiWebView
 
 # fixme: previewing with empty fields
 # fixme: deck name on new cards
 # fixme: card count when removing
-# fixme: i18n
 # fixme: change tracking and tooltip in fields
 # fixme: replay suppression
 
@@ -106,17 +106,9 @@ class CardLayout(QDialog):
             self.topAreaForm.templatesBox.currentIndexChanged,
             self.update_current_ordinal_and_redraw,
         )
+        self.topAreaForm.card_type_label.setText(tr(TR.CARD_TEMPLATES_CARD_TYPE))
 
     def updateTopArea(self):
-        cnt = self.mw.col.models.useCount(self.model)
-        self.topAreaForm.changesLabel.setText(
-            ngettext(
-                "Changes below will affect the %(cnt)d note that uses this card type.",
-                "Changes below will affect the %(cnt)d notes that use this card type.",
-                cnt,
-            )
-            % dict(cnt=cnt)
-        )
         self.updateCardNames()
 
     def updateCardNames(self):
@@ -162,16 +154,21 @@ class CardLayout(QDialog):
         return s
 
     def setupShortcuts(self):
-        for i in range(1, 9):
-            QShortcut(
-                QKeySequence("Ctrl+%d" % i),
-                self,
-                activated=lambda i=i: self.selectCard(i),
-            )  # type: ignore
-
-    def selectCard(self, n):
-        self.ord = n - 1
-        self.redraw_everything()
+        self.tform.front_button.setToolTip(shortcut("Ctrl+1"))
+        self.tform.back_button.setToolTip(shortcut("Ctrl+2"))
+        self.tform.style_button.setToolTip(shortcut("Ctrl+3"))
+        QShortcut(
+            QKeySequence("Ctrl+1"),
+            self,
+            activated=lambda: self.tform.front_button.setChecked(True))
+        QShortcut(
+            QKeySequence("Ctrl+2"),
+            self,
+            activated=lambda: self.tform.back_button.setChecked(True))
+        QShortcut(
+            QKeySequence("Ctrl+3"),
+            self,
+            activated=lambda: self.tform.style_button.setChecked(True))
 
     # Main area
     ##########################################################################
@@ -185,22 +182,35 @@ class CardLayout(QDialog):
         # template area
         tform = self.tform = aqt.forms.template.Ui_Form()
         tform.setupUi(left)
-        # tform.groupBox_3.setTitle(_("Styling (shared between cards)"))
-        qconnect(tform.front.textChanged, self.write_edits_to_template_and_redraw)
-        qconnect(tform.css.textChanged, self.write_edits_to_template_and_redraw)
-        qconnect(tform.back.textChanged, self.write_edits_to_template_and_redraw)
-        qconnect(tform.tabWidget.currentChanged, self.on_editor_changed)
+        qconnect(tform.edit_area.textChanged, self.write_edits_to_template_and_redraw)
+        tform.front_button.setText(tr(TR.CARD_TEMPLATES_FRONT_TEMPLATE))
+        qconnect(tform.front_button.toggled, self.on_editor_toggled)
+        tform.back_button.setText(tr(TR.CARD_TEMPLATES_BACK_TEMPLATE))
+        qconnect(tform.back_button.toggled, self.on_editor_toggled)
+        tform.style_button.setText(tr(TR.CARD_TEMPLATES_TEMPLATE_STYLING))
+        qconnect(tform.style_button.toggled, self.on_editor_toggled)
+        tform.groupBox.setTitle(tr(TR.CARD_TEMPLATES_TEMPLATE_BOX))
+
+        cnt = self.mw.col.models.useCount(self.model)
+        self.tform.changes_affect_label.setText(self.col.tr(
+        TR.CARD_TEMPLATES_CHANGES_WILL_AFFECT_NOTES, count=cnt))
+
         l.addWidget(left, 5)
-        self.search_box = search = QLineEdit()
-        search.setPlaceholderText("Search")
-        qconnect(search.textChanged, self.on_search_changed)
-        qconnect(search.returnPressed, self.on_search_next)
-        tform.tabWidget.setCornerWidget(search)
+
+        self.setup_edit_area()
+
+        widg = tform.search_edit
+        widg.setPlaceholderText("Search")
+        qconnect(widg.textChanged, self.on_search_changed)
+        qconnect(widg.returnPressed, self.on_search_next)
         # preview area
         right = QWidget()
         self.pform: Any = aqt.forms.preview.Ui_Form()
         pform = self.pform
         pform.setupUi(right)
+        pform.preview_front.setText(tr(TR.CARD_TEMPLATES_FRONT_PREVIEW))
+        pform.preview_back.setText(tr(TR.CARD_TEMPLATES_BACK_PREVIEW))
+        pform.preview_box.setTitle(tr(TR.CARD_TEMPLATES_PREVIEW_BOX))
 
         if self._isCloze():
             nums = self.note.cloze_numbers_in_fields()
@@ -218,6 +228,15 @@ class CardLayout(QDialog):
         l.addWidget(right, 5)
         w.setLayout(l)
 
+    def setup_edit_area(self):
+        self.current_editor_index = 0
+        self.tform.edit_area.setAcceptRichText(False)
+        if qtminor < 10:
+            self.tform.edit_area.setTabStopWidth(30)
+        else:
+            tab_width = self.fontMetrics().width(" " * 4)
+            self.tform.edit_area.setTabStopDistance(tab_width)
+
     def setup_cloze_number_box(self):
         names = (_("Cloze %d") % n for n in self.cloze_numbers)
         self.pform.cloze_number_combo.addItems(names)
@@ -231,27 +250,24 @@ class CardLayout(QDialog):
             self.pform.cloze_number_combo.currentIndexChanged, self.on_change_cloze
         )
 
-    def current_editor(self) -> QTextEdit:
-        idx = self.tform.tabWidget.currentIndex()
-        if idx == 0:
-            return self.tform.front
-        elif idx == 1:
-            return self.tform.back
-        else:
-            return self.tform.css
-
     def on_change_cloze(self, idx: int) -> None:
         self.ord = self.cloze_numbers[idx] - 1
         self._renderPreview()
 
-    def on_editor_changed(self, idx: int) -> None:
-        if idx == 0:
+    def on_editor_toggled(self):
+        if self.tform.front_button.isChecked():
+            self.current_editor_index = 0
             self.pform.preview_front.setChecked(True)
-        elif idx == 1:
+        elif self.tform.back_button.isChecked():
+            self.current_editor_index = 1
             self.pform.preview_back.setChecked(True)
+        else:
+            self.current_editor_index = 2
+
+        self.fill_fields_from_template()
 
     def on_search_changed(self, text: str):
-        editor = self.current_editor()
+        editor = self.tform.edit_area
         if not editor.find(text):
             # try again from top
             cursor = editor.textCursor()
@@ -260,16 +276,10 @@ class CardLayout(QDialog):
             editor.find(text)
 
     def on_search_next(self):
-        self.on_search_changed(self.search_box.text())
+        text = self.tform.search_edit.text()
+        self.on_search_changed(text)
 
     def setupWebviews(self):
-        if theme_manager.night_mode and not theme_manager.macos_dark_mode():
-            # the grouping box renders incorrectly in the fusion theme. 5.9+
-            # 5.13 behave differently to 5.14, but it looks bad in either case,
-            # and adjusting the top margin makes the 'save PDF' button show in
-            # the wrong place, so for now we just disable the border instead
-            self.setStyleSheet("QGroupBox { border: 0; }")
-
         pform = self.pform
         pform.frontWeb = AnkiWebView(title="card layout")
         pform.verticalLayout.addWidget(pform.frontWeb)
@@ -350,31 +360,32 @@ class CardLayout(QDialog):
     def fill_fields_from_template(self):
         t = self.current_template()
         self.ignore_change_signals = True
-        self.tform.front.setPlainText(t["qfmt"])
-        self.tform.css.setPlainText(self.model["css"])
-        self.tform.back.setPlainText(t["afmt"])
-        self.tform.front.setAcceptRichText(False)
-        self.tform.css.setAcceptRichText(False)
-        self.tform.back.setAcceptRichText(False)
-        if qtminor < 10:
-            self.tform.front.setTabStopWidth(30)
-            self.tform.css.setTabStopWidth(30)
-            self.tform.back.setTabStopWidth(30)
+
+        if self.current_editor_index == 0:
+            text = t["qfmt"]
+        elif self.current_editor_index == 1:
+            text = t["afmt"]
         else:
-            tab_width = self.fontMetrics().width(" " * 4)
-            self.tform.front.setTabStopDistance(tab_width)
-            self.tform.css.setTabStopDistance(tab_width)
-            self.tform.back.setTabStopDistance(tab_width)
+            text = self.model["css"]
+
+        self.tform.edit_area.setPlainText(text)
         self.ignore_change_signals = False
 
     def write_edits_to_template_and_redraw(self):
         if self.ignore_change_signals:
             return
+
         self.changed = True
-        t = self.current_template()
-        t["qfmt"] = self.tform.front.toPlainText()
-        t["afmt"] = self.tform.back.toPlainText()
-        self.model["css"] = self.tform.css.toPlainText()
+
+        text = self.tform.edit_area.toPlainText()
+
+        if self.current_editor_index == 0:
+            self.current_template()['qfmt'] = text
+        elif self.current_editor_index == 1:
+            self.current_template()['afmt'] = text
+        else:
+            self.model["css"] = text
+
         self.renderPreview()
 
     # Preview
