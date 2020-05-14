@@ -355,37 +355,6 @@ def test_modelChange():
     assert deck.db.scalar("select count() from cards where nid = ?", f.id) == 1
 
 
-def test_availOrds():
-    d = getEmptyCol()
-    m = d.models.current()
-    mm = d.models
-    t = m["tmpls"][0]
-    f = d.newNote()
-    f["Front"] = "1"
-    # simple templates
-    assert mm.availOrds(m, joinFields(f.fields)) == [0]
-    t["qfmt"] = "{{Back}}"
-    mm.save(m, templates=True)
-    assert not mm.availOrds(m, joinFields(f.fields))
-    # AND
-    t = m["tmpls"][0]
-    t["qfmt"] = "{{#Front}}{{#Back}}{{Front}}{{/Back}}{{/Front}}"
-    mm.save(m, templates=True)
-    assert not mm.availOrds(m, joinFields(f.fields))
-    t = m["tmpls"][0]
-    t["qfmt"] = "{{#Front}}\n{{#Back}}\n{{Front}}\n{{/Back}}\n{{/Front}}"
-    mm.save(m, templates=True)
-    assert not mm.availOrds(m, joinFields(f.fields))
-    # OR
-    t = m["tmpls"][0]
-    t["qfmt"] = "{{Front}}\n{{Back}}"
-    mm.save(m, templates=True)
-    assert mm.availOrds(m, joinFields(f.fields)) == [0]
-    t["Front"] = ""
-    t["Back"] = "1"
-    assert mm.availOrds(m, joinFields(f.fields)) == [0]
-
-
 def test_req():
     def reqSize(model):
         if model["type"] == MODEL_CLOZE:
@@ -421,19 +390,3 @@ def test_req():
     r = opt["req"][0]
     assert r[1] in ("any", "all")
     assert r[2] == [0, 1]
-
-
-# def test_updatereqs_performance():
-#     import time
-#     d = getEmptyCol()
-#     mm = d.models
-#     m = mm.byName("Basic")
-#     for i in range(100):
-#         fld = mm.newField(f"field{i}")
-#         mm.addField(m, fld)
-#         tmpl = mm.newTemplate(f"template{i}")
-#         tmpl['qfmt'] = "{{field%s}}" % i
-#         mm.addTemplate(m, tmpl)
-#     t = time.time()
-#     mm.save(m, templates=True)
-#     print("took", (time.time()-t)*100)

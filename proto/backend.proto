@@ -98,6 +98,7 @@ message BackendInput {
         Empty get_preferences = 84;
         Preferences set_preferences = 85;
         RenderExistingCardIn render_existing_card = 86;
+        Note cloze_numbers_in_note = 87;
     }
 }
 
@@ -114,6 +115,7 @@ message BackendOutput {
         string congrats_learn_msg = 33;
         Empty abort_media_sync = 46;
         AllStockNotetypesOut all_stock_notetypes = 60;
+        ClozeNumbersInNoteOut cloze_numbers_in_note = 87;
 
         // fallible commands
         SchedTimingTodayOut sched_timing_today = 17;
@@ -780,4 +782,8 @@ message CollectionSchedulingSettings {
 
 message Preferences {
     CollectionSchedulingSettings sched = 1;
+}
+
+message ClozeNumbersInNoteOut {
+    repeated uint32 numbers = 1;
 }

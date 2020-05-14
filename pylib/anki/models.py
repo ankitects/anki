@@ -521,63 +521,13 @@ class ModelManager:
             s += t["name"]
         return checksum(s)
 
-    # Required field/text cache
+    # Cloze
     ##########################################################################
 
-    # fixme: clayout, importing
-    def availOrds(self, m: NoteType, flds: str) -> List:
-        "Given a joined field string, return available template ordinals."
-        if m["type"] == MODEL_CLOZE:
-            return self._availClozeOrds(m, flds)
-        fields = {}
-        for c, f in enumerate(splitFields(flds)):
-            fields[c] = f.strip()
-        avail = []
-        for ord, type, req in m["req"]:
-            # unsatisfiable template
-            if type == "none":
-                continue
-            # AND requirement?
-            elif type == "all":
-                ok = True
-                for idx in req:
-                    if not fields[idx]:
-                        # missing and was required
-                        ok = False
-                        break
-                if not ok:
-                    continue
-            # OR requirement?
-            elif type == "any":
-                ok = False
-                for idx in req:
-                    if fields[idx]:
-                        ok = True
-                        break
-                if not ok:
-                    continue
-            avail.append(ord)
-        return avail
-
     def _availClozeOrds(self, m: NoteType, flds: str, allowEmpty: bool = True) -> List:
-        sflds = splitFields(flds)
-        map = self.fieldMap(m)
-        ords = set()
-        matches = re.findall("{{[^}]*?cloze:(?:[^}]?:)*(.+?)}}", m["tmpls"][0]["qfmt"])
-        matches += re.findall("<%cloze:(.+?)%>", m["tmpls"][0]["qfmt"])
-        for fname in matches:
-            if fname not in map:
-                continue
-            ord = map[fname][0]
-            ords.update(
-                [int(m) - 1 for m in re.findall(r"(?s){{c(\d+)::.+?}}", sflds[ord])]
-            )
-        if -1 in ords:
-            ords.remove(-1)
-        if not ords and allowEmpty:
-            # empty clozes use first ord
-            return [0]
-        return list(ords)
+        print("_availClozeOrds() is deprecated")
+        note = anki.rsbackend.BackendNote(fields=[flds])
+        return self.col.backend.cloze_numbers_in_note(note)
 
     # Sync handling
     ##########################################################################
