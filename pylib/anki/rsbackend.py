@@ -808,6 +808,8 @@ class RustBackend:
     def set_preferences(self, prefs: pb.Preferences) -> None:
         self._run_command(pb.BackendInput(set_preferences=prefs))
 
+    def cloze_numbers_in_note(self, note: pb.Note) -> List[int]:
+        return list(self._run_command(pb.BackendInput(cloze_numbers_in_note=note)).cloze_numbers_in_note.numbers)
 
 def translate_string_in(
     key: TR, **kwargs: Union[str, int, float]

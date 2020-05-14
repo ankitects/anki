@@ -241,7 +241,7 @@ class CardLayout(QDialog):
 
     def updateMainArea(self):
         if self._isCloze():
-            cnt = len(self.mm.availOrds(self.model, joinFields(self.note.fields)))
+            cnt = len(self.note.cloze_numbers_in_fields())
             for g in self.pform.groupBox, self.pform.groupBox_2:
                 g.setTitle(g.title() + _(" (1 of %d)") % max(cnt, 1))
 

@@ -82,6 +82,9 @@ class Note:
 
     _model = property(model)
 
+    def cloze_numbers_in_fields(self) -> List[int]:
+        return self.col.backend.cloze_numbers_in_note(self.to_backend_note())
+
     # Dict interface
     ##################################################
 

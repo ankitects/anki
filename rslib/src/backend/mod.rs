@@ -8,6 +8,7 @@ use crate::{
     backend_proto::{AddOrUpdateDeckConfigIn, Empty, RenderedTemplateReplacement, SyncMediaIn},
     card::{Card, CardID},
     card::{CardQueue, CardType},
+    cloze::add_cloze_numbers_in_string,
     collection::{open_collection, Collection},
     config::SortKind,
     deckconf::{DeckConf, DeckConfID},
@@ -39,7 +40,7 @@ use log::error;
 use pb::backend_input::Value;
 use prost::Message;
 use serde_json::Value as JsonValue;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::convert::TryFrom;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
@@ -380,6 +381,9 @@ impl Backend {
             }
             Value::RenderUncommittedCard(input) => {
                 OValue::RenderUncommittedCard(self.render_uncommitted_card(input)?)
+            }
+            Value::ClozeNumbersInNote(note) => {
+                OValue::ClozeNumbersInNote(self.cloze_numbers_in_note(note))
             }
         })
     }
@@ -1135,6 +1139,16 @@ impl Backend {
 
     fn set_preferences(&self, prefs: pb::Preferences) -> Result<()> {
         self.with_col(|col| col.transact(None, |col| col.set_preferences(prefs)))
+    }
+
+    fn cloze_numbers_in_note(&self, note: pb::Note) -> pb::ClozeNumbersInNoteOut {
+        let mut set = HashSet::with_capacity(4);
+        for field in &note.fields {
+            add_cloze_numbers_in_string(field, &mut set);
+        }
+        pb::ClozeNumbersInNoteOut {
+            numbers: set.into_iter().map(|n| n as u32).collect(),
+        }
     }
 }
 
