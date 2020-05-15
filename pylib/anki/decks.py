@@ -14,45 +14,9 @@ from anki.errors import DeckRenameError
 from anki.lang import _
 from anki.utils import ids2str, intTime
 
-# fixmes:
-# - make sure users can't set grad interval < 1
-
-defaultDeck = {
-    "newToday": [0, 0],  # currentDay, count
-    "revToday": [0, 0],
-    "lrnToday": [0, 0],
-    "timeToday": [0, 0],  # time in ms
-    "conf": 1,
-    "usn": 0,
-    "desc": "",
-    "dyn": DECK_STD,
-    "collapsed": False,
-    # added in beta11
-    "extendNew": 10,
-    "extendRev": 50,
-    # fixme: if we keep this, mod must be set or handled in serde
-    "mod": 0,
-}
-
-defaultDynamicDeck = {
-    "newToday": [0, 0],
-    "revToday": [0, 0],
-    "lrnToday": [0, 0],
-    "timeToday": [0, 0],
-    "collapsed": False,
-    "dyn": DECK_DYN,
-    "desc": "",
-    "usn": 0,
-    "delays": None,
-    "separate": True,  # unused
-    # list of (search, limit, order); we only use first two elements for now
-    "terms": [["", 100, 0]],
-    "resched": True,
-    "return": True,  # currently unused
-    # v2 scheduler
-    "previewDelay": 10,
-    "mod": 0,
-}
+# legacy code may pass this in as the type argument to .id()
+defaultDeck = 0
+defaultDynamicDeck = 1
 
 
 class DecksDictProxy:
@@ -127,20 +91,15 @@ class DeckManager:
     # fixme: if we're stripping chars on add, then we need to do that on lookup as well
     # and need to make sure \x1f conversion
 
-    def id(
-        self, name: str, create: bool = True, type: Optional[Dict[str, Any]] = None
-    ) -> Optional[int]:
+    def id(self, name: str, create: bool = True, type: int = 0,) -> Optional[int]:
         "Add a deck with NAME. Reuse deck if already exists. Return id as int."
-        if type is None:
-            type = defaultDeck
-
         id = self.id_for_name(name)
         if id:
             return id
         elif not create:
             return None
 
-        deck = self.new_deck_legacy(bool(type["dyn"]))
+        deck = self.new_deck_legacy(bool(type))
         deck["name"] = name
         self.update(deck)
 
@@ -610,7 +569,7 @@ class DeckManager:
 
     def newDyn(self, name: str) -> int:
         "Return a new dynamic deck and set it as the current deck."
-        did = self.id(name, type=defaultDynamicDeck)
+        did = self.id(name, type=1)
         self.select(did)
         return did
 
