@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
@@ -37,7 +36,6 @@ from aqt.webview import AnkiWebView
 
 # fixme: deck name on new cards
 # fixme: card count when removing
-# fixme: replay suppression
 
 
 class CardLayout(QDialog):
@@ -59,6 +57,7 @@ class CardLayout(QDialog):
         self.model = note.model()
         self.templates = self.model["tmpls"]
         self._want_fill_empty_on = fill_empty
+        self.have_autoplayed = False
         self.mm._remove_from_cache(self.model["id"])
         self.mw.checkpoint(_("Card Types"))
         self.change_tracker = ChangeTracker(self.mw)
@@ -92,7 +91,7 @@ class CardLayout(QDialog):
         if self.ignore_change_signals:
             return
         self.ord = idx
-        self.playedAudio = {}
+        self.have_autoplayed = False
         self.fill_fields_from_template()
         self.renderPreview()
 
@@ -252,6 +251,7 @@ class CardLayout(QDialog):
 
     def on_change_cloze(self, idx: int) -> None:
         self.ord = self.cloze_numbers[idx] - 1
+        self.have_autoplayed = False
         self._renderPreview()
 
     def on_editor_toggled(self):
@@ -320,6 +320,7 @@ class CardLayout(QDialog):
             self.pform.cloze_number_combo.setHidden(True)
 
     def on_preview_toggled(self):
+        self.have_autoplayed = False
         self._renderPreview()
 
     def _on_bridge_cmd(self, cmd: str) -> Any:
@@ -430,19 +431,25 @@ class CardLayout(QDialog):
             q = ti(self.mw.prepare_card_text_for_display(c.q()))
             q = gui_hooks.card_will_show(q, c, "clayoutQuestion")
             text = q
-            audio = c.question_av_tags()
         else:
             a = ti(self.mw.prepare_card_text_for_display(c.a()), type="a")
             a = gui_hooks.card_will_show(a, c, "clayoutAnswer")
             text = a
-            audio = c.answer_av_tags()
 
         # use _showAnswer to avoid the longer delay
         self.preview_web.eval("_showAnswer(%s,'%s');" % (json.dumps(text), bodyclass))
 
-        if c.id not in self.playedAudio:
-            av_player.play_tags(audio)
-            self.playedAudio[c.id] = True
+        if not self.have_autoplayed:
+            self.have_autoplayed = True
+
+            if c.autoplay():
+                if self.pform.preview_front.isChecked():
+                    audio = c.question_av_tags()
+                else:
+                    audio = c.answer_av_tags()
+                av_player.play_tags(audio)
+            else:
+                av_player.clear_queue_and_maybe_interrupt()
 
         self.updateCardNames()
 
