@@ -178,6 +178,15 @@ impl SqliteStorage {
             .collect()
     }
 
+    pub(crate) fn deck_is_empty(&self, did: DeckID) -> Result<bool> {
+        self.db
+            .prepare_cached("select null from cards where did=?")?
+            .query(&[did])?
+            .next()
+            .map(|o| o.is_none())
+            .map_err(Into::into)
+    }
+
     // Upgrading/downgrading/legacy
 
     pub(super) fn add_default_deck(&self, i18n: &I18n) -> Result<()> {

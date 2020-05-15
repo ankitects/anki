@@ -1115,8 +1115,7 @@ title="%s" %s>%s</button>""" % (
         if not search:
             if not deck["dyn"]:
                 search = 'deck:"%s" ' % deck["name"]
-        decks = self.col.decks.allNames()
-        while _("Filtered Deck %d") % n in decks:
+        while self.col.decks.id_for_name(_("Filtered Deck %d") % n):
             n += 1
         name = _("Filtered Deck %d") % n
         did = self.col.decks.newDyn(name)

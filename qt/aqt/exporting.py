@@ -49,7 +49,8 @@ class ExportDialog(QDialog):
         self.exporterChanged(idx)
         # deck list
         if self.cids is None:
-            self.decks = [_("All Decks")] + sorted(self.col.decks.allNames())
+            self.decks = [_("All Decks")]
+            self.decks.extend(d.name for d in self.col.decks.all_names_and_ids())
         else:
             self.decks = [_("Selected Notes")]
         self.frm.deck.addItems(self.decks)

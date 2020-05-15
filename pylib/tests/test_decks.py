@@ -65,9 +65,10 @@ def test_rename():
     # should be able to rename into a completely different branch, creating
     # parents as necessary
     d.decks.rename(d.decks.get(id), "foo::bar")
-    assert "foo" in d.decks.allNames()
-    assert "foo::bar" in d.decks.allNames()
-    assert "hello::world" not in d.decks.allNames()
+    names = [n.name for n in d.decks.all_names_and_ids()]
+    assert "foo" in names
+    assert "foo::bar" in names
+    assert "hello::world" not in names
     # create another deck
     id = d.decks.id("tmp")
     # we can't rename it if it conflicts
@@ -76,8 +77,9 @@ def test_rename():
     d.decks.id("one::two::three")
     id = d.decks.id("one")
     d.decks.rename(d.decks.get(id), "yo")
+    names = [n.name for n in d.decks.all_names_and_ids()]
     for n in "yo", "yo::two", "yo::two::three":
-        assert n in d.decks.allNames()
+        assert n in names
     # over filtered
     filteredId = d.decks.newDyn("filtered")
     filtered = d.decks.get(filteredId)
@@ -96,7 +98,7 @@ def test_renameForDragAndDrop():
     d = getEmptyCol()
 
     def deckNames():
-        return [name for name in sorted(d.decks.allNames()) if name != "Default"]
+        return [n.name for n in d.decks.all_names_and_ids(skip_empty_default=True)]
 
     languages_did = d.decks.id("Languages")
     chinese_did = d.decks.id("Chinese")
@@ -151,16 +153,3 @@ def test_renameForDragAndDrop():
     # '' is a convenient alias for the top level DID
     d.decks.renameForDragAndDrop(hsk_did, "")
     assert deckNames() == ["Chinese", "HSK", "Languages"]
-
-
-def test_check():
-    d = getEmptyCol()
-
-    # currently disabled - see 5418af00f733ca62b0c087d1422feae01d6571b0
-    # foo_did = d.decks.id("foo")
-    # FOO_did = d.decks.id("bar")
-    # FOO = d.decks.byName("bar")
-    # FOO["name"] = "FOO"
-    # d.decks.save(FOO)
-    # d.decks._checkDeckTree()
-    # assert "foo" not in d.decks.allNames() or "FOO" not in d.decks.allNames()

@@ -1148,11 +1148,6 @@ QTableView {{ gridline-color: {grid} }}
 
         def fillGroups(root, nodes: Sequence[DeckTreeNode], head=""):
             for node in nodes:
-                if node.deck_id == 1 and not node.children:
-                    if not self.mw.col.decks.should_default_be_displayed(
-                        force_default=False, assume_no_child=True
-                    ):
-                        continue
 
                 def set_filter():
                     full_name = head + node.name  # pylint: disable=cell-var-from-loop
