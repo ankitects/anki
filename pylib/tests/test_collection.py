@@ -22,8 +22,8 @@ def test_create_open():
     deck = aopen(path)
     # for open()
     newPath = deck.path
-    deck.close()
     newMod = deck.mod
+    deck.close()
     del deck
 
     # reopen

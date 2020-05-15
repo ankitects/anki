@@ -37,10 +37,6 @@ from anki.utils import devMode, ids2str, intTime
 class _Collection:
     db: Optional[DBProxy]
     sched: Union[V1Scheduler, V2Scheduler]
-    mod: int
-    scm: int
-    _usn: int
-    ls: int
     _undo: List[Any]
 
     def __init__(
@@ -64,7 +60,6 @@ class _Collection:
         self.decks = DeckManager(self)
         self.tags = TagManager(self)
         self.conf = ConfigManager(self)
-        self.load()
         self._loadScheduler()
 
     def name(self) -> Any:
@@ -129,11 +124,7 @@ class _Collection:
     # DB-related
     ##########################################################################
 
-    def load(self) -> None:
-        (self.mod, self.scm, self._usn, self.ls,) = self.db.first(
-            """
-select mod, scm, usn, ls from col"""
-        )
+    # legacy properties; these will likely go away in the future
 
     def _get_crt(self) -> int:
         return self.db.scalar("select crt from col")
@@ -141,43 +132,57 @@ select mod, scm, usn, ls from col"""
     def _set_crt(self, val: int) -> None:
         self.db.execute("update col set crt=?", val)
 
+    def _get_scm(self) -> int:
+        return self.db.scalar("select scm from col")
+
+    def _set_scm(self, val: int) -> None:
+        self.db.execute("update col set scm=?", val)
+
+    def _get_usn(self) -> int:
+        return self.db.scalar("select usn from col")
+
+    def _set_usn(self, val: int) -> None:
+        self.db.execute("update col set usn=?", val)
+
+    def _get_mod(self) -> int:
+        return self.db.scalar("select mod from col")
+
+    def _set_mod(self, val: int) -> None:
+        self.db.execute("update col set mod=?", val)
+
+    def _get_ls(self) -> int:
+        return self.db.scalar("select ls from col")
+
+    def _set_ls(self, val: int) -> None:
+        self.db.execute("update col set ls=?", val)
+
     crt = property(_get_crt, _set_crt)
+    mod = property(_get_mod, _set_mod)
+    _usn = property(_get_usn, _set_usn)
+    scm = property(_get_scm, _set_scm)
+    ls = property(_get_ls, _set_ls)
 
-    def setMod(self) -> None:
-        """Mark DB modified.
+    # legacy
+    def setMod(self, mod: Optional[int] = None) -> None:
+        # this is now a no-op, as modifications to things like the config
+        # will mark the collection modified automatically
+        pass
 
-DB operations and the deck/model managers do this automatically, so this
-is only necessary if you modify properties of this object."""
-        self.db.mod = True
+    flush = setMod
 
-    def flush(self, mod: Optional[int] = None) -> None:
-        "Flush state to DB, updating mod time."
-        self.mod = intTime(1000) if mod is None else mod
-        self.db.execute(
-            """update col set
-mod=?, scm=?, usn=?, ls=?""",
-            self.mod,
-            self.scm,
-            self._usn,
-            self.ls,
-        )
-
-    def flush_all_changes(self, mod: Optional[int] = None):
-        self.models.flush()
-        self.decks.flush()
-        # set mod flag if mtime changed by backend
-        if self.db.scalar("select mod from col") != self.mod:
-            self.db.mod = True
-        if self.db.mod:
-            self.flush(mod)
+    def modified_after_begin(self) -> bool:
+        # Until we can move away from long-running transactions, the Python
+        # code needs to know if transaction should be committed, so we need
+        # to check if the backend updated the modification time.
+        return self.db.last_begin_at < self.mod
 
     def save(
         self, name: Optional[str] = None, mod: Optional[int] = None, trx: bool = True
     ) -> None:
         "Flush, commit DB, and take out another write lock if trx=True."
-        self.flush_all_changes(mod)
-        # and flush deck + bump mod if db has been changed
-        if self.db.mod:
+        # commit needed?
+        if self.db.mod or self.modified_after_begin():
+            self.mod = intTime(1000) if mod is None else mod
             self.db.commit()
             self.db.mod = False
             if trx:
@@ -213,7 +218,6 @@ mod=?, scm=?, usn=?, ls=?""",
     def rollback(self) -> None:
         self.db.rollback()
         self.db.begin()
-        self.load()
 
     def modSchema(self, check: bool) -> None:
         "Mark schema modified. Call this first so user can abort if necessary."
@@ -385,11 +389,9 @@ select id from notes where id in %s and id not in (select nid from cards)"""
     def find_cards(
         self, query: str, order: Union[bool, str, int] = False, reverse: bool = False,
     ) -> Sequence[int]:
-        self.flush_all_changes()
         return self.backend.search_cards(query, order, reverse)
 
     def find_notes(self, query: str) -> Sequence[int]:
-        self.flush_all_changes()
         return self.backend.search_notes(query)
 
     def find_and_replace(
