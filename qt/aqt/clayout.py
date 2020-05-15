@@ -34,7 +34,6 @@ from aqt.utils import (
 )
 from aqt.webview import AnkiWebView
 
-# fixme: deck name on new cards
 # fixme: card count when removing
 
 
