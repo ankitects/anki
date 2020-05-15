@@ -12,6 +12,7 @@ import anki.backend_pb2 as pb
 from anki import hooks
 from anki.consts import *
 from anki.lang import _
+from anki.rsbackend import StockNoteType
 from anki.utils import checksum, ids2str, intTime, joinFields, splitFields
 
 # types
@@ -19,68 +20,7 @@ NoteType = Dict[str, Any]
 Field = Dict[str, Any]
 Template = Dict[str, Union[str, int, None]]
 
-# fixme: memory leaks
 # fixme: syncing, beforeUpload
-
-# Models
-##########################################################################
-
-# - careful not to add any lists/dicts/etc here, as they aren't deep copied
-
-defaultModel: NoteType = {
-    "id": 0,
-    "sortf": 0,
-    "did": 1,
-    "latexPre": """\
-\\documentclass[12pt]{article}
-\\special{papersize=3in,5in}
-\\usepackage[utf8]{inputenc}
-\\usepackage{amssymb,amsmath}
-\\pagestyle{empty}
-\\setlength{\\parindent}{0in}
-\\begin{document}
-""",
-    "latexPost": "\\end{document}",
-    "mod": 0,
-    "usn": 0,
-    "req": [],
-    "type": MODEL_STD,
-    "css": """\
-.card {
- font-family: arial;
- font-size: 20px;
- text-align: center;
- color: black;
- background-color: white;
-}
-""",
-}
-
-defaultField: Field = {
-    "name": "",
-    "ord": None,
-    "sticky": False,
-    # the following alter editing, and are used as defaults for the
-    # template wizard
-    "rtl": False,
-    "font": "Arial",
-    "size": 20,
-    # reserved for future use
-    "media": [],
-}
-
-defaultTemplate: Template = {
-    "name": "",
-    "ord": None,
-    "qfmt": "",
-    "afmt": "",
-    "did": None,
-    "bqfmt": "",
-    "bafmt": "",
-    # we don't define these so that we pick up system font size until set
-    #'bfont': "Arial",
-    #'bsize': 12,
-}
 
 
 class ModelsDictProxy:
@@ -149,15 +89,6 @@ class ModelManager:
     # legacy
     def flush(self) -> None:
         pass
-
-    # fixme: enforce at lower level
-    def ensureNotEmpty(self) -> Optional[bool]:
-        if not self.all_names_and_ids():
-            from anki.stdmodels import addBasicModel
-
-            addBasicModel(self.col)
-            return True
-        return None
 
     # Caching
     #############################################################
@@ -256,14 +187,13 @@ class ModelManager:
     def new(self, name: str) -> NoteType:
         "Create a new model, and return it."
         # caller should call save() after modifying
-        m = defaultModel.copy()
-        m["name"] = name
-        m["mod"] = intTime()
-        m["flds"] = []
-        m["tmpls"] = []
-        m["tags"] = []
-        m["id"] = 0
-        return m
+        nt = self.col.backend.get_stock_notetype_legacy(
+            StockNoteType.StockNoteTypeBasic
+        )
+        nt["flds"] = []
+        nt["tmpls"] = []
+        nt["name"] = name
+        return nt
 
     def rem(self, m: NoteType) -> None:
         "Delete model, and all its cards/notes."
@@ -349,9 +279,13 @@ class ModelManager:
 
     def new_field(self, name: str) -> Field:
         assert isinstance(name, str)
-        f = defaultField.copy()
-        f["name"] = name
-        return f
+        nt = self.col.backend.get_stock_notetype_legacy(
+            StockNoteType.StockNoteTypeBasic
+        )
+        field = nt["flds"][0]
+        field["name"] = name
+        field["ord"] = None
+        return field
 
     def add_field(self, m: NoteType, field: Field) -> None:
         "Modifies schema."
@@ -404,9 +338,15 @@ class ModelManager:
     ##################################################
 
     def new_template(self, name: str) -> Template:
-        t = defaultTemplate.copy()
-        t["name"] = name
-        return t
+        nt = self.col.backend.get_stock_notetype_legacy(
+            StockNoteType.StockNoteTypeBasic
+        )
+        template = nt["tmpls"][0]
+        template["name"] = name
+        template["qfmt"] = ""
+        template["afmt"] = ""
+        template["ord"] = None
+        return template
 
     def add_template(self, m: NoteType, template: Template) -> None:
         "Modifies schema."
