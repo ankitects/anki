@@ -7,7 +7,7 @@ from anki import Collection as aopen
 from anki.dbproxy import emulate_named_args
 from anki.lang import without_unicode_isolation
 from anki.rsbackend import TR
-from anki.stdmodels import addBasicModel, models
+from anki.stdmodels import addBasicModel, get_stock_notetypes
 from anki.utils import isWin
 from tests.shared import assertException, getEmptyCol
 
@@ -119,10 +119,10 @@ def test_addDelTags():
 
 def test_timestamps():
     deck = getEmptyCol()
-    assert len(deck.models.all_names_and_ids()) == len(models)
+    assert len(deck.models.all_names_and_ids()) == len(get_stock_notetypes(deck))
     for i in range(100):
         addBasicModel(deck)
-    assert len(deck.models.all_names_and_ids()) == 100 + len(models)
+    assert len(deck.models.all_names_and_ids()) == 100 + len(get_stock_notetypes(deck))
 
 
 def test_furigana():

@@ -71,7 +71,7 @@ message BackendInput {
         AddOrUpdateNotetypeIn add_or_update_notetype = 57;
         Empty get_all_decks = 58;
         Empty check_database = 59;
-        Empty all_stock_notetypes = 60;
+        StockNoteType get_stock_notetype_legacy = 60;
         int64 get_notetype_legacy = 61;
         Empty get_notetype_names = 62;
         Empty get_notetype_names_and_counts = 63;
@@ -114,7 +114,6 @@ message BackendOutput {
         string studied_today = 32;
         string congrats_learn_msg = 33;
         Empty abort_media_sync = 46;
-        AllStockNotetypesOut all_stock_notetypes = 60;
         ClozeNumbersInNoteOut cloze_numbers_in_note = 87;
 
         // fallible commands
@@ -177,6 +176,7 @@ message BackendOutput {
         Preferences get_preferences = 84;
         Empty set_preferences = 85;
         RenderCardOut render_existing_card = 86;
+        bytes get_stock_notetype_legacy = 60;
 
         BackendError error = 2047;
     }
@@ -585,10 +585,6 @@ enum StockNoteType {
     StockNoteTypeBasicOptionalReversed = 2;
     StockNoteTypeBasicTyping = 3;
     StockNoteTypeCloze = 4;
-}
-
-message AllStockNotetypesOut {
-    repeated NoteType notetypes = 1;
 }
 
 message NoteTypeNames {
