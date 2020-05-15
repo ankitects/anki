@@ -721,7 +721,7 @@ def test_filt_reviewing_early_normal():
     d.sched.rebuildDyn(did)
     d.reset()
     # should appear as normal in the deck list
-    assert sorted(d.sched.deckDueList())[0][2] == 1
+    assert sorted(d.sched.deckDueTree())[0][2] == 1
     # and should appear in the counts
     assert d.sched.counts() == (0, 0, 1)
     # grab it and check estimates
@@ -1023,12 +1023,6 @@ def test_deckDue():
     d.addNote(f)
     d.reset()
     assert len(d.decks.all_names_and_ids()) == 5
-    cnts = d.sched.deckDueList()
-    assert cnts[0] == ["Default", 1, 1, 0, 1]
-    assert cnts[1] == ["Default::1", default1, 1, 0, 0]
-    assert cnts[2] == ["foo", d.decks.id("foo"), 0, 0, 0]
-    assert cnts[3] == ["foo::bar", foobar, 0, 0, 1]
-    assert cnts[4] == ["foo::baz", foobaz, 0, 0, 1]
     tree = d.sched.deckDueTree()
     assert tree[0][0] == "Default"
     # sum of child and parent
@@ -1043,7 +1037,6 @@ def test_deckDue():
     # code should not fail if a card has an invalid deck
     c.did = 12345
     c.flush()
-    d.sched.deckDueList()
     d.sched.deckDueTree()
 
 
