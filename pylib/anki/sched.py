@@ -3,18 +3,15 @@
 
 from __future__ import annotations
 
-import itertools
 import random
 import time
 from heapq import *
-from operator import itemgetter
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import anki
 from anki import hooks
 from anki.cards import Card
 from anki.consts import *
-from anki.decks import DeckManager
 from anki.schedv2 import Scheduler as V2
 from anki.utils import ids2str, intTime
 
@@ -140,77 +137,6 @@ class Scheduler(V2):
             intTime(),
             self.col.usn(),
         )
-
-    # Deck list
-    ##########################################################################
-
-    def deckDueList(self) -> List[List[Any]]:
-        "Returns [deckname, did, rev, lrn, new]"
-        self._checkDay()
-        self.col.decks.checkIntegrity()
-        decks = self.col.decks.all()
-        decks.sort(key=itemgetter("name"))
-        lims: Dict[str, List[int]] = {}
-        data = []
-
-        for deck in decks:
-            p = DeckManager.immediate_parent(deck["name"])
-            # new
-            nlim = self._deckNewLimitSingle(deck)
-            if p is not None:
-                nlim = min(nlim, lims[p][0])
-            new = self._newForDeck(deck["id"], nlim)
-            # learning
-            lrn = self._lrnForDeck(deck["id"])
-            # reviews
-            rlim = self._deckRevLimitSingle(deck)
-            if p:
-                rlim = min(rlim, lims[p][1])
-            rev = self._revForDeck(deck["id"], rlim)
-            # save to list
-            data.append([deck["name"], deck["id"], rev, lrn, new])
-            # add deck as a parent
-            lims[deck["name"]] = [nlim, rlim]
-        return data
-
-    def _groupChildrenMain(self, grps: List[List[Any]]) -> Any:
-        tree = []
-        # group and recurse
-        def key(grp):
-            return grp[0][0]
-
-        for (head, tail) in itertools.groupby(grps, key=key):
-            tail = list(tail)  # type: ignore
-            did = None
-            rev = 0
-            new = 0
-            lrn = 0
-            children = []
-            for c in tail:
-                if len(c[0]) == 1:
-                    # current node
-                    did = c[1]
-                    rev += c[2]
-                    lrn += c[3]
-                    new += c[4]
-                else:
-                    # set new string to tail
-                    c[0] = c[0][1:]
-                    children.append(c)
-            children = self._groupChildrenMain(children)
-            # tally up children counts
-            for ch in children:
-                rev += ch[2]
-                lrn += ch[3]
-                new += ch[4]
-            # limit the counts to the deck's limits
-            conf = self.col.decks.confForDid(did)
-            deck = self.col.decks.get(did)
-            if not conf["dyn"]:
-                rev = max(0, min(rev, conf["rev"]["perDay"] - deck["revToday"][1]))
-                new = max(0, min(new, self._deckNewLimitSingle(deck)))
-            tree.append((head, did, rev, lrn, new, children))
-        return tuple(tree)
 
     # Getting the next card
     ##########################################################################

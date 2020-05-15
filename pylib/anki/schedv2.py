@@ -3,11 +3,9 @@
 
 from __future__ import annotations
 
-import itertools
 import random
 import time
 from heapq import *
-from operator import itemgetter
 
 # from anki.collection import _Collection
 from typing import Any, Callable, Dict, List, Optional, Sequence, Set, Tuple, Union
@@ -16,7 +14,6 @@ import anki  # pylint: disable=unused-import
 from anki import hooks
 from anki.cards import Card
 from anki.consts import *
-from anki.decks import DeckManager
 from anki.lang import _
 from anki.rsbackend import FormatTimeSpanContext, SchedTimingToday
 from anki.utils import ids2str, intTime
@@ -231,86 +228,9 @@ order by due"""
     # Deck list
     ##########################################################################
 
-    def deckDueList(self) -> List[List[Any]]:
-        "Returns [deckname, did, rev, lrn, new]"
-        self._checkDay()
-        self.col.decks.checkIntegrity()
-        decks = self.col.decks.all()
-        decks.sort(key=itemgetter("name"))
-        lims: Dict[str, List[int]] = {}
-        data = []
-
-        childMap = self.col.decks.childMap()
-        for deck in decks:
-            p = DeckManager.immediate_parent(deck["name"])
-            # new
-            nlim = self._deckNewLimitSingle(deck)
-            if p is not None:
-                nlim = min(nlim, lims[p][0])
-            new = self._newForDeck(deck["id"], nlim)
-            # learning
-            lrn = self._lrnForDeck(deck["id"])
-            # reviews
-            if p:
-                plim = lims[p][1]
-            else:
-                plim = None
-            rlim = self._deckRevLimitSingle(deck, parentLimit=plim)
-            rev = self._revForDeck(deck["id"], rlim, childMap)
-            # save to list
-            data.append([deck["name"], deck["id"], rev, lrn, new])
-            # add deck as a parent
-            lims[deck["name"]] = [nlim, rlim]
-        return data
-
     def deckDueTree(self) -> Any:
+        "List of (base name, did, rev, lrn, new, children)"
         return self.col.backend.legacy_deck_tree()
-
-    def _groupChildren(self, grps: List[List[Any]]) -> Any:
-        # first, split the group names into components
-        for g in grps:
-            g[0] = DeckManager.path(g[0])
-        # and sort based on those components
-        grps.sort(key=itemgetter(0))
-        # then run main function
-        return self._groupChildrenMain(grps)
-
-    def _groupChildrenMain(self, grps: List[List[Any]]) -> Any:
-        tree = []
-        # group and recurse
-        def key(grp):
-            return grp[0][0]
-
-        for (head, tail) in itertools.groupby(grps, key=key):
-            tail = list(tail)  # type: ignore
-            did = None
-            rev = 0
-            new = 0
-            lrn = 0
-            children: Any = []
-            for c in tail:
-                if len(c[0]) == 1:
-                    # current node
-                    did = c[1]
-                    rev += c[2]
-                    lrn += c[3]
-                    new += c[4]
-                else:
-                    # set new string to tail
-                    c[0] = c[0][1:]
-                    children.append(c)
-            children = self._groupChildrenMain(children)
-            # tally up children counts
-            for ch in children:
-                lrn += ch[3]
-                new += ch[4]
-            # limit the counts to the deck's limits
-            conf = self.col.decks.confForDid(did)
-            deck = self.col.decks.get(did)
-            if not conf["dyn"]:
-                new = max(0, min(new, self._deckNewLimitSingle(deck)))
-            tree.append((head, did, rev, lrn, new, children))
-        return tuple(tree)
 
     # Getting the next card
     ##########################################################################
