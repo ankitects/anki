@@ -1282,6 +1282,7 @@ and if the problem comes up again, please ask on the support site."""
     # Schema modifications
     ##########################################################################
 
+    # this will gradually be phased out
     def onSchemaMod(self, arg):
         assert self.inMainThread()
         progress_shown = self.progress.busy()
@@ -1299,6 +1300,22 @@ will be lost. Continue?"""
         if progress_shown:
             self.progress.start()
         return ret
+
+    # in favour of this
+    def confirm_schema_modification(self) -> bool:
+        """If schema unmodified, ask user to confirm change.
+        True if confirmed or already modified."""
+        if self.col.schemaChanged():
+            return True
+        return askUser(
+            _(
+                """\
+The requested change will require a full upload of the database when \
+you next synchronize your collection. If you have reviews or other changes \
+waiting on another device that haven't been synchronized here yet, they \
+will be lost. Continue?"""
+            )
+        )
 
     # Advanced features
     ##########################################################################

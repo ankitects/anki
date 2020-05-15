@@ -16,6 +16,7 @@ from anki.rsbackend import TemplateError
 from anki.template import TemplateRenderContext
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
+from aqt.schema_change_tracker import ChangeTracker
 from aqt.sound import av_player, play_clicked_audio
 from aqt.theme import theme_manager
 from aqt.utils import (
@@ -36,7 +37,6 @@ from aqt.webview import AnkiWebView
 
 # fixme: deck name on new cards
 # fixme: card count when removing
-# fixme: change tracking and tooltip in fields
 # fixme: replay suppression
 
 
@@ -61,7 +61,7 @@ class CardLayout(QDialog):
         self._want_fill_empty_on = fill_empty
         self.mm._remove_from_cache(self.model["id"])
         self.mw.checkpoint(_("Card Types"))
-        self.changed = False
+        self.change_tracker = ChangeTracker(self.mw)
         self.setupTopArea()
         self.setupMainArea()
         self.setupButtons()
@@ -389,7 +389,7 @@ class CardLayout(QDialog):
         if self.ignore_change_signals:
             return
 
-        self.changed = True
+        self.change_tracker.mark_basic()
 
         text = self.tform.edit_area.toPlainText()
 
@@ -497,8 +497,9 @@ class CardLayout(QDialog):
         if not askUser(msg):
             return
 
-        self.changed = True
-        self.mm.remTemplate(self.model, template, save=False)
+        if not self.change_tracker.mark_schema():
+            return
+        self.mm.remove_template(self.model, template)
 
         # ensure current ordinal is within bounds
         idx = self.ord
@@ -513,7 +514,8 @@ class CardLayout(QDialog):
         if not name.strip():
             return
 
-        self.changed = True
+        if not self.change_tracker.mark_schema():
+            return
         template["name"] = name
         self.redraw_everything()
 
@@ -535,8 +537,9 @@ class CardLayout(QDialog):
         if pos == current_pos:
             return
         new_idx = pos - 1
-        self.changed = True
-        self.mm.moveTemplate(self.model, template, new_idx, save=False)
+        if not self.change_tracker.mark_schema():
+            return
+        self.mm.reposition_template(self.model, template, new_idx)
         self.ord = new_idx
         self.redraw_everything()
 
@@ -561,13 +564,14 @@ class CardLayout(QDialog):
         )
         if not askUser(txt):
             return
-        self.changed = True
+        if not self.change_tracker.mark_schema():
+            return
         name = self._newCardName()
         t = self.mm.newTemplate(name)
         old = self.current_template()
         t["qfmt"] = old["qfmt"]
         t["afmt"] = old["afmt"]
-        self.mm.addTemplate(self.model, t, save=False)
+        self.mm.add_template(self.model, t)
         self.ord = len(self.templates) - 1
         self.redraw_everything()
 
@@ -587,7 +591,7 @@ adjust the template manually to switch the question and answer."""
                 )
             )
             return
-        self.changed = True
+        self.change_tracker.mark_basic()
         dst["afmt"] = "{{FrontSide}}\n\n<hr id=answer>\n\n%s" % src["qfmt"]
         dst["qfmt"] = m.group(2).strip()
         return True
@@ -639,7 +643,7 @@ adjust the template manually to switch the question and answer."""
 
     def onBrowserDisplayOk(self, f):
         t = self.current_template()
-        self.changed = True
+        self.change_tracker.mark_basic()
         t["bqfmt"] = f.qfmt.text().strip()
         t["bafmt"] = f.afmt.text().strip()
         if f.overrideFont.isChecked():
@@ -678,7 +682,7 @@ Enter deck to place new %s cards in, or leave blank:"""
         l.addWidget(bb)
         d.setLayout(l)
         d.exec_()
-        self.changed = True
+        self.change_tracker.mark_basic()
         if not te.text().strip():
             t["did"] = None
         else:
@@ -709,7 +713,7 @@ Enter deck to place new %s cards in, or leave blank:"""
             field,
         )
         self.tform.edit_area.setPlainText(text)
-        self.changed = True
+        self.change_tracker.mark_basic()
         self.write_edits_to_template_and_redraw()
 
     # Closing & Help
@@ -733,7 +737,7 @@ Enter deck to place new %s cards in, or leave blank:"""
         self.mw.taskman.with_progress(save, on_done)
 
     def reject(self) -> None:
-        if self.changed:
+        if self.change_tracker.changed():
             if not askUser("Discard changes?"):
                 return
         self.cleanup()
