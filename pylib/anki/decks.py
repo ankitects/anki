@@ -4,8 +4,7 @@
 from __future__ import annotations
 
 import copy
-import unicodedata
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import anki  # pylint: disable=unused-import
 import anki.backend_pb2 as pb
@@ -186,17 +185,13 @@ class DeckManager:
         if did in self.active():
             self.select(self.all_names_and_ids()[0].id)
 
-    def allNames(self, dyn: bool = True, force_default: bool = True) -> List:
-        "An unsorted list of all deck names."
-        if dyn:
-            return [x["name"] for x in self.all(force_default=force_default)]
-        else:
-            return [
-                x["name"] for x in self.all(force_default=force_default) if not x["dyn"]
-            ]
-
-    def all_names_and_ids(self) -> List[pb.DeckNameID]:
-        return self.col.backend.get_deck_names_and_ids()
+    def all_names_and_ids(
+        self, skip_empty_default=False, include_filtered=True
+    ) -> Sequence[pb.DeckNameID]:
+        "A sorted sequence of deck names and IDs."
+        return self.col.backend.get_deck_names_and_ids(
+            skip_empty_default, include_filtered
+        )
 
     def id_for_name(self, name: str) -> Optional[int]:
         return self.col.backend.get_deck_id_by_name(name)
@@ -221,29 +216,28 @@ class DeckManager:
     def deck_tree(self) -> pb.DeckTreeNode:
         return self.col.backend.deck_tree(include_counts=False)
 
-    def all(self, force_default: bool = True) -> List:
-        """A list of all decks.
-
-        list contains default deck if either:
-        * force_default is True
-        * there are no other deck
-        * default deck contains a card
-        * default deck has a child (assumed not to be the case if assume_no_child)
-        """
-        decks = self.get_all_legacy()
-        if not force_default and not self.should_default_be_displayed(force_default):
-            decks = [deck for deck in decks if deck["id"] != 1]
-        return decks
+    def all(self) -> List:
+        "All decks. Expensive; prefer all_names_and_ids()"
+        return self.get_all_legacy()
 
     def allIds(self) -> List[str]:
+        print("decks.allIds() is deprecated, use .all_names_and_ids()")
         return [str(x.id) for x in self.all_names_and_ids()]
+
+    def allNames(self, dyn: bool = True, force_default: bool = True) -> List:
+        print("decks.allNames() is deprecated, use .all_names_and_ids()")
+        return [
+            x.name
+            for x in self.all_names_and_ids(
+                skip_empty_default=not force_default, include_filtered=dyn
+            )
+        ]
 
     def collapse(self, did) -> None:
         deck = self.get(did)
         deck["collapsed"] = not deck["collapsed"]
         self.save(deck)
 
-    # fixme
     def collapseBrowser(self, did) -> None:
         deck = self.get(did)
         collapsed = deck.get("browserCollapsed", False)
@@ -504,57 +498,6 @@ class DeckManager:
     def for_card_ids(self, cids: List[int]) -> List[int]:
         return self.col.db.list(f"select did from cards where id in {ids2str(cids)}")
 
-    # fixme
-    def _recoverOrphans(self) -> None:
-        pass
-        # dids = list(self.decks.keys())
-        # mod = self.col.db.mod
-        # self.col.db.execute(
-        #     "update cards set did = 1 where did not in " + ids2str(dids)
-        # )
-        # self.col.db.mod = mod
-
-    def checkIntegrity(self) -> None:
-        self._recoverOrphans()
-
-    def should_deck_be_displayed(
-        self, deck, force_default: bool = True, assume_no_child: bool = False
-    ) -> bool:
-        """Whether the deck should appear in main window, browser side list, filter, deck selection...
-
-        True, except for empty default deck without children"""
-        if deck["id"] != "1":
-            return True
-        return self.should_default_be_displayed(force_default, assume_no_child)
-
-    def should_default_be_displayed(
-        self,
-        force_default: bool = True,
-        assume_no_child: bool = False,
-        default_deck: Optional[Dict[str, Any]] = None,
-    ) -> bool:
-        """Whether the default deck should appear in main window, browser side list, filter, deck selection...
-
-        True, except for empty default deck (without children)"""
-        if force_default:
-            return True
-        if self.col.db.scalar("select 1 from cards where did = 1 limit 1"):
-            return True
-        # fixme
-        return False
-        # if len(self.all_names_and_ids()) == 1:
-        #     return True
-        # # looking for children
-        # if assume_no_child:
-        #     return False
-        # if default_deck is None:
-        #     default_deck = self.get(1)
-        # defaultName = default_deck["name"]
-        # for name in self.allNames():
-        #     if name.startswith(f"{defaultName}::"):
-        #         return True
-        # return False
-
     # Deck selection
     #############################################################
 
@@ -673,11 +616,3 @@ class DeckManager:
 
     def isDyn(self, did: Union[int, str]) -> Any:
         return self.get(did)["dyn"]
-
-    @staticmethod
-    def normalizeName(name: str) -> str:
-        return unicodedata.normalize("NFC", name.lower())
-
-    @staticmethod
-    def equalName(name1: str, name2: str) -> bool:
-        return DeckManager.normalizeName(name1) == DeckManager.normalizeName(name2)

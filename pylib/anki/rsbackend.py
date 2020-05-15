@@ -686,12 +686,17 @@ class RustBackend:
         except NotFoundError:
             return None
 
-    def get_deck_names_and_ids(self) -> List[pb.DeckNameID]:
-        return list(
-            self._run_command(
-                pb.BackendInput(get_deck_names=pb.Empty())
-            ).get_deck_names.entries
-        )
+    def get_deck_names_and_ids(
+        self, skip_empty_default: bool, include_filtered: bool = True
+    ) -> Sequence[pb.DeckNameID]:
+        return self._run_command(
+            pb.BackendInput(
+                get_deck_names=pb.GetDeckNamesIn(
+                    skip_empty_default=skip_empty_default,
+                    include_filtered=include_filtered,
+                )
+            )
+        ).get_deck_names.entries
 
     def add_or_update_deck_legacy(
         self, deck: Dict[str, Any], preserve_usn: bool

@@ -151,6 +151,21 @@ fn remaining_counts_for_deck(
     }
 }
 
+fn hide_default_deck(node: &mut DeckTreeNode) {
+    for (idx, child) in node.children.iter().enumerate() {
+        // we can hide the default if it has no children
+        if child.deck_id == 1 && child.children.is_empty() {
+            if child.level == 1 && node.children.len() == 1 {
+                // can't remove if there are no other decks
+            } else {
+                // safe to remove
+                node.children.remove(idx);
+            }
+            return;
+        }
+    }
+}
+
 #[derive(Serialize_tuple)]
 pub(crate) struct LegacyDueCounts {
     name: String,
@@ -187,6 +202,9 @@ impl Collection {
             .collect();
 
         add_collapsed(&mut tree, &decks_map, !counts);
+        if self.default_deck_is_empty()? {
+            hide_default_deck(&mut tree);
+        }
 
         if counts {
             let counts = self.due_counts()?;
@@ -251,8 +269,7 @@ mod test {
 
         let tree = col.deck_tree(false)?;
 
-        // 4 including default
-        assert_eq!(tree.children.len(), 4);
+        assert_eq!(tree.children.len(), 3);
 
         assert_eq!(tree.children[1].name, "2");
         assert_eq!(tree.children[1].children[0].name, "a");
@@ -274,7 +291,7 @@ mod test {
         col.storage.remove_deck(col.get_deck_id("2::3")?.unwrap())?;
 
         let tree = col.deck_tree(false)?;
-        assert_eq!(tree.children.len(), 2);
+        assert_eq!(tree.children.len(), 1);
 
         Ok(())
     }

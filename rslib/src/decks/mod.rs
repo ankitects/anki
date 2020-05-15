@@ -187,6 +187,10 @@ fn immediate_parent_name(machine_name: &str) -> Option<&str> {
 }
 
 impl Collection {
+    pub(crate) fn default_deck_is_empty(&self) -> Result<bool> {
+        self.storage.deck_is_empty(DeckID(1))
+    }
+
     pub(crate) fn add_or_update_deck(&mut self, deck: &mut Deck, preserve_usn: bool) -> Result<()> {
         // fixme: vet cache clearing
         self.state.deck_cache.clear();
@@ -415,6 +419,32 @@ impl Collection {
             }
         }
         Ok(())
+    }
+
+    pub fn get_all_deck_names(&self, skip_empty_default: bool) -> Result<Vec<(DeckID, String)>> {
+        if skip_empty_default && self.default_deck_is_empty()? {
+            Ok(self
+                .storage
+                .get_all_deck_names()?
+                .into_iter()
+                .filter(|(id, _name)| id.0 != 1)
+                .collect())
+        } else {
+            self.storage.get_all_deck_names()
+        }
+    }
+
+    pub fn get_all_normal_deck_names(&mut self) -> Result<Vec<(DeckID, String)>> {
+        Ok(self
+            .storage
+            .get_all_deck_names()?
+            .into_iter()
+            .filter(|(id, _name)| id.0 != 1)
+            .filter(|(id, _name)| match self.get_deck(*id) {
+                Ok(Some(deck)) => !deck.is_filtered(),
+                _ => true,
+            })
+            .collect())
     }
 }
 

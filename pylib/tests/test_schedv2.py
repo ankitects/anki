@@ -441,9 +441,9 @@ def test_review_limits():
         c.flush()
 
     tree = d.sched.deckDueTree()
-    # (('Default', 1, 0, 0, 0, ()), ('parent', 1514457677462, 5, 0, 0, (('child', 1514457677463, 5, 0, 0, ()),)))
-    assert tree[1][2] == 5  # parent
-    assert tree[1][5][0][2] == 5  # child
+    # (('parent', 1514457677462, 5, 0, 0, (('child', 1514457677463, 5, 0, 0, ()),)))
+    assert tree[0][2] == 5  # parent
+    assert tree[0][5][0][2] == 5  # child
 
     # .counts() should match
     d.decks.select(child["id"])
@@ -456,8 +456,8 @@ def test_review_limits():
     assert d.sched.counts() == (0, 0, 4)
 
     tree = d.sched.deckDueTree()
-    assert tree[1][2] == 4  # parent
-    assert tree[1][5][0][2] == 4  # child
+    assert tree[0][2] == 4  # parent
+    assert tree[0][5][0][2] == 4  # child
 
 
 def test_button_spacing():

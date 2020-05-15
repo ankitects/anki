@@ -84,7 +84,7 @@ message BackendInput {
         Empty get_empty_cards = 70;
         int64 get_deck_legacy = 71;
         string get_deck_id_by_name = 72;
-        Empty get_deck_names = 73;
+        GetDeckNamesIn get_deck_names = 73;
         AddOrUpdateDeckLegacyIn add_or_update_deck_legacy = 74;
         bool new_deck_legacy = 75;
         int64 remove_deck = 76;
@@ -783,4 +783,10 @@ message Preferences {
 
 message ClozeNumbersInNoteOut {
     repeated uint32 numbers = 1;
+}
+
+message GetDeckNamesIn {
+    bool skip_empty_default = 1;
+    // if unset, implies skip_empty_default
+    bool include_filtered = 2;
 }

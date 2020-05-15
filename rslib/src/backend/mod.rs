@@ -341,7 +341,7 @@ impl Backend {
             Value::GetDeckIdByName(name) => {
                 OValue::GetDeckIdByName(self.get_deck_id_by_name(&name)?)
             }
-            Value::GetDeckNames(_) => OValue::GetDeckNames(self.get_deck_names()?),
+            Value::GetDeckNames(input) => OValue::GetDeckNames(self.get_deck_names(input)?),
             Value::AddOrUpdateDeckLegacy(input) => {
                 OValue::AddOrUpdateDeckLegacy(self.add_or_update_deck_legacy(input)?)
             }
@@ -1011,9 +1011,13 @@ impl Backend {
         })
     }
 
-    fn get_deck_names(&self) -> Result<pb::DeckNames> {
+    fn get_deck_names(&self, input: pb::GetDeckNamesIn) -> Result<pb::DeckNames> {
         self.with_col(|col| {
-            let names = col.storage.get_all_deck_names()?;
+            let names = if input.include_filtered {
+                col.get_all_deck_names(input.skip_empty_default)?
+            } else {
+                col.get_all_normal_deck_names()?
+            };
             Ok(pb::DeckNames {
                 entries: names
                     .into_iter()
