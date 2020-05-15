@@ -443,6 +443,15 @@ class ModelManager:
         self.reposition_template(m, template, idx)
         self.save(m)
 
+    def template_use_count(self, ntid: int, ord: int) -> int:
+        return self.col.db.scalar(
+            """
+select count() from cards, notes where cards.nid = notes.id
+and notes.mid = ? and cards.ord = ?""",
+            ntid,
+            ord,
+        )
+
     # Model changing
     ##########################################################################
     # - maps are ord->ord, and there should not be duplicate targets
