@@ -308,12 +308,9 @@ impl Backend {
                 OValue::GetChangedNotetypes(self.get_changed_notetypes()?)
             }
             Value::GetAllDecks(_) => OValue::GetAllDecks(self.get_all_decks()?),
-            Value::AllStockNotetypes(_) => OValue::AllStockNotetypes(pb::AllStockNotetypesOut {
-                notetypes: all_stock_notetypes(&self.i18n)
-                    .into_iter()
-                    .map(Into::into)
-                    .collect(),
-            }),
+            Value::GetStockNotetypeLegacy(kind) => {
+                OValue::GetStockNotetypeLegacy(self.get_stock_notetype_legacy(kind)?)
+            }
             Value::GetNotetypeLegacy(id) => {
                 OValue::GetNotetypeLegacy(self.get_notetype_legacy(id)?)
             }
@@ -1150,6 +1147,15 @@ impl Backend {
         pb::ClozeNumbersInNoteOut {
             numbers: set.into_iter().map(|n| n as u32).collect(),
         }
+    }
+
+    fn get_stock_notetype_legacy(&self, kind: i32) -> Result<Vec<u8>> {
+        // fixme: use individual functions instead of full vec
+        let mut all = all_stock_notetypes(&self.i18n);
+        let idx = (kind as usize).min(all.len() - 1);
+        let nt = all.swap_remove(idx);
+        let schema11: NoteTypeSchema11 = nt.into();
+        serde_json::to_vec(&schema11).map_err(Into::into)
     }
 }
 

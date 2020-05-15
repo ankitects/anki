@@ -50,6 +50,7 @@ BackendNote = pb.Note
 TagUsnTuple = pb.TagUsnTuple
 NoteType = pb.NoteType
 DeckTreeNode = pb.DeckTreeNode
+StockNoteType = pb.StockNoteType
 
 try:
     import orjson
@@ -602,12 +603,11 @@ class RustBackend:
         ).get_all_decks
         return orjson.loads(jstr)
 
-    def all_stock_notetypes(self) -> List[NoteType]:
-        return list(
-            self._run_command(
-                pb.BackendInput(all_stock_notetypes=pb.Empty())
-            ).all_stock_notetypes.notetypes
-        )
+    def get_stock_notetype_legacy(self, kind: StockNoteType) -> Dict[str, Any]:
+        bytes = self._run_command(
+            pb.BackendInput(get_stock_notetype_legacy=kind)
+        ).get_stock_notetype_legacy
+        return orjson.loads(bytes)
 
     def get_notetype_names_and_ids(self) -> List[pb.NoteTypeNameID]:
         return list(

@@ -1,7 +1,6 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import collections
 from operator import itemgetter
 from typing import List, Optional
 
@@ -196,9 +195,7 @@ class AddModel(QDialog):
         self.dialog.setupUi(self)
         # standard models
         self.models = []
-        for (name, func) in stdmodels.models:
-            if isinstance(name, collections.Callable):  # type: ignore
-                name = name()  # type: ignore
+        for (name, func) in stdmodels.get_stock_notetypes(self.col):
             item = QListWidgetItem(_("Add: %s") % name)
             self.dialog.models.addItem(item)
             self.models.append((True, func))
