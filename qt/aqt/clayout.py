@@ -34,8 +34,6 @@ from aqt.utils import (
 )
 from aqt.webview import AnkiWebView
 
-# fixme: card count when removing
-
 
 class CardLayout(QDialog):
     def __init__(
@@ -497,15 +495,29 @@ class CardLayout(QDialog):
     def onRemove(self):
         if len(self.templates) < 2:
             return showInfo(_("At least one card type is required."))
-        template = self.current_template()
-        msg = _("Delete the '%(a)s' card type, and its %(b)s?") % dict(
-            a=template["name"], b=_("cards")
-        )
-        if not askUser(msg):
-            return
 
-        if not self.change_tracker.mark_schema():
-            return
+        def get_count():
+            return self.mm.template_use_count(self.model["id"], self.ord)
+
+        def on_done(fut):
+            card_cnt = fut.result()
+
+            template = self.current_template()
+            cards = ngettext("%d card", "%d cards", card_cnt) % card_cnt
+            msg = _("Delete the '%(a)s' card type, and its %(b)s?") % dict(
+                a=template["name"], b=cards
+            )
+            if not askUser(msg):
+                return
+
+            if not self.change_tracker.mark_schema():
+                return
+
+            self.onRemoveInner(template)
+
+        self.mw.taskman.with_progress(get_count, on_done)
+
+    def onRemoveInner(self, template) -> None:
         self.mm.remove_template(self.model, template)
 
         # ensure current ordinal is within bounds
