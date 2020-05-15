@@ -651,7 +651,6 @@ from the profile screen."
     def _overviewState(self, oldState: str) -> None:
         if not self._selectedDeck():
             return self.moveToState("deckBrowser")
-        self.col.reset()
         self.overview.show()
 
     def _reviewState(self, oldState):
