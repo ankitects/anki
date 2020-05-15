@@ -270,7 +270,6 @@ class ModelManager:
         self.remove(m["id"])
 
     def remove_all_notetypes(self):
-        self.col.modSchema(check=True)
         for nt in self.all_names_and_ids():
             self._remove_from_cache(nt.id)
             self.col.backend.remove_notetype(nt.id)
@@ -345,42 +344,25 @@ class ModelManager:
     def sortIdx(self, m: NoteType) -> Any:
         return m["sortf"]
 
-    def setSortIdx(self, m: NoteType, idx: int) -> None:
-        assert 0 <= idx < len(m["flds"])
-        self.col.modSchema(check=True)
-
-        m["sortf"] = idx
-
-        self.save(m)
-
     # Adding & changing fields
     ##################################################
 
-    def newField(self, name: str) -> Field:
+    def new_field(self, name: str) -> Field:
         assert isinstance(name, str)
         f = defaultField.copy()
         f["name"] = name
         return f
 
-    def addField(self, m: NoteType, field: Field, save=True) -> None:
-        if m["id"]:
-            self.col.modSchema(check=True)
-
+    def add_field(self, m: NoteType, field: Field) -> None:
+        "Modifies schema."
         m["flds"].append(field)
 
-        if m["id"] and save:
-            self.save(m)
-
-    def remField(self, m: NoteType, field: Field, save=True) -> None:
-        self.col.modSchema(check=True)
-
+    def remove_field(self, m: NoteType, field: Field) -> None:
+        "Modifies schema."
         m["flds"].remove(field)
 
-        if save:
-            self.save(m)
-
-    def moveField(self, m: NoteType, field: Field, idx: int, save=True) -> None:
-        self.col.modSchema(check=True)
+    def reposition_field(self, m: NoteType, field: Field, idx: int) -> None:
+        "Modifies schema."
         oldidx = m["flds"].index(field)
         if oldidx == idx:
             return
@@ -388,48 +370,55 @@ class ModelManager:
         m["flds"].remove(field)
         m["flds"].insert(idx, field)
 
-        if save:
-            self.save(m)
-
-    def renameField(self, m: NoteType, field: Field, newName: str, save=True) -> None:
+    def rename_field(self, m: NoteType, field: Field, new_name: str) -> None:
         assert field in m["flds"]
+        field["name"] = new_name
 
-        field["name"] = newName
+    def set_sort_index(self, nt: NoteType, idx: int) -> None:
+        "Modifies schema."
+        assert 0 <= idx < len(nt["flds"])
+        nt["sortf"] = idx
 
-        if save:
+    # legacy
+
+    newField = new_field
+
+    def addField(self, m: NoteType, field: Field) -> None:
+        self.add_field(m, field)
+        if m["id"]:
             self.save(m)
+
+    def remField(self, m: NoteType, field: Field) -> None:
+        self.remove_field(m, field)
+        self.save(m)
+
+    def moveField(self, m: NoteType, field: Field, idx: int) -> None:
+        self.reposition_field(m, field, idx)
+        self.save(m)
+
+    def renameField(self, m: NoteType, field: Field, newName: str) -> None:
+        self.rename_field(m, field, newName)
+        self.save(m)
 
     # Adding & changing templates
     ##################################################
 
-    def newTemplate(self, name: str) -> Template:
+    def new_template(self, name: str) -> Template:
         t = defaultTemplate.copy()
         t["name"] = name
         return t
 
-    def addTemplate(self, m: NoteType, template: Template, save=True) -> None:
-        if m["id"]:
-            self.col.modSchema(check=True)
-
+    def add_template(self, m: NoteType, template: Template) -> None:
+        "Modifies schema."
         m["tmpls"].append(template)
 
-        if save and m["id"]:
-            self.save(m)
-
-    def remTemplate(self, m: NoteType, template: Template, save=True) -> None:
+    def remove_template(self, m: NoteType, template: Template) -> None:
+        "Modifies schema."
         assert len(m["tmpls"]) > 1
-        self.col.modSchema(check=True)
-
         m["tmpls"].remove(template)
 
-        if save:
-            self.save(m)
-
-    def moveTemplate(
-        self, m: NoteType, template: Template, idx: int, save=True
-    ) -> None:
-        self.col.modSchema(check=True)
-
+    def reposition_template(self, m: NoteType, template: Template, idx: int) -> None:
+        "Modifies schema."
         oldidx = m["tmpls"].index(template)
         if oldidx == idx:
             return
@@ -437,8 +426,22 @@ class ModelManager:
         m["tmpls"].remove(template)
         m["tmpls"].insert(idx, template)
 
-        if save:
+    # legacy
+
+    newTemplate = new_template
+
+    def addTemplate(self, m: NoteType, template: Template) -> None:
+        self.add_template(m, template)
+        if m["id"]:
             self.save(m)
+
+    def remTemplate(self, m: NoteType, template: Template) -> None:
+        self.remove_template(m, template)
+        self.save(m)
+
+    def moveTemplate(self, m: NoteType, template: Template, idx: int) -> None:
+        self.reposition_template(m, template, idx)
+        self.save(m)
 
     # Model changing
     ##########################################################################
