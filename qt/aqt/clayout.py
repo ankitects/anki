@@ -478,6 +478,7 @@ class CardLayout(QDialog):
     def ephemeral_card_for_rendering(self) -> Card:
         card = Card(self.col)
         card.ord = self.ord
+        card.did = 1
         template = copy.copy(self.current_template())
         # may differ in cloze case
         template["ord"] = card.ord
