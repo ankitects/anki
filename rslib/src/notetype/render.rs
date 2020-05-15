@@ -129,7 +129,7 @@ impl Collection {
         let deck_name: Cow<str> = self
             .get_deck(if card.odid.0 > 0 { card.odid } else { card.did })?
             .map(|d| d.human_name().into())
-            .unwrap_or_else(|| "invalid deck".into());
+            .unwrap_or_else(|| "(Deck)".into());
         let subdeck_name = deck_name.rsplit("::").next().unwrap();
         map.entry("Subdeck")
             .or_insert_with(|| subdeck_name.to_string().into());
