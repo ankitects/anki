@@ -62,16 +62,21 @@ fn add_child_nodes(
     }
 }
 
-fn add_collapsed(node: &mut DeckTreeNode, decks: &HashMap<DeckID, Deck>, browser: bool) {
+fn add_collapsed_and_filtered(
+    node: &mut DeckTreeNode,
+    decks: &HashMap<DeckID, Deck>,
+    browser: bool,
+) {
     if let Some(deck) = decks.get(&DeckID(node.deck_id)) {
         node.collapsed = if browser {
             deck.common.browser_collapsed
         } else {
             deck.common.study_collapsed
         };
+        node.filtered = deck.is_filtered();
     }
     for child in &mut node.children {
-        add_collapsed(child, decks, browser);
+        add_collapsed_and_filtered(child, decks, browser);
     }
 }
 
@@ -201,7 +206,7 @@ impl Collection {
             .map(|d| (d.id, d))
             .collect();
 
-        add_collapsed(&mut tree, &decks_map, !counts);
+        add_collapsed_and_filtered(&mut tree, &decks_map, !counts);
         if self.default_deck_is_empty()? {
             hide_default_deck(&mut tree);
         }

@@ -15,7 +15,7 @@ from anki import hooks
 from anki.cards import Card
 from anki.consts import *
 from anki.lang import _
-from anki.rsbackend import FormatTimeSpanContext, SchedTimingToday
+from anki.rsbackend import DeckTreeNode, FormatTimeSpanContext, SchedTimingToday
 from anki.utils import ids2str, intTime
 
 # card types: 0=new, 1=lrn, 2=rev, 3=relrn
@@ -231,6 +231,10 @@ order by due"""
     def deckDueTree(self) -> Any:
         "List of (base name, did, rev, lrn, new, children)"
         return self.col.backend.legacy_deck_tree()
+
+    def deck_due_tree(self) -> DeckTreeNode:
+        "Returns a tree of decks with counts."
+        return self.col.backend.deck_tree(include_counts=True)
 
     # Getting the next card
     ##########################################################################

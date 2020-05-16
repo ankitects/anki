@@ -264,6 +264,8 @@ message DeckTreeNode {
     uint32 review_count = 6;
     uint32 learn_count = 7;
     uint32 new_count = 8;
+
+    bool filtered = 16;
 }
 
 message RenderExistingCardIn {
