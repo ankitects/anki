@@ -157,28 +157,20 @@ where id > ?""",
             buf += self._topLevelDragRow()
         else:
             buf = ""
-        nameMap = self.mw.col.decks.nameMap()
         for node in nodes:
-            buf += self._deckRow(node, depth, len(nodes), nameMap)
+            buf += self._deckRow(node, depth)
         if depth == 0:
             buf += self._topLevelDragRow()
         return buf
 
-    def _deckRow(self, node, depth, cnt, nameMap):
+    def _deckRow(self, node, depth):
         name, did, due, lrn, new, children = node
         deck = self.mw.col.decks.get(did)
-        if did == 1 and cnt > 1 and not children:
-            # if the default deck is empty, hide it
-            if not self.mw.col.db.scalar("select 1 from cards where did = 1"):
-                return ""
-        # parent toggled for collapsing
-        for parent in self.mw.col.decks.parents(did, nameMap):
-            if parent["collapsed"]:
-                buff = ""
-                return buff
-        prefix = "-"
-        if self.mw.col.decks.get(did)["collapsed"]:
+        collapsed = self.mw.col.decks.get(did)["collapsed"]
+        if collapsed:
             prefix = "+"
+        else:
+            prefix = "-"
         due += lrn
 
         def indent():
@@ -227,7 +219,8 @@ where id > ?""",
             "<img src='/_anki/imgs/gears.svg' class=gears></a></td></tr>" % did
         )
         # children
-        buf += self._renderDeckTree(children, depth + 1)
+        if not collapsed:
+            buf += self._renderDeckTree(children, depth + 1)
         return buf
 
     def _topLevelDragRow(self):
