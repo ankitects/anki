@@ -258,7 +258,7 @@ impl Collection {
 
 #[cfg(test)]
 mod test {
-    use crate::{collection::open_test_collection, err::Result};
+    use crate::{collection::open_test_collection, deckconf::DeckConfID, err::Result};
 
     #[test]
     fn wellformed() -> Result<()> {
@@ -297,6 +297,46 @@ mod test {
 
         let tree = col.deck_tree(false)?;
         assert_eq!(tree.children.len(), 1);
+
+        Ok(())
+    }
+
+    #[test]
+    fn counts() -> Result<()> {
+        let mut col = open_test_collection();
+
+        let mut parent_deck = col.get_or_create_normal_deck("Default")?;
+        let mut child_deck = col.get_or_create_normal_deck("Default::one")?;
+
+        // add some new cards
+        let nt = col.get_notetype_by_name("Cloze")?.unwrap();
+        let mut note = nt.new_note();
+        note.fields[0] = "{{c1::}} {{c2::}} {{c3::}} {{c4::}}".into();
+        col.add_note(&mut note, child_deck.id)?;
+
+        let tree = col.deck_tree(true)?;
+        assert_eq!(tree.children[0].new_count, 4);
+        assert_eq!(tree.children[0].children[0].new_count, 4);
+
+        // simulate answering a card
+        child_deck.common.new_studied = 1;
+        col.add_or_update_deck(&mut child_deck, false)?;
+        parent_deck.common.new_studied = 1;
+        col.add_or_update_deck(&mut parent_deck, false)?;
+
+        // with the default limit of 20, there should still be 4 due
+        let tree = col.deck_tree(true)?;
+        assert_eq!(tree.children[0].new_count, 4);
+        assert_eq!(tree.children[0].children[0].new_count, 4);
+
+        // set the limit to 4, which should mean 3 are left
+        let mut conf = col.get_deck_config(DeckConfID(1), false)?.unwrap();
+        conf.new.per_day = 4;
+        col.add_or_update_deck_config(&mut conf, false)?;
+
+        let tree = col.deck_tree(true)?;
+        assert_eq!(tree.children[0].new_count, 3);
+        assert_eq!(tree.children[0].children[0].new_count, 3);
 
         Ok(())
     }
