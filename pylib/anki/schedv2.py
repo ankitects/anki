@@ -128,7 +128,7 @@ class Scheduler:
             self._removeFromFiltered(card)
 
     def _reset_counts(self):
-        tree = self.deck_due_tree()
+        tree = self.deck_due_tree(self.col.decks.selected())
         node = self.col.decks.find_deck_in_tree(tree, int(self.col.conf["curDeck"]))
         if not node:
             print("invalid current deck")
@@ -217,9 +217,10 @@ order by due"""
         )
         return self.col.backend.legacy_deck_tree()
 
-    def deck_due_tree(self) -> DeckTreeNode:
-        "Returns a tree of decks with counts."
-        return self.col.backend.deck_tree(include_counts=True)
+    def deck_due_tree(self, top_deck_id: int = 0) -> DeckTreeNode:
+        """Returns a tree of decks with counts.
+        If top_deck_id provided, counts are limited to that node."""
+        return self.col.backend.deck_tree(include_counts=True, top_deck_id=top_deck_id)
 
     # Getting the next card
     ##########################################################################

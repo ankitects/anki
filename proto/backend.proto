@@ -252,6 +252,7 @@ message SchedTimingTodayOut {
 
 message DeckTreeIn {
     bool include_counts = 1;
+    int64 top_deck_id = 2;
 }
 
 message DeckTreeNode {
