@@ -174,7 +174,9 @@ class DeckManager:
         return self.col.backend.deck_tree(include_counts=False)
 
     @classmethod
-    def find_deck_in_tree(cls, node: DeckTreeNode, deck_id: int) -> Optional[DeckTreeNode]:
+    def find_deck_in_tree(
+        cls, node: DeckTreeNode, deck_id: int
+    ) -> Optional[DeckTreeNode]:
         if node.deck_id == deck_id:
             return node
         for child in node.children:
