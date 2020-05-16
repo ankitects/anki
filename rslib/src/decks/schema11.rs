@@ -258,18 +258,27 @@ impl From<&DeckCommonSchema11> for DeckCommon {
         } else {
             serde_json::to_vec(&common.other).unwrap_or_default()
         };
+        // since we're combining the day values into a single value,
+        // any items from an earlier day need to be reset
+        let mut today = common.today.clone();
+        // time is always updated, so will always be the latest
+        let max_day = today.time.day;
+        if today.lrn.day != max_day {
+            today.lrn.amount = 0;
+        }
+        if today.rev.day != max_day {
+            today.rev.amount = 0;
+        }
+        if today.new.day != max_day {
+            today.new.amount = 0;
+        }
         DeckCommon {
             study_collapsed: common.study_collapsed,
             browser_collapsed: common.browser_collapsed,
-            last_day_studied: common
-                .today
-                .new
-                .day
-                .max(common.today.lrn.day)
-                .max(common.today.rev.day) as u32,
-            new_studied: common.today.new.amount,
-            review_studied: common.today.rev.amount,
-            learning_studied: common.today.lrn.amount,
+            last_day_studied: max_day as u32,
+            new_studied: today.new.amount,
+            review_studied: today.rev.amount,
+            learning_studied: today.lrn.amount,
             secs_studied: common.today.time.amount,
             other,
         }
