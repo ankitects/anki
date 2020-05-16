@@ -60,6 +60,7 @@ class Scheduler:
         return None
 
     def reset(self) -> None:
+        self.col.decks.update_active()
         self._updateCutoff()
         self._resetLrn()
         self._resetRev()
