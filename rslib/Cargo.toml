@@ -47,13 +47,12 @@ rand = "0.7.3"
 num-integer = "0.1.42"
 itertools = "0.9.0"
 
-# pinned until rusqlite 0.22 comes out
 [target.'cfg(target_vendor="apple")'.dependencies.rusqlite]
-version = "0.22"
+version = "0.23.1"
 features = ["trace", "functions", "collation"]
 
 [target.'cfg(not(target_vendor="apple"))'.dependencies.rusqlite]
-version = "0.22"
+version = "0.23.1"
 features = ["trace", "functions", "collation", "bundled"]
 
 [target.'cfg(linux)'.dependencies]
