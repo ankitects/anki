@@ -453,7 +453,12 @@ impl Backend {
     }
 
     fn deck_tree(&self, input: pb::DeckTreeIn) -> Result<pb::DeckTreeNode> {
-        self.with_col(|col| col.deck_tree(input.include_counts))
+        let lim = if input.top_deck_id > 0 {
+            Some(DeckID(input.top_deck_id))
+        } else {
+            None
+        };
+        self.with_col(|col| col.deck_tree(input.include_counts, lim))
     }
 
     fn render_existing_card(&self, input: pb::RenderExistingCardIn) -> Result<pb::RenderCardOut> {

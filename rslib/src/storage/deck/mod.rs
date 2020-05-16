@@ -170,6 +170,39 @@ impl SqliteStorage {
             .collect()
     }
 
+    pub(crate) fn due_counts_limited(
+        &self,
+        sched: SchedulerVersion,
+        day_cutoff: u32,
+        learn_cutoff: u32,
+        top: &str,
+    ) -> Result<HashMap<DeckID, DueCounts>> {
+        let prefix_start = format!("{}\x1f", top);
+        let prefix_end = format!("{}\x20", top);
+        self.db
+            .prepare_cached(concat!(
+                include_str!("due_counts.sql"),
+                " and did in (select id from decks where name = ? ",
+                "or (name >= ? and name < ?)) group by did "
+            ))?
+            .query_and_then(
+                params![
+                    CardQueue::New as u8,
+                    CardQueue::Review as u8,
+                    day_cutoff,
+                    sched as u8,
+                    CardQueue::Learn as u8,
+                    learn_cutoff,
+                    CardQueue::DayLearn as u8,
+                    top,
+                    prefix_start,
+                    prefix_end,
+                ],
+                row_to_due_counts,
+            )?
+            .collect()
+    }
+
     /// Decks referenced by cards but missing.
     pub(crate) fn missing_decks(&self) -> Result<Vec<DeckID>> {
         self.db

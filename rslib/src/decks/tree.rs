@@ -195,7 +195,11 @@ impl From<DeckTreeNode> for LegacyDueCounts {
 }
 
 impl Collection {
-    pub fn deck_tree(&mut self, counts: bool) -> Result<DeckTreeNode> {
+    /// Get the deck tree, optionally populating it with due counts.
+    /// If top_deck_id is provided, only the node starting at the provided deck ID will
+    /// have the counts populated. Currently the entire tree is returned in this case, but
+    /// this may change in the future.
+    pub fn deck_tree(&mut self, counts: bool, top_deck_id: Option<DeckID>) -> Result<DeckTreeNode> {
         let names = self.storage.get_all_deck_names()?;
         let mut tree = deck_names_to_tree(names);
 
@@ -212,7 +216,14 @@ impl Collection {
         }
 
         if counts {
-            let counts = self.due_counts()?;
+            let limit = top_deck_id.and_then(|did| {
+                if let Some(deck) = decks_map.get(&did) {
+                    Some(deck.name.as_str())
+                } else {
+                    None
+                }
+            });
+            let counts = self.due_counts(limit)?;
             let today = self.timing_today()?.days_elapsed;
             let dconf: HashMap<_, _> = self
                 .storage
@@ -234,7 +245,7 @@ impl Collection {
     }
 
     pub(crate) fn legacy_deck_tree(&mut self) -> Result<LegacyDueCounts> {
-        let tree = self.deck_tree(true)?;
+        let tree = self.deck_tree(true, None)?;
         Ok(LegacyDueCounts::from(tree))
     }
 
@@ -272,7 +283,7 @@ mod test {
         col.get_or_create_normal_deck("2::c::A")?;
         col.get_or_create_normal_deck("3")?;
 
-        let tree = col.deck_tree(false)?;
+        let tree = col.deck_tree(false, None)?;
 
         assert_eq!(tree.children.len(), 3);
 
@@ -295,7 +306,7 @@ mod test {
         col.storage.remove_deck(col.get_deck_id("2")?.unwrap())?;
         col.storage.remove_deck(col.get_deck_id("2::3")?.unwrap())?;
 
-        let tree = col.deck_tree(false)?;
+        let tree = col.deck_tree(false, None)?;
         assert_eq!(tree.children.len(), 1);
 
         Ok(())
@@ -314,7 +325,7 @@ mod test {
         note.fields[0] = "{{c1::}} {{c2::}} {{c3::}} {{c4::}}".into();
         col.add_note(&mut note, child_deck.id)?;
 
-        let tree = col.deck_tree(true)?;
+        let tree = col.deck_tree(true, None)?;
         assert_eq!(tree.children[0].new_count, 4);
         assert_eq!(tree.children[0].children[0].new_count, 4);
 
@@ -325,7 +336,7 @@ mod test {
         col.add_or_update_deck(&mut parent_deck, false)?;
 
         // with the default limit of 20, there should still be 4 due
-        let tree = col.deck_tree(true)?;
+        let tree = col.deck_tree(true, None)?;
         assert_eq!(tree.children[0].new_count, 4);
         assert_eq!(tree.children[0].children[0].new_count, 4);
 
@@ -334,7 +345,7 @@ mod test {
         conf.new.per_day = 4;
         col.add_or_update_deck_config(&mut conf, false)?;
 
-        let tree = col.deck_tree(true)?;
+        let tree = col.deck_tree(true, None)?;
         assert_eq!(tree.children[0].new_count, 3);
         assert_eq!(tree.children[0].children[0].new_count, 3);
 
