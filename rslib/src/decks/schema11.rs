@@ -261,7 +261,12 @@ impl From<&DeckCommonSchema11> for DeckCommon {
         DeckCommon {
             study_collapsed: common.study_collapsed,
             browser_collapsed: common.browser_collapsed,
-            last_day_studied: common.today.new.day as u32,
+            last_day_studied: common
+                .today
+                .new
+                .day
+                .max(common.today.lrn.day)
+                .max(common.today.rev.day) as u32,
             new_studied: common.today.new.amount,
             review_studied: common.today.rev.amount,
             learning_studied: common.today.lrn.amount,
