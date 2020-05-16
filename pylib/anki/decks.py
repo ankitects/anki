@@ -12,6 +12,7 @@ from anki import hooks
 from anki.consts import *
 from anki.errors import DeckRenameError
 from anki.lang import _
+from anki.rsbackend import DeckTreeNode
 from anki.utils import ids2str, intTime
 
 # legacy code may pass this in as the type argument to .id()
@@ -174,6 +175,16 @@ class DeckManager:
 
     def deck_tree(self) -> pb.DeckTreeNode:
         return self.col.backend.deck_tree(include_counts=False)
+
+    @classmethod
+    def find_deck_in_tree(cls, node: DeckTreeNode, deck_id: int) -> Optional[DeckTreeNode]:
+        if node.deck_id == deck_id:
+            return node
+        for child in node.children:
+            match = cls.find_deck_in_tree(child, deck_id)
+            if match:
+                return match
+        return None
 
     def all(self) -> List:
         "All decks. Expensive; prefer all_names_and_ids()"

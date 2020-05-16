@@ -268,18 +268,10 @@ where id > ?""",
 
     def _collapse(self, did: int) -> None:
         self.mw.col.decks.collapse(did)
-        self._toggle_collapsed_in_node(did, self._dueTree)
-        self._renderPage(reuse=True)
-
-    def _toggle_collapsed_in_node(self, deck_id: int, node: DeckTreeNode) -> bool:
-        "Toggle collapsed on deck in tree. Returns true if found."
-        if node.deck_id == deck_id:
+        node = self.mw.col.decks.find_deck_in_tree(self._dueTree, did)
+        if node:
             node.collapsed = not node.collapsed
-            return True
-        for child in node.children:
-            if self._toggle_collapsed_in_node(deck_id, child):
-                return True
-        return False
+        self._renderPage(reuse=True)
 
     def _dragDeckOnto(self, draggedDeckDid, ontoDeckDid):
         try:
