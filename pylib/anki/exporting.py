@@ -171,7 +171,7 @@ class AnkiExporter(Exporter):
         if self.cids:
             return self.col.decks.for_card_ids(self.cids)
         elif self.did:
-            return [self.did] + [x[1] for x in self.src.decks.children(self.did)]
+            return self.src.decks.deck_and_child_ids(self.did)
         else:
             return []
 

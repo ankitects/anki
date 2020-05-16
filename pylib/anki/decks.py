@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import copy
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, Union
 
 import anki  # pylint: disable=unused-import
 import anki.backend_pb2 as pb
@@ -476,9 +476,7 @@ class DeckManager:
         # current deck
         self.col.conf["curDeck"] = did
         # and active decks (current + all children)
-        actv = self.children(did)
-        actv.sort()
-        self.col.conf["activeDecks"] = [did] + [a[1] for a in actv]
+        self.col.conf["activeDecks"] = self.deck_and_child_ids(did)
         self.col.setMod()
 
     # don't use this, it will likely go away
@@ -489,10 +487,20 @@ class DeckManager:
         "All children of did, as (name, id)."
         name = self.get(did)["name"]
         actv = []
-        for g in self.all():
-            if g["name"].startswith(name + "::"):
-                actv.append((g["name"], g["id"]))
+        for g in self.all_names_and_ids():
+            if g.name.startswith(name + "::"):
+                actv.append((g.name, g.id))
         return actv
+
+    def child_ids(self, parent_name: str) -> Iterable[int]:
+        prefix = parent_name + "::"
+        return (d.id for d in self.all_names_and_ids() if d.name.startswith(prefix))
+
+    def deck_and_child_ids(self, deck_id: int) -> List[int]:
+        parent_name = self.get_legacy(deck_id)["name"]
+        out = [deck_id]
+        out.extend(self.child_ids(parent_name))
+        return out
 
     def childDids(self, did: int, childMap: Dict[int, Any]) -> List:
         def gather(node, arr):
