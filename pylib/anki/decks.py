@@ -105,9 +105,6 @@ class DeckManager:
         self.update(deck)
 
         # fixme
-        self.maybeAddToActive()
-
-        # fixme
         hooks.deck_added(deck)
 
         return deck["id"]
@@ -248,12 +245,6 @@ class DeckManager:
         except anki.rsbackend.ExistsError:
             raise DeckRenameError("deck already exists")
 
-        #       self.decks[str(g["id"])] = g
-        self.maybeAddToActive()
-        # mark registry changed, but don't bump mod time
-
-    #        self.save()
-
     def rename(self, g: Dict[str, Any], newName: str) -> None:
         "Rename deck prefix to NAME if not exists. Updates children."
         g["name"] = newName
@@ -262,7 +253,6 @@ class DeckManager:
 
         # fixme: ensure rename of b in a::b::c generates new b
         # fixme: renaming may have altered active did order
-        # self.maybeAddToActive()
 
     def renameForDragAndDrop(self, draggedDeckDid: int, ontoDeckDid: Any) -> None:
         draggedDeck = self.get(draggedDeckDid)
@@ -452,11 +442,6 @@ class DeckManager:
             intTime(),
         )
 
-    def maybeAddToActive(self) -> None:
-        # reselect current deck, or default if current has disappeared
-        c = self.current()
-        self.select(c["id"])
-
     def cids(self, did: int, children: bool = False) -> Any:
         if not children:
             return self.col.db.list("select id from cards where did=?", did)
@@ -493,6 +478,10 @@ class DeckManager:
         actv.sort()
         self.col.conf["activeDecks"] = [did] + [a[1] for a in actv]
         self.col.setMod()
+
+    # don't use this, it will likely go away
+    def update_active(self):
+        self.select(self.current()["id"])
 
     def children(self, did: int) -> List[Tuple[Any, Any]]:
         "All children of did, as (name, id)."

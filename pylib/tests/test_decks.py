@@ -25,6 +25,7 @@ def test_basic():
     assert deck.decks.active() == [parentId]
     # let's create a child
     childId = deck.decks.id("new deck::child")
+    deck.sched.reset()
     # it should have been added to the active list
     assert deck.decks.selected() == parentId
     assert deck.decks.active() == [parentId, childId]
