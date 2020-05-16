@@ -351,16 +351,10 @@ def setupGL(pm):
 PROFILE_CODE = os.environ.get("ANKI_PROFILE_CODE")
 
 
-def print_profile_results():
-    import io
-    import pstats
-
+def write_profile_results():
     profiler.disable()
-    outputstream = io.StringIO()
-    profiler_status = pstats.Stats(profiler, stream=outputstream)
-    profiler_status.sort_stats("time")
-    profiler_status.print_stats()
-    sys.stderr.write(f"\n{outputstream.getvalue()}\n")
+    profiler.dump_stats("anki.prof")
+    print("profile stats written to anki.prof")
 
 
 def run():
@@ -516,4 +510,4 @@ environment points to a valid, writable folder.""",
         return app
 
     if PROFILE_CODE:
-        print_profile_results()
+        write_profile_results()
