@@ -18,7 +18,6 @@ from anki import hooks
 from anki.cards import Card
 from anki.collection import _Collection
 from anki.consts import *
-from anki.decks import DeckManager
 from anki.lang import _, ngettext
 from anki.models import NoteType
 from anki.notes import Note
@@ -1305,10 +1304,13 @@ QTableView {{ gridline-color: {grid} }}
     def _deckFilters(self):
         def addDecks(parent, decks, parent_prefix):
             for node in decks:
+                # pylint: disable=cell-var-from-loop
                 fullname = parent_prefix + node.name
                 if node.children:
                     subm = parent.addMenu(node.name)
-                    subm.addItem(_("Filter"), lambda: self._filterFunc("deck", fullname))
+                    subm.addItem(
+                        _("Filter"), lambda: self._filterFunc("deck", fullname)
+                    )
                     subm.addSeparator()
                     addDecks(subm, node.children, fullname + "::")
                 else:
