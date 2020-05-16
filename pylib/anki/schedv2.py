@@ -188,8 +188,7 @@ order by due"""
         cur = self.col.decks.current()
         parents = self.col.decks.parents(cur["id"])
         children = [
-            self.col.decks.get(did)
-            for (name, did) in self.col.decks.children(cur["id"])
+            self.col.decks.get(did) for did in self.col.decks.child_ids(cur["id"])
         ]
         for g in [cur] + parents + children:
             self._update_stats(g, "new", -new)
