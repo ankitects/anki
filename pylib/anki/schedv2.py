@@ -172,11 +172,17 @@ order by due"""
     ##########################################################################
 
     def _updateStats(self, card: Card, type: str, cnt: int = 1) -> None:
-        key = type + "Today"
         for g in [self.col.decks.get(card.did)] + self.col.decks.parents(card.did):
-            # add
-            g[key][1] += cnt
+            self._update_stats(g, type, cnt)
             self.col.decks.save(g)
+
+    # resets stat if day has changed, applies delta, and returns modified value
+    def _update_stats(self, deck: Dict, type: str, delta: int) -> int:
+        key = type + "Today"
+        if deck[key][0] != self.today:
+            deck[key] = [self.today, 0]
+        deck[key][1] += delta
+        return deck[key][1]
 
     def extendLimits(self, new: int, rev: int) -> None:
         cur = self.col.decks.current()
@@ -186,9 +192,8 @@ order by due"""
             for (name, did) in self.col.decks.children(cur["id"])
         ]
         for g in [cur] + parents + children:
-            # add
-            g["newToday"][1] -= new
-            g["revToday"][1] -= rev
+            self._update_stats(g, "new", -new)
+            self._update_stats(g, "rev", -rev)
             self.col.decks.save(g)
 
     def _walkingCount(
@@ -394,7 +399,7 @@ select count() from
         if g["dyn"]:
             return self.dynReportLimit
         c = self.col.decks.confForDid(g["id"])
-        limit = max(0, c["new"]["perDay"] - g["newToday"][1])
+        limit = max(0, c["new"]["perDay"] - self._update_stats(g, "new", 0))
         return hooks.scheduler_new_limit_for_single_deck(limit, g)
 
     def totalNewForCurrentDeck(self) -> int:
@@ -787,7 +792,7 @@ and due <= ? limit ?)""",
             return self.dynReportLimit
 
         c = self.col.decks.confForDid(d["id"])
-        lim = max(0, c["rev"]["perDay"] - d["revToday"][1])
+        lim = max(0, c["rev"]["perDay"] - self._update_stats(d, "rev", 0))
 
         if parentLimit is not None:
             lim = min(parentLimit, lim)
@@ -1278,19 +1283,6 @@ where id = ?
         self.today = timing.days_elapsed
         self.dayCutoff = timing.next_day_at
 
-        if oldToday != self.today:
-            self.col.log(self.today, self.dayCutoff)
-
-        # update all daily counts, but don't save decks to prevent needless
-        # conflicts. we'll save on card answer instead
-        def update(g):
-            for t in "new", "rev", "lrn", "time":
-                key = t + "Today"
-                if g[key][0] != self.today:
-                    g[key] = [self.today, 0]
-
-        for deck in self.col.decks.all():
-            update(deck)
         # unbury if the day has rolled over
         unburied = self.col.conf.get("lastUnburied", 0)
         if unburied < self.today:

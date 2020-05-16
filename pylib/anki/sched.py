@@ -113,7 +113,6 @@ class Scheduler(V2):
 
     def unburyCards(self) -> None:
         "Unbury cards."
-        self.col.conf["lastUnburied"] = self.today
         self.col.log(
             self.col.db.list(
                 f"select id from cards where queue = {QUEUE_TYPE_SIBLING_BURIED}"
@@ -448,7 +447,7 @@ and due <= ? limit ?)""",
         if d["dyn"]:
             return self.reportLimit
         c = self.col.decks.confForDid(d["id"])
-        limit = max(0, c["rev"]["perDay"] - d["revToday"][1])
+        limit = max(0, c["rev"]["perDay"] - self._update_stats(d, "rev", 0))
         return hooks.scheduler_review_limit_for_single_deck(limit, d)
 
     def _revForDeck(self, did: int, lim: int) -> int:  # type: ignore[override]
@@ -784,31 +783,6 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?"""
         if not conf["dyn"]:
             return True
         return conf["resched"]
-
-    # Daily cutoff
-    ##########################################################################
-
-    def _updateCutoff(self) -> None:
-        oldToday = self.today
-        timing = self._timing_today()
-        self.today = timing.days_elapsed
-        self.dayCutoff = timing.next_day_at
-        if oldToday != self.today:
-            self.col.log(self.today, self.dayCutoff)
-        # update all daily counts, but don't save decks to prevent needless
-        # conflicts. we'll save on card answer instead
-        def update(g):
-            for t in "new", "rev", "lrn", "time":
-                key = t + "Today"
-                if g[key][0] != self.today:
-                    g[key] = [self.today, 0]
-
-        for deck in self.col.decks.all():
-            update(deck)
-        # unbury if the day has rolled over
-        unburied = self.col.conf.get("lastUnburied", 0)
-        if unburied < self.today:
-            self.unburyCards()
 
     # Deck finished state
     ##########################################################################
