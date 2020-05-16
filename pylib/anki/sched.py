@@ -462,25 +462,12 @@ and due <= ? limit ?)""",
             lim,
         )
 
-    def _resetRevCount(self) -> None:
-        def cntFn(did, lim):
-            return self.col.db.scalar(
-                f"""
-select count() from (select id from cards where
-did = ? and queue = {QUEUE_TYPE_REV} and due <= ? limit %d)"""
-                % lim,
-                did,
-                self.today,
-            )
-
-        self.revCount = self._walkingCount(self._deckRevLimitSingle, cntFn)
-
     def _resetRev(self) -> None:
-        self._resetRevCount()
         self._revQueue: List[Any] = []
         self._revDids = self.col.decks.active()[:]
 
-    def _fillRev(self) -> Optional[bool]:
+    def _fillRev(self, recursing=False) -> bool:
+        "True if a review card can be fetched."
         if self._revQueue:
             return True
         if not self.revCount:
@@ -514,14 +501,15 @@ did = ? and queue = {QUEUE_TYPE_REV} and due <= ? limit ?""",
                     return True
             # nothing left in the deck; move to next
             self._revDids.pop(0)
-        if self.revCount:
-            # if we didn't get a card but the count is non-zero,
-            # we need to check again for any cards that were
-            # removed from the queue but not buried
-            self._resetRev()
-            return self._fillRev()
 
-        return None
+        # if we didn't get a card but the count is non-zero,
+        # we need to check again for any cards that were
+        # removed from the queue but not buried
+        if recursing:
+            print("bug: fillRev()")
+            return False
+        self._resetRev()
+        return self._fillRev(recursing=True)
 
     # Answering a review card
     ##########################################################################
