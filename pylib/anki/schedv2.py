@@ -62,6 +62,7 @@ class Scheduler:
     def reset(self) -> None:
         self.col.decks.update_active()
         self._updateCutoff()
+        self._reset_counts()
         self._resetLrn()
         self._resetRev()
         self._resetNew()
@@ -125,6 +126,17 @@ class Scheduler:
             # restore original card state and remove from filtered deck
             self._restorePreviewCard(card)
             self._removeFromFiltered(card)
+
+    def _reset_counts(self):
+        tree = self.deck_due_tree()
+        node = self.col.decks.find_deck_in_tree(tree, int(self.col.conf["curDeck"]))
+        if not node:
+            print("invalid current deck")
+            self.newCount = 0
+            self.revCount = 0
+        else:
+            self.newCount = node.new_count
+            self.revCount = node.review_count
 
     def counts(self, card: Optional[Card] = None) -> Tuple[int, int, int]:
         counts = [self.newCount, self.lrnCount, self.revCount]
@@ -195,41 +207,6 @@ order by due"""
             self._update_stats(g, "rev", -rev)
             self.col.decks.save(g)
 
-    def _walkingCount(
-        self,
-        limFn: Optional[Callable[[Any], Optional[int]]] = None,
-        cntFn: Optional[Callable[[int, int], int]] = None,
-    ) -> int:
-        tot = 0
-        pcounts: Dict[int, int] = {}
-        # for each of the active decks
-        nameMap = self.col.decks.nameMap()
-        for did in self.col.decks.active():
-            # early alphas were setting the active ids as a str
-            did = int(did)
-            # get the individual deck's limit
-            lim = limFn(self.col.decks.get(did))
-            if not lim:
-                continue
-            # check the parents
-            parents = self.col.decks.parents(did, nameMap)
-            for p in parents:
-                # add if missing
-                if p["id"] not in pcounts:
-                    pcounts[p["id"]] = limFn(p)
-                # take minimum of child and parent
-                lim = min(pcounts[p["id"]], lim)
-            # see how many cards we actually have
-            cnt = cntFn(did, lim)
-            # if non-zero, decrement from parent counts
-            for p in parents:
-                pcounts[p["id"]] -= cnt
-            # we may also be a parent
-            pcounts[did] = lim - cnt
-            # and add to running total
-            tot += cnt
-        return tot
-
     # Deck list
     ##########################################################################
 
@@ -289,23 +266,12 @@ order by due"""
     # New cards
     ##########################################################################
 
-    def _resetNewCount(self) -> None:
-        cntFn = lambda did, lim: self.col.db.scalar(
-            f"""
-select count() from (select 1 from cards where
-did = ? and queue = {QUEUE_TYPE_NEW} limit ?)""",
-            did,
-            lim,
-        )
-        self.newCount = self._walkingCount(self._deckNewLimitSingle, cntFn)
-
     def _resetNew(self) -> None:
-        self._resetNewCount()
         self._newDids = self.col.decks.active()[:]
         self._newQueue: List[int] = []
         self._updateNewCardRatio()
 
-    def _fillNew(self) -> Optional[bool]:
+    def _fillNew(self, recursing=False) -> bool:
         if self._newQueue:
             return True
         if not self.newCount:
@@ -326,13 +292,15 @@ did = ? and queue = {QUEUE_TYPE_NEW} limit ?)""",
                     return True
             # nothing left in the deck; move to next
             self._newDids.pop(0)
-        if self.newCount:
-            # if we didn't get a card but the count is non-zero,
-            # we need to check again for any cards that were
-            # removed from the queue but not buried
-            self._resetNew()
-            return self._fillNew()
-        return None
+
+        # if we didn't get a card but the count is non-zero,
+        # we need to check again for any cards that were
+        # removed from the queue but not buried
+        if recursing:
+            print("bug: fillNew()")
+            return False
+        self._resetNew()
+        return self._fillNew(recursing=True)
 
     def _getNewCard(self) -> Optional[Card]:
         if self._fillNew():
@@ -814,22 +782,11 @@ and due <= ? limit ?)"""
             lim,
         )
 
-    def _resetRevCount(self) -> None:
-        lim = self._currentRevLimit()
-        self.revCount = self.col.db.scalar(
-            f"""
-select count() from (select id from cards where
-did in %s and queue = {QUEUE_TYPE_REV} and due <= ? limit ?)"""
-            % self._deckLimit(),
-            self.today,
-            lim,
-        )
-
     def _resetRev(self) -> None:
-        self._resetRevCount()
         self._revQueue: List[int] = []
 
-    def _fillRev(self) -> Any:
+    def _fillRev(self, recursing=False) -> bool:
+        "True if a review card can be fetched."
         if self._revQueue:
             return True
         if not self.revCount:
@@ -853,12 +810,7 @@ limit ?"""
                 self._revQueue.reverse()
                 return True
 
-        if self.revCount:
-            # if we didn't get a card but the count is non-zero,
-            # we need to check again for any cards that were
-            # removed from the queue but not buried
-            self._resetRev()
-            return self._fillRev()
+        return False
 
     def _getRevCard(self) -> Optional[Card]:
         if self._fillRev():
