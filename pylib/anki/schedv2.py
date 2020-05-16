@@ -230,6 +230,9 @@ order by due"""
 
     def deckDueTree(self) -> Any:
         "List of (base name, did, rev, lrn, new, children)"
+        print(
+            "deckDueTree() is deprecated; use decks.deck_tree() for a tree without counts, or sched.deck_due_tree()"
+        )
         return self.col.backend.legacy_deck_tree()
 
     def deck_due_tree(self) -> DeckTreeNode:
