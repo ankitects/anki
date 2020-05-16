@@ -1303,25 +1303,20 @@ QTableView {{ gridline-color: {grid} }}
         return m
 
     def _deckFilters(self):
-        def addDecks(parent, decks):
-            for head, did, rev, lrn, new, children in decks:
-                name = self.mw.col.decks.get(did)["name"]
-                shortname = DeckManager.basename(name)
-                if children:
-                    subm = parent.addMenu(shortname)
-                    subm.addItem(_("Filter"), self._filterFunc("deck", name))
+        def addDecks(parent, decks, parent_prefix):
+            for node in decks:
+                fullname = parent_prefix + node.name
+                if node.children:
+                    subm = parent.addMenu(node.name)
+                    subm.addItem(_("Filter"), lambda: self._filterFunc("deck", fullname))
                     subm.addSeparator()
-                    addDecks(subm, children)
+                    addDecks(subm, node.children, fullname + "::")
                 else:
-                    if did != 1 or self.col.decks.should_default_be_displayed(
-                        force_default=False, assume_no_child=True
-                    ):
-                        parent.addItem(shortname, self._filterFunc("deck", name))
+                    parent.addItem(node.name, self._filterFunc("deck", fullname))
 
-        # fixme: could rewrite to avoid calculating due # in the future
-        alldecks = self.col.sched.deckDueTree()
+        alldecks = self.col.decks.deck_tree()
         ml = MenuList()
-        addDecks(ml, alldecks)
+        addDecks(ml, alldecks.children, "")
 
         root = SubMenu(_("Decks"))
         root.addChild(ml.chunked())
