@@ -446,7 +446,15 @@ impl Collection {
         self.transact(None, |col| {
             col.storage.set_schema_modified()?;
             col.state.notetype_cache.remove(&ntid);
-            col.storage.remove_notetype(ntid)
+            col.storage.remove_notetype(ntid)?;
+            let all = col.storage.get_all_notetype_names()?;
+            if all.is_empty() {
+                let mut nt = all_stock_notetypes(&col.i18n).remove(0);
+                col.add_notetype_inner(&mut nt, col.usn()?)?;
+                col.set_current_notetype_id(nt.id)
+            } else {
+                col.set_current_notetype_id(all[0].0)
+            }
         })
     }
 }

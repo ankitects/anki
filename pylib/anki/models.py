@@ -205,14 +205,9 @@ class ModelManager:
             self.col.backend.remove_notetype(nt.id)
 
     def remove(self, id: int) -> None:
-        self.col.modSchema(check=True)
+        "Modifies schema."
         self._remove_from_cache(id)
-        was_current = self.current()["id"] == id
         self.col.backend.remove_notetype(id)
-
-        # fixme: handle in backend
-        if was_current:
-            self.col.conf["curModel"] = self.all_names_and_ids()[0].id
 
     def add(self, m: NoteType) -> None:
         self.save(m)
