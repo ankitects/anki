@@ -471,6 +471,6 @@ and notes.mid = ? and cards.ord = ?""",
     ##########################################################################
 
     def _availClozeOrds(self, m: NoteType, flds: str, allowEmpty: bool = True) -> List:
-        print("_availClozeOrds() is deprecated")
+        print("_availClozeOrds() is deprecated; use note.cloze_numbers_in_fields()")
         note = anki.rsbackend.BackendNote(fields=[flds])
         return self.col.backend.cloze_numbers_in_note(note)
