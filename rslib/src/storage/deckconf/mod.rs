@@ -80,13 +80,9 @@ impl SqliteStorage {
     }
 
     pub(crate) fn clear_deck_conf_usns(&self) -> Result<()> {
-        for mut conf in self.all_deck_config()? {
-            if conf.usn.0 != 0 {
-                conf.usn.0 = 0;
-                self.update_deck_conf(&conf)?;
-            }
-        }
-
+        self.db
+            .prepare("update deck_config set usn = 0 where usn != 0")?
+            .execute(NO_PARAMS)?;
         Ok(())
     }
 

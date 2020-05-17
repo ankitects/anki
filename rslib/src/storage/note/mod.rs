@@ -7,7 +7,7 @@ use crate::{
     tags::{join_tags, split_tags},
     timestamp::TimestampMillis,
 };
-use rusqlite::{params, OptionalExtension};
+use rusqlite::{params, OptionalExtension, NO_PARAMS};
 
 fn split_fields(fields: &str) -> Vec<String> {
     fields.split('\x1f').map(Into::into).collect()
@@ -87,5 +87,12 @@ impl super::SqliteStorage {
             .prepare_cached(include_str!("is_orphaned.sql"))?
             .query_row(&[nid], |r| r.get(0))
             .map_err(Into::into)
+    }
+
+    pub(crate) fn clear_pending_note_usns(&self) -> Result<()> {
+        self.db
+            .prepare("update notes set usn = 0 where usn = -1")?
+            .execute(NO_PARAMS)?;
+        Ok(())
     }
 }

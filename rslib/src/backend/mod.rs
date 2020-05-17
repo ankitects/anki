@@ -795,7 +795,7 @@ impl Backend {
     }
 
     fn before_upload(&self) -> Result<()> {
-        self.with_col(|col| col.transact(None, |col| col.before_upload()))
+        self.with_col(|col| col.before_upload())
     }
 
     fn all_tags(&self) -> Result<pb::AllTagsOut> {

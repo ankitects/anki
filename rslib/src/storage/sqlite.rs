@@ -275,6 +275,13 @@ impl SqliteStorage {
         }
     }
 
+    pub(crate) fn increment_usn(&self) -> Result<()> {
+        self.db
+            .prepare_cached("update col set usn = usn + 1")?
+            .execute(NO_PARAMS)?;
+        Ok(())
+    }
+
     pub(crate) fn creation_stamp(&self) -> Result<TimestampSecs> {
         self.db
             .prepare_cached("select crt from col")?
@@ -296,6 +303,22 @@ impl SqliteStorage {
         Ok(())
     }
 
+    pub(crate) fn get_schema_mtime(&self) -> Result<TimestampSecs> {
+        self.db
+            .prepare_cached("select scm from col")?
+            .query_and_then(NO_PARAMS, |r| r.get(0))?
+            .next()
+            .ok_or_else(|| AnkiError::invalid_input("missing col"))?
+            .map_err(Into::into)
+    }
+
+    pub(crate) fn set_last_sync(&self, stamp: TimestampSecs) -> Result<()> {
+        self.db
+            .prepare("update col set ls = ?")?
+            .execute(&[stamp])?;
+        Ok(())
+    }
+
     //////////////////////////////////////////
 
     /// true if corrupt/can't access
@@ -312,7 +335,7 @@ impl SqliteStorage {
     }
 
     pub(crate) fn optimize(&self) -> Result<()> {
-        self.db.execute_batch("vacuum")?;
+        self.db.execute_batch("vacuum; analyze")?;
         Ok(())
     }
 

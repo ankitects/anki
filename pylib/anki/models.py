@@ -20,7 +20,7 @@ NoteType = Dict[str, Any]
 Field = Dict[str, Any]
 Template = Dict[str, Union[str, int, None]]
 
-# fixme: syncing, beforeUpload
+# fixme: syncing
 
 
 class ModelsDictProxy:
@@ -479,11 +479,3 @@ and notes.mid = ? and cards.ord = ?""",
         print("_availClozeOrds() is deprecated")
         note = anki.rsbackend.BackendNote(fields=[flds])
         return self.col.backend.cloze_numbers_in_note(note)
-
-    # Sync handling
-    ##########################################################################
-
-    def beforeUpload(self) -> None:
-        for m in self.all():
-            m["usn"] = 0
-        self.save()

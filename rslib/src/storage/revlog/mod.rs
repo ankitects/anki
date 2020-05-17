@@ -12,4 +12,11 @@ impl SqliteStorage {
             .execute(NO_PARAMS)
             .map_err(Into::into)
     }
+
+    pub(crate) fn clear_pending_revlog_usns(&self) -> Result<()> {
+        self.db
+            .prepare("update revlog set usn = 0 where usn = -1")?
+            .execute(NO_PARAMS)?;
+        Ok(())
+    }
 }
