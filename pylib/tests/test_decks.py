@@ -72,8 +72,10 @@ def test_rename():
     assert "hello::world" not in names
     # create another deck
     id = d.decks.id("tmp")
-    # we can't rename it if it conflicts
-    assertException(Exception, lambda: d.decks.rename(d.decks.get(id), "foo"))
+    # automatically adjusted if a duplicate name
+    d.decks.rename(d.decks.get(id), "FOO")
+    names = [n.name for n in d.decks.all_names_and_ids()]
+    assert "FOO+" in names
     # when renaming, the children should be renamed too
     d.decks.id("one::two::three")
     id = d.decks.id("one")
@@ -88,11 +90,6 @@ def test_rename():
     child = d.decks.get(childId)
     assertException(DeckRenameError, lambda: d.decks.rename(child, "filtered::child"))
     assertException(DeckRenameError, lambda: d.decks.rename(child, "FILTERED::child"))
-    # changing case
-    parentId = d.decks.id("PARENT")
-    d.decks.id("PARENT::CHILD")
-    assertException(DeckRenameError, lambda: d.decks.rename(child, "PARENT::CHILD"))
-    assertException(DeckRenameError, lambda: d.decks.rename(child, "PARENT::child"))
 
 
 def test_renameForDragAndDrop():
@@ -137,18 +134,10 @@ def test_renameForDragAndDrop():
     d.decks.renameForDragAndDrop(chinese_did, None)
     assert deckNames() == ["Chinese", "Chinese::HSK", "Languages"]
 
-    # can't drack a deck where sibling have same name
-    new_hsk_did = d.decks.id("HSK")
-    assertException(
-        DeckRenameError, lambda: d.decks.renameForDragAndDrop(new_hsk_did, chinese_did)
-    )
-    d.decks.rem(new_hsk_did)
-
-    # can't drack a deck where sibling have same name different case
+    # decks are renamed if necessary
     new_hsk_did = d.decks.id("hsk")
-    assertException(
-        DeckRenameError, lambda: d.decks.renameForDragAndDrop(new_hsk_did, chinese_did)
-    )
+    d.decks.renameForDragAndDrop(new_hsk_did, chinese_did)
+    assert deckNames() == ["Chinese", "Chinese::HSK", "Chinese::hsk+", "Languages"]
     d.decks.rem(new_hsk_did)
 
     # '' is a convenient alias for the top level DID

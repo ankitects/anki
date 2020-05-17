@@ -1046,7 +1046,14 @@ impl Backend {
         self.with_col(|col| {
             let schema11: DeckSchema11 = serde_json::from_slice(&input.deck)?;
             let mut deck: Deck = schema11.into();
-            col.add_or_update_deck(&mut deck, input.preserve_usn_and_mtime)?;
+            if input.preserve_usn_and_mtime {
+                col.transact(None, |col| {
+                    let usn = col.usn()?;
+                    col.add_or_update_single_deck(&mut deck, usn)
+                })?;
+            } else {
+                col.add_or_update_deck(&mut deck)?;
+            }
             Ok(deck.id.0)
         })
     }
