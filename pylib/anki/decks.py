@@ -566,14 +566,6 @@ class DeckManager:
     def nameMap(self) -> dict:
         return dict((d["name"], d) for d in self.all())
 
-    # Sync handling
-    ##########################################################################
-
-    def beforeUpload(self) -> None:
-        for d in self.all():
-            d["usn"] = 0
-        self.save()
-
     # Dynamic decks
     ##########################################################################
 

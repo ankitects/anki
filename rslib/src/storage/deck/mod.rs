@@ -220,6 +220,13 @@ impl SqliteStorage {
             .map_err(Into::into)
     }
 
+    pub(crate) fn clear_deck_usns(&self) -> Result<()> {
+        self.db
+            .prepare("update decks set usn = 0 where usn != 0")?
+            .execute(NO_PARAMS)?;
+        Ok(())
+    }
+
     // Upgrading/downgrading/legacy
 
     pub(super) fn add_default_deck(&self, i18n: &I18n) -> Result<()> {

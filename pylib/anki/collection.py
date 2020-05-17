@@ -237,21 +237,8 @@ class _Collection:
 
     def beforeUpload(self) -> None:
         "Called before a full upload."
-        tbls = "notes", "cards", "revlog"
-        for t in tbls:
-            self.db.execute("update %s set usn=0 where usn=-1" % t)
-        # we can save space by removing the log of deletions
-        self.db.execute("delete from graves")
-        self._usn += 1
-        self.models.beforeUpload()
-        self.decks.beforeUpload()
-        self.backend.before_upload()
-        self.modSchema(check=False)
-        self.ls = self.scm
-        # ensure db is compacted before upload
         self.save(trx=False)
-        self.db.execute("vacuum")
-        self.db.execute("analyze")
+        self.backend.before_upload()
         self.close(save=False, downgrade=True)
 
     # Object creation helpers

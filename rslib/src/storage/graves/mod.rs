@@ -19,7 +19,6 @@ impl SqliteStorage {
         Ok(())
     }
 
-    #[allow(dead_code)]
     pub(crate) fn clear_all_graves(&self) -> Result<()> {
         self.db.execute("delete from graves", NO_PARAMS)?;
         Ok(())

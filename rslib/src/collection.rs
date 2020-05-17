@@ -144,10 +144,21 @@ impl Collection {
         self.storage.usn(self.server)
     }
 
-    pub(crate) fn before_upload(&self) -> Result<()> {
-        self.storage.clear_tag_usns()?;
-        self.storage.clear_deck_conf_usns()?;
-
-        Ok(())
+    /// Prepare for upload. Caller should not create transaction.
+    pub(crate) fn before_upload(&mut self) -> Result<()> {
+        self.transact(None, |col| {
+            col.storage.clear_all_graves()?;
+            col.storage.clear_pending_note_usns()?;
+            col.storage.clear_pending_card_usns()?;
+            col.storage.clear_pending_revlog_usns()?;
+            col.storage.clear_tag_usns()?;
+            col.storage.clear_deck_conf_usns()?;
+            col.storage.clear_deck_usns()?;
+            col.storage.clear_notetype_usns()?;
+            col.storage.increment_usn()?;
+            col.storage.set_schema_modified()?;
+            col.storage.set_last_sync(col.storage.get_schema_mtime()?)
+        })?;
+        self.storage.optimize()
     }
 }

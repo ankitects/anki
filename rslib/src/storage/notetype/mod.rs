@@ -308,6 +308,13 @@ and ord in ",
             .collect()
     }
 
+    pub(crate) fn clear_notetype_usns(&self) -> Result<()> {
+        self.db
+            .prepare("update notetypes set usn = 0 where usn != 0")?
+            .execute(NO_PARAMS)?;
+        Ok(())
+    }
+
     // Upgrading/downgrading/legacy
 
     pub(crate) fn get_all_notetypes_as_schema11(

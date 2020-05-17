@@ -184,6 +184,13 @@ impl super::SqliteStorage {
             .optional()
             .map_err(Into::into)
     }
+
+    pub(crate) fn clear_pending_card_usns(&self) -> Result<()> {
+        self.db
+            .prepare("update cards set usn = 0 where usn = -1")?
+            .execute(NO_PARAMS)?;
+        Ok(())
+    }
 }
 
 #[cfg(test)]
