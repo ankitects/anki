@@ -108,34 +108,6 @@ class DeckManager:
         "Remove the deck. If cardsToo, delete any cards inside."
         assert cardsToo and childrenToo
         self.col.backend.remove_deck(did)
-        # fixme: default deck special case
-        # if str(did) == "1":
-        #     # we won't allow the default deck to be deleted, but if it's a
-        #     # child of an existing deck then it needs to be renamed
-        #     deck = self.get(did)
-        #     if "::" in deck["name"]:
-        #         base = self.basename(deck["name"])
-        #         suffix = ""
-        #         while True:
-        #             # find an unused name
-        #             name = base + suffix
-        #             if not self.byName(name):
-        #                 deck["name"] = name
-        #                 self.save(deck)
-        #                 break
-        #             suffix += "1"
-        #     return
-
-        # fixme:
-        #         # don't use cids(), as we want cards in cram decks too
-        #         cids = self.col.db.list(
-        #             "select id from cards where did=? or odid=?", did, did
-        #         )
-
-        # fixme
-        # ensure we have an active deck
-        if did in self.active():
-            self.select(self.all_names_and_ids()[0].id)
 
     def all_names_and_ids(
         self, skip_empty_default=False, include_filtered=True

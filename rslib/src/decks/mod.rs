@@ -12,6 +12,7 @@ use crate::{
     deckconf::DeckConfID,
     define_newtype,
     err::{AnkiError, Result},
+    i18n::TR,
     text::normalize_to_nfc,
     timestamp::TimestampSecs,
     types::Usn,
@@ -25,7 +26,7 @@ use std::{borrow::Cow, sync::Arc};
 
 define_newtype!(DeckID, i64);
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Deck {
     pub id: DeckID,
     pub name: String,
@@ -236,7 +237,7 @@ impl Collection {
                 None => break,
                 _ => (),
             }
-            deck.name += "_";
+            deck.name += "+";
         }
 
         Ok(())
@@ -395,8 +396,18 @@ impl Collection {
             DeckKind::Normal(_) => self.delete_all_cards_in_normal_deck(deck.id)?,
             DeckKind::Filtered(_) => self.return_all_cards_in_filtered_deck(deck.id)?,
         }
-        self.storage.remove_deck(deck.id)?;
-        self.storage.add_deck_grave(deck.id, usn)
+        if deck.id.0 == 1 {
+            let mut deck = deck.to_owned();
+            // fixme: separate key
+            deck.name = self.i18n.tr(TR::DeckConfigDefaultName).into();
+            self.ensure_deck_name_unique(&mut deck)?;
+            deck.set_modified(usn);
+            self.storage.update_deck(&deck)?;
+        } else {
+            self.storage.remove_deck(deck.id)?;
+            self.storage.add_deck_grave(deck.id, usn)?;
+        }
+        Ok(())
     }
 
     fn delete_all_cards_in_normal_deck(&mut self, did: DeckID) -> Result<()> {
@@ -454,6 +465,7 @@ mod test {
     use crate::{
         collection::{open_test_collection, Collection},
         err::Result,
+        search::SortMode,
     };
 
     fn sorted_names(col: &Collection) -> Vec<String> {
@@ -518,6 +530,41 @@ mod test {
             sorted_names(&col),
             vec!["Default", "other", "other::bar", "other::bar::baz"]
         );
+
+        Ok(())
+    }
+
+    #[test]
+    fn default() -> Result<()> {
+        // deleting the default deck will remove cards, but bring the deck back
+        // as a top level deck
+        let mut col = open_test_collection();
+
+        let mut default = col.get_or_create_normal_deck("default")?;
+        default.name = "one\x1ftwo".into();
+        col.add_or_update_deck(&mut default, false)?;
+
+        // create a non-default deck confusingly named "default"
+        let _fake_default = col.get_or_create_normal_deck("default")?;
+
+        // add a card to the real default
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        col.add_note(&mut note, default.id)?;
+        assert_ne!(col.search_cards("", SortMode::NoOrder)?, vec![]);
+
+        // add a subdeck
+        let _ = col.get_or_create_normal_deck("one::two::three")?;
+
+        // delete top level
+        let top = col.get_or_create_normal_deck("one")?;
+        col.remove_deck_and_child_decks(top.id)?;
+
+        // should have come back as "Default+" due to conflict
+        assert_eq!(sorted_names(&col), vec!["default", "Default+"]);
+
+        // and the cards it contained should have been removed
+        assert_eq!(col.search_cards("", SortMode::NoOrder)?, vec![]);
 
         Ok(())
     }
