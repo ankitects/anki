@@ -100,6 +100,11 @@ impl NoteType {
         }
     }
 
+    pub(crate) fn set_modified(&mut self, usn: Usn) {
+        self.mtime_secs = TimestampSecs::now();
+        self.usn = usn;
+    }
+
     fn updated_requirements(
         &self,
         parsed: &[(Option<ParsedTemplate>, Option<ParsedTemplate>)],
@@ -227,7 +232,6 @@ impl NoteType {
         }
         self.config.reqs = reqs;
 
-        // fixme: deal with duplicate note type names on update
         Ok(())
     }
 
@@ -335,12 +339,33 @@ impl From<NoteType> for NoteTypeProto {
 impl Collection {
     /// Add a new notetype, and allocate it an ID.
     pub fn add_notetype(&mut self, nt: &mut NoteType) -> Result<()> {
-        self.transact(None, |col| col.add_notetype_inner(nt))
+        self.transact(None, |col| {
+            let usn = col.usn()?;
+            nt.set_modified(usn);
+            col.add_notetype_inner(nt, usn)
+        })
     }
 
-    pub(crate) fn add_notetype_inner(&mut self, nt: &mut NoteType) -> Result<()> {
+    pub(crate) fn add_notetype_inner(&mut self, nt: &mut NoteType, usn: Usn) -> Result<()> {
         nt.prepare_for_adding()?;
+        self.ensure_notetype_name_unique(nt, usn)?;
         self.storage.add_new_notetype(nt)
+    }
+
+    fn ensure_notetype_name_unique(&self, notetype: &mut NoteType, usn: Usn) -> Result<()> {
+        loop {
+            match self.storage.get_notetype_id(&notetype.name)? {
+                Some(did) if did == notetype.id => {
+                    break;
+                }
+                None => break,
+                _ => (),
+            }
+            notetype.name += "+";
+            notetype.set_modified(usn);
+        }
+
+        Ok(())
     }
 
     /// Saves changes to a note type. This will force a full sync if templates
@@ -363,10 +388,11 @@ impl Collection {
                 col.update_cards_for_changed_templates(nt, existing_notetype.templates.len())?;
             }
 
+            let usn = col.usn()?;
             if !preserve_usn {
-                nt.mtime_secs = TimestampSecs::now();
-                nt.usn = col.usn()?;
+                nt.set_modified(usn);
             }
+            col.ensure_notetype_name_unique(nt, usn)?;
 
             col.storage.update_notetype_config(&nt)?;
             col.storage.update_notetype_fields(nt.id, &nt.fields)?;
