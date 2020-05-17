@@ -84,9 +84,6 @@ class DeckManager:
     # Deck save/load
     #############################################################
 
-    # fixme: if we're stripping chars on add, then we need to do that on lookup as well
-    # and need to make sure \x1f conversion
-
     def id(self, name: str, create: bool = True, type: int = 0,) -> Optional[int]:
         "Add a deck with NAME. Reuse deck if already exists. Return id as int."
         id = self.id_for_name(name)
@@ -99,7 +96,6 @@ class DeckManager:
         deck["name"] = name
         self.update(deck, preserve_usn=False)
 
-        # fixme
         hooks.deck_added(deck)
 
         return deck["id"]
@@ -130,12 +126,7 @@ class DeckManager:
         return list(self.col.backend.get_all_decks().values())
 
     def new_deck_legacy(self, filtered: bool) -> Dict:
-        try:
-            return self.col.backend.new_deck_legacy(filtered)
-        except anki.rsbackend.DeckIsFilteredError:
-            raise DeckRenameError("deck was filtered")
-        except anki.rsbackend.ExistsError:
-            raise DeckRenameError("deck already exists")
+        return self.col.backend.new_deck_legacy(filtered)
 
     def deck_tree(self) -> pb.DeckTreeNode:
         return self.col.backend.deck_tree(include_counts=False)
@@ -220,6 +211,9 @@ class DeckManager:
         self.update(g, preserve_usn=False)
         return
 
+    # Drag/drop
+    #############################################################
+
     def renameForDragAndDrop(self, draggedDeckDid: int, ontoDeckDid: Any) -> None:
         draggedDeck = self.get(draggedDeckDid)
         draggedDeckName = draggedDeck["name"]
@@ -255,50 +249,6 @@ class DeckManager:
     def _isAncestor(self, ancestorDeckName: str, descendantDeckName: str) -> Any:
         ancestorPath = self.path(ancestorDeckName)
         return ancestorPath == self.path(descendantDeckName)[0 : len(ancestorPath)]
-
-    @staticmethod
-    def path(name: str) -> Any:
-        return name.split("::")
-
-    _path = path
-
-    @classmethod
-    def basename(cls, name: str) -> Any:
-        return cls.path(name)[-1]
-
-    _basename = basename
-
-    @classmethod
-    def immediate_parent_path(cls, name: str) -> Any:
-        return cls._path(name)[:-1]
-
-    @classmethod
-    def immediate_parent(cls, name: str) -> Any:
-        pp = cls.immediate_parent_path(name)
-        if pp:
-            return "::".join(pp)
-
-    @classmethod
-    def key(cls, deck: Dict[str, Any]) -> List[str]:
-        return cls.path(deck["name"])
-
-    def _ensureParents(self, name: str) -> Any:
-        "Ensure parents exist, and return name with case matching parents."
-        s = ""
-        path = self.path(name)
-        if len(path) < 2:
-            return name
-        for p in path[:-1]:
-            if not s:
-                s += p
-            else:
-                s += "::" + p
-            # fetch or create
-            did = self.id(s)
-            # get original case
-            s = self.name(did)
-        name = s + "::" + path[-1]
-        return name
 
     # Deck configurations
     #############################################################
@@ -448,6 +398,32 @@ class DeckManager:
 
     # Parents/children
     #############################################################
+
+    @staticmethod
+    def path(name: str) -> Any:
+        return name.split("::")
+
+    _path = path
+
+    @classmethod
+    def basename(cls, name: str) -> Any:
+        return cls.path(name)[-1]
+
+    _basename = basename
+
+    @classmethod
+    def immediate_parent_path(cls, name: str) -> Any:
+        return cls._path(name)[:-1]
+
+    @classmethod
+    def immediate_parent(cls, name: str) -> Any:
+        pp = cls.immediate_parent_path(name)
+        if pp:
+            return "::".join(pp)
+
+    @classmethod
+    def key(cls, deck: Dict[str, Any]) -> List[str]:
+        return cls.path(deck["name"])
 
     def children(self, did: int) -> List[Tuple[Any, Any]]:
         "All children of did, as (name, id)."
