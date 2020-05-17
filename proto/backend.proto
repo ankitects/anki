@@ -14,6 +14,233 @@ message OptionalUInt32 {
     uint32 val = 1;
 }
 
+// Protobuf stored in .anki2 files
+// These should be moved to a separate file in the future
+///////////////////////////////////////////////////////////
+
+message DeckConfigInner {
+    enum NewCardOrder {
+        NEW_CARD_ORDER_DUE = 0;
+        NEW_CARD_ORDER_RANDOM = 1;
+    }
+
+    enum LeechAction {
+        LEECH_ACTION_SUSPEND = 0;
+        LEECH_ACTION_TAG_ONLY = 1;
+    }
+
+    repeated float learn_steps = 1;
+    repeated float relearn_steps = 2;
+
+    reserved 3 to 8;
+
+    uint32 new_per_day = 9;
+    uint32 reviews_per_day = 10;
+
+    float initial_ease = 11;
+    float easy_multiplier = 12;
+    float hard_multiplier = 13;
+    float lapse_multiplier = 14;
+    float interval_multiplier = 15;
+
+    uint32 maximum_review_interval = 16;
+    uint32 minimum_review_interval = 17;
+
+    uint32 graduating_interval_good = 18;
+    uint32 graduating_interval_easy = 19;
+
+    NewCardOrder new_card_order = 20;
+
+    LeechAction leech_action = 21;
+    uint32 leech_threshold = 22;
+
+    bool disable_autoplay = 23;
+    uint32 cap_answer_time_to_secs = 24;
+    uint32 visible_timer_secs = 25;
+    bool skip_question_when_replaying_answer = 26;
+
+    bool bury_new = 27;
+    bool bury_reviews = 28;
+
+    bytes other = 255;
+}
+
+message DeckCommon {
+    bool study_collapsed = 1;
+    bool browser_collapsed = 2;
+
+    uint32 last_day_studied = 3;
+    int32 new_studied = 4;
+    int32 review_studied = 5;
+    int32 learning_studied = 6;
+    int32 secs_studied = 7;
+
+    bytes other = 255;
+}
+
+message DeckKind {
+    oneof kind {
+        NormalDeck normal = 1;
+        FilteredDeck filtered = 2;
+    }
+}
+
+message NormalDeck {
+    int64 config_id = 1;
+    uint32 extend_new = 2;
+    uint32 extend_review = 3;
+    string description = 4;
+}
+
+message FilteredDeck {
+    bool reschedule = 1;
+    repeated FilteredSearchTerm search_terms = 2;
+    // v1 scheduler only
+    repeated float delays = 3;
+    // v2 scheduler only
+    uint32 preview_delay = 4;
+}
+
+message FilteredSearchTerm {
+    enum FilteredSearchOrder {
+        FILTERED_SEARCH_ORDER_OLDEST_FIRST = 0;
+        FILTERED_SEARCH_ORDER_RANDOM = 1;
+        FILTERED_SEARCH_ORDER_INTERVALS_ASCENDING = 2;
+        FILTERED_SEARCH_ORDER_INTERVALS_DESCENDING = 3;
+        FILTERED_SEARCH_ORDER_LAPSES = 4;
+        FILTERED_SEARCH_ORDER_ADDED = 5;
+        FILTERED_SEARCH_ORDER_DUE = 6;
+        FILTERED_SEARCH_ORDER_REVERSE_ADDED = 7;
+        FILTERED_SEARCH_ORDER_DUE_PRIORITY = 8;
+    }
+
+    string search = 1;
+    uint32 limit = 2;
+    FilteredSearchOrder order = 3;
+}
+
+message NoteFieldConfig {
+    bool sticky = 1;
+    bool rtl = 2;
+    string font_name = 3;
+    uint32 font_size = 4;
+
+    bytes other = 255;
+}
+
+message CardTemplateConfig {
+    string q_format = 1;
+    string a_format = 2;
+    string q_format_browser = 3;
+    string a_format_browser= 4;
+    int64 target_deck_id = 5;
+    string browser_font_name = 6;
+    uint32 browser_font_size = 7;
+
+    bytes other = 255;
+}
+
+message NoteTypeConfig {
+    enum Kind {
+        KIND_NORMAL = 0;
+        KIND_CLOZE = 1;
+    }
+    Kind kind = 1;
+    uint32 sort_field_idx = 2;
+    string css = 3;
+    int64 target_deck_id = 4;
+    string latex_pre = 5;
+    string latex_post = 6;
+    bool latex_svg = 7;
+    repeated CardRequirement reqs = 8;
+
+    bytes other = 255;
+}
+
+message CardRequirement {
+    enum Kind {
+        KIND_NONE = 0;
+        KIND_ANY = 1;
+        KIND_ALL = 2;
+    }
+    uint32 card_ord = 1;
+    Kind kind = 2;
+    repeated uint32 field_ords = 3;
+}
+
+// Containers for passing around database objects
+///////////////////////////////////////////////////////////
+
+message Deck {
+    int64 id = 1;
+    string name = 2;
+    uint32 mtime_secs = 3;
+    int32 usn = 4;
+    DeckCommon common = 5;
+    oneof kind {
+        NormalDeck normal = 6;
+        FilteredDeck filtered = 7;
+    }
+}
+
+message NoteType {
+    int64 id = 1;
+    string name = 2;
+    uint32 mtime_secs = 3;
+    sint32 usn = 4;
+    NoteTypeConfig config = 7;
+    repeated NoteField fields = 8;
+    repeated CardTemplate templates = 9;
+}
+
+message NoteField {
+    OptionalUInt32 ord = 1;
+    string name = 2;
+    NoteFieldConfig config = 5;
+}
+
+message CardTemplate {
+    OptionalUInt32 ord = 1;
+    string name = 2;
+    uint32 mtime_secs = 3;
+    sint32 usn = 4;
+    CardTemplateConfig config = 5;
+}
+
+message Note {
+    int64 id = 1;
+    string guid = 2;
+    int64 ntid = 3;
+    uint32 mtime_secs = 4;
+    int32 usn = 5;
+    repeated string tags = 6;
+    repeated string fields = 7;
+}
+
+message Card {
+    int64 id = 1;
+    int64 nid = 2;
+    int64 did = 3;
+    uint32 ord = 4;
+    int64 mtime = 5;
+    sint32 usn = 6;
+    uint32 ctype = 7;
+    sint32 queue = 8;
+    sint32 due = 9;
+    uint32 ivl = 10;
+    uint32 factor = 11;
+    uint32 reps = 12;
+    uint32 lapses = 13;
+    uint32 left = 14;
+    sint32 odue = 15;
+    int64 odid = 16;
+    uint32 flags = 17;
+    string data = 18;
+}
+
+// Backend
+///////////////////////////////////////////////////////////
+
 message BackendInit {
     repeated string preferred_langs = 1;
     string locale_folder_path = 2;
@@ -24,8 +251,6 @@ message I18nBackendInit {
     repeated string preferred_langs = 4;
     string locale_folder_path = 5;
 }
-
-// 1-15 reserved for future use
 
 message BackendInput {
     oneof value {
@@ -453,27 +678,6 @@ message GetCardOut {
     Card card = 1;
 }
 
-message Card {
-    int64 id = 1;
-    int64 nid = 2;
-    int64 did = 3;
-    uint32 ord = 4;
-    int64 mtime = 5;
-    sint32 usn = 6;
-    uint32 ctype = 7;
-    sint32 queue = 8;
-    sint32 due = 9;
-    uint32 ivl = 10;
-    uint32 factor = 11;
-    uint32 reps = 12;
-    uint32 lapses = 13;
-    uint32 left = 14;
-    sint32 odue = 15;
-    int64 odid = 16;
-    uint32 flags = 17;
-    string data = 18;
-}
-
 message CloseCollectionIn {
     bool downgrade_to_schema11 = 1;
 }
@@ -511,83 +715,12 @@ message SetConfigJson {
     }
 }
 
-message NoteFieldConfig {
-    bool sticky = 1;
-    bool rtl = 2;
-    string font_name = 3;
-    uint32 font_size = 4;
-    bytes other = 5;
-}
-
-message NoteField {
-    OptionalUInt32 ord = 1;
-    string name = 2;
-    NoteFieldConfig config = 5;
-}
-
-message CardTemplateConfig {
-    string q_format = 1;
-    string a_format = 2;
-    string q_format_browser = 3;
-    string a_format_browser= 4;
-    int64 target_deck_id = 5;
-    string browser_font_name = 6;
-    uint32 browser_font_size = 7;
-    bytes other = 8;
-}
-
-message CardTemplate {
-    OptionalUInt32 ord = 1;
-    string name = 2;
-    uint32 mtime_secs = 3;
-    sint32 usn = 4;
-    CardTemplateConfig config = 5;
-}
-
-message NoteTypeConfig {
-    enum Kind {
-        NORMAL = 0;
-        CLOZE = 1;
-    }
-    Kind kind = 1;
-    uint32 sort_field_idx = 2;
-    string css = 3;
-    // fixme: anki currently sets this without flushing
-    int64 target_deck_id = 4;
-    string latex_pre = 5;
-    string latex_post = 6;
-    bool latex_svg = 7;
-    repeated CardRequirement reqs = 8;
-    bytes other = 9;
-}
-
-message CardRequirement {
-    enum Kind {
-        None = 0;
-        Any = 1;
-        All = 2;
-    }
-    uint32 card_ord = 1;
-    Kind kind = 2;
-    repeated uint32 field_ords = 3;
-}
-
-message NoteType {
-    int64 id = 1;
-    string name = 2;
-    uint32 mtime_secs = 3;
-    sint32 usn = 4;
-    NoteTypeConfig config = 7;
-    repeated NoteField fields = 8;
-    repeated CardTemplate templates = 9;
-}
-
 enum StockNoteType {
-    StockNoteTypeBasic = 0;
-    StockNoteTypeBasicAndReversed = 1;
-    StockNoteTypeBasicOptionalReversed = 2;
-    StockNoteTypeBasicTyping = 3;
-    StockNoteTypeCloze = 4;
+    STOCK_NOTE_TYPE_BASIC = 0;
+    STOCK_NOTE_TYPE_BASIC_AND_REVERSED = 1;
+    STOCK_NOTE_TYPE_BASIC_OPTIONAL_REVERSED = 2;
+    STOCK_NOTE_TYPE_BASIC_TYPING = 3;
+    STOCK_NOTE_TYPE_CLOZE = 4;
 }
 
 message NoteTypeNames {
@@ -615,16 +748,6 @@ message AddOrUpdateNotetypeIn {
     bool preserve_usn_and_mtime = 2;
 }
 
-message Note {
-    int64 id = 1;
-    string guid = 2;
-    int64 ntid = 3;
-    uint32 mtime_secs = 4;
-    int32 usn = 5;
-    repeated string tags = 6;
-    repeated string fields = 7;
-}
-
 message AddNoteIn {
     Note note = 1;
     int64 deck_id = 2;
@@ -639,72 +762,6 @@ message NoteWithEmptyCards {
     int64 note_id = 1;
     repeated int64 card_ids = 2;
     bool will_delete_note = 3;
-}
-
-message Deck {
-    int64 id = 1;
-    string name = 2;
-    uint32 mtime_secs = 3;
-    int32 usn = 4;
-    DeckCommon common = 5;
-    oneof kind {
-        NormalDeck normal = 6;
-        FilteredDeck filtered = 7;
-    }
-}
-
-message DeckCommon {
-    bool study_collapsed = 1;
-    bool browser_collapsed = 2;
-
-    uint32 last_day_studied = 3;
-    int32 new_studied = 4;
-    int32 review_studied = 5;
-    int32 learning_studied = 6;
-    int32 secs_studied = 7;
-    
-    bytes other = 16;
-}
-
-message DeckKind {
-    oneof kind {
-        NormalDeck normal = 1;
-        FilteredDeck filtered = 2;
-    }
-}
-
-message NormalDeck {
-    int64 config_id = 1;
-    uint32 extend_new = 2;
-    uint32 extend_review = 3;
-    string description = 4;
-}
-
-message FilteredDeck {
-    bool reschedule = 1;
-    repeated FilteredSearchTerm search_terms = 2;
-    // v1 scheduler only
-    repeated float delays = 3;
-    // v2 scheduler only
-    uint32 preview_delay = 4;
-}
-
-message FilteredSearchTerm {
-    string search = 1;
-    uint32 limit = 2;
-    FilteredSearchOrder order = 3;
-}
-
-enum FilteredSearchOrder {
-    FILTERED_SEARCH_ORDER_OLDEST_FIRST = 0;
-    FILTERED_SEARCH_ORDER_RANDOM = 1;
-    FILTERED_SEARCH_ORDER_INTERVALS_ASCENDING = 2;
-    FILTERED_SEARCH_ORDER_INTERVALS_DESCENDING = 3;
-    FILTERED_SEARCH_ORDER_LAPSES = 4;
-    FILTERED_SEARCH_ORDER_ADDED = 5;
-    FILTERED_SEARCH_ORDER_DUE = 6;
-    FILTERED_SEARCH_ORDER_REVERSE_ADDED = 7;
-    FILTERED_SEARCH_ORDER_DUE_PRIORITY = 8;
 }
 
 message DeckNames {
@@ -792,51 +849,4 @@ message GetDeckNamesIn {
     bool skip_empty_default = 1;
     // if unset, implies skip_empty_default
     bool include_filtered = 2;
-}
-
-message DeckConfigInner {
-    enum NewCardOrder {
-        NEW_CARD_ORDER_DUE = 0;
-        NEW_CARD_ORDER_RANDOM = 1;
-    }
-
-    enum LeechAction {
-        LEECH_ACTION_SUSPEND = 0;
-        LEECH_ACTION_TAG_ONLY = 1;
-    }
-
-    repeated float learn_steps = 1;
-    repeated float relearn_steps = 2;
-
-    reserved 3 to 8;
-
-    uint32 new_per_day = 9;
-    uint32 reviews_per_day = 10;
-
-    float initial_ease = 11;
-    float easy_multiplier = 12;
-    float hard_multiplier = 13;
-    float lapse_multiplier = 14;
-    float interval_multiplier = 15;
-
-    uint32 maximum_review_interval = 16;
-    uint32 minimum_review_interval = 17;
-
-    uint32 graduating_interval_good = 18;
-    uint32 graduating_interval_easy = 19;
-
-    NewCardOrder new_card_order = 20;
-
-    LeechAction leech_action = 21;
-    uint32 leech_threshold = 22;
-
-    bool disable_autoplay = 23;
-    uint32 cap_answer_time_to_secs = 24;
-    uint32 visible_timer_secs = 25;
-    bool skip_question_when_replaying_answer = 26;
-
-    bool bury_new = 27;
-    bool bury_reviews = 28;
-
-    bytes other = 255;
 }

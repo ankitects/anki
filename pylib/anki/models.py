@@ -186,7 +186,7 @@ class ModelManager:
         "Create a new model, and return it."
         # caller should call save() after modifying
         nt = self.col.backend.get_stock_notetype_legacy(
-            StockNoteType.StockNoteTypeBasic
+            StockNoteType.STOCK_NOTE_TYPE_BASIC
         )
         nt["flds"] = []
         nt["tmpls"] = []
@@ -273,7 +273,7 @@ class ModelManager:
     def new_field(self, name: str) -> Field:
         assert isinstance(name, str)
         nt = self.col.backend.get_stock_notetype_legacy(
-            StockNoteType.StockNoteTypeBasic
+            StockNoteType.STOCK_NOTE_TYPE_BASIC
         )
         field = nt["flds"][0]
         field["name"] = name
@@ -332,7 +332,7 @@ class ModelManager:
 
     def new_template(self, name: str) -> Template:
         nt = self.col.backend.get_stock_notetype_legacy(
-            StockNoteType.StockNoteTypeBasic
+            StockNoteType.STOCK_NOTE_TYPE_BASIC
         )
         template = nt["tmpls"][0]
         template["name"] = name

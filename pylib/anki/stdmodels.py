@@ -19,23 +19,25 @@ def add_stock_notetype(col: _Collection, kind: StockNoteType) -> NoteType:
 
 
 def addBasicModel(col: _Collection) -> NoteType:
-    return add_stock_notetype(col, StockNoteType.StockNoteTypeBasic)
+    return add_stock_notetype(col, StockNoteType.STOCK_NOTE_TYPE_BASIC)
 
 
 def addBasicTypingModel(col: _Collection) -> NoteType:
-    return add_stock_notetype(col, StockNoteType.StockNoteTypeBasicTyping)
+    return add_stock_notetype(col, StockNoteType.STOCK_NOTE_TYPE_BASIC_TYPING)
 
 
 def addForwardReverse(col: _Collection) -> NoteType:
-    return add_stock_notetype(col, StockNoteType.StockNoteTypeBasicAndReversed)
+    return add_stock_notetype(col, StockNoteType.STOCK_NOTE_TYPE_BASIC_AND_REVERSED)
 
 
 def addForwardOptionalReverse(col: _Collection) -> NoteType:
-    return add_stock_notetype(col, StockNoteType.StockNoteTypeBasicOptionalReversed)
+    return add_stock_notetype(
+        col, StockNoteType.STOCK_NOTE_TYPE_BASIC_OPTIONAL_REVERSED
+    )
 
 
 def addClozeModel(col: _Collection) -> NoteType:
-    return add_stock_notetype(col, StockNoteType.StockNoteTypeCloze)
+    return add_stock_notetype(col, StockNoteType.STOCK_NOTE_TYPE_CLOZE)
 
 
 def get_stock_notetypes(
@@ -44,11 +46,14 @@ def get_stock_notetypes(
     out: List[Tuple[str, Callable[[_Collection], NoteType]]] = []
     # add standard
     for (kind, func) in [
-        (StockNoteType.StockNoteTypeBasic, addBasicModel),
-        (StockNoteType.StockNoteTypeBasicTyping, addBasicTypingModel),
-        (StockNoteType.StockNoteTypeBasicAndReversed, addForwardReverse),
-        (StockNoteType.StockNoteTypeBasicOptionalReversed, addForwardOptionalReverse),
-        (StockNoteType.StockNoteTypeCloze, addClozeModel),
+        (StockNoteType.STOCK_NOTE_TYPE_BASIC, addBasicModel),
+        (StockNoteType.STOCK_NOTE_TYPE_BASIC_TYPING, addBasicTypingModel),
+        (StockNoteType.STOCK_NOTE_TYPE_BASIC_AND_REVERSED, addForwardReverse),
+        (
+            StockNoteType.STOCK_NOTE_TYPE_BASIC_OPTIONAL_REVERSED,
+            addForwardOptionalReverse,
+        ),
+        (StockNoteType.STOCK_NOTE_TYPE_CLOZE, addClozeModel),
     ]:
         m = col.backend.get_stock_notetype_legacy(kind)
         out.append((m["name"], func))
