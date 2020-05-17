@@ -154,8 +154,9 @@ impl Collection {
     }
 
     fn check_missing_deck_ids(&mut self, out: &mut CheckDatabaseOutput) -> Result<()> {
+        let usn = self.usn()?;
         for did in self.storage.missing_decks()? {
-            self.recover_missing_deck(did)?;
+            self.recover_missing_deck(did, usn)?;
             out.decks_missing += 1;
         }
         Ok(())

@@ -335,9 +335,9 @@ mod test {
 
         // simulate answering a card
         child_deck.common.new_studied = 1;
-        col.add_or_update_deck(&mut child_deck, false)?;
+        col.add_or_update_deck(&mut child_deck)?;
         parent_deck.common.new_studied = 1;
-        col.add_or_update_deck(&mut parent_deck, false)?;
+        col.add_or_update_deck(&mut parent_deck)?;
 
         // with the default limit of 20, there should still be 4 due
         let tree = col.deck_tree(true, None)?;

@@ -89,16 +89,6 @@ impl Deck {
         self.name.replace("\x1f", "::")
     }
 
-    pub(crate) fn prepare_for_update(&mut self) {
-        // fixme - we currently only do this when converting from human; should be done in pub methods instead
-
-        // if self.name.contains(invalid_char_for_deck_component) {
-        //     self.name = self.name.replace(invalid_char_for_deck_component, "");
-        // }
-        // ensure_string_in_nfc(&mut self.name);
-    }
-
-    // fixme: unify with prepare for update
     pub(crate) fn set_modified(&mut self, usn: Usn) {
         self.mtime_secs = TimestampSecs::now();
         self.usn = usn;
@@ -115,11 +105,11 @@ impl Deck {
     }
 }
 
-// fixme: need to bump usn on upgrade if we rename
 fn invalid_char_for_deck_component(c: char) -> bool {
     c.is_ascii_control() || c == '"'
 }
 
+// fixme: need to bump usn on upgrade if we rename
 fn normalized_deck_name_component(comp: &str) -> Cow<str> {
     let mut out = normalize_to_nfc(comp);
     if out.contains(invalid_char_for_deck_component) {
@@ -127,12 +117,26 @@ fn normalized_deck_name_component(comp: &str) -> Cow<str> {
     }
     let trimmed = out.trim();
     if trimmed.is_empty() {
-        "blank".into()
+        "blank".to_string().into()
     } else if trimmed.len() != out.len() {
-        // fixme: trimming leading/trailing spaces may break old clients if we don't bump mod
         trimmed.to_string().into()
     } else {
         out
+    }
+}
+
+fn normalize_native_name(name: &str) -> Cow<str> {
+    if name
+        .split('\x1f')
+        .any(|comp| matches!(normalized_deck_name_component(comp), Cow::Owned(_)))
+    {
+        name.split('\x1f')
+            .map(normalized_deck_name_component)
+            .collect::<String>()
+            .into()
+    } else {
+        // no changes required
+        name.into()
     }
 }
 
@@ -146,7 +150,6 @@ pub(crate) fn human_deck_name_to_native(name: &str) -> String {
 }
 
 impl Collection {
-    // fixme: this cache may belong in CardGenContext?
     pub(crate) fn get_deck(&mut self, did: DeckID) -> Result<Option<Arc<Deck>>> {
         if let Some(deck) = self.state.deck_cache.get(&did) {
             return Ok(Some(deck.clone()));
@@ -192,43 +195,52 @@ impl Collection {
         self.storage.deck_is_empty(DeckID(1))
     }
 
-    pub(crate) fn add_or_update_deck(&mut self, deck: &mut Deck, preserve_usn: bool) -> Result<()> {
-        // fixme: vet cache clearing
+    /// Normalize deck name and rename if not unique. Bumps mtime and usn if
+    /// deck was modified.
+    fn prepare_deck_for_update(&mut self, deck: &mut Deck, usn: Usn) -> Result<()> {
+        if let Cow::Owned(name) = normalize_native_name(&deck.name) {
+            deck.name = name;
+            deck.set_modified(usn);
+        }
+        self.ensure_deck_name_unique(deck, usn)
+    }
+
+    /// Add or update an existing deck modified by the user. May add parents,
+    /// or rename children as required.
+    pub(crate) fn add_or_update_deck(&mut self, deck: &mut Deck) -> Result<()> {
         self.state.deck_cache.clear();
 
         self.transact(None, |col| {
             let usn = col.usn()?;
 
-            deck.prepare_for_update();
-
-            // fixme: bail
-            assert!(!deck.name.contains("::"));
-
-            // fixme: check deck name is not duplicate
-            // handle blank deck name, etc
-
-            if !preserve_usn {
-                deck.set_modified(usn);
-            }
+            deck.set_modified(usn);
 
             if deck.id.0 == 0 {
+                col.prepare_deck_for_update(deck, usn)?;
                 col.match_or_create_parents(deck)?;
                 col.storage.add_deck(deck)
-            } else {
-                if let Some(existing_deck) = col.storage.get_deck(deck.id)? {
-                    if existing_deck.name != deck.name {
-                        return col.update_renamed_deck(existing_deck, deck, usn);
-                    }
+            } else if let Some(existing_deck) = col.storage.get_deck(deck.id)? {
+                if existing_deck.name != deck.name {
+                    col.update_renamed_deck(existing_deck, deck, usn)
                 } else {
-                    // fixme: this should only happen in the syncing case, and we should
-                    // ensure there are no missing parents at the end of the sync
+                    col.add_or_update_single_deck(deck, usn)
                 }
-                col.storage.update_deck(deck)
+            } else {
+                Err(AnkiError::invalid_input("updating non-existent deck"))
             }
         })
     }
 
-    fn ensure_deck_name_unique(&self, deck: &mut Deck) -> Result<()> {
+    /// Add/update a single deck when syncing/importing. Ensures name is unique
+    /// & normalized, but does not check parents/children or update mtime
+    /// (unless the name was changed). Caller must set up transaction.
+    pub(crate) fn add_or_update_single_deck(&mut self, deck: &mut Deck, usn: Usn) -> Result<()> {
+        self.state.deck_cache.clear();
+        self.prepare_deck_for_update(deck, usn)?;
+        self.storage.update_deck(deck)
+    }
+
+    fn ensure_deck_name_unique(&self, deck: &mut Deck, usn: Usn) -> Result<()> {
         loop {
             match self.storage.get_deck_id(&deck.name)? {
                 Some(did) if did == deck.id => {
@@ -238,20 +250,18 @@ impl Collection {
                 _ => (),
             }
             deck.name += "+";
+            deck.set_modified(usn);
         }
 
         Ok(())
     }
 
-    pub(crate) fn recover_missing_deck(&mut self, did: DeckID) -> Result<()> {
+    pub(crate) fn recover_missing_deck(&mut self, did: DeckID, usn: Usn) -> Result<()> {
         let mut deck = Deck::new_normal();
         deck.id = did;
         deck.name = format!("recovered{}", did);
-        self.ensure_deck_name_unique(&mut deck)?;
-        deck.prepare_for_update();
-        self.storage.update_deck(&deck)?;
-
-        Ok(())
+        deck.set_modified(usn);
+        self.add_or_update_single_deck(&mut deck, usn)
     }
 
     pub fn get_or_create_normal_deck(&mut self, human_name: &str) -> Result<Deck> {
@@ -261,26 +271,23 @@ impl Collection {
         } else {
             let mut deck = Deck::new_normal();
             deck.name = native_name;
-            self.add_or_update_deck(&mut deck, false)?;
+            self.add_or_update_deck(&mut deck)?;
             Ok(deck)
         }
     }
 
     fn update_renamed_deck(&mut self, existing: Deck, updated: &mut Deck, usn: Usn) -> Result<()> {
-        // new name should not conflict with a different deck
-        if let Some(other_did) = self.storage.get_deck_id(&updated.name)? {
-            if other_did != updated.id {
-                // fixme: this could break when syncing
-                return Err(AnkiError::Existing);
-            }
-        }
-
+        // match closest parent name
         self.match_or_create_parents(updated)?;
-        self.storage.update_deck(updated)?;
-        self.rename_child_decks(&existing, &updated.name, usn)
+        // rename children
+        self.rename_child_decks(&existing, &updated.name, usn)?;
+        // update deck
+        self.add_or_update_single_deck(updated, usn)?;
+        // after updating, we need to ensure all grandparents exist, which may not be the case
+        // in the parent->child case
+        self.create_missing_parents(&updated.name)
     }
 
-    // fixme: make sure this handles foo::bar and FOO::baz
     fn rename_child_decks(&mut self, old: &Deck, new_name: &str, usn: Usn) -> Result<()> {
         let children = self.storage.child_decks(old)?;
         let old_component_count = old.name.matches('\x1f').count() + 1;
@@ -372,6 +379,9 @@ impl Collection {
     }
 
     pub fn remove_deck_and_child_decks(&mut self, did: DeckID) -> Result<()> {
+        // fixme: vet cache clearing
+        self.state.deck_cache.clear();
+
         self.transact(None, |col| {
             let usn = col.usn()?;
 
@@ -400,9 +410,8 @@ impl Collection {
             let mut deck = deck.to_owned();
             // fixme: separate key
             deck.name = self.i18n.tr(TR::DeckConfigDefaultName).into();
-            self.ensure_deck_name_unique(&mut deck)?;
             deck.set_modified(usn);
-            self.storage.update_deck(&deck)?;
+            self.add_or_update_single_deck(&mut deck, usn)?;
         } else {
             self.storage.remove_deck(deck.id)?;
             self.storage.add_deck_grave(deck.id, usn)?;
@@ -525,11 +534,47 @@ mod test {
         let _ = col.get_or_create_normal_deck("foo::bar::baz")?;
         let mut top_deck = col.get_or_create_normal_deck("foo")?;
         top_deck.name = "other".into();
-        col.add_or_update_deck(&mut top_deck, false)?;
+        col.add_or_update_deck(&mut top_deck)?;
         assert_eq!(
             sorted_names(&col),
             vec!["Default", "other", "other::bar", "other::bar::baz"]
         );
+
+        // should do the right thing in the middle of the tree as well
+        let mut middle = col.get_or_create_normal_deck("other::bar")?;
+        middle.name = "quux\x1ffoo".into();
+        col.add_or_update_deck(&mut middle)?;
+        assert_eq!(
+            sorted_names(&col),
+            vec!["Default", "other", "quux", "quux::foo", "quux::foo::baz"]
+        );
+
+        // add another child
+        let _ = col.get_or_create_normal_deck("quux::foo::baz2");
+
+        // quux::foo -> quux::foo::baz::four
+        // means quux::foo::baz2 should be quux::foo::baz::four::baz2
+        // and a new quux::foo should have been created
+        middle.name = "quux\x1ffoo\x1fbaz\x1ffour".into();
+        col.add_or_update_deck(&mut middle)?;
+        assert_eq!(
+            sorted_names(&col),
+            vec![
+                "Default",
+                "other",
+                "quux",
+                "quux::foo",
+                "quux::foo::baz",
+                "quux::foo::baz::four",
+                "quux::foo::baz::four::baz",
+                "quux::foo::baz::four::baz2"
+            ]
+        );
+
+        // should handle name conflicts
+        middle.name = "other".into();
+        col.add_or_update_deck(&mut middle)?;
+        assert_eq!(middle.name, "other+");
 
         Ok(())
     }
@@ -542,7 +587,7 @@ mod test {
 
         let mut default = col.get_or_create_normal_deck("default")?;
         default.name = "one\x1ftwo".into();
-        col.add_or_update_deck(&mut default, false)?;
+        col.add_or_update_deck(&mut default)?;
 
         // create a non-default deck confusingly named "default"
         let _fake_default = col.get_or_create_normal_deck("default")?;

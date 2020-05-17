@@ -75,7 +75,7 @@ class DeckManager:
             self.update_config(g)
             return
         else:
-            self.update(g)
+            self.update(g, preserve_usn=False)
 
     # legacy
     def flush(self):
@@ -97,7 +97,7 @@ class DeckManager:
 
         deck = self.new_deck_legacy(bool(type))
         deck["name"] = name
-        self.update(deck)
+        self.update(deck, preserve_usn=False)
 
         # fixme
         hooks.deck_added(deck)
@@ -205,7 +205,7 @@ class DeckManager:
             return self.get_legacy(id)
         return None
 
-    def update(self, g: Dict[str, Any], preserve_usn=False) -> None:
+    def update(self, g: Dict[str, Any], preserve_usn=True) -> None:
         "Add or update an existing deck. Used for syncing and merging."
         try:
             self.col.backend.add_or_update_deck_legacy(g, preserve_usn)
@@ -217,11 +217,8 @@ class DeckManager:
     def rename(self, g: Dict[str, Any], newName: str) -> None:
         "Rename deck prefix to NAME if not exists. Updates children."
         g["name"] = newName
-        self.update(g)
+        self.update(g, preserve_usn=False)
         return
-
-        # fixme: ensure rename of b in a::b::c generates new b
-        # fixme: renaming may have altered active did order
 
     def renameForDragAndDrop(self, draggedDeckDid: int, ontoDeckDid: Any) -> None:
         draggedDeck = self.get(draggedDeckDid)
