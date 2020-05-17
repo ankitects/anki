@@ -238,7 +238,7 @@ impl Collection {
         // one note type exists
         if self.storage.get_all_notetype_names()?.is_empty() {
             let mut nt = all_stock_notetypes(&self.i18n).remove(0);
-            self.add_notetype_inner(&mut nt)?;
+            self.add_notetype_inner(&mut nt, usn)?;
         }
 
         if out.card_ords_duplicated > 0 || out.field_count_mismatch > 0 || out.templates_missing > 0
