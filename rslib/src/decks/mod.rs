@@ -109,7 +109,6 @@ fn invalid_char_for_deck_component(c: char) -> bool {
     c.is_ascii_control() || c == '"'
 }
 
-// fixme: need to bump usn on upgrade if we rename
 fn normalized_deck_name_component(comp: &str) -> Cow<str> {
     let mut out = normalize_to_nfc(comp);
     if out.contains(invalid_char_for_deck_component) {

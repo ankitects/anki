@@ -20,8 +20,6 @@ NoteType = Dict[str, Any]
 Field = Dict[str, Any]
 Template = Dict[str, Union[str, int, None]]
 
-# fixme: syncing
-
 
 class ModelsDictProxy:
     def __init__(self, col: anki.storage._Collection):
