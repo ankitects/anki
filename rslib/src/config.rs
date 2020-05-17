@@ -173,7 +173,6 @@ impl Collection {
         self.get_config_optional(ConfigKey::CurrentNoteTypeID)
     }
 
-    #[allow(dead_code)]
     pub(crate) fn set_current_notetype_id(&self, id: NoteTypeID) -> Result<()> {
         self.set_config(ConfigKey::CurrentNoteTypeID, &id)
     }
