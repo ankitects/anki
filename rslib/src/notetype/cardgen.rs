@@ -310,7 +310,7 @@ impl Collection {
         }
         let next_pos = cache.next_position.unwrap();
 
-        match cache.deck_configs.get(&did).unwrap().new.order {
+        match cache.deck_configs.get(&did).unwrap().inner.new_card_order() {
             crate::deckconf::NewCardOrder::Random => Ok(random_position(next_pos)),
             crate::deckconf::NewCardOrder::Due => Ok(next_pos),
         }

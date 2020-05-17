@@ -137,8 +137,12 @@ fn remaining_counts_for_deck(
                     .get(&DeckConfID(norm.config_id))
                     .or_else(|| dconf.get(&DeckConfID(1)))
                 {
-                    let new = (conf.new.per_day as i32).saturating_sub(new_today).max(0);
-                    let rev = (conf.rev.per_day as i32).saturating_sub(rev_today).max(0);
+                    let new = (conf.inner.new_per_day as i32)
+                        .saturating_sub(new_today)
+                        .max(0);
+                    let rev = (conf.inner.reviews_per_day as i32)
+                        .saturating_sub(rev_today)
+                        .max(0);
                     (new as u32, rev as u32)
                 } else {
                     // missing dconf and fallback
@@ -342,7 +346,7 @@ mod test {
 
         // set the limit to 4, which should mean 3 are left
         let mut conf = col.get_deck_config(DeckConfID(1), false)?.unwrap();
-        conf.new.per_day = 4;
+        conf.inner.new_per_day = 4;
         col.add_or_update_deck_config(&mut conf, false)?;
 
         let tree = col.deck_tree(true, None)?;

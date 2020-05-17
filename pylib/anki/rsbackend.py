@@ -730,7 +730,11 @@ class RustBackend:
 
     def deck_tree(self, include_counts: bool, top_deck_id: int = 0) -> DeckTreeNode:
         return self._run_command(
-            pb.BackendInput(deck_tree=pb.DeckTreeIn(include_counts=include_counts, top_deck_id=top_deck_id))
+            pb.BackendInput(
+                deck_tree=pb.DeckTreeIn(
+                    include_counts=include_counts, top_deck_id=top_deck_id
+                )
+            )
         ).deck_tree
 
     def check_database(self) -> List[str]:

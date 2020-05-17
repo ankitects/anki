@@ -11,7 +11,7 @@ use crate::{
     cloze::add_cloze_numbers_in_string,
     collection::{open_collection, Collection},
     config::SortKind,
-    deckconf::{DeckConf, DeckConfID},
+    deckconf::{DeckConf, DeckConfID, DeckConfSchema11},
     decks::{Deck, DeckID, DeckSchema11},
     err::{AnkiError, NetworkErrorKind, Result, SyncErrorKind},
     i18n::{tr_args, I18n, TR},
@@ -758,12 +758,14 @@ impl Backend {
     fn get_deck_config(&self, dcid: i64) -> Result<Vec<u8>> {
         self.with_col(|col| {
             let conf = col.get_deck_config(DeckConfID(dcid), true)?.unwrap();
+            let conf: DeckConfSchema11 = conf.into();
             Ok(serde_json::to_vec(&conf)?)
         })
     }
 
     fn add_or_update_deck_config(&self, input: AddOrUpdateDeckConfigIn) -> Result<i64> {
-        let mut conf: DeckConf = serde_json::from_slice(&input.config)?;
+        let conf: DeckConfSchema11 = serde_json::from_slice(&input.config)?;
+        let mut conf: DeckConf = conf.into();
         self.with_col(|col| {
             col.transact(None, |col| {
                 col.add_or_update_deck_config(&mut conf, input.preserve_usn_and_mtime)?;
@@ -773,11 +775,19 @@ impl Backend {
     }
 
     fn all_deck_config(&self) -> Result<Vec<u8>> {
-        self.with_col(|col| serde_json::to_vec(&col.storage.all_deck_config()?).map_err(Into::into))
+        self.with_col(|col| {
+            let conf: Vec<DeckConfSchema11> = col
+                .storage
+                .all_deck_config()?
+                .into_iter()
+                .map(Into::into)
+                .collect();
+            serde_json::to_vec(&conf).map_err(Into::into)
+        })
     }
 
     fn new_deck_config(&self) -> Result<Vec<u8>> {
-        serde_json::to_vec(&DeckConf::default()).map_err(Into::into)
+        serde_json::to_vec(&DeckConfSchema11::default()).map_err(Into::into)
     }
 
     fn remove_deck_config(&self, dcid: i64) -> Result<()> {
