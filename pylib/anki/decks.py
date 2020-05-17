@@ -63,9 +63,6 @@ class DeckManager:
     def __init__(self, col: anki.storage._Collection) -> None:
         self.col = col.weakref()
         self.decks = DecksDictProxy(col)
-        # do not access this directly!
-        # self._cache: Dict[int, ] = {}
-        #        self.decks = {}
 
     def save(self, g: Dict = None) -> None:
         "Can be called with either a deck or a deck configuration."
@@ -78,8 +75,6 @@ class DeckManager:
             self.update_config(g)
             return
         else:
-            # g["mod"] = intTime()
-            # g["usn"] = self.col.usn()
             self.update(g)
 
     # legacy
@@ -396,10 +391,9 @@ class DeckManager:
         grp["conf"] = id
         self.save(grp)
 
-    # fixme: expensive
     def didsForConf(self, conf) -> List:
         dids = []
-        for deck in list(self.decks.values()):
+        for deck in self.all():
             if "conf" in deck and deck["conf"] == conf["id"]:
                 dids.append(deck["id"])
         return dids
@@ -482,6 +476,9 @@ class DeckManager:
     # don't use this, it will likely go away
     def update_active(self):
         self.select(self.current()["id"])
+
+    # Parents/children
+    #############################################################
 
     def children(self, did: int) -> List[Tuple[Any, Any]]:
         "All children of did, as (name, id)."
