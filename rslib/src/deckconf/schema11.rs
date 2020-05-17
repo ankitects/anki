@@ -212,7 +212,11 @@ impl From<DeckConfSchema11> for DeckConf {
                 c.other.insert("lapse".into(), val);
             }
         }
-        let other_bytes = serde_json::to_vec(&c.other).unwrap_or_default();
+        let other_bytes = if c.other.is_empty() {
+            vec![]
+        } else {
+            serde_json::to_vec(&c.other).unwrap_or_default()
+        };
 
         DeckConf {
             id: c.id,
