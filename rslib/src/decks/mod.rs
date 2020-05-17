@@ -3,8 +3,8 @@
 
 use crate::backend_proto as pb;
 pub use crate::backend_proto::{
-    deck_kind::Kind as DeckKind, Deck as DeckProto, DeckCommon, DeckKind as DeckKindProto,
-    FilteredDeck, FilteredSearchOrder, FilteredSearchTerm, NormalDeck,
+    deck_kind::Kind as DeckKind, filtered_search_term::FilteredSearchOrder, Deck as DeckProto,
+    DeckCommon, DeckKind as DeckKindProto, FilteredDeck, FilteredSearchTerm, NormalDeck,
 };
 use crate::{
     card::CardID,
