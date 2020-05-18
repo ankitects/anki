@@ -106,7 +106,12 @@ fn v1_creation_date_inner(now: TimestampSecs, mins_west: i32) -> i64 {
 }
 
 pub(crate) fn v1_creation_date_adjusted_to_hour(crt: i64, hour: u8) -> i64 {
-    Local
+    let offset = fixed_offset_from_minutes(local_minutes_west_for_stamp(crt));
+    v1_creation_date_adjusted_to_hour_inner(crt, hour, offset)
+}
+
+fn v1_creation_date_adjusted_to_hour_inner(crt: i64, hour: u8, offset: FixedOffset) -> i64 {
+    offset
         .timestamp(crt, 0)
         .date()
         .and_hms(hour as u32, 0, 0)
@@ -386,8 +391,14 @@ mod test {
         );
 
         let crt = v1_creation_date_inner(now, AEST_MINS_WEST);
-        assert_eq!(crt, v1_creation_date_adjusted_to_hour(crt, 4));
-        assert_eq!(crt + 3600, v1_creation_date_adjusted_to_hour(crt, 5));
-        assert_eq!(crt - 3600 * 4, v1_creation_date_adjusted_to_hour(crt, 0));
+        assert_eq!(crt, v1_creation_date_adjusted_to_hour_inner(crt, 4, offset));
+        assert_eq!(
+            crt + 3600,
+            v1_creation_date_adjusted_to_hour_inner(crt, 5, offset)
+        );
+        assert_eq!(
+            crt - 3600 * 4,
+            v1_creation_date_adjusted_to_hour_inner(crt, 0, offset)
+        );
     }
 }
