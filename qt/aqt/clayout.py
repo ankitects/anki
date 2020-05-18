@@ -305,11 +305,10 @@ class CardLayout(QDialog):
         )
         self.preview_web.set_bridge_command(self._on_bridge_cmd, self)
 
-        # Enable the Javascript audio play only on the back-card to avoid double play
-        # https://anki.tenderapp.com/discussions/beta-testing/1858-can-you-pass-autoplay-policyno-user-gesture-required-to-chrome-engine
-        self.preview_web._page.settings().setAttribute(
-            QWebEngineSettings.PlaybackRequiresUserGesture, False  # type: ignore
-        )
+        if qtmajor == 5 and qtminor >= 11 or qtmajor > 5:
+            self.preview_web._page.settings().setAttribute(
+                QWebEngineSettings.PlaybackRequiresUserGesture, False  # type: ignore
+            )
 
         if self._isCloze():
             nums = self.note.cloze_numbers_in_fields()

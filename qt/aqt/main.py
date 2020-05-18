@@ -781,9 +781,8 @@ title="%s" %s>%s</button>""" % (
                 o._domReady = False
                 o._page.setContent(bytes("", "ascii"))
 
-        # Enable the Javascript audio auto play on the main web view
-        # https://anki.tenderapp.com/discussions/beta-testing/1858-can-you-pass-autoplay-policyno-user-gesture-required-to-chrome-engine
-        self.web._page.settings().setAttribute(QWebEngineSettings.PlaybackRequiresUserGesture, False)  # type: ignore
+        if qtmajor == 5 and qtminor >= 11 or qtmajor > 5:
+            self.web._page.settings().setAttribute(QWebEngineSettings.PlaybackRequiresUserGesture, False)  # type: ignore
 
     def closeAllWindows(self, onsuccess: Callable) -> None:
         aqt.dialogs.closeAll(onsuccess)
