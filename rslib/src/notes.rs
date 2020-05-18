@@ -387,7 +387,10 @@ impl Collection {
 #[cfg(test)]
 mod test {
     use super::{anki_base91, field_checksum};
-    use crate::{collection::open_test_collection, config::ConfigKey, decks::DeckID, err::Result};
+    use crate::{
+        collection::open_test_collection, config::ConfigKey, decks::DeckID, err::Result,
+        search::SortMode,
+    };
 
     #[test]
     fn test_base91() {
@@ -462,20 +465,15 @@ mod test {
         col.add_note(&mut note, DeckID(1))?;
         assert_eq!(note.fields[0], "\u{6f22}");
         // non-normalized searches should be converted
+        assert_eq!(col.search_cards("\u{fa47}", SortMode::NoOrder)?.len(), 1);
         assert_eq!(
-            col.search_cards("\u{fa47}", crate::search::SortMode::NoOrder)?
-                .len(),
+            col.search_cards("front:\u{fa47}", SortMode::NoOrder)?.len(),
             1
         );
-        assert_eq!(
-            col.search_cards("front:\u{fa47}", crate::search::SortMode::NoOrder)?
-                .len(),
-            1
-        );
-        col.remove_note_only(note.id, col.usn()?)?;
+        let cids = col.search_cards("", SortMode::NoOrder)?;
+        col.remove_cards_inner(&cids)?;
 
         // if normalization turned off, note text is entered as-is
-
         let mut note = nt.new_note();
         note.fields[0] = "\u{fa47}".into();
         col.set_config(ConfigKey::NormalizeNoteText, &false)
@@ -483,17 +481,9 @@ mod test {
         col.add_note(&mut note, DeckID(1))?;
         assert_eq!(note.fields[0], "\u{fa47}");
         // normalized searches won't match
-        assert_eq!(
-            col.search_cards("\u{6f22}", crate::search::SortMode::NoOrder)?
-                .len(),
-            0
-        );
+        assert_eq!(col.search_cards("\u{6f22}", SortMode::NoOrder)?.len(), 0);
         // but original characters will
-        assert_eq!(
-            col.search_cards("\u{fa47}", crate::search::SortMode::NoOrder)?
-                .len(),
-            1
-        );
+        assert_eq!(col.search_cards("\u{fa47}", SortMode::NoOrder)?.len(), 1);
 
         Ok(())
     }
