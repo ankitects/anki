@@ -123,9 +123,6 @@ jobs:
           echo "::set-env name=RSPY_TARGET_DIR::${GITHUB_WORKSPACE}/target"
           echo "::set-env name=CARGO_TARGET_DIR::${GITHUB_WORKSPACE}/target"
 
-          # https://anki.tenderapp.com/discussions/add-ons/44009-problems-with-code-completion
-          echo "::set-env name=ANKI_EXTRA_PIP::python -m pip install pyaudio"
-
       - name: Configure Mac OS environment variables
         if: matrix.os == 'macos-latest'
         run: |
@@ -143,9 +140,6 @@ jobs:
 
           # https://stackoverflow.com/questions/59644349/msgmerge-on-macos-catalina
           echo "::set-env name=PATH::/usr/local/opt/gettext/bin:$PATH"
-
-          # https://anki.tenderapp.com/discussions/add-ons/44009-problems-with-code-completion
-          echo "::set-env name=ANKI_EXTRA_PIP::python -m pip install pyaudio"
 
       - name: Configure Windows environment variables
         if: matrix.os == 'windows-latest'
@@ -189,7 +183,7 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}${{ matrix.SEP }}pyenv
-          key: ${{ runner.os }}-pyenv-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-15-
+          key: ${{ runner.os }}-pyenv-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-16-
 
       # # Disable it in attempt to reduce the overall cache size (https://github.com/ankitects/anki/pull/528)
       # - name: Cache pip wheels
@@ -197,42 +191,42 @@ jobs:
       #   uses: actions/cache@v1
       #   with:
       #     path: ${{ matrix.PIP_WHEELS_DIR }}
-      #     key: ${{ runner.os }}-pip-wheels-${{ hashFiles('**/requirements.txt') }}-${{ hashFiles('**/setup.py') }}-15-
+      #     key: ${{ runner.os }}-pip-wheels-${{ hashFiles('**/requirements.txt') }}-${{ hashFiles('**/setup.py') }}-16-
 
       - name: Cache cargo index
         if: matrix.python == '3.7'
         uses: actions/cache@v1
         with:
           path: ${{ matrix.CARGO_INDEX_DIR }}
-          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-15-
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-16-
 
       - name: Cache cargo registry
         if: matrix.python == '3.7'
         uses: actions/cache@v1
         with:
           path: ${{ matrix.CARGO_REGISTRY_DIR }}
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-15-
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-16-
 
       - name: Cache cargo target
         if: matrix.python == '3.7'
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}${{ matrix.SEP }}target
-          key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-${{ matrix.BUILD_TYPE }}-15-
+          key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-${{ matrix.BUILD_TYPE }}-16-
 
       - name: Cache cargo rslib
         if: matrix.python == '3.7'
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}${{ matrix.SEP }}rslib${{ matrix.SEP }}target
-          key: ${{ runner.os }}-cargo-rslib-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-${{ matrix.BUILD_TYPE }}-15-
+          key: ${{ runner.os }}-cargo-rslib-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-${{ matrix.BUILD_TYPE }}-16-
 
       - name: Cache cargo rspy
         if: matrix.python == '3.7'
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}${{ matrix.SEP }}rspy${{ matrix.SEP }}target
-          key: ${{ runner.os }}-cargo-rspy-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-${{ matrix.BUILD_TYPE }}-15-
+          key: ${{ runner.os }}-cargo-rspy-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-${{ matrix.BUILD_TYPE }}-16-
 
       - name: Cache pacman
         if: matrix.os == 'windows-latest'
@@ -240,7 +234,7 @@ jobs:
         id: cache-pacman
         with:
           path: C:\Program Files\Git
-          key: ${{ runner.os }}-pacman-${{ hashFiles('**/checks.yml') }}-15-
+          key: ${{ runner.os }}-pacman-${{ hashFiles('**/checks.yml') }}-16-
 
       - name: Set up pacman, rsync
         if: matrix.os == 'windows-latest' && steps.cache-pacman.outputs.cache-hit != 'true'

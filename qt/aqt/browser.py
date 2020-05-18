@@ -5,9 +5,7 @@
 from __future__ import annotations
 
 import html
-import sre_constants
 import time
-import unicodedata
 from dataclasses import dataclass
 from enum import Enum
 from operator import itemgetter
@@ -20,11 +18,10 @@ from anki import hooks
 from anki.cards import Card
 from anki.collection import _Collection
 from anki.consts import *
-from anki.decks import DeckManager
 from anki.lang import _, ngettext
 from anki.models import NoteType
 from anki.notes import Note
-from anki.rsbackend import TR
+from anki.rsbackend import TR, DeckTreeNode, InvalidInput
 from anki.utils import htmlToTextLine, ids2str, intTime, isMac, isWin
 from aqt import AnkiQt, gui_hooks
 from aqt.editor import Editor
@@ -205,7 +202,6 @@ class DataModel(QAbstractTableModel):
         self.cardObjs = {}
 
     def endReset(self):
-        t = time.time()
         self.endResetModel()
         self.restoreSelection()
         self.browser.mw.progress.finish()
@@ -775,7 +771,6 @@ class Browser(QMainWindow):
 
         # grab search text and normalize
         txt = self.form.searchEdit.lineEdit().text()
-        txt = unicodedata.normalize("NFC", txt)
 
         # update history
         sh = self.mw.pm.profile["searchHistory"]
@@ -1147,40 +1142,39 @@ QTableView {{ gridline-color: {grid} }}
             root.addChild(item)
 
     def _decksTree(self, root) -> None:
-        assert self.col
-        grps = self.col.sched.deckDueTree()
+        tree = self.col.decks.deck_tree()
 
-        def fillGroups(root, grps, head=""):
-            for g in grps:
-                baseName = g[0]
-                did = g[1]
-                children = g[5]
-                if str(did) == "1" and not children:
-                    if not self.mw.col.decks.should_default_be_displayed(
-                        force_default=False, assume_no_child=True
-                    ):
+        def fillGroups(root, nodes: Sequence[DeckTreeNode], head=""):
+            for node in nodes:
 
-                        continue
+                def set_filter():
+                    full_name = head + node.name  # pylint: disable=cell-var-from-loop
+                    return lambda: self.setFilter("deck", full_name)
+
+                def toggle_expand():
+                    did = node.deck_id  # pylint: disable=cell-var-from-loop
+                    return lambda _: self.mw.col.decks.collapseBrowser(did)
+
                 item = SidebarItem(
-                    baseName,
+                    node.name,
                     ":/icons/deck.svg",
-                    lambda baseName=baseName: self.setFilter("deck", head + baseName),
-                    lambda expanded, did=did: self.mw.col.decks.collapseBrowser(did),
-                    not self.mw.col.decks.get(did).get("browserCollapsed", False),
+                    set_filter(),
+                    toggle_expand(),
+                    not node.collapsed,
                 )
                 root.addChild(item)
-                newhead = head + baseName + "::"
-                fillGroups(item, children, newhead)
+                newhead = head + node.name + "::"
+                fillGroups(item, node.children, newhead)
 
-        fillGroups(root, grps)
+        fillGroups(root, tree.children)
 
     def _modelTree(self, root) -> None:
         assert self.col
-        for m in sorted(self.col.models.all(), key=itemgetter("name")):
+        for m in self.col.models.all_names_and_ids():
             item = SidebarItem(
-                m["name"],
+                m.name,
                 ":/icons/notetype.svg",
-                lambda m=m: self.setFilter("note", m["name"]),  # type: ignore
+                lambda m=m: self.setFilter("note", m.name),  # type: ignore
             )
             root.addChild(item)
 
@@ -1307,25 +1301,23 @@ QTableView {{ gridline-color: {grid} }}
         return m
 
     def _deckFilters(self):
-        def addDecks(parent, decks):
-            for head, did, rev, lrn, new, children in decks:
-                name = self.mw.col.decks.get(did)["name"]
-                shortname = DeckManager.basename(name)
-                if children:
-                    subm = parent.addMenu(shortname)
-                    subm.addItem(_("Filter"), self._filterFunc("deck", name))
+        def addDecks(parent, decks, parent_prefix):
+            for node in decks:
+                # pylint: disable=cell-var-from-loop
+                fullname = parent_prefix + node.name
+                if node.children:
+                    subm = parent.addMenu(node.name)
+                    subm.addItem(
+                        _("Filter"), lambda: self._filterFunc("deck", fullname)
+                    )
                     subm.addSeparator()
-                    addDecks(subm, children)
+                    addDecks(subm, node.children, fullname + "::")
                 else:
-                    if did != 1 or self.col.decks.should_default_be_displayed(
-                        force_default=False, assume_no_child=True
-                    ):
-                        parent.addItem(shortname, self._filterFunc("deck", name))
+                    parent.addItem(node.name, self._filterFunc("deck", fullname))
 
-        # fixme: could rewrite to avoid calculating due # in the future
-        alldecks = self.col.sched.deckDueTree()
+        alldecks = self.col.decks.deck_tree()
         ml = MenuList()
-        addDecks(ml, alldecks)
+        addDecks(ml, alldecks.children, "")
 
         root = SubMenu(_("Decks"))
         root.addChild(ml.chunked())
@@ -1887,7 +1879,6 @@ update cards set usn=?, mod=?, did=? where id in """
         gui_hooks.editor_did_fire_typing_timer.append(self.refreshCurrentCard)
         gui_hooks.editor_did_load_note.append(self.onLoadNote)
         gui_hooks.editor_did_unfocus_field.append(self.on_unfocus_field)
-        hooks.tag_list_did_update.append(self.on_tag_list_update)
         hooks.note_type_added.append(self.on_item_added)
         hooks.deck_added.append(self.on_item_added)
 
@@ -1897,7 +1888,6 @@ update cards set usn=?, mod=?, did=? where id in """
         gui_hooks.editor_did_fire_typing_timer.remove(self.refreshCurrentCard)
         gui_hooks.editor_did_load_note.remove(self.onLoadNote)
         gui_hooks.editor_did_unfocus_field.remove(self.on_unfocus_field)
-        hooks.tag_list_did_update.remove(self.on_tag_list_update)
         hooks.note_type_added.remove(self.on_item_added)
         hooks.deck_added.remove(self.on_item_added)
 
@@ -1922,13 +1912,21 @@ update cards set usn=?, mod=?, did=? where id in """
     def onFindReplace(self):
         self.editor.saveNow(self._onFindReplace)
 
-    def _onFindReplace(self):
-        sf = self.selectedNotes()
-        if not sf:
+    def _onFindReplace(self) -> None:
+        nids = self.selectedNotes()
+        if not nids:
             return
         import anki.find
 
-        fields = anki.find.fieldNamesForNotes(self.mw.col, sf)
+        def find():
+            return anki.find.fieldNamesForNotes(self.mw.col, nids)
+
+        def on_done(fut):
+            self._on_find_replace_diag(fut.result(), nids)
+
+        self.mw.taskman.with_progress(find, on_done, self)
+
+    def _on_find_replace_diag(self, fields: List[str], nids: List[int]) -> None:
         d = QDialog(self)
         frm = aqt.forms.findreplace.Ui_Dialog()
         frm.setupUi(d)
@@ -1944,34 +1942,40 @@ update cards set usn=?, mod=?, did=? where id in """
             field = None
         else:
             field = fields[frm.field.currentIndex() - 1]
+
+        search = frm.find.text()
+        replace = frm.replace.text()
+        regex = frm.re.isChecked()
+        nocase = frm.ignoreCase.isChecked()
+
         self.mw.checkpoint(_("Find and Replace"))
-        self.mw.progress.start()
+        # starts progress dialog as well
         self.model.beginReset()
-        try:
-            changed = self.col.findReplace(
-                sf,
-                str(frm.find.text()),
-                str(frm.replace.text()),
-                frm.re.isChecked(),
-                field,
-                frm.ignoreCase.isChecked(),
+
+        def do_search():
+            return self.col.find_and_replace(
+                nids, search, replace, regex, field, nocase
             )
-        except sre_constants.error:
-            showInfo(_("Invalid regular expression."), parent=self)
-            return
-        else:
+
+        def on_done(fut):
             self.search()
             self.mw.requireReset()
-        finally:
             self.model.endReset()
-            self.mw.progress.finish()
-        showInfo(
-            ngettext(
-                "%(a)d of %(b)d note updated", "%(a)d of %(b)d notes updated", len(sf)
+
+            total = len(nids)
+            try:
+                changed = fut.result()
+            except InvalidInput as e:
+                # failed regex
+                showWarning(str(e))
+                return
+
+            showInfo(
+                tr(TR.FINDREPLACE_NOTES_UPDATED, changed=changed, total=total),
+                parent=self,
             )
-            % {"a": changed, "b": len(sf),},
-            parent=self,
-        )
+
+        self.mw.taskman.run_in_background(do_search, on_done)
 
     def onFindReplaceHelp(self):
         openHelp("findreplace")

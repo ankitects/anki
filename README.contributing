@@ -10,27 +10,25 @@ not an easy task - the code is tightly coupled together, not fully covered
 by unit tests, and mostly dynamically typed, meaning even small changes
 carry the risk of regressions.
 
-So to start with, the primary focus is on changes that will make future
-maintenance and refactoring easier - improving tooling and linting, static
-type checking, more unit tests, and so on. Contributions that move the code in
-this direction or fix bugs would be appreciated.
+At the moment, the focus is on changes that will make future maintenance and
+refactoring easier - migrating parts of the codebase to Rust, improving tooling
+and linting, type hints in the Python code, and more unit tests.
 
-If you would like to add a new feature or alter existing functionality in the
-Python code, please reach out on the support site before you begin work, as
-some changes may be more appropriately done in an add-on instead.
+New features are not currently the top priority, unless they are easy wins as
+part of the refactoring process.
 
-Please hold off on large refactoring projects for now, as it risks introducing
-bugs, and many addons currently rely on certain variable/method names and
-type signatures. If you're working on an isolated part of the codebase
-covered by unit tests, then such changes may be accepted, but larger changes
-are less likely to be at this time.
+If you are planning to contribute any non-trivial changes, please reach out
+on the support site before you begin work. Some areas (primary pylib/) are
+likely to change/conflict with other work, and larger changes will likely need
+to wait until the refactoring process nears completion.
 
 Type hints
 -----------
 
-Type hints have recently been added to parts of the codebase, mainly using
-automated tools. At the moment, large parts of the codebase are still missing
-type hints, and some of the hints that do exist are incorrect or too general.
+Type hints have recently been added to parts of the Python codebase, mainly
+using automated tools. At the moment, large parts of the codebase are still
+missing type hints, and some of the hints that do exist are incorrect or too
+general.
 
 When running 'make check', Anki uses mypy to typecheck the code. Mypy only
 checks functions that have type signatures, so adding more type signatures to

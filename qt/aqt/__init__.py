@@ -33,8 +33,9 @@ appUpdate = "https://ankiweb.net/update/desktop"
 appHelpSite = HELP_SITE
 
 from aqt.main import AnkiQt  # isort:skip
-from aqt.profiles import ProfileManager  # isort:skip
+from aqt.profiles import ProfileManager, AnkiRestart  # isort:skip
 
+profiler = None
 mw: Optional[AnkiQt] = None  # set on init
 
 moduleDir = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
@@ -350,6 +351,15 @@ def setupGL(pm):
         os.environ["QT_OPENGL"] = mode
 
 
+PROFILE_CODE = os.environ.get("ANKI_PROFILE_CODE")
+
+
+def write_profile_results():
+    profiler.disable()
+    profiler.dump_stats("anki.prof")
+    print("profile stats written to anki.prof")
+
+
 def run():
     try:
         _run()
@@ -373,6 +383,7 @@ def _run(argv=None, exec=True):
     If no 'argv' is supplied then 'sys.argv' will be used.
     """
     global mw
+    global profiler
 
     if argv is None:
         argv = sys.argv
@@ -380,11 +391,21 @@ def _run(argv=None, exec=True):
     # parse args
     opts, args = parseArgs(argv)
 
+    if PROFILE_CODE:
+        import cProfile
+
+        profiler = cProfile.Profile()
+        profiler.enable()
+
     # profile manager
     pm = None
     try:
         pm = ProfileManager(opts.base)
         pmLoadResult = pm.setupMeta()
+    except AnkiRestart as error:
+        if error.exitcode:
+            sys.exit(error.exitcode)
+        return
     except:
         # will handle below
         traceback.print_exc()
@@ -494,3 +515,6 @@ environment points to a valid, writable folder.""",
         app.exec()
     else:
         return app
+
+    if PROFILE_CODE:
+        write_profile_results()

@@ -103,13 +103,9 @@ class DeckConf(QDialog):
             self.saveConf()
         conf = self.confList[idx]
         self.deck["conf"] = conf["id"]
+        self.mw.col.decks.save(self.deck)
         self.loadConf()
-        cnt = 0
-        for d in self.mw.col.decks.all():
-            if d["dyn"]:
-                continue
-            if d["conf"] == conf["id"]:
-                cnt += 1
+        cnt = len(self.mw.col.decks.didsForConf(conf))
         if cnt > 1:
             txt = _(
                 "Your changes will affect multiple decks. If you wish to "

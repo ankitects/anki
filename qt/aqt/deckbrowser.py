@@ -6,12 +6,11 @@ from __future__ import annotations
 
 from copy import deepcopy
 from dataclasses import dataclass
-from typing import Any
 
 import aqt
 from anki.errors import DeckRenameError
 from anki.lang import _, ngettext
-from anki.rsbackend import TR
+from anki.rsbackend import TR, DeckTreeNode
 from anki.utils import ids2str
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
@@ -39,8 +38,13 @@ class DeckBrowserContent:
     stats: str
 
 
+@dataclass
+class RenderDeckNodeContext:
+    current_deck_id: int
+
+
 class DeckBrowser:
-    _dueTree: Any
+    _dueTree: DeckTreeNode
 
     def __init__(self, mw: AnkiQt) -> None:
         self.mw = mw
@@ -83,7 +87,7 @@ class DeckBrowser:
             draggedDeckDid, ontoDeckDid = arg.split(",")
             self._dragDeckOnto(draggedDeckDid, ontoDeckDid)
         elif cmd == "collapse":
-            self._collapse(arg)
+            self._collapse(int(arg))
         return False
 
     def _selDeck(self, did):
@@ -106,7 +110,7 @@ class DeckBrowser:
 
     def _renderPage(self, reuse=False):
         if not reuse:
-            self._dueTree = self.mw.col.sched.deckDueTree()
+            self._dueTree = self.mw.col.sched.deck_due_tree()
             self.__renderPage(None)
             return
         self.web.evalWithCallback("window.pageYOffset", self.__renderPage)
@@ -143,61 +147,49 @@ where id > ?""",
         buf = self.mw.col.backend.studied_today(cards, float(thetime))
         return buf
 
-    def _renderDeckTree(self, nodes, depth=0):
-        if not nodes:
-            return ""
-        if depth == 0:
-            buf = """
+    def _renderDeckTree(self, top: DeckTreeNode) -> str:
+        buf = """
 <tr><th colspan=5 align=left>%s</th><th class=count>%s</th>
 <th class=count>%s</th><th class=optscol></th></tr>""" % (
-                _("Deck"),
-                tr(TR.STATISTICS_DUE_COUNT),
-                _("New"),
-            )
-            buf += self._topLevelDragRow()
-        else:
-            buf = ""
-        nameMap = self.mw.col.decks.nameMap()
-        for node in nodes:
-            buf += self._deckRow(node, depth, len(nodes), nameMap)
-        if depth == 0:
-            buf += self._topLevelDragRow()
+            _("Deck"),
+            tr(TR.STATISTICS_DUE_COUNT),
+            _("New"),
+        )
+        buf += self._topLevelDragRow()
+
+        ctx = RenderDeckNodeContext(current_deck_id=self.mw.col.conf["curDeck"])
+
+        for child in top.children:
+            buf += self._render_deck_node(child, ctx)
+
         return buf
 
-    def _deckRow(self, node, depth, cnt, nameMap):
-        name, did, due, lrn, new, children = node
-        deck = self.mw.col.decks.get(did)
-        if did == 1 and cnt > 1 and not children:
-            # if the default deck is empty, hide it
-            if not self.mw.col.db.scalar("select 1 from cards where did = 1"):
-                return ""
-        # parent toggled for collapsing
-        for parent in self.mw.col.decks.parents(did, nameMap):
-            if parent["collapsed"]:
-                buff = ""
-                return buff
-        prefix = "-"
-        if self.mw.col.decks.get(did)["collapsed"]:
+    def _render_deck_node(self, node: DeckTreeNode, ctx: RenderDeckNodeContext) -> str:
+        if node.collapsed:
             prefix = "+"
-        due += lrn
+        else:
+            prefix = "-"
+
+        due = node.review_count + node.learn_count
 
         def indent():
-            return "&nbsp;" * 6 * depth
+            return "&nbsp;" * 6 * (node.level - 1)
 
-        if did == self.mw.col.conf["curDeck"]:
+        if node.deck_id == ctx.current_deck_id:
             klass = "deck current"
         else:
             klass = "deck"
-        buf = "<tr class='%s' id='%d'>" % (klass, did)
+
+        buf = "<tr class='%s' id='%d'>" % (klass, node.deck_id)
         # deck link
-        if children:
+        if node.children:
             collapse = (
                 "<a class=collapse href=# onclick='return pycmd(\"collapse:%d\")'>%s</a>"
-                % (did, prefix)
+                % (node.deck_id, prefix)
             )
         else:
             collapse = "<span class=collapse></span>"
-        if deck["dyn"]:
+        if node.filtered:
             extraclass = "filtered"
         else:
             extraclass = ""
@@ -208,28 +200,28 @@ where id > ?""",
             indent(),
             collapse,
             extraclass,
-            did,
-            name,
+            node.deck_id,
+            node.name,
         )
         # due counts
         def nonzeroColour(cnt, klass):
             if not cnt:
                 klass = "zero-count"
-            if cnt >= 1000:
-                cnt = "1000+"
             return f'<span class="{klass}">{cnt}</span>'
 
         buf += "<td align=right>%s</td><td align=right>%s</td>" % (
             nonzeroColour(due, "review-count"),
-            nonzeroColour(new, "new-count"),
+            nonzeroColour(node.new_count, "new-count"),
         )
         # options
         buf += (
             "<td align=center class=opts><a onclick='return pycmd(\"opts:%d\");'>"
-            "<img src='/_anki/imgs/gears.svg' class=gears></a></td></tr>" % did
+            "<img src='/_anki/imgs/gears.svg' class=gears></a></td></tr>" % node.deck_id
         )
         # children
-        buf += self._renderDeckTree(children, depth + 1)
+        if not node.collapsed:
+            for child in node.children:
+                buf += self._render_deck_node(child, ctx)
         return buf
 
     def _topLevelDragRow(self):
@@ -274,8 +266,11 @@ where id > ?""",
         self.mw.col.decks.select(did)
         self.mw.onDeckConf()
 
-    def _collapse(self, did):
+    def _collapse(self, did: int) -> None:
         self.mw.col.decks.collapse(did)
+        node = self.mw.col.decks.find_deck_in_tree(self._dueTree, did)
+        if node:
+            node.collapsed = not node.collapsed
         self._renderPage(reuse=True)
 
     def _dragDeckOnto(self, draggedDeckDid, ontoDeckDid):

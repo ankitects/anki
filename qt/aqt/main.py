@@ -10,6 +10,7 @@ import os
 import re
 import signal
 import time
+import weakref
 import zipfile
 from argparse import Namespace
 from concurrent.futures import Future
@@ -35,6 +36,7 @@ from anki.storage import Collection
 from anki.utils import devMode, ids2str, intTime, isMac, isWin, splitFields
 from aqt import gui_hooks
 from aqt.addons import DownloadLogEntry, check_and_prompt_for_updates, show_log_to_user
+from aqt.emptycards import show_empty_cards
 from aqt.legacy import install_pylib_legacy
 from aqt.mediacheck import check_media_db
 from aqt.mediasync import MediaSyncer
@@ -53,7 +55,6 @@ from aqt.utils import (
     openLink,
     restoreGeom,
     restoreState,
-    saveGeom,
     showInfo,
     showText,
     showWarning,
@@ -88,7 +89,7 @@ class AnkiQt(QMainWindow):
         self.state = "startup"
         self.opts = opts
         self.col: Optional[_Collection] = None
-        self.taskman = TaskManager()
+        self.taskman = TaskManager(self)
         self.media_syncer = MediaSyncer(self)
         aqt.mw = self
         self.app = app
@@ -160,6 +161,10 @@ class AnkiQt(QMainWindow):
                 w.requiresCol = True
 
         self.setupProfile()
+
+    def weakref(self) -> AnkiQt:
+        "Shortcut to create a weak reference that doesn't break code completion."
+        return weakref.proxy(self)  # type: ignore
 
     # Profiles
     ##########################################################################
@@ -477,13 +482,11 @@ close the profile or restart Anki."""
                     tr(TR.ERRORS_UNABLE_OPEN_COLLECTION) + "\n" + traceback.format_exc()
                 )
             # clean up open collection if possible
-            if self.col:
-                try:
-                    self.col.close(save=False, downgrade=False)
-                except:
-                    pass
-                self.col = None
-
+            try:
+                self.backend.close_collection(False)
+            except Exception as e:
+                print("unable to close collection:", e)
+            self.col = None
             # return to profile manager
             self.hide()
             self.showProfileManager()
@@ -530,7 +533,7 @@ close the profile or restart Anki."""
         try:
             self.maybeOptimize()
             if not devMode:
-                corrupt = self.col.db.scalar("pragma integrity_check") != "ok"
+                corrupt = self.col.db.scalar("pragma quick_check") != "ok"
         except:
             corrupt = True
         try:
@@ -648,7 +651,6 @@ from the profile screen."
     def _overviewState(self, oldState: str) -> None:
         if not self._selectedDeck():
             return self.moveToState("deckBrowser")
-        self.col.reset()
         self.overview.show()
 
     def _reviewState(self, oldState):
@@ -1116,8 +1118,7 @@ title="%s" %s>%s</button>""" % (
         if not search:
             if not deck["dyn"]:
                 search = 'deck:"%s" ' % deck["name"]
-        decks = self.col.decks.allNames()
-        while _("Filtered Deck %d") % n in decks:
+        while self.col.decks.id_for_name(_("Filtered Deck %d") % n):
             n += 1
         name = _("Filtered Deck %d") % n
         did = self.col.decks.newDyn(name)
@@ -1283,7 +1284,9 @@ and if the problem comes up again, please ask on the support site."""
     # Schema modifications
     ##########################################################################
 
+    # this will gradually be phased out
     def onSchemaMod(self, arg):
+        assert self.inMainThread()
         progress_shown = self.progress.busy()
         if progress_shown:
             self.progress.finish()
@@ -1300,15 +1303,27 @@ will be lost. Continue?"""
             self.progress.start()
         return ret
 
+    # in favour of this
+    def confirm_schema_modification(self) -> bool:
+        """If schema unmodified, ask user to confirm change.
+        True if confirmed or already modified."""
+        if self.col.schemaChanged():
+            return True
+        return askUser(
+            _(
+                """\
+The requested change will require a full upload of the database when \
+you next synchronize your collection. If you have reviews or other changes \
+waiting on another device that haven't been synchronized here yet, they \
+will be lost. Continue?"""
+            )
+        )
+
     # Advanced features
     ##########################################################################
 
     def onCheckDB(self):
-        "True if no problems"
-        self.progress.start()
-
-        def onDone(future: Future):
-            self.progress.finish()
+        def on_done(future: Future):
             ret, ok = future.result()
 
             if not ok:
@@ -1319,15 +1334,17 @@ will be lost. Continue?"""
             # if an error has directed the user to check the database,
             # silently clean up any broken reset hooks which distract from
             # the underlying issue
-            while True:
+            n = 0
+            while n < 10:
                 try:
                     self.reset()
                     break
                 except Exception as e:
                     print("swallowed exception in reset hook:", e)
+                    n += 1
                     continue
 
-        self.taskman.run_in_background(self.col.fixIntegrity, onDone)
+        self.taskman.with_progress(self.col.fixIntegrity, on_done)
 
     def on_check_media_db(self) -> None:
         check_media_db(self)
@@ -1340,34 +1357,8 @@ will be lost. Continue?"""
             self.col.decks.select(self.col.decks.id(ret.name))
             self.moveToState("overview")
 
-    def onEmptyCards(self):
-        self.progress.start(immediate=True)
-        cids = self.col.emptyCids()
-        cids = gui_hooks.empty_cards_will_be_deleted(cids)
-        if not cids:
-            self.progress.finish()
-            tooltip(_("No empty cards."))
-            return
-        report = self.col.emptyCardReport(cids)
-        self.progress.finish()
-        part1 = ngettext("%d card", "%d cards", len(cids)) % len(cids)
-        part1 = _("%s to delete:") % part1
-        diag, box = showText(part1 + "\n\n" + report, run=False, geomKey="emptyCards")
-        box.addButton(_("Delete Cards"), QDialogButtonBox.AcceptRole)
-        box.button(QDialogButtonBox.Close).setDefault(True)
-
-        def onDelete():
-            saveGeom(diag, "emptyCards")
-            QDialog.accept(diag)
-            self.checkpoint(_("Delete Empty"))
-            self.col.remCards(cids)
-            tooltip(
-                ngettext("%d card deleted.", "%d cards deleted.", len(cids)) % len(cids)
-            )
-            self.reset()
-
-        qconnect(box.accepted, onDelete)
-        diag.show()
+    def onEmptyCards(self) -> None:
+        show_empty_cards(self)
 
     # Debugging
     ######################################################################
@@ -1446,7 +1437,6 @@ will be lost. Continue?"""
         print("\n")
         del note.fields
         del note._fmap
-        del note._model
         pprint.pprint(note.__dict__)
 
         print("\nCard:")

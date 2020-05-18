@@ -332,7 +332,7 @@ def test_reviews():
     # but because it's in the learn queue, its current due time should be in
     # the future
     assert c.due >= time.time()
-    assert (c.due - time.time()) > 119
+    assert (c.due - time.time()) > 118
     # factor should have been decremented
     assert c.factor == 2300
     # check counters
@@ -620,7 +620,7 @@ def test_cram():
     d.sched.rebuildDyn(did)
     d.reset()
     # should appear as new in the deck list
-    assert sorted(d.sched.deckDueList())[0][4] == 1
+    assert sorted(d.sched.deck_due_tree().children)[0].new_count == 1
     # and should appear in the counts
     assert d.sched.counts() == (1, 0, 0)
     # grab it and check estimates
@@ -630,6 +630,7 @@ def test_cram():
     assert d.sched.nextIvl(c, 2) == 138 * 60 * 60 * 24
     cram = d.decks.get(did)
     cram["delays"] = [1, 10]
+    d.decks.save(cram)
     assert d.sched.answerButtons(c) == 3
     assert d.sched.nextIvl(c, 1) == 60
     assert d.sched.nextIvl(c, 2) == 600
@@ -673,7 +674,7 @@ def test_cram():
     assert d.sched.nextIvl(c, 3) == 86400
     # delete the deck, returning the card mid-study
     d.decks.rem(d.decks.selected())
-    assert len(d.sched.deckDueList()) == 1
+    assert len(d.sched.deck_due_tree().children) == 1
     c.load()
     assert c.ivl == 1
     assert c.due == d.sched.today + 1
@@ -739,6 +740,7 @@ def test_cram_resched():
     did = d.decks.newDyn("Cram")
     cram = d.decks.get(did)
     cram["resched"] = False
+    d.decks.save(cram)
     d.sched.rebuildDyn(did)
     d.reset()
     # graduate should return it to new
@@ -1017,39 +1019,23 @@ def test_deckDue():
     foobaz = f.model()["did"] = d.decks.id("foo::baz")
     d.addNote(f)
     d.reset()
-    assert len(d.decks.decks) == 5
-    cnts = d.sched.deckDueList()
-    assert cnts[0] == ["Default", 1, 0, 0, 1]
-    assert cnts[1] == ["Default::1", default1, 1, 0, 0]
-    assert cnts[2] == ["foo", d.decks.id("foo"), 0, 0, 0]
-    assert cnts[3] == ["foo::bar", foobar, 0, 0, 1]
-    assert cnts[4] == ["foo::baz", foobaz, 0, 0, 1]
-    tree = d.sched.deckDueTree()
-    assert tree[0][0] == "Default"
+    assert len(d.decks.all_names_and_ids()) == 5
+    tree = d.sched.deck_due_tree().children
+    assert tree[0].name == "Default"
     # sum of child and parent
-    assert tree[0][1] == 1
-    assert tree[0][2] == 1
-    assert tree[0][4] == 1
+    assert tree[0].deck_id == 1
+    assert tree[0].review_count == 1
+    assert tree[0].new_count == 1
     # child count is just review
-    assert tree[0][5][0][0] == "1"
-    assert tree[0][5][0][1] == default1
-    assert tree[0][5][0][2] == 1
-    assert tree[0][5][0][4] == 0
+    child = tree[0].children[0]
+    assert child.name == "1"
+    assert child.deck_id == default1
+    assert child.review_count == 1
+    assert child.new_count == 0
     # code should not fail if a card has an invalid deck
     c.did = 12345
     c.flush()
-    d.sched.deckDueList()
-    d.sched.deckDueTree()
-
-
-def test_deckTree():
-    d = getEmptyCol()
-    d.decks.id("new::b::c")
-    d.decks.id("new2")
-    # new should not appear twice in tree
-    names = [x[0] for x in d.sched.deckDueTree()]
-    names.remove("new")
-    assert "new" not in names
+    d.sched.deck_due_tree()
 
 
 def test_deckFlow():

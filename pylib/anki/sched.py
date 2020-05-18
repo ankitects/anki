@@ -3,18 +3,15 @@
 
 from __future__ import annotations
 
-import itertools
 import random
 import time
 from heapq import *
-from operator import itemgetter
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import anki
 from anki import hooks
 from anki.cards import Card
 from anki.consts import *
-from anki.decks import DeckManager
 from anki.schedv2 import Scheduler as V2
 from anki.utils import ids2str, intTime
 
@@ -116,7 +113,6 @@ class Scheduler(V2):
 
     def unburyCards(self) -> None:
         "Unbury cards."
-        self.col.conf["lastUnburied"] = self.today
         self.col.log(
             self.col.db.list(
                 f"select id from cards where queue = {QUEUE_TYPE_SIBLING_BURIED}"
@@ -140,77 +136,6 @@ class Scheduler(V2):
             intTime(),
             self.col.usn(),
         )
-
-    # Deck list
-    ##########################################################################
-
-    def deckDueList(self) -> List[List[Any]]:
-        "Returns [deckname, did, rev, lrn, new]"
-        self._checkDay()
-        self.col.decks.checkIntegrity()
-        decks = self.col.decks.all()
-        decks.sort(key=itemgetter("name"))
-        lims: Dict[str, List[int]] = {}
-        data = []
-
-        for deck in decks:
-            p = DeckManager.immediate_parent(deck["name"])
-            # new
-            nlim = self._deckNewLimitSingle(deck)
-            if p is not None:
-                nlim = min(nlim, lims[p][0])
-            new = self._newForDeck(deck["id"], nlim)
-            # learning
-            lrn = self._lrnForDeck(deck["id"])
-            # reviews
-            rlim = self._deckRevLimitSingle(deck)
-            if p:
-                rlim = min(rlim, lims[p][1])
-            rev = self._revForDeck(deck["id"], rlim)
-            # save to list
-            data.append([deck["name"], deck["id"], rev, lrn, new])
-            # add deck as a parent
-            lims[deck["name"]] = [nlim, rlim]
-        return data
-
-    def _groupChildrenMain(self, grps: List[List[Any]]) -> Any:
-        tree = []
-        # group and recurse
-        def key(grp):
-            return grp[0][0]
-
-        for (head, tail) in itertools.groupby(grps, key=key):
-            tail = list(tail)  # type: ignore
-            did = None
-            rev = 0
-            new = 0
-            lrn = 0
-            children = []
-            for c in tail:
-                if len(c[0]) == 1:
-                    # current node
-                    did = c[1]
-                    rev += c[2]
-                    lrn += c[3]
-                    new += c[4]
-                else:
-                    # set new string to tail
-                    c[0] = c[0][1:]
-                    children.append(c)
-            children = self._groupChildrenMain(children)
-            # tally up children counts
-            for ch in children:
-                rev += ch[2]
-                lrn += ch[3]
-                new += ch[4]
-            # limit the counts to the deck's limits
-            conf = self.col.decks.confForDid(did)
-            deck = self.col.decks.get(did)
-            if not conf["dyn"]:
-                rev = max(0, min(rev, conf["rev"]["perDay"] - deck["revToday"][1]))
-                new = max(0, min(new, self._deckNewLimitSingle(deck)))
-            tree.append((head, did, rev, lrn, new, children))
-        return tuple(tree)
 
     # Getting the next card
     ##########################################################################
@@ -469,7 +394,9 @@ limit %d"""
         else:
             # benchmarks indicate it's about 10x faster to search all decks
             # with the index than scan the table
-            extra = " and did in " + ids2str(self.col.decks.allIds())
+            extra = " and did in " + ids2str(
+                d.id for d in self.col.decks.all_names_and_ids()
+            )
         # review cards in relearning
         self.col.db.execute(
             f"""
@@ -520,7 +447,7 @@ and due <= ? limit ?)""",
         if d["dyn"]:
             return self.reportLimit
         c = self.col.decks.confForDid(d["id"])
-        limit = max(0, c["rev"]["perDay"] - d["revToday"][1])
+        limit = max(0, c["rev"]["perDay"] - self._update_stats(d, "rev", 0))
         return hooks.scheduler_review_limit_for_single_deck(limit, d)
 
     def _revForDeck(self, did: int, lim: int) -> int:  # type: ignore[override]
@@ -535,25 +462,12 @@ and due <= ? limit ?)""",
             lim,
         )
 
-    def _resetRevCount(self) -> None:
-        def cntFn(did, lim):
-            return self.col.db.scalar(
-                f"""
-select count() from (select id from cards where
-did = ? and queue = {QUEUE_TYPE_REV} and due <= ? limit %d)"""
-                % lim,
-                did,
-                self.today,
-            )
-
-        self.revCount = self._walkingCount(self._deckRevLimitSingle, cntFn)
-
     def _resetRev(self) -> None:
-        self._resetRevCount()
         self._revQueue: List[Any] = []
         self._revDids = self.col.decks.active()[:]
 
-    def _fillRev(self) -> Optional[bool]:
+    def _fillRev(self, recursing=False) -> bool:
+        "True if a review card can be fetched."
         if self._revQueue:
             return True
         if not self.revCount:
@@ -587,14 +501,15 @@ did = ? and queue = {QUEUE_TYPE_REV} and due <= ? limit ?""",
                     return True
             # nothing left in the deck; move to next
             self._revDids.pop(0)
-        if self.revCount:
-            # if we didn't get a card but the count is non-zero,
-            # we need to check again for any cards that were
-            # removed from the queue but not buried
-            self._resetRev()
-            return self._fillRev()
 
-        return None
+        # if we didn't get a card but the count is non-zero,
+        # we need to check again for any cards that were
+        # removed from the queue but not buried
+        if recursing:
+            print("bug: fillRev()")
+            return False
+        self._resetRev()
+        return self._fillRev(recursing=True)
 
     # Answering a review card
     ##########################################################################
@@ -856,31 +771,6 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?"""
         if not conf["dyn"]:
             return True
         return conf["resched"]
-
-    # Daily cutoff
-    ##########################################################################
-
-    def _updateCutoff(self) -> None:
-        oldToday = self.today
-        timing = self._timing_today()
-        self.today = timing.days_elapsed
-        self.dayCutoff = timing.next_day_at
-        if oldToday != self.today:
-            self.col.log(self.today, self.dayCutoff)
-        # update all daily counts, but don't save decks to prevent needless
-        # conflicts. we'll save on card answer instead
-        def update(g):
-            for t in "new", "rev", "lrn", "time":
-                key = t + "Today"
-                if g[key][0] != self.today:
-                    g[key] = [self.today, 0]
-
-        for deck in self.col.decks.all():
-            update(deck)
-        # unbury if the day has rolled over
-        unburied = self.col.conf.get("lastUnburied", 0)
-        if unburied < self.today:
-            self.unburyCards()
 
     # Deck finished state
     ##########################################################################

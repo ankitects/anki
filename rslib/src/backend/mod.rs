@@ -8,10 +8,11 @@ use crate::{
     backend_proto::{AddOrUpdateDeckConfigIn, Empty, RenderedTemplateReplacement, SyncMediaIn},
     card::{Card, CardID},
     card::{CardQueue, CardType},
+    cloze::add_cloze_numbers_in_string,
     collection::{open_collection, Collection},
     config::SortKind,
-    deckconf::{DeckConf, DeckConfID},
-    decks::{Deck, DeckID},
+    deckconf::{DeckConf, DeckConfID, DeckConfSchema11},
+    decks::{Deck, DeckID, DeckSchema11},
     err::{AnkiError, NetworkErrorKind, Result, SyncErrorKind},
     i18n::{tr_args, I18n, TR},
     latex::{extract_latex, extract_latex_expanding_clozes, ExtractedLatex},
@@ -20,15 +21,15 @@ use crate::{
     media::check::MediaChecker,
     media::sync::MediaSyncProgress,
     media::MediaManager,
-    notes::NoteID,
-    notetype::{NoteType, NoteTypeID},
-    sched::cutoff::{local_minutes_west_for_stamp, sched_timing_today},
-    sched::timespan::{answer_button_time, learning_congrats, studied_today, time_span},
-    search::{search_cards, search_notes, SortMode},
-    template::{
-        render_card, without_legacy_template_directives, FieldMap, FieldRequirements,
-        ParsedTemplate, RenderedNode,
+    notes::{Note, NoteID},
+    notetype::{
+        all_stock_notetypes, CardTemplateSchema11, NoteType, NoteTypeID, NoteTypeSchema11,
+        RenderCardOutput,
     },
+    sched::cutoff::local_minutes_west_for_stamp,
+    sched::timespan::{answer_button_time, learning_congrats, studied_today, time_span},
+    search::SortMode,
+    template::RenderedNode,
     text::{extract_av_tags, strip_av_tags, AVTag},
     timestamp::TimestampSecs,
     types::Usn,
@@ -78,8 +79,11 @@ fn anki_error_to_proto_error(err: AnkiError, i18n: &I18n) -> pb::BackendError {
         AnkiError::Interrupted => V::Interrupted(Empty {}),
         AnkiError::CollectionNotOpen => V::InvalidInput(pb::Empty {}),
         AnkiError::CollectionAlreadyOpen => V::InvalidInput(pb::Empty {}),
-        AnkiError::SchemaChange => V::InvalidInput(pb::Empty {}),
         AnkiError::JSONError { info } => V::JsonError(info),
+        AnkiError::ProtoError { info } => V::ProtoError(info),
+        AnkiError::NotFound => V::NotFoundError(Empty {}),
+        AnkiError::Existing => V::Exists(Empty {}),
+        AnkiError::DeckIsFiltered => V::DeckIsFiltered(Empty {}),
     };
 
     pb::BackendError {
@@ -214,14 +218,8 @@ impl Backend {
     ) -> Result<pb::backend_output::Value> {
         use pb::backend_output::Value as OValue;
         Ok(match ival {
-            Value::TemplateRequirements(input) => {
-                OValue::TemplateRequirements(self.template_requirements(input)?)
-            }
-            Value::SchedTimingToday(input) => {
-                OValue::SchedTimingToday(self.sched_timing_today(input))
-            }
-            Value::DeckTree(_) => todo!(),
-            Value::RenderCard(input) => OValue::RenderCard(self.render_template(input)?),
+            Value::SchedTimingToday(_) => OValue::SchedTimingToday(self.sched_timing_today()?),
+            Value::DeckTree(input) => OValue::DeckTree(self.deck_tree(input)?),
             Value::LocalMinutesWest(stamp) => {
                 OValue::LocalMinutesWest(local_minutes_west_for_stamp(stamp))
             }
@@ -292,7 +290,6 @@ impl Backend {
                 self.before_upload()?;
                 OValue::BeforeUpload(pb::Empty {})
             }
-            Value::CanonifyTags(input) => OValue::CanonifyTags(self.canonify_tags(input)?),
             Value::AllTags(_) => OValue::AllTags(self.all_tags()?),
             Value::RegisterTags(input) => OValue::RegisterTags(self.register_tags(input)?),
             Value::GetChangedTags(usn) => OValue::GetChangedTags(self.get_changed_tags(usn)?),
@@ -307,15 +304,83 @@ impl Backend {
                 pb::Empty {}
             }),
             Value::GetAllConfig(_) => OValue::GetAllConfig(self.get_all_config()?),
-            Value::GetAllNotetypes(_) => OValue::GetAllNotetypes(self.get_all_notetypes()?),
-            Value::SetAllNotetypes(bytes) => {
-                self.set_all_notetypes(&bytes)?;
-                OValue::SetAllNotetypes(pb::Empty {})
+            Value::GetChangedNotetypes(_) => {
+                OValue::GetChangedNotetypes(self.get_changed_notetypes()?)
             }
             Value::GetAllDecks(_) => OValue::GetAllDecks(self.get_all_decks()?),
-            Value::SetAllDecks(bytes) => {
-                self.set_all_decks(&bytes)?;
-                OValue::SetAllDecks(pb::Empty {})
+            Value::GetStockNotetypeLegacy(kind) => {
+                OValue::GetStockNotetypeLegacy(self.get_stock_notetype_legacy(kind)?)
+            }
+            Value::GetNotetypeLegacy(id) => {
+                OValue::GetNotetypeLegacy(self.get_notetype_legacy(id)?)
+            }
+            Value::GetNotetypeNames(_) => OValue::GetNotetypeNames(self.get_notetype_names()?),
+            Value::GetNotetypeNamesAndCounts(_) => {
+                OValue::GetNotetypeNamesAndCounts(self.get_notetype_use_counts()?)
+            }
+
+            Value::GetNotetypeIdByName(name) => {
+                OValue::GetNotetypeIdByName(self.get_notetype_id_by_name(name)?)
+            }
+            Value::AddOrUpdateNotetype(input) => {
+                OValue::AddOrUpdateNotetype(self.add_or_update_notetype_legacy(input)?)
+            }
+            Value::RemoveNotetype(id) => {
+                self.remove_notetype(id)?;
+                OValue::RemoveNotetype(pb::Empty {})
+            }
+            Value::NewNote(ntid) => OValue::NewNote(self.new_note(ntid)?),
+            Value::AddNote(input) => OValue::AddNote(self.add_note(input)?),
+            Value::UpdateNote(note) => {
+                self.update_note(note)?;
+                OValue::UpdateNote(pb::Empty {})
+            }
+            Value::GetNote(nid) => OValue::GetNote(self.get_note(nid)?),
+            Value::GetEmptyCards(_) => OValue::GetEmptyCards(self.get_empty_cards()?),
+            Value::GetDeckLegacy(did) => OValue::GetDeckLegacy(self.get_deck_legacy(did)?),
+            Value::GetDeckIdByName(name) => {
+                OValue::GetDeckIdByName(self.get_deck_id_by_name(&name)?)
+            }
+            Value::GetDeckNames(input) => OValue::GetDeckNames(self.get_deck_names(input)?),
+            Value::AddOrUpdateDeckLegacy(input) => {
+                OValue::AddOrUpdateDeckLegacy(self.add_or_update_deck_legacy(input)?)
+            }
+            Value::NewDeckLegacy(filtered) => {
+                OValue::NewDeckLegacy(self.new_deck_legacy(filtered)?)
+            }
+
+            Value::RemoveDeck(did) => OValue::RemoveDeck({
+                self.remove_deck(did)?;
+                pb::Empty {}
+            }),
+            Value::CheckDatabase(_) => OValue::CheckDatabase(self.check_database()?),
+            Value::DeckTreeLegacy(_) => OValue::DeckTreeLegacy(self.deck_tree_legacy()?),
+            Value::FieldNamesForNotes(input) => {
+                OValue::FieldNamesForNotes(self.field_names_for_notes(input)?)
+            }
+            Value::FindAndReplace(input) => OValue::FindAndReplace(self.find_and_replace(input)?),
+            Value::AfterNoteUpdates(input) => {
+                OValue::AfterNoteUpdates(self.after_note_updates(input)?)
+            }
+            Value::AddNoteTags(input) => OValue::AddNoteTags(self.add_note_tags(input)?),
+            Value::UpdateNoteTags(input) => OValue::UpdateNoteTags(self.update_note_tags(input)?),
+            Value::SetLocalMinutesWest(mins) => OValue::SetLocalMinutesWest({
+                self.set_local_mins_west(mins)?;
+                pb::Empty {}
+            }),
+            Value::GetPreferences(_) => OValue::GetPreferences(self.get_preferences()?),
+            Value::SetPreferences(prefs) => OValue::SetPreferences({
+                self.set_preferences(prefs)?;
+                pb::Empty {}
+            }),
+            Value::RenderExistingCard(input) => {
+                OValue::RenderExistingCard(self.render_existing_card(input)?)
+            }
+            Value::RenderUncommittedCard(input) => {
+                OValue::RenderUncommittedCard(self.render_uncommitted_card(input)?)
+            }
+            Value::ClozeNumbersInNote(note) => {
+                OValue::ClozeNumbersInNote(self.cloze_numbers_in_note(note))
             }
         })
     }
@@ -383,82 +448,41 @@ impl Backend {
         self.progress_callback = progress_cb;
     }
 
-    fn template_requirements(
-        &self,
-        input: pb::TemplateRequirementsIn,
-    ) -> Result<pb::TemplateRequirementsOut> {
-        let map: FieldMap = input
-            .field_names_to_ordinals
-            .iter()
-            .map(|(name, ord)| (name.as_str(), *ord as u16))
-            .collect();
-        // map each provided template into a requirements list
-        use crate::backend_proto::template_requirement::Value;
-        let all_reqs = input
-            .template_front
-            .into_iter()
-            .map(|template| {
-                let normalized = without_legacy_template_directives(&template);
-                if let Ok(tmpl) = ParsedTemplate::from_text(normalized.as_ref()) {
-                    // convert the rust structure into a protobuf one
-                    let val = match tmpl.requirements(&map) {
-                        FieldRequirements::Any(ords) => Value::Any(pb::TemplateRequirementAny {
-                            ords: ords_hash_to_set(ords),
-                        }),
-                        FieldRequirements::All(ords) => Value::All(pb::TemplateRequirementAll {
-                            ords: ords_hash_to_set(ords),
-                        }),
-                        FieldRequirements::None => Value::None(pb::Empty {}),
-                    };
-                    Ok(pb::TemplateRequirement { value: Some(val) })
-                } else {
-                    // template parsing failures make card unsatisfiable
-                    Ok(pb::TemplateRequirement {
-                        value: Some(Value::None(pb::Empty {})),
-                    })
-                }
-            })
-            .collect::<Result<Vec<_>>>()?;
-        Ok(pb::TemplateRequirementsOut {
-            requirements: all_reqs,
+    fn sched_timing_today(&self) -> Result<pb::SchedTimingTodayOut> {
+        self.with_col(|col| col.timing_today().map(Into::into))
+    }
+
+    fn deck_tree(&self, input: pb::DeckTreeIn) -> Result<pb::DeckTreeNode> {
+        let lim = if input.top_deck_id > 0 {
+            Some(DeckID(input.top_deck_id))
+        } else {
+            None
+        };
+        self.with_col(|col| col.deck_tree(input.include_counts, lim))
+    }
+
+    fn render_existing_card(&self, input: pb::RenderExistingCardIn) -> Result<pb::RenderCardOut> {
+        self.with_col(|col| {
+            col.render_existing_card(CardID(input.card_id), input.browser)
+                .map(Into::into)
         })
     }
 
-    fn sched_timing_today(&self, input: pb::SchedTimingTodayIn) -> pb::SchedTimingTodayOut {
-        let today = sched_timing_today(
-            TimestampSecs(input.created_secs),
-            TimestampSecs(input.now_secs),
-            input.created_mins_west.map(|v| v.val),
-            input.now_mins_west.map(|v| v.val),
-            input.rollover_hour.map(|v| v.val as i8),
-        );
-        pb::SchedTimingTodayOut {
-            days_elapsed: today.days_elapsed,
-            next_day_at: today.next_day_at,
-        }
-    }
-
-    fn render_template(&self, input: pb::RenderCardIn) -> Result<pb::RenderCardOut> {
-        // convert string map to &str
-        let fields: HashMap<_, _> = input
-            .fields
-            .iter()
-            .map(|(k, v)| (k.as_ref(), v.as_ref()))
-            .collect();
-
-        // render
-        let (qnodes, anodes) = render_card(
-            &input.question_template,
-            &input.answer_template,
-            &fields,
-            input.card_ordinal as u16,
-            &self.i18n,
-        )?;
-
-        // return
-        Ok(pb::RenderCardOut {
-            question_nodes: rendered_nodes_to_proto(qnodes),
-            answer_nodes: rendered_nodes_to_proto(anodes),
+    fn render_uncommitted_card(
+        &self,
+        input: pb::RenderUncommittedCardIn,
+    ) -> Result<pb::RenderCardOut> {
+        let schema11: CardTemplateSchema11 = serde_json::from_slice(&input.template)?;
+        let template = schema11.into();
+        let mut note = input
+            .note
+            .ok_or_else(|| AnkiError::invalid_input("missing note"))?
+            .into();
+        let ord = input.card_ord as u16;
+        let fill_empty = input.fill_empty;
+        self.with_col(|col| {
+            col.render_uncommitted_card(&mut note, &template, ord, fill_empty)
+                .map(Into::into)
         })
     }
 
@@ -689,7 +713,7 @@ impl Backend {
             } else {
                 SortMode::FromConfig
             };
-            let cids = search_cards(col, &input.search, order)?;
+            let cids = col.search_cards(&input.search, order)?;
             Ok(pb::SearchCardsOut {
                 card_ids: cids.into_iter().map(|v| v.0).collect(),
             })
@@ -698,7 +722,7 @@ impl Backend {
 
     fn search_notes(&self, input: pb::SearchNotesIn) -> Result<pb::SearchNotesOut> {
         self.with_col(|col| {
-            let nids = search_notes(col, &input.search)?;
+            let nids = col.search_notes(&input.search)?;
             Ok(pb::SearchNotesOut {
                 note_ids: nids.into_iter().map(|v| v.0).collect(),
             })
@@ -734,12 +758,14 @@ impl Backend {
     fn get_deck_config(&self, dcid: i64) -> Result<Vec<u8>> {
         self.with_col(|col| {
             let conf = col.get_deck_config(DeckConfID(dcid), true)?.unwrap();
+            let conf: DeckConfSchema11 = conf.into();
             Ok(serde_json::to_vec(&conf)?)
         })
     }
 
     fn add_or_update_deck_config(&self, input: AddOrUpdateDeckConfigIn) -> Result<i64> {
-        let mut conf: DeckConf = serde_json::from_slice(&input.config)?;
+        let conf: DeckConfSchema11 = serde_json::from_slice(&input.config)?;
+        let mut conf: DeckConf = conf.into();
         self.with_col(|col| {
             col.transact(None, |col| {
                 col.add_or_update_deck_config(&mut conf, input.preserve_usn_and_mtime)?;
@@ -749,11 +775,19 @@ impl Backend {
     }
 
     fn all_deck_config(&self) -> Result<Vec<u8>> {
-        self.with_col(|col| serde_json::to_vec(&col.storage.all_deck_config()?).map_err(Into::into))
+        self.with_col(|col| {
+            let conf: Vec<DeckConfSchema11> = col
+                .storage
+                .all_deck_config()?
+                .into_iter()
+                .map(Into::into)
+                .collect();
+            serde_json::to_vec(&conf).map_err(Into::into)
+        })
     }
 
     fn new_deck_config(&self) -> Result<Vec<u8>> {
-        serde_json::to_vec(&DeckConf::default()).map_err(Into::into)
+        serde_json::to_vec(&DeckConfSchema11::default()).map_err(Into::into)
     }
 
     fn remove_deck_config(&self, dcid: i64) -> Result<()> {
@@ -761,19 +795,7 @@ impl Backend {
     }
 
     fn before_upload(&self) -> Result<()> {
-        self.with_col(|col| col.transact(None, |col| col.before_upload()))
-    }
-
-    fn canonify_tags(&self, tags: String) -> Result<pb::CanonifyTagsOut> {
-        self.with_col(|col| {
-            col.transact(None, |col| {
-                col.canonify_tags(&tags, col.usn()?)
-                    .map(|(tags, added)| pb::CanonifyTagsOut {
-                        tags,
-                        tag_list_changed: added,
-                    })
-            })
-        })
+        self.with_col(|col| col.before_upload())
     }
 
     fn all_tags(&self) -> Result<pb::AllTagsOut> {
@@ -826,9 +848,9 @@ impl Backend {
                         pb::set_config_json::Op::Val(val) => {
                             // ensure it's a well-formed object
                             let val: JsonValue = serde_json::from_slice(&val)?;
-                            col.set_config(&input.key, &val)
+                            col.set_config(input.key.as_str(), &val)
                         }
-                        pb::set_config_json::Op::Remove(_) => col.remove_config(&input.key),
+                        pb::set_config_json::Op::Remove(_) => col.remove_config(input.key.as_str()),
                     }
                 } else {
                     Err(AnkiError::invalid_input("no op received"))
@@ -854,34 +876,317 @@ impl Backend {
         })
     }
 
-    fn set_all_notetypes(&self, json: &[u8]) -> Result<()> {
-        let val: HashMap<NoteTypeID, NoteType> = serde_json::from_slice(json)?;
-        self.with_col(|col| {
-            col.transact(None, |col| {
-                col.storage
-                    .set_all_notetypes(val, col.usn()?, TimestampSecs::now())
-            })
-        })
-    }
-
-    fn get_all_notetypes(&self) -> Result<Vec<u8>> {
-        self.with_col(|col| {
-            let nts = col.storage.get_all_notetypes()?;
-            serde_json::to_vec(&nts).map_err(Into::into)
-        })
-    }
-
-    fn set_all_decks(&self, json: &[u8]) -> Result<()> {
-        let val: HashMap<DeckID, Deck> = serde_json::from_slice(json)?;
-        self.with_col(|col| col.transact(None, |col| col.storage.set_all_decks(val)))
+    fn get_changed_notetypes(&self) -> Result<Vec<u8>> {
+        todo!("filter by usn");
+        // self.with_col(|col| {
+        //     let nts = col.storage.get_all_notetypes_as_schema11()?;
+        //     serde_json::to_vec(&nts).map_err(Into::into)
+        // })
     }
 
     fn get_all_decks(&self) -> Result<Vec<u8>> {
         self.with_col(|col| {
-            let decks = col.storage.get_all_decks()?;
+            let decks = col.storage.get_all_decks_as_schema11()?;
             serde_json::to_vec(&decks).map_err(Into::into)
         })
     }
+
+    fn get_notetype_names(&self) -> Result<pb::NoteTypeNames> {
+        self.with_col(|col| {
+            let entries: Vec<_> = col
+                .storage
+                .get_all_notetype_names()?
+                .into_iter()
+                .map(|(id, name)| pb::NoteTypeNameId { id: id.0, name })
+                .collect();
+            Ok(pb::NoteTypeNames { entries })
+        })
+    }
+
+    fn get_notetype_use_counts(&self) -> Result<pb::NoteTypeUseCounts> {
+        self.with_col(|col| {
+            let entries: Vec<_> = col
+                .storage
+                .get_notetype_use_counts()?
+                .into_iter()
+                .map(|(id, name, use_count)| pb::NoteTypeNameIdUseCount {
+                    id: id.0,
+                    name,
+                    use_count,
+                })
+                .collect();
+            Ok(pb::NoteTypeUseCounts { entries })
+        })
+    }
+
+    fn get_notetype_legacy(&self, id: i64) -> Result<Vec<u8>> {
+        self.with_col(|col| {
+            let schema11: NoteTypeSchema11 = col
+                .storage
+                .get_notetype(NoteTypeID(id))?
+                .ok_or(AnkiError::NotFound)?
+                .into();
+            Ok(serde_json::to_vec(&schema11)?)
+        })
+    }
+
+    fn get_notetype_id_by_name(&self, name: String) -> Result<i64> {
+        self.with_col(|col| {
+            col.storage
+                .get_notetype_id(&name)
+                .map(|nt| nt.unwrap_or(NoteTypeID(0)).0)
+        })
+    }
+
+    fn add_or_update_notetype_legacy(&self, input: pb::AddOrUpdateNotetypeIn) -> Result<i64> {
+        self.with_col(|col| {
+            let legacy: NoteTypeSchema11 = serde_json::from_slice(&input.json)?;
+            let mut nt: NoteType = legacy.into();
+            if nt.id.0 == 0 {
+                col.add_notetype(&mut nt)?;
+            } else {
+                col.update_notetype(&mut nt, input.preserve_usn_and_mtime)?;
+            }
+            Ok(nt.id.0)
+        })
+    }
+
+    fn remove_notetype(&self, id: i64) -> Result<()> {
+        self.with_col(|col| col.remove_notetype(NoteTypeID(id)))
+    }
+
+    fn new_note(&self, ntid: i64) -> Result<pb::Note> {
+        self.with_col(|col| {
+            let nt = col
+                .get_notetype(NoteTypeID(ntid))?
+                .ok_or(AnkiError::NotFound)?;
+            Ok(nt.new_note().into())
+        })
+    }
+
+    fn add_note(&self, input: pb::AddNoteIn) -> Result<i64> {
+        self.with_col(|col| {
+            let mut note: Note = input.note.ok_or(AnkiError::NotFound)?.into();
+            col.add_note(&mut note, DeckID(input.deck_id))
+                .map(|_| note.id.0)
+        })
+    }
+
+    fn update_note(&self, pbnote: pb::Note) -> Result<()> {
+        self.with_col(|col| {
+            let mut note: Note = pbnote.into();
+            col.update_note(&mut note)
+        })
+    }
+
+    fn get_note(&self, nid: i64) -> Result<pb::Note> {
+        self.with_col(|col| {
+            col.storage
+                .get_note(NoteID(nid))?
+                .ok_or(AnkiError::NotFound)
+                .map(Into::into)
+        })
+    }
+
+    fn get_empty_cards(&self) -> Result<pb::EmptyCardsReport> {
+        self.with_col(|col| {
+            let mut empty = col.empty_cards()?;
+            let report = col.empty_cards_report(&mut empty)?;
+
+            let mut outnotes = vec![];
+            for (_ntid, notes) in empty {
+                outnotes.extend(notes.into_iter().map(|e| pb::NoteWithEmptyCards {
+                    note_id: e.nid.0,
+                    will_delete_note: e.empty.len() == e.current_count,
+                    card_ids: e.empty.into_iter().map(|(_ord, id)| id.0).collect(),
+                }))
+            }
+            Ok(pb::EmptyCardsReport {
+                report,
+                notes: outnotes,
+            })
+        })
+    }
+
+    fn get_deck_legacy(&self, did: i64) -> Result<Vec<u8>> {
+        self.with_col(|col| {
+            let deck: DeckSchema11 = col
+                .storage
+                .get_deck(DeckID(did))?
+                .ok_or(AnkiError::NotFound)?
+                .into();
+            serde_json::to_vec(&deck).map_err(Into::into)
+        })
+    }
+
+    fn get_deck_id_by_name(&self, human_name: &str) -> Result<i64> {
+        self.with_col(|col| {
+            col.get_deck_id(human_name)
+                .map(|d| d.map(|d| d.0).unwrap_or_default())
+        })
+    }
+
+    fn get_deck_names(&self, input: pb::GetDeckNamesIn) -> Result<pb::DeckNames> {
+        self.with_col(|col| {
+            let names = if input.include_filtered {
+                col.get_all_deck_names(input.skip_empty_default)?
+            } else {
+                col.get_all_normal_deck_names()?
+            };
+            Ok(pb::DeckNames {
+                entries: names
+                    .into_iter()
+                    .map(|(id, name)| pb::DeckNameId { id: id.0, name })
+                    .collect(),
+            })
+        })
+    }
+
+    fn add_or_update_deck_legacy(&self, input: pb::AddOrUpdateDeckLegacyIn) -> Result<i64> {
+        self.with_col(|col| {
+            let schema11: DeckSchema11 = serde_json::from_slice(&input.deck)?;
+            let mut deck: Deck = schema11.into();
+            if input.preserve_usn_and_mtime {
+                col.transact(None, |col| {
+                    let usn = col.usn()?;
+                    col.add_or_update_single_deck(&mut deck, usn)
+                })?;
+            } else {
+                col.add_or_update_deck(&mut deck)?;
+            }
+            Ok(deck.id.0)
+        })
+    }
+
+    fn new_deck_legacy(&self, filtered: bool) -> Result<Vec<u8>> {
+        let deck = if filtered {
+            Deck::new_filtered()
+        } else {
+            Deck::new_normal()
+        };
+        let schema11: DeckSchema11 = deck.into();
+        serde_json::to_vec(&schema11).map_err(Into::into)
+    }
+
+    fn remove_deck(&self, did: i64) -> Result<()> {
+        self.with_col(|col| col.remove_deck_and_child_decks(DeckID(did)))
+    }
+
+    fn check_database(&self) -> Result<pb::CheckDatabaseOut> {
+        self.with_col(|col| {
+            col.check_database().map(|problems| pb::CheckDatabaseOut {
+                problems: problems.to_i18n_strings(&col.i18n),
+            })
+        })
+    }
+
+    fn deck_tree_legacy(&self) -> Result<Vec<u8>> {
+        self.with_col(|col| {
+            let tree = col.legacy_deck_tree()?;
+            serde_json::to_vec(&tree).map_err(Into::into)
+        })
+    }
+
+    fn field_names_for_notes(
+        &self,
+        input: pb::FieldNamesForNotesIn,
+    ) -> Result<pb::FieldNamesForNotesOut> {
+        self.with_col(|col| {
+            let nids: Vec<_> = input.nids.into_iter().map(NoteID).collect();
+            col.storage
+                .field_names_for_notes(&nids)
+                .map(|fields| pb::FieldNamesForNotesOut { fields })
+        })
+    }
+
+    fn find_and_replace(&self, input: pb::FindAndReplaceIn) -> Result<u32> {
+        let mut search = if input.regex {
+            input.search
+        } else {
+            regex::escape(&input.search)
+        };
+        if !input.match_case {
+            search = format!("(?i){}", search);
+        }
+        let nids = input.nids.into_iter().map(NoteID).collect();
+        let field_name = if input.field_name.is_empty() {
+            None
+        } else {
+            Some(input.field_name)
+        };
+        let repl = input.replacement;
+        self.with_col(|col| {
+            col.find_and_replace(nids, &search, &repl, field_name)
+                .map(|cnt| cnt as u32)
+        })
+    }
+
+    fn after_note_updates(&self, input: pb::AfterNoteUpdatesIn) -> Result<pb::Empty> {
+        self.with_col(|col| {
+            col.transact(None, |col| {
+                col.after_note_updates(
+                    &to_nids(input.nids),
+                    input.generate_cards,
+                    input.mark_notes_modified,
+                )?;
+                Ok(pb::Empty {})
+            })
+        })
+    }
+
+    fn add_note_tags(&self, input: pb::AddNoteTagsIn) -> Result<u32> {
+        self.with_col(|col| {
+            col.add_tags_for_notes(&to_nids(input.nids), &input.tags)
+                .map(|n| n as u32)
+        })
+    }
+
+    fn update_note_tags(&self, input: pb::UpdateNoteTagsIn) -> Result<u32> {
+        self.with_col(|col| {
+            col.replace_tags_for_notes(
+                &to_nids(input.nids),
+                &input.tags,
+                &input.replacement,
+                input.regex,
+            )
+            .map(|n| n as u32)
+        })
+    }
+
+    fn set_local_mins_west(&self, mins: i32) -> Result<()> {
+        self.with_col(|col| col.transact(None, |col| col.set_local_mins_west(mins)))
+    }
+
+    fn get_preferences(&self) -> Result<pb::Preferences> {
+        self.with_col(|col| col.get_preferences())
+    }
+
+    fn set_preferences(&self, prefs: pb::Preferences) -> Result<()> {
+        self.with_col(|col| col.transact(None, |col| col.set_preferences(prefs)))
+    }
+
+    fn cloze_numbers_in_note(&self, note: pb::Note) -> pb::ClozeNumbersInNoteOut {
+        let mut set = HashSet::with_capacity(4);
+        for field in &note.fields {
+            add_cloze_numbers_in_string(field, &mut set);
+        }
+        pb::ClozeNumbersInNoteOut {
+            numbers: set.into_iter().map(|n| n as u32).collect(),
+        }
+    }
+
+    fn get_stock_notetype_legacy(&self, kind: i32) -> Result<Vec<u8>> {
+        // fixme: use individual functions instead of full vec
+        let mut all = all_stock_notetypes(&self.i18n);
+        let idx = (kind as usize).min(all.len() - 1);
+        let nt = all.swap_remove(idx);
+        let schema11: NoteTypeSchema11 = nt.into();
+        serde_json::to_vec(&schema11).map_err(Into::into)
+    }
+}
+
+fn to_nids(ids: Vec<i64>) -> Vec<NoteID> {
+    ids.into_iter().map(NoteID).collect()
 }
 
 fn translate_arg_to_fluent_val(arg: &pb::TranslateArgValue) -> FluentValue {
@@ -893,10 +1198,6 @@ fn translate_arg_to_fluent_val(arg: &pb::TranslateArgValue) -> FluentValue {
         },
         None => FluentValue::String("".into()),
     }
-}
-
-fn ords_hash_to_set(ords: HashSet<u16>) -> Vec<u32> {
-    ords.iter().map(|ord| *ord as u32).collect()
 }
 
 fn rendered_nodes_to_proto(nodes: Vec<RenderedNode>) -> Vec<pb::RenderedTemplateNode> {
@@ -920,6 +1221,15 @@ fn rendered_node_to_proto(node: RenderedNode) -> pb::rendered_template_node::Val
             current_text,
             filters,
         }),
+    }
+}
+
+impl From<RenderCardOutput> for pb::RenderCardOut {
+    fn from(o: RenderCardOutput) -> Self {
+        pb::RenderCardOut {
+            question_nodes: rendered_nodes_to_proto(o.qnodes),
+            answer_nodes: rendered_nodes_to_proto(o.anodes),
+        }
     }
 }
 
@@ -1023,4 +1333,13 @@ fn pbcard_to_native(c: pb::Card) -> Result<Card> {
         flags: c.flags as u8,
         data: c.data,
     })
+}
+
+impl From<crate::sched::cutoff::SchedTimingToday> for pb::SchedTimingTodayOut {
+    fn from(t: crate::sched::cutoff::SchedTimingToday) -> pb::SchedTimingTodayOut {
+        pb::SchedTimingTodayOut {
+            days_elapsed: t.days_elapsed,
+            next_day_at: t.next_day_at,
+        }
+    }
 }

@@ -4,14 +4,14 @@
 use crate::err::{AnkiError, Result};
 use crate::i18n::I18n;
 use crate::log::Logger;
-use crate::timestamp::TimestampSecs;
 use crate::types::Usn;
 use crate::{
-    sched::cutoff::{sched_timing_today, SchedTimingToday},
+    decks::{Deck, DeckID},
+    notetype::{NoteType, NoteTypeID},
     storage::SqliteStorage,
     undo::UndoManager,
 };
-use std::path::PathBuf;
+use std::{collections::HashMap, path::PathBuf, sync::Arc};
 
 pub fn open_collection<P: Into<PathBuf>>(
     path: P,
@@ -49,7 +49,8 @@ pub fn open_test_collection() -> Collection {
 pub struct CollectionState {
     task_state: CollectionTaskState,
     pub(crate) undo: UndoManager,
-    timing_today: Option<SchedTimingToday>,
+    pub(crate) notetype_cache: HashMap<NoteTypeID, Arc<NoteType>>,
+    pub(crate) deck_cache: HashMap<DeckID, Arc<Deck>>,
 }
 
 #[derive(Debug, PartialEq)]
@@ -138,50 +139,26 @@ impl Collection {
         self.storage.close(downgrade)
     }
 
-    // fixme: invalidate when config changes
-    pub fn timing_today(&mut self) -> Result<SchedTimingToday> {
-        if let Some(timing) = &self.state.timing_today {
-            if timing.next_day_at > TimestampSecs::now().0 {
-                return Ok(*timing);
-            }
-        }
-
-        let local_offset = if self.server {
-            self.get_local_mins_west()
-        } else {
-            None
-        };
-
-        let timing = sched_timing_today(
-            self.storage.creation_stamp()?,
-            TimestampSecs::now(),
-            self.get_creation_mins_west(),
-            local_offset,
-            self.get_rollover(),
-        );
-
-        self.state.timing_today = Some(timing);
-
-        Ok(timing)
-    }
-
     pub(crate) fn usn(&self) -> Result<Usn> {
         // if we cache this in the future, must make sure to invalidate cache when usn bumped in sync.finish()
         self.storage.usn(self.server)
     }
 
-    pub(crate) fn ensure_schema_modified(&self) -> Result<()> {
-        if !self.storage.schema_modified()? {
-            Err(AnkiError::SchemaChange)
-        } else {
-            Ok(())
-        }
-    }
-
-    pub(crate) fn before_upload(&self) -> Result<()> {
-        self.storage.clear_tag_usns()?;
-        self.storage.clear_deck_conf_usns()?;
-
-        Ok(())
+    /// Prepare for upload. Caller should not create transaction.
+    pub(crate) fn before_upload(&mut self) -> Result<()> {
+        self.transact(None, |col| {
+            col.storage.clear_all_graves()?;
+            col.storage.clear_pending_note_usns()?;
+            col.storage.clear_pending_card_usns()?;
+            col.storage.clear_pending_revlog_usns()?;
+            col.storage.clear_tag_usns()?;
+            col.storage.clear_deck_conf_usns()?;
+            col.storage.clear_deck_usns()?;
+            col.storage.clear_notetype_usns()?;
+            col.storage.increment_usn()?;
+            col.storage.set_schema_modified()?;
+            col.storage.set_last_sync(col.storage.get_schema_mtime()?)
+        })?;
+        self.storage.optimize()
     }
 }

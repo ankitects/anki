@@ -2,36 +2,47 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::parser::{Node, PropertyKind, SearchNode, StateKind, TemplateKind};
-use crate::card::CardQueue;
-use crate::decks::child_ids;
-use crate::decks::get_deck;
-use crate::err::{AnkiError, Result};
-use crate::notes::field_checksum;
-use crate::notetype::NoteTypeID;
-use crate::text::matches_wildcard;
-use crate::text::without_combining;
-use crate::{collection::Collection, text::strip_html_preserving_image_filenames};
+use crate::{
+    card::CardQueue,
+    collection::Collection,
+    decks::human_deck_name_to_native,
+    err::Result,
+    notes::field_checksum,
+    notetype::NoteTypeID,
+    text::matches_wildcard,
+    text::{normalize_to_nfc, strip_html_preserving_image_filenames, without_combining},
+};
 use lazy_static::lazy_static;
 use regex::{Captures, Regex};
-use std::fmt::Write;
+use std::{borrow::Cow, fmt::Write};
 
 struct SqlWriter<'a> {
     col: &'a mut Collection,
     sql: String,
     args: Vec<String>,
+    normalize_note_text: bool,
 }
 
-pub(super) fn node_to_sql(req: &mut Collection, node: &Node) -> Result<(String, Vec<String>)> {
-    let mut sctx = SqlWriter::new(req);
+pub(super) fn node_to_sql(
+    req: &mut Collection,
+    node: &Node,
+    normalize_note_text: bool,
+) -> Result<(String, Vec<String>)> {
+    let mut sctx = SqlWriter::new(req, normalize_note_text);
     sctx.write_node_to_sql(&node)?;
     Ok((sctx.sql, sctx.args))
 }
 
 impl SqlWriter<'_> {
-    fn new(col: &mut Collection) -> SqlWriter<'_> {
+    fn new(col: &mut Collection, normalize_note_text: bool) -> SqlWriter<'_> {
         let sql = String::new();
         let args = vec![];
-        SqlWriter { col, sql, args }
+        SqlWriter {
+            col,
+            sql,
+            args,
+            normalize_note_text,
+        }
     }
 
     fn write_node_to_sql(&mut self, node: &Node) -> Result<()> {
@@ -54,22 +65,47 @@ impl SqlWriter<'_> {
         Ok(())
     }
 
+    /// Convert search text to NFC if note normalization is enabled.
+    fn norm_note<'a>(&self, text: &'a str) -> Cow<'a, str> {
+        if self.normalize_note_text {
+            normalize_to_nfc(text)
+        } else {
+            text.into()
+        }
+    }
+
     fn write_search_node_to_sql(&mut self, node: &SearchNode) -> Result<()> {
+        use normalize_to_nfc as norm;
         match node {
-            SearchNode::UnqualifiedText(text) => self.write_unqualified(text),
+            // note fields related
+            SearchNode::UnqualifiedText(text) => self.write_unqualified(&self.norm_note(text)),
             SearchNode::SingleField { field, text, is_re } => {
-                self.write_single_field(field.as_ref(), text.as_ref(), *is_re)?
+                self.write_single_field(field.as_ref(), &self.norm_note(text), *is_re)?
             }
+            SearchNode::Duplicates { note_type_id, text } => {
+                self.write_dupes(*note_type_id, &self.norm_note(text))
+            }
+            SearchNode::Regex(re) => self.write_regex(&self.norm_note(re)),
+            SearchNode::NoCombining(text) => self.write_no_combining(&self.norm_note(text)),
+            SearchNode::WordBoundary(text) => self.write_word_boundary(&self.norm_note(text)),
+
+            // other
             SearchNode::AddedInDays(days) => self.write_added(*days)?,
-            SearchNode::CardTemplate(template) => self.write_template(template)?,
-            SearchNode::Deck(deck) => self.write_deck(deck.as_ref())?,
+            SearchNode::CardTemplate(template) => match template {
+                TemplateKind::Ordinal(_) => {
+                    self.write_template(template)?;
+                }
+                TemplateKind::Name(name) => {
+                    self.write_template(&TemplateKind::Name(norm(name).into()))?;
+                }
+            },
+            SearchNode::Deck(deck) => self.write_deck(&norm(deck))?,
             SearchNode::NoteTypeID(ntid) => {
                 write!(self.sql, "n.mid = {}", ntid).unwrap();
             }
-            SearchNode::NoteType(notetype) => self.write_note_type(notetype.as_ref())?,
+            SearchNode::NoteType(notetype) => self.write_note_type(&norm(notetype))?,
             SearchNode::Rated { days, ease } => self.write_rated(*days, *ease)?,
-            SearchNode::Tag(tag) => self.write_tag(tag)?,
-            SearchNode::Duplicates { note_type_id, text } => self.write_dupes(*note_type_id, text),
+            SearchNode::Tag(tag) => self.write_tag(&norm(tag))?,
             SearchNode::State(state) => self.write_state(state)?,
             SearchNode::Flag(flag) => {
                 write!(self.sql, "(c.flags & 7) == {}", flag).unwrap();
@@ -82,9 +118,6 @@ impl SqlWriter<'_> {
             }
             SearchNode::Property { operator, kind } => self.write_prop(operator, kind)?,
             SearchNode::WholeCollection => write!(self.sql, "true").unwrap(),
-            SearchNode::Regex(re) => self.write_regex(re.as_ref()),
-            SearchNode::NoCombining(text) => self.write_no_combining(text.as_ref()),
-            SearchNode::WordBoundary(text) => self.write_word_boundary(text.as_ref()),
         };
         Ok(())
     }
@@ -222,40 +255,29 @@ impl SqlWriter<'_> {
     fn write_deck(&mut self, deck: &str) -> Result<()> {
         match deck {
             "*" => write!(self.sql, "true").unwrap(),
-            "filtered" => write!(self.sql, "c.odid > 0").unwrap(),
+            "filtered" => write!(self.sql, "c.odid != 0").unwrap(),
             deck => {
-                let all_decks: Vec<_> = self
-                    .col
-                    .storage
-                    .get_all_decks()?
-                    .into_iter()
-                    .map(|(_, v)| v)
-                    .collect();
-                let dids_with_children = if deck == "current" {
-                    let current_id = self.col.get_current_deck_id();
-                    let mut dids_with_children = vec![current_id];
-                    let current = get_deck(&all_decks, current_id)
-                        .ok_or_else(|| AnkiError::invalid_input("invalid current deck"))?;
-                    for child_did in child_ids(&all_decks, &current.name()) {
-                        dids_with_children.push(child_did);
-                    }
-                    dids_with_children
+                // rewrite "current" to the current deck name
+                let native_deck = if deck == "current" {
+                    let current_did = self.col.get_current_deck_id();
+                    self.col
+                        .storage
+                        .get_deck(current_did)?
+                        .map(|d| d.name)
+                        .unwrap_or_else(|| "Default".into())
                 } else {
-                    let mut dids_with_children = vec![];
-                    for deck in all_decks
-                        .iter()
-                        .filter(|d| matches_wildcard(&d.name(), deck))
-                    {
-                        dids_with_children.push(deck.id());
-                        for child_id in child_ids(&all_decks, &deck.name()) {
-                            dids_with_children.push(child_id);
-                        }
-                    }
-                    dids_with_children
+                    human_deck_name_to_native(deck)
                 };
 
-                self.sql.push_str("c.did in ");
-                ids_to_string(&mut self.sql, &dids_with_children);
+                // convert to a regex that includes child decks
+                let re = text_to_re(&native_deck);
+                self.args.push(format!("(?i)^{}($|\x1f)", re));
+                let arg_idx = self.args.len();
+                self.sql.push_str(&format!(concat!(
+                    "(c.did in (select id from decks where name regexp ?{n})",
+                    " or (c.odid != 0 and c.odid in (select id from decks where name regexp ?{n})))"),
+                    n=arg_idx
+                ));
             }
         };
         Ok(())
@@ -267,27 +289,17 @@ impl SqlWriter<'_> {
                 write!(self.sql, "c.ord = {}", n).unwrap();
             }
             TemplateKind::Name(name) => {
-                let note_types = self.col.storage.get_all_notetypes()?;
-                let mut id_ords = vec![];
-                for nt in note_types.values() {
-                    for tmpl in &nt.templates {
-                        if matches_wildcard(&tmpl.name, name) {
-                            id_ords.push((nt.id, tmpl.ord));
-                        }
-                    }
-                }
-
-                // sort for the benefit of unit tests
-                id_ords.sort();
-
-                if id_ords.is_empty() {
-                    self.sql.push_str("false");
+                if let Some(re) = glob_to_re(name) {
+                    let re = format!("(?i){}", re);
+                    self.sql.push_str(
+                        "(n.mid,c.ord) in (select ntid,ord from templates where name regexp ?)",
+                    );
+                    self.args.push(re);
                 } else {
-                    let v: Vec<_> = id_ords
-                        .iter()
-                        .map(|(ntid, ord)| format!("(n.mid = {} and c.ord = {})", ntid, ord))
-                        .collect();
-                    write!(self.sql, "({})", v.join(" or ")).unwrap();
+                    self.sql.push_str(
+                        "(n.mid,c.ord) in (select ntid,ord from templates where name = ?)",
+                    );
+                    self.args.push(name.to_string());
                 }
             }
         };
@@ -295,23 +307,21 @@ impl SqlWriter<'_> {
     }
 
     fn write_note_type(&mut self, nt_name: &str) -> Result<()> {
-        let mut ntids: Vec<_> = self
-            .col
-            .storage
-            .get_all_notetypes()?
-            .values()
-            .filter(|nt| matches_wildcard(&nt.name, nt_name))
-            .map(|nt| nt.id)
-            .collect();
-        self.sql.push_str("n.mid in ");
-        // sort for the benefit of unit tests
-        ntids.sort();
-        ids_to_string(&mut self.sql, &ntids);
+        if let Some(re) = glob_to_re(nt_name) {
+            let re = format!("(?i){}", re);
+            self.sql
+                .push_str("n.mid in (select id from notetypes where name regexp ?)");
+            self.args.push(re);
+        } else {
+            self.sql
+                .push_str("n.mid in (select id from notetypes where name = ?)");
+            self.args.push(nt_name.to_string());
+        }
         Ok(())
     }
 
     fn write_single_field(&mut self, field_name: &str, val: &str, is_re: bool) -> Result<()> {
-        let note_types = self.col.storage.get_all_notetypes()?;
+        let note_types = self.col.get_all_notetypes()?;
 
         let mut field_map = vec![];
         for nt in note_types.values() {
@@ -346,7 +356,7 @@ impl SqlWriter<'_> {
                 format!(
                     "(n.mid = {mid} and field_at_index(n.flds, {ord}) {cmp} ?{n})",
                     mid = ntid,
-                    ord = ord,
+                    ord = ord.unwrap_or_default(),
                     cmp = cmp,
                     n = arg_idx
                 )
@@ -362,7 +372,7 @@ impl SqlWriter<'_> {
         let csum = field_checksum(text_nohtml.as_ref());
         write!(
             self.sql,
-            "(n.mid = {} and n.csum = {} and field_at_index(n.flds, 0) = ?)",
+            "(n.mid = {} and n.csum = {} and n.sfld = ?)",
             ntid, csum
         )
         .unwrap();
@@ -382,32 +392,23 @@ impl SqlWriter<'_> {
     }
 
     fn write_word_boundary(&mut self, word: &str) {
-        let re = glob_to_re(word).unwrap_or_else(|| word.to_string());
+        // fixme: need to escape in the no-glob case as well
+        let re = text_to_re(word);
         self.write_regex(&format!(r"\b{}\b", re))
     }
 }
 
-// Write a list of IDs as '(x,y,...)' into the provided string.
-fn ids_to_string<T>(buf: &mut String, ids: &[T])
-where
-    T: std::fmt::Display,
-{
-    buf.push('(');
-    if !ids.is_empty() {
-        for id in ids.iter().skip(1) {
-            write!(buf, "{},", id).unwrap();
-        }
-        write!(buf, "{}", ids[0]).unwrap();
-    }
-    buf.push(')');
-}
-
 /// Convert a string with _, % or * characters into a regex.
+/// If string contains no globbing characters, return None.
 fn glob_to_re(glob: &str) -> Option<String> {
     if !glob.contains(|c| c == '_' || c == '*' || c == '%') {
         return None;
     }
+    Some(text_to_re(glob))
+}
 
+/// Escape text, converting glob characters to regex syntax, then return.
+fn text_to_re(glob: &str) -> String {
     lazy_static! {
         static ref ESCAPED: Regex = Regex::new(r"(\\\\)?\\\*").unwrap();
         static ref GLOB: Regex = Regex::new(r"(\\\\)?[_%]").unwrap();
@@ -435,12 +436,11 @@ fn glob_to_re(glob: &str) -> Option<String> {
         .to_string()
     });
 
-    text2.into_owned().into()
+    text2.into()
 }
 
 #[cfg(test)]
 mod test {
-    use super::ids_to_string;
     use crate::{
         collection::{open_collection, Collection},
         i18n::I18n,
@@ -450,30 +450,13 @@ mod test {
     use std::{fs, path::PathBuf};
     use tempfile::tempdir;
 
-    #[test]
-    fn ids_string() {
-        let mut s = String::new();
-        ids_to_string::<u8>(&mut s, &[]);
-        assert_eq!(s, "()");
-        s.clear();
-        ids_to_string(&mut s, &[7]);
-        assert_eq!(s, "(7)");
-        s.clear();
-        ids_to_string(&mut s, &[7, 6]);
-        assert_eq!(s, "(6,7)");
-        s.clear();
-        ids_to_string(&mut s, &[7, 6, 5]);
-        assert_eq!(s, "(6,5,7)");
-        s.clear();
-    }
-
     use super::super::parser::parse;
     use super::*;
 
     // shortcut
     fn s(req: &mut Collection, search: &str) -> (String, Vec<String>) {
         let node = Node::Group(parse(search).unwrap());
-        node_to_sql(req, &node).unwrap()
+        node_to_sql(req, &node, true).unwrap()
     }
 
     #[test]
@@ -532,25 +515,28 @@ mod test {
         );
 
         // deck
-        assert_eq!(s(ctx, "deck:default"), ("(c.did in (1))".into(), vec![],));
-        assert_eq!(s(ctx, "deck:current"), ("(c.did in (1))".into(), vec![],));
-        assert_eq!(s(ctx, "deck:missing"), ("(c.did in ())".into(), vec![],));
-        assert_eq!(s(ctx, "deck:d*"), ("(c.did in (1))".into(), vec![],));
-        assert_eq!(s(ctx, "deck:filtered"), ("(c.odid > 0)".into(), vec![],));
+        assert_eq!(
+            s(ctx, "deck:default"),
+            (
+                "((c.did in (select id from decks where name regexp ?1) or (c.odid != 0 and \
+                c.odid in (select id from decks where name regexp ?1))))"
+                    .into(),
+                vec!["(?i)^default($|\u{1f})".into()]
+            )
+        );
+        assert_eq!(
+            s(ctx, "deck:current").1,
+            vec!["(?i)^Default($|\u{1f})".to_string()]
+        );
+        assert_eq!(s(ctx, "deck:d*").1, vec!["(?i)^d.*($|\u{1f})".to_string()]);
+        assert_eq!(s(ctx, "deck:filtered"), ("(c.odid != 0)".into(), vec![],));
 
         // card
-        assert_eq!(s(ctx, "card:front"), ("(false)".into(), vec![],));
         assert_eq!(
             s(ctx, r#""card:card 1""#),
             (
-                concat!(
-                    "(((n.mid = 1581236385344 and c.ord = 0) or ",
-                    "(n.mid = 1581236385345 and c.ord = 0) or ",
-                    "(n.mid = 1581236385346 and c.ord = 0) or ",
-                    "(n.mid = 1581236385347 and c.ord = 0)))"
-                )
-                .into(),
-                vec![],
+                "((n.mid,c.ord) in (select ntid,ord from templates where name = ?))".into(),
+                vec!["card 1".into()]
             )
         );
 
@@ -568,7 +554,7 @@ mod test {
         assert_eq!(
             s(ctx, "dupe:123,test"),
             (
-                "((n.mid = 123 and n.csum = 2840236005 and field_at_index(n.flds, 0) = ?))".into(),
+                "((n.mid = 123 and n.csum = 2840236005 and n.sfld = ?))".into(),
                 vec!["test".into()]
             )
         );
@@ -633,10 +619,19 @@ mod test {
         );
 
         // note types by name
-        assert_eq!(&s(ctx, "note:basic").0, "(n.mid in (1581236385347))");
         assert_eq!(
-            &s(ctx, "note:basic*").0,
-            "(n.mid in (1581236385345,1581236385346,1581236385347,1581236385344))"
+            s(ctx, "note:basic"),
+            (
+                "(n.mid in (select id from notetypes where name = ?))".into(),
+                vec!["basic".into()]
+            )
+        );
+        assert_eq!(
+            s(ctx, "note:basic*"),
+            (
+                "(n.mid in (select id from notetypes where name regexp ?))".into(),
+                vec!["(?i)basic.*".into()]
+            )
         );
 
         // regex

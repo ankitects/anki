@@ -171,7 +171,7 @@ class AnkiExporter(Exporter):
         if self.cids:
             return self.col.decks.for_card_ids(self.cids)
         elif self.did:
-            return [self.did] + [x[1] for x in self.src.decks.children(self.did)]
+            return self.src.decks.deck_and_child_ids(self.did)
         else:
             return []
 
@@ -226,7 +226,8 @@ class AnkiExporter(Exporter):
             # need to reset card state
             self.dst.sched.resetCards(cids)
         # models - start with zero
-        self.dst.models.models = {}
+        self.dst.modSchema(check=False)
+        self.dst.models.remove_all_notetypes()
         for m in self.src.models.all():
             if int(m["id"]) in mids:
                 self.dst.models.update(m)

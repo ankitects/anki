@@ -7,7 +7,6 @@ import itertools
 import json
 import mimetypes
 import re
-import unicodedata
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -341,7 +340,7 @@ class Editor:
     def _onFields(self):
         from aqt.fields import FieldDialog
 
-        FieldDialog(self.mw, self.note, parent=self.parentWindow)
+        FieldDialog(self.mw, self.note.model(), parent=self.parentWindow)
 
     def onCardLayout(self):
         self.saveNow(self._onCardLayout)
@@ -354,7 +353,11 @@ class Editor:
         else:
             ord = 0
         CardLayout(
-            self.mw, self.note, ord=ord, parent=self.parentWindow, addMode=self.addMode
+            self.mw,
+            self.note,
+            ord=ord,
+            parent=self.parentWindow,
+            fill_empty=self.addMode,
         )
         if isWin:
             self.parentWindow.activateWindow()
@@ -377,7 +380,6 @@ class Editor:
             if nid != self.note.id:
                 print("ignored late blur")
                 return
-            txt = unicodedata.normalize("NFC", txt)
             txt = self.mungeHTML(txt)
             # misbehaving apps may include a null byte in the text
             txt = txt.replace("\x00", "")
@@ -570,9 +572,7 @@ class Editor:
     def saveTags(self) -> None:
         if not self.note:
             return
-        tagsTxt = unicodedata.normalize("NFC", self.tags.text())
-        self.note.tags = self.mw.col.tags.canonify(self.mw.col.tags.split(tagsTxt))
-        self.tags.setText(self.mw.col.tags.join(self.note.tags).strip())
+        self.note.tags = self.mw.col.tags.split(self.tags.text())
         if not self.addMode:
             self.note.flush()
         gui_hooks.editor_did_update_tags(self.note)

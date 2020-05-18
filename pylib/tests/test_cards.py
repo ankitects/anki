@@ -3,27 +3,6 @@
 from tests.shared import getEmptyCol
 
 
-def test_previewCards():
-    deck = getEmptyCol()
-    f = deck.newNote()
-    f["Front"] = "1"
-    f["Back"] = "2"
-    # non-empty and active
-    cards = deck.previewCards(f, 0)
-    assert len(cards) == 1
-    assert cards[0].ord == 0
-    # all templates
-    cards = deck.previewCards(f, 2)
-    assert len(cards) == 1
-    # add the note, and test existing preview
-    deck.addNote(f)
-    cards = deck.previewCards(f, 1)
-    assert len(cards) == 1
-    assert cards[0].ord == 0
-    # make sure we haven't accidentally added cards to the db
-    assert deck.cardCount() == 1
-
-
 def test_delete():
     deck = getEmptyCol()
     f = deck.newNote()
@@ -69,9 +48,12 @@ def test_genrem():
     mm.save(m, templates=True)
     assert len(f.cards()) == 2
     # if the template is changed to remove cards, they'll be removed
+    t = m["tmpls"][1]
     t["qfmt"] = "{{Back}}"
     mm.save(m, templates=True)
-    d.remCards(d.emptyCids())
+    rep = d.backend.empty_cards_report()
+    for note in rep.notes:
+        d.remCards(note.card_ids)
     assert len(f.cards()) == 1
     # if we add to the note, a card should be automatically generated
     f.load()

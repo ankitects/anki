@@ -115,7 +115,7 @@ def test_anki2_diffmodel_templates():
     # the front template should contain the text added in the 2nd package
     tcid = dst.findCards("")[0]  # only 1 note in collection
     tnote = dst.getCard(tcid).note()
-    assert "Changed Front Template" in dst.findTemplates(tnote)[0]["qfmt"]
+    assert "Changed Front Template" in tnote.cards()[0].template()["qfmt"]
 
 
 def test_anki2_updates():

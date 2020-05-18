@@ -2,7 +2,7 @@
 import time
 
 from anki.consts import MODEL_CLOZE
-from anki.utils import isWin, joinFields, stripHTML
+from anki.utils import isWin, stripHTML
 from tests.shared import getEmptyCol
 
 
@@ -48,6 +48,7 @@ def test_fields():
     assert d.getNote(d.models.nids(m)[0]).fields == ["1", "2", ""]
     assert d.models.scmhash(m) != h
     # rename it
+    f = m["flds"][2]
     d.models.renameField(m, f, "bar")
     assert d.getNote(d.models.nids(m)[0])["bar"] == ""
     # delete back
@@ -102,7 +103,7 @@ def test_templates():
     assert c.ord == 1
     assert c2.ord == 0
     # removing a template should delete its cards
-    assert d.models.remTemplate(m, m["tmpls"][0])
+    d.models.remTemplate(m, m["tmpls"][0])
     assert d.cardCount() == 1
     # and should have updated the other cards' ordinals
     c = f.cards()[0]
@@ -111,7 +112,11 @@ def test_templates():
     # it shouldn't be possible to orphan notes by removing templates
     t = mm.newTemplate("template name")
     mm.addTemplate(m, t)
-    assert not d.models.remTemplate(m, m["tmpls"][0])
+    d.models.remTemplate(m, m["tmpls"][0])
+    assert (
+        d.db.scalar("select count() from cards where nid not in (select id from notes)")
+        == 0
+    )
 
 
 def test_cloze_ordinals():
@@ -269,7 +274,6 @@ def test_chained_mods():
 
 def test_modelChange():
     deck = getEmptyCol()
-    basic = deck.models.byName("Basic")
     cloze = deck.models.byName("Cloze")
     # enable second template and add a note
     m = deck.models.current()
@@ -279,6 +283,7 @@ def test_modelChange():
     t["afmt"] = "{{Front}}"
     mm.addTemplate(m, t)
     mm.save(m)
+    basic = m
     f = deck.newNote()
     f["Front"] = "f"
     f["Back"] = "b123"
@@ -334,8 +339,9 @@ def test_modelChange():
     f["Front"] = "f2"
     f["Back"] = "b2"
     deck.addNote(f)
-    assert deck.models.useCount(basic) == 2
-    assert deck.models.useCount(cloze) == 0
+    counts = deck.models.all_use_counts()
+    assert next(c.use_count for c in counts if c.name == "Basic") == 2
+    assert next(c.use_count for c in counts if c.name == "Cloze") == 0
     map = {0: 0, 1: 1}
     deck.models.change(basic, [f.id], cloze, map, map)
     f.load()
@@ -347,34 +353,6 @@ def test_modelChange():
     map = {0: 0}
     deck.models.change(cloze, [f.id], basic, map, map)
     assert deck.db.scalar("select count() from cards where nid = ?", f.id) == 1
-
-
-def test_availOrds():
-    d = getEmptyCol()
-    m = d.models.current()
-    mm = d.models
-    t = m["tmpls"][0]
-    f = d.newNote()
-    f["Front"] = "1"
-    # simple templates
-    assert mm.availOrds(m, joinFields(f.fields)) == [0]
-    t["qfmt"] = "{{Back}}"
-    mm.save(m, templates=True)
-    assert not mm.availOrds(m, joinFields(f.fields))
-    # AND
-    t["qfmt"] = "{{#Front}}{{#Back}}{{Front}}{{/Back}}{{/Front}}"
-    mm.save(m, templates=True)
-    assert not mm.availOrds(m, joinFields(f.fields))
-    t["qfmt"] = "{{#Front}}\n{{#Back}}\n{{Front}}\n{{/Back}}\n{{/Front}}"
-    mm.save(m, templates=True)
-    assert not mm.availOrds(m, joinFields(f.fields))
-    # OR
-    t["qfmt"] = "{{Front}}\n{{Back}}"
-    mm.save(m, templates=True)
-    assert mm.availOrds(m, joinFields(f.fields)) == [0]
-    t["Front"] = ""
-    t["Back"] = "1"
-    assert mm.availOrds(m, joinFields(f.fields)) == [0]
 
 
 def test_req():
@@ -412,19 +390,3 @@ def test_req():
     r = opt["req"][0]
     assert r[1] in ("any", "all")
     assert r[2] == [0, 1]
-
-
-# def test_updatereqs_performance():
-#     import time
-#     d = getEmptyCol()
-#     mm = d.models
-#     m = mm.byName("Basic")
-#     for i in range(100):
-#         fld = mm.newField(f"field{i}")
-#         mm.addField(m, fld)
-#         tmpl = mm.newTemplate(f"template{i}")
-#         tmpl['qfmt'] = "{{field%s}}" % i
-#         mm.addTemplate(m, tmpl)
-#     t = time.time()
-#     mm.save(m, templates=True)
-#     print("took", (time.time()-t)*100)

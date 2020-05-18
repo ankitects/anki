@@ -3,11 +3,10 @@
 
 from __future__ import annotations
 
-import re
 from typing import TYPE_CHECKING, Optional, Set
 
 from anki.hooks import *
-from anki.utils import ids2str, intTime, joinFields, splitFields, stripHTMLMedia
+from anki.utils import ids2str, splitFields, stripHTMLMedia
 
 if TYPE_CHECKING:
     from anki.collection import _Collection
@@ -38,56 +37,16 @@ def findReplace(
     field: Optional[str] = None,
     fold: bool = True,
 ) -> int:
-    "Find and replace fields in a note."
-    mmap: Dict[str, Any] = {}
-    if field:
-        for m in col.models.all():
-            for f in m["flds"]:
-                if f["name"].lower() == field.lower():
-                    mmap[str(m["id"])] = f["ord"]
-        if not mmap:
-            return 0
-    # find and gather replacements
-    if not regex:
-        src = re.escape(src)
-        dst = dst.replace("\\", "\\\\")
-    if fold:
-        src = "(?i)" + src
-    compiled_re = re.compile(src)
+    "Find and replace fields in a note. Returns changed note count."
+    return col.backend.find_and_replace(nids, src, dst, regex, fold, field)
 
-    def repl(s: str):
-        return compiled_re.sub(dst, s)
 
-    d = []
-    snids = ids2str(nids)
-    nids = []
-    for nid, mid, flds in col.db.execute(
-        "select id, mid, flds from notes where id in " + snids
-    ):
-        origFlds = flds
-        # does it match?
-        sflds = splitFields(flds)
-        if field:
-            try:
-                ord = mmap[str(mid)]
-                sflds[ord] = repl(sflds[ord])
-            except KeyError:
-                # note doesn't have that field
-                continue
-        else:
-            for c in range(len(sflds)):
-                sflds[c] = repl(sflds[c])
-        flds = joinFields(sflds)
-        if flds != origFlds:
-            nids.append(nid)
-            d.append((flds, intTime(), col.usn(), nid))
-    if not d:
-        return 0
-    # replace
-    col.db.executemany("update notes set flds=?,mod=?,usn=? where id=?", d)
-    col.updateFieldCache(nids)
-    col.genCards(nids)
-    return len(d)
+def fieldNamesForNotes(col: _Collection, nids: List[int]) -> List[str]:
+    return list(col.backend.field_names_for_note_ids(nids))
+
+
+# Find duplicates
+##########################################################################
 
 
 def fieldNames(col, downcase=True) -> List:
@@ -100,19 +59,6 @@ def fieldNames(col, downcase=True) -> List:
     return list(fields)
 
 
-def fieldNamesForNotes(col, nids) -> List:
-    fields: Set[str] = set()
-    mids = col.db.list("select distinct mid from notes where id in %s" % ids2str(nids))
-    for mid in mids:
-        model = col.models.get(mid)
-        for name in col.models.fieldNames(model):
-            if name not in fields:  # slower w/o
-                fields.add(name)
-    return sorted(fields, key=lambda x: x.lower())
-
-
-# Find duplicates
-##########################################################################
 # returns array of ("dupestr", [nids])
 def findDupes(
     col: _Collection, fieldName: str, search: str = ""

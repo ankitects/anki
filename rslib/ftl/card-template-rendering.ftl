@@ -37,3 +37,6 @@ card-template-rendering-no-such-field =
 # either due to a badly-designed template, or because required fields
 # are missing.
 card-template-rendering-empty-front = The front of this card is blank.
+
+card-template-rendering-missing-cloze = No cloze { $number } found on card.
+  Please either add a cloze deletion, or use the Empty Cards tool.

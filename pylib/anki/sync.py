@@ -216,8 +216,6 @@ class Syncer:
         if found:
             self.col.models.save()
         self.col.sched.reset()
-        # check for missing parent decks
-        self.col.sched.deckDueList()
         # return summary of deck
         return [
             list(self.col.sched.counts()),
@@ -330,7 +328,7 @@ from notes where %s"""
 
     def remove(self, graves) -> None:
         # pretend to be the server so we don't set usn = -1
-        self.col.server = True  # type: ignore
+        self.col.server = True
 
         # notes first, so we don't end up with duplicate graves
         self.col._remNotes(graves["notes"])
@@ -340,7 +338,7 @@ from notes where %s"""
         for oid in graves["decks"]:
             self.col.decks.rem(oid, childrenToo=False)
 
-        self.col.server = False  # type: ignore
+        self.col.server = False
 
     # Models
     ##########################################################################
@@ -349,7 +347,7 @@ from notes where %s"""
         mods = [m for m in self.col.models.all() if m["usn"] == -1]
         for m in mods:
             m["usn"] = self.maxUsn
-        self.col.models.save()
+            self.col.models.update(m, preserve_usn=True)
         return mods
 
     def mergeModels(self, rchg) -> None:
@@ -365,7 +363,7 @@ from notes where %s"""
                         raise UnexpectedSchemaChange()
                     if len(l["tmpls"]) != len(r["tmpls"]):
                         raise UnexpectedSchemaChange()
-                self.col.models.update(r)
+                self.col.models.update(r, preserve_usn=True)
 
     # Decks
     ##########################################################################
@@ -374,11 +372,11 @@ from notes where %s"""
         decks = [g for g in self.col.decks.all() if g["usn"] == -1]
         for g in decks:
             g["usn"] = self.maxUsn
+            self.col.decks.update(g, preserve_usn=True)
         dconf = [g for g in self.col.decks.all_config() if g["usn"] == -1]
         for g in dconf:
             g["usn"] = self.maxUsn
             self.col.decks.update_config(g, preserve_usn=True)
-        self.col.decks.save()
         return [decks, dconf]
 
     def mergeDecks(self, rchg) -> None:
@@ -390,7 +388,7 @@ from notes where %s"""
 
             # if missing locally or server is newer, update
             if not l or r["mod"] > l["mod"]:
-                self.col.decks.update(r)
+                self.col.decks.update(r, preserve_usn=True)
         for r in rchg[1]:
             try:
                 l = self.col.decks.get_config(r["id"])
@@ -398,7 +396,7 @@ from notes where %s"""
                 l = None
             # if missing locally or server is newer, update
             if not l or r["mod"] > l["mod"]:
-                self.col.decks.update_config(r)
+                self.col.decks.update_config(r, preserve_usn=True)
 
     # Tags
     ##########################################################################

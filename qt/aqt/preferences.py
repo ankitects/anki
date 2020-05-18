@@ -2,9 +2,6 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import datetime
-import time
-
 import anki.lang
 import aqt
 from anki.lang import _
@@ -24,6 +21,7 @@ class Preferences(QDialog):
         self.form.buttonBox.button(QDialogButtonBox.Close).setAutoDefault(False)
         qconnect(self.form.buttonBox.helpRequested, lambda: openHelp("profileprefs"))
         self.silentlyClose = True
+        self.prefs = self.mw.col.backend.get_preferences()
         self.setupLang()
         self.setupCollection()
         self.setupNetwork()
@@ -81,25 +79,31 @@ class Preferences(QDialog):
 
         f = self.form
         qc = self.mw.col.conf
-        self._setupDayCutoff()
+
         if isMac:
             f.hwAccel.setVisible(False)
         else:
             f.hwAccel.setChecked(self.mw.pm.glMode() != "software")
-        f.lrnCutoff.setValue(qc["collapseTime"] / 60.0)
-        f.timeLimit.setValue(qc["timeLim"] / 60.0)
-        f.showEstimates.setChecked(qc["estTimes"])
-        f.showProgress.setChecked(qc["dueCounts"])
+
         f.newSpread.addItems(list(c.newCardSchedulingLabels().values()))
-        f.newSpread.setCurrentIndex(qc["newSpread"])
+
         f.useCurrent.setCurrentIndex(int(not qc.get("addToCur", True)))
-        f.dayLearnFirst.setChecked(qc.get("dayLearnFirst", False))
-        if self.mw.col.schedVer() != 2:
+
+        s = self.prefs.sched
+        f.lrnCutoff.setValue(s.learn_ahead_secs / 60.0)
+        f.timeLimit.setValue(s.time_limit_secs / 60.0)
+        f.showEstimates.setChecked(s.show_intervals_on_buttons)
+        f.showProgress.setChecked(s.show_remaining_due_counts)
+        f.newSpread.setCurrentIndex(s.new_review_mix)
+        f.dayLearnFirst.setChecked(s.day_learn_first)
+        f.dayOffset.setValue(s.rollover)
+
+        if s.scheduler_version < 2:
             f.dayLearnFirst.setVisible(False)
             f.new_timezone.setVisible(False)
         else:
             f.newSched.setChecked(True)
-            f.new_timezone.setChecked(self.mw.col.sched.new_timezone_enabled())
+            f.new_timezone.setChecked(s.new_timezone)
 
     def updateCollection(self):
         f = self.form
@@ -116,22 +120,22 @@ class Preferences(QDialog):
                 showInfo(_("Changes will take effect when you restart Anki."))
 
         qc = d.conf
-        qc["dueCounts"] = f.showProgress.isChecked()
-        qc["estTimes"] = f.showEstimates.isChecked()
-        qc["newSpread"] = f.newSpread.currentIndex()
-        qc["timeLim"] = f.timeLimit.value() * 60
-        qc["collapseTime"] = f.lrnCutoff.value() * 60
         qc["addToCur"] = not f.useCurrent.currentIndex()
-        qc["dayLearnFirst"] = f.dayLearnFirst.isChecked()
-        self._updateDayCutoff()
-        if self.mw.col.schedVer() != 1:
-            was_enabled = self.mw.col.sched.new_timezone_enabled()
-            is_enabled = f.new_timezone.isChecked()
-            if was_enabled != is_enabled:
-                if is_enabled:
-                    self.mw.col.sched.set_creation_offset()
-                else:
-                    self.mw.col.sched.clear_creation_offset()
+
+        s = self.prefs.sched
+        s.show_remaining_due_counts = f.showProgress.isChecked()
+        s.show_intervals_on_buttons = f.showEstimates.isChecked()
+        s.new_review_mix = f.newSpread.currentIndex()
+        s.time_limit_secs = f.timeLimit.value() * 60
+        s.learn_ahead_secs = f.lrnCutoff.value() * 60
+        s.day_learn_first = f.dayLearnFirst.isChecked()
+        s.rollover = f.dayOffset.value()
+        s.new_timezone = f.new_timezone.isChecked()
+
+        # if moving this, make sure scheduler change is moved to Rust or
+        # happens afterwards
+        self.mw.col.backend.set_preferences(self.prefs)
+
         self._updateSchedVer(f.newSched.isChecked())
         d.setMod()
 
@@ -156,37 +160,6 @@ class Preferences(QDialog):
             self.mw.col.changeSchedulerVer(2)
         else:
             self.mw.col.changeSchedulerVer(1)
-
-    # Day cutoff
-    ######################################################################
-
-    def _setupDayCutoff(self):
-        if self.mw.col.schedVer() == 2:
-            self._setupDayCutoffV2()
-        else:
-            self._setupDayCutoffV1()
-
-    def _setupDayCutoffV1(self):
-        self.startDate = datetime.datetime.fromtimestamp(self.mw.col.crt)
-        self.form.dayOffset.setValue(self.startDate.hour)
-
-    def _setupDayCutoffV2(self):
-        self.form.dayOffset.setValue(self.mw.col.conf.get("rollover", 4))
-
-    def _updateDayCutoff(self):
-        if self.mw.col.schedVer() == 2:
-            self._updateDayCutoffV2()
-        else:
-            self._updateDayCutoffV1()
-
-    def _updateDayCutoffV1(self):
-        hrs = self.form.dayOffset.value()
-        old = self.startDate
-        date = datetime.datetime(old.year, old.month, old.day, hrs)
-        self.mw.col.crt = int(time.mktime(date.timetuple()))
-
-    def _updateDayCutoffV2(self):
-        self.mw.col.conf["rollover"] = self.form.dayOffset.value()
 
     # Network
     ######################################################################

@@ -5,9 +5,13 @@ use crate::decks::DeckID;
 use crate::define_newtype;
 use crate::err::{AnkiError, Result};
 use crate::notes::NoteID;
-use crate::{collection::Collection, timestamp::TimestampSecs, types::Usn, undo::Undoable};
+use crate::{
+    collection::Collection, config::SchedulerVersion, timestamp::TimestampSecs, types::Usn,
+    undo::Undoable,
+};
 use num_enum::TryFromPrimitive;
 use serde_repr::{Deserialize_repr, Serialize_repr};
+use std::collections::HashSet;
 
 define_newtype!(CardID, i64);
 
@@ -86,6 +90,60 @@ impl Default for Card {
     }
 }
 
+impl Card {
+    pub(crate) fn return_home(&mut self, sched: SchedulerVersion) {
+        if self.odid.0 == 0 {
+            // this should not happen
+            return;
+        }
+
+        // fixme: avoid bumping mtime?
+        self.did = self.odid;
+        self.odid.0 = 0;
+        if self.odue > 0 {
+            self.due = self.odue;
+        }
+        self.odue = 0;
+
+        self.queue = match sched {
+            SchedulerVersion::V1 => {
+                match self.ctype {
+                    CardType::New => CardQueue::New,
+                    CardType::Learn => CardQueue::New,
+                    CardType::Review => CardQueue::Review,
+                    // not applicable in v1, should not happen
+                    CardType::Relearn => {
+                        println!("did not expect relearn type in v1 for card {}", self.id);
+                        CardQueue::New
+                    }
+                }
+            }
+            SchedulerVersion::V2 => {
+                if (self.queue as i8) >= 0 {
+                    match self.ctype {
+                        CardType::Learn | CardType::Relearn => {
+                            if self.due > 1_000_000_000 {
+                                // unix timestamp
+                                CardQueue::Learn
+                            } else {
+                                // day number
+                                CardQueue::DayLearn
+                            }
+                        }
+                        CardType::New => CardQueue::New,
+                        CardType::Review => CardQueue::Review,
+                    }
+                } else {
+                    self.queue
+                }
+            }
+        };
+
+        if sched == SchedulerVersion::V1 && self.ctype == CardType::Learn {
+            self.ctype = CardType::New;
+        }
+    }
+}
 #[derive(Debug)]
 pub(crate) struct UpdateCardUndo(Card);
 
@@ -99,6 +157,16 @@ impl Undoable for UpdateCardUndo {
     }
 }
 
+impl Card {
+    pub fn new(nid: NoteID, ord: u16, deck_id: DeckID, due: i32) -> Self {
+        let mut card = Card::default();
+        card.nid = nid;
+        card.ord = ord;
+        card.did = deck_id;
+        card.due = due;
+        card
+    }
+}
 impl Collection {
     #[cfg(test)]
     pub(crate) fn get_and_update_card<F, T>(&mut self, cid: CardID, func: F) -> Result<Card>
@@ -127,7 +195,6 @@ impl Collection {
         self.storage.update_card(card)
     }
 
-    #[allow(dead_code)]
     pub(crate) fn add_card(&mut self, card: &mut Card) -> Result<()> {
         if card.id.0 != 0 {
             return Err(AnkiError::invalid_input("card id already set"));
@@ -135,6 +202,28 @@ impl Collection {
         card.mtime = TimestampSecs::now();
         card.usn = self.usn()?;
         self.storage.add_card(card)
+    }
+
+    /// Remove cards and any resulting orphaned notes.
+    /// Expects a transaction.
+    pub(crate) fn remove_cards_inner(&mut self, cids: &[CardID]) -> Result<()> {
+        let usn = self.usn()?;
+        let mut nids = HashSet::new();
+        for cid in cids {
+            if let Some(card) = self.storage.get_card(*cid)? {
+                // fixme: undo
+                nids.insert(card.nid);
+                self.storage.remove_card(*cid)?;
+                self.storage.add_card_grave(*cid, usn)?;
+            }
+        }
+        for nid in nids {
+            if self.storage.note_is_orphaned(nid)? {
+                self.remove_note_only(nid, usn)?;
+            }
+        }
+
+        Ok(())
     }
 }
 

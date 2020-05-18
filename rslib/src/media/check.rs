@@ -11,7 +11,7 @@ use crate::media::files::{
     data_for_file, filename_if_normalized, normalize_nfc_filename, trash_folder,
     MEDIA_SYNC_FILESIZE_LIMIT,
 };
-use crate::notes::{for_every_note, set_note, Note};
+use crate::notes::Note;
 use crate::text::{normalize_to_nfc, MediaRef};
 use crate::{media::MediaManager, text::extract_media_refs};
 use coarsetime::Instant;
@@ -44,26 +44,26 @@ struct MediaFolderCheck {
     oversize: Vec<String>,
 }
 
-pub struct MediaChecker<'a, P>
+pub struct MediaChecker<'a, 'b, P>
 where
     P: FnMut(usize) -> bool,
 {
-    ctx: &'a Collection,
-    mgr: &'a MediaManager,
+    ctx: &'a mut Collection,
+    mgr: &'b MediaManager,
     progress_cb: P,
     checked: usize,
     progress_updated: Instant,
 }
 
-impl<P> MediaChecker<'_, P>
+impl<P> MediaChecker<'_, '_, P>
 where
     P: FnMut(usize) -> bool,
 {
-    pub(crate) fn new<'a>(
+    pub(crate) fn new<'a, 'b>(
         ctx: &'a mut Collection,
-        mgr: &'a MediaManager,
+        mgr: &'b MediaManager,
         progress_cb: P,
-    ) -> MediaChecker<'a, P> {
+    ) -> MediaChecker<'a, 'b, P> {
         MediaChecker {
             ctx,
             mgr,
@@ -380,14 +380,17 @@ where
         renamed: &HashMap<String, String>,
     ) -> Result<HashSet<String>> {
         let mut referenced_files = HashSet::new();
-        let note_types = self.ctx.storage.get_all_notetypes()?;
+        let note_types = self.ctx.get_all_notetypes()?;
         let mut collection_modified = false;
 
-        for_every_note(&self.ctx.storage.db, |note| {
+        let nids = self.ctx.search_notes("")?;
+        let usn = self.ctx.usn()?;
+        for nid in nids {
             self.checked += 1;
             if self.checked % 10 == 0 {
                 self.maybe_fire_progress_cb()?;
             }
+            let mut note = self.ctx.storage.get_note(nid)?.unwrap();
             let nt = note_types
                 .get(&note.ntid)
                 .ok_or_else(|| AnkiError::DBError {
@@ -395,20 +398,26 @@ where
                     kind: DBErrorKind::MissingEntity,
                 })?;
             if fix_and_extract_media_refs(
-                note,
+                &mut note,
                 &mut referenced_files,
                 renamed,
                 &self.mgr.media_folder,
             )? {
                 // note was modified, needs saving
-                set_note(&self.ctx.storage.db, note, nt)?;
+                note.prepare_for_update(nt, false)?;
+                note.set_modified(usn);
+                self.ctx.storage.update_note(&note)?;
                 collection_modified = true;
             }
 
             // extract latex
-            extract_latex_refs(note, &mut referenced_files, nt.latex_uses_svg());
-            Ok(())
-        })?;
+            extract_latex_refs(&note, &mut referenced_files, nt.config.latex_svg);
+        }
+
+        if collection_modified {
+            // fixme: need to refactor to use new transaction handling?
+            // self.ctx.storage.commit_trx()?;
+        }
 
         Ok(referenced_files)
     }

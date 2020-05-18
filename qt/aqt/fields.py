@@ -4,25 +4,30 @@
 import aqt
 from anki.consts import *
 from anki.lang import _, ngettext
+from anki.models import NoteType
+from anki.rsbackend import TemplateError
+from aqt import AnkiQt
 from aqt.qt import *
-from aqt.utils import askUser, getOnlyText, openHelp, showWarning
+from aqt.schema_change_tracker import ChangeTracker
+from aqt.utils import askUser, getOnlyText, openHelp, showWarning, tooltip
 
 
 class FieldDialog(QDialog):
-    def __init__(self, mw, note, ord=0, parent=None):
-        QDialog.__init__(self, parent or mw)  # , Qt.Window)
-        self.mw = aqt.mw
-        self.parent = parent or mw
-        self.note = note
+    def __init__(self, mw: AnkiQt, nt: NoteType, parent=None):
+        QDialog.__init__(self, parent or mw)
+        self.mw = mw
         self.col = self.mw.col
         self.mm = self.mw.col.models
-        self.model = note.model()
+        self.model = nt
+        self.mm._remove_from_cache(self.model["id"])
         self.mw.checkpoint(_("Fields"))
+        self.change_tracker = ChangeTracker(self.mw)
         self.form = aqt.forms.fields.Ui_Dialog()
         self.form.setupUi(self)
         self.setWindowTitle(_("Fields for %s") % self.model["name"])
         self.form.buttonBox.button(QDialogButtonBox.Help).setAutoDefault(False)
-        self.form.buttonBox.button(QDialogButtonBox.Close).setAutoDefault(False)
+        self.form.buttonBox.button(QDialogButtonBox.Cancel).setAutoDefault(False)
+        self.form.buttonBox.button(QDialogButtonBox.Save).setAutoDefault(False)
         self.currentIdx = None
         self.oldSortField = self.model["sortf"]
         self.fillFields()
@@ -85,7 +90,9 @@ class FieldDialog(QDialog):
         name = self._uniqueName(_("New name:"), self.currentIdx, f["name"])
         if not name:
             return
-        self.mm.renameField(self.model, f, name)
+
+        self.change_tracker.mark_basic()
+        self.mm.rename_field(self.model, f, name)
         self.saveField()
         self.fillFields()
         self.form.fieldList.setCurrentRow(idx)
@@ -94,11 +101,11 @@ class FieldDialog(QDialog):
         name = self._uniqueName(_("Field name:"))
         if not name:
             return
+        if not self.change_tracker.mark_schema():
+            return
         self.saveField()
-        self.mw.progress.start()
         f = self.mm.newField(name)
-        self.mm.addField(self.model, f)
-        self.mw.progress.finish()
+        self.mm.add_field(self.model, f)
         self.fillFields()
         self.form.fieldList.setCurrentRow(len(self.model["flds"]) - 1)
 
@@ -109,10 +116,10 @@ class FieldDialog(QDialog):
         c = ngettext("%d note", "%d notes", c) % c
         if not askUser(_("Delete field from %s?") % c):
             return
+        if not self.change_tracker.mark_schema():
+            return
         f = self.model["flds"][self.form.fieldList.currentRow()]
-        self.mw.progress.start()
-        self.mm.remField(self.model, f)
-        self.mw.progress.finish()
+        self.mm.remove_field(self.model, f)
         self.fillFields()
         self.form.fieldList.setCurrentRow(0)
 
@@ -131,16 +138,18 @@ class FieldDialog(QDialog):
         self.moveField(pos)
 
     def onSortField(self):
+        if not self.change_tracker.mark_schema():
+            return False
         # don't allow user to disable; it makes no sense
         self.form.sortField.setChecked(True)
-        self.model["sortf"] = self.form.fieldList.currentRow()
+        self.mm.set_sort_index(self.model, self.form.fieldList.currentRow())
 
     def moveField(self, pos):
+        if not self.change_tracker.mark_schema():
+            return False
         self.saveField()
         f = self.model["flds"][self.currentIdx]
-        self.mw.progress.start()
-        self.mm.moveField(self.model, f, pos - 1)
-        self.mw.progress.finish()
+        self.mm.reposition_field(self.model, f, pos - 1)
         self.fillFields()
         self.form.fieldList.setCurrentRow(pos - 1)
 
@@ -161,23 +170,48 @@ class FieldDialog(QDialog):
         idx = self.currentIdx
         fld = self.model["flds"][idx]
         f = self.form
-        fld["font"] = f.fontFamily.currentFont().family()
-        fld["size"] = f.fontSize.value()
-        fld["sticky"] = f.sticky.isChecked()
-        fld["rtl"] = f.rtl.isChecked()
+        font = f.fontFamily.currentFont().family()
+        if fld["font"] != font:
+            fld["font"] = font
+            self.change_tracker.mark_basic()
+        size = f.fontSize.value()
+        if fld["size"] != size:
+            fld["size"] = size
+            self.change_tracker.mark_basic()
+        sticky = f.sticky.isChecked()
+        if fld["sticky"] != sticky:
+            fld["sticky"] = sticky
+            self.change_tracker.mark_basic()
+        rtl = f.rtl.isChecked()
+        if fld["rtl"] != rtl:
+            fld["rtl"] = rtl
+            self.change_tracker.mark_basic()
 
     def reject(self):
-        self.saveField()
-        if self.oldSortField != self.model["sortf"]:
-            self.mw.progress.start()
-            self.mw.col.updateFieldCache(self.mm.nids(self.model))
-            self.mw.progress.finish()
-        self.mm.save(self.model)
-        self.mw.reset()
+        if self.change_tracker.changed():
+            if not askUser("Discard changes?"):
+                return
+
         QDialog.reject(self)
 
     def accept(self):
-        self.reject()
+        self.saveField()
+
+        def save():
+            self.mm.save(self.model)
+
+        def on_done(fut):
+            try:
+                fut.result()
+            except TemplateError as e:
+                # fixme: i18n
+                showWarning("Unable to save changes: " + str(e))
+                return
+            self.mw.reset()
+            tooltip("Changes saved.", parent=self.mw)
+            QDialog.accept(self)
+
+        self.mw.taskman.with_progress(save, on_done, self)
 
     def onHelp(self):
         openHelp("fields")

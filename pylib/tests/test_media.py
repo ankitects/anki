@@ -26,7 +26,7 @@ def test_add():
 def test_strings():
     d = getEmptyCol()
     mf = d.media.filesInStr
-    mid = list(d.models.models.keys())[0]
+    mid = d.models.current()["id"]
     assert mf(mid, "aoeu") == []
     assert mf(mid, "aoeu<img src='foo.jpg'>ao") == ["foo.jpg"]
     assert mf(mid, "aoeu<img src='foo.jpg' style='test'>ao") == ["foo.jpg"]

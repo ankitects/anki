@@ -1,125 +1,67 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from typing import Any, Callable, List, Optional, Tuple, Union
+from typing import Callable, List, Tuple
 
 from anki.collection import _Collection
-from anki.consts import MODEL_CLOZE
-from anki.lang import _
 from anki.models import NoteType
+from anki.rsbackend import StockNoteType
 
-models: List[Tuple[Union[Callable[[], str], str], Callable[[Any], NoteType]]] = []
+# add-on authors can add ("note type name", function_like_addBasicModel)
+# to this list to have it shown in the add/clone note type screen
+models: List[Tuple] = []
 
-# Basic
-##########################################################################
 
-
-def _newBasicModel(col: _Collection, name: Optional[str] = None) -> NoteType:
-    mm = col.models
-    m = mm.new(name or _("Basic"))
-    fm = mm.newField(_("Front"))
-    mm.addField(m, fm)
-    fm = mm.newField(_("Back"))
-    mm.addField(m, fm)
-    t = mm.newTemplate(_("Card 1"))
-    t["qfmt"] = "{{" + _("Front") + "}}"
-    t["afmt"] = "{{FrontSide}}\n\n<hr id=answer>\n\n" + "{{" + _("Back") + "}}"
-    mm.addTemplate(m, t)
+def add_stock_notetype(col: _Collection, kind: StockNoteType) -> NoteType:
+    m = col.backend.get_stock_notetype_legacy(kind)
+    col.models.add(m)
     return m
 
 
 def addBasicModel(col: _Collection) -> NoteType:
-    m = _newBasicModel(col)
-    col.models.add(m)
-    return m
-
-
-models.append((lambda: _("Basic"), addBasicModel))
-
-# Basic w/ typing
-##########################################################################
+    return add_stock_notetype(col, StockNoteType.STOCK_NOTE_TYPE_BASIC)
 
 
 def addBasicTypingModel(col: _Collection) -> NoteType:
-    mm = col.models
-    m = _newBasicModel(col, _("Basic (type in the answer)"))
-    t = m["tmpls"][0]
-    t["qfmt"] = "{{" + _("Front") + "}}\n\n{{type:" + _("Back") + "}}"
-    t["afmt"] = "{{" + _("Front") + "}}\n\n<hr id=answer>\n\n{{type:" + _("Back") + "}}"
-    mm.add(m)
-    return m
-
-
-models.append((lambda: _("Basic (type in the answer)"), addBasicTypingModel))
-
-# Forward & Reverse
-##########################################################################
-
-
-def _newForwardReverse(col: _Collection, name: Optional[str] = None) -> NoteType:
-    mm = col.models
-    m = _newBasicModel(col, name or _("Basic (and reversed card)"))
-    t = mm.newTemplate(_("Card 2"))
-    t["qfmt"] = "{{" + _("Back") + "}}"
-    t["afmt"] = "{{FrontSide}}\n\n<hr id=answer>\n\n" + "{{" + _("Front") + "}}"
-    mm.addTemplate(m, t)
-    return m
+    return add_stock_notetype(col, StockNoteType.STOCK_NOTE_TYPE_BASIC_TYPING)
 
 
 def addForwardReverse(col: _Collection) -> NoteType:
-    m = _newForwardReverse(col)
-    col.models.add(m)
-    return m
-
-
-models.append((lambda: _("Basic (and reversed card)"), addForwardReverse))
-
-# Forward & Optional Reverse
-##########################################################################
+    return add_stock_notetype(col, StockNoteType.STOCK_NOTE_TYPE_BASIC_AND_REVERSED)
 
 
 def addForwardOptionalReverse(col: _Collection) -> NoteType:
-    mm = col.models
-    m = _newForwardReverse(col, _("Basic (optional reversed card)"))
-    av = _("Add Reverse")
-    fm = mm.newField(av)
-    mm.addField(m, fm)
-    t = m["tmpls"][1]
-    t["qfmt"] = "{{#%s}}%s{{/%s}}" % (av, t["qfmt"], av)
-    mm.add(m)
-    return m
-
-
-models.append((lambda: _("Basic (optional reversed card)"), addForwardOptionalReverse))
-
-# Cloze
-##########################################################################
+    return add_stock_notetype(
+        col, StockNoteType.STOCK_NOTE_TYPE_BASIC_OPTIONAL_REVERSED
+    )
 
 
 def addClozeModel(col: _Collection) -> NoteType:
-    mm = col.models
-    m = mm.new(_("Cloze"))
-    m["type"] = MODEL_CLOZE
-    txt = _("Text")
-    fm = mm.newField(txt)
-    mm.addField(m, fm)
-    t = mm.newTemplate(_("Cloze"))
-    fmt = "{{cloze:%s}}" % txt
-    m[
-        "css"
-    ] += """
-.cloze {
- font-weight: bold;
- color: blue;
-}
-.nightMode .cloze {
- color: lightblue;
-}"""
-    t["qfmt"] = fmt
-    t["afmt"] = fmt
-    mm.addTemplate(m, t)
-    mm.add(m)
-    return m
+    return add_stock_notetype(col, StockNoteType.STOCK_NOTE_TYPE_CLOZE)
 
 
-models.append((lambda: _("Cloze"), addClozeModel))
+def get_stock_notetypes(
+    col: _Collection,
+) -> List[Tuple[str, Callable[[_Collection], NoteType]]]:
+    out: List[Tuple[str, Callable[[_Collection], NoteType]]] = []
+    # add standard
+    for (kind, func) in [
+        (StockNoteType.STOCK_NOTE_TYPE_BASIC, addBasicModel),
+        (StockNoteType.STOCK_NOTE_TYPE_BASIC_TYPING, addBasicTypingModel),
+        (StockNoteType.STOCK_NOTE_TYPE_BASIC_AND_REVERSED, addForwardReverse),
+        (
+            StockNoteType.STOCK_NOTE_TYPE_BASIC_OPTIONAL_REVERSED,
+            addForwardOptionalReverse,
+        ),
+        (StockNoteType.STOCK_NOTE_TYPE_CLOZE, addClozeModel),
+    ]:
+        m = col.backend.get_stock_notetype_legacy(kind)
+        out.append((m["name"], func))
+    # add extras from add-ons
+    for (name_or_func, func) in models:
+        if not isinstance(name_or_func, str):
+            name = name_or_func()
+        else:
+            name = name_or_func
+        out.append((name, func))
+    return out

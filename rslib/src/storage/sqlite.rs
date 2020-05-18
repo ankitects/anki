@@ -5,20 +5,23 @@ use crate::config::schema11_config_as_string;
 use crate::err::Result;
 use crate::err::{AnkiError, DBErrorKind};
 use crate::timestamp::{TimestampMillis, TimestampSecs};
-use crate::{i18n::I18n, text::without_combining, types::Usn};
+use crate::{i18n::I18n, sched::cutoff::v1_creation_date, text::without_combining, types::Usn};
 use regex::Regex;
 use rusqlite::{functions::FunctionFlags, params, Connection, NO_PARAMS};
 use std::cmp::Ordering;
-use std::{borrow::Cow, path::Path};
+use std::{borrow::Cow, path::Path, sync::Arc};
 use unicase::UniCase;
 
 const SCHEMA_MIN_VERSION: u8 = 11;
 const SCHEMA_STARTING_VERSION: u8 = 11;
-const SCHEMA_MAX_VERSION: u8 = 14;
+const SCHEMA_MAX_VERSION: u8 = 15;
 
 fn unicase_compare(s1: &str, s2: &str) -> Ordering {
     UniCase::new(s1).cmp(&UniCase::new(s2))
 }
+
+// fixme: rollback savepoint when tags not changed
+// fixme: need to drop out of wal prior to vacuuming to fix page size of older collections
 
 // currently public for dbproxy
 #[derive(Debug)]
@@ -41,7 +44,6 @@ fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
     db.pragma_update(None, "cache_size", &(-40 * 1024))?;
     db.pragma_update(None, "legacy_file_format", &false)?;
     db.pragma_update(None, "journal_mode", &"wal")?;
-    db.pragma_update(None, "temp_store", &"memory")?;
 
     db.set_prepared_statement_cache_capacity(50);
 
@@ -87,6 +89,7 @@ fn add_without_combining_function(db: &Connection) -> rusqlite::Result<()> {
 
 /// Adds sql function regexp(regex, string) -> is_match
 /// Taken from the rusqlite docs
+type BoxError = Box<dyn std::error::Error + Send + Sync + 'static>;
 fn add_regexp_function(db: &Connection) -> rusqlite::Result<()> {
     db.create_scalar_function(
         "regexp",
@@ -95,21 +98,12 @@ fn add_regexp_function(db: &Connection) -> rusqlite::Result<()> {
         move |ctx| {
             assert_eq!(ctx.len(), 2, "called with unexpected number of arguments");
 
-            let saved_re: Option<&Regex> = ctx.get_aux(0)?;
-            let new_re = match saved_re {
-                None => {
-                    let s = ctx.get::<String>(0)?;
-                    match Regex::new(&s) {
-                        Ok(r) => Some(r),
-                        Err(err) => return Err(rusqlite::Error::UserFunctionError(Box::new(err))),
-                    }
-                }
-                Some(_) => None,
-            };
+            let re: Arc<Regex> = ctx
+                .get_or_create_aux(0, |vr| -> std::result::Result<_, BoxError> {
+                    Ok(Regex::new(vr.as_str()?)?)
+                })?;
 
             let is_match = {
-                let re = saved_re.unwrap_or_else(|| new_re.as_ref().unwrap());
-
                 let text = ctx
                     .get_raw(1)
                     .as_str()
@@ -117,10 +111,6 @@ fn add_regexp_function(db: &Connection) -> rusqlite::Result<()> {
 
                 re.is_match(text)
             };
-
-            if let Some(re) = new_re {
-                ctx.set_aux(0, re);
-            }
 
             Ok(is_match)
         },
@@ -180,7 +170,7 @@ impl SqliteStorage {
             db.execute(
                 "update col set crt=?, ver=?, conf=?",
                 params![
-                    TimestampSecs::now(),
+                    v1_creation_date(),
                     SCHEMA_STARTING_VERSION,
                     &schema11_config_as_string()
                 ],
@@ -195,6 +185,8 @@ impl SqliteStorage {
 
         if create {
             storage.add_default_deck_config(i18n)?;
+            storage.add_default_deck(i18n)?;
+            storage.add_stock_notetypes(i18n)?;
         }
 
         if create || upgrade {
@@ -283,6 +275,13 @@ impl SqliteStorage {
         }
     }
 
+    pub(crate) fn increment_usn(&self) -> Result<()> {
+        self.db
+            .prepare_cached("update col set usn = usn + 1")?
+            .execute(NO_PARAMS)?;
+        Ok(())
+    }
+
     pub(crate) fn creation_stamp(&self) -> Result<TimestampSecs> {
         self.db
             .prepare_cached("select crt from col")?
@@ -290,10 +289,60 @@ impl SqliteStorage {
             .map_err(Into::into)
     }
 
-    pub(crate) fn schema_modified(&self) -> Result<bool> {
+    pub(crate) fn set_creation_stamp(&self, stamp: TimestampSecs) -> Result<()> {
         self.db
-            .prepare_cached("select scm > ls from col")?
-            .query_row(NO_PARAMS, |row| row.get(0))
+            .prepare("update col set crt = ?")?
+            .execute(&[stamp])?;
+        Ok(())
+    }
+
+    pub(crate) fn set_schema_modified(&self) -> Result<()> {
+        self.db
+            .prepare_cached("update col set scm = ?")?
+            .execute(&[TimestampMillis::now()])?;
+        Ok(())
+    }
+
+    pub(crate) fn get_schema_mtime(&self) -> Result<TimestampSecs> {
+        self.db
+            .prepare_cached("select scm from col")?
+            .query_and_then(NO_PARAMS, |r| r.get(0))?
+            .next()
+            .ok_or_else(|| AnkiError::invalid_input("missing col"))?
+            .map_err(Into::into)
+    }
+
+    pub(crate) fn set_last_sync(&self, stamp: TimestampSecs) -> Result<()> {
+        self.db
+            .prepare("update col set ls = ?")?
+            .execute(&[stamp])?;
+        Ok(())
+    }
+
+    //////////////////////////////////////////
+
+    /// true if corrupt/can't access
+    pub(crate) fn quick_check_corrupt(&self) -> bool {
+        match self.db.pragma_query_value(None, "quick_check", |row| {
+            row.get(0).map(|v: String| v != "ok")
+        }) {
+            Ok(corrupt) => corrupt,
+            Err(e) => {
+                println!("error: {:?}", e);
+                true
+            }
+        }
+    }
+
+    pub(crate) fn optimize(&self) -> Result<()> {
+        self.db.execute_batch("vacuum; analyze")?;
+        Ok(())
+    }
+
+    #[cfg(test)]
+    pub(crate) fn db_scalar<T: rusqlite::types::FromSql>(&self, sql: &str) -> Result<T> {
+        self.db
+            .query_row(sql, NO_PARAMS, |r| r.get(0))
             .map_err(Into::into)
     }
 }

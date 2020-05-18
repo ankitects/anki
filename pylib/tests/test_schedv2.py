@@ -440,10 +440,10 @@ def test_review_limits():
         c.due = 0
         c.flush()
 
-    tree = d.sched.deckDueTree()
-    # (('Default', 1, 0, 0, 0, ()), ('parent', 1514457677462, 5, 0, 0, (('child', 1514457677463, 5, 0, 0, ()),)))
-    assert tree[1][2] == 5  # parent
-    assert tree[1][5][0][2] == 5  # child
+    tree = d.sched.deck_due_tree().children
+    # (('parent', 1514457677462, 5, 0, 0, (('child', 1514457677463, 5, 0, 0, ()),)))
+    assert tree[0].review_count == 5  # parent
+    assert tree[0].children[0].review_count == 5  # child
 
     # .counts() should match
     d.decks.select(child["id"])
@@ -455,20 +455,9 @@ def test_review_limits():
     d.sched.answerCard(c, 3)
     assert d.sched.counts() == (0, 0, 4)
 
-    tree = d.sched.deckDueTree()
-    assert tree[1][2] == 4  # parent
-    assert tree[1][5][0][2] == 4  # child
-
-    # switch limits
-    d.decks.setConf(parent, cconf["id"])
-    d.decks.setConf(child, pconf["id"])
-    d.decks.select(parent["id"])
-    d.sched.reset()
-
-    # child limits do not affect the parent
-    tree = d.sched.deckDueTree()
-    assert tree[1][2] == 9  # parent
-    assert tree[1][5][0][2] == 4  # child
+    tree = d.sched.deck_due_tree().children
+    assert tree[0].review_count == 4  # parent
+    assert tree[0].children[0].review_count == 4  # child
 
 
 def test_button_spacing():
@@ -732,7 +721,7 @@ def test_filt_reviewing_early_normal():
     d.sched.rebuildDyn(did)
     d.reset()
     # should appear as normal in the deck list
-    assert sorted(d.sched.deckDueList())[0][2] == 1
+    assert sorted(d.sched.deck_due_tree().children)[0].review_count == 1
     # and should appear in the counts
     assert d.sched.counts() == (0, 0, 1)
     # grab it and check estimates
@@ -825,6 +814,7 @@ def test_preview():
     did = d.decks.newDyn("Cram")
     cram = d.decks.get(did)
     cram["resched"] = False
+    d.decks.save(cram)
     d.sched.rebuildDyn(did)
     d.reset()
     # grab the first card
@@ -1032,29 +1022,23 @@ def test_deckDue():
     foobaz = f.model()["did"] = d.decks.id("foo::baz")
     d.addNote(f)
     d.reset()
-    assert len(d.decks.decks) == 5
-    cnts = d.sched.deckDueList()
-    assert cnts[0] == ["Default", 1, 1, 0, 1]
-    assert cnts[1] == ["Default::1", default1, 1, 0, 0]
-    assert cnts[2] == ["foo", d.decks.id("foo"), 0, 0, 0]
-    assert cnts[3] == ["foo::bar", foobar, 0, 0, 1]
-    assert cnts[4] == ["foo::baz", foobaz, 0, 0, 1]
-    tree = d.sched.deckDueTree()
-    assert tree[0][0] == "Default"
+    assert len(d.decks.all_names_and_ids()) == 5
+    tree = d.sched.deck_due_tree().children
+    assert tree[0].name == "Default"
     # sum of child and parent
-    assert tree[0][1] == 1
-    assert tree[0][2] == 1
-    assert tree[0][4] == 1
+    assert tree[0].deck_id == 1
+    assert tree[0].review_count == 1
+    assert tree[0].new_count == 1
     # child count is just review
-    assert tree[0][5][0][0] == "1"
-    assert tree[0][5][0][1] == default1
-    assert tree[0][5][0][2] == 1
-    assert tree[0][5][0][4] == 0
+    child = tree[0].children[0]
+    assert child.name == "1"
+    assert child.deck_id == default1
+    assert child.review_count == 1
+    assert child.new_count == 0
     # code should not fail if a card has an invalid deck
     c.did = 12345
     c.flush()
-    d.sched.deckDueList()
-    d.sched.deckDueTree()
+    d.sched.deck_due_tree()
 
 
 def test_deckTree():
@@ -1062,7 +1046,7 @@ def test_deckTree():
     d.decks.id("new::b::c")
     d.decks.id("new2")
     # new should not appear twice in tree
-    names = [x[0] for x in d.sched.deckDueTree()]
+    names = [x.name for x in d.sched.deck_due_tree().children]
     names.remove("new")
     assert "new" not in names
 

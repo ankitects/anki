@@ -8,7 +8,7 @@ use std::io;
 
 pub type Result<T> = std::result::Result<T, AnkiError>;
 
-#[derive(Debug, Fail)]
+#[derive(Debug, Fail, PartialEq)]
 pub enum AnkiError {
     #[fail(display = "invalid input: {}", info)]
     InvalidInput { info: String },
@@ -34,6 +34,9 @@ pub enum AnkiError {
     #[fail(display = "JSON encode/decode error: {}", info)]
     JSONError { info: String },
 
+    #[fail(display = "Protobuf encode/decode error: {}", info)]
+    ProtoError { info: String },
+
     #[fail(display = "The user interrupted the operation.")]
     Interrupted,
 
@@ -43,8 +46,14 @@ pub enum AnkiError {
     #[fail(display = "Close the existing collection first.")]
     CollectionAlreadyOpen,
 
-    #[fail(display = "Operation modifies schema, but schema not marked modified.")]
-    SchemaChange,
+    #[fail(display = "A requested item was not found.")]
+    NotFound,
+
+    #[fail(display = "The provided item already exists.")]
+    Existing,
+
+    #[fail(display = "Unable to place item in/under a filtered deck.")]
+    DeckIsFiltered,
 }
 
 // error helpers
@@ -93,6 +102,10 @@ impl AnkiError {
                 // already localized
                 info.into()
             }
+            AnkiError::DBError { info, kind } => match kind {
+                DBErrorKind::Corrupt => info.clone(),
+                _ => format!("{:?}", self),
+            },
             _ => format!("{:?}", self),
         }
     }
@@ -232,10 +245,27 @@ impl From<serde_json::Error> for AnkiError {
     }
 }
 
+impl From<prost::EncodeError> for AnkiError {
+    fn from(err: prost::EncodeError) -> Self {
+        AnkiError::ProtoError {
+            info: err.to_string(),
+        }
+    }
+}
+
+impl From<prost::DecodeError> for AnkiError {
+    fn from(err: prost::DecodeError) -> Self {
+        AnkiError::ProtoError {
+            info: err.to_string(),
+        }
+    }
+}
+
 #[derive(Debug, PartialEq)]
 pub enum DBErrorKind {
     FileTooNew,
     FileTooOld,
     MissingEntity,
+    Corrupt,
     Other,
 }

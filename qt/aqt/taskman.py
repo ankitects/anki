@@ -5,6 +5,8 @@
 Helper for running tasks on background threads.
 """
 
+from __future__ import annotations
+
 from concurrent.futures import Future
 from concurrent.futures.thread import ThreadPoolExecutor
 from threading import Lock
@@ -12,7 +14,8 @@ from typing import Any, Callable, Dict, List, Optional
 
 from PyQt5.QtCore import QObject, pyqtSignal
 
-from aqt.qt import qconnect
+import aqt
+from aqt.qt import QWidget, qconnect
 
 Closure = Callable[[], None]
 
@@ -20,8 +23,9 @@ Closure = Callable[[], None]
 class TaskManager(QObject):
     _closures_pending = pyqtSignal()
 
-    def __init__(self) -> None:
+    def __init__(self, mw: aqt.AnkiQt) -> None:
         QObject.__init__(self)
+        self.mw = mw.weakref()
         self._executor = ThreadPoolExecutor()
         self._closures: List[Closure] = []
         self._closures_lock = Lock()
@@ -56,6 +60,20 @@ class TaskManager(QObject):
             )
 
         return fut
+
+    def with_progress(
+        self,
+        task: Callable,
+        on_done: Optional[Callable[[Future], None]] = None,
+        parent: Optional[QWidget] = None,
+    ):
+        self.mw.progress.start(parent=parent)
+
+        def wrapped_done(fut):
+            self.mw.progress.finish()
+            on_done(fut)
+
+        self.run_in_background(task, wrapped_done)
 
     def _on_closures_pending(self):
         """Run any pending closures. This runs in the main thread."""

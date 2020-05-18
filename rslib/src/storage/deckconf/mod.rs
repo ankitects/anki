@@ -3,61 +3,70 @@
 
 use super::SqliteStorage;
 use crate::{
-    deckconf::{DeckConf, DeckConfID},
+    deckconf::{DeckConf, DeckConfID, DeckConfSchema11, DeckConfigInner},
     err::Result,
     i18n::{I18n, TR},
 };
-use rusqlite::{params, NO_PARAMS};
+use prost::Message;
+use rusqlite::{params, Row, NO_PARAMS};
 use std::collections::HashMap;
+
+fn row_to_deckconf(row: &Row) -> Result<DeckConf> {
+    let config = DeckConfigInner::decode(row.get_raw(4).as_blob()?)?;
+    Ok(DeckConf {
+        id: row.get(0)?,
+        name: row.get(1)?,
+        mtime_secs: row.get(2)?,
+        usn: row.get(3)?,
+        inner: config,
+    })
+}
 
 impl SqliteStorage {
     pub(crate) fn all_deck_config(&self) -> Result<Vec<DeckConf>> {
         self.db
-            .prepare_cached("select config from deck_config")?
-            .query_and_then(NO_PARAMS, |row| -> Result<_> {
-                Ok(serde_json::from_slice(row.get_raw(0).as_blob()?)?)
-            })?
+            .prepare_cached(include_str!("get.sql"))?
+            .query_and_then(NO_PARAMS, row_to_deckconf)?
             .collect()
     }
 
     pub(crate) fn get_deck_config(&self, dcid: DeckConfID) -> Result<Option<DeckConf>> {
         self.db
-            .prepare_cached(include_str!("get.sql"))?
-            .query_and_then(params![dcid], |row| -> Result<_> {
-                Ok(serde_json::from_slice(row.get_raw(0).as_blob()?)?)
-            })?
+            .prepare_cached(concat!(include_str!("get.sql"), " where id = ?"))?
+            .query_and_then(params![dcid], row_to_deckconf)?
             .next()
             .transpose()
     }
 
     pub(crate) fn add_deck_conf(&self, conf: &mut DeckConf) -> Result<()> {
+        let mut conf_bytes = vec![];
+        conf.inner.encode(&mut conf_bytes)?;
         self.db
             .prepare_cached(include_str!("add.sql"))?
             .execute(params![
                 conf.id,
                 conf.name,
-                conf.mtime,
+                conf.mtime_secs,
                 conf.usn,
-                &serde_json::to_vec(conf)?,
+                conf_bytes,
             ])?;
         let id = self.db.last_insert_rowid();
         if conf.id.0 != id {
-            // if the initial ID conflicted, make sure the json is up to date
-            // as well
             conf.id.0 = id;
-            self.update_deck_conf(conf)?;
         }
         Ok(())
     }
 
     pub(crate) fn update_deck_conf(&self, conf: &DeckConf) -> Result<()> {
+        let mut conf_bytes = vec![];
+        conf.inner.encode(&mut conf_bytes)?;
         self.db
             .prepare_cached(include_str!("update.sql"))?
             .execute(params![
                 conf.name,
-                conf.mtime,
+                conf.mtime_secs,
                 conf.usn,
-                &serde_json::to_vec(conf)?,
+                conf_bytes,
                 conf.id,
             ])?;
         Ok(())
@@ -71,13 +80,9 @@ impl SqliteStorage {
     }
 
     pub(crate) fn clear_deck_conf_usns(&self) -> Result<()> {
-        for mut conf in self.all_deck_config()? {
-            if conf.usn.0 != 0 {
-                conf.usn.0 = 0;
-                self.update_deck_conf(&conf)?;
-            }
-        }
-
+        self.db
+            .prepare("update deck_config set usn = 0 where usn != 0")?
+            .execute(NO_PARAMS)?;
         Ok(())
     }
 
@@ -90,26 +95,70 @@ impl SqliteStorage {
         self.add_deck_conf(&mut conf)
     }
 
+    // schema 11->14
+
+    fn add_deck_conf_schema14(&self, conf: &mut DeckConfSchema11) -> Result<()> {
+        self.db
+            .prepare_cached(include_str!("add.sql"))?
+            .execute(params![
+                conf.id,
+                conf.name,
+                conf.mtime,
+                conf.usn,
+                &serde_json::to_vec(conf)?,
+            ])?;
+        let id = self.db.last_insert_rowid();
+        if conf.id.0 != id {
+            conf.id.0 = id;
+        }
+        Ok(())
+    }
+
     pub(super) fn upgrade_deck_conf_to_schema14(&self) -> Result<()> {
         let conf = self
             .db
             .query_row_and_then("select dconf from col", NO_PARAMS, |row| {
-                let conf: Result<HashMap<DeckConfID, DeckConf>> =
+                let conf: Result<HashMap<DeckConfID, DeckConfSchema11>> =
                     serde_json::from_str(row.get_raw(0).as_str()?).map_err(Into::into);
                 conf
             })?;
         for (_, mut conf) in conf.into_iter() {
-            self.add_deck_conf(&mut conf)?;
+            self.add_deck_conf_schema14(&mut conf)?;
         }
         self.db.execute_batch("update col set dconf=''")?;
 
         Ok(())
     }
 
-    pub(super) fn downgrade_deck_conf_from_schema14(&self) -> Result<()> {
+    // schema 14->15
+
+    fn all_deck_config_schema14(&self) -> Result<Vec<DeckConfSchema11>> {
+        self.db
+            .prepare_cached("select config from deck_config")?
+            .query_and_then(NO_PARAMS, |row| -> Result<_> {
+                Ok(serde_json::from_slice(row.get_raw(0).as_blob()?)?)
+            })?
+            .collect()
+    }
+
+    pub(super) fn upgrade_deck_conf_to_schema15(&self) -> Result<()> {
+        for conf in self.all_deck_config_schema14()? {
+            let conf: DeckConf = conf.into();
+            self.update_deck_conf(&conf)?;
+        }
+
+        Ok(())
+    }
+
+    // schema 15->11
+
+    pub(super) fn downgrade_deck_conf_from_schema15(&self) -> Result<()> {
         let allconf = self.all_deck_config()?;
-        let confmap: HashMap<DeckConfID, DeckConf> =
-            allconf.into_iter().map(|c| (c.id, c)).collect();
+        let confmap: HashMap<DeckConfID, DeckConfSchema11> = allconf
+            .into_iter()
+            .map(|c| -> DeckConfSchema11 { c.into() })
+            .map(|c| (c.id, c))
+            .collect();
         self.db.execute(
             "update col set dconf=?",
             params![serde_json::to_string(&confmap)?],

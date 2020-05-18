@@ -37,7 +37,6 @@ from anki import hooks
 from anki.dbproxy import Row as DBRow
 from anki.dbproxy import ValueForDB
 from anki.fluent_pb2 import FluentString as TR
-from anki.models import AllTemplateReqs
 from anki.sound import AVTag, SoundOrVideoTag, TTSTag
 from anki.types import assert_impossible_literal
 from anki.utils import intTime
@@ -47,7 +46,11 @@ assert ankirspy.buildhash() == anki.buildinfo.buildhash
 SchedTimingToday = pb.SchedTimingTodayOut
 BuiltinSortKind = pb.BuiltinSearchOrder.BuiltinSortKind
 BackendCard = pb.Card
+BackendNote = pb.Note
 TagUsnTuple = pb.TagUsnTuple
+NoteType = pb.NoteType
+DeckTreeNode = pb.DeckTreeNode
+StockNoteType = pb.StockNoteType
 
 try:
     import orjson
@@ -97,6 +100,22 @@ class TemplateError(StringError):
     pass
 
 
+class NotFoundError(Exception):
+    pass
+
+
+class ExistsError(Exception):
+    pass
+
+
+class DeckIsFilteredError(Exception):
+    pass
+
+
+class InvalidInput(StringError):
+    pass
+
+
 def proto_exception_to_native(err: pb.BackendError) -> Exception:
     val = err.WhichOneof("value")
     if val == "interrupted":
@@ -112,29 +131,17 @@ def proto_exception_to_native(err: pb.BackendError) -> Exception:
     elif val == "template_parse":
         return TemplateError(err.localized)
     elif val == "invalid_input":
-        return StringError(err.localized)
+        return InvalidInput(err.localized)
     elif val == "json_error":
         return StringError(err.localized)
+    elif val == "not_found_error":
+        return NotFoundError()
+    elif val == "exists":
+        return ExistsError()
+    elif val == "deck_is_filtered":
+        return DeckIsFilteredError()
     else:
         assert_impossible_literal(val)
-
-
-def proto_template_reqs_to_legacy(
-    reqs: List[pb.TemplateRequirement],
-) -> AllTemplateReqs:
-    legacy_reqs = []
-    for (idx, req) in enumerate(reqs):
-        kind = req.WhichOneof("value")
-        # fixme: sorting is for the unit tests - should check if any
-        # code depends on the order
-        if kind == "any":
-            legacy_reqs.append((idx, "any", sorted(req.any.ords)))
-        elif kind == "all":
-            legacy_reqs.append((idx, "all", sorted(req.all.ords)))
-        else:
-            l: List[int] = []
-            legacy_reqs.append((idx, "none", l))
-    return legacy_reqs
 
 
 def av_tag_to_native(tag: pb.AVTag) -> AVTag:
@@ -159,6 +166,12 @@ class TemplateReplacement:
 
 
 TemplateReplacementList = List[Union[str, TemplateReplacement]]
+
+
+@dataclass
+class PartiallyRenderedCard:
+    qnodes: TemplateReplacementList
+    anodes: TemplateReplacementList
 
 
 MediaSyncProgress = pb.MediaSyncProgress
@@ -281,70 +294,44 @@ class RustBackend:
             release_gil=True,
         )
 
-    def template_requirements(
-        self, template_fronts: List[str], field_map: Dict[str, int]
-    ) -> AllTemplateReqs:
-        input = pb.BackendInput(
-            template_requirements=pb.TemplateRequirementsIn(
-                template_front=template_fronts, field_names_to_ordinals=field_map
-            )
-        )
-        output = self._run_command(input).template_requirements
-        reqs: List[pb.TemplateRequirement] = output.requirements  # type: ignore
-        return proto_template_reqs_to_legacy(reqs)
-
-    def sched_timing_today(
-        self,
-        created_secs: int,
-        created_mins_west: Optional[int],
-        now_mins_west: Optional[int],
-        rollover: Optional[int],
-    ) -> SchedTimingToday:
-        if created_mins_west is not None:
-            crt_west = pb.OptionalInt32(val=created_mins_west)
-        else:
-            crt_west = None
-
-        if now_mins_west is not None:
-            now_west = pb.OptionalInt32(val=now_mins_west)
-        else:
-            now_west = None
-
-        if rollover is not None:
-            roll = pb.OptionalInt32(val=rollover)
-        else:
-            roll = None
-
+    def sched_timing_today(self,) -> SchedTimingToday:
         return self._run_command(
-            pb.BackendInput(
-                sched_timing_today=pb.SchedTimingTodayIn(
-                    created_secs=created_secs,
-                    now_secs=intTime(),
-                    created_mins_west=crt_west,
-                    now_mins_west=now_west,
-                    rollover_hour=roll,
-                )
-            )
+            pb.BackendInput(sched_timing_today=pb.Empty())
         ).sched_timing_today
 
-    def render_card(
-        self, qfmt: str, afmt: str, fields: Dict[str, str], card_ord: int
-    ) -> Tuple[TemplateReplacementList, TemplateReplacementList]:
+    def render_existing_card(self, cid: int, browser: bool) -> PartiallyRenderedCard:
         out = self._run_command(
             pb.BackendInput(
-                render_card=pb.RenderCardIn(
-                    question_template=qfmt,
-                    answer_template=afmt,
-                    fields=fields,
-                    card_ordinal=card_ord,
+                render_existing_card=pb.RenderExistingCardIn(
+                    card_id=cid, browser=browser,
                 )
             )
-        ).render_card
+        ).render_existing_card
 
         qnodes = proto_replacement_list_to_native(out.question_nodes)  # type: ignore
         anodes = proto_replacement_list_to_native(out.answer_nodes)  # type: ignore
 
-        return (qnodes, anodes)
+        return PartiallyRenderedCard(qnodes, anodes)
+
+    def render_uncommitted_card(
+        self, note: BackendNote, card_ord: int, template: Dict, fill_empty: bool
+    ) -> PartiallyRenderedCard:
+        template_json = orjson.dumps(template)
+        out = self._run_command(
+            pb.BackendInput(
+                render_uncommitted_card=pb.RenderUncommittedCardIn(
+                    note=note,
+                    template=template_json,
+                    card_ord=card_ord,
+                    fill_empty=fill_empty,
+                )
+            )
+        ).render_uncommitted_card
+
+        qnodes = proto_replacement_list_to_native(out.question_nodes)  # type: ignore
+        anodes = proto_replacement_list_to_native(out.answer_nodes)  # type: ignore
+
+        return PartiallyRenderedCard(qnodes, anodes)
 
     def local_minutes_west(self, stamp: int) -> int:
         return self._run_command(
@@ -546,10 +533,6 @@ class RustBackend:
     def all_tags(self) -> Iterable[TagUsnTuple]:
         return self._run_command(pb.BackendInput(all_tags=pb.Empty())).all_tags.tags
 
-    def canonify_tags(self, tags: str) -> Tuple[str, bool]:
-        out = self._run_command(pb.BackendInput(canonify_tags=tags)).canonify_tags
-        return (out.tags, out.tag_list_changed)
-
     def register_tags(self, tags: str, usn: Optional[int], clear_first: bool) -> bool:
         if usn is None:
             preserve_usn = False
@@ -608,14 +591,11 @@ class RustBackend:
     def set_all_config(self, conf: Dict[str, Any]):
         self._run_command(pb.BackendInput(set_all_config=orjson.dumps(conf)))
 
-    def get_all_notetypes(self) -> Dict[str, Dict[str, Any]]:
+    def get_changed_notetypes(self, usn: int) -> Dict[str, Dict[str, Any]]:
         jstr = self._run_command(
-            pb.BackendInput(get_all_notetypes=pb.Empty())
-        ).get_all_notetypes
+            pb.BackendInput(get_changed_notetypes=usn)
+        ).get_changed_notetypes
         return orjson.loads(jstr)
-
-    def set_all_notetypes(self, nts: Dict[str, Dict[str, Any]]):
-        self._run_command(pb.BackendInput(set_all_notetypes=orjson.dumps(nts)))
 
     def get_all_decks(self) -> Dict[str, Dict[str, Any]]:
         jstr = self._run_command(
@@ -623,8 +603,229 @@ class RustBackend:
         ).get_all_decks
         return orjson.loads(jstr)
 
-    def set_all_decks(self, nts: Dict[str, Dict[str, Any]]):
-        self._run_command(pb.BackendInput(set_all_decks=orjson.dumps(nts)))
+    def get_stock_notetype_legacy(self, kind: StockNoteType) -> Dict[str, Any]:
+        bytes = self._run_command(
+            pb.BackendInput(get_stock_notetype_legacy=kind)
+        ).get_stock_notetype_legacy
+        return orjson.loads(bytes)
+
+    def get_notetype_names_and_ids(self) -> List[pb.NoteTypeNameID]:
+        return list(
+            self._run_command(
+                pb.BackendInput(get_notetype_names=pb.Empty())
+            ).get_notetype_names.entries
+        )
+
+    def get_notetype_use_counts(self) -> List[pb.NoteTypeNameIDUseCount]:
+        return list(
+            self._run_command(
+                pb.BackendInput(get_notetype_names_and_counts=pb.Empty())
+            ).get_notetype_names_and_counts.entries
+        )
+
+    def get_notetype_legacy(self, ntid: int) -> Optional[Dict]:
+        try:
+            bytes = self._run_command(
+                pb.BackendInput(get_notetype_legacy=ntid)
+            ).get_notetype_legacy
+        except NotFoundError:
+            return None
+        return orjson.loads(bytes)
+
+    def get_notetype_id_by_name(self, name: str) -> Optional[int]:
+        return (
+            self._run_command(
+                pb.BackendInput(get_notetype_id_by_name=name)
+            ).get_notetype_id_by_name
+            or None
+        )
+
+    def add_or_update_notetype(self, nt: Dict[str, Any], preserve_usn: bool) -> None:
+        bjson = orjson.dumps(nt)
+        id = self._run_command(
+            pb.BackendInput(
+                add_or_update_notetype=pb.AddOrUpdateNotetypeIn(
+                    json=bjson, preserve_usn_and_mtime=preserve_usn
+                )
+            ),
+            release_gil=True,
+        ).add_or_update_notetype
+        nt["id"] = id
+
+    def remove_notetype(self, ntid: int) -> None:
+        self._run_command(pb.BackendInput(remove_notetype=ntid), release_gil=True)
+
+    def new_note(self, ntid: int) -> BackendNote:
+        return self._run_command(pb.BackendInput(new_note=ntid)).new_note
+
+    def add_note(self, note: BackendNote, deck_id: int) -> int:
+        return self._run_command(
+            pb.BackendInput(add_note=pb.AddNoteIn(note=note, deck_id=deck_id))
+        ).add_note
+
+    def update_note(self, note: BackendNote) -> None:
+        self._run_command(pb.BackendInput(update_note=note))
+
+    def get_note(self, nid) -> Optional[BackendNote]:
+        try:
+            return self._run_command(pb.BackendInput(get_note=nid)).get_note
+        except NotFoundError:
+            return None
+
+    def empty_cards_report(self) -> pb.EmptyCardsReport:
+        return self._run_command(
+            pb.BackendInput(get_empty_cards=pb.Empty()), release_gil=True
+        ).get_empty_cards
+
+    def get_deck_legacy(self, did: int) -> Optional[Dict]:
+        try:
+            bytes = self._run_command(
+                pb.BackendInput(get_deck_legacy=did)
+            ).get_deck_legacy
+            return orjson.loads(bytes)
+        except NotFoundError:
+            return None
+
+    def get_deck_names_and_ids(
+        self, skip_empty_default: bool, include_filtered: bool = True
+    ) -> Sequence[pb.DeckNameID]:
+        return self._run_command(
+            pb.BackendInput(
+                get_deck_names=pb.GetDeckNamesIn(
+                    skip_empty_default=skip_empty_default,
+                    include_filtered=include_filtered,
+                )
+            )
+        ).get_deck_names.entries
+
+    def add_or_update_deck_legacy(
+        self, deck: Dict[str, Any], preserve_usn: bool
+    ) -> None:
+        deck_json = orjson.dumps(deck)
+        id = self._run_command(
+            pb.BackendInput(
+                add_or_update_deck_legacy=pb.AddOrUpdateDeckLegacyIn(
+                    deck=deck_json, preserve_usn_and_mtime=preserve_usn
+                )
+            )
+        ).add_or_update_deck_legacy
+        deck["id"] = id
+
+    def new_deck_legacy(self, filtered: bool) -> Dict[str, Any]:
+        jstr = self._run_command(
+            pb.BackendInput(new_deck_legacy=filtered)
+        ).new_deck_legacy
+        return orjson.loads(jstr)
+
+    def get_deck_id_by_name(self, name: str) -> Optional[int]:
+        return (
+            self._run_command(
+                pb.BackendInput(get_deck_id_by_name=name)
+            ).get_deck_id_by_name
+            or None
+        )
+
+    def remove_deck(self, did: int) -> None:
+        self._run_command(pb.BackendInput(remove_deck=did))
+
+    def deck_tree(self, include_counts: bool, top_deck_id: int = 0) -> DeckTreeNode:
+        return self._run_command(
+            pb.BackendInput(
+                deck_tree=pb.DeckTreeIn(
+                    include_counts=include_counts, top_deck_id=top_deck_id
+                )
+            )
+        ).deck_tree
+
+    def check_database(self) -> List[str]:
+        return list(
+            self._run_command(
+                pb.BackendInput(check_database=pb.Empty()), release_gil=True
+            ).check_database.problems
+        )
+
+    def legacy_deck_tree(self) -> Sequence:
+        bytes = self._run_command(
+            pb.BackendInput(deck_tree_legacy=pb.Empty())
+        ).deck_tree_legacy
+        return orjson.loads(bytes)[5]
+
+    def field_names_for_note_ids(self, nids: List[int]) -> Sequence[str]:
+        return self._run_command(
+            pb.BackendInput(field_names_for_notes=pb.FieldNamesForNotesIn(nids=nids)),
+            release_gil=True,
+        ).field_names_for_notes.fields
+
+    def find_and_replace(
+        self,
+        nids: List[int],
+        search: str,
+        repl: str,
+        re: bool,
+        nocase: bool,
+        field_name: Optional[str],
+    ) -> int:
+        return self._run_command(
+            pb.BackendInput(
+                find_and_replace=pb.FindAndReplaceIn(
+                    nids=nids,
+                    search=search,
+                    replacement=repl,
+                    regex=re,
+                    match_case=not nocase,
+                    field_name=field_name,
+                )
+            ),
+            release_gil=True,
+        ).find_and_replace
+
+    def after_note_updates(
+        self, nids: List[int], generate_cards: bool, mark_notes_modified: bool
+    ) -> None:
+        self._run_command(
+            pb.BackendInput(
+                after_note_updates=pb.AfterNoteUpdatesIn(
+                    nids=nids,
+                    generate_cards=generate_cards,
+                    mark_notes_modified=mark_notes_modified,
+                )
+            ),
+            release_gil=True,
+        )
+
+    def add_note_tags(self, nids: List[int], tags: str) -> int:
+        return self._run_command(
+            pb.BackendInput(add_note_tags=pb.AddNoteTagsIn(nids=nids, tags=tags))
+        ).add_note_tags
+
+    def update_note_tags(
+        self, nids: List[int], tags: str, replacement: str, regex: bool
+    ) -> int:
+        return self._run_command(
+            pb.BackendInput(
+                update_note_tags=pb.UpdateNoteTagsIn(
+                    nids=nids, tags=tags, replacement=replacement, regex=regex
+                )
+            )
+        ).update_note_tags
+
+    def set_local_minutes_west(self, mins: int) -> None:
+        self._run_command(pb.BackendInput(set_local_minutes_west=mins))
+
+    def get_preferences(self) -> pb.Preferences:
+        return self._run_command(
+            pb.BackendInput(get_preferences=pb.Empty())
+        ).get_preferences
+
+    def set_preferences(self, prefs: pb.Preferences) -> None:
+        self._run_command(pb.BackendInput(set_preferences=prefs))
+
+    def cloze_numbers_in_note(self, note: pb.Note) -> List[int]:
+        return list(
+            self._run_command(
+                pb.BackendInput(cloze_numbers_in_note=note)
+            ).cloze_numbers_in_note.numbers
+        )
 
 
 def translate_string_in(
@@ -641,4 +842,4 @@ def translate_string_in(
 
 # temporarily force logging of media handling
 if "RUST_LOG" not in os.environ:
-    os.environ["RUST_LOG"] = "warn,anki::media=debug"
+    os.environ["RUST_LOG"] = "warn,anki::media=debug,anki::dbcheck=debug"

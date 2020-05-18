@@ -3,7 +3,6 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import aqt
-from anki.decks import DeckManager
 from anki.lang import _
 from aqt import gui_hooks
 from aqt.qt import *
@@ -52,10 +51,12 @@ class StudyDeck(QDialog):
         if title:
             self.setWindowTitle(title)
         if not names:
-            names = sorted(
-                self.mw.col.decks.allNames(dyn=dyn, force_default=False),
-                key=DeckManager._path,
-            )
+            names = [
+                d.name
+                for d in self.mw.col.decks.all_names_and_ids(
+                    include_filtered=dyn, skip_empty_default=True
+                )
+            ]
             self.nameFunc = None
             self.origNames = names
         else:

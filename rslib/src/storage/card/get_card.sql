@@ -1,6 +1,5 @@
--- the casts are required as Anki didn't prevent add-ons from
--- storing strings or floats in columns before
 select
+  id,
   nid,
   did,
   ord,
@@ -19,5 +18,3 @@ select
   flags,
   data
 from cards
-where
-  id = ?

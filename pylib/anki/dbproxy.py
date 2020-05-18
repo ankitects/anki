@@ -25,11 +25,13 @@ class DBProxy:
         self._backend = backend
         self._path = path
         self.mod = False
+        self.last_begin_at = 0
 
     # Transactions
     ###############
 
     def begin(self) -> None:
+        self.last_begin_at = anki.utils.intTime(1000)
         self._backend.db_begin()
 
     def commit(self) -> None:

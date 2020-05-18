@@ -204,10 +204,6 @@ to their original deck."""
     def _table(self):
         counts = list(self.mw.col.sched.counts())
         finished = not sum(counts)
-        if self.mw.col.schedVer() == 1:
-            for n in range(len(counts)):
-                if counts[n] >= 1000:
-                    counts[n] = "1000+"
         but = self.mw.button
         if finished:
             return '<div style="white-space: pre-wrap;">%s</div>' % (

@@ -10,6 +10,237 @@ message OptionalInt32 {
     sint32 val = 1;
 }
 
+message OptionalUInt32 {
+    uint32 val = 1;
+}
+
+// Protobuf stored in .anki2 files
+// These should be moved to a separate file in the future
+///////////////////////////////////////////////////////////
+
+message DeckConfigInner {
+    enum NewCardOrder {
+        NEW_CARD_ORDER_DUE = 0;
+        NEW_CARD_ORDER_RANDOM = 1;
+    }
+
+    enum LeechAction {
+        LEECH_ACTION_SUSPEND = 0;
+        LEECH_ACTION_TAG_ONLY = 1;
+    }
+
+    repeated float learn_steps = 1;
+    repeated float relearn_steps = 2;
+
+    reserved 3 to 8;
+
+    uint32 new_per_day = 9;
+    uint32 reviews_per_day = 10;
+
+    float initial_ease = 11;
+    float easy_multiplier = 12;
+    float hard_multiplier = 13;
+    float lapse_multiplier = 14;
+    float interval_multiplier = 15;
+
+    uint32 maximum_review_interval = 16;
+    uint32 minimum_review_interval = 17;
+
+    uint32 graduating_interval_good = 18;
+    uint32 graduating_interval_easy = 19;
+
+    NewCardOrder new_card_order = 20;
+
+    LeechAction leech_action = 21;
+    uint32 leech_threshold = 22;
+
+    bool disable_autoplay = 23;
+    uint32 cap_answer_time_to_secs = 24;
+    uint32 visible_timer_secs = 25;
+    bool skip_question_when_replaying_answer = 26;
+
+    bool bury_new = 27;
+    bool bury_reviews = 28;
+
+    bytes other = 255;
+}
+
+message DeckCommon {
+    bool study_collapsed = 1;
+    bool browser_collapsed = 2;
+
+    uint32 last_day_studied = 3;
+    int32 new_studied = 4;
+    int32 review_studied = 5;
+    int32 learning_studied = 6;
+    int32 secs_studied = 7;
+
+    bytes other = 255;
+}
+
+message DeckKind {
+    oneof kind {
+        NormalDeck normal = 1;
+        FilteredDeck filtered = 2;
+    }
+}
+
+message NormalDeck {
+    int64 config_id = 1;
+    uint32 extend_new = 2;
+    uint32 extend_review = 3;
+    string description = 4;
+}
+
+message FilteredDeck {
+    bool reschedule = 1;
+    repeated FilteredSearchTerm search_terms = 2;
+    // v1 scheduler only
+    repeated float delays = 3;
+    // v2 scheduler only
+    uint32 preview_delay = 4;
+}
+
+message FilteredSearchTerm {
+    enum FilteredSearchOrder {
+        FILTERED_SEARCH_ORDER_OLDEST_FIRST = 0;
+        FILTERED_SEARCH_ORDER_RANDOM = 1;
+        FILTERED_SEARCH_ORDER_INTERVALS_ASCENDING = 2;
+        FILTERED_SEARCH_ORDER_INTERVALS_DESCENDING = 3;
+        FILTERED_SEARCH_ORDER_LAPSES = 4;
+        FILTERED_SEARCH_ORDER_ADDED = 5;
+        FILTERED_SEARCH_ORDER_DUE = 6;
+        FILTERED_SEARCH_ORDER_REVERSE_ADDED = 7;
+        FILTERED_SEARCH_ORDER_DUE_PRIORITY = 8;
+    }
+
+    string search = 1;
+    uint32 limit = 2;
+    FilteredSearchOrder order = 3;
+}
+
+message NoteFieldConfig {
+    bool sticky = 1;
+    bool rtl = 2;
+    string font_name = 3;
+    uint32 font_size = 4;
+
+    bytes other = 255;
+}
+
+message CardTemplateConfig {
+    string q_format = 1;
+    string a_format = 2;
+    string q_format_browser = 3;
+    string a_format_browser= 4;
+    int64 target_deck_id = 5;
+    string browser_font_name = 6;
+    uint32 browser_font_size = 7;
+
+    bytes other = 255;
+}
+
+message NoteTypeConfig {
+    enum Kind {
+        KIND_NORMAL = 0;
+        KIND_CLOZE = 1;
+    }
+    Kind kind = 1;
+    uint32 sort_field_idx = 2;
+    string css = 3;
+    int64 target_deck_id = 4;
+    string latex_pre = 5;
+    string latex_post = 6;
+    bool latex_svg = 7;
+    repeated CardRequirement reqs = 8;
+
+    bytes other = 255;
+}
+
+message CardRequirement {
+    enum Kind {
+        KIND_NONE = 0;
+        KIND_ANY = 1;
+        KIND_ALL = 2;
+    }
+    uint32 card_ord = 1;
+    Kind kind = 2;
+    repeated uint32 field_ords = 3;
+}
+
+// Containers for passing around database objects
+///////////////////////////////////////////////////////////
+
+message Deck {
+    int64 id = 1;
+    string name = 2;
+    uint32 mtime_secs = 3;
+    int32 usn = 4;
+    DeckCommon common = 5;
+    oneof kind {
+        NormalDeck normal = 6;
+        FilteredDeck filtered = 7;
+    }
+}
+
+message NoteType {
+    int64 id = 1;
+    string name = 2;
+    uint32 mtime_secs = 3;
+    sint32 usn = 4;
+    NoteTypeConfig config = 7;
+    repeated NoteField fields = 8;
+    repeated CardTemplate templates = 9;
+}
+
+message NoteField {
+    OptionalUInt32 ord = 1;
+    string name = 2;
+    NoteFieldConfig config = 5;
+}
+
+message CardTemplate {
+    OptionalUInt32 ord = 1;
+    string name = 2;
+    uint32 mtime_secs = 3;
+    sint32 usn = 4;
+    CardTemplateConfig config = 5;
+}
+
+message Note {
+    int64 id = 1;
+    string guid = 2;
+    int64 ntid = 3;
+    uint32 mtime_secs = 4;
+    int32 usn = 5;
+    repeated string tags = 6;
+    repeated string fields = 7;
+}
+
+message Card {
+    int64 id = 1;
+    int64 nid = 2;
+    int64 did = 3;
+    uint32 ord = 4;
+    int64 mtime = 5;
+    sint32 usn = 6;
+    uint32 ctype = 7;
+    sint32 queue = 8;
+    sint32 due = 9;
+    uint32 ivl = 10;
+    uint32 factor = 11;
+    uint32 reps = 12;
+    uint32 lapses = 13;
+    uint32 left = 14;
+    sint32 odue = 15;
+    int64 odid = 16;
+    uint32 flags = 17;
+    string data = 18;
+}
+
+// Backend
+///////////////////////////////////////////////////////////
+
 message BackendInit {
     repeated string preferred_langs = 1;
     string locale_folder_path = 2;
@@ -21,16 +252,13 @@ message I18nBackendInit {
     string locale_folder_path = 5;
 }
 
-// 1-15 reserved for future use
-
 message BackendInput {
     oneof value {
-        TemplateRequirementsIn template_requirements = 16;
-        SchedTimingTodayIn sched_timing_today = 17;
-        Empty deck_tree = 18;
+        Empty sched_timing_today = 17;
+        DeckTreeIn deck_tree = 18;
         SearchCardsIn search_cards = 19;
         SearchNotesIn search_notes = 20;
-        RenderCardIn render_card = 21;
+        RenderUncommittedCardIn render_uncommitted_card = 21;
         int64 local_minutes_west = 22;
         string strip_av_tags = 23;
         ExtractAVTagsIn extract_av_tags = 24;
@@ -58,24 +286,50 @@ message BackendInput {
         Empty abort_media_sync = 46;
         Empty before_upload = 47;
         RegisterTagsIn register_tags = 48;
-        string canonify_tags = 49;
         Empty all_tags = 50;
         int32 get_changed_tags = 51;
         string get_config_json = 52;
         SetConfigJson set_config_json = 53;
         bytes set_all_config = 54;
         Empty get_all_config = 55;
-        Empty get_all_notetypes = 56;
-        bytes set_all_notetypes = 57;
+        int32 get_changed_notetypes = 56;
+        AddOrUpdateNotetypeIn add_or_update_notetype = 57;
         Empty get_all_decks = 58;
-        bytes set_all_decks = 59;
+        Empty check_database = 59;
+        StockNoteType get_stock_notetype_legacy = 60;
+        int64 get_notetype_legacy = 61;
+        Empty get_notetype_names = 62;
+        Empty get_notetype_names_and_counts = 63;
+        string get_notetype_id_by_name = 64;
+        int64 remove_notetype = 65;
+        int64 new_note = 66;
+        AddNoteIn add_note = 67;
+        Note update_note = 68;
+        int64 get_note = 69;
+        Empty get_empty_cards = 70;
+        int64 get_deck_legacy = 71;
+        string get_deck_id_by_name = 72;
+        GetDeckNamesIn get_deck_names = 73;
+        AddOrUpdateDeckLegacyIn add_or_update_deck_legacy = 74;
+        bool new_deck_legacy = 75;
+        int64 remove_deck = 76;
+        Empty deck_tree_legacy = 77;
+        FieldNamesForNotesIn field_names_for_notes = 78;
+        FindAndReplaceIn find_and_replace = 79;
+        AfterNoteUpdatesIn after_note_updates = 80;
+        AddNoteTagsIn add_note_tags = 81;
+        UpdateNoteTagsIn update_note_tags = 82;
+        int32 set_local_minutes_west = 83;
+        Empty get_preferences = 84;
+        Preferences set_preferences = 85;
+        RenderExistingCardIn render_existing_card = 86;
+        Note cloze_numbers_in_note = 87;
     }
 }
 
 message BackendOutput {
     oneof value {
         // infallible commands
-        SchedTimingTodayOut sched_timing_today = 17;
         sint32 local_minutes_west = 22;
         string strip_av_tags = 23;
         ExtractAVTagsOut extract_av_tags = 24;
@@ -85,13 +339,14 @@ message BackendOutput {
         string studied_today = 32;
         string congrats_learn_msg = 33;
         Empty abort_media_sync = 46;
+        ClozeNumbersInNoteOut cloze_numbers_in_note = 87;
 
         // fallible commands
-        TemplateRequirementsOut template_requirements = 16;
-        DeckTreeOut deck_tree = 18;
+        SchedTimingTodayOut sched_timing_today = 17;
+        DeckTreeNode deck_tree = 18;
         SearchCardsOut search_cards = 19;
         SearchNotesOut search_notes = 20;
-        RenderCardOut render_card = 21;
+        RenderCardOut render_uncommitted_card = 21;
         string add_media_file = 26;
         Empty sync_media = 27;
         MediaCheckOut check_media = 28;
@@ -110,17 +365,43 @@ message BackendOutput {
         Empty remove_deck_config = 45;
         Empty before_upload = 47;
         bool register_tags = 48;
-        CanonifyTagsOut canonify_tags = 49;
         AllTagsOut all_tags = 50;
         GetChangedTagsOut get_changed_tags = 51;
         bytes get_config_json = 52;
         Empty set_config_json = 53;
         Empty set_all_config = 54;
         bytes get_all_config = 55;
-        bytes get_all_notetypes = 56;
-        Empty set_all_notetypes = 57;
+        bytes get_changed_notetypes = 56;
+        int64 add_or_update_notetype = 57;
         bytes get_all_decks = 58;
-        Empty set_all_decks = 59;
+        CheckDatabaseOut check_database = 59;
+        bytes get_notetype_legacy = 61;
+        NoteTypeNames get_notetype_names = 62;
+        NoteTypeUseCounts get_notetype_names_and_counts = 63;
+        int64 get_notetype_id_by_name = 64;
+        Empty remove_notetype = 65;
+        Note new_note = 66;
+        int64 add_note = 67;
+        Empty update_note = 68;
+        Note get_note = 69;
+        EmptyCardsReport get_empty_cards = 70;
+        bytes get_deck_legacy = 71;
+        int64 get_deck_id_by_name = 72;
+        DeckNames get_deck_names = 73;
+        int64 add_or_update_deck_legacy = 74;
+        bytes new_deck_legacy = 75;
+        Empty remove_deck = 76;
+        bytes deck_tree_legacy = 77;
+        FieldNamesForNotesOut field_names_for_notes = 78;
+        uint32 find_and_replace = 79;
+        Empty after_note_updates = 80;
+        uint32 add_note_tags = 81;
+        uint32 update_note_tags = 82;
+        Empty set_local_minutes_west = 83;
+        Preferences get_preferences = 84;
+        Empty set_preferences = 85;
+        RenderCardOut render_existing_card = 86;
+        bytes get_stock_notetype_legacy = 60;
 
         BackendError error = 2047;
     }
@@ -140,6 +421,10 @@ message BackendError {
         // user interrupted operation
         Empty interrupted = 8;
         string json_error = 9;
+        string proto_error = 10;
+        Empty not_found_error = 11;
+        Empty exists = 12;
+        Empty deck_is_filtered = 13;
     }
 }
 
@@ -185,64 +470,40 @@ message MediaSyncUploadProgress {
     uint32 deletions = 2;
 }
 
-message TemplateRequirementsIn {
-    repeated string template_front = 1;
-    map<string, uint32> field_names_to_ordinals = 2;
-}
-
-message TemplateRequirementsOut {
-    repeated TemplateRequirement requirements = 1;
-}
-
-message TemplateRequirement {
-    oneof value {
-        TemplateRequirementAll all = 1;
-        TemplateRequirementAny any = 2;
-        Empty none = 3;
-    }
-}
-
-message TemplateRequirementAll {
-    repeated uint32 ords = 1;
-}
-
-message TemplateRequirementAny {
-    repeated uint32 ords = 1;
-}
-
-message SchedTimingTodayIn {
-    int64 created_secs = 1;
-    int64 now_secs = 2;
-    OptionalInt32 created_mins_west = 3;
-    OptionalInt32 now_mins_west = 4;
-    OptionalInt32 rollover_hour = 5;
-}
-
 message SchedTimingTodayOut {
     uint32 days_elapsed = 1;
     int64 next_day_at = 2;
 }
 
-message DeckTreeOut {
-    DeckTreeNode top = 1;
+message DeckTreeIn {
+    bool include_counts = 1;
+    int64 top_deck_id = 2;
 }
 
 message DeckTreeNode {
-    // the components of a deck, split on ::
-    repeated string names = 1;
-    int64 deck_id = 2;
-    uint32 review_count = 3;
-    uint32 learn_count = 4;
-    uint32 new_count = 5;
-    repeated DeckTreeNode children = 6;
-    bool collapsed = 7;
+    int64 deck_id = 1;
+    string name = 2;
+    repeated DeckTreeNode children = 3;
+    uint32 level = 4;
+    bool collapsed = 5;
+
+    uint32 review_count = 6;
+    uint32 learn_count = 7;
+    uint32 new_count = 8;
+
+    bool filtered = 16;
 }
 
-message RenderCardIn {
-    string question_template = 1;
-    string answer_template = 2;
-    map<string,string> fields = 3;
-    int32 card_ordinal = 4;
+message RenderExistingCardIn {
+    int64 card_id = 1;
+    bool browser = 2;
+}
+
+message RenderUncommittedCardIn {
+    Note note = 1;
+    uint32 card_ord = 2;
+    bytes template = 3;
+    bool fill_empty = 4;
 }
 
 message RenderCardOut {
@@ -417,27 +678,6 @@ message GetCardOut {
     Card card = 1;
 }
 
-message Card {
-    int64 id = 1;
-    int64 nid = 2;
-    int64 did = 3;
-    uint32 ord = 4;
-    int64 mtime = 5;
-    sint32 usn = 6;
-    uint32 ctype = 7;
-    sint32 queue = 8;
-    sint32 due = 9;
-    uint32 ivl = 10;
-    uint32 factor = 11;
-    uint32 reps = 12;
-    uint32 lapses = 13;
-    uint32 left = 14;
-    sint32 odue = 15;
-    int64 odid = 16;
-    uint32 flags = 17;
-    string data = 18;
-}
-
 message CloseCollectionIn {
     bool downgrade_to_schema11 = 1;
 }
@@ -467,15 +707,146 @@ message GetChangedTagsOut {
     repeated string tags = 1;
 }
 
-message CanonifyTagsOut {
-    string tags = 1;
-    bool tag_list_changed = 2;
-}
-
 message SetConfigJson {
     string key = 1;
     oneof op {
         bytes val = 2;
         Empty remove = 3;
     }
+}
+
+enum StockNoteType {
+    STOCK_NOTE_TYPE_BASIC = 0;
+    STOCK_NOTE_TYPE_BASIC_AND_REVERSED = 1;
+    STOCK_NOTE_TYPE_BASIC_OPTIONAL_REVERSED = 2;
+    STOCK_NOTE_TYPE_BASIC_TYPING = 3;
+    STOCK_NOTE_TYPE_CLOZE = 4;
+}
+
+message NoteTypeNames {
+    repeated NoteTypeNameID entries = 1;
+}
+
+message NoteTypeUseCounts {
+    repeated NoteTypeNameIDUseCount entries = 1;
+}
+
+message NoteTypeNameID {
+    int64 id = 1;
+    string name = 2;
+
+}
+
+message NoteTypeNameIDUseCount {
+    int64 id = 1;
+    string name = 2;
+    uint32 use_count = 3;
+}
+
+message AddOrUpdateNotetypeIn {
+    bytes json = 1;
+    bool preserve_usn_and_mtime = 2;
+}
+
+message AddNoteIn {
+    Note note = 1;
+    int64 deck_id = 2;
+}
+
+message EmptyCardsReport {
+    string report = 1;
+    repeated NoteWithEmptyCards notes = 2;
+}
+
+message NoteWithEmptyCards {
+    int64 note_id = 1;
+    repeated int64 card_ids = 2;
+    bool will_delete_note = 3;
+}
+
+message DeckNames {
+    repeated DeckNameID entries = 1;
+}
+
+message DeckNameID {
+    int64 id = 1;
+    string name = 2;
+}
+
+message AddOrUpdateDeckLegacyIn {
+    bytes deck = 1;
+    bool preserve_usn_and_mtime = 2;
+}
+
+message FieldNamesForNotesIn {
+    repeated int64 nids = 1;
+}
+
+message FieldNamesForNotesOut {
+    repeated string fields = 1;
+}
+
+message FindAndReplaceIn {
+    repeated int64 nids = 1;
+    string search = 2;
+    string replacement = 3;
+    bool regex = 4;
+    bool match_case = 5;
+    string field_name = 6;
+}
+
+message AfterNoteUpdatesIn {
+    repeated int64 nids = 1;
+    bool mark_notes_modified = 2;
+    bool generate_cards = 3;
+}
+
+message AddNoteTagsIn {
+    repeated int64 nids = 1;
+    string tags = 2;
+}
+
+message UpdateNoteTagsIn {
+    repeated int64 nids = 1;
+    string tags = 2;
+    string replacement = 3;
+    bool regex = 4;
+}
+
+message CheckDatabaseOut {
+    repeated string problems = 1;
+}
+
+message CollectionSchedulingSettings {
+    enum NewReviewMix {
+        DISTRIBUTE = 0;
+        REVIEWS_FIRST = 1;
+        NEW_FIRST = 2;
+    }
+
+    uint32 scheduler_version = 1;
+    uint32 rollover = 2;
+    uint32 learn_ahead_secs = 3;
+    NewReviewMix new_review_mix = 4;
+    bool show_remaining_due_counts = 5;
+    bool show_intervals_on_buttons = 6;
+    uint32 time_limit_secs = 7;
+
+    // v2 only
+    bool new_timezone = 8;
+    bool day_learn_first = 9;
+}
+
+message Preferences {
+    CollectionSchedulingSettings sched = 1;
+}
+
+message ClozeNumbersInNoteOut {
+    repeated uint32 numbers = 1;
+}
+
+message GetDeckNamesIn {
+    bool skip_empty_default = 1;
+    // if unset, implies skip_empty_default
+    bool include_filtered = 2;
 }

@@ -7,7 +7,7 @@ from anki import Collection as aopen
 from anki.dbproxy import emulate_named_args
 from anki.lang import without_unicode_isolation
 from anki.rsbackend import TR
-from anki.stdmodels import addBasicModel, models
+from anki.stdmodels import addBasicModel, get_stock_notetypes
 from anki.utils import isWin
 from tests.shared import assertException, getEmptyCol
 
@@ -22,8 +22,8 @@ def test_create_open():
     deck = aopen(path)
     # for open()
     newPath = deck.path
-    deck.close()
     newMod = deck.mod
+    deck.close()
     del deck
 
     # reopen
@@ -60,11 +60,6 @@ def test_noteAddDelete():
     t["afmt"] = "{{Front}}"
     mm.addTemplate(m, t)
     mm.save(m)
-    # the default save doesn't generate cards
-    assert deck.cardCount() == 1
-    # but when templates are edited such as in the card layout screen, it
-    # should generate cards on close
-    mm.save(m, templates=True, updateReqs=False)
     assert deck.cardCount() == 2
     # creating new notes should use both cards
     f = deck.newNote()
@@ -124,10 +119,10 @@ def test_addDelTags():
 
 def test_timestamps():
     deck = getEmptyCol()
-    assert len(deck.models.models) == len(models)
+    assert len(deck.models.all_names_and_ids()) == len(get_stock_notetypes(deck))
     for i in range(100):
         addBasicModel(deck)
-    assert len(deck.models.models) == 100 + len(models)
+    assert len(deck.models.all_names_and_ids()) == 100 + len(get_stock_notetypes(deck))
 
 
 def test_furigana():

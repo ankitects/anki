@@ -3,11 +3,9 @@
 
 from __future__ import annotations
 
-import itertools
 import random
 import time
 from heapq import *
-from operator import itemgetter
 
 # from anki.collection import _Collection
 from typing import Any, Callable, Dict, List, Optional, Sequence, Set, Tuple, Union
@@ -16,9 +14,8 @@ import anki  # pylint: disable=unused-import
 from anki import hooks
 from anki.cards import Card
 from anki.consts import *
-from anki.decks import DeckManager
 from anki.lang import _
-from anki.rsbackend import FormatTimeSpanContext, SchedTimingToday
+from anki.rsbackend import DeckTreeNode, FormatTimeSpanContext, SchedTimingToday
 from anki.utils import ids2str, intTime
 
 # card types: 0=new, 1=lrn, 2=rev, 3=relrn
@@ -69,7 +66,9 @@ class Scheduler:
         return None
 
     def reset(self) -> None:
+        self.col.decks.update_active()
         self._updateCutoff()
+        self._reset_counts()
         self._resetLrn()
         self._resetRev()
         self._resetNew()
@@ -134,6 +133,17 @@ class Scheduler:
             self._restorePreviewCard(card)
             self._removeFromFiltered(card)
 
+    def _reset_counts(self):
+        tree = self.deck_due_tree(self.col.decks.selected())
+        node = self.col.decks.find_deck_in_tree(tree, int(self.col.conf["curDeck"]))
+        if not node:
+            print("invalid current deck")
+            self.newCount = 0
+            self.revCount = 0
+        else:
+            self.newCount = node.new_count
+            self.revCount = node.review_count
+
     def counts(self, card: Optional[Card] = None) -> Tuple[int, int, int]:
         counts = [self.newCount, self.lrnCount, self.revCount]
         if card:
@@ -180,147 +190,43 @@ order by due"""
     ##########################################################################
 
     def _updateStats(self, card: Card, type: str, cnt: int = 1) -> None:
-        key = type + "Today"
         for g in [self.col.decks.get(card.did)] + self.col.decks.parents(card.did):
-            # add
-            g[key][1] += cnt
+            self._update_stats(g, type, cnt)
             self.col.decks.save(g)
+
+    # resets stat if day has changed, applies delta, and returns modified value
+    def _update_stats(self, deck: Dict, type: str, delta: int) -> int:
+        key = type + "Today"
+        if deck[key][0] != self.today:
+            deck[key] = [self.today, 0]
+        deck[key][1] += delta
+        return deck[key][1]
 
     def extendLimits(self, new: int, rev: int) -> None:
         cur = self.col.decks.current()
         parents = self.col.decks.parents(cur["id"])
         children = [
-            self.col.decks.get(did)
-            for (name, did) in self.col.decks.children(cur["id"])
+            self.col.decks.get(did) for did in self.col.decks.child_ids(cur["id"])
         ]
         for g in [cur] + parents + children:
-            # add
-            g["newToday"][1] -= new
-            g["revToday"][1] -= rev
+            self._update_stats(g, "new", -new)
+            self._update_stats(g, "rev", -rev)
             self.col.decks.save(g)
-
-    def _walkingCount(
-        self,
-        limFn: Optional[Callable[[Any], Optional[int]]] = None,
-        cntFn: Optional[Callable[[int, int], int]] = None,
-    ) -> int:
-        tot = 0
-        pcounts: Dict[int, int] = {}
-        # for each of the active decks
-        nameMap = self.col.decks.nameMap()
-        for did in self.col.decks.active():
-            # early alphas were setting the active ids as a str
-            did = int(did)
-            # get the individual deck's limit
-            lim = limFn(self.col.decks.get(did))
-            if not lim:
-                continue
-            # check the parents
-            parents = self.col.decks.parents(did, nameMap)
-            for p in parents:
-                # add if missing
-                if p["id"] not in pcounts:
-                    pcounts[p["id"]] = limFn(p)
-                # take minimum of child and parent
-                lim = min(pcounts[p["id"]], lim)
-            # see how many cards we actually have
-            cnt = cntFn(did, lim)
-            # if non-zero, decrement from parent counts
-            for p in parents:
-                pcounts[p["id"]] -= cnt
-            # we may also be a parent
-            pcounts[did] = lim - cnt
-            # and add to running total
-            tot += cnt
-        return tot
 
     # Deck list
     ##########################################################################
 
-    def deckDueList(self) -> List[List[Any]]:
-        "Returns [deckname, did, rev, lrn, new]"
-        self._checkDay()
-        self.col.decks.checkIntegrity()
-        decks = self.col.decks.all()
-        decks.sort(key=itemgetter("name"))
-        lims: Dict[str, List[int]] = {}
-        data = []
-
-        childMap = self.col.decks.childMap()
-        for deck in decks:
-            p = DeckManager.immediate_parent(deck["name"])
-            # new
-            nlim = self._deckNewLimitSingle(deck)
-            if p is not None:
-                nlim = min(nlim, lims[p][0])
-            new = self._newForDeck(deck["id"], nlim)
-            # learning
-            lrn = self._lrnForDeck(deck["id"])
-            # reviews
-            if p:
-                plim = lims[p][1]
-            else:
-                plim = None
-            rlim = self._deckRevLimitSingle(deck, parentLimit=plim)
-            rev = self._revForDeck(deck["id"], rlim, childMap)
-            # save to list
-            data.append([deck["name"], deck["id"], rev, lrn, new])
-            # add deck as a parent
-            lims[deck["name"]] = [nlim, rlim]
-        return data
-
     def deckDueTree(self) -> Any:
-        self.col.decks._enable_dconf_cache()
-        try:
-            return self._groupChildren(self.deckDueList())
-        finally:
-            self.col.decks._disable_dconf_cache()
+        "List of (base name, did, rev, lrn, new, children)"
+        print(
+            "deckDueTree() is deprecated; use decks.deck_tree() for a tree without counts, or sched.deck_due_tree()"
+        )
+        return self.col.backend.legacy_deck_tree()
 
-    def _groupChildren(self, grps: List[List[Any]]) -> Any:
-        # first, split the group names into components
-        for g in grps:
-            g[0] = DeckManager.path(g[0])
-        # and sort based on those components
-        grps.sort(key=itemgetter(0))
-        # then run main function
-        return self._groupChildrenMain(grps)
-
-    def _groupChildrenMain(self, grps: List[List[Any]]) -> Any:
-        tree = []
-        # group and recurse
-        def key(grp):
-            return grp[0][0]
-
-        for (head, tail) in itertools.groupby(grps, key=key):
-            tail = list(tail)  # type: ignore
-            did = None
-            rev = 0
-            new = 0
-            lrn = 0
-            children: Any = []
-            for c in tail:
-                if len(c[0]) == 1:
-                    # current node
-                    did = c[1]
-                    rev += c[2]
-                    lrn += c[3]
-                    new += c[4]
-                else:
-                    # set new string to tail
-                    c[0] = c[0][1:]
-                    children.append(c)
-            children = self._groupChildrenMain(children)
-            # tally up children counts
-            for ch in children:
-                lrn += ch[3]
-                new += ch[4]
-            # limit the counts to the deck's limits
-            conf = self.col.decks.confForDid(did)
-            deck = self.col.decks.get(did)
-            if not conf["dyn"]:
-                new = max(0, min(new, self._deckNewLimitSingle(deck)))
-            tree.append((head, did, rev, lrn, new, children))
-        return tuple(tree)
+    def deck_due_tree(self, top_deck_id: int = 0) -> DeckTreeNode:
+        """Returns a tree of decks with counts.
+        If top_deck_id provided, counts are limited to that node."""
+        return self.col.backend.deck_tree(include_counts=True, top_deck_id=top_deck_id)
 
     # Getting the next card
     ##########################################################################
@@ -367,23 +273,12 @@ order by due"""
     # New cards
     ##########################################################################
 
-    def _resetNewCount(self) -> None:
-        cntFn = lambda did, lim: self.col.db.scalar(
-            f"""
-select count() from (select 1 from cards where
-did = ? and queue = {QUEUE_TYPE_NEW} limit ?)""",
-            did,
-            lim,
-        )
-        self.newCount = self._walkingCount(self._deckNewLimitSingle, cntFn)
-
     def _resetNew(self) -> None:
-        self._resetNewCount()
         self._newDids = self.col.decks.active()[:]
         self._newQueue: List[int] = []
         self._updateNewCardRatio()
 
-    def _fillNew(self) -> Optional[bool]:
+    def _fillNew(self, recursing=False) -> bool:
         if self._newQueue:
             return True
         if not self.newCount:
@@ -404,13 +299,15 @@ did = ? and queue = {QUEUE_TYPE_NEW} limit ?)""",
                     return True
             # nothing left in the deck; move to next
             self._newDids.pop(0)
-        if self.newCount:
-            # if we didn't get a card but the count is non-zero,
-            # we need to check again for any cards that were
-            # removed from the queue but not buried
-            self._resetNew()
-            return self._fillNew()
-        return None
+
+        # if we didn't get a card but the count is non-zero,
+        # we need to check again for any cards that were
+        # removed from the queue but not buried
+        if recursing:
+            print("bug: fillNew()")
+            return False
+        self._resetNew()
+        return self._fillNew(recursing=True)
 
     def _getNewCard(self) -> Optional[Card]:
         if self._fillNew():
@@ -476,7 +373,7 @@ select count() from
         if g["dyn"]:
             return self.dynReportLimit
         c = self.col.decks.confForDid(g["id"])
-        limit = max(0, c["new"]["perDay"] - g["newToday"][1])
+        limit = max(0, c["new"]["perDay"] - self._update_stats(g, "new", 0))
         return hooks.scheduler_new_limit_for_single_deck(limit, g)
 
     def totalNewForCurrentDeck(self) -> int:
@@ -869,7 +766,7 @@ and due <= ? limit ?)""",
             return self.dynReportLimit
 
         c = self.col.decks.confForDid(d["id"])
-        lim = max(0, c["rev"]["perDay"] - d["revToday"][1])
+        lim = max(0, c["rev"]["perDay"] - self._update_stats(d, "rev", 0))
 
         if parentLimit is not None:
             lim = min(parentLimit, lim)
@@ -892,22 +789,11 @@ and due <= ? limit ?)"""
             lim,
         )
 
-    def _resetRevCount(self) -> None:
-        lim = self._currentRevLimit()
-        self.revCount = self.col.db.scalar(
-            f"""
-select count() from (select id from cards where
-did in %s and queue = {QUEUE_TYPE_REV} and due <= ? limit ?)"""
-            % self._deckLimit(),
-            self.today,
-            lim,
-        )
-
     def _resetRev(self) -> None:
-        self._resetRevCount()
         self._revQueue: List[int] = []
 
-    def _fillRev(self) -> Any:
+    def _fillRev(self, recursing=False) -> bool:
+        "True if a review card can be fetched."
         if self._revQueue:
             return True
         if not self.revCount:
@@ -931,12 +817,7 @@ limit ?"""
                 self._revQueue.reverse()
                 return True
 
-        if self.revCount:
-            # if we didn't get a card but the count is non-zero,
-            # we need to check again for any cards that were
-            # removed from the queue but not buried
-            self._resetRev()
-            return self._fillRev()
+        return False
 
     def _getRevCard(self) -> Optional[Card]:
         if self._fillRev():
@@ -1360,19 +1241,6 @@ where id = ?
         self.today = timing.days_elapsed
         self.dayCutoff = timing.next_day_at
 
-        if oldToday != self.today:
-            self.col.log(self.today, self.dayCutoff)
-
-        # update all daily counts, but don't save decks to prevent needless
-        # conflicts. we'll save on card answer instead
-        def update(g):
-            for t in "new", "rev", "lrn", "time":
-                key = t + "Today"
-                if g[key][0] != self.today:
-                    g[key] = [self.today, 0]
-
-        for deck in self.col.decks.all():
-            update(deck)
         # unbury if the day has rolled over
         unburied = self.col.conf.get("lastUnburied", 0)
         if unburied < self.today:
@@ -1384,53 +1252,8 @@ where id = ?
         if time.time() > self.dayCutoff:
             self.reset()
 
-    def _rolloverHour(self) -> int:
-        return self.col.conf.get("rollover", 4)
-
     def _timing_today(self) -> SchedTimingToday:
-        roll: Optional[int] = None
-        if self.col.schedVer() > 1:
-            roll = self._rolloverHour()
-        return self.col.backend.sched_timing_today(
-            self.col.crt,
-            self._creation_timezone_offset(),
-            self._current_timezone_offset(),
-            roll,
-        )
-
-    def _current_timezone_offset(self) -> Optional[int]:
-        if self.col.server:
-            mins = self.col.server.minutes_west
-            if mins is not None:
-                return mins
-            # older Anki versions stored the local offset in
-            # the config
-            return self.col.conf.get("localOffset", 0)
-        else:
-            return None
-
-    def _creation_timezone_offset(self) -> Optional[int]:
-        return self.col.conf.get("creationOffset", None)
-
-    # New timezone handling - GUI helpers
-    ##########################################################################
-
-    def new_timezone_enabled(self) -> bool:
-        return self.col.conf.get("creationOffset") is not None
-
-    def set_creation_offset(self):
-        """Save the UTC west offset at the time of creation into the DB.
-
-        Once stored, this activates the new timezone handling code.
-        """
-        mins_west = self.col.backend.local_minutes_west(self.col.crt)
-        self.col.conf["creationOffset"] = mins_west
-        self.col.setMod()
-
-    def clear_creation_offset(self):
-        if "creationOffset" in self.col.conf:
-            del self.col.conf["creationOffset"]
-            self.col.setMod()
+        return self.col.backend.sched_timing_today()
 
     # Deck finished state
     ##########################################################################

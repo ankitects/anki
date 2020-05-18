@@ -3,35 +3,19 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, List, Optional, Tuple
 
 import anki  # pylint: disable=unused-import
 from anki import hooks
-from anki.models import Field, NoteType
-from anki.utils import (
-    fieldChecksum,
-    guid64,
-    intTime,
-    joinFields,
-    splitFields,
-    stripHTMLMedia,
-    timestampID,
-)
+from anki.models import NoteType
+from anki.rsbackend import BackendNote
+from anki.utils import fieldChecksum, joinFields, splitFields, stripHTMLMedia
 
 
 class Note:
-    col: anki.storage._Collection
-    newlyAdded: bool
-    id: int
-    guid: str
-    _model: NoteType
-    mid: int
-    tags: List[str]
-    fields: List[str]
-    flags: int
-    data: str
-    _fmap: Dict[str, Tuple[int, Field]]
-    scm: int
+    # not currently exposed
+    flags = 0
+    data = ""
 
     def __init__(
         self,
@@ -41,78 +25,46 @@ class Note:
     ) -> None:
         assert not (model and id)
         self.col = col.weakref()
-        self.newlyAdded = False
+        # self.newlyAdded = False
+
         if id:
+            # existing note
             self.id = id
             self.load()
         else:
-            self.id = timestampID(col.db, "notes")
-            self.guid = guid64()
-            self._model = model
-            self.mid = model["id"]
-            self.tags = []
-            self.fields = [""] * len(self._model["flds"])
-            self.flags = 0
-            self.data = ""
-            self._fmap = self.col.models.fieldMap(self._model)
-            self.scm = self.col.scm
+            # new note for provided notetype
+            self._load_from_backend_note(self.col.backend.new_note(model["id"]))
 
     def load(self) -> None:
-        (
-            self.guid,
-            self.mid,
-            self.mod,
-            self.usn,
-            tags,
-            fields,
-            self.flags,
-            self.data,
-        ) = self.col.db.first(
-            """
-select guid, mid, mod, usn, tags, flds, flags, data
-from notes where id = ?""",
-            self.id,
-        )
-        self.fields = splitFields(fields)
-        self.tags = self.col.tags.split(tags)
-        self._model = self.col.models.get(self.mid)
-        self._fmap = self.col.models.fieldMap(self._model)
-        self.scm = self.col.scm
+        n = self.col.backend.get_note(self.id)
+        assert n
+        self._load_from_backend_note(n)
 
-    def flush(self, mod: Optional[int] = None) -> None:
-        "If fields or tags have changed, write changes to disk."
-        assert self.scm == self.col.scm
-        self._preFlush()
-        sfld = stripHTMLMedia(self.fields[self.col.models.sortIdx(self._model)])
-        tags = self.stringTags()
-        fields = self.joinedFields()
-        if not mod and self.col.db.scalar(
-            "select 1 from notes where id = ? and tags = ? and flds = ?",
-            self.id,
-            tags,
-            fields,
-        ):
-            return
-        csum = fieldChecksum(self.fields[0])
-        self.mod = mod if mod else intTime()
-        self.usn = self.col.usn()
-        res = self.col.db.execute(
-            """
-insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)""",
-            self.id,
-            self.guid,
-            self.mid,
-            self.mod,
-            self.usn,
-            tags,
-            fields,
-            sfld,
-            csum,
-            self.flags,
-            self.data,
+    def _load_from_backend_note(self, n: BackendNote) -> None:
+        self.id = n.id
+        self.guid = n.guid
+        self.mid = n.ntid
+        self.mod = n.mtime_secs
+        self.usn = n.usn
+        self.tags = list(n.tags)
+        self.fields = list(n.fields)
+        self._fmap = self.col.models.fieldMap(self.model())
+
+    def to_backend_note(self) -> BackendNote:
+        hooks.note_will_flush(self)
+        return BackendNote(
+            id=self.id,
+            guid=self.guid,
+            ntid=self.mid,
+            mtime_secs=self.mod,
+            usn=self.usn,
+            tags=self.tags,
+            fields=self.fields,
         )
-        self.col.tags.register(self.tags)
-        self._postFlush()
+
+    def flush(self) -> None:
+        assert self.id != 0
+        self.col.backend.update_note(self.to_backend_note())
 
     def joinedFields(self) -> str:
         return joinFields(self.fields)
@@ -126,7 +78,12 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)""",
         ]
 
     def model(self) -> Optional[NoteType]:
-        return self._model
+        return self.col.models.get(self.mid)
+
+    _model = property(model)
+
+    def cloze_numbers_in_fields(self) -> List[int]:
+        return self.col.backend.cloze_numbers_in_note(self.to_backend_note())
 
     # Dict interface
     ##################################################
@@ -198,22 +155,3 @@ insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)""",
             if stripHTMLMedia(splitFields(flds)[0]) == stripHTMLMedia(self.fields[0]):
                 return 2
         return False
-
-    # Flushing cloze notes
-    ##################################################
-
-    def _preFlush(self) -> None:
-        hooks.note_will_flush(self)
-        # have we been added yet?
-        self.newlyAdded = not self.col.db.scalar(
-            "select 1 from cards where nid = ?", self.id
-        )
-
-    def _postFlush(self) -> None:
-        # generate missing cards
-        if not self.newlyAdded:
-            rem = self.col.genCards([self.id])
-            # popping up a dialog while editing is confusing; instead we can
-            # document that the user should open the templates window to
-            # garbage collect empty cards
-            # self.col.remEmptyCards(ids)

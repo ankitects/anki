@@ -21,6 +21,7 @@ import typing
 import uuid
 
 import PyQt5.QtSvg
+import socks
 
 from anki.utils import isLin, isWin
 

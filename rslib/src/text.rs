@@ -65,7 +65,7 @@ lazy_static! {
     // videos are also in sound tags
     static ref AV_TAGS: Regex = Regex::new(
         r#"(?xs)
-            \[sound:(?P<soundname>[^\]|]*)
+            \[sound:(?P<soundname>[^\]|]+)
                 (?:\|(?P<soundargs>[^\]]*))?
             \]
             |
@@ -235,6 +235,12 @@ pub(crate) fn normalize_to_nfc(s: &str) -> Cow<str> {
         s.chars().nfc().collect::<String>().into()
     } else {
         s.into()
+    }
+}
+
+pub(crate) fn ensure_string_in_nfc(s: &mut String) {
+    if !is_nfc(s) {
+        *s = s.chars().nfc().collect()
     }
 }
 

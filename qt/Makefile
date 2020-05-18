@@ -75,7 +75,12 @@ BUILD_STEPS := .build/vernum .build/run-deps .build/dev-deps .build/js .build/ui
 ######################
 
 .PHONY: check
-check: $(BUILD_STEPS) .build/mypy .build/test .build/fmt .build/imports .build/lint .build/ts-fmt
+check: .build/pyaudio $(BUILD_STEPS) .build/mypy .build/test .build/fmt .build/imports .build/lint .build/ts-fmt
+
+# https://github.com/ankitects/anki/pull/611 - Automatically install pyaudio when running make check
+.build/pyaudio:
+	python -m pip install pyaudio
+	@touch $@
 
 .PHONY: fix
 fix: .build/devDependencies $(BUILD_STEPS)

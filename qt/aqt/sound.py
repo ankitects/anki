@@ -27,9 +27,7 @@ from aqt.utils import restoreGeom, saveGeom, showWarning, startup_info
 try:
     import pyaudio
 except:
-    print(
-        "Warning: pyaudio is not installed and audio recording will not work! Install it with: python3 -m pip install pyaudio"
-    )
+    pyaudio = None
 
 
 # AV player protocol
@@ -526,6 +524,9 @@ Recorder = PyAudioRecorder
 
 def getAudio(parent: QWidget, encode: bool = True) -> Optional[str]:
     "Record and return filename"
+    if not pyaudio:
+        showWarning("Please install pyaudio.")
+        return None
     # record first
     r = Recorder()
     mb = QMessageBox(parent)

@@ -51,7 +51,6 @@ hooks = [
         return_type="bool",
         doc="Warning: this is called on a background thread.",
     ),
-    Hook(name="tag_list_did_update"),
     Hook(
         name="field_filter",
         args=[
