@@ -31,8 +31,8 @@ create table decks (
   name text not null collate unicase,
   mtime_secs integer not null,
   usn integer not null,
-  common bytes not null,
-  kind bytes not null
+  common blob not null,
+  kind blob not null
 );
 create unique index idx_decks_name on decks (name);
 create index idx_notes_mid on notes (mid);
