@@ -159,21 +159,21 @@ class CardLayout(QDialog):
         self.tform.front_button.setToolTip(shortcut("Ctrl+1"))
         self.tform.back_button.setToolTip(shortcut("Ctrl+2"))
         self.tform.style_button.setToolTip(shortcut("Ctrl+3"))
-        QShortcut(
+        QShortcut(  # type: ignore
             QKeySequence("Ctrl+1"),
             self,
             activated=lambda: self.tform.front_button.setChecked(True),
-        )  # type: ignore
-        QShortcut(
+        )
+        QShortcut(  # type: ignore
             QKeySequence("Ctrl+2"),
             self,
             activated=lambda: self.tform.back_button.setChecked(True),
-        )  # type: ignore
-        QShortcut(
+        )
+        QShortcut(  # type: ignore
             QKeySequence("Ctrl+3"),
             self,
             activated=lambda: self.tform.style_button.setChecked(True),
-        )  # type: ignore
+        )
 
     # Main area setup
     ##########################################################################
