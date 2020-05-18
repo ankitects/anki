@@ -141,22 +141,18 @@ class ProfileManager:
         icon.addPixmap(
             QtGui.QPixmap(":/icons/anki.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off,
         )
-        window_title = "Anki Base Directory Migration"
+        window_title = "Data Folder Migration"
         migration_directories = f"\n\n    {oldBase}\n\nto\n\n    {self.base}"
 
-        conformation = QMessageBox()
-        conformation.setIcon(QMessageBox.Warning)
-        conformation.setWindowIcon(icon)
-        conformation.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-        conformation.setWindowTitle(window_title)
-        conformation.setText("Confirm Anki Collection base directory migration?")
-        conformation.setInformativeText(
-            f"The Anki Collection directory should be migrated from {migration_directories}\n\n"
-            f"If you would like to keep using the old location, consult the Startup Options "
-            f"on the Anki documentation on website\n\n{appHelpSite}"
+        confirmation = QMessageBox()
+        confirmation.setIcon(QMessageBox.Warning)
+        confirmation.setWindowIcon(icon)
+        confirmation.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        confirmation.setWindowTitle(window_title)
+        confirmation.setText(
+            "Anki needs to move its data folder from Documents/Anki to a new location. Proceed?"
         )
-        conformation.setDefaultButton(QMessageBox.Cancel)
-        retval = conformation.exec()
+        retval = confirmation.exec()
 
         if retval == QMessageBox.Ok:
             progress = QMessageBox()
@@ -164,11 +160,10 @@ class ProfileManager:
             progress.setStandardButtons(QMessageBox.NoButton)
             progress.setWindowIcon(icon)
             progress.setWindowTitle(window_title)
-            progress.setText(
-                f"Please wait while your Anki collection is moved from {migration_directories}"
-            )
+            progress.setText("Please wait...")
             progress.show()
             app.processEvents()
+
             shutil.move(oldBase, self.base)
             progress.hide()
 
@@ -177,16 +172,22 @@ class ProfileManager:
             completion.setStandardButtons(QMessageBox.Ok)
             completion.setWindowIcon(icon)
             completion.setWindowTitle(window_title)
-            completion.setText(
-                f"Your Anki Collection was successfully moved from {migration_directories}\n\n"
-                f"Now Anki needs to restart.\n\n"
-                f"Click OK to exit Anki and open it again."
-            )
+            completion.setText("Migration complete. Please start Anki again.")
             completion.show()
             completion.exec()
-            raise AnkiRestart(exitcode=0)
         else:
-            self.base = oldBase
+            diag = QMessageBox()
+            diag.setIcon(QMessageBox.Warning)
+            diag.setWindowIcon(icon)
+            diag.setStandardButtons(QMessageBox.Ok)
+            diag.setWindowTitle(window_title)
+            diag.setText(
+                "Migration aborted. If you would like to keep the old folder location, please "
+                "see the Startup Options section of the manual. Anki will now quit."
+            )
+            diag.exec()
+
+        raise AnkiRestart(exitcode=0)
 
     # Profile load/save
     ######################################################################
