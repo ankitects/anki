@@ -202,7 +202,6 @@ class DataModel(QAbstractTableModel):
         self.cardObjs = {}
 
     def endReset(self):
-        t = time.time()
         self.endResetModel()
         self.restoreSelection()
         self.browser.mw.progress.finish()
