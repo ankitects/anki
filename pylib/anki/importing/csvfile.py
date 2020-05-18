@@ -141,12 +141,10 @@ class TextImporter(NoteImporter):
 
     def __del__(self):
         self.close()
-        try:
-            super().__del__  # type: ignore
-        except AttributeError:
-            pass
-        else:
-            super().__del__(self)  # type: ignore
+        zuper = super()
+        if hasattr(zuper, "__del__"):
+            # pylint: disable=no-member
+            zuper.__del__(self)  # type: ignore
 
     def noteFromFields(self, fields: List[str]) -> ForeignNote:
         note = ForeignNote()
