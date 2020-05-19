@@ -1,7 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::{parser::Node, sqlwriter::node_to_sql};
+use super::{
+    parser::Node,
+    sqlwriter::{RequiredTable, SqlWriter},
+};
 use crate::card::CardID;
 use crate::card::CardType;
 use crate::collection::Collection;
@@ -9,6 +12,7 @@ use crate::config::SortKind;
 use crate::err::Result;
 use crate::search::parser::parse;
 
+#[derive(Debug, PartialEq, Clone)]
 pub enum SortMode {
     NoOrder,
     FromConfig,
@@ -16,24 +20,54 @@ pub enum SortMode {
     Custom(String),
 }
 
-impl Collection {
-    pub fn search_cards(&mut self, search: &str, mode: SortMode) -> Result<Vec<CardID>> {
-        let top_node = Node::Group(parse(search)?);
-        let (sql, args) = node_to_sql(self, &top_node, self.normalize_note_text())?;
+impl SortMode {
+    fn required_table(&self) -> RequiredTable {
+        match self {
+            SortMode::NoOrder => RequiredTable::Cards,
+            SortMode::FromConfig => unreachable!(),
+            SortMode::Builtin { kind, .. } => kind.required_table(),
+            SortMode::Custom(ref text) => {
+                if text.contains("n.") {
+                    RequiredTable::CardsAndNotes
+                } else {
+                    RequiredTable::Cards
+                }
+            }
+        }
+    }
+}
 
-        let mut sql = format!(
-            "select c.id from cards c, notes n where c.nid=n.id and {}",
-            sql
-        );
+impl SortKind {
+    fn required_table(self) -> RequiredTable {
+        match self {
+            SortKind::NoteCreation
+            | SortKind::NoteMod
+            | SortKind::NoteField
+            | SortKind::NoteType
+            | SortKind::NoteTags
+            | SortKind::CardTemplate => RequiredTable::CardsAndNotes,
+            SortKind::CardMod
+            | SortKind::CardReps
+            | SortKind::CardDue
+            | SortKind::CardEase
+            | SortKind::CardLapses
+            | SortKind::CardInterval
+            | SortKind::CardDeck => RequiredTable::Cards,
+        }
+    }
+}
+
+impl Collection {
+    pub fn search_cards(&mut self, search: &str, mut mode: SortMode) -> Result<Vec<CardID>> {
+        let top_node = Node::Group(parse(search)?);
+        self.resolve_config_sort(&mut mode);
+        let writer = SqlWriter::new(self);
+
+        let (mut sql, args) = writer.build_cards_query(&top_node, mode.required_table())?;
 
         match mode {
             SortMode::NoOrder => (),
-            SortMode::FromConfig => {
-                let kind = self.get_browser_sort_kind();
-                prepare_sort(self, kind)?;
-                sql.push_str(" order by ");
-                write_order(&mut sql, kind, self.get_browser_sort_reverse())?;
-            }
+            SortMode::FromConfig => unreachable!(),
             SortMode::Builtin { kind, reverse } => {
                 prepare_sort(self, kind)?;
                 sql.push_str(" order by ");
@@ -51,6 +85,16 @@ impl Collection {
             .collect::<std::result::Result<_, _>>()?;
 
         Ok(ids)
+    }
+
+    /// If the sort mode is based on a config setting, look it up.
+    fn resolve_config_sort(&self, mode: &mut SortMode) {
+        if mode == &SortMode::FromConfig {
+            *mode = SortMode::Builtin {
+                kind: self.get_browser_sort_kind(),
+                reverse: self.get_browser_sort_reverse(),
+            }
+        }
     }
 }
 

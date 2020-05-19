@@ -16,25 +16,17 @@ use lazy_static::lazy_static;
 use regex::{Captures, Regex};
 use std::{borrow::Cow, fmt::Write};
 
-struct SqlWriter<'a> {
+pub(crate) struct SqlWriter<'a> {
     col: &'a mut Collection,
     sql: String,
     args: Vec<String>,
     normalize_note_text: bool,
-}
-
-pub(super) fn node_to_sql(
-    req: &mut Collection,
-    node: &Node,
-    normalize_note_text: bool,
-) -> Result<(String, Vec<String>)> {
-    let mut sctx = SqlWriter::new(req, normalize_note_text);
-    sctx.write_node_to_sql(&node)?;
-    Ok((sctx.sql, sctx.args))
+    table: RequiredTable,
 }
 
 impl SqlWriter<'_> {
-    fn new(col: &mut Collection, normalize_note_text: bool) -> SqlWriter<'_> {
+    pub(crate) fn new(col: &mut Collection) -> SqlWriter<'_> {
+        let normalize_note_text = col.normalize_note_text();
         let sql = String::new();
         let args = vec![];
         SqlWriter {
@@ -42,6 +34,52 @@ impl SqlWriter<'_> {
             sql,
             args,
             normalize_note_text,
+            table: RequiredTable::CardsOrNotes,
+        }
+    }
+
+    pub(super) fn build_cards_query(
+        mut self,
+        node: &Node,
+        table: RequiredTable,
+    ) -> Result<(String, Vec<String>)> {
+        self.table = table.combine(node.required_table());
+        self.write_cards_table_sql();
+        self.write_node_to_sql(&node)?;
+        Ok((self.sql, self.args))
+    }
+
+    pub(super) fn build_notes_query(mut self, node: &Node) -> Result<(String, Vec<String>)> {
+        self.table = RequiredTable::Notes.combine(node.required_table());
+        self.write_notes_table_sql();
+        self.write_node_to_sql(&node)?;
+        Ok((self.sql, self.args))
+    }
+
+    fn write_cards_table_sql(&mut self) {
+        let sql = match self.table {
+            RequiredTable::Cards => "select c.id from cards c where ",
+            _ => "select c.id from cards c, notes n where c.nid=n.id and ",
+        };
+        self.sql.push_str(sql);
+    }
+
+    fn write_notes_table_sql(&mut self) {
+        let sql = match self.table {
+            RequiredTable::Notes => "select n.id from notes n where ",
+            _ => "select distinct n.id from cards c, notes n where c.nid=n.id and ",
+        };
+        self.sql.push_str(sql);
+    }
+
+    /// As an optimization we can omit the cards or notes tables from
+    /// certain queries. For code that specifies a note id, we need to
+    /// choose the appropriate column name.
+    fn note_id_column(&self) -> &'static str {
+        match self.table {
+            RequiredTable::Notes | RequiredTable::CardsAndNotes => "n.id",
+            RequiredTable::Cards => "c.nid",
+            RequiredTable::CardsOrNotes => unreachable!(),
         }
     }
 
@@ -111,7 +149,7 @@ impl SqlWriter<'_> {
                 write!(self.sql, "(c.flags & 7) == {}", flag).unwrap();
             }
             SearchNode::NoteIDs(nids) => {
-                write!(self.sql, "n.id in ({})", nids).unwrap();
+                write!(self.sql, "{} in ({})", self.note_id_column(), nids).unwrap();
             }
             SearchNode::CardIDs(cids) => {
                 write!(self.sql, "c.id in ({})", cids).unwrap();
@@ -439,8 +477,78 @@ fn text_to_re(glob: &str) -> String {
     text2.into()
 }
 
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub enum RequiredTable {
+    Notes,
+    Cards,
+    CardsAndNotes,
+    CardsOrNotes,
+}
+
+impl RequiredTable {
+    fn combine(self, other: RequiredTable) -> RequiredTable {
+        match (self, other) {
+            (RequiredTable::CardsAndNotes, _) => RequiredTable::CardsAndNotes,
+            (_, RequiredTable::CardsAndNotes) => RequiredTable::CardsAndNotes,
+            (RequiredTable::CardsOrNotes, b) => b,
+            (a, RequiredTable::CardsOrNotes) => a,
+            (a, b) => {
+                if a == b {
+                    a
+                } else {
+                    RequiredTable::CardsAndNotes
+                }
+            }
+        }
+    }
+}
+
+impl Node<'_> {
+    fn required_table(&self) -> RequiredTable {
+        match self {
+            Node::And => RequiredTable::CardsOrNotes,
+            Node::Or => RequiredTable::CardsOrNotes,
+            Node::Not(node) => node.required_table(),
+            Node::Group(nodes) => nodes.iter().fold(RequiredTable::CardsOrNotes, |cur, node| {
+                cur.combine(node.required_table())
+            }),
+            Node::Search(node) => node.required_table(),
+        }
+    }
+}
+
+impl SearchNode<'_> {
+    fn required_table(&self) -> RequiredTable {
+        match self {
+            SearchNode::AddedInDays(_) => RequiredTable::Cards,
+            SearchNode::Deck(_) => RequiredTable::Cards,
+            SearchNode::Rated { .. } => RequiredTable::Cards,
+            SearchNode::State(_) => RequiredTable::Cards,
+            SearchNode::Flag(_) => RequiredTable::Cards,
+            SearchNode::CardIDs(_) => RequiredTable::Cards,
+            SearchNode::Property { .. } => RequiredTable::Cards,
+
+            SearchNode::UnqualifiedText(_) => RequiredTable::Notes,
+            SearchNode::SingleField { .. } => RequiredTable::Notes,
+            SearchNode::Tag(_) => RequiredTable::Notes,
+            SearchNode::Duplicates { .. } => RequiredTable::Notes,
+            SearchNode::Regex(_) => RequiredTable::Notes,
+            SearchNode::NoCombining(_) => RequiredTable::Notes,
+            SearchNode::WordBoundary(_) => RequiredTable::Notes,
+            SearchNode::NoteTypeID(_) => RequiredTable::Notes,
+            SearchNode::NoteType(_) => RequiredTable::Notes,
+
+            SearchNode::NoteIDs(_) => RequiredTable::CardsOrNotes,
+            SearchNode::WholeCollection => RequiredTable::CardsOrNotes,
+
+            SearchNode::CardTemplate(_) => RequiredTable::CardsAndNotes,
+        }
+    }
+}
+
 #[cfg(test)]
 mod test {
+    use super::*;
     use crate::{
         collection::{open_collection, Collection},
         i18n::I18n,
@@ -451,12 +559,14 @@ mod test {
     use tempfile::tempdir;
 
     use super::super::parser::parse;
-    use super::*;
 
     // shortcut
     fn s(req: &mut Collection, search: &str) -> (String, Vec<String>) {
         let node = Node::Group(parse(search).unwrap());
-        node_to_sql(req, &node, true).unwrap()
+        let mut writer = SqlWriter::new(req);
+        writer.table = RequiredTable::Notes.combine(node.required_table());
+        writer.write_node_to_sql(&node).unwrap();
+        (writer.sql, writer.args)
     }
 
     #[test]
@@ -656,5 +766,37 @@ mod test {
         );
 
         Ok(())
+    }
+
+    #[test]
+    fn required_table() {
+        assert_eq!(
+            Node::Group(parse("").unwrap()).required_table(),
+            RequiredTable::CardsOrNotes
+        );
+        assert_eq!(
+            Node::Group(parse("test").unwrap()).required_table(),
+            RequiredTable::Notes
+        );
+        assert_eq!(
+            Node::Group(parse("cid:1").unwrap()).required_table(),
+            RequiredTable::Cards
+        );
+        assert_eq!(
+            Node::Group(parse("cid:1 test").unwrap()).required_table(),
+            RequiredTable::CardsAndNotes
+        );
+        assert_eq!(
+            Node::Group(parse("nid:1").unwrap()).required_table(),
+            RequiredTable::CardsOrNotes
+        );
+        assert_eq!(
+            Node::Group(parse("cid:1 nid:1").unwrap()).required_table(),
+            RequiredTable::Cards
+        );
+        assert_eq!(
+            Node::Group(parse("test nid:1").unwrap()).required_table(),
+            RequiredTable::Notes
+        );
     }
 }
