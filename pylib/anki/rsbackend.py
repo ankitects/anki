@@ -140,8 +140,11 @@ def proto_exception_to_native(err: pb.BackendError) -> Exception:
         return ExistsError()
     elif val == "deck_is_filtered":
         return DeckIsFilteredError()
+    elif val == "proto_error":
+        return StringError(err.localized)
     else:
-        assert_impossible_literal(val)
+        print("unhandled error type:", val)
+        return StringError(err.localized)
 
 
 def av_tag_to_native(tag: pb.AVTag) -> AVTag:
