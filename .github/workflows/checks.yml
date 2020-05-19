@@ -160,9 +160,7 @@ jobs:
           $new_path=("$env:GITHUB_WORKSPACE;$env:PATH")
           $new_path=("$env:GITHUB_WORKSPACE\shims;$new_path")
 
-          echo "::set-env name=pacmanbin::pacman-5.1.1-3-x86_64.pkg.tar.xz"
-          echo "::set-env name=pacmanmirror::pacman-mirrors-20200307-1-any.pkg.tar.xz"
-          echo "::set-env name=pacmankeys::msys2-keyring-r9.397a52e-1-any.pkg.tar.xz"
+          echo "::set-env name=syncbin::rsync-3.1.3-1-x86_64.pkg.tar.xz"
           echo "::set-env name=pyaudio::$pyaudio"
           echo "::set-env name=PATH::$new_path"
           echo "::set-env name=RUST_BACKTRACE::full"
@@ -228,55 +226,16 @@ jobs:
           path: ${{ github.workspace }}${{ matrix.SEP }}rspy${{ matrix.SEP }}target
           key: ${{ runner.os }}-cargo-rspy-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-${{ matrix.BUILD_TYPE }}-16-
 
-      - name: Cache pacman
-        if: matrix.os == 'windows-latest'
-        uses: actions/cache@v1
-        id: cache-pacman
-        with:
-          path: C:\Program Files\Git
-          key: ${{ runner.os }}-pacman-${{ hashFiles('**/checks.yml') }}-16-
-
-      - name: Set up pacman, rsync
-        if: matrix.os == 'windows-latest' && steps.cache-pacman.outputs.cache-hit != 'true'
-        shell: cmd
-        run: |
-          echo on
-          curl -LO http://repo.msys2.org/msys/x86_64/%pacmanbin%
-          curl -LO http://repo.msys2.org/msys/x86_64/%pacmanmirror%
-          curl -LO http://repo.msys2.org/msys/x86_64/%pacmankeys%
-
-          :: https://stackoverflow.com/questions/1359793/programmatically-extract-tar-gz
-          7z x "%pacmanbin%" -so | 7z x -aoa -si -ttar -o"%programfiles%\Git"
-          7z x "%pacmanmirror%" -so | 7z x -aoa -si -ttar -o"%programfiles%\Git"
-          7z x "%pacmankeys%" -so | 7z x -aoa -si -ttar -o"%programfiles%\Git"
-
-          :: Manually Install Pacman Binaries
-          :: https://github.com/Alexpux/MSYS2-pacman/issues/50
-          set "PATH=%programfiles%\Git\usr\bin"
-          bash pacman-key --init
-          bash pacman-key --populate msys2
-          bash pacman-key --refresh-keys
-          pacman -Tv
-          pacman -Syyuuv --overwrite='*'
-          pacman -Syuuv --overwrite='*'
-          pacman --version
-
-          :: We must install bash first, otherwise we will have bash fork errors:
-          :: https://github.com/evandroforks/anki/runs/524857054?check_suite_focus=true
-          :: 0 [main] pacman 748 dofork: child -1 - forked process 2896 died unexpectedly
-          pacman -Sv --noconfirm --overwrite='*' bash
-          pacman -Sv --noconfirm --overwrite='*' rsync
-
-          :: clean all packages to decrease image size
-          pacman -Sccv --noconfirm
-          pacman -Qsv --noconfirm
-
-      - name: Set up curl pyaudio
+      - name: Set up curl pyaudio, rsync
         if: matrix.os == 'windows-latest'
         shell: cmd
         run: |
           echo on
           curl -LO https://download.lfd.uci.edu/pythonlibs/s2jqpv5t/%pyaudio%
+          curl -LO http://repo.msys2.org/msys/x86_64/%syncbin%
+
+          :: https://stackoverflow.com/questions/1359793/programmatically-extract-tar-gz
+          7z x "%syncbin%" -so | 7z x -aoa -si -ttar -o"%programfiles%\Git"
 
       - name: Set up Windows scoop, gettext, ripgrep
         if: matrix.os == 'windows-latest'
