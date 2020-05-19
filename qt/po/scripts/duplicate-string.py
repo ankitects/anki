@@ -38,7 +38,8 @@ def dupe_key(fname, old, new):
     if not os.path.exists(fname):
         return
 
-    orig = open(fname).read()
+    with open(fname) as file:
+        orig = file.read()
     obj = parse(orig)
     for ent in obj.body:
         if isinstance(ent, Junk):
@@ -68,7 +69,8 @@ def dupe_key(fname, old, new):
             raise Exception(f"introduced junk! {fname} {ent}")
 
     # it's ok, write it out
-    open(fname, "w").write(modified)
+    with open(fname, "w") as file:
+        file.write(modified)
 
 
 i18ndir = os.path.join(os.path.dirname(ftl_filename), "..")

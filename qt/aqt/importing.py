@@ -361,6 +361,7 @@ def importFile(mw, file):
         mw.progress.start(immediate=True)
         try:
             importer.open()
+            diag = ImportDialog(mw, importer)
         except UnicodeDecodeError:
             mw.progress.finish()
             showUnicodeWarning()
@@ -377,7 +378,7 @@ def importFile(mw, file):
             return
         finally:
             mw.progress.finish()
-        diag = ImportDialog(mw, importer)
+            importer.close()
     else:
         # if it's an apkg/zip, first test it's a valid file
         if importer.__class__.__name__ == "AnkiPackageImporter":
@@ -505,7 +506,8 @@ def _replaceWithApkg(mw, filename, backup):
             if os.path.exists(dest) and size == os.stat(dest).st_size:
                 continue
             data = z.read(cStr)
-            open(dest, "wb").write(data)
+            with open(dest, "wb") as file:
+                file.write(data)
 
         z.close()
 

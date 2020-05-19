@@ -300,7 +300,8 @@ class SupermemoXmlImporter(NoteImporter):
 
     # OPEN AND LOAD
     def openAnything(self, source):
-        "Open any source / actually only openig of files is used"
+        """Open any source / actually only opening of files is used
+        @return an open handle which must be closed after use, i.e., handle.close()"""
 
         if source == "-":
             return sys.stdin
