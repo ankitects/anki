@@ -216,9 +216,9 @@ class CardLayout(QDialog):
         )
 
         qconnect(tform.edit_area.textChanged, self.write_edits_to_template_and_redraw)
-        qconnect(tform.front_button.toggled, self.on_editor_toggled)
-        qconnect(tform.back_button.toggled, self.on_editor_toggled)
-        qconnect(tform.style_button.toggled, self.on_editor_toggled)
+        qconnect(tform.front_button.clicked, self.on_editor_toggled)
+        qconnect(tform.back_button.clicked, self.on_editor_toggled)
+        qconnect(tform.style_button.clicked, self.on_editor_toggled)
 
         self.current_editor_index = 0
         self.tform.edit_area.setAcceptRichText(False)
@@ -255,10 +255,12 @@ class CardLayout(QDialog):
         if self.tform.front_button.isChecked():
             self.current_editor_index = 0
             self.pform.preview_front.setChecked(True)
+            self.on_preview_toggled()
             self.add_field_button.setHidden(False)
         elif self.tform.back_button.isChecked():
             self.current_editor_index = 1
             self.pform.preview_back.setChecked(True)
+            self.on_preview_toggled()
             self.add_field_button.setHidden(False)
         else:
             self.current_editor_index = 2
@@ -285,8 +287,8 @@ class CardLayout(QDialog):
         pform.verticalLayout.addWidget(self.preview_web)
         pform.verticalLayout.setStretch(1, 99)
         pform.preview_front.isChecked()
-        qconnect(pform.preview_front.toggled, self.on_preview_toggled)
-        qconnect(pform.preview_back.toggled, self.on_preview_toggled)
+        qconnect(pform.preview_front.clicked, self.on_preview_toggled)
+        qconnect(pform.preview_back.clicked, self.on_preview_toggled)
         if self._want_fill_empty_on:
             pform.fill_empty.setChecked(True)
         qconnect(pform.fill_empty.toggled, self.on_preview_toggled)
