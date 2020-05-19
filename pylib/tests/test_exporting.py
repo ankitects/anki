@@ -151,11 +151,13 @@ def test_export_textnote():
     os.close(fd)
     os.unlink(f)
     e.exportInto(f)
-    assert open(f).readline() == "foo\tbar<br>\ttag tag2\n"
+    with open(f) as file:
+        assert file.readline() == "foo\tbar<br>\ttag tag2\n"
     e.includeTags = False
     e.includeHTML = False
     e.exportInto(f)
-    assert open(f).readline() == "foo\tbar\n"
+    with open(f) as file:
+        assert file.readline() == "foo\tbar\n"
 
 
 def test_exporters():

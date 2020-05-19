@@ -56,7 +56,7 @@ class TextImporter(NoteImporter):
             log.append(_("Aborted: %s") % str(e))
         self.log = log
         self.ignored = ignored
-        self.fileobj.close()
+        self.close()
         return notes
 
     def open(self) -> None:
@@ -133,6 +133,18 @@ class TextImporter(NoteImporter):
         "Number of fields."
         self.open()
         return self.numFields
+
+    def close(self):
+        if self.fileobj:
+            self.fileobj.close()
+            self.fileobj = None
+
+    def __del__(self):
+        self.close()
+        zuper = super()
+        if hasattr(zuper, "__del__"):
+            # pylint: disable=no-member
+            zuper.__del__(self)  # type: ignore
 
     def noteFromFields(self, fields: List[str]) -> ForeignNote:
         note = ForeignNote()

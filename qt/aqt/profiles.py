@@ -467,11 +467,12 @@ create table if not exists profiles
         "Create a new profile if none exists."
         self.create(_("User 1"))
         p = os.path.join(self.base, "README.txt")
-        open(p, "w", encoding="utf8").write(
-            without_unicode_isolation(
-                tr(TR.PROFILES_FOLDER_README, link=appHelpSite + "#startupopts")
+        with open(p, "w", encoding="utf8") as file:
+            file.write(
+                without_unicode_isolation(
+                    tr(TR.PROFILES_FOLDER_README, link=appHelpSite + "#startupopts")
+                )
             )
-        )
 
     # Default language
     ######################################################################
@@ -544,7 +545,8 @@ create table if not exists profiles
         if not os.path.exists(path):
             return "software"
 
-        mode = open(path, "r").read().strip()
+        with open(path, "r") as file:
+            mode = file.read().strip()
 
         if mode == "angle" and isWin:
             return mode
@@ -553,7 +555,8 @@ create table if not exists profiles
         return "auto"
 
     def setGlMode(self, mode):
-        open(self._glPath(), "w").write(mode)
+        with open(self._glPath(), "w") as file:
+            file.write(mode)
 
     def nextGlMode(self):
         mode = self.glMode()
