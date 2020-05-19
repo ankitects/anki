@@ -1566,7 +1566,7 @@ where id in %s"""
     def onTogglePreview(self):
         if self._previewer:
             self._previewer.close()
-            self._previewer = None
+            self._on_preview_closed()
         else:
             self._previewer = PreviewDialog(self, self.mw, self._on_preview_closed)
             self._previewer.open()
