@@ -97,10 +97,10 @@ class Previewer(QDialog):
     def close(self):
         self._on_close()
         super().close()
-        self._close_callback()
 
     def _on_close(self):
         self._open = False
+        self._close_callback()
 
     def _setup_web_view(self):
         jsinc = [
@@ -300,10 +300,6 @@ class BrowserPreviewer(MultiCardPreviewer):
             super()._should_enable_next()
             or self._parent.currentRow() < self._parent.model.rowCount(None) - 1
         )
-
-    def _on_close(self):
-        super()._on_close()
-        self._parent.previewer = None
 
     def _render_scheduled(self) -> None:
         super()._render_scheduled()
