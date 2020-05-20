@@ -108,7 +108,6 @@ class AddCards(QDialog):
                     oldFieldName = oldNote.model()["flds"][n]["name"]
                     if oldFieldName not in newFields:
                         note.fields[n] = oldNote.fields[n]
-            self.removeTempNote(oldNote)
         self.editor.note = note
         # When on model change is called, reset is necessarily called.
         # Reset load note, so it is not required to load it here.
@@ -119,18 +118,13 @@ class AddCards(QDialog):
         flds = note.model()["flds"]
         # copy fields from old note
         if oldNote:
-            if not keep:
-                self.removeTempNote(oldNote)
             for n in range(min(len(note.fields), len(oldNote.fields))):
                 if not keep or flds[n]["sticky"]:
                     note.fields[n] = oldNote.fields[n]
         self.setAndFocusNote(note)
 
     def removeTempNote(self, note: Note) -> None:
-        if not note or not note.id:
-            return
-        # we don't have to worry about cards; just the note
-        self.mw.col._remNotes([note.id])
+        print("removeTempNote() will go away")
 
     def addHistory(self, note):
         self.history.insert(0, note.id)
@@ -211,7 +205,6 @@ class AddCards(QDialog):
         gui_hooks.state_did_reset.remove(self.onReset)
         gui_hooks.current_note_type_did_change.remove(self.onModelChange)
         av_player.stop_and_clear_queue()
-        self.removeTempNote(self.editor.note)
         self.editor.cleanup()
         self.modelChooser.cleanup()
         self.deckChooser.cleanup()
