@@ -3,7 +3,7 @@
 
 from typing import Any, List, Optional
 
-from anki.collection import _Collection
+from anki.collection import Collection
 from anki.utils import maxID
 
 # Base importer
@@ -14,9 +14,9 @@ class Importer:
 
     needMapper = False
     needDelimiter = False
-    dst: Optional[_Collection]
+    dst: Optional[Collection]
 
-    def __init__(self, col: _Collection, file: str) -> None:
+    def __init__(self, col: Collection, file: str) -> None:
         self.file = file
         self.log: List[str] = []
         self.col = col.weakref()

@@ -12,9 +12,8 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from zipfile import ZipFile
 
 from anki import hooks
-from anki.collection import _Collection
+from anki.collection import Collection
 from anki.lang import _
-from anki.storage import Collection
 from anki.utils import ids2str, namedtmp, splitFields, stripHTML
 
 
@@ -23,7 +22,7 @@ class Exporter:
 
     def __init__(
         self,
-        col: _Collection,
+        col: Collection,
         did: Optional[int] = None,
         cids: Optional[List[int]] = None,
     ) -> None:
@@ -122,7 +121,7 @@ class TextNoteExporter(Exporter):
     includeTags = True
     includeHTML = True
 
-    def __init__(self, col: _Collection) -> None:
+    def __init__(self, col: Collection) -> None:
         Exporter.__init__(self, col)
         self.includeID = False
 
@@ -164,7 +163,7 @@ class AnkiExporter(Exporter):
     includeSched: Union[bool, None] = False
     includeMedia = True
 
-    def __init__(self, col: _Collection) -> None:
+    def __init__(self, col: Collection) -> None:
         Exporter.__init__(self, col)
 
     def deckIds(self) -> List[int]:
@@ -311,7 +310,7 @@ class AnkiPackageExporter(AnkiExporter):
     key = _("Anki Deck Package")
     ext = ".apkg"
 
-    def __init__(self, col: _Collection) -> None:
+    def __init__(self, col: Collection) -> None:
         AnkiExporter.__init__(self, col)
 
     def exportInto(self, path: str) -> None:

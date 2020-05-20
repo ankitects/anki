@@ -74,7 +74,7 @@ class TemplateRenderContext:
 
     def __init__(
         self,
-        col: anki.storage._Collection,
+        col: anki.collection.Collection,
         card: Card,
         note: Note,
         browser: bool = False,
@@ -97,7 +97,7 @@ class TemplateRenderContext:
         # hooks, you can insert it into this dictionary
         self.extra_state: Dict[str, Any] = {}
 
-    def col(self) -> anki.storage._Collection:
+    def col(self) -> anki.collection.Collection:
         return self._col
 
     # legacy

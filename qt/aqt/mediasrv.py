@@ -9,7 +9,7 @@ import threading
 from http import HTTPStatus
 from typing import Optional
 
-from anki.collection import _Collection
+from anki.collection import Collection
 from anki.utils import devMode
 from aqt.qt import *
 from aqt.utils import aqt_data_folder
@@ -74,7 +74,7 @@ class MediaServer(threading.Thread):
 class RequestHandler(http.server.SimpleHTTPRequestHandler):
 
     timeout = 1
-    mw: Optional[_Collection] = None
+    mw: Optional[Collection] = None
 
     def do_GET(self):
         f = self.send_head()

@@ -6,8 +6,6 @@ from __future__ import annotations
 import random
 import time
 from heapq import *
-
-# from anki.collection import _Collection
 from typing import Any, Callable, Dict, List, Optional, Sequence, Set, Tuple, Union
 
 import anki  # pylint: disable=unused-import
@@ -33,7 +31,7 @@ class Scheduler:
     _burySiblingsOnAnswer = True
     revCount: int
 
-    def __init__(self, col: anki.storage._Collection) -> None:
+    def __init__(self, col: anki.collection.Collection) -> None:
         self.col = col.weakref()
         self.queueLimit = 50
         self.reportLimit = 1000

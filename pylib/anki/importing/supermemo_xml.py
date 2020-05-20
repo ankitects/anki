@@ -12,7 +12,7 @@ from typing import List, Optional, Union
 from xml.dom import minidom
 from xml.dom.minidom import Element, Text
 
-from anki.collection import _Collection
+from anki.collection import Collection
 from anki.importing.noteimp import ForeignCard, ForeignNote, NoteImporter
 from anki.lang import _, ngettext
 from anki.stdmodels import addBasicModel
@@ -83,7 +83,7 @@ class SupermemoXmlImporter(NoteImporter):
     Code should be upgrade to support importing of SM2006 exports.
     """
 
-    def __init__(self, col: _Collection, file: str) -> None:
+    def __init__(self, col: Collection, file: str) -> None:
         """Initialize internal varables.
         Pameters to be exposed to GUI are stored in self.META"""
         NoteImporter.__init__(self, col, file)

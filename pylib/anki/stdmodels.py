@@ -3,7 +3,7 @@
 
 from typing import Callable, List, Tuple
 
-from anki.collection import _Collection
+from anki.collection import Collection
 from anki.models import NoteType
 from anki.rsbackend import StockNoteType
 
@@ -12,38 +12,38 @@ from anki.rsbackend import StockNoteType
 models: List[Tuple] = []
 
 
-def add_stock_notetype(col: _Collection, kind: StockNoteType) -> NoteType:
+def add_stock_notetype(col: Collection, kind: StockNoteType) -> NoteType:
     m = col.backend.get_stock_notetype_legacy(kind)
     col.models.add(m)
     return m
 
 
-def addBasicModel(col: _Collection) -> NoteType:
+def addBasicModel(col: Collection) -> NoteType:
     return add_stock_notetype(col, StockNoteType.STOCK_NOTE_TYPE_BASIC)
 
 
-def addBasicTypingModel(col: _Collection) -> NoteType:
+def addBasicTypingModel(col: Collection) -> NoteType:
     return add_stock_notetype(col, StockNoteType.STOCK_NOTE_TYPE_BASIC_TYPING)
 
 
-def addForwardReverse(col: _Collection) -> NoteType:
+def addForwardReverse(col: Collection) -> NoteType:
     return add_stock_notetype(col, StockNoteType.STOCK_NOTE_TYPE_BASIC_AND_REVERSED)
 
 
-def addForwardOptionalReverse(col: _Collection) -> NoteType:
+def addForwardOptionalReverse(col: Collection) -> NoteType:
     return add_stock_notetype(
         col, StockNoteType.STOCK_NOTE_TYPE_BASIC_OPTIONAL_REVERSED
     )
 
 
-def addClozeModel(col: _Collection) -> NoteType:
+def addClozeModel(col: Collection) -> NoteType:
     return add_stock_notetype(col, StockNoteType.STOCK_NOTE_TYPE_CLOZE)
 
 
 def get_stock_notetypes(
-    col: _Collection,
-) -> List[Tuple[str, Callable[[_Collection], NoteType]]]:
-    out: List[Tuple[str, Callable[[_Collection], NoteType]]] = []
+    col: Collection,
+) -> List[Tuple[str, Callable[[Collection], NoteType]]]:
+    out: List[Tuple[str, Callable[[Collection], NoteType]]] = []
     # add standard
     for (kind, func) in [
         (StockNoteType.STOCK_NOTE_TYPE_BASIC, addBasicModel),

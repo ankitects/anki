@@ -4,7 +4,7 @@
 import html
 from typing import Dict, List, Optional, Tuple, Union
 
-from anki.collection import _Collection
+from anki.collection import Collection
 from anki.consts import NEW_CARDS_RANDOM, STARTING_FACTOR
 from anki.importing.base import Importer
 from anki.lang import _, ngettext
@@ -68,7 +68,7 @@ class NoteImporter(Importer):
     mapping: Optional[List[str]]
     tagModified: Optional[str]
 
-    def __init__(self, col: _Collection, file: str) -> None:
+    def __init__(self, col: Collection, file: str) -> None:
         Importer.__init__(self, col, file)
         self.model = col.models.current()
         self.mapping = None

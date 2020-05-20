@@ -5,7 +5,7 @@ import csv
 import re
 from typing import Any, List, Optional, TextIO, Union
 
-from anki.collection import _Collection
+from anki.collection import Collection
 from anki.importing.noteimp import ForeignNote, NoteImporter
 from anki.lang import _
 
@@ -15,7 +15,7 @@ class TextImporter(NoteImporter):
     needDelimiter = True
     patterns = "\t|,;:"
 
-    def __init__(self, col: _Collection, file: str) -> None:
+    def __init__(self, col: Collection, file: str) -> None:
         NoteImporter.__init__(self, col, file)
         self.lines = None
         self.fileobj: Optional[TextIO] = None

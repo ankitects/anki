@@ -33,21 +33,19 @@ from anki.tags import TagManager
 from anki.utils import devMode, ids2str, intTime
 
 
-# this is initialized by storage.Collection
-class _Collection:
-    db: Optional[DBProxy]
+class Collection:
     sched: Union[V1Scheduler, V2Scheduler]
     _undo: List[Any]
 
     def __init__(
         self,
         path: str,
-        backend: Optional[RustBackend],
+        backend: Optional[RustBackend] = None,
         server: bool = False,
         log: bool = False,
     ) -> None:
         self.backend = backend or RustBackend(server=server)
-        self.db = None
+        self.db: Optional[DBProxy] = None
         self._should_log = log
         self.server = server
         self.path = os.path.abspath(path)
@@ -70,7 +68,7 @@ class _Collection:
     def tr(self, key: TR, **kwargs: Union[str, int, float]) -> str:
         return self.backend.translate(key, **kwargs)
 
-    def weakref(self) -> anki.storage._Collection:
+    def weakref(self) -> Collection:
         "Shortcut to create a weak reference that doesn't break code completion."
         return weakref.proxy(self)
 
@@ -654,3 +652,7 @@ select id from notes where mid = ?) limit 1"""
             self.usn(),
             intTime(),
         )
+
+
+# legacy name
+_Collection = Collection
