@@ -363,7 +363,7 @@ class _NotesWillBeDeletedHook:
     def append(
         self, cb: Callable[["anki.collection.Collection", List[int]], None]
     ) -> None:
-        """(col: anki.storage._Collection, ids: List[int])"""
+        """(col: anki.collection.Collection, ids: List[int])"""
         self._hooks.append(cb)
 
     def remove(

@@ -705,7 +705,7 @@ class _CollectionDidLoadHook:
     _hooks: List[Callable[["anki.collection.Collection"], None]] = []
 
     def append(self, cb: Callable[["anki.collection.Collection"], None]) -> None:
-        """(col: anki.storage._Collection)"""
+        """(col: anki.collection.Collection)"""
         self._hooks.append(cb)
 
     def remove(self, cb: Callable[["anki.collection.Collection"], None]) -> None:
