@@ -254,7 +254,14 @@ class AnkiMediaQueue {
 
             media.playbackRate = parseFloat(data_speed as any);
             this.is_autoplay = true;
-            media.play();
+            let playpromise = media.play();
+            if (playpromise) {
+                playpromise.catch(error =>
+                    console.log(`Could not play '${filename}' due to '${error}'!`)
+                );
+            } else {
+                console.log(`Could not play the media '${filename}'!`);
+            }
             media.addEventListener(
                 "ended",
                 () => {
