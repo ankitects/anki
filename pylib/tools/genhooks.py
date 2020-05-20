@@ -22,7 +22,7 @@ hooks = [
     Hook(name="schema_will_change", args=["proceed: bool"], return_type="bool"),
     Hook(
         name="notes_will_be_deleted",
-        args=["col: anki.storage._Collection", "ids: List[int]"],
+        args=["col: anki.collection.Collection", "ids: List[int]"],
         legacy_hook="remNotes",
     ),
     Hook(
