@@ -402,28 +402,9 @@ hooks = [
     ),
     Hook(name="media_sync_did_start_or_stop", args=["running: bool"]),
     Hook(
-        name="empty_cards_will_be_deleted",
-        args=["cids: List[int]"],
-        return_type="List[int]",
-        doc="""Allow to change the list of cards to delete.
-
-        For example, an add-on creating a method to delete only empty
-        new cards would be done as follow:
-```
-from anki.consts import CARD_TYPE_NEW
-from anki.utils import ids2str
-from aqt import mw
-from aqt import gui_hooks
-
-def filter(cids, col):
-    return col.db.list(
-            f"select id from cards where (type={CARD_TYPE_NEW} and (id in {ids2str(cids)))")
-
-def emptyNewCard():
-    gui_hooks.append(filter)
-    mw.onEmptyCards()
-    gui_hooks.remove(filter)
-```""",
+        name="empty_cards_will_show",
+        args=["diag: aqt.emptycards.EmptyCardsDialog"],
+        doc="""Allows changing the list of cards to delete.""",
     ),
     # Adding cards
     ###################

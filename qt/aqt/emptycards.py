@@ -7,6 +7,7 @@ import re
 
 import aqt
 from anki.backend_pb2 import EmptyCardsReport, NoteWithEmptyCards
+from aqt import gui_hooks
 from aqt.qt import QDialog, QDialogButtonBox, qconnect
 from aqt.utils import TR, restoreGeom, saveGeom, tooltip, tr
 
@@ -40,6 +41,8 @@ class EmptyCardsDialog(QDialog):
         self.form.keep_notes.setText(tr(TR.EMPTY_CARDS_PRESERVE_NOTES_CHECKBOX))
         self.form.webview.title = "empty cards"
         self.form.webview.set_bridge_command(self._on_note_link_clicked, self)
+
+        gui_hooks.empty_cards_will_show(self)
 
         # make the note ids clickable
         html = re.sub(
