@@ -97,13 +97,25 @@ describe("Test question and answer audios", () => {
         await page.evaluate(async () => {
             let paused_medias = 0;
             let has_medias = 0;
+            let playing = "";
             setAnkiMedia(media => {
                 has_medias += 1;
                 if (media.paused) {
                     paused_medias += 1;
+                } else {
+                    playing += `${media.id}, `;
                 }
             });
-            return has_medias ? has_medias - paused_medias : -111111;
+            if (has_medias) {
+                let has = has_medias - paused_medias;
+                if (has) {
+                    return playing;
+                } else {
+                    return has;
+                }
+            } else {
+                return "There were no medias found!";
+            }
         });
 
     let getPlayTimes = async mp3file =>
