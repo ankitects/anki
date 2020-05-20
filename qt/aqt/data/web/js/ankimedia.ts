@@ -199,7 +199,7 @@ class AnkiMediaQueue {
 
     _checkPreviewPage() {
         // avoid continuously playing when previewing/editing the card
-        if (document.title === "card layout back") {
+        if (document.title === "card layout") {
             let block_preview = () => {
                 this.has_previewed = true;
             };
