@@ -1123,7 +1123,10 @@ $(function () {
         if by == "review":
             t = self.col.db.scalar("select id from revlog %s order by id limit 1" % lim)
         elif by == "add":
-            lim = "where did in %s" % ids2str(self.col.decks.active())
+            if self.wholeCollection:
+                lim = ""
+            else:
+                lim = "where did in %s" % ids2str(self.col.decks.active())
             t = self.col.db.scalar("select id from cards %s order by id limit 1" % lim)
         if not t:
             period = 1
