@@ -7,8 +7,6 @@ import re
 import time
 from typing import Any, Callable, List, Optional, Union
 
-from PyQt5 import QtGui
-
 from anki.cards import Card
 from anki.lang import _
 from aqt import AnkiQt, gui_hooks
@@ -17,7 +15,9 @@ from aqt.qt import (
     QCheckBox,
     QDialog,
     QDialogButtonBox,
+    QIcon,
     QKeySequence,
+    QPixmap,
     Qt,
     QVBoxLayout,
     QWidget,
@@ -43,10 +43,8 @@ class Previewer(QDialog):
         self._parent = parent
         self._close_callback = on_close
         self.mw = mw
-        icon = QtGui.QIcon()
-        icon.addPixmap(
-            QtGui.QPixmap(":/icons/anki.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off
-        )
+        icon = QIcon()
+        icon.addPixmap(QPixmap(":/icons/anki.png"), QIcon.Normal, QIcon.Off)
         self.setWindowIcon(icon)
 
     def card(self) -> Optional[Card]:

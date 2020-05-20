@@ -154,11 +154,14 @@ def update_file(path: str, hooks: List[Hook]):
     for hook in hooks:
         code += hook.code()
 
-    orig = open(path).read()
+    with open(path) as file:
+        orig = file.read()
+
     new = re.sub(
         "(?s)# @@AUTOGEN@@.*?# @@AUTOGEN@@\n",
         f"# @@AUTOGEN@@\n\n{code}# @@AUTOGEN@@\n",
         orig,
     )
 
-    open(path, "wb").write(new.encode("utf8"))
+    with open(path, "wb") as file:
+        file.write(new.encode("utf8"))

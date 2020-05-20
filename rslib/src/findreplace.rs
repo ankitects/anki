@@ -117,7 +117,7 @@ mod test {
         note2.fields[0] = "three aaa".into();
         col.add_note(&mut note2, DeckID(1))?;
 
-        let nids = col.search_notes_only("")?;
+        let nids = col.search_notes("")?;
         let cnt = col.find_and_replace(nids.clone(), "(?i)AAA", "BBB", None)?;
         assert_eq!(cnt, 2);
 

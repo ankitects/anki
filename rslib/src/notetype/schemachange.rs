@@ -61,7 +61,7 @@ impl Collection {
         if !ords_changed(&ords, previous_field_count) {
             if nt.config.sort_field_idx != previous_sort_idx {
                 // only need to update sort field
-                let nids = self.search_notes_only(&format!("mid:{}", nt.id))?;
+                let nids = self.search_notes(&format!("mid:{}", nt.id))?;
                 for nid in nids {
                     let mut note = self.storage.get_note(nid)?.unwrap();
                     note.prepare_for_update(nt, normalize_text)?;
@@ -75,7 +75,7 @@ impl Collection {
 
         self.storage.set_schema_modified()?;
 
-        let nids = self.search_notes_only(&format!("mid:{}", nt.id))?;
+        let nids = self.search_notes(&format!("mid:{}", nt.id))?;
         let usn = self.usn()?;
         for nid in nids {
             let mut note = self.storage.get_note(nid)?.unwrap();

@@ -55,5 +55,6 @@ for lang in folders:
             continue
         langs.setdefault(lang, {})[entry.msgid] = msgstr
 
-open("strings.json", "w").write(json.dumps(langs))
+with open("strings.json", "w") as file:
+    file.write(json.dumps(langs))
 print("wrote to strings.json")

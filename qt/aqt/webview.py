@@ -40,13 +40,16 @@ class AnkiWebPage(QWebEnginePage):  # type: ignore
         self._channel.registerObject("py", self._bridge)
         self.setWebChannel(self._channel)
 
-        js = QFile(":/qtwebchannel/qwebchannel.js")
-        assert js.open(QIODevice.ReadOnly)
-        js = bytes(js.readAll()).decode("utf-8")
+        qwebchannel = ":/qtwebchannel/qwebchannel.js"
+        jsfile = QFile(qwebchannel)
+        if not jsfile.open(QIODevice.ReadOnly):
+            print(f"Error opening '{qwebchannel}': {jsfile.error()}", file=sys.stderr)
+        jstext = bytes(jsfile.readAll()).decode("utf-8")
+        jsfile.close()
 
         script = QWebEngineScript()
         script.setSourceCode(
-            js
+            jstext
             + """
             var pycmd;
             new QWebChannel(qt.webChannelTransport, function(channel) {

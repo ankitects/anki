@@ -567,7 +567,8 @@ from the profile screen."
             self.data = data
             # create the file in calling thread to ensure the same
             # file is not created twice
-            open(self.path, "wb").close()
+            with open(self.path, "wb") as file:
+                pass
 
         def run(self):
             z = zipfile.ZipFile(self.path, "w", zipfile.ZIP_DEFLATED)
