@@ -21,9 +21,8 @@ class DBProxy:
     # Lifecycle
     ###############
 
-    def __init__(self, backend: anki.rsbackend.RustBackend, path: str) -> None:
+    def __init__(self, backend: anki.rsbackend.RustBackend) -> None:
         self._backend = backend
-        self._path = path
         self.mod = False
         self.last_begin_at = 0
 

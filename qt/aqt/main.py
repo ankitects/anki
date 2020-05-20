@@ -505,12 +505,12 @@ close the profile or restart Anki."""
         return True
 
     def _loadCollection(self):
-        self.reopen()
+        cpath = self.pm.collectionPath()
+        self.col = Collection(cpath, backend=self.backend, log=True)
         self.setEnabled(True)
 
     def reopen(self):
-        cpath = self.pm.collectionPath()
-        self.col = Collection(cpath, backend=self.backend, log=True)
+        self.col.reopen()
 
     def unloadCollection(self, onsuccess: Callable) -> None:
         def callback():
