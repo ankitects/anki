@@ -25,7 +25,7 @@ from aqt.utils import (
 
 class Models(QDialog):
     def __init__(self, mw: AnkiQt, parent=None, fromMain=False):
-        self.mw = mw.weakref()
+        self.mw = mw
         parent = parent or mw
         self.fromMain = fromMain
         QDialog.__init__(self, parent, Qt.Window)
