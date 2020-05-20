@@ -803,6 +803,7 @@ to a cloze type first, via Edit>Change Note Type."""
             local = False
         # fetch it into a temporary folder
         self.mw.progress.start(immediate=not local, parent=self.parentWindow)
+        r = None
         ct = None
         error_msg: Optional[str] = None
         try:
@@ -825,6 +826,8 @@ to a cloze type first, via Edit>Change Note Type."""
             error_msg = _("An error occurred while opening %s") % e
             return
         finally:
+            if r:
+                r.close()
             self.mw.progress.finish()
             if error_msg:
                 showWarning(error_msg)
