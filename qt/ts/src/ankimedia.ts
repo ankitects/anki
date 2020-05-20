@@ -89,6 +89,11 @@ class AnkiMediaQueue {
         this.delay = 0.3;
         this.playing.length = 0;
         this.other_medias.length = 0;
+        // force any old media to eject/stop loading: https://goo.gl/LdLk22
+        // You can entirely reset the playback state, including the buffer, with load() and src = ''
+        for (let media of this.medias.values()) {
+            media.src = "";
+        }
         this.medias.clear();
         this.duplicates.clear();
         this.frontmedias.clear();
@@ -442,7 +447,7 @@ class AnkiMediaQueue {
                 this.is_autoplay = false;
 
                 setAnkiMedia(media => {
-                    if (media !== target) {
+                    if (media.id !== target.id) {
                         media.pause();
                     }
                 }, this.other_medias);
