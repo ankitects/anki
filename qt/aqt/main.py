@@ -27,12 +27,11 @@ import aqt.stats
 import aqt.toolbar
 import aqt.webview
 from anki import hooks
-from anki.collection import _Collection
+from anki.collection import Collection
 from anki.hooks import runHook
 from anki.lang import _, ngettext
 from anki.rsbackend import RustBackend
 from anki.sound import AVTag, SoundOrVideoTag
-from anki.storage import Collection
 from anki.utils import devMode, ids2str, intTime, isMac, isWin, splitFields
 from aqt import gui_hooks
 from aqt.addons import DownloadLogEntry, check_and_prompt_for_updates, show_log_to_user
@@ -71,7 +70,7 @@ class ResetRequired:
 
 
 class AnkiQt(QMainWindow):
-    col: _Collection
+    col: Collection
     pm: ProfileManagerType
     web: aqt.webview.AnkiWebView
     bottomWeb: aqt.webview.AnkiWebView
@@ -88,7 +87,7 @@ class AnkiQt(QMainWindow):
         self.backend = backend
         self.state = "startup"
         self.opts = opts
-        self.col: Optional[_Collection] = None
+        self.col: Optional[Collection] = None
         self.taskman = TaskManager(self)
         self.media_syncer = MediaSyncer(self)
         aqt.mw = self
@@ -1265,7 +1264,7 @@ and if the problem comes up again, please ask on the support site."""
     # Log note deletion
     ##########################################################################
 
-    def onRemNotes(self, col: _Collection, nids: List[int]) -> None:
+    def onRemNotes(self, col: Collection, nids: List[int]) -> None:
         path = os.path.join(self.pm.profileFolder(), "deleted.txt")
         existed = os.path.exists(path)
         with open(path, "ab") as f:

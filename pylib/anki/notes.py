@@ -19,7 +19,7 @@ class Note:
 
     def __init__(
         self,
-        col: anki.storage._Collection,
+        col: anki.collection.Collection,
         model: Optional[NoteType] = None,
         id: Optional[int] = None,
     ) -> None:

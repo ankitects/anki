@@ -702,17 +702,17 @@ card_will_show = _CardWillShowFilter()
 
 
 class _CollectionDidLoadHook:
-    _hooks: List[Callable[["anki.storage._Collection"], None]] = []
+    _hooks: List[Callable[["anki.collection.Collection"], None]] = []
 
-    def append(self, cb: Callable[["anki.storage._Collection"], None]) -> None:
+    def append(self, cb: Callable[["anki.collection.Collection"], None]) -> None:
         """(col: anki.storage._Collection)"""
         self._hooks.append(cb)
 
-    def remove(self, cb: Callable[["anki.storage._Collection"], None]) -> None:
+    def remove(self, cb: Callable[["anki.collection.Collection"], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
-    def __call__(self, col: anki.storage._Collection) -> None:
+    def __call__(self, col: anki.collection.Collection) -> None:
         for hook in self._hooks:
             try:
                 hook(col)

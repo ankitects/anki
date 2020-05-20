@@ -358,21 +358,21 @@ note_will_flush = _NoteWillFlushHook()
 
 
 class _NotesWillBeDeletedHook:
-    _hooks: List[Callable[["anki.storage._Collection", List[int]], None]] = []
+    _hooks: List[Callable[["anki.collection.Collection", List[int]], None]] = []
 
     def append(
-        self, cb: Callable[["anki.storage._Collection", List[int]], None]
+        self, cb: Callable[["anki.collection.Collection", List[int]], None]
     ) -> None:
         """(col: anki.storage._Collection, ids: List[int])"""
         self._hooks.append(cb)
 
     def remove(
-        self, cb: Callable[["anki.storage._Collection", List[int]], None]
+        self, cb: Callable[["anki.collection.Collection", List[int]], None]
     ) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
-    def __call__(self, col: anki.storage._Collection, ids: List[int]) -> None:
+    def __call__(self, col: anki.collection.Collection, ids: List[int]) -> None:
         for hook in self._hooks:
             try:
                 hook(col, ids)
