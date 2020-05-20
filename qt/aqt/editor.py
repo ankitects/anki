@@ -803,6 +803,7 @@ to a cloze type first, via Edit>Change Note Type."""
             local = False
         # fetch it into a temporary folder
         self.mw.progress.start(immediate=not local, parent=self.parentWindow)
+        client = None
         response = None
         content_type = None
         error_msg: Optional[str] = None
@@ -826,6 +827,8 @@ to a cloze type first, via Edit>Change Note Type."""
             error_msg = _("An error occurred while opening %s") % e
             return
         finally:
+            if client:
+                client.close()
             if response:
                 response.close()
             self.mw.progress.finish()
