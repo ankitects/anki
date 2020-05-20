@@ -291,7 +291,7 @@ describe("Test question and answer audios", () => {
     );
 
     test(`The card preview should not play multiple times while editing the page\n...`, async function() {
-        await page.goto(`${address}/card_layout_back.html`);
+        await page.goto(`${address}/card_layout.html`);
         await page.waitForSelector(`[id="qa"]`);
 
         let showEverything = async (first_mp3, second_mp3) =>
