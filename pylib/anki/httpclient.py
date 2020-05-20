@@ -28,6 +28,20 @@ class HttpClient:
         self.progress_hook = progress_hook
         self.session = requests.Session()
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self.close()
+
+    def close(self):
+        if self.session:
+            self.session.close()
+            self.session = None
+
+    def __del__(self):
+        self.close()
+
     def post(self, url: str, data: Any, headers: Optional[Dict[str, str]]) -> Response:
         data = _MonitoringFile(
             data, hook=self.progress_hook
