@@ -957,19 +957,19 @@ def test_timing():
     # fail the first one
     d.reset()
     c = d.sched.getCard()
-    # set a a fail delay of 1 second so we don't have to wait
+    # set a a fail delay of 4 seconds
     conf = d.sched._cardConf(c)
-    conf["lapse"]["delays"][0] = 1 / 60.0
+    conf["lapse"]["delays"][0] = 1 / 15.0
     d.decks.save(conf)
     d.sched.answerCard(c, 1)
     # the next card should be another review
     c = d.sched.getCard()
     assert c.queue == QUEUE_TYPE_REV
-    # but if we wait for a second, the failed card should come back
+    # but if we wait for a few seconds, the failed card should come back
     orig_time = time.time
 
     def adjusted_time():
-        return orig_time() + 1
+        return orig_time() + 5
 
     time.time = adjusted_time
     c = d.sched.getCard()
