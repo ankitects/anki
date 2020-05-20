@@ -261,8 +261,9 @@ impl From<&DeckCommonSchema11> for DeckCommon {
         // since we're combining the day values into a single value,
         // any items from an earlier day need to be reset
         let mut today = common.today.clone();
-        // time is always updated, so will always be the latest
-        let max_day = today.time.day;
+        // study will always update 'time', but custom study may only update
+        // 'rev' or 'new'
+        let max_day = today.time.day.max(today.new.day).max(today.rev.day);
         if today.lrn.day != max_day {
             today.lrn.amount = 0;
         }
