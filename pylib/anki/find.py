@@ -9,11 +9,11 @@ from anki.hooks import *
 from anki.utils import ids2str, splitFields, stripHTMLMedia
 
 if TYPE_CHECKING:
-    from anki.collection import _Collection
+    from anki.collection import Collection
 
 
 class Finder:
-    def __init__(self, col: Optional[_Collection]) -> None:
+    def __init__(self, col: Optional[Collection]) -> None:
         self.col = col.weakref()
         print("Finder() is deprecated, please use col.find_cards() or .find_notes()")
 
@@ -29,7 +29,7 @@ class Finder:
 
 
 def findReplace(
-    col: _Collection,
+    col: Collection,
     nids: List[int],
     src: str,
     dst: str,
@@ -41,7 +41,7 @@ def findReplace(
     return col.backend.find_and_replace(nids, src, dst, regex, fold, field)
 
 
-def fieldNamesForNotes(col: _Collection, nids: List[int]) -> List[str]:
+def fieldNamesForNotes(col: Collection, nids: List[int]) -> List[str]:
     return list(col.backend.field_names_for_note_ids(nids))
 
 
@@ -61,7 +61,7 @@ def fieldNames(col, downcase=True) -> List:
 
 # returns array of ("dupestr", [nids])
 def findDupes(
-    col: _Collection, fieldName: str, search: str = ""
+    col: Collection, fieldName: str, search: str = ""
 ) -> List[Tuple[Any, List]]:
     # limit search to notes with applicable field name
     if search:

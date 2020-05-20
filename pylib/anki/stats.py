@@ -24,7 +24,7 @@ PERIOD_LIFE = 2
 
 
 class CardStats:
-    def __init__(self, col: anki.storage._Collection, card: anki.cards.Card) -> None:
+    def __init__(self, col: anki.collection.Collection, card: anki.cards.Card) -> None:
         if col:
             self.col = col.weakref()
         self.card = card
@@ -108,7 +108,7 @@ colSusp = "#ff0"
 
 
 class CollectionStats:
-    def __init__(self, col: anki.storage._Collection) -> None:
+    def __init__(self, col: anki.collection.Collection) -> None:
         self.col = col.weakref()
         self._stats = None
         self.type = PERIOD_MONTH

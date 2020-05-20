@@ -26,7 +26,7 @@ import anki
 
 
 class ConfigManager:
-    def __init__(self, col: anki.storage._Collection):
+    def __init__(self, col: anki.collection.Collection):
         self.col = col.weakref()
 
     def get_immutable(self, key: str) -> Any:

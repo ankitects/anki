@@ -42,7 +42,7 @@ def on_card_did_render(
     output.answer_text = render_latex(output.answer_text, ctx.note_type(), ctx.col())
 
 
-def render_latex(html: str, model: NoteType, col: anki.storage._Collection) -> str:
+def render_latex(html: str, model: NoteType, col: anki.collection.Collection) -> str:
     "Convert embedded latex tags in text to image links."
     html, err = render_latex_returning_errors(html, model, col)
     if err:
@@ -53,7 +53,7 @@ def render_latex(html: str, model: NoteType, col: anki.storage._Collection) -> s
 def render_latex_returning_errors(
     html: str,
     model: NoteType,
-    col: anki.storage._Collection,
+    col: anki.collection.Collection,
     expand_clozes: bool = False,
 ) -> Tuple[str, List[str]]:
     """Returns (text, errors).
@@ -80,7 +80,7 @@ def render_latex_returning_errors(
 
 
 def _save_latex_image(
-    col: anki.storage._Collection,
+    col: anki.collection.Collection,
     extracted: ExtractedLatex,
     header: str,
     footer: str,

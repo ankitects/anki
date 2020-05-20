@@ -537,7 +537,8 @@ class Editor:
                 warnings.simplefilter("ignore", UserWarning)
                 html = str(BeautifulSoup(html, "html.parser"))
         self.note.fields[field] = html
-        self.note.flush()
+        if not self.addMode:
+            self.note.flush()
         self.loadNote(focusTo=field)
 
     # Tag handling
@@ -803,6 +804,7 @@ to a cloze type first, via Edit>Change Note Type."""
         # fetch it into a temporary folder
         self.mw.progress.start(immediate=not local, parent=self.parentWindow)
         ct = None
+        error_msg: Optional[str] = None
         try:
             if local:
                 req = urllib.request.Request(
@@ -815,18 +817,17 @@ to a cloze type first, via Edit>Change Note Type."""
                 reqs.timeout = 30
                 r = reqs.get(url)
                 if r.status_code != 200:
-                    showWarning(_("Unexpected response code: %s") % r.status_code)
+                    error_msg = _("Unexpected response code: %s") % r.status_code
                     return
                 filecontents = r.content
                 ct = r.headers.get("content-type")
-        except urllib.error.URLError as e:
-            showWarning(_("An error occurred while opening %s") % e)
-            return
-        except requests.exceptions.RequestException as e:
-            showWarning(_("An error occurred while opening %s") % e)
+        except (urllib.error.URLError, requests.exceptions.RequestException) as e:
+            error_msg = _("An error occurred while opening %s") % e
             return
         finally:
             self.mw.progress.finish()
+            if error_msg:
+                showWarning(error_msg)
         # strip off any query string
         url = re.sub(r"\?.*?$", "", url)
         fname = os.path.basename(urllib.parse.unquote(url))

@@ -33,7 +33,7 @@ class UnexpectedSchemaChange(Exception):
 class Syncer:
     chunkRows: Optional[List[Sequence]]
 
-    def __init__(self, col: anki.storage._Collection, server=None) -> None:
+    def __init__(self, col: anki.collection.Collection, server=None) -> None:
         self.col = col.weakref()
         self.server = server
 

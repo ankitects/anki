@@ -21,7 +21,7 @@ defaultDynamicDeck = 1
 
 
 class DecksDictProxy:
-    def __init__(self, col: anki.storage._Collection):
+    def __init__(self, col: anki.collection.Collection):
         self._col = col.weakref()
 
     def _warn(self):
@@ -60,7 +60,7 @@ class DeckManager:
     # Registry save/load
     #############################################################
 
-    def __init__(self, col: anki.storage._Collection) -> None:
+    def __init__(self, col: anki.collection.Collection) -> None:
         self.col = col.weakref()
         self.decks = DecksDictProxy(col)
 

@@ -27,7 +27,7 @@ class Scheduler(V2):
     _burySiblingsOnAnswer = True
 
     def __init__(  # pylint: disable=super-init-not-called
-        self, col: anki.storage._Collection
+        self, col: anki.collection.Collection
     ) -> None:
         self.col = col.weakref()
         self.queueLimit = 50

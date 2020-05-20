@@ -19,7 +19,7 @@ from anki.utils import ids2str
 
 
 class TagManager:
-    def __init__(self, col: anki.storage._Collection) -> None:
+    def __init__(self, col: anki.collection.Collection) -> None:
         self.col = col.weakref()
 
     # all tags

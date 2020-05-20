@@ -23,7 +23,7 @@ from anki.dbproxy import DBProxy
 from anki.decks import DeckManager
 from anki.errors import AnkiError
 from anki.lang import _
-from anki.media import MediaManager
+from anki.media import MediaManager, media_paths_from_col_path
 from anki.models import ModelManager
 from anki.notes import Note
 from anki.rsbackend import TR, DBError, RustBackend
@@ -33,26 +33,25 @@ from anki.tags import TagManager
 from anki.utils import devMode, ids2str, intTime
 
 
-# this is initialized by storage.Collection
-class _Collection:
-    db: Optional[DBProxy]
+class Collection:
     sched: Union[V1Scheduler, V2Scheduler]
     _undo: List[Any]
 
     def __init__(
         self,
-        db: DBProxy,
-        backend: RustBackend,
+        path: str,
+        backend: Optional[RustBackend] = None,
         server: bool = False,
         log: bool = False,
     ) -> None:
-        self.backend = backend
-        self._debugLog = log
-        self.db = db
-        self.path = db._path
-        self._openLog()
-        self.log(self.path, anki.version)
+        self.backend = backend or RustBackend(server=server)
+        self.db: Optional[DBProxy] = None
+        self._should_log = log
         self.server = server
+        self.path = os.path.abspath(path)
+        self.reopen()
+
+        self.log(self.path, anki.version)
         self._lastSave = time.time()
         self.clearUndo()
         self.media = MediaManager(self, server)
@@ -69,7 +68,7 @@ class _Collection:
     def tr(self, key: TR, **kwargs: Union[str, int, float]) -> str:
         return self.backend.translate(key, **kwargs)
 
-    def weakref(self) -> anki.storage._Collection:
+    def weakref(self) -> Collection:
         "Shortcut to create a weak reference that doesn't break code completion."
         return weakref.proxy(self)
 
@@ -218,6 +217,24 @@ class _Collection:
     def rollback(self) -> None:
         self.db.rollback()
         self.db.begin()
+
+    def reopen(self) -> None:
+        assert not self.db
+        assert self.path.endswith(".anki2")
+
+        (media_dir, media_db) = media_paths_from_col_path(self.path)
+
+        log_path = ""
+        should_log = not self.server and self._should_log
+        if should_log:
+            log_path = self.path.replace(".anki2", "2.log")
+
+        # connect
+        self.backend.open_collection(self.path, media_dir, media_db, log_path)
+        self.db = DBProxy(weakref.proxy(self.backend))
+        self.db.begin()
+
+        self._openLog()
 
     def modSchema(self, check: bool) -> None:
         "Mark schema modified. Call this first so user can abort if necessary."
@@ -586,7 +603,7 @@ select id from notes where mid = ?) limit 1"""
     ##########################################################################
 
     def log(self, *args, **kwargs) -> None:
-        if not self._debugLog:
+        if not self._should_log:
             return
 
         def customRepr(x):
@@ -606,7 +623,7 @@ select id from notes where mid = ?) limit 1"""
             print(buf)
 
     def _openLog(self) -> None:
-        if not self._debugLog:
+        if not self._should_log:
             return
         lpath = re.sub(r"\.anki2$", ".log", self.path)
         if os.path.exists(lpath) and os.path.getsize(lpath) > 10 * 1024 * 1024:
@@ -617,7 +634,7 @@ select id from notes where mid = ?) limit 1"""
         self._logHnd = open(lpath, "a", encoding="utf8")
 
     def _closeLog(self) -> None:
-        if not self._debugLog:
+        if not self._should_log:
             return
         self._logHnd.close()
         self._logHnd = None
@@ -635,3 +652,7 @@ select id from notes where mid = ?) limit 1"""
             self.usn(),
             intTime(),
         )
+
+
+# legacy name
+_Collection = Collection

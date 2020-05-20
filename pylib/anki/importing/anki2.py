@@ -5,12 +5,11 @@ import os
 import unicodedata
 from typing import Any, Dict, List, Optional, Tuple
 
-from anki.collection import _Collection
+from anki.collection import Collection
 from anki.consts import *
 from anki.decks import DeckManager
 from anki.importing.base import Importer
 from anki.lang import _
-from anki.storage import Collection
 from anki.utils import intTime, joinFields, splitFields
 
 GUID = 1
@@ -23,10 +22,10 @@ class Anki2Importer(Importer):
     needMapper = False
     deckPrefix: Optional[str] = None
     allowUpdate = True
-    src: _Collection
-    dst: _Collection
+    src: Collection
+    dst: Collection
 
-    def __init__(self, col: _Collection, file: str) -> None:
+    def __init__(self, col: Collection, file: str) -> None:
         super().__init__(col, file)
 
         # set later, defined here for typechecking
