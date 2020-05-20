@@ -370,7 +370,7 @@ hooks = [
     Hook(name="profile_will_close", legacy_hook="unloadProfile"),
     Hook(
         name="collection_did_load",
-        args=["col: anki.storage._Collection"],
+        args=["col: anki.collection.Collection"],
         legacy_hook="colLoading",
     ),
     Hook(
