@@ -803,7 +803,6 @@ to a cloze type first, via Edit>Change Note Type."""
             local = False
         # fetch it into a temporary folder
         self.mw.progress.start(immediate=not local, parent=self.parentWindow)
-        response = None
         content_type = None
         error_msg: Optional[str] = None
         try:
@@ -811,23 +810,23 @@ to a cloze type first, via Edit>Change Note Type."""
                 req = urllib.request.Request(
                     url, None, {"User-Agent": "Mozilla/5.0 (compatible; Anki)"}
                 )
-                with urllib.request.urlopen(req) as resp:
-                    filecontents = resp.read()
+                with urllib.request.urlopen(req) as response:
+                    filecontents = response.read()
             else:
-                client = HttpClient()
-                client.timeout = 30
-                response = client.get(url)
-                if response.status_code != 200:
-                    error_msg = _("Unexpected response code: %s") % response.status_code
-                    return
-                filecontents = response.content
-                content_type = response.headers.get("content-type")
+                with HttpClient() as client:
+                    client.timeout = 30
+                    with client.get(url) as response:
+                        if response.status_code != 200:
+                            error_msg = (
+                                _("Unexpected response code: %s") % response.status_code
+                            )
+                            return
+                        filecontents = response.content
+                        content_type = response.headers.get("content-type")
         except (urllib.error.URLError, requests.exceptions.RequestException) as e:
             error_msg = _("An error occurred while opening %s") % e
             return
         finally:
-            if response:
-                response.close()
             self.mw.progress.finish()
             if error_msg:
                 showWarning(error_msg)
