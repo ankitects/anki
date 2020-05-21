@@ -34,6 +34,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import anki
 from anki import hooks
 from anki.cards import Card
+from anki.decks import DeckManager
 from anki.models import NoteType
 from anki.notes import Note
 from anki.rsbackend import PartiallyRenderedCard, TemplateReplacementList
@@ -88,6 +89,7 @@ class TemplateRenderContext:
         self._browser = browser
         self._template = template
         self._fill_empty = fill_empty
+        self._fields: Optional[Dict] = None
         if not notetype:
             self._note_type = note.model()
         else:
@@ -100,10 +102,26 @@ class TemplateRenderContext:
     def col(self) -> anki.collection.Collection:
         return self._col
 
-    # legacy
     def fields(self) -> Dict[str, str]:
-        print(".fields() is obsolote, use .note().items()")
-        return dict(self._note.items())
+        print(".fields() is obsolete, use .note() or .card()")
+        if not self._fields:
+            # fields from note
+            fields = dict(self._note.items())
+
+            # add (most) special fields
+            fields["Tags"] = self._note.stringTags().strip()
+            fields["Type"] = self._card.note_type()["name"]
+            fields["Deck"] = self._col.decks.name(self._card.odid or self._card.did)
+            fields["Subdeck"] = DeckManager.basename(fields["Deck"])
+            if self._template:
+                fields["Card"] = self._template["name"]
+            else:
+                fields["Card"] = ""
+            flag = self._card.userFlag()
+            fields["CardFlag"] = flag and f"flag{flag}" or ""
+            self._fields = fields
+
+        return self._fields
 
     def card(self) -> Card:
         """Returns the card being rendered.
