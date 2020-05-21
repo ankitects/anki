@@ -803,7 +803,7 @@ to a cloze type first, via Edit>Change Note Type."""
             local = False
         # fetch it into a temporary folder
         self.mw.progress.start(immediate=not local, parent=self.parentWindow)
-        ct = None
+        content_type = None
         error_msg: Optional[str] = None
         try:
             if local:
@@ -813,14 +813,16 @@ to a cloze type first, via Edit>Change Note Type."""
                 with urllib.request.urlopen(req) as response:
                     filecontents = response.read()
             else:
-                reqs = HttpClient()
-                reqs.timeout = 30
-                r = reqs.get(url)
-                if r.status_code != 200:
-                    error_msg = _("Unexpected response code: %s") % r.status_code
-                    return
-                filecontents = r.content
-                ct = r.headers.get("content-type")
+                with HttpClient() as client:
+                    client.timeout = 30
+                    with client.get(url) as response:
+                        if response.status_code != 200:
+                            error_msg = (
+                                _("Unexpected response code: %s") % response.status_code
+                            )
+                            return
+                        filecontents = response.content
+                        content_type = response.headers.get("content-type")
         except (urllib.error.URLError, requests.exceptions.RequestException) as e:
             error_msg = _("An error occurred while opening %s") % e
             return
@@ -831,8 +833,8 @@ to a cloze type first, via Edit>Change Note Type."""
         # strip off any query string
         url = re.sub(r"\?.*?$", "", url)
         fname = os.path.basename(urllib.parse.unquote(url))
-        if ct:
-            fname = self.mw.col.media.add_extension_based_on_mime(fname, ct)
+        if content_type:
+            fname = self.mw.col.media.add_extension_based_on_mime(fname, content_type)
 
         return self.mw.col.media.write_data(fname, filecontents)
 
