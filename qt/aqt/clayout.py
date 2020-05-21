@@ -216,6 +216,7 @@ class CardLayout(QDialog):
 
         self.current_editor_index = 0
         self.tform.edit_area.setAcceptRichText(False)
+        self.tform.edit_area.setFont(QFont("Courier"))
         if qtminor < 10:
             self.tform.edit_area.setTabStopWidth(30)
         else:
