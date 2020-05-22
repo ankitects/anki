@@ -231,23 +231,23 @@ where id > ?""",
     # Options
     ##########################################################################
 
-    def _showOptions(self, did) -> None:
+    def _showOptions(self, did: str) -> None:
         m = QMenu(self.mw)
         a = m.addAction(_("Rename"))
-        qconnect(a.triggered, lambda b, did=did: self._rename(did))
+        qconnect(a.triggered, lambda b, did=did: self._rename(int(did)))
         a = m.addAction(_("Options"))
         qconnect(a.triggered, lambda b, did=did: self._options(did))
         a = m.addAction(_("Export"))
         qconnect(a.triggered, lambda b, did=did: self._export(did))
         a = m.addAction(_("Delete"))
-        qconnect(a.triggered, lambda b, did=did: self._delete(did))
+        qconnect(a.triggered, lambda b, did=did: self._delete(int(did)))
         gui_hooks.deck_browser_will_show_options_menu(m, did)
         m.exec_(QCursor.pos())
 
     def _export(self, did):
         self.mw.onExport(did=did)
 
-    def _rename(self, did):
+    def _rename(self, did: int) -> None:
         self.mw.checkpoint(_("Rename Deck"))
         deck = self.mw.col.decks.get(did)
         oldName = deck["name"]
@@ -285,8 +285,6 @@ where id > ?""",
         self.show()
 
     def _delete(self, did):
-        if str(did) == "1":
-            return showWarning(_("The default deck can't be deleted."))
         self.mw.checkpoint(_("Delete Deck"))
         deck = self.mw.col.decks.get(did)
         if not deck["dyn"]:

@@ -99,6 +99,8 @@ class DeckManager:
 
     def rem(self, did: int, cardsToo: bool = True, childrenToo: bool = True) -> None:
         "Remove the deck. If cardsToo, delete any cards inside."
+        if isinstance(did, str):
+            did = int(did)
         assert cardsToo and childrenToo
         self.col.backend.remove_deck(did)
 
