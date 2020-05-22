@@ -151,37 +151,9 @@ def proto_exception_to_native(err: pb.BackendError) -> Exception:
         return StringError(err.localized)
 
 
-def av_tag_to_native(tag: pb.AVTag) -> AVTag:
-    val = tag.WhichOneof("value")
-    if val == "sound_or_video":
-        return SoundOrVideoTag(filename=tag.sound_or_video)
-    else:
-        return TTSTag(
-            field_text=tag.tts.field_text,
-            lang=tag.tts.lang,
-            voices=list(tag.tts.voices),
-            other_args=list(tag.tts.other_args),
-            speed=tag.tts.speed,
-        )
-
-
 MediaSyncProgress = pb.MediaSyncProgress
 
-MediaCheckOutput = pb.MediaCheckOut
-
 FormatTimeSpanContext = pb.FormatTimeSpanIn.Context
-
-
-@dataclass
-class ExtractedLatex:
-    filename: str
-    latex_body: str
-
-
-@dataclass
-class ExtractedLatexOutput:
-    html: str
-    latex: List[ExtractedLatex]
 
 
 class ProgressKind(enum.Enum):
@@ -267,52 +239,6 @@ class RustBackend:
             release_gil=True,
         )
 
-    def sched_timing_today(self,) -> SchedTimingToday:
-        return self._run_command(
-            pb.BackendInput(sched_timing_today=pb.Empty())
-        ).sched_timing_today
-
-    def local_minutes_west(self, stamp: int) -> int:
-        return self._run_command(
-            pb.BackendInput(local_minutes_west=stamp)
-        ).local_minutes_west
-
-    def strip_av_tags(self, text: str) -> str:
-        return self._run_command(pb.BackendInput(strip_av_tags=text)).strip_av_tags
-
-    def extract_av_tags(
-        self, text: str, question_side: bool
-    ) -> Tuple[str, List[AVTag]]:
-        out = self._run_command(
-            pb.BackendInput(
-                extract_av_tags=pb.ExtractAVTagsIn(
-                    text=text, question_side=question_side
-                )
-            )
-        ).extract_av_tags
-        native_tags = list(map(av_tag_to_native, out.av_tags))
-
-        return out.text, native_tags
-
-    def extract_latex(
-        self, text: str, svg: bool, expand_clozes: bool
-    ) -> ExtractedLatexOutput:
-        out = self._run_command(
-            pb.BackendInput(
-                extract_latex=pb.ExtractLatexIn(
-                    text=text, svg=svg, expand_clozes=expand_clozes
-                )
-            )
-        ).extract_latex
-
-        return ExtractedLatexOutput(
-            html=out.text,
-            latex=[
-                ExtractedLatex(filename=l.filename, latex_body=l.latex_body)
-                for l in out.latex
-            ],
-        )
-
     def add_file_to_media_folder(self, desired_name: str, data: bytes) -> str:
         return self._run_command(
             pb.BackendInput(
@@ -325,11 +251,6 @@ class RustBackend:
             pb.BackendInput(sync_media=pb.SyncMediaIn(hkey=hkey, endpoint=endpoint,)),
             release_gil=True,
         )
-
-    def check_media(self) -> MediaCheckOutput:
-        return self._run_command(
-            pb.BackendInput(check_media=pb.Empty()), release_gil=True,
-        ).check_media
 
     def trash_media_files(self, fnames: List[str]) -> None:
         self._run_command(
@@ -395,32 +316,6 @@ class RustBackend:
 
     def _db_command(self, input: Dict[str, Any]) -> Any:
         return orjson.loads(self._backend.db_command(orjson.dumps(input)))
-
-    def search_cards(
-        self, search: str, order: Union[bool, str, int], reverse: bool = False
-    ) -> Sequence[int]:
-        if isinstance(order, str):
-            mode = pb.SortOrder(custom=order)
-        elif order is True:
-            mode = pb.SortOrder(from_config=pb.Empty())
-        elif order is False:
-            mode = pb.SortOrder(none=pb.Empty())
-        else:
-            # sadly we can't use the protobuf type in a Union, so we
-            # have to accept an int and convert it
-            kind = BuiltinSortKind.Value(BuiltinSortKind.Name(order))
-            mode = pb.SortOrder(
-                builtin=pb.BuiltinSearchOrder(kind=kind, reverse=reverse)
-            )
-
-        return self._run_command(
-            pb.BackendInput(search_cards=pb.SearchCardsIn(search=search, order=mode))
-        ).search_cards.card_ids
-
-    def search_notes(self, search: str) -> Sequence[int]:
-        return self._run_command(
-            pb.BackendInput(search_notes=pb.SearchNotesIn(search=search))
-        ).search_notes.note_ids
 
     def get_card(self, cid: int) -> Optional[pb.Card]:
         output = self._run_command(pb.BackendInput(get_card=cid)).get_card
@@ -667,15 +562,6 @@ class RustBackend:
     def remove_deck(self, did: int) -> None:
         self._run_command(pb.BackendInput(remove_deck=did))
 
-    def deck_tree(self, include_counts: bool, top_deck_id: int = 0) -> DeckTreeNode:
-        return self._run_command(
-            pb.BackendInput(
-                deck_tree=pb.DeckTreeIn(
-                    include_counts=include_counts, top_deck_id=top_deck_id
-                )
-            )
-        ).deck_tree
-
     def check_database(self) -> List[str]:
         return list(
             self._run_command(
@@ -795,6 +681,62 @@ class RustBackend:
         )
         output = pb.RenderCardOut()
         output.ParseFromString(self._run_command2(2, input))
+        return output
+
+    def sched_timing_today(self) -> pb.SchedTimingTodayOut:
+        input = pb.Empty()
+        output = pb.SchedTimingTodayOut()
+        output.ParseFromString(self._run_command2(3, input))
+        return output
+
+    def deck_tree(self, include_counts: bool, top_deck_id: int) -> pb.DeckTreeNode:
+        input = pb.DeckTreeIn(include_counts=include_counts, top_deck_id=top_deck_id)
+        output = pb.DeckTreeNode()
+        output.ParseFromString(self._run_command2(4, input))
+        return output
+
+    def search_cards(self, search: str, order: pb.SortOrder) -> Sequence[int]:
+        input = pb.SearchCardsIn(search=search, order=order)
+        output = pb.SearchCardsOut()
+        output.ParseFromString(self._run_command2(5, input))
+        return output.card_ids
+
+    def search_notes(self, search: str) -> Sequence[int]:
+        input = pb.SearchNotesIn(search=search)
+        output = pb.SearchNotesOut()
+        output.ParseFromString(self._run_command2(6, input))
+        return output.note_ids
+
+    def check_media(self) -> pb.CheckMediaOut:
+        input = pb.Empty()
+        output = pb.CheckMediaOut()
+        output.ParseFromString(self._run_command2(7, input))
+        return output
+
+    def local_minutes_west(self, val: int) -> int:
+        input = pb.Int64(val=val)
+        output = pb.Int32()
+        output.ParseFromString(self._run_command2(8, input))
+        return output.val
+
+    def strip_av_tags(self, val: str) -> str:
+        input = pb.String(val=val)
+        output = pb.String()
+        output.ParseFromString(self._run_command2(9, input))
+        return output.val
+
+    def extract_a_v_tags(self, text: str, question_side: bool) -> pb.ExtractAVTagsOut:
+        input = pb.ExtractAVTagsIn(text=text, question_side=question_side)
+        output = pb.ExtractAVTagsOut()
+        output.ParseFromString(self._run_command2(10, input))
+        return output
+
+    def extract_latex(
+        self, text: str, svg: bool, expand_clozes: bool
+    ) -> pb.ExtractLatexOut:
+        input = pb.ExtractLatexIn(text=text, svg=svg, expand_clozes=expand_clozes)
+        output = pb.ExtractLatexOut()
+        output.ParseFromString(self._run_command2(11, input))
         return output
 
     # @@AUTOGEN@@

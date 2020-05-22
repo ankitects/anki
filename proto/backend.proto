@@ -4,6 +4,9 @@ import "fluent.proto";
 
 package backend_proto;
 
+// Generic containers
+///////////////////////////////////////////////////////////
+
 message Empty {}
 
 message OptionalInt32 {
@@ -14,9 +17,33 @@ message OptionalUInt32 {
     uint32 val = 1;
 }
 
+message Int32 {
+    sint32 val = 1;
+}
+
+message Int64 {
+    int64 val = 1;
+}
+
+message String {
+    string val = 1;
+}
+
+// New style RPC definitions
+///////////////////////////////////////////////////////////
+
 service BackendService {
     rpc RenderExistingCard (RenderExistingCardIn) returns (RenderCardOut);
     rpc RenderUncommittedCard (RenderUncommittedCardIn) returns (RenderCardOut);
+    rpc SchedTimingToday (Empty) returns (SchedTimingTodayOut);
+    rpc DeckTree (DeckTreeIn) returns (DeckTreeNode);
+    rpc SearchCards (SearchCardsIn) returns (SearchCardsOut);
+    rpc SearchNotes (SearchNotesIn) returns (SearchNotesOut);
+    rpc CheckMedia (Empty) returns (CheckMediaOut);
+    rpc LocalMinutesWest (Int64) returns (Int32);
+    rpc StripAvTags (String) returns (String);
+    rpc ExtractAVTags (ExtractAVTagsIn) returns (ExtractAVTagsOut);
+    rpc ExtractLatex (ExtractLatexIn) returns (ExtractLatexOut);
 }
 
 // Protobuf stored in .anki2 files
@@ -257,20 +284,13 @@ message I18nBackendInit {
     string locale_folder_path = 5;
 }
 
+// Legacy enum - needs migrating to RPC above
+///////////////////////////////////////////////////////////
+
 message BackendInput {
     oneof value {
-        Empty sched_timing_today = 17;
-        DeckTreeIn deck_tree = 18;
-        SearchCardsIn search_cards = 19;
-        SearchNotesIn search_notes = 20;
-        RenderUncommittedCardIn render_uncommitted_card = 21;
-        int64 local_minutes_west = 22;
-        string strip_av_tags = 23;
-        ExtractAVTagsIn extract_av_tags = 24;
-        ExtractLatexIn extract_latex = 25;
         AddMediaFileIn add_media_file = 26;
         SyncMediaIn sync_media = 27;
-        Empty check_media = 28;
         TrashMediaFilesIn trash_media_files = 29;
         TranslateStringIn translate_string = 30;
         FormatTimeSpanIn format_time_span = 31;
@@ -327,7 +347,6 @@ message BackendInput {
         int32 set_local_minutes_west = 83;
         Empty get_preferences = 84;
         Preferences set_preferences = 85;
-        RenderExistingCardIn render_existing_card = 86;
         Note cloze_numbers_in_note = 87;
     }
 }
@@ -335,10 +354,6 @@ message BackendInput {
 message BackendOutput {
     oneof value {
         // infallible commands
-        sint32 local_minutes_west = 22;
-        string strip_av_tags = 23;
-        ExtractAVTagsOut extract_av_tags = 24;
-        ExtractLatexOut extract_latex = 25;
         string translate_string = 30;
         string format_time_span = 31;
         string studied_today = 32;
@@ -347,14 +362,8 @@ message BackendOutput {
         ClozeNumbersInNoteOut cloze_numbers_in_note = 87;
 
         // fallible commands
-        SchedTimingTodayOut sched_timing_today = 17;
-        DeckTreeNode deck_tree = 18;
-        SearchCardsOut search_cards = 19;
-        SearchNotesOut search_notes = 20;
-        RenderCardOut render_uncommitted_card = 21;
         string add_media_file = 26;
         Empty sync_media = 27;
-        MediaCheckOut check_media = 28;
         Empty trash_media_files = 29;
         Empty empty_trash = 34;
         Empty restore_trash = 35;
@@ -405,7 +414,6 @@ message BackendOutput {
         Empty set_local_minutes_west = 83;
         Preferences get_preferences = 84;
         Empty set_preferences = 85;
-        RenderCardOut render_existing_card = 86;
         bytes get_stock_notetype_legacy = 60;
 
         BackendError error = 2047;
@@ -580,7 +588,7 @@ message SyncMediaIn {
     string endpoint = 2;
 }
 
-message MediaCheckOut {
+message CheckMediaOut {
     repeated string unused = 1;
     repeated string missing = 2;
     string report = 3;
