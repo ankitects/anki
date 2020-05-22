@@ -79,10 +79,8 @@ describe("Test question and answer audios", () => {
 
     let showQuestion = async (front_mp3, front_setup, templateName) =>
         await page.evaluate(
-            async (mp3, setup, template) => {
-                ankimedia._reset();
-                _showQuestion(await eval(`${template}(mp3, setup)`), "");
-            },
+            async (mp3, setup, template) =>
+                _showQuestion(await eval(`${template}(mp3, setup)`), ""),
             front_mp3,
             front_setup,
             templateName
@@ -160,6 +158,7 @@ describe("Test question and answer audios", () => {
     beforeEach(async () => {
         await page.goto(`${address}/main_webview.html`);
         await page.waitForSelector(`[id="qa"]`);
+        expect(await page.evaluate(async () => ankimedia.is_setup)).toEqual(false);
     });
 
     test.each([
@@ -222,6 +221,7 @@ describe("Test question and answer audios", () => {
             `noAudioTemplate`
         );
         await page.waitForSelector(`input[type="button"]`);
+
         await page.evaluate(async () =>
             _showQuestion(
                 await noAudioTemplate(`<div id="noAudioTemplate"> </div>`, ``),
@@ -231,6 +231,48 @@ describe("Test question and answer audios", () => {
         await page.waitForSelector(`div[id="noAudioTemplate"]`);
 
         expect(await page.evaluate(async () => ankimedia.is_setup)).toEqual(true);
+    });
+
+    test(`Test ankimedia.skip_front with addall should not skip playing the front media\n...`, async function() {
+        await page.evaluate(async () => (ankimedia.skip_front = true));
+
+        await questionAndAnswer(
+            "silence 1.mp3",
+            `ankimedia.setup(); ankimedia.addall( "front" );`,
+            "silence 2.mp3",
+            `ankimedia.setup(); ankimedia.addall( "back" );`
+        );
+        await page.waitForSelector(`audio[id="silence 2.mp3"][data-has-ended-at]`);
+
+        let question_times = await getPlayTimes("silence 1.mp3");
+        let answer_times = await getPlayTimes("silence 2.mp3");
+
+        expect(!!question_times[0]).toEqual(true);
+        expect(!!question_times[1]).toEqual(true);
+
+        expect(!!answer_times[0]).toEqual(true);
+        expect(!!answer_times[1]).toEqual(true);
+    });
+
+    test(`Test ankimedia.skip_front with add should skip playing the front media\n...`, async function() {
+        await page.evaluate(async () => (ankimedia.skip_front = true));
+
+        await questionAndAnswer(
+            "silence 1.mp3",
+            `ankimedia.setup(); ankimedia.add( "front", "silence 1.mp3" );`,
+            "silence 2.mp3",
+            `ankimedia.setup(); ankimedia.add( "back", "silence 2.mp3" );`
+        );
+        await page.waitForSelector(`audio[id="silence 2.mp3"][data-has-ended-at]`);
+
+        let question_times = await getPlayTimes("silence 1.mp3");
+        let answer_times = await getPlayTimes("silence 2.mp3");
+
+        expect(!question_times[0]).toEqual(true);
+        expect(!question_times[1]).toEqual(true);
+
+        expect(!answer_times[0]).toEqual(false);
+        expect(!answer_times[1]).toEqual(false);
     });
 
     test.each([
@@ -256,6 +298,7 @@ describe("Test question and answer audios", () => {
             let first_question_times = await getPlayTimes(front_mp3);
             let first_audio_src = await getAudioSource(front_mp3);
 
+            await page.evaluate(async () => ankimedia._reset());
             await showQuestion(refront_mp3, refront_setup, "questionTemplate");
             await page.waitForSelector(`[id="${refront_mp3}"][data-has-ended-at]`);
             expect(await getPausedMedias()).toEqual(0);
@@ -302,7 +345,7 @@ describe("Test question and answer audios", () => {
             `ankimedia.setup(); ankimedia.add( "back", "silence 2.mp3" );`,
         ],
     ])(
-        `Showing an answer with the same id as the question should only play the answer audio:\nfront %s '%s',\nback %s '%s'\n...`,
+        `Showing an answer with the same audio id as the question should only play the answer audio:\nfront %s '%s',\nback %s '%s'\n...`,
         async function(front_mp3, front_setup, back_mp3, back_setup) {
             let selector = back_mp3 == front_mp3 ? `${front_mp3}1` : back_mp3;
 

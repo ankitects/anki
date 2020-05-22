@@ -542,6 +542,7 @@ class CardLayout(QDialog):
             a = ti(self.mw.prepare_card_text_for_display(c.answer()), type="a")
             a = gui_hooks.card_will_show(a, c, "clayoutAnswer")
             text = a
+            self.preview_web.eval("ankimedia.skip_front = true;")
 
         # use _showAnswer to avoid the longer delay
         self.preview_web.eval(f"_showAnswer({json.dumps(text)},'{bodyclass}');")
