@@ -68,7 +68,6 @@ function _updateQA(html, fadeTime, onupdate, onshown) {
 }
 
 function _showQuestion(q, bodyclass) {
-    ankimedia._reset();
     _updateQA(
         q,
         qFade,

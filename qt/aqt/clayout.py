@@ -427,6 +427,9 @@ class CardLayout(QDialog):
 
         bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
 
+        if not self.have_autoplayed:
+            self.preview_web.eval("ankimedia._reset();")
+
         if self.pform.preview_front.isChecked():
             q = ti(self.mw.prepare_card_text_for_display(c.q()))
             q = gui_hooks.card_will_show(q, c, "clayoutQuestion")
@@ -437,7 +440,6 @@ class CardLayout(QDialog):
             text = a
 
         # use _showAnswer to avoid the longer delay
-        self.preview_web.eval("ankimedia._reset();")
         self.preview_web.eval("_showAnswer(%s,'%s');" % (json.dumps(text), bodyclass))
 
         if not self.have_autoplayed:
