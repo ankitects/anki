@@ -6,6 +6,7 @@ const ANKI_MEDIA_QUEUE_PREVIEW_TIMEOUT = 500;
 
 /**
  * Find all audio and video tags and run them through the callback parameter.
+ *
  * @param {Function} callback - to be called on each media.
  * @param {Array}    initial  - an additional list of items to be iterated over.
  */
@@ -57,6 +58,7 @@ class AnkiMediaQueue {
     where: "front" | "back";
     wait_question: boolean;
     has_previewed: boolean;
+    skip_front: boolean;
 
     /**
      * Initialize the attributes to their default values.
@@ -104,6 +106,7 @@ class AnkiMediaQueue {
         this.where = "front";
         this.wait_question = true;
         this.has_previewed = false;
+        this.skip_front = false;
     }
 
     _validateSetup(location) {
@@ -115,12 +118,14 @@ class AnkiMediaQueue {
     }
 
     _validateWhere(where) {
-        if (!where || !(where == "front" || where == "back")) {
-            throw new Error(
-                `Missing the 'where=${where}' parameter! ` +
-                    `Pass ankimedia.add( "front", "file.mp3" ) if this is the question side ` +
-                    `or ankimedia.add( "back", "file.mp3" ) if this is the answer side.`
-            );
+        let basic =
+            `Pass ankimedia.add( "front", "file.mp3" ) if this is the question side ` +
+            `or ankimedia.add( "back", "file.mp3" ) if this is the answer side.`;
+        if (!where) {
+            throw new Error(`Missing the 'where=${where}' parameter!\n${basic}`);
+        }
+        if (!(where == "front" || where == "back")) {
+            throw new Error(`Invalid 'where=${where}' parameter!\n${basic}`);
         }
     }
 
@@ -134,40 +139,55 @@ class AnkiMediaQueue {
 
     /**
      * Automatically add all media elements found and start playing them sequentially.
+     *
      * @param {string} where - pass "front" if this is being called on the card-front,
      *        otherwise, pass "back" if it is being called on the card-back.
+     *        If not specified, each media element to be added automatically must have a
+     *        "data-where" attribute with the value "front" if this is being called on the
+     *        card-front, otherwise, the value "back" if it is being called on the card-back.
      * @param {number} speed - the speed to play the audio, where 1.0 is the default speed.
      *        Each media element can also have an attribute as `data-speed="1.0"` indicating
      *        the speed it should play. The `data-speed` value has precedence over this parameter.
      */
-    addall(where, speed = 1.0) {
-        if (arguments.length < 1 || arguments.length > 2) {
+    addall(where = undefined, speed = 1.0) {
+        if (arguments.length > 2) {
             throw new Error(
-                `The function ankimedia.addall() requires from 1 up to 2 argument(s) only, not ${arguments.length}!`
+                `The function ankimedia.addall() requires from 0 up to 2 argument(s) only, not ${arguments.length}!`
             );
         }
         this._validateSetup("addall");
-        this._validateWhere(where);
         this._validateSpeed(speed);
 
-        if (where === this.where) {
+        if (where !== undefined) {
+            this._validateWhere(where);
+        }
+
+        if (where === undefined || where === this.where) {
             setAnkiMedia(media => {
-                if (where == "front") {
+                let localwhere = media.getAttribute("data-where");
+                if (!localwhere) {
+                    localwhere = where;
+                }
+                this._validateWhere(localwhere);
+                this._checkDataAttributes(media);
+
+                if (localwhere == "front") {
                     this.frontmedias.set(media.id, 0);
                 }
-                if (where == "back" && this.frontmedias.has(media.id)) {
+                if (localwhere == "back" && this.frontmedias.has(media.id)) {
                     return;
                 }
 
-                this._checkDataAttributes(media);
-                this.add(where, media.getAttribute("data-file"), speed);
+                this.add(localwhere, media.getAttribute("data-file"), speed);
             }, this.other_medias);
         }
     }
 
     /**
-     * Add an audio file to the playing queue and immediately starts playing, if not playing already.
-     * @param {string} filename - an audio filename for playing
+     * Add an audio file to the playing queue and immediately starts playing, if not playing
+     * already.
+     *
+     * @param {string} filename - an audio filename for playing.
      * @param {string} where    - pass "front" if this is being called on the card-front,
      *        otherwise, pass "back" as it is being called on the card-back.
      * @param {number} speed    - the speed to play the audio, where 1.0 is the default speed.
@@ -193,6 +213,10 @@ class AnkiMediaQueue {
             console.log(
                 `The ${where} 'filename=${filename}' is too short. Not adding this media!`
             );
+            return;
+        }
+
+        if (this.skip_front && where == "front") {
             return;
         }
 
