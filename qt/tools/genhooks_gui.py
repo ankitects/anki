@@ -172,6 +172,21 @@ hooks = [
         args=["deck_conf: aqt.deckconf.DeckConf", "deck: Any", "config: Any"],
         doc="Called before widget state is saved to config",
     ),
+    Hook(
+        name="deck_conf_did_add_config",
+        args=["deck_conf: aqt.deckconf.DeckConf", "deck: Any", "config: Any", "new_name: str", "new_confg_id: int"],
+        doc="Called after a new config group was added as a clone of the current one, but before initializing the widget state",
+    ),
+    Hook(
+        name="deck_conf_will_remove_config",
+        args=["deck_conf: aqt.deckconf.DeckConf", "deck: Any", "config: Any"],
+        doc="Called before current config group is removed",
+    ),
+    Hook(
+        name="deck_conf_will_rename_config",
+        args=["deck_conf: aqt.deckconf.DeckConf", "deck: Any", "config: Any", "new_name: str"],
+        doc="Called before config group is renamed",
+    ),
     # Browser
     ###################
     Hook(name="browser_will_show", args=["browser: aqt.browser.Browser"]),
