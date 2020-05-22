@@ -1,3 +1,4 @@
+use std::fmt::Write;
 use std::fs;
 use std::path::Path;
 
@@ -91,6 +92,82 @@ const FLUENT_KEYS: &[&str] = &[
     }
 }
 
+struct CustomGenerator {}
+
+fn write_method_enum(buf: &mut String, service: &prost_build::Service) {
+    buf.push_str(
+        r#"
+use num_enum::TryFromPrimitive;
+#[derive(PartialEq,TryFromPrimitive)]
+#[repr(u32)]
+pub enum BackendMethod {
+"#,
+    );
+    for (idx, method) in service.methods.iter().enumerate() {
+        write!(buf, "    {} = {},\n", method.proto_name, idx + 1).unwrap();
+    }
+    buf.push_str("}\n\n");
+}
+
+fn write_method_trait(buf: &mut String, service: &prost_build::Service) {
+    buf.push_str(
+        r#"
+use prost::Message;
+pub type BackendResult<T> = std::result::Result<T, crate::err::AnkiError>;
+pub trait BackendService {
+    fn run_command_bytes2_inner(&mut self, method: u32, input: &[u8]) -> std::result::Result<Vec<u8>, crate::err::AnkiError> {
+        match method {
+"#,
+    );
+
+    for (idx, method) in service.methods.iter().enumerate() {
+        write!(
+            buf,
+            concat!("            ",
+            "{idx} => {{ let input = {input_type}::decode(input)?;\n",
+            "let output = self.{rust_method}(input)?;\n",
+            "let mut out_bytes = Vec::new(); output.encode(&mut out_bytes)?; Ok(out_bytes) }}, "),
+            idx = idx + 1,
+            input_type = method.input_type,
+            rust_method = method.name
+        )
+        .unwrap();
+    }
+    buf.push_str(
+        r#"
+            _ => Err(crate::err::AnkiError::invalid_input("invalid command")),
+        }
+    }
+"#,
+    );
+
+    for method in &service.methods {
+        write!(
+            buf,
+            concat!(
+                "    fn {method_name}(&mut self, input: {input_type}) -> ",
+                "BackendResult<{output_type}>;\n"
+            ),
+            method_name = method.name,
+            input_type = method.input_type,
+            output_type = method.output_type
+        )
+        .unwrap();
+    }
+    buf.push_str("}\n");
+}
+
+impl prost_build::ServiceGenerator for CustomGenerator {
+    fn generate(&mut self, service: prost_build::Service, buf: &mut String) {
+        write_method_enum(buf, &service);
+        write_method_trait(buf, &service);
+    }
+}
+
+fn service_generator() -> Box<dyn prost_build::ServiceGenerator> {
+    Box::new(CustomGenerator {})
+}
+
 fn main() -> std::io::Result<()> {
     // write template.ftl
     let mut buf = String::new();
@@ -126,7 +203,12 @@ fn main() -> std::io::Result<()> {
     // we avoid default OUT_DIR for now, as it breaks code completion
     std::env::set_var("OUT_DIR", "src");
     println!("cargo:rerun-if-changed=../proto/backend.proto");
-    prost_build::compile_protos(&["../proto/backend.proto"], &["../proto"]).unwrap();
+
+    let mut config = prost_build::Config::new();
+    config.service_generator(service_generator());
+    config
+        .compile_protos(&["../proto/backend.proto"], &["../proto"])
+        .unwrap();
 
     // write the other language ftl files
     let mut ftl_lang_dirs = vec!["./ftl/repo/core".to_string()];

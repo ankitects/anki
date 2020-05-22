@@ -1,11 +1,12 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use anki::backend::{init_backend, Backend as RustBackend};
+use anki::backend::{init_backend, Backend as RustBackend, BackendMethod};
 use pyo3::exceptions::Exception;
 use pyo3::prelude::*;
 use pyo3::types::PyBytes;
 use pyo3::{create_exception, exceptions, wrap_pyfunction};
+use std::convert::TryFrom;
 
 // Regular backend
 //////////////////////////////////
@@ -16,6 +17,7 @@ struct Backend {
 }
 
 create_exception!(ankirspy, DBError, Exception);
+create_exception!(ankirspy, BackendError, Exception);
 
 #[pyfunction]
 fn buildhash() -> &'static str {
@@ -30,6 +32,16 @@ fn open_backend(init_msg: &PyBytes) -> PyResult<Backend> {
     }
 }
 
+fn want_release_gil(method: u32) -> bool {
+    if let Ok(method) = BackendMethod::try_from(method) {
+        match method {
+            _ => false,
+        }
+    } else {
+        false
+    }
+}
+
 #[pymethods]
 impl Backend {
     fn command(&mut self, py: Python, input: &PyBytes, release_gil: bool) -> PyObject {
@@ -41,6 +53,20 @@ impl Backend {
         };
         let out_obj = PyBytes::new(py, &out_bytes);
         out_obj.into()
+    }
+
+    fn command2(&mut self, py: Python, method: u32, input: &PyBytes) -> PyResult<PyObject> {
+        let in_bytes = input.as_bytes();
+        if want_release_gil(method) {
+            py.allow_threads(move || self.backend.run_command_bytes2(method, in_bytes))
+        } else {
+            self.backend.run_command_bytes2(method, in_bytes)
+        }
+        .map(|out_bytes| {
+            let out_obj = PyBytes::new(py, &out_bytes);
+            out_obj.into()
+        })
+        .map_err(|err_bytes| BackendError::py_err(err_bytes))
     }
 
     fn set_progress_callback(&mut self, callback: PyObject) {
