@@ -29,7 +29,7 @@ template_legacy.py file, using the legacy addHook() system.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import anki
 from anki import hooks
@@ -37,12 +37,53 @@ from anki.cards import Card
 from anki.decks import DeckManager
 from anki.models import NoteType
 from anki.notes import Note
-from anki.rsbackend import PartiallyRenderedCard, TemplateReplacementList
+from anki.rsbackend import pb, to_json_bytes
 from anki.sound import AVTag
 
 CARD_BLANK_HELP = (
     "https://anki.tenderapp.com/kb/card-appearance/the-front-of-this-card-is-blank"
 )
+
+
+@dataclass
+class TemplateReplacement:
+    field_name: str
+    current_text: str
+    filters: List[str]
+
+
+TemplateReplacementList = List[Union[str, TemplateReplacement]]
+
+
+@dataclass
+class PartiallyRenderedCard:
+    qnodes: TemplateReplacementList
+    anodes: TemplateReplacementList
+
+    @classmethod
+    def from_proto(cls, out: pb.RenderCardOut) -> PartiallyRenderedCard:
+        qnodes = cls.nodes_from_proto(out.question_nodes)
+        anodes = cls.nodes_from_proto(out.answer_nodes)
+
+        return PartiallyRenderedCard(qnodes, anodes)
+
+    @staticmethod
+    def nodes_from_proto(
+        nodes: Sequence[pb.RenderedTemplateNode],
+    ) -> TemplateReplacementList:
+        results: TemplateReplacementList = []
+        for node in nodes:
+            if node.WhichOneof("value") == "text":
+                results.append(node.text)
+            else:
+                results.append(
+                    TemplateReplacement(
+                        field_name=node.replacement.field_name,
+                        current_text=node.replacement.current_text,
+                        filters=list(node.replacement.filters),
+                    )
+                )
+        return results
 
 
 class TemplateRenderContext:
@@ -177,15 +218,16 @@ class TemplateRenderContext:
     def _partially_render(self) -> PartiallyRenderedCard:
         if self._template:
             # card layout screen
-            return self._col.backend.render_uncommitted_card(
+            out = self._col.backend.render_uncommitted_card(
                 self._note.to_backend_note(),
                 self._card.ord,
-                self._template,
+                to_json_bytes(self._template),
                 self._fill_empty,
             )
         else:
             # existing card (eg study mode)
-            return self._col.backend.render_existing_card(self._card.id, self._browser)
+            out = self._col.backend.render_existing_card(self._card.id, self._browser)
+        return PartiallyRenderedCard.from_proto(out)
 
 
 @dataclass

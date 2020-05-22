@@ -14,6 +14,11 @@ message OptionalUInt32 {
     uint32 val = 1;
 }
 
+service BackendService {
+    rpc RenderExistingCard (RenderExistingCardIn) returns (RenderCardOut);
+    rpc RenderUncommittedCard (RenderUncommittedCardIn) returns (RenderCardOut);
+}
+
 // Protobuf stored in .anki2 files
 // These should be moved to a separate file in the future
 ///////////////////////////////////////////////////////////

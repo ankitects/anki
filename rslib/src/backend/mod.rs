@@ -1,11 +1,14 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+pub use crate::backend_proto::BackendMethod;
 use crate::{
     backend::dbproxy::db_command_bytes,
     backend_proto as pb,
     backend_proto::builtin_search_order::BuiltinSortKind,
-    backend_proto::{AddOrUpdateDeckConfigIn, Empty, RenderedTemplateReplacement, SyncMediaIn},
+    backend_proto::{
+        AddOrUpdateDeckConfigIn, BackendResult, Empty, RenderedTemplateReplacement, SyncMediaIn,
+    },
     card::{Card, CardID},
     card::{CardQueue, CardType},
     cloze::add_cloze_numbers_in_string,
@@ -37,13 +40,16 @@ use crate::{
 use fluent::FluentValue;
 use futures::future::{AbortHandle, Abortable};
 use log::error;
-use pb::backend_input::Value;
+use pb::{backend_input::Value, BackendService};
 use prost::Message;
 use serde_json::Value as JsonValue;
 use std::collections::{HashMap, HashSet};
 use std::convert::TryFrom;
 use std::path::PathBuf;
-use std::sync::{Arc, Mutex};
+use std::{
+    result,
+    sync::{Arc, Mutex},
+};
 use tokio::runtime::Runtime;
 
 mod dbproxy;
@@ -141,6 +147,36 @@ pub fn init_backend(init_msg: &[u8]) -> std::result::Result<Backend, String> {
     Ok(Backend::new(i18n, input.server))
 }
 
+impl BackendService for Backend {
+    fn render_existing_card(
+        &mut self,
+        input: pb::RenderExistingCardIn,
+    ) -> BackendResult<pb::RenderCardOut> {
+        self.with_col(|col| {
+            col.render_existing_card(CardID(input.card_id), input.browser)
+                .map(Into::into)
+        })
+    }
+
+    fn render_uncommitted_card(
+        &mut self,
+        input: pb::RenderUncommittedCardIn,
+    ) -> BackendResult<pb::RenderCardOut> {
+        let schema11: CardTemplateSchema11 = serde_json::from_slice(&input.template)?;
+        let template = schema11.into();
+        let mut note = input
+            .note
+            .ok_or_else(|| AnkiError::invalid_input("missing note"))?
+            .into();
+        let ord = input.card_ord as u16;
+        let fill_empty = input.fill_empty;
+        self.with_col(|col| {
+            col.render_uncommitted_card(&mut note, &template, ord, fill_empty)
+                .map(Into::into)
+        })
+    }
+}
+
 impl Backend {
     pub fn new(i18n: I18n, server: bool) -> Backend {
         Backend {
@@ -177,6 +213,19 @@ impl Backend {
         let resp = self.run_command(req);
         resp.encode(&mut buf).expect("encode failed");
         buf
+    }
+
+    pub fn run_command_bytes2(
+        &mut self,
+        method: u32,
+        input: &[u8],
+    ) -> result::Result<Vec<u8>, Vec<u8>> {
+        self.run_command_bytes2_inner(method, input).map_err(|err| {
+            let backend_err = anki_error_to_proto_error(err, &self.i18n);
+            let mut bytes = Vec::new();
+            backend_err.encode(&mut bytes).unwrap();
+            bytes
+        })
     }
 
     /// If collection is open, run the provided closure while holding
@@ -459,31 +508,6 @@ impl Backend {
             None
         };
         self.with_col(|col| col.deck_tree(input.include_counts, lim))
-    }
-
-    fn render_existing_card(&self, input: pb::RenderExistingCardIn) -> Result<pb::RenderCardOut> {
-        self.with_col(|col| {
-            col.render_existing_card(CardID(input.card_id), input.browser)
-                .map(Into::into)
-        })
-    }
-
-    fn render_uncommitted_card(
-        &self,
-        input: pb::RenderUncommittedCardIn,
-    ) -> Result<pb::RenderCardOut> {
-        let schema11: CardTemplateSchema11 = serde_json::from_slice(&input.template)?;
-        let template = schema11.into();
-        let mut note = input
-            .note
-            .ok_or_else(|| AnkiError::invalid_input("missing note"))?
-            .into();
-        let ord = input.card_ord as u16;
-        let fill_empty = input.fill_empty;
-        self.with_col(|col| {
-            col.render_uncommitted_card(&mut note, &template, ord, fill_empty)
-                .map(Into::into)
-        })
     }
 
     fn extract_av_tags(&self, input: pb::ExtractAvTagsIn) -> pb::ExtractAvTagsOut {

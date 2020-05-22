@@ -65,6 +65,10 @@ except:
         loads = json.loads
 
 
+to_json_bytes = orjson.dumps
+from_json_bytes = orjson.loads
+
+
 class Interrupted(Exception):
     pass
 
@@ -161,22 +165,6 @@ def av_tag_to_native(tag: pb.AVTag) -> AVTag:
         )
 
 
-@dataclass
-class TemplateReplacement:
-    field_name: str
-    current_text: str
-    filters: List[str]
-
-
-TemplateReplacementList = List[Union[str, TemplateReplacement]]
-
-
-@dataclass
-class PartiallyRenderedCard:
-    qnodes: TemplateReplacementList
-    anodes: TemplateReplacementList
-
-
 MediaSyncProgress = pb.MediaSyncProgress
 
 MediaCheckOutput = pb.MediaCheckOut
@@ -205,24 +193,6 @@ class ProgressKind(enum.Enum):
 class Progress:
     kind: ProgressKind
     val: Union[MediaSyncProgress, str]
-
-
-def proto_replacement_list_to_native(
-    nodes: List[pb.RenderedTemplateNode],
-) -> TemplateReplacementList:
-    results: TemplateReplacementList = []
-    for node in nodes:
-        if node.WhichOneof("value") == "text":
-            results.append(node.text)
-        else:
-            results.append(
-                TemplateReplacement(
-                    field_name=node.replacement.field_name,
-                    current_text=node.replacement.current_text,
-                    filters=list(node.replacement.filters),
-                )
-            )
-    return results
 
 
 def proto_progress_to_native(progress: pb.Progress) -> Progress:
@@ -301,40 +271,6 @@ class RustBackend:
         return self._run_command(
             pb.BackendInput(sched_timing_today=pb.Empty())
         ).sched_timing_today
-
-    def render_existing_card(self, cid: int, browser: bool) -> PartiallyRenderedCard:
-        out = self._run_command(
-            pb.BackendInput(
-                render_existing_card=pb.RenderExistingCardIn(
-                    card_id=cid, browser=browser,
-                )
-            )
-        ).render_existing_card
-
-        qnodes = proto_replacement_list_to_native(out.question_nodes)  # type: ignore
-        anodes = proto_replacement_list_to_native(out.answer_nodes)  # type: ignore
-
-        return PartiallyRenderedCard(qnodes, anodes)
-
-    def render_uncommitted_card(
-        self, note: BackendNote, card_ord: int, template: Dict, fill_empty: bool
-    ) -> PartiallyRenderedCard:
-        template_json = orjson.dumps(template)
-        out = self._run_command(
-            pb.BackendInput(
-                render_uncommitted_card=pb.RenderUncommittedCardIn(
-                    note=note,
-                    template=template_json,
-                    card_ord=card_ord,
-                    fill_empty=fill_empty,
-                )
-            )
-        ).render_uncommitted_card
-
-        qnodes = proto_replacement_list_to_native(out.question_nodes)  # type: ignore
-        anodes = proto_replacement_list_to_native(out.answer_nodes)  # type: ignore
-
-        return PartiallyRenderedCard(qnodes, anodes)
 
     def local_minutes_west(self, stamp: int) -> int:
         return self._run_command(
@@ -829,6 +765,39 @@ class RustBackend:
                 pb.BackendInput(cloze_numbers_in_note=note)
             ).cloze_numbers_in_note.numbers
         )
+
+    def _run_command2(self, method: int, input: Any) -> bytes:
+        input_bytes = input.SerializeToString()
+        try:
+            return self._backend.command2(method, input_bytes)
+        except Exception as e:
+            err_bytes = bytes(e.args[0])
+            err = pb.BackendError()
+            err.ParseFromString(err_bytes)
+            raise proto_exception_to_native(err)
+
+    # The code in this section is automatically generated - any edits you make
+    # will be lost.
+
+    # @@AUTOGEN@@
+
+    def render_existing_card(self, card_id: int, browser: bool) -> pb.RenderCardOut:
+        input = pb.RenderExistingCardIn(card_id=card_id, browser=browser)
+        output = pb.RenderCardOut()
+        output.ParseFromString(self._run_command2(1, input))
+        return output
+
+    def render_uncommitted_card(
+        self, note: pb.Note, card_ord: int, template: bytes, fill_empty: bool
+    ) -> pb.RenderCardOut:
+        input = pb.RenderUncommittedCardIn(
+            note=note, card_ord=card_ord, template=template, fill_empty=fill_empty
+        )
+        output = pb.RenderCardOut()
+        output.ParseFromString(self._run_command2(2, input))
+        return output
+
+    # @@AUTOGEN@@
 
 
 def translate_string_in(
