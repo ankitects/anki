@@ -747,7 +747,7 @@ Enter deck to place new %s cards in, or leave blank:"""
                 showWarning("Unable to save changes: " + str(e))
                 return
             self.mw.reset()
-            tooltip("Changes saved.", parent=self.mw)
+            tooltip("Changes saved.", parent=self.parent())
             self.cleanup()
             return QDialog.accept(self)
 
