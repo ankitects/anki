@@ -51,7 +51,7 @@ qtmajor = (QT_VERSION & 0xFF0000) >> 16
 qtminor = (QT_VERSION & 0x00FF00) >> 8
 qtpoint = QT_VERSION & 0xFF
 
-if qtmajor != 5 or qtminor <= 10:
+if qtmajor != 5 or qtminor < 9 or qtminor == 10:
     raise Exception("Anki does not support your Qt version.")
 
 
