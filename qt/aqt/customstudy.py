@@ -183,6 +183,7 @@ class CustomStudy(QDialog):
             dyn["terms"][0] = [(terms + tags).strip(), spin, ord]
         # add deck limit
         dyn["terms"][0][0] = 'deck:"%s" %s ' % (self.deck["name"], dyn["terms"][0][0])
+        self.mw.col.decks.save(dyn)
         # generate cards
         self.created_custom_study = True
         if not self.mw.col.sched.rebuildDyn():
