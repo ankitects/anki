@@ -270,7 +270,8 @@ class CardLayout(QDialog):
             cursor = editor.textCursor()
             cursor.movePosition(QTextCursor.Start)
             editor.setTextCursor(cursor)
-            editor.find(text)
+            if not editor.find(text):
+                tooltip("No matches found.")
 
     def on_search_next(self):
         text = self.tform.search_edit.text()
