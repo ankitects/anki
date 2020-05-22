@@ -14,7 +14,6 @@ from typing import Callable, List, Optional, Sequence, Union
 import anki
 import aqt
 import aqt.forms
-from anki import hooks
 from anki.cards import Card
 from anki.collection import Collection
 from anki.consts import *
@@ -1879,8 +1878,8 @@ update cards set usn=?, mod=?, did=? where id in """
         gui_hooks.editor_did_fire_typing_timer.append(self.refreshCurrentCard)
         gui_hooks.editor_did_load_note.append(self.onLoadNote)
         gui_hooks.editor_did_unfocus_field.append(self.on_unfocus_field)
-        hooks.note_type_added.append(self.on_item_added)
-        hooks.deck_added.append(self.on_item_added)
+        gui_hooks.sidebar_should_refresh_decks.append(self.on_item_added)
+        gui_hooks.sidebar_should_refresh_notetypes.append(self.on_item_added)
 
     def teardownHooks(self) -> None:
         gui_hooks.undo_state_did_change.remove(self.onUndoState)
@@ -1888,14 +1887,14 @@ update cards set usn=?, mod=?, did=? where id in """
         gui_hooks.editor_did_fire_typing_timer.remove(self.refreshCurrentCard)
         gui_hooks.editor_did_load_note.remove(self.onLoadNote)
         gui_hooks.editor_did_unfocus_field.remove(self.on_unfocus_field)
-        hooks.note_type_added.remove(self.on_item_added)
-        hooks.deck_added.remove(self.on_item_added)
+        gui_hooks.sidebar_should_refresh_decks.remove(self.on_item_added)
+        gui_hooks.sidebar_should_refresh_notetypes.remove(self.on_item_added)
 
     def on_unfocus_field(self, changed: bool, note: Note, field_idx: int) -> None:
         self.refreshCurrentCard(note)
 
     # covers the tag, note and deck case
-    def on_item_added(self, item: Any) -> None:
+    def on_item_added(self, item: Any = None) -> None:
         self.maybeRefreshSidebar()
 
     def on_tag_list_update(self):

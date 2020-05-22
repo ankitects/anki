@@ -8,7 +8,6 @@ from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, Union
 
 import anki  # pylint: disable=unused-import
 import anki.backend_pb2 as pb
-from anki import hooks
 from anki.consts import *
 from anki.errors import DeckRenameError
 from anki.lang import _
@@ -95,8 +94,6 @@ class DeckManager:
         deck = self.new_deck_legacy(bool(type))
         deck["name"] = name
         self.update(deck, preserve_usn=False)
-
-        hooks.deck_added(deck)
 
         return deck["id"]
 

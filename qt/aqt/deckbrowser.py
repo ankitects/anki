@@ -82,6 +82,7 @@ class DeckBrowser:
             deck = getOnlyText(_("Name for deck:"))
             if deck:
                 self.mw.col.decks.id(deck)
+                gui_hooks.sidebar_should_refresh_decks()
                 self.refresh()
         elif cmd == "drag":
             draggedDeckDid, ontoDeckDid = arg.split(",")
@@ -256,6 +257,7 @@ where id > ?""",
             return
         try:
             self.mw.col.decks.rename(deck, newName)
+            gui_hooks.sidebar_should_refresh_decks()
         except DeckRenameError as e:
             return showWarning(e.description)
         self.show()
@@ -276,6 +278,7 @@ where id > ?""",
     def _dragDeckOnto(self, draggedDeckDid, ontoDeckDid):
         try:
             self.mw.col.decks.renameForDragAndDrop(draggedDeckDid, ontoDeckDid)
+            gui_hooks.sidebar_should_refresh_decks()
         except DeckRenameError as e:
             return showWarning(e.description)
 
