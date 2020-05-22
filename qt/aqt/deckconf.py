@@ -119,10 +119,12 @@ class DeckConf(QDialog):
         name = getOnlyText(_("New options group name:"))
         if not name:
             return
+
         # first, save currently entered data to current conf
         self.saveConf()
         # then clone the conf
         id = self.mw.col.decks.add_config_returning_id(name, clone_from=self.conf)
+        gui_hooks.deck_conf_did_add_config(self, self.deck, self.conf, name, id)
         # set the deck to the new conf
         self.deck["conf"] = id
         # then reload the conf list
@@ -132,6 +134,7 @@ class DeckConf(QDialog):
         if int(self.conf["id"]) == 1:
             showInfo(_("The default configuration can't be removed."), self)
         else:
+            gui_hooks.deck_conf_will_remove_config(self, self.deck, self.conf)
             self.mw.col.modSchema(check=True)
             self.mw.col.decks.remove_config(self.conf["id"])
             self.conf = None
@@ -143,6 +146,8 @@ class DeckConf(QDialog):
         name = getOnlyText(_("New name:"), default=old)
         if not name or name == old:
             return
+
+        gui_hooks.deck_conf_will_rename_config(self, self.deck, self.conf, name)
         self.conf["name"] = name
         self.saveConf()
         self.loadConfs()

@@ -917,6 +917,43 @@ class _DeckBrowserWillShowOptionsMenuHook:
 deck_browser_will_show_options_menu = _DeckBrowserWillShowOptionsMenuHook()
 
 
+class _DeckConfDidAddConfigHook:
+    """Called after a new config group was added as a clone of the current one, but before initializing the widget state"""
+
+    _hooks: List[Callable[["aqt.deckconf.DeckConf", Any, Any, str, int], None]] = []
+
+    def append(
+        self, cb: Callable[["aqt.deckconf.DeckConf", Any, Any, str, int], None]
+    ) -> None:
+        """(deck_conf: aqt.deckconf.DeckConf, deck: Any, config: Any, new_name: str, new_confg_id: int)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self, cb: Callable[["aqt.deckconf.DeckConf", Any, Any, str, int], None]
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(
+        self,
+        deck_conf: aqt.deckconf.DeckConf,
+        deck: Any,
+        config: Any,
+        new_name: str,
+        new_confg_id: int,
+    ) -> None:
+        for hook in self._hooks:
+            try:
+                hook(deck_conf, deck, config, new_name, new_confg_id)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+deck_conf_did_add_config = _DeckConfDidAddConfigHook()
+
+
 class _DeckConfDidLoadConfigHook:
     """Called once widget state has been set from deck config"""
 
@@ -969,6 +1006,66 @@ class _DeckConfDidSetupUiFormHook:
 
 
 deck_conf_did_setup_ui_form = _DeckConfDidSetupUiFormHook()
+
+
+class _DeckConfWillRemoveConfigHook:
+    """Called before current config group is removed"""
+
+    _hooks: List[Callable[["aqt.deckconf.DeckConf", Any, Any], None]] = []
+
+    def append(self, cb: Callable[["aqt.deckconf.DeckConf", Any, Any], None]) -> None:
+        """(deck_conf: aqt.deckconf.DeckConf, deck: Any, config: Any)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[["aqt.deckconf.DeckConf", Any, Any], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(
+        self, deck_conf: aqt.deckconf.DeckConf, deck: Any, config: Any
+    ) -> None:
+        for hook in self._hooks:
+            try:
+                hook(deck_conf, deck, config)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+deck_conf_will_remove_config = _DeckConfWillRemoveConfigHook()
+
+
+class _DeckConfWillRenameConfigHook:
+    """Called before config group is renamed"""
+
+    _hooks: List[Callable[["aqt.deckconf.DeckConf", Any, Any, str], None]] = []
+
+    def append(
+        self, cb: Callable[["aqt.deckconf.DeckConf", Any, Any, str], None]
+    ) -> None:
+        """(deck_conf: aqt.deckconf.DeckConf, deck: Any, config: Any, new_name: str)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self, cb: Callable[["aqt.deckconf.DeckConf", Any, Any, str], None]
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(
+        self, deck_conf: aqt.deckconf.DeckConf, deck: Any, config: Any, new_name: str
+    ) -> None:
+        for hook in self._hooks:
+            try:
+                hook(deck_conf, deck, config, new_name)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+deck_conf_will_rename_config = _DeckConfWillRenameConfigHook()
 
 
 class _DeckConfWillSaveConfigHook:
