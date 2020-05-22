@@ -544,6 +544,8 @@ hooks = [
         legacy_hook="currentModelChanged",
         legacy_no_args=True,
     ),
+    Hook(name="sidebar_should_refresh_decks"),
+    Hook(name="sidebar_should_refresh_notetypes"),
     Hook(
         name="deck_browser_will_show_options_menu",
         args=["menu: QMenu", "deck_id: int"],

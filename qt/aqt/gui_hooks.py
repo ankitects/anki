@@ -1774,6 +1774,54 @@ class _ReviewerWillShowContextMenuHook:
 reviewer_will_show_context_menu = _ReviewerWillShowContextMenuHook()
 
 
+class _SidebarShouldRefreshDecksHook:
+    _hooks: List[Callable[[], None]] = []
+
+    def append(self, cb: Callable[[], None]) -> None:
+        """()"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self) -> None:
+        for hook in self._hooks:
+            try:
+                hook()
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+sidebar_should_refresh_decks = _SidebarShouldRefreshDecksHook()
+
+
+class _SidebarShouldRefreshNotetypesHook:
+    _hooks: List[Callable[[], None]] = []
+
+    def append(self, cb: Callable[[], None]) -> None:
+        """()"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self) -> None:
+        for hook in self._hooks:
+            try:
+                hook()
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+sidebar_should_refresh_notetypes = _SidebarShouldRefreshNotetypesHook()
+
+
 class _StateDidChangeHook:
     _hooks: List[Callable[[str, str], None]] = []
 

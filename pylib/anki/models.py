@@ -9,7 +9,6 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import anki  # pylint: disable=unused-import
 import anki.backend_pb2 as pb
-from anki import hooks
 from anki.consts import *
 from anki.lang import _
 from anki.rsbackend import StockNoteType
@@ -80,9 +79,6 @@ class ModelManager:
             return
 
         self.update(m, preserve_usn=False)
-
-        # fixme: badly named; also fires on updates
-        hooks.note_type_added(m)
 
     # legacy
     def flush(self) -> None:

@@ -749,6 +749,7 @@ Enter deck to place new %s cards in, or leave blank:"""
             self.mw.reset()
             tooltip("Changes saved.", parent=self.parent())
             self.cleanup()
+            gui_hooks.sidebar_should_refresh_notetypes()
             return QDialog.accept(self)
 
         self.mw.taskman.with_progress(save, on_done)

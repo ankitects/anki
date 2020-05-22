@@ -188,6 +188,8 @@ card_will_flush = _CardWillFlushHook()
 
 
 class _DeckAddedHook:
+    """Obsolete, do not use."""
+
     _hooks: List[Callable[[Dict[str, Any]], None]] = []
 
     def append(self, cb: Callable[[Dict[str, Any]], None]) -> None:
@@ -206,8 +208,6 @@ class _DeckAddedHook:
                 # if the hook fails, remove it
                 self._hooks.remove(hook)
                 raise
-        # legacy support
-        runHook("newDeck")
 
 
 deck_added = _DeckAddedHook()
@@ -306,6 +306,8 @@ media_files_did_export = _MediaFilesDidExportHook()
 
 
 class _NoteTypeAddedHook:
+    """Obsolete, do not use."""
+
     _hooks: List[Callable[[Dict[str, Any]], None]] = []
 
     def append(self, cb: Callable[[Dict[str, Any]], None]) -> None:
@@ -324,8 +326,6 @@ class _NoteTypeAddedHook:
                 # if the hook fails, remove it
                 self._hooks.remove(hook)
                 raise
-        # legacy support
-        runHook("newModel")
 
 
 note_type_added = _NoteTypeAddedHook()
