@@ -61,6 +61,14 @@ describe("Test question and answer audios", () => {
         );
     };
 
+    var noAudioTemplate = (file_name, setup_code) => {
+        return cardTemplate(
+            ``,
+            setup_code,
+            `What is the past simple of the verb to bumb?<br>`
+        );
+    };
+
     let showQuestion = async (front_mp3, front_setup, templateName) =>
         await page.evaluate(
             async (mp3, setup, template) =>
@@ -137,6 +145,7 @@ describe("Test question and answer audios", () => {
     (async () => await page.exposeFunction("questionTemplate", questionTemplate))();
     (async () => await page.exposeFunction("answerTemplate", answerTemplate))();
     (async () => await page.exposeFunction("dataSpeedTemplate", dataSpeedTemplate))();
+    (async () => await page.exposeFunction("noAudioTemplate", noAudioTemplate))();
 
     beforeEach(async () => {
         await page.goto(`${address}/main_webview.html`);
@@ -183,6 +192,18 @@ describe("Test question and answer audios", () => {
             expect(question_times[0] < question_times[1]).toEqual(true);
         }
     );
+
+    test(`Test playing an audio without a HTML tag does not throw\n...`, async function() {
+        await showQuestion(
+            ``,
+            `ankimedia.setup(); ankimedia.add( "front", "silence 1.mp3" );`,
+            `noAudioTemplate`
+        );
+        await page.waitForSelector(`input[type="button"]`);
+
+        expect(await page.evaluate(async () => ankimedia.is_playing)).toEqual(true);
+        expect(await page.evaluate(async () => ankimedia.is_first)).toEqual(false);
+    });
 
     test.each([
         [
