@@ -241,7 +241,7 @@ where id > ?""",
         qconnect(a.triggered, lambda b, did=did: self._export(did))
         a = m.addAction(_("Delete"))
         qconnect(a.triggered, lambda b, did=did: self._delete(int(did)))
-        gui_hooks.deck_browser_will_show_options_menu(m, did)
+        gui_hooks.deck_browser_will_show_options_menu(m, int(did))
         m.exec_(QCursor.pos())
 
     def _export(self, did):
