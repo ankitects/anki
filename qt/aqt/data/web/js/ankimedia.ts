@@ -2,7 +2,7 @@
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
 // After loading the page, wait a little to ensure all medias are processed
-const ANKI_MEDIA_QUEUE_PREVIEW_TIMEOUT = 2000;
+const ANKI_MEDIA_QUEUE_PREVIEW_TIMEOUT = 500;
 
 /**
  * Find all audio and video tags and run them through the callback parameter.
