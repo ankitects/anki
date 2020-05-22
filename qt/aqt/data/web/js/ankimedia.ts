@@ -253,8 +253,8 @@ class AnkiMediaQueue {
                         media = last_media;
                     }
                 }
+                this._checkDataAttributes(media);
             }
-            this._checkDataAttributes(media);
             let data_speed = media.getAttribute("data-speed") || speed;
 
             media.playbackRate = parseFloat(data_speed as any);
