@@ -20,8 +20,11 @@ from aqt.qt import (
     QPixmap,
     Qt,
     QVBoxLayout,
+    QWebEngineSettings,
     QWidget,
     qconnect,
+    qtmajor,
+    qtminor,
 )
 from aqt.reviewer import replay_audio
 from aqt.sound import av_player, play_clicked_audio
@@ -68,6 +71,9 @@ class Previewer(QDialog):
         self._web = AnkiWebView(title="previewer")
         self.vbox.addWidget(self._web)
         self.bbox = QDialogButtonBox()
+
+        if qtmajor == 5 and qtminor >= 11 or qtmajor > 5:
+            self._web._page.settings().setAttribute(QWebEngineSettings.PlaybackRequiresUserGesture, False)  # type: ignore
 
         self._replay = self.bbox.addButton(
             _("Replay Audio"), QDialogButtonBox.ActionRole
