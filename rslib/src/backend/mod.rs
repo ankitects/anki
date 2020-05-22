@@ -175,6 +175,141 @@ impl BackendService for Backend {
                 .map(Into::into)
         })
     }
+
+    fn sched_timing_today(&mut self, _input: pb::Empty) -> Result<pb::SchedTimingTodayOut> {
+        self.with_col(|col| col.timing_today().map(Into::into))
+    }
+
+    fn deck_tree(&mut self, input: pb::DeckTreeIn) -> Result<pb::DeckTreeNode> {
+        let lim = if input.top_deck_id > 0 {
+            Some(DeckID(input.top_deck_id))
+        } else {
+            None
+        };
+        self.with_col(|col| col.deck_tree(input.include_counts, lim))
+    }
+
+    fn check_media(&mut self, _input: pb::Empty) -> Result<pb::CheckMediaOut> {
+        let callback =
+            |progress: usize| self.fire_progress_callback(Progress::MediaCheck(progress as u32));
+
+        self.with_col(|col| {
+            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
+            col.transact(None, |ctx| {
+                let mut checker = MediaChecker::new(ctx, &mgr, callback);
+                let mut output = checker.check()?;
+
+                let report = checker.summarize_output(&mut output);
+
+                Ok(pb::CheckMediaOut {
+                    unused: output.unused,
+                    missing: output.missing,
+                    report,
+                    have_trash: output.trash_count > 0,
+                })
+            })
+        })
+    }
+
+    fn search_cards(&mut self, input: pb::SearchCardsIn) -> Result<pb::SearchCardsOut> {
+        self.with_col(|col| {
+            let order = if let Some(order) = input.order {
+                use pb::sort_order::Value as V;
+                match order.value {
+                    Some(V::None(_)) => SortMode::NoOrder,
+                    Some(V::Custom(s)) => SortMode::Custom(s),
+                    Some(V::FromConfig(_)) => SortMode::FromConfig,
+                    Some(V::Builtin(b)) => SortMode::Builtin {
+                        kind: sort_kind_from_pb(b.kind),
+                        reverse: b.reverse,
+                    },
+                    None => SortMode::FromConfig,
+                }
+            } else {
+                SortMode::FromConfig
+            };
+            let cids = col.search_cards(&input.search, order)?;
+            Ok(pb::SearchCardsOut {
+                card_ids: cids.into_iter().map(|v| v.0).collect(),
+            })
+        })
+    }
+
+    fn search_notes(&mut self, input: pb::SearchNotesIn) -> Result<pb::SearchNotesOut> {
+        self.with_col(|col| {
+            let nids = col.search_notes(&input.search)?;
+            Ok(pb::SearchNotesOut {
+                note_ids: nids.into_iter().map(|v| v.0).collect(),
+            })
+        })
+    }
+
+    fn local_minutes_west(&mut self, input: pb::Int64) -> BackendResult<pb::Int32> {
+        Ok(pb::Int32 {
+            val: local_minutes_west_for_stamp(input.val),
+        })
+    }
+
+    fn strip_av_tags(&mut self, input: pb::String) -> BackendResult<pb::String> {
+        Ok(pb::String {
+            val: strip_av_tags(&input.val).into(),
+        })
+    }
+
+    fn extract_av_tags(
+        &mut self,
+        input: pb::ExtractAvTagsIn,
+    ) -> BackendResult<pb::ExtractAvTagsOut> {
+        let (text, tags) = extract_av_tags(&input.text, input.question_side);
+        let pt_tags = tags
+            .into_iter()
+            .map(|avtag| match avtag {
+                AVTag::SoundOrVideo(file) => pb::AvTag {
+                    value: Some(pb::av_tag::Value::SoundOrVideo(file)),
+                },
+                AVTag::TextToSpeech {
+                    field_text,
+                    lang,
+                    voices,
+                    other_args,
+                    speed,
+                } => pb::AvTag {
+                    value: Some(pb::av_tag::Value::Tts(pb::TtsTag {
+                        field_text,
+                        lang,
+                        voices,
+                        other_args,
+                        speed,
+                    })),
+                },
+            })
+            .collect();
+
+        Ok(pb::ExtractAvTagsOut {
+            text: text.into(),
+            av_tags: pt_tags,
+        })
+    }
+
+    fn extract_latex(&mut self, input: pb::ExtractLatexIn) -> BackendResult<pb::ExtractLatexOut> {
+        let func = if input.expand_clozes {
+            extract_latex_expanding_clozes
+        } else {
+            extract_latex
+        };
+        let (text, extracted) = func(&input.text, input.svg);
+
+        Ok(pb::ExtractLatexOut {
+            text,
+            latex: extracted
+                .into_iter()
+                .map(|e: ExtractedLatex| pb::ExtractedLatex {
+                    filename: e.fname,
+                    latex_body: e.latex,
+                })
+                .collect(),
+        })
+    }
 }
 
 impl Backend {
@@ -267,20 +402,11 @@ impl Backend {
     ) -> Result<pb::backend_output::Value> {
         use pb::backend_output::Value as OValue;
         Ok(match ival {
-            Value::SchedTimingToday(_) => OValue::SchedTimingToday(self.sched_timing_today()?),
-            Value::DeckTree(input) => OValue::DeckTree(self.deck_tree(input)?),
-            Value::LocalMinutesWest(stamp) => {
-                OValue::LocalMinutesWest(local_minutes_west_for_stamp(stamp))
-            }
-            Value::StripAvTags(text) => OValue::StripAvTags(strip_av_tags(&text).into()),
-            Value::ExtractAvTags(input) => OValue::ExtractAvTags(self.extract_av_tags(input)),
-            Value::ExtractLatex(input) => OValue::ExtractLatex(self.extract_latex(input)),
             Value::AddMediaFile(input) => OValue::AddMediaFile(self.add_media_file(input)?),
             Value::SyncMedia(input) => {
                 self.sync_media(input)?;
                 OValue::SyncMedia(Empty {})
             }
-            Value::CheckMedia(_) => OValue::CheckMedia(self.check_media()?),
             Value::TrashMediaFiles(input) => {
                 self.remove_media_files(&input.fnames)?;
                 OValue::TrashMediaFiles(Empty {})
@@ -313,8 +439,6 @@ impl Backend {
                 self.close_collection(input.downgrade_to_schema11)?;
                 OValue::CloseCollection(Empty {})
             }
-            Value::SearchCards(input) => OValue::SearchCards(self.search_cards(input)?),
-            Value::SearchNotes(input) => OValue::SearchNotes(self.search_notes(input)?),
             Value::GetCard(cid) => OValue::GetCard(self.get_card(cid)?),
             Value::UpdateCard(card) => {
                 self.update_card(card)?;
@@ -422,12 +546,6 @@ impl Backend {
                 self.set_preferences(prefs)?;
                 pb::Empty {}
             }),
-            Value::RenderExistingCard(input) => {
-                OValue::RenderExistingCard(self.render_existing_card(input)?)
-            }
-            Value::RenderUncommittedCard(input) => {
-                OValue::RenderUncommittedCard(self.render_uncommitted_card(input)?)
-            }
             Value::ClozeNumbersInNote(note) => {
                 OValue::ClozeNumbersInNote(self.cloze_numbers_in_note(note))
             }
@@ -497,71 +615,6 @@ impl Backend {
         self.progress_callback = progress_cb;
     }
 
-    fn sched_timing_today(&self) -> Result<pb::SchedTimingTodayOut> {
-        self.with_col(|col| col.timing_today().map(Into::into))
-    }
-
-    fn deck_tree(&self, input: pb::DeckTreeIn) -> Result<pb::DeckTreeNode> {
-        let lim = if input.top_deck_id > 0 {
-            Some(DeckID(input.top_deck_id))
-        } else {
-            None
-        };
-        self.with_col(|col| col.deck_tree(input.include_counts, lim))
-    }
-
-    fn extract_av_tags(&self, input: pb::ExtractAvTagsIn) -> pb::ExtractAvTagsOut {
-        let (text, tags) = extract_av_tags(&input.text, input.question_side);
-        let pt_tags = tags
-            .into_iter()
-            .map(|avtag| match avtag {
-                AVTag::SoundOrVideo(file) => pb::AvTag {
-                    value: Some(pb::av_tag::Value::SoundOrVideo(file)),
-                },
-                AVTag::TextToSpeech {
-                    field_text,
-                    lang,
-                    voices,
-                    other_args,
-                    speed,
-                } => pb::AvTag {
-                    value: Some(pb::av_tag::Value::Tts(pb::TtsTag {
-                        field_text,
-                        lang,
-                        voices,
-                        other_args,
-                        speed,
-                    })),
-                },
-            })
-            .collect();
-
-        pb::ExtractAvTagsOut {
-            text: text.into(),
-            av_tags: pt_tags,
-        }
-    }
-
-    fn extract_latex(&self, input: pb::ExtractLatexIn) -> pb::ExtractLatexOut {
-        let func = if input.expand_clozes {
-            extract_latex_expanding_clozes
-        } else {
-            extract_latex
-        };
-        let (text, extracted) = func(&input.text, input.svg);
-
-        pb::ExtractLatexOut {
-            text,
-            latex: extracted
-                .into_iter()
-                .map(|e: ExtractedLatex| pb::ExtractedLatex {
-                    filename: e.fname,
-                    latex_body: e.latex,
-                })
-                .collect(),
-        }
-    }
-
     fn add_media_file(&mut self, input: pb::AddMediaFileIn) -> Result<String> {
         self.with_col(|col| {
             let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
@@ -624,28 +677,6 @@ impl Backend {
         if let Some(handle) = self.media_sync_abort.take() {
             handle.abort();
         }
-    }
-
-    fn check_media(&self) -> Result<pb::MediaCheckOut> {
-        let callback =
-            |progress: usize| self.fire_progress_callback(Progress::MediaCheck(progress as u32));
-
-        self.with_col(|col| {
-            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
-            col.transact(None, |ctx| {
-                let mut checker = MediaChecker::new(ctx, &mgr, callback);
-                let mut output = checker.check()?;
-
-                let report = checker.summarize_output(&mut output);
-
-                Ok(pb::MediaCheckOut {
-                    unused: output.unused,
-                    missing: output.missing,
-                    report,
-                    have_trash: output.trash_count > 0,
-                })
-            })
-        })
     }
 
     fn remove_media_files(&self, fnames: &[String]) -> Result<()> {
@@ -718,39 +749,6 @@ impl Backend {
 
     pub fn db_command(&self, input: &[u8]) -> Result<String> {
         self.with_col(|col| db_command_bytes(&col.storage, input))
-    }
-
-    fn search_cards(&self, input: pb::SearchCardsIn) -> Result<pb::SearchCardsOut> {
-        self.with_col(|col| {
-            let order = if let Some(order) = input.order {
-                use pb::sort_order::Value as V;
-                match order.value {
-                    Some(V::None(_)) => SortMode::NoOrder,
-                    Some(V::Custom(s)) => SortMode::Custom(s),
-                    Some(V::FromConfig(_)) => SortMode::FromConfig,
-                    Some(V::Builtin(b)) => SortMode::Builtin {
-                        kind: sort_kind_from_pb(b.kind),
-                        reverse: b.reverse,
-                    },
-                    None => SortMode::FromConfig,
-                }
-            } else {
-                SortMode::FromConfig
-            };
-            let cids = col.search_cards(&input.search, order)?;
-            Ok(pb::SearchCardsOut {
-                card_ids: cids.into_iter().map(|v| v.0).collect(),
-            })
-        })
-    }
-
-    fn search_notes(&self, input: pb::SearchNotesIn) -> Result<pb::SearchNotesOut> {
-        self.with_col(|col| {
-            let nids = col.search_notes(&input.search)?;
-            Ok(pb::SearchNotesOut {
-                note_ids: nids.into_iter().map(|v| v.0).collect(),
-            })
-        })
     }
 
     fn get_card(&self, cid: i64) -> Result<pb::GetCardOut> {

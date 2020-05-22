@@ -33,7 +33,7 @@ LABEL_REPEATED = 3
 def python_type(field):
     type = python_type_inner(field)
     if field.label == LABEL_REPEATED:
-        type = f"List[{type}]"
+        type = f"Sequence[{type}]"
     return type
 
 

@@ -10,7 +10,7 @@ from typing import Iterable, List, Optional, Sequence, TypeVar
 
 import aqt
 from anki import hooks
-from anki.rsbackend import TR, Interrupted, MediaCheckOutput, Progress, ProgressKind
+from anki.rsbackend import TR, Interrupted, Progress, ProgressKind, pb
 from aqt.qt import *
 from aqt.utils import askUser, restoreGeom, saveGeom, showText, tooltip, tr
 
@@ -52,7 +52,7 @@ class MediaChecker:
         self.mw.taskman.run_on_main(lambda: self.mw.progress.update(progress.val))
         return True
 
-    def _check(self) -> MediaCheckOutput:
+    def _check(self) -> pb.CheckMediaOut:
         "Run the check on a background thread."
         return self.mw.col.media.check()
 
@@ -65,7 +65,7 @@ class MediaChecker:
         if isinstance(exc, Interrupted):
             return
 
-        output: MediaCheckOutput = future.result()
+        output: pb.CheckMediaOut = future.result()
         report = output.report
 
         # show report and offer to delete

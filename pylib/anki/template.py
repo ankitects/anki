@@ -38,7 +38,7 @@ from anki.decks import DeckManager
 from anki.models import NoteType
 from anki.notes import Note
 from anki.rsbackend import pb, to_json_bytes
-from anki.sound import AVTag
+from anki.sound import AVTag, SoundOrVideoTag, TTSTag
 
 CARD_BLANK_HELP = (
     "https://anki.tenderapp.com/kb/card-appearance/the-front-of-this-card-is-blank"
@@ -84,6 +84,24 @@ class PartiallyRenderedCard:
                     )
                 )
         return results
+
+
+def av_tag_to_native(tag: pb.AVTag) -> AVTag:
+    val = tag.WhichOneof("value")
+    if val == "sound_or_video":
+        return SoundOrVideoTag(filename=tag.sound_or_video)
+    else:
+        return TTSTag(
+            field_text=tag.tts.field_text,
+            lang=tag.tts.lang,
+            voices=list(tag.tts.voices),
+            other_args=list(tag.tts.other_args),
+            speed=tag.tts.speed,
+        )
+
+
+def av_tags_to_native(tags: Sequence[pb.AVTag]) -> List[AVTag]:
+    return list(map(av_tag_to_native, tags))
 
 
 class TemplateRenderContext:
@@ -197,16 +215,16 @@ class TemplateRenderContext:
             )
 
         qtext = apply_custom_filters(partial.qnodes, self, front_side=None)
-        qtext, q_avtags = self.col().backend.extract_av_tags(qtext, True)
+        qout = self.col().backend.extract_a_v_tags(qtext, True)
 
         atext = apply_custom_filters(partial.anodes, self, front_side=qtext)
-        atext, a_avtags = self.col().backend.extract_av_tags(atext, False)
+        aout = self.col().backend.extract_a_v_tags(atext, False)
 
         output = TemplateRenderOutput(
-            question_text=qtext,
-            answer_text=atext,
-            question_av_tags=q_avtags,
-            answer_av_tags=a_avtags,
+            question_text=qout.text,
+            answer_text=aout.text,
+            question_av_tags=av_tags_to_native(qout.av_tags),
+            answer_av_tags=av_tags_to_native(aout.av_tags),
             css=self.note_type()["css"],
         )
 

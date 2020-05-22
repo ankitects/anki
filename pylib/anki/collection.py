@@ -26,7 +26,7 @@ from anki.lang import _
 from anki.media import MediaManager, media_paths_from_col_path
 from anki.models import ModelManager
 from anki.notes import Note
-from anki.rsbackend import TR, DBError, RustBackend
+from anki.rsbackend import TR, DBError, RustBackend, pb
 from anki.sched import Scheduler as V1Scheduler
 from anki.schedv2 import Scheduler as V2Scheduler
 from anki.tags import TagManager
@@ -393,7 +393,21 @@ select id from notes where id in %s and id not in (select nid from cards)"""
     def find_cards(
         self, query: str, order: Union[bool, str, int] = False, reverse: bool = False,
     ) -> Sequence[int]:
-        return self.backend.search_cards(query, order, reverse)
+        if isinstance(order, str):
+            mode = pb.SortOrder(custom=order)
+        elif order is True:
+            mode = pb.SortOrder(from_config=pb.Empty())
+        elif order is False:
+            mode = pb.SortOrder(none=pb.Empty())
+        else:
+            # sadly we can't use the protobuf type in a Union, so we
+            # have to accept an int and convert it
+            BKind = pb.BuiltinSearchOrder.BuiltinSortKind  # pylint: disable=no-member
+            kind = BKind.Value(BKind.Name(order))
+            mode = pb.SortOrder(
+                builtin=pb.BuiltinSearchOrder(kind=kind, reverse=reverse)
+            )
+        return self.backend.search_cards(query, mode)
 
     def find_notes(self, query: str) -> Sequence[int]:
         return self.backend.search_notes(query)
