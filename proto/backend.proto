@@ -21,6 +21,10 @@ message Int32 {
     sint32 val = 1;
 }
 
+message UInt32 {
+    uint32 val = 1;
+}
+
 message Int64 {
     int64 val = 1;
 }
@@ -36,6 +40,19 @@ message Bytes {
 message Bool {
     bool val = 1;
 }
+
+message NoteTypeID {
+    int64 ntid = 1;
+}
+
+message NoteID {
+    int64 nid = 1;
+}
+
+message CardID {
+    int64 cid = 1;
+}
+
 
 // New style RPC definitions
 ///////////////////////////////////////////////////////////
@@ -85,6 +102,22 @@ service BackendService {
     rpc GetDeckConfigLegacy (Int64) returns (Bytes);
     rpc NewDeckConfigLegacy (Empty) returns (Bytes);
     rpc RemoveDeckConfig (Int64) returns (Empty);
+
+    // cards
+
+    rpc GetCard (CardID) returns (Card);
+    rpc UpdateCard (Card) returns (Empty);
+    rpc AddCard (Card) returns (CardID);
+
+    // notes
+
+    rpc NewNote (NoteTypeID) returns (Note);
+    rpc AddNote (AddNoteIn) returns (NoteID);
+    rpc UpdateNote (Note) returns (Empty);
+    rpc GetNote (NoteID) returns (Note);
+    rpc AddNoteTags (AddNoteTagsIn) returns (UInt32);
+    rpc UpdateNoteTags (UpdateNoteTagsIn) returns (UInt32);
+    rpc ClozeNumbersInNote (Note) returns (ClozeNumbersInNoteOut);
 
     // misc
 
@@ -344,9 +377,6 @@ message BackendInput {
         Empty restore_trash = 35;
         OpenCollectionIn open_collection = 36;
         CloseCollectionIn close_collection = 37;
-        int64 get_card = 38;
-        Card update_card = 39;
-        Card add_card = 40;
         Empty abort_media_sync = 46;
         Empty before_upload = 47;
         RegisterTagsIn register_tags = 48;
@@ -364,19 +394,12 @@ message BackendInput {
         Empty get_notetype_names_and_counts = 63;
         string get_notetype_id_by_name = 64;
         int64 remove_notetype = 65;
-        int64 new_note = 66;
-        AddNoteIn add_note = 67;
-        Note update_note = 68;
-        int64 get_note = 69;
         FieldNamesForNotesIn field_names_for_notes = 78;
         FindAndReplaceIn find_and_replace = 79;
         AfterNoteUpdatesIn after_note_updates = 80;
-        AddNoteTagsIn add_note_tags = 81;
-        UpdateNoteTagsIn update_note_tags = 82;
         int32 set_local_minutes_west = 83;
         Empty get_preferences = 84;
         Preferences set_preferences = 85;
-        Note cloze_numbers_in_note = 87;
     }
 }
 
@@ -388,7 +411,6 @@ message BackendOutput {
         string studied_today = 32;
         string congrats_learn_msg = 33;
         Empty abort_media_sync = 46;
-        ClozeNumbersInNoteOut cloze_numbers_in_note = 87;
 
         // fallible commands
         string add_media_file = 26;
@@ -396,9 +418,6 @@ message BackendOutput {
         Empty restore_trash = 35;
         Empty open_collection = 36;
         Empty close_collection = 37;
-        GetCardOut get_card = 38;
-        Empty update_card = 39;
-        int64 add_card = 40;
         Empty before_upload = 47;
         bool register_tags = 48;
         AllTagsOut all_tags = 50;
@@ -414,15 +433,9 @@ message BackendOutput {
         NoteTypeUseCounts get_notetype_names_and_counts = 63;
         int64 get_notetype_id_by_name = 64;
         Empty remove_notetype = 65;
-        Note new_note = 66;
-        int64 add_note = 67;
-        Empty update_note = 68;
-        Note get_note = 69;
         FieldNamesForNotesOut field_names_for_notes = 78;
         uint32 find_and_replace = 79;
         Empty after_note_updates = 80;
-        uint32 add_note_tags = 81;
-        uint32 update_note_tags = 82;
         Empty set_local_minutes_west = 83;
         Preferences get_preferences = 84;
         Empty set_preferences = 85;
@@ -696,11 +709,6 @@ message BuiltinSearchOrder {
     }
     BuiltinSortKind kind = 1;
     bool reverse = 2;
-}
-
-
-message GetCardOut {
-    Card card = 1;
 }
 
 message CloseCollectionIn {

@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Any, List, Optional, Tuple
+from typing import Any, List, Optional, Sequence, Tuple
 
 import anki  # pylint: disable=unused-import
 from anki import hooks
@@ -82,7 +82,7 @@ class Note:
 
     _model = property(model)
 
-    def cloze_numbers_in_fields(self) -> List[int]:
+    def cloze_numbers_in_fields(self) -> Sequence[int]:
         return self.col.backend.cloze_numbers_in_note(self.to_backend_note())
 
     # Dict interface

@@ -77,8 +77,16 @@ def get_input_assign(msg):
 
 
 def render_method(method, idx):
-    input_args = get_input_args(method.input_type)
-    input_assign = get_input_assign(method.input_type)
+    input_name = method.input_type.name
+    if input_name.endswith("In") or len(method.input_type.fields) < 2:
+        input_args = get_input_args(method.input_type)
+        input_assign = get_input_assign(method.input_type)
+        input_assign_outer = (
+            f"input = pb.{method.input_type.name}({input_assign})\n        "
+        )
+    else:
+        input_args = f"self, input: pb.{input_name}"
+        input_assign_outer = ""
     name = fix_snakecase(stringcase.snakecase(method.name))
     if len(method.output_type.fields) == 1:
         # unwrap single return arg
@@ -90,8 +98,7 @@ def render_method(method, idx):
         return_type = f"pb.{method.output_type.name}"
     return f"""\
     def {name}({input_args}) -> {return_type}:
-        input = pb.{method.input_type.name}({input_assign})
-        output = pb.{method.output_type.name}()
+        {input_assign_outer}output = pb.{method.output_type.name}()
         output.ParseFromString(self._run_command2({idx+1}, input))
         return output{single_field}
 """

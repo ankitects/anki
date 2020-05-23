@@ -306,20 +306,6 @@ class RustBackend:
     def _db_command(self, input: Dict[str, Any]) -> Any:
         return orjson.loads(self._backend.db_command(orjson.dumps(input)))
 
-    def get_card(self, cid: int) -> Optional[pb.Card]:
-        output = self._run_command(pb.BackendInput(get_card=cid)).get_card
-        if output.HasField("card"):
-            return output.card
-        else:
-            return None
-
-    def update_card(self, card: BackendCard) -> None:
-        self._run_command(pb.BackendInput(update_card=card))
-
-    # returns the new card id
-    def add_card(self, card: BackendCard) -> int:
-        return self._run_command(pb.BackendInput(add_card=card)).add_card
-
     def abort_media_sync(self):
         self._run_command(pb.BackendInput(abort_media_sync=pb.Empty()))
 
@@ -442,23 +428,6 @@ class RustBackend:
     def remove_notetype(self, ntid: int) -> None:
         self._run_command(pb.BackendInput(remove_notetype=ntid), release_gil=True)
 
-    def new_note(self, ntid: int) -> BackendNote:
-        return self._run_command(pb.BackendInput(new_note=ntid)).new_note
-
-    def add_note(self, note: BackendNote, deck_id: int) -> int:
-        return self._run_command(
-            pb.BackendInput(add_note=pb.AddNoteIn(note=note, deck_id=deck_id))
-        ).add_note
-
-    def update_note(self, note: BackendNote) -> None:
-        self._run_command(pb.BackendInput(update_note=note))
-
-    def get_note(self, nid) -> Optional[BackendNote]:
-        try:
-            return self._run_command(pb.BackendInput(get_note=nid)).get_note
-        except NotFoundError:
-            return None
-
     def field_names_for_note_ids(self, nids: List[int]) -> Sequence[str]:
         return self._run_command(
             pb.BackendInput(field_names_for_notes=pb.FieldNamesForNotesIn(nids=nids)),
@@ -502,22 +471,6 @@ class RustBackend:
             release_gil=True,
         )
 
-    def add_note_tags(self, nids: List[int], tags: str) -> int:
-        return self._run_command(
-            pb.BackendInput(add_note_tags=pb.AddNoteTagsIn(nids=nids, tags=tags))
-        ).add_note_tags
-
-    def update_note_tags(
-        self, nids: List[int], tags: str, replacement: str, regex: bool
-    ) -> int:
-        return self._run_command(
-            pb.BackendInput(
-                update_note_tags=pb.UpdateNoteTagsIn(
-                    nids=nids, tags=tags, replacement=replacement, regex=regex
-                )
-            )
-        ).update_note_tags
-
     def set_local_minutes_west(self, mins: int) -> None:
         self._run_command(pb.BackendInput(set_local_minutes_west=mins))
 
@@ -528,13 +481,6 @@ class RustBackend:
 
     def set_preferences(self, prefs: pb.Preferences) -> None:
         self._run_command(pb.BackendInput(set_preferences=prefs))
-
-    def cloze_numbers_in_note(self, note: pb.Note) -> List[int]:
-        return list(
-            self._run_command(
-                pb.BackendInput(cloze_numbers_in_note=note)
-            ).cloze_numbers_in_note.numbers
-        )
 
     def _run_command2(self, method: int, input: Any) -> bytes:
         input_bytes = input.SerializeToString()
@@ -731,10 +677,70 @@ class RustBackend:
         output.ParseFromString(self._run_command2(27, input))
         return output
 
+    def get_card(self, cid: int) -> pb.Card:
+        input = pb.CardID(cid=cid)
+        output = pb.Card()
+        output.ParseFromString(self._run_command2(28, input))
+        return output
+
+    def update_card(self, input: pb.Card) -> pb.Empty:
+        output = pb.Empty()
+        output.ParseFromString(self._run_command2(29, input))
+        return output
+
+    def add_card(self, input: pb.Card) -> int:
+        output = pb.CardID()
+        output.ParseFromString(self._run_command2(30, input))
+        return output.cid
+
+    def new_note(self, ntid: int) -> pb.Note:
+        input = pb.NoteTypeID(ntid=ntid)
+        output = pb.Note()
+        output.ParseFromString(self._run_command2(31, input))
+        return output
+
+    def add_note(self, note: pb.Note, deck_id: int) -> int:
+        input = pb.AddNoteIn(note=note, deck_id=deck_id)
+        output = pb.NoteID()
+        output.ParseFromString(self._run_command2(32, input))
+        return output.nid
+
+    def update_note(self, input: pb.Note) -> pb.Empty:
+        output = pb.Empty()
+        output.ParseFromString(self._run_command2(33, input))
+        return output
+
+    def get_note(self, nid: int) -> pb.Note:
+        input = pb.NoteID(nid=nid)
+        output = pb.Note()
+        output.ParseFromString(self._run_command2(34, input))
+        return output
+
+    def add_note_tags(self, nids: Sequence[int], tags: str) -> int:
+        input = pb.AddNoteTagsIn(nids=nids, tags=tags)
+        output = pb.UInt32()
+        output.ParseFromString(self._run_command2(35, input))
+        return output.val
+
+    def update_note_tags(
+        self, nids: Sequence[int], tags: str, replacement: str, regex: bool
+    ) -> int:
+        input = pb.UpdateNoteTagsIn(
+            nids=nids, tags=tags, replacement=replacement, regex=regex
+        )
+        output = pb.UInt32()
+        output.ParseFromString(self._run_command2(36, input))
+        return output.val
+
+    def cloze_numbers_in_note(self, input: pb.Note) -> Sequence[int]:
+        output = pb.ClozeNumbersInNoteOut()
+        output.ParseFromString(self._run_command2(37, input))
+        return output.numbers
+
     def check_database(self) -> Sequence[str]:
         input = pb.Empty()
         output = pb.CheckDatabaseOut()
-        output.ParseFromString(self._run_command2(28, input))
+        output.ParseFromString(self._run_command2(38, input))
         return output.problems
 
     # @@AUTOGEN@@
