@@ -38,7 +38,7 @@ def findReplace(
     fold: bool = True,
 ) -> int:
     "Find and replace fields in a note. Returns changed note count."
-    return col.backend.find_and_replace(nids, src, dst, regex, fold, field)
+    return col.backend.find_and_replace(nids, src, dst, regex, not fold, field)
 
 
 def fieldNamesForNotes(col: Collection, nids: List[int]) -> List[str]:

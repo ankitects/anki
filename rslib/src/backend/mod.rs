@@ -356,6 +356,28 @@ impl BackendService for Backend {
         })
     }
 
+    fn find_and_replace(&mut self, input: pb::FindAndReplaceIn) -> BackendResult<pb::UInt32> {
+        let mut search = if input.regex {
+            input.search
+        } else {
+            regex::escape(&input.search)
+        };
+        if !input.match_case {
+            search = format!("(?i){}", search);
+        }
+        let nids = input.nids.into_iter().map(NoteID).collect();
+        let field_name = if input.field_name.is_empty() {
+            None
+        } else {
+            Some(input.field_name)
+        };
+        let repl = input.replacement;
+        self.with_col(|col| {
+            col.find_and_replace(nids, &search, &repl, field_name)
+                .map(|cnt| pb::UInt32 { val: cnt as u32 })
+        })
+    }
+
     // scheduling
     //-----------------------------------------------
 
@@ -367,6 +389,25 @@ impl BackendService for Backend {
         Ok(pb::Int32 {
             val: local_minutes_west_for_stamp(input.val),
         })
+    }
+
+    fn set_local_minutes_west(&mut self, input: pb::Int32) -> BackendResult<Empty> {
+        self.with_col(|col| {
+            col.transact(None, |col| {
+                col.set_local_mins_west(input.val).map(Into::into)
+            })
+        })
+    }
+
+    fn studied_today(&mut self, input: pb::StudiedTodayIn) -> BackendResult<pb::String> {
+        Ok(studied_today(input.cards as usize, input.seconds as f32, &self.i18n).into())
+    }
+
+    fn congrats_learn_message(
+        &mut self,
+        input: pb::CongratsLearnMessageIn,
+    ) -> BackendResult<pb::String> {
+        Ok(learning_congrats(input.remaining as usize, input.next_due, &self.i18n).into())
     }
 
     // decks
@@ -740,23 +781,46 @@ impl BackendService for Backend {
     // media
     //-------------------------------------------------------------------
 
-    fn sync_media(&mut self, input: SyncMediaIn) -> BackendResult<Empty> {
-        let mut guard = self.col.lock().unwrap();
+    fn add_media_file(&mut self, input: pb::AddMediaFileIn) -> BackendResult<pb::String> {
+        self.with_col(|col| {
+            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
+            let mut ctx = mgr.dbctx();
+            Ok(mgr
+                .add_file(&mut ctx, &input.desired_name, &input.data)?
+                .to_string()
+                .into())
+        })
+    }
 
-        let col = guard.as_mut().unwrap();
-        col.set_media_sync_running()?;
+    fn empty_trash(&mut self, _input: Empty) -> BackendResult<Empty> {
+        let callback =
+            |progress: usize| self.fire_progress_callback(Progress::MediaCheck(progress as u32));
 
-        let folder = col.media_folder.clone();
-        let db = col.media_db.clone();
-        let log = col.log.clone();
+        self.with_col(|col| {
+            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
+            col.transact(None, |ctx| {
+                let mut checker = MediaChecker::new(ctx, &mgr, callback);
 
-        drop(guard);
+                checker.empty_trash()
+            })
+        })
+        .map(Into::into)
+    }
 
-        let res = self.sync_media_inner(input, folder, db, log);
+    fn restore_trash(&mut self, _input: Empty) -> BackendResult<Empty> {
+        let callback =
+            |progress: usize| self.fire_progress_callback(Progress::MediaCheck(progress as u32));
 
-        self.with_col(|col| col.set_media_sync_finished())?;
+        self.with_col(|col| {
+            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
 
-        res.map(Into::into)
+            col.transact(None, |ctx| {
+                let mut checker = MediaChecker::new(ctx, &mgr, callback);
+
+                checker.restore_trash()
+            })
+        })
+        .map(Into::into)
     }
 
     fn trash_media_files(&mut self, input: pb::TrashMediaFilesIn) -> BackendResult<Empty> {
@@ -790,7 +854,8 @@ impl BackendService for Backend {
         })
     }
 
-    // misc
+    // collection
+    //-------------------------------------------------------------------
 
     fn check_database(&mut self, _input: pb::Empty) -> BackendResult<pb::CheckDatabaseOut> {
         self.with_col(|col| {
@@ -798,6 +863,89 @@ impl BackendService for Backend {
                 problems: problems.to_i18n_strings(&col.i18n),
             })
         })
+    }
+
+    fn open_collection(&mut self, input: pb::OpenCollectionIn) -> BackendResult<Empty> {
+        let mut col = self.col.lock().unwrap();
+        if col.is_some() {
+            return Err(AnkiError::CollectionAlreadyOpen);
+        }
+
+        let mut path = input.collection_path.clone();
+        path.push_str(".log");
+
+        let log_path = match input.log_path.as_str() {
+            "" => None,
+            path => Some(path),
+        };
+        let logger = default_logger(log_path)?;
+
+        let new_col = open_collection(
+            input.collection_path,
+            input.media_folder_path,
+            input.media_db_path,
+            self.server,
+            self.i18n.clone(),
+            logger,
+        )?;
+
+        *col = Some(new_col);
+
+        Ok(().into())
+    }
+
+    fn close_collection(&mut self, input: pb::CloseCollectionIn) -> BackendResult<Empty> {
+        let mut col = self.col.lock().unwrap();
+        if col.is_none() {
+            return Err(AnkiError::CollectionNotOpen);
+        }
+
+        if !col.as_ref().unwrap().can_close() {
+            return Err(AnkiError::invalid_input("can't close yet"));
+        }
+
+        let col_inner = col.take().unwrap();
+        if input.downgrade_to_schema11 {
+            let log = log::terminal();
+            if let Err(e) = col_inner.close(input.downgrade_to_schema11) {
+                error!(log, " failed: {:?}", e);
+            }
+        }
+
+        Ok(().into())
+    }
+
+    // sync
+    //-------------------------------------------------------------------
+
+    fn sync_media(&mut self, input: SyncMediaIn) -> BackendResult<Empty> {
+        let mut guard = self.col.lock().unwrap();
+
+        let col = guard.as_mut().unwrap();
+        col.set_media_sync_running()?;
+
+        let folder = col.media_folder.clone();
+        let db = col.media_db.clone();
+        let log = col.log.clone();
+
+        drop(guard);
+
+        let res = self.sync_media_inner(input, folder, db, log);
+
+        self.with_col(|col| col.set_media_sync_finished())?;
+
+        res.map(Into::into)
+    }
+
+    fn abort_media_sync(&mut self, _input: Empty) -> BackendResult<Empty> {
+        if let Some(handle) = self.media_sync_abort.take() {
+            handle.abort();
+        }
+        Ok(().into())
+    }
+
+    fn before_upload(&mut self, _input: Empty) -> BackendResult<Empty> {
+        self.with_col(|col| col.before_upload().map(Into::into))
     }
 }
 
@@ -891,43 +1039,8 @@ impl Backend {
     ) -> Result<pb::backend_output::Value> {
         use pb::backend_output::Value as OValue;
         Ok(match ival {
-            Value::AddMediaFile(input) => OValue::AddMediaFile(self.add_media_file(input)?),
             Value::TranslateString(input) => OValue::TranslateString(self.translate_string(input)),
             Value::FormatTimeSpan(input) => OValue::FormatTimeSpan(self.format_time_span(input)),
-            Value::StudiedToday(input) => OValue::StudiedToday(studied_today(
-                input.cards as usize,
-                input.seconds as f32,
-                &self.i18n,
-            )),
-            Value::CongratsLearnMsg(input) => OValue::CongratsLearnMsg(learning_congrats(
-                input.remaining as usize,
-                input.next_due,
-                &self.i18n,
-            )),
-            Value::EmptyTrash(_) => {
-                self.empty_trash()?;
-                OValue::EmptyTrash(Empty {})
-            }
-            Value::RestoreTrash(_) => {
-                self.restore_trash()?;
-                OValue::RestoreTrash(Empty {})
-            }
-            Value::OpenCollection(input) => {
-                self.open_collection(input)?;
-                OValue::OpenCollection(Empty {})
-            }
-            Value::CloseCollection(input) => {
-                self.close_collection(input.downgrade_to_schema11)?;
-                OValue::CloseCollection(Empty {})
-            }
-            Value::AbortMediaSync(_) => {
-                self.abort_media_sync();
-                OValue::AbortMediaSync(pb::Empty {})
-            }
-            Value::BeforeUpload(_) => {
-                self.before_upload()?;
-                OValue::BeforeUpload(pb::Empty {})
-            }
             Value::AllTags(_) => OValue::AllTags(self.all_tags()?),
             Value::RegisterTags(input) => OValue::RegisterTags(self.register_tags(input)?),
             Value::GetChangedTags(usn) => OValue::GetChangedTags(self.get_changed_tags(usn)?),
@@ -942,67 +1055,12 @@ impl Backend {
                 pb::Empty {}
             }),
             Value::GetAllConfig(_) => OValue::GetAllConfig(self.get_all_config()?),
-            Value::FindAndReplace(input) => OValue::FindAndReplace(self.find_and_replace(input)?),
-            Value::SetLocalMinutesWest(mins) => OValue::SetLocalMinutesWest({
-                self.set_local_mins_west(mins)?;
-                pb::Empty {}
-            }),
             Value::GetPreferences(_) => OValue::GetPreferences(self.get_preferences()?),
             Value::SetPreferences(prefs) => OValue::SetPreferences({
                 self.set_preferences(prefs)?;
                 pb::Empty {}
             }),
         })
-    }
-
-    fn open_collection(&self, input: pb::OpenCollectionIn) -> Result<()> {
-        let mut col = self.col.lock().unwrap();
-        if col.is_some() {
-            return Err(AnkiError::CollectionAlreadyOpen);
-        }
-
-        let mut path = input.collection_path.clone();
-        path.push_str(".log");
-
-        let log_path = match input.log_path.as_str() {
-            "" => None,
-            path => Some(path),
-        };
-        let logger = default_logger(log_path)?;
-
-        let new_col = open_collection(
-            input.collection_path,
-            input.media_folder_path,
-            input.media_db_path,
-            self.server,
-            self.i18n.clone(),
-            logger,
-        )?;
-
-        *col = Some(new_col);
-
-        Ok(())
-    }
-
-    fn close_collection(&self, downgrade: bool) -> Result<()> {
-        let mut col = self.col.lock().unwrap();
-        if col.is_none() {
-            return Err(AnkiError::CollectionNotOpen);
-        }
-
-        if !col.as_ref().unwrap().can_close() {
-            return Err(AnkiError::invalid_input("can't close yet"));
-        }
-
-        let col_inner = col.take().unwrap();
-        if downgrade {
-            let log = log::terminal();
-            if let Err(e) = col_inner.close(downgrade) {
-                error!(log, " failed: {:?}", e);
-            }
-        }
-
-        Ok(())
     }
 
     fn fire_progress_callback(&self, progress: Progress) -> bool {
@@ -1016,16 +1074,6 @@ impl Backend {
 
     pub fn set_progress_callback(&mut self, progress_cb: Option<ProtoProgressCallback>) {
         self.progress_callback = progress_cb;
-    }
-
-    fn add_media_file(&mut self, input: pb::AddMediaFileIn) -> Result<String> {
-        self.with_col(|col| {
-            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
-            let mut ctx = mgr.dbctx();
-            Ok(mgr
-                .add_file(&mut ctx, &input.desired_name, &input.data)?
-                .into())
-        })
     }
 
     fn sync_media_inner(
@@ -1055,12 +1103,6 @@ impl Backend {
         };
         self.media_sync_abort = None;
         ret
-    }
-
-    fn abort_media_sync(&mut self) {
-        if let Some(handle) = self.media_sync_abort.take() {
-            handle.abort();
-        }
     }
 
     fn translate_string(&self, input: pb::TranslateStringIn) -> String {
@@ -1094,41 +1136,8 @@ impl Backend {
         }
     }
 
-    fn empty_trash(&self) -> Result<()> {
-        let callback =
-            |progress: usize| self.fire_progress_callback(Progress::MediaCheck(progress as u32));
-
-        self.with_col(|col| {
-            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
-            col.transact(None, |ctx| {
-                let mut checker = MediaChecker::new(ctx, &mgr, callback);
-
-                checker.empty_trash()
-            })
-        })
-    }
-
-    fn restore_trash(&self) -> Result<()> {
-        let callback =
-            |progress: usize| self.fire_progress_callback(Progress::MediaCheck(progress as u32));
-
-        self.with_col(|col| {
-            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
-
-            col.transact(None, |ctx| {
-                let mut checker = MediaChecker::new(ctx, &mgr, callback);
-
-                checker.restore_trash()
-            })
-        })
-    }
-
     pub fn db_command(&self, input: &[u8]) -> Result<String> {
         self.with_col(|col| db_command_bytes(&col.storage, input))
-    }
-
-    fn before_upload(&self) -> Result<()> {
-        self.with_col(|col| col.before_upload())
     }
 
     fn all_tags(&self) -> Result<pb::AllTagsOut> {
@@ -1207,32 +1216,6 @@ impl Backend {
             let conf = col.storage.get_all_config()?;
             serde_json::to_vec(&conf).map_err(Into::into)
         })
-    }
-
-    fn find_and_replace(&self, input: pb::FindAndReplaceIn) -> Result<u32> {
-        let mut search = if input.regex {
-            input.search
-        } else {
-            regex::escape(&input.search)
-        };
-        if !input.match_case {
-            search = format!("(?i){}", search);
-        }
-        let nids = input.nids.into_iter().map(NoteID).collect();
-        let field_name = if input.field_name.is_empty() {
-            None
-        } else {
-            Some(input.field_name)
-        };
-        let repl = input.replacement;
-        self.with_col(|col| {
-            col.find_and_replace(nids, &search, &repl, field_name)
-                .map(|cnt| cnt as u32)
-        })
-    }
-
-    fn set_local_mins_west(&self, mins: i32) -> Result<()> {
-        self.with_col(|col| col.transact(None, |col| col.set_local_mins_west(mins)))
     }
 
     fn get_preferences(&self) -> Result<pb::Preferences> {
