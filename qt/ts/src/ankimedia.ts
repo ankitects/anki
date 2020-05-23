@@ -334,7 +334,7 @@ class AnkiMediaQueue {
             delay: this.delay,
             wait: this.wait_question,
             extra: undefined,
-            medias: undefined,
+            medias: this.other_medias,
             auto: this.autoplay,
         };
         let {
@@ -358,14 +358,10 @@ class AnkiMediaQueue {
             }
         }
 
-        if (medias !== undefined) {
-            if (Array.isArray(medias)) {
-                this.other_medias = medias;
-            } else {
-                throw new Error(
-                    `The 'medias=${medias}/${typeof medias}' is not a valid array object!`
-                );
-            }
+        if (!Array.isArray(medias)) {
+            throw new Error(
+                `The 'medias=${medias}/${typeof medias}' is not a valid array object!`
+            );
         }
         if (typeof delay !== "number" || delay < 0) {
             throw new Error(
@@ -382,6 +378,7 @@ class AnkiMediaQueue {
         this.where = document.getElementById("answer") ? "back" : "front";
         this.delay = delay;
         this.wait_question = wait;
+        this.other_medias = medias;
         this.autoplay = auto;
         this._fixDuplicates();
         this._moveAudioElements(extra);
