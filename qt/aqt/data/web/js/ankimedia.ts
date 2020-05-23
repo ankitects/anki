@@ -121,8 +121,8 @@ class AnkiMediaQueue {
 
     _validateWhere(where) {
         let basic =
-            `Pass ankimedia.add( "front", "file.mp3" ) if this is the question side ` +
-            `or ankimedia.add( "back", "file.mp3" ) if this is the answer side.`;
+            `Pass ankimedia.add( "file.mp3", "front" ) if this is the question side ` +
+            `or ankimedia.add( "file.mp3", "back" ) if this is the answer side.`;
         if (!where) {
             throw new Error(`Missing the 'where=${where}' parameter!\n${basic}`);
         }
@@ -151,7 +151,8 @@ class AnkiMediaQueue {
      *        Each media element can also have an attribute as `data-speed="1.0"` indicating
      *        the speed it should play. The `data-speed` value has precedence over this parameter.
      */
-    addall(where = undefined, speed = 1.0) {
+    addall(where = undefined, speed = undefined) {
+        speed = speed || 1.0;
         if (arguments.length > 2) {
             throw new Error(
                 `The function ankimedia.addall() requires from 0 up to 2 argument(s) only, not ${arguments.length}!`
@@ -180,7 +181,7 @@ class AnkiMediaQueue {
                     return;
                 }
 
-                this.add(localwhere, media.getAttribute("data-file"), speed);
+                this.add(media.getAttribute("data-file"), localwhere, speed);
             }, this.other_medias);
         }
     }
@@ -196,7 +197,8 @@ class AnkiMediaQueue {
      *        Each media element can also have an attribute as `data-speed="1.0"` indicating
      *        the speed it should play. The `data-speed` value has precedence over this parameter.
      */
-    add(where, filename, speed = 1.0) {
+    add(filename, where, speed = undefined) {
+        speed = speed || 1.0;
         if (arguments.length < 2 || arguments.length > 3) {
             throw new Error(
                 `The function ankimedia.add() requires from 2 up to 3 argument(s) only, not ${arguments.length}!`
