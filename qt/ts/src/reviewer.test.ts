@@ -174,17 +174,17 @@ describe("Test question and answer audios", () => {
         ],
         [
             `silence 2.mp3`,
-            `ankimedia.setup(); ankimedia.add( "front", "silence 2.mp3" );`,
+            `ankimedia.setup(); ankimedia.add( "silence 2.mp3", "front" );`,
             `questionTemplate`,
         ],
         [
             `silence 2.mp3`,
-            `ankimedia.setup({delay: 0, wait: false, medias: []}); ankimedia.add( "front", "silence 2.mp3" );`,
+            `ankimedia.setup({delay: 0, wait: false, medias: []}); ankimedia.add( "silence 2.mp3", "front" );`,
             `questionTemplate`,
         ],
         [
             `silence 2.mp3`,
-            `ankimedia.setup({delay: 0, wait: false, medias: []}); ankimedia.add( "front", "silence 2.mp3" );`,
+            `ankimedia.setup({delay: 0, wait: false, medias: []}); ankimedia.add( "silence 2.mp3", "front" );`,
             `dataSpeedTemplate`,
         ],
     ])(
@@ -205,7 +205,7 @@ describe("Test question and answer audios", () => {
     test(`Test disabling the setup(auto=false) stops starting the audio immediately\n...`, async function() {
         await showQuestion(
             `silence 1.mp3`,
-            `ankimedia.setup({auto: false}); ankimedia.add( "front", "silence 1.mp3" );`,
+            `ankimedia.setup({auto: false}); ankimedia.add( "silence 1.mp3", "front" );`,
             `questionTemplate`
         );
         await page.waitForSelector(`audio[id="silence 1.mp3"]`);
@@ -214,7 +214,7 @@ describe("Test question and answer audios", () => {
 
         await showQuestion(
             `silence 2.mp3`,
-            `ankimedia.setup(); ankimedia.add( "front", "silence 2.mp3" );`,
+            `ankimedia.setup(); ankimedia.add( "silence 2.mp3", "front" );`,
             `questionTemplate`
         );
         await page.waitForSelector(`audio[id="silence 2.mp3"]`);
@@ -230,7 +230,7 @@ describe("Test question and answer audios", () => {
     test(`Test playing an audio without a HTML tag does not throw\n...`, async function() {
         await showQuestion(
             ``,
-            `ankimedia.setup(); ankimedia.add( "front", "silence 1.mp3" );`,
+            `ankimedia.setup(); ankimedia.add( "silence 1.mp3", "front" );`,
             `noAudioTemplate`
         );
         await page.waitForSelector(`input[type="button"]`);
@@ -242,7 +242,7 @@ describe("Test question and answer audios", () => {
     test(`Test showing a question does not reset ankimedia state\n...`, async function() {
         await showQuestion(
             ``,
-            `ankimedia.setup(); ankimedia.add( "front", "silence 1.mp3" );`,
+            `ankimedia.setup(); ankimedia.add( "silence 1.mp3", "front" );`,
             `noAudioTemplate`
         );
         await page.waitForSelector(`input[type="button"]`);
@@ -284,9 +284,9 @@ describe("Test question and answer audios", () => {
 
         await questionAndAnswer(
             "silence 1.mp3",
-            `ankimedia.setup(); ankimedia.add( "front", "silence 1.mp3" );`,
+            `ankimedia.setup(); ankimedia.add( "silence 1.mp3", "front" );`,
             "silence 2.mp3",
-            `ankimedia.setup(); ankimedia.add( "back", "silence 2.mp3" );`
+            `ankimedia.setup(); ankimedia.add( "silence 2.mp3", "back" );`
         );
         await page.waitForSelector(`audio[id="silence 2.mp3"][data-has-ended-at]`);
 
@@ -309,9 +309,9 @@ describe("Test question and answer audios", () => {
         ],
         [
             `silence 1.mp3`,
-            `ankimedia.setup(); ankimedia.add( "front", "silence 1.mp3" );`,
+            `ankimedia.setup(); ankimedia.add( "silence 1.mp3", "front" );`,
             `silence 2.mp3`,
-            `ankimedia.setup(); ankimedia.add( "front", "silence 2.mp3" );`,
+            `ankimedia.setup(); ankimedia.add( "silence 2.mp3", "front" );`,
         ],
     ])(
         `Showing a new question should play its audio automatically:\nfront %s '%s',\nrefront %s '%s'\n...`,
@@ -359,15 +359,15 @@ describe("Test question and answer audios", () => {
         ],
         [
             `silence 1.mp3`,
-            `ankimedia.setup(); ankimedia.add( "front", "silence 1.mp3" );`,
+            `ankimedia.setup(); ankimedia.add( "silence 1.mp3", "front" );`,
             `silence 1.mp3`,
-            `ankimedia.setup(); ankimedia.add( "back", "silence 1.mp3" );`,
+            `ankimedia.setup(); ankimedia.add( "silence 1.mp3", "back" );`,
         ],
         [
             `silence 1.mp3`,
-            `ankimedia.setup(); ankimedia.add( "front", "silence 1.mp3" );`,
+            `ankimedia.setup(); ankimedia.add( "silence 1.mp3", "front" );`,
             `silence 2.mp3`,
-            `ankimedia.setup(); ankimedia.add( "back", "silence 2.mp3" );`,
+            `ankimedia.setup(); ankimedia.add( "silence 2.mp3", "back" );`,
         ],
     ])(
         `Showing an answer with the same audio id as the question should only play the answer audio:\nfront %s '%s',\nback %s '%s'\n...`,

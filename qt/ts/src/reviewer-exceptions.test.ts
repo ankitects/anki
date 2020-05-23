@@ -63,7 +63,7 @@ describe("Test question and answer exception handling", () => {
 
     test("do not pass the correct value of where", async function() {
         ankimedia.setup();
-        expect(() => ankimedia.add("thing.mp3", "front")).toThrowError(
+        expect(() => ankimedia.add("front", "thing.mp3")).toThrowError(
             `Invalid 'where=`
         );
         let fake_audio = document.createElement("audio");
@@ -91,13 +91,13 @@ describe("Test question and answer exception handling", () => {
 
     test("do not add media files with the correct speed or file name", async function() {
         ankimedia.setup();
-        expect(() => ankimedia.add("front", {})).toThrowError(
+        expect(() => ankimedia.add({}, "front")).toThrowError(
             /The 'filename=.*' is not a valid string/
         );
-        expect(() => ankimedia.add("front", "thing.mp3", {})).toThrowError(
+        expect(() => ankimedia.add("thing.mp3", "front", {})).toThrowError(
             /The 'speed=.*' is not a valid positive number/
         );
-        expect(() => ankimedia.add("front", "thing.mp3", -1)).toThrowError(
+        expect(() => ankimedia.add("thing.mp3", "front", -1)).toThrowError(
             /The 'speed=.*' is not a valid positive number/
         );
     });
@@ -107,10 +107,10 @@ describe("Test question and answer exception handling", () => {
         expect(() => ankimedia.addall("front", 2, "thing.mp3")).toThrowError(
             `addall() requires from 0 up to 2 argument(s) only`
         );
-        expect(() => ankimedia.add("front")).toThrowError(
+        expect(() => ankimedia.add("thing.mp3")).toThrowError(
             `add() requires from 2 up to 3 argument(s) only`
         );
-        expect(() => ankimedia.add("front", "thing.mp3", 1, {})).toThrowError(
+        expect(() => ankimedia.add("thing.mp3", "front", 1, {})).toThrowError(
             `add() requires from 2 up to 3 argument(s) only`
         );
         expect(() => setAnkiMedia()).toThrowError(
