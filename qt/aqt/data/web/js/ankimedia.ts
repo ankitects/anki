@@ -271,20 +271,6 @@ class AnkiMediaQueue {
 
             if (!media) {
                 media = new Audio(filename);
-            } else {
-                // if duplicate elements were found, select the last one of them,
-                // which should be on the back-card.
-                let count = this.duplicates.get(media.id);
-                if (count > 0) {
-                    let last_id = media.id + count.toString();
-                    let last_media = document.getElementById(
-                        last_id
-                    ) as HTMLAudioElement;
-                    if (last_media) {
-                        media = last_media;
-                    }
-                }
-                this._checkDataAttributes(media);
             }
             let data_speed = media.getAttribute("data-speed") || speed;
 
@@ -317,7 +303,21 @@ class AnkiMediaQueue {
             let data_file = media.getAttribute("data-file");
             medias.set(data_file, media);
         }, this.other_medias);
-        return medias.get(filename);
+        let media = medias.get(filename);
+        if (media) {
+            // if duplicate elements were found, select the last one of them,
+            // which should be on the back-card.
+            let count = this.duplicates.get(media.id);
+            if (count > 0) {
+                let last_id = media.id + count.toString();
+                let last_media = document.getElementById(last_id) as HTMLAudioElement;
+                if (last_media) {
+                    media = last_media;
+                }
+            }
+            this._checkDataAttributes(media);
+        }
+        return media;
     }
 
     /**
