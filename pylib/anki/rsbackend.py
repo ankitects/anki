@@ -216,36 +216,6 @@ class RustBackend:
         else:
             return output
 
-    def open_collection(
-        self, col_path: str, media_folder_path: str, media_db_path: str, log_path: str
-    ):
-        self._run_command(
-            pb.BackendInput(
-                open_collection=pb.OpenCollectionIn(
-                    collection_path=col_path,
-                    media_folder_path=media_folder_path,
-                    media_db_path=media_db_path,
-                    log_path=log_path,
-                )
-            ),
-            release_gil=True,
-        )
-
-    def close_collection(self, downgrade=True):
-        self._run_command(
-            pb.BackendInput(
-                close_collection=pb.CloseCollectionIn(downgrade_to_schema11=downgrade)
-            ),
-            release_gil=True,
-        )
-
-    def add_file_to_media_folder(self, desired_name: str, data: bytes) -> str:
-        return self._run_command(
-            pb.BackendInput(
-                add_media_file=pb.AddMediaFileIn(desired_name=desired_name, data=data)
-            )
-        ).add_media_file
-
     def translate(self, key: TR, **kwargs: Union[str, int, float]) -> str:
         return self._run_command(
             pb.BackendInput(translate_string=translate_string_in(key, **kwargs))
@@ -261,28 +231,6 @@ class RustBackend:
                 format_time_span=pb.FormatTimeSpanIn(seconds=seconds, context=context)
             )
         ).format_time_span
-
-    def studied_today(self, cards: int, seconds: float) -> str:
-        return self._run_command(
-            pb.BackendInput(
-                studied_today=pb.StudiedTodayIn(cards=cards, seconds=seconds)
-            )
-        ).studied_today
-
-    def learning_congrats_msg(self, next_due: float, remaining: int) -> str:
-        return self._run_command(
-            pb.BackendInput(
-                congrats_learn_msg=pb.CongratsLearnMsgIn(
-                    next_due=next_due, remaining=remaining
-                )
-            )
-        ).congrats_learn_msg
-
-    def empty_trash(self):
-        self._run_command(pb.BackendInput(empty_trash=pb.Empty()))
-
-    def restore_trash(self):
-        self._run_command(pb.BackendInput(restore_trash=pb.Empty()))
 
     def db_query(
         self, sql: str, args: Sequence[ValueForDB], first_row_only: bool
@@ -306,9 +254,6 @@ class RustBackend:
     def _db_command(self, input: Dict[str, Any]) -> Any:
         return orjson.loads(self._backend.db_command(orjson.dumps(input)))
 
-    def abort_media_sync(self):
-        self._run_command(pb.BackendInput(abort_media_sync=pb.Empty()))
-
     def all_tags(self) -> Iterable[TagUsnTuple]:
         return self._run_command(pb.BackendInput(all_tags=pb.Empty())).all_tags.tags
 
@@ -330,9 +275,6 @@ class RustBackend:
                 )
             )
         ).register_tags
-
-    def before_upload(self):
-        self._run_command(pb.BackendInput(before_upload=pb.Empty()))
 
     def get_changed_tags(self, usn: int) -> List[str]:
         return list(
@@ -369,32 +311,6 @@ class RustBackend:
 
     def set_all_config(self, conf: Dict[str, Any]):
         self._run_command(pb.BackendInput(set_all_config=orjson.dumps(conf)))
-
-    def find_and_replace(
-        self,
-        nids: List[int],
-        search: str,
-        repl: str,
-        re: bool,
-        nocase: bool,
-        field_name: Optional[str],
-    ) -> int:
-        return self._run_command(
-            pb.BackendInput(
-                find_and_replace=pb.FindAndReplaceIn(
-                    nids=nids,
-                    search=search,
-                    replacement=repl,
-                    regex=re,
-                    match_case=not nocase,
-                    field_name=field_name,
-                )
-            ),
-            release_gil=True,
-        ).find_and_replace
-
-    def set_local_minutes_west(self, mins: int) -> None:
-        self._run_command(pb.BackendInput(set_local_minutes_west=mins))
 
     def get_preferences(self) -> pb.Preferences:
         return self._run_command(
@@ -473,34 +389,85 @@ class RustBackend:
         output.ParseFromString(self._run_command2(8, input))
         return output.note_ids
 
+    def find_and_replace(
+        self,
+        nids: Sequence[int],
+        search: str,
+        replacement: str,
+        regex: bool,
+        match_case: bool,
+        field_name: str,
+    ) -> int:
+        input = pb.FindAndReplaceIn(
+            nids=nids,
+            search=search,
+            replacement=replacement,
+            regex=regex,
+            match_case=match_case,
+            field_name=field_name,
+        )
+        output = pb.UInt32()
+        output.ParseFromString(self._run_command2(9, input))
+        return output.val
+
     def local_minutes_west(self, val: int) -> int:
         input = pb.Int64(val=val)
         output = pb.Int32()
-        output.ParseFromString(self._run_command2(9, input))
+        output.ParseFromString(self._run_command2(10, input))
         return output.val
+
+    def set_local_minutes_west(self, val: int) -> pb.Empty:
+        input = pb.Int32(val=val)
+        output = pb.Empty()
+        output.ParseFromString(self._run_command2(11, input))
+        return output
 
     def sched_timing_today(self) -> pb.SchedTimingTodayOut:
         input = pb.Empty()
         output = pb.SchedTimingTodayOut()
-        output.ParseFromString(self._run_command2(10, input))
+        output.ParseFromString(self._run_command2(12, input))
         return output
+
+    def studied_today(self, cards: int, seconds: float) -> str:
+        input = pb.StudiedTodayIn(cards=cards, seconds=seconds)
+        output = pb.String()
+        output.ParseFromString(self._run_command2(13, input))
+        return output.val
+
+    def congrats_learn_message(self, next_due: float, remaining: int) -> str:
+        input = pb.CongratsLearnMessageIn(next_due=next_due, remaining=remaining)
+        output = pb.String()
+        output.ParseFromString(self._run_command2(14, input))
+        return output.val
 
     def check_media(self) -> pb.CheckMediaOut:
         input = pb.Empty()
         output = pb.CheckMediaOut()
-        output.ParseFromString(self._run_command2(11, input))
-        return output
-
-    def sync_media(self, hkey: str, endpoint: str) -> pb.Empty:
-        input = pb.SyncMediaIn(hkey=hkey, endpoint=endpoint)
-        output = pb.Empty()
-        output.ParseFromString(self._run_command2(12, input))
+        output.ParseFromString(self._run_command2(15, input))
         return output
 
     def trash_media_files(self, fnames: Sequence[str]) -> pb.Empty:
         input = pb.TrashMediaFilesIn(fnames=fnames)
         output = pb.Empty()
-        output.ParseFromString(self._run_command2(13, input))
+        output.ParseFromString(self._run_command2(16, input))
+        return output
+
+    def add_media_file(self, desired_name: str, data: bytes) -> str:
+        input = pb.AddMediaFileIn(desired_name=desired_name, data=data)
+        output = pb.String()
+        output.ParseFromString(self._run_command2(17, input))
+        return output.val
+
+    def empty_trash(self) -> pb.Empty:
+        input = pb.Empty()
+        output = pb.Empty()
+        output.ParseFromString(self._run_command2(18, input))
+        return output
+
+    def restore_trash(self) -> pb.Empty:
+        input = pb.Empty()
+        output = pb.Empty()
+        output.ParseFromString(self._run_command2(19, input))
         return output
 
     def add_or_update_deck_legacy(
@@ -510,37 +477,37 @@ class RustBackend:
             deck=deck, preserve_usn_and_mtime=preserve_usn_and_mtime
         )
         output = pb.DeckID()
-        output.ParseFromString(self._run_command2(14, input))
+        output.ParseFromString(self._run_command2(20, input))
         return output.did
 
     def deck_tree(self, include_counts: bool, top_deck_id: int) -> pb.DeckTreeNode:
         input = pb.DeckTreeIn(include_counts=include_counts, top_deck_id=top_deck_id)
         output = pb.DeckTreeNode()
-        output.ParseFromString(self._run_command2(15, input))
+        output.ParseFromString(self._run_command2(21, input))
         return output
 
     def deck_tree_legacy(self) -> bytes:
         input = pb.Empty()
         output = pb.Json()
-        output.ParseFromString(self._run_command2(16, input))
+        output.ParseFromString(self._run_command2(22, input))
         return output.json
 
     def get_all_decks_legacy(self) -> bytes:
         input = pb.Empty()
         output = pb.Json()
-        output.ParseFromString(self._run_command2(17, input))
+        output.ParseFromString(self._run_command2(23, input))
         return output.json
 
     def get_deck_id_by_name(self, val: str) -> int:
         input = pb.String(val=val)
         output = pb.DeckID()
-        output.ParseFromString(self._run_command2(18, input))
+        output.ParseFromString(self._run_command2(24, input))
         return output.did
 
     def get_deck_legacy(self, did: int) -> bytes:
         input = pb.DeckID(did=did)
         output = pb.Json()
-        output.ParseFromString(self._run_command2(19, input))
+        output.ParseFromString(self._run_command2(25, input))
         return output.json
 
     def get_deck_names(
@@ -550,19 +517,19 @@ class RustBackend:
             skip_empty_default=skip_empty_default, include_filtered=include_filtered
         )
         output = pb.DeckNames()
-        output.ParseFromString(self._run_command2(20, input))
+        output.ParseFromString(self._run_command2(26, input))
         return output.entries
 
     def new_deck_legacy(self, val: bool) -> bytes:
         input = pb.Bool(val=val)
         output = pb.Json()
-        output.ParseFromString(self._run_command2(21, input))
+        output.ParseFromString(self._run_command2(27, input))
         return output.json
 
     def remove_deck(self, did: int) -> pb.Empty:
         input = pb.DeckID(did=did)
         output = pb.Empty()
-        output.ParseFromString(self._run_command2(22, input))
+        output.ParseFromString(self._run_command2(28, input))
         return output
 
     def add_or_update_deck_config_legacy(
@@ -572,76 +539,76 @@ class RustBackend:
             config=config, preserve_usn_and_mtime=preserve_usn_and_mtime
         )
         output = pb.DeckConfigID()
-        output.ParseFromString(self._run_command2(23, input))
+        output.ParseFromString(self._run_command2(29, input))
         return output.dcid
 
     def all_deck_config_legacy(self) -> bytes:
         input = pb.Empty()
         output = pb.Json()
-        output.ParseFromString(self._run_command2(24, input))
+        output.ParseFromString(self._run_command2(30, input))
         return output.json
 
     def get_deck_config_legacy(self, dcid: int) -> bytes:
         input = pb.DeckConfigID(dcid=dcid)
         output = pb.Json()
-        output.ParseFromString(self._run_command2(25, input))
+        output.ParseFromString(self._run_command2(31, input))
         return output.json
 
     def new_deck_config_legacy(self) -> bytes:
         input = pb.Empty()
         output = pb.Json()
-        output.ParseFromString(self._run_command2(26, input))
+        output.ParseFromString(self._run_command2(32, input))
         return output.json
 
     def remove_deck_config(self, dcid: int) -> pb.Empty:
         input = pb.DeckConfigID(dcid=dcid)
         output = pb.Empty()
-        output.ParseFromString(self._run_command2(27, input))
+        output.ParseFromString(self._run_command2(33, input))
         return output
 
     def get_card(self, cid: int) -> pb.Card:
         input = pb.CardID(cid=cid)
         output = pb.Card()
-        output.ParseFromString(self._run_command2(28, input))
+        output.ParseFromString(self._run_command2(34, input))
         return output
 
     def update_card(self, input: pb.Card) -> pb.Empty:
         output = pb.Empty()
-        output.ParseFromString(self._run_command2(29, input))
+        output.ParseFromString(self._run_command2(35, input))
         return output
 
     def add_card(self, input: pb.Card) -> int:
         output = pb.CardID()
-        output.ParseFromString(self._run_command2(30, input))
+        output.ParseFromString(self._run_command2(36, input))
         return output.cid
 
     def new_note(self, ntid: int) -> pb.Note:
         input = pb.NoteTypeID(ntid=ntid)
         output = pb.Note()
-        output.ParseFromString(self._run_command2(31, input))
+        output.ParseFromString(self._run_command2(37, input))
         return output
 
     def add_note(self, note: pb.Note, deck_id: int) -> int:
         input = pb.AddNoteIn(note=note, deck_id=deck_id)
         output = pb.NoteID()
-        output.ParseFromString(self._run_command2(32, input))
+        output.ParseFromString(self._run_command2(38, input))
         return output.nid
 
     def update_note(self, input: pb.Note) -> pb.Empty:
         output = pb.Empty()
-        output.ParseFromString(self._run_command2(33, input))
+        output.ParseFromString(self._run_command2(39, input))
         return output
 
     def get_note(self, nid: int) -> pb.Note:
         input = pb.NoteID(nid=nid)
         output = pb.Note()
-        output.ParseFromString(self._run_command2(34, input))
+        output.ParseFromString(self._run_command2(40, input))
         return output
 
     def add_note_tags(self, nids: Sequence[int], tags: str) -> int:
         input = pb.AddNoteTagsIn(nids=nids, tags=tags)
         output = pb.UInt32()
-        output.ParseFromString(self._run_command2(35, input))
+        output.ParseFromString(self._run_command2(41, input))
         return output.val
 
     def update_note_tags(
@@ -651,12 +618,12 @@ class RustBackend:
             nids=nids, tags=tags, replacement=replacement, regex=regex
         )
         output = pb.UInt32()
-        output.ParseFromString(self._run_command2(36, input))
+        output.ParseFromString(self._run_command2(42, input))
         return output.val
 
     def cloze_numbers_in_note(self, input: pb.Note) -> Sequence[int]:
         output = pb.ClozeNumbersInNoteOut()
-        output.ParseFromString(self._run_command2(37, input))
+        output.ParseFromString(self._run_command2(43, input))
         return output.numbers
 
     def after_note_updates(
@@ -668,13 +635,13 @@ class RustBackend:
             generate_cards=generate_cards,
         )
         output = pb.Empty()
-        output.ParseFromString(self._run_command2(38, input))
+        output.ParseFromString(self._run_command2(44, input))
         return output
 
     def field_names_for_notes(self, nids: Sequence[int]) -> Sequence[str]:
         input = pb.FieldNamesForNotesIn(nids=nids)
         output = pb.FieldNamesForNotesOut()
-        output.ParseFromString(self._run_command2(39, input))
+        output.ParseFromString(self._run_command2(45, input))
         return output.fields
 
     def add_or_update_notetype(self, json: bytes, preserve_usn_and_mtime: bool) -> int:
@@ -682,50 +649,91 @@ class RustBackend:
             json=json, preserve_usn_and_mtime=preserve_usn_and_mtime
         )
         output = pb.NoteTypeID()
-        output.ParseFromString(self._run_command2(40, input))
+        output.ParseFromString(self._run_command2(46, input))
         return output.ntid
 
     def get_stock_notetype_legacy(self, kind: pb.StockNoteType) -> bytes:
         input = pb.GetStockNotetypeIn(kind=kind)
         output = pb.Json()
-        output.ParseFromString(self._run_command2(41, input))
+        output.ParseFromString(self._run_command2(47, input))
         return output.json
 
     def get_notetype_legacy(self, ntid: int) -> bytes:
         input = pb.NoteTypeID(ntid=ntid)
         output = pb.Json()
-        output.ParseFromString(self._run_command2(42, input))
+        output.ParseFromString(self._run_command2(48, input))
         return output.json
 
     def get_notetype_names(self) -> Sequence[pb.NoteTypeNameID]:
         input = pb.Empty()
         output = pb.NoteTypeNames()
-        output.ParseFromString(self._run_command2(43, input))
+        output.ParseFromString(self._run_command2(49, input))
         return output.entries
 
     def get_notetype_names_and_counts(self) -> Sequence[pb.NoteTypeNameIDUseCount]:
         input = pb.Empty()
         output = pb.NoteTypeUseCounts()
-        output.ParseFromString(self._run_command2(44, input))
+        output.ParseFromString(self._run_command2(50, input))
         return output.entries
 
     def get_notetype_id_by_name(self, val: str) -> int:
         input = pb.String(val=val)
         output = pb.NoteTypeID()
-        output.ParseFromString(self._run_command2(45, input))
+        output.ParseFromString(self._run_command2(51, input))
         return output.ntid
 
     def remove_notetype(self, ntid: int) -> pb.Empty:
         input = pb.NoteTypeID(ntid=ntid)
         output = pb.Empty()
-        output.ParseFromString(self._run_command2(46, input))
+        output.ParseFromString(self._run_command2(52, input))
+        return output
+
+    def open_collection(
+        self,
+        collection_path: str,
+        media_folder_path: str,
+        media_db_path: str,
+        log_path: str,
+    ) -> pb.Empty:
+        input = pb.OpenCollectionIn(
+            collection_path=collection_path,
+            media_folder_path=media_folder_path,
+            media_db_path=media_db_path,
+            log_path=log_path,
+        )
+        output = pb.Empty()
+        output.ParseFromString(self._run_command2(53, input))
+        return output
+
+    def close_collection(self, downgrade_to_schema11: bool) -> pb.Empty:
+        input = pb.CloseCollectionIn(downgrade_to_schema11=downgrade_to_schema11)
+        output = pb.Empty()
+        output.ParseFromString(self._run_command2(54, input))
         return output
 
     def check_database(self) -> Sequence[str]:
         input = pb.Empty()
         output = pb.CheckDatabaseOut()
-        output.ParseFromString(self._run_command2(47, input))
+        output.ParseFromString(self._run_command2(55, input))
         return output.problems
+
+    def sync_media(self, hkey: str, endpoint: str) -> pb.Empty:
+        input = pb.SyncMediaIn(hkey=hkey, endpoint=endpoint)
+        output = pb.Empty()
+        output.ParseFromString(self._run_command2(56, input))
+        return output
+
+    def abort_media_sync(self) -> pb.Empty:
+        input = pb.Empty()
+        output = pb.Empty()
+        output.ParseFromString(self._run_command2(57, input))
+        return output
+
+    def before_upload(self) -> pb.Empty:
+        input = pb.Empty()
+        output = pb.Empty()
+        output.ParseFromString(self._run_command2(58, input))
+        return output
 
     # @@AUTOGEN@@
 

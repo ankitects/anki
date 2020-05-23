@@ -82,6 +82,17 @@ fn want_release_gil(method: u32) -> bool {
             BackendMethod::GetNotetypeIDByName => true,
             BackendMethod::RemoveNotetype => true,
             BackendMethod::CheckDatabase => true,
+            BackendMethod::FindAndReplace => true,
+            BackendMethod::SetLocalMinutesWest => false,
+            BackendMethod::StudiedToday => false,
+            BackendMethod::CongratsLearnMessage => false,
+            BackendMethod::AddMediaFile => true,
+            BackendMethod::EmptyTrash => true,
+            BackendMethod::RestoreTrash => true,
+            BackendMethod::OpenCollection => true,
+            BackendMethod::CloseCollection => true,
+            BackendMethod::AbortMediaSync => true,
+            BackendMethod::BeforeUpload => true,
         }
     } else {
         false

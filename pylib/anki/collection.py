@@ -209,7 +209,7 @@ class Collection:
             else:
                 self.db.rollback()
             self.models._clear_cache()
-            self.backend.close_collection(downgrade=downgrade)
+            self.backend.close_collection(downgrade_to_schema11=downgrade)
             self.db = None
             self.media.close()
             self._closeLog()
