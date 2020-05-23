@@ -148,9 +148,9 @@ pub fn init_backend(init_msg: &[u8]) -> std::result::Result<Backend, String> {
     Ok(Backend::new(i18n, input.server))
 }
 
-impl From<Vec<u8>> for pb::Bytes {
-    fn from(val: Vec<u8>) -> Self {
-        pb::Bytes { val }
+impl From<Vec<u8>> for pb::Json {
+    fn from(json: Vec<u8>) -> Self {
+        pb::Json { json }
     }
 }
 
@@ -193,6 +193,18 @@ impl From<pb::NoteId> for NoteID {
 impl From<pb::NoteTypeId> for NoteTypeID {
     fn from(ntid: pb::NoteTypeId) -> Self {
         NoteTypeID(ntid.ntid)
+    }
+}
+
+impl From<pb::DeckId> for DeckID {
+    fn from(did: pb::DeckId) -> Self {
+        DeckID(did.did)
+    }
+}
+
+impl From<pb::DeckConfigId> for DeckConfID {
+    fn from(dcid: pb::DeckConfigId) -> Self {
+        DeckConfID(dcid.dcid)
     }
 }
 
@@ -369,7 +381,7 @@ impl BackendService for Backend {
         self.with_col(|col| col.deck_tree(input.include_counts, lim))
     }
 
-    fn deck_tree_legacy(&mut self, _input: pb::Empty) -> BackendResult<pb::Bytes> {
+    fn deck_tree_legacy(&mut self, _input: pb::Empty) -> BackendResult<pb::Json> {
         self.with_col(|col| {
             let tree = col.legacy_deck_tree()?;
             serde_json::to_vec(&tree)
@@ -378,11 +390,11 @@ impl BackendService for Backend {
         })
     }
 
-    fn get_deck_legacy(&mut self, input: pb::Int64) -> Result<pb::Bytes> {
+    fn get_deck_legacy(&mut self, input: pb::DeckId) -> Result<pb::Json> {
         self.with_col(|col| {
             let deck: DeckSchema11 = col
                 .storage
-                .get_deck(DeckID(input.val))?
+                .get_deck(input.into())?
                 .ok_or(AnkiError::NotFound)?
                 .into();
             serde_json::to_vec(&deck)
@@ -391,15 +403,16 @@ impl BackendService for Backend {
         })
     }
 
-    fn get_deck_id_by_name(&mut self, input: pb::String) -> Result<pb::Int64> {
+    fn get_deck_id_by_name(&mut self, input: pb::String) -> Result<pb::DeckId> {
         self.with_col(|col| {
-            col.get_deck_id(&input.val)
-                .map(|d| d.map(|d| d.0).unwrap_or_default())
-                .map(Into::into)
+            col.get_deck_id(&input.val).and_then(|d| {
+                d.ok_or(AnkiError::NotFound)
+                    .map(|d| pb::DeckId { did: d.0 })
+            })
         })
     }
 
-    fn get_all_decks_legacy(&mut self, _input: Empty) -> BackendResult<pb::Bytes> {
+    fn get_all_decks_legacy(&mut self, _input: Empty) -> BackendResult<pb::Json> {
         self.with_col(|col| {
             let decks = col.storage.get_all_decks_as_schema11()?;
             serde_json::to_vec(&decks).map_err(Into::into)
@@ -426,7 +439,7 @@ impl BackendService for Backend {
     fn add_or_update_deck_legacy(
         &mut self,
         input: pb::AddOrUpdateDeckLegacyIn,
-    ) -> Result<pb::Int64> {
+    ) -> Result<pb::DeckId> {
         self.with_col(|col| {
             let schema11: DeckSchema11 = serde_json::from_slice(&input.deck)?;
             let mut deck: Deck = schema11.into();
@@ -438,11 +451,11 @@ impl BackendService for Backend {
             } else {
                 col.add_or_update_deck(&mut deck)?;
             }
-            Ok(deck.id.0.into())
+            Ok(pb::DeckId { did: deck.id.0 })
         })
     }
 
-    fn new_deck_legacy(&mut self, input: pb::Bool) -> BackendResult<pb::Bytes> {
+    fn new_deck_legacy(&mut self, input: pb::Bool) -> BackendResult<pb::Json> {
         let deck = if input.val {
             Deck::new_filtered()
         } else {
@@ -454,8 +467,8 @@ impl BackendService for Backend {
             .map(Into::into)
     }
 
-    fn remove_deck(&mut self, input: pb::Int64) -> BackendResult<Empty> {
-        self.with_col(|col| col.remove_deck_and_child_decks(DeckID(input.val)))
+    fn remove_deck(&mut self, input: pb::DeckId) -> BackendResult<Empty> {
+        self.with_col(|col| col.remove_deck_and_child_decks(input.into()))
             .map(Into::into)
     }
 
@@ -465,19 +478,19 @@ impl BackendService for Backend {
     fn add_or_update_deck_config_legacy(
         &mut self,
         input: AddOrUpdateDeckConfigLegacyIn,
-    ) -> BackendResult<pb::Int64> {
+    ) -> BackendResult<pb::DeckConfigId> {
         let conf: DeckConfSchema11 = serde_json::from_slice(&input.config)?;
         let mut conf: DeckConf = conf.into();
         self.with_col(|col| {
             col.transact(None, |col| {
                 col.add_or_update_deck_config(&mut conf, input.preserve_usn_and_mtime)?;
-                Ok(conf.id.0)
+                Ok(pb::DeckConfigId { dcid: conf.id.0 })
             })
         })
         .map(Into::into)
     }
 
-    fn all_deck_config_legacy(&mut self, _input: Empty) -> BackendResult<pb::Bytes> {
+    fn all_deck_config_legacy(&mut self, _input: Empty) -> BackendResult<pb::Json> {
         self.with_col(|col| {
             let conf: Vec<DeckConfSchema11> = col
                 .storage
@@ -490,20 +503,20 @@ impl BackendService for Backend {
         .map(Into::into)
     }
 
-    fn new_deck_config_legacy(&mut self, _input: Empty) -> BackendResult<pb::Bytes> {
+    fn new_deck_config_legacy(&mut self, _input: Empty) -> BackendResult<pb::Json> {
         serde_json::to_vec(&DeckConfSchema11::default())
             .map_err(Into::into)
             .map(Into::into)
     }
 
-    fn remove_deck_config(&mut self, input: pb::Int64) -> BackendResult<Empty> {
-        self.with_col(|col| col.transact(None, |col| col.remove_deck_config(DeckConfID(input.val))))
+    fn remove_deck_config(&mut self, input: pb::DeckConfigId) -> BackendResult<Empty> {
+        self.with_col(|col| col.transact(None, |col| col.remove_deck_config(input.into())))
             .map(Into::into)
     }
 
-    fn get_deck_config_legacy(&mut self, input: pb::Int64) -> BackendResult<pb::Bytes> {
+    fn get_deck_config_legacy(&mut self, input: pb::DeckConfigId) -> BackendResult<pb::Json> {
         self.with_col(|col| {
-            let conf = col.get_deck_config(DeckConfID(input.val), true)?.unwrap();
+            let conf = col.get_deck_config(input.into(), true)?.unwrap();
             let conf: DeckConfSchema11 = conf.into();
             Ok(serde_json::to_vec(&conf)?)
         })

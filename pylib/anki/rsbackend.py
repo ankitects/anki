@@ -587,9 +587,9 @@ class RustBackend:
         input = pb.AddOrUpdateDeckLegacyIn(
             deck=deck, preserve_usn_and_mtime=preserve_usn_and_mtime
         )
-        output = pb.Int64()
+        output = pb.DeckID()
         output.ParseFromString(self._run_command2(14, input))
-        return output.val
+        return output.did
 
     def deck_tree(self, include_counts: bool, top_deck_id: int) -> pb.DeckTreeNode:
         input = pb.DeckTreeIn(include_counts=include_counts, top_deck_id=top_deck_id)
@@ -611,12 +611,12 @@ class RustBackend:
 
     def get_deck_id_by_name(self, val: str) -> int:
         input = pb.String(val=val)
-        output = pb.Int64()
+        output = pb.DeckID()
         output.ParseFromString(self._run_command2(18, input))
-        return output.val
+        return output.did
 
-    def get_deck_legacy(self, val: int) -> bytes:
-        input = pb.Int64(val=val)
+    def get_deck_legacy(self, did: int) -> bytes:
+        input = pb.DeckID(did=did)
         output = pb.Bytes()
         output.ParseFromString(self._run_command2(19, input))
         return output.val
@@ -637,8 +637,8 @@ class RustBackend:
         output.ParseFromString(self._run_command2(21, input))
         return output.val
 
-    def remove_deck(self, val: int) -> pb.Empty:
-        input = pb.Int64(val=val)
+    def remove_deck(self, did: int) -> pb.Empty:
+        input = pb.DeckID(did=did)
         output = pb.Empty()
         output.ParseFromString(self._run_command2(22, input))
         return output
@@ -649,9 +649,9 @@ class RustBackend:
         input = pb.AddOrUpdateDeckConfigLegacyIn(
             config=config, preserve_usn_and_mtime=preserve_usn_and_mtime
         )
-        output = pb.Int64()
+        output = pb.DeckConfigID()
         output.ParseFromString(self._run_command2(23, input))
-        return output.val
+        return output.dcid
 
     def all_deck_config_legacy(self) -> bytes:
         input = pb.Empty()
@@ -659,8 +659,8 @@ class RustBackend:
         output.ParseFromString(self._run_command2(24, input))
         return output.val
 
-    def get_deck_config_legacy(self, val: int) -> bytes:
-        input = pb.Int64(val=val)
+    def get_deck_config_legacy(self, dcid: int) -> bytes:
+        input = pb.DeckConfigID(dcid=dcid)
         output = pb.Bytes()
         output.ParseFromString(self._run_command2(25, input))
         return output.val
@@ -671,8 +671,8 @@ class RustBackend:
         output.ParseFromString(self._run_command2(26, input))
         return output.val
 
-    def remove_deck_config(self, val: int) -> pb.Empty:
-        input = pb.Int64(val=val)
+    def remove_deck_config(self, dcid: int) -> pb.Empty:
+        input = pb.DeckConfigID(dcid=dcid)
         output = pb.Empty()
         output.ParseFromString(self._run_command2(27, input))
         return output
