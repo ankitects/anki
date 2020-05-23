@@ -320,36 +320,6 @@ class RustBackend:
     def add_card(self, card: BackendCard) -> int:
         return self._run_command(pb.BackendInput(add_card=card)).add_card
 
-    def get_deck_config(self, dcid: int) -> Dict[str, Any]:
-        jstr = self._run_command(pb.BackendInput(get_deck_config=dcid)).get_deck_config
-        return orjson.loads(jstr)
-
-    def add_or_update_deck_config(self, conf: Dict[str, Any], preserve_usn) -> None:
-        conf_json = orjson.dumps(conf)
-        id = self._run_command(
-            pb.BackendInput(
-                add_or_update_deck_config=pb.AddOrUpdateDeckConfigIn(
-                    config=conf_json, preserve_usn_and_mtime=preserve_usn
-                )
-            )
-        ).add_or_update_deck_config
-        conf["id"] = id
-
-    def all_deck_config(self) -> Sequence[Dict[str, Any]]:
-        jstr = self._run_command(
-            pb.BackendInput(all_deck_config=pb.Empty())
-        ).all_deck_config
-        return orjson.loads(jstr)
-
-    def new_deck_config(self) -> Dict[str, Any]:
-        jstr = self._run_command(
-            pb.BackendInput(new_deck_config=pb.Empty())
-        ).new_deck_config
-        return orjson.loads(jstr)
-
-    def remove_deck_config(self, dcid: int) -> None:
-        self._run_command(pb.BackendInput(remove_deck_config=dcid))
-
     def abort_media_sync(self):
         self._run_command(pb.BackendInput(abort_media_sync=pb.Empty()))
 
@@ -420,12 +390,6 @@ class RustBackend:
         ).get_changed_notetypes
         return orjson.loads(jstr)
 
-    def get_all_decks(self) -> Dict[str, Dict[str, Any]]:
-        jstr = self._run_command(
-            pb.BackendInput(get_all_decks=pb.Empty())
-        ).get_all_decks
-        return orjson.loads(jstr)
-
     def get_stock_notetype_legacy(self, kind: StockNoteType) -> Dict[str, Any]:
         bytes = self._run_command(
             pb.BackendInput(get_stock_notetype_legacy=kind)
@@ -494,40 +458,6 @@ class RustBackend:
             return self._run_command(pb.BackendInput(get_note=nid)).get_note
         except NotFoundError:
             return None
-
-    def get_deck_names_and_ids(
-        self, skip_empty_default: bool, include_filtered: bool = True
-    ) -> Sequence[pb.DeckNameID]:
-        return self._run_command(
-            pb.BackendInput(
-                get_deck_names=pb.GetDeckNamesIn(
-                    skip_empty_default=skip_empty_default,
-                    include_filtered=include_filtered,
-                )
-            )
-        ).get_deck_names.entries
-
-    def add_or_update_deck_legacy(
-        self, deck: Dict[str, Any], preserve_usn: bool
-    ) -> None:
-        deck_json = orjson.dumps(deck)
-        id = self._run_command(
-            pb.BackendInput(
-                add_or_update_deck_legacy=pb.AddOrUpdateDeckLegacyIn(
-                    deck=deck_json, preserve_usn_and_mtime=preserve_usn
-                )
-            )
-        ).add_or_update_deck_legacy
-        deck["id"] = id
-
-    def new_deck_legacy(self, filtered: bool) -> Dict[str, Any]:
-        jstr = self._run_command(
-            pb.BackendInput(new_deck_legacy=filtered)
-        ).new_deck_legacy
-        return orjson.loads(jstr)
-
-    def remove_deck(self, did: int) -> None:
-        self._run_command(pb.BackendInput(remove_deck=did))
 
     def field_names_for_note_ids(self, nids: List[int]) -> Sequence[str]:
         return self._run_command(
@@ -621,10 +551,30 @@ class RustBackend:
 
     # @@AUTOGEN@@
 
+    def extract_av_tags(self, text: str, question_side: bool) -> pb.ExtractAVTagsOut:
+        input = pb.ExtractAVTagsIn(text=text, question_side=question_side)
+        output = pb.ExtractAVTagsOut()
+        output.ParseFromString(self._run_command2(1, input))
+        return output
+
+    def extract_latex(
+        self, text: str, svg: bool, expand_clozes: bool
+    ) -> pb.ExtractLatexOut:
+        input = pb.ExtractLatexIn(text=text, svg=svg, expand_clozes=expand_clozes)
+        output = pb.ExtractLatexOut()
+        output.ParseFromString(self._run_command2(2, input))
+        return output
+
+    def get_empty_cards(self) -> pb.EmptyCardsReport:
+        input = pb.Empty()
+        output = pb.EmptyCardsReport()
+        output.ParseFromString(self._run_command2(3, input))
+        return output
+
     def render_existing_card(self, card_id: int, browser: bool) -> pb.RenderCardOut:
         input = pb.RenderExistingCardIn(card_id=card_id, browser=browser)
         output = pb.RenderCardOut()
-        output.ParseFromString(self._run_command2(1, input))
+        output.ParseFromString(self._run_command2(4, input))
         return output
 
     def render_uncommitted_card(
@@ -634,97 +584,81 @@ class RustBackend:
             note=note, card_ord=card_ord, template=template, fill_empty=fill_empty
         )
         output = pb.RenderCardOut()
-        output.ParseFromString(self._run_command2(2, input))
+        output.ParseFromString(self._run_command2(5, input))
         return output
 
-    def sched_timing_today(self) -> pb.SchedTimingTodayOut:
-        input = pb.Empty()
-        output = pb.SchedTimingTodayOut()
-        output.ParseFromString(self._run_command2(3, input))
-        return output
-
-    def deck_tree(self, include_counts: bool, top_deck_id: int) -> pb.DeckTreeNode:
-        input = pb.DeckTreeIn(include_counts=include_counts, top_deck_id=top_deck_id)
-        output = pb.DeckTreeNode()
-        output.ParseFromString(self._run_command2(4, input))
-        return output
+    def strip_av_tags(self, val: str) -> str:
+        input = pb.String(val=val)
+        output = pb.String()
+        output.ParseFromString(self._run_command2(6, input))
+        return output.val
 
     def search_cards(self, search: str, order: pb.SortOrder) -> Sequence[int]:
         input = pb.SearchCardsIn(search=search, order=order)
         output = pb.SearchCardsOut()
-        output.ParseFromString(self._run_command2(5, input))
+        output.ParseFromString(self._run_command2(7, input))
         return output.card_ids
 
     def search_notes(self, search: str) -> Sequence[int]:
         input = pb.SearchNotesIn(search=search)
         output = pb.SearchNotesOut()
-        output.ParseFromString(self._run_command2(6, input))
+        output.ParseFromString(self._run_command2(8, input))
         return output.note_ids
-
-    def check_media(self) -> pb.CheckMediaOut:
-        input = pb.Empty()
-        output = pb.CheckMediaOut()
-        output.ParseFromString(self._run_command2(7, input))
-        return output
 
     def local_minutes_west(self, val: int) -> int:
         input = pb.Int64(val=val)
         output = pb.Int32()
-        output.ParseFromString(self._run_command2(8, input))
-        return output.val
-
-    def strip_av_tags(self, val: str) -> str:
-        input = pb.String(val=val)
-        output = pb.String()
         output.ParseFromString(self._run_command2(9, input))
         return output.val
 
-    def extract_av_tags(self, text: str, question_side: bool) -> pb.ExtractAVTagsOut:
-        input = pb.ExtractAVTagsIn(text=text, question_side=question_side)
-        output = pb.ExtractAVTagsOut()
+    def sched_timing_today(self) -> pb.SchedTimingTodayOut:
+        input = pb.Empty()
+        output = pb.SchedTimingTodayOut()
         output.ParseFromString(self._run_command2(10, input))
         return output
 
-    def extract_latex(
-        self, text: str, svg: bool, expand_clozes: bool
-    ) -> pb.ExtractLatexOut:
-        input = pb.ExtractLatexIn(text=text, svg=svg, expand_clozes=expand_clozes)
-        output = pb.ExtractLatexOut()
+    def check_media(self) -> pb.CheckMediaOut:
+        input = pb.Empty()
+        output = pb.CheckMediaOut()
         output.ParseFromString(self._run_command2(11, input))
-        return output
-
-    def deck_tree_legacy(self) -> bytes:
-        input = pb.Empty()
-        output = pb.Bytes()
-        output.ParseFromString(self._run_command2(12, input))
-        return output.val
-
-    def check_database(self) -> Sequence[str]:
-        input = pb.Empty()
-        output = pb.CheckDatabaseOut()
-        output.ParseFromString(self._run_command2(13, input))
-        return output.problems
-
-    def get_empty_cards(self) -> pb.EmptyCardsReport:
-        input = pb.Empty()
-        output = pb.EmptyCardsReport()
-        output.ParseFromString(self._run_command2(14, input))
         return output
 
     def sync_media(self, hkey: str, endpoint: str) -> pb.Empty:
         input = pb.SyncMediaIn(hkey=hkey, endpoint=endpoint)
         output = pb.Empty()
-        output.ParseFromString(self._run_command2(15, input))
+        output.ParseFromString(self._run_command2(12, input))
         return output
 
     def trash_media_files(self, fnames: Sequence[str]) -> pb.Empty:
         input = pb.TrashMediaFilesIn(fnames=fnames)
         output = pb.Empty()
-        output.ParseFromString(self._run_command2(16, input))
+        output.ParseFromString(self._run_command2(13, input))
         return output
 
-    def get_deck_legacy(self, val: int) -> bytes:
-        input = pb.Int64(val=val)
+    def add_or_update_deck_legacy(
+        self, deck: bytes, preserve_usn_and_mtime: bool
+    ) -> int:
+        input = pb.AddOrUpdateDeckLegacyIn(
+            deck=deck, preserve_usn_and_mtime=preserve_usn_and_mtime
+        )
+        output = pb.Int64()
+        output.ParseFromString(self._run_command2(14, input))
+        return output.val
+
+    def deck_tree(self, include_counts: bool, top_deck_id: int) -> pb.DeckTreeNode:
+        input = pb.DeckTreeIn(include_counts=include_counts, top_deck_id=top_deck_id)
+        output = pb.DeckTreeNode()
+        output.ParseFromString(self._run_command2(15, input))
+        return output
+
+    def deck_tree_legacy(self) -> bytes:
+        input = pb.Empty()
+        output = pb.Bytes()
+        output.ParseFromString(self._run_command2(16, input))
+        return output.val
+
+    def get_all_decks_legacy(self) -> bytes:
+        input = pb.Empty()
         output = pb.Bytes()
         output.ParseFromString(self._run_command2(17, input))
         return output.val
@@ -734,6 +668,74 @@ class RustBackend:
         output = pb.Int64()
         output.ParseFromString(self._run_command2(18, input))
         return output.val
+
+    def get_deck_legacy(self, val: int) -> bytes:
+        input = pb.Int64(val=val)
+        output = pb.Bytes()
+        output.ParseFromString(self._run_command2(19, input))
+        return output.val
+
+    def get_deck_names(
+        self, skip_empty_default: bool, include_filtered: bool
+    ) -> Sequence[pb.DeckNameID]:
+        input = pb.GetDeckNamesIn(
+            skip_empty_default=skip_empty_default, include_filtered=include_filtered
+        )
+        output = pb.DeckNames()
+        output.ParseFromString(self._run_command2(20, input))
+        return output.entries
+
+    def new_deck_legacy(self, val: bool) -> bytes:
+        input = pb.Bool(val=val)
+        output = pb.Bytes()
+        output.ParseFromString(self._run_command2(21, input))
+        return output.val
+
+    def remove_deck(self, val: int) -> pb.Empty:
+        input = pb.Int64(val=val)
+        output = pb.Empty()
+        output.ParseFromString(self._run_command2(22, input))
+        return output
+
+    def add_or_update_deck_config_legacy(
+        self, config: bytes, preserve_usn_and_mtime: bool
+    ) -> int:
+        input = pb.AddOrUpdateDeckConfigLegacyIn(
+            config=config, preserve_usn_and_mtime=preserve_usn_and_mtime
+        )
+        output = pb.Int64()
+        output.ParseFromString(self._run_command2(23, input))
+        return output.val
+
+    def all_deck_config_legacy(self) -> bytes:
+        input = pb.Empty()
+        output = pb.Bytes()
+        output.ParseFromString(self._run_command2(24, input))
+        return output.val
+
+    def get_deck_config_legacy(self, val: int) -> bytes:
+        input = pb.Int64(val=val)
+        output = pb.Bytes()
+        output.ParseFromString(self._run_command2(25, input))
+        return output.val
+
+    def new_deck_config_legacy(self) -> bytes:
+        input = pb.Empty()
+        output = pb.Bytes()
+        output.ParseFromString(self._run_command2(26, input))
+        return output.val
+
+    def remove_deck_config(self, val: int) -> pb.Empty:
+        input = pb.Int64(val=val)
+        output = pb.Empty()
+        output.ParseFromString(self._run_command2(27, input))
+        return output
+
+    def check_database(self) -> Sequence[str]:
+        input = pb.Empty()
+        output = pb.CheckDatabaseOut()
+        output.ParseFromString(self._run_command2(28, input))
+        return output.problems
 
     # @@AUTOGEN@@
 

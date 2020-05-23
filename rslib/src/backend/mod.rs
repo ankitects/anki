@@ -7,7 +7,8 @@ use crate::{
     backend_proto as pb,
     backend_proto::builtin_search_order::BuiltinSortKind,
     backend_proto::{
-        AddOrUpdateDeckConfigIn, BackendResult, Empty, RenderedTemplateReplacement, SyncMediaIn,
+        AddOrUpdateDeckConfigLegacyIn, BackendResult, Empty, RenderedTemplateReplacement,
+        SyncMediaIn,
     },
     card::{Card, CardID},
     card::{CardQueue, CardType},
@@ -172,6 +173,8 @@ impl From<()> for pb::Empty {
 }
 
 impl BackendService for Backend {
+    // card rendering
+
     fn render_existing_card(
         &mut self,
         input: pb::RenderExistingCardIn,
@@ -200,77 +203,23 @@ impl BackendService for Backend {
         })
     }
 
-    fn sched_timing_today(&mut self, _input: pb::Empty) -> Result<pb::SchedTimingTodayOut> {
-        self.with_col(|col| col.timing_today().map(Into::into))
-    }
-
-    fn deck_tree(&mut self, input: pb::DeckTreeIn) -> Result<pb::DeckTreeNode> {
-        let lim = if input.top_deck_id > 0 {
-            Some(DeckID(input.top_deck_id))
-        } else {
-            None
-        };
-        self.with_col(|col| col.deck_tree(input.include_counts, lim))
-    }
-
-    fn check_media(&mut self, _input: pb::Empty) -> Result<pb::CheckMediaOut> {
-        let callback =
-            |progress: usize| self.fire_progress_callback(Progress::MediaCheck(progress as u32));
-
+    fn get_empty_cards(&mut self, _input: pb::Empty) -> Result<pb::EmptyCardsReport> {
         self.with_col(|col| {
-            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
-            col.transact(None, |ctx| {
-                let mut checker = MediaChecker::new(ctx, &mgr, callback);
-                let mut output = checker.check()?;
+            let mut empty = col.empty_cards()?;
+            let report = col.empty_cards_report(&mut empty)?;
 
-                let report = checker.summarize_output(&mut output);
-
-                Ok(pb::CheckMediaOut {
-                    unused: output.unused,
-                    missing: output.missing,
-                    report,
-                    have_trash: output.trash_count > 0,
-                })
+            let mut outnotes = vec![];
+            for (_ntid, notes) in empty {
+                outnotes.extend(notes.into_iter().map(|e| pb::NoteWithEmptyCards {
+                    note_id: e.nid.0,
+                    will_delete_note: e.empty.len() == e.current_count,
+                    card_ids: e.empty.into_iter().map(|(_ord, id)| id.0).collect(),
+                }))
+            }
+            Ok(pb::EmptyCardsReport {
+                report,
+                notes: outnotes,
             })
-        })
-    }
-
-    fn search_cards(&mut self, input: pb::SearchCardsIn) -> Result<pb::SearchCardsOut> {
-        self.with_col(|col| {
-            let order = if let Some(order) = input.order {
-                use pb::sort_order::Value as V;
-                match order.value {
-                    Some(V::None(_)) => SortMode::NoOrder,
-                    Some(V::Custom(s)) => SortMode::Custom(s),
-                    Some(V::FromConfig(_)) => SortMode::FromConfig,
-                    Some(V::Builtin(b)) => SortMode::Builtin {
-                        kind: sort_kind_from_pb(b.kind),
-                        reverse: b.reverse,
-                    },
-                    None => SortMode::FromConfig,
-                }
-            } else {
-                SortMode::FromConfig
-            };
-            let cids = col.search_cards(&input.search, order)?;
-            Ok(pb::SearchCardsOut {
-                card_ids: cids.into_iter().map(|v| v.0).collect(),
-            })
-        })
-    }
-
-    fn search_notes(&mut self, input: pb::SearchNotesIn) -> Result<pb::SearchNotesOut> {
-        self.with_col(|col| {
-            let nids = col.search_notes(&input.search)?;
-            Ok(pb::SearchNotesOut {
-                note_ids: nids.into_iter().map(|v| v.0).collect(),
-            })
-        })
-    }
-
-    fn local_minutes_west(&mut self, input: pb::Int64) -> BackendResult<pb::Int32> {
-        Ok(pb::Int32 {
-            val: local_minutes_west_for_stamp(input.val),
         })
     }
 
@@ -335,12 +284,65 @@ impl BackendService for Backend {
         })
     }
 
-    fn check_database(&mut self, _input: pb::Empty) -> BackendResult<pb::CheckDatabaseOut> {
+    // searching
+    //-----------------------------------------------
+
+    fn search_cards(&mut self, input: pb::SearchCardsIn) -> Result<pb::SearchCardsOut> {
         self.with_col(|col| {
-            col.check_database().map(|problems| pb::CheckDatabaseOut {
-                problems: problems.to_i18n_strings(&col.i18n),
+            let order = if let Some(order) = input.order {
+                use pb::sort_order::Value as V;
+                match order.value {
+                    Some(V::None(_)) => SortMode::NoOrder,
+                    Some(V::Custom(s)) => SortMode::Custom(s),
+                    Some(V::FromConfig(_)) => SortMode::FromConfig,
+                    Some(V::Builtin(b)) => SortMode::Builtin {
+                        kind: sort_kind_from_pb(b.kind),
+                        reverse: b.reverse,
+                    },
+                    None => SortMode::FromConfig,
+                }
+            } else {
+                SortMode::FromConfig
+            };
+            let cids = col.search_cards(&input.search, order)?;
+            Ok(pb::SearchCardsOut {
+                card_ids: cids.into_iter().map(|v| v.0).collect(),
             })
         })
+    }
+
+    fn search_notes(&mut self, input: pb::SearchNotesIn) -> Result<pb::SearchNotesOut> {
+        self.with_col(|col| {
+            let nids = col.search_notes(&input.search)?;
+            Ok(pb::SearchNotesOut {
+                note_ids: nids.into_iter().map(|v| v.0).collect(),
+            })
+        })
+    }
+
+    // scheduling
+    //-----------------------------------------------
+
+    fn sched_timing_today(&mut self, _input: pb::Empty) -> Result<pb::SchedTimingTodayOut> {
+        self.with_col(|col| col.timing_today().map(Into::into))
+    }
+
+    fn local_minutes_west(&mut self, input: pb::Int64) -> BackendResult<pb::Int32> {
+        Ok(pb::Int32 {
+            val: local_minutes_west_for_stamp(input.val),
+        })
+    }
+
+    // decks
+    //-----------------------------------------------
+
+    fn deck_tree(&mut self, input: pb::DeckTreeIn) -> Result<pb::DeckTreeNode> {
+        let lim = if input.top_deck_id > 0 {
+            Some(DeckID(input.top_deck_id))
+        } else {
+            None
+        };
+        self.with_col(|col| col.deck_tree(input.include_counts, lim))
     }
 
     fn deck_tree_legacy(&mut self, _input: pb::Empty) -> BackendResult<pb::Bytes> {
@@ -349,26 +351,6 @@ impl BackendService for Backend {
             serde_json::to_vec(&tree)
                 .map_err(Into::into)
                 .map(Into::into)
-        })
-    }
-
-    fn get_empty_cards(&mut self, _input: pb::Empty) -> Result<pb::EmptyCardsReport> {
-        self.with_col(|col| {
-            let mut empty = col.empty_cards()?;
-            let report = col.empty_cards_report(&mut empty)?;
-
-            let mut outnotes = vec![];
-            for (_ntid, notes) in empty {
-                outnotes.extend(notes.into_iter().map(|e| pb::NoteWithEmptyCards {
-                    note_id: e.nid.0,
-                    will_delete_note: e.empty.len() == e.current_count,
-                    card_ids: e.empty.into_iter().map(|(_ord, id)| id.0).collect(),
-                }))
-            }
-            Ok(pb::EmptyCardsReport {
-                report,
-                notes: outnotes,
-            })
         })
     }
 
@@ -392,6 +374,120 @@ impl BackendService for Backend {
                 .map(Into::into)
         })
     }
+
+    fn get_all_decks_legacy(&mut self, _input: Empty) -> BackendResult<pb::Bytes> {
+        self.with_col(|col| {
+            let decks = col.storage.get_all_decks_as_schema11()?;
+            serde_json::to_vec(&decks).map_err(Into::into)
+        })
+        .map(Into::into)
+    }
+
+    fn get_deck_names(&mut self, input: pb::GetDeckNamesIn) -> Result<pb::DeckNames> {
+        self.with_col(|col| {
+            let names = if input.include_filtered {
+                col.get_all_deck_names(input.skip_empty_default)?
+            } else {
+                col.get_all_normal_deck_names()?
+            };
+            Ok(pb::DeckNames {
+                entries: names
+                    .into_iter()
+                    .map(|(id, name)| pb::DeckNameId { id: id.0, name })
+                    .collect(),
+            })
+        })
+    }
+
+    fn add_or_update_deck_legacy(
+        &mut self,
+        input: pb::AddOrUpdateDeckLegacyIn,
+    ) -> Result<pb::Int64> {
+        self.with_col(|col| {
+            let schema11: DeckSchema11 = serde_json::from_slice(&input.deck)?;
+            let mut deck: Deck = schema11.into();
+            if input.preserve_usn_and_mtime {
+                col.transact(None, |col| {
+                    let usn = col.usn()?;
+                    col.add_or_update_single_deck(&mut deck, usn)
+                })?;
+            } else {
+                col.add_or_update_deck(&mut deck)?;
+            }
+            Ok(deck.id.0.into())
+        })
+    }
+
+    fn new_deck_legacy(&mut self, input: pb::Bool) -> BackendResult<pb::Bytes> {
+        let deck = if input.val {
+            Deck::new_filtered()
+        } else {
+            Deck::new_normal()
+        };
+        let schema11: DeckSchema11 = deck.into();
+        serde_json::to_vec(&schema11)
+            .map_err(Into::into)
+            .map(Into::into)
+    }
+
+    fn remove_deck(&mut self, input: pb::Int64) -> BackendResult<Empty> {
+        self.with_col(|col| col.remove_deck_and_child_decks(DeckID(input.val)))
+            .map(Into::into)
+    }
+
+    // deck config
+    //----------------------------------------------------
+
+    fn add_or_update_deck_config_legacy(
+        &mut self,
+        input: AddOrUpdateDeckConfigLegacyIn,
+    ) -> BackendResult<pb::Int64> {
+        let conf: DeckConfSchema11 = serde_json::from_slice(&input.config)?;
+        let mut conf: DeckConf = conf.into();
+        self.with_col(|col| {
+            col.transact(None, |col| {
+                col.add_or_update_deck_config(&mut conf, input.preserve_usn_and_mtime)?;
+                Ok(conf.id.0)
+            })
+        })
+        .map(Into::into)
+    }
+
+    fn all_deck_config_legacy(&mut self, _input: Empty) -> BackendResult<pb::Bytes> {
+        self.with_col(|col| {
+            let conf: Vec<DeckConfSchema11> = col
+                .storage
+                .all_deck_config()?
+                .into_iter()
+                .map(Into::into)
+                .collect();
+            serde_json::to_vec(&conf).map_err(Into::into)
+        })
+        .map(Into::into)
+    }
+
+    fn new_deck_config_legacy(&mut self, _input: Empty) -> BackendResult<pb::Bytes> {
+        serde_json::to_vec(&DeckConfSchema11::default())
+            .map_err(Into::into)
+            .map(Into::into)
+    }
+
+    fn remove_deck_config(&mut self, input: pb::Int64) -> BackendResult<Empty> {
+        self.with_col(|col| col.transact(None, |col| col.remove_deck_config(DeckConfID(input.val))))
+            .map(Into::into)
+    }
+
+    fn get_deck_config_legacy(&mut self, input: pb::Int64) -> BackendResult<pb::Bytes> {
+        self.with_col(|col| {
+            let conf = col.get_deck_config(DeckConfID(input.val), true)?.unwrap();
+            let conf: DeckConfSchema11 = conf.into();
+            Ok(serde_json::to_vec(&conf)?)
+        })
+        .map(Into::into)
+    }
+
+    // media
+    //-------------------------------------------------------------------
 
     fn sync_media(&mut self, input: SyncMediaIn) -> BackendResult<Empty> {
         let mut guard = self.col.lock().unwrap();
@@ -419,6 +515,38 @@ impl BackendService for Backend {
             mgr.remove_files(&mut ctx, &input.fnames)
         })
         .map(Into::into)
+    }
+
+    fn check_media(&mut self, _input: pb::Empty) -> Result<pb::CheckMediaOut> {
+        let callback =
+            |progress: usize| self.fire_progress_callback(Progress::MediaCheck(progress as u32));
+
+        self.with_col(|col| {
+            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
+            col.transact(None, |ctx| {
+                let mut checker = MediaChecker::new(ctx, &mgr, callback);
+                let mut output = checker.check()?;
+
+                let report = checker.summarize_output(&mut output);
+
+                Ok(pb::CheckMediaOut {
+                    unused: output.unused,
+                    missing: output.missing,
+                    report,
+                    have_trash: output.trash_count > 0,
+                })
+            })
+        })
+    }
+
+    // misc
+
+    fn check_database(&mut self, _input: pb::Empty) -> BackendResult<pb::CheckDatabaseOut> {
+        self.with_col(|col| {
+            col.check_database().map(|problems| pb::CheckDatabaseOut {
+                problems: problems.to_i18n_strings(&col.i18n),
+            })
+        })
     }
 }
 
@@ -547,16 +675,6 @@ impl Backend {
                 OValue::UpdateCard(pb::Empty {})
             }
             Value::AddCard(card) => OValue::AddCard(self.add_card(card)?),
-            Value::GetDeckConfig(dcid) => OValue::GetDeckConfig(self.get_deck_config(dcid)?),
-            Value::AddOrUpdateDeckConfig(input) => {
-                OValue::AddOrUpdateDeckConfig(self.add_or_update_deck_config(input)?)
-            }
-            Value::AllDeckConfig(_) => OValue::AllDeckConfig(self.all_deck_config()?),
-            Value::NewDeckConfig(_) => OValue::NewDeckConfig(self.new_deck_config()?),
-            Value::RemoveDeckConfig(dcid) => {
-                self.remove_deck_config(dcid)?;
-                OValue::RemoveDeckConfig(pb::Empty {})
-            }
             Value::AbortMediaSync(_) => {
                 self.abort_media_sync();
                 OValue::AbortMediaSync(pb::Empty {})
@@ -582,7 +700,6 @@ impl Backend {
             Value::GetChangedNotetypes(_) => {
                 OValue::GetChangedNotetypes(self.get_changed_notetypes()?)
             }
-            Value::GetAllDecks(_) => OValue::GetAllDecks(self.get_all_decks()?),
             Value::GetStockNotetypeLegacy(kind) => {
                 OValue::GetStockNotetypeLegacy(self.get_stock_notetype_legacy(kind)?)
             }
@@ -611,18 +728,6 @@ impl Backend {
                 OValue::UpdateNote(pb::Empty {})
             }
             Value::GetNote(nid) => OValue::GetNote(self.get_note(nid)?),
-            Value::GetDeckNames(input) => OValue::GetDeckNames(self.get_deck_names(input)?),
-            Value::AddOrUpdateDeckLegacy(input) => {
-                OValue::AddOrUpdateDeckLegacy(self.add_or_update_deck_legacy(input)?)
-            }
-            Value::NewDeckLegacy(filtered) => {
-                OValue::NewDeckLegacy(self.new_deck_legacy(filtered)?)
-            }
-
-            Value::RemoveDeck(did) => OValue::RemoveDeck({
-                self.remove_deck(did)?;
-                pb::Empty {}
-            }),
             Value::FieldNamesForNotes(input) => {
                 OValue::FieldNamesForNotes(self.field_names_for_notes(input)?)
             }
@@ -845,45 +950,6 @@ impl Backend {
         Ok(card.id.0)
     }
 
-    fn get_deck_config(&self, dcid: i64) -> Result<Vec<u8>> {
-        self.with_col(|col| {
-            let conf = col.get_deck_config(DeckConfID(dcid), true)?.unwrap();
-            let conf: DeckConfSchema11 = conf.into();
-            Ok(serde_json::to_vec(&conf)?)
-        })
-    }
-
-    fn add_or_update_deck_config(&self, input: AddOrUpdateDeckConfigIn) -> Result<i64> {
-        let conf: DeckConfSchema11 = serde_json::from_slice(&input.config)?;
-        let mut conf: DeckConf = conf.into();
-        self.with_col(|col| {
-            col.transact(None, |col| {
-                col.add_or_update_deck_config(&mut conf, input.preserve_usn_and_mtime)?;
-                Ok(conf.id.0)
-            })
-        })
-    }
-
-    fn all_deck_config(&self) -> Result<Vec<u8>> {
-        self.with_col(|col| {
-            let conf: Vec<DeckConfSchema11> = col
-                .storage
-                .all_deck_config()?
-                .into_iter()
-                .map(Into::into)
-                .collect();
-            serde_json::to_vec(&conf).map_err(Into::into)
-        })
-    }
-
-    fn new_deck_config(&self) -> Result<Vec<u8>> {
-        serde_json::to_vec(&DeckConfSchema11::default()).map_err(Into::into)
-    }
-
-    fn remove_deck_config(&self, dcid: i64) -> Result<()> {
-        self.with_col(|col| col.transact(None, |col| col.remove_deck_config(DeckConfID(dcid))))
-    }
-
     fn before_upload(&self) -> Result<()> {
         self.with_col(|col| col.before_upload())
     }
@@ -972,13 +1038,6 @@ impl Backend {
         //     let nts = col.storage.get_all_notetypes_as_schema11()?;
         //     serde_json::to_vec(&nts).map_err(Into::into)
         // })
-    }
-
-    fn get_all_decks(&self) -> Result<Vec<u8>> {
-        self.with_col(|col| {
-            let decks = col.storage.get_all_decks_as_schema11()?;
-            serde_json::to_vec(&decks).map_err(Into::into)
-        })
     }
 
     fn get_notetype_names(&self) -> Result<pb::NoteTypeNames> {
@@ -1076,52 +1135,6 @@ impl Backend {
                 .ok_or(AnkiError::NotFound)
                 .map(Into::into)
         })
-    }
-
-    fn get_deck_names(&self, input: pb::GetDeckNamesIn) -> Result<pb::DeckNames> {
-        self.with_col(|col| {
-            let names = if input.include_filtered {
-                col.get_all_deck_names(input.skip_empty_default)?
-            } else {
-                col.get_all_normal_deck_names()?
-            };
-            Ok(pb::DeckNames {
-                entries: names
-                    .into_iter()
-                    .map(|(id, name)| pb::DeckNameId { id: id.0, name })
-                    .collect(),
-            })
-        })
-    }
-
-    fn add_or_update_deck_legacy(&self, input: pb::AddOrUpdateDeckLegacyIn) -> Result<i64> {
-        self.with_col(|col| {
-            let schema11: DeckSchema11 = serde_json::from_slice(&input.deck)?;
-            let mut deck: Deck = schema11.into();
-            if input.preserve_usn_and_mtime {
-                col.transact(None, |col| {
-                    let usn = col.usn()?;
-                    col.add_or_update_single_deck(&mut deck, usn)
-                })?;
-            } else {
-                col.add_or_update_deck(&mut deck)?;
-            }
-            Ok(deck.id.0)
-        })
-    }
-
-    fn new_deck_legacy(&self, filtered: bool) -> Result<Vec<u8>> {
-        let deck = if filtered {
-            Deck::new_filtered()
-        } else {
-            Deck::new_normal()
-        };
-        let schema11: DeckSchema11 = deck.into();
-        serde_json::to_vec(&schema11).map_err(Into::into)
-    }
-
-    fn remove_deck(&self, did: i64) -> Result<()> {
-        self.with_col(|col| col.remove_deck_and_child_decks(DeckID(did)))
     }
 
     fn field_names_for_notes(
