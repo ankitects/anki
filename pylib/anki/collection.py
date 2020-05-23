@@ -26,13 +26,7 @@ from anki.lang import _
 from anki.media import MediaManager, media_paths_from_col_path
 from anki.models import ModelManager
 from anki.notes import Note
-from anki.rsbackend import (
-    TR,
-    DBError,
-    FormatTimeSpanContext,
-    RustBackend,
-    pb,
-)
+from anki.rsbackend import TR, DBError, FormatTimeSpanContext, RustBackend, pb
 from anki.sched import Scheduler as V1Scheduler
 from anki.schedv2 import Scheduler as V2Scheduler
 from anki.tags import TagManager
@@ -86,7 +80,7 @@ class Collection:
         seconds: float,
         context: FormatTimeSpanContext = FormatTimeSpanContext.INTERVALS,
     ) -> str:
-        return self.backend.format_timespan(seconds, context)
+        return self.backend.format_timespan(seconds=seconds, context=context)
 
     # Scheduler
     ##########################################################################
@@ -246,7 +240,12 @@ class Collection:
             log_path = self.path.replace(".anki2", "2.log")
 
         # connect
-        self.backend.open_collection(self.path, media_dir, media_db, log_path)
+        self.backend.open_collection(
+            collection_path=self.path,
+            media_folder_path=media_dir,
+            media_db_path=media_db,
+            log_path=log_path,
+        )
         self.db = DBProxy(weakref.proxy(self.backend))
         self.db.begin()
 
@@ -317,7 +316,7 @@ class Collection:
         return Note(self, self.models.current(forDeck))
 
     def add_note(self, note: Note, deck_id: int) -> None:
-        note.id = self.backend.add_note(note.to_backend_note(), deck_id)
+        note.id = self.backend.add_note(note=note.to_backend_note(), deck_id=deck_id)
 
     def addNote(self, note: Note) -> int:
         self.add_note(note, note.model()["did"])
@@ -423,7 +422,7 @@ select id from notes where id in %s and id not in (select nid from cards)"""
             mode = pb.SortOrder(
                 builtin=pb.BuiltinSearchOrder(kind=kind, reverse=reverse)
             )
-        return self.backend.search_cards(query, mode)
+        return self.backend.search_cards(search=query, order=mode)
 
     def find_notes(self, query: str) -> Sequence[int]:
         return self.backend.search_notes(query)

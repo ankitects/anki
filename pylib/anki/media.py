@@ -96,7 +96,7 @@ class MediaManager:
         """Write the file to the media folder, renaming if not unique.
 
         Returns possibly-renamed filename."""
-        return self.col.backend.add_media_file(desired_fname, data)
+        return self.col.backend.add_media_file(desired_name=desired_fname, data=data)
 
     def add_extension_based_on_mime(self, fname: str, content_type: str) -> str:
         "If jpg or png mime, add .png/.jpg if missing extension."

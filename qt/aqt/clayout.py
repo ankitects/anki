@@ -304,7 +304,7 @@ class CardLayout(QDialog):
         self.preview_web.set_bridge_command(self._on_bridge_cmd, self)
 
         if self._isCloze():
-            nums = self.note.cloze_numbers_in_fields()
+            nums = list(self.note.cloze_numbers_in_fields())
             if self.ord + 1 not in nums:
                 # current card is empty
                 nums.append(self.ord + 1)

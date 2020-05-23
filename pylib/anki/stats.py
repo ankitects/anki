@@ -177,7 +177,7 @@ from revlog where id > ? """
             return "<b>" + str(s) + "</b>"
 
         if cards:
-            b += self.col.backend.studied_today(cards, float(thetime))
+            b += self.col.backend.studied_today(cards=cards, seconds=float(thetime))
             # again/pass count
             b += "<br>" + _("Again count: %s") % bold(failed)
             if cards:

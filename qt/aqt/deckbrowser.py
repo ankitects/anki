@@ -145,7 +145,7 @@ where id > ?""",
         )
         cards = cards or 0
         thetime = thetime or 0
-        buf = self.mw.col.backend.studied_today(cards, float(thetime))
+        buf = self.mw.col.backend.studied_today(cards=cards, seconds=float(thetime))
         return buf
 
     def _renderDeckTree(self, top: DeckTreeNode) -> str:
