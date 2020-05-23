@@ -11,7 +11,7 @@ import anki.backend_pb2 as pb
 from anki.consts import *
 from anki.errors import DeckRenameError
 from anki.lang import _
-from anki.rsbackend import DeckTreeNode, NotFoundError, from_json_bytes
+from anki.rsbackend import DeckTreeNode, NotFoundError, from_json_bytes, to_json_bytes
 from anki.utils import ids2str, intTime
 
 # legacy code may pass this in as the type argument to .id()
@@ -108,8 +108,8 @@ class DeckManager:
         self, skip_empty_default=False, include_filtered=True
     ) -> Sequence[pb.DeckNameID]:
         "A sorted sequence of deck names and IDs."
-        return self.col.backend.get_deck_names_and_ids(
-            skip_empty_default, include_filtered
+        return self.col.backend.get_deck_names(
+            skip_empty_default=skip_empty_default, include_filtered=include_filtered
         )
 
     def id_for_name(self, name: str) -> Optional[int]:
@@ -125,10 +125,10 @@ class DeckManager:
         return not self.get_legacy(int(id))
 
     def get_all_legacy(self) -> List[Dict]:
-        return list(self.col.backend.get_all_decks().values())
+        return list(from_json_bytes(self.col.backend.get_all_decks_legacy()).values())
 
     def new_deck_legacy(self, filtered: bool) -> Dict:
-        return self.col.backend.new_deck_legacy(filtered)
+        return from_json_bytes(self.col.backend.new_deck_legacy(filtered))
 
     def deck_tree(self) -> pb.DeckTreeNode:
         return self.col.backend.deck_tree(include_counts=False, top_deck_id=0)
@@ -201,11 +201,11 @@ class DeckManager:
     def update(self, g: Dict[str, Any], preserve_usn=True) -> None:
         "Add or update an existing deck. Used for syncing and merging."
         try:
-            self.col.backend.add_or_update_deck_legacy(g, preserve_usn)
+            g["id"] = self.col.backend.add_or_update_deck_legacy(
+                to_json_bytes(g), preserve_usn
+            )
         except anki.rsbackend.DeckIsFilteredError:
             raise DeckRenameError("deck was filtered")
-        except anki.rsbackend.ExistsError:
-            raise DeckRenameError("deck already exists")
 
     def rename(self, g: Dict[str, Any], newName: str) -> None:
         "Rename deck prefix to NAME if not exists. Updates children."
@@ -257,7 +257,7 @@ class DeckManager:
 
     def all_config(self) -> List:
         "A list of all deck config."
-        return list(self.col.backend.all_deck_config())
+        return list(from_json_bytes(self.col.backend.all_deck_config_legacy()))
 
     def confForDid(self, did: int) -> Any:
         deck = self.get(did, default=False)
@@ -274,10 +274,15 @@ class DeckManager:
         return deck
 
     def get_config(self, conf_id: int) -> Any:
-        return self.col.backend.get_deck_config(conf_id)
+        try:
+            return from_json_bytes(self.col.backend.get_deck_config_legacy(conf_id))
+        except NotFoundError:
+            return None
 
     def update_config(self, conf: Dict[str, Any], preserve_usn=False) -> None:
-        self.col.backend.add_or_update_deck_config(conf, preserve_usn)
+        conf["id"] = self.col.backend.add_or_update_deck_config_legacy(
+            to_json_bytes(conf), preserve_usn
+        )
 
     def add_config(
         self, name: str, clone_from: Optional[Dict[str, Any]] = None
@@ -286,7 +291,7 @@ class DeckManager:
             conf = copy.deepcopy(clone_from)
             conf["id"] = 0
         else:
-            conf = self.col.backend.new_deck_config()
+            conf = from_json_bytes(self.col.backend.new_deck_config_legacy())
         conf["name"] = name
         self.update_config(conf)
         return conf
@@ -321,7 +326,7 @@ class DeckManager:
 
     def restoreToDefault(self, conf) -> None:
         oldOrder = conf["new"]["order"]
-        new = self.col.backend.new_deck_config()
+        new = from_json_bytes(self.col.backend.new_deck_config_legacy())
         new["id"] = conf["id"]
         new["name"] = conf["name"]
         self.update_config(new)
