@@ -202,6 +202,31 @@ describe("Test question and answer audios", () => {
         }
     );
 
+    test(`Test disabling the setup(auto=false) stops starting the audio immediately\n...`, async function() {
+        await showQuestion(
+            `silence 1.mp3`,
+            `ankimedia.setup({auto: false}); ankimedia.add( "front", "silence 1.mp3" );`,
+            `questionTemplate`
+        );
+        await page.waitForSelector(`audio[id="silence 1.mp3"]`);
+        expect(await getPausedMedias()).toEqual(0);
+        let question_times = await getPlayTimes("silence 1.mp3");
+
+        await showQuestion(
+            `silence 2.mp3`,
+            `ankimedia.setup(); ankimedia.add( "front", "silence 2.mp3" );`,
+            `questionTemplate`
+        );
+        await page.waitForSelector(`audio[id="silence 2.mp3"]`);
+        expect(await getPausedMedias()).toEqual(0);
+        let second_question_times = await getPlayTimes("silence 2.mp3");
+
+        expect(!question_times[0]).toEqual(true);
+        expect(!question_times[1]).toEqual(true);
+        expect(!second_question_times[0]).toEqual(true);
+        expect(!second_question_times[1]).toEqual(true);
+    });
+
     test(`Test playing an audio without a HTML tag does not throw\n...`, async function() {
         await showQuestion(
             ``,

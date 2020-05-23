@@ -228,6 +228,8 @@ class Previewer(QDialog):
             else:
                 audio = []
                 self._web.setPlaybackRequiresGesture(True)
+                self._web.eval("ankimedia.setup({auto: false});")
+
             gui_hooks.av_player_will_play_tags(audio, self._state, self)
             av_player.play_tags(audio)
             txt = self.mw.prepare_card_text_for_display(txt)

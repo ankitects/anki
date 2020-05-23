@@ -366,6 +366,9 @@ class Reviewer:
         a = self.mw.col.media.escape_media_filenames(c.answer())
 
         self.web.eval("ankimedia._reset();")
+        if not c.autoplay():
+            self.web.eval("ankimedia.setup({auto: false});")
+
         self.web.eval(
             f"_showQuestion({json.dumps(q)}, {json.dumps(a)}, '{bodyclass}');"
         )

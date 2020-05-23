@@ -51,6 +51,7 @@ class AnkiMediaQueue {
     medias: Map<string, HTMLAudioElement>;
     duplicates: Map<string, number>;
     frontmedias: Map<string, number>;
+    autoplay: boolean;
     is_playing: boolean;
     is_autoplay: boolean;
     is_first: boolean;
@@ -99,6 +100,7 @@ class AnkiMediaQueue {
         this.medias.clear();
         this.duplicates.clear();
         this.frontmedias.clear();
+        this.autoplay = true;
         this.is_playing = false;
         this.is_autoplay = false;
         this.is_first = false;
@@ -222,7 +224,10 @@ class AnkiMediaQueue {
 
         if (!this.has_previewed && (this._checkPreviewPage() || where === this.where)) {
             this.playing.push([filename, speed]);
-            this._play();
+
+            if (this.autoplay) {
+                this._play();
+            }
         }
     }
 
@@ -322,6 +327,7 @@ class AnkiMediaQueue {
      *        when the answer was showed before it had finished playing.
      * @param {function} extra - a function(media) to be run on each media of the page.
      * @param {array} medias   - an array of initial values to be passed to setAnkiMedia() calls.
+     * @param {boolean} auto   - if true (default), auto-play the media elements.
      */
     setup(parameters: any = {}) {
         let default_parameters = {
@@ -329,12 +335,14 @@ class AnkiMediaQueue {
             wait: this.wait_question,
             extra: undefined,
             medias: undefined,
+            auto: this.autoplay,
         };
         let {
             delay = default_parameters.delay,
             wait = default_parameters.wait,
             extra = default_parameters.extra,
             medias = default_parameters.medias,
+            auto = default_parameters.auto,
         } = parameters;
 
         if (typeof parameters !== "object") {
@@ -374,6 +382,7 @@ class AnkiMediaQueue {
         this.where = document.getElementById("answer") ? "back" : "front";
         this.delay = delay;
         this.wait_question = wait;
+        this.autoplay = auto;
         this._fixDuplicates();
         this._moveAudioElements(extra);
     }
