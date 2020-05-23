@@ -36,7 +36,16 @@ class TagManager:
     def register(
         self, tags: Collection[str], usn: Optional[int] = None, clear=False
     ) -> None:
-        self.col.backend.register_tags(" ".join(tags), usn, clear)
+        if usn is None:
+            preserve_usn = False
+            usn_ = 0
+        else:
+            usn_ = usn
+            preserve_usn = True
+
+        self.col.backend.register_tags(
+            tags=" ".join(tags), preserve_usn=preserve_usn, usn=usn_, clear_first=clear
+        )
 
     def registerNotes(self, nids: Optional[List[int]] = None) -> None:
         "Add any missing tags from notes to the tags list."

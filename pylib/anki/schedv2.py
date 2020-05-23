@@ -1369,9 +1369,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
         ivl_secs = self.nextIvl(card, ease)
         if not ivl_secs:
             return _("(end)")
-        s = self.col.backend.format_time_span(
-            ivl_secs, FormatTimeSpanContext.ANSWER_BUTTONS
-        )
+        s = self.col.format_timespan(ivl_secs, FormatTimeSpanContext.ANSWER_BUTTONS)
         if ivl_secs < self.col.conf["collapseTime"]:
             s = "<" + s
         return s

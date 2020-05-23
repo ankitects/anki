@@ -26,7 +26,13 @@ from anki.lang import _
 from anki.media import MediaManager, media_paths_from_col_path
 from anki.models import ModelManager
 from anki.notes import Note
-from anki.rsbackend import TR, DBError, RustBackend, pb
+from anki.rsbackend import (
+    TR,
+    DBError,
+    FormatTimeSpanContext,
+    RustBackend,
+    pb,
+)
 from anki.sched import Scheduler as V1Scheduler
 from anki.schedv2 import Scheduler as V2Scheduler
 from anki.tags import TagManager
@@ -65,12 +71,22 @@ class Collection:
         n = os.path.splitext(os.path.basename(self.path))[0]
         return n
 
-    def tr(self, key: TR, **kwargs: Union[str, int, float]) -> str:
-        return self.backend.translate(key, **kwargs)
-
     def weakref(self) -> Collection:
         "Shortcut to create a weak reference that doesn't break code completion."
         return weakref.proxy(self)
+
+    # I18n/messages
+    ##########################################################################
+
+    def tr(self, key: TR, **kwargs: Union[str, int, float]) -> str:
+        return self.backend.translate(key, **kwargs)
+
+    def format_timespan(
+        self,
+        seconds: float,
+        context: FormatTimeSpanContext = FormatTimeSpanContext.INTERVALS,
+    ) -> str:
+        return self.backend.format_timespan(seconds, context)
 
     # Scheduler
     ##########################################################################

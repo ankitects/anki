@@ -323,7 +323,7 @@ class DataModel(QAbstractTableModel):
                 return _("(new)")
             elif c.type == CARD_TYPE_LRN:
                 return _("(learning)")
-            return self.col.backend.format_time_span(c.ivl * 86400)
+            return self.col.format_timespan(c.ivl * 86400)
         elif type == "cardEase":
             if c.type == CARD_TYPE_NEW:
                 return _("(new)")
@@ -1491,7 +1491,7 @@ border: 1px solid #000; padding: 3px; '>%s</div>"""
 
             s += ("<td align=right>%s</td>" * 2) % (
                 "%d%%" % (factor / 10) if factor else "",
-                self.col.backend.format_time_span(taken),
+                self.col.format_timespan(taken),
             ) + "</tr>"
         s += "</table>"
         if cnt < self.card.reps:

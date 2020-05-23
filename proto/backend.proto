@@ -158,6 +158,27 @@ service BackendService {
     rpc SyncMedia (SyncMediaIn) returns (Empty);
     rpc AbortMediaSync (Empty) returns (Empty);
     rpc BeforeUpload (Empty) returns (Empty);
+
+    // translation/messages
+
+    rpc TranslateString (TranslateStringIn) returns (String);
+    rpc FormatTimespan (FormatTimespanIn) returns (String);
+
+    // tags
+
+    rpc RegisterTags (RegisterTagsIn) returns (Bool);
+    rpc AllTags (Empty) returns (AllTagsOut);
+    rpc GetChangedTags (Int32) returns (GetChangedTagsOut);
+
+    // config/preferences
+
+    rpc GetConfigJson (String) returns (Json);
+    rpc SetConfigJson (SetConfigJsonIn) returns (Empty);
+    rpc RemoveConfig (String) returns (Empty);
+    rpc SetAllConfig (Json) returns (Empty);
+    rpc GetAllConfig (Empty) returns (Json);
+    rpc GetPreferences (Empty) returns (Preferences);
+    rpc SetPreferences (Preferences) returns (Empty);
 }
 
 // Protobuf stored in .anki2 files
@@ -398,48 +419,8 @@ message I18nBackendInit {
     string locale_folder_path = 5;
 }
 
-// Legacy enum - needs migrating to RPC above
+// Errors
 ///////////////////////////////////////////////////////////
-
-message BackendInput {
-    oneof value {
-        TranslateStringIn translate_string = 30;
-        FormatTimeSpanIn format_time_span = 31;
-
-        RegisterTagsIn register_tags = 48;
-        Empty all_tags = 50;
-        int32 get_changed_tags = 51;
-
-        string get_config_json = 52;
-        SetConfigJson set_config_json = 53;
-        bytes set_all_config = 54;
-        Empty get_all_config = 55;
-
-        Empty get_preferences = 84;
-        Preferences set_preferences = 85;
-    }
-}
-
-message BackendOutput {
-    oneof value {
-        string translate_string = 30;
-        string format_time_span = 31;
-
-        bool register_tags = 48;
-        AllTagsOut all_tags = 50;
-        GetChangedTagsOut get_changed_tags = 51;
-
-        bytes get_config_json = 52;
-        Empty set_config_json = 53;
-        Empty set_all_config = 54;
-        bytes get_all_config = 55;
-
-        Preferences get_preferences = 84;
-        Empty set_preferences = 85;
-
-        BackendError error = 2047;
-    }
-}
 
 message BackendError {
     // localized error description suitable for displaying to the user
@@ -503,6 +484,10 @@ message MediaSyncUploadProgress {
     uint32 files = 1;
     uint32 deletions = 2;
 }
+
+// Messages
+///////////////////////////////////////////////////////////
+
 
 message SchedTimingTodayOut {
     uint32 days_elapsed = 1;
@@ -632,7 +617,7 @@ message TranslateArgValue {
     }
 }
 
-message FormatTimeSpanIn {
+message FormatTimespanIn {
     enum Context {
         PRECISE = 0;
         ANSWER_BUTTONS = 1;
@@ -736,12 +721,9 @@ message GetChangedTagsOut {
     repeated string tags = 1;
 }
 
-message SetConfigJson {
+message SetConfigJsonIn {
     string key = 1;
-    oneof op {
-        bytes val = 2;
-        Empty remove = 3;
-    }
+    bytes val = 2;
 }
 
 enum StockNoteType {
