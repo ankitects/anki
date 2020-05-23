@@ -49,8 +49,10 @@ def python_type_inner(field):
         return "str"
     elif type == TYPE_BYTES:
         return "bytes"
-    elif type == 11:
+    elif type == TYPE_MESSAGE:
         return "pb." + field.message_type.name
+    elif type == TYPE_ENUM:
+        return "pb." + field.enum_type.name
     else:
         raise Exception(f"unknown type: {type}")
 
