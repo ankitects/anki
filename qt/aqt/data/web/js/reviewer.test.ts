@@ -138,8 +138,8 @@ describe("Test question and answer audios", () => {
         await page.evaluate(async mp3 => {
             let audio = document.getElementById(mp3) as HTMLAudioElement;
             return [
-                audio.getAttribute("data-has-started-at"),
-                audio.getAttribute("data-has-ended-at"),
+                parseFloat(audio.getAttribute("data-has-started-at")),
+                parseFloat(audio.getAttribute("data-has-ended-at")),
             ];
         }, mp3file);
 
@@ -198,7 +198,7 @@ describe("Test question and answer audios", () => {
             let audio_src = await getAudioSource(front_mp3);
 
             expect(audio_src.replace(/%20/g, " ")).toEqual(`${address}/${front_mp3}`);
-            expect(question_times[0] < question_times[1]).toEqual(true);
+            expect(question_times[0]).toBeLessThan(question_times[1]);
         }
     );
 
@@ -221,10 +221,10 @@ describe("Test question and answer audios", () => {
         expect(await getPausedMedias()).toEqual(0);
         let second_question_times = await getPlayTimes("silence 2.mp3");
 
-        expect(!question_times[0]).toEqual(true);
-        expect(!question_times[1]).toEqual(true);
-        expect(!second_question_times[0]).toEqual(true);
-        expect(!second_question_times[1]).toEqual(true);
+        expect(question_times[0]).toBeFalsy();
+        expect(question_times[1]).toBeFalsy();
+        expect(second_question_times[0]).toBeFalsy();
+        expect(second_question_times[1]).toBeFalsy();
     });
 
     test(`Test playing an audio without a HTML tag does not throw\n...`, async function() {
@@ -272,11 +272,11 @@ describe("Test question and answer audios", () => {
         let question_times = await getPlayTimes("silence 1.mp3");
         let answer_times = await getPlayTimes("silence 2.mp3");
 
-        expect(!!question_times[0]).toEqual(true);
-        expect(!!question_times[1]).toEqual(true);
+        expect(question_times[0]).toBeTruthy();
+        expect(question_times[1]).toBeTruthy();
 
-        expect(!!answer_times[0]).toEqual(true);
-        expect(!!answer_times[1]).toEqual(true);
+        expect(answer_times[0]).toBeTruthy();
+        expect(answer_times[1]).toBeTruthy();
     });
 
     test(`Test ankimedia.skip_front with add should skip playing the front media\n...`, async function() {
@@ -293,11 +293,11 @@ describe("Test question and answer audios", () => {
         let question_times = await getPlayTimes("silence 1.mp3");
         let answer_times = await getPlayTimes("silence 2.mp3");
 
-        expect(!question_times[0]).toEqual(true);
-        expect(!question_times[1]).toEqual(true);
+        expect(question_times[0]).toBeFalsy();
+        expect(question_times[1]).toBeFalsy();
 
-        expect(!answer_times[0]).toEqual(false);
-        expect(!answer_times[1]).toEqual(false);
+        expect(answer_times[0]).toBeTruthy();
+        expect(answer_times[1]).toBeTruthy();
     });
 
     test.each([
@@ -338,9 +338,9 @@ describe("Test question and answer audios", () => {
                 `${address}/${refront_mp3}`
             );
 
-            expect(second_question_times[0] < second_question_times[1]).toEqual(true);
-            expect(first_question_times[0] < second_question_times[0]).toEqual(true);
-            expect(first_question_times[1] < second_question_times[1]).toEqual(true);
+            expect(second_question_times[0]).toBeLessThan(second_question_times[1]);
+            expect(first_question_times[0]).toBeLessThan(second_question_times[0]);
+            expect(first_question_times[1]).toBeLessThan(second_question_times[1]);
         }
     );
 
@@ -397,13 +397,13 @@ describe("Test question and answer audios", () => {
             );
 
             // assert the question audio was not replayed when showing the answer
-            expect(question_times[0] == question_times_recheck[0]).toEqual(true);
-            expect(question_times[1] == question_times_recheck[1]).toEqual(true);
+            expect(question_times[0]).toEqual(question_times_recheck[0]);
+            expect(question_times[1]).toEqual(question_times_recheck[1]);
 
-            expect(question_times[0] < question_times[1]).toEqual(true);
-            expect(answer_times[0] < answer_times[1]).toEqual(true);
-            expect(question_times[0] < answer_times[0]).toEqual(true);
-            expect(question_times[1] < answer_times[1]).toEqual(true);
+            expect(question_times[0]).toBeLessThan(question_times[1]);
+            expect(answer_times[0]).toBeLessThan(answer_times[1]);
+            expect(question_times[0]).toBeLessThan(answer_times[0]);
+            expect(question_times[1]).toBeLessThan(answer_times[1]);
         }
     );
 
@@ -425,10 +425,10 @@ describe("Test question and answer audios", () => {
         let answer_times = await getPlayTimes("silence 2.mp3");
 
         expect(await getPausedMedias()).toEqual(0);
-        expect(question_times[0] < question_times[1]).toEqual(true);
-        expect(answer_times[0] < answer_times[1]).toEqual(true);
-        expect(question_times[0] < answer_times[0]).toEqual(true);
-        expect(question_times[1] < answer_times[1]).toEqual(true);
+        expect(question_times[0]).toBeLessThan(question_times[1]);
+        expect(answer_times[0]).toBeLessThan(answer_times[1]);
+        expect(question_times[0]).toBeLessThan(answer_times[0]);
+        expect(question_times[1]).toBeLessThan(answer_times[1]);
 
         await page.waitFor(ANKI_MEDIA_QUEUE_PREVIEW_TIMEOUT);
         await showEverything("silence 1.mp3", "silence 2.mp3");
