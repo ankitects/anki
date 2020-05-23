@@ -166,9 +166,33 @@ impl From<i64> for pb::Int64 {
     }
 }
 
+impl From<u32> for pb::UInt32 {
+    fn from(val: u32) -> Self {
+        pb::UInt32 { val }
+    }
+}
+
 impl From<()> for pb::Empty {
     fn from(_val: ()) -> Self {
         pb::Empty {}
+    }
+}
+
+impl From<pb::CardId> for CardID {
+    fn from(cid: pb::CardId) -> Self {
+        CardID(cid.cid)
+    }
+}
+
+impl From<pb::NoteId> for NoteID {
+    fn from(nid: pb::NoteId) -> Self {
+        NoteID(nid.nid)
+    }
+}
+
+impl From<pb::NoteTypeId> for NoteTypeID {
+    fn from(ntid: pb::NoteTypeId) -> Self {
+        NoteTypeID(ntid.ntid)
     }
 }
 
@@ -486,6 +510,106 @@ impl BackendService for Backend {
         .map(Into::into)
     }
 
+    // cards
+    //-------------------------------------------------------------------
+
+    fn get_card(&mut self, input: pb::CardId) -> BackendResult<pb::Card> {
+        self.with_col(|col| {
+            col.storage
+                .get_card(input.into())
+                .and_then(|opt| opt.ok_or(AnkiError::NotFound))
+                .map(card_to_pb)
+        })
+    }
+
+    fn update_card(&mut self, input: pb::Card) -> BackendResult<Empty> {
+        let mut card = pbcard_to_native(input)?;
+        self.with_col(|col| {
+            col.transact(None, |ctx| {
+                let orig = ctx
+                    .storage
+                    .get_card(card.id)?
+                    .ok_or_else(|| AnkiError::invalid_input("missing card"))?;
+                ctx.update_card(&mut card, &orig)
+            })
+        })
+        .map(Into::into)
+    }
+
+    fn add_card(&mut self, input: pb::Card) -> BackendResult<pb::CardId> {
+        let mut card = pbcard_to_native(input)?;
+        self.with_col(|col| col.transact(None, |ctx| ctx.add_card(&mut card)))?;
+        Ok(pb::CardId { cid: card.id.0 })
+    }
+
+    // notes
+    //-------------------------------------------------------------------
+
+    fn new_note(&mut self, input: pb::NoteTypeId) -> BackendResult<pb::Note> {
+        self.with_col(|col| {
+            let nt = col.get_notetype(input.into())?.ok_or(AnkiError::NotFound)?;
+            Ok(nt.new_note().into())
+        })
+    }
+
+    fn add_note(&mut self, input: pb::AddNoteIn) -> BackendResult<pb::NoteId> {
+        self.with_col(|col| {
+            let mut note: Note = input.note.ok_or(AnkiError::NotFound)?.into();
+            col.add_note(&mut note, DeckID(input.deck_id))
+                .map(|_| pb::NoteId { nid: note.id.0 })
+        })
+    }
+
+    fn update_note(&mut self, input: pb::Note) -> BackendResult<Empty> {
+        self.with_col(|col| {
+            let mut note: Note = input.into();
+            col.update_note(&mut note)
+        })
+        .map(Into::into)
+    }
+
+    fn get_note(&mut self, input: pb::NoteId) -> BackendResult<pb::Note> {
+        self.with_col(|col| {
+            col.storage
+                .get_note(input.into())?
+                .ok_or(AnkiError::NotFound)
+                .map(Into::into)
+        })
+    }
+
+    fn add_note_tags(&mut self, input: pb::AddNoteTagsIn) -> BackendResult<pb::UInt32> {
+        self.with_col(|col| {
+            col.add_tags_for_notes(&to_nids(input.nids), &input.tags)
+                .map(|n| n as u32)
+        })
+        .map(Into::into)
+    }
+
+    fn update_note_tags(&mut self, input: pb::UpdateNoteTagsIn) -> BackendResult<pb::UInt32> {
+        self.with_col(|col| {
+            col.replace_tags_for_notes(
+                &to_nids(input.nids),
+                &input.tags,
+                &input.replacement,
+                input.regex,
+            )
+            .map(|n| (n as u32).into())
+        })
+    }
+
+    fn cloze_numbers_in_note(
+        &mut self,
+        note: pb::Note,
+    ) -> BackendResult<pb::ClozeNumbersInNoteOut> {
+        let mut set = HashSet::with_capacity(4);
+        for field in &note.fields {
+            add_cloze_numbers_in_string(field, &mut set);
+        }
+        Ok(pb::ClozeNumbersInNoteOut {
+            numbers: set.into_iter().map(|n| n as u32).collect(),
+        })
+    }
+
     // media
     //-------------------------------------------------------------------
 
@@ -669,12 +793,6 @@ impl Backend {
                 self.close_collection(input.downgrade_to_schema11)?;
                 OValue::CloseCollection(Empty {})
             }
-            Value::GetCard(cid) => OValue::GetCard(self.get_card(cid)?),
-            Value::UpdateCard(card) => {
-                self.update_card(card)?;
-                OValue::UpdateCard(pb::Empty {})
-            }
-            Value::AddCard(card) => OValue::AddCard(self.add_card(card)?),
             Value::AbortMediaSync(_) => {
                 self.abort_media_sync();
                 OValue::AbortMediaSync(pb::Empty {})
@@ -721,13 +839,6 @@ impl Backend {
                 self.remove_notetype(id)?;
                 OValue::RemoveNotetype(pb::Empty {})
             }
-            Value::NewNote(ntid) => OValue::NewNote(self.new_note(ntid)?),
-            Value::AddNote(input) => OValue::AddNote(self.add_note(input)?),
-            Value::UpdateNote(note) => {
-                self.update_note(note)?;
-                OValue::UpdateNote(pb::Empty {})
-            }
-            Value::GetNote(nid) => OValue::GetNote(self.get_note(nid)?),
             Value::FieldNamesForNotes(input) => {
                 OValue::FieldNamesForNotes(self.field_names_for_notes(input)?)
             }
@@ -735,8 +846,6 @@ impl Backend {
             Value::AfterNoteUpdates(input) => {
                 OValue::AfterNoteUpdates(self.after_note_updates(input)?)
             }
-            Value::AddNoteTags(input) => OValue::AddNoteTags(self.add_note_tags(input)?),
-            Value::UpdateNoteTags(input) => OValue::UpdateNoteTags(self.update_note_tags(input)?),
             Value::SetLocalMinutesWest(mins) => OValue::SetLocalMinutesWest({
                 self.set_local_mins_west(mins)?;
                 pb::Empty {}
@@ -746,9 +855,6 @@ impl Backend {
                 self.set_preferences(prefs)?;
                 pb::Empty {}
             }),
-            Value::ClozeNumbersInNote(note) => {
-                OValue::ClozeNumbersInNote(self.cloze_numbers_in_note(note))
-            }
         })
     }
 
@@ -924,32 +1030,6 @@ impl Backend {
         self.with_col(|col| db_command_bytes(&col.storage, input))
     }
 
-    fn get_card(&self, cid: i64) -> Result<pb::GetCardOut> {
-        let card = self.with_col(|col| col.storage.get_card(CardID(cid)))?;
-        Ok(pb::GetCardOut {
-            card: card.map(card_to_pb),
-        })
-    }
-
-    fn update_card(&self, pbcard: pb::Card) -> Result<()> {
-        let mut card = pbcard_to_native(pbcard)?;
-        self.with_col(|col| {
-            col.transact(None, |ctx| {
-                let orig = ctx
-                    .storage
-                    .get_card(card.id)?
-                    .ok_or_else(|| AnkiError::invalid_input("missing card"))?;
-                ctx.update_card(&mut card, &orig)
-            })
-        })
-    }
-
-    fn add_card(&self, pbcard: pb::Card) -> Result<i64> {
-        let mut card = pbcard_to_native(pbcard)?;
-        self.with_col(|col| col.transact(None, |ctx| ctx.add_card(&mut card)))?;
-        Ok(card.id.0)
-    }
-
     fn before_upload(&self) -> Result<()> {
         self.with_col(|col| col.before_upload())
     }
@@ -1104,39 +1184,6 @@ impl Backend {
         self.with_col(|col| col.remove_notetype(NoteTypeID(id)))
     }
 
-    fn new_note(&self, ntid: i64) -> Result<pb::Note> {
-        self.with_col(|col| {
-            let nt = col
-                .get_notetype(NoteTypeID(ntid))?
-                .ok_or(AnkiError::NotFound)?;
-            Ok(nt.new_note().into())
-        })
-    }
-
-    fn add_note(&self, input: pb::AddNoteIn) -> Result<i64> {
-        self.with_col(|col| {
-            let mut note: Note = input.note.ok_or(AnkiError::NotFound)?.into();
-            col.add_note(&mut note, DeckID(input.deck_id))
-                .map(|_| note.id.0)
-        })
-    }
-
-    fn update_note(&self, pbnote: pb::Note) -> Result<()> {
-        self.with_col(|col| {
-            let mut note: Note = pbnote.into();
-            col.update_note(&mut note)
-        })
-    }
-
-    fn get_note(&self, nid: i64) -> Result<pb::Note> {
-        self.with_col(|col| {
-            col.storage
-                .get_note(NoteID(nid))?
-                .ok_or(AnkiError::NotFound)
-                .map(Into::into)
-        })
-    }
-
     fn field_names_for_notes(
         &self,
         input: pb::FieldNamesForNotesIn,
@@ -1184,25 +1231,6 @@ impl Backend {
         })
     }
 
-    fn add_note_tags(&self, input: pb::AddNoteTagsIn) -> Result<u32> {
-        self.with_col(|col| {
-            col.add_tags_for_notes(&to_nids(input.nids), &input.tags)
-                .map(|n| n as u32)
-        })
-    }
-
-    fn update_note_tags(&self, input: pb::UpdateNoteTagsIn) -> Result<u32> {
-        self.with_col(|col| {
-            col.replace_tags_for_notes(
-                &to_nids(input.nids),
-                &input.tags,
-                &input.replacement,
-                input.regex,
-            )
-            .map(|n| n as u32)
-        })
-    }
-
     fn set_local_mins_west(&self, mins: i32) -> Result<()> {
         self.with_col(|col| col.transact(None, |col| col.set_local_mins_west(mins)))
     }
@@ -1213,16 +1241,6 @@ impl Backend {
 
     fn set_preferences(&self, prefs: pb::Preferences) -> Result<()> {
         self.with_col(|col| col.transact(None, |col| col.set_preferences(prefs)))
-    }
-
-    fn cloze_numbers_in_note(&self, note: pb::Note) -> pb::ClozeNumbersInNoteOut {
-        let mut set = HashSet::with_capacity(4);
-        for field in &note.fields {
-            add_cloze_numbers_in_string(field, &mut set);
-        }
-        pb::ClozeNumbersInNoteOut {
-            numbers: set.into_iter().map(|n| n as u32).collect(),
-        }
     }
 
     fn get_stock_notetype_legacy(&self, kind: i32) -> Result<Vec<u8>> {
