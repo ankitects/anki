@@ -199,6 +199,7 @@ class Previewer(QDialog):
                 av_player.play_tags(audio)
             else:
                 av_player.clear_queue_and_maybe_interrupt()
+                self._web.eval("ankimedia.setup({auto: false});")
 
             txt = self.mw.prepare_card_text_for_display(txt)
             txt = gui_hooks.card_will_show(txt, c, "preview" + self._state.capitalize())

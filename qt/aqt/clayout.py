@@ -430,6 +430,9 @@ class CardLayout(QDialog):
         if not self.have_autoplayed:
             self.preview_web.eval("ankimedia._reset();")
 
+            if not c.autoplay():
+                self.preview_web.eval("ankimedia.setup({auto: false});")
+
         if self.pform.preview_front.isChecked():
             q = ti(self.mw.prepare_card_text_for_display(c.q()))
             q = gui_hooks.card_will_show(q, c, "clayoutQuestion")

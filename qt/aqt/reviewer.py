@@ -194,6 +194,9 @@ class Reviewer:
         bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
 
         self.web.eval("ankimedia._reset();")
+        if not c.autoplay():
+            self.web.eval("ankimedia.setup({auto: false});")
+
         self.web.eval("_showQuestion(%s,'%s');" % (json.dumps(q), bodyclass))
         self._drawFlag()
         self._drawMark()
