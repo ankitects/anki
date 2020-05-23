@@ -370,70 +370,6 @@ class RustBackend:
     def set_all_config(self, conf: Dict[str, Any]):
         self._run_command(pb.BackendInput(set_all_config=orjson.dumps(conf)))
 
-    def get_changed_notetypes(self, usn: int) -> Dict[str, Dict[str, Any]]:
-        jstr = self._run_command(
-            pb.BackendInput(get_changed_notetypes=usn)
-        ).get_changed_notetypes
-        return orjson.loads(jstr)
-
-    def get_stock_notetype_legacy(self, kind: StockNoteType) -> Dict[str, Any]:
-        bytes = self._run_command(
-            pb.BackendInput(get_stock_notetype_legacy=kind)
-        ).get_stock_notetype_legacy
-        return orjson.loads(bytes)
-
-    def get_notetype_names_and_ids(self) -> List[pb.NoteTypeNameID]:
-        return list(
-            self._run_command(
-                pb.BackendInput(get_notetype_names=pb.Empty())
-            ).get_notetype_names.entries
-        )
-
-    def get_notetype_use_counts(self) -> List[pb.NoteTypeNameIDUseCount]:
-        return list(
-            self._run_command(
-                pb.BackendInput(get_notetype_names_and_counts=pb.Empty())
-            ).get_notetype_names_and_counts.entries
-        )
-
-    def get_notetype_legacy(self, ntid: int) -> Optional[Dict]:
-        try:
-            bytes = self._run_command(
-                pb.BackendInput(get_notetype_legacy=ntid)
-            ).get_notetype_legacy
-        except NotFoundError:
-            return None
-        return orjson.loads(bytes)
-
-    def get_notetype_id_by_name(self, name: str) -> Optional[int]:
-        return (
-            self._run_command(
-                pb.BackendInput(get_notetype_id_by_name=name)
-            ).get_notetype_id_by_name
-            or None
-        )
-
-    def add_or_update_notetype(self, nt: Dict[str, Any], preserve_usn: bool) -> None:
-        bjson = orjson.dumps(nt)
-        id = self._run_command(
-            pb.BackendInput(
-                add_or_update_notetype=pb.AddOrUpdateNotetypeIn(
-                    json=bjson, preserve_usn_and_mtime=preserve_usn
-                )
-            ),
-            release_gil=True,
-        ).add_or_update_notetype
-        nt["id"] = id
-
-    def remove_notetype(self, ntid: int) -> None:
-        self._run_command(pb.BackendInput(remove_notetype=ntid), release_gil=True)
-
-    def field_names_for_note_ids(self, nids: List[int]) -> Sequence[str]:
-        return self._run_command(
-            pb.BackendInput(field_names_for_notes=pb.FieldNamesForNotesIn(nids=nids)),
-            release_gil=True,
-        ).field_names_for_notes.fields
-
     def find_and_replace(
         self,
         nids: List[int],
@@ -456,20 +392,6 @@ class RustBackend:
             ),
             release_gil=True,
         ).find_and_replace
-
-    def after_note_updates(
-        self, nids: List[int], generate_cards: bool, mark_notes_modified: bool
-    ) -> None:
-        self._run_command(
-            pb.BackendInput(
-                after_note_updates=pb.AfterNoteUpdatesIn(
-                    nids=nids,
-                    generate_cards=generate_cards,
-                    mark_notes_modified=mark_notes_modified,
-                )
-            ),
-            release_gil=True,
-        )
 
     def set_local_minutes_west(self, mins: int) -> None:
         self._run_command(pb.BackendInput(set_local_minutes_west=mins))
@@ -599,15 +521,15 @@ class RustBackend:
 
     def deck_tree_legacy(self) -> bytes:
         input = pb.Empty()
-        output = pb.Bytes()
+        output = pb.Json()
         output.ParseFromString(self._run_command2(16, input))
-        return output.val
+        return output.json
 
     def get_all_decks_legacy(self) -> bytes:
         input = pb.Empty()
-        output = pb.Bytes()
+        output = pb.Json()
         output.ParseFromString(self._run_command2(17, input))
-        return output.val
+        return output.json
 
     def get_deck_id_by_name(self, val: str) -> int:
         input = pb.String(val=val)
@@ -617,9 +539,9 @@ class RustBackend:
 
     def get_deck_legacy(self, did: int) -> bytes:
         input = pb.DeckID(did=did)
-        output = pb.Bytes()
+        output = pb.Json()
         output.ParseFromString(self._run_command2(19, input))
-        return output.val
+        return output.json
 
     def get_deck_names(
         self, skip_empty_default: bool, include_filtered: bool
@@ -633,9 +555,9 @@ class RustBackend:
 
     def new_deck_legacy(self, val: bool) -> bytes:
         input = pb.Bool(val=val)
-        output = pb.Bytes()
+        output = pb.Json()
         output.ParseFromString(self._run_command2(21, input))
-        return output.val
+        return output.json
 
     def remove_deck(self, did: int) -> pb.Empty:
         input = pb.DeckID(did=did)
@@ -655,21 +577,21 @@ class RustBackend:
 
     def all_deck_config_legacy(self) -> bytes:
         input = pb.Empty()
-        output = pb.Bytes()
+        output = pb.Json()
         output.ParseFromString(self._run_command2(24, input))
-        return output.val
+        return output.json
 
     def get_deck_config_legacy(self, dcid: int) -> bytes:
         input = pb.DeckConfigID(dcid=dcid)
-        output = pb.Bytes()
+        output = pb.Json()
         output.ParseFromString(self._run_command2(25, input))
-        return output.val
+        return output.json
 
     def new_deck_config_legacy(self) -> bytes:
         input = pb.Empty()
-        output = pb.Bytes()
+        output = pb.Json()
         output.ParseFromString(self._run_command2(26, input))
-        return output.val
+        return output.json
 
     def remove_deck_config(self, dcid: int) -> pb.Empty:
         input = pb.DeckConfigID(dcid=dcid)
@@ -737,10 +659,72 @@ class RustBackend:
         output.ParseFromString(self._run_command2(37, input))
         return output.numbers
 
+    def after_note_updates(
+        self, nids: Sequence[int], mark_notes_modified: bool, generate_cards: bool
+    ) -> pb.Empty:
+        input = pb.AfterNoteUpdatesIn(
+            nids=nids,
+            mark_notes_modified=mark_notes_modified,
+            generate_cards=generate_cards,
+        )
+        output = pb.Empty()
+        output.ParseFromString(self._run_command2(38, input))
+        return output
+
+    def field_names_for_notes(self, nids: Sequence[int]) -> Sequence[str]:
+        input = pb.FieldNamesForNotesIn(nids=nids)
+        output = pb.FieldNamesForNotesOut()
+        output.ParseFromString(self._run_command2(39, input))
+        return output.fields
+
+    def add_or_update_notetype(self, json: bytes, preserve_usn_and_mtime: bool) -> int:
+        input = pb.AddOrUpdateNotetypeIn(
+            json=json, preserve_usn_and_mtime=preserve_usn_and_mtime
+        )
+        output = pb.NoteTypeID()
+        output.ParseFromString(self._run_command2(40, input))
+        return output.ntid
+
+    def get_stock_notetype_legacy(self, kind: pb.StockNoteType) -> bytes:
+        input = pb.GetStockNotetypeIn(kind=kind)
+        output = pb.Json()
+        output.ParseFromString(self._run_command2(41, input))
+        return output.json
+
+    def get_notetype_legacy(self, ntid: int) -> bytes:
+        input = pb.NoteTypeID(ntid=ntid)
+        output = pb.Json()
+        output.ParseFromString(self._run_command2(42, input))
+        return output.json
+
+    def get_notetype_names(self) -> Sequence[pb.NoteTypeNameID]:
+        input = pb.Empty()
+        output = pb.NoteTypeNames()
+        output.ParseFromString(self._run_command2(43, input))
+        return output.entries
+
+    def get_notetype_names_and_counts(self) -> Sequence[pb.NoteTypeNameIDUseCount]:
+        input = pb.Empty()
+        output = pb.NoteTypeUseCounts()
+        output.ParseFromString(self._run_command2(44, input))
+        return output.entries
+
+    def get_notetype_id_by_name(self, val: str) -> int:
+        input = pb.String(val=val)
+        output = pb.NoteTypeID()
+        output.ParseFromString(self._run_command2(45, input))
+        return output.ntid
+
+    def remove_notetype(self, ntid: int) -> pb.Empty:
+        input = pb.NoteTypeID(ntid=ntid)
+        output = pb.Empty()
+        output.ParseFromString(self._run_command2(46, input))
+        return output
+
     def check_database(self) -> Sequence[str]:
         input = pb.Empty()
         output = pb.CheckDatabaseOut()
-        output.ParseFromString(self._run_command2(38, input))
+        output.ParseFromString(self._run_command2(47, input))
         return output.problems
 
     # @@AUTOGEN@@

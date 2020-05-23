@@ -623,6 +623,120 @@ impl BackendService for Backend {
         })
     }
 
+    fn field_names_for_notes(
+        &mut self,
+        input: pb::FieldNamesForNotesIn,
+    ) -> BackendResult<pb::FieldNamesForNotesOut> {
+        self.with_col(|col| {
+            let nids: Vec<_> = input.nids.into_iter().map(NoteID).collect();
+            col.storage
+                .field_names_for_notes(&nids)
+                .map(|fields| pb::FieldNamesForNotesOut { fields })
+        })
+    }
+
+    fn after_note_updates(&mut self, input: pb::AfterNoteUpdatesIn) -> BackendResult<Empty> {
+        self.with_col(|col| {
+            col.transact(None, |col| {
+                col.after_note_updates(
+                    &to_nids(input.nids),
+                    input.generate_cards,
+                    input.mark_notes_modified,
+                )?;
+                Ok(pb::Empty {})
+            })
+        })
+    }
+
+    // notetypes
+    //-------------------------------------------------------------------
+
+    fn get_stock_notetype_legacy(
+        &mut self,
+        input: pb::GetStockNotetypeIn,
+    ) -> BackendResult<pb::Json> {
+        // fixme: use individual functions instead of full vec
+        let mut all = all_stock_notetypes(&self.i18n);
+        let idx = (input.kind as usize).min(all.len() - 1);
+        let nt = all.swap_remove(idx);
+        let schema11: NoteTypeSchema11 = nt.into();
+        serde_json::to_vec(&schema11)
+            .map_err(Into::into)
+            .map(Into::into)
+    }
+
+    fn get_notetype_names(&mut self, _input: Empty) -> BackendResult<pb::NoteTypeNames> {
+        self.with_col(|col| {
+            let entries: Vec<_> = col
+                .storage
+                .get_all_notetype_names()?
+                .into_iter()
+                .map(|(id, name)| pb::NoteTypeNameId { id: id.0, name })
+                .collect();
+            Ok(pb::NoteTypeNames { entries })
+        })
+    }
+
+    fn get_notetype_names_and_counts(
+        &mut self,
+        _input: Empty,
+    ) -> BackendResult<pb::NoteTypeUseCounts> {
+        self.with_col(|col| {
+            let entries: Vec<_> = col
+                .storage
+                .get_notetype_use_counts()?
+                .into_iter()
+                .map(|(id, name, use_count)| pb::NoteTypeNameIdUseCount {
+                    id: id.0,
+                    name,
+                    use_count,
+                })
+                .collect();
+            Ok(pb::NoteTypeUseCounts { entries })
+        })
+    }
+
+    fn get_notetype_legacy(&mut self, input: pb::NoteTypeId) -> BackendResult<pb::Json> {
+        self.with_col(|col| {
+            let schema11: NoteTypeSchema11 = col
+                .storage
+                .get_notetype(input.into())?
+                .ok_or(AnkiError::NotFound)?
+                .into();
+            Ok(serde_json::to_vec(&schema11)?).map(Into::into)
+        })
+    }
+
+    fn get_notetype_id_by_name(&mut self, input: pb::String) -> BackendResult<pb::NoteTypeId> {
+        self.with_col(|col| {
+            col.storage
+                .get_notetype_id(&input.val)
+                .and_then(|nt| nt.ok_or(AnkiError::NotFound))
+                .map(|ntid| pb::NoteTypeId { ntid: ntid.0 })
+        })
+    }
+
+    fn add_or_update_notetype(
+        &mut self,
+        input: pb::AddOrUpdateNotetypeIn,
+    ) -> BackendResult<pb::NoteTypeId> {
+        self.with_col(|col| {
+            let legacy: NoteTypeSchema11 = serde_json::from_slice(&input.json)?;
+            let mut nt: NoteType = legacy.into();
+            if nt.id.0 == 0 {
+                col.add_notetype(&mut nt)?;
+            } else {
+                col.update_notetype(&mut nt, input.preserve_usn_and_mtime)?;
+            }
+            Ok(pb::NoteTypeId { ntid: nt.id.0 })
+        })
+    }
+
+    fn remove_notetype(&mut self, input: pb::NoteTypeId) -> BackendResult<Empty> {
+        self.with_col(|col| col.remove_notetype(input.into()))
+            .map(Into::into)
+    }
+
     // media
     //-------------------------------------------------------------------
 
@@ -828,37 +942,7 @@ impl Backend {
                 pb::Empty {}
             }),
             Value::GetAllConfig(_) => OValue::GetAllConfig(self.get_all_config()?),
-            Value::GetChangedNotetypes(_) => {
-                OValue::GetChangedNotetypes(self.get_changed_notetypes()?)
-            }
-            Value::GetStockNotetypeLegacy(kind) => {
-                OValue::GetStockNotetypeLegacy(self.get_stock_notetype_legacy(kind)?)
-            }
-            Value::GetNotetypeLegacy(id) => {
-                OValue::GetNotetypeLegacy(self.get_notetype_legacy(id)?)
-            }
-            Value::GetNotetypeNames(_) => OValue::GetNotetypeNames(self.get_notetype_names()?),
-            Value::GetNotetypeNamesAndCounts(_) => {
-                OValue::GetNotetypeNamesAndCounts(self.get_notetype_use_counts()?)
-            }
-
-            Value::GetNotetypeIdByName(name) => {
-                OValue::GetNotetypeIdByName(self.get_notetype_id_by_name(name)?)
-            }
-            Value::AddOrUpdateNotetype(input) => {
-                OValue::AddOrUpdateNotetype(self.add_or_update_notetype_legacy(input)?)
-            }
-            Value::RemoveNotetype(id) => {
-                self.remove_notetype(id)?;
-                OValue::RemoveNotetype(pb::Empty {})
-            }
-            Value::FieldNamesForNotes(input) => {
-                OValue::FieldNamesForNotes(self.field_names_for_notes(input)?)
-            }
             Value::FindAndReplace(input) => OValue::FindAndReplace(self.find_and_replace(input)?),
-            Value::AfterNoteUpdates(input) => {
-                OValue::AfterNoteUpdates(self.after_note_updates(input)?)
-            }
             Value::SetLocalMinutesWest(mins) => OValue::SetLocalMinutesWest({
                 self.set_local_mins_west(mins)?;
                 pb::Empty {}
@@ -1125,90 +1209,6 @@ impl Backend {
         })
     }
 
-    fn get_changed_notetypes(&self) -> Result<Vec<u8>> {
-        todo!("filter by usn");
-        // self.with_col(|col| {
-        //     let nts = col.storage.get_all_notetypes_as_schema11()?;
-        //     serde_json::to_vec(&nts).map_err(Into::into)
-        // })
-    }
-
-    fn get_notetype_names(&self) -> Result<pb::NoteTypeNames> {
-        self.with_col(|col| {
-            let entries: Vec<_> = col
-                .storage
-                .get_all_notetype_names()?
-                .into_iter()
-                .map(|(id, name)| pb::NoteTypeNameId { id: id.0, name })
-                .collect();
-            Ok(pb::NoteTypeNames { entries })
-        })
-    }
-
-    fn get_notetype_use_counts(&self) -> Result<pb::NoteTypeUseCounts> {
-        self.with_col(|col| {
-            let entries: Vec<_> = col
-                .storage
-                .get_notetype_use_counts()?
-                .into_iter()
-                .map(|(id, name, use_count)| pb::NoteTypeNameIdUseCount {
-                    id: id.0,
-                    name,
-                    use_count,
-                })
-                .collect();
-            Ok(pb::NoteTypeUseCounts { entries })
-        })
-    }
-
-    fn get_notetype_legacy(&self, id: i64) -> Result<Vec<u8>> {
-        self.with_col(|col| {
-            let schema11: NoteTypeSchema11 = col
-                .storage
-                .get_notetype(NoteTypeID(id))?
-                .ok_or(AnkiError::NotFound)?
-                .into();
-            Ok(serde_json::to_vec(&schema11)?)
-        })
-    }
-
-    fn get_notetype_id_by_name(&self, name: String) -> Result<i64> {
-        self.with_col(|col| {
-            col.storage
-                .get_notetype_id(&name)
-                .map(|nt| nt.unwrap_or(NoteTypeID(0)).0)
-        })
-    }
-
-    fn add_or_update_notetype_legacy(&self, input: pb::AddOrUpdateNotetypeIn) -> Result<i64> {
-        self.with_col(|col| {
-            let legacy: NoteTypeSchema11 = serde_json::from_slice(&input.json)?;
-            let mut nt: NoteType = legacy.into();
-            if nt.id.0 == 0 {
-                col.add_notetype(&mut nt)?;
-            } else {
-                col.update_notetype(&mut nt, input.preserve_usn_and_mtime)?;
-            }
-            Ok(nt.id.0)
-        })
-    }
-
-    fn remove_notetype(&self, id: i64) -> Result<()> {
-        self.with_col(|col| col.remove_notetype(NoteTypeID(id)))
-    }
-
-    fn field_names_for_notes(
-        &self,
-        input: pb::FieldNamesForNotesIn,
-    ) -> Result<pb::FieldNamesForNotesOut> {
-        self.with_col(|col| {
-            let nids: Vec<_> = input.nids.into_iter().map(NoteID).collect();
-            col.storage
-                .field_names_for_notes(&nids)
-                .map(|fields| pb::FieldNamesForNotesOut { fields })
-        })
-    }
-
     fn find_and_replace(&self, input: pb::FindAndReplaceIn) -> Result<u32> {
         let mut search = if input.regex {
             input.search
@@ -1231,19 +1231,6 @@ impl Backend {
         })
     }
 
-    fn after_note_updates(&self, input: pb::AfterNoteUpdatesIn) -> Result<pb::Empty> {
-        self.with_col(|col| {
-            col.transact(None, |col| {
-                col.after_note_updates(
-                    &to_nids(input.nids),
-                    input.generate_cards,
-                    input.mark_notes_modified,
-                )?;
-                Ok(pb::Empty {})
-            })
-        })
-    }
-
     fn set_local_mins_west(&self, mins: i32) -> Result<()> {
         self.with_col(|col| col.transact(None, |col| col.set_local_mins_west(mins)))
     }
@@ -1254,15 +1241,6 @@ impl Backend {
 
     fn set_preferences(&self, prefs: pb::Preferences) -> Result<()> {
         self.with_col(|col| col.transact(None, |col| col.set_preferences(prefs)))
-    }
-
-    fn get_stock_notetype_legacy(&self, kind: i32) -> Result<Vec<u8>> {
-        // fixme: use individual functions instead of full vec
-        let mut all = all_stock_notetypes(&self.i18n);
-        let idx = (kind as usize).min(all.len() - 1);
-        let nt = all.swap_remove(idx);
-        let schema11: NoteTypeSchema11 = nt.into();
-        serde_json::to_vec(&schema11).map_err(Into::into)
     }
 }
 

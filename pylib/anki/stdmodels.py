@@ -5,7 +5,7 @@ from typing import Callable, List, Tuple
 
 from anki.collection import Collection
 from anki.models import NoteType
-from anki.rsbackend import StockNoteType
+from anki.rsbackend import StockNoteType, from_json_bytes
 
 # add-on authors can add ("note type name", function_like_addBasicModel)
 # to this list to have it shown in the add/clone note type screen
@@ -13,7 +13,7 @@ models: List[Tuple] = []
 
 
 def add_stock_notetype(col: Collection, kind: StockNoteType) -> NoteType:
-    m = col.backend.get_stock_notetype_legacy(kind)
+    m = from_json_bytes(col.backend.get_stock_notetype_legacy(kind))
     col.models.add(m)
     return m
 
@@ -55,7 +55,7 @@ def get_stock_notetypes(
         ),
         (StockNoteType.STOCK_NOTE_TYPE_CLOZE, addClozeModel),
     ]:
-        m = col.backend.get_stock_notetype_legacy(kind)
+        m = from_json_bytes(col.backend.get_stock_notetype_legacy(kind))
         out.append((m["name"], func))
     # add extras from add-ons
     for (name_or_func, func) in models:

@@ -5,13 +5,13 @@ from __future__ import annotations
 
 import copy
 import time
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import anki  # pylint: disable=unused-import
 import anki.backend_pb2 as pb
 from anki.consts import *
 from anki.lang import _
-from anki.rsbackend import StockNoteType
+from anki.rsbackend import NotFoundError, StockNoteType, from_json_bytes, to_json_bytes
 from anki.utils import checksum, ids2str, intTime, joinFields, splitFields
 
 # types
@@ -109,11 +109,11 @@ class ModelManager:
     # Listing note types
     #############################################################
 
-    def all_names_and_ids(self) -> List[pb.NoteTypeNameID]:
-        return self.col.backend.get_notetype_names_and_ids()
+    def all_names_and_ids(self) -> Sequence[pb.NoteTypeNameID]:
+        return self.col.backend.get_notetype_names()
 
-    def all_use_counts(self) -> List[pb.NoteTypeNameIDUseCount]:
-        return self.col.backend.get_notetype_use_counts()
+    def all_use_counts(self) -> Sequence[pb.NoteTypeNameIDUseCount]:
+        return self.col.backend.get_notetype_names_and_counts()
 
     # legacy
 
@@ -149,7 +149,10 @@ class ModelManager:
     #############################################################
 
     def id_for_name(self, name: str) -> Optional[int]:
-        return self.col.backend.get_notetype_id_by_name(name)
+        try:
+            return self.col.backend.get_notetype_id_by_name(name)
+        except NotFoundError:
+            return None
 
     def get(self, id: int) -> Optional[NoteType]:
         "Get model with ID, or None."
@@ -161,9 +164,11 @@ class ModelManager:
 
         nt = self._get_cached(id)
         if not nt:
-            nt = self.col.backend.get_notetype_legacy(id)
-            if nt:
+            try:
+                nt = from_json_bytes(self.col.backend.get_notetype_legacy(id))
                 self._update_cache(nt)
+            except NotFoundError:
+                return None
         return nt
 
     def all(self) -> List[NoteType]:
@@ -181,8 +186,10 @@ class ModelManager:
     def new(self, name: str) -> NoteType:
         "Create a new model, and return it."
         # caller should call save() after modifying
-        nt = self.col.backend.get_stock_notetype_legacy(
-            StockNoteType.STOCK_NOTE_TYPE_BASIC
+        nt = from_json_bytes(
+            self.col.backend.get_stock_notetype_legacy(
+                StockNoteType.STOCK_NOTE_TYPE_BASIC
+            )
         )
         nt["flds"] = []
         nt["tmpls"] = []
@@ -215,7 +222,9 @@ class ModelManager:
         "Add or update an existing model. Use .save() instead."
         self._remove_from_cache(m["id"])
         self.ensureNameUnique(m)
-        self.col.backend.add_or_update_notetype(m, preserve_usn=preserve_usn)
+        m["id"] = self.col.backend.add_or_update_notetype(
+            to_json_bytes(m), preserve_usn_and_mtime=preserve_usn
+        )
         self.setCurrent(m)
         self._mutate_after_write(m)
 
@@ -268,8 +277,10 @@ class ModelManager:
 
     def new_field(self, name: str) -> Field:
         assert isinstance(name, str)
-        nt = self.col.backend.get_stock_notetype_legacy(
-            StockNoteType.STOCK_NOTE_TYPE_BASIC
+        nt = from_json_bytes(
+            self.col.backend.get_stock_notetype_legacy(
+                StockNoteType.STOCK_NOTE_TYPE_BASIC
+            )
         )
         field = nt["flds"][0]
         field["name"] = name
@@ -327,8 +338,10 @@ class ModelManager:
     ##################################################
 
     def new_template(self, name: str) -> Template:
-        nt = self.col.backend.get_stock_notetype_legacy(
-            StockNoteType.STOCK_NOTE_TYPE_BASIC
+        nt = from_json_bytes(
+            self.col.backend.get_stock_notetype_legacy(
+                StockNoteType.STOCK_NOTE_TYPE_BASIC
+            )
         )
         template = nt["tmpls"][0]
         template["name"] = name
