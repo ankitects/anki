@@ -113,7 +113,10 @@ class DeckManager:
         )
 
     def id_for_name(self, name: str) -> Optional[int]:
-        return self.col.backend.get_deck_id_by_name(name) or None
+        try:
+            return self.col.backend.get_deck_id_by_name(name)
+        except NotFoundError:
+            return None
 
     def get_legacy(self, did: int) -> Optional[Dict]:
         try:

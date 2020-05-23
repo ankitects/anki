@@ -33,13 +33,16 @@ message String {
     string val = 1;
 }
 
-message Bytes {
-    bytes val = 1;
+message Json {
+    bytes json = 1;
 }
 
 message Bool {
     bool val = 1;
 }
+
+// IDs used in RPC calls
+///////////////////////////////////////////////////////////
 
 message NoteTypeID {
     int64 ntid = 1;
@@ -53,6 +56,13 @@ message CardID {
     int64 cid = 1;
 }
 
+message DeckID {
+    int64 did = 1;
+}
+
+message DeckConfigID {
+    int64 dcid = 1;
+}
 
 // New style RPC definitions
 ///////////////////////////////////////////////////////////
@@ -85,23 +95,23 @@ service BackendService {
 
     // decks
 
-    rpc AddOrUpdateDeckLegacy (AddOrUpdateDeckLegacyIn) returns (Int64);
+    rpc AddOrUpdateDeckLegacy (AddOrUpdateDeckLegacyIn) returns (DeckID);
     rpc DeckTree (DeckTreeIn) returns (DeckTreeNode);
-    rpc DeckTreeLegacy (Empty) returns (Bytes);
-    rpc GetAllDecksLegacy (Empty) returns (Bytes);
-    rpc GetDeckIDByName (String) returns (Int64);
-    rpc GetDeckLegacy (Int64) returns (Bytes);
+    rpc DeckTreeLegacy (Empty) returns (Json);
+    rpc GetAllDecksLegacy (Empty) returns (Json);
+    rpc GetDeckIDByName (String) returns (DeckID);
+    rpc GetDeckLegacy (DeckID) returns (Json);
     rpc GetDeckNames (GetDeckNamesIn) returns (DeckNames);
-    rpc NewDeckLegacy (Bool) returns (Bytes);
-    rpc RemoveDeck (Int64) returns (Empty);
+    rpc NewDeckLegacy (Bool) returns (Json);
+    rpc RemoveDeck (DeckID) returns (Empty);
 
     // deck config
 
-    rpc AddOrUpdateDeckConfigLegacy (AddOrUpdateDeckConfigLegacyIn) returns (Int64);
-    rpc AllDeckConfigLegacy (Empty) returns (Bytes);
-    rpc GetDeckConfigLegacy (Int64) returns (Bytes);
-    rpc NewDeckConfigLegacy (Empty) returns (Bytes);
-    rpc RemoveDeckConfig (Int64) returns (Empty);
+    rpc AddOrUpdateDeckConfigLegacy (AddOrUpdateDeckConfigLegacyIn) returns (DeckConfigID);
+    rpc AllDeckConfigLegacy (Empty) returns (Json);
+    rpc GetDeckConfigLegacy (DeckConfigID) returns (Json);
+    rpc NewDeckConfigLegacy (Empty) returns (Json);
+    rpc RemoveDeckConfig (DeckConfigID) returns (Empty);
 
     // cards
 
