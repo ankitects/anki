@@ -205,7 +205,7 @@ class DeckManager:
         "Add or update an existing deck. Used for syncing and merging."
         try:
             g["id"] = self.col.backend.add_or_update_deck_legacy(
-                to_json_bytes(g), preserve_usn
+                deck=to_json_bytes(g), preserve_usn_and_mtime=preserve_usn
             )
         except anki.rsbackend.DeckIsFilteredError:
             raise DeckRenameError("deck was filtered")
@@ -284,7 +284,7 @@ class DeckManager:
 
     def update_config(self, conf: Dict[str, Any], preserve_usn=False) -> None:
         conf["id"] = self.col.backend.add_or_update_deck_config_legacy(
-            to_json_bytes(conf), preserve_usn
+            config=to_json_bytes(conf), preserve_usn_and_mtime=preserve_usn
         )
 
     def add_config(

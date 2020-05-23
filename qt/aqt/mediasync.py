@@ -74,7 +74,7 @@ class MediaSyncer:
         gui_hooks.media_sync_did_start_or_stop(True)
 
         def run() -> None:
-            self.mw.col.backend.sync_media(hkey, self._endpoint())
+            self.mw.col.backend.sync_media(hkey=hkey, endpoint=self._endpoint())
 
         self.mw.taskman.run_in_background(run, self._on_finished)
 

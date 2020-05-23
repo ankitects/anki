@@ -223,7 +223,7 @@ class ModelManager:
         self._remove_from_cache(m["id"])
         self.ensureNameUnique(m)
         m["id"] = self.col.backend.add_or_update_notetype(
-            to_json_bytes(m), preserve_usn_and_mtime=preserve_usn
+            json=to_json_bytes(m), preserve_usn_and_mtime=preserve_usn
         )
         self.setCurrent(m)
         self._mutate_after_write(m)

@@ -1028,7 +1028,7 @@ impl BackendService for Backend {
         self.with_col(|col| {
             col.transact(None, |col| {
                 // ensure it's a well-formed object
-                let val: JsonValue = serde_json::from_slice(&input.val)?;
+                let val: JsonValue = serde_json::from_slice(&input.value_json)?;
                 col.set_config(input.key.as_str(), &val)
             })
         })

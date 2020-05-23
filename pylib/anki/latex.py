@@ -86,7 +86,7 @@ def render_latex_returning_errors(
     header = model["latexPre"]
     footer = model["latexPost"]
 
-    proto = col.backend.extract_latex(html, svg, expand_clozes)
+    proto = col.backend.extract_latex(text=html, svg=svg, expand_clozes=expand_clozes)
     out = ExtractedLatexOutput.from_proto(proto)
     errors = []
     html = out.html

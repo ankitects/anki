@@ -80,7 +80,10 @@ def fix_snakecase(name):
 
 def get_input_args(msg):
     fields = sorted(msg.fields, key=lambda x: x.number)
-    return ", ".join(["self"] + [f"{f.name}: {python_type(f)}" for f in fields])
+    self_star = ["self"]
+    if len(fields) >= 2:
+        self_star.append("*")
+    return ", ".join(self_star + [f"{f.name}: {python_type(f)}" for f in fields])
 
 
 def get_input_assign(msg):

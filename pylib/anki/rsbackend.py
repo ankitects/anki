@@ -15,19 +15,7 @@ import enum
 import json
 import os
 from dataclasses import dataclass
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Iterable,
-    List,
-    NewType,
-    NoReturn,
-    Optional,
-    Sequence,
-    Tuple,
-    Union,
-)
+from typing import Any, Dict, List, Optional, Sequence, Union
 
 import ankirspy  # pytype: disable=import-error
 
@@ -37,9 +25,7 @@ from anki import hooks
 from anki.dbproxy import Row as DBRow
 from anki.dbproxy import ValueForDB
 from anki.fluent_pb2 import FluentString as TR
-from anki.sound import AVTag, SoundOrVideoTag, TTSTag
 from anki.types import assert_impossible_literal
-from anki.utils import intTime
 
 assert ankirspy.buildhash() == anki.buildinfo.buildhash
 
@@ -54,19 +40,13 @@ StockNoteType = pb.StockNoteType
 
 try:
     import orjson
+
+    to_json_bytes = orjson.dumps
+    from_json_bytes = orjson.loads
 except:
     # add compat layer for 32 bit builds that can't use orjson
-    print("reverting to stock json")
-
-    class orjson:  # type: ignore
-        def dumps(obj: Any) -> bytes:
-            return json.dumps(obj).encode("utf8")
-
-        loads = json.loads
-
-
-to_json_bytes = orjson.dumps
-from_json_bytes = orjson.loads
+    to_json_bytes = lambda obj: json.dumps(obj).encode("utf8")  # type: ignore
+    from_json_bytes = json.loads
 
 
 class Interrupted(Exception):
@@ -223,7 +203,7 @@ class RustBackend:
         return self._db_command(dict(kind="rollback"))
 
     def _db_command(self, input: Dict[str, Any]) -> Any:
-        return orjson.loads(self._backend.db_command(orjson.dumps(input)))
+        return from_json_bytes(self._backend.db_command(to_json_bytes(input)))
 
     def translate(self, key: TR, **kwargs: Union[str, int, float]) -> str:
         return self.translate_string(translate_string_in(key, **kwargs))
@@ -236,7 +216,7 @@ class RustBackend:
         print(
             "please use col.format_timespan() instead of col.backend.format_time_span()"
         )
-        return self.format_timespan(seconds, context)
+        return self.format_timespan(seconds=seconds, context=context)
 
     def _run_command(self, method: int, input: Any) -> bytes:
         input_bytes = input.SerializeToString()
@@ -253,14 +233,14 @@ class RustBackend:
 
     # @@AUTOGEN@@
 
-    def extract_av_tags(self, text: str, question_side: bool) -> pb.ExtractAVTagsOut:
+    def extract_av_tags(self, *, text: str, question_side: bool) -> pb.ExtractAVTagsOut:
         input = pb.ExtractAVTagsIn(text=text, question_side=question_side)
         output = pb.ExtractAVTagsOut()
         output.ParseFromString(self._run_command(1, input))
         return output
 
     def extract_latex(
-        self, text: str, svg: bool, expand_clozes: bool
+        self, *, text: str, svg: bool, expand_clozes: bool
     ) -> pb.ExtractLatexOut:
         input = pb.ExtractLatexIn(text=text, svg=svg, expand_clozes=expand_clozes)
         output = pb.ExtractLatexOut()
@@ -273,14 +253,14 @@ class RustBackend:
         output.ParseFromString(self._run_command(3, input))
         return output
 
-    def render_existing_card(self, card_id: int, browser: bool) -> pb.RenderCardOut:
+    def render_existing_card(self, *, card_id: int, browser: bool) -> pb.RenderCardOut:
         input = pb.RenderExistingCardIn(card_id=card_id, browser=browser)
         output = pb.RenderCardOut()
         output.ParseFromString(self._run_command(4, input))
         return output
 
     def render_uncommitted_card(
-        self, note: pb.Note, card_ord: int, template: bytes, fill_empty: bool
+        self, *, note: pb.Note, card_ord: int, template: bytes, fill_empty: bool
     ) -> pb.RenderCardOut:
         input = pb.RenderUncommittedCardIn(
             note=note, card_ord=card_ord, template=template, fill_empty=fill_empty
@@ -295,7 +275,7 @@ class RustBackend:
         output.ParseFromString(self._run_command(6, input))
         return output.val
 
-    def search_cards(self, search: str, order: pb.SortOrder) -> Sequence[int]:
+    def search_cards(self, *, search: str, order: pb.SortOrder) -> Sequence[int]:
         input = pb.SearchCardsIn(search=search, order=order)
         output = pb.SearchCardsOut()
         output.ParseFromString(self._run_command(7, input))
@@ -309,6 +289,7 @@ class RustBackend:
 
     def find_and_replace(
         self,
+        *,
         nids: Sequence[int],
         search: str,
         replacement: str,
@@ -346,13 +327,13 @@ class RustBackend:
         output.ParseFromString(self._run_command(12, input))
         return output
 
-    def studied_today(self, cards: int, seconds: float) -> str:
+    def studied_today(self, *, cards: int, seconds: float) -> str:
         input = pb.StudiedTodayIn(cards=cards, seconds=seconds)
         output = pb.String()
         output.ParseFromString(self._run_command(13, input))
         return output.val
 
-    def congrats_learn_message(self, next_due: float, remaining: int) -> str:
+    def congrats_learn_message(self, *, next_due: float, remaining: int) -> str:
         input = pb.CongratsLearnMessageIn(next_due=next_due, remaining=remaining)
         output = pb.String()
         output.ParseFromString(self._run_command(14, input))
@@ -370,7 +351,7 @@ class RustBackend:
         output.ParseFromString(self._run_command(16, input))
         return output
 
-    def add_media_file(self, desired_name: str, data: bytes) -> str:
+    def add_media_file(self, *, desired_name: str, data: bytes) -> str:
         input = pb.AddMediaFileIn(desired_name=desired_name, data=data)
         output = pb.String()
         output.ParseFromString(self._run_command(17, input))
@@ -389,7 +370,7 @@ class RustBackend:
         return output
 
     def add_or_update_deck_legacy(
-        self, deck: bytes, preserve_usn_and_mtime: bool
+        self, *, deck: bytes, preserve_usn_and_mtime: bool
     ) -> int:
         input = pb.AddOrUpdateDeckLegacyIn(
             deck=deck, preserve_usn_and_mtime=preserve_usn_and_mtime
@@ -398,7 +379,7 @@ class RustBackend:
         output.ParseFromString(self._run_command(20, input))
         return output.did
 
-    def deck_tree(self, include_counts: bool, top_deck_id: int) -> pb.DeckTreeNode:
+    def deck_tree(self, *, include_counts: bool, top_deck_id: int) -> pb.DeckTreeNode:
         input = pb.DeckTreeIn(include_counts=include_counts, top_deck_id=top_deck_id)
         output = pb.DeckTreeNode()
         output.ParseFromString(self._run_command(21, input))
@@ -429,7 +410,7 @@ class RustBackend:
         return output.json
 
     def get_deck_names(
-        self, skip_empty_default: bool, include_filtered: bool
+        self, *, skip_empty_default: bool, include_filtered: bool
     ) -> Sequence[pb.DeckNameID]:
         input = pb.GetDeckNamesIn(
             skip_empty_default=skip_empty_default, include_filtered=include_filtered
@@ -451,7 +432,7 @@ class RustBackend:
         return output
 
     def add_or_update_deck_config_legacy(
-        self, config: bytes, preserve_usn_and_mtime: bool
+        self, *, config: bytes, preserve_usn_and_mtime: bool
     ) -> int:
         input = pb.AddOrUpdateDeckConfigLegacyIn(
             config=config, preserve_usn_and_mtime=preserve_usn_and_mtime
@@ -506,7 +487,7 @@ class RustBackend:
         output.ParseFromString(self._run_command(37, input))
         return output
 
-    def add_note(self, note: pb.Note, deck_id: int) -> int:
+    def add_note(self, *, note: pb.Note, deck_id: int) -> int:
         input = pb.AddNoteIn(note=note, deck_id=deck_id)
         output = pb.NoteID()
         output.ParseFromString(self._run_command(38, input))
@@ -523,14 +504,14 @@ class RustBackend:
         output.ParseFromString(self._run_command(40, input))
         return output
 
-    def add_note_tags(self, nids: Sequence[int], tags: str) -> int:
+    def add_note_tags(self, *, nids: Sequence[int], tags: str) -> int:
         input = pb.AddNoteTagsIn(nids=nids, tags=tags)
         output = pb.UInt32()
         output.ParseFromString(self._run_command(41, input))
         return output.val
 
     def update_note_tags(
-        self, nids: Sequence[int], tags: str, replacement: str, regex: bool
+        self, *, nids: Sequence[int], tags: str, replacement: str, regex: bool
     ) -> int:
         input = pb.UpdateNoteTagsIn(
             nids=nids, tags=tags, replacement=replacement, regex=regex
@@ -545,7 +526,7 @@ class RustBackend:
         return output.numbers
 
     def after_note_updates(
-        self, nids: Sequence[int], mark_notes_modified: bool, generate_cards: bool
+        self, *, nids: Sequence[int], mark_notes_modified: bool, generate_cards: bool
     ) -> pb.Empty:
         input = pb.AfterNoteUpdatesIn(
             nids=nids,
@@ -562,7 +543,9 @@ class RustBackend:
         output.ParseFromString(self._run_command(45, input))
         return output.fields
 
-    def add_or_update_notetype(self, json: bytes, preserve_usn_and_mtime: bool) -> int:
+    def add_or_update_notetype(
+        self, *, json: bytes, preserve_usn_and_mtime: bool
+    ) -> int:
         input = pb.AddOrUpdateNotetypeIn(
             json=json, preserve_usn_and_mtime=preserve_usn_and_mtime
         )
@@ -608,6 +591,7 @@ class RustBackend:
 
     def open_collection(
         self,
+        *,
         collection_path: str,
         media_folder_path: str,
         media_db_path: str,
@@ -635,7 +619,7 @@ class RustBackend:
         output.ParseFromString(self._run_command(55, input))
         return output.problems
 
-    def sync_media(self, hkey: str, endpoint: str) -> pb.Empty:
+    def sync_media(self, *, hkey: str, endpoint: str) -> pb.Empty:
         input = pb.SyncMediaIn(hkey=hkey, endpoint=endpoint)
         output = pb.Empty()
         output.ParseFromString(self._run_command(56, input))
@@ -659,7 +643,7 @@ class RustBackend:
         return output.val
 
     def format_timespan(
-        self, seconds: float, context: pb.FormatTimespanIn.Context
+        self, *, seconds: float, context: pb.FormatTimespanIn.Context
     ) -> str:
         input = pb.FormatTimespanIn(seconds=seconds, context=context)
         output = pb.String()
@@ -667,7 +651,7 @@ class RustBackend:
         return output.val
 
     def register_tags(
-        self, tags: str, preserve_usn: bool, usn: int, clear_first: bool
+        self, *, tags: str, preserve_usn: bool, usn: int, clear_first: bool
     ) -> bool:
         input = pb.RegisterTagsIn(
             tags=tags, preserve_usn=preserve_usn, usn=usn, clear_first=clear_first
@@ -694,8 +678,8 @@ class RustBackend:
         output.ParseFromString(self._run_command(64, input))
         return output.json
 
-    def set_config_json(self, key: str, val: bytes) -> pb.Empty:
-        input = pb.SetConfigJsonIn(key=key, val=val)
+    def set_config_json(self, *, key: str, value_json: bytes) -> pb.Empty:
+        input = pb.SetConfigJsonIn(key=key, value_json=value_json)
         output = pb.Empty()
         output.ParseFromString(self._run_command(65, input))
         return output

@@ -25,7 +25,7 @@ def bodyClass(col, card) -> str:
 
 def allSounds(text) -> List:
     print("allSounds() deprecated")
-    out = aqt.mw.col.backend.extract_av_tags(text, True)
+    out = aqt.mw.col.backend.extract_av_tags(text=text, question_side=True)
     return [
         x.filename
         for x in av_tags_to_native(out.av_tags)

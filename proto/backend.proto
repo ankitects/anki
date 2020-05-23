@@ -723,7 +723,7 @@ message GetChangedTagsOut {
 
 message SetConfigJsonIn {
     string key = 1;
-    bytes val = 2;
+    bytes value_json = 2;
 }
 
 enum StockNoteType {

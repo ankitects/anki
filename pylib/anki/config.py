@@ -37,7 +37,7 @@ class ConfigManager:
             raise KeyError
 
     def set(self, key: str, val: Any) -> None:
-        self.col.backend.set_config_json(key, to_json_bytes(val))
+        self.col.backend.set_config_json(key=key, value_json=to_json_bytes(val))
 
     def remove(self, key: str) -> None:
         self.col.backend.remove_config(key)

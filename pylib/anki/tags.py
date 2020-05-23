@@ -83,14 +83,16 @@ class TagManager:
 
     def bulk_add(self, nids: List[int], tags: str) -> int:
         """Add space-separate tags to provided notes, returning changed count."""
-        return self.col.backend.add_note_tags(nids, tags)
+        return self.col.backend.add_note_tags(nids=nids, tags=tags)
 
     def bulk_update(
         self, nids: List[int], tags: str, replacement: str, regex: bool
     ) -> int:
         """Replace space-separated tags, returning changed count.
         Tags replaced with an empty string will be removed."""
-        return self.col.backend.update_note_tags(nids, tags, replacement, regex)
+        return self.col.backend.update_note_tags(
+            nids=nids, tags=tags, replacement=replacement, regex=regex
+        )
 
     # legacy routines
 
