@@ -213,7 +213,7 @@ order by due"""
         print(
             "deckDueTree() is deprecated; use decks.deck_tree() for a tree without counts, or sched.deck_due_tree()"
         )
-        return self.col.backend.legacy_deck_tree()
+        return self.col.backend.deck_tree_legacy()
 
     def deck_due_tree(self, top_deck_id: int = 0) -> DeckTreeNode:
         """Returns a tree of decks with counts.

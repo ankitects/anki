@@ -55,6 +55,17 @@ def python_type_inner(field):
         raise Exception(f"unknown type: {type}")
 
 
+# get_deck_i_d -> get_deck_id etc
+def fix_snakecase(name):
+    for fix in "a_v", "i_d":
+        name = re.sub(
+            f"(\w)({fix})(\w)",
+            lambda m: m.group(1) + m.group(2).replace("_", "") + m.group(3),
+            name,
+        )
+    return name
+
+
 def get_input_args(msg):
     fields = sorted(msg.fields, key=lambda x: x.number)
     return ", ".join(["self"] + [f"{f.name}: {python_type(f)}" for f in fields])
@@ -68,7 +79,7 @@ def get_input_assign(msg):
 def render_method(method, idx):
     input_args = get_input_args(method.input_type)
     input_assign = get_input_assign(method.input_type)
-    name = stringcase.snakecase(method.name)
+    name = fix_snakecase(stringcase.snakecase(method.name))
     if len(method.output_type.fields) == 1:
         # unwrap single return arg
         f = method.output_type.fields[0]

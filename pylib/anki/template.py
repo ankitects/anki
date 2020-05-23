@@ -215,10 +215,10 @@ class TemplateRenderContext:
             )
 
         qtext = apply_custom_filters(partial.qnodes, self, front_side=None)
-        qout = self.col().backend.extract_a_v_tags(qtext, True)
+        qout = self.col().backend.extract_av_tags(qtext, True)
 
         atext = apply_custom_filters(partial.anodes, self, front_side=qtext)
-        aout = self.col().backend.extract_a_v_tags(atext, False)
+        aout = self.col().backend.extract_av_tags(atext, False)
 
         output = TemplateRenderOutput(
             question_text=qout.text,
