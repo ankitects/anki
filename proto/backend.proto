@@ -29,6 +29,10 @@ message String {
     string val = 1;
 }
 
+message Bytes {
+    bytes val = 1;
+}
+
 // New style RPC definitions
 ///////////////////////////////////////////////////////////
 
@@ -41,9 +45,16 @@ service BackendService {
     rpc SearchNotes (SearchNotesIn) returns (SearchNotesOut);
     rpc CheckMedia (Empty) returns (CheckMediaOut);
     rpc LocalMinutesWest (Int64) returns (Int32);
-    rpc StripAvTags (String) returns (String);
+    rpc StripAVTags (String) returns (String);
     rpc ExtractAVTags (ExtractAVTagsIn) returns (ExtractAVTagsOut);
     rpc ExtractLatex (ExtractLatexIn) returns (ExtractLatexOut);
+    rpc DeckTreeLegacy (Empty) returns (Bytes);
+    rpc CheckDatabase (Empty) returns (CheckDatabaseOut);
+    rpc GetEmptyCards (Empty) returns (EmptyCardsReport);
+    rpc SyncMedia (SyncMediaIn) returns (Empty);
+    rpc TrashMediaFiles (TrashMediaFilesIn) returns (Empty);
+    rpc GetDeckLegacy (Int64) returns (Bytes);
+    rpc GetDeckIDByName (String) returns (Int64);
 }
 
 // Protobuf stored in .anki2 files
@@ -290,8 +301,6 @@ message I18nBackendInit {
 message BackendInput {
     oneof value {
         AddMediaFileIn add_media_file = 26;
-        SyncMediaIn sync_media = 27;
-        TrashMediaFilesIn trash_media_files = 29;
         TranslateStringIn translate_string = 30;
         FormatTimeSpanIn format_time_span = 31;
         StudiedTodayIn studied_today = 32;
@@ -320,7 +329,6 @@ message BackendInput {
         int32 get_changed_notetypes = 56;
         AddOrUpdateNotetypeIn add_or_update_notetype = 57;
         Empty get_all_decks = 58;
-        Empty check_database = 59;
         StockNoteType get_stock_notetype_legacy = 60;
         int64 get_notetype_legacy = 61;
         Empty get_notetype_names = 62;
@@ -331,14 +339,10 @@ message BackendInput {
         AddNoteIn add_note = 67;
         Note update_note = 68;
         int64 get_note = 69;
-        Empty get_empty_cards = 70;
-        int64 get_deck_legacy = 71;
-        string get_deck_id_by_name = 72;
         GetDeckNamesIn get_deck_names = 73;
         AddOrUpdateDeckLegacyIn add_or_update_deck_legacy = 74;
         bool new_deck_legacy = 75;
         int64 remove_deck = 76;
-        Empty deck_tree_legacy = 77;
         FieldNamesForNotesIn field_names_for_notes = 78;
         FindAndReplaceIn find_and_replace = 79;
         AfterNoteUpdatesIn after_note_updates = 80;
@@ -363,8 +367,6 @@ message BackendOutput {
 
         // fallible commands
         string add_media_file = 26;
-        Empty sync_media = 27;
-        Empty trash_media_files = 29;
         Empty empty_trash = 34;
         Empty restore_trash = 35;
         Empty open_collection = 36;
@@ -388,7 +390,6 @@ message BackendOutput {
         bytes get_changed_notetypes = 56;
         int64 add_or_update_notetype = 57;
         bytes get_all_decks = 58;
-        CheckDatabaseOut check_database = 59;
         bytes get_notetype_legacy = 61;
         NoteTypeNames get_notetype_names = 62;
         NoteTypeUseCounts get_notetype_names_and_counts = 63;
@@ -398,14 +399,10 @@ message BackendOutput {
         int64 add_note = 67;
         Empty update_note = 68;
         Note get_note = 69;
-        EmptyCardsReport get_empty_cards = 70;
-        bytes get_deck_legacy = 71;
-        int64 get_deck_id_by_name = 72;
         DeckNames get_deck_names = 73;
         int64 add_or_update_deck_legacy = 74;
         bytes new_deck_legacy = 75;
         Empty remove_deck = 76;
-        bytes deck_tree_legacy = 77;
         FieldNamesForNotesOut field_names_for_notes = 78;
         uint32 find_and_replace = 79;
         Empty after_note_updates = 80;

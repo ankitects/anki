@@ -147,6 +147,30 @@ pub fn init_backend(init_msg: &[u8]) -> std::result::Result<Backend, String> {
     Ok(Backend::new(i18n, input.server))
 }
 
+impl From<Vec<u8>> for pb::Bytes {
+    fn from(val: Vec<u8>) -> Self {
+        pb::Bytes { val }
+    }
+}
+
+impl From<String> for pb::String {
+    fn from(val: String) -> Self {
+        pb::String { val }
+    }
+}
+
+impl From<i64> for pb::Int64 {
+    fn from(val: i64) -> Self {
+        pb::Int64 { val }
+    }
+}
+
+impl From<()> for pb::Empty {
+    fn from(_val: ()) -> Self {
+        pb::Empty {}
+    }
+}
+
 impl BackendService for Backend {
     fn render_existing_card(
         &mut self,
@@ -310,6 +334,92 @@ impl BackendService for Backend {
                 .collect(),
         })
     }
+
+    fn check_database(&mut self, _input: pb::Empty) -> BackendResult<pb::CheckDatabaseOut> {
+        self.with_col(|col| {
+            col.check_database().map(|problems| pb::CheckDatabaseOut {
+                problems: problems.to_i18n_strings(&col.i18n),
+            })
+        })
+    }
+
+    fn deck_tree_legacy(&mut self, _input: pb::Empty) -> BackendResult<pb::Bytes> {
+        self.with_col(|col| {
+            let tree = col.legacy_deck_tree()?;
+            serde_json::to_vec(&tree)
+                .map_err(Into::into)
+                .map(Into::into)
+        })
+    }
+
+    fn get_empty_cards(&mut self, _input: pb::Empty) -> Result<pb::EmptyCardsReport> {
+        self.with_col(|col| {
+            let mut empty = col.empty_cards()?;
+            let report = col.empty_cards_report(&mut empty)?;
+
+            let mut outnotes = vec![];
+            for (_ntid, notes) in empty {
+                outnotes.extend(notes.into_iter().map(|e| pb::NoteWithEmptyCards {
+                    note_id: e.nid.0,
+                    will_delete_note: e.empty.len() == e.current_count,
+                    card_ids: e.empty.into_iter().map(|(_ord, id)| id.0).collect(),
+                }))
+            }
+            Ok(pb::EmptyCardsReport {
+                report,
+                notes: outnotes,
+            })
+        })
+    }
+
+    fn get_deck_legacy(&mut self, input: pb::Int64) -> Result<pb::Bytes> {
+        self.with_col(|col| {
+            let deck: DeckSchema11 = col
+                .storage
+                .get_deck(DeckID(input.val))?
+                .ok_or(AnkiError::NotFound)?
+                .into();
+            serde_json::to_vec(&deck)
+                .map_err(Into::into)
+                .map(Into::into)
+        })
+    }
+
+    fn get_deck_id_by_name(&mut self, input: pb::String) -> Result<pb::Int64> {
+        self.with_col(|col| {
+            col.get_deck_id(&input.val)
+                .map(|d| d.map(|d| d.0).unwrap_or_default())
+                .map(Into::into)
+        })
+    }
+
+    fn sync_media(&mut self, input: SyncMediaIn) -> BackendResult<Empty> {
+        let mut guard = self.col.lock().unwrap();
+
+        let col = guard.as_mut().unwrap();
+        col.set_media_sync_running()?;
+
+        let folder = col.media_folder.clone();
+        let db = col.media_db.clone();
+        let log = col.log.clone();
+
+        drop(guard);
+
+        let res = self.sync_media_inner(input, folder, db, log);
+
+        self.with_col(|col| col.set_media_sync_finished())?;
+
+        res.map(Into::into)
+    }
+
+    fn trash_media_files(&mut self, input: pb::TrashMediaFilesIn) -> BackendResult<Empty> {
+        self.with_col(|col| {
+            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
+            let mut ctx = mgr.dbctx();
+            mgr.remove_files(&mut ctx, &input.fnames)
+        })
+        .map(Into::into)
+    }
 }
 
 impl Backend {
@@ -403,14 +513,6 @@ impl Backend {
         use pb::backend_output::Value as OValue;
         Ok(match ival {
             Value::AddMediaFile(input) => OValue::AddMediaFile(self.add_media_file(input)?),
-            Value::SyncMedia(input) => {
-                self.sync_media(input)?;
-                OValue::SyncMedia(Empty {})
-            }
-            Value::TrashMediaFiles(input) => {
-                self.remove_media_files(&input.fnames)?;
-                OValue::TrashMediaFiles(Empty {})
-            }
             Value::TranslateString(input) => OValue::TranslateString(self.translate_string(input)),
             Value::FormatTimeSpan(input) => OValue::FormatTimeSpan(self.format_time_span(input)),
             Value::StudiedToday(input) => OValue::StudiedToday(studied_today(
@@ -509,11 +611,6 @@ impl Backend {
                 OValue::UpdateNote(pb::Empty {})
             }
             Value::GetNote(nid) => OValue::GetNote(self.get_note(nid)?),
-            Value::GetEmptyCards(_) => OValue::GetEmptyCards(self.get_empty_cards()?),
-            Value::GetDeckLegacy(did) => OValue::GetDeckLegacy(self.get_deck_legacy(did)?),
-            Value::GetDeckIdByName(name) => {
-                OValue::GetDeckIdByName(self.get_deck_id_by_name(&name)?)
-            }
             Value::GetDeckNames(input) => OValue::GetDeckNames(self.get_deck_names(input)?),
             Value::AddOrUpdateDeckLegacy(input) => {
                 OValue::AddOrUpdateDeckLegacy(self.add_or_update_deck_legacy(input)?)
@@ -526,8 +623,6 @@ impl Backend {
                 self.remove_deck(did)?;
                 pb::Empty {}
             }),
-            Value::CheckDatabase(_) => OValue::CheckDatabase(self.check_database()?),
-            Value::DeckTreeLegacy(_) => OValue::DeckTreeLegacy(self.deck_tree_legacy()?),
             Value::FieldNamesForNotes(input) => {
                 OValue::FieldNamesForNotes(self.field_names_for_notes(input)?)
             }
@@ -625,25 +720,6 @@ impl Backend {
         })
     }
 
-    fn sync_media(&mut self, input: SyncMediaIn) -> Result<()> {
-        let mut guard = self.col.lock().unwrap();
-
-        let col = guard.as_mut().unwrap();
-        col.set_media_sync_running()?;
-
-        let folder = col.media_folder.clone();
-        let db = col.media_db.clone();
-        let log = col.log.clone();
-
-        drop(guard);
-
-        let res = self.sync_media_inner(input, folder, db, log);
-
-        self.with_col(|col| col.set_media_sync_finished())?;
-
-        res
-    }
-
     fn sync_media_inner(
         &mut self,
         input: pb::SyncMediaIn,
@@ -677,14 +753,6 @@ impl Backend {
         if let Some(handle) = self.media_sync_abort.take() {
             handle.abort();
         }
-    }
-
-    fn remove_media_files(&self, fnames: &[String]) -> Result<()> {
-        self.with_col(|col| {
-            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
-            let mut ctx = mgr.dbctx();
-            mgr.remove_files(&mut ctx, fnames)
-        })
     }
 
     fn translate_string(&self, input: pb::TranslateStringIn) -> String {
@@ -1010,44 +1078,6 @@ impl Backend {
         })
     }
 
-    fn get_empty_cards(&self) -> Result<pb::EmptyCardsReport> {
-        self.with_col(|col| {
-            let mut empty = col.empty_cards()?;
-            let report = col.empty_cards_report(&mut empty)?;
-
-            let mut outnotes = vec![];
-            for (_ntid, notes) in empty {
-                outnotes.extend(notes.into_iter().map(|e| pb::NoteWithEmptyCards {
-                    note_id: e.nid.0,
-                    will_delete_note: e.empty.len() == e.current_count,
-                    card_ids: e.empty.into_iter().map(|(_ord, id)| id.0).collect(),
-                }))
-            }
-            Ok(pb::EmptyCardsReport {
-                report,
-                notes: outnotes,
-            })
-        })
-    }
-
-    fn get_deck_legacy(&self, did: i64) -> Result<Vec<u8>> {
-        self.with_col(|col| {
-            let deck: DeckSchema11 = col
-                .storage
-                .get_deck(DeckID(did))?
-                .ok_or(AnkiError::NotFound)?
-                .into();
-            serde_json::to_vec(&deck).map_err(Into::into)
-        })
-    }
-
-    fn get_deck_id_by_name(&self, human_name: &str) -> Result<i64> {
-        self.with_col(|col| {
-            col.get_deck_id(human_name)
-                .map(|d| d.map(|d| d.0).unwrap_or_default())
-        })
-    }
-
     fn get_deck_names(&self, input: pb::GetDeckNamesIn) -> Result<pb::DeckNames> {
         self.with_col(|col| {
             let names = if input.include_filtered {
@@ -1092,21 +1122,6 @@ impl Backend {
 
     fn remove_deck(&self, did: i64) -> Result<()> {
         self.with_col(|col| col.remove_deck_and_child_decks(DeckID(did)))
-    }
-
-    fn check_database(&self) -> Result<pb::CheckDatabaseOut> {
-        self.with_col(|col| {
-            col.check_database().map(|problems| pb::CheckDatabaseOut {
-                problems: problems.to_i18n_strings(&col.i18n),
-            })
-        })
-    }
-
-    fn deck_tree_legacy(&self) -> Result<Vec<u8>> {
-        self.with_col(|col| {
-            let tree = col.legacy_deck_tree()?;
-            serde_json::to_vec(&tree).map_err(Into::into)
-        })
     }
 
     fn field_names_for_notes(

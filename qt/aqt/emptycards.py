@@ -24,7 +24,7 @@ def show_empty_cards(mw: aqt.main.AnkiQt) -> None:
         diag = EmptyCardsDialog(mw, report)
         diag.show()
 
-    mw.taskman.run_in_background(mw.col.backend.empty_cards_report, on_done)
+    mw.taskman.run_in_background(mw.col.backend.get_empty_cards, on_done)
 
 
 class EmptyCardsDialog(QDialog):

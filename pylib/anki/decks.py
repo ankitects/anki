@@ -11,7 +11,7 @@ import anki.backend_pb2 as pb
 from anki.consts import *
 from anki.errors import DeckRenameError
 from anki.lang import _
-from anki.rsbackend import DeckTreeNode
+from anki.rsbackend import DeckTreeNode, NotFoundError, from_json_bytes
 from anki.utils import ids2str, intTime
 
 # legacy code may pass this in as the type argument to .id()
@@ -113,10 +113,13 @@ class DeckManager:
         )
 
     def id_for_name(self, name: str) -> Optional[int]:
-        return self.col.backend.get_deck_id_by_name(name)
+        return self.col.backend.get_deck_id_by_name(name) or None
 
     def get_legacy(self, did: int) -> Optional[Dict]:
-        return self.col.backend.get_deck_legacy(did)
+        try:
+            return from_json_bytes(self.col.backend.get_deck_legacy(did))
+        except NotFoundError:
+            return None
 
     def have(self, id: int) -> bool:
         return not self.get_legacy(int(id))

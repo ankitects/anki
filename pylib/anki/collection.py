@@ -593,7 +593,7 @@ select id from notes where mid = ?) limit 1"""
         """
         self.save(trx=False)
         try:
-            problems = self.backend.check_database()
+            problems = list(self.backend.check_database())
             ok = not problems
             problems.append(self.tr(TR.DATABASE_CHECK_REBUILT))
         except DBError as e:

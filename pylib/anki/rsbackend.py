@@ -246,17 +246,6 @@ class RustBackend:
             )
         ).add_media_file
 
-    def sync_media(self, hkey: str, endpoint: str) -> None:
-        self._run_command(
-            pb.BackendInput(sync_media=pb.SyncMediaIn(hkey=hkey, endpoint=endpoint,)),
-            release_gil=True,
-        )
-
-    def trash_media_files(self, fnames: List[str]) -> None:
-        self._run_command(
-            pb.BackendInput(trash_media_files=pb.TrashMediaFilesIn(fnames=fnames))
-        )
-
     def translate(self, key: TR, **kwargs: Union[str, int, float]) -> str:
         return self._run_command(
             pb.BackendInput(translate_string=translate_string_in(key, **kwargs))
@@ -506,20 +495,6 @@ class RustBackend:
         except NotFoundError:
             return None
 
-    def empty_cards_report(self) -> pb.EmptyCardsReport:
-        return self._run_command(
-            pb.BackendInput(get_empty_cards=pb.Empty()), release_gil=True
-        ).get_empty_cards
-
-    def get_deck_legacy(self, did: int) -> Optional[Dict]:
-        try:
-            bytes = self._run_command(
-                pb.BackendInput(get_deck_legacy=did)
-            ).get_deck_legacy
-            return orjson.loads(bytes)
-        except NotFoundError:
-            return None
-
     def get_deck_names_and_ids(
         self, skip_empty_default: bool, include_filtered: bool = True
     ) -> Sequence[pb.DeckNameID]:
@@ -551,29 +526,8 @@ class RustBackend:
         ).new_deck_legacy
         return orjson.loads(jstr)
 
-    def get_deck_id_by_name(self, name: str) -> Optional[int]:
-        return (
-            self._run_command(
-                pb.BackendInput(get_deck_id_by_name=name)
-            ).get_deck_id_by_name
-            or None
-        )
-
     def remove_deck(self, did: int) -> None:
         self._run_command(pb.BackendInput(remove_deck=did))
-
-    def check_database(self) -> List[str]:
-        return list(
-            self._run_command(
-                pb.BackendInput(check_database=pb.Empty()), release_gil=True
-            ).check_database.problems
-        )
-
-    def legacy_deck_tree(self) -> Sequence:
-        bytes = self._run_command(
-            pb.BackendInput(deck_tree_legacy=pb.Empty())
-        ).deck_tree_legacy
-        return orjson.loads(bytes)[5]
 
     def field_names_for_note_ids(self, nids: List[int]) -> Sequence[str]:
         return self._run_command(
@@ -725,7 +679,7 @@ class RustBackend:
         output.ParseFromString(self._run_command2(9, input))
         return output.val
 
-    def extract_a_v_tags(self, text: str, question_side: bool) -> pb.ExtractAVTagsOut:
+    def extract_av_tags(self, text: str, question_side: bool) -> pb.ExtractAVTagsOut:
         input = pb.ExtractAVTagsIn(text=text, question_side=question_side)
         output = pb.ExtractAVTagsOut()
         output.ParseFromString(self._run_command2(10, input))
@@ -738,6 +692,48 @@ class RustBackend:
         output = pb.ExtractLatexOut()
         output.ParseFromString(self._run_command2(11, input))
         return output
+
+    def deck_tree_legacy(self) -> bytes:
+        input = pb.Empty()
+        output = pb.Bytes()
+        output.ParseFromString(self._run_command2(12, input))
+        return output.val
+
+    def check_database(self) -> Sequence[str]:
+        input = pb.Empty()
+        output = pb.CheckDatabaseOut()
+        output.ParseFromString(self._run_command2(13, input))
+        return output.problems
+
+    def get_empty_cards(self) -> pb.EmptyCardsReport:
+        input = pb.Empty()
+        output = pb.EmptyCardsReport()
+        output.ParseFromString(self._run_command2(14, input))
+        return output
+
+    def sync_media(self, hkey: str, endpoint: str) -> pb.Empty:
+        input = pb.SyncMediaIn(hkey=hkey, endpoint=endpoint)
+        output = pb.Empty()
+        output.ParseFromString(self._run_command2(15, input))
+        return output
+
+    def trash_media_files(self, fnames: Sequence[str]) -> pb.Empty:
+        input = pb.TrashMediaFilesIn(fnames=fnames)
+        output = pb.Empty()
+        output.ParseFromString(self._run_command2(16, input))
+        return output
+
+    def get_deck_legacy(self, val: int) -> bytes:
+        input = pb.Int64(val=val)
+        output = pb.Bytes()
+        output.ParseFromString(self._run_command2(17, input))
+        return output.val
+
+    def get_deck_id_by_name(self, val: str) -> int:
+        input = pb.String(val=val)
+        output = pb.Int64()
+        output.ParseFromString(self._run_command2(18, input))
+        return output.val
 
     # @@AUTOGEN@@
 

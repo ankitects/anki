@@ -51,7 +51,7 @@ def test_genrem():
     t = m["tmpls"][1]
     t["qfmt"] = "{{Back}}"
     mm.save(m, templates=True)
-    rep = d.backend.empty_cards_report()
+    rep = d.backend.get_empty_cards()
     for note in rep.notes:
         d.remCards(note.card_ids)
     assert len(f.cards()) == 1
