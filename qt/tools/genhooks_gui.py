@@ -174,8 +174,23 @@ hooks = [
     ),
     Hook(
         name="deck_conf_did_add_config",
-        args=["deck_conf: aqt.deckconf.DeckConf", "deck: Any", "config: Any", "new_name: str", "new_confg_id: int"],
-        doc="Called after a new config group was added as a clone of the current one, but before initializing the widget state",
+        args=[
+            "deck_conf: aqt.deckconf.DeckConf",
+            "deck: Any",
+            "config: Any",
+            "new_name: str",
+            "new_conf_id: int",
+        ],
+        doc="""Allows modification of a newly created config group
+
+        This hook is called after the config group was created, but
+        before initializing the widget state.
+
+        `deck_conf` will point to the old config group, `new_conf_id` will
+        point to the newly created config group.
+
+        Config groups are created as clones of the current one.
+        """,
     ),
     Hook(
         name="deck_conf_will_remove_config",
@@ -184,7 +199,12 @@ hooks = [
     ),
     Hook(
         name="deck_conf_will_rename_config",
-        args=["deck_conf: aqt.deckconf.DeckConf", "deck: Any", "config: Any", "new_name: str"],
+        args=[
+            "deck_conf: aqt.deckconf.DeckConf",
+            "deck: Any",
+            "config: Any",
+            "new_name: str",
+        ],
         doc="Called before config group is renamed",
     ),
     # Browser

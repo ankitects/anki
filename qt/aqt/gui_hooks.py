@@ -918,14 +918,23 @@ deck_browser_will_show_options_menu = _DeckBrowserWillShowOptionsMenuHook()
 
 
 class _DeckConfDidAddConfigHook:
-    """Called after a new config group was added as a clone of the current one, but before initializing the widget state"""
+    """Allows modification of a newly created config group
+
+        This hook is called after the config group was created, but
+        before initializing the widget state.
+
+        `deck_conf` will point to the old config group, `new_conf_id` will
+        point to the newly created config group.
+
+        Config groups are created as clones of the current one.
+        """
 
     _hooks: List[Callable[["aqt.deckconf.DeckConf", Any, Any, str, int], None]] = []
 
     def append(
         self, cb: Callable[["aqt.deckconf.DeckConf", Any, Any, str, int], None]
     ) -> None:
-        """(deck_conf: aqt.deckconf.DeckConf, deck: Any, config: Any, new_name: str, new_confg_id: int)"""
+        """(deck_conf: aqt.deckconf.DeckConf, deck: Any, config: Any, new_name: str, new_conf_id: int)"""
         self._hooks.append(cb)
 
     def remove(
@@ -940,11 +949,11 @@ class _DeckConfDidAddConfigHook:
         deck: Any,
         config: Any,
         new_name: str,
-        new_confg_id: int,
+        new_conf_id: int,
     ) -> None:
         for hook in self._hooks:
             try:
-                hook(deck_conf, deck, config, new_name, new_confg_id)
+                hook(deck_conf, deck, config, new_name, new_conf_id)
             except:
                 # if the hook fails, remove it
                 self._hooks.remove(hook)
