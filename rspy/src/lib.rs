@@ -93,6 +93,18 @@ fn want_release_gil(method: u32) -> bool {
             BackendMethod::CloseCollection => true,
             BackendMethod::AbortMediaSync => true,
             BackendMethod::BeforeUpload => true,
+            BackendMethod::TranslateString => false,
+            BackendMethod::FormatTimespan => false,
+            BackendMethod::RegisterTags => true,
+            BackendMethod::AllTags => true,
+            BackendMethod::GetChangedTags => true,
+            BackendMethod::GetConfigJson => true,
+            BackendMethod::SetConfigJson => true,
+            BackendMethod::RemoveConfig => true,
+            BackendMethod::SetAllConfig => true,
+            BackendMethod::GetAllConfig => true,
+            BackendMethod::GetPreferences => true,
+            BackendMethod::SetPreferences => true,
         }
     } else {
         false
@@ -101,23 +113,12 @@ fn want_release_gil(method: u32) -> bool {
 
 #[pymethods]
 impl Backend {
-    fn command(&mut self, py: Python, input: &PyBytes, release_gil: bool) -> PyObject {
-        let in_bytes = input.as_bytes();
-        let out_bytes = if release_gil {
-            py.allow_threads(move || self.backend.run_command_bytes(in_bytes))
-        } else {
-            self.backend.run_command_bytes(in_bytes)
-        };
-        let out_obj = PyBytes::new(py, &out_bytes);
-        out_obj.into()
-    }
-
-    fn command2(&mut self, py: Python, method: u32, input: &PyBytes) -> PyResult<PyObject> {
+    fn command(&mut self, py: Python, method: u32, input: &PyBytes) -> PyResult<PyObject> {
         let in_bytes = input.as_bytes();
         if want_release_gil(method) {
-            py.allow_threads(move || self.backend.run_command_bytes2(method, in_bytes))
+            py.allow_threads(move || self.backend.run_command_bytes(method, in_bytes))
         } else {
-            self.backend.run_command_bytes2(method, in_bytes)
+            self.backend.run_command_bytes(method, in_bytes)
         }
         .map(|out_bytes| {
             let out_obj = PyBytes::new(py, &out_bytes);

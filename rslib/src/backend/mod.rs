@@ -41,7 +41,7 @@ use crate::{
 use fluent::FluentValue;
 use futures::future::{AbortHandle, Abortable};
 use log::error;
-use pb::{backend_input::Value, BackendService};
+use pb::BackendService;
 use prost::Message;
 use serde_json::Value as JsonValue;
 use std::collections::{HashMap, HashSet};
@@ -96,13 +96,6 @@ fn anki_error_to_proto_error(err: AnkiError, i18n: &I18n) -> pb::BackendError {
     pb::BackendError {
         value: Some(value),
         localized,
-    }
-}
-
-// Convert an Anki error to a protobuf output.
-impl std::convert::From<pb::BackendError> for pb::backend_output::Value {
-    fn from(err: pb::BackendError) -> Self {
-        pb::backend_output::Value::Error(err)
     }
 }
 
@@ -947,6 +940,133 @@ impl BackendService for Backend {
     fn before_upload(&mut self, _input: Empty) -> BackendResult<Empty> {
         self.with_col(|col| col.before_upload().map(Into::into))
     }
+
+    // i18n/messages
+    //-------------------------------------------------------------------
+
+    fn translate_string(&mut self, input: pb::TranslateStringIn) -> BackendResult<pb::String> {
+        let key = match pb::FluentString::from_i32(input.key) {
+            Some(key) => key,
+            None => return Ok("invalid key".to_string().into()),
+        };
+
+        let map = input
+            .args
+            .iter()
+            .map(|(k, v)| (k.as_str(), translate_arg_to_fluent_val(&v)))
+            .collect();
+
+        Ok(self.i18n.trn(key, map).into())
+    }
+
+    fn format_timespan(&mut self, input: pb::FormatTimespanIn) -> BackendResult<pb::String> {
+        let context = match pb::format_timespan_in::Context::from_i32(input.context) {
+            Some(context) => context,
+            None => return Ok("".to_string().into()),
+        };
+        Ok(match context {
+            pb::format_timespan_in::Context::Precise => time_span(input.seconds, &self.i18n, true),
+            pb::format_timespan_in::Context::Intervals => {
+                time_span(input.seconds, &self.i18n, false)
+            }
+            pb::format_timespan_in::Context::AnswerButtons => {
+                answer_button_time(input.seconds, &self.i18n)
+            }
+        }
+        .into())
+    }
+
+    // tags
+    //-------------------------------------------------------------------
+
+    fn all_tags(&mut self, _input: Empty) -> BackendResult<pb::AllTagsOut> {
+        let tags = self.with_col(|col| col.storage.all_tags())?;
+        let tags: Vec<_> = tags
+            .into_iter()
+            .map(|(tag, usn)| pb::TagUsnTuple { tag, usn: usn.0 })
+            .collect();
+        Ok(pb::AllTagsOut { tags })
+    }
+
+    fn register_tags(&mut self, input: pb::RegisterTagsIn) -> BackendResult<pb::Bool> {
+        self.with_col(|col| {
+            col.transact(None, |col| {
+                let usn = if input.preserve_usn {
+                    Usn(input.usn)
+                } else {
+                    col.usn()?
+                };
+                col.register_tags(&input.tags, usn, input.clear_first)
+                    .map(|val| pb::Bool { val })
+            })
+        })
+    }
+
+    fn get_changed_tags(&mut self, input: pb::Int32) -> BackendResult<pb::GetChangedTagsOut> {
+        self.with_col(|col| {
+            col.transact(None, |col| {
+                Ok(pb::GetChangedTagsOut {
+                    tags: col.storage.get_changed_tags(Usn(input.val))?,
+                })
+            })
+        })
+    }
+
+    // config/preferences
+    //-------------------------------------------------------------------
+
+    fn get_config_json(&mut self, input: pb::String) -> BackendResult<pb::Json> {
+        self.with_col(|col| {
+            let val: Option<JsonValue> = col.get_config_optional(input.val.as_str());
+            val.ok_or(AnkiError::NotFound)
+                .and_then(|v| serde_json::to_vec(&v).map_err(Into::into))
+                .map(Into::into)
+        })
+    }
+
+    fn set_config_json(&mut self, input: pb::SetConfigJsonIn) -> BackendResult<Empty> {
+        self.with_col(|col| {
+            col.transact(None, |col| {
+                // ensure it's a well-formed object
+                let val: JsonValue = serde_json::from_slice(&input.val)?;
+                col.set_config(input.key.as_str(), &val)
+            })
+        })
+        .map(Into::into)
+    }
+
+    fn remove_config(&mut self, input: pb::String) -> BackendResult<Empty> {
+        self.with_col(|col| col.transact(None, |col| col.remove_config(input.val.as_str())))
+            .map(Into::into)
+    }
+
+    fn set_all_config(&mut self, input: pb::Json) -> BackendResult<Empty> {
+        let val: HashMap<String, JsonValue> = serde_json::from_slice(&input.json)?;
+        self.with_col(|col| {
+            col.transact(None, |col| {
+                col.storage
+                    .set_all_config(val, col.usn()?, TimestampSecs::now())
+            })
+        })
+        .map(Into::into)
+    }
+
+    fn get_all_config(&mut self, _input: Empty) -> BackendResult<pb::Json> {
+        self.with_col(|col| {
+            let conf = col.storage.get_all_config()?;
+            serde_json::to_vec(&conf).map_err(Into::into)
+        })
+        .map(Into::into)
+    }
+
+    fn get_preferences(&mut self, _input: Empty) -> BackendResult<pb::Preferences> {
+        self.with_col(|col| col.get_preferences())
+    }
+
+    fn set_preferences(&mut self, input: pb::Preferences) -> BackendResult<Empty> {
+        self.with_col(|col| col.transact(None, |col| col.set_preferences(input)))
+            .map(Into::into)
+    }
 }
 
 impl Backend {
@@ -964,30 +1084,7 @@ impl Backend {
         &self.i18n
     }
 
-    /// Decode a request, process it, and return the encoded result.
-    pub fn run_command_bytes(&mut self, req: &[u8]) -> Vec<u8> {
-        let mut buf = vec![];
-
-        let req = match pb::BackendInput::decode(req) {
-            Ok(req) => req,
-            Err(_e) => {
-                // unable to decode
-                let err = AnkiError::invalid_input("couldn't decode backend request");
-                let oerr = anki_error_to_proto_error(err, &self.i18n);
-                let output = pb::BackendOutput {
-                    value: Some(oerr.into()),
-                };
-                output.encode(&mut buf).expect("encode failed");
-                return buf;
-            }
-        };
-
-        let resp = self.run_command(req);
-        resp.encode(&mut buf).expect("encode failed");
-        buf
-    }
-
-    pub fn run_command_bytes2(
+    pub fn run_command_bytes(
         &mut self,
         method: u32,
         input: &[u8],
@@ -1014,53 +1111,6 @@ impl Backend {
                 .as_mut()
                 .ok_or(AnkiError::CollectionNotOpen)?,
         )
-    }
-
-    fn run_command(&mut self, input: pb::BackendInput) -> pb::BackendOutput {
-        let oval = if let Some(ival) = input.value {
-            match self.run_command_inner(ival) {
-                Ok(output) => output,
-                Err(err) => anki_error_to_proto_error(err, &self.i18n).into(),
-            }
-        } else {
-            anki_error_to_proto_error(
-                AnkiError::invalid_input("unrecognized backend input value"),
-                &self.i18n,
-            )
-            .into()
-        };
-
-        pb::BackendOutput { value: Some(oval) }
-    }
-
-    fn run_command_inner(
-        &mut self,
-        ival: pb::backend_input::Value,
-    ) -> Result<pb::backend_output::Value> {
-        use pb::backend_output::Value as OValue;
-        Ok(match ival {
-            Value::TranslateString(input) => OValue::TranslateString(self.translate_string(input)),
-            Value::FormatTimeSpan(input) => OValue::FormatTimeSpan(self.format_time_span(input)),
-            Value::AllTags(_) => OValue::AllTags(self.all_tags()?),
-            Value::RegisterTags(input) => OValue::RegisterTags(self.register_tags(input)?),
-            Value::GetChangedTags(usn) => OValue::GetChangedTags(self.get_changed_tags(usn)?),
-            Value::GetConfigJson(key) => OValue::GetConfigJson(self.get_config_json(&key)?),
-            Value::SetConfigJson(input) => OValue::SetConfigJson({
-                self.set_config_json(input)?;
-                pb::Empty {}
-            }),
-
-            Value::SetAllConfig(input) => OValue::SetConfigJson({
-                self.set_all_config(&input)?;
-                pb::Empty {}
-            }),
-            Value::GetAllConfig(_) => OValue::GetAllConfig(self.get_all_config()?),
-            Value::GetPreferences(_) => OValue::GetPreferences(self.get_preferences()?),
-            Value::SetPreferences(prefs) => OValue::SetPreferences({
-                self.set_preferences(prefs)?;
-                pb::Empty {}
-            }),
-        })
     }
 
     fn fire_progress_callback(&self, progress: Progress) -> bool {
@@ -1105,125 +1155,8 @@ impl Backend {
         ret
     }
 
-    fn translate_string(&self, input: pb::TranslateStringIn) -> String {
-        let key = match pb::FluentString::from_i32(input.key) {
-            Some(key) => key,
-            None => return "invalid key".to_string(),
-        };
-
-        let map = input
-            .args
-            .iter()
-            .map(|(k, v)| (k.as_str(), translate_arg_to_fluent_val(&v)))
-            .collect();
-
-        self.i18n.trn(key, map)
-    }
-
-    fn format_time_span(&self, input: pb::FormatTimeSpanIn) -> String {
-        let context = match pb::format_time_span_in::Context::from_i32(input.context) {
-            Some(context) => context,
-            None => return "".to_string(),
-        };
-        match context {
-            pb::format_time_span_in::Context::Precise => time_span(input.seconds, &self.i18n, true),
-            pb::format_time_span_in::Context::Intervals => {
-                time_span(input.seconds, &self.i18n, false)
-            }
-            pb::format_time_span_in::Context::AnswerButtons => {
-                answer_button_time(input.seconds, &self.i18n)
-            }
-        }
-    }
-
     pub fn db_command(&self, input: &[u8]) -> Result<String> {
         self.with_col(|col| db_command_bytes(&col.storage, input))
-    }
-
-    fn all_tags(&self) -> Result<pb::AllTagsOut> {
-        let tags = self.with_col(|col| col.storage.all_tags())?;
-        let tags: Vec<_> = tags
-            .into_iter()
-            .map(|(tag, usn)| pb::TagUsnTuple { tag, usn: usn.0 })
-            .collect();
-        Ok(pb::AllTagsOut { tags })
-    }
-
-    fn register_tags(&self, input: pb::RegisterTagsIn) -> Result<bool> {
-        self.with_col(|col| {
-            col.transact(None, |col| {
-                let usn = if input.preserve_usn {
-                    Usn(input.usn)
-                } else {
-                    col.usn()?
-                };
-                col.register_tags(&input.tags, usn, input.clear_first)
-            })
-        })
-    }
-
-    fn get_changed_tags(&self, usn: i32) -> Result<pb::GetChangedTagsOut> {
-        self.with_col(|col| {
-            col.transact(None, |col| {
-                Ok(pb::GetChangedTagsOut {
-                    tags: col.storage.get_changed_tags(Usn(usn))?,
-                })
-            })
-        })
-    }
-
-    fn get_config_json(&self, key: &str) -> Result<Vec<u8>> {
-        self.with_col(|col| {
-            let val: Option<JsonValue> = col.get_config_optional(key);
-            match val {
-                None => Ok(vec![]),
-                Some(val) => Ok(serde_json::to_vec(&val)?),
-            }
-        })
-    }
-
-    fn set_config_json(&self, input: pb::SetConfigJson) -> Result<()> {
-        self.with_col(|col| {
-            col.transact(None, |col| {
-                if let Some(op) = input.op {
-                    match op {
-                        pb::set_config_json::Op::Val(val) => {
-                            // ensure it's a well-formed object
-                            let val: JsonValue = serde_json::from_slice(&val)?;
-                            col.set_config(input.key.as_str(), &val)
-                        }
-                        pb::set_config_json::Op::Remove(_) => col.remove_config(input.key.as_str()),
-                    }
-                } else {
-                    Err(AnkiError::invalid_input("no op received"))
-                }
-            })
-        })
-    }
-
-    fn set_all_config(&self, conf: &[u8]) -> Result<()> {
-        let val: HashMap<String, JsonValue> = serde_json::from_slice(conf)?;
-        self.with_col(|col| {
-            col.transact(None, |col| {
-                col.storage
-                    .set_all_config(val, col.usn()?, TimestampSecs::now())
-            })
-        })
-    }
-
-    fn get_all_config(&self) -> Result<Vec<u8>> {
-        self.with_col(|col| {
-            let conf = col.storage.get_all_config()?;
-            serde_json::to_vec(&conf).map_err(Into::into)
-        })
-    }
-
-    fn get_preferences(&self) -> Result<pb::Preferences> {
-        self.with_col(|col| col.get_preferences())
-    }
-
-    fn set_preferences(&self, prefs: pb::Preferences) -> Result<()> {
-        self.with_col(|col| col.transact(None, |col| col.set_preferences(prefs)))
     }
 }
 

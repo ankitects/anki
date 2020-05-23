@@ -29,6 +29,9 @@ LABEL_OPTIONAL = 1
 LABEL_REQUIRED = 2
 LABEL_REPEATED = 3
 
+# messages we don't want to unroll in codegen
+SKIP_UNROLL_INPUT = {"TranslateString"}
+
 
 def python_type(field):
     type = python_type_inner(field)
@@ -50,11 +53,18 @@ def python_type_inner(field):
     elif type == TYPE_BYTES:
         return "bytes"
     elif type == TYPE_MESSAGE:
-        return "pb." + field.message_type.name
+        return fullname(field.message_type.full_name)
     elif type == TYPE_ENUM:
-        return "pb." + field.enum_type.name
+        return fullname(field.enum_type.full_name)
     else:
         raise Exception(f"unknown type: {type}")
+
+
+def fullname(fullname):
+    if "FluentString" in fullname:
+        return fullname.replace("backend_proto", "anki.fluent_pb2")
+    else:
+        return fullname.replace("backend_proto", "pb")
 
 
 # get_deck_i_d -> get_deck_id etc
@@ -80,14 +90,18 @@ def get_input_assign(msg):
 
 def render_method(method, idx):
     input_name = method.input_type.name
-    if input_name.endswith("In") or len(method.input_type.fields) < 2:
+    if (
+        (input_name.endswith("In") or len(method.input_type.fields) < 2)
+        and not method.input_type.oneofs
+        and not method.name in SKIP_UNROLL_INPUT
+    ):
         input_args = get_input_args(method.input_type)
         input_assign = get_input_assign(method.input_type)
         input_assign_outer = (
-            f"input = pb.{method.input_type.name}({input_assign})\n        "
+            f"input = {fullname(method.input_type.full_name)}({input_assign})\n        "
         )
     else:
-        input_args = f"self, input: pb.{input_name}"
+        input_args = f"self, input: {fullname(method.input_type.full_name)}"
         input_assign_outer = ""
     name = fix_snakecase(stringcase.snakecase(method.name))
     if len(method.output_type.fields) == 1:
@@ -101,7 +115,7 @@ def render_method(method, idx):
     return f"""\
     def {name}({input_args}) -> {return_type}:
         {input_assign_outer}output = pb.{method.output_type.name}()
-        output.ParseFromString(self._run_command2({idx+1}, input))
+        output.ParseFromString(self._run_command({idx+1}, input))
         return output{single_field}
 """
 

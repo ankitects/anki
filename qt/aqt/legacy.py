@@ -40,7 +40,7 @@ def stripSounds(text) -> str:
 
 def fmtTimeSpan(time, pad=0, point=0, short=False, inTime=False, unit=99):
     print("fmtTimeSpan() has become col.backend.format_time_span()")
-    return aqt.mw.col.backend.format_time_span(time)
+    return aqt.mw.col.format_timespan(time)
 
 
 def install_pylib_legacy() -> None:

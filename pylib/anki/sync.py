@@ -19,6 +19,8 @@ from . import hooks
 from .httpclient import HttpClient
 
 # add-on compat
+from .rsbackend import from_json_bytes, to_json_bytes
+
 AnkiRequestsClient = HttpClient
 
 
@@ -402,7 +404,7 @@ from notes where %s"""
     ##########################################################################
 
     def getTags(self) -> List:
-        return self.col.backend.get_changed_tags(self.maxUsn)
+        return list(self.col.backend.get_changed_tags(self.maxUsn))
 
     def mergeTags(self, tags) -> None:
         self.col.tags.register(tags, usn=self.maxUsn)
@@ -448,10 +450,10 @@ from notes where %s"""
     ##########################################################################
 
     def getConf(self) -> Dict[str, Any]:
-        return self.col.backend.get_all_config()
+        return from_json_bytes(self.col.backend.get_all_config())
 
     def mergeConf(self, conf: Dict[str, Any]) -> None:
-        self.col.backend.set_all_config(conf)
+        self.col.backend.set_all_config(to_json_bytes(conf))
 
 
 # HTTP syncing tools
