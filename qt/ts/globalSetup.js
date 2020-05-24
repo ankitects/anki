@@ -72,8 +72,10 @@ async function setupPuppeteer() {
         dumpio: true, // https://github.com/puppeteer/puppeteer/issues/4253
         headless: PUPPETEER_HEADLESS, // show the Chrome window
         slowMo: PUPPETEER_SLOWMO, // slow things down e.g. by 250 ms
+        devtools: true,  // https://stackoverflow.com/questions/46399299/debug-puppeteer
         ignoreDefaultArgs: [
             "--mute-audio",
+            "--auto-open-devtools-for-tabs",  // https://github.com/puppeteer/puppeteer/issues/864
         ],
         args: chrome_args,
     });
