@@ -69,9 +69,9 @@ async function setupPuppeteer() {
 
     console.log(` Environment 'slowMo=${PUPPETEER_SLOWMO}' 'headless=${PUPPETEER_HEADLESS}' 'args=${PUPPETEER_CHROME_ARGS}'`);
     let browser = await puppeteer.launch({
-        dumpio: true, // https://github.com/puppeteer/puppeteer/issues/4253
-        headless: PUPPETEER_HEADLESS, // show the Chrome window
-        slowMo: PUPPETEER_SLOWMO, // slow things down e.g. by 250 ms
+        dumpio: true,  // https://github.com/puppeteer/puppeteer/issues/4253
+        headless: PUPPETEER_HEADLESS,  // show the Chrome window
+        slowMo: PUPPETEER_SLOWMO,  // slow things down e.g. by 250 ms
         devtools: true,  // https://stackoverflow.com/questions/46399299/debug-puppeteer
         ignoreDefaultArgs: [
             "--mute-audio",
