@@ -227,7 +227,7 @@ fn main() -> std::io::Result<()> {
             for entry in fs::read_dir(lang_dir.path())? {
                 let entry = entry?;
                 let path = entry.path();
-                println!("cargo:rerun-if-changed={:?}", entry.path());
+                println!("cargo:rerun-if-changed={}", entry.path().to_string_lossy());
                 buf += &fs::read_to_string(path)?;
                 buf.push('\n');
             }
