@@ -105,6 +105,7 @@ fn want_release_gil(method: u32) -> bool {
             BackendMethod::GetAllConfig => true,
             BackendMethod::GetPreferences => true,
             BackendMethod::SetPreferences => true,
+            BackendMethod::NoteIsDuplicateOrEmpty => true,
         }
     } else {
         false

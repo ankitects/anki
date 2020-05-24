@@ -543,6 +543,13 @@ class RustBackend:
         output.ParseFromString(self._run_command(45, input))
         return output.fields
 
+    def note_is_duplicate_or_empty(
+        self, input: pb.Note
+    ) -> pb.NoteIsDuplicateOrEmptyOut.State:
+        output = pb.NoteIsDuplicateOrEmptyOut()
+        output.ParseFromString(self._run_command(46, input))
+        return output.state
+
     def add_or_update_notetype(
         self, *, json: bytes, preserve_usn_and_mtime: bool
     ) -> int:
@@ -550,43 +557,43 @@ class RustBackend:
             json=json, preserve_usn_and_mtime=preserve_usn_and_mtime
         )
         output = pb.NoteTypeID()
-        output.ParseFromString(self._run_command(46, input))
+        output.ParseFromString(self._run_command(47, input))
         return output.ntid
 
     def get_stock_notetype_legacy(self, kind: pb.StockNoteType) -> bytes:
         input = pb.GetStockNotetypeIn(kind=kind)
         output = pb.Json()
-        output.ParseFromString(self._run_command(47, input))
+        output.ParseFromString(self._run_command(48, input))
         return output.json
 
     def get_notetype_legacy(self, ntid: int) -> bytes:
         input = pb.NoteTypeID(ntid=ntid)
         output = pb.Json()
-        output.ParseFromString(self._run_command(48, input))
+        output.ParseFromString(self._run_command(49, input))
         return output.json
 
     def get_notetype_names(self) -> Sequence[pb.NoteTypeNameID]:
         input = pb.Empty()
         output = pb.NoteTypeNames()
-        output.ParseFromString(self._run_command(49, input))
+        output.ParseFromString(self._run_command(50, input))
         return output.entries
 
     def get_notetype_names_and_counts(self) -> Sequence[pb.NoteTypeNameIDUseCount]:
         input = pb.Empty()
         output = pb.NoteTypeUseCounts()
-        output.ParseFromString(self._run_command(50, input))
+        output.ParseFromString(self._run_command(51, input))
         return output.entries
 
     def get_notetype_id_by_name(self, val: str) -> int:
         input = pb.String(val=val)
         output = pb.NoteTypeID()
-        output.ParseFromString(self._run_command(51, input))
+        output.ParseFromString(self._run_command(52, input))
         return output.ntid
 
     def remove_notetype(self, ntid: int) -> pb.Empty:
         input = pb.NoteTypeID(ntid=ntid)
         output = pb.Empty()
-        output.ParseFromString(self._run_command(52, input))
+        output.ParseFromString(self._run_command(53, input))
         return output
 
     def open_collection(
@@ -604,42 +611,42 @@ class RustBackend:
             log_path=log_path,
         )
         output = pb.Empty()
-        output.ParseFromString(self._run_command(53, input))
+        output.ParseFromString(self._run_command(54, input))
         return output
 
     def close_collection(self, downgrade_to_schema11: bool) -> pb.Empty:
         input = pb.CloseCollectionIn(downgrade_to_schema11=downgrade_to_schema11)
         output = pb.Empty()
-        output.ParseFromString(self._run_command(54, input))
+        output.ParseFromString(self._run_command(55, input))
         return output
 
     def check_database(self) -> Sequence[str]:
         input = pb.Empty()
         output = pb.CheckDatabaseOut()
-        output.ParseFromString(self._run_command(55, input))
+        output.ParseFromString(self._run_command(56, input))
         return output.problems
 
     def sync_media(self, *, hkey: str, endpoint: str) -> pb.Empty:
         input = pb.SyncMediaIn(hkey=hkey, endpoint=endpoint)
         output = pb.Empty()
-        output.ParseFromString(self._run_command(56, input))
+        output.ParseFromString(self._run_command(57, input))
         return output
 
     def abort_media_sync(self) -> pb.Empty:
         input = pb.Empty()
         output = pb.Empty()
-        output.ParseFromString(self._run_command(57, input))
+        output.ParseFromString(self._run_command(58, input))
         return output
 
     def before_upload(self) -> pb.Empty:
         input = pb.Empty()
         output = pb.Empty()
-        output.ParseFromString(self._run_command(58, input))
+        output.ParseFromString(self._run_command(59, input))
         return output
 
     def translate_string(self, input: pb.TranslateStringIn) -> str:
         output = pb.String()
-        output.ParseFromString(self._run_command(59, input))
+        output.ParseFromString(self._run_command(60, input))
         return output.val
 
     def format_timespan(
@@ -647,7 +654,7 @@ class RustBackend:
     ) -> str:
         input = pb.FormatTimespanIn(seconds=seconds, context=context)
         output = pb.String()
-        output.ParseFromString(self._run_command(60, input))
+        output.ParseFromString(self._run_command(61, input))
         return output.val
 
     def register_tags(
@@ -657,61 +664,61 @@ class RustBackend:
             tags=tags, preserve_usn=preserve_usn, usn=usn, clear_first=clear_first
         )
         output = pb.Bool()
-        output.ParseFromString(self._run_command(61, input))
+        output.ParseFromString(self._run_command(62, input))
         return output.val
 
     def all_tags(self) -> Sequence[pb.TagUsnTuple]:
         input = pb.Empty()
         output = pb.AllTagsOut()
-        output.ParseFromString(self._run_command(62, input))
+        output.ParseFromString(self._run_command(63, input))
         return output.tags
 
     def get_changed_tags(self, val: int) -> Sequence[str]:
         input = pb.Int32(val=val)
         output = pb.GetChangedTagsOut()
-        output.ParseFromString(self._run_command(63, input))
+        output.ParseFromString(self._run_command(64, input))
         return output.tags
 
     def get_config_json(self, val: str) -> bytes:
         input = pb.String(val=val)
         output = pb.Json()
-        output.ParseFromString(self._run_command(64, input))
+        output.ParseFromString(self._run_command(65, input))
         return output.json
 
     def set_config_json(self, *, key: str, value_json: bytes) -> pb.Empty:
         input = pb.SetConfigJsonIn(key=key, value_json=value_json)
         output = pb.Empty()
-        output.ParseFromString(self._run_command(65, input))
+        output.ParseFromString(self._run_command(66, input))
         return output
 
     def remove_config(self, val: str) -> pb.Empty:
         input = pb.String(val=val)
         output = pb.Empty()
-        output.ParseFromString(self._run_command(66, input))
+        output.ParseFromString(self._run_command(67, input))
         return output
 
     def set_all_config(self, json: bytes) -> pb.Empty:
         input = pb.Json(json=json)
         output = pb.Empty()
-        output.ParseFromString(self._run_command(67, input))
+        output.ParseFromString(self._run_command(68, input))
         return output
 
     def get_all_config(self) -> bytes:
         input = pb.Empty()
         output = pb.Json()
-        output.ParseFromString(self._run_command(68, input))
+        output.ParseFromString(self._run_command(69, input))
         return output.json
 
     def get_preferences(self) -> pb.CollectionSchedulingSettings:
         input = pb.Empty()
         output = pb.Preferences()
-        output.ParseFromString(self._run_command(69, input))
+        output.ParseFromString(self._run_command(70, input))
         return output.sched
 
     def set_preferences(self, sched: pb.CollectionSchedulingSettings) -> pb.Empty:
         input = pb.Preferences(sched=sched)
         output = pb.Empty()
-        output.ParseFromString(self._run_command(70, input))
+        output.ParseFromString(self._run_command(71, input))
         return output
 
     # @@AUTOGEN@@

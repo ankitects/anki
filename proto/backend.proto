@@ -136,6 +136,7 @@ service BackendService {
     rpc ClozeNumbersInNote (Note) returns (ClozeNumbersInNoteOut);
     rpc AfterNoteUpdates (AfterNoteUpdatesIn) returns (Empty);
     rpc FieldNamesForNotes (FieldNamesForNotesIn) returns (FieldNamesForNotesOut);
+    rpc NoteIsDuplicateOrEmpty (Note) returns (NoteIsDuplicateOrEmptyOut);
 
     // note types
 
@@ -864,4 +865,13 @@ message GetDeckNamesIn {
     bool skip_empty_default = 1;
     // if unset, implies skip_empty_default
     bool include_filtered = 2;
+}
+
+message NoteIsDuplicateOrEmptyOut {
+    enum State {
+        NORMAL = 0;
+        EMPTY = 1;
+        DUPLICATE = 2;
+    }
+    State state = 1;
 }
