@@ -682,6 +682,17 @@ impl BackendService for Backend {
         })
     }
 
+    fn note_is_duplicate_or_empty(
+        &mut self,
+        input: pb::Note,
+    ) -> BackendResult<pb::NoteIsDuplicateOrEmptyOut> {
+        let note: Note = input.into();
+        self.with_col(|col| {
+            col.note_is_duplicate_or_empty(&note)
+                .map(|r| pb::NoteIsDuplicateOrEmptyOut { state: r as i32 })
+        })
+    }
+
     // notetypes
     //-------------------------------------------------------------------
 

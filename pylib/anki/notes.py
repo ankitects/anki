@@ -9,7 +9,7 @@ import anki  # pylint: disable=unused-import
 from anki import hooks
 from anki.models import NoteType
 from anki.rsbackend import BackendNote
-from anki.utils import fieldChecksum, joinFields, splitFields, stripHTMLMedia
+from anki.utils import joinFields
 
 
 class Note:
@@ -140,18 +140,5 @@ class Note:
     ##################################################
 
     def dupeOrEmpty(self) -> int:
-        "1 if first is empty; 2 if first is a duplicate, False otherwise."
-        val = self.fields[0]
-        if not val.strip():
-            return 1
-        csum = fieldChecksum(val)
-        # find any matching csums and compare
-        for flds in self.col.db.list(
-            "select flds from notes where csum = ? and id != ? and mid = ?",
-            csum,
-            self.id or 0,
-            self.mid,
-        ):
-            if stripHTMLMedia(splitFields(flds)[0]) == stripHTMLMedia(self.fields[0]):
-                return 2
-        return False
+        "1 if first is empty; 2 if first is a duplicate, 0 otherwise."
+        return self.col.backend.note_is_duplicate_or_empty(self.to_backend_note())
