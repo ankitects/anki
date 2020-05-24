@@ -387,7 +387,7 @@ class AnkiMediaQueue {
     }
 
     _fixDuplicates() {
-        let duplicates = new Map();
+        let selected = new Map();
 
         setAnkiMedia(media => {
             let data_file = media.getAttribute("data-file");
@@ -403,12 +403,12 @@ class AnkiMediaQueue {
 
             // Remove duplicated element ids allowing the correct audio element to be
             // selected by the automatic media playing.
-            if (duplicates.has(media.id)) {
+            if (selected.has(media.id)) {
                 let index = this.duplicates.get(media.id) + 1;
                 media.id = media.id + index.toString();
                 this.duplicates.set(media.id, index);
             } else {
-                duplicates.set(media.id, 0);
+                selected.set(media.id, 0);
                 if (!this.duplicates.has(media.id)) {
                     this.duplicates.set(media.id, 0);
                 }
