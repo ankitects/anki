@@ -23,7 +23,7 @@ endif
 
 .DELETE_ON_ERROR:
 .SUFFIXES:
-BLACKARGS := -t py36 anki tests setup.py tools/*.py --exclude='_pb2|buildinfo'
+BLACKARGS := -t py36 anki tests setup.py tools/*.py --exclude='_pb2|buildinfo|_gen'
 ISORTARGS := anki tests setup.py
 
 $(shell mkdir -p .build ../dist)
@@ -46,7 +46,7 @@ PROTODEPS := ../proto/backend.proto ../proto/fluent.proto
 	perl -i'' -pe 's/from fluent_pb2/from anki.fluent_pb2/' anki/backend_pb2.pyi
 	perl -i'' -pe 's/import fluent_pb2/import anki.fluent_pb2/' anki/backend_pb2.py
 	python tools/genbackend.py
-	python -m black -t py36 anki/rsbackend.py
+	python -m black -t py36 anki/rsbackend_gen.py
 	@touch $@
 
 .build/hooks: tools/genhooks.py tools/hookslib.py
