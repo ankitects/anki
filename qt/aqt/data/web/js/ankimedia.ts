@@ -52,6 +52,8 @@ class AnkiMediaQueue {
     medias: Map<string, HTMLAudioElement>;
     duplicates: Map<string, number>;
     frontmedias: Map<string, number>;
+    _addall_reset: number;
+    _addall_last_where: "front" | "back";
     autoplay: boolean;
     is_playing: boolean;
     is_autoplay: boolean;
@@ -103,6 +105,8 @@ class AnkiMediaQueue {
         this.medias.clear();
         this.duplicates.clear();
         this.frontmedias.clear();
+        this._addall_reset = 0;
+        this._addall_last_where = "front";
         this.autoplay = true;
         this.is_playing = false;
         this.is_autoplay = false;
@@ -147,7 +151,7 @@ class AnkiMediaQueue {
      *
      * @param {string} where - pass "front" if this is being called on the card-front,
      *        otherwise, pass "back" if it is being called on the card-back.
-     *        If not specified, each media element to be added automatically must have a
+     *        If not specified, each media element to be added automatically can also have a
      *        "data-where" attribute with the value "front" if this is being called on the
      *        card-front, otherwise, the value "back" if it is being called on the card-back.
      * @param {number} speed - the speed to play the audio, where 1.0 is the default speed.
@@ -164,11 +168,21 @@ class AnkiMediaQueue {
         this._validateSetup("addall");
         this._validateSpeed(speed);
 
-        if (where !== undefined) {
+        if (where) {
             this._validateWhere(where, "addall");
+        } else {
+            if (
+                Date.now() - this._addall_reset > ANKI_MEDIA_QUEUE_PREVIEW_TIMEOUT ||
+                this._addall_last_where != this.where
+            ) {
+                this._addall_reset = Date.now();
+                this._addall_last_where = this.where;
+            } else {
+                return;
+            }
         }
 
-        if (where === undefined || where === this.where) {
+        if (!where || where === this.where) {
             setAnkiMedia(media => {
                 let localwhere = media.getAttribute("data-where");
                 if (!localwhere) {
