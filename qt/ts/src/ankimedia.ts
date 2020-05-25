@@ -277,10 +277,6 @@ class AnkiMediaQueue {
             return;
         }
 
-        if (this.skip_front && where == "front") {
-            return;
-        }
-
         // console.log(`Trying ${filename} ${where} ${this.where}...`);
         if (!this.has_previewed && (this._checkPreviewPage() || where == this.where)) {
             if (where == "front") {
@@ -346,16 +342,36 @@ class AnkiMediaQueue {
     }
 
     _playnext() {
-        if (this.playing_front.length > 0 || this.playing_back.length > 0) {
-            let is_first = this.is_first;
-            let first = this.playing_front.shift() || this.playing_back.shift();
-            let filename = first[0];
-            let speed = first[1];
-            let media = this._getMediaElement(filename, this.play_duplicates);
+        let filename = undefined;
+        let speed = undefined;
+        let media = undefined;
 
-            if (!media) {
-                media = new Audio(filename);
+        while (true) {
+            let is_front = false;
+            let first = this.playing_front.shift();
+            if (first) {
+                is_front = true;
+            } else {
+                first = this.playing_back.shift();
             }
+
+            if (first) {
+                filename = first[0];
+                speed = first[1];
+                media = this._getMediaElement(filename, this.play_duplicates);
+                if (!media) {
+                    media = new Audio(filename);
+                }
+            }
+            if (media && this.skip_front && is_front) {
+                media = undefined;
+                continue;
+            }
+            break;
+        }
+
+        if (media) {
+            let is_first = this.is_first;
             let data_speed = media.getAttribute("data-speed") || speed;
 
             media.playbackRate = parseFloat(data_speed as any);

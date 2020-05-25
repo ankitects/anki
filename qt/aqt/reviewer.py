@@ -125,6 +125,8 @@ class Reviewer:
             replay_audio(self.card, True)
         elif self.state == "answer":
             replay_audio(self.card, False)
+            if not self.card.replay_question_audio_on_answer_side():
+                self.web.eval("ankimedia.skip_front = true;")
         self.web.eval("ankimedia.replay();")
 
     # Initializing the webview
