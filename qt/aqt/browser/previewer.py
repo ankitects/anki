@@ -116,6 +116,7 @@ class Previewer(QDialog):
         self._on_close()
 
     def _on_replay_audio(self) -> None:
+        self._web.eval("ankimedia.replay();")
         if self._state == "question":
             replay_audio(self.card(), True)
         elif self._state == "answer":

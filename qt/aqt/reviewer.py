@@ -291,6 +291,7 @@ class Reviewer:
             replay_audio(self.card, True)
         elif self.state == "answer":
             replay_audio(self.card, False)
+        self.web.eval("ankimedia.replay();")
 
     # Initializing the webview
     ##########################################################################

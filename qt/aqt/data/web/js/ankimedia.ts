@@ -46,7 +46,10 @@ function setAnkiMedia(callback, initial = undefined) {
 
 class AnkiMediaQueue {
     delay: number;
-    playing: Array<[string, number]>;
+    playing_front: Array<[string, number]>;
+    playing_back: Array<[string, number]>;
+    replay_back_queue: Array<[string, number]>;
+    replay_front_queue: Array<[string, number]>;
     other_medias: Array<any>;
     files: Map<string, HTMLAudioElement>;
     medias: Map<string, HTMLAudioElement>;
@@ -57,6 +60,8 @@ class AnkiMediaQueue {
     _addall_reset: number;
     _addall_last_where: "front" | "back";
     play_duplicates: Map<string, number>;
+    _playing_element: HTMLAudioElement;
+    _startnext: Function;
     autoplay: boolean;
     is_playing: boolean;
     is_autoplay: boolean;
@@ -79,6 +84,7 @@ class AnkiMediaQueue {
         this._validateSetup = this._validateSetup.bind(this);
         this.add = this.add.bind(this);
         this._checkPreviewPage = this._checkPreviewPage.bind(this);
+        this.replay = this.replay.bind(this);
         this._play = this._play.bind(this);
         this._playnext = this._playnext.bind(this);
         this._getMediaElement = this._getMediaElement.bind(this);
@@ -88,7 +94,10 @@ class AnkiMediaQueue {
         this._checkDataAttributes = this._checkDataAttributes.bind(this);
         this._moveAudioElements = this._moveAudioElements.bind(this);
 
-        this.playing = [];
+        this.playing_front = [];
+        this.playing_back = [];
+        this.replay_back_queue = [];
+        this.replay_front_queue = [];
         this.other_medias = [];
         this.files = new Map();
         this.medias = new Map();
@@ -101,7 +110,10 @@ class AnkiMediaQueue {
 
     _reset() {
         this.delay = 0.3;
-        this.playing.length = 0;
+        this.playing_front.length = 0;
+        this.playing_back.length = 0;
+        this.replay_back_queue.length = 0;
+        this.replay_front_queue.length = 0;
         this.other_medias.length = 0;
         // force any old media to eject/stop loading: https://goo.gl/LdLk22
         // You can entirely reset the playback state, including the buffer, with load() and src = ''
@@ -117,6 +129,8 @@ class AnkiMediaQueue {
         this._add_duplicates_reset = 0;
         this._addall_reset = 0;
         this._addall_last_where = "front";
+        this._playing_element = new Audio();
+        this._startnext = event => {};
         this.autoplay = true;
         this.is_playing = false;
         this.is_autoplay = false;
@@ -269,7 +283,13 @@ class AnkiMediaQueue {
 
         // console.log(`Trying ${filename} ${where} ${this.where}...`);
         if (!this.has_previewed && (this._checkPreviewPage() || where == this.where)) {
-            this.playing.push([filename, speed]);
+            if (where == "front") {
+                this.playing_front.push([filename, speed]);
+                this.replay_front_queue.push([filename, speed]);
+            } else {
+                this.playing_back.push([filename, speed]);
+                this.replay_back_queue.push([filename, speed]);
+            }
 
             // console.log(`Adding ${filename} ${where}...`);
             if (this.autoplay) {
@@ -296,6 +316,24 @@ class AnkiMediaQueue {
         return false;
     }
 
+    replay() {
+        this._playing_element.pause();
+        this._playing_element.removeEventListener("ended", this._startnext as any);
+        if (this.playing_front.length > 0) {
+            this.playing_front.length = 0;
+        }
+        if (this.playing_back.length > 0) {
+            this.playing_back.length = 0;
+        }
+
+        if (!this.skip_front) {
+            this.playing_front.push(...this.replay_front_queue);
+        }
+        this.playing_back.push(...this.replay_back_queue);
+        this.is_playing = false;
+        this._play();
+    }
+
     _play() {
         if (this.is_playing) {
             return;
@@ -308,9 +346,9 @@ class AnkiMediaQueue {
     }
 
     _playnext() {
-        if (this.playing.length > 0) {
+        if (this.playing_front.length > 0 || this.playing_back.length > 0) {
             let is_first = this.is_first;
-            let first = this.playing.shift();
+            let first = this.playing_front.shift() || this.playing_back.shift();
             let filename = first[0];
             let speed = first[1];
             let media = this._getMediaElement(filename, this.play_duplicates);
@@ -330,13 +368,12 @@ class AnkiMediaQueue {
             } else {
                 console.log(`Could not play the media '${filename}'!`);
             }
-            media.addEventListener(
-                "ended",
-                () => {
-                    setTimeout(this._playnext, is_first ? this.delay * 1000 : 0);
-                },
-                { once: true }
-            );
+            this._startnext = event => {
+                setTimeout(this._playnext, is_first ? this.delay * 1000 : 0);
+            };
+            this._playing_element = media;
+            this._startnext = this._startnext.bind(this);
+            media.addEventListener("ended", this._startnext as any, { once: true });
         } else {
             this.is_playing = false;
         }
@@ -540,7 +577,8 @@ class AnkiMediaQueue {
             return event => {
                 // only clear the queue if the play event was from an user action
                 if (!this.is_autoplay) {
-                    this.playing.length = 0;
+                    this.playing_front.length = 0;
+                    this.playing_back.length = 0;
                 }
                 this.is_autoplay = false;
 
