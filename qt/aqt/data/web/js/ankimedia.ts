@@ -48,6 +48,7 @@ class AnkiMediaQueue {
     delay: number;
     playing: Array<[string, number]>;
     other_medias: Array<any>;
+    files: Map<string, HTMLAudioElement>;
     medias: Map<string, HTMLAudioElement>;
     duplicates: Map<string, number>;
     frontmedias: Map<string, number>;
@@ -82,6 +83,7 @@ class AnkiMediaQueue {
 
         this.playing = [];
         this.other_medias = [];
+        this.files = new Map();
         this.medias = new Map();
         this.duplicates = new Map();
         this.frontmedias = new Map();
@@ -97,6 +99,7 @@ class AnkiMediaQueue {
         for (let media of this.medias.values()) {
             media.src = "";
         }
+        this.files.clear();
         this.medias.clear();
         this.duplicates.clear();
         this.frontmedias.clear();
@@ -298,12 +301,7 @@ class AnkiMediaQueue {
     }
 
     _getMediaElement(filename: string) {
-        let medias: Map<string, HTMLAudioElement> = new Map();
-        setAnkiMedia(media => {
-            let data_file = media.getAttribute("data-file");
-            medias.set(data_file, media);
-        }, this.other_medias);
-        let media = medias.get(filename);
+        let media = this.files.get(filename);
         if (media) {
             // if duplicate elements were found, select the last one of them,
             // which should be on the back-card.
@@ -437,6 +435,8 @@ class AnkiMediaQueue {
     }
 
     _moveAudioElements(extra: Function | undefined) {
+        this.files.clear();
+
         // Move all audio elements into this object to avoid the audio from stopping
         // when the answer is showed.
         setAnkiMedia(media => {
@@ -456,6 +456,8 @@ class AnkiMediaQueue {
                 media.parentNode.replaceChild(clone, media);
                 this._setupAudioPlay(media, clone);
             }
+            let data_file = clone.getAttribute("data-file");
+            this.files.set(data_file, clone);
 
             if (extra) {
                 extra(media);
