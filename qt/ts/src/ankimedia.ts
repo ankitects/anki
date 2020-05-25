@@ -52,6 +52,8 @@ class AnkiMediaQueue {
     medias: Map<string, HTMLAudioElement>;
     duplicates: Map<string, number>;
     frontmedias: Map<string, number>;
+    add_duplicates: Map<string, number>;
+    _add_duplicates_reset: number;
     _addall_reset: number;
     _addall_last_where: "front" | "back";
     play_duplicates: Map<string, number>;
@@ -92,6 +94,7 @@ class AnkiMediaQueue {
         this.medias = new Map();
         this.duplicates = new Map();
         this.frontmedias = new Map();
+        this.add_duplicates = new Map();
         this.play_duplicates = new Map();
         this._reset();
     }
@@ -109,7 +112,9 @@ class AnkiMediaQueue {
         this.medias.clear();
         this.duplicates.clear();
         this.frontmedias.clear();
+        this.add_duplicates.clear();
         this.play_duplicates.clear();
+        this._add_duplicates_reset = 0;
         this._addall_reset = 0;
         this._addall_last_where = "front";
         this.autoplay = true;
@@ -223,16 +228,24 @@ class AnkiMediaQueue {
      * @param {string} filename - an audio filename for playing.
      * @param {string} where    - pass "front" if this is being called on the card-front,
      *        otherwise, pass "back" as it is being called on the card-back.
+     *        If not specified, each media element to be added automatically can also have a
+     *        "data-where" attribute with the value "front" if this is being called on the
+     *        card-front, otherwise, the value "back" if it is being called on the card-back.
      * @param {number} speed    - the speed to play the audio, where 1.0 is the default speed.
      *        Each media element can also have an attribute as `data-speed="1.0"` indicating
      *        the speed it should play. The `data-speed` value has precedence over this parameter.
      */
-    add(filename, where, speed = undefined) {
+    add(filename, where = undefined, speed = undefined) {
         speed = speed || 1.0;
-        if (arguments.length < 2 || arguments.length > 3) {
+        if (arguments.length < 1 || arguments.length > 3) {
             throw new Error(
-                `The function ankimedia.add() requires from 2 up to 3 argument(s) only, not ${arguments.length}!`
+                `The function ankimedia.add() requires from 1 up to 3 argument(s) only, not ${arguments.length}!`
             );
+        }
+
+        let media = this._getMediaElement(filename, this.add_duplicates);
+        if (media) {
+            where = media.getAttribute("data-where") || where || this._whereIs(media);
         }
         this._validateSetup("add");
         this._validateWhere(where, "add");
@@ -254,9 +267,11 @@ class AnkiMediaQueue {
             return;
         }
 
+        // console.log(`Trying ${filename} ${where} ${this.where}...`);
         if (!this.has_previewed && (this._checkPreviewPage() || where === this.where)) {
             this.playing.push([filename, speed]);
 
+            // console.log(`Adding ${filename} ${where}...`);
             if (this.autoplay) {
                 this._play();
             }
@@ -412,6 +427,14 @@ class AnkiMediaQueue {
         this.wait_question = wait;
         this.other_medias = medias;
         this.autoplay = auto;
+
+        if (
+            this.where == "back" &&
+            Date.now() - this._add_duplicates_reset > ANKI_MEDIA_QUEUE_PREVIEW_TIMEOUT
+        ) {
+            this.add_duplicates.clear();
+            this._add_duplicates_reset = Date.now();
+        }
         this._fixDuplicates();
         this._moveAudioElements(extra);
     }
