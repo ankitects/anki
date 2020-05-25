@@ -122,15 +122,15 @@ class AnkiMediaQueue {
         }
     }
 
-    _validateWhere(where) {
-        let basic =
-            `Pass ankimedia.add( "file.mp3", "front" ) if this is the question side ` +
-            `or ankimedia.add( "file.mp3", "back" ) if this is the answer side.`;
+    _validateWhere(where, caller) {
+        let fix_message =
+            `Pass ankimedia.${caller}( "file.mp3", "front" ) if this is the question side ` +
+            `or ankimedia.${caller}( "file.mp3", "back" ) if this is the answer side.`;
         if (!where) {
-            throw new Error(`Missing the 'where=${where}' parameter!\n${basic}`);
+            throw new Error(`Missing the 'where=${where}' parameter!\n${fix_message}`);
         }
         if (!(where == "front" || where == "back")) {
-            throw new Error(`Invalid 'where=${where}' parameter!\n${basic}`);
+            throw new Error(`Invalid 'where=${where}' parameter!\n${fix_message}`);
         }
     }
 
@@ -165,7 +165,7 @@ class AnkiMediaQueue {
         this._validateSpeed(speed);
 
         if (where !== undefined) {
-            this._validateWhere(where);
+            this._validateWhere(where, "addall");
         }
 
         if (where === undefined || where === this.where) {
@@ -174,7 +174,7 @@ class AnkiMediaQueue {
                 if (!localwhere) {
                     localwhere = where;
                 }
-                this._validateWhere(localwhere);
+                this._validateWhere(localwhere, "addall");
                 this._checkDataAttributes(media);
 
                 if (localwhere == "front") {
@@ -208,7 +208,7 @@ class AnkiMediaQueue {
             );
         }
         this._validateSetup("add");
-        this._validateWhere(where);
+        this._validateWhere(where, "add");
         this._validateSpeed(speed);
 
         if (!(typeof filename === "string")) {
