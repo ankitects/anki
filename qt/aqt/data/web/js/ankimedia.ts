@@ -270,6 +270,7 @@ class AnkiMediaQueue {
                 `The 'filename=${filename}/${typeof filename}' is not a valid string.`
             );
         }
+        filename = filename.trim();
         if (filename.length < 1) {
             console.log(
                 `The ${where} 'filename=${filename}' is too short. Not adding this media!`
@@ -497,8 +498,10 @@ class AnkiMediaQueue {
         this.duplicates.clear();
 
         setAnkiMedia(media => {
-            let data_file = media.getAttribute("data-file");
             this._checkDataAttributes(media);
+            let data_file = media.getAttribute("data-file");
+            data_file = data_file.trim();
+            media.setAttribute("data-file", data_file);
 
             // Automatically gives an object.id to every media file, if they do not have one.
             if (!media.id) {
