@@ -22,6 +22,15 @@ on the support site before you begin work. Some areas (primary pylib/) are
 likely to change/conflict with other work, and larger changes will likely need
 to wait until the refactoring process nears completion.
 
+Help wanted
+-----------
+
+If you'd like to contribute but don't know what to work on, please take a look
+at the issues on the following repo. It's quite bare at the moment, but will
+hopefully grow with time.
+
+https://github.com/ankitects/help-wanted
+
 Type hints
 -----------
 
@@ -30,9 +39,9 @@ using automated tools. At the moment, large parts of the codebase are still
 missing type hints, and some of the hints that do exist are incorrect or too
 general.
 
-When running 'make check', Anki uses mypy to typecheck the code. Mypy only
-checks functions that have type signatures, so adding more type signatures to
-the code increases the amount of code that mypy is able to analyze.
+When running 'make check', Anki uses mypy to typecheck the code. Mypy mostly
+only checks functions that have type signatures, so adding more type signatures
+to the code increases the amount of code that mypy is able to analyze.
 
 Patches that improve the type hints would be appreciated. And if you're
 adding new functionality, please use type hints in the new code you write
@@ -88,6 +97,8 @@ is usually subjects like cards, notes, etc.
 Using "did change" instead of the past test "changed" can seem awkward, but
 makes it consistent with "will", and is similar to the naming style used in
 iOS's libraries.
+
+In most cases, hooks are better added in the GUI code than in pylib.
 
 The hook code is automatically generated using the definitions in
 pylib/tools/genhooks.py and qt/tools/genhooks_gui.py. Adding a new definition
