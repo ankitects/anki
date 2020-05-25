@@ -53,7 +53,7 @@ describe("Test question and answer exception handling", () => {
         expect(() => ankimedia.addall("front")).toThrowError(
             `setup() function must be called before calling`
         );
-        expect(() => ankimedia.addall()).toThrowError(
+        expect(() => ankimedia.addall("front", 1)).toThrowError(
             `setup() function must be called before calling`
         );
         expect(() => ankimedia.add("front", "thing.mp3")).toThrowError(
@@ -69,7 +69,6 @@ describe("Test question and answer exception handling", () => {
         let fake_audio = document.createElement("audio");
         document.body.appendChild(fake_audio);
 
-        expect(() => ankimedia.addall("")).toThrowError(`Missing the 'where=`);
         expect(() => ankimedia.addall("thing.mp3")).toThrowError(`Invalid 'where=`);
 
         expect(() => ankimedia.addall(5)).toThrowError(`Invalid 'where=`);
@@ -79,8 +78,9 @@ describe("Test question and answer exception handling", () => {
         expect(() => ankimedia.addall("front", "{5}")).toThrowError(
             `is not a valid positive number`
         );
+
         fake_audio.setAttribute("data-where", "cool.mp3");
-        expect(() => ankimedia.addall()).toThrowError(`Invalid 'where=`);
+        expect(() => ankimedia.addall("front")).toThrowError(`Invalid 'where=`);
 
         fake_audio.setAttribute("data-where", "cool.mp3");
         expect(() => ankimedia.addall("front")).toThrowError(`Invalid 'where=`);
