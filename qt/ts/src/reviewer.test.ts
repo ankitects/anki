@@ -145,6 +145,13 @@ describe("Test question and answer audios", () => {
             ];
         }, mp3file);
 
+    let deletePlayTimes = async mp3file =>
+        await page.evaluate(async mp3 => {
+            let audio = document.getElementById(mp3) as HTMLAudioElement;
+            audio.removeAttribute("data-has-started-at");
+            audio.removeAttribute("data-has-ended-at");
+        }, mp3file);
+
     let getAudioSource = async mp3file =>
         await page.evaluate(async mp3 => {
             let audio = document.getElementById(mp3) as HTMLAudioElement;
@@ -338,6 +345,55 @@ describe("Test question and answer audios", () => {
 
             expect(answer_times[0]).toBeTruthy();
             expect(answer_times[1]).toBeTruthy();
+        }
+    );
+
+    test.each([
+        [`"front"`, `"back"`],
+        [``, ``],
+    ])(
+        `Test ankimedia.replay() should replay all the media:\nfront '%s', back '%s'\n...`,
+        async function(front_setup, back_setup) {
+            await showQuestion(
+                "silence 1.mp3",
+                `ankimedia.setup(); ankimedia.add( "silence 1.mp3", ${front_setup} );`,
+                `questionTemplate`
+            );
+            await questionAndAnswer(
+                "silence 1.mp3",
+                `ankimedia.setup(); ankimedia.add( "silence 1.mp3", ${front_setup} );`,
+                "silence 2.mp3",
+                `ankimedia.setup(); ankimedia.add( "silence 2.mp3", ${back_setup} );`
+            );
+            await page.waitForSelector(`audio[id="silence 2.mp3"][data-has-ended-at]`);
+            let question_times = await getPlayTimes("silence 1.mp3");
+            let answer_times = await getPlayTimes("silence 2.mp3");
+
+            await deletePlayTimes("silence 2.mp3");
+            await page.evaluate(async () => ankimedia.replay());
+            await page.waitForSelector(`audio[id="silence 2.mp3"][data-has-ended-at]`);
+
+            let question_times1 = await getPlayTimes("silence 1.mp3");
+            let answer_times1 = await getPlayTimes("silence 2.mp3");
+
+            await deletePlayTimes("silence 2.mp3");
+            await page.evaluate(async () => ankimedia.replay());
+            await page.waitForSelector(`audio[id="silence 2.mp3"][data-has-ended-at]`);
+
+            let question_times2 = await getPlayTimes("silence 1.mp3");
+            let answer_times2 = await getPlayTimes("silence 2.mp3");
+
+            expect(question_times[0]).toBeLessThan(question_times1[0]);
+            expect(question_times[1]).toBeLessThan(question_times1[1]);
+
+            expect(question_times1[0]).toBeLessThan(question_times2[0]);
+            expect(question_times1[1]).toBeLessThan(question_times2[1]);
+
+            expect(answer_times[0]).toBeLessThan(answer_times1[0]);
+            expect(answer_times[1]).toBeLessThan(answer_times1[1]);
+
+            expect(answer_times1[0]).toBeLessThan(answer_times2[0]);
+            expect(answer_times1[1]).toBeLessThan(answer_times2[1]);
         }
     );
 
