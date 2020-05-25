@@ -21,7 +21,7 @@ describe("Test question and answer exception handling", () => {
         document.body.innerHTML = "";
     });
 
-    test("ankimedia.setup() with invalid parameters", async function() {
+    test(`ankimedia.setup() with invalid parameters`, async function() {
         expect(() => ankimedia.setup(5)).toThrowError(`Invalid 'parameters=`);
         expect(() => ankimedia.setup("6")).toThrowError(`Invalid 'parameters=`);
         expect(() => ankimedia.setup([7])).toThrowError(`Invalid 'parameters=`);
@@ -31,7 +31,7 @@ describe("Test question and answer exception handling", () => {
         );
     });
 
-    test("ankimedia.setup() with bad parameters", async function() {
+    test(`ankimedia.setup() with bad parameters`, async function() {
         expect(() => ankimedia.setup({ delay: "5" })).toThrowError(
             `is not a valid positive number`
         );
@@ -49,7 +49,7 @@ describe("Test question and answer exception handling", () => {
         );
     });
 
-    test("do not call setup() before other methods", async function() {
+    test(`do not call setup() before other methods`, async function() {
         expect(() => ankimedia.addall("front")).toThrowError(
             `setup() function must be called before calling`
         );
@@ -61,7 +61,7 @@ describe("Test question and answer exception handling", () => {
         );
     });
 
-    test("do not pass the correct value of where", async function() {
+    test(`do not pass the correct value of where`, async function() {
         ankimedia.setup();
         expect(() => ankimedia.add("front", "thing.mp3")).toThrowError(
             `Invalid 'where=`
@@ -89,7 +89,7 @@ describe("Test question and answer exception handling", () => {
         expect(() => ankimedia.addall()).toThrowError(`Missing the 'where=`);
     });
 
-    test("do not add media files with the correct speed or file name", async function() {
+    test(`do not add media files with the correct speed or file name`, async function() {
         ankimedia.setup();
         expect(() => ankimedia.add({}, "front")).toThrowError(
             /The 'filename=.*' is not a valid string/
@@ -102,7 +102,7 @@ describe("Test question and answer exception handling", () => {
         );
     });
 
-    test("Calling functions with invalid arguments count", async function() {
+    test(`Calling functions with invalid arguments count`, async function() {
         ankimedia.setup();
         expect(() => ankimedia.addall("front", 2, "thing.mp3")).toThrowError(
             `addall() requires from 0 up to 2 argument(s) only`
@@ -121,7 +121,7 @@ describe("Test question and answer exception handling", () => {
         );
     });
 
-    test("setAnkiMedia() with invalid callback parameters", async function() {
+    test(`setAnkiMedia() with invalid callback parameters`, async function() {
         expect(() => setAnkiMedia(() => {})).toThrowError(
             "should accept at least 1 argument"
         );
