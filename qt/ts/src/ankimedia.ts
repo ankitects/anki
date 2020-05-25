@@ -60,6 +60,7 @@ class AnkiMediaQueue {
     is_first: boolean;
     is_setup: boolean;
     where: "front" | "back";
+    _answer_element: HTMLElement | null;
     wait_question: boolean;
     has_previewed: boolean;
     skip_front: boolean;
@@ -69,6 +70,7 @@ class AnkiMediaQueue {
      */
     constructor() {
         this._reset = this._reset.bind(this);
+        this._whereIs = this._whereIs.bind(this);
         this._validateWhere = this._validateWhere.bind(this);
         this._validateSpeed = this._validateSpeed.bind(this);
         this._validateSetup = this._validateSetup.bind(this);
@@ -114,8 +116,18 @@ class AnkiMediaQueue {
         this.is_setup = false;
         this.where = "front";
         this.wait_question = true;
+        this._answer_element = null;
         this.has_previewed = false;
         this.skip_front = false;
+    }
+
+    _whereIs(element: HTMLElement): "front" | "back" {
+        this._validateSetup("_whereIs");
+        if (this._answer_element && element) {
+            let position = this._answer_element.compareDocumentPosition(element);
+            return position & Node.DOCUMENT_POSITION_PRECEDING ? "front" : "back";
+        }
+        return "front";
     }
 
     _validateSetup(location) {
@@ -184,10 +196,8 @@ class AnkiMediaQueue {
 
         if (!where || where === this.where) {
             setAnkiMedia(media => {
-                let localwhere = media.getAttribute("data-where");
-                if (!localwhere) {
-                    localwhere = where;
-                }
+                let localwhere =
+                    media.getAttribute("data-where") || this._whereIs(media);
                 this._validateWhere(localwhere, "addall");
                 this._checkDataAttributes(media);
 
@@ -388,8 +398,9 @@ class AnkiMediaQueue {
             );
         }
 
+        this._answer_element = document.getElementById("answer");
         this.is_setup = true;
-        this.where = document.getElementById("answer") ? "back" : "front";
+        this.where = this._answer_element ? "back" : "front";
         this.delay = delay;
         this.wait_question = wait;
         this.other_medias = medias;
