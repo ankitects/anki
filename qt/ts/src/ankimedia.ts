@@ -54,6 +54,7 @@ class AnkiMediaQueue {
     frontmedias: Map<string, number>;
     _addall_reset: number;
     _addall_last_where: "front" | "back";
+    play_duplicates: Map<string, number>;
     autoplay: boolean;
     is_playing: boolean;
     is_autoplay: boolean;
@@ -91,6 +92,7 @@ class AnkiMediaQueue {
         this.medias = new Map();
         this.duplicates = new Map();
         this.frontmedias = new Map();
+        this.play_duplicates = new Map();
         this._reset();
     }
 
@@ -107,6 +109,7 @@ class AnkiMediaQueue {
         this.medias.clear();
         this.duplicates.clear();
         this.frontmedias.clear();
+        this.play_duplicates.clear();
         this._addall_reset = 0;
         this._addall_last_where = "front";
         this.autoplay = true;
@@ -285,6 +288,7 @@ class AnkiMediaQueue {
 
         this.is_playing = true;
         this.is_first = true;
+        this.play_duplicates.clear();
         this._playnext();
     }
 
@@ -294,7 +298,7 @@ class AnkiMediaQueue {
             let first = this.playing.shift();
             let filename = first[0];
             let speed = first[1];
-            let media = this._getMediaElement(filename);
+            let media = this._getMediaElement(filename, this.play_duplicates);
 
             if (!media) {
                 media = new Audio(filename);
@@ -324,15 +328,18 @@ class AnkiMediaQueue {
         this.is_first = false;
     }
 
-    _getMediaElement(filename: string) {
+    _getMediaElement(filename: string, selected: Map<string, number>) {
         let media = this.files.get(filename);
         if (media) {
-            // if duplicate elements were found, select the last one of them,
-            // which should be on the back-card.
-            let count = this.duplicates.get(media.id);
-            if (count > 0) {
-                let last_id = media.id + count.toString();
-                let last_media = document.getElementById(last_id) as HTMLAudioElement;
+            // if duplicate elements were found, select the one in a specific index
+            let count = this.duplicates.get(filename);
+            let index = selected.get(filename) || 0;
+            selected.set(filename, index + 1);
+
+            // console.log(`_getMediaElement count ${count} index ${index} ${media.id} ${filename}...`);
+            if (index <= count) {
+                let last_id = filename + index.toString();
+                let last_media = this.files.get(last_id);
                 if (last_media) {
                     media = last_media;
                 }
@@ -411,6 +418,7 @@ class AnkiMediaQueue {
 
     _fixDuplicates() {
         let selected = new Map();
+        this.duplicates.clear();
 
         setAnkiMedia(media => {
             let data_file = media.getAttribute("data-file");
@@ -423,18 +431,26 @@ class AnkiMediaQueue {
             if (!media.src) {
                 media.src = data_file;
             }
+            // Remove duplicated element ids
+            let media_id = media.id;
 
-            // Remove duplicated element ids allowing the correct audio element to be
-            // selected by the automatic media playing.
-            if (selected.has(media.id)) {
-                let index = this.duplicates.get(media.id) + 1;
-                media.id = media.id + index.toString();
-                this.duplicates.set(media.id, index);
+            if (selected.has(media_id)) {
+                let index = selected.get(media_id) + 1;
+                media.id = media_id + index.toString();
+                selected.set(media_id, index);
             } else {
-                selected.set(media.id, 0);
-                if (!this.duplicates.has(media.id)) {
-                    this.duplicates.set(media.id, 0);
-                }
+                selected.set(media_id, 0);
+            }
+
+            // Create the `data-id` attribute allowing the correct audio element to be
+            // selected by the automatic media playing
+            if (this.duplicates.has(data_file)) {
+                let index = this.duplicates.get(data_file) + 1;
+                this.duplicates.set(data_file, index);
+                media.setAttribute("data-id", data_file + index.toString());
+            } else {
+                this.duplicates.set(data_file, 0);
+                media.setAttribute("data-id", data_file);
             }
         }, this.other_medias);
     }
@@ -481,8 +497,8 @@ class AnkiMediaQueue {
                 media.parentNode.replaceChild(clone, media);
                 this._setupAudioPlay(media, clone);
             }
-            let data_file = clone.getAttribute("data-file");
-            this.files.set(data_file, clone);
+            let data_id = clone.getAttribute("data-id");
+            this.files.set(data_id, clone);
 
             if (extra) {
                 extra(media);
