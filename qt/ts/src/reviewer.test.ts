@@ -151,11 +151,13 @@ describe("Test question and answer audios", () => {
             return audio.src;
         }, mp3file);
 
-    (async () => await page.exposeFunction("cardTemplate", cardTemplate))();
-    (async () => await page.exposeFunction("questionTemplate", questionTemplate))();
-    (async () => await page.exposeFunction("answerTemplate", answerTemplate))();
-    (async () => await page.exposeFunction("dataSpeedTemplate", dataSpeedTemplate))();
-    (async () => await page.exposeFunction("noAudioTemplate", noAudioTemplate))();
+    beforeAll(async () => {
+        await page.exposeFunction("cardTemplate", cardTemplate);
+        await page.exposeFunction("questionTemplate", questionTemplate);
+        await page.exposeFunction("answerTemplate", answerTemplate);
+        await page.exposeFunction("dataSpeedTemplate", dataSpeedTemplate);
+        await page.exposeFunction("noAudioTemplate", noAudioTemplate);
+    });
 
     beforeEach(async () => {
         await page.goto(`${address}/main_webview.html`);
