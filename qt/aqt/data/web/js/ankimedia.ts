@@ -27,7 +27,7 @@ function setAnkiMedia(callback, initial = undefined) {
         }
     }
 
-    if (typeof callback !== "function" && callback !== undefined) {
+    if (typeof callback != "function" && callback != undefined) {
         throw new Error(
             `The setAnkiMedia() 'callback=${callback}/${typeof callback}' is not a valid function!`
         );
@@ -159,7 +159,7 @@ class AnkiMediaQueue {
     }
 
     _validateSpeed(speed) {
-        if (typeof speed !== "number" || speed <= 0) {
+        if (typeof speed != "number" || speed <= 0) {
             throw new Error(
                 `The 'speed=${speed}/${typeof speed}' is not a valid positive number.`
             );
@@ -202,7 +202,7 @@ class AnkiMediaQueue {
             }
         }
 
-        if (!where || where === this.where) {
+        if (!where || where == this.where) {
             setAnkiMedia(media => {
                 let localwhere =
                     media.getAttribute("data-where") || this._whereIs(media);
@@ -251,7 +251,7 @@ class AnkiMediaQueue {
         this._validateWhere(where, "add");
         this._validateSpeed(speed);
 
-        if (!(typeof filename === "string")) {
+        if (!(typeof filename == "string")) {
             throw new Error(
                 `The 'filename=${filename}/${typeof filename}' is not a valid string.`
             );
@@ -268,7 +268,7 @@ class AnkiMediaQueue {
         }
 
         // console.log(`Trying ${filename} ${where} ${this.where}...`);
-        if (!this.has_previewed && (this._checkPreviewPage() || where === this.where)) {
+        if (!this.has_previewed && (this._checkPreviewPage() || where == this.where)) {
             this.playing.push([filename, speed]);
 
             // console.log(`Adding ${filename} ${where}...`);
@@ -280,11 +280,11 @@ class AnkiMediaQueue {
 
     _checkPreviewPage() {
         // avoid continuously playing when previewing/editing the card
-        if (document.title === "card layout") {
+        if (document.title == "card layout") {
             let block_preview = () => {
                 this.has_previewed = true;
             };
-            if (document.readyState === "complete") {
+            if (document.readyState == "complete") {
                 setTimeout(block_preview, ANKI_MEDIA_QUEUE_PREVIEW_TIMEOUT);
             } else {
                 document.addEventListener("DOMContentLoaded", function() {
@@ -391,7 +391,7 @@ class AnkiMediaQueue {
             auto = default_parameters.auto,
         } = parameters;
 
-        if (typeof parameters !== "object") {
+        if (typeof parameters != "object") {
             throw new Error(
                 `Invalid 'parameters=${parameters}/${typeof parameters}' passed to setup!`
             );
@@ -409,12 +409,12 @@ class AnkiMediaQueue {
                 `The 'medias=${medias}/${typeof medias}' is not a valid array object!`
             );
         }
-        if (typeof delay !== "number" || delay < 0) {
+        if (typeof delay != "number" || delay < 0) {
             throw new Error(
                 `The 'delay=${delay}/${typeof delay}' is not a valid positive number!`
             );
         }
-        if (typeof extra !== "function" && extra !== undefined) {
+        if (typeof extra != "function" && extra != undefined) {
             throw new Error(
                 `The 'extra=${extra}/${typeof extra}' is not a valid function!`
             );
@@ -482,14 +482,14 @@ class AnkiMediaQueue {
         let data_file = media.getAttribute("data-file");
         let data_speed = media.getAttribute("data-speed");
 
-        if (typeof data_file !== "string") {
+        if (typeof data_file != "string") {
             throw new Error(
                 `A media element is missing its 'data-file=${data_file}' attribute.`
             );
         }
         if (
             data_speed != undefined &&
-            (typeof data_speed !== "string" || isNaN(data_speed as any))
+            (typeof data_speed != "string" || isNaN(data_speed as any))
         ) {
             throw new Error(
                 `A media element has an invalid 'data-speed=${data_speed}/${typeof data_speed}' attribute.`
@@ -545,7 +545,7 @@ class AnkiMediaQueue {
                 this.is_autoplay = false;
 
                 setAnkiMedia(media => {
-                    if (media.id !== target.id) {
+                    if (media.id != target.id) {
                         media.pause();
                     }
                 }, this.other_medias);
@@ -557,7 +557,7 @@ class AnkiMediaQueue {
 }
 
 // @ts-ignore: Allow jest to import this and do unit tests
-if (typeof exports !== "undefined") {
+if (typeof exports != "undefined") {
     // @ts-ignore
     module.exports = {
         setAnkiMedia,
