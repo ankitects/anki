@@ -233,8 +233,8 @@ class RustBackend(RustBackendGenerated):
         except Exception as e:
             err_bytes = bytes(e.args[0])
             err = pb.BackendError()
-            err.ParseFromString(err_bytes)
-            raise proto_exception_to_native(err)
+        err.ParseFromString(err_bytes)
+        raise proto_exception_to_native(err)
 
 
 def translate_string_in(
