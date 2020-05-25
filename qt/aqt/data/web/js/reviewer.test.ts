@@ -260,7 +260,7 @@ describe("Test question and answer audios", () => {
         expect(await page.evaluate(async () => ankimedia.is_setup)).toEqual(true);
     });
 
-    test(`Test ankimedia.skip_front with addall should not skip playing the front media\n...`, async function() {
+    test(`Test ankimedia.skip_front with addall should skip playing the front media\n...`, async function() {
         await page.evaluate(async () => (ankimedia.skip_front = true));
 
         await questionAndAnswer(
@@ -274,8 +274,8 @@ describe("Test question and answer audios", () => {
         let question_times = await getPlayTimes("silence 1.mp3");
         let answer_times = await getPlayTimes("silence 2.mp3");
 
-        expect(question_times[0]).toBeTruthy();
-        expect(question_times[1]).toBeTruthy();
+        expect(question_times[0]).toBeFalsy();
+        expect(question_times[1]).toBeFalsy();
 
         expect(answer_times[0]).toBeTruthy();
         expect(answer_times[1]).toBeTruthy();
