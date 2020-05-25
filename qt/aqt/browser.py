@@ -176,7 +176,7 @@ class DataModel(QAbstractTableModel):
             ctx = SearchContext(search=txt)
             gui_hooks.browser_will_search(ctx)
             if ctx.card_ids is None:
-                ctx.card_ids = self.col.find_cards(txt, order=ctx.order)
+                ctx.card_ids = self.col.find_cards(ctx.search, order=ctx.order)
             gui_hooks.browser_did_search(ctx)
             self.cards = ctx.card_ids
         except Exception as e:
