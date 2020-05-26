@@ -60,6 +60,8 @@ class FieldDialog(QDialog):
         indicatorPos = fieldList.dropIndicatorPosition()
         dropPos = fieldList.indexAt(ev.pos()).row()
         idx = self.currentIdx
+        if dropPos == idx:
+            return
         if indicatorPos == QAbstractItemView.OnViewport:  # to bottom.
             movePos = fieldList.count() - 1
         elif indicatorPos == QAbstractItemView.AboveItem:
