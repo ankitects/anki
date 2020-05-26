@@ -1156,7 +1156,7 @@ class EditorWebView(AnkiWebView):
         mime.setHtml("<!--anki-->" + html)
         clip.setMimeData(mime)
 
-    def contextMenuEvent(self, evt) -> None:
+    def contextMenuEvent(self, evt: QContextMenuEvent) -> None:
         m = QMenu(self)
         a = m.addAction(_("Cut"))
         qconnect(a.triggered, self.onCut)
