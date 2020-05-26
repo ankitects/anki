@@ -10,7 +10,7 @@ import re
 import time
 import traceback
 import weakref
-from typing import Any, Iterable, List, Optional, Sequence, Tuple, Union
+from typing import TYPE_CHECKING, Any, Iterable, List, Optional, Sequence, Tuple, Union
 
 import anki.find
 import anki.latex  # sets up hook
@@ -31,6 +31,9 @@ from anki.sched import Scheduler as V1Scheduler
 from anki.schedv2 import Scheduler as V2Scheduler
 from anki.tags import TagManager
 from anki.utils import devMode, ids2str, intTime
+
+if TYPE_CHECKING:
+    from anki.rsbackend import TRValue, FormatTimeSpanContextValue
 
 
 class Collection:
@@ -72,13 +75,13 @@ class Collection:
     # I18n/messages
     ##########################################################################
 
-    def tr(self, key: TR, **kwargs: Union[str, int, float]) -> str:
+    def tr(self, key: TRValue, **kwargs: Union[str, int, float]) -> str:
         return self.backend.translate(key, **kwargs)
 
     def format_timespan(
         self,
         seconds: float,
-        context: FormatTimeSpanContext = FormatTimeSpanContext.INTERVALS,
+        context: FormatTimeSpanContextValue = FormatTimeSpanContext.INTERVALS,
     ) -> str:
         return self.backend.format_timespan(seconds=seconds, context=context)
 

@@ -11,11 +11,13 @@ instead. Eg, don't use col.backend.all_deck_config(), instead use
 col.decks.all_config()
 """
 
+from __future__ import annotations
+
 import enum
 import json
 import os
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Sequence, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence, Union
 
 import ankirspy  # pytype: disable=import-error
 
@@ -34,6 +36,11 @@ except ImportError:
     class RustBackendGenerated:  # type: ignore
         pass
 
+
+if TYPE_CHECKING:
+    from anki.fluent_pb2 import FluentStringValue as TRValue
+
+    FormatTimeSpanContextValue = pb.FormatTimespanIn.ContextValue
 
 assert ankirspy.buildhash() == anki.buildinfo.buildhash
 
@@ -213,13 +220,13 @@ class RustBackend(RustBackendGenerated):
     def _db_command(self, input: Dict[str, Any]) -> Any:
         return from_json_bytes(self._backend.db_command(to_json_bytes(input)))
 
-    def translate(self, key: TR, **kwargs: Union[str, int, float]) -> str:
+    def translate(self, key: TRValue, **kwargs: Union[str, int, float]) -> str:
         return self.translate_string(translate_string_in(key, **kwargs))
 
     def format_time_span(
         self,
         seconds: float,
-        context: FormatTimeSpanContext = FormatTimeSpanContext.INTERVALS,
+        context: FormatTimeSpanContextValue = FormatTimeSpanContext.INTERVALS,
     ) -> str:
         print(
             "please use col.format_timespan() instead of col.backend.format_time_span()"
@@ -238,7 +245,7 @@ class RustBackend(RustBackendGenerated):
 
 
 def translate_string_in(
-    key: TR, **kwargs: Union[str, int, float]
+    key: TRValue, **kwargs: Union[str, int, float]
 ) -> pb.TranslateStringIn:
     args = {}
     for (k, v) in kwargs.items():
