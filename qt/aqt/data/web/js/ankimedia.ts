@@ -167,22 +167,29 @@ class AnkiMediaQueue {
         }
     }
 
-    _validateWhere(where, caller) {
+    _validateWhere(where, caller, media = undefined) {
         let fix_message =
             `Pass ankimedia.${caller}( "file.mp3", "front" ) if this is the question side ` +
             `or ankimedia.${caller}( "file.mp3", "back" ) if this is the answer side.`;
         if (!where) {
-            throw new Error(`Missing the 'where=${where}' parameter!\n${fix_message}`);
+            throw new Error(
+                `Missing the 'where=${where}' parameter!\n${fix_message} ` +
+                    this._getMediaInfo(media)
+            );
         }
         if (!(where == "front" || where == "back")) {
-            throw new Error(`Invalid 'where=${where}' parameter!\n${fix_message}`);
+            throw new Error(
+                `Invalid 'where=${where}' parameter!\n${fix_message} ` +
+                    this._getMediaInfo(media)
+            );
         }
     }
 
-    _validateSpeed(speed) {
+    _validateSpeed(speed, media = undefined) {
         if (typeof speed != "number" || speed <= 0) {
             throw new Error(
-                `The 'speed=${speed}/${typeof speed}' is not a valid positive number.`
+                `The 'speed=${speed}/${typeof speed}' is not a valid positive number.` +
+                    this._getMediaInfo(media)
             );
         }
     }
@@ -227,7 +234,7 @@ class AnkiMediaQueue {
             setAnkiMedia(media => {
                 let localwhere =
                     media.getAttribute("data-where") || this._whereIs(media);
-                this._validateWhere(localwhere, "addall");
+                this._validateWhere(localwhere, "addall", media);
                 this._checkDataAttributes(media);
 
                 if (localwhere == "front") {
@@ -269,18 +276,20 @@ class AnkiMediaQueue {
             where = media.getAttribute("data-where") || where || this._whereIs(media);
         }
         this._validateSetup("add");
-        this._validateWhere(where, "add");
-        this._validateSpeed(speed);
+        this._validateWhere(where, "add", media);
+        this._validateSpeed(speed, media);
 
         if (!(typeof filename == "string")) {
             throw new Error(
-                `The 'filename=${filename}/${typeof filename}' is not a valid string.`
+                `The 'filename=${filename}/${typeof filename}' is not a valid string. ` +
+                    this._getMediaInfo(media)
             );
         }
         filename = filename.trim();
         if (filename.length < 1) {
             console.log(
-                `The ${where} 'filename=${filename}' is too short. Not adding this media!`
+                `The ${where} 'filename=${filename}' is too short. Not adding this media! ` +
+                    this._getMediaInfo(media)
             );
             return;
         }
@@ -411,10 +420,16 @@ class AnkiMediaQueue {
             let playpromise = media.play();
             if (playpromise) {
                 playpromise.catch(error =>
-                    console.log(`Could not play '${filename}' due to '${error}'!`)
+                    console.log(
+                        `Could not play '${filename}' due to '${error}'! ` +
+                            this._getMediaInfo(media)
+                    )
                 );
             } else {
-                console.log(`Could not play the media '${filename}'!`);
+                console.log(
+                    `Could not play the media '${filename}'! ` +
+                        this._getMediaInfo(media)
+                );
             }
             this._startnext = event => {
                 setTimeout(this._playnext, is_first ? this.delay * 1000 : 0);
@@ -426,6 +441,20 @@ class AnkiMediaQueue {
             this.is_playing = false;
         }
         this.is_first = false;
+    }
+
+    _getMediaInfo(media) {
+        let results = "";
+        if (media) {
+            results += "id=" + String(media.id) + "|";
+            results += "src=" + String(media.src) + "|";
+            results += "data-id=" + String(media.getAttribute("data-id")) + "|";
+            results += "data-file=" + String(media.getAttribute("data-file")) + "|";
+            results += "data-speed=" + String(media.getAttribute("data-speed")) + "|";
+        } else {
+            results += String(media);
+        }
+        return results;
     }
 
     _getMediaElement(filename: string, selected: Map<string, number>) {
@@ -575,7 +604,8 @@ class AnkiMediaQueue {
 
         if (typeof data_file != "string") {
             throw new Error(
-                `A media element is missing its 'data-file=${data_file}' attribute.`
+                `A media element is missing its 'data-file=${data_file}' attribute. ` +
+                    this._getMediaInfo(media)
             );
         }
         if (
@@ -583,10 +613,11 @@ class AnkiMediaQueue {
             (typeof data_speed != "string" || isNaN(data_speed as any))
         ) {
             throw new Error(
-                `A media element has an invalid 'data-speed=${data_speed}/${typeof data_speed}' attribute.`
+                `A media element has an invalid 'data-speed=${data_speed}/${typeof data_speed}' attribute. ` +
+                    this._getMediaInfo(media)
             );
         }
-        this._validateSpeed(parseFloat(data_speed));
+        this._validateSpeed(parseFloat(data_speed), media);
     }
 
     _moveAudioElements(extra: Function | undefined) {
