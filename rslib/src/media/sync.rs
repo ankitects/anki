@@ -21,6 +21,7 @@ use std::io::{Read, Write};
 use std::path::Path;
 use std::{io, time};
 use time::Duration;
+use version::sync_client_version;
 
 static SYNC_MAX_FILES: usize = 25;
 static SYNC_MAX_BYTES: usize = (2.5 * 1024.0 * 1024.0) as usize;
@@ -244,7 +245,7 @@ where
         let resp = self
             .client
             .get(&url)
-            .query(&[("k", hkey), ("v", &version_string())])
+            .query(&[("k", hkey), ("v", &sync_client_version())])
             .send()
             .await?
             .error_for_status()?;
@@ -807,10 +808,6 @@ fn zip_files<'a>(
     let w = zip.finish()?;
 
     Ok(Some(w.into_inner()))
-}
-
-fn version_string() -> String {
-    format!("anki,{},{}", version(), std::env::consts::OS)
 }
 
 #[cfg(test)]

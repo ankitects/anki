@@ -3,13 +3,8 @@
 
 #![deny(unused_must_use)]
 
-mod backend_proto;
-
-pub fn version() -> &'static str {
-    include_str!("../../meta/version").trim()
-}
-
 pub mod backend;
+mod backend_proto;
 pub mod card;
 pub mod cloze;
 pub mod collection;
@@ -26,10 +21,12 @@ pub mod media;
 pub mod notes;
 pub mod notetype;
 mod preferences;
+pub mod prelude;
 pub mod sched;
 pub mod search;
 pub mod serde;
 pub mod storage;
+mod sync;
 pub mod tags;
 pub mod template;
 pub mod template_filters;
@@ -37,3 +34,4 @@ pub mod text;
 pub mod timestamp;
 pub mod types;
 pub mod undo;
+pub mod version;
