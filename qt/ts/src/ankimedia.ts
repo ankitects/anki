@@ -110,7 +110,8 @@ class AnkiMediaQueue {
         this._reset();
     }
 
-    _reset() {
+    _reset(parameters: any = {}) {
+        let { skip_src_reset = false } = parameters;
         this.delay = 0.3;
         this.playing_front.length = 0;
         this.playing_back.length = 0;
@@ -119,8 +120,10 @@ class AnkiMediaQueue {
         this.other_medias.length = 0;
         // force any old media to eject/stop loading: https://goo.gl/LdLk22
         // You can entirely reset the playback state, including the buffer, with load() and src = ''
-        for (let media of this.medias.values()) {
-            media.src = "";
+        if (!skip_src_reset) {
+            for (let media of this.medias.values()) {
+                media.src = "";
+            }
         }
         this.files.clear();
         this.medias.clear();
