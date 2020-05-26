@@ -459,6 +459,7 @@ class AnkiMediaQueue {
      * @param {function} extra - a function(media) to be run on each media of the page.
      * @param {array} medias   - an array of initial values to be passed to setAnkiMedia() calls.
      * @param {boolean} auto   - if true (default), auto-play the media elements.
+     * @param {boolean} skip   - if true (default), it will skip playing the front media.
      */
     setup(parameters: any = {}) {
         let default_parameters = {
@@ -467,6 +468,7 @@ class AnkiMediaQueue {
             extra: undefined,
             medias: this.other_medias,
             auto: this.autoplay,
+            skip: this.skip_front,
         };
         let {
             delay = default_parameters.delay,
@@ -474,6 +476,7 @@ class AnkiMediaQueue {
             extra = default_parameters.extra,
             medias = default_parameters.medias,
             auto = default_parameters.auto,
+            skip = default_parameters.skip,
         } = parameters;
 
         if (typeof parameters != "object") {
@@ -512,6 +515,7 @@ class AnkiMediaQueue {
         this.wait_question = wait;
         this.other_medias = medias;
         this.autoplay = auto;
+        this.skip_front = skip;
 
         if (
             this.where == "back" &&

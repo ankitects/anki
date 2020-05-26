@@ -300,7 +300,7 @@ describe("Test question and answer audios", () => {
     ])(
         `Test ankimedia.skip_front with addall should skip playing the front media:\nfront '%s', back '%s'\n...`,
         async function(front_setup, back_setup) {
-            await page.evaluate(async () => (ankimedia.skip_front = true));
+            await page.evaluate(async () => ankimedia.setup({ skip: true }));
 
             await questionAndAnswer(
                 "silence 1.mp3",
@@ -327,7 +327,7 @@ describe("Test question and answer audios", () => {
     ])(
         `Test ankimedia.skip_front with add should skip playing the front media:\nfront '%s', back '%s'\n...`,
         async function(front_setup, back_setup) {
-            await page.evaluate(async () => (ankimedia.skip_front = true));
+            await page.evaluate(async () => ankimedia.setup({ skip: true }));
 
             await questionAndAnswer(
                 "silence 1.mp3",
