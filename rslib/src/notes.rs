@@ -209,7 +209,7 @@ pub(crate) fn field_checksum(text: &str) -> u32 {
     u32::from_be_bytes(digest[..4].try_into().unwrap())
 }
 
-fn guid() -> String {
+pub(crate) fn guid() -> String {
     anki_base91(rand::random())
 }
 
