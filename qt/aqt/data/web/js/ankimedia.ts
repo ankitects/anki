@@ -123,7 +123,7 @@ class AnkiMediaQueue {
 
     _reset(parameters: any = {}) {
         // this._debug(`_reset parameters '${JSON.stringify(parameters)}'`);
-        let { skip_src_reset = false } = parameters;
+        let { skip_src_reset = false, skip_front_reset = false } = parameters;
         this.delay = 0.3;
         this.playing_front.length = 0;
         this.playing_back.length = 0;
@@ -170,7 +170,9 @@ class AnkiMediaQueue {
         this.wait_question = true;
         this._answer_element = null;
         this.has_previewed = false;
-        this.skip_front = false;
+        if (!skip_front_reset) {
+            this.skip_front = false;
+        }
     }
 
     _clearPlayingElement() {
