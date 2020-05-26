@@ -1,18 +1,24 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from typing import Callable, List, Tuple
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Callable, List, Tuple
 
 from anki.collection import Collection
 from anki.models import NoteType
 from anki.rsbackend import StockNoteType, from_json_bytes
+
+if TYPE_CHECKING:
+    from anki.backend_pb2 import StockNoteTypeValue  # pylint: disable=no-name-in-module
+
 
 # add-on authors can add ("note type name", function_like_addBasicModel)
 # to this list to have it shown in the add/clone note type screen
 models: List[Tuple] = []
 
 
-def add_stock_notetype(col: Collection, kind: StockNoteType) -> NoteType:
+def add_stock_notetype(col: Collection, kind: StockNoteTypeValue) -> NoteType:
     m = from_json_bytes(col.backend.get_stock_notetype_legacy(kind))
     col.models.add(m)
     return m
