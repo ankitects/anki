@@ -75,7 +75,7 @@ class StudyDeck(QDialog):
         self.redraw("", current)
         self.exec_()
 
-    def eventFilter(self, obj, evt):
+    def eventFilter(self, obj: QObject, evt: QEvent) -> bool:
         if evt.type() == QEvent.KeyPress:
             if evt.key() == Qt.Key_Up:
                 c = self.form.list.count()
