@@ -65,6 +65,8 @@ class AnkiMediaQueue {
     autoplay: boolean;
     is_playing: boolean;
     is_autoplay: boolean;
+    is_autoseek: boolean;
+    _is_autoseek_timer: any;
     is_first: boolean;
     is_setup: boolean;
     where: "front" | "back";
@@ -134,6 +136,11 @@ class AnkiMediaQueue {
         this.autoplay = true;
         this.is_playing = false;
         this.is_autoplay = false;
+        this.is_autoseek = true;
+        if (this._is_autoseek_timer) {
+            clearTimeout(this._is_autoseek_timer);
+            this._is_autoseek_timer = undefined;
+        }
         this.is_first = false;
         this.is_setup = false;
         this.where = "front";
@@ -309,19 +316,37 @@ class AnkiMediaQueue {
                 });
             }
             return true;
+        } else if (document.title === "previewer") {
+            return true;
         }
         return false;
     }
 
     replay() {
+        let is_autoseek = this.is_autoseek;
+        if (this._is_autoseek_timer) {
+            clearTimeout(this._is_autoseek_timer);
+            this._is_autoseek_timer = undefined;
+        }
+        this._is_autoseek_timer = setTimeout(() => {
+            this.is_autoseek = is_autoseek;
+            this._is_autoseek_timer = undefined;
+        }, ANKI_MEDIA_QUEUE_PREVIEW_TIMEOUT);
+
+        this.is_autoseek = false;
         this._playing_element.pause();
         this._playing_element.removeEventListener("ended", this._startnext as any);
+        this._playing_element.currentTime = 0;
         if (this.playing_front.length > 0) {
             this.playing_front.length = 0;
         }
         if (this.playing_back.length > 0) {
             this.playing_back.length = 0;
         }
+        setAnkiMedia(media => {
+            media.pause();
+            media.currentTime = 0;
+        }, this.other_medias);
 
         if (!this.skip_front) {
             this.playing_front.push(...this.replay_front_queue);
@@ -336,6 +361,7 @@ class AnkiMediaQueue {
             return;
         }
 
+        // console.log(`queues ${this.replay_front_queue} ${this.replay_back_queue}`);
         this.is_playing = true;
         this.is_first = true;
         this.play_duplicates.clear();
@@ -360,6 +386,8 @@ class AnkiMediaQueue {
                 filename = first[0];
                 speed = first[1];
                 media = this._getMediaElement(filename, this.play_duplicates);
+
+                // console.log(`media ${this.skip_front} ${!!media} '${filename}'...`);
                 if (!media) {
                     media = new Audio(filename);
                 }
@@ -588,8 +616,15 @@ class AnkiMediaQueue {
 
     _setupAudioPlay(media: HTMLAudioElement, clone: HTMLAudioElement) {
         // Set to automatically play the audio when seeking the progress bar.
-        media.addEventListener("seeked", event => media.play());
-        clone.addEventListener("seeked", event => clone.play());
+        let auto_play = target => {
+            return event => {
+                if (this.is_autoseek) {
+                    target.play();
+                }
+            };
+        };
+        media.addEventListener("seeked", auto_play(media));
+        clone.addEventListener("seeked", auto_play(clone));
 
         // Set to automatically pause all other medias when playing a new media.
         let auto_pause = target => {
