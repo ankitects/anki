@@ -324,36 +324,39 @@ class AnkiMediaQueue {
 
     replay() {
         let is_autoseek = this.is_autoseek;
-        if (this._is_autoseek_timer) {
-            clearTimeout(this._is_autoseek_timer);
-            this._is_autoseek_timer = undefined;
-        }
-        this._is_autoseek_timer = setTimeout(() => {
-            this.is_autoseek = is_autoseek;
-            this._is_autoseek_timer = undefined;
-        }, ANKI_MEDIA_QUEUE_PREVIEW_TIMEOUT);
+        try {
+            if (this._is_autoseek_timer) {
+                clearTimeout(this._is_autoseek_timer);
+                this._is_autoseek_timer = undefined;
+            }
+            this.is_autoseek = false;
+            this._playing_element.pause();
+            this._playing_element.removeEventListener("ended", this._startnext as any);
+            this._playing_element.currentTime = 0;
 
-        this.is_autoseek = false;
-        this._playing_element.pause();
-        this._playing_element.removeEventListener("ended", this._startnext as any);
-        this._playing_element.currentTime = 0;
-        if (this.playing_front.length > 0) {
-            this.playing_front.length = 0;
-        }
-        if (this.playing_back.length > 0) {
-            this.playing_back.length = 0;
-        }
-        setAnkiMedia(media => {
-            media.pause();
-            media.currentTime = 0;
-        }, this.other_medias);
+            if (this.playing_front.length > 0) {
+                this.playing_front.length = 0;
+            }
+            if (this.playing_back.length > 0) {
+                this.playing_back.length = 0;
+            }
+            setAnkiMedia(media => {
+                media.pause();
+                media.currentTime = 0;
+            }, this.other_medias);
 
-        if (!this.skip_front) {
-            this.playing_front.push(...this.replay_front_queue);
+            if (!this.skip_front) {
+                this.playing_front.push(...this.replay_front_queue);
+            }
+            this.playing_back.push(...this.replay_back_queue);
+            this.is_playing = false;
+            this._play();
+        } finally {
+            this._is_autoseek_timer = setTimeout(() => {
+                this.is_autoseek = is_autoseek;
+                this._is_autoseek_timer = undefined;
+            }, ANKI_MEDIA_QUEUE_PREVIEW_TIMEOUT);
         }
-        this.playing_back.push(...this.replay_back_queue);
-        this.is_playing = false;
-        this._play();
     }
 
     _play() {
