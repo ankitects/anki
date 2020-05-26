@@ -169,6 +169,10 @@ class Previewer(QDialog):
             elif self._card_changed:
                 self._state = "question"
 
+            if not self._show_both_sides and self._state == "answer":
+                self._web.eval("ankimedia.skip_front = true;")
+            self._web.eval("ankimedia._reset({skip_src_reset: true, skip_front_reset: true});")
+
             currentState = self._state_and_mod()
             if currentState == self._last_state:
                 # nothing has changed, avoid refreshing
@@ -200,18 +204,24 @@ class Previewer(QDialog):
                 av_player.play_tags(audio)
             else:
                 av_player.clear_queue_and_maybe_interrupt()
-                self._web.eval("ankimedia.setup({auto: false});")
+                self._web.eval("ankimedia.autoplay = false;")
 
             txt = self.mw.prepare_card_text_for_display(txt)
             txt = gui_hooks.card_will_show(txt, c, "preview" + self._state.capitalize())
             self._last_state = self._state_and_mod()
         self._web.eval("{}({},'{}');".format(func, json.dumps(txt), bodyclass))
         self._card_changed = False
+        self._web.eval("ankimedia.setup();")
+        self._web.eval("ankimedia._play();")
+        self._web.eval("ankimedia.skip_front = false;")
 
     def _on_show_both_sides(self, toggle):
         self._show_both_sides = toggle
         self.mw.col.conf["previewBothSides"] = toggle
         self.mw.col.setMod()
+        self._web.eval("ankimedia._reset({skip_src_reset: true});")
+        if self._state == "question" and toggle:
+            self._web.eval("ankimedia.skip_front = true;")
         if self._state == "answer" and not toggle:
             self._state = "question"
         self.render_card()
