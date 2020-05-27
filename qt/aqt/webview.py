@@ -227,7 +227,7 @@ class AnkiWebView(QWebEngineView):  # type: ignore
                 activated=self.onPaste,
             )
 
-    def eventFilter(self, obj, evt):
+    def eventFilter(self, obj: QObject, evt: QEvent) -> bool:
         # disable pinch to zoom gesture
         if isinstance(evt, QNativeGestureEvent):
             return True
