@@ -32,6 +32,8 @@ from aqt.utils import (
     getFile,
     openHelp,
     qtMenuShortcutWorkaround,
+    restoreGeom,
+    saveGeom,
     shortcut,
     showInfo,
     showWarning,
@@ -523,6 +525,7 @@ class Editor:
         d = QDialog(self.widget)
         form = aqt.forms.edithtml.Ui_Dialog()
         form.setupUi(d)
+        restoreGeom(d, "htmlEditor")
         qconnect(form.buttonBox.helpRequested, lambda: openHelp("editor"))
         form.textEdit.setPlainText(self.note.fields[field])
         d.show()
@@ -533,13 +536,14 @@ class Editor:
         if html.find(">") > -1:
             # filter html through beautifulsoup so we can strip out things like a
             # leading </div>
-            with warnings.catch_warnings() as w:
+            with warnings.catch_warnings():
                 warnings.simplefilter("ignore", UserWarning)
                 html = str(BeautifulSoup(html, "html.parser"))
         self.note.fields[field] = html
         if not self.addMode:
             self.note.flush()
         self.loadNote(focusTo=field)
+        saveGeom(d, "htmlEditor")
 
     # Tag handling
     ######################################################################
