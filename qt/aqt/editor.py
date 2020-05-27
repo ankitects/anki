@@ -32,6 +32,8 @@ from aqt.utils import (
     getFile,
     openHelp,
     qtMenuShortcutWorkaround,
+    restoreGeom,
+    saveGeom,
     shortcut,
     showInfo,
     showWarning,
@@ -523,6 +525,7 @@ class Editor:
         d = QDialog(self.widget)
         form = aqt.forms.edithtml.Ui_Dialog()
         form.setupUi(d)
+        restoreGeom(d, "htmlEditor")
         qconnect(form.buttonBox.helpRequested, lambda: openHelp("editor"))
         form.textEdit.setPlainText(self.note.fields[field])
         d.show()
@@ -540,6 +543,7 @@ class Editor:
         if not self.addMode:
             self.note.flush()
         self.loadNote(focusTo=field)
+        saveGeom(d, "htmlEditor")
 
     # Tag handling
     ######################################################################
