@@ -880,7 +880,6 @@ QTableView {{ gridline-color: {grid} }}
 
     def refreshCurrentCard(self, note: Note) -> None:
         self.model.refreshNote(note)
-        self._renderPreview(False)
 
     def onLoadNote(self, editor):
         self.refreshCurrentCard(editor.note)
