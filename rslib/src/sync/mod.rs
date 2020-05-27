@@ -14,18 +14,20 @@ use crate::{
 };
 use flate2::write::GzEncoder;
 use flate2::Compression;
+use futures::StreamExt;
 use reqwest::{multipart, Client, Response};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use serde_json::Value;
 use serde_tuple::Serialize_tuple;
 use std::io::prelude::*;
-use std::{collections::HashMap, time::Duration};
+use std::{collections::HashMap, path::Path, time::Duration};
+use tempfile::NamedTempFile;
 
 #[derive(Default, Debug)]
 pub struct SyncProgress {}
 
 #[derive(Serialize, Deserialize, Debug)]
-struct ServerMeta {
+pub struct ServerMeta {
     #[serde(rename = "mod")]
     modified: TimestampMillis,
     #[serde(rename = "scm")]
@@ -42,20 +44,20 @@ struct ServerMeta {
 }
 
 #[derive(Serialize, Deserialize, Debug, Default)]
-struct Graves {
+pub struct Graves {
     cards: Vec<CardID>,
     decks: Vec<DeckID>,
     notes: Vec<NoteID>,
 }
 
 #[derive(Serialize_tuple, Deserialize, Debug, Default)]
-struct DecksAndConfig {
+pub struct DecksAndConfig {
     decks: Vec<DeckSchema11>,
     config: Vec<DeckConfSchema11>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Default)]
-struct Changes {
+pub struct Changes {
     #[serde(rename = "models")]
     notetypes: Vec<NoteTypeSchema11>,
     #[serde(rename = "decks")]
@@ -70,18 +72,18 @@ struct Changes {
 }
 
 #[derive(Serialize, Deserialize, Debug, Default)]
-struct Chunk {
+pub struct Chunk {
     done: bool,
-    #[serde(skip_serializing_if = "Vec::is_empty")]
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
     revlog: Vec<ReviewLogEntry>,
-    #[serde(skip_serializing_if = "Vec::is_empty")]
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
     cards: Vec<CardEntry>,
-    #[serde(skip_serializing_if = "Vec::is_empty")]
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
     notes: Vec<NoteEntry>,
 }
 
 #[derive(Serialize_tuple, Deserialize, Debug)]
-struct ReviewLogEntry {
+pub struct ReviewLogEntry {
     id: TimestampMillis,
     cid: CardID,
     usn: Usn,
@@ -97,7 +99,7 @@ struct ReviewLogEntry {
 }
 
 #[derive(Serialize_tuple, Deserialize, Debug)]
-struct NoteEntry {
+pub struct NoteEntry {
     id: NoteID,
     guid: String,
     #[serde(rename = "mid")]
@@ -114,7 +116,7 @@ struct NoteEntry {
 }
 
 #[derive(Serialize_tuple, Deserialize, Debug)]
-struct CardEntry {
+pub struct CardEntry {
     id: CardID,
     nid: NoteID,
     did: DeckID,
@@ -136,7 +138,7 @@ struct CardEntry {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-struct SanityCheckOut {
+pub struct SanityCheckOut {
     status: SanityCheckStatus,
     #[serde(rename = "c")]
     client: Option<SanityCheckCounts>,
@@ -152,7 +154,7 @@ enum SanityCheckStatus {
 }
 
 #[derive(Serialize_tuple, Deserialize, Debug)]
-struct SanityCheckCounts {
+pub struct SanityCheckCounts {
     counts: SanityCheckDueCounts,
     cards: u32,
     notes: u32,
@@ -165,8 +167,14 @@ struct SanityCheckCounts {
 }
 
 #[derive(Serialize_tuple, Deserialize, Debug)]
-struct SanityCheckDueCounts {
+pub struct SanityCheckDueCounts {
     new: u32,
     learn: u32,
     review: u32,
+}
+
+#[derive(Debug, Default)]
+pub struct FullSyncProgress {
+    transferred_bytes: usize,
+    total_bytes: usize,
 }
