@@ -80,6 +80,7 @@ class AnkiMediaQueue {
      */
     constructor() {
         this._reset = this._reset.bind(this);
+        this._debug = this._debug.bind(this);
         this._whereIs = this._whereIs.bind(this);
         this._validateWhere = this._validateWhere.bind(this);
         this._validateSpeed = this._validateSpeed.bind(this);
@@ -110,7 +111,16 @@ class AnkiMediaQueue {
         this._reset();
     }
 
+    /**
+     * Wrapper around `console.log` to easily enable/disable debug messages at once
+     * by selecting the same word.
+     */
+    _debug(...args) {
+        console.log(...args);
+    }
+
     _reset(parameters: any = {}) {
+        // this._debug(`_reset parameters '${JSON.stringify(parameters)}'`);
         let { skip_src_reset = false } = parameters;
         this.delay = 0.3;
         this.playing_front.length = 0;
@@ -297,7 +307,7 @@ class AnkiMediaQueue {
             return;
         }
 
-        // console.log(`Trying ${filename} ${where} ${this.where}...`);
+        // this._debug(`Trying ${filename} ${where} ${this.where}...`);
         if (!this.has_previewed && (this._checkPreviewPage() || where == this.where)) {
             if (where == "front") {
                 this.playing_front.push([filename, speed]);
@@ -307,7 +317,7 @@ class AnkiMediaQueue {
                 this.replay_back_queue.push([filename, speed]);
             }
 
-            // console.log(`Adding ${filename} ${where}...`);
+            // this._debug(`Adding ${filename} ${where}...`);
             if (this.autoplay) {
                 this._play();
             }
@@ -372,11 +382,12 @@ class AnkiMediaQueue {
     }
 
     _play() {
+        // this._debug(`_play '${this.is_playing}'`);
         if (this.is_playing) {
             return;
         }
 
-        // console.log(`queues ${this.replay_front_queue} ${this.replay_back_queue}`);
+        // this._debug(`queues ${this.replay_front_queue} ${this.replay_back_queue}`);
         this.is_playing = true;
         this.is_first = true;
         this.play_duplicates.clear();
@@ -402,7 +413,7 @@ class AnkiMediaQueue {
                 speed = first[1];
                 media = this._getMediaElement(filename, this.play_duplicates);
 
-                // console.log(`media ${this.skip_front} ${!!media} '${filename}'...`);
+                // this._debug(`Playing ${this.skip_front} ${!!media} '${filename}'...`);
                 if (!media) {
                     media = new Audio(filename);
                 }
@@ -468,7 +479,7 @@ class AnkiMediaQueue {
             let index = selected.get(filename) || 0;
             selected.set(filename, index + 1);
 
-            // console.log(`_getMediaElement count ${count} index ${index} ${media.id} ${filename}...`);
+            // this._debug(`_getMediaElement count ${count} index ${index} ${media.id} ${filename}...`);
             if (index <= count) {
                 let last_id = filename + index.toString();
                 let last_media = this.files.get(last_id);
@@ -494,6 +505,7 @@ class AnkiMediaQueue {
      * @param {boolean} skip   - if true (default), it will skip playing the front media.
      */
     setup(parameters: any = {}) {
+        // this._debug(`setup parameters '${JSON.stringify(parameters)}'`);
         let default_parameters = {
             delay: this.delay,
             wait: this.wait_question,
