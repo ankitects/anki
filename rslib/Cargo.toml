@@ -23,7 +23,7 @@ unicode-normalization = "0.1.12"
 tempfile = "3.1.0"
 serde = "1.0.104"
 serde_json = "1.0.45"
-tokio = "0.2.11"
+tokio = { version = "0.2.11", features = ["fs"] }
 serde_derive = "1.0.104"
 zip = "0.5.4"
 serde_tuple = "0.4.0"
@@ -47,6 +47,8 @@ rand = "0.7.3"
 num-integer = "0.1.42"
 itertools = "0.9.0"
 flate2 = "1.0.14"
+pin-project = "0.4.17"
+async-compression = { version = "0.3.4", features = ["stream", "gzip"] }
 
 [target.'cfg(target_vendor="apple")'.dependencies.rusqlite]
 version = "0.23.1"
@@ -57,12 +59,15 @@ version = "0.23.1"
 features = ["trace", "functions", "collation", "bundled"]
 
 [target.'cfg(linux)'.dependencies]
-reqwest = { version = "0.10.1", features = ["json", "socks", "native-tls-vendored"] }
+reqwest = { version = "0.10.1", features = ["json", "socks", "stream", "native-tls-vendored"] }
 
 [target.'cfg(not(linux))'.dependencies]
-reqwest = { version = "0.10.1", features = ["json", "socks"] }
+reqwest = { version = "0.10.1", features = ["json", "socks", "stream" ] }
 
 [build-dependencies]
 prost-build = "0.6.1"
 fluent-syntax = "0.9.2"
+
+[dev-dependencies]
+env_logger = "0.7.1"
 
