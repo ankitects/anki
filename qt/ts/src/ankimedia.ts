@@ -61,6 +61,7 @@ class AnkiMediaQueue {
     _addall_last_where: "front" | "back";
     play_duplicates: Map<string, number>;
     _playing_element: HTMLAudioElement;
+    _playing_element_timeout: any;
     _startnext: Function;
     autoplay: boolean;
     is_playing: boolean;
@@ -144,7 +145,14 @@ class AnkiMediaQueue {
         this._add_duplicates_reset = 0;
         this._addall_reset = 0;
         this._addall_last_where = "front";
+        if (this._playing_element) {
+            this._playing_element.removeEventListener("ended", this._startnext as any);
+        }
+        if (this._playing_element_timeout) {
+            clearTimeout(this._playing_element_timeout);
+        }
         this._playing_element = new Audio();
+        this._playing_element_timeout = undefined;
         this._startnext = event => {};
         this.autoplay = true;
         this.is_playing = false;
@@ -395,6 +403,7 @@ class AnkiMediaQueue {
     }
 
     _playnext() {
+        this._playing_element_timeout = undefined;
         let filename = undefined;
         let speed = undefined;
         let media = undefined;
@@ -446,7 +455,10 @@ class AnkiMediaQueue {
                 );
             }
             this._startnext = event => {
-                setTimeout(this._playnext, is_first ? this.delay * 1000 : 0);
+                this._playing_element_timeout = setTimeout(
+                    this._playnext,
+                    is_first ? this.delay * 1000 : 0
+                );
             };
             this._playing_element = media;
             this._startnext = this._startnext.bind(this);
