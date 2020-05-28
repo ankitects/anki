@@ -159,6 +159,8 @@ service BackendService {
     rpc SyncMedia (SyncMediaIn) returns (Empty);
     rpc AbortMediaSync (Empty) returns (Empty);
     rpc BeforeUpload (Empty) returns (Empty);
+    rpc SyncLogin (SyncLoginIn) returns (SyncLoginOut);
+    rpc SyncCollection (SyncCollectionIn) returns (SyncCollectionOut);
 
     // translation/messages
 
@@ -169,7 +171,6 @@ service BackendService {
 
     rpc RegisterTags (RegisterTagsIn) returns (Bool);
     rpc AllTags (Empty) returns (AllTagsOut);
-    rpc GetChangedTags (Int32) returns (GetChangedTagsOut);
 
     // config/preferences
 
@@ -471,6 +472,8 @@ message SyncError {
         SERVER_MESSAGE = 5;
         MEDIA_CHECK_REQUIRED = 6;
         RESYNC_REQUIRED = 7;
+        CLOCK_INCORRECT = 8;
+        DATABASE_CHECK_REQUIRED = 9;
     }
     SyncErrorKind kind = 1;
 }
@@ -874,4 +877,38 @@ message NoteIsDuplicateOrEmptyOut {
         DUPLICATE = 2;
     }
     State state = 1;
+}
+
+message SyncLoginIn {
+    string username = 1;
+    string password = 2;
+}
+
+message SyncLoginOut {
+    string hkey = 1;
+}
+
+message SyncCollectionIn {
+    enum SyncAction {
+        CHECK_ONLY = 0;
+        NORMAL_SYNC = 1;
+        UPLOAD = 2;
+        DOWNLOAD = 3;
+    }
+
+    string hkey = 1;
+    uint32 host_number = 2;
+    SyncAction action = 3;
+}
+
+message SyncCollectionOut {
+    enum ChangesRequired {
+        NO_CHANGES = 0;
+        NORMAL_SYNC = 1;
+        FULL_SYNC = 2;
+    }
+
+    string host_number = 1;
+    string server_message = 2;
+    ChangesRequired required = 3;
 }

@@ -45,7 +45,7 @@ impl SqliteStorage {
 
     // fixme: in the future we could just register tags as part of the sync
     // instead of sending the tag list separately
-    pub(crate) fn get_changed_tags(&self, usn: Usn) -> Result<Vec<String>> {
+    pub(crate) fn take_changed_tags(&self, usn: Usn) -> Result<Vec<String>> {
         let tags: Vec<String> = self
             .db
             .prepare("select tag from tags where usn=-1")?

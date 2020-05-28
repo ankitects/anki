@@ -1,4 +1,5 @@
 select
+  id,
   guid,
   mid,
   mod,
@@ -6,5 +7,3 @@ select
   tags,
   flds
 from notes
-where
-  id = ?

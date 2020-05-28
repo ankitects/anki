@@ -5,39 +5,44 @@ use crate::{
     err::Result,
     notes::{Note, NoteID},
     notetype::NoteTypeID,
+    prelude::*,
+    sync::NoteEntry,
     tags::{join_tags, split_tags},
     timestamp::TimestampMillis,
 };
-use rusqlite::{params, OptionalExtension, NO_PARAMS};
+use rusqlite::{params, Row, NO_PARAMS};
 
-fn split_fields(fields: &str) -> Vec<String> {
+pub(crate) fn split_fields(fields: &str) -> Vec<String> {
     fields.split('\x1f').map(Into::into).collect()
 }
 
-fn join_fields(fields: &[String]) -> String {
+pub(crate) fn join_fields(fields: &[String]) -> String {
     fields.join("\x1f")
+}
+
+fn row_to_note(row: &Row) -> Result<Note> {
+    Ok(Note {
+        id: row.get(0)?,
+        guid: row.get(1)?,
+        ntid: row.get(2)?,
+        mtime: row.get(3)?,
+        usn: row.get(4)?,
+        tags: split_tags(row.get_raw(5).as_str()?)
+            .map(Into::into)
+            .collect(),
+        fields: split_fields(row.get_raw(6).as_str()?),
+        sort_field: None,
+        checksum: None,
+    })
 }
 
 impl super::SqliteStorage {
     pub fn get_note(&self, nid: NoteID) -> Result<Option<Note>> {
-        let mut stmt = self.db.prepare_cached(include_str!("get.sql"))?;
-        stmt.query_row(params![nid], |row| {
-            Ok(Note {
-                id: nid,
-                guid: row.get(0)?,
-                ntid: row.get(1)?,
-                mtime: row.get(2)?,
-                usn: row.get(3)?,
-                tags: split_tags(row.get_raw(4).as_str()?)
-                    .map(Into::into)
-                    .collect(),
-                fields: split_fields(row.get_raw(5).as_str()?),
-                sort_field: None,
-                checksum: None,
-            })
-        })
-        .optional()
-        .map_err(Into::into)
+        self.db
+            .prepare_cached(concat!(include_str!("get.sql"), " where id = ?"))?
+            .query_and_then(params![nid], row_to_note)?
+            .next()
+            .transpose()
     }
 
     /// Caller must call note.prepare_for_update() prior to calling this.
@@ -76,6 +81,24 @@ impl super::SqliteStorage {
         Ok(())
     }
 
+    /// Add or update the provided note, preserving ID. Used by the syncing code.
+    pub(crate) fn add_or_update_note(&self, note: &Note) -> Result<()> {
+        let now = TimestampMillis::now().0;
+        let mut stmt = self.db.prepare_cached(include_str!("add_or_update.sql"))?;
+        stmt.execute(params![
+            note.id,
+            note.guid,
+            note.ntid,
+            note.mtime,
+            note.usn,
+            join_tags(&note.tags),
+            join_fields(&note.fields()),
+            note.sort_field.as_ref().unwrap(),
+            note.checksum.unwrap(),
+        ])?;
+        Ok(())
+    }
+
     pub(crate) fn remove_note(&self, nid: NoteID) -> Result<()> {
         self.db
             .prepare_cached("delete from notes where id = ?")?
@@ -109,5 +132,29 @@ impl super::SqliteStorage {
             .prepare("select field_at_index(flds, 0) from notes where csum=? and mid=? and id !=?")?
             .query_and_then(params![csum, ntid, nid], |r| r.get(0).map_err(Into::into))?
             .collect()
+    }
+
+    pub(crate) fn take_notes_pending_sync(
+        &self,
+        new_usn: Usn,
+        limit: usize,
+    ) -> Result<Vec<NoteEntry>> {
+        let mut out = vec![];
+        if limit == 0 {
+            return Ok(out);
+        }
+
+        let entries: Vec<NoteEntry> = self
+            .db
+            .prepare_cached(concat!(include_str!("get.sql"), " where usn=-1 limit ?"))?
+            .query_and_then(&[limit as u32], |r| row_to_note(r).map(Into::into))?
+            .collect::<Result<_>>()?;
+
+        let ids: Vec<_> = entries.iter().map(|e| e.id).collect();
+        self.db
+            .prepare_cached("update notes set usn=? where usn=-1")?
+            .execute(&[new_usn])?;
+
+        Ok(entries)
     }
 }

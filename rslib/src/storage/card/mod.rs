@@ -6,6 +6,7 @@ use crate::{
     decks::DeckID,
     err::Result,
     notes::NoteID,
+    sync::CardEntry,
     timestamp::{TimestampMillis, TimestampSecs},
     types::Usn,
 };
@@ -120,6 +121,34 @@ impl super::SqliteStorage {
         Ok(())
     }
 
+    /// Add or update card, using the provided ID. Used when syncing.
+    pub(crate) fn add_or_update_card(&self, card: &Card) -> Result<()> {
+        let now = TimestampMillis::now().0;
+        let mut stmt = self.db.prepare_cached(include_str!("add_or_update.sql"))?;
+        stmt.execute(params![
+            card.id,
+            card.nid,
+            card.did,
+            card.ord,
+            card.mtime,
+            card.usn,
+            card.ctype as u8,
+            card.queue as i8,
+            card.due,
+            card.ivl,
+            card.factor,
+            card.reps,
+            card.lapses,
+            card.left,
+            card.odue,
+            card.odid,
+            card.flags,
+            card.data,
+        ])?;
+
+        Ok(())
+    }
+
     pub(crate) fn remove_card(&self, cid: CardID) -> Result<()> {
         self.db
             .prepare_cached("delete from cards where id = ?")?
@@ -190,6 +219,35 @@ impl super::SqliteStorage {
             .prepare("update cards set usn = 0 where usn = -1")?
             .execute(NO_PARAMS)?;
         Ok(())
+    }
+
+    pub(crate) fn take_cards_pending_sync(
+        &self,
+        new_usn: Usn,
+        limit: usize,
+    ) -> Result<Vec<CardEntry>> {
+        let mut out = vec![];
+        if limit == 0 {
+            return Ok(out);
+        }
+
+        let entries: Vec<CardEntry> = self
+            .db
+            .prepare_cached(concat!(
+                include_str!("get_card.sql"),
+                " where usn=-1 limit ?"
+            ))?
+            .query_and_then(&[limit as u32], |r| {
+                row_to_card(r).map(Into::into).map_err(Into::into)
+            })?
+            .collect::<Result<_>>()?;
+
+        let ids: Vec<_> = entries.iter().map(|e| e.id).collect();
+        self.db
+            .prepare_cached("update cards set usn=? where usn=-1")?
+            .execute(&[new_usn])?;
+
+        Ok(entries)
     }
 }
 
