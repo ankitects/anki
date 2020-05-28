@@ -11,6 +11,7 @@ from typing import List
 import anki
 import aqt
 from anki.sound import SoundOrVideoTag
+from anki.template import av_tags_to_native
 from aqt.theme import theme_manager
 
 # Routines removed from pylib/
@@ -24,8 +25,12 @@ def bodyClass(col, card) -> str:
 
 def allSounds(text) -> List:
     print("allSounds() deprecated")
-    text, tags = aqt.mw.col.backend.extract_av_tags(text, True)
-    return [x.filename for x in tags if isinstance(x, SoundOrVideoTag)]
+    out = aqt.mw.col.backend.extract_av_tags(text=text, question_side=True)
+    return [
+        x.filename
+        for x in av_tags_to_native(out.av_tags)
+        if isinstance(x, SoundOrVideoTag)
+    ]
 
 
 def stripSounds(text) -> str:
@@ -35,7 +40,7 @@ def stripSounds(text) -> str:
 
 def fmtTimeSpan(time, pad=0, point=0, short=False, inTime=False, unit=99):
     print("fmtTimeSpan() has become col.backend.format_time_span()")
-    return aqt.mw.col.backend.format_time_span(time)
+    return aqt.mw.col.format_timespan(time)
 
 
 def install_pylib_legacy() -> None:

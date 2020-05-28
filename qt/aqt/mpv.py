@@ -433,6 +433,9 @@ class MPV(MPVBase):
     """
 
     def __init__(self, *args, **kwargs):
+        self._callbacks_queue = Queue()
+        self._callbacks_initialized = False
+
         super().__init__(*args, **kwargs)
 
         self._callbacks = {}
@@ -454,6 +457,14 @@ class MPV(MPVBase):
                 name = method_name[3:]
                 name = name.replace("_", "-")
                 self.register_callback(name, method)
+
+        self._callbacks_initialized = True
+        while True:
+            try:
+                message = self._callbacks_queue.get_nowait()
+            except Empty:
+                break
+            self._handle_event(message)
 
         # Simulate an init event when the process and all callbacks have been
         # completely set up.
@@ -495,6 +506,10 @@ class MPV(MPVBase):
     def _handle_event(self, message):
         """Lookup and call the callbacks for a particular event message.
         """
+        if not self._callbacks_initialized:
+            self._callbacks_queue.put(message)
+            return
+
         if message["event"] == "property-change":
             name = "property-" + message["name"]
         else:

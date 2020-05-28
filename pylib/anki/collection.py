@@ -10,7 +10,7 @@ import re
 import time
 import traceback
 import weakref
-from typing import Any, Iterable, List, Optional, Sequence, Tuple, Union
+from typing import TYPE_CHECKING, Any, Iterable, List, Optional, Sequence, Tuple, Union
 
 import anki.find
 import anki.latex  # sets up hook
@@ -26,11 +26,14 @@ from anki.lang import _
 from anki.media import MediaManager, media_paths_from_col_path
 from anki.models import ModelManager
 from anki.notes import Note
-from anki.rsbackend import TR, DBError, RustBackend
+from anki.rsbackend import TR, DBError, FormatTimeSpanContext, RustBackend, pb
 from anki.sched import Scheduler as V1Scheduler
 from anki.schedv2 import Scheduler as V2Scheduler
 from anki.tags import TagManager
 from anki.utils import devMode, ids2str, intTime
+
+if TYPE_CHECKING:
+    from anki.rsbackend import TRValue, FormatTimeSpanContextValue
 
 
 class Collection:
@@ -65,12 +68,22 @@ class Collection:
         n = os.path.splitext(os.path.basename(self.path))[0]
         return n
 
-    def tr(self, key: TR, **kwargs: Union[str, int, float]) -> str:
-        return self.backend.translate(key, **kwargs)
-
     def weakref(self) -> Collection:
         "Shortcut to create a weak reference that doesn't break code completion."
         return weakref.proxy(self)
+
+    # I18n/messages
+    ##########################################################################
+
+    def tr(self, key: TRValue, **kwargs: Union[str, int, float]) -> str:
+        return self.backend.translate(key, **kwargs)
+
+    def format_timespan(
+        self,
+        seconds: float,
+        context: FormatTimeSpanContextValue = FormatTimeSpanContext.INTERVALS,
+    ) -> str:
+        return self.backend.format_timespan(seconds=seconds, context=context)
 
     # Scheduler
     ##########################################################################
@@ -209,7 +222,7 @@ class Collection:
             else:
                 self.db.rollback()
             self.models._clear_cache()
-            self.backend.close_collection(downgrade=downgrade)
+            self.backend.close_collection(downgrade_to_schema11=downgrade)
             self.db = None
             self.media.close()
             self._closeLog()
@@ -230,7 +243,12 @@ class Collection:
             log_path = self.path.replace(".anki2", "2.log")
 
         # connect
-        self.backend.open_collection(self.path, media_dir, media_db, log_path)
+        self.backend.open_collection(
+            collection_path=self.path,
+            media_folder_path=media_dir,
+            media_db_path=media_db,
+            log_path=log_path,
+        )
         self.db = DBProxy(weakref.proxy(self.backend))
         self.db.begin()
 
@@ -301,7 +319,7 @@ class Collection:
         return Note(self, self.models.current(forDeck))
 
     def add_note(self, note: Note, deck_id: int) -> None:
-        note.id = self.backend.add_note(note.to_backend_note(), deck_id)
+        note.id = self.backend.add_note(note=note.to_backend_note(), deck_id=deck_id)
 
     def addNote(self, note: Note) -> int:
         self.add_note(note, note.model()["did"])
@@ -393,7 +411,21 @@ select id from notes where id in %s and id not in (select nid from cards)"""
     def find_cards(
         self, query: str, order: Union[bool, str, int] = False, reverse: bool = False,
     ) -> Sequence[int]:
-        return self.backend.search_cards(query, order, reverse)
+        if isinstance(order, str):
+            mode = pb.SortOrder(custom=order)
+        elif order is True:
+            mode = pb.SortOrder(from_config=pb.Empty())
+        elif order is False:
+            mode = pb.SortOrder(none=pb.Empty())
+        else:
+            # sadly we can't use the protobuf type in a Union, so we
+            # have to accept an int and convert it
+            BKind = pb.BuiltinSearchOrder.BuiltinSortKind  # pylint: disable=no-member
+            kind = BKind.Value(BKind.Name(order))
+            mode = pb.SortOrder(
+                builtin=pb.BuiltinSearchOrder(kind=kind, reverse=reverse)
+            )
+        return self.backend.search_cards(search=query, order=mode)
 
     def find_notes(self, query: str) -> Sequence[int]:
         return self.backend.search_notes(query)
@@ -579,7 +611,7 @@ select id from notes where mid = ?) limit 1"""
         """
         self.save(trx=False)
         try:
-            problems = self.backend.check_database()
+            problems = list(self.backend.check_database())
             ok = not problems
             problems.append(self.tr(TR.DATABASE_CHECK_REBUILT))
         except DBError as e:

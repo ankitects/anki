@@ -4,6 +4,9 @@ import "fluent.proto";
 
 package backend_proto;
 
+// Generic containers
+///////////////////////////////////////////////////////////
+
 message Empty {}
 
 message OptionalInt32 {
@@ -12,6 +15,171 @@ message OptionalInt32 {
 
 message OptionalUInt32 {
     uint32 val = 1;
+}
+
+message Int32 {
+    sint32 val = 1;
+}
+
+message UInt32 {
+    uint32 val = 1;
+}
+
+message Int64 {
+    int64 val = 1;
+}
+
+message String {
+    string val = 1;
+}
+
+message Json {
+    bytes json = 1;
+}
+
+message Bool {
+    bool val = 1;
+}
+
+// IDs used in RPC calls
+///////////////////////////////////////////////////////////
+
+message NoteTypeID {
+    int64 ntid = 1;
+}
+
+message NoteID {
+    int64 nid = 1;
+}
+
+message CardID {
+    int64 cid = 1;
+}
+
+message DeckID {
+    int64 did = 1;
+}
+
+message DeckConfigID {
+    int64 dcid = 1;
+}
+
+// New style RPC definitions
+///////////////////////////////////////////////////////////
+
+service BackendService {
+    // card rendering
+
+    rpc ExtractAVTags (ExtractAVTagsIn) returns (ExtractAVTagsOut);
+    rpc ExtractLatex (ExtractLatexIn) returns (ExtractLatexOut);
+    rpc GetEmptyCards (Empty) returns (EmptyCardsReport);
+    rpc RenderExistingCard (RenderExistingCardIn) returns (RenderCardOut);
+    rpc RenderUncommittedCard (RenderUncommittedCardIn) returns (RenderCardOut);
+    rpc StripAVTags (String) returns (String);
+
+    // searching
+
+    rpc SearchCards (SearchCardsIn) returns (SearchCardsOut);
+    rpc SearchNotes (SearchNotesIn) returns (SearchNotesOut);
+    rpc FindAndReplace (FindAndReplaceIn) returns (UInt32);
+
+    // scheduling
+
+    rpc LocalMinutesWest (Int64) returns (Int32);
+    rpc SetLocalMinutesWest (Int32) returns (Empty);
+    rpc SchedTimingToday (Empty) returns (SchedTimingTodayOut);
+    rpc StudiedToday (StudiedTodayIn) returns (String);
+    rpc CongratsLearnMessage (CongratsLearnMessageIn) returns (String);
+
+    // media
+
+    rpc CheckMedia (Empty) returns (CheckMediaOut);
+    rpc TrashMediaFiles (TrashMediaFilesIn) returns (Empty);
+    rpc AddMediaFile (AddMediaFileIn) returns (String);
+    rpc EmptyTrash (Empty) returns (Empty);
+    rpc RestoreTrash (Empty) returns (Empty);
+
+    // decks
+
+    rpc AddOrUpdateDeckLegacy (AddOrUpdateDeckLegacyIn) returns (DeckID);
+    rpc DeckTree (DeckTreeIn) returns (DeckTreeNode);
+    rpc DeckTreeLegacy (Empty) returns (Json);
+    rpc GetAllDecksLegacy (Empty) returns (Json);
+    rpc GetDeckIDByName (String) returns (DeckID);
+    rpc GetDeckLegacy (DeckID) returns (Json);
+    rpc GetDeckNames (GetDeckNamesIn) returns (DeckNames);
+    rpc NewDeckLegacy (Bool) returns (Json);
+    rpc RemoveDeck (DeckID) returns (Empty);
+
+    // deck config
+
+    rpc AddOrUpdateDeckConfigLegacy (AddOrUpdateDeckConfigLegacyIn) returns (DeckConfigID);
+    rpc AllDeckConfigLegacy (Empty) returns (Json);
+    rpc GetDeckConfigLegacy (DeckConfigID) returns (Json);
+    rpc NewDeckConfigLegacy (Empty) returns (Json);
+    rpc RemoveDeckConfig (DeckConfigID) returns (Empty);
+
+    // cards
+
+    rpc GetCard (CardID) returns (Card);
+    rpc UpdateCard (Card) returns (Empty);
+    rpc AddCard (Card) returns (CardID);
+
+    // notes
+
+    rpc NewNote (NoteTypeID) returns (Note);
+    rpc AddNote (AddNoteIn) returns (NoteID);
+    rpc UpdateNote (Note) returns (Empty);
+    rpc GetNote (NoteID) returns (Note);
+    rpc AddNoteTags (AddNoteTagsIn) returns (UInt32);
+    rpc UpdateNoteTags (UpdateNoteTagsIn) returns (UInt32);
+    rpc ClozeNumbersInNote (Note) returns (ClozeNumbersInNoteOut);
+    rpc AfterNoteUpdates (AfterNoteUpdatesIn) returns (Empty);
+    rpc FieldNamesForNotes (FieldNamesForNotesIn) returns (FieldNamesForNotesOut);
+    rpc NoteIsDuplicateOrEmpty (Note) returns (NoteIsDuplicateOrEmptyOut);
+
+    // note types
+
+    rpc AddOrUpdateNotetype (AddOrUpdateNotetypeIn) returns (NoteTypeID);
+    rpc GetStockNotetypeLegacy (GetStockNotetypeIn) returns (Json);
+    rpc GetNotetypeLegacy (NoteTypeID) returns (Json);
+    rpc GetNotetypeNames (Empty) returns (NoteTypeNames);
+    rpc GetNotetypeNamesAndCounts (Empty) returns (NoteTypeUseCounts);
+    rpc GetNotetypeIDByName (String) returns (NoteTypeID);
+    rpc RemoveNotetype (NoteTypeID) returns (Empty);
+
+    // collection
+
+    rpc OpenCollection (OpenCollectionIn) returns (Empty);
+    rpc CloseCollection (CloseCollectionIn) returns (Empty);
+    rpc CheckDatabase (Empty) returns (CheckDatabaseOut);
+
+    // sync
+
+    rpc SyncMedia (SyncMediaIn) returns (Empty);
+    rpc AbortMediaSync (Empty) returns (Empty);
+    rpc BeforeUpload (Empty) returns (Empty);
+
+    // translation/messages
+
+    rpc TranslateString (TranslateStringIn) returns (String);
+    rpc FormatTimespan (FormatTimespanIn) returns (String);
+
+    // tags
+
+    rpc RegisterTags (RegisterTagsIn) returns (Bool);
+    rpc AllTags (Empty) returns (AllTagsOut);
+    rpc GetChangedTags (Int32) returns (GetChangedTagsOut);
+
+    // config/preferences
+
+    rpc GetConfigJson (String) returns (Json);
+    rpc SetConfigJson (SetConfigJsonIn) returns (Empty);
+    rpc RemoveConfig (String) returns (Empty);
+    rpc SetAllConfig (Json) returns (Empty);
+    rpc GetAllConfig (Empty) returns (Json);
+    rpc GetPreferences (Empty) returns (Preferences);
+    rpc SetPreferences (Preferences) returns (Empty);
 }
 
 // Protobuf stored in .anki2 files
@@ -252,160 +420,8 @@ message I18nBackendInit {
     string locale_folder_path = 5;
 }
 
-message BackendInput {
-    oneof value {
-        Empty sched_timing_today = 17;
-        DeckTreeIn deck_tree = 18;
-        SearchCardsIn search_cards = 19;
-        SearchNotesIn search_notes = 20;
-        RenderUncommittedCardIn render_uncommitted_card = 21;
-        int64 local_minutes_west = 22;
-        string strip_av_tags = 23;
-        ExtractAVTagsIn extract_av_tags = 24;
-        ExtractLatexIn extract_latex = 25;
-        AddMediaFileIn add_media_file = 26;
-        SyncMediaIn sync_media = 27;
-        Empty check_media = 28;
-        TrashMediaFilesIn trash_media_files = 29;
-        TranslateStringIn translate_string = 30;
-        FormatTimeSpanIn format_time_span = 31;
-        StudiedTodayIn studied_today = 32;
-        CongratsLearnMsgIn congrats_learn_msg = 33;
-        Empty empty_trash = 34;
-        Empty restore_trash = 35;
-        OpenCollectionIn open_collection = 36;
-        CloseCollectionIn close_collection = 37;
-        int64 get_card = 38;
-        Card update_card = 39;
-        Card add_card = 40;
-        int64 get_deck_config = 41;
-        AddOrUpdateDeckConfigIn add_or_update_deck_config = 42;
-        Empty all_deck_config = 43;
-        Empty new_deck_config = 44;
-        int64 remove_deck_config = 45;
-        Empty abort_media_sync = 46;
-        Empty before_upload = 47;
-        RegisterTagsIn register_tags = 48;
-        Empty all_tags = 50;
-        int32 get_changed_tags = 51;
-        string get_config_json = 52;
-        SetConfigJson set_config_json = 53;
-        bytes set_all_config = 54;
-        Empty get_all_config = 55;
-        int32 get_changed_notetypes = 56;
-        AddOrUpdateNotetypeIn add_or_update_notetype = 57;
-        Empty get_all_decks = 58;
-        Empty check_database = 59;
-        StockNoteType get_stock_notetype_legacy = 60;
-        int64 get_notetype_legacy = 61;
-        Empty get_notetype_names = 62;
-        Empty get_notetype_names_and_counts = 63;
-        string get_notetype_id_by_name = 64;
-        int64 remove_notetype = 65;
-        int64 new_note = 66;
-        AddNoteIn add_note = 67;
-        Note update_note = 68;
-        int64 get_note = 69;
-        Empty get_empty_cards = 70;
-        int64 get_deck_legacy = 71;
-        string get_deck_id_by_name = 72;
-        GetDeckNamesIn get_deck_names = 73;
-        AddOrUpdateDeckLegacyIn add_or_update_deck_legacy = 74;
-        bool new_deck_legacy = 75;
-        int64 remove_deck = 76;
-        Empty deck_tree_legacy = 77;
-        FieldNamesForNotesIn field_names_for_notes = 78;
-        FindAndReplaceIn find_and_replace = 79;
-        AfterNoteUpdatesIn after_note_updates = 80;
-        AddNoteTagsIn add_note_tags = 81;
-        UpdateNoteTagsIn update_note_tags = 82;
-        int32 set_local_minutes_west = 83;
-        Empty get_preferences = 84;
-        Preferences set_preferences = 85;
-        RenderExistingCardIn render_existing_card = 86;
-        Note cloze_numbers_in_note = 87;
-    }
-}
-
-message BackendOutput {
-    oneof value {
-        // infallible commands
-        sint32 local_minutes_west = 22;
-        string strip_av_tags = 23;
-        ExtractAVTagsOut extract_av_tags = 24;
-        ExtractLatexOut extract_latex = 25;
-        string translate_string = 30;
-        string format_time_span = 31;
-        string studied_today = 32;
-        string congrats_learn_msg = 33;
-        Empty abort_media_sync = 46;
-        ClozeNumbersInNoteOut cloze_numbers_in_note = 87;
-
-        // fallible commands
-        SchedTimingTodayOut sched_timing_today = 17;
-        DeckTreeNode deck_tree = 18;
-        SearchCardsOut search_cards = 19;
-        SearchNotesOut search_notes = 20;
-        RenderCardOut render_uncommitted_card = 21;
-        string add_media_file = 26;
-        Empty sync_media = 27;
-        MediaCheckOut check_media = 28;
-        Empty trash_media_files = 29;
-        Empty empty_trash = 34;
-        Empty restore_trash = 35;
-        Empty open_collection = 36;
-        Empty close_collection = 37;
-        GetCardOut get_card = 38;
-        Empty update_card = 39;
-        int64 add_card = 40;
-        bytes get_deck_config = 41;
-        int64 add_or_update_deck_config = 42;
-        bytes all_deck_config = 43;
-        bytes new_deck_config = 44;
-        Empty remove_deck_config = 45;
-        Empty before_upload = 47;
-        bool register_tags = 48;
-        AllTagsOut all_tags = 50;
-        GetChangedTagsOut get_changed_tags = 51;
-        bytes get_config_json = 52;
-        Empty set_config_json = 53;
-        Empty set_all_config = 54;
-        bytes get_all_config = 55;
-        bytes get_changed_notetypes = 56;
-        int64 add_or_update_notetype = 57;
-        bytes get_all_decks = 58;
-        CheckDatabaseOut check_database = 59;
-        bytes get_notetype_legacy = 61;
-        NoteTypeNames get_notetype_names = 62;
-        NoteTypeUseCounts get_notetype_names_and_counts = 63;
-        int64 get_notetype_id_by_name = 64;
-        Empty remove_notetype = 65;
-        Note new_note = 66;
-        int64 add_note = 67;
-        Empty update_note = 68;
-        Note get_note = 69;
-        EmptyCardsReport get_empty_cards = 70;
-        bytes get_deck_legacy = 71;
-        int64 get_deck_id_by_name = 72;
-        DeckNames get_deck_names = 73;
-        int64 add_or_update_deck_legacy = 74;
-        bytes new_deck_legacy = 75;
-        Empty remove_deck = 76;
-        bytes deck_tree_legacy = 77;
-        FieldNamesForNotesOut field_names_for_notes = 78;
-        uint32 find_and_replace = 79;
-        Empty after_note_updates = 80;
-        uint32 add_note_tags = 81;
-        uint32 update_note_tags = 82;
-        Empty set_local_minutes_west = 83;
-        Preferences get_preferences = 84;
-        Empty set_preferences = 85;
-        RenderCardOut render_existing_card = 86;
-        bytes get_stock_notetype_legacy = 60;
-
-        BackendError error = 2047;
-    }
-}
+// Errors
+///////////////////////////////////////////////////////////
 
 message BackendError {
     // localized error description suitable for displaying to the user
@@ -469,6 +485,10 @@ message MediaSyncUploadProgress {
     uint32 files = 1;
     uint32 deletions = 2;
 }
+
+// Messages
+///////////////////////////////////////////////////////////
+
 
 message SchedTimingTodayOut {
     uint32 days_elapsed = 1;
@@ -575,7 +595,7 @@ message SyncMediaIn {
     string endpoint = 2;
 }
 
-message MediaCheckOut {
+message CheckMediaOut {
     repeated string unused = 1;
     repeated string missing = 2;
     string report = 3;
@@ -598,7 +618,7 @@ message TranslateArgValue {
     }
 }
 
-message FormatTimeSpanIn {
+message FormatTimespanIn {
     enum Context {
         PRECISE = 0;
         ANSWER_BUTTONS = 1;
@@ -614,7 +634,7 @@ message StudiedTodayIn {
     double seconds = 2;
 }
 
-message CongratsLearnMsgIn {
+message CongratsLearnMessageIn {
     float next_due = 1;
     uint32 remaining = 2;
 }
@@ -673,16 +693,11 @@ message BuiltinSearchOrder {
     bool reverse = 2;
 }
 
-
-message GetCardOut {
-    Card card = 1;
-}
-
 message CloseCollectionIn {
     bool downgrade_to_schema11 = 1;
 }
 
-message AddOrUpdateDeckConfigIn {
+message AddOrUpdateDeckConfigLegacyIn {
     bytes config = 1;
     bool preserve_usn_and_mtime = 2;
 }
@@ -707,12 +722,9 @@ message GetChangedTagsOut {
     repeated string tags = 1;
 }
 
-message SetConfigJson {
+message SetConfigJsonIn {
     string key = 1;
-    oneof op {
-        bytes val = 2;
-        Empty remove = 3;
-    }
+    bytes value_json = 2;
 }
 
 enum StockNoteType {
@@ -721,6 +733,10 @@ enum StockNoteType {
     STOCK_NOTE_TYPE_BASIC_OPTIONAL_REVERSED = 2;
     STOCK_NOTE_TYPE_BASIC_TYPING = 3;
     STOCK_NOTE_TYPE_CLOZE = 4;
+}
+
+message GetStockNotetypeIn {
+    StockNoteType kind = 1;
 }
 
 message NoteTypeNames {
@@ -849,4 +865,13 @@ message GetDeckNamesIn {
     bool skip_empty_default = 1;
     // if unset, implies skip_empty_default
     bool include_filtered = 2;
+}
+
+message NoteIsDuplicateOrEmptyOut {
+    enum State {
+        NORMAL = 0;
+        EMPTY = 1;
+        DUPLICATE = 2;
+    }
+    State state = 1;
 }

@@ -29,19 +29,79 @@ template_legacy.py file, using the legacy addHook() system.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 import anki
 from anki import hooks
 from anki.cards import Card
+from anki.decks import DeckManager
 from anki.models import NoteType
 from anki.notes import Note
-from anki.rsbackend import PartiallyRenderedCard, TemplateReplacementList
-from anki.sound import AVTag
+from anki.rsbackend import pb, to_json_bytes
+from anki.sound import AVTag, SoundOrVideoTag, TTSTag
 
 CARD_BLANK_HELP = (
     "https://anki.tenderapp.com/kb/card-appearance/the-front-of-this-card-is-blank"
 )
+
+
+@dataclass
+class TemplateReplacement:
+    field_name: str
+    current_text: str
+    filters: List[str]
+
+
+TemplateReplacementList = List[Union[str, TemplateReplacement]]
+
+
+@dataclass
+class PartiallyRenderedCard:
+    qnodes: TemplateReplacementList
+    anodes: TemplateReplacementList
+
+    @classmethod
+    def from_proto(cls, out: pb.RenderCardOut) -> PartiallyRenderedCard:
+        qnodes = cls.nodes_from_proto(out.question_nodes)
+        anodes = cls.nodes_from_proto(out.answer_nodes)
+
+        return PartiallyRenderedCard(qnodes, anodes)
+
+    @staticmethod
+    def nodes_from_proto(
+        nodes: Sequence[pb.RenderedTemplateNode],
+    ) -> TemplateReplacementList:
+        results: TemplateReplacementList = []
+        for node in nodes:
+            if node.WhichOneof("value") == "text":
+                results.append(node.text)
+            else:
+                results.append(
+                    TemplateReplacement(
+                        field_name=node.replacement.field_name,
+                        current_text=node.replacement.current_text,
+                        filters=list(node.replacement.filters),
+                    )
+                )
+        return results
+
+
+def av_tag_to_native(tag: pb.AVTag) -> AVTag:
+    val = tag.WhichOneof("value")
+    if val == "sound_or_video":
+        return SoundOrVideoTag(filename=tag.sound_or_video)
+    else:
+        return TTSTag(
+            field_text=tag.tts.field_text,
+            lang=tag.tts.lang,
+            voices=list(tag.tts.voices),
+            other_args=list(tag.tts.other_args),
+            speed=tag.tts.speed,
+        )
+
+
+def av_tags_to_native(tags: Sequence[pb.AVTag]) -> List[AVTag]:
+    return list(map(av_tag_to_native, tags))
 
 
 class TemplateRenderContext:
@@ -88,6 +148,7 @@ class TemplateRenderContext:
         self._browser = browser
         self._template = template
         self._fill_empty = fill_empty
+        self._fields: Optional[Dict] = None
         if not notetype:
             self._note_type = note.model()
         else:
@@ -100,10 +161,26 @@ class TemplateRenderContext:
     def col(self) -> anki.collection.Collection:
         return self._col
 
-    # legacy
     def fields(self) -> Dict[str, str]:
-        print(".fields() is obsolote, use .note().items()")
-        return dict(self._note.items())
+        print(".fields() is obsolete, use .note() or .card()")
+        if not self._fields:
+            # fields from note
+            fields = dict(self._note.items())
+
+            # add (most) special fields
+            fields["Tags"] = self._note.stringTags().strip()
+            fields["Type"] = self._note_type["name"]
+            fields["Deck"] = self._col.decks.name(self._card.odid or self._card.did)
+            fields["Subdeck"] = DeckManager.basename(fields["Deck"])
+            if self._template:
+                fields["Card"] = self._template["name"]
+            else:
+                fields["Card"] = ""
+            flag = self._card.userFlag()
+            fields["CardFlag"] = flag and f"flag{flag}" or ""
+            self._fields = fields
+
+        return self._fields
 
     def card(self) -> Card:
         """Returns the card being rendered.
@@ -138,16 +215,16 @@ class TemplateRenderContext:
             )
 
         qtext = apply_custom_filters(partial.qnodes, self, front_side=None)
-        qtext, q_avtags = self.col().backend.extract_av_tags(qtext, True)
+        qout = self.col().backend.extract_av_tags(text=qtext, question_side=True)
 
         atext = apply_custom_filters(partial.anodes, self, front_side=qtext)
-        atext, a_avtags = self.col().backend.extract_av_tags(atext, False)
+        aout = self.col().backend.extract_av_tags(text=atext, question_side=False)
 
         output = TemplateRenderOutput(
-            question_text=qtext,
-            answer_text=atext,
-            question_av_tags=q_avtags,
-            answer_av_tags=a_avtags,
+            question_text=qout.text,
+            answer_text=aout.text,
+            question_av_tags=av_tags_to_native(qout.av_tags),
+            answer_av_tags=av_tags_to_native(aout.av_tags),
             css=self.note_type()["css"],
         )
 
@@ -159,15 +236,18 @@ class TemplateRenderContext:
     def _partially_render(self) -> PartiallyRenderedCard:
         if self._template:
             # card layout screen
-            return self._col.backend.render_uncommitted_card(
-                self._note.to_backend_note(),
-                self._card.ord,
-                self._template,
-                self._fill_empty,
+            out = self._col.backend.render_uncommitted_card(
+                note=self._note.to_backend_note(),
+                card_ord=self._card.ord,
+                template=to_json_bytes(self._template),
+                fill_empty=self._fill_empty,
             )
         else:
             # existing card (eg study mode)
-            return self._col.backend.render_existing_card(self._card.id, self._browser)
+            out = self._col.backend.render_existing_card(
+                card_id=self._card.id, browser=self._browser
+            )
+        return PartiallyRenderedCard.from_proto(out)
 
 
 @dataclass

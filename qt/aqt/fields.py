@@ -59,12 +59,19 @@ class FieldDialog(QDialog):
         fieldList = self.form.fieldList
         indicatorPos = fieldList.dropIndicatorPosition()
         dropPos = fieldList.indexAt(ev.pos()).row()
-        if indicatorPos == QAbstractItemView.OnViewport:  # to bottom
-            self.moveField(fieldList.count())
+        idx = self.currentIdx
+        if dropPos == idx:
+            return
+        if indicatorPos == QAbstractItemView.OnViewport:  # to bottom.
+            movePos = fieldList.count() - 1
         elif indicatorPos == QAbstractItemView.AboveItem:
-            self.moveField(dropPos)
+            movePos = dropPos
         elif indicatorPos == QAbstractItemView.BelowItem:
-            self.moveField(dropPos + 1)
+            movePos = dropPos + 1
+        # the item in idx is removed thus subtract 1.
+        if idx < dropPos:
+            movePos -= 1
+        self.moveField(movePos + 1)  # convert to 1 based.
 
     def onRowChange(self, idx):
         if idx == -1:

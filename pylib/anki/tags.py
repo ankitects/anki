@@ -36,7 +36,16 @@ class TagManager:
     def register(
         self, tags: Collection[str], usn: Optional[int] = None, clear=False
     ) -> None:
-        self.col.backend.register_tags(" ".join(tags), usn, clear)
+        if usn is None:
+            preserve_usn = False
+            usn_ = 0
+        else:
+            usn_ = usn
+            preserve_usn = True
+
+        self.col.backend.register_tags(
+            tags=" ".join(tags), preserve_usn=preserve_usn, usn=usn_, clear_first=clear
+        )
 
     def registerNotes(self, nids: Optional[List[int]] = None) -> None:
         "Add any missing tags from notes to the tags list."
@@ -74,14 +83,16 @@ class TagManager:
 
     def bulk_add(self, nids: List[int], tags: str) -> int:
         """Add space-separate tags to provided notes, returning changed count."""
-        return self.col.backend.add_note_tags(nids, tags)
+        return self.col.backend.add_note_tags(nids=nids, tags=tags)
 
     def bulk_update(
         self, nids: List[int], tags: str, replacement: str, regex: bool
     ) -> int:
         """Replace space-separated tags, returning changed count.
         Tags replaced with an empty string will be removed."""
-        return self.col.backend.update_note_tags(nids, tags, replacement, regex)
+        return self.col.backend.update_note_tags(
+            nids=nids, tags=tags, replacement=replacement, regex=regex
+        )
 
     # legacy routines
 

@@ -1,11 +1,15 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+pub use crate::backend_proto::BackendMethod;
 use crate::{
     backend::dbproxy::db_command_bytes,
     backend_proto as pb,
     backend_proto::builtin_search_order::BuiltinSortKind,
-    backend_proto::{AddOrUpdateDeckConfigIn, Empty, RenderedTemplateReplacement, SyncMediaIn},
+    backend_proto::{
+        AddOrUpdateDeckConfigLegacyIn, BackendResult, Empty, RenderedTemplateReplacement,
+        SyncMediaIn,
+    },
     card::{Card, CardID},
     card::{CardQueue, CardType},
     cloze::add_cloze_numbers_in_string,
@@ -37,13 +41,16 @@ use crate::{
 use fluent::FluentValue;
 use futures::future::{AbortHandle, Abortable};
 use log::error;
-use pb::backend_input::Value;
+use pb::BackendService;
 use prost::Message;
 use serde_json::Value as JsonValue;
 use std::collections::{HashMap, HashSet};
 use std::convert::TryFrom;
 use std::path::PathBuf;
-use std::sync::{Arc, Mutex};
+use std::{
+    result,
+    sync::{Arc, Mutex},
+};
 use tokio::runtime::Runtime;
 
 mod dbproxy;
@@ -92,13 +99,6 @@ fn anki_error_to_proto_error(err: AnkiError, i18n: &I18n) -> pb::BackendError {
     }
 }
 
-// Convert an Anki error to a protobuf output.
-impl std::convert::From<pb::BackendError> for pb::backend_output::Value {
-    fn from(err: pb::BackendError) -> Self {
-        pb::backend_output::Value::Error(err)
-    }
-}
-
 impl std::convert::From<NetworkErrorKind> for i32 {
     fn from(e: NetworkErrorKind) -> Self {
         use pb::network_error::NetworkErrorKind as V;
@@ -141,327 +141,73 @@ pub fn init_backend(init_msg: &[u8]) -> std::result::Result<Backend, String> {
     Ok(Backend::new(i18n, input.server))
 }
 
-impl Backend {
-    pub fn new(i18n: I18n, server: bool) -> Backend {
-        Backend {
-            col: Arc::new(Mutex::new(None)),
-            progress_callback: None,
-            i18n,
-            server,
-            media_sync_abort: None,
-        }
+impl From<Vec<u8>> for pb::Json {
+    fn from(json: Vec<u8>) -> Self {
+        pb::Json { json }
     }
+}
 
-    pub fn i18n(&self) -> &I18n {
-        &self.i18n
+impl From<String> for pb::String {
+    fn from(val: String) -> Self {
+        pb::String { val }
     }
+}
 
-    /// Decode a request, process it, and return the encoded result.
-    pub fn run_command_bytes(&mut self, req: &[u8]) -> Vec<u8> {
-        let mut buf = vec![];
-
-        let req = match pb::BackendInput::decode(req) {
-            Ok(req) => req,
-            Err(_e) => {
-                // unable to decode
-                let err = AnkiError::invalid_input("couldn't decode backend request");
-                let oerr = anki_error_to_proto_error(err, &self.i18n);
-                let output = pb::BackendOutput {
-                    value: Some(oerr.into()),
-                };
-                output.encode(&mut buf).expect("encode failed");
-                return buf;
-            }
-        };
-
-        let resp = self.run_command(req);
-        resp.encode(&mut buf).expect("encode failed");
-        buf
+impl From<i64> for pb::Int64 {
+    fn from(val: i64) -> Self {
+        pb::Int64 { val }
     }
+}
 
-    /// If collection is open, run the provided closure while holding
-    /// the mutex.
-    /// If collection is not open, return an error.
-    fn with_col<F, T>(&self, func: F) -> Result<T>
-    where
-        F: FnOnce(&mut Collection) -> Result<T>,
-    {
-        func(
-            self.col
-                .lock()
-                .unwrap()
-                .as_mut()
-                .ok_or(AnkiError::CollectionNotOpen)?,
-        )
+impl From<u32> for pb::UInt32 {
+    fn from(val: u32) -> Self {
+        pb::UInt32 { val }
     }
+}
 
-    fn run_command(&mut self, input: pb::BackendInput) -> pb::BackendOutput {
-        let oval = if let Some(ival) = input.value {
-            match self.run_command_inner(ival) {
-                Ok(output) => output,
-                Err(err) => anki_error_to_proto_error(err, &self.i18n).into(),
-            }
-        } else {
-            anki_error_to_proto_error(
-                AnkiError::invalid_input("unrecognized backend input value"),
-                &self.i18n,
-            )
-            .into()
-        };
-
-        pb::BackendOutput { value: Some(oval) }
+impl From<()> for pb::Empty {
+    fn from(_val: ()) -> Self {
+        pb::Empty {}
     }
+}
 
-    fn run_command_inner(
+impl From<pb::CardId> for CardID {
+    fn from(cid: pb::CardId) -> Self {
+        CardID(cid.cid)
+    }
+}
+
+impl From<pb::NoteId> for NoteID {
+    fn from(nid: pb::NoteId) -> Self {
+        NoteID(nid.nid)
+    }
+}
+
+impl From<pb::NoteTypeId> for NoteTypeID {
+    fn from(ntid: pb::NoteTypeId) -> Self {
+        NoteTypeID(ntid.ntid)
+    }
+}
+
+impl From<pb::DeckId> for DeckID {
+    fn from(did: pb::DeckId) -> Self {
+        DeckID(did.did)
+    }
+}
+
+impl From<pb::DeckConfigId> for DeckConfID {
+    fn from(dcid: pb::DeckConfigId) -> Self {
+        DeckConfID(dcid.dcid)
+    }
+}
+
+impl BackendService for Backend {
+    // card rendering
+
+    fn render_existing_card(
         &mut self,
-        ival: pb::backend_input::Value,
-    ) -> Result<pb::backend_output::Value> {
-        use pb::backend_output::Value as OValue;
-        Ok(match ival {
-            Value::SchedTimingToday(_) => OValue::SchedTimingToday(self.sched_timing_today()?),
-            Value::DeckTree(input) => OValue::DeckTree(self.deck_tree(input)?),
-            Value::LocalMinutesWest(stamp) => {
-                OValue::LocalMinutesWest(local_minutes_west_for_stamp(stamp))
-            }
-            Value::StripAvTags(text) => OValue::StripAvTags(strip_av_tags(&text).into()),
-            Value::ExtractAvTags(input) => OValue::ExtractAvTags(self.extract_av_tags(input)),
-            Value::ExtractLatex(input) => OValue::ExtractLatex(self.extract_latex(input)),
-            Value::AddMediaFile(input) => OValue::AddMediaFile(self.add_media_file(input)?),
-            Value::SyncMedia(input) => {
-                self.sync_media(input)?;
-                OValue::SyncMedia(Empty {})
-            }
-            Value::CheckMedia(_) => OValue::CheckMedia(self.check_media()?),
-            Value::TrashMediaFiles(input) => {
-                self.remove_media_files(&input.fnames)?;
-                OValue::TrashMediaFiles(Empty {})
-            }
-            Value::TranslateString(input) => OValue::TranslateString(self.translate_string(input)),
-            Value::FormatTimeSpan(input) => OValue::FormatTimeSpan(self.format_time_span(input)),
-            Value::StudiedToday(input) => OValue::StudiedToday(studied_today(
-                input.cards as usize,
-                input.seconds as f32,
-                &self.i18n,
-            )),
-            Value::CongratsLearnMsg(input) => OValue::CongratsLearnMsg(learning_congrats(
-                input.remaining as usize,
-                input.next_due,
-                &self.i18n,
-            )),
-            Value::EmptyTrash(_) => {
-                self.empty_trash()?;
-                OValue::EmptyTrash(Empty {})
-            }
-            Value::RestoreTrash(_) => {
-                self.restore_trash()?;
-                OValue::RestoreTrash(Empty {})
-            }
-            Value::OpenCollection(input) => {
-                self.open_collection(input)?;
-                OValue::OpenCollection(Empty {})
-            }
-            Value::CloseCollection(input) => {
-                self.close_collection(input.downgrade_to_schema11)?;
-                OValue::CloseCollection(Empty {})
-            }
-            Value::SearchCards(input) => OValue::SearchCards(self.search_cards(input)?),
-            Value::SearchNotes(input) => OValue::SearchNotes(self.search_notes(input)?),
-            Value::GetCard(cid) => OValue::GetCard(self.get_card(cid)?),
-            Value::UpdateCard(card) => {
-                self.update_card(card)?;
-                OValue::UpdateCard(pb::Empty {})
-            }
-            Value::AddCard(card) => OValue::AddCard(self.add_card(card)?),
-            Value::GetDeckConfig(dcid) => OValue::GetDeckConfig(self.get_deck_config(dcid)?),
-            Value::AddOrUpdateDeckConfig(input) => {
-                OValue::AddOrUpdateDeckConfig(self.add_or_update_deck_config(input)?)
-            }
-            Value::AllDeckConfig(_) => OValue::AllDeckConfig(self.all_deck_config()?),
-            Value::NewDeckConfig(_) => OValue::NewDeckConfig(self.new_deck_config()?),
-            Value::RemoveDeckConfig(dcid) => {
-                self.remove_deck_config(dcid)?;
-                OValue::RemoveDeckConfig(pb::Empty {})
-            }
-            Value::AbortMediaSync(_) => {
-                self.abort_media_sync();
-                OValue::AbortMediaSync(pb::Empty {})
-            }
-            Value::BeforeUpload(_) => {
-                self.before_upload()?;
-                OValue::BeforeUpload(pb::Empty {})
-            }
-            Value::AllTags(_) => OValue::AllTags(self.all_tags()?),
-            Value::RegisterTags(input) => OValue::RegisterTags(self.register_tags(input)?),
-            Value::GetChangedTags(usn) => OValue::GetChangedTags(self.get_changed_tags(usn)?),
-            Value::GetConfigJson(key) => OValue::GetConfigJson(self.get_config_json(&key)?),
-            Value::SetConfigJson(input) => OValue::SetConfigJson({
-                self.set_config_json(input)?;
-                pb::Empty {}
-            }),
-
-            Value::SetAllConfig(input) => OValue::SetConfigJson({
-                self.set_all_config(&input)?;
-                pb::Empty {}
-            }),
-            Value::GetAllConfig(_) => OValue::GetAllConfig(self.get_all_config()?),
-            Value::GetChangedNotetypes(_) => {
-                OValue::GetChangedNotetypes(self.get_changed_notetypes()?)
-            }
-            Value::GetAllDecks(_) => OValue::GetAllDecks(self.get_all_decks()?),
-            Value::GetStockNotetypeLegacy(kind) => {
-                OValue::GetStockNotetypeLegacy(self.get_stock_notetype_legacy(kind)?)
-            }
-            Value::GetNotetypeLegacy(id) => {
-                OValue::GetNotetypeLegacy(self.get_notetype_legacy(id)?)
-            }
-            Value::GetNotetypeNames(_) => OValue::GetNotetypeNames(self.get_notetype_names()?),
-            Value::GetNotetypeNamesAndCounts(_) => {
-                OValue::GetNotetypeNamesAndCounts(self.get_notetype_use_counts()?)
-            }
-
-            Value::GetNotetypeIdByName(name) => {
-                OValue::GetNotetypeIdByName(self.get_notetype_id_by_name(name)?)
-            }
-            Value::AddOrUpdateNotetype(input) => {
-                OValue::AddOrUpdateNotetype(self.add_or_update_notetype_legacy(input)?)
-            }
-            Value::RemoveNotetype(id) => {
-                self.remove_notetype(id)?;
-                OValue::RemoveNotetype(pb::Empty {})
-            }
-            Value::NewNote(ntid) => OValue::NewNote(self.new_note(ntid)?),
-            Value::AddNote(input) => OValue::AddNote(self.add_note(input)?),
-            Value::UpdateNote(note) => {
-                self.update_note(note)?;
-                OValue::UpdateNote(pb::Empty {})
-            }
-            Value::GetNote(nid) => OValue::GetNote(self.get_note(nid)?),
-            Value::GetEmptyCards(_) => OValue::GetEmptyCards(self.get_empty_cards()?),
-            Value::GetDeckLegacy(did) => OValue::GetDeckLegacy(self.get_deck_legacy(did)?),
-            Value::GetDeckIdByName(name) => {
-                OValue::GetDeckIdByName(self.get_deck_id_by_name(&name)?)
-            }
-            Value::GetDeckNames(input) => OValue::GetDeckNames(self.get_deck_names(input)?),
-            Value::AddOrUpdateDeckLegacy(input) => {
-                OValue::AddOrUpdateDeckLegacy(self.add_or_update_deck_legacy(input)?)
-            }
-            Value::NewDeckLegacy(filtered) => {
-                OValue::NewDeckLegacy(self.new_deck_legacy(filtered)?)
-            }
-
-            Value::RemoveDeck(did) => OValue::RemoveDeck({
-                self.remove_deck(did)?;
-                pb::Empty {}
-            }),
-            Value::CheckDatabase(_) => OValue::CheckDatabase(self.check_database()?),
-            Value::DeckTreeLegacy(_) => OValue::DeckTreeLegacy(self.deck_tree_legacy()?),
-            Value::FieldNamesForNotes(input) => {
-                OValue::FieldNamesForNotes(self.field_names_for_notes(input)?)
-            }
-            Value::FindAndReplace(input) => OValue::FindAndReplace(self.find_and_replace(input)?),
-            Value::AfterNoteUpdates(input) => {
-                OValue::AfterNoteUpdates(self.after_note_updates(input)?)
-            }
-            Value::AddNoteTags(input) => OValue::AddNoteTags(self.add_note_tags(input)?),
-            Value::UpdateNoteTags(input) => OValue::UpdateNoteTags(self.update_note_tags(input)?),
-            Value::SetLocalMinutesWest(mins) => OValue::SetLocalMinutesWest({
-                self.set_local_mins_west(mins)?;
-                pb::Empty {}
-            }),
-            Value::GetPreferences(_) => OValue::GetPreferences(self.get_preferences()?),
-            Value::SetPreferences(prefs) => OValue::SetPreferences({
-                self.set_preferences(prefs)?;
-                pb::Empty {}
-            }),
-            Value::RenderExistingCard(input) => {
-                OValue::RenderExistingCard(self.render_existing_card(input)?)
-            }
-            Value::RenderUncommittedCard(input) => {
-                OValue::RenderUncommittedCard(self.render_uncommitted_card(input)?)
-            }
-            Value::ClozeNumbersInNote(note) => {
-                OValue::ClozeNumbersInNote(self.cloze_numbers_in_note(note))
-            }
-        })
-    }
-
-    fn open_collection(&self, input: pb::OpenCollectionIn) -> Result<()> {
-        let mut col = self.col.lock().unwrap();
-        if col.is_some() {
-            return Err(AnkiError::CollectionAlreadyOpen);
-        }
-
-        let mut path = input.collection_path.clone();
-        path.push_str(".log");
-
-        let log_path = match input.log_path.as_str() {
-            "" => None,
-            path => Some(path),
-        };
-        let logger = default_logger(log_path)?;
-
-        let new_col = open_collection(
-            input.collection_path,
-            input.media_folder_path,
-            input.media_db_path,
-            self.server,
-            self.i18n.clone(),
-            logger,
-        )?;
-
-        *col = Some(new_col);
-
-        Ok(())
-    }
-
-    fn close_collection(&self, downgrade: bool) -> Result<()> {
-        let mut col = self.col.lock().unwrap();
-        if col.is_none() {
-            return Err(AnkiError::CollectionNotOpen);
-        }
-
-        if !col.as_ref().unwrap().can_close() {
-            return Err(AnkiError::invalid_input("can't close yet"));
-        }
-
-        let col_inner = col.take().unwrap();
-        if downgrade {
-            let log = log::terminal();
-            if let Err(e) = col_inner.close(downgrade) {
-                error!(log, " failed: {:?}", e);
-            }
-        }
-
-        Ok(())
-    }
-
-    fn fire_progress_callback(&self, progress: Progress) -> bool {
-        if let Some(cb) = &self.progress_callback {
-            let bytes = progress_to_proto_bytes(progress, &self.i18n);
-            cb(bytes)
-        } else {
-            true
-        }
-    }
-
-    pub fn set_progress_callback(&mut self, progress_cb: Option<ProtoProgressCallback>) {
-        self.progress_callback = progress_cb;
-    }
-
-    fn sched_timing_today(&self) -> Result<pb::SchedTimingTodayOut> {
-        self.with_col(|col| col.timing_today().map(Into::into))
-    }
-
-    fn deck_tree(&self, input: pb::DeckTreeIn) -> Result<pb::DeckTreeNode> {
-        let lim = if input.top_deck_id > 0 {
-            Some(DeckID(input.top_deck_id))
-        } else {
-            None
-        };
-        self.with_col(|col| col.deck_tree(input.include_counts, lim))
-    }
-
-    fn render_existing_card(&self, input: pb::RenderExistingCardIn) -> Result<pb::RenderCardOut> {
+        input: pb::RenderExistingCardIn,
+    ) -> BackendResult<pb::RenderCardOut> {
         self.with_col(|col| {
             col.render_existing_card(CardID(input.card_id), input.browser)
                 .map(Into::into)
@@ -469,9 +215,9 @@ impl Backend {
     }
 
     fn render_uncommitted_card(
-        &self,
+        &mut self,
         input: pb::RenderUncommittedCardIn,
-    ) -> Result<pb::RenderCardOut> {
+    ) -> BackendResult<pb::RenderCardOut> {
         let schema11: CardTemplateSchema11 = serde_json::from_slice(&input.template)?;
         let template = schema11.into();
         let mut note = input
@@ -486,7 +232,36 @@ impl Backend {
         })
     }
 
-    fn extract_av_tags(&self, input: pb::ExtractAvTagsIn) -> pb::ExtractAvTagsOut {
+    fn get_empty_cards(&mut self, _input: pb::Empty) -> Result<pb::EmptyCardsReport> {
+        self.with_col(|col| {
+            let mut empty = col.empty_cards()?;
+            let report = col.empty_cards_report(&mut empty)?;
+
+            let mut outnotes = vec![];
+            for (_ntid, notes) in empty {
+                outnotes.extend(notes.into_iter().map(|e| pb::NoteWithEmptyCards {
+                    note_id: e.nid.0,
+                    will_delete_note: e.empty.len() == e.current_count,
+                    card_ids: e.empty.into_iter().map(|(_ord, id)| id.0).collect(),
+                }))
+            }
+            Ok(pb::EmptyCardsReport {
+                report,
+                notes: outnotes,
+            })
+        })
+    }
+
+    fn strip_av_tags(&mut self, input: pb::String) -> BackendResult<pb::String> {
+        Ok(pb::String {
+            val: strip_av_tags(&input.val).into(),
+        })
+    }
+
+    fn extract_av_tags(
+        &mut self,
+        input: pb::ExtractAvTagsIn,
+    ) -> BackendResult<pb::ExtractAvTagsOut> {
         let (text, tags) = extract_av_tags(&input.text, input.question_side);
         let pt_tags = tags
             .into_iter()
@@ -512,13 +287,13 @@ impl Backend {
             })
             .collect();
 
-        pb::ExtractAvTagsOut {
+        Ok(pb::ExtractAvTagsOut {
             text: text.into(),
             av_tags: pt_tags,
-        }
+        })
     }
 
-    fn extract_latex(&self, input: pb::ExtractLatexIn) -> pb::ExtractLatexOut {
+    fn extract_latex(&mut self, input: pb::ExtractLatexIn) -> BackendResult<pb::ExtractLatexOut> {
         let func = if input.expand_clozes {
             extract_latex_expanding_clozes
         } else {
@@ -526,7 +301,7 @@ impl Backend {
         };
         let (text, extracted) = func(&input.text, input.svg);
 
-        pb::ExtractLatexOut {
+        Ok(pb::ExtractLatexOut {
             text,
             latex: extracted
                 .into_iter()
@@ -535,20 +310,619 @@ impl Backend {
                     latex_body: e.latex,
                 })
                 .collect(),
-        }
+        })
     }
 
-    fn add_media_file(&mut self, input: pb::AddMediaFileIn) -> Result<String> {
+    // searching
+    //-----------------------------------------------
+
+    fn search_cards(&mut self, input: pb::SearchCardsIn) -> Result<pb::SearchCardsOut> {
+        self.with_col(|col| {
+            let order = if let Some(order) = input.order {
+                use pb::sort_order::Value as V;
+                match order.value {
+                    Some(V::None(_)) => SortMode::NoOrder,
+                    Some(V::Custom(s)) => SortMode::Custom(s),
+                    Some(V::FromConfig(_)) => SortMode::FromConfig,
+                    Some(V::Builtin(b)) => SortMode::Builtin {
+                        kind: sort_kind_from_pb(b.kind),
+                        reverse: b.reverse,
+                    },
+                    None => SortMode::FromConfig,
+                }
+            } else {
+                SortMode::FromConfig
+            };
+            let cids = col.search_cards(&input.search, order)?;
+            Ok(pb::SearchCardsOut {
+                card_ids: cids.into_iter().map(|v| v.0).collect(),
+            })
+        })
+    }
+
+    fn search_notes(&mut self, input: pb::SearchNotesIn) -> Result<pb::SearchNotesOut> {
+        self.with_col(|col| {
+            let nids = col.search_notes(&input.search)?;
+            Ok(pb::SearchNotesOut {
+                note_ids: nids.into_iter().map(|v| v.0).collect(),
+            })
+        })
+    }
+
+    fn find_and_replace(&mut self, input: pb::FindAndReplaceIn) -> BackendResult<pb::UInt32> {
+        let mut search = if input.regex {
+            input.search
+        } else {
+            regex::escape(&input.search)
+        };
+        if !input.match_case {
+            search = format!("(?i){}", search);
+        }
+        let nids = input.nids.into_iter().map(NoteID).collect();
+        let field_name = if input.field_name.is_empty() {
+            None
+        } else {
+            Some(input.field_name)
+        };
+        let repl = input.replacement;
+        self.with_col(|col| {
+            col.find_and_replace(nids, &search, &repl, field_name)
+                .map(|cnt| pb::UInt32 { val: cnt as u32 })
+        })
+    }
+
+    // scheduling
+    //-----------------------------------------------
+
+    fn sched_timing_today(&mut self, _input: pb::Empty) -> Result<pb::SchedTimingTodayOut> {
+        self.with_col(|col| col.timing_today().map(Into::into))
+    }
+
+    fn local_minutes_west(&mut self, input: pb::Int64) -> BackendResult<pb::Int32> {
+        Ok(pb::Int32 {
+            val: local_minutes_west_for_stamp(input.val),
+        })
+    }
+
+    fn set_local_minutes_west(&mut self, input: pb::Int32) -> BackendResult<Empty> {
+        self.with_col(|col| {
+            col.transact(None, |col| {
+                col.set_local_mins_west(input.val).map(Into::into)
+            })
+        })
+    }
+
+    fn studied_today(&mut self, input: pb::StudiedTodayIn) -> BackendResult<pb::String> {
+        Ok(studied_today(input.cards as usize, input.seconds as f32, &self.i18n).into())
+    }
+
+    fn congrats_learn_message(
+        &mut self,
+        input: pb::CongratsLearnMessageIn,
+    ) -> BackendResult<pb::String> {
+        Ok(learning_congrats(input.remaining as usize, input.next_due, &self.i18n).into())
+    }
+
+    // decks
+    //-----------------------------------------------
+
+    fn deck_tree(&mut self, input: pb::DeckTreeIn) -> Result<pb::DeckTreeNode> {
+        let lim = if input.top_deck_id > 0 {
+            Some(DeckID(input.top_deck_id))
+        } else {
+            None
+        };
+        self.with_col(|col| col.deck_tree(input.include_counts, lim))
+    }
+
+    fn deck_tree_legacy(&mut self, _input: pb::Empty) -> BackendResult<pb::Json> {
+        self.with_col(|col| {
+            let tree = col.legacy_deck_tree()?;
+            serde_json::to_vec(&tree)
+                .map_err(Into::into)
+                .map(Into::into)
+        })
+    }
+
+    fn get_deck_legacy(&mut self, input: pb::DeckId) -> Result<pb::Json> {
+        self.with_col(|col| {
+            let deck: DeckSchema11 = col
+                .storage
+                .get_deck(input.into())?
+                .ok_or(AnkiError::NotFound)?
+                .into();
+            serde_json::to_vec(&deck)
+                .map_err(Into::into)
+                .map(Into::into)
+        })
+    }
+
+    fn get_deck_id_by_name(&mut self, input: pb::String) -> Result<pb::DeckId> {
+        self.with_col(|col| {
+            col.get_deck_id(&input.val).and_then(|d| {
+                d.ok_or(AnkiError::NotFound)
+                    .map(|d| pb::DeckId { did: d.0 })
+            })
+        })
+    }
+
+    fn get_all_decks_legacy(&mut self, _input: Empty) -> BackendResult<pb::Json> {
+        self.with_col(|col| {
+            let decks = col.storage.get_all_decks_as_schema11()?;
+            serde_json::to_vec(&decks).map_err(Into::into)
+        })
+        .map(Into::into)
+    }
+
+    fn get_deck_names(&mut self, input: pb::GetDeckNamesIn) -> Result<pb::DeckNames> {
+        self.with_col(|col| {
+            let names = if input.include_filtered {
+                col.get_all_deck_names(input.skip_empty_default)?
+            } else {
+                col.get_all_normal_deck_names()?
+            };
+            Ok(pb::DeckNames {
+                entries: names
+                    .into_iter()
+                    .map(|(id, name)| pb::DeckNameId { id: id.0, name })
+                    .collect(),
+            })
+        })
+    }
+
+    fn add_or_update_deck_legacy(
+        &mut self,
+        input: pb::AddOrUpdateDeckLegacyIn,
+    ) -> Result<pb::DeckId> {
+        self.with_col(|col| {
+            let schema11: DeckSchema11 = serde_json::from_slice(&input.deck)?;
+            let mut deck: Deck = schema11.into();
+            if input.preserve_usn_and_mtime {
+                col.transact(None, |col| {
+                    let usn = col.usn()?;
+                    col.add_or_update_single_deck(&mut deck, usn)
+                })?;
+            } else {
+                col.add_or_update_deck(&mut deck)?;
+            }
+            Ok(pb::DeckId { did: deck.id.0 })
+        })
+    }
+
+    fn new_deck_legacy(&mut self, input: pb::Bool) -> BackendResult<pb::Json> {
+        let deck = if input.val {
+            Deck::new_filtered()
+        } else {
+            Deck::new_normal()
+        };
+        let schema11: DeckSchema11 = deck.into();
+        serde_json::to_vec(&schema11)
+            .map_err(Into::into)
+            .map(Into::into)
+    }
+
+    fn remove_deck(&mut self, input: pb::DeckId) -> BackendResult<Empty> {
+        self.with_col(|col| col.remove_deck_and_child_decks(input.into()))
+            .map(Into::into)
+    }
+
+    // deck config
+    //----------------------------------------------------
+
+    fn add_or_update_deck_config_legacy(
+        &mut self,
+        input: AddOrUpdateDeckConfigLegacyIn,
+    ) -> BackendResult<pb::DeckConfigId> {
+        let conf: DeckConfSchema11 = serde_json::from_slice(&input.config)?;
+        let mut conf: DeckConf = conf.into();
+        self.with_col(|col| {
+            col.transact(None, |col| {
+                col.add_or_update_deck_config(&mut conf, input.preserve_usn_and_mtime)?;
+                Ok(pb::DeckConfigId { dcid: conf.id.0 })
+            })
+        })
+        .map(Into::into)
+    }
+
+    fn all_deck_config_legacy(&mut self, _input: Empty) -> BackendResult<pb::Json> {
+        self.with_col(|col| {
+            let conf: Vec<DeckConfSchema11> = col
+                .storage
+                .all_deck_config()?
+                .into_iter()
+                .map(Into::into)
+                .collect();
+            serde_json::to_vec(&conf).map_err(Into::into)
+        })
+        .map(Into::into)
+    }
+
+    fn new_deck_config_legacy(&mut self, _input: Empty) -> BackendResult<pb::Json> {
+        serde_json::to_vec(&DeckConfSchema11::default())
+            .map_err(Into::into)
+            .map(Into::into)
+    }
+
+    fn remove_deck_config(&mut self, input: pb::DeckConfigId) -> BackendResult<Empty> {
+        self.with_col(|col| col.transact(None, |col| col.remove_deck_config(input.into())))
+            .map(Into::into)
+    }
+
+    fn get_deck_config_legacy(&mut self, input: pb::DeckConfigId) -> BackendResult<pb::Json> {
+        self.with_col(|col| {
+            let conf = col.get_deck_config(input.into(), true)?.unwrap();
+            let conf: DeckConfSchema11 = conf.into();
+            Ok(serde_json::to_vec(&conf)?)
+        })
+        .map(Into::into)
+    }
+
+    // cards
+    //-------------------------------------------------------------------
+
+    fn get_card(&mut self, input: pb::CardId) -> BackendResult<pb::Card> {
+        self.with_col(|col| {
+            col.storage
+                .get_card(input.into())
+                .and_then(|opt| opt.ok_or(AnkiError::NotFound))
+                .map(card_to_pb)
+        })
+    }
+
+    fn update_card(&mut self, input: pb::Card) -> BackendResult<Empty> {
+        let mut card = pbcard_to_native(input)?;
+        self.with_col(|col| {
+            col.transact(None, |ctx| {
+                let orig = ctx
+                    .storage
+                    .get_card(card.id)?
+                    .ok_or_else(|| AnkiError::invalid_input("missing card"))?;
+                ctx.update_card(&mut card, &orig)
+            })
+        })
+        .map(Into::into)
+    }
+
+    fn add_card(&mut self, input: pb::Card) -> BackendResult<pb::CardId> {
+        let mut card = pbcard_to_native(input)?;
+        self.with_col(|col| col.transact(None, |ctx| ctx.add_card(&mut card)))?;
+        Ok(pb::CardId { cid: card.id.0 })
+    }
+
+    // notes
+    //-------------------------------------------------------------------
+
+    fn new_note(&mut self, input: pb::NoteTypeId) -> BackendResult<pb::Note> {
+        self.with_col(|col| {
+            let nt = col.get_notetype(input.into())?.ok_or(AnkiError::NotFound)?;
+            Ok(nt.new_note().into())
+        })
+    }
+
+    fn add_note(&mut self, input: pb::AddNoteIn) -> BackendResult<pb::NoteId> {
+        self.with_col(|col| {
+            let mut note: Note = input.note.ok_or(AnkiError::NotFound)?.into();
+            col.add_note(&mut note, DeckID(input.deck_id))
+                .map(|_| pb::NoteId { nid: note.id.0 })
+        })
+    }
+
+    fn update_note(&mut self, input: pb::Note) -> BackendResult<Empty> {
+        self.with_col(|col| {
+            let mut note: Note = input.into();
+            col.update_note(&mut note)
+        })
+        .map(Into::into)
+    }
+
+    fn get_note(&mut self, input: pb::NoteId) -> BackendResult<pb::Note> {
+        self.with_col(|col| {
+            col.storage
+                .get_note(input.into())?
+                .ok_or(AnkiError::NotFound)
+                .map(Into::into)
+        })
+    }
+
+    fn add_note_tags(&mut self, input: pb::AddNoteTagsIn) -> BackendResult<pb::UInt32> {
+        self.with_col(|col| {
+            col.add_tags_for_notes(&to_nids(input.nids), &input.tags)
+                .map(|n| n as u32)
+        })
+        .map(Into::into)
+    }
+
+    fn update_note_tags(&mut self, input: pb::UpdateNoteTagsIn) -> BackendResult<pb::UInt32> {
+        self.with_col(|col| {
+            col.replace_tags_for_notes(
+                &to_nids(input.nids),
+                &input.tags,
+                &input.replacement,
+                input.regex,
+            )
+            .map(|n| (n as u32).into())
+        })
+    }
+
+    fn cloze_numbers_in_note(
+        &mut self,
+        note: pb::Note,
+    ) -> BackendResult<pb::ClozeNumbersInNoteOut> {
+        let mut set = HashSet::with_capacity(4);
+        for field in &note.fields {
+            add_cloze_numbers_in_string(field, &mut set);
+        }
+        Ok(pb::ClozeNumbersInNoteOut {
+            numbers: set.into_iter().map(|n| n as u32).collect(),
+        })
+    }
+
+    fn field_names_for_notes(
+        &mut self,
+        input: pb::FieldNamesForNotesIn,
+    ) -> BackendResult<pb::FieldNamesForNotesOut> {
+        self.with_col(|col| {
+            let nids: Vec<_> = input.nids.into_iter().map(NoteID).collect();
+            col.storage
+                .field_names_for_notes(&nids)
+                .map(|fields| pb::FieldNamesForNotesOut { fields })
+        })
+    }
+
+    fn after_note_updates(&mut self, input: pb::AfterNoteUpdatesIn) -> BackendResult<Empty> {
+        self.with_col(|col| {
+            col.transact(None, |col| {
+                col.after_note_updates(
+                    &to_nids(input.nids),
+                    input.generate_cards,
+                    input.mark_notes_modified,
+                )?;
+                Ok(pb::Empty {})
+            })
+        })
+    }
+
+    fn note_is_duplicate_or_empty(
+        &mut self,
+        input: pb::Note,
+    ) -> BackendResult<pb::NoteIsDuplicateOrEmptyOut> {
+        let note: Note = input.into();
+        self.with_col(|col| {
+            col.note_is_duplicate_or_empty(&note)
+                .map(|r| pb::NoteIsDuplicateOrEmptyOut { state: r as i32 })
+        })
+    }
+
+    // notetypes
+    //-------------------------------------------------------------------
+
+    fn get_stock_notetype_legacy(
+        &mut self,
+        input: pb::GetStockNotetypeIn,
+    ) -> BackendResult<pb::Json> {
+        // fixme: use individual functions instead of full vec
+        let mut all = all_stock_notetypes(&self.i18n);
+        let idx = (input.kind as usize).min(all.len() - 1);
+        let nt = all.swap_remove(idx);
+        let schema11: NoteTypeSchema11 = nt.into();
+        serde_json::to_vec(&schema11)
+            .map_err(Into::into)
+            .map(Into::into)
+    }
+
+    fn get_notetype_names(&mut self, _input: Empty) -> BackendResult<pb::NoteTypeNames> {
+        self.with_col(|col| {
+            let entries: Vec<_> = col
+                .storage
+                .get_all_notetype_names()?
+                .into_iter()
+                .map(|(id, name)| pb::NoteTypeNameId { id: id.0, name })
+                .collect();
+            Ok(pb::NoteTypeNames { entries })
+        })
+    }
+
+    fn get_notetype_names_and_counts(
+        &mut self,
+        _input: Empty,
+    ) -> BackendResult<pb::NoteTypeUseCounts> {
+        self.with_col(|col| {
+            let entries: Vec<_> = col
+                .storage
+                .get_notetype_use_counts()?
+                .into_iter()
+                .map(|(id, name, use_count)| pb::NoteTypeNameIdUseCount {
+                    id: id.0,
+                    name,
+                    use_count,
+                })
+                .collect();
+            Ok(pb::NoteTypeUseCounts { entries })
+        })
+    }
+
+    fn get_notetype_legacy(&mut self, input: pb::NoteTypeId) -> BackendResult<pb::Json> {
+        self.with_col(|col| {
+            let schema11: NoteTypeSchema11 = col
+                .storage
+                .get_notetype(input.into())?
+                .ok_or(AnkiError::NotFound)?
+                .into();
+            Ok(serde_json::to_vec(&schema11)?).map(Into::into)
+        })
+    }
+
+    fn get_notetype_id_by_name(&mut self, input: pb::String) -> BackendResult<pb::NoteTypeId> {
+        self.with_col(|col| {
+            col.storage
+                .get_notetype_id(&input.val)
+                .and_then(|nt| nt.ok_or(AnkiError::NotFound))
+                .map(|ntid| pb::NoteTypeId { ntid: ntid.0 })
+        })
+    }
+
+    fn add_or_update_notetype(
+        &mut self,
+        input: pb::AddOrUpdateNotetypeIn,
+    ) -> BackendResult<pb::NoteTypeId> {
+        self.with_col(|col| {
+            let legacy: NoteTypeSchema11 = serde_json::from_slice(&input.json)?;
+            let mut nt: NoteType = legacy.into();
+            if nt.id.0 == 0 {
+                col.add_notetype(&mut nt)?;
+            } else {
+                col.update_notetype(&mut nt, input.preserve_usn_and_mtime)?;
+            }
+            Ok(pb::NoteTypeId { ntid: nt.id.0 })
+        })
+    }
+
+    fn remove_notetype(&mut self, input: pb::NoteTypeId) -> BackendResult<Empty> {
+        self.with_col(|col| col.remove_notetype(input.into()))
+            .map(Into::into)
+    }
+
+    // media
+    //-------------------------------------------------------------------
+
+    fn add_media_file(&mut self, input: pb::AddMediaFileIn) -> BackendResult<pb::String> {
         self.with_col(|col| {
             let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
             let mut ctx = mgr.dbctx();
             Ok(mgr
                 .add_file(&mut ctx, &input.desired_name, &input.data)?
+                .to_string()
                 .into())
         })
     }
 
-    fn sync_media(&mut self, input: SyncMediaIn) -> Result<()> {
+    fn empty_trash(&mut self, _input: Empty) -> BackendResult<Empty> {
+        let callback =
+            |progress: usize| self.fire_progress_callback(Progress::MediaCheck(progress as u32));
+
+        self.with_col(|col| {
+            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
+            col.transact(None, |ctx| {
+                let mut checker = MediaChecker::new(ctx, &mgr, callback);
+
+                checker.empty_trash()
+            })
+        })
+        .map(Into::into)
+    }
+
+    fn restore_trash(&mut self, _input: Empty) -> BackendResult<Empty> {
+        let callback =
+            |progress: usize| self.fire_progress_callback(Progress::MediaCheck(progress as u32));
+
+        self.with_col(|col| {
+            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
+
+            col.transact(None, |ctx| {
+                let mut checker = MediaChecker::new(ctx, &mgr, callback);
+
+                checker.restore_trash()
+            })
+        })
+        .map(Into::into)
+    }
+
+    fn trash_media_files(&mut self, input: pb::TrashMediaFilesIn) -> BackendResult<Empty> {
+        self.with_col(|col| {
+            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
+            let mut ctx = mgr.dbctx();
+            mgr.remove_files(&mut ctx, &input.fnames)
+        })
+        .map(Into::into)
+    }
+
+    fn check_media(&mut self, _input: pb::Empty) -> Result<pb::CheckMediaOut> {
+        let callback =
+            |progress: usize| self.fire_progress_callback(Progress::MediaCheck(progress as u32));
+
+        self.with_col(|col| {
+            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
+            col.transact(None, |ctx| {
+                let mut checker = MediaChecker::new(ctx, &mgr, callback);
+                let mut output = checker.check()?;
+
+                let report = checker.summarize_output(&mut output);
+
+                Ok(pb::CheckMediaOut {
+                    unused: output.unused,
+                    missing: output.missing,
+                    report,
+                    have_trash: output.trash_count > 0,
+                })
+            })
+        })
+    }
+
+    // collection
+    //-------------------------------------------------------------------
+
+    fn check_database(&mut self, _input: pb::Empty) -> BackendResult<pb::CheckDatabaseOut> {
+        self.with_col(|col| {
+            col.check_database().map(|problems| pb::CheckDatabaseOut {
+                problems: problems.to_i18n_strings(&col.i18n),
+            })
+        })
+    }
+
+    fn open_collection(&mut self, input: pb::OpenCollectionIn) -> BackendResult<Empty> {
+        let mut col = self.col.lock().unwrap();
+        if col.is_some() {
+            return Err(AnkiError::CollectionAlreadyOpen);
+        }
+
+        let mut path = input.collection_path.clone();
+        path.push_str(".log");
+
+        let log_path = match input.log_path.as_str() {
+            "" => None,
+            path => Some(path),
+        };
+        let logger = default_logger(log_path)?;
+
+        let new_col = open_collection(
+            input.collection_path,
+            input.media_folder_path,
+            input.media_db_path,
+            self.server,
+            self.i18n.clone(),
+            logger,
+        )?;
+
+        *col = Some(new_col);
+
+        Ok(().into())
+    }
+
+    fn close_collection(&mut self, input: pb::CloseCollectionIn) -> BackendResult<Empty> {
+        let mut col = self.col.lock().unwrap();
+        if col.is_none() {
+            return Err(AnkiError::CollectionNotOpen);
+        }
+
+        if !col.as_ref().unwrap().can_close() {
+            return Err(AnkiError::invalid_input("can't close yet"));
+        }
+
+        let col_inner = col.take().unwrap();
+        if input.downgrade_to_schema11 {
+            let log = log::terminal();
+            if let Err(e) = col_inner.close(input.downgrade_to_schema11) {
+                error!(log, " failed: {:?}", e);
+            }
+        }
+
+        Ok(().into())
+    }
+
+    // sync
+    //-------------------------------------------------------------------
+
+    fn sync_media(&mut self, input: SyncMediaIn) -> BackendResult<Empty> {
         let mut guard = self.col.lock().unwrap();
 
         let col = guard.as_mut().unwrap();
@@ -564,7 +938,203 @@ impl Backend {
 
         self.with_col(|col| col.set_media_sync_finished())?;
 
-        res
+        res.map(Into::into)
+    }
+
+    fn abort_media_sync(&mut self, _input: Empty) -> BackendResult<Empty> {
+        if let Some(handle) = self.media_sync_abort.take() {
+            handle.abort();
+        }
+        Ok(().into())
+    }
+
+    fn before_upload(&mut self, _input: Empty) -> BackendResult<Empty> {
+        self.with_col(|col| col.before_upload().map(Into::into))
+    }
+
+    // i18n/messages
+    //-------------------------------------------------------------------
+
+    fn translate_string(&mut self, input: pb::TranslateStringIn) -> BackendResult<pb::String> {
+        let key = match pb::FluentString::from_i32(input.key) {
+            Some(key) => key,
+            None => return Ok("invalid key".to_string().into()),
+        };
+
+        let map = input
+            .args
+            .iter()
+            .map(|(k, v)| (k.as_str(), translate_arg_to_fluent_val(&v)))
+            .collect();
+
+        Ok(self.i18n.trn(key, map).into())
+    }
+
+    fn format_timespan(&mut self, input: pb::FormatTimespanIn) -> BackendResult<pb::String> {
+        let context = match pb::format_timespan_in::Context::from_i32(input.context) {
+            Some(context) => context,
+            None => return Ok("".to_string().into()),
+        };
+        Ok(match context {
+            pb::format_timespan_in::Context::Precise => time_span(input.seconds, &self.i18n, true),
+            pb::format_timespan_in::Context::Intervals => {
+                time_span(input.seconds, &self.i18n, false)
+            }
+            pb::format_timespan_in::Context::AnswerButtons => {
+                answer_button_time(input.seconds, &self.i18n)
+            }
+        }
+        .into())
+    }
+
+    // tags
+    //-------------------------------------------------------------------
+
+    fn all_tags(&mut self, _input: Empty) -> BackendResult<pb::AllTagsOut> {
+        let tags = self.with_col(|col| col.storage.all_tags())?;
+        let tags: Vec<_> = tags
+            .into_iter()
+            .map(|(tag, usn)| pb::TagUsnTuple { tag, usn: usn.0 })
+            .collect();
+        Ok(pb::AllTagsOut { tags })
+    }
+
+    fn register_tags(&mut self, input: pb::RegisterTagsIn) -> BackendResult<pb::Bool> {
+        self.with_col(|col| {
+            col.transact(None, |col| {
+                let usn = if input.preserve_usn {
+                    Usn(input.usn)
+                } else {
+                    col.usn()?
+                };
+                col.register_tags(&input.tags, usn, input.clear_first)
+                    .map(|val| pb::Bool { val })
+            })
+        })
+    }
+
+    fn get_changed_tags(&mut self, input: pb::Int32) -> BackendResult<pb::GetChangedTagsOut> {
+        self.with_col(|col| {
+            col.transact(None, |col| {
+                Ok(pb::GetChangedTagsOut {
+                    tags: col.storage.get_changed_tags(Usn(input.val))?,
+                })
+            })
+        })
+    }
+
+    // config/preferences
+    //-------------------------------------------------------------------
+
+    fn get_config_json(&mut self, input: pb::String) -> BackendResult<pb::Json> {
+        self.with_col(|col| {
+            let val: Option<JsonValue> = col.get_config_optional(input.val.as_str());
+            val.ok_or(AnkiError::NotFound)
+                .and_then(|v| serde_json::to_vec(&v).map_err(Into::into))
+                .map(Into::into)
+        })
+    }
+
+    fn set_config_json(&mut self, input: pb::SetConfigJsonIn) -> BackendResult<Empty> {
+        self.with_col(|col| {
+            col.transact(None, |col| {
+                // ensure it's a well-formed object
+                let val: JsonValue = serde_json::from_slice(&input.value_json)?;
+                col.set_config(input.key.as_str(), &val)
+            })
+        })
+        .map(Into::into)
+    }
+
+    fn remove_config(&mut self, input: pb::String) -> BackendResult<Empty> {
+        self.with_col(|col| col.transact(None, |col| col.remove_config(input.val.as_str())))
+            .map(Into::into)
+    }
+
+    fn set_all_config(&mut self, input: pb::Json) -> BackendResult<Empty> {
+        let val: HashMap<String, JsonValue> = serde_json::from_slice(&input.json)?;
+        self.with_col(|col| {
+            col.transact(None, |col| {
+                col.storage
+                    .set_all_config(val, col.usn()?, TimestampSecs::now())
+            })
+        })
+        .map(Into::into)
+    }
+
+    fn get_all_config(&mut self, _input: Empty) -> BackendResult<pb::Json> {
+        self.with_col(|col| {
+            let conf = col.storage.get_all_config()?;
+            serde_json::to_vec(&conf).map_err(Into::into)
+        })
+        .map(Into::into)
+    }
+
+    fn get_preferences(&mut self, _input: Empty) -> BackendResult<pb::Preferences> {
+        self.with_col(|col| col.get_preferences())
+    }
+
+    fn set_preferences(&mut self, input: pb::Preferences) -> BackendResult<Empty> {
+        self.with_col(|col| col.transact(None, |col| col.set_preferences(input)))
+            .map(Into::into)
+    }
+}
+
+impl Backend {
+    pub fn new(i18n: I18n, server: bool) -> Backend {
+        Backend {
+            col: Arc::new(Mutex::new(None)),
+            progress_callback: None,
+            i18n,
+            server,
+            media_sync_abort: None,
+        }
+    }
+
+    pub fn i18n(&self) -> &I18n {
+        &self.i18n
+    }
+
+    pub fn run_command_bytes(
+        &mut self,
+        method: u32,
+        input: &[u8],
+    ) -> result::Result<Vec<u8>, Vec<u8>> {
+        self.run_command_bytes2_inner(method, input).map_err(|err| {
+            let backend_err = anki_error_to_proto_error(err, &self.i18n);
+            let mut bytes = Vec::new();
+            backend_err.encode(&mut bytes).unwrap();
+            bytes
+        })
+    }
+
+    /// If collection is open, run the provided closure while holding
+    /// the mutex.
+    /// If collection is not open, return an error.
+    fn with_col<F, T>(&self, func: F) -> Result<T>
+    where
+        F: FnOnce(&mut Collection) -> Result<T>,
+    {
+        func(
+            self.col
+                .lock()
+                .unwrap()
+                .as_mut()
+                .ok_or(AnkiError::CollectionNotOpen)?,
+        )
+    }
+
+    fn fire_progress_callback(&self, progress: Progress) -> bool {
+        if let Some(cb) = &self.progress_callback {
+            let bytes = progress_to_proto_bytes(progress, &self.i18n);
+            cb(bytes)
+        } else {
+            true
+        }
+    }
+
+    pub fn set_progress_callback(&mut self, progress_cb: Option<ProtoProgressCallback>) {
+        self.progress_callback = progress_cb;
     }
 
     fn sync_media_inner(
@@ -596,592 +1166,8 @@ impl Backend {
         ret
     }
 
-    fn abort_media_sync(&mut self) {
-        if let Some(handle) = self.media_sync_abort.take() {
-            handle.abort();
-        }
-    }
-
-    fn check_media(&self) -> Result<pb::MediaCheckOut> {
-        let callback =
-            |progress: usize| self.fire_progress_callback(Progress::MediaCheck(progress as u32));
-
-        self.with_col(|col| {
-            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
-            col.transact(None, |ctx| {
-                let mut checker = MediaChecker::new(ctx, &mgr, callback);
-                let mut output = checker.check()?;
-
-                let report = checker.summarize_output(&mut output);
-
-                Ok(pb::MediaCheckOut {
-                    unused: output.unused,
-                    missing: output.missing,
-                    report,
-                    have_trash: output.trash_count > 0,
-                })
-            })
-        })
-    }
-
-    fn remove_media_files(&self, fnames: &[String]) -> Result<()> {
-        self.with_col(|col| {
-            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
-            let mut ctx = mgr.dbctx();
-            mgr.remove_files(&mut ctx, fnames)
-        })
-    }
-
-    fn translate_string(&self, input: pb::TranslateStringIn) -> String {
-        let key = match pb::FluentString::from_i32(input.key) {
-            Some(key) => key,
-            None => return "invalid key".to_string(),
-        };
-
-        let map = input
-            .args
-            .iter()
-            .map(|(k, v)| (k.as_str(), translate_arg_to_fluent_val(&v)))
-            .collect();
-
-        self.i18n.trn(key, map)
-    }
-
-    fn format_time_span(&self, input: pb::FormatTimeSpanIn) -> String {
-        let context = match pb::format_time_span_in::Context::from_i32(input.context) {
-            Some(context) => context,
-            None => return "".to_string(),
-        };
-        match context {
-            pb::format_time_span_in::Context::Precise => time_span(input.seconds, &self.i18n, true),
-            pb::format_time_span_in::Context::Intervals => {
-                time_span(input.seconds, &self.i18n, false)
-            }
-            pb::format_time_span_in::Context::AnswerButtons => {
-                answer_button_time(input.seconds, &self.i18n)
-            }
-        }
-    }
-
-    fn empty_trash(&self) -> Result<()> {
-        let callback =
-            |progress: usize| self.fire_progress_callback(Progress::MediaCheck(progress as u32));
-
-        self.with_col(|col| {
-            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
-            col.transact(None, |ctx| {
-                let mut checker = MediaChecker::new(ctx, &mgr, callback);
-
-                checker.empty_trash()
-            })
-        })
-    }
-
-    fn restore_trash(&self) -> Result<()> {
-        let callback =
-            |progress: usize| self.fire_progress_callback(Progress::MediaCheck(progress as u32));
-
-        self.with_col(|col| {
-            let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
-
-            col.transact(None, |ctx| {
-                let mut checker = MediaChecker::new(ctx, &mgr, callback);
-
-                checker.restore_trash()
-            })
-        })
-    }
-
     pub fn db_command(&self, input: &[u8]) -> Result<String> {
         self.with_col(|col| db_command_bytes(&col.storage, input))
-    }
-
-    fn search_cards(&self, input: pb::SearchCardsIn) -> Result<pb::SearchCardsOut> {
-        self.with_col(|col| {
-            let order = if let Some(order) = input.order {
-                use pb::sort_order::Value as V;
-                match order.value {
-                    Some(V::None(_)) => SortMode::NoOrder,
-                    Some(V::Custom(s)) => SortMode::Custom(s),
-                    Some(V::FromConfig(_)) => SortMode::FromConfig,
-                    Some(V::Builtin(b)) => SortMode::Builtin {
-                        kind: sort_kind_from_pb(b.kind),
-                        reverse: b.reverse,
-                    },
-                    None => SortMode::FromConfig,
-                }
-            } else {
-                SortMode::FromConfig
-            };
-            let cids = col.search_cards(&input.search, order)?;
-            Ok(pb::SearchCardsOut {
-                card_ids: cids.into_iter().map(|v| v.0).collect(),
-            })
-        })
-    }
-
-    fn search_notes(&self, input: pb::SearchNotesIn) -> Result<pb::SearchNotesOut> {
-        self.with_col(|col| {
-            let nids = col.search_notes(&input.search)?;
-            Ok(pb::SearchNotesOut {
-                note_ids: nids.into_iter().map(|v| v.0).collect(),
-            })
-        })
-    }
-
-    fn get_card(&self, cid: i64) -> Result<pb::GetCardOut> {
-        let card = self.with_col(|col| col.storage.get_card(CardID(cid)))?;
-        Ok(pb::GetCardOut {
-            card: card.map(card_to_pb),
-        })
-    }
-
-    fn update_card(&self, pbcard: pb::Card) -> Result<()> {
-        let mut card = pbcard_to_native(pbcard)?;
-        self.with_col(|col| {
-            col.transact(None, |ctx| {
-                let orig = ctx
-                    .storage
-                    .get_card(card.id)?
-                    .ok_or_else(|| AnkiError::invalid_input("missing card"))?;
-                ctx.update_card(&mut card, &orig)
-            })
-        })
-    }
-
-    fn add_card(&self, pbcard: pb::Card) -> Result<i64> {
-        let mut card = pbcard_to_native(pbcard)?;
-        self.with_col(|col| col.transact(None, |ctx| ctx.add_card(&mut card)))?;
-        Ok(card.id.0)
-    }
-
-    fn get_deck_config(&self, dcid: i64) -> Result<Vec<u8>> {
-        self.with_col(|col| {
-            let conf = col.get_deck_config(DeckConfID(dcid), true)?.unwrap();
-            let conf: DeckConfSchema11 = conf.into();
-            Ok(serde_json::to_vec(&conf)?)
-        })
-    }
-
-    fn add_or_update_deck_config(&self, input: AddOrUpdateDeckConfigIn) -> Result<i64> {
-        let conf: DeckConfSchema11 = serde_json::from_slice(&input.config)?;
-        let mut conf: DeckConf = conf.into();
-        self.with_col(|col| {
-            col.transact(None, |col| {
-                col.add_or_update_deck_config(&mut conf, input.preserve_usn_and_mtime)?;
-                Ok(conf.id.0)
-            })
-        })
-    }
-
-    fn all_deck_config(&self) -> Result<Vec<u8>> {
-        self.with_col(|col| {
-            let conf: Vec<DeckConfSchema11> = col
-                .storage
-                .all_deck_config()?
-                .into_iter()
-                .map(Into::into)
-                .collect();
-            serde_json::to_vec(&conf).map_err(Into::into)
-        })
-    }
-
-    fn new_deck_config(&self) -> Result<Vec<u8>> {
-        serde_json::to_vec(&DeckConfSchema11::default()).map_err(Into::into)
-    }
-
-    fn remove_deck_config(&self, dcid: i64) -> Result<()> {
-        self.with_col(|col| col.transact(None, |col| col.remove_deck_config(DeckConfID(dcid))))
-    }
-
-    fn before_upload(&self) -> Result<()> {
-        self.with_col(|col| col.before_upload())
-    }
-
-    fn all_tags(&self) -> Result<pb::AllTagsOut> {
-        let tags = self.with_col(|col| col.storage.all_tags())?;
-        let tags: Vec<_> = tags
-            .into_iter()
-            .map(|(tag, usn)| pb::TagUsnTuple { tag, usn: usn.0 })
-            .collect();
-        Ok(pb::AllTagsOut { tags })
-    }
-
-    fn register_tags(&self, input: pb::RegisterTagsIn) -> Result<bool> {
-        self.with_col(|col| {
-            col.transact(None, |col| {
-                let usn = if input.preserve_usn {
-                    Usn(input.usn)
-                } else {
-                    col.usn()?
-                };
-                col.register_tags(&input.tags, usn, input.clear_first)
-            })
-        })
-    }
-
-    fn get_changed_tags(&self, usn: i32) -> Result<pb::GetChangedTagsOut> {
-        self.with_col(|col| {
-            col.transact(None, |col| {
-                Ok(pb::GetChangedTagsOut {
-                    tags: col.storage.get_changed_tags(Usn(usn))?,
-                })
-            })
-        })
-    }
-
-    fn get_config_json(&self, key: &str) -> Result<Vec<u8>> {
-        self.with_col(|col| {
-            let val: Option<JsonValue> = col.get_config_optional(key);
-            match val {
-                None => Ok(vec![]),
-                Some(val) => Ok(serde_json::to_vec(&val)?),
-            }
-        })
-    }
-
-    fn set_config_json(&self, input: pb::SetConfigJson) -> Result<()> {
-        self.with_col(|col| {
-            col.transact(None, |col| {
-                if let Some(op) = input.op {
-                    match op {
-                        pb::set_config_json::Op::Val(val) => {
-                            // ensure it's a well-formed object
-                            let val: JsonValue = serde_json::from_slice(&val)?;
-                            col.set_config(input.key.as_str(), &val)
-                        }
-                        pb::set_config_json::Op::Remove(_) => col.remove_config(input.key.as_str()),
-                    }
-                } else {
-                    Err(AnkiError::invalid_input("no op received"))
-                }
-            })
-        })
-    }
-
-    fn set_all_config(&self, conf: &[u8]) -> Result<()> {
-        let val: HashMap<String, JsonValue> = serde_json::from_slice(conf)?;
-        self.with_col(|col| {
-            col.transact(None, |col| {
-                col.storage
-                    .set_all_config(val, col.usn()?, TimestampSecs::now())
-            })
-        })
-    }
-
-    fn get_all_config(&self) -> Result<Vec<u8>> {
-        self.with_col(|col| {
-            let conf = col.storage.get_all_config()?;
-            serde_json::to_vec(&conf).map_err(Into::into)
-        })
-    }
-
-    fn get_changed_notetypes(&self) -> Result<Vec<u8>> {
-        todo!("filter by usn");
-        // self.with_col(|col| {
-        //     let nts = col.storage.get_all_notetypes_as_schema11()?;
-        //     serde_json::to_vec(&nts).map_err(Into::into)
-        // })
-    }
-
-    fn get_all_decks(&self) -> Result<Vec<u8>> {
-        self.with_col(|col| {
-            let decks = col.storage.get_all_decks_as_schema11()?;
-            serde_json::to_vec(&decks).map_err(Into::into)
-        })
-    }
-
-    fn get_notetype_names(&self) -> Result<pb::NoteTypeNames> {
-        self.with_col(|col| {
-            let entries: Vec<_> = col
-                .storage
-                .get_all_notetype_names()?
-                .into_iter()
-                .map(|(id, name)| pb::NoteTypeNameId { id: id.0, name })
-                .collect();
-            Ok(pb::NoteTypeNames { entries })
-        })
-    }
-
-    fn get_notetype_use_counts(&self) -> Result<pb::NoteTypeUseCounts> {
-        self.with_col(|col| {
-            let entries: Vec<_> = col
-                .storage
-                .get_notetype_use_counts()?
-                .into_iter()
-                .map(|(id, name, use_count)| pb::NoteTypeNameIdUseCount {
-                    id: id.0,
-                    name,
-                    use_count,
-                })
-                .collect();
-            Ok(pb::NoteTypeUseCounts { entries })
-        })
-    }
-
-    fn get_notetype_legacy(&self, id: i64) -> Result<Vec<u8>> {
-        self.with_col(|col| {
-            let schema11: NoteTypeSchema11 = col
-                .storage
-                .get_notetype(NoteTypeID(id))?
-                .ok_or(AnkiError::NotFound)?
-                .into();
-            Ok(serde_json::to_vec(&schema11)?)
-        })
-    }
-
-    fn get_notetype_id_by_name(&self, name: String) -> Result<i64> {
-        self.with_col(|col| {
-            col.storage
-                .get_notetype_id(&name)
-                .map(|nt| nt.unwrap_or(NoteTypeID(0)).0)
-        })
-    }
-
-    fn add_or_update_notetype_legacy(&self, input: pb::AddOrUpdateNotetypeIn) -> Result<i64> {
-        self.with_col(|col| {
-            let legacy: NoteTypeSchema11 = serde_json::from_slice(&input.json)?;
-            let mut nt: NoteType = legacy.into();
-            if nt.id.0 == 0 {
-                col.add_notetype(&mut nt)?;
-            } else {
-                col.update_notetype(&mut nt, input.preserve_usn_and_mtime)?;
-            }
-            Ok(nt.id.0)
-        })
-    }
-
-    fn remove_notetype(&self, id: i64) -> Result<()> {
-        self.with_col(|col| col.remove_notetype(NoteTypeID(id)))
-    }
-
-    fn new_note(&self, ntid: i64) -> Result<pb::Note> {
-        self.with_col(|col| {
-            let nt = col
-                .get_notetype(NoteTypeID(ntid))?
-                .ok_or(AnkiError::NotFound)?;
-            Ok(nt.new_note().into())
-        })
-    }
-
-    fn add_note(&self, input: pb::AddNoteIn) -> Result<i64> {
-        self.with_col(|col| {
-            let mut note: Note = input.note.ok_or(AnkiError::NotFound)?.into();
-            col.add_note(&mut note, DeckID(input.deck_id))
-                .map(|_| note.id.0)
-        })
-    }
-
-    fn update_note(&self, pbnote: pb::Note) -> Result<()> {
-        self.with_col(|col| {
-            let mut note: Note = pbnote.into();
-            col.update_note(&mut note)
-        })
-    }
-
-    fn get_note(&self, nid: i64) -> Result<pb::Note> {
-        self.with_col(|col| {
-            col.storage
-                .get_note(NoteID(nid))?
-                .ok_or(AnkiError::NotFound)
-                .map(Into::into)
-        })
-    }
-
-    fn get_empty_cards(&self) -> Result<pb::EmptyCardsReport> {
-        self.with_col(|col| {
-            let mut empty = col.empty_cards()?;
-            let report = col.empty_cards_report(&mut empty)?;
-
-            let mut outnotes = vec![];
-            for (_ntid, notes) in empty {
-                outnotes.extend(notes.into_iter().map(|e| pb::NoteWithEmptyCards {
-                    note_id: e.nid.0,
-                    will_delete_note: e.empty.len() == e.current_count,
-                    card_ids: e.empty.into_iter().map(|(_ord, id)| id.0).collect(),
-                }))
-            }
-            Ok(pb::EmptyCardsReport {
-                report,
-                notes: outnotes,
-            })
-        })
-    }
-
-    fn get_deck_legacy(&self, did: i64) -> Result<Vec<u8>> {
-        self.with_col(|col| {
-            let deck: DeckSchema11 = col
-                .storage
-                .get_deck(DeckID(did))?
-                .ok_or(AnkiError::NotFound)?
-                .into();
-            serde_json::to_vec(&deck).map_err(Into::into)
-        })
-    }
-
-    fn get_deck_id_by_name(&self, human_name: &str) -> Result<i64> {
-        self.with_col(|col| {
-            col.get_deck_id(human_name)
-                .map(|d| d.map(|d| d.0).unwrap_or_default())
-        })
-    }
-
-    fn get_deck_names(&self, input: pb::GetDeckNamesIn) -> Result<pb::DeckNames> {
-        self.with_col(|col| {
-            let names = if input.include_filtered {
-                col.get_all_deck_names(input.skip_empty_default)?
-            } else {
-                col.get_all_normal_deck_names()?
-            };
-            Ok(pb::DeckNames {
-                entries: names
-                    .into_iter()
-                    .map(|(id, name)| pb::DeckNameId { id: id.0, name })
-                    .collect(),
-            })
-        })
-    }
-
-    fn add_or_update_deck_legacy(&self, input: pb::AddOrUpdateDeckLegacyIn) -> Result<i64> {
-        self.with_col(|col| {
-            let schema11: DeckSchema11 = serde_json::from_slice(&input.deck)?;
-            let mut deck: Deck = schema11.into();
-            if input.preserve_usn_and_mtime {
-                col.transact(None, |col| {
-                    let usn = col.usn()?;
-                    col.add_or_update_single_deck(&mut deck, usn)
-                })?;
-            } else {
-                col.add_or_update_deck(&mut deck)?;
-            }
-            Ok(deck.id.0)
-        })
-    }
-
-    fn new_deck_legacy(&self, filtered: bool) -> Result<Vec<u8>> {
-        let deck = if filtered {
-            Deck::new_filtered()
-        } else {
-            Deck::new_normal()
-        };
-        let schema11: DeckSchema11 = deck.into();
-        serde_json::to_vec(&schema11).map_err(Into::into)
-    }
-
-    fn remove_deck(&self, did: i64) -> Result<()> {
-        self.with_col(|col| col.remove_deck_and_child_decks(DeckID(did)))
-    }
-
-    fn check_database(&self) -> Result<pb::CheckDatabaseOut> {
-        self.with_col(|col| {
-            col.check_database().map(|problems| pb::CheckDatabaseOut {
-                problems: problems.to_i18n_strings(&col.i18n),
-            })
-        })
-    }
-
-    fn deck_tree_legacy(&self) -> Result<Vec<u8>> {
-        self.with_col(|col| {
-            let tree = col.legacy_deck_tree()?;
-            serde_json::to_vec(&tree).map_err(Into::into)
-        })
-    }
-
-    fn field_names_for_notes(
-        &self,
-        input: pb::FieldNamesForNotesIn,
-    ) -> Result<pb::FieldNamesForNotesOut> {
-        self.with_col(|col| {
-            let nids: Vec<_> = input.nids.into_iter().map(NoteID).collect();
-            col.storage
-                .field_names_for_notes(&nids)
-                .map(|fields| pb::FieldNamesForNotesOut { fields })
-        })
-    }
-
-    fn find_and_replace(&self, input: pb::FindAndReplaceIn) -> Result<u32> {
-        let mut search = if input.regex {
-            input.search
-        } else {
-            regex::escape(&input.search)
-        };
-        if !input.match_case {
-            search = format!("(?i){}", search);
-        }
-        let nids = input.nids.into_iter().map(NoteID).collect();
-        let field_name = if input.field_name.is_empty() {
-            None
-        } else {
-            Some(input.field_name)
-        };
-        let repl = input.replacement;
-        self.with_col(|col| {
-            col.find_and_replace(nids, &search, &repl, field_name)
-                .map(|cnt| cnt as u32)
-        })
-    }
-
-    fn after_note_updates(&self, input: pb::AfterNoteUpdatesIn) -> Result<pb::Empty> {
-        self.with_col(|col| {
-            col.transact(None, |col| {
-                col.after_note_updates(
-                    &to_nids(input.nids),
-                    input.generate_cards,
-                    input.mark_notes_modified,
-                )?;
-                Ok(pb::Empty {})
-            })
-        })
-    }
-
-    fn add_note_tags(&self, input: pb::AddNoteTagsIn) -> Result<u32> {
-        self.with_col(|col| {
-            col.add_tags_for_notes(&to_nids(input.nids), &input.tags)
-                .map(|n| n as u32)
-        })
-    }
-
-    fn update_note_tags(&self, input: pb::UpdateNoteTagsIn) -> Result<u32> {
-        self.with_col(|col| {
-            col.replace_tags_for_notes(
-                &to_nids(input.nids),
-                &input.tags,
-                &input.replacement,
-                input.regex,
-            )
-            .map(|n| n as u32)
-        })
-    }
-
-    fn set_local_mins_west(&self, mins: i32) -> Result<()> {
-        self.with_col(|col| col.transact(None, |col| col.set_local_mins_west(mins)))
-    }
-
-    fn get_preferences(&self) -> Result<pb::Preferences> {
-        self.with_col(|col| col.get_preferences())
-    }
-
-    fn set_preferences(&self, prefs: pb::Preferences) -> Result<()> {
-        self.with_col(|col| col.transact(None, |col| col.set_preferences(prefs)))
-    }
-
-    fn cloze_numbers_in_note(&self, note: pb::Note) -> pb::ClozeNumbersInNoteOut {
-        let mut set = HashSet::with_capacity(4);
-        for field in &note.fields {
-            add_cloze_numbers_in_string(field, &mut set);
-        }
-        pb::ClozeNumbersInNoteOut {
-            numbers: set.into_iter().map(|n| n as u32).collect(),
-        }
-    }
-
-    fn get_stock_notetype_legacy(&self, kind: i32) -> Result<Vec<u8>> {
-        // fixme: use individual functions instead of full vec
-        let mut all = all_stock_notetypes(&self.i18n);
-        let idx = (kind as usize).min(all.len() - 1);
-        let nt = all.swap_remove(idx);
-        let schema11: NoteTypeSchema11 = nt.into();
-        serde_json::to_vec(&schema11).map_err(Into::into)
     }
 }
 

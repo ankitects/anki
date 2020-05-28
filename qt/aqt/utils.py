@@ -8,15 +8,18 @@ import os
 import re
 import subprocess
 import sys
-from typing import Any, Optional, Union
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 import anki
 import aqt
 from anki.lang import _
-from anki.rsbackend import TR
+from anki.rsbackend import TR  # pylint: disable=unused-import
 from anki.utils import invalidFilename, isMac, isWin, noBundledLibs, versionWithBuild
 from aqt.qt import *
 from aqt.theme import theme_manager
+
+if TYPE_CHECKING:
+    from anki.rsbackend import TRValue
 
 
 def aqt_data_folder() -> str:
@@ -32,7 +35,7 @@ def locale_dir() -> str:
     return os.path.join(aqt_data_folder(), "locale")
 
 
-def tr(key: TR, **kwargs: Union[str, int, float]) -> str:
+def tr(key: TRValue, **kwargs: Union[str, int, float]) -> str:
     "Shortcut to access Fluent translations."
     return anki.lang.current_i18n.translate(key, **kwargs)
 

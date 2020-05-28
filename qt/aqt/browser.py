@@ -14,7 +14,6 @@ from typing import Callable, List, Optional, Sequence, Union
 import anki
 import aqt
 import aqt.forms
-from anki import hooks
 from anki.cards import Card
 from anki.collection import Collection
 from anki.consts import *
@@ -177,7 +176,7 @@ class DataModel(QAbstractTableModel):
             ctx = SearchContext(search=txt)
             gui_hooks.browser_will_search(ctx)
             if ctx.card_ids is None:
-                ctx.card_ids = self.col.find_cards(txt, order=ctx.order)
+                ctx.card_ids = self.col.find_cards(ctx.search, order=ctx.order)
             gui_hooks.browser_did_search(ctx)
             self.cards = ctx.card_ids
         except Exception as e:
@@ -324,7 +323,7 @@ class DataModel(QAbstractTableModel):
                 return _("(new)")
             elif c.type == CARD_TYPE_LRN:
                 return _("(learning)")
-            return self.col.backend.format_time_span(c.ivl * 86400)
+            return self.col.format_timespan(c.ivl * 86400)
         elif type == "cardEase":
             if c.type == CARD_TYPE_NEW:
                 return _("(new)")
@@ -1492,7 +1491,7 @@ border: 1px solid #000; padding: 3px; '>%s</div>"""
 
             s += ("<td align=right>%s</td>" * 2) % (
                 "%d%%" % (factor / 10) if factor else "",
-                self.col.backend.format_time_span(taken),
+                self.col.format_timespan(taken),
             ) + "</tr>"
         s += "</table>"
         if cnt < self.card.reps:
@@ -1879,8 +1878,8 @@ update cards set usn=?, mod=?, did=? where id in """
         gui_hooks.editor_did_fire_typing_timer.append(self.refreshCurrentCard)
         gui_hooks.editor_did_load_note.append(self.onLoadNote)
         gui_hooks.editor_did_unfocus_field.append(self.on_unfocus_field)
-        hooks.note_type_added.append(self.on_item_added)
-        hooks.deck_added.append(self.on_item_added)
+        gui_hooks.sidebar_should_refresh_decks.append(self.on_item_added)
+        gui_hooks.sidebar_should_refresh_notetypes.append(self.on_item_added)
 
     def teardownHooks(self) -> None:
         gui_hooks.undo_state_did_change.remove(self.onUndoState)
@@ -1888,14 +1887,14 @@ update cards set usn=?, mod=?, did=? where id in """
         gui_hooks.editor_did_fire_typing_timer.remove(self.refreshCurrentCard)
         gui_hooks.editor_did_load_note.remove(self.onLoadNote)
         gui_hooks.editor_did_unfocus_field.remove(self.on_unfocus_field)
-        hooks.note_type_added.remove(self.on_item_added)
-        hooks.deck_added.remove(self.on_item_added)
+        gui_hooks.sidebar_should_refresh_decks.remove(self.on_item_added)
+        gui_hooks.sidebar_should_refresh_notetypes.remove(self.on_item_added)
 
     def on_unfocus_field(self, changed: bool, note: Note, field_idx: int) -> None:
         self.refreshCurrentCard(note)
 
     # covers the tag, note and deck case
-    def on_item_added(self, item: Any) -> None:
+    def on_item_added(self, item: Any = None) -> None:
         self.maybeRefreshSidebar()
 
     def on_tag_list_update(self):

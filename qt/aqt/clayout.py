@@ -216,6 +216,7 @@ class CardLayout(QDialog):
 
         self.current_editor_index = 0
         self.tform.edit_area.setAcceptRichText(False)
+        self.tform.edit_area.setFont(QFont("Courier"))
         if qtminor < 10:
             self.tform.edit_area.setTabStopWidth(30)
         else:
@@ -269,7 +270,8 @@ class CardLayout(QDialog):
             cursor = editor.textCursor()
             cursor.movePosition(QTextCursor.Start)
             editor.setTextCursor(cursor)
-            editor.find(text)
+            if not editor.find(text):
+                tooltip("No matches found.")
 
     def on_search_next(self):
         text = self.tform.search_edit.text()
@@ -307,7 +309,7 @@ class CardLayout(QDialog):
             )
 
         if self._isCloze():
-            nums = self.note.cloze_numbers_in_fields()
+            nums = list(self.note.cloze_numbers_in_fields())
             if self.ord + 1 not in nums:
                 # current card is empty
                 nums.append(self.ord + 1)
@@ -751,8 +753,9 @@ Enter deck to place new %s cards in, or leave blank:"""
                 showWarning("Unable to save changes: " + str(e))
                 return
             self.mw.reset()
-            tooltip("Changes saved.", parent=self.mw)
+            tooltip("Changes saved.", parent=self.parent())
             self.cleanup()
+            gui_hooks.sidebar_should_refresh_notetypes()
             return QDialog.accept(self)
 
         self.mw.taskman.with_progress(save, on_done)

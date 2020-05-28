@@ -1,6 +1,6 @@
 wheel
 mypy
-mypy_protobuf
+mypy_protobuf>=1.21
 black
 pytest
 # fixme: when isort 5.0 is released, switch to pypi

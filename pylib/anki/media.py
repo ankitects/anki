@@ -15,7 +15,7 @@ from typing import Any, Callable, List, Optional, Tuple
 import anki
 from anki.consts import *
 from anki.latex import render_latex, render_latex_returning_errors
-from anki.rsbackend import MediaCheckOutput
+from anki.rsbackend import pb
 from anki.utils import intTime
 
 
@@ -96,7 +96,7 @@ class MediaManager:
         """Write the file to the media folder, renaming if not unique.
 
         Returns possibly-renamed filename."""
-        return self.col.backend.add_file_to_media_folder(desired_fname, data)
+        return self.col.backend.add_media_file(desired_name=desired_fname, data=data)
 
     def add_extension_based_on_mime(self, fname: str, content_type: str) -> str:
         "If jpg or png mime, add .png/.jpg if missing extension."
@@ -170,7 +170,7 @@ class MediaManager:
     # Checking media
     ##########################################################################
 
-    def check(self) -> MediaCheckOutput:
+    def check(self) -> pb.CheckMediaOut:
         output = self.col.backend.check_media()
         # files may have been renamed on disk, so an undo at this point could
         # break file references

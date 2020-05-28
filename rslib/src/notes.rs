@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use crate::backend_proto::note_is_duplicate_or_empty_out::State as DuplicateState;
 use crate::{
     backend_proto as pb,
     collection::Collection,
@@ -381,6 +382,28 @@ impl Collection {
         }
 
         Ok(changed_notes)
+    }
+
+    pub(crate) fn note_is_duplicate_or_empty(&self, note: &Note) -> Result<DuplicateState> {
+        if let Some(field1) = note.fields.get(0) {
+            let stripped = strip_html_preserving_image_filenames(field1);
+            if stripped.trim().is_empty() {
+                Ok(DuplicateState::Empty)
+            } else {
+                let csum = field_checksum(&stripped);
+                for field in self
+                    .storage
+                    .note_fields_by_checksum(note.id, note.ntid, csum)?
+                {
+                    if strip_html_preserving_image_filenames(&field) == stripped {
+                        return Ok(DuplicateState::Duplicate);
+                    }
+                }
+                Ok(DuplicateState::Normal)
+            }
+        } else {
+            Ok(DuplicateState::Empty)
+        }
     }
 }
 

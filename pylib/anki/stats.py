@@ -52,9 +52,7 @@ class CardStats:
             if next:
                 self.addLine(self.col.tr(TR.STATISTICS_DUE_DATE), next)
             if c.queue == QUEUE_TYPE_REV:
-                self.addLine(
-                    _("Interval"), self.col.backend.format_time_span(c.ivl * 86400)
-                )
+                self.addLine(_("Interval"), self.col.format_timespan(c.ivl * 86400))
             self.addLine(_("Ease"), "%d%%" % (c.factor / 10.0))
             self.addLine(_("Reviews"), "%d" % c.reps)
             self.addLine(_("Lapses"), "%d" % c.lapses)
@@ -86,9 +84,7 @@ class CardStats:
         return time.strftime("%Y-%m-%d", time.localtime(tm))
 
     def time(self, tm: float) -> str:
-        return self.col.backend.format_time_span(
-            tm, context=FormatTimeSpanContext.PRECISE
-        )
+        return self.col.format_timespan(tm, context=FormatTimeSpanContext.PRECISE)
 
 
 # Collection stats
@@ -181,7 +177,7 @@ from revlog where id > ? """
             return "<b>" + str(s) + "</b>"
 
         if cards:
-            b += self.col.backend.studied_today(cards, float(thetime))
+            b += self.col.backend.studied_today(cards=cards, seconds=float(thetime))
             # again/pass count
             b += "<br>" + _("Again count: %s") % bold(failed)
             if cards:
@@ -645,12 +641,8 @@ group by day order by day)"""
             ),
         )
         i: List[str] = []
-        self._line(
-            i, _("Average interval"), self.col.backend.format_time_span(avg * 86400)
-        )
-        self._line(
-            i, _("Longest interval"), self.col.backend.format_time_span(max_ * 86400)
-        )
+        self._line(i, _("Average interval"), self.col.format_timespan(avg * 86400))
+        self._line(i, _("Longest interval"), self.col.format_timespan(max_ * 86400))
         return txt + self._lineTbl(i)
 
     def _ivls(self) -> Tuple[List[Any], int]:

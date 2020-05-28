@@ -2,6 +2,7 @@
 import time
 
 from anki.consts import MODEL_CLOZE
+from anki.rsbackend import NotFoundError
 from anki.utils import isWin, stripHTML
 from tests.shared import getEmptyCol
 
@@ -323,7 +324,7 @@ def test_modelChange():
     try:
         c1.load()
         assert 0
-    except AssertionError:
+    except NotFoundError:
         pass
     # but we have two cards, as a new one was generated
     assert len(f.cards()) == 2

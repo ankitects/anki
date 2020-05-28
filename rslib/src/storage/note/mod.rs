@@ -4,6 +4,7 @@
 use crate::{
     err::Result,
     notes::{Note, NoteID},
+    notetype::NoteTypeID,
     tags::{join_tags, split_tags},
     timestamp::TimestampMillis,
 };
@@ -94,5 +95,19 @@ impl super::SqliteStorage {
             .prepare("update notes set usn = 0 where usn = -1")?
             .execute(NO_PARAMS)?;
         Ok(())
+    }
+
+    /// Returns the first field of other notes with the same checksum.
+    /// The field of the provided note ID is not returned.
+    pub(crate) fn note_fields_by_checksum(
+        &self,
+        nid: NoteID,
+        ntid: NoteTypeID,
+        csum: u32,
+    ) -> Result<Vec<String>> {
+        self.db
+            .prepare("select field_at_index(flds, 0) from notes where csum=? and mid=? and id !=?")?
+            .query_and_then(params![csum, ntid, nid], |r| r.get(0).map_err(Into::into))?
+            .collect()
     }
 }

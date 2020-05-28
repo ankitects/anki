@@ -6,13 +6,14 @@ from __future__ import annotations
 import html
 import os
 import re
+from dataclasses import dataclass
 from typing import Any, List, Optional, Tuple
 
 import anki
 from anki import hooks
 from anki.lang import _
 from anki.models import NoteType
-from anki.rsbackend import ExtractedLatex
+from anki.rsbackend import pb
 from anki.template import TemplateRenderContext, TemplateRenderOutput
 from anki.utils import call, isMac, namedtmp, tmpdir
 
@@ -31,6 +32,28 @@ build = True  # if off, use existing media but don't create new
 # add standard tex install location to osx
 if isMac:
     os.environ["PATH"] += ":/usr/texbin:/Library/TeX/texbin"
+
+
+@dataclass
+class ExtractedLatex:
+    filename: str
+    latex_body: str
+
+
+@dataclass
+class ExtractedLatexOutput:
+    html: str
+    latex: List[ExtractedLatex]
+
+    @staticmethod
+    def from_proto(proto: pb.ExtractLatexOut) -> ExtractedLatexOutput:
+        return ExtractedLatexOutput(
+            html=proto.text,
+            latex=[
+                ExtractedLatex(filename=l.filename, latex_body=l.latex_body)
+                for l in proto.latex
+            ],
+        )
 
 
 def on_card_did_render(
@@ -63,7 +86,8 @@ def render_latex_returning_errors(
     header = model["latexPre"]
     footer = model["latexPost"]
 
-    out = col.backend.extract_latex(html, svg, expand_clozes)
+    proto = col.backend.extract_latex(text=html, svg=svg, expand_clozes=expand_clozes)
+    out = ExtractedLatexOutput.from_proto(proto)
     errors = []
     html = out.html
 

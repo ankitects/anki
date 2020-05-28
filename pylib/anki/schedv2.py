@@ -219,7 +219,7 @@ order by due"""
         print(
             "deckDueTree() is deprecated; use decks.deck_tree() for a tree without counts, or sched.deck_due_tree()"
         )
-        return self.col.backend.legacy_deck_tree()
+        return self.col.backend.deck_tree_legacy()
 
     def deck_due_tree(self, top_deck_id: int = 0) -> DeckTreeNode:
         """Returns a tree of decks with counts.
@@ -1276,7 +1276,9 @@ from cards where did in {dids} and queue = {QUEUE_TYPE_LRN}
         remaining = remaining or 0
         if next and next < self.dayCutoff:
             next -= intTime() - self.col.conf["collapseTime"]
-            return self.col.backend.learning_congrats_msg(abs(next), remaining)
+            return self.col.backend.congrats_learn_message(
+                next_due=abs(next), remaining=remaining
+            )
         else:
             return ""
 
@@ -1375,9 +1377,7 @@ To study outside of the normal schedule, click the Custom Study button below."""
         ivl_secs = self.nextIvl(card, ease)
         if not ivl_secs:
             return _("(end)")
-        s = self.col.backend.format_time_span(
-            ivl_secs, FormatTimeSpanContext.ANSWER_BUTTONS
-        )
+        s = self.col.format_timespan(ivl_secs, FormatTimeSpanContext.ANSWER_BUTTONS)
         if ivl_secs < self.col.conf["collapseTime"]:
             s = "<" + s
         return s
