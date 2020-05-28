@@ -305,7 +305,11 @@ impl SyncDriver<'_> {
     // the large deck trees and note types some users would create. They should be chunked
     // in the future, like other objects. Syncing tags explicitly is also probably of limited
     // usefulness.
-    async fn process_unchunked_changes(&self, remote_usn: Usn, local_is_newer: bool) -> Result<()> {
+    async fn process_unchunked_changes(
+        &mut self,
+        remote_usn: Usn,
+        local_is_newer: bool,
+    ) -> Result<()> {
         let local_changes = self
             .col
             .local_unchunked_changes(remote_usn, local_is_newer)?;
@@ -481,7 +485,7 @@ impl Collection {
     // Remote->local unchunked changes
     //----------------------------------------------------------------
 
-    fn apply_changes(&self, remote: UnchunkedChanges, remote_usn: Usn) -> Result<()> {
+    fn apply_changes(&mut self, remote: UnchunkedChanges, remote_usn: Usn) -> Result<()> {
         self.merge_notetypes(remote.notetypes)?;
         self.merge_decks(remote.decks_and_config.decks)?;
         self.merge_deck_config(remote.decks_and_config.config)?;
@@ -497,7 +501,7 @@ impl Collection {
         Ok(())
     }
 
-    fn merge_notetypes(&self, notetypes: Vec<NoteTypeSchema11>) -> Result<()> {
+    fn merge_notetypes(&mut self, notetypes: Vec<NoteTypeSchema11>) -> Result<()> {
         for mut nt in notetypes {
             let nt: NoteType = nt.into();
             let proceed = if let Some(existing_nt) = self.storage.get_notetype(nt.id)? {
@@ -519,12 +523,13 @@ impl Collection {
             };
             if proceed {
                 self.storage.add_or_update_notetype(&nt)?;
+                self.state.notetype_cache.remove(&nt.id);
             }
         }
         Ok(())
     }
 
-    fn merge_decks(&self, decks: Vec<DeckSchema11>) -> Result<()> {
+    fn merge_decks(&mut self, decks: Vec<DeckSchema11>) -> Result<()> {
         for mut deck in decks {
             let proceed = if let Some(existing_deck) = self.storage.get_deck(deck.id())? {
                 existing_deck.mtime_secs < deck.common().mtime
@@ -534,6 +539,7 @@ impl Collection {
             if proceed {
                 let deck = deck.into();
                 self.storage.add_or_update_deck(&deck)?;
+                self.state.deck_cache.remove(&deck.id);
             }
         }
         Ok(())
