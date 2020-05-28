@@ -361,6 +361,7 @@ def importFile(mw, file):
         mw.progress.start(immediate=True)
         try:
             importer.open()
+            mw.progress.finish()
             diag = ImportDialog(mw, importer)
         except UnicodeDecodeError:
             mw.progress.finish()
@@ -377,7 +378,6 @@ def importFile(mw, file):
                 showText(msg)
             return
         finally:
-            mw.progress.finish()
             importer.close()
     else:
         # if it's an apkg/zip, first test it's a valid file
