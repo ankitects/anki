@@ -30,7 +30,7 @@ class TagManager:
     def __repr__(self) -> str:
         d = dict(self.__dict__)
         del d["col"]
-        return pprint.pformat(d, width=300)
+        return f"{super().__repr__()} {pprint.pformat(d, width=300)}"
 
     # # List of (tag, usn)
     def allItems(self) -> List[Tuple[str, int]]:

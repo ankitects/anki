@@ -64,7 +64,7 @@ class MediaManager:
     def __repr__(self) -> str:
         d = dict(self.__dict__)
         del d["col"]
-        return pprint.pformat(d, width=300)
+        return f"{super().__repr__()} {pprint.pformat(d, width=300)}"
 
     def connect(self) -> None:
         if self.col.server:

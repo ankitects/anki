@@ -30,7 +30,7 @@ class DB:
     def __repr__(self) -> str:
         d = dict(self.__dict__)
         del d["_db"]
-        return pprint.pformat(d, width=300)
+        return f"{super().__repr__()} {pprint.pformat(d, width=300)}"
 
     def execute(self, sql: str, *a, **ka) -> Cursor:
         s = sql.strip().lower()

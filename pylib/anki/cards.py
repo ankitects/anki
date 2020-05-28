@@ -193,7 +193,7 @@ class Card:
         del d["_render_output"]
         del d["col"]
         del d["timerStarted"]
-        return pprint.pformat(d, width=300)
+        return f"{super().__repr__()} {pprint.pformat(d, width=300)}"
 
     def userFlag(self) -> int:
         return self.flags & 0b111
