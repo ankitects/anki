@@ -87,7 +87,9 @@ class Previewer(QDialog):
         self.bbox.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
 
         if qtmajor == 5 and qtminor >= 11 or qtmajor > 5:
-            self._web._page.settings().setAttribute(QWebEngineSettings.PlaybackRequiresUserGesture, False)  # type: ignore
+            self._web._page.settings().setAttribute(
+                QWebEngineSettings.PlaybackRequiresUserGesture, False
+            )
 
         self._replay = self.bbox.addButton(
             tr.actions_replay_audio(), QDialogButtonBox.ButtonRole.ActionRole
@@ -198,7 +200,9 @@ class Previewer(QDialog):
 
             if not self._show_both_sides and self._state == "answer":
                 self._web.eval("ankimedia.skip_front = true;")
-            self._web.eval("ankimedia._reset({skip_src_reset: true, skip_front_reset: true});")
+            self._web.eval(
+                "ankimedia._reset({skip_src_reset: true, skip_front_reset: true});"
+            )
 
             currentState = self._state_and_mod()
             if currentState == self._last_state:

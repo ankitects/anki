@@ -895,7 +895,9 @@ title="{}" {}>{}</button>""".format(
                 webview.force_load_hack()
 
         if qtmajor == 5 and qtminor >= 11 or qtmajor > 5:
-            self.web._page.settings().setAttribute(QWebEngineSettings.PlaybackRequiresUserGesture, False)  # type: ignore
+            self.web._page.settings().setAttribute(
+                QWebEngineSettings.PlaybackRequiresUserGesture, False
+            )
 
     def closeAllWindows(self, onsuccess: Callable) -> None:
         aqt.dialogs.closeAll(onsuccess)
