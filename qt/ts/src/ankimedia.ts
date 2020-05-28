@@ -68,6 +68,7 @@ class AnkiMediaQueue {
     is_autoplay: boolean;
     is_autoseek: boolean;
     _is_autoseek_timer: any;
+    _check_preview_page_timer: any;
     is_first: boolean;
     is_setup: boolean;
     where: "front" | "back";
@@ -162,8 +163,12 @@ class AnkiMediaQueue {
         this.is_autoseek = true;
         if (this._is_autoseek_timer) {
             clearTimeout(this._is_autoseek_timer);
-            this._is_autoseek_timer = undefined;
         }
+        if (this._check_preview_page_timer) {
+            clearTimeout(this._check_preview_page_timer);
+        }
+        this._is_autoseek_timer = undefined;
+        this._check_preview_page_timer = undefined;
         this.is_first = false;
         this.is_setup = false;
         this.where = "front";
@@ -353,12 +358,19 @@ class AnkiMediaQueue {
         if (document.title == "card layout") {
             let block_preview = () => {
                 this.has_previewed = true;
+                this._check_preview_page_timer = undefined;
             };
             if (document.readyState == "complete") {
-                setTimeout(block_preview, ANKI_MEDIA_QUEUE_PREVIEW_TIMEOUT);
+                this._check_preview_page_timer = setTimeout(
+                    block_preview,
+                    ANKI_MEDIA_QUEUE_PREVIEW_TIMEOUT
+                );
             } else {
                 document.addEventListener("DOMContentLoaded", function() {
-                    setTimeout(block_preview, ANKI_MEDIA_QUEUE_PREVIEW_TIMEOUT);
+                    this._check_preview_page_timer = setTimeout(
+                        block_preview,
+                        ANKI_MEDIA_QUEUE_PREVIEW_TIMEOUT
+                    );
                 });
             }
             return true;
