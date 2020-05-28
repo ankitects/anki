@@ -61,13 +61,13 @@ class AnkiMediaQueue {
     _addall_last_where: "front" | "back";
     play_duplicates: Map<string, number>;
     _playing_element: HTMLAudioElement | undefined;
-    _playing_element_timeout: any;
     _startnext: Function;
     autoplay: boolean;
     is_playing: boolean;
     is_autoplay: boolean;
     is_autoseek: boolean;
     _is_autoseek_timer: any;
+    _playing_element_timer: any;
     _check_preview_page_timer: any;
     is_first: boolean;
     is_setup: boolean;
@@ -150,11 +150,11 @@ class AnkiMediaQueue {
         if (this._playing_element) {
             this._playing_element.removeEventListener("ended", this._startnext as any);
         }
-        if (this._playing_element_timeout) {
-            clearTimeout(this._playing_element_timeout);
+        if (this._playing_element_timer) {
+            clearTimeout(this._playing_element_timer);
         }
         this._playing_element = new Audio();
-        this._playing_element_timeout = undefined;
+        this._playing_element_timer = undefined;
         this._startnext = event => {};
         this._clearPlayingElement();
         this.autoplay = true;
@@ -184,11 +184,11 @@ class AnkiMediaQueue {
         if (this._playing_element) {
             this._playing_element.removeEventListener("ended", this._startnext as any);
         }
-        if (this._playing_element_timeout) {
-            clearTimeout(this._playing_element_timeout);
+        if (this._playing_element_timer) {
+            clearTimeout(this._playing_element_timer);
         }
         this._playing_element = undefined;
-        this._playing_element_timeout = undefined;
+        this._playing_element_timer = undefined;
         this._startnext = event => {};
     }
 
@@ -433,7 +433,7 @@ class AnkiMediaQueue {
     }
 
     _playnext() {
-        this._playing_element_timeout = undefined;
+        this._playing_element_timer = undefined;
         let filename = undefined;
         let speed = undefined;
         let media = undefined;
@@ -485,7 +485,7 @@ class AnkiMediaQueue {
                 );
             }
             this._startnext = event => {
-                this._playing_element_timeout = setTimeout(
+                this._playing_element_timer = setTimeout(
                     this._playnext,
                     is_first ? 0 : this.delay * 1000
                 );
