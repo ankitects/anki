@@ -121,7 +121,9 @@ impl std::convert::From<SyncErrorKind> for i32 {
             SyncErrorKind::AuthFailed => V::AuthFailed,
             SyncErrorKind::ServerMessage => V::ServerMessage,
             SyncErrorKind::ResyncRequired => V::ResyncRequired,
+            SyncErrorKind::DatabaseCheckRequired => V::DatabaseCheckRequired,
             SyncErrorKind::Other => V::Other,
+            SyncErrorKind::ClockIncorrect => V::ClockIncorrect,
         }) as i32
     }
 }
@@ -922,6 +924,17 @@ impl BackendService for Backend {
     // sync
     //-------------------------------------------------------------------
 
+    fn sync_login(&mut self, input: pb::SyncLoginIn) -> BackendResult<pb::SyncLoginOut> {
+        todo!()
+    }
+
+    fn sync_collection(
+        &mut self,
+        input: pb::SyncCollectionIn,
+    ) -> BackendResult<pb::SyncCollectionOut> {
+        todo!()
+    }
+
     fn sync_media(&mut self, input: SyncMediaIn) -> BackendResult<Empty> {
         let mut guard = self.col.lock().unwrap();
 
@@ -1009,16 +1022,6 @@ impl BackendService for Backend {
                 };
                 col.register_tags(&input.tags, usn, input.clear_first)
                     .map(|val| pb::Bool { val })
-            })
-        })
-    }
-
-    fn get_changed_tags(&mut self, input: pb::Int32) -> BackendResult<pb::GetChangedTagsOut> {
-        self.with_col(|col| {
-            col.transact(None, |col| {
-                Ok(pb::GetChangedTagsOut {
-                    tags: col.storage.get_changed_tags(Usn(input.val))?,
-                })
             })
         })
     }

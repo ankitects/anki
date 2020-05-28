@@ -86,6 +86,9 @@ impl AnkiError {
                 SyncErrorKind::ClientTooOld => i18n.tr(TR::SyncClientTooOld),
                 SyncErrorKind::AuthFailed => i18n.tr(TR::SyncWrongPass),
                 SyncErrorKind::ResyncRequired => i18n.tr(TR::SyncResyncRequired),
+                // fixme: i18n
+                SyncErrorKind::ClockIncorrect => "Please check your clock.".into(),
+                SyncErrorKind::DatabaseCheckRequired => "Please check the database.".into(),
             }
             .into(),
             AnkiError::NetworkError { kind, info } => {
@@ -186,8 +189,10 @@ pub enum SyncErrorKind {
     ClientTooOld,
     AuthFailed,
     ServerMessage,
+    ClockIncorrect,
     Other,
     ResyncRequired,
+    DatabaseCheckRequired,
 }
 
 fn error_for_status_code(info: String, code: StatusCode) -> AnkiError {

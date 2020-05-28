@@ -10,6 +10,7 @@ use crate::{
         NoteTypeConfig,
     },
     notetype::{NoteType, NoteTypeID, NoteTypeSchema11},
+    prelude::*,
     timestamp::TimestampMillis,
 };
 use prost::Message;
@@ -225,6 +226,19 @@ impl SqliteStorage {
         Ok(())
     }
 
+    /// Used for syncing.
+    pub(crate) fn add_or_update_notetype(&self, nt: &NoteType) -> Result<()> {
+        let mut stmt = self.db.prepare_cached(include_str!("add_or_update.sql"))?;
+        let mut config_bytes = vec![];
+        nt.config.encode(&mut config_bytes)?;
+        stmt.execute(params![nt.id, nt.name, nt.mtime_secs, nt.usn, config_bytes])?;
+
+        self.update_notetype_fields(nt.id, &nt.fields)?;
+        self.update_notetype_templates(nt.id, &nt.templates)?;
+
+        Ok(())
+    }
+
     pub(crate) fn remove_cards_for_deleted_templates(
         &self,
         ntid: NoteTypeID,
@@ -313,6 +327,19 @@ and ord in ",
             .prepare("update notetypes set usn = 0 where usn != 0")?
             .execute(NO_PARAMS)?;
         Ok(())
+    }
+
+    pub(crate) fn take_notetype_ids_pending_sync(&self, new_usn: Usn) -> Result<Vec<NoteTypeID>> {
+        let ids: Vec<NoteTypeID> = self
+            .db
+            .prepare("select id from notetypes where usn=-1")?
+            .query_and_then(NO_PARAMS, |r| r.get(0))?
+            .collect::<std::result::Result<_, rusqlite::Error>>()?;
+        self.db
+            .prepare("update notetypes set usn=? where usn=-1")?
+            .execute(&[new_usn])?;
+
+        Ok(ids)
     }
 
     // Upgrading/downgrading/legacy

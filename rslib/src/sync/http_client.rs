@@ -6,7 +6,10 @@ use bytes::Bytes;
 use futures::Stream;
 use reqwest::Body;
 
+// fixme: 100mb limit
+
 static SYNC_VERSION: u8 = 10;
+
 pub struct HTTPSyncClient {
     hkey: Option<String>,
     skey: String,
@@ -37,15 +40,15 @@ struct MetaIn<'a> {
 #[derive(Serialize, Deserialize, Debug)]
 struct StartIn {
     #[serde(rename = "minUsn")]
-    minimum_usn: Usn,
+    local_usn: Usn,
     #[serde(rename = "offset")]
-    minutes_west: i32,
+    minutes_west: Option<i32>,
     // only used to modify behaviour of changes()
     #[serde(rename = "lnewer")]
-    client_is_newer: bool,
+    local_is_newer: bool,
     // used by 2.0 clients
     #[serde(skip_serializing_if = "Option::is_none")]
-    client_graves: Option<Graves>,
+    local_graves: Option<Graves>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -55,7 +58,7 @@ struct ApplyGravesIn {
 
 #[derive(Serialize, Deserialize, Debug)]
 struct ApplyChangesIn {
-    changes: Changes,
+    changes: UnchunkedChanges,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -72,7 +75,7 @@ struct SanityCheckIn {
 struct Empty {}
 
 impl HTTPSyncClient {
-    pub fn new<'a>(endpoint_suffix: &str) -> HTTPSyncClient {
+    pub fn new<'a>(hkey: Option<String>, endpoint_suffix: &str) -> HTTPSyncClient {
         let client = Client::builder()
             .connect_timeout(Duration::from_secs(30))
             .timeout(Duration::from_secs(60))
@@ -81,7 +84,7 @@ impl HTTPSyncClient {
         let skey = guid();
         let endpoint = endpoint(&endpoint_suffix);
         HTTPSyncClient {
-            hkey: None,
+            hkey,
             skey,
             client,
             endpoint,
@@ -151,7 +154,7 @@ impl HTTPSyncClient {
         self.hkey.as_ref().unwrap()
     }
 
-    pub(crate) async fn meta(&self) -> Result<ServerMeta> {
+    pub(crate) async fn meta(&self) -> Result<SyncMeta> {
         let meta_in = MetaIn {
             sync_version: SYNC_VERSION,
             client_version: sync_client_version(),
@@ -161,15 +164,15 @@ impl HTTPSyncClient {
 
     pub(crate) async fn start(
         &self,
-        minimum_usn: Usn,
-        minutes_west: i32,
-        client_is_newer: bool,
+        local_usn: Usn,
+        minutes_west: Option<i32>,
+        local_is_newer: bool,
     ) -> Result<Graves> {
         let input = StartIn {
-            minimum_usn,
+            local_usn: local_usn,
             minutes_west,
-            client_is_newer,
-            client_graves: None,
+            local_is_newer: local_is_newer,
+            local_graves: None,
         };
         self.json_request_deserialized("start", &input).await
     }
@@ -181,7 +184,10 @@ impl HTTPSyncClient {
         Ok(())
     }
 
-    pub(crate) async fn apply_changes(&self, changes: Changes) -> Result<Changes> {
+    pub(crate) async fn apply_changes(
+        &self,
+        changes: UnchunkedChanges,
+    ) -> Result<UnchunkedChanges> {
         let input = ApplyChangesIn { changes };
         self.json_request_deserialized("applyChanges", &input).await
     }
@@ -202,10 +208,8 @@ impl HTTPSyncClient {
         self.json_request_deserialized("sanityCheck2", &input).await
     }
 
-    pub(crate) async fn finish(&self) -> Result<()> {
-        let resp = self.json_request("finish", &Empty {}, false).await?;
-        resp.error_for_status()?;
-        Ok(())
+    pub(crate) async fn finish(&self) -> Result<TimestampMillis> {
+        Ok(self.json_request_deserialized("finish", &Empty {}).await?)
     }
 
     pub(crate) async fn abort(&self) -> Result<()> {
@@ -330,7 +334,7 @@ mod test {
     use tokio::runtime::Runtime;
 
     async fn http_client_inner(username: String, password: String) -> Result<()> {
-        let mut syncer = HTTPSyncClient::new("");
+        let mut syncer = HTTPSyncClient::new(None, "");
 
         assert!(matches!(
             syncer.login("nosuchuser", "nosuchpass").await,
@@ -353,17 +357,17 @@ mod test {
             })
         ));
 
-        let _graves = syncer.start(Usn(1), 0, true).await?;
+        let _graves = syncer.start(Usn(1), None, true).await?;
 
         // aborting should now work
         syncer.abort().await?;
 
         // start again, and continue
-        let _graves = syncer.start(Usn(0), 0, true).await?;
+        let _graves = syncer.start(Usn(1), None, true).await?;
 
         syncer.apply_graves(Graves::default()).await?;
 
-        let _changes = syncer.apply_changes(Changes::default()).await?;
+        let _changes = syncer.apply_changes(UnchunkedChanges::default()).await?;
         let _chunk = syncer.chunk().await?;
         syncer
             .apply_chunk(Chunk {

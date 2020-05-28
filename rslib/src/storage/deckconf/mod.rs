@@ -6,6 +6,7 @@ use crate::{
     deckconf::{DeckConf, DeckConfID, DeckConfSchema11, DeckConfigInner},
     err::Result,
     i18n::{I18n, TR},
+    prelude::*,
 };
 use prost::Message;
 use rusqlite::{params, Row, NO_PARAMS};
@@ -72,6 +73,22 @@ impl SqliteStorage {
         Ok(())
     }
 
+    /// Used for syncing.
+    pub(crate) fn add_or_update_deck_config(&self, conf: &DeckConf) -> Result<()> {
+        let mut conf_bytes = vec![];
+        conf.inner.encode(&mut conf_bytes)?;
+        self.db
+            .prepare_cached(include_str!("add_or_update.sql"))?
+            .execute(params![
+                conf.id,
+                conf.name,
+                conf.mtime_secs,
+                conf.usn,
+                conf_bytes,
+            ])?;
+        Ok(())
+    }
+
     pub(crate) fn remove_deck_conf(&self, dcid: DeckConfID) -> Result<()> {
         self.db
             .prepare_cached("delete from deck_config where id=?")?
@@ -84,6 +101,22 @@ impl SqliteStorage {
             .prepare("update deck_config set usn = 0 where usn != 0")?
             .execute(NO_PARAMS)?;
         Ok(())
+    }
+
+    pub(crate) fn take_deck_config_ids_pending_sync(
+        &self,
+        new_usn: Usn,
+    ) -> Result<Vec<DeckConfID>> {
+        let ids: Vec<DeckConfID> = self
+            .db
+            .prepare("select id from deck_config where usn=-1")?
+            .query_and_then(NO_PARAMS, |r| r.get(0))?
+            .collect::<std::result::Result<_, rusqlite::Error>>()?;
+        self.db
+            .prepare("update deck_config set usn=? where usn=-1")?
+            .execute(&[new_usn])?;
+
+        Ok(ids)
     }
 
     // Creating/upgrading/downgrading

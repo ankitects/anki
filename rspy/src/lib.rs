@@ -97,7 +97,6 @@ fn want_release_gil(method: u32) -> bool {
             BackendMethod::FormatTimespan => false,
             BackendMethod::RegisterTags => true,
             BackendMethod::AllTags => true,
-            BackendMethod::GetChangedTags => true,
             BackendMethod::GetConfigJson => true,
             BackendMethod::SetConfigJson => true,
             BackendMethod::RemoveConfig => true,
@@ -106,6 +105,8 @@ fn want_release_gil(method: u32) -> bool {
             BackendMethod::GetPreferences => true,
             BackendMethod::SetPreferences => true,
             BackendMethod::NoteIsDuplicateOrEmpty => true,
+            BackendMethod::SyncLogin => true,
+            BackendMethod::SyncCollection => true,
         }
     } else {
         false
