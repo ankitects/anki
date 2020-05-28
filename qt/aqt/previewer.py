@@ -215,8 +215,6 @@ class Previewer(QDialog):
             self._last_state = self._state_and_mod()
         self._web.eval("{}({},'{}');".format(func, json.dumps(txt), bodyclass))
         self._card_changed = False
-        self._web.eval("ankimedia.setup();")
-        self._web.eval("ankimedia._play();")
         self._web.eval("ankimedia.skip_front = false;")
 
     def _on_show_both_sides(self, toggle):
