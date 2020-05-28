@@ -475,7 +475,7 @@ class AnkiMediaQueue {
             this._startnext = event => {
                 this._playing_element_timeout = setTimeout(
                     this._playnext,
-                    is_first ? this.delay * 1000 : 0
+                    is_first ? 0 : this.delay * 1000
                 );
             };
             this._playing_element = media;
