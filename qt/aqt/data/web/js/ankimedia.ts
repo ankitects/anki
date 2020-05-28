@@ -428,7 +428,10 @@ class AnkiMediaQueue {
         // this._debug(`queues ${this.replay_front_queue} ${this.replay_back_queue}`);
         this.is_playing = true;
         this.is_first = true;
-        this.play_duplicates.clear();
+        if (this.where == "front") {
+            // this._debug(`play_duplicates ${Array.from(this.play_duplicates.values())}`);
+            this.play_duplicates.clear();
+        }
         this._playnext();
     }
 
