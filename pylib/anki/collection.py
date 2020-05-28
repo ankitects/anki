@@ -64,6 +64,12 @@ class Collection:
         self.conf = ConfigManager(self)
         self._loadScheduler()
 
+    def __repr__(self) -> str:
+        d = dict(self.__dict__)
+        del d["models"]
+        del d["backend"]
+        return pprint.pformat(d, width=300)
+
     def name(self) -> Any:
         n = os.path.splitext(os.path.basename(self.path))[0]
         return n

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import copy
+import pprint
 import time
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
@@ -65,6 +66,11 @@ class ModelManager:
         self.models = ModelsDictProxy(col)
         # do not access this directly!
         self._cache = {}
+
+    def __repr__(self) -> str:
+        d = dict(self.__dict__)
+        del d["col"]
+        return pprint.pformat(d, width=300)
 
     def save(
         self,

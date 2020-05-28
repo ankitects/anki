@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import copy
+import pprint
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, Union
 
 import anki  # pylint: disable=unused-import
@@ -79,6 +80,11 @@ class DeckManager:
     # legacy
     def flush(self):
         pass
+
+    def __repr__(self) -> str:
+        d = dict(self.__dict__)
+        del d["col"]
+        return pprint.pformat(d, width=300)
 
     # Deck save/load
     #############################################################
