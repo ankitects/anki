@@ -104,7 +104,7 @@ class Scheduler:
             # update daily limit
             self._updateStats(card, "rev")
         else:
-            assert 0
+            raise Exception("Invalid queue '%s'" % card)
 
         # once a card has been answered once, the original due date
         # no longer applies
