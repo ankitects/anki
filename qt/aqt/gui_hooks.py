@@ -1475,6 +1475,38 @@ class _EmptyCardsWillShowHook:
 empty_cards_will_show = _EmptyCardsWillShowHook()
 
 
+class _MainWindowDidInitHook:
+    """Executed after the main window is fully initialized
+        
+        A sample use case for this hook would be to delay actions until Anki objects
+        like the profile or collection are fully initialized. In contrast to
+        `profile_did_open`, this hook will only fire once per Anki session and
+        is thus suitable for single-shot subscribers.
+        """
+
+    _hooks: List[Callable[[], None]] = []
+
+    def append(self, cb: Callable[[], None]) -> None:
+        """()"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def __call__(self) -> None:
+        for hook in self._hooks:
+            try:
+                hook()
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+main_window_did_init = _MainWindowDidInitHook()
+
+
 class _MediaSyncDidProgressHook:
     _hooks: List[Callable[["aqt.mediasync.LogEntryWithTime"], None]] = []
 
@@ -1624,6 +1656,13 @@ overview_will_render_content = _OverviewWillRenderContentHook()
 
 
 class _ProfileDidOpenHook:
+    """Executed whenever a user profile has been opened
+        
+        Please note that this hook will also be called on profile switches, so if you
+        are looking to simply delay an add-on action in a single-shot manner,
+        `main_window_did_init` is likely the more suitable choice.
+        """
+
     _hooks: List[Callable[[], None]] = []
 
     def append(self, cb: Callable[[], None]) -> None:
