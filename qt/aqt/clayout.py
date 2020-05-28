@@ -305,7 +305,7 @@ class CardLayout(QDialog):
 
         if qtmajor == 5 and qtminor >= 11 or qtmajor > 5:
             self.preview_web._page.settings().setAttribute(
-                QWebEngineSettings.PlaybackRequiresUserGesture, False  # type: ignore
+                QWebEngineSettings.PlaybackRequiresUserGesture, False
             )
 
         if self._isCloze():

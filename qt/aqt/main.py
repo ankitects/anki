@@ -782,7 +782,9 @@ title="%s" %s>%s</button>""" % (
                 o._page.setContent(bytes("", "ascii"))
 
         if qtmajor == 5 and qtminor >= 11 or qtmajor > 5:
-            self.web._page.settings().setAttribute(QWebEngineSettings.PlaybackRequiresUserGesture, False)  # type: ignore
+            self.web._page.settings().setAttribute(
+                QWebEngineSettings.PlaybackRequiresUserGesture, False
+            )
 
     def closeAllWindows(self, onsuccess: Callable) -> None:
         aqt.dialogs.closeAll(onsuccess)
