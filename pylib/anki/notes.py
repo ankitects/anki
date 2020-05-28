@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import pprint
 from typing import Any, List, Optional, Sequence, Tuple
 
 import anki  # pylint: disable=unused-import
@@ -65,6 +66,11 @@ class Note:
     def flush(self) -> None:
         assert self.id != 0
         self.col.backend.update_note(self.to_backend_note())
+
+    def __repr__(self) -> str:
+        d = dict(self.__dict__)
+        del d["col"]
+        return pprint.pformat(d, width=300)
 
     def joinedFields(self) -> str:
         return joinFields(self.fields)

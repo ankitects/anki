@@ -11,6 +11,7 @@ This module manages the tag cache and tags for notes.
 
 from __future__ import annotations
 
+import pprint
 import re
 from typing import Collection, List, Optional, Tuple
 
@@ -25,6 +26,11 @@ class TagManager:
     # all tags
     def all(self) -> List[str]:
         return [t.tag for t in self.col.backend.all_tags()]
+
+    def __repr__(self) -> str:
+        d = dict(self.__dict__)
+        del d["col"]
+        return pprint.pformat(d, width=300)
 
     # # List of (tag, usn)
     def allItems(self) -> List[Tuple[str, int]]:

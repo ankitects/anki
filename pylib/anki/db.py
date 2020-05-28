@@ -10,6 +10,7 @@ of add-ons rely on it.
 """
 
 import os
+import pprint
 import time
 from sqlite3 import Cursor
 from sqlite3 import dbapi2 as sqlite
@@ -25,6 +26,11 @@ class DB:
         self._path = path
         self.echo = os.environ.get("DBECHO")
         self.mod = False
+
+    def __repr__(self) -> str:
+        d = dict(self.__dict__)
+        del d["_db"]
+        return pprint.pformat(d, width=300)
 
     def execute(self, sql: str, *a, **ka) -> Cursor:
         s = sql.strip().lower()
