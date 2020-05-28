@@ -118,7 +118,12 @@ class AnkiQt(QMainWindow):
             fn = self.setupProfileAfterWebviewsLoaded
         else:
             fn = self.setupProfile
-        self.progress.timer(10, fn, False, requiresCollection=False)
+
+        def on_window_init():
+            fn()
+            gui_hooks.main_window_did_init()
+
+        self.progress.timer(10, on_window_init, False, requiresCollection=False)
 
     def setupUI(self) -> None:
         self.col = None
