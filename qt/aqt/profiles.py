@@ -257,6 +257,10 @@ details have been forgotten."""
             print("resetting corrupt profile")
             self.profile = profileConf.copy()
             self.save()
+        finally:
+            from aqt import utils as aqtUtils
+
+            aqtUtils.QsciEnabled = self.syntax_highlight()
         return True
 
     def save(self):
@@ -604,6 +608,15 @@ create table if not exists profiles
 
     def interrupt_audio(self) -> bool:
         return self.profile.get("interrupt_audio", True)
+
+    def syntax_highlight(self) -> bool:
+        return self.profile.get("syntax_highlight", True)
+
+    def set_syntax_highlight(self, val: bool) -> None:
+        from aqt import utils as aqtUtils
+
+        aqtUtils.QsciEnabled = val
+        self.profile["syntax_highlight"] = val
 
     def set_interrupt_audio(self, val: bool) -> None:
         self.profile["interrupt_audio"] = val

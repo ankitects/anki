@@ -21,6 +21,7 @@ else:
     extra_files = package_files("aqt_data")
 
 install_requires = [
+    "QScintilla",
     "beautifulsoup4",
     "requests",
     "send2trash",

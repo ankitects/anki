@@ -186,6 +186,10 @@ class CardLayout(QDialog):
         split.addWidget(left)
         split.setCollapsible(0, False)
 
+        from aqt.utils import setupSyntaxHighlighter
+
+        setupSyntaxHighlighter(tform, "edit_area", "verticalLayout")
+
         right = QWidget()
         self.pform = aqt.forms.preview.Ui_Form()
         pform = self.pform
@@ -250,31 +254,42 @@ class CardLayout(QDialog):
         self._renderPreview()
 
     def on_editor_toggled(self):
+        from aqt.utils import changeSyntaxName
+
         if self.tform.front_button.isChecked():
             self.current_editor_index = 0
             self.pform.preview_front.setChecked(True)
             self.on_preview_toggled()
             self.add_field_button.setHidden(False)
+            changeSyntaxName(self.tform.edit_area, "QsciLexerHTML")
         elif self.tform.back_button.isChecked():
             self.current_editor_index = 1
             self.pform.preview_back.setChecked(True)
             self.on_preview_toggled()
             self.add_field_button.setHidden(False)
+            changeSyntaxName(self.tform.edit_area, "QsciLexerHTML")
         else:
             self.current_editor_index = 2
             self.add_field_button.setHidden(True)
+            changeSyntaxName(self.tform.edit_area, "QsciLexerCSS")
 
         self.fill_fields_from_template()
 
     def on_search_changed(self, text: str):
         editor = self.tform.edit_area
-        if not editor.find(text):
-            # try again from top
-            cursor = editor.textCursor()
-            cursor.movePosition(QTextCursor.Start)
-            editor.setTextCursor(cursor)
-            if not editor.find(text):
+        from aqt import utils as aqtUtils
+
+        if aqtUtils.Qsci and aqtUtils.QsciEnabled:
+            if not editor.findFirst(text, True, False, False, True):
                 tooltip("No matches found.")
+        else:
+            if not editor.find(text):
+                # try again from top
+                cursor = editor.textCursor()
+                cursor.movePosition(QTextCursor.Start)
+                editor.setTextCursor(cursor)
+                if not editor.find(text):
+                    tooltip("No matches found.")
 
     def on_search_next(self):
         text = self.tform.search_edit.text()

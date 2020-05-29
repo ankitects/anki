@@ -275,6 +275,120 @@ class GetTextDialog(QDialog):
         openHelp(self.help)
 
 
+try:
+    QsciEnabled = True
+    Qsci_font = QFont()
+    Qsci_font.setFamily("Courier")
+    Qsci_font.setFixedPitch(True)
+    Qsci_font.setPointSize(10)
+
+    from aqt.qt import Qsci
+
+    class SimplePythonEditor(Qsci.QsciScintilla):
+        def __init__(self, parent=None):
+            super().__init__(parent)
+            self.setFont(Qsci_font)
+            self.setMarginsFont(Qsci_font)
+
+            fontmetrics = QFontMetrics(Qsci_font)
+            self.setMarginsFont(Qsci_font)
+
+            # Margin 0 is used for line numbers
+            self.setMarginWidth(0, fontmetrics.width("0000"))
+            self.setMarginLineNumbers(0, True)
+            self.setMarginsBackgroundColor(QColor("#cccccc"))
+
+            # Margin 1 used for markers (not used by us)
+            self.setMarginWidth(1, 0)
+
+            # Clickable margin 1 for showing markers
+            self.setMarginSensitivity(1, True)
+
+            # Brace matching: enable for a brace immediately before or after
+            # the current position
+            self.setBraceMatching(Qsci.QsciScintilla.SloppyBraceMatch)
+
+            # Current line visible with special background color
+            self.setCaretLineVisible(True)
+            self.setCaretLineBackgroundColor(QColor("#dadaff"))
+
+            lexer = Qsci.QsciLexerHTML()
+            lexer.setDefaultFont(Qsci_font)
+            self.setLexer(lexer)
+
+            text = bytearray(str.encode("Courier"))
+            self.SendScintilla(Qsci.QsciScintilla.SCI_STYLESETFONT, 1, text)
+            self.setWrapMode(Qsci.QsciScintilla.WrapWord)
+            self.setEolMode(Qsci.QsciScintilla.EolUnix)
+            self.setWrapIndentMode(Qsci.QsciScintilla.WrapIndentSame)
+
+            self.setAutoCompletionCaseSensitivity(False)
+            self.setAutoCompletionReplaceWord(False)
+            self.setAutoCompletionSource(Qsci.QsciScintilla.AcsDocument)
+            self.setAutoCompletionThreshold(1)
+
+        def setAcceptRichText(self, *args, **kwargs):
+            pass
+
+        def setTabStopDistance(self, *args, **kwargs):
+            pass
+
+        def setPlainText(self, text):
+            self.setText(text)
+
+        def toPlainText(self):
+            return self.text()
+
+
+except Exception as error:
+    import traceback
+    from anki.utils import devMode
+
+    Qsci = None
+    if devMode:
+
+        sys.stderr.write(
+            f"Could not create the syntax highlighter: {error}\n{traceback.format_exc()}\n"
+        )
+
+
+def setupSyntaxHighlighter(parent, name, layout_name):
+    global QsciEnabled
+    if Qsci and QsciEnabled:
+        try:
+            editor = SimplePythonEditor()
+            editor.setObjectName(name)
+            old_editor = getattr(parent, name)
+            old_editor.setParent(None)
+            layout = getattr(parent, layout_name)
+            layout.removeWidget(old_editor)
+            layout.addWidget(editor)
+            setattr(parent, name, editor)
+        except:
+            QsciEnabled = False
+            import traceback
+
+            sys.stderr.write(
+                f"Could not create the syntax highlighter: {error}\n{traceback.format_exc()}\n"
+            )
+
+
+def changeSyntaxName(editor, syntax_name):
+    global QsciEnabled
+    if Qsci and QsciEnabled:
+        try:
+            lexer = getattr(Qsci, syntax_name)()
+            lexer.setDefaultFont(Qsci_font)
+            editor.setLexer(lexer)
+        except Exception as error:
+            QsciEnabled = False
+            import traceback
+
+            sys.stderr.write(
+                f"Could not change the syntax highlighting to '{syntax_name}': {error}\n{traceback.format_exc()}\n"
+            )
+
+
 def getText(
     prompt,
     parent=None,
