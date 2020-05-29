@@ -179,7 +179,7 @@ pub struct SanityCheckDueCounts {
     pub review: u32,
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone, Copy)]
 pub struct FullSyncProgress {
     pub transferred_bytes: usize,
     pub total_bytes: usize,
@@ -219,7 +219,7 @@ struct NormalSyncer<'a> {
 
 impl NormalSyncer<'_> {
     /// Create a new syncing instance. If host_number is unavailable, use 0.
-    pub fn new<'a>(col: &'a mut Collection, auth: SyncAuth) -> NormalSyncer<'a> {
+    pub fn new(col: &mut Collection, auth: SyncAuth) -> NormalSyncer<'_> {
         NormalSyncer {
             col,
             remote: HTTPSyncClient::new(Some(auth.hkey), auth.host_number),
@@ -423,7 +423,7 @@ impl Collection {
     /// Upload collection to AnkiWeb. Caller must re-open afterwards.
     pub async fn full_upload<F>(mut self, auth: SyncAuth, progress_fn: F) -> Result<()>
     where
-        F: Fn(&FullSyncProgress) + Send + Sync + 'static,
+        F: FnMut(FullSyncProgress) + Send + Sync + 'static,
     {
         self.before_upload()?;
         let col_path = self.col_path.clone();
@@ -436,7 +436,7 @@ impl Collection {
     /// Download collection from AnkiWeb. Caller must re-open afterwards.
     pub async fn full_download<F>(self, auth: SyncAuth, progress_fn: F) -> Result<()>
     where
-        F: Fn(&FullSyncProgress),
+        F: FnMut(FullSyncProgress),
     {
         let col_path = self.col_path.clone();
         let folder = col_path.parent().unwrap();
@@ -690,7 +690,7 @@ impl Collection {
             let mut note: Note = entry.into();
             let nt = self
                 .get_notetype(note.ntid)?
-                .ok_or(AnkiError::invalid_input("note missing notetype"))?;
+                .ok_or_else(|| AnkiError::invalid_input("note missing notetype"))?;
             note.prepare_for_update(&nt, false)?;
             self.storage.add_or_update_note(&note)?;
         }

@@ -14,7 +14,6 @@ use crate::media::files::{
 use crate::notes::Note;
 use crate::text::{normalize_to_nfc, MediaRef};
 use crate::{media::MediaManager, text::extract_media_refs};
-use coarsetime::Instant;
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::collections::{HashMap, HashSet};
@@ -52,7 +51,6 @@ where
     mgr: &'b MediaManager,
     progress_cb: P,
     checked: usize,
-    progress_updated: Instant,
 }
 
 impl<P> MediaChecker<'_, '_, P>
@@ -69,7 +67,6 @@ where
             mgr,
             progress_cb,
             checked: 0,
-            progress_updated: Instant::now(),
         }
     }
 
@@ -209,7 +206,7 @@ where
 
             self.checked += 1;
             if self.checked % 10 == 0 {
-                self.maybe_fire_progress_cb()?;
+                self.fire_progress_cb()?;
             }
 
             // if the filename is not valid unicode, skip it
@@ -284,15 +281,6 @@ where
         }
     }
 
-    fn maybe_fire_progress_cb(&mut self) -> Result<()> {
-        let now = Instant::now();
-        if now.duration_since(self.progress_updated).as_f64() < 0.15 {
-            return Ok(());
-        }
-        self.progress_updated = now;
-        self.fire_progress_cb()
-    }
-
     /// Returns the count and total size of the files in the trash folder
     fn files_in_trash(&mut self) -> Result<(u64, u64)> {
         let trash = trash_folder(&self.mgr.media_folder)?;
@@ -304,7 +292,7 @@ where
 
             self.checked += 1;
             if self.checked % 10 == 0 {
-                self.maybe_fire_progress_cb()?;
+                self.fire_progress_cb()?;
             }
 
             if dentry.file_name() == ".DS_Store" {
@@ -328,7 +316,7 @@ where
 
             self.checked += 1;
             if self.checked % 10 == 0 {
-                self.maybe_fire_progress_cb()?;
+                self.fire_progress_cb()?;
             }
 
             fs::remove_file(dentry.path())?;
@@ -345,7 +333,7 @@ where
 
             self.checked += 1;
             if self.checked % 10 == 0 {
-                self.maybe_fire_progress_cb()?;
+                self.fire_progress_cb()?;
             }
 
             let orig_path = self.mgr.media_folder.join(dentry.file_name());
@@ -388,7 +376,7 @@ where
         for nid in nids {
             self.checked += 1;
             if self.checked % 10 == 0 {
-                self.maybe_fire_progress_cb()?;
+                self.fire_progress_cb()?;
             }
             let mut note = self.ctx.storage.get_note(nid)?.unwrap();
             let nt = note_types

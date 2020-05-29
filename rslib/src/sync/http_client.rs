@@ -76,7 +76,7 @@ struct SanityCheckIn {
 struct Empty {}
 
 impl HTTPSyncClient {
-    pub fn new<'a>(hkey: Option<String>, host_number: u32) -> HTTPSyncClient {
+    pub fn new(hkey: Option<String>, host_number: u32) -> HTTPSyncClient {
         let client = Client::builder()
             .connect_timeout(Duration::from_secs(30))
             .timeout(Duration::from_secs(60))
@@ -170,9 +170,9 @@ impl HTTPSyncClient {
         local_is_newer: bool,
     ) -> Result<Graves> {
         let input = StartIn {
-            local_usn: local_usn,
+            local_usn,
             minutes_west,
-            local_is_newer: local_is_newer,
+            local_is_newer,
             local_graves: None,
         };
         self.json_request_deserialized("start", &input).await
@@ -232,9 +232,13 @@ impl HTTPSyncClient {
 
     /// Download collection into a temporary file, returning it.
     /// Caller should persist the file in the correct path after checking it.
-    pub(crate) async fn download<P>(&self, folder: &Path, progress_fn: P) -> Result<NamedTempFile>
+    pub(crate) async fn download<P>(
+        &self,
+        folder: &Path,
+        mut progress_fn: P,
+    ) -> Result<NamedTempFile>
     where
-        P: Fn(&FullSyncProgress),
+        P: FnMut(FullSyncProgress),
     {
         let mut temp_file = NamedTempFile::new_in(folder)?;
         let (size, mut stream) = self.download_inner().await?;
@@ -246,7 +250,7 @@ impl HTTPSyncClient {
             let chunk = chunk?;
             temp_file.write_all(&chunk)?;
             progress.transferred_bytes += chunk.len();
-            progress_fn(&progress);
+            progress_fn(progress);
         }
 
         Ok(temp_file)
@@ -261,7 +265,7 @@ impl HTTPSyncClient {
 
     pub(crate) async fn upload<P>(&mut self, col_path: &Path, progress_fn: P) -> Result<()>
     where
-        P: Fn(&FullSyncProgress) + Send + Sync + 'static,
+        P: FnMut(FullSyncProgress) + Send + Sync + 'static,
     {
         let file = tokio::fs::File::open(col_path).await?;
         let total_bytes = file.metadata().await?.len() as usize;
@@ -300,7 +304,7 @@ struct ProgressWrapper<S, P> {
 impl<S, P> Stream for ProgressWrapper<S, P>
 where
     S: AsyncRead,
-    P: Fn(&FullSyncProgress),
+    P: FnMut(FullSyncProgress),
 {
     type Item = std::result::Result<Bytes, std::io::Error>;
 
@@ -312,7 +316,7 @@ where
             Ok(size) => {
                 buf.resize(size, 0);
                 this.progress.transferred_bytes += size;
-                (this.progress_fn)(&this.progress);
+                (this.progress_fn)(*this.progress);
                 Poll::Ready(Some(Ok(Bytes::from(buf))))
             }
             Err(e) => Poll::Ready(Some(Err(e))),

@@ -152,31 +152,28 @@ FormatTimeSpanContext = pb.FormatTimespanIn.Context
 
 
 class ProgressKind(enum.Enum):
-    MediaSync = 0
-    MediaCheck = 1
+    NoProgress = 0
+    MediaSync = 1
+    MediaCheck = 2
+    FullSync = 3
 
 
 @dataclass
 class Progress:
     kind: ProgressKind
-    val: Union[MediaSyncProgress, str]
+    val: Union[MediaSyncProgress, pb.FullSyncProgress, str]
 
-
-def proto_progress_to_native(progress: pb.Progress) -> Progress:
-    kind = progress.WhichOneof("value")
-    if kind == "media_sync":
-        return Progress(kind=ProgressKind.MediaSync, val=progress.media_sync)
-    elif kind == "media_check":
-        return Progress(kind=ProgressKind.MediaCheck, val=progress.media_check)
-    else:
-        assert_impossible_literal(kind)
-
-
-def _on_progress(progress_bytes: bytes) -> bool:
-    progress = pb.Progress()
-    progress.ParseFromString(progress_bytes)
-    native_progress = proto_progress_to_native(progress)
-    return hooks.bg_thread_progress_callback(True, native_progress)
+    @staticmethod
+    def from_proto(proto: pb.Progress) -> Progress:
+        kind = proto.WhichOneof("value")
+        if kind == "media_sync":
+            return Progress(kind=ProgressKind.MediaSync, val=proto.media_sync)
+        elif kind == "media_check":
+            return Progress(kind=ProgressKind.MediaCheck, val=proto.media_check)
+        elif kind == "full_sync":
+            return Progress(kind=ProgressKind.FullSync, val=proto.full_sync)
+        else:
+            return Progress(kind=ProgressKind.NoProgress, val="")
 
 
 class RustBackend(RustBackendGenerated):
@@ -196,7 +193,6 @@ class RustBackend(RustBackendGenerated):
             locale_folder_path=ftl_folder, preferred_langs=langs, server=server,
         )
         self._backend = ankirspy.open_backend(init_msg.SerializeToString())
-        self._backend.set_progress_callback(_on_progress)
 
     def db_query(
         self, sql: str, args: Sequence[ValueForDB], first_row_only: bool

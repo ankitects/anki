@@ -135,7 +135,7 @@ impl MediaManager {
         log: Logger,
     ) -> Result<()>
     where
-        F: Fn(&MediaSyncProgress) -> bool,
+        F: FnMut(MediaSyncProgress) -> bool,
     {
         let mut syncer = MediaSyncer::new(self, progress, endpoint, log);
         syncer.sync(hkey).await
