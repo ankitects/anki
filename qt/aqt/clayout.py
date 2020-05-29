@@ -439,7 +439,7 @@ class CardLayout(QDialog):
         bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
 
         if not self.have_autoplayed:
-            self.preview_web.eval("ankimedia._reset({skip_src_reset: true});")
+            self.preview_web.eval("ankimedia._reset();")
 
             if not c.autoplay():
                 self.preview_web.eval("ankimedia.setup({auto: false});")
