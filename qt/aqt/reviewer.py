@@ -292,7 +292,7 @@ class Reviewer:
         elif self.state == "answer":
             replay_audio(self.card, False)
             if not self.card.replay_question_audio_on_answer_side():
-                self.web.eval("ankimedia.setup({skip: true});")
+                self.web.eval("ankimedia.skip_front = true;")
         self.web.eval("ankimedia.replay();")
 
     # Initializing the webview
@@ -370,7 +370,7 @@ class Reviewer:
 
         self.web.eval("ankimedia._reset();")
         if not c.autoplay():
-            self.web.eval("ankimedia.setup({auto: false});")
+            self.web.eval("ankimedia.autoplay = false;")
 
         self.web.eval(
             f"_showQuestion({json.dumps(q)}, {json.dumps(a)}, '{bodyclass}');"
