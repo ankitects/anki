@@ -26,7 +26,7 @@ from anki.lang import _
 from anki.media import MediaManager, media_paths_from_col_path
 from anki.models import ModelManager
 from anki.notes import Note
-from anki.rsbackend import TR, DBError, FormatTimeSpanContext, RustBackend, pb
+from anki.rsbackend import TR, DBError, FormatTimeSpanContext, Progress, RustBackend, pb
 from anki.sched import Scheduler as V1Scheduler
 from anki.schedv2 import Scheduler as V2Scheduler
 from anki.tags import TagManager
@@ -90,6 +90,12 @@ class Collection:
         context: FormatTimeSpanContextValue = FormatTimeSpanContext.INTERVALS,
     ) -> str:
         return self.backend.format_timespan(seconds=seconds, context=context)
+
+    # Progress
+    ##########################################################################
+
+    def latest_progress(self) -> Progress:
+        return Progress.from_proto(self.backend.latest_progress())
 
     # Scheduler
     ##########################################################################

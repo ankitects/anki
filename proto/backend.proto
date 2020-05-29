@@ -68,6 +68,9 @@ message DeckConfigID {
 ///////////////////////////////////////////////////////////
 
 service BackendService {
+    rpc LatestProgress (Empty) returns (Progress);
+    rpc SetWantsAbort (Empty) returns (Empty);
+
     // card rendering
 
     rpc ExtractAVTags (ExtractAVTagsIn) returns (ExtractAVTagsOut);
@@ -448,14 +451,6 @@ message BackendError {
     }
 }
 
-message Progress {
-    oneof value {
-        MediaSyncProgress media_sync = 1;
-        string media_check = 2;
-        FullSyncProgress full_sync = 3;
-    }
-}
-
 message NetworkError {
     enum NetworkErrorKind {
         OTHER = 0;
@@ -482,6 +477,18 @@ message SyncError {
     SyncErrorKind kind = 1;
 }
 
+// Progress
+///////////////////////////////////////////////////////////
+
+message Progress {
+    oneof value {
+        Empty none = 1;
+        MediaSyncProgress media_sync = 2;
+        string media_check = 3;
+        FullSyncProgress full_sync = 4;
+    }
+}
+
 message MediaSyncProgress {
     string checked = 1;
     string added = 2;
@@ -497,6 +504,7 @@ message MediaSyncUploadProgress {
     uint32 files = 1;
     uint32 deletions = 2;
 }
+
 
 // Messages
 ///////////////////////////////////////////////////////////
