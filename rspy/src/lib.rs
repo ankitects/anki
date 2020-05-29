@@ -91,7 +91,7 @@ fn want_release_gil(method: u32) -> bool {
             BackendMethod::RestoreTrash => true,
             BackendMethod::OpenCollection => true,
             BackendMethod::CloseCollection => true,
-            BackendMethod::AbortMediaSync => true,
+            BackendMethod::AbortSync => true,
             BackendMethod::BeforeUpload => true,
             BackendMethod::TranslateString => false,
             BackendMethod::FormatTimespan => false,

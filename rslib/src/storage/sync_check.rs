@@ -1,0 +1,60 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+use super::*;
+use crate::{
+    err::SyncErrorKind,
+    prelude::*,
+    sync::{SanityCheckCounts, SanityCheckDueCounts},
+};
+use rusqlite::NO_PARAMS;
+
+impl SqliteStorage {
+    fn table_has_usn(&self, table: &str) -> Result<bool> {
+        Ok(self
+            .db
+            .prepare(&format!("select null from {} where usn=-1", table))?
+            .query(NO_PARAMS)?
+            .next()?
+            .is_some())
+    }
+
+    fn table_count(&self, table: &str) -> Result<u32> {
+        self.db
+            .query_row(&format!("select count() from {}", table), NO_PARAMS, |r| {
+                r.get(0)
+            })
+            .map_err(Into::into)
+    }
+
+    pub(crate) fn sanity_check_info(&self) -> Result<SanityCheckCounts> {
+        for table in &[
+            "cards",
+            "notes",
+            "revlog",
+            "graves",
+            "decks",
+            "deck_config",
+            "tags",
+            "notetypes",
+        ] {
+            if self.table_has_usn(table)? {
+                return Err(AnkiError::SyncError {
+                    info: format!("table had usn=-1: {}", table),
+                    kind: SyncErrorKind::Other,
+                });
+            }
+        }
+
+        Ok(SanityCheckCounts {
+            counts: SanityCheckDueCounts::default(),
+            cards: self.table_count("cards")?,
+            notes: self.table_count("notes")?,
+            revlog: self.table_count("revlog")?,
+            graves: self.table_count("graves")?,
+            notetypes: self.table_count("notetypes")?,
+            decks: self.table_count("decks")?,
+            deck_config: self.table_count("deck_config")?,
+        })
+    }
+}

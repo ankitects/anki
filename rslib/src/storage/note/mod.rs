@@ -83,7 +83,6 @@ impl super::SqliteStorage {
 
     /// Add or update the provided note, preserving ID. Used by the syncing code.
     pub(crate) fn add_or_update_note(&self, note: &Note) -> Result<()> {
-        let now = TimestampMillis::now().0;
         let mut stmt = self.db.prepare_cached(include_str!("add_or_update.sql"))?;
         stmt.execute(params![
             note.id,
@@ -139,21 +138,17 @@ impl super::SqliteStorage {
         new_usn: Usn,
         limit: usize,
     ) -> Result<Vec<NoteEntry>> {
-        let mut out = vec![];
-        if limit == 0 {
-            return Ok(out);
-        }
-
         let entries: Vec<NoteEntry> = self
             .db
             .prepare_cached(concat!(include_str!("get.sql"), " where usn=-1 limit ?"))?
             .query_and_then(&[limit as u32], |r| row_to_note(r).map(Into::into))?
             .collect::<Result<_>>()?;
-
-        let ids: Vec<_> = entries.iter().map(|e| e.id).collect();
-        self.db
-            .prepare_cached("update notes set usn=? where usn=-1")?
-            .execute(&[new_usn])?;
+        let mut stmt = self
+            .db
+            .prepare_cached("update notes set usn=? where id=?")?;
+        for entry in &entries {
+            stmt.execute(params![new_usn, entry.id])?;
+        }
 
         Ok(entries)
     }

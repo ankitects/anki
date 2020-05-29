@@ -69,20 +69,21 @@ struct ApplyChunkIn {
 #[derive(Serialize, Deserialize, Debug)]
 struct SanityCheckIn {
     client: SanityCheckCounts,
+    full: bool,
 }
 
 #[derive(Serialize)]
 struct Empty {}
 
 impl HTTPSyncClient {
-    pub fn new<'a>(hkey: Option<String>, endpoint_suffix: &str) -> HTTPSyncClient {
+    pub fn new<'a>(hkey: Option<String>, host_number: u32) -> HTTPSyncClient {
         let client = Client::builder()
             .connect_timeout(Duration::from_secs(30))
             .timeout(Duration::from_secs(60))
             .build()
             .unwrap();
         let skey = guid();
-        let endpoint = endpoint(&endpoint_suffix);
+        let endpoint = sync_endpoint(host_number);
         HTTPSyncClient {
             hkey,
             skey,
@@ -204,7 +205,7 @@ impl HTTPSyncClient {
     }
 
     pub(crate) async fn sanity_check(&self, client: SanityCheckCounts) -> Result<SanityCheckOut> {
-        let input = SanityCheckIn { client };
+        let input = SanityCheckIn { client, full: true };
         self.json_request_deserialized("sanityCheck2", &input).await
     }
 
@@ -319,10 +320,15 @@ where
     }
 }
 
-fn endpoint(suffix: &str) -> String {
+fn sync_endpoint(host_number: u32) -> String {
     if let Ok(endpoint) = std::env::var("SYNC_ENDPOINT") {
         endpoint
     } else {
+        let suffix = if host_number > 0 {
+            format!("{}", host_number)
+        } else {
+            "".to_string()
+        };
         format!("https://sync{}.ankiweb.net/sync/", suffix)
     }
 }
@@ -334,7 +340,7 @@ mod test {
     use tokio::runtime::Runtime;
 
     async fn http_client_inner(username: String, password: String) -> Result<()> {
-        let mut syncer = HTTPSyncClient::new(None, "");
+        let mut syncer = HTTPSyncClient::new(None, 0);
 
         assert!(matches!(
             syncer.login("nosuchuser", "nosuchpass").await,
@@ -346,7 +352,7 @@ mod test {
 
         assert!(syncer.login(&username, &password).await.is_ok());
 
-        syncer.meta().await?;
+        let _meta = syncer.meta().await?;
 
         // aborting before a start is a conflict
         assert!(matches!(
@@ -393,7 +399,8 @@ mod test {
             })
             .await?;
 
-        syncer.finish().await?;
+        // failed sanity check will have cleaned up; can't finish
+        // syncer.finish().await?;
 
         use tempfile::tempdir;
 

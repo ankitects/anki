@@ -43,11 +43,6 @@ impl SqliteStorage {
         new_usn: Usn,
         limit: usize,
     ) -> Result<Vec<ReviewLogEntry>> {
-        let mut out = vec![];
-        if limit == 0 {
-            return Ok(out);
-        }
-
         let entries: Vec<ReviewLogEntry> = self
             .db
             .prepare_cached(concat!(include_str!("get.sql"), " where usn=-1 limit ?"))?
@@ -66,10 +61,12 @@ impl SqliteStorage {
             })?
             .collect::<Result<_>>()?;
 
-        let ids: Vec<_> = entries.iter().map(|e| e.id).collect();
-        self.db
-            .prepare_cached("update revlog set usn=? where usn=-1")?
-            .execute(&[new_usn])?;
+        let mut stmt = self
+            .db
+            .prepare_cached("update revlog set usn=? where id=?")?;
+        for entry in &entries {
+            stmt.execute(params![new_usn, entry.id])?;
+        }
 
         Ok(entries)
     }
