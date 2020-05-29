@@ -200,9 +200,7 @@ class Previewer(QDialog):
 
             if not self._show_both_sides and self._state == "answer":
                 self._web.eval("ankimedia.skip_front = true;")
-            self._web.eval(
-                "ankimedia._reset({skip_src_reset: true, skip_front_reset: true});"
-            )
+            self._web.eval("ankimedia._reset({skip_front_reset: true});")
 
             currentState = self._state_and_mod()
             if currentState == self._last_state:
@@ -258,7 +256,7 @@ class Previewer(QDialog):
     def _on_show_both_sides(self, toggle: bool) -> None:
         self._show_both_sides = toggle
         self.mw.col.set_config_bool(Config.Bool.PREVIEW_BOTH_SIDES, toggle)
-        self._web.eval("ankimedia._reset({skip_src_reset: true});")
+        self._web.eval("ankimedia._reset();")
         if self._state == "question" and toggle:
             self._web.eval("ankimedia.skip_front = true;")
         if self._state == "answer" and not toggle:

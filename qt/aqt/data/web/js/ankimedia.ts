@@ -124,20 +124,13 @@ class AnkiMediaQueue {
 
     _reset(parameters: any = {}) {
         // this._debug(`_reset parameters '${JSON.stringify(parameters)}'`);
-        let { skip_src_reset = false, skip_front_reset = false } = parameters;
+        let { skip_front_reset = false } = parameters;
         this.delay = 0.3;
         this.playing_front.length = 0;
         this.playing_back.length = 0;
         this.replay_back_queue.length = 0;
         this.replay_front_queue.length = 0;
         this.other_medias.length = 0;
-        // force any old media to eject/stop loading: https://goo.gl/LdLk22
-        // You can entirely reset the playback state, including the buffer, with load() and src = ''
-        if (!skip_src_reset) {
-            for (let media of this.medias.values()) {
-                media.src = "";
-            }
-        }
         this.files.clear();
         this.medias.clear();
         this.duplicates.clear();
