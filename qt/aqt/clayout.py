@@ -14,6 +14,7 @@ from anki.notes import Note
 from anki.rsbackend import TemplateError
 from anki.template import TemplateRenderContext
 from aqt import AnkiQt, gui_hooks
+from aqt import utils as aqtUtils
 from aqt.qt import *
 from aqt.schema_change_tracker import ChangeTracker
 from aqt.sound import av_player, play_clicked_audio
@@ -21,11 +22,13 @@ from aqt.theme import theme_manager
 from aqt.utils import (
     TR,
     askUser,
+    changeSyntaxName,
     downArrow,
     getOnlyText,
     openHelp,
     restoreGeom,
     saveGeom,
+    setupSyntaxHighlighter,
     shortcut,
     showInfo,
     showWarning,
@@ -180,6 +183,7 @@ class CardLayout(QDialog):
         left = QWidget()
         tform = self.tform = aqt.forms.template.Ui_Form()
         tform.setupUi(left)
+        setupSyntaxHighlighter(tform, "edit_area", "verticalLayout")
         l.addWidget(left, 5)
 
         right = QWidget()
@@ -252,26 +256,33 @@ class CardLayout(QDialog):
             self.pform.preview_front.setChecked(True)
             self.on_preview_toggled()
             self.add_field_button.setHidden(False)
+            changeSyntaxName(self.tform.edit_area, "QsciLexerHTML")
         elif self.tform.back_button.isChecked():
             self.current_editor_index = 1
             self.pform.preview_back.setChecked(True)
             self.on_preview_toggled()
             self.add_field_button.setHidden(False)
+            changeSyntaxName(self.tform.edit_area, "QsciLexerHTML")
         else:
             self.current_editor_index = 2
             self.add_field_button.setHidden(True)
+            changeSyntaxName(self.tform.edit_area, "QsciLexerCSS")
 
         self.fill_fields_from_template()
 
     def on_search_changed(self, text: str):
         editor = self.tform.edit_area
-        if not editor.find(text):
-            # try again from top
-            cursor = editor.textCursor()
-            cursor.movePosition(QTextCursor.Start)
-            editor.setTextCursor(cursor)
-            if not editor.find(text):
+        if aqtUtils.Qsci and aqtUtils.QsciEnabled:
+            if not editor.findFirst(text, True, False, False, True):
                 tooltip("No matches found.")
+        else:
+            if not editor.find(text):
+                # try again from top
+                cursor = editor.textCursor()
+                cursor.movePosition(QTextCursor.Start)
+                editor.setTextCursor(cursor)
+                if not editor.find(text):
+                    tooltip("No matches found.")
 
     def on_search_next(self):
         text = self.tform.search_edit.text()

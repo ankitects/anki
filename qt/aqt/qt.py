@@ -17,7 +17,7 @@ from PyQt5.QtWebEngineWidgets import *  # type: ignore
 from PyQt5.QtWebEngineWidgets import QWebEngineSettings
 from PyQt5.QtWidgets import *
 
-from anki.utils import isMac, isWin
+from anki.utils import devMode, isMac, isWin
 
 # fix buggy ubuntu12.04 display of language selector
 os.environ["LIBOVERLAY_SCROLLBAR"] = "0"
@@ -27,6 +27,17 @@ try:
     from PyQt5 import sip
 except ImportError:
     import sip  # type: ignore
+
+
+try:
+    # pylint: disable=no-name-in-module
+    from PyQt5 import Qsci  # type: ignore
+except Exception as error:
+    Qsci = None
+    if devMode:
+        sys.stderr.write(
+            f"Could not create the syntax highlighter: {error}\n{traceback.format_exc()}\n"
+        )
 
 
 def debug():

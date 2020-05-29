@@ -98,6 +98,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="enableSyntaxHighlight">
+         <property name="text">
+          <string>Enable syntax highlighting on text editors</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QComboBox" name="useCurrent">
          <item>
           <property name="text">
@@ -587,6 +594,7 @@
   <tabstop>pastePNG</tabstop>
   <tabstop>pasteInvert</tabstop>
   <tabstop>nightMode</tabstop>
+  <tabstop>enableSyntaxHighlight</tabstop>
   <tabstop>useCurrent</tabstop>
   <tabstop>uiScale</tabstop>
   <tabstop>showEstimates</tabstop>
