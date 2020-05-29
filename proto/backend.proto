@@ -157,10 +157,13 @@ service BackendService {
     // sync
 
     rpc SyncMedia (SyncMediaIn) returns (Empty);
-    rpc AbortMediaSync (Empty) returns (Empty);
+    rpc AbortSync (Empty) returns (Empty);
     rpc BeforeUpload (Empty) returns (Empty);
-    rpc SyncLogin (SyncLoginIn) returns (SyncLoginOut);
-    rpc SyncCollection (SyncCollectionIn) returns (SyncCollectionOut);
+    rpc SyncLogin (SyncLoginIn) returns (SyncAuth);
+    rpc SyncStatus (SyncAuth) returns (SyncCollectionOut);
+    rpc SyncCollection (SyncAuth) returns (SyncCollectionOut);
+    rpc FullUpload (SyncAuth) returns (Empty);
+    rpc FullDownload (SyncAuth) returns (Empty);
 
     // translation/messages
 
@@ -449,6 +452,7 @@ message Progress {
     oneof value {
         MediaSyncProgress media_sync = 1;
         string media_check = 2;
+        FullSyncProgress full_sync = 3;
     }
 }
 
@@ -482,6 +486,11 @@ message MediaSyncProgress {
     string checked = 1;
     string added = 2;
     string removed = 3;
+}
+
+message FullSyncProgress {
+    uint32 transferred = 1;
+    uint32 total = 2;
 }
 
 message MediaSyncUploadProgress {
@@ -884,31 +893,23 @@ message SyncLoginIn {
     string password = 2;
 }
 
-message SyncLoginOut {
-    string hkey = 1;
-}
-
-message SyncCollectionIn {
-    enum SyncAction {
-        CHECK_ONLY = 0;
-        NORMAL_SYNC = 1;
-        UPLOAD = 2;
-        DOWNLOAD = 3;
-    }
-
-    string hkey = 1;
-    uint32 host_number = 2;
-    SyncAction action = 3;
-}
-
 message SyncCollectionOut {
     enum ChangesRequired {
         NO_CHANGES = 0;
         NORMAL_SYNC = 1;
         FULL_SYNC = 2;
+        // local collection has no cards; upload not an option
+        FULL_DOWNLOAD = 3;
+        // remote collection has no cards; download not an option
+        FULL_UPLOAD = 4;
     }
 
-    string host_number = 1;
+    uint32 host_number = 1;
     string server_message = 2;
     ChangesRequired required = 3;
+}
+
+message SyncAuth {
+    string hkey = 1;
+    uint32 host_number = 2;
 }

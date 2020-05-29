@@ -123,7 +123,6 @@ impl super::SqliteStorage {
 
     /// Add or update card, using the provided ID. Used when syncing.
     pub(crate) fn add_or_update_card(&self, card: &Card) -> Result<()> {
-        let now = TimestampMillis::now().0;
         let mut stmt = self.db.prepare_cached(include_str!("add_or_update.sql"))?;
         stmt.execute(params![
             card.id,
@@ -226,11 +225,6 @@ impl super::SqliteStorage {
         new_usn: Usn,
         limit: usize,
     ) -> Result<Vec<CardEntry>> {
-        let mut out = vec![];
-        if limit == 0 {
-            return Ok(out);
-        }
-
         let entries: Vec<CardEntry> = self
             .db
             .prepare_cached(concat!(
@@ -241,11 +235,12 @@ impl super::SqliteStorage {
                 row_to_card(r).map(Into::into).map_err(Into::into)
             })?
             .collect::<Result<_>>()?;
-
-        let ids: Vec<_> = entries.iter().map(|e| e.id).collect();
-        self.db
-            .prepare_cached("update cards set usn=? where usn=-1")?
-            .execute(&[new_usn])?;
+        let mut stmt = self
+            .db
+            .prepare_cached("update cards set usn=? where id=?")?;
+        for entry in &entries {
+            stmt.execute(params![new_usn, entry.id])?;
+        }
 
         Ok(entries)
     }

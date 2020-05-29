@@ -44,7 +44,9 @@ pub struct SyncMeta {
     #[serde(rename = "cont")]
     should_continue: bool,
     #[serde(rename = "hostNum")]
-    shard_number: u32,
+    host_number: u32,
+    #[serde(default)]
+    empty: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Default)]
@@ -159,68 +161,80 @@ enum SanityCheckStatus {
 
 #[derive(Serialize_tuple, Deserialize, Debug)]
 pub struct SanityCheckCounts {
-    counts: SanityCheckDueCounts,
-    cards: u32,
-    notes: u32,
-    revlog: u32,
-    graves: u32,
+    pub counts: SanityCheckDueCounts,
+    pub cards: u32,
+    pub notes: u32,
+    pub revlog: u32,
+    pub graves: u32,
     #[serde(rename = "models")]
-    notetypes: u32,
-    decks: u32,
-    deck_config: u32,
+    pub notetypes: u32,
+    pub decks: u32,
+    pub deck_config: u32,
 }
 
-#[derive(Serialize_tuple, Deserialize, Debug)]
+#[derive(Serialize_tuple, Deserialize, Debug, Default)]
 pub struct SanityCheckDueCounts {
-    new: u32,
-    learn: u32,
-    review: u32,
+    pub new: u32,
+    pub learn: u32,
+    pub review: u32,
 }
 
 #[derive(Debug, Default)]
 pub struct FullSyncProgress {
-    transferred_bytes: usize,
-    total_bytes: usize,
+    pub transferred_bytes: usize,
+    pub total_bytes: usize,
 }
 
-pub enum SyncState {
+#[derive(PartialEq)]
+pub enum SyncActionRequired {
     NoChanges,
     FullSyncRequired,
-    NormalSyncRequired(NormalSyncMeta),
+    NormalSyncRequired,
 }
 
-pub struct NormalSyncMeta {
+struct SyncState {
+    required: SyncActionRequired,
     local_is_newer: bool,
     local_usn: Usn,
     remote_usn: Usn,
     server_message: String,
-    shard_number: u32,
+    host_number: u32,
 }
 
-struct SyncDriver<'a> {
+pub struct SyncOutput {
+    pub required: SyncActionRequired,
+    pub server_message: String,
+    pub host_number: u32,
+}
+
+pub struct SyncAuth {
+    pub hkey: String,
+    pub host_number: u32,
+}
+
+struct NormalSyncer<'a> {
     col: &'a mut Collection,
     remote: HTTPSyncClient,
 }
 
-impl SyncDriver<'_> {
-    async fn from_login<'a>(
-        col: &'a mut Collection,
-        username: &str,
-        password: &str,
-    ) -> Result<SyncDriver<'a>> {
-        let mut remote = HTTPSyncClient::new(None, "");
-        remote.login(username, password).await?;
-        Ok(SyncDriver { col, remote })
+impl NormalSyncer<'_> {
+    /// Create a new syncing instance. If host_number is unavailable, use 0.
+    pub fn new<'a>(col: &'a mut Collection, auth: SyncAuth) -> NormalSyncer<'a> {
+        NormalSyncer {
+            col,
+            remote: HTTPSyncClient::new(Some(auth.hkey), auth.host_number),
+        }
     }
 
-    fn from_hkey<'a>(
-        col: &'a mut Collection,
-        hkey: String,
-        endpoint_suffix: &str,
-    ) -> SyncDriver<'a> {
-        SyncDriver {
-            col,
-            remote: HTTPSyncClient::new(Some(hkey), endpoint_suffix),
+    pub async fn sync(&mut self) -> Result<SyncOutput> {
+        let state: SyncState = self.get_sync_state().await?;
+        match state.required {
+            SyncActionRequired::NoChanges => Ok(state.into()),
+            SyncActionRequired::FullSyncRequired => Ok(state.into()),
+            SyncActionRequired::NormalSyncRequired => {
+                // fixme: transaction
+                self.normal_sync_inner(state).await
+            }
         }
     }
 
@@ -242,61 +256,57 @@ impl SyncDriver<'_> {
             });
         }
 
-        if remote.modified == local.modified {
-            return Ok(SyncState::NoChanges);
-        }
+        let required = if remote.modified == local.modified {
+            SyncActionRequired::NoChanges
+        } else if remote.schema != local.schema {
+            SyncActionRequired::FullSyncRequired
+        } else {
+            SyncActionRequired::NormalSyncRequired
+        };
 
-        if remote.schema != local.schema {
-            return Ok(SyncState::FullSyncRequired);
-        }
-
-        Ok(SyncState::NormalSyncRequired(NormalSyncMeta {
+        Ok(SyncState {
+            required,
             local_is_newer: local.modified > remote.modified,
             local_usn: local.usn,
             remote_usn: remote.usn,
             server_message: remote.server_message,
-            shard_number: remote.shard_number,
-        }))
+            host_number: remote.host_number,
+        })
     }
 
     /// Sync. Caller must have created a transaction, and should call
-    /// abort on
-    pub(crate) async fn sync(&mut self, meta: NormalSyncMeta) -> Result<()> {
-        self.col.basic_check_for_sync()?;
-        self.start_and_process_deletions(&meta).await?;
-        self.process_unchunked_changes(meta.remote_usn, meta.local_is_newer)
+    /// abort on failure.
+    async fn normal_sync_inner(&mut self, mut state: SyncState) -> Result<SyncOutput> {
+        self.start_and_process_deletions(&state).await?;
+        self.process_unchunked_changes(state.remote_usn, state.local_is_newer)
             .await?;
         self.process_chunks_from_server().await?;
-        self.send_chunks_to_server(meta.remote_usn).await?;
+        self.send_chunks_to_server(state.remote_usn).await?;
         self.sanity_check().await?;
-        self.finalize(meta).await?;
-        Ok(())
-    }
-
-    /// Return the remote client for use in a full sync.
-    fn into_remote(self) -> HTTPSyncClient {
-        self.remote
+        self.finalize(&state).await?;
+        state.required = SyncActionRequired::NoChanges;
+        Ok(state.into())
     }
 
     // The following operations assume a transaction has been set up.
 
-    async fn start_and_process_deletions(&self, meta: &NormalSyncMeta) -> Result<()> {
+    async fn start_and_process_deletions(&self, state: &SyncState) -> Result<()> {
         let removed_on_remote = self
             .remote
             .start(
-                meta.local_usn,
+                state.local_usn,
                 self.col.get_local_mins_west(),
-                meta.local_is_newer,
+                state.local_is_newer,
             )
             .await?;
 
-        let mut locally_removed = self.col.storage.take_pending_graves(meta.remote_usn)?;
+        let mut locally_removed = self.col.storage.take_pending_graves(state.remote_usn)?;
 
         while let Some(chunk) = locally_removed.take_chunk() {
             self.remote.apply_graves(chunk).await?;
         }
 
-        self.col.apply_graves(removed_on_remote, meta.local_usn)?;
+        self.col.apply_graves(removed_on_remote, state.local_usn)?;
 
         Ok(())
     }
@@ -343,7 +353,7 @@ impl SyncDriver<'_> {
 
     /// Caller should force full sync after rolling back.
     async fn sanity_check(&self) -> Result<()> {
-        let local_counts = self.col.sanity_check_info()?;
+        let local_counts = self.col.storage.sanity_check_info()?;
         let out: SanityCheckOut = self.remote.sanity_check(local_counts).await?;
         if out.status != SanityCheckStatus::Ok {
             Err(AnkiError::SyncError {
@@ -355,9 +365,9 @@ impl SyncDriver<'_> {
         }
     }
 
-    async fn finalize(&self, meta: NormalSyncMeta) -> Result<()> {
+    async fn finalize(&self, state: &SyncState) -> Result<()> {
         let new_server_mtime = self.remote.finish().await?;
-        self.col.finalize_sync(meta, new_server_mtime)
+        self.col.finalize_sync(state, new_server_mtime)
     }
 }
 
@@ -387,7 +397,70 @@ impl Graves {
     }
 }
 
+pub async fn sync_login(username: &str, password: &str) -> Result<SyncAuth> {
+    let mut remote = HTTPSyncClient::new(None, 0);
+    remote.login(username, password).await?;
+    Ok(SyncAuth {
+        hkey: remote.hkey().to_string(),
+        host_number: 0,
+    })
+}
+
 impl Collection {
+    // fixme: upload only, download only case
+    pub async fn get_sync_status(&mut self, auth: SyncAuth) -> Result<SyncOutput> {
+        NormalSyncer::new(self, auth)
+            .get_sync_state()
+            .await
+            .map(Into::into)
+    }
+
+    pub async fn normal_sync(&mut self, auth: SyncAuth) -> Result<SyncOutput> {
+        // fixme: server abort on failure
+        NormalSyncer::new(self, auth).sync().await
+    }
+
+    /// Upload collection to AnkiWeb. Caller must re-open afterwards.
+    pub async fn full_upload<F>(mut self, auth: SyncAuth, progress_fn: F) -> Result<()>
+    where
+        F: Fn(&FullSyncProgress) + Send + Sync + 'static,
+    {
+        self.before_upload()?;
+        let col_path = self.col_path.clone();
+        self.close(true)?;
+        let mut remote = HTTPSyncClient::new(Some(auth.hkey), auth.host_number);
+        remote.upload(&col_path, progress_fn).await?;
+        Ok(())
+    }
+
+    /// Download collection from AnkiWeb. Caller must re-open afterwards.
+    pub async fn full_download<F>(self, auth: SyncAuth, progress_fn: F) -> Result<()>
+    where
+        F: Fn(&FullSyncProgress),
+    {
+        let col_path = self.col_path.clone();
+        let folder = col_path.parent().unwrap();
+        self.close(false)?;
+        let remote = HTTPSyncClient::new(Some(auth.hkey), auth.host_number);
+        let out_file = remote.download(folder, progress_fn).await?;
+        // check file ok
+        let db = rusqlite::Connection::open(out_file.path())?;
+        let check_result: String = db.pragma_query_value(None, "integrity_check", |r| r.get(0))?;
+        if check_result != "ok" {
+            return Err(AnkiError::SyncError {
+                info: "download corrupt".into(),
+                kind: SyncErrorKind::Other,
+            });
+        }
+        // overwrite existing collection atomically
+        out_file
+            .persist(&col_path)
+            .map_err(|e| AnkiError::IOError {
+                info: format!("download save failed: {}", e),
+            })?;
+        Ok(())
+    }
+
     fn sync_meta(&self) -> Result<SyncMeta> {
         Ok(SyncMeta {
             modified: self.storage.get_modified_time()?,
@@ -396,12 +469,9 @@ impl Collection {
             current_time: TimestampSecs::now(),
             server_message: "".into(),
             should_continue: true,
-            shard_number: 0,
+            host_number: 0,
+            empty: false,
         })
-    }
-
-    fn basic_check_for_sync(&self) -> Result<()> {
-        todo!();
     }
 
     fn apply_graves(&self, graves: Graves, local_usn: Usn) -> Result<()> {
@@ -438,7 +508,7 @@ impl Collection {
             ..Default::default()
         };
         if local_is_newer {
-            changes.config = Some(todo!());
+            changes.config = Some(self.changed_config()?);
             changes.creation_stamp = Some(self.storage.creation_stamp()?);
         }
 
@@ -476,7 +546,7 @@ impl Collection {
 
     /// Currently this is all config, as legacy clients overwrite the local items
     /// with the provided value.
-    fn changed_config(&self, new_usn: Usn) -> Result<HashMap<String, Value>> {
+    fn changed_config(&self) -> Result<HashMap<String, Value>> {
         let conf = self.storage.get_all_config()?;
         self.storage.clear_config_usns()?;
         Ok(conf)
@@ -502,7 +572,7 @@ impl Collection {
     }
 
     fn merge_notetypes(&mut self, notetypes: Vec<NoteTypeSchema11>) -> Result<()> {
-        for mut nt in notetypes {
+        for nt in notetypes {
             let nt: NoteType = nt.into();
             let proceed = if let Some(existing_nt) = self.storage.get_notetype(nt.id)? {
                 if existing_nt.mtime_secs < nt.mtime_secs {
@@ -530,7 +600,7 @@ impl Collection {
     }
 
     fn merge_decks(&mut self, decks: Vec<DeckSchema11>) -> Result<()> {
-        for mut deck in decks {
+        for deck in decks {
             let proceed = if let Some(existing_deck) = self.storage.get_deck(deck.id())? {
                 existing_deck.mtime_secs < deck.common().mtime
             } else {
@@ -546,7 +616,7 @@ impl Collection {
     }
 
     fn merge_deck_config(&self, dconf: Vec<DeckConfSchema11>) -> Result<()> {
-        for mut conf in dconf {
+        for conf in dconf {
             let proceed = if let Some(existing_conf) = self.storage.get_deck_config(conf.id)? {
                 existing_conf.mtime_secs < conf.mtime
             } else {
@@ -655,14 +725,9 @@ impl Collection {
     // Final steps
     //----------------------------------------------------------------
 
-    fn sanity_check_info(&self) -> Result<SanityCheckCounts> {
-        self.basic_check_for_sync()?;
-        todo!();
-    }
-
-    fn finalize_sync(&self, meta: NormalSyncMeta, new_server_mtime: TimestampMillis) -> Result<()> {
+    fn finalize_sync(&self, state: &SyncState, new_server_mtime: TimestampMillis) -> Result<()> {
         self.storage.set_last_sync(new_server_mtime)?;
-        let mut usn = meta.remote_usn;
+        let mut usn = state.remote_usn;
         usn.0 += 1;
         self.storage.set_usn(usn)?;
         self.storage.set_modified_time(new_server_mtime)
@@ -749,6 +814,16 @@ impl From<Note> for NoteEntry {
             csum: String::new(),
             flags: 0,
             data: String::new(),
+        }
+    }
+}
+
+impl From<SyncState> for SyncOutput {
+    fn from(s: SyncState) -> Self {
+        SyncOutput {
+            required: s.required,
+            server_message: s.server_message,
+            host_number: s.host_number,
         }
     }
 }

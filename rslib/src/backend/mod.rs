@@ -33,6 +33,7 @@ use crate::{
     sched::cutoff::local_minutes_west_for_stamp,
     sched::timespan::{answer_button_time, learning_congrats, studied_today, time_span},
     search::SortMode,
+    sync::{sync_login, FullSyncProgress, SyncActionRequired, SyncAuth, SyncOutput},
     template::RenderedNode,
     text::{extract_av_tags, strip_av_tags, AVTag},
     timestamp::TimestampSecs,
@@ -62,12 +63,13 @@ pub struct Backend {
     progress_callback: Option<ProtoProgressCallback>,
     i18n: I18n,
     server: bool,
-    media_sync_abort: Option<AbortHandle>,
+    sync_abort: Option<AbortHandle>,
 }
 
 enum Progress<'a> {
     MediaSync(&'a MediaSyncProgress),
     MediaCheck(u32),
+    FullSync(&'a FullSyncProgress),
 }
 
 /// Convert an Anki error to a protobuf error.
@@ -924,15 +926,26 @@ impl BackendService for Backend {
     // sync
     //-------------------------------------------------------------------
 
-    fn sync_login(&mut self, input: pb::SyncLoginIn) -> BackendResult<pb::SyncLoginOut> {
-        todo!()
+    fn sync_login(&mut self, input: pb::SyncLoginIn) -> BackendResult<pb::SyncAuth> {
+        self.sync_login_inner(input)
     }
 
-    fn sync_collection(
-        &mut self,
-        input: pb::SyncCollectionIn,
-    ) -> BackendResult<pb::SyncCollectionOut> {
-        todo!()
+    fn sync_status(&mut self, input: pb::SyncAuth) -> BackendResult<pb::SyncCollectionOut> {
+        self.sync_collection_inner(input, true)
+    }
+
+    fn sync_collection(&mut self, input: pb::SyncAuth) -> BackendResult<pb::SyncCollectionOut> {
+        self.sync_collection_inner(input, false)
+    }
+
+    fn full_upload(&mut self, input: pb::SyncAuth) -> BackendResult<Empty> {
+        self.full_sync_inner(input, true)?;
+        Ok(().into())
+    }
+
+    fn full_download(&mut self, input: pb::SyncAuth) -> BackendResult<Empty> {
+        self.full_sync_inner(input, false)?;
+        Ok(().into())
     }
 
     fn sync_media(&mut self, input: SyncMediaIn) -> BackendResult<Empty> {
@@ -954,8 +967,8 @@ impl BackendService for Backend {
         res.map(Into::into)
     }
 
-    fn abort_media_sync(&mut self, _input: Empty) -> BackendResult<Empty> {
-        if let Some(handle) = self.media_sync_abort.take() {
+    fn abort_sync(&mut self, _input: Empty) -> BackendResult<Empty> {
+        if let Some(handle) = self.sync_abort.take() {
             handle.abort();
         }
         Ok(().into())
@@ -1090,7 +1103,7 @@ impl Backend {
             progress_callback: None,
             i18n,
             server,
-            media_sync_abort: None,
+            sync_abort: None,
         }
     }
 
@@ -1148,7 +1161,7 @@ impl Backend {
         log: Logger,
     ) -> Result<()> {
         let (abort_handle, abort_reg) = AbortHandle::new_pair();
-        self.media_sync_abort = Some(abort_handle);
+        self.sync_abort = Some(abort_handle);
 
         let callback = |progress: &MediaSyncProgress| {
             self.fire_progress_callback(Progress::MediaSync(progress))
@@ -1165,8 +1178,110 @@ impl Backend {
                 Err(AnkiError::Interrupted)
             }
         };
-        self.media_sync_abort = None;
+        self.sync_abort = None;
         ret
+    }
+
+    fn sync_login_inner(&mut self, input: pb::SyncLoginIn) -> BackendResult<pb::SyncAuth> {
+        let (abort_handle, abort_reg) = AbortHandle::new_pair();
+        self.sync_abort = Some(abort_handle);
+
+        let mut rt = Runtime::new().unwrap();
+        let sync_fut = sync_login(&input.username, &input.password);
+        let abortable_sync = Abortable::new(sync_fut, abort_reg);
+        let ret = match rt.block_on(abortable_sync) {
+            Ok(sync_result) => sync_result,
+            Err(_) => Err(AnkiError::Interrupted),
+        };
+        self.sync_abort = None;
+        ret.map(|a| pb::SyncAuth {
+            hkey: a.hkey,
+            host_number: a.host_number,
+        })
+    }
+
+    fn sync_collection_inner(
+        &mut self,
+        input: pb::SyncAuth,
+        check_only: bool,
+    ) -> BackendResult<pb::SyncCollectionOut> {
+        let (abort_handle, abort_reg) = AbortHandle::new_pair();
+        self.sync_abort = Some(abort_handle);
+
+        let mut rt = Runtime::new().unwrap();
+
+        let ret = self.with_col(|col| {
+            let result = if check_only {
+                let sync_fut = col.get_sync_status(input.into());
+                let abortable_sync = Abortable::new(sync_fut, abort_reg);
+                rt.block_on(abortable_sync)
+            } else {
+                let sync_fut = col.normal_sync(input.into());
+                let abortable_sync = Abortable::new(sync_fut, abort_reg);
+                rt.block_on(abortable_sync)
+            };
+            match result {
+                Ok(sync_result) => sync_result,
+                Err(_) => Err(AnkiError::Interrupted),
+            }
+        });
+        self.sync_abort = None;
+        let output: SyncOutput = ret?;
+        Ok(output.into())
+    }
+
+    fn full_sync_inner(&mut self, input: pb::SyncAuth, upload: bool) -> Result<()> {
+        let mut col = self.col.lock().unwrap();
+        if col.is_none() {
+            return Err(AnkiError::CollectionNotOpen);
+        }
+        if !col.as_ref().unwrap().can_close() {
+            return Err(AnkiError::invalid_input("can't close yet"));
+        }
+
+        let col_inner = col.take().unwrap();
+
+        let (abort_handle, abort_reg) = AbortHandle::new_pair();
+        self.sync_abort = Some(abort_handle);
+
+        let col_path = col_inner.col_path.clone();
+        let media_folder_path = col_inner.media_folder.clone();
+        let media_db_path = col_inner.media_db.clone();
+        let logger = col_inner.log.clone();
+
+        // FIXME: throttle
+        let progress_fn = |progress: &FullSyncProgress| {
+            self.fire_progress_callback(Progress::FullSync(progress));
+        };
+
+        let mut rt = Runtime::new().unwrap();
+
+        let result = if upload {
+            todo!()
+        // let sync_fut = col_inner.full_upload(input.into(), progress_fn);
+        // let abortable_sync = Abortable::new(sync_fut, abort_reg);
+        // rt.block_on(abortable_sync)
+        } else {
+            let sync_fut = col_inner.full_download(input.into(), progress_fn);
+            let abortable_sync = Abortable::new(sync_fut, abort_reg);
+            rt.block_on(abortable_sync)
+        };
+        self.sync_abort = None;
+
+        // ensure re-opened regardless of outcome
+        col.replace(open_collection(
+            col_path,
+            media_folder_path,
+            media_db_path,
+            self.server,
+            self.i18n.clone(),
+            logger,
+        )?);
+
+        match result {
+            Ok(sync_result) => sync_result,
+            Err(_) => Err(AnkiError::Interrupted),
+        }
     }
 
     pub fn db_command(&self, input: &[u8]) -> Result<String> {
@@ -1230,6 +1345,10 @@ fn progress_to_proto_bytes(progress: Progress, i18n: &I18n) -> Vec<u8> {
                 let s = i18n.trn(TR::MediaCheckChecked, tr_args!["count"=>n]);
                 pb::progress::Value::MediaCheck(s)
             }
+            Progress::FullSync(p) => pb::progress::Value::FullSync(pb::FullSyncProgress {
+                transferred: p.transferred_bytes as u32,
+                total: p.total_bytes as u32,
+            }),
         }),
     };
 
@@ -1329,6 +1448,35 @@ impl From<crate::sched::cutoff::SchedTimingToday> for pb::SchedTimingTodayOut {
         pb::SchedTimingTodayOut {
             days_elapsed: t.days_elapsed,
             next_day_at: t.next_day_at,
+        }
+    }
+}
+
+impl From<SyncOutput> for pb::SyncCollectionOut {
+    fn from(o: SyncOutput) -> Self {
+        pb::SyncCollectionOut {
+            host_number: o.host_number,
+            server_message: o.server_message,
+            required: match o.required {
+                SyncActionRequired::NoChanges => {
+                    pb::sync_collection_out::ChangesRequired::NoChanges as i32
+                }
+                SyncActionRequired::FullSyncRequired => {
+                    pb::sync_collection_out::ChangesRequired::FullSync as i32
+                }
+                SyncActionRequired::NormalSyncRequired => {
+                    pb::sync_collection_out::ChangesRequired::NormalSync as i32
+                }
+            },
+        }
+    }
+}
+
+impl From<pb::SyncAuth> for SyncAuth {
+    fn from(a: pb::SyncAuth) -> Self {
+        SyncAuth {
+            hkey: a.hkey,
+            host_number: a.host_number,
         }
     }
 }
