@@ -185,13 +185,13 @@ pub struct FullSyncProgress {
     pub total_bytes: usize,
 }
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 pub enum SyncActionRequired {
     NoChanges,
-    FullSyncRequired,
+    FullSyncRequired { upload_ok: bool, download_ok: bool },
     NormalSyncRequired,
 }
-
+#[derive(Debug)]
 struct SyncState {
     required: SyncActionRequired,
     local_is_newer: bool,
@@ -227,13 +227,26 @@ impl NormalSyncer<'_> {
     }
 
     pub async fn sync(&mut self) -> Result<SyncOutput> {
+        debug!(self.col.log, "fetching meta...");
         let state: SyncState = self.get_sync_state().await?;
+        debug!(self.col.log, "fetched"; "state"=>?&state);
         match state.required {
             SyncActionRequired::NoChanges => Ok(state.into()),
-            SyncActionRequired::FullSyncRequired => Ok(state.into()),
+            SyncActionRequired::FullSyncRequired { .. } => Ok(state.into()),
             SyncActionRequired::NormalSyncRequired => {
-                // fixme: transaction
-                self.normal_sync_inner(state).await
+                self.col.storage.begin_trx()?;
+                match self.normal_sync_inner(state).await {
+                    Ok(success) => {
+                        self.col.storage.commit_trx()?;
+                        Ok(success)
+                    }
+                    Err(e) => {
+                        // fixme: full sync on sanity check failure, etc
+                        self.col.storage.rollback_trx()?;
+                        let _ = self.remote.abort().await;
+                        Err(e)
+                    }
+                }
             }
         }
     }
@@ -241,6 +254,7 @@ impl NormalSyncer<'_> {
     async fn get_sync_state(&self) -> Result<SyncState> {
         let remote: SyncMeta = self.remote.meta().await?;
         if !remote.should_continue {
+            debug!(self.col.log, "server says abort"; "message"=>&remote.server_message);
             return Err(AnkiError::SyncError {
                 info: remote.server_message,
                 kind: SyncErrorKind::ServerMessage,
@@ -248,7 +262,9 @@ impl NormalSyncer<'_> {
         }
 
         let local = self.col.sync_meta()?;
-        if (remote.current_time.0 - local.current_time.0).abs() > 300 {
+        let delta = remote.current_time.0 - local.current_time.0;
+        if delta.abs() > 300 {
+            debug!(self.col.log, "clock off"; "delta"=>delta);
             return Err(AnkiError::SyncError {
                 // fixme: need to rethink error handling; defer translation and pass in time difference
                 info: "".into(),
@@ -259,7 +275,12 @@ impl NormalSyncer<'_> {
         let required = if remote.modified == local.modified {
             SyncActionRequired::NoChanges
         } else if remote.schema != local.schema {
-            SyncActionRequired::FullSyncRequired
+            let upload_ok = !local.empty;
+            let download_ok = !remote.empty;
+            SyncActionRequired::FullSyncRequired {
+                upload_ok,
+                download_ok,
+            }
         } else {
             SyncActionRequired::NormalSyncRequired
         };
@@ -407,7 +428,6 @@ pub async fn sync_login(username: &str, password: &str) -> Result<SyncAuth> {
 }
 
 impl Collection {
-    // fixme: upload only, download only case
     pub async fn get_sync_status(&mut self, auth: SyncAuth) -> Result<SyncOutput> {
         NormalSyncer::new(self, auth)
             .get_sync_state()
@@ -470,7 +490,7 @@ impl Collection {
             server_message: "".into(),
             should_continue: true,
             host_number: 0,
-            empty: false,
+            empty: self.storage.have_at_least_one_card()?,
         })
     }
 

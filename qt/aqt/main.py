@@ -875,7 +875,8 @@ title="%s" %s>%s</button>""" % (
         if self.media_syncer.is_syncing():
             self.media_syncer.show_sync_log()
         else:
-            self.unloadCollection(self._onSync)
+            self.temp_sync()
+            # self.unloadCollection(self._onSync)
 
     def _onSync(self):
         self._sync()
@@ -909,6 +910,11 @@ title="%s" %s>%s</button>""" % (
         self.syncer = SyncManager(self, self.pm)
         self.syncer.sync()
         self.app.setQuitOnLastWindowClosed(True)
+
+    def temp_sync(self):
+        from aqt.sync import sync
+
+        sync(self)
 
     # Tools
     ##########################################################################

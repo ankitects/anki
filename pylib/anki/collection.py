@@ -239,11 +239,20 @@ class Collection:
             self.media.close()
             self._closeLog()
 
+    def close_for_full_sync(self) -> None:
+        # save and cleanup, but backend will take care of collection close
+        if self.db:
+            self.save(trx=False)
+            self.models._clear_cache()
+            self.db = None
+            self.media.close()
+            self._closeLog()
+
     def rollback(self) -> None:
         self.db.rollback()
         self.db.begin()
 
-    def reopen(self) -> None:
+    def reopen(self, after_full_sync=False) -> None:
         assert not self.db
         assert self.path.endswith(".anki2")
 
@@ -255,12 +264,13 @@ class Collection:
             log_path = self.path.replace(".anki2", "2.log")
 
         # connect
-        self.backend.open_collection(
-            collection_path=self.path,
-            media_folder_path=media_dir,
-            media_db_path=media_db,
-            log_path=log_path,
-        )
+        if not after_full_sync:
+            self.backend.open_collection(
+                collection_path=self.path,
+                media_folder_path=media_dir,
+                media_db_path=media_db,
+                log_path=log_path,
+            )
         self.db = DBProxy(weakref.proxy(self.backend))
         self.db.begin()
 

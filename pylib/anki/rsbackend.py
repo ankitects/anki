@@ -52,6 +52,8 @@ TagUsnTuple = pb.TagUsnTuple
 NoteType = pb.NoteType
 DeckTreeNode = pb.DeckTreeNode
 StockNoteType = pb.StockNoteType
+SyncAuth = pb.SyncAuth
+SyncOutput = pb.SyncCollectionOut
 
 try:
     import orjson
@@ -147,6 +149,7 @@ def proto_exception_to_native(err: pb.BackendError) -> Exception:
 
 
 MediaSyncProgress = pb.MediaSyncProgress
+FullSyncProgress = pb.FullSyncProgress
 
 FormatTimeSpanContext = pb.FormatTimespanIn.Context
 
@@ -254,4 +257,6 @@ def translate_string_in(
 
 # temporarily force logging of media handling
 if "RUST_LOG" not in os.environ:
-    os.environ["RUST_LOG"] = "warn,anki::media=debug,anki::dbcheck=debug"
+    os.environ[
+        "RUST_LOG"
+    ] = "warn,anki::media=debug,anki::sync=debug,anki::dbcheck=debug"

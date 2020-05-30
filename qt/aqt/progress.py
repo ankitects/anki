@@ -87,7 +87,14 @@ class ProgressManager:
         qconnect(self._show_timer.timeout, self._on_show_timer)
         return self._win
 
-    def update(self, label=None, value=None, process=True, maybeShow=True) -> None:
+    def update(
+        self,
+        label=None,
+        value=None,
+        process=True,
+        maybeShow=True,
+        max: Optional[int] = None,
+    ) -> None:
         # print self._min, self._counter, self._max, label, time.time() - self._lastTime
         if not self.mw.inMainThread():
             print("progress.update() called on wrong thread")
@@ -101,7 +108,9 @@ class ProgressManager:
         elapsed = time.time() - self._lastUpdate
         if label:
             self._win.form.label.setText(label)
+        self._max = max
         if self._max:
+            self._win.form.progressBar.setMaximum(max)
             self._counter = value or (self._counter + 1)
             self._win.form.progressBar.setValue(self._counter)
         if process and elapsed >= 0.2:
@@ -169,6 +178,13 @@ class ProgressManager:
     def _on_show_timer(self):
         self._show_timer = None
         self._showWin()
+
+    def want_cancel(self) -> bool:
+        win = self._win
+        if win:
+            return win.wantCancel
+        else:
+            return False
 
 
 class ProgressDialog(QDialog):

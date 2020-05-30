@@ -45,7 +45,7 @@ where
     client: Client,
     progress_cb: P,
     progress: MediaSyncProgress,
-    endpoint: &'a str,
+    endpoint: String,
     log: Logger,
 }
 
@@ -132,23 +132,36 @@ struct FinalizeResponse {
     err: String,
 }
 
+fn media_sync_endpoint(host_number: u32) -> String {
+    if let Ok(endpoint) = std::env::var("SYNC_ENDPOINT_MEDIA") {
+        endpoint
+    } else {
+        let suffix = if host_number > 0 {
+            format!("{}", host_number)
+        } else {
+            "".to_string()
+        };
+        format!("https://sync{}.ankiweb.net/msync/", suffix)
+    }
+}
+
 impl<P> MediaSyncer<'_, P>
 where
     P: FnMut(MediaSyncProgress) -> bool,
 {
-    pub fn new<'a>(
-        mgr: &'a MediaManager,
+    pub fn new(
+        mgr: &MediaManager,
         progress_cb: P,
-        endpoint: &'a str,
+        host_number: u32,
         log: Logger,
-    ) -> MediaSyncer<'a, P> {
+    ) -> MediaSyncer<'_, P> {
         let client = Client::builder()
             .connect_timeout(Duration::from_secs(30))
             .timeout(Duration::from_secs(60))
             .build()
             .unwrap();
+        let endpoint = media_sync_endpoint(host_number);
         let ctx = mgr.dbctx();
-
         MediaSyncer {
             mgr,
             ctx,
@@ -817,8 +830,7 @@ mod test {
         let log = crate::log::terminal();
 
         let mgr = MediaManager::new(&media_dir, &media_db)?;
-        mgr.sync_media(progress, "https://sync.ankiweb.net/msync/", hkey, log)
-            .await?;
+        mgr.sync_media(progress, 0, hkey, log).await?;
 
         Ok(())
     }

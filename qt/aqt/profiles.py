@@ -21,6 +21,7 @@ import aqt.sound
 from anki import Collection
 from anki.db import DB
 from anki.lang import _, without_unicode_isolation
+from anki.rsbackend import SyncAuth
 from anki.utils import intTime, isMac, isWin
 from aqt import appHelpSite
 from aqt.qt import *
@@ -605,17 +606,23 @@ create table if not exists profiles
         self.profile["interrupt_audio"] = val
         aqt.sound.av_player.interrupt_current_audio = val
 
-    def sync_key(self) -> Optional[str]:
-        return self.profile.get("syncKey")
-
     def set_sync_key(self, val: Optional[str]) -> None:
         self.profile["syncKey"] = val
+
+    def set_sync_username(self, val: Optional[str]) -> None:
+        self.profile["syncUser"] = val
+
+    def set_host_number(self, val: Optional[int]) -> None:
+        self.profile["hostNum"] = val or 0
 
     def media_syncing_enabled(self) -> bool:
         return self.profile["syncMedia"]
 
-    def sync_shard(self) -> Optional[int]:
-        return self.profile.get("hostNum")
+    def sync_auth(self) -> Optional[SyncAuth]:
+        hkey = self.profile.get("syncKey")
+        if not hkey:
+            return None
+        return SyncAuth(hkey=hkey, host_number=self.profile.get("hostNum", 0))
 
     ######################################################################
 

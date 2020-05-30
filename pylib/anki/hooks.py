@@ -466,6 +466,8 @@ schema_will_change = _SchemaWillChangeFilter()
 
 
 class _SyncProgressDidChangeHook:
+    """Obsolete, do not use."""
+
     _hooks: List[Callable[[str], None]] = []
 
     def append(self, cb: Callable[[str], None]) -> None:
@@ -484,14 +486,14 @@ class _SyncProgressDidChangeHook:
                 # if the hook fails, remove it
                 self._hooks.remove(hook)
                 raise
-        # legacy support
-        runHook("syncMsg", msg)
 
 
 sync_progress_did_change = _SyncProgressDidChangeHook()
 
 
 class _SyncStageDidChangeHook:
+    """Obsolete, do not use."""
+
     _hooks: List[Callable[[str], None]] = []
 
     def append(self, cb: Callable[[str], None]) -> None:
@@ -510,8 +512,6 @@ class _SyncStageDidChangeHook:
                 # if the hook fails, remove it
                 self._hooks.remove(hook)
                 raise
-        # legacy support
-        runHook("sync", stage)
 
 
 sync_stage_did_change = _SyncStageDidChangeHook()
