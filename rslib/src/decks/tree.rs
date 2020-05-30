@@ -175,6 +175,16 @@ fn hide_default_deck(node: &mut DeckTreeNode) {
     }
 }
 
+fn get_subnode(top: DeckTreeNode, target: DeckID) -> Option<DeckTreeNode> {
+    for child in top.children {
+        if child.deck_id == target.0 {
+            return Some(child);
+        }
+    }
+
+    None
+}
+
 #[derive(Serialize_tuple)]
 pub(crate) struct LegacyDueCounts {
     name: String,
@@ -246,6 +256,12 @@ impl Collection {
         }
 
         Ok(tree)
+    }
+
+    pub fn current_deck_tree(&mut self) -> Result<Option<DeckTreeNode>> {
+        let target = self.get_current_deck_id();
+        let tree = self.deck_tree(true, Some(target))?;
+        Ok(get_subnode(tree, target))
     }
 
     pub(crate) fn legacy_deck_tree(&mut self) -> Result<LegacyDueCounts> {
