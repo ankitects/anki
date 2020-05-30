@@ -374,6 +374,7 @@ class AnkiMediaQueue {
     }
 
     replay() {
+        // this._debug(`replay '${this.is_playing}'`);
         let is_autoseek = this.is_autoseek;
         try {
             if (this._is_autoseek_timer) {
@@ -386,6 +387,8 @@ class AnkiMediaQueue {
                 this._playing_element.currentTime = 0;
                 this._clearPlayingElement();
             }
+            // this._debug(`play_duplicates ${Array.from(this.play_duplicates.values())}`);
+            this.play_duplicates.clear();
 
             if (this.playing_front.length > 0) {
                 this.playing_front.length = 0;
