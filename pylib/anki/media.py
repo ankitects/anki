@@ -86,7 +86,10 @@ class MediaManager:
         return self._dir
 
     def force_resync(self) -> None:
-        os.unlink(media_paths_from_col_path(self.col.path)[1])
+        try:
+            os.unlink(media_paths_from_col_path(self.col.path)[1])
+        except FileNotFoundError:
+            pass
 
     # File manipulation
     ##########################################################################
