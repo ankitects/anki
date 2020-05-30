@@ -66,6 +66,7 @@ class AnkiMediaQueue {
     is_playing: boolean;
     is_autoplay: boolean;
     is_autoseek: boolean;
+    _is_autoseek_callback: Function;
     _is_autoseek_timer: any;
     _playing_element_timer: any;
     _check_preview_page_timer: any;
@@ -162,6 +163,7 @@ class AnkiMediaQueue {
         }
         this._is_autoseek_timer = undefined;
         this._check_preview_page_timer = undefined;
+        this._is_autoseek_callback = () => {};
         this.is_first = false;
         this.is_setup = false;
         this.where = "front";
@@ -375,13 +377,14 @@ class AnkiMediaQueue {
 
     replay() {
         // this._debug(`replay '${this.is_playing}'`);
+        if (this._is_autoseek_timer) {
+            clearTimeout(this._is_autoseek_timer);
+            this._is_autoseek_callback();
+        }
         let is_autoseek = this.is_autoseek;
+        this.is_autoseek = false;
+
         try {
-            if (this._is_autoseek_timer) {
-                clearTimeout(this._is_autoseek_timer);
-                this._is_autoseek_timer = undefined;
-            }
-            this.is_autoseek = false;
             if (this._playing_element) {
                 this._playing_element.pause();
                 this._playing_element.currentTime = 0;
@@ -402,10 +405,17 @@ class AnkiMediaQueue {
             this.is_playing = false;
             this._play();
         } finally {
-            this._is_autoseek_timer = setTimeout(() => {
+            this._is_autoseek_callback = () => {
                 this.is_autoseek = is_autoseek;
                 this._is_autoseek_timer = undefined;
-            }, ANKI_MEDIA_QUEUE_PREVIEW_TIMEOUT);
+                this._is_autoseek_callback = () => {};
+            };
+            this._is_autoseek_callback = this._is_autoseek_callback.bind(this);
+
+            this._is_autoseek_timer = setTimeout(
+                this._is_autoseek_callback,
+                ANKI_MEDIA_QUEUE_PREVIEW_TIMEOUT
+            );
         }
     }
 
