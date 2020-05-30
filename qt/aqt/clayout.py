@@ -100,6 +100,7 @@ class CardLayout(QDialog):
 
     def setupTopArea(self):
         self.topArea = QWidget()
+        self.topArea.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
         self.topAreaForm = aqt.forms.clayout_top.Ui_Form()
         self.topAreaForm.setupUi(self.topArea)
         self.topAreaForm.templateOptions.setText(_("Options") + " " + downArrow())
@@ -173,14 +174,14 @@ class CardLayout(QDialog):
     ##########################################################################
 
     def setupMainArea(self):
-        w = self.mainArea = QWidget()
-        l = QHBoxLayout()
-        l.setContentsMargins(0, 0, 0, 0)
-        l.setSpacing(3)
+        split = self.mainArea = QSplitter()
+        split.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        split.setOrientation(Qt.Horizontal)
         left = QWidget()
         tform = self.tform = aqt.forms.template.Ui_Form()
         tform.setupUi(left)
-        l.addWidget(left, 5)
+        split.addWidget(left)
+        split.setCollapsible(0, False)
 
         right = QWidget()
         self.pform = aqt.forms.preview.Ui_Form()
@@ -192,9 +193,8 @@ class CardLayout(QDialog):
 
         self.setup_edit_area()
         self.setup_preview()
-
-        l.addWidget(right, 5)
-        w.setLayout(l)
+        split.addWidget(right)
+        split.setCollapsible(1, False)
 
     def setup_edit_area(self):
         tform = self.tform
