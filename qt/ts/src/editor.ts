@@ -8,6 +8,8 @@ let changeTimer = null;
 let dropTarget = null;
 let currentNoteId = null;
 
+let onFocusHook: (() => void)[] = [];
+
 declare interface String {
     format(...args): string;
 }
@@ -151,6 +153,7 @@ function onFocus(elem) {
     currentField = elem;
     pycmd("focus:" + currentFieldOrdinal());
     enableButtons();
+    _runHook(onFocusHook);
     // don't adjust cursor on mouse clicks
     if (mouseDown) {
         return;
