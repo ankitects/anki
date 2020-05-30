@@ -10,7 +10,6 @@ use crate::{
         NoteTypeConfig,
     },
     notetype::{NoteType, NoteTypeID, NoteTypeSchema11},
-    prelude::*,
     timestamp::TimestampMillis,
 };
 use prost::Message;
@@ -327,19 +326,6 @@ and ord in ",
             .prepare("update notetypes set usn = 0 where usn != 0")?
             .execute(NO_PARAMS)?;
         Ok(())
-    }
-
-    pub(crate) fn take_notetype_ids_pending_sync(&self, new_usn: Usn) -> Result<Vec<NoteTypeID>> {
-        let ids: Vec<NoteTypeID> = self
-            .db
-            .prepare("select id from notetypes where usn=-1")?
-            .query_and_then(NO_PARAMS, |r| r.get(0))?
-            .collect::<std::result::Result<_, rusqlite::Error>>()?;
-        self.db
-            .prepare("update notetypes set usn=? where usn=-1")?
-            .execute(&[new_usn])?;
-
-        Ok(ids)
     }
 
     // Upgrading/downgrading/legacy

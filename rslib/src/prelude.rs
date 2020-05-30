@@ -9,6 +9,7 @@ pub use crate::{
     err::{AnkiError, Result},
     notes::NoteID,
     notetype::NoteTypeID,
+    revlog::RevlogID,
     timestamp::{TimestampMillis, TimestampSecs},
     types::Usn,
 };

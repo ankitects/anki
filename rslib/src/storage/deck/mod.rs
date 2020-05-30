@@ -9,7 +9,6 @@ use crate::{
     decks::{Deck, DeckCommon, DeckID, DeckKindProto, DeckSchema11, DueCounts},
     err::{AnkiError, DBErrorKind, Result},
     i18n::{I18n, TR},
-    prelude::*,
     timestamp::TimestampMillis,
 };
 use prost::Message;
@@ -231,19 +230,6 @@ impl SqliteStorage {
             .prepare("update decks set usn = 0 where usn != 0")?
             .execute(NO_PARAMS)?;
         Ok(())
-    }
-
-    pub(crate) fn take_deck_ids_pending_sync(&self, new_usn: Usn) -> Result<Vec<DeckID>> {
-        let ids: Vec<DeckID> = self
-            .db
-            .prepare("select id from decks where usn=-1")?
-            .query_and_then(NO_PARAMS, |r| r.get(0))?
-            .collect::<std::result::Result<_, rusqlite::Error>>()?;
-        self.db
-            .prepare("update decks set usn=? where usn=-1")?
-            .execute(&[new_usn])?;
-
-        Ok(ids)
     }
 
     // Upgrading/downgrading/legacy

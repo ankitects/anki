@@ -6,7 +6,6 @@ use crate::{
     decks::DeckID,
     err::Result,
     notes::NoteID,
-    sync::CardEntry,
     timestamp::{TimestampMillis, TimestampSecs},
     types::Usn,
 };
@@ -218,31 +217,6 @@ impl super::SqliteStorage {
             .prepare("update cards set usn = 0 where usn = -1")?
             .execute(NO_PARAMS)?;
         Ok(())
-    }
-
-    pub(crate) fn take_cards_pending_sync(
-        &self,
-        new_usn: Usn,
-        limit: usize,
-    ) -> Result<Vec<CardEntry>> {
-        let entries: Vec<CardEntry> = self
-            .db
-            .prepare_cached(concat!(
-                include_str!("get_card.sql"),
-                " where usn=-1 limit ?"
-            ))?
-            .query_and_then(&[limit as u32], |r| {
-                row_to_card(r).map(Into::into).map_err(Into::into)
-            })?
-            .collect::<Result<_>>()?;
-        let mut stmt = self
-            .db
-            .prepare_cached("update cards set usn=? where id=?")?;
-        for entry in &entries {
-            stmt.execute(params![new_usn, entry.id])?;
-        }
-
-        Ok(entries)
     }
 
     pub(crate) fn have_at_least_one_card(&self) -> Result<bool> {

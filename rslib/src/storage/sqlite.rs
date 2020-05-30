@@ -5,7 +5,7 @@ use crate::config::schema11_config_as_string;
 use crate::err::Result;
 use crate::err::{AnkiError, DBErrorKind};
 use crate::timestamp::{TimestampMillis, TimestampSecs};
-use crate::{i18n::I18n, sched::cutoff::v1_creation_date, text::without_combining, types::Usn};
+use crate::{i18n::I18n, sched::cutoff::v1_creation_date, text::without_combining};
 use regex::Regex;
 use rusqlite::{functions::FunctionFlags, params, Connection, NO_PARAMS};
 use std::cmp::Ordering;
@@ -275,31 +275,6 @@ impl SqliteStorage {
             .next()
             .ok_or_else(|| AnkiError::invalid_input("missing col"))?
             .map_err(Into::into)
-    }
-
-    pub(crate) fn usn(&self, server: bool) -> Result<Usn> {
-        if server {
-            Ok(Usn(self
-                .db
-                .prepare_cached("select usn from col")?
-                .query_row(NO_PARAMS, |row| row.get(0))?))
-        } else {
-            Ok(Usn(-1))
-        }
-    }
-
-    pub(crate) fn set_usn(&self, usn: Usn) -> Result<()> {
-        self.db
-            .prepare_cached("update col set usn = ?")?
-            .execute(&[usn])?;
-        Ok(())
-    }
-
-    pub(crate) fn increment_usn(&self) -> Result<()> {
-        self.db
-            .prepare_cached("update col set usn = usn + 1")?
-            .execute(NO_PARAMS)?;
-        Ok(())
     }
 
     pub(crate) fn creation_stamp(&self) -> Result<TimestampSecs> {

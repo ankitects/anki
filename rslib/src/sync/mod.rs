@@ -88,6 +88,12 @@ pub struct Chunk {
     notes: Vec<NoteEntry>,
 }
 
+struct ChunkableIDs {
+    revlog: Vec<RevlogID>,
+    cards: Vec<CardID>,
+    notes: Vec<NoteID>,
+}
+
 #[derive(Serialize_tuple, Deserialize, Debug)]
 pub struct ReviewLogEntry {
     pub id: TimestampMillis,
@@ -195,8 +201,13 @@ pub enum SyncActionRequired {
 struct SyncState {
     required: SyncActionRequired,
     local_is_newer: bool,
-    local_usn: Usn,
-    remote_usn: Usn,
+    usn_at_last_sync: Usn,
+    // latest usn, used for adding new items
+    latest_usn: Usn,
+    // usn to use when locating pending objects
+    pending_usn: Usn,
+    // usn to replace pending items with - the same as latest_usn in the client case
+    new_usn: Option<Usn>,
     server_message: String,
     host_number: u32,
 }
@@ -215,6 +226,17 @@ pub struct SyncAuth {
 struct NormalSyncer<'a> {
     col: &'a mut Collection,
     remote: HTTPSyncClient,
+}
+
+impl Usn {
+    /// Used when gathering pending objects during sync.
+    pub(crate) fn pending_object_clause(self) -> &'static str {
+        if self.0 == -1 {
+            "usn = ?"
+        } else {
+            "usn >= ?"
+        }
+    }
 }
 
 impl NormalSyncer<'_> {
@@ -296,8 +318,10 @@ impl NormalSyncer<'_> {
         Ok(SyncState {
             required,
             local_is_newer: local.modified > remote.modified,
-            local_usn: local.usn,
-            remote_usn: remote.usn,
+            usn_at_last_sync: local.usn,
+            latest_usn: remote.usn,
+            pending_usn: Usn(-1),
+            new_usn: Some(remote.usn),
             server_message: remote.server_message,
             host_number: remote.host_number,
         })
@@ -306,12 +330,17 @@ impl NormalSyncer<'_> {
     /// Sync. Caller must have created a transaction, and should call
     /// abort on failure.
     async fn normal_sync_inner(&mut self, mut state: SyncState) -> Result<SyncOutput> {
+        debug!(self.col.log, "start");
         self.start_and_process_deletions(&state).await?;
-        self.process_unchunked_changes(state.remote_usn, state.local_is_newer)
-            .await?;
+        debug!(self.col.log, "unchunked changes");
+        self.process_unchunked_changes(&state).await?;
+        debug!(self.col.log, "begin stream from server");
         self.process_chunks_from_server().await?;
-        self.send_chunks_to_server(state.remote_usn).await?;
+        debug!(self.col.log, "begin stream to server");
+        self.send_chunks_to_server(&state).await?;
+        debug!(self.col.log, "sanity check");
         self.sanity_check().await?;
+        debug!(self.col.log, "finalize");
         self.finalize(&state).await?;
         state.required = SyncActionRequired::NoChanges;
         Ok(state.into())
@@ -320,22 +349,37 @@ impl NormalSyncer<'_> {
     // The following operations assume a transaction has been set up.
 
     async fn start_and_process_deletions(&self, state: &SyncState) -> Result<()> {
-        let removed_on_remote = self
+        let removed_on_remote: Graves = self
             .remote
             .start(
-                state.local_usn,
+                state.usn_at_last_sync,
                 self.col.get_local_mins_west(),
                 state.local_is_newer,
             )
             .await?;
 
-        let mut locally_removed = self.col.storage.take_pending_graves(state.remote_usn)?;
+        debug!(self.col.log, "removed on remote";
+            "cards"=>removed_on_remote.cards.len(),
+            "notes"=>removed_on_remote.notes.len(),
+            "decks"=>removed_on_remote.decks.len());
+
+        let mut locally_removed = self.col.storage.pending_graves(state.pending_usn)?;
+        if let Some(new_usn) = state.new_usn {
+            self.col.storage.update_pending_grave_usns(new_usn)?;
+        }
+
+        debug!(self.col.log, "locally removed  ";
+            "cards"=>locally_removed.cards.len(),
+            "notes"=>locally_removed.notes.len(),
+            "decks"=>locally_removed.decks.len());
 
         while let Some(chunk) = locally_removed.take_chunk() {
+            debug!(self.col.log, "sending graves chunk");
             self.remote.apply_graves(chunk).await?;
         }
 
-        self.col.apply_graves(removed_on_remote, state.local_usn)?;
+        self.col.apply_graves(removed_on_remote, state.latest_usn)?;
+        debug!(self.col.log, "applied server graves");
 
         Ok(())
     }
@@ -344,21 +388,42 @@ impl NormalSyncer<'_> {
     // the large deck trees and note types some users would create. They should be chunked
     // in the future, like other objects. Syncing tags explicitly is also probably of limited
     // usefulness.
-    async fn process_unchunked_changes(
-        &mut self,
-        remote_usn: Usn,
-        local_is_newer: bool,
-    ) -> Result<()> {
-        let local_changes = self
-            .col
-            .local_unchunked_changes(remote_usn, local_is_newer)?;
+    async fn process_unchunked_changes(&mut self, state: &SyncState) -> Result<()> {
+        debug!(self.col.log, "gathering local changes");
+        let local_changes = self.col.local_unchunked_changes(
+            state.pending_usn,
+            state.new_usn,
+            state.local_is_newer,
+        )?;
+        debug!(self.col.log, "sending";
+            "notetypes"=>local_changes.notetypes.len(),
+            "decks"=>local_changes.decks_and_config.decks.len(),
+            "deck config"=>local_changes.decks_and_config.config.len(),
+            "tags"=>local_changes.tags.len(),
+        );
+
         let remote_changes = self.remote.apply_changes(local_changes).await?;
-        self.col.apply_changes(remote_changes, remote_usn)
+        debug!(self.col.log, "received";
+            "notetypes"=>remote_changes.notetypes.len(),
+            "decks"=>remote_changes.decks_and_config.decks.len(),
+            "deck config"=>remote_changes.decks_and_config.config.len(),
+            "tags"=>remote_changes.tags.len(),
+        );
+
+        self.col.apply_changes(remote_changes, state.latest_usn)
     }
 
     async fn process_chunks_from_server(&mut self) -> Result<()> {
         loop {
             let chunk: Chunk = self.remote.chunk().await?;
+
+            debug!(self.col.log, "received";
+                "done"=>chunk.done,
+                "cards"=>chunk.cards.len(),
+                "notes"=>chunk.notes.len(),
+                "revlog"=>chunk.revlog.len(),
+            );
+
             let done = chunk.done;
             self.col.apply_chunk(chunk)?;
 
@@ -368,10 +433,20 @@ impl NormalSyncer<'_> {
         }
     }
 
-    async fn send_chunks_to_server(&self, server_usn: Usn) -> Result<()> {
+    async fn send_chunks_to_server(&self, state: &SyncState) -> Result<()> {
+        let mut ids = self.col.get_chunkable_ids(state.pending_usn)?;
+
         loop {
-            let chunk: Chunk = self.col.get_chunk(server_usn)?;
+            let chunk: Chunk = self.col.get_chunk(&mut ids, state.new_usn)?;
             let done = chunk.done;
+
+            debug!(self.col.log, "sending";
+                "done"=>chunk.done,
+                "cards"=>chunk.cards.len(),
+                "notes"=>chunk.notes.len(),
+                "revlog"=>chunk.revlog.len(),
+            );
+
             self.remote.apply_chunk(chunk).await?;
 
             if done {
@@ -383,11 +458,14 @@ impl NormalSyncer<'_> {
     /// Caller should force full sync after rolling back.
     async fn sanity_check(&mut self) -> Result<()> {
         let mut local_counts = self.col.storage.sanity_check_info()?;
-        debug!(self.col.log, "gathered local counts");
         self.col.add_due_counts(&mut local_counts.counts)?;
 
+        debug!(
+            self.col.log,
+            "gathered local counts; waiting for server reply"
+        );
         let out: SanityCheckOut = self.remote.sanity_check(local_counts).await?;
-        debug!(self.col.log, "get server reply");
+        debug!(self.col.log, "got server reply");
         if out.status != SanityCheckStatus::Ok {
             Err(AnkiError::SyncError {
                 info: format!("local {:?}\nremote {:?}", out.client, out.server),
@@ -506,18 +584,18 @@ impl Collection {
         })
     }
 
-    fn apply_graves(&self, graves: Graves, local_usn: Usn) -> Result<()> {
+    fn apply_graves(&self, graves: Graves, latest_usn: Usn) -> Result<()> {
         for nid in graves.notes {
             self.storage.remove_note(nid)?;
-            self.storage.add_note_grave(nid, local_usn)?;
+            self.storage.add_note_grave(nid, latest_usn)?;
         }
         for cid in graves.cards {
             self.storage.remove_card(cid)?;
-            self.storage.add_card_grave(cid, local_usn)?;
+            self.storage.add_card_grave(cid, latest_usn)?;
         }
         for did in graves.decks {
             self.storage.remove_deck(did)?;
-            self.storage.add_deck_grave(did, local_usn)?;
+            self.storage.add_deck_grave(did, latest_usn)?;
         }
         Ok(())
     }
@@ -527,16 +605,17 @@ impl Collection {
 
     fn local_unchunked_changes(
         &self,
-        remote_usn: Usn,
+        pending_usn: Usn,
+        new_usn: Option<Usn>,
         local_is_newer: bool,
     ) -> Result<UnchunkedChanges> {
         let mut changes = UnchunkedChanges {
-            notetypes: self.changed_notetypes(remote_usn)?,
+            notetypes: self.changed_notetypes(pending_usn, new_usn)?,
             decks_and_config: DecksAndConfig {
-                decks: self.changed_decks(remote_usn)?,
-                config: self.changed_deck_config(remote_usn)?,
+                decks: self.changed_decks(pending_usn, new_usn)?,
+                config: self.changed_deck_config(pending_usn, new_usn)?,
             },
-            tags: self.changed_tags(remote_usn)?,
+            tags: self.changed_tags(pending_usn, new_usn)?,
             ..Default::default()
         };
         if local_is_newer {
@@ -547,33 +626,69 @@ impl Collection {
         Ok(changes)
     }
 
-    fn changed_notetypes(&self, new_usn: Usn) -> Result<Vec<NoteTypeSchema11>> {
-        let ids = self.storage.take_notetype_ids_pending_sync(new_usn)?;
-        ids.into_iter()
-            .map(|id| self.storage.get_notetype(id).map(|opt| opt.unwrap().into()))
-            .collect()
-    }
-
-    fn changed_decks(&self, new_usn: Usn) -> Result<Vec<DeckSchema11>> {
-        let ids = self.storage.take_deck_ids_pending_sync(new_usn)?;
-        ids.into_iter()
-            .map(|id| self.storage.get_deck(id).map(|opt| opt.unwrap().into()))
-            .collect()
-    }
-
-    fn changed_deck_config(&self, new_usn: Usn) -> Result<Vec<DeckConfSchema11>> {
-        let ids = self.storage.take_deck_config_ids_pending_sync(new_usn)?;
+    fn changed_notetypes(
+        &self,
+        pending_usn: Usn,
+        new_usn: Option<Usn>,
+    ) -> Result<Vec<NoteTypeSchema11>> {
+        let ids = self
+            .storage
+            .objects_pending_sync("notetypes", pending_usn)?;
+        self.storage
+            .maybe_update_object_usns("notetypes", &ids, new_usn)?;
         ids.into_iter()
             .map(|id| {
-                self.storage
-                    .get_deck_config(id)
-                    .map(|opt| opt.unwrap().into())
+                self.storage.get_notetype(id).map(|opt| {
+                    let mut nt: NoteTypeSchema11 = opt.unwrap().into();
+                    nt.usn = new_usn.unwrap_or(nt.usn);
+                    nt
+                })
             })
             .collect()
     }
 
-    fn changed_tags(&self, new_usn: Usn) -> Result<Vec<String>> {
-        self.storage.take_changed_tags(new_usn)
+    fn changed_decks(&self, pending_usn: Usn, new_usn: Option<Usn>) -> Result<Vec<DeckSchema11>> {
+        let ids = self.storage.objects_pending_sync("decks", pending_usn)?;
+        self.storage
+            .maybe_update_object_usns("decks", &ids, new_usn)?;
+        ids.into_iter()
+            .map(|id| {
+                self.storage.get_deck(id).map(|opt| {
+                    let mut deck = opt.unwrap();
+                    deck.usn = new_usn.unwrap_or(deck.usn);
+                    deck.into()
+                })
+            })
+            .collect()
+    }
+
+    fn changed_deck_config(
+        &self,
+        pending_usn: Usn,
+        new_usn: Option<Usn>,
+    ) -> Result<Vec<DeckConfSchema11>> {
+        let ids = self
+            .storage
+            .objects_pending_sync("deck_config", pending_usn)?;
+        self.storage
+            .maybe_update_object_usns("deck_config", &ids, new_usn)?;
+        ids.into_iter()
+            .map(|id| {
+                self.storage.get_deck_config(id).map(|opt| {
+                    let mut conf: DeckConfSchema11 = opt.unwrap().into();
+                    conf.usn = new_usn.unwrap_or(conf.usn);
+                    conf
+                })
+            })
+            .collect()
+    }
+
+    fn changed_tags(&self, pending_usn: Usn, new_usn: Option<Usn>) -> Result<Vec<String>> {
+        let changed = self.storage.tags_pending_sync(pending_usn)?;
+        if let Some(usn) = new_usn {
+            self.storage.update_tag_usns(&changed, usn)?;
+        }
+        Ok(changed)
     }
 
     /// Currently this is all config, as legacy clients overwrite the local items
@@ -587,17 +702,17 @@ impl Collection {
     // Remote->local unchunked changes
     //----------------------------------------------------------------
 
-    fn apply_changes(&mut self, remote: UnchunkedChanges, remote_usn: Usn) -> Result<()> {
+    fn apply_changes(&mut self, remote: UnchunkedChanges, latest_usn: Usn) -> Result<()> {
         self.merge_notetypes(remote.notetypes)?;
         self.merge_decks(remote.decks_and_config.decks)?;
         self.merge_deck_config(remote.decks_and_config.config)?;
-        self.merge_tags(remote.tags, remote_usn)?;
+        self.merge_tags(remote.tags, latest_usn)?;
         if let Some(crt) = remote.creation_stamp {
             self.storage.set_creation_stamp(crt)?;
         }
         if let Some(config) = remote.config {
             self.storage
-                .set_all_config(config, remote_usn, TimestampSecs::now())?;
+                .set_all_config(config, latest_usn, TimestampSecs::now())?;
         }
 
         Ok(())
@@ -662,9 +777,9 @@ impl Collection {
         Ok(())
     }
 
-    fn merge_tags(&self, tags: Vec<String>, new_usn: Usn) -> Result<()> {
+    fn merge_tags(&self, tags: Vec<String>, latest_usn: Usn) -> Result<()> {
         for tag in tags {
-            self.register_tag(&tag, new_usn)?;
+            self.register_tag(&tag, latest_usn)?;
         }
         Ok(())
     }
@@ -732,24 +847,86 @@ impl Collection {
     // Local->remote chunks
     //----------------------------------------------------------------
 
-    fn get_chunk(&self, server_usn: Usn) -> Result<Chunk> {
-        let mut chunk = Chunk::default();
-        chunk.revlog = self
-            .storage
-            .take_revlog_pending_sync(server_usn, CHUNK_SIZE)?;
-        chunk.cards = self
-            .storage
-            .take_cards_pending_sync(server_usn, CHUNK_SIZE)?;
-        if !chunk.revlog.is_empty() || !chunk.cards.is_empty() {
-            return Ok(chunk);
-        }
+    fn get_chunkable_ids(&self, pending_usn: Usn) -> Result<ChunkableIDs> {
+        Ok(ChunkableIDs {
+            revlog: self.storage.objects_pending_sync("revlog", pending_usn)?,
+            cards: self.storage.objects_pending_sync("cards", pending_usn)?,
+            notes: self.storage.objects_pending_sync("notes", pending_usn)?,
+        })
+    }
 
-        chunk.notes = self
-            .storage
-            .take_notes_pending_sync(server_usn, CHUNK_SIZE)?;
-        if chunk.notes.is_empty() {
+    /// Fetch a chunk of ids from `ids`, returning the referenced objects.
+    fn get_chunk(&self, ids: &mut ChunkableIDs, new_usn: Option<Usn>) -> Result<Chunk> {
+        // get a bunch of IDs
+        let mut limit = CHUNK_SIZE as i32;
+        let mut revlog_ids = vec![];
+        let mut card_ids = vec![];
+        let mut note_ids = vec![];
+        let mut chunk = Chunk::default();
+        while limit > 0 {
+            let last_limit = limit;
+            if let Some(id) = ids.revlog.pop() {
+                revlog_ids.push(id);
+                limit -= 1;
+            }
+            if let Some(id) = ids.notes.pop() {
+                note_ids.push(id);
+                limit -= 1;
+            }
+            if let Some(id) = ids.cards.pop() {
+                card_ids.push(id);
+                limit -= 1;
+            }
+            if limit == last_limit {
+                // all empty
+                break;
+            }
+        }
+        if limit > 0 {
             chunk.done = true;
         }
+
+        // remove pending status
+        if !self.server {
+            self.storage
+                .maybe_update_object_usns("revlog", &revlog_ids, new_usn)?;
+            self.storage
+                .maybe_update_object_usns("cards", &card_ids, new_usn)?;
+            self.storage
+                .maybe_update_object_usns("notes", &note_ids, new_usn)?;
+        }
+
+        // the fetch associated objects, and return
+        chunk.revlog = revlog_ids
+            .into_iter()
+            .map(|id| {
+                self.storage.get_revlog_entry(id).map(|e| {
+                    let mut e = e.unwrap();
+                    e.usn = new_usn.unwrap_or(e.usn);
+                    e
+                })
+            })
+            .collect::<Result<_>>()?;
+        chunk.cards = card_ids
+            .into_iter()
+            .map(|id| {
+                self.storage.get_card(id).map(|e| {
+                    let mut e: CardEntry = e.unwrap().into();
+                    e.usn = new_usn.unwrap_or(e.usn);
+                    e
+                })
+            })
+            .collect::<Result<_>>()?;
+        chunk.notes = note_ids
+            .into_iter()
+            .map(|id| {
+                self.storage.get_note(id).map(|e| {
+                    let mut e: NoteEntry = e.unwrap().into();
+                    e.usn = new_usn.unwrap_or(e.usn);
+                    e
+                })
+            })
+            .collect::<Result<_>>()?;
 
         Ok(chunk)
     }
@@ -768,7 +945,7 @@ impl Collection {
 
     fn finalize_sync(&self, state: &SyncState, new_server_mtime: TimestampMillis) -> Result<()> {
         self.storage.set_last_sync(new_server_mtime)?;
-        let mut usn = state.remote_usn;
+        let mut usn = state.latest_usn;
         usn.0 += 1;
         self.storage.set_usn(usn)?;
         self.storage.set_modified_time(new_server_mtime)

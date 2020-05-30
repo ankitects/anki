@@ -47,11 +47,12 @@ impl SqliteStorage {
         self.add_grave(did.0, GraveKind::Deck, usn)
     }
 
-    pub(crate) fn take_pending_graves(&self, new_usn: Usn) -> Result<Graves> {
-        let mut stmt = self
-            .db
-            .prepare("select oid, type from graves where usn=-1")?;
-        let mut rows = stmt.query(NO_PARAMS)?;
+    pub(crate) fn pending_graves(&self, pending_usn: Usn) -> Result<Graves> {
+        let mut stmt = self.db.prepare(&format!(
+            "select oid, type from graves where {}",
+            pending_usn.pending_object_clause()
+        ))?;
+        let mut rows = stmt.query(&[pending_usn])?;
         let mut graves = Graves::default();
         while let Some(row) = rows.next()? {
             let oid: i64 = row.get(0)?;
@@ -63,11 +64,14 @@ impl SqliteStorage {
                 GraveKind::Deck => graves.decks.push(DeckID(oid)),
             }
         }
+        Ok(graves)
+    }
 
+    // fixme: graves is missing an index
+    pub(crate) fn update_pending_grave_usns(&self, new_usn: Usn) -> Result<()> {
         self.db
             .prepare("update graves set usn=? where usn=-1")?
             .execute(&[new_usn])?;
-
-        Ok(graves)
+        Ok(())
     }
 }

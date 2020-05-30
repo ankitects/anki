@@ -5,8 +5,6 @@ use crate::{
     err::Result,
     notes::{Note, NoteID},
     notetype::NoteTypeID,
-    prelude::*,
-    sync::NoteEntry,
     tags::{join_tags, split_tags},
     timestamp::TimestampMillis,
 };
@@ -131,25 +129,5 @@ impl super::SqliteStorage {
             .prepare("select field_at_index(flds, 0) from notes where csum=? and mid=? and id !=?")?
             .query_and_then(params![csum, ntid, nid], |r| r.get(0).map_err(Into::into))?
             .collect()
-    }
-
-    pub(crate) fn take_notes_pending_sync(
-        &self,
-        new_usn: Usn,
-        limit: usize,
-    ) -> Result<Vec<NoteEntry>> {
-        let entries: Vec<NoteEntry> = self
-            .db
-            .prepare_cached(concat!(include_str!("get.sql"), " where usn=-1 limit ?"))?
-            .query_and_then(&[limit as u32], |r| row_to_note(r).map(Into::into))?
-            .collect::<Result<_>>()?;
-        let mut stmt = self
-            .db
-            .prepare_cached("update notes set usn=? where id=?")?;
-        for entry in &entries {
-            stmt.execute(params![new_usn, entry.id])?;
-        }
-
-        Ok(entries)
     }
 }
