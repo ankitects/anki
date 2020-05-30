@@ -244,6 +244,15 @@ impl super::SqliteStorage {
 
         Ok(entries)
     }
+
+    pub(crate) fn have_at_least_one_card(&self) -> Result<bool> {
+        self.db
+            .prepare_cached("select null from cards")?
+            .query(NO_PARAMS)?
+            .next()
+            .map(|o| o.is_none())
+            .map_err(Into::into)
+    }
 }
 
 #[cfg(test)]

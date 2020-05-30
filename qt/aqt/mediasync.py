@@ -9,7 +9,6 @@ from dataclasses import dataclass
 from typing import List, Optional, Union
 
 import aqt
-from anki.consts import SYNC_BASE
 from anki.rsbackend import (
     TR,
     Interrupted,
@@ -45,8 +44,6 @@ class MediaSyncer:
         if progress.kind != ProgressKind.MediaSync:
             return
 
-        print(progress.val)
-
         assert isinstance(progress.val, MediaSyncProgress)
         self._log_and_notify(progress.val)
 
@@ -55,12 +52,12 @@ class MediaSyncer:
         if self._syncing:
             return
 
-        hkey = self.mw.pm.sync_key()
-        if hkey is None:
-            return
-
         if not self.mw.pm.media_syncing_enabled():
             self._log_and_notify(tr(TR.SYNC_MEDIA_DISABLED))
+            return
+
+        auth = self.mw.pm.sync_auth()
+        if auth is None:
             return
 
         self._log_and_notify(tr(TR.SYNC_MEDIA_STARTING))
@@ -69,17 +66,9 @@ class MediaSyncer:
         gui_hooks.media_sync_did_start_or_stop(True)
 
         def run() -> None:
-            self.mw.col.backend.sync_media(hkey=hkey, endpoint=self._endpoint())
+            self.mw.col.backend.sync_media(auth)
 
         self.mw.taskman.run_in_background(run, self._on_finished)
-
-    def _endpoint(self) -> str:
-        shard = self.mw.pm.sync_shard()
-        if shard is not None:
-            shard_str = str(shard)
-        else:
-            shard_str = ""
-        return f"{SYNC_BASE % shard_str}msync/"
 
     def _log_and_notify(self, entry: LogEntry) -> None:
         entry_with_time = LogEntryWithTime(time=intTime(), entry=entry)

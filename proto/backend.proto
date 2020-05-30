@@ -159,7 +159,7 @@ service BackendService {
 
     // sync
 
-    rpc SyncMedia (SyncMediaIn) returns (Empty);
+    rpc SyncMedia (SyncAuth) returns (Empty);
     rpc AbortSync (Empty) returns (Empty);
     rpc BeforeUpload (Empty) returns (Empty);
     rpc SyncLogin (SyncLoginIn) returns (SyncAuth);
@@ -608,11 +608,6 @@ message ExtractedLatex {
 message AddMediaFileIn {
     string desired_name = 1;
     bytes data = 2;
-}
-
-message SyncMediaIn {
-    string hkey = 1;
-    string endpoint = 2;
 }
 
 message CheckMediaOut {

@@ -8,7 +8,6 @@ use crate::{
     backend_proto::builtin_search_order::BuiltinSortKind,
     backend_proto::{
         AddOrUpdateDeckConfigLegacyIn, BackendResult, Empty, RenderedTemplateReplacement,
-        SyncMediaIn,
     },
     card::{Card, CardID},
     card::{CardQueue, CardType},
@@ -66,7 +65,7 @@ impl ThrottlingProgressHandler {
     fn update(&mut self, progress: impl Into<Progress>) -> bool {
         let now = coarsetime::Instant::now();
         if now.duration_since(self.last_update).as_f64() < 0.1 {
-            return false;
+            return true;
         }
         self.last_update = now;
         let mut guard = self.state.lock().unwrap();
@@ -981,7 +980,7 @@ impl BackendService for Backend {
         Ok(().into())
     }
 
-    fn sync_media(&mut self, input: SyncMediaIn) -> BackendResult<Empty> {
+    fn sync_media(&mut self, input: pb::SyncAuth) -> BackendResult<Empty> {
         let mut guard = self.col.lock().unwrap();
 
         let col = guard.as_mut().unwrap();
@@ -1177,7 +1176,11 @@ impl Backend {
     }
 
     fn new_progress_handler(&self) -> ThrottlingProgressHandler {
-        self.progress_state.lock().unwrap().want_abort = false;
+        {
+            let mut guard = self.progress_state.lock().unwrap();
+            guard.want_abort = false;
+            guard.last_progress = None;
+        }
         ThrottlingProgressHandler {
             state: self.progress_state.clone(),
             last_update: coarsetime::Instant::now(),
@@ -1186,7 +1189,7 @@ impl Backend {
 
     fn sync_media_inner(
         &mut self,
-        input: pb::SyncMediaIn,
+        input: pb::SyncAuth,
         folder: PathBuf,
         db: PathBuf,
         log: Logger,
@@ -1199,7 +1202,7 @@ impl Backend {
 
         let mgr = MediaManager::new(&folder, &db)?;
         let mut rt = Runtime::new().unwrap();
-        let sync_fut = mgr.sync_media(progress_fn, &input.endpoint, &input.hkey, log);
+        let sync_fut = mgr.sync_media(progress_fn, input.host_number, &input.hkey, log);
         let abortable_sync = Abortable::new(sync_fut, abort_reg);
         let ret = match rt.block_on(abortable_sync) {
             Ok(sync_result) => sync_result,
@@ -1491,8 +1494,17 @@ impl From<SyncOutput> for pb::SyncCollectionOut {
                 SyncActionRequired::NoChanges => {
                     pb::sync_collection_out::ChangesRequired::NoChanges as i32
                 }
-                SyncActionRequired::FullSyncRequired => {
-                    pb::sync_collection_out::ChangesRequired::FullSync as i32
+                SyncActionRequired::FullSyncRequired {
+                    upload_ok,
+                    download_ok,
+                } => {
+                    if !upload_ok {
+                        pb::sync_collection_out::ChangesRequired::FullDownload as i32
+                    } else if !download_ok {
+                        pb::sync_collection_out::ChangesRequired::FullUpload as i32
+                    } else {
+                        pb::sync_collection_out::ChangesRequired::FullSync as i32
+                    }
                 }
                 SyncActionRequired::NormalSyncRequired => {
                     pb::sync_collection_out::ChangesRequired::NormalSync as i32
