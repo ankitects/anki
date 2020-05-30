@@ -27,7 +27,9 @@ from aqt.utils import (
     getOnlyText,
     openHelp,
     restoreGeom,
+    restoreSplitter,
     saveGeom,
+    saveSplitter,
     setupSyntaxHighlighter,
     shortcut,
     showInfo,
@@ -75,6 +77,7 @@ class CardLayout(QDialog):
         gui_hooks.card_layout_will_show(self)
         self.redraw_everything()
         restoreGeom(self, "CardLayout")
+        restoreSplitter(self.mainArea, "CardLayoutMainArea")
         self.setWindowModality(Qt.ApplicationModal)
         self.show()
         # take the focus away from the first input area when starting up,
@@ -179,7 +182,7 @@ class CardLayout(QDialog):
     def setupMainArea(self):
         split = self.mainArea = QSplitter()
         split.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        split.setOrientation(Qt.Horizontal) 
+        split.setOrientation(Qt.Horizontal)
         left = QWidget()
         tform = self.tform = aqt.forms.template.Ui_Form()
         tform.setupUi(left)
@@ -788,6 +791,7 @@ Enter deck to place new %s cards in, or leave blank:"""
         self.cancelPreviewTimer()
         av_player.stop_and_clear_queue()
         saveGeom(self, "CardLayout")
+        saveSplitter(self.mainArea, "CardLayoutMainArea")
         self.preview_web = None
         self.model = None
         self.rendered_card = None
