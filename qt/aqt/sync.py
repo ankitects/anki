@@ -26,7 +26,7 @@ from aqt.qt import (
     QVBoxLayout,
     qconnect,
 )
-from aqt.utils import askUser, askUserDialog, showWarning, tr
+from aqt.utils import askUser, askUserDialog, showText, showWarning, tr
 
 
 class FullSyncChoice(enum.Enum):
@@ -63,6 +63,8 @@ def sync(mw: aqt.main.AnkiQt) -> None:
             return
 
         mw.pm.set_host_number(out.host_number)
+        if out.server_message:
+            showText(out.server_message)
         if out.required == out.NO_CHANGES:
             # all done
             return
@@ -109,7 +111,9 @@ def on_full_sync_timer(mw: aqt.main.AnkiQt) -> None:
         return
 
     assert isinstance(progress.val, FullSyncProgress)
-    mw.progress.update(value=progress.val.transferred, max=progress.val.total, process=False)
+    mw.progress.update(
+        value=progress.val.transferred, max=progress.val.total, process=False
+    )
 
     if mw.progress.want_cancel():
         mw.col.backend.abort_sync()
