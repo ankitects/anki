@@ -53,7 +53,10 @@ from aqt.utils import (
     openHelp,
     openLink,
     restoreGeom,
+    restoreSplitter,
     restoreState,
+    saveGeom,
+    saveSplitter,
     showInfo,
     showText,
     showWarning,
@@ -1365,10 +1368,19 @@ will be lost. Continue?"""
     ######################################################################
 
     def onDebug(self):
-        d = self.debugDiag = QDialog()
-        d.silentlyClose = True
         frm = self.debug_diag_form = aqt.forms.debug.Ui_Dialog()
+
+        class DebugDialog(QDialog):
+            def reject(self):
+                super().reject()
+                saveSplitter(frm.splitter, "DebugConsoleWindow")
+                saveGeom(self, "DebugConsoleWindow")
+
+        d = self.debugDiag = DebugDialog()
+        d.silentlyClose = True
         frm.setupUi(d)
+        restoreGeom(d, "DebugConsoleWindow")
+        restoreSplitter(frm.splitter, "DebugConsoleWindow")
         font = QFontDatabase.systemFont(QFontDatabase.FixedFont)
         font.setPointSize(frm.text.font().pointSize() + 1)
         frm.text.setFont(font)
