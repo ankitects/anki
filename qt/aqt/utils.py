@@ -362,10 +362,9 @@ def setupSyntaxHighlighter(parent, name, layout_name):
             editor = SimplePythonEditor()
             editor.setObjectName(name)
             old_editor = getattr(parent, name)
-            old_editor.setParent(None)
             layout = getattr(parent, layout_name)
-            layout.removeWidget(old_editor)
-            layout.addWidget(editor)
+            layout.replaceWidget(old_editor, editor)
+            old_editor.setParent(None)
             setattr(parent, name, editor)
         except:
             QsciEnabled = False
