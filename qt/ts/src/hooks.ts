@@ -6,3 +6,16 @@ function _runHook(hooks: ((...args) => void)[], ...args) {
         hooks[i](...args);
     }
 }
+
+function _emptyHook(hooks: ((...args) => void)[]) {
+    hooks.length = 0;
+}
+
+function _addHook(hooks: ((...args) => void)[], hook: (...args) => void) {
+    hooks.push(hook);
+}
+
+function _singleHook(hooks: ((...args) => void)[], hook: (...args) => void) {
+    _emptyHook(hooks);
+    _addHook(hooks, hook);
+}

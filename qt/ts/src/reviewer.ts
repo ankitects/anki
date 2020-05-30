@@ -23,8 +23,8 @@ function _updateQA(html, fadeTime, onupdate: () => void, onshown: () => void) {
 
     _updatingQA = true;
 
-    onUpdateHook = [onupdate];
-    onShownHook = [onshown];
+    _singleHook(onUpdateHook, onupdate);
+    _singleHook(onShownHook, onshown);
 
     // fade out current text
     var qa = $("#qa");
