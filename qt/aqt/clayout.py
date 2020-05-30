@@ -25,7 +25,9 @@ from aqt.utils import (
     getOnlyText,
     openHelp,
     restoreGeom,
+    restoreSplitter,
     saveGeom,
+    saveSplitter,
     shortcut,
     showInfo,
     showWarning,
@@ -72,6 +74,7 @@ class CardLayout(QDialog):
         gui_hooks.card_layout_will_show(self)
         self.redraw_everything()
         restoreGeom(self, "CardLayout")
+        restoreSplitter(self.mainArea, "CardLayoutMainArea")
         self.setWindowModality(Qt.ApplicationModal)
         self.show()
         # take the focus away from the first input area when starting up,
@@ -765,6 +768,7 @@ Enter deck to place new %s cards in, or leave blank:"""
         self.cancelPreviewTimer()
         av_player.stop_and_clear_queue()
         saveGeom(self, "CardLayout")
+        saveSplitter(self.mainArea, "CardLayoutMainArea")
         self.preview_web = None
         self.model = None
         self.rendered_card = None
