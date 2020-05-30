@@ -8,10 +8,10 @@ var _updatingQA = false;
 var qFade = 100;
 var aFade = 0;
 
-var onUpdateHook;
-var onShownHook;
+var onUpdateHook: (() => void)[];
+var onShownHook: (() => void)[];
 
-function _updateQA(html, fadeTime, onupdate, onshown) {
+function _updateQA(html, fadeTime, onupdate: () => void, onshown: () => void) {
     // if a request to update q/a comes in before the previous content
     // has been loaded, wait a while and try again
     if (_updatingQA) {
