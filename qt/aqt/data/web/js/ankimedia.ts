@@ -397,9 +397,7 @@ class AnkiMediaQueue {
                 media.currentTime = 0;
             }, this.other_medias);
 
-            if (!this.skip_front) {
-                this.playing_front.push(...this.replay_front_queue);
-            }
+            this.playing_front.push(...this.replay_front_queue);
             this.playing_back.push(...this.replay_back_queue);
             this.is_playing = false;
             this._play();
