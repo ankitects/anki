@@ -194,6 +194,8 @@ class ProgressDialog(QDialog):
         self.form.setupUi(self)
         self._closingDown = False
         self.wantCancel = False
+        # required for smooth progress bars
+        self.form.progressBar.setStyleSheet("QProgressBar::chunk { width: 1px; }")
 
     def cancel(self):
         self._closingDown = True
