@@ -45,15 +45,24 @@ impl SqliteStorage {
 
     // fixme: in the future we could just register tags as part of the sync
     // instead of sending the tag list separately
-    pub(crate) fn take_changed_tags(&self, usn: Usn) -> Result<Vec<String>> {
-        let tags: Vec<String> = self
-            .db
-            .prepare("select tag from tags where usn=-1")?
-            .query_map(NO_PARAMS, |row| row.get(0))?
-            .collect::<std::result::Result<_, rusqlite::Error>>()?;
+    pub(crate) fn tags_pending_sync(&self, usn: Usn) -> Result<Vec<String>> {
         self.db
-            .execute("update tags set usn=? where usn=-1", &[&usn])?;
-        Ok(tags)
+            .prepare_cached(&format!(
+                "select tag from tags where {}",
+                usn.pending_object_clause()
+            ))?
+            .query_and_then(&[usn], |r| r.get(0).map_err(Into::into))?
+            .collect()
+    }
+
+    pub(crate) fn update_tag_usns(&self, tags: &[String], new_usn: Usn) -> Result<()> {
+        let mut stmt = self
+            .db
+            .prepare_cached("update tags set usn=? where tag=?")?;
+        for tag in tags {
+            stmt.execute(params![new_usn, tag])?;
+        }
+        Ok(())
     }
 
     // Upgrading/downgrading

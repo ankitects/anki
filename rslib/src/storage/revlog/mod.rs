@@ -38,15 +38,10 @@ impl SqliteStorage {
         Ok(())
     }
 
-    pub(crate) fn take_revlog_pending_sync(
-        &self,
-        new_usn: Usn,
-        limit: usize,
-    ) -> Result<Vec<ReviewLogEntry>> {
-        let entries: Vec<ReviewLogEntry> = self
-            .db
-            .prepare_cached(concat!(include_str!("get.sql"), " where usn=-1 limit ?"))?
-            .query_and_then(&[limit as u32], |row| {
+    pub(crate) fn get_revlog_entry(&self, id: RevlogID) -> Result<Option<ReviewLogEntry>> {
+        self.db
+            .prepare_cached(concat!(include_str!("get.sql"), " where id=?"))?
+            .query_and_then(&[id], |row| {
                 Ok(ReviewLogEntry {
                     id: row.get(0)?,
                     cid: row.get(1)?,
@@ -59,15 +54,7 @@ impl SqliteStorage {
                     kind: row.get(8)?,
                 })
             })?
-            .collect::<Result<_>>()?;
-
-        let mut stmt = self
-            .db
-            .prepare_cached("update revlog set usn=? where id=?")?;
-        for entry in &entries {
-            stmt.execute(params![new_usn, entry.id])?;
-        }
-
-        Ok(entries)
+            .next()
+            .transpose()
     }
 }
