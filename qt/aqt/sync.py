@@ -54,7 +54,14 @@ def sync(mw: aqt.main.AnkiQt) -> None:
 
     def on_done(fut):
         mw.col.db.begin()
-        out: SyncOutput = fut.result()
+        try:
+            out: SyncOutput = fut.result()
+        except InterruptedError:
+            return
+        except Exception as e:
+            showWarning(str(e))
+            return
+
         mw.pm.set_host_number(out.host_number)
         if out.required == out.NO_CHANGES:
             # all done
@@ -101,8 +108,8 @@ def on_full_sync_timer(mw: aqt.main.AnkiQt) -> None:
     if progress.kind != ProgressKind.FullSync:
         return
 
-    assert isinstance(progress, FullSyncProgress)
-    mw.progress.update(value=progress.val.transferred, max=progress.val.total)
+    assert isinstance(progress.val, FullSyncProgress)
+    mw.progress.update(value=progress.val.transferred, max=progress.val.total, process=False)
 
     if mw.progress.want_cancel():
         mw.col.backend.abort_sync()
