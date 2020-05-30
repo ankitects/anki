@@ -241,9 +241,17 @@ impl NormalSyncer<'_> {
                         Ok(success)
                     }
                     Err(e) => {
-                        // fixme: full sync on sanity check failure, etc
                         self.col.storage.rollback_trx()?;
                         let _ = self.remote.abort().await;
+
+                        if let AnkiError::SyncError {
+                            kind: SyncErrorKind::DatabaseCheckRequired,
+                            info,
+                        } = &e
+                        {
+                            debug!(self.col.log, "sanity check failed:\n{}", info);
+                        }
+
                         Err(e)
                     }
                 }
@@ -373,12 +381,16 @@ impl NormalSyncer<'_> {
     }
 
     /// Caller should force full sync after rolling back.
-    async fn sanity_check(&self) -> Result<()> {
-        let local_counts = self.col.storage.sanity_check_info()?;
+    async fn sanity_check(&mut self) -> Result<()> {
+        let mut local_counts = self.col.storage.sanity_check_info()?;
+        debug!(self.col.log, "gathered local counts");
+        self.col.add_due_counts(&mut local_counts.counts)?;
+
         let out: SanityCheckOut = self.remote.sanity_check(local_counts).await?;
+        debug!(self.col.log, "get server reply");
         if out.status != SanityCheckStatus::Ok {
             Err(AnkiError::SyncError {
-                info: String::new(),
+                info: format!("local {:?}\nremote {:?}", out.client, out.server),
                 kind: SyncErrorKind::DatabaseCheckRequired,
             })
         } else {
@@ -744,6 +756,15 @@ impl Collection {
 
     // Final steps
     //----------------------------------------------------------------
+
+    fn add_due_counts(&mut self, counts: &mut SanityCheckDueCounts) -> Result<()> {
+        if let Some(tree) = self.current_deck_tree()? {
+            counts.new = tree.new_count;
+            counts.review = tree.review_count;
+            counts.learn = tree.learn_count;
+        }
+        Ok(())
+    }
 
     fn finalize_sync(&self, state: &SyncState, new_server_mtime: TimestampMillis) -> Result<()> {
         self.storage.set_last_sync(new_server_mtime)?;
