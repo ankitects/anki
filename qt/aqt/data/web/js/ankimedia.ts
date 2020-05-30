@@ -355,6 +355,8 @@ class AnkiMediaQueue {
                 this.has_previewed = true;
                 this._check_preview_page_timer = undefined;
             };
+            block_preview = block_preview.bind(this);
+
             if (document.readyState == "complete") {
                 this._check_preview_page_timer = setTimeout(
                     block_preview,
