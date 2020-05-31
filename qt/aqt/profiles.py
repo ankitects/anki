@@ -627,6 +627,11 @@ create table if not exists profiles
             return None
         return SyncAuth(hkey=hkey, host_number=self.profile.get("hostNum", 0))
 
+    def clear_sync_auth(self) -> None:
+        self.profile["syncKey"] = None
+        self.profile["syncUser"] = None
+        self.profile["hostNum"] = 0
+
     ######################################################################
 
     def apply_profile_options(self) -> None:
