@@ -10,6 +10,7 @@ let currentNoteId = null;
 
 let onFocusHook: (() => void)[] = [];
 let onSendFieldContentHook: ((fieldContent: string) => string)[] = [];
+let onInsertHtmlHook: (() => void)[] = [];
 
 declare interface String {
     format(...args): string;
@@ -399,6 +400,7 @@ let insertHtmlRemovingInitialBR = function(html: string) {
             currentField.innerHTML = "";
         }
         setFormat("inserthtml", html);
+        _runHook(onInsertHtmlHook);
     }
 };
 
