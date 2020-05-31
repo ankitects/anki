@@ -2013,6 +2013,8 @@ update cards set usn=?, mod=?, did=? where id in """
         frm = aqt.forms.finddupes.Ui_Dialog()
         frm.setupUi(d)
         restoreGeom(d, "findDupes")
+        searchHistory = setupComboBoxHistory(frm.search, "findDupesFind")
+
         fields = sorted(
             anki.find.fieldNames(self.col, downcase=False), key=lambda x: x.lower()
         )
@@ -2030,10 +2032,9 @@ update cards set usn=?, mod=?, did=? where id in """
         qconnect(d.finished, onFin)
 
         def onClick():
+            search_text = saveComboBoxHistory(frm.search, searchHistory, "findDupesFind")
             field = fields[frm.fields.currentIndex()]
-            self.duplicatesReport(
-                frm.webView, field, frm.search.text(), frm, web_context
-            )
+            self.duplicatesReport(frm.webView, field, search_text, frm, web_context)
 
         search = frm.buttonBox.addButton(_("Search"), QDialogButtonBox.ActionRole)
         qconnect(search.clicked, onClick)
