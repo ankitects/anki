@@ -198,6 +198,11 @@ system. It's free and open source."
             "AMBOSS MD Inc.",
             "Erez Volk",
             "Tobias Predel",
+            "Thomas Kahn",
+            "zjosua",
+            "Ijgnd",
+            "Evandro Coan",
+            "Alan Du",
         )
     )
 
