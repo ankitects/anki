@@ -175,7 +175,7 @@ class Toolbar:
         self.mw.onStats()
 
     def _syncLinkHandler(self) -> None:
-        self.mw.onSync()
+        self.mw.on_sync_button_clicked()
 
     # HTML & CSS
     ######################################################################
