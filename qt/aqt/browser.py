@@ -38,11 +38,13 @@ from aqt.utils import (
     qtMenuShortcutWorkaround,
     restoreGeom,
     restoreHeader,
+    restoreIsChecked,
     restoreSplitter,
     restoreState,
     saveComboBoxHistory,
     saveGeom,
     saveHeader,
+    saveIsChecked,
     saveSplitter,
     saveState,
     setupComboBoxHistory,
@@ -1936,6 +1938,9 @@ update cards set usn=?, mod=?, did=? where id in """
         findhistory = setupComboBoxHistory(frm.find, combo + "Find")
         replacehistory = setupComboBoxHistory(frm.replace, combo + "Replace")
 
+        restoreIsChecked(frm.re, combo + "Regex")
+        restoreIsChecked(frm.ignoreCase, combo + "ignoreCase")
+
         frm.find.setFocus()
         frm.field.addItems([_("All Fields")] + fields)
         qconnect(frm.buttonBox.helpRequested, self.onFindReplaceHelp)
@@ -1954,6 +1959,9 @@ update cards set usn=?, mod=?, did=? where id in """
 
         regex = frm.re.isChecked()
         nocase = frm.ignoreCase.isChecked()
+
+        saveIsChecked(frm.re, combo + "Regex")
+        saveIsChecked(frm.ignoreCase, combo + "ignoreCase")
 
         self.mw.checkpoint(_("Find and Replace"))
         # starts progress dialog as well

@@ -604,6 +604,17 @@ def restoreState(widget, key):
         widget.restoreState(aqt.mw.pm.profile[key])
 
 
+def saveIsChecked(widget, key):
+    key += "IsChecked"
+    aqt.mw.pm.profile[key] = widget.isChecked()
+
+
+def restoreIsChecked(widget, key):
+    key += "IsChecked"
+    if aqt.mw.pm.profile.get(key) is not None:
+        widget.setChecked(aqt.mw.pm.profile[key])
+
+
 def saveSplitter(widget, key):
     key += "Splitter"
     aqt.mw.pm.profile[key] = widget.saveState()
