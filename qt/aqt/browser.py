@@ -36,11 +36,13 @@ from aqt.utils import (
     getTag,
     openHelp,
     qtMenuShortcutWorkaround,
+    restoreComboActiveIndex,
     restoreGeom,
     restoreHeader,
     restoreIsChecked,
     restoreSplitter,
     restoreState,
+    saveComboActiveIndex,
     saveComboBoxHistory,
     saveGeom,
     saveHeader,
@@ -1942,13 +1944,17 @@ update cards set usn=?, mod=?, did=? where id in """
         restoreIsChecked(frm.ignoreCase, combo + "ignoreCase")
 
         frm.find.setFocus()
-        frm.field.addItems([_("All Fields")] + fields)
+        allfields = [_("All Fields")] + fields
+        frm.field.addItems(allfields)
+        restoreComboActiveIndex(frm.field, allfields, combo + "Field")
         qconnect(frm.buttonBox.helpRequested, self.onFindReplaceHelp)
         restoreGeom(d, "findreplace")
         r = d.exec_()
         saveGeom(d, "findreplace")
         if not r:
             return
+
+        saveComboActiveIndex(frm.field, combo + "Field")
         if frm.field.currentIndex() == 0:
             field = None
         else:
