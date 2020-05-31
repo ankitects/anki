@@ -819,6 +819,7 @@ class Browser(QMainWindow):
         return selected
 
     def onReset(self):
+        self.maybeRefreshSidebar()
         self.editor.setNote(None)
         self.search()
 
