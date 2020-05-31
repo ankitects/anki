@@ -11,12 +11,6 @@ var aFade = 0;
 var onUpdateHook;
 var onShownHook;
 
-function _runHook(arr) {
-    for (var i = 0; i < arr.length; i++) {
-        arr[i]();
-    }
-}
-
 function _updateQA(html, fadeTime, onupdate, onshown) {
     // if a request to update q/a comes in before the previous content
     // has been loaded, wait a while and try again

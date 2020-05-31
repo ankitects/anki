@@ -19,6 +19,7 @@ aqt_data/web/overview.js
 aqt_data/web/reviewer-bottom.js
 aqt_data/web/reviewer.js
 aqt_data/web/webview.js
+aqt_data/web/hooks.js
 dist
 aqt.egg-info
 build

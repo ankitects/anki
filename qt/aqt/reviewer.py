@@ -155,6 +155,7 @@ class Reviewer:
                 "browsersel.js",
                 "mathjax/conf.js",
                 "mathjax/MathJax.js",
+                "hooks.js",
                 "reviewer.js",
             ],
             context=self,
