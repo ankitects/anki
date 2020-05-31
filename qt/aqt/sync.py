@@ -28,6 +28,10 @@ from aqt.qt import (
 )
 from aqt.utils import askUser, askUserDialog, showText, showWarning, tr
 
+# fixme: catch auth error in other routines, clear sync auth
+# fixme: sync progress
+# fixme: curDeck marking collection modified
+# fixme: show progress immediately
 
 class FullSyncChoice(enum.Enum):
     CANCEL = 0
@@ -40,69 +44,73 @@ def get_sync_status(mw: aqt.main.AnkiQt, callback: Callable[[SyncOutput], None])
     if not auth:
         return
 
-    def on_done(fut):
+    def on_future_done(fut):
         callback(fut.result())
 
-    mw.taskman.run_in_background(lambda: mw.col.backend.sync_status(auth), on_done)
+    mw.taskman.run_in_background(lambda: mw.col.backend.sync_status(auth), on_future_done)
 
 
-def sync(mw: aqt.main.AnkiQt) -> None:
+def sync_collection(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
     auth = mw.pm.sync_auth()
     if not auth:
-        login(mw, on_success=lambda: sync(mw))
+        sync_login(mw, on_success=lambda: sync_collection(mw))
         return
 
-    def on_done(fut):
+    def on_future_done(fut):
         mw.col.db.begin()
         try:
             out: SyncOutput = fut.result()
         except InterruptedError:
-            return
+            return on_done()
         except Exception as e:
             showWarning(str(e))
-            return
+            return on_done()
 
         mw.pm.set_host_number(out.host_number)
         if out.server_message:
             showText(out.server_message)
         if out.required == out.NO_CHANGES:
             # all done
-            return
+            return on_done()
         else:
-            full_sync(mw, out)
+            full_sync(mw, out, on_done)
 
     if not mw.col.basicCheck():
         showWarning("Please use Tools>Check Database")
-        return
+        return on_done()
 
     mw.col.save(trx=False)
     mw.taskman.with_progress(
         lambda: mw.col.backend.sync_collection(auth),
-        on_done,
+        on_future_done,
         label=tr(TR.SYNC_CHECKING),
     )
 
 
-def full_sync(mw: aqt.main.AnkiQt, out: SyncOutput) -> None:
+def full_sync(
+    mw: aqt.main.AnkiQt, out: SyncOutput, on_done: Callable[[], None]
+) -> None:
     if out.required == out.FULL_DOWNLOAD:
-        confirm_full_download(mw)
+        confirm_full_download(mw, on_done)
     elif out.required == out.FULL_UPLOAD:
-        full_upload(mw)
+        full_upload(mw, on_done)
     else:
         choice = ask_user_to_decide_direction()
         if choice == FullSyncChoice.UPLOAD:
-            full_upload(mw)
+            full_upload(mw, on_done)
         elif choice == FullSyncChoice.DOWNLOAD:
-            full_download(mw)
+            full_download(mw, on_done)
+        else:
+            on_done()
 
 
-def confirm_full_download(mw: aqt.main.AnkiQt) -> None:
+def confirm_full_download(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
     # confirmation step required, as some users customize their notetypes
     # in an empty collection, then want to upload them
     if not askUser(tr(TR.SYNC_CONFIRM_EMPTY_DOWNLOAD)):
-        return
+        return on_done()
     else:
-        mw.closeAllWindows(lambda: full_download(mw))
+        mw.closeAllWindows(lambda: full_download(mw, on_done))
 
 
 def on_full_sync_timer(mw: aqt.main.AnkiQt) -> None:
@@ -119,7 +127,7 @@ def on_full_sync_timer(mw: aqt.main.AnkiQt) -> None:
         mw.col.backend.abort_sync()
 
 
-def full_download(mw: aqt.main.AnkiQt) -> None:
+def full_download(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
     mw.col.close_for_full_sync()
 
     def on_timer():
@@ -129,7 +137,7 @@ def full_download(mw: aqt.main.AnkiQt) -> None:
     qconnect(timer.timeout, on_timer)
     timer.start(150)
 
-    def on_done(fut):
+    def on_future_done(fut):
         timer.stop()
         mw.col.reopen(after_full_sync=True)
         mw.reset()
@@ -137,16 +145,16 @@ def full_download(mw: aqt.main.AnkiQt) -> None:
             fut.result()
         except Exception as e:
             showWarning(str(e))
-            return
+        return on_done()
 
     mw.taskman.with_progress(
         lambda: mw.col.backend.full_download(mw.pm.sync_auth()),
-        on_done,
+        on_future_done,
         label=tr(TR.SYNC_DOWNLOADING_FROM_ANKIWEB),
     )
 
 
-def full_upload(mw: aqt.main.AnkiQt) -> None:
+def full_upload(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
     mw.col.close_for_full_sync()
 
     def on_timer():
@@ -156,7 +164,7 @@ def full_upload(mw: aqt.main.AnkiQt) -> None:
     qconnect(timer.timeout, on_timer)
     timer.start(150)
 
-    def on_done(fut):
+    def on_future_done(fut):
         timer.stop()
         mw.col.reopen(after_full_sync=True)
         mw.reset()
@@ -164,16 +172,15 @@ def full_upload(mw: aqt.main.AnkiQt) -> None:
             fut.result()
         except Exception as e:
             showWarning(str(e))
-            return
+        return on_done()
 
     mw.taskman.with_progress(
         lambda: mw.col.backend.full_upload(mw.pm.sync_auth()),
-        on_done,
+        on_future_done,
         label=tr(TR.SYNC_UPLOADING_TO_ANKIWEB),
     )
 
-
-def login(
+def sync_login(
     mw: aqt.main.AnkiQt, on_success: Callable[[], None], username="", password=""
 ) -> None:
     while True:
@@ -183,13 +190,13 @@ def login(
         if username and password:
             break
 
-    def on_done(fut):
+    def on_future_done(fut):
         try:
             auth = fut.result()
         except SyncError as e:
             if e.kind() == SyncErrorKind.AUTH_FAILED:
                 showWarning(str(e))
-                login(mw, on_success, username, password)
+                sync_login(mw, on_success, username, password)
                 return
         except Exception as e:
             showWarning(str(e))
@@ -202,7 +209,8 @@ def login(
         on_success()
 
     mw.taskman.with_progress(
-        lambda: mw.col.backend.sync_login(username=username, password=password), on_done
+        lambda: mw.col.backend.sync_login(username=username, password=password),
+        on_future_done,
     )
 
 

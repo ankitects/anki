@@ -618,6 +618,9 @@ create table if not exists profiles
     def media_syncing_enabled(self) -> bool:
         return self.profile["syncMedia"]
 
+    def auto_syncing_enabled(self) -> bool:
+        return self.profile["autoSync"]
+
     def sync_auth(self) -> Optional[SyncAuth]:
         hkey = self.profile.get("syncKey")
         if not hkey:
