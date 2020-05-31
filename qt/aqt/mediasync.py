@@ -6,7 +6,7 @@ from __future__ import annotations
 import time
 from concurrent.futures import Future
 from dataclasses import dataclass
-from typing import List, Optional, Union
+from typing import Callable, List, Optional, Union
 
 import aqt
 from anki.rsbackend import (
@@ -62,7 +62,9 @@ class MediaSyncer:
 
         self._log_and_notify(tr(TR.SYNC_MEDIA_STARTING))
         self._syncing = True
-        self._progress_timer = self.mw.progress.timer(1000, self._on_progress, False)
+        self._progress_timer = self.mw.progress.timer(
+            1000, self._on_progress, True, False
+        )
         gui_hooks.media_sync_did_start_or_stop(True)
 
         def run() -> None:
@@ -121,13 +123,22 @@ class MediaSyncer:
     def show_sync_log(self):
         aqt.dialogs.open("sync_log", self.mw, self)
 
-    def show_diag_until_finished(self):
+    def show_diag_until_finished(self, on_finished: Callable[[], None]):
         # nothing to do if not syncing
         if not self.is_syncing():
-            return
+            return on_finished()
 
         diag: MediaSyncDialog = aqt.dialogs.open("sync_log", self.mw, self, True)
-        diag.exec_()
+        diag.show()
+
+        timer: Optional[QTimer] = None
+
+        def check_finished():
+            if not self.is_syncing():
+                timer.stop()
+                on_finished()
+
+        timer = self.mw.progress.timer(150, check_finished, True, False)
 
     def seconds_since_last_sync(self) -> int:
         if self.is_syncing():
