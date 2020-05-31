@@ -52,7 +52,6 @@ class ProgressManager:
     # Creating progress dialogs
     ##########################################################################
 
-    # note: immediate is no longer used
     def start(
         self, max=0, min=0, label=None, parent=None, immediate=False
     ) -> Optional[ProgressDialog]:
@@ -83,7 +82,7 @@ class ProgressManager:
         self._updating = False
         self._show_timer = QTimer(self.mw)
         self._show_timer.setSingleShot(True)
-        self._show_timer.start(600)
+        self._show_timer.start(immediate and 100 or 600)
         qconnect(self._show_timer.timeout, self._on_show_timer)
         return self._win
 

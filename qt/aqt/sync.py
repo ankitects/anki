@@ -31,7 +31,7 @@ from aqt.utils import askUser, askUserDialog, showText, showWarning, tr
 # fixme: catch auth error in other routines, clear sync auth
 # fixme: sync progress
 # fixme: curDeck marking collection modified
-# fixme: show progress immediately
+
 
 class FullSyncChoice(enum.Enum):
     CANCEL = 0
@@ -47,7 +47,9 @@ def get_sync_status(mw: aqt.main.AnkiQt, callback: Callable[[SyncOutput], None])
     def on_future_done(fut):
         callback(fut.result())
 
-    mw.taskman.run_in_background(lambda: mw.col.backend.sync_status(auth), on_future_done)
+    mw.taskman.run_in_background(
+        lambda: mw.col.backend.sync_status(auth), on_future_done
+    )
 
 
 def sync_collection(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
@@ -84,6 +86,7 @@ def sync_collection(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
         lambda: mw.col.backend.sync_collection(auth),
         on_future_done,
         label=tr(TR.SYNC_CHECKING),
+        immediate=True,
     )
 
 
@@ -179,6 +182,7 @@ def full_upload(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
         on_future_done,
         label=tr(TR.SYNC_UPLOADING_TO_ANKIWEB),
     )
+
 
 def sync_login(
     mw: aqt.main.AnkiQt, on_success: Callable[[], None], username="", password=""

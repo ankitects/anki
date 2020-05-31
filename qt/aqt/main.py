@@ -532,7 +532,7 @@ close the profile or restart Anki."""
             label = _("Closing...")
         else:
             label = _("Backing Up...")
-        self.progress.start(label=label, immediate=True)
+        self.progress.start(label=label)
         corrupt = False
         try:
             self.maybeOptimize()
@@ -618,7 +618,7 @@ from the profile screen."
         # have two weeks passed?
         if (intTime() - self.pm.profile["lastOptimize"]) < 86400 * 14:
             return
-        self.progress.start(label=_("Optimizing..."), immediate=True)
+        self.progress.start(label=_("Optimizing..."))
         self.col.optimize()
         self.pm.profile["lastOptimize"] = intTime()
         self.pm.save()
@@ -902,14 +902,17 @@ title="%s" %s>%s</button>""" % (
         self.media_syncer.start()
 
     def can_auto_sync(self) -> bool:
-        return (self.pm.auto_syncing_enabled()
+        return (
+            self.pm.auto_syncing_enabled()
             and self.pm.sync_auth()
             and not self.safeMode
-            and not self.restoringBackup)
+            and not self.restoringBackup
+        )
 
     # legacy
     def _sync(self):
         pass
+
     onSync = on_sync_button_clicked
 
     # Tools
