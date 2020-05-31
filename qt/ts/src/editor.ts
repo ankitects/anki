@@ -12,6 +12,11 @@ let onFocusHook: (() => void)[] = [];
 let onSendFieldContentHook: ((fieldContent: string) => string)[] = [];
 let onInsertHtmlHook: (() => void)[] = [];
 let fieldsAreSetHook: ((fields: string[]) => void)[] = [];
+let nameLineHook: ((
+    fieldName: string,
+    fieldOrd: number,
+    fieldContent: string
+) => string)[] = [];
 
 declare interface String {
     format(...args): string;
@@ -328,11 +333,12 @@ function onCutOrCopy() {
 function setFields(fields) {
     let txt = "";
     for (let i = 0; i < fields.length; i++) {
-        const n = fields[i][0];
+        let n = fields[i][0];
         let f = fields[i][1];
         if (!f) {
             f = "<br>";
         }
+        n = _runFilter(nameLineHook, n, i, f);
         txt += `
         <tr>
             <td class=fname id="name${i}">${n}</td>
