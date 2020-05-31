@@ -8,7 +8,7 @@ import os
 import re
 import subprocess
 import sys
-from typing import TYPE_CHECKING, Any, Optional, Union
+from typing import TYPE_CHECKING, Any, List, Optional, Union
 
 import anki
 import aqt
@@ -409,7 +409,7 @@ def getSaveFile(parent, title, dir_description, key, ext, fname=None):
     return file
 
 
-def saveGeom(widget, key):
+def saveGeom(widget, key: str):
     key += "Geom"
     if isMac and widget.windowState() & Qt.WindowFullScreen:
         geom = None
@@ -418,7 +418,7 @@ def saveGeom(widget, key):
     aqt.mw.pm.profile[key] = geom
 
 
-def restoreGeom(widget, key, offset=None, adjustSize=False):
+def restoreGeom(widget, key: str, offset=None, adjustSize=False):
     key += "Geom"
     if aqt.mw.pm.profile.get(key):
         widget.restoreGeometry(aqt.mw.pm.profile[key])
@@ -459,36 +459,36 @@ def ensureWidgetInScreenBoundaries(widget):
         widget.move(x, y)
 
 
-def saveState(widget, key):
+def saveState(widget, key: str):
     key += "State"
     aqt.mw.pm.profile[key] = widget.saveState()
 
 
-def restoreState(widget, key):
+def restoreState(widget, key: str):
     key += "State"
     if aqt.mw.pm.profile.get(key):
         widget.restoreState(aqt.mw.pm.profile[key])
 
 
-def saveIsChecked(widget, key):
+def saveIsChecked(widget, key: str):
     key += "IsChecked"
     aqt.mw.pm.profile[key] = widget.isChecked()
 
 
-def restoreIsChecked(widget, key):
+def restoreIsChecked(widget, key: str):
     key += "IsChecked"
     if aqt.mw.pm.profile.get(key) is not None:
         widget.setChecked(aqt.mw.pm.profile[key])
 
 
-def saveComboIndex(widget, key):
+def saveComboIndex(widget: QComboBox, key: str):
     textKey = key + "ComboActiveText"
     indexKey = key + "ComboActiveIndex"
     aqt.mw.pm.profile[textKey] = widget.currentText()
     aqt.mw.pm.profile[indexKey] = widget.currentIndex()
 
 
-def restoreComboIndex(widget, history, key):
+def restoreComboIndex(widget: QComboBox, history: List[str], key: str):
     textKey = key + "ComboActiveText"
     indexKey = key + "ComboActiveIndex"
     text = aqt.mw.pm.profile.get(textKey)
@@ -498,7 +498,7 @@ def restoreComboIndex(widget, history, key):
             widget.setCurrentIndex(index)
 
 
-def restoreComboHistory(comboBox, name):
+def restoreComboHistory(comboBox: QComboBox, name: str):
     name += "BoxHistory"
     history = aqt.mw.pm.profile.get(name, [])
     comboBox.addItems(history)
@@ -507,7 +507,7 @@ def restoreComboHistory(comboBox, name):
     return history
 
 
-def saveComboHistory(comboBox, history, name):
+def saveComboHistory(comboBox: QComboBox, history: List[str], name: str):
     name += "BoxHistory"
     text_input = comboBox.lineEdit().text()
     if text_input in history:
