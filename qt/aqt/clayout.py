@@ -25,7 +25,9 @@ from aqt.utils import (
     getOnlyText,
     openHelp,
     restoreGeom,
+    restoreSplitter,
     saveGeom,
+    saveSplitter,
     shortcut,
     showInfo,
     showWarning,
@@ -72,6 +74,7 @@ class CardLayout(QDialog):
         gui_hooks.card_layout_will_show(self)
         self.redraw_everything()
         restoreGeom(self, "CardLayout")
+        restoreSplitter(self.mainArea, "CardLayoutMainArea")
         self.setWindowModality(Qt.ApplicationModal)
         self.show()
         # take the focus away from the first input area when starting up,
@@ -100,6 +103,7 @@ class CardLayout(QDialog):
 
     def setupTopArea(self):
         self.topArea = QWidget()
+        self.topArea.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
         self.topAreaForm = aqt.forms.clayout_top.Ui_Form()
         self.topAreaForm.setupUi(self.topArea)
         self.topAreaForm.templateOptions.setText(_("Options") + " " + downArrow())
@@ -173,14 +177,14 @@ class CardLayout(QDialog):
     ##########################################################################
 
     def setupMainArea(self):
-        w = self.mainArea = QWidget()
-        l = QHBoxLayout()
-        l.setContentsMargins(0, 0, 0, 0)
-        l.setSpacing(3)
+        split = self.mainArea = QSplitter()
+        split.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        split.setOrientation(Qt.Horizontal)
         left = QWidget()
         tform = self.tform = aqt.forms.template.Ui_Form()
         tform.setupUi(left)
-        l.addWidget(left, 5)
+        split.addWidget(left)
+        split.setCollapsible(0, False)
 
         right = QWidget()
         self.pform = aqt.forms.preview.Ui_Form()
@@ -192,9 +196,8 @@ class CardLayout(QDialog):
 
         self.setup_edit_area()
         self.setup_preview()
-
-        l.addWidget(right, 5)
-        w.setLayout(l)
+        split.addWidget(right)
+        split.setCollapsible(1, False)
 
     def setup_edit_area(self):
         tform = self.tform
@@ -765,6 +768,7 @@ Enter deck to place new %s cards in, or leave blank:"""
         self.cancelPreviewTimer()
         av_player.stop_and_clear_queue()
         saveGeom(self, "CardLayout")
+        saveSplitter(self.mainArea, "CardLayoutMainArea")
         self.preview_web = None
         self.model = None
         self.rendered_card = None
