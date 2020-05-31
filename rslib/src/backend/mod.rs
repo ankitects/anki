@@ -33,8 +33,8 @@ use crate::{
     sched::timespan::{answer_button_time, learning_congrats, studied_today, time_span},
     search::SortMode,
     sync::{
-        sync_login, FullSyncProgress, NormalSyncProgress, SyncActionRequired, SyncAuth, SyncOutput,
-        SyncStage,
+        sync_abort, sync_login, FullSyncProgress, NormalSyncProgress, SyncActionRequired, SyncAuth,
+        SyncOutput, SyncStage,
     },
     template::RenderedNode,
     text::{extract_av_tags, strip_av_tags, AVTag},
@@ -1258,6 +1258,7 @@ impl Backend {
         self.sync_abort = Some(abort_handle);
 
         let mut rt = Runtime::new().unwrap();
+        let input_copy = input.clone();
 
         let ret = self.with_col(|col| {
             let result = if check_only {
@@ -1280,6 +1281,11 @@ impl Backend {
                     // if the user aborted, we'll need to clean up the transaction
                     if !check_only {
                         col.storage.rollback_trx()?;
+                        // and tell AnkiWeb to clean up
+                        let _handle = std::thread::spawn(move || {
+                            let _ =
+                                rt.block_on(sync_abort(input_copy.hkey, input_copy.host_number));
+                        });
                     }
 
                     Err(AnkiError::Interrupted)

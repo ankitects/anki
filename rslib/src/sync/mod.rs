@@ -586,6 +586,11 @@ pub async fn sync_login(username: &str, password: &str) -> Result<SyncAuth> {
     })
 }
 
+pub async fn sync_abort(hkey: String, host_number: u32) -> Result<()> {
+    let remote = HTTPSyncClient::new(Some(hkey), host_number);
+    remote.abort().await
+}
+
 impl Collection {
     pub async fn get_sync_status(&mut self, auth: SyncAuth) -> Result<SyncOutput> {
         NormalSyncer::new(self, auth, |_p, _t| ())
@@ -598,7 +603,6 @@ impl Collection {
     where
         F: FnMut(NormalSyncProgress, bool),
     {
-        // fixme: server abort on failure
         NormalSyncer::new(self, auth, progress_fn).sync().await
     }
 
