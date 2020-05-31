@@ -10,6 +10,7 @@ import aqt
 from anki.rsbackend import (
     TR,
     FullSyncProgress,
+    Interrupted,
     ProgressKind,
     SyncError,
     SyncErrorKind,
@@ -52,20 +53,26 @@ def get_sync_status(mw: aqt.main.AnkiQt, callback: Callable[[SyncOutput], None])
     )
 
 
+def handle_sync_error(mw: aqt.main.AnkiQt, err: Exception):
+    if isinstance(err, SyncError):
+        if err.kind == SyncErrorKind.AUTH_FAILED:
+            mw.pm.clear_sync_auth()
+    elif isinstance(err, Interrupted):
+        # no message to show
+        return
+    showWarning(str(err))
+
+
 def sync_collection(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
     auth = mw.pm.sync_auth()
-    if not auth:
-        sync_login(mw, on_success=lambda: sync_collection(mw))
-        return
+    assert auth
 
     def on_future_done(fut):
         mw.col.db.begin()
         try:
             out: SyncOutput = fut.result()
-        except InterruptedError:
-            return on_done()
-        except Exception as e:
-            showWarning(str(e))
+        except Exception as err:
+            handle_sync_error(mw, err)
             return on_done()
 
         mw.pm.set_host_number(out.host_number)
@@ -146,8 +153,8 @@ def full_download(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
         mw.reset()
         try:
             fut.result()
-        except Exception as e:
-            showWarning(str(e))
+        except Exception as err:
+            handle_sync_error(mw, err)
         return on_done()
 
     mw.taskman.with_progress(
@@ -173,8 +180,9 @@ def full_upload(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
         mw.reset()
         try:
             fut.result()
-        except Exception as e:
-            showWarning(str(e))
+        except Exception as err:
+            handle_sync_error(mw, err)
+            return on_done()
         return on_done()
 
     mw.taskman.with_progress(
@@ -202,8 +210,8 @@ def sync_login(
                 showWarning(str(e))
                 sync_login(mw, on_success, username, password)
                 return
-        except Exception as e:
-            showWarning(str(e))
+        except Exception as err:
+            handle_sync_error(mw, err)
             return
 
         mw.pm.set_host_number(auth.host_number)
