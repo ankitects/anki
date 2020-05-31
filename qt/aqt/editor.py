@@ -837,6 +837,8 @@ to a cloze type first, via Edit>Change Note Type."""
         # strip off any query string
         url = re.sub(r"\?.*?$", "", url)
         fname = os.path.basename(urllib.parse.unquote(url))
+        if not fname.strip():
+            fname = "paste"
         if content_type:
             fname = self.mw.col.media.add_extension_based_on_mime(fname, content_type)
 

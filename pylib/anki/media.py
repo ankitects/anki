@@ -112,6 +112,7 @@ class MediaManager:
             type_map = {
                 "image/jpeg": ".jpg",
                 "image/png": ".png",
+                "image/svg+xml": ".svg",
             }
             if content_type in type_map:
                 fname += type_map[content_type]
