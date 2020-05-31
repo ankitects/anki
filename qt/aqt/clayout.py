@@ -275,11 +275,15 @@ class CardLayout(QDialog):
 
         self.fill_fields_from_template()
 
-    def on_search_changed(self, text: str):
+    def on_search_changed(self, text: str, selectNext=False):
         editor = self.tform.edit_area
         from aqt import utils as aqtUtils
 
         if aqtUtils.Qsci and aqtUtils.QsciEnabled:
+            if not selectNext:
+                line_from, index_from, line_to, index_to = editor.getSelection()
+                editor.setSelection(line_from, index_from, line_from, index_from)
+
             if not editor.findFirst(text, True, False, False, True):
                 tooltip("No matches found.")
         else:
@@ -293,7 +297,7 @@ class CardLayout(QDialog):
 
     def on_search_next(self):
         text = self.tform.search_edit.text()
-        self.on_search_changed(text)
+        self.on_search_changed(text, selectNext=True)
 
     def setup_preview(self):
         pform = self.pform
