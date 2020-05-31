@@ -615,6 +615,23 @@ def restoreIsChecked(widget, key):
         widget.setChecked(aqt.mw.pm.profile[key])
 
 
+def saveComboActiveIndex(widget, key):
+    textKey = key + "ComboActiveText"
+    indexKey = key + "ComboActiveIndex"
+    aqt.mw.pm.profile[textKey] = widget.currentText()
+    aqt.mw.pm.profile[indexKey] = widget.currentIndex()
+
+
+def restoreComboActiveIndex(widget, history, key):
+    textKey = key + "ComboActiveText"
+    indexKey = key + "ComboActiveIndex"
+    text = aqt.mw.pm.profile.get(textKey)
+    index = aqt.mw.pm.profile.get(indexKey)
+    if text is not None and index is not None:
+        if index < len(history) and history[index] == text:
+            widget.setCurrentIndex(index)
+
+
 def saveSplitter(widget, key):
     key += "Splitter"
     aqt.mw.pm.profile[key] = widget.saveState()
