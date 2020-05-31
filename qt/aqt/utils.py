@@ -338,6 +338,28 @@ def getTag(parent, deck, question, tags="user", **kwargs):
     return ret
 
 
+def setupComboBoxHistory(comboBox, name):
+    name += "BoxHistory"
+    history = aqt.mw.pm.profile.get(name, [])
+    comboBox.addItems(history)
+    comboBox.lineEdit().setText(history[0] if history else "")
+    comboBox.lineEdit().selectAll()
+    return history
+
+
+def saveComboBoxHistory(comboBox, history, name):
+    name += "BoxHistory"
+    text_input = comboBox.lineEdit().text()
+    if text_input in history:
+        history.remove(text_input)
+    history.insert(0, text_input)
+    history = history[:50]
+    comboBox.clear()
+    comboBox.addItems(history)
+    aqt.mw.pm.profile[name] = history
+    return text_input
+
+
 # File handling
 ######################################################################
 

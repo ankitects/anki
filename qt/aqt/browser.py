@@ -40,10 +40,12 @@ from aqt.utils import (
     restoreHeader,
     restoreSplitter,
     restoreState,
+    saveComboBoxHistory,
     saveGeom,
     saveHeader,
     saveSplitter,
     saveState,
+    setupComboBoxHistory,
     shortcut,
     showInfo,
     showWarning,
@@ -1930,17 +1932,11 @@ update cards set usn=?, mod=?, did=? where id in """
         frm.setupUi(d)
         d.setWindowModality(Qt.WindowModal)
 
-        findhistory = self.mw.pm.profile.get("FindAndReplaceFindHistory", [])
-        frm.find.addItems(findhistory)
-        frm.find.lineEdit().setText(findhistory[0] if findhistory else "")
-        frm.find.lineEdit().selectAll()
+        combo = "BrowserFindAndReplace"
+        findhistory = setupComboBoxHistory(frm.find, combo + "Find")
+        replacehistory = setupComboBoxHistory(frm.replace, combo + "Replace")
+
         frm.find.setFocus()
-
-        replacehistory = self.mw.pm.profile.get("FindAndReplaceReplaceHistory", [])
-        frm.replace.addItems(replacehistory)
-        frm.replace.lineEdit().setText(replacehistory[0] if replacehistory else "")
-        frm.replace.lineEdit().selectAll()
-
         frm.field.addItems([_("All Fields")] + fields)
         qconnect(frm.buttonBox.helpRequested, self.onFindReplaceHelp)
         restoreGeom(d, "findreplace")
@@ -1953,23 +1949,8 @@ update cards set usn=?, mod=?, did=? where id in """
         else:
             field = fields[frm.field.currentIndex() - 1]
 
-        search = frm.find.lineEdit().text()
-        if search in findhistory:
-            findhistory.remove(search)
-        findhistory.insert(0, search)
-        findhistory = findhistory[:30]
-        frm.find.clear()
-        frm.find.addItems(findhistory)
-        self.mw.pm.profile["FindAndReplaceFindHistory"] = findhistory
-
-        replace = frm.replace.lineEdit().text()
-        if replace in replacehistory:
-            replacehistory.remove(replace)
-        replacehistory.insert(0, replace)
-        replacehistory = replacehistory[:30]
-        frm.replace.clear()
-        frm.replace.addItems(replacehistory)
-        self.mw.pm.profile["FindAndReplaceReplaceHistory"] = replacehistory
+        search = saveComboBoxHistory(frm.find, findhistory, combo + "Find")
+        replace = saveComboBoxHistory(frm.replace, replacehistory, combo + "Replace")
 
         regex = frm.re.isChecked()
         nocase = frm.ignoreCase.isChecked()
