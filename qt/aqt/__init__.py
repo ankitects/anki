@@ -325,7 +325,23 @@ def setupGL(pm):
         ctypes.CDLL("libGL.so.1", ctypes.RTLD_GLOBAL)
 
     # catch opengl errors
-    def msgHandler(type, ctx, msg):
+    def msgHandler(category, ctx, msg):
+        if category == QtDebugMsg:
+            category = "debug"
+        elif category == QtInfoMsg:
+            category = "info"
+        elif category == QtWarningMsg:
+            category = "warning"
+        elif category == QtCriticalMsg:
+            category = "critical"
+        elif category == QtDebugMsg:
+            category = "debug"
+        elif category == QtFatalMsg:
+            category = "fatal"
+        elif category == QtSystemMsg:
+            category = "system"
+        else:
+            category = "unknown"
         context = ""
         if ctx.file:
             context += f"{ctx.file}:"
@@ -344,7 +360,7 @@ def setupGL(pm):
             pm.nextGlMode()
             return
         else:
-            print(f"qt: {msg} {context}")
+            print(f"Qt {category}: {msg} {context}")
 
     qInstallMessageHandler(msgHandler)
 
