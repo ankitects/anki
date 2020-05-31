@@ -161,6 +161,7 @@ service BackendService {
 
     rpc SyncMedia (SyncAuth) returns (Empty);
     rpc AbortSync (Empty) returns (Empty);
+    rpc AbortMediaSync (Empty) returns (Empty);
     rpc BeforeUpload (Empty) returns (Empty);
     rpc SyncLogin (SyncLoginIn) returns (SyncAuth);
     rpc SyncStatus (SyncAuth) returns (SyncCollectionOut);

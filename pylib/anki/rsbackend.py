@@ -166,7 +166,7 @@ class ProgressKind(enum.Enum):
 @dataclass
 class Progress:
     kind: ProgressKind
-    val: Union[MediaSyncProgress, pb.FullSyncProgress, str]
+    val: Union[MediaSyncProgress, pb.FullSyncProgress, NormalSyncProgress, str]
 
     @staticmethod
     def from_proto(proto: pb.Progress) -> Progress:

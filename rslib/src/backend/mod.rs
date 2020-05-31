@@ -89,6 +89,7 @@ pub struct Backend {
     i18n: I18n,
     server: bool,
     sync_abort: Option<AbortHandle>,
+    media_sync_abort: Option<AbortHandle>,
     progress_state: Arc<Mutex<ProgressState>>,
 }
 
@@ -1013,6 +1014,13 @@ impl BackendService for Backend {
         Ok(().into())
     }
 
+    fn abort_media_sync(&mut self, _input: Empty) -> BackendResult<Empty> {
+        if let Some(handle) = self.media_sync_abort.take() {
+            handle.abort();
+        }
+        Ok(().into())
+    }
+
     fn before_upload(&mut self, _input: Empty) -> BackendResult<Empty> {
         self.with_col(|col| col.before_upload().map(Into::into))
     }
@@ -1142,6 +1150,7 @@ impl Backend {
             i18n,
             server,
             sync_abort: None,
+            media_sync_abort: None,
             progress_state: Arc::new(Mutex::new(ProgressState {
                 want_abort: false,
                 last_progress: None,
@@ -1202,7 +1211,7 @@ impl Backend {
         log: Logger,
     ) -> Result<()> {
         let (abort_handle, abort_reg) = AbortHandle::new_pair();
-        self.sync_abort = Some(abort_handle);
+        self.media_sync_abort = Some(abort_handle);
 
         let mut handler = self.new_progress_handler();
         let progress_fn = move |progress| handler.update(progress, true);
@@ -1218,7 +1227,7 @@ impl Backend {
                 Err(AnkiError::Interrupted)
             }
         };
-        self.sync_abort = None;
+        self.media_sync_abort = None;
         ret
     }
 
@@ -1267,7 +1276,14 @@ impl Backend {
             };
             match result {
                 Ok(sync_result) => sync_result,
-                Err(_) => Err(AnkiError::Interrupted),
+                Err(_) => {
+                    // if the user aborted, we'll need to clean up the transaction
+                    if !check_only {
+                        col.storage.rollback_trx()?;
+                    }
+
+                    Err(AnkiError::Interrupted)
+                }
             }
         });
         self.sync_abort = None;

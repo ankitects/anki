@@ -109,9 +109,8 @@ class MediaSyncer:
         if not self.is_syncing():
             return
         self._log_and_notify(tr(TR.SYNC_MEDIA_ABORTING))
-        # fixme: latter should do the former for us in the future
         self.mw.col.backend.set_wants_abort()
-        self.mw.col.backend.abort_sync()
+        self.mw.col.backend.abort_media_sync()
 
     def is_syncing(self) -> bool:
         return self._syncing
