@@ -7,6 +7,13 @@ function _runHook(hooks: ((...args) => void)[], ...args) {
     }
 }
 
+function _runFilter(hooks: ((value: any, ...args) => any)[], value, ...args) {
+    for (var i = 0; i < hooks.length; i++) {
+        value = hooks[i](value, ...args);
+    }
+    return value;
+}
+
 function _emptyHook(hooks: ((...args) => void)[]) {
     hooks.length = 0;
 }
