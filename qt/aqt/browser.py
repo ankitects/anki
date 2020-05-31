@@ -36,20 +36,20 @@ from aqt.utils import (
     getTag,
     openHelp,
     qtMenuShortcutWorkaround,
-    restoreComboActiveIndex,
+    restoreComboHistory,
+    restoreComboIndex,
     restoreGeom,
     restoreHeader,
     restoreIsChecked,
     restoreSplitter,
     restoreState,
-    saveComboActiveIndex,
-    saveComboBoxHistory,
+    saveComboHistory,
+    saveComboIndex,
     saveGeom,
     saveHeader,
     saveIsChecked,
     saveSplitter,
     saveState,
-    setupComboBoxHistory,
     shortcut,
     showInfo,
     showWarning,
@@ -1937,8 +1937,8 @@ update cards set usn=?, mod=?, did=? where id in """
         d.setWindowModality(Qt.WindowModal)
 
         combo = "BrowserFindAndReplace"
-        findhistory = setupComboBoxHistory(frm.find, combo + "Find")
-        replacehistory = setupComboBoxHistory(frm.replace, combo + "Replace")
+        findhistory = restoreComboHistory(frm.find, combo + "Find")
+        replacehistory = restoreComboHistory(frm.replace, combo + "Replace")
 
         restoreIsChecked(frm.re, combo + "Regex")
         restoreIsChecked(frm.ignoreCase, combo + "ignoreCase")
@@ -1946,7 +1946,7 @@ update cards set usn=?, mod=?, did=? where id in """
         frm.find.setFocus()
         allfields = [_("All Fields")] + fields
         frm.field.addItems(allfields)
-        restoreComboActiveIndex(frm.field, allfields, combo + "Field")
+        restoreComboIndex(frm.field, allfields, combo + "Field")
         qconnect(frm.buttonBox.helpRequested, self.onFindReplaceHelp)
         restoreGeom(d, "findreplace")
         r = d.exec_()
@@ -1954,14 +1954,14 @@ update cards set usn=?, mod=?, did=? where id in """
         if not r:
             return
 
-        saveComboActiveIndex(frm.field, combo + "Field")
+        saveComboIndex(frm.field, combo + "Field")
         if frm.field.currentIndex() == 0:
             field = None
         else:
             field = fields[frm.field.currentIndex() - 1]
 
-        search = saveComboBoxHistory(frm.find, findhistory, combo + "Find")
-        replace = saveComboBoxHistory(frm.replace, replacehistory, combo + "Replace")
+        search = saveComboHistory(frm.find, findhistory, combo + "Find")
+        replace = saveComboHistory(frm.replace, replacehistory, combo + "Replace")
 
         regex = frm.re.isChecked()
         nocase = frm.ignoreCase.isChecked()
@@ -2013,7 +2013,7 @@ update cards set usn=?, mod=?, did=? where id in """
         frm = aqt.forms.finddupes.Ui_Dialog()
         frm.setupUi(d)
         restoreGeom(d, "findDupes")
-        searchHistory = setupComboBoxHistory(frm.search, "findDupesFind")
+        searchHistory = restoreComboHistory(frm.search, "findDupesFind")
 
         fields = sorted(
             anki.find.fieldNames(self.col, downcase=False), key=lambda x: x.lower()
@@ -2032,7 +2032,7 @@ update cards set usn=?, mod=?, did=? where id in """
         qconnect(d.finished, onFin)
 
         def onClick():
-            search_text = saveComboBoxHistory(frm.search, searchHistory, "findDupesFind")
+            search_text = saveComboHistory(frm.search, searchHistory, "findDupesFind")
             field = fields[frm.fields.currentIndex()]
             self.duplicatesReport(frm.webView, field, search_text, frm, web_context)
 

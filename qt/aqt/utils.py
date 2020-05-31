@@ -338,7 +338,7 @@ def getTag(parent, deck, question, tags="user", **kwargs):
     return ret
 
 
-def setupComboBoxHistory(comboBox, name):
+def restoreComboHistory(comboBox, name):
     name += "BoxHistory"
     history = aqt.mw.pm.profile.get(name, [])
     comboBox.addItems(history)
@@ -347,7 +347,7 @@ def setupComboBoxHistory(comboBox, name):
     return history
 
 
-def saveComboBoxHistory(comboBox, history, name):
+def saveComboHistory(comboBox, history, name):
     name += "BoxHistory"
     text_input = comboBox.lineEdit().text()
     if text_input in history:
@@ -503,14 +503,14 @@ def restoreIsChecked(widget, key):
         widget.setChecked(aqt.mw.pm.profile[key])
 
 
-def saveComboActiveIndex(widget, key):
+def saveComboIndex(widget, key):
     textKey = key + "ComboActiveText"
     indexKey = key + "ComboActiveIndex"
     aqt.mw.pm.profile[textKey] = widget.currentText()
     aqt.mw.pm.profile[indexKey] = widget.currentIndex()
 
 
-def restoreComboActiveIndex(widget, history, key):
+def restoreComboIndex(widget, history, key):
     textKey = key + "ComboActiveText"
     indexKey = key + "ComboActiveIndex"
     text = aqt.mw.pm.profile.get(textKey)
