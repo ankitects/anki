@@ -9,6 +9,7 @@ let dropTarget = null;
 let currentNoteId = null;
 
 let onFocusHook: (() => void)[] = [];
+let onSendFieldContentHook: ((fieldContent: string) => string)[] = [];
 
 declare interface String {
     format(...args): string;
@@ -246,15 +247,12 @@ function saveField(type) {
         // no field has been focused yet
         return;
     }
+    let fieldContent = currentField.innerHTML;
+    fieldContent = _runFilter(onSendFieldContentHook, fieldContent);
+
     // type is either 'blur' or 'key'
     pycmd(
-        type +
-            ":" +
-            currentFieldOrdinal() +
-            ":" +
-            currentNoteId +
-            ":" +
-            currentField.innerHTML
+        type + ":" + currentFieldOrdinal() + ":" + currentNoteId + ":" + fieldContent
     );
 }
 
