@@ -326,17 +326,25 @@ def setupGL(pm):
 
     # catch opengl errors
     def msgHandler(type, ctx, msg):
+        context = ""
+        if ctx.file:
+            context += f"{ctx.file}:"
+        if ctx.line:
+            context += f"{ctx.line},"
+        if ctx.function:
+            context += f"{ctx.function}"
+        if context:
+            context = f"'{context}'"
         if "Failed to create OpenGL context" in msg:
             QMessageBox.critical(
                 None,
                 "Error",
-                "Error loading '%s' graphics driver. Please start Anki again to try next driver."
-                % mode,
+                f"Error loading '{mode}' graphics driver. Please start Anki again to try next driver. {context}",
             )
             pm.nextGlMode()
             return
         else:
-            print("qt:", msg)
+            print(f"qt: {msg} {context}")
 
     qInstallMessageHandler(msgHandler)
 
