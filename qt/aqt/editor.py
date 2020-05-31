@@ -192,7 +192,7 @@ class Editor:
         self.web.stdHtml(
             _html % (bgcol, bgcol, topbuts, _("Show Duplicates")),
             css=["editor.css"],
-            js=["jquery.js", "editor.js"],
+            js=["jquery.js", "hooks.js", "editor.js"],
             context=self,
         )
 
