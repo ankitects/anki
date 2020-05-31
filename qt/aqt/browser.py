@@ -2019,7 +2019,9 @@ update cards set usn=?, mod=?, did=? where id in """
             anki.find.fieldNames(self.col, downcase=False), key=lambda x: x.lower()
         )
         frm.fields.addItems(fields)
+        restoreComboIndex(frm.fields, fields, "findDupesFields")
         self._dupesButton = None
+
         # links
         frm.webView.title = "find duplicates"
         web_context = FindDupesDialog(dialog=d, browser=self)
@@ -2033,6 +2035,7 @@ update cards set usn=?, mod=?, did=? where id in """
 
         def onClick():
             search_text = saveComboHistory(frm.search, searchHistory, "findDupesFind")
+            saveComboIndex(frm.fields, "findDupesFields")
             field = fields[frm.fields.currentIndex()]
             self.duplicatesReport(frm.webView, field, search_text, frm, web_context)
 
