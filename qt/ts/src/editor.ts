@@ -11,6 +11,7 @@ let currentNoteId = null;
 let onFocusHook: (() => void)[] = [];
 let onSendFieldContentHook: ((fieldContent: string) => string)[] = [];
 let onInsertHtmlHook: (() => void)[] = [];
+let fieldsAreSetHook: ((fields: string[]) => void)[] = [];
 
 declare interface String {
     format(...args): string;
@@ -360,6 +361,7 @@ function setFields(fields) {
 ${txt}
     </table>`);
     maybeDisableButtons();
+    _runHook(fieldsAreSetHook, fields);
 }
 
 function setBackgrounds(cols) {
