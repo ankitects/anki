@@ -185,6 +185,11 @@ class ProgressManager:
         else:
             return False
 
+    def set_title(self, title: str) -> None:
+        win = self._win
+        if win:
+            win.setWindowTitle(title)
+
 
 class ProgressDialog(QDialog):
     def __init__(self, parent):

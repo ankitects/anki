@@ -238,7 +238,7 @@ impl HTTPSyncClient {
         mut progress_fn: P,
     ) -> Result<NamedTempFile>
     where
-        P: FnMut(FullSyncProgress),
+        P: FnMut(FullSyncProgress, bool),
     {
         let mut temp_file = NamedTempFile::new_in(folder)?;
         let (size, mut stream) = self.download_inner().await?;
@@ -250,8 +250,9 @@ impl HTTPSyncClient {
             let chunk = chunk?;
             temp_file.write_all(&chunk)?;
             progress.transferred_bytes += chunk.len();
-            progress_fn(progress);
+            progress_fn(progress, true);
         }
+        progress_fn(progress, false);
 
         Ok(temp_file)
     }
@@ -265,7 +266,7 @@ impl HTTPSyncClient {
 
     pub(crate) async fn upload<P>(&mut self, col_path: &Path, progress_fn: P) -> Result<()>
     where
-        P: FnMut(FullSyncProgress) + Send + Sync + 'static,
+        P: FnMut(FullSyncProgress, bool) + Send + Sync + 'static,
     {
         let file = tokio::fs::File::open(col_path).await?;
         let total_bytes = file.metadata().await?.len() as usize;
@@ -304,7 +305,7 @@ struct ProgressWrapper<S, P> {
 impl<S, P> Stream for ProgressWrapper<S, P>
 where
     S: AsyncRead,
-    P: FnMut(FullSyncProgress),
+    P: FnMut(FullSyncProgress, bool),
 {
     type Item = std::result::Result<Bytes, std::io::Error>;
 
@@ -312,11 +313,14 @@ where
         let mut buf = vec![0; 16 * 1024];
         let this = self.project();
         match ready!(this.reader.poll_read(cx, &mut buf)) {
-            Ok(0) => Poll::Ready(None),
+            Ok(0) => {
+                (this.progress_fn)(*this.progress, false);
+                Poll::Ready(None)
+            }
             Ok(size) => {
                 buf.resize(size, 0);
                 this.progress.transferred_bytes += size;
-                (this.progress_fn)(*this.progress);
+                (this.progress_fn)(*this.progress, true);
                 Poll::Ready(Some(Ok(Bytes::from(buf))))
             }
             Err(e) => Poll::Ready(Some(Err(e))),
@@ -410,13 +414,13 @@ mod test {
 
         let dir = tempdir()?;
         let out_path = syncer
-            .download(&dir.path(), |progress| {
+            .download(&dir.path(), |progress, _throttle| {
                 println!("progress: {:?}", progress);
             })
             .await?;
 
         syncer
-            .upload(&out_path.path(), |progress| {
+            .upload(&out_path.path(), |progress, _throttle| {
                 println!("progress {:?}", progress);
             })
             .await?;

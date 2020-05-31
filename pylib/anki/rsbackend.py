@@ -150,6 +150,7 @@ def proto_exception_to_native(err: pb.BackendError) -> Exception:
 
 MediaSyncProgress = pb.MediaSyncProgress
 FullSyncProgress = pb.FullSyncProgress
+NormalSyncProgress = pb.NormalSyncProgress
 
 FormatTimeSpanContext = pb.FormatTimespanIn.Context
 
@@ -159,6 +160,7 @@ class ProgressKind(enum.Enum):
     MediaSync = 1
     MediaCheck = 2
     FullSync = 3
+    NormalSync = 4
 
 
 @dataclass
@@ -175,6 +177,8 @@ class Progress:
             return Progress(kind=ProgressKind.MediaCheck, val=proto.media_check)
         elif kind == "full_sync":
             return Progress(kind=ProgressKind.FullSync, val=proto.full_sync)
+        elif kind == "normal_sync":
+            return Progress(kind=ProgressKind.NormalSync, val=proto.normal_sync)
         else:
             return Progress(kind=ProgressKind.NoProgress, val="")
 

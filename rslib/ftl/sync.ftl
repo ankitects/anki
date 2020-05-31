@@ -1,6 +1,5 @@
 ### Messages shown when synchronizing with AnkiWeb.
 
-
 ## Media synchronization
 
 sync-media-added-count = Added: { $up }↑ { $down }↓
@@ -48,9 +47,11 @@ sync-download-from-ankiweb = Download from AnkiWeb
 sync-upload-to-ankiweb = Upload to AnkiWeb
 sync-cancel-button = Cancel
 
-## Progress
+## Normal sync progress
 
 sync-downloading-from-ankiweb = Downloading from AnkiWeb...
 sync-uploading-to-ankiweb = Uploading to AnkiWeb...
 sync-syncing = Syncing...
 sync-checking = Checking...
+sync-connecting = Connecting...
+sync-added-updated-count = Added/modified: { $up }↑ { $down }↓

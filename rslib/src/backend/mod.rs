@@ -32,7 +32,10 @@ use crate::{
     sched::cutoff::local_minutes_west_for_stamp,
     sched::timespan::{answer_button_time, learning_congrats, studied_today, time_span},
     search::SortMode,
-    sync::{sync_login, FullSyncProgress, SyncActionRequired, SyncAuth, SyncOutput},
+    sync::{
+        sync_login, FullSyncProgress, NormalSyncProgress, SyncActionRequired, SyncAuth, SyncOutput,
+        SyncStage,
+    },
     template::RenderedNode,
     text::{extract_av_tags, strip_av_tags, AVTag},
     timestamp::TimestampSecs,
@@ -62,9 +65,9 @@ struct ThrottlingProgressHandler {
 
 impl ThrottlingProgressHandler {
     /// Returns true if should continue.
-    fn update(&mut self, progress: impl Into<Progress>) -> bool {
+    fn update(&mut self, progress: impl Into<Progress>, throttle: bool) -> bool {
         let now = coarsetime::Instant::now();
-        if now.duration_since(self.last_update).as_f64() < 0.1 {
+        if throttle && now.duration_since(self.last_update).as_f64() < 0.1 {
             return true;
         }
         self.last_update = now;
@@ -94,6 +97,7 @@ enum Progress {
     MediaSync(MediaSyncProgress),
     MediaCheck(u32),
     FullSync(FullSyncProgress),
+    NormalSync(NormalSyncProgress),
 }
 
 /// Convert an Anki error to a protobuf error.
@@ -836,7 +840,8 @@ impl BackendService for Backend {
 
     fn empty_trash(&mut self, _input: Empty) -> BackendResult<Empty> {
         let mut handler = self.new_progress_handler();
-        let progress_fn = move |progress| handler.update(Progress::MediaCheck(progress as u32));
+        let progress_fn =
+            move |progress| handler.update(Progress::MediaCheck(progress as u32), true);
 
         self.with_col(|col| {
             let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
@@ -851,7 +856,8 @@ impl BackendService for Backend {
 
     fn restore_trash(&mut self, _input: Empty) -> BackendResult<Empty> {
         let mut handler = self.new_progress_handler();
-        let progress_fn = move |progress| handler.update(Progress::MediaCheck(progress as u32));
+        let progress_fn =
+            move |progress| handler.update(Progress::MediaCheck(progress as u32), true);
         self.with_col(|col| {
             let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
 
@@ -875,7 +881,8 @@ impl BackendService for Backend {
 
     fn check_media(&mut self, _input: pb::Empty) -> Result<pb::CheckMediaOut> {
         let mut handler = self.new_progress_handler();
-        let progress_fn = move |progress| handler.update(Progress::MediaCheck(progress as u32));
+        let progress_fn =
+            move |progress| handler.update(Progress::MediaCheck(progress as u32), true);
         self.with_col(|col| {
             let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
             col.transact(None, |ctx| {
@@ -1198,7 +1205,7 @@ impl Backend {
         self.sync_abort = Some(abort_handle);
 
         let mut handler = self.new_progress_handler();
-        let progress_fn = move |progress| handler.update(progress);
+        let progress_fn = move |progress| handler.update(progress, true);
 
         let mgr = MediaManager::new(&folder, &db)?;
         let mut rt = Runtime::new().unwrap();
@@ -1249,7 +1256,12 @@ impl Backend {
                 let abortable_sync = Abortable::new(sync_fut, abort_reg);
                 rt.block_on(abortable_sync)
             } else {
-                let sync_fut = col.normal_sync(input.into());
+                let mut handler = self.new_progress_handler();
+                let progress_fn = move |progress: NormalSyncProgress, throttle: bool| {
+                    handler.update(progress, throttle);
+                };
+
+                let sync_fut = col.normal_sync(input.into(), progress_fn);
                 let abortable_sync = Abortable::new(sync_fut, abort_reg);
                 rt.block_on(abortable_sync)
             };
@@ -1283,8 +1295,8 @@ impl Backend {
         let logger = col_inner.log.clone();
 
         let mut handler = self.new_progress_handler();
-        let progress_fn = move |progress: FullSyncProgress| {
-            handler.update(progress);
+        let progress_fn = move |progress: FullSyncProgress, throttle: bool| {
+            handler.update(progress, throttle);
         };
 
         let mut rt = Runtime::new().unwrap();
@@ -1381,6 +1393,29 @@ fn progress_to_proto(progress: Option<Progress>, i18n: &I18n) -> pb::Progress {
                 transferred: p.transferred_bytes as u32,
                 total: p.total_bytes as u32,
             }),
+            Progress::NormalSync(p) => {
+                let stage = match p.stage {
+                    SyncStage::Connecting => i18n.tr(TR::SyncSyncing),
+                    SyncStage::Syncing => i18n.tr(TR::SyncSyncing),
+                    SyncStage::Finalizing => i18n.tr(TR::SyncChecking),
+                }
+                .to_string();
+                let added = i18n.trn(
+                    TR::SyncAddedUpdatedCount,
+                    tr_args![
+                            "up"=>p.local_update, "down"=>p.remote_update],
+                );
+                let removed = i18n.trn(
+                    TR::SyncMediaRemovedCount,
+                    tr_args![
+                            "up"=>p.local_remove, "down"=>p.remote_remove],
+                );
+                pb::progress::Value::NormalSync(pb::NormalSyncProgress {
+                    stage,
+                    added,
+                    removed,
+                })
+            }
         }
     } else {
         pb::progress::Value::None(pb::Empty {})
@@ -1532,5 +1567,11 @@ impl From<FullSyncProgress> for Progress {
 impl From<MediaSyncProgress> for Progress {
     fn from(p: MediaSyncProgress) -> Self {
         Progress::MediaSync(p)
+    }
+}
+
+impl From<NormalSyncProgress> for Progress {
+    fn from(p: NormalSyncProgress) -> Self {
+        Progress::NormalSync(p)
     }
 }
