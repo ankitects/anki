@@ -522,7 +522,7 @@ class Editor:
         self.saveNow(lambda: self._onHtmlEdit(field))
 
     def _onHtmlEdit(self, field):
-        d = QDialog(self.widget)
+        d = QDialog(self.widget, Qt.Window)
         form = aqt.forms.edithtml.Ui_Dialog()
         form.setupUi(d)
         restoreGeom(d, "htmlEditor")

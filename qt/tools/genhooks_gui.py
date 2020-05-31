@@ -400,8 +400,27 @@ hooks = [
     ),
     # Main
     ###################
+    Hook(
+        name="main_window_did_init",
+        doc="""Executed after the main window is fully initialized
+        
+        A sample use case for this hook would be to delay actions until Anki objects
+        like the profile or collection are fully initialized. In contrast to
+        `profile_did_open`, this hook will only fire once per Anki session and
+        is thus suitable for single-shot subscribers.
+        """,
+    ),
     Hook(name="backup_did_complete"),
-    Hook(name="profile_did_open", legacy_hook="profileLoaded"),
+    Hook(
+        name="profile_did_open",
+        legacy_hook="profileLoaded",
+        doc="""Executed whenever a user profile has been opened
+        
+        Please note that this hook will also be called on profile switches, so if you
+        are looking to simply delay an add-on action in a single-shot manner,
+        `main_window_did_init` is likely the more suitable choice.
+        """,
+    ),
     Hook(name="profile_will_close", legacy_hook="unloadProfile"),
     Hook(
         name="collection_did_load",
