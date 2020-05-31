@@ -477,14 +477,23 @@ section of the manual, and ensure that location is not read-only.""",
     # proxy configured?
     from urllib.request import proxy_bypass, getproxies
 
-    if "http" in getproxies():
-        # if it's not set up to bypass localhost, we'll
-        # need to disable proxies in the webviews
-        if not proxy_bypass("127.0.0.1"):
-            print("webview proxy use disabled")
-            proxy = QNetworkProxy()
-            proxy.setType(QNetworkProxy.NoProxy)
-            QNetworkProxy.setApplicationProxy(proxy)
+    disable_proxies = False
+    try:
+        if "http" in getproxies():
+            # if it's not set up to bypass localhost, we'll
+            # need to disable proxies in the webviews
+            if not proxy_bypass("127.0.0.1"):
+                disable_proxies = True
+    except UnicodeDecodeError:
+        # proxy_bypass can't handle unicode in hostnames; assume we need
+        # to disable proxies
+        disable_proxies = True
+
+    if disable_proxies:
+        print("webview proxy use disabled")
+        proxy = QNetworkProxy()
+        proxy.setType(QNetworkProxy.NoProxy)
+        QNetworkProxy.setApplicationProxy(proxy)
 
     # we must have a usable temp dir
     try:
