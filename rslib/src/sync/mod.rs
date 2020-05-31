@@ -27,8 +27,27 @@ use std::io::prelude::*;
 use std::{collections::HashMap, path::Path, time::Duration};
 use tempfile::NamedTempFile;
 
-#[derive(Default, Debug)]
-pub struct SyncProgress {}
+#[derive(Default, Debug, Clone, Copy)]
+pub struct NormalSyncProgress {
+    pub stage: SyncStage,
+    pub local_update: usize,
+    pub local_remove: usize,
+    pub remote_update: usize,
+    pub remote_remove: usize,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum SyncStage {
+    Connecting,
+    Syncing,
+    Finalizing,
+}
+
+impl Default for SyncStage {
+    fn default() -> Self {
+        SyncStage::Connecting
+    }
+}
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SyncMeta {
@@ -223,9 +242,11 @@ pub struct SyncAuth {
     pub host_number: u32,
 }
 
-struct NormalSyncer<'a> {
+struct NormalSyncer<'a, F> {
     col: &'a mut Collection,
     remote: HTTPSyncClient,
+    progress: NormalSyncProgress,
+    progress_fn: F,
 }
 
 impl Usn {
@@ -239,17 +260,30 @@ impl Usn {
     }
 }
 
-impl NormalSyncer<'_> {
+impl<F> NormalSyncer<'_, F>
+where
+    F: FnMut(NormalSyncProgress, bool),
+{
     /// Create a new syncing instance. If host_number is unavailable, use 0.
-    pub fn new(col: &mut Collection, auth: SyncAuth) -> NormalSyncer<'_> {
+    pub fn new(col: &mut Collection, auth: SyncAuth, progress_fn: F) -> NormalSyncer<'_, F>
+    where
+        F: FnMut(NormalSyncProgress, bool),
+    {
         NormalSyncer {
             col,
             remote: HTTPSyncClient::new(Some(auth.hkey), auth.host_number),
+            progress: NormalSyncProgress::default(),
+            progress_fn,
         }
+    }
+
+    fn fire_progress_cb(&mut self, throttle: bool) {
+        (self.progress_fn)(self.progress, throttle)
     }
 
     pub async fn sync(&mut self) -> Result<SyncOutput> {
         debug!(self.col.log, "fetching meta...");
+        self.fire_progress_cb(false);
         let state: SyncState = self.get_sync_state().await?;
         debug!(self.col.log, "fetched"; "state"=>?&state);
         match state.required {
@@ -330,6 +364,9 @@ impl NormalSyncer<'_> {
     /// Sync. Caller must have created a transaction, and should call
     /// abort on failure.
     async fn normal_sync_inner(&mut self, mut state: SyncState) -> Result<SyncOutput> {
+        self.progress.stage = SyncStage::Syncing;
+        self.fire_progress_cb(false);
+
         debug!(self.col.log, "start");
         self.start_and_process_deletions(&state).await?;
         debug!(self.col.log, "unchunked changes");
@@ -338,6 +375,10 @@ impl NormalSyncer<'_> {
         self.process_chunks_from_server().await?;
         debug!(self.col.log, "begin stream to server");
         self.send_chunks_to_server(&state).await?;
+
+        self.progress.stage = SyncStage::Finalizing;
+        self.fire_progress_cb(false);
+
         debug!(self.col.log, "sanity check");
         self.sanity_check().await?;
         debug!(self.col.log, "finalize");
@@ -348,8 +389,8 @@ impl NormalSyncer<'_> {
 
     // The following operations assume a transaction has been set up.
 
-    async fn start_and_process_deletions(&self, state: &SyncState) -> Result<()> {
-        let removed_on_remote: Graves = self
+    async fn start_and_process_deletions(&mut self, state: &SyncState) -> Result<()> {
+        let remote: Graves = self
             .remote
             .start(
                 state.usn_at_last_sync,
@@ -359,26 +400,30 @@ impl NormalSyncer<'_> {
             .await?;
 
         debug!(self.col.log, "removed on remote";
-            "cards"=>removed_on_remote.cards.len(),
-            "notes"=>removed_on_remote.notes.len(),
-            "decks"=>removed_on_remote.decks.len());
+            "cards"=>remote.cards.len(),
+            "notes"=>remote.notes.len(),
+            "decks"=>remote.decks.len());
 
-        let mut locally_removed = self.col.storage.pending_graves(state.pending_usn)?;
+        let mut local = self.col.storage.pending_graves(state.pending_usn)?;
         if let Some(new_usn) = state.new_usn {
             self.col.storage.update_pending_grave_usns(new_usn)?;
         }
 
         debug!(self.col.log, "locally removed  ";
-            "cards"=>locally_removed.cards.len(),
-            "notes"=>locally_removed.notes.len(),
-            "decks"=>locally_removed.decks.len());
+            "cards"=>local.cards.len(),
+            "notes"=>local.notes.len(),
+            "decks"=>local.decks.len());
 
-        while let Some(chunk) = locally_removed.take_chunk() {
+        while let Some(chunk) = local.take_chunk() {
             debug!(self.col.log, "sending graves chunk");
+            self.progress.local_remove += chunk.cards.len() + chunk.notes.len() + chunk.decks.len();
             self.remote.apply_graves(chunk).await?;
+            self.fire_progress_cb(true);
         }
 
-        self.col.apply_graves(removed_on_remote, state.latest_usn)?;
+        self.progress.remote_remove = remote.cards.len() + remote.notes.len() + remote.decks.len();
+        self.col.apply_graves(remote, state.latest_usn)?;
+        self.fire_progress_cb(true);
         debug!(self.col.log, "applied server graves");
 
         Ok(())
@@ -390,27 +435,41 @@ impl NormalSyncer<'_> {
     // usefulness.
     async fn process_unchunked_changes(&mut self, state: &SyncState) -> Result<()> {
         debug!(self.col.log, "gathering local changes");
-        let local_changes = self.col.local_unchunked_changes(
+        let local = self.col.local_unchunked_changes(
             state.pending_usn,
             state.new_usn,
             state.local_is_newer,
         )?;
+
         debug!(self.col.log, "sending";
-            "notetypes"=>local_changes.notetypes.len(),
-            "decks"=>local_changes.decks_and_config.decks.len(),
-            "deck config"=>local_changes.decks_and_config.config.len(),
-            "tags"=>local_changes.tags.len(),
+            "notetypes"=>local.notetypes.len(),
+            "decks"=>local.decks_and_config.decks.len(),
+            "deck config"=>local.decks_and_config.config.len(),
+            "tags"=>local.tags.len(),
         );
 
-        let remote_changes = self.remote.apply_changes(local_changes).await?;
+        self.progress.local_update += local.notetypes.len()
+            + local.decks_and_config.decks.len()
+            + local.decks_and_config.config.len()
+            + local.tags.len();
+        let remote = self.remote.apply_changes(local).await?;
+        self.fire_progress_cb(true);
+
         debug!(self.col.log, "received";
-            "notetypes"=>remote_changes.notetypes.len(),
-            "decks"=>remote_changes.decks_and_config.decks.len(),
-            "deck config"=>remote_changes.decks_and_config.config.len(),
-            "tags"=>remote_changes.tags.len(),
+            "notetypes"=>remote.notetypes.len(),
+            "decks"=>remote.decks_and_config.decks.len(),
+            "deck config"=>remote.decks_and_config.config.len(),
+            "tags"=>remote.tags.len(),
         );
 
-        self.col.apply_changes(remote_changes, state.latest_usn)
+        self.progress.remote_update += remote.notetypes.len()
+            + remote.decks_and_config.decks.len()
+            + remote.decks_and_config.config.len()
+            + remote.tags.len();
+
+        self.col.apply_changes(remote, state.latest_usn)?;
+        self.fire_progress_cb(true);
+        Ok(())
     }
 
     async fn process_chunks_from_server(&mut self) -> Result<()> {
@@ -424,8 +483,13 @@ impl NormalSyncer<'_> {
                 "revlog"=>chunk.revlog.len(),
             );
 
+            self.progress.remote_update +=
+                chunk.cards.len() + chunk.notes.len() + chunk.revlog.len();
+
             let done = chunk.done;
             self.col.apply_chunk(chunk)?;
+
+            self.fire_progress_cb(true);
 
             if done {
                 return Ok(());
@@ -433,7 +497,7 @@ impl NormalSyncer<'_> {
         }
     }
 
-    async fn send_chunks_to_server(&self, state: &SyncState) -> Result<()> {
+    async fn send_chunks_to_server(&mut self, state: &SyncState) -> Result<()> {
         let mut ids = self.col.get_chunkable_ids(state.pending_usn)?;
 
         loop {
@@ -447,7 +511,12 @@ impl NormalSyncer<'_> {
                 "revlog"=>chunk.revlog.len(),
             );
 
+            self.progress.local_update +=
+                chunk.cards.len() + chunk.notes.len() + chunk.revlog.len();
+
             self.remote.apply_chunk(chunk).await?;
+
+            self.fire_progress_cb(true);
 
             if done {
                 return Ok(());
@@ -519,21 +588,24 @@ pub async fn sync_login(username: &str, password: &str) -> Result<SyncAuth> {
 
 impl Collection {
     pub async fn get_sync_status(&mut self, auth: SyncAuth) -> Result<SyncOutput> {
-        NormalSyncer::new(self, auth)
+        NormalSyncer::new(self, auth, |_p, _t| ())
             .get_sync_state()
             .await
             .map(Into::into)
     }
 
-    pub async fn normal_sync(&mut self, auth: SyncAuth) -> Result<SyncOutput> {
+    pub async fn normal_sync<F>(&mut self, auth: SyncAuth, progress_fn: F) -> Result<SyncOutput>
+    where
+        F: FnMut(NormalSyncProgress, bool),
+    {
         // fixme: server abort on failure
-        NormalSyncer::new(self, auth).sync().await
+        NormalSyncer::new(self, auth, progress_fn).sync().await
     }
 
     /// Upload collection to AnkiWeb. Caller must re-open afterwards.
     pub async fn full_upload<F>(mut self, auth: SyncAuth, progress_fn: F) -> Result<()>
     where
-        F: FnMut(FullSyncProgress) + Send + Sync + 'static,
+        F: FnMut(FullSyncProgress, bool) + Send + Sync + 'static,
     {
         self.before_upload()?;
         let col_path = self.col_path.clone();
@@ -546,7 +618,7 @@ impl Collection {
     /// Download collection from AnkiWeb. Caller must re-open afterwards.
     pub async fn full_download<F>(self, auth: SyncAuth, progress_fn: F) -> Result<()>
     where
-        F: FnMut(FullSyncProgress),
+        F: FnMut(FullSyncProgress, bool),
     {
         let col_path = self.col_path.clone();
         let folder = col_path.parent().unwrap();

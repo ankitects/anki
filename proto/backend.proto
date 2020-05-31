@@ -486,6 +486,7 @@ message Progress {
         MediaSyncProgress media_sync = 2;
         string media_check = 3;
         FullSyncProgress full_sync = 4;
+        NormalSyncProgress normal_sync = 5;
     }
 }
 
@@ -503,6 +504,12 @@ message FullSyncProgress {
 message MediaSyncUploadProgress {
     uint32 files = 1;
     uint32 deletions = 2;
+}
+
+message NormalSyncProgress {
+    string stage = 1;
+    string added = 2;
+    string removed = 3;
 }
 
 

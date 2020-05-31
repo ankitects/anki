@@ -11,6 +11,7 @@ from anki.rsbackend import (
     TR,
     FullSyncProgress,
     Interrupted,
+    NormalSyncProgress,
     ProgressKind,
     SyncError,
     SyncErrorKind,
@@ -28,10 +29,6 @@ from aqt.qt import (
     qconnect,
 )
 from aqt.utils import askUser, askUserDialog, showText, showWarning, tr
-
-# fixme: catch auth error in other routines, clear sync auth
-# fixme: sync progress
-# fixme: curDeck marking collection modified
 
 
 class FullSyncChoice(enum.Enum):
@@ -63,12 +60,35 @@ def handle_sync_error(mw: aqt.main.AnkiQt, err: Exception):
     showWarning(str(err))
 
 
+def on_normal_sync_timer(mw: aqt.main.AnkiQt) -> None:
+    progress = mw.col.latest_progress()
+    if progress.kind != ProgressKind.NormalSync:
+        return
+
+    assert isinstance(progress.val, NormalSyncProgress)
+    mw.progress.update(
+        label=f"{progress.val.added}\n{progress.val.removed}", process=False,
+    )
+    mw.progress.set_title(progress.val.stage)
+
+    if mw.progress.want_cancel():
+        mw.col.backend.abort_sync()
+
+
 def sync_collection(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
     auth = mw.pm.sync_auth()
     assert auth
 
+    def on_timer():
+        on_normal_sync_timer(mw)
+
+    timer = QTimer(mw)
+    qconnect(timer.timeout, on_timer)
+    timer.start(150)
+
     def on_future_done(fut):
         mw.col.db.begin()
+        timer.stop()
         try:
             out: SyncOutput = fut.result()
         except Exception as err:
@@ -129,8 +149,15 @@ def on_full_sync_timer(mw: aqt.main.AnkiQt) -> None:
         return
 
     assert isinstance(progress.val, FullSyncProgress)
+    if progress.val.transferred == progress.val.total:
+        label = tr(TR.SYNC_CHECKING)
+    else:
+        label = None
     mw.progress.update(
-        value=progress.val.transferred, max=progress.val.total, process=False
+        value=progress.val.transferred,
+        max=progress.val.total,
+        process=False,
+        label=label,
     )
 
     if mw.progress.want_cancel():
