@@ -1929,6 +1929,13 @@ update cards set usn=?, mod=?, did=? where id in """
         frm = aqt.forms.findreplace.Ui_Dialog()
         frm.setupUi(d)
         d.setWindowModality(Qt.WindowModal)
+
+        findhistory = self.mw.pm.profile.get("FindAndReplaceFindHistory", [])
+        frm.find.addItems(findhistory)
+        frm.find.lineEdit().setText(findhistory[0] if findhistory else "")
+        frm.find.lineEdit().selectAll()
+        frm.find.setFocus()
+
         frm.field.addItems([_("All Fields")] + fields)
         qconnect(frm.buttonBox.helpRequested, self.onFindReplaceHelp)
         restoreGeom(d, "findreplace")
@@ -1941,7 +1948,15 @@ update cards set usn=?, mod=?, did=? where id in """
         else:
             field = fields[frm.field.currentIndex() - 1]
 
-        search = frm.find.text()
+        search = frm.find.lineEdit().text()
+        if search in findhistory:
+            findhistory.remove(search)
+        findhistory.insert(0, search)
+        findhistory = findhistory[:30]
+        frm.find.clear()
+        frm.find.addItems(findhistory)
+        self.mw.pm.profile["FindAndReplaceFindHistory"] = findhistory
+
         replace = frm.replace.text()
         regex = frm.re.isChecked()
         nocase = frm.ignoreCase.isChecked()
