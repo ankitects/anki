@@ -1936,6 +1936,11 @@ update cards set usn=?, mod=?, did=? where id in """
         frm.find.lineEdit().selectAll()
         frm.find.setFocus()
 
+        replacehistory = self.mw.pm.profile.get("FindAndReplaceReplaceHistory", [])
+        frm.replace.addItems(replacehistory)
+        frm.replace.lineEdit().setText(replacehistory[0] if replacehistory else "")
+        frm.replace.lineEdit().selectAll()
+
         frm.field.addItems([_("All Fields")] + fields)
         qconnect(frm.buttonBox.helpRequested, self.onFindReplaceHelp)
         restoreGeom(d, "findreplace")
@@ -1957,7 +1962,15 @@ update cards set usn=?, mod=?, did=? where id in """
         frm.find.addItems(findhistory)
         self.mw.pm.profile["FindAndReplaceFindHistory"] = findhistory
 
-        replace = frm.replace.text()
+        replace = frm.replace.lineEdit().text()
+        if replace in replacehistory:
+            replacehistory.remove(replace)
+        replacehistory.insert(0, replace)
+        replacehistory = replacehistory[:30]
+        frm.replace.clear()
+        frm.replace.addItems(replacehistory)
+        self.mw.pm.profile["FindAndReplaceReplaceHistory"] = replacehistory
+
         regex = frm.re.isChecked()
         nocase = frm.ignoreCase.isChecked()
 
