@@ -514,10 +514,12 @@ close the profile or restart Anki."""
         self.col.reopen()
 
     def unloadCollection(self, onsuccess: Callable) -> None:
-        def after_sync():
-            self.media_syncer.show_diag_until_finished()
+        def after_media_sync():
             self._unloadCollection()
             onsuccess()
+
+        def after_sync():
+            self.media_syncer.show_diag_until_finished(after_media_sync)
 
         def before_sync():
             self.setEnabled(False)
