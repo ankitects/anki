@@ -904,7 +904,7 @@ title="%s" %s>%s</button>""" % (
     def can_auto_sync(self) -> bool:
         return (
             self.pm.auto_syncing_enabled()
-            and self.pm.sync_auth()
+            and bool(self.pm.sync_auth())
             and not self.safeMode
             and not self.restoringBackup
         )

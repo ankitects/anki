@@ -67,7 +67,7 @@ class TaskManager(QObject):
         on_done: Optional[Callable[[Future], None]] = None,
         parent: Optional[QWidget] = None,
         label: Optional[str] = None,
-        immediate: Bool = False,
+        immediate: bool = False,
     ):
         self.mw.progress.start(parent=parent, label=label, immediate=immediate)
 
