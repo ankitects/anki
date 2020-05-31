@@ -338,28 +338,6 @@ def getTag(parent, deck, question, tags="user", **kwargs):
     return ret
 
 
-def restoreComboHistory(comboBox, name):
-    name += "BoxHistory"
-    history = aqt.mw.pm.profile.get(name, [])
-    comboBox.addItems(history)
-    comboBox.lineEdit().setText(history[0] if history else "")
-    comboBox.lineEdit().selectAll()
-    return history
-
-
-def saveComboHistory(comboBox, history, name):
-    name += "BoxHistory"
-    text_input = comboBox.lineEdit().text()
-    if text_input in history:
-        history.remove(text_input)
-    history.insert(0, text_input)
-    history = history[:50]
-    comboBox.clear()
-    comboBox.addItems(history)
-    aqt.mw.pm.profile[name] = history
-    return text_input
-
-
 # File handling
 ######################################################################
 
@@ -518,6 +496,28 @@ def restoreComboIndex(widget, history, key):
     if text is not None and index is not None:
         if index < len(history) and history[index] == text:
             widget.setCurrentIndex(index)
+
+
+def restoreComboHistory(comboBox, name):
+    name += "BoxHistory"
+    history = aqt.mw.pm.profile.get(name, [])
+    comboBox.addItems(history)
+    comboBox.lineEdit().setText(history[0] if history else "")
+    comboBox.lineEdit().selectAll()
+    return history
+
+
+def saveComboHistory(comboBox, history, name):
+    name += "BoxHistory"
+    text_input = comboBox.lineEdit().text()
+    if text_input in history:
+        history.remove(text_input)
+    history.insert(0, text_input)
+    history = history[:50]
+    comboBox.clear()
+    comboBox.addItems(history)
+    aqt.mw.pm.profile[name] = history
+    return text_input
 
 
 def saveSplitter(widget, key):
