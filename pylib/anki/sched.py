@@ -74,7 +74,7 @@ class Scheduler(V2):
             self._answerRevCard(card, ease)
             self._updateStats(card, "rev")
         else:
-            raise Exception("Invalid queue")
+            raise Exception("Invalid queue '%s'" % card)
         self._updateStats(card, "time", card.timeTaken())
         card.mod = intTime()
         card.usn = self.col.usn()
