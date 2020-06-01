@@ -3,7 +3,7 @@
 
 use crate::backend_proto::{NoteField as NoteFieldProto, NoteFieldConfig, OptionalUInt32};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct NoteField {
     pub ord: Option<u32>,
     pub name: String,

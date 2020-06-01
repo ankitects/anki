@@ -26,7 +26,7 @@ use std::{borrow::Cow, sync::Arc};
 
 define_newtype!(DeckID, i64);
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Deck {
     pub id: DeckID,
     pub name: String,
