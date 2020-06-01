@@ -325,18 +325,42 @@ def setupGL(pm):
         ctypes.CDLL("libGL.so.1", ctypes.RTLD_GLOBAL)
 
     # catch opengl errors
-    def msgHandler(type, ctx, msg):
+    def msgHandler(category, ctx, msg):
+        if category == QtDebugMsg:
+            category = "debug"
+        elif category == QtInfoMsg:
+            category = "info"
+        elif category == QtWarningMsg:
+            category = "warning"
+        elif category == QtCriticalMsg:
+            category = "critical"
+        elif category == QtDebugMsg:
+            category = "debug"
+        elif category == QtFatalMsg:
+            category = "fatal"
+        elif category == QtSystemMsg:
+            category = "system"
+        else:
+            category = "unknown"
+        context = ""
+        if ctx.file:
+            context += f"{ctx.file}:"
+        if ctx.line:
+            context += f"{ctx.line},"
+        if ctx.function:
+            context += f"{ctx.function}"
+        if context:
+            context = f"'{context}'"
         if "Failed to create OpenGL context" in msg:
             QMessageBox.critical(
                 None,
                 "Error",
-                "Error loading '%s' graphics driver. Please start Anki again to try next driver."
-                % mode,
+                f"Error loading '{mode}' graphics driver. Please start Anki again to try next driver. {context}",
             )
             pm.nextGlMode()
             return
         else:
-            print("qt:", msg)
+            print(f"Qt {category}: {msg} {context}")
 
     qInstallMessageHandler(msgHandler)
 
