@@ -159,10 +159,40 @@ class CardLayout(QDialog):
             s += "+..."
         return s
 
+    def nextTab(self):
+        """ Fake implementation for MRU which just switches between the last 2 views
+        For a full implementation example, see: https://github.com/spyder-ide/spyder/pull/4302/files
+        """
+        if self.current_editor_index == 0:
+            if self.last_editor_index == 0:
+                self.tform.back_button.setChecked(True)
+            elif self.last_editor_index == 1:
+                self.tform.back_button.setChecked(True)
+            elif self.last_editor_index == 2:
+                self.tform.style_button.setChecked(True)
+        elif self.current_editor_index == 1:
+            if self.last_editor_index == 0:
+                self.tform.front_button.setChecked(True)
+            elif self.last_editor_index == 1:
+                self.tform.style_button.setChecked(True)
+            elif self.last_editor_index == 2:
+                self.tform.style_button.setChecked(True)
+        elif self.current_editor_index == 2:
+            if self.last_editor_index == 0:
+                self.tform.front_button.setChecked(True)
+            elif self.last_editor_index == 1:
+                self.tform.back_button.setChecked(True)
+            elif self.last_editor_index == 2:
+                self.tform.front_button.setChecked(True)
+        self.on_editor_toggled()
+
     def setupShortcuts(self):
         self.tform.front_button.setToolTip(shortcut("Ctrl+1"))
         self.tform.back_button.setToolTip(shortcut("Ctrl+2"))
         self.tform.style_button.setToolTip(shortcut("Ctrl+3"))
+        QShortcut(  # type: ignore
+            QKeySequence("Ctrl+Tab"), self, activated=self.nextTab,
+        )
         QShortcut(  # type: ignore
             QKeySequence("Ctrl+1"), self, activated=self.tform.front_button.click,
         )
@@ -218,6 +248,7 @@ class CardLayout(QDialog):
         qconnect(tform.style_button.clicked, self.on_editor_toggled)
 
         self.current_editor_index = 0
+        self.last_editor_index = 0
         self.tform.edit_area.setAcceptRichText(False)
         self.tform.edit_area.setFont(QFont("Courier"))
         if qtminor < 10:
@@ -250,6 +281,7 @@ class CardLayout(QDialog):
         self._renderPreview()
 
     def on_editor_toggled(self):
+        self.last_editor_index = self.current_editor_index
         if self.tform.front_button.isChecked():
             self.current_editor_index = 0
             self.pform.preview_front.setChecked(True)
