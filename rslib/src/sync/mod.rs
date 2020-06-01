@@ -11,6 +11,7 @@ use crate::{
     notes::{guid, Note},
     notetype::{NoteType, NoteTypeSchema11},
     prelude::*,
+    serde::default_on_invalid,
     tags::{join_tags, split_tags},
     version::sync_client_version,
 };
@@ -171,9 +172,9 @@ pub struct CardEntry {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SanityCheckOut {
     status: SanityCheckStatus,
-    #[serde(rename = "c")]
+    #[serde(rename = "c", default, deserialize_with = "default_on_invalid")]
     client: Option<SanityCheckCounts>,
-    #[serde(rename = "s")]
+    #[serde(rename = "s", default, deserialize_with = "default_on_invalid")]
     server: Option<SanityCheckCounts>,
 }
 
