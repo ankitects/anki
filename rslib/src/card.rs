@@ -43,7 +43,7 @@ pub enum CardQueue {
     SchedBuried = -3,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Card {
     pub(crate) id: CardID,
     pub(crate) nid: NoteID,

@@ -33,7 +33,7 @@ pub(crate) struct TransformNoteOutput {
     pub mark_modified: bool,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Note {
     pub id: NoteID,
     pub guid: String,

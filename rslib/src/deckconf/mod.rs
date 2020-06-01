@@ -19,7 +19,7 @@ mod schema11;
 
 define_newtype!(DeckConfID, i64);
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct DeckConf {
     pub id: DeckConfID,
     pub name: String,

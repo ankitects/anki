@@ -114,7 +114,7 @@ struct ChunkableIDs {
     notes: Vec<NoteID>,
 }
 
-#[derive(Serialize_tuple, Deserialize, Debug)]
+#[derive(Serialize_tuple, Deserialize, Debug, Default, PartialEq)]
 pub struct ReviewLogEntry {
     pub id: TimestampMillis,
     pub cid: CardID,
@@ -238,6 +238,7 @@ pub struct SyncOutput {
     pub host_number: u32,
 }
 
+#[derive(Clone)]
 pub struct SyncAuth {
     pub hkey: String,
     pub host_number: u32,
@@ -681,7 +682,7 @@ impl Collection {
     //----------------------------------------------------------------
 
     fn local_unchunked_changes(
-        &self,
+        &mut self,
         pending_usn: Usn,
         new_usn: Option<Usn>,
         local_is_newer: bool,
@@ -704,7 +705,7 @@ impl Collection {
     }
 
     fn changed_notetypes(
-        &self,
+        &mut self,
         pending_usn: Usn,
         new_usn: Option<Usn>,
     ) -> Result<Vec<NoteTypeSchema11>> {
@@ -713,6 +714,7 @@ impl Collection {
             .objects_pending_sync("notetypes", pending_usn)?;
         self.storage
             .maybe_update_object_usns("notetypes", &ids, new_usn)?;
+        self.state.notetype_cache.clear();
         ids.into_iter()
             .map(|id| {
                 self.storage.get_notetype(id).map(|opt| {
@@ -724,10 +726,15 @@ impl Collection {
             .collect()
     }
 
-    fn changed_decks(&self, pending_usn: Usn, new_usn: Option<Usn>) -> Result<Vec<DeckSchema11>> {
+    fn changed_decks(
+        &mut self,
+        pending_usn: Usn,
+        new_usn: Option<Usn>,
+    ) -> Result<Vec<DeckSchema11>> {
         let ids = self.storage.objects_pending_sync("decks", pending_usn)?;
         self.storage
             .maybe_update_object_usns("decks", &ids, new_usn)?;
+        self.state.deck_cache.clear();
         ids.into_iter()
             .map(|id| {
                 self.storage.get_deck(id).map(|opt| {
@@ -1120,5 +1127,280 @@ impl From<SyncState> for SyncOutput {
             server_message: s.server_message,
             host_number: s.host_number,
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::log;
+    use crate::{
+        collection::open_collection, deckconf::DeckConf, decks::DeckKind, i18n::I18n,
+        notetype::all_stock_notetypes, search::SortMode,
+    };
+    use tempfile::{tempdir, TempDir};
+    use tokio::runtime::Runtime;
+
+    fn norm_progress(_: NormalSyncProgress, _: bool) {}
+
+    fn full_progress(_: FullSyncProgress, _: bool) {}
+
+    struct TestContext {
+        dir: TempDir,
+        auth: SyncAuth,
+        col1: Option<Collection>,
+        col2: Option<Collection>,
+    }
+
+    fn open_col(ctx: &TestContext, fname: &str) -> Result<Collection> {
+        let path = ctx.dir.path().join(fname);
+        let i18n = I18n::new(&[""], "", log::terminal());
+        open_collection(
+            path,
+            "".into(),
+            "".into(),
+            false,
+            i18n.clone(),
+            log::terminal(),
+        )
+    }
+
+    async fn upload_download(ctx: &mut TestContext) -> Result<()> {
+        // add a card
+        let mut col1 = open_col(ctx, "col1.anki2")?;
+        let nt = col1.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        note.fields[0] = "1".into();
+        col1.add_note(&mut note, DeckID(1))?;
+
+        let out: SyncOutput = col1.normal_sync(ctx.auth.clone(), norm_progress).await?;
+        assert!(matches!(
+            out.required,
+            SyncActionRequired::FullSyncRequired { .. }
+        ));
+
+        col1.full_upload(ctx.auth.clone(), full_progress).await?;
+
+        // another collection
+        let mut col2 = open_col(ctx, "col2.anki2")?;
+
+        // won't allow ankiweb clobber
+        let out: SyncOutput = col2.normal_sync(ctx.auth.clone(), norm_progress).await?;
+        assert_eq!(
+            out.required,
+            SyncActionRequired::FullSyncRequired {
+                upload_ok: false,
+                download_ok: true
+            }
+        );
+
+        // fetch so we're in sync
+        col2.full_download(ctx.auth.clone(), full_progress).await?;
+
+        // reopen the two collections
+        ctx.col1 = Some(open_col(ctx, "col1.anki2")?);
+        ctx.col2 = Some(open_col(ctx, "col2.anki2")?);
+
+        Ok(())
+    }
+
+    async fn regular_sync(ctx: &mut TestContext) -> Result<()> {
+        let col1 = ctx.col1.as_mut().unwrap();
+        let col2 = ctx.col2.as_mut().unwrap();
+
+        // add a deck
+        let mut deck = col1.get_or_create_normal_deck("new deck")?;
+
+        // give it a new option group
+        let mut dconf = DeckConf::default();
+        dconf.name = "new dconf".into();
+        col1.add_or_update_deck_config(&mut dconf, false)?;
+        if let DeckKind::Normal(deck) = &mut deck.kind {
+            deck.config_id = dconf.id.0;
+        }
+        col1.add_or_update_deck(&mut deck)?;
+
+        // and a new notetype
+        let mut nt = all_stock_notetypes(&col1.i18n).remove(0);
+        nt.name = "new".into();
+        col1.add_notetype(&mut nt)?;
+
+        // add another note+card+tag
+        let mut note = nt.new_note();
+        note.fields[0] = "2".into();
+        note.tags.push("tag".into());
+        col1.add_note(&mut note, deck.id)?;
+
+        // mock revlog entry
+        col1.storage.add_revlog_entry(&ReviewLogEntry {
+            id: TimestampMillis(123),
+            cid: CardID(456),
+            usn: Usn(-1),
+            interval: 10,
+            ..Default::default()
+        })?;
+
+        // config + creation
+        col1.set_config("test", &"test1")?;
+        // bumping this will affect 'last studied at' on decks at the moment
+        // col1.storage.set_creation_stamp(TimestampSecs(12345))?;
+
+        // and sync our changes
+        let out: SyncOutput = col1.get_sync_status(ctx.auth.clone()).await?;
+        assert_eq!(out.required, SyncActionRequired::NormalSyncRequired);
+
+        let out: SyncOutput = col1.normal_sync(ctx.auth.clone(), norm_progress).await?;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+
+        // sync the other collection
+        let out: SyncOutput = col2.normal_sync(ctx.auth.clone(), norm_progress).await?;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+
+        let ntid = nt.id;
+        let deckid = deck.id;
+        let dconfid = dconf.id;
+        let noteid = note.id;
+        let cardid = col1.search_cards(&format!("nid:{}", note.id), SortMode::NoOrder)?[0];
+        let revlogid = RevlogID(123);
+
+        let compare_sides = |col1: &mut Collection, col2: &mut Collection| -> Result<()> {
+            assert_eq!(
+                col1.get_notetype(ntid)?.unwrap(),
+                col2.get_notetype(ntid)?.unwrap()
+            );
+            assert_eq!(
+                col1.get_deck(deckid)?.unwrap(),
+                col2.get_deck(deckid)?.unwrap()
+            );
+            assert_eq!(
+                col1.get_deck_config(dconfid, false)?.unwrap(),
+                col2.get_deck_config(dconfid, false)?.unwrap()
+            );
+            assert_eq!(
+                col1.storage.get_note(noteid)?.unwrap(),
+                col2.storage.get_note(noteid)?.unwrap()
+            );
+            assert_eq!(
+                col1.storage.get_card(cardid)?.unwrap(),
+                col2.storage.get_card(cardid)?.unwrap()
+            );
+            assert_eq!(
+                col1.storage.get_revlog_entry(revlogid)?,
+                col2.storage.get_revlog_entry(revlogid)?,
+            );
+            assert_eq!(
+                col1.storage.get_all_config()?,
+                col2.storage.get_all_config()?
+            );
+            assert_eq!(
+                col1.storage.creation_stamp()?,
+                col1.storage.creation_stamp()?
+            );
+
+            // server doesn't send tag usns, so we can only compare tags, not usns,
+            // as the usns may not match
+            assert_eq!(
+                col1.storage
+                    .all_tags()?
+                    .into_iter()
+                    .map(|t| t.0)
+                    .collect::<Vec<_>>(),
+                col2.storage
+                    .all_tags()?
+                    .into_iter()
+                    .map(|t| t.0)
+                    .collect::<Vec<_>>()
+            );
+
+            Ok(())
+        };
+
+        // make sure everything has been transferred across
+        compare_sides(col1, col2)?;
+
+        // make some modifications
+        let mut note = col2.storage.get_note(note.id)?.unwrap();
+        note.fields[1] = "new".into();
+        note.tags.push("tag2".into());
+        col2.update_note(&mut note)?;
+
+        col2.get_and_update_card(cardid, |card| {
+            card.queue = CardQueue::Review;
+            Ok(())
+        })?;
+
+        let mut deck = col2.storage.get_deck(deck.id)?.unwrap();
+        deck.name = "newer".into();
+        col2.add_or_update_deck(&mut deck)?;
+
+        let mut nt = col2.storage.get_notetype(nt.id)?.unwrap();
+        nt.name = "newer".into();
+        col2.update_notetype(&mut nt, false)?;
+
+        // sync the changes back
+        let out: SyncOutput = col2.normal_sync(ctx.auth.clone(), norm_progress).await?;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+        let out: SyncOutput = col1.normal_sync(ctx.auth.clone(), norm_progress).await?;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+
+        // should still match
+        compare_sides(col1, col2)?;
+
+        // deletions should sync too
+        for table in &["cards", "notes", "decks"] {
+            assert_eq!(
+                col1.storage
+                    .db_scalar::<u8>(&format!("select count() from {}", table))?,
+                2
+            );
+        }
+
+        // fixme: inconsistent usn arg
+        col1.remove_cards_inner(&[cardid])?;
+        col1.remove_note_only(noteid, col1.usn()?)?;
+        col1.remove_deck_and_child_decks(deckid)?;
+
+        let out: SyncOutput = col1.normal_sync(ctx.auth.clone(), norm_progress).await?;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+        let out: SyncOutput = col2.normal_sync(ctx.auth.clone(), norm_progress).await?;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+
+        for table in &["cards", "notes", "decks"] {
+            assert_eq!(
+                col2.storage
+                    .db_scalar::<u8>(&format!("select count() from {}", table))?,
+                1
+            );
+        }
+
+        // removing things like a notetype forces a full sync
+        col2.remove_notetype(ntid)?;
+        let out: SyncOutput = col2.normal_sync(ctx.auth.clone(), norm_progress).await?;
+        assert!(matches!(out.required, SyncActionRequired::FullSyncRequired { .. }));
+        Ok(())
+    }
+
+    #[test]
+    fn collection_sync() -> Result<()> {
+        let hkey = match std::env::var("TEST_HKEY") {
+            Ok(s) => s,
+            Err(_) => {
+                return Ok(());
+            }
+        };
+
+        let mut ctx = TestContext {
+            dir: tempdir()?,
+            auth: SyncAuth {
+                hkey,
+                host_number: 0,
+            },
+            col1: None,
+            col2: None,
+        };
+
+        let mut rt = Runtime::new().unwrap();
+        rt.block_on(upload_download(&mut ctx))?;
+        rt.block_on(regular_sync(&mut ctx))
     }
 }

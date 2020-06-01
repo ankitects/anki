@@ -9,7 +9,7 @@ use crate::{
     types::Usn,
 };
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct CardTemplate {
     pub ord: Option<u32>,
     pub mtime_secs: TimestampSecs,
