@@ -484,15 +484,15 @@ def restoreIsChecked(widget, key: str):
 def saveComboIndex(widget: QComboBox, key: str):
     textKey = key + "ComboActiveText"
     indexKey = key + "ComboActiveIndex"
-    aqt.mw.pm.profile[textKey] = widget.currentText()
-    aqt.mw.pm.profile[indexKey] = widget.currentIndex()
+    aqt.mw.pm.session[textKey] = widget.currentText()
+    aqt.mw.pm.session[indexKey] = widget.currentIndex()
 
 
 def restoreComboIndex(widget: QComboBox, history: List[str], key: str):
     textKey = key + "ComboActiveText"
     indexKey = key + "ComboActiveIndex"
-    text = aqt.mw.pm.profile.get(textKey)
-    index = aqt.mw.pm.profile.get(indexKey)
+    text = aqt.mw.pm.session.get(textKey)
+    index = aqt.mw.pm.session.get(indexKey)
     if text is not None and index is not None:
         if index < len(history) and history[index] == text:
             widget.setCurrentIndex(index)
@@ -507,6 +507,7 @@ def saveComboHistory(comboBox: QComboBox, history: List[str], name: str):
     history = history[:50]
     comboBox.clear()
     comboBox.addItems(history)
+    aqt.mw.pm.session[name] = text_input
     aqt.mw.pm.profile[name] = history
     return text_input
 
@@ -514,9 +515,12 @@ def saveComboHistory(comboBox: QComboBox, history: List[str], name: str):
 def restoreComboHistory(comboBox: QComboBox, name: str):
     name += "BoxHistory"
     history = aqt.mw.pm.profile.get(name, [])
-    comboBox.addItems(history)
-    comboBox.lineEdit().setText(history[0] if history else "")
-    comboBox.lineEdit().selectAll()
+    comboBox.addItems([""] + history)
+    if history:
+        session_input = aqt.mw.pm.session.get(name)
+        if session_input and session_input == history[0]:
+            comboBox.lineEdit().setText(session_input)
+            comboBox.lineEdit().selectAll()
     return history
 
 
