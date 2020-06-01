@@ -339,8 +339,8 @@ where
         let required = if remote.modified == local.modified {
             SyncActionRequired::NoChanges
         } else if remote.schema != local.schema {
-            let upload_ok = !local.empty;
-            let download_ok = !remote.empty;
+            let upload_ok = !local.empty || remote.empty;
+            let download_ok = !remote.empty || local.empty;
             SyncActionRequired::FullSyncRequired {
                 upload_ok,
                 download_ok,
