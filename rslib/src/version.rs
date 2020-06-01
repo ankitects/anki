@@ -8,7 +8,7 @@ pub fn version() -> &'static str {
 }
 
 pub fn buildhash() -> &'static str {
-    include_str!("../../meta/buildhash")
+    include_str!("../../meta/buildhash").trim()
 }
 
 pub(crate) fn sync_client_version() -> &'static str {
