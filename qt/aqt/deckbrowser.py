@@ -304,7 +304,7 @@ where id > ?""",
                 (_("Are you sure you wish to delete %s?") % deck["name"]) + extra
             )
         ):
-            self.mw.progress.start(immediate=True)
+            self.mw.progress.start()
             self.mw.col.decks.rem(did, True)
             self.mw.progress.finish()
             self.show()

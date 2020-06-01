@@ -848,7 +848,9 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?"""
             self.col.usn(),
         )
 
-    def buryCards(self, cids: List[int]) -> None:  # type: ignore[override]
+    def buryCards(self, cids: List[int], manual: bool = False) -> None:
+        # v1 only supported automatic burying
+        assert not manual
         self.col.log(cids)
         self.remFromDyn(cids)
         self.removeLrn(cids)
@@ -859,78 +861,3 @@ update cards set queue={QUEUE_TYPE_SIBLING_BURIED},mod=?,usn=? where id in """
             intTime(),
             self.col.usn(),
         )
-
-    # Sibling spacing
-    ##########################################################################
-
-    def _burySiblings(self, card: Card) -> None:
-        toBury = []
-        nconf = self._newConf(card)
-        buryNew = nconf.get("bury", True)
-        rconf = self._revConf(card)
-        buryRev = rconf.get("bury", True)
-        # loop through and remove from queues
-        for cid, queue in self.col.db.execute(
-            f"""
-select id, queue from cards where nid=? and id!=?
-and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
-            card.nid,
-            card.id,
-            self.today,
-        ):
-            if queue == QUEUE_TYPE_REV:
-                if buryRev:
-                    toBury.append(cid)
-                # if bury disabled, we still discard to give same-day spacing
-                try:
-                    self._revQueue.remove(cid)
-                except ValueError:
-                    pass
-            else:
-                # if bury disabled, we still discard to give same-day spacing
-                if buryNew:
-                    toBury.append(cid)
-                try:
-                    self._newQueue.remove(cid)
-                except ValueError:
-                    pass
-
-        # bury related sources
-        from anki.utils import stripHTML
-
-        def _getSource(field, note):
-            try:
-                return note[field]
-            except KeyError:
-                pass
-
-        def getSource(card):
-            note = card.note()
-            source = _getSource("Source", note) or _getSource("source", note)
-            return stripHTML(source) if source else None
-
-        firstsource = getSource(card)
-
-        if self._burySiblingsOnAnswer and firstsource:
-            for cid, queue in self.col.db.execute(
-                f"""
-select id, queue from cards where nid!=? and id!=?
-and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
-                card.nid,
-                card.id,
-                self.today,
-            ):
-                source = getSource(self.col.getCard(cid))
-
-                if source and source == firstsource and len(firstsource) > 0:
-                    toBury.append(cid)
-
-        # then bury
-        if toBury:
-            self.col.db.execute(
-                f"update cards set queue={QUEUE_TYPE_SIBLING_BURIED},mod=?,usn=? where id in "
-                + ids2str(toBury),
-                intTime(),
-                self.col.usn(),
-            )
-            self.col.log(toBury)

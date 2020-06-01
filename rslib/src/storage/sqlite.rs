@@ -5,7 +5,7 @@ use crate::config::schema11_config_as_string;
 use crate::err::Result;
 use crate::err::{AnkiError, DBErrorKind};
 use crate::timestamp::{TimestampMillis, TimestampSecs};
-use crate::{i18n::I18n, sched::cutoff::v1_creation_date, text::without_combining, types::Usn};
+use crate::{i18n::I18n, sched::cutoff::v1_creation_date, text::without_combining};
 use regex::Regex;
 use rusqlite::{functions::FunctionFlags, params, Connection, NO_PARAMS};
 use std::cmp::Ordering;
@@ -258,28 +258,23 @@ impl SqliteStorage {
     //////////////////////////////////////////
 
     pub(crate) fn mark_modified(&self) -> Result<()> {
+        self.set_modified_time(TimestampMillis::now())
+    }
+
+    pub(crate) fn set_modified_time(&self, stamp: TimestampMillis) -> Result<()> {
         self.db
             .prepare_cached("update col set mod=?")?
-            .execute(params![TimestampMillis::now()])?;
+            .execute(params![stamp])?;
         Ok(())
     }
 
-    pub(crate) fn usn(&self, server: bool) -> Result<Usn> {
-        if server {
-            Ok(Usn(self
-                .db
-                .prepare_cached("select usn from col")?
-                .query_row(NO_PARAMS, |row| row.get(0))?))
-        } else {
-            Ok(Usn(-1))
-        }
-    }
-
-    pub(crate) fn increment_usn(&self) -> Result<()> {
+    pub(crate) fn get_modified_time(&self) -> Result<TimestampMillis> {
         self.db
-            .prepare_cached("update col set usn = usn + 1")?
-            .execute(NO_PARAMS)?;
-        Ok(())
+            .prepare_cached("select mod from col")?
+            .query_and_then(NO_PARAMS, |r| r.get(0))?
+            .next()
+            .ok_or_else(|| AnkiError::invalid_input("missing col"))?
+            .map_err(Into::into)
     }
 
     pub(crate) fn creation_stamp(&self) -> Result<TimestampSecs> {
@@ -303,7 +298,7 @@ impl SqliteStorage {
         Ok(())
     }
 
-    pub(crate) fn get_schema_mtime(&self) -> Result<TimestampSecs> {
+    pub(crate) fn get_schema_mtime(&self) -> Result<TimestampMillis> {
         self.db
             .prepare_cached("select scm from col")?
             .query_and_then(NO_PARAMS, |r| r.get(0))?
@@ -312,7 +307,7 @@ impl SqliteStorage {
             .map_err(Into::into)
     }
 
-    pub(crate) fn set_last_sync(&self, stamp: TimestampSecs) -> Result<()> {
+    pub(crate) fn set_last_sync(&self, stamp: TimestampMillis) -> Result<()> {
         self.db
             .prepare("update col set ls = ?")?
             .execute(&[stamp])?;

@@ -68,6 +68,9 @@ message DeckConfigID {
 ///////////////////////////////////////////////////////////
 
 service BackendService {
+    rpc LatestProgress (Empty) returns (Progress);
+    rpc SetWantsAbort (Empty) returns (Empty);
+
     // card rendering
 
     rpc ExtractAVTags (ExtractAVTagsIn) returns (ExtractAVTagsOut);
@@ -156,9 +159,15 @@ service BackendService {
 
     // sync
 
-    rpc SyncMedia (SyncMediaIn) returns (Empty);
+    rpc SyncMedia (SyncAuth) returns (Empty);
+    rpc AbortSync (Empty) returns (Empty);
     rpc AbortMediaSync (Empty) returns (Empty);
     rpc BeforeUpload (Empty) returns (Empty);
+    rpc SyncLogin (SyncLoginIn) returns (SyncAuth);
+    rpc SyncStatus (SyncAuth) returns (SyncCollectionOut);
+    rpc SyncCollection (SyncAuth) returns (SyncCollectionOut);
+    rpc FullUpload (SyncAuth) returns (Empty);
+    rpc FullDownload (SyncAuth) returns (Empty);
 
     // translation/messages
 
@@ -169,7 +178,6 @@ service BackendService {
 
     rpc RegisterTags (RegisterTagsIn) returns (Bool);
     rpc AllTags (Empty) returns (AllTagsOut);
-    rpc GetChangedTags (Int32) returns (GetChangedTagsOut);
 
     // config/preferences
 
@@ -444,13 +452,6 @@ message BackendError {
     }
 }
 
-message Progress {
-    oneof value {
-        MediaSyncProgress media_sync = 1;
-        string media_check = 2;
-    }
-}
-
 message NetworkError {
     enum NetworkErrorKind {
         OTHER = 0;
@@ -471,8 +472,23 @@ message SyncError {
         SERVER_MESSAGE = 5;
         MEDIA_CHECK_REQUIRED = 6;
         RESYNC_REQUIRED = 7;
+        CLOCK_INCORRECT = 8;
+        DATABASE_CHECK_REQUIRED = 9;
     }
     SyncErrorKind kind = 1;
+}
+
+// Progress
+///////////////////////////////////////////////////////////
+
+message Progress {
+    oneof value {
+        Empty none = 1;
+        MediaSyncProgress media_sync = 2;
+        string media_check = 3;
+        FullSyncProgress full_sync = 4;
+        NormalSyncProgress normal_sync = 5;
+    }
 }
 
 message MediaSyncProgress {
@@ -481,10 +497,22 @@ message MediaSyncProgress {
     string removed = 3;
 }
 
+message FullSyncProgress {
+    uint32 transferred = 1;
+    uint32 total = 2;
+}
+
 message MediaSyncUploadProgress {
     uint32 files = 1;
     uint32 deletions = 2;
 }
+
+message NormalSyncProgress {
+    string stage = 1;
+    string added = 2;
+    string removed = 3;
+}
+
 
 // Messages
 ///////////////////////////////////////////////////////////
@@ -588,11 +616,6 @@ message ExtractedLatex {
 message AddMediaFileIn {
     string desired_name = 1;
     bytes data = 2;
-}
-
-message SyncMediaIn {
-    string hkey = 1;
-    string endpoint = 2;
 }
 
 message CheckMediaOut {
@@ -874,4 +897,30 @@ message NoteIsDuplicateOrEmptyOut {
         DUPLICATE = 2;
     }
     State state = 1;
+}
+
+message SyncLoginIn {
+    string username = 1;
+    string password = 2;
+}
+
+message SyncCollectionOut {
+    enum ChangesRequired {
+        NO_CHANGES = 0;
+        NORMAL_SYNC = 1;
+        FULL_SYNC = 2;
+        // local collection has no cards; upload not an option
+        FULL_DOWNLOAD = 3;
+        // remote collection has no cards; download not an option
+        FULL_UPLOAD = 4;
+    }
+
+    uint32 host_number = 1;
+    string server_message = 2;
+    ChangesRequired required = 3;
+}
+
+message SyncAuth {
+    string hkey = 1;
+    uint32 host_number = 2;
 }

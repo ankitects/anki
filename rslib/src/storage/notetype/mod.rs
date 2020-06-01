@@ -225,6 +225,19 @@ impl SqliteStorage {
         Ok(())
     }
 
+    /// Used for syncing.
+    pub(crate) fn add_or_update_notetype(&self, nt: &NoteType) -> Result<()> {
+        let mut stmt = self.db.prepare_cached(include_str!("add_or_update.sql"))?;
+        let mut config_bytes = vec![];
+        nt.config.encode(&mut config_bytes)?;
+        stmt.execute(params![nt.id, nt.name, nt.mtime_secs, nt.usn, config_bytes])?;
+
+        self.update_notetype_fields(nt.id, &nt.fields)?;
+        self.update_notetype_templates(nt.id, &nt.templates)?;
+
+        Ok(())
+    }
+
     pub(crate) fn remove_cards_for_deleted_templates(
         &self,
         ntid: NoteTypeID,

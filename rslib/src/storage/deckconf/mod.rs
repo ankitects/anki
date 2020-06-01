@@ -72,6 +72,22 @@ impl SqliteStorage {
         Ok(())
     }
 
+    /// Used for syncing.
+    pub(crate) fn add_or_update_deck_config(&self, conf: &DeckConf) -> Result<()> {
+        let mut conf_bytes = vec![];
+        conf.inner.encode(&mut conf_bytes)?;
+        self.db
+            .prepare_cached(include_str!("add_or_update.sql"))?
+            .execute(params![
+                conf.id,
+                conf.name,
+                conf.mtime_secs,
+                conf.usn,
+                conf_bytes,
+            ])?;
+        Ok(())
+    }
+
     pub(crate) fn remove_deck_conf(&self, dcid: DeckConfID) -> Result<()> {
         self.db
             .prepare_cached("delete from deck_config where id=?")?

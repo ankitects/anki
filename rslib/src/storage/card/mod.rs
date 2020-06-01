@@ -120,6 +120,33 @@ impl super::SqliteStorage {
         Ok(())
     }
 
+    /// Add or update card, using the provided ID. Used when syncing.
+    pub(crate) fn add_or_update_card(&self, card: &Card) -> Result<()> {
+        let mut stmt = self.db.prepare_cached(include_str!("add_or_update.sql"))?;
+        stmt.execute(params![
+            card.id,
+            card.nid,
+            card.did,
+            card.ord,
+            card.mtime,
+            card.usn,
+            card.ctype as u8,
+            card.queue as i8,
+            card.due,
+            card.ivl,
+            card.factor,
+            card.reps,
+            card.lapses,
+            card.left,
+            card.odue,
+            card.odid,
+            card.flags,
+            card.data,
+        ])?;
+
+        Ok(())
+    }
+
     pub(crate) fn remove_card(&self, cid: CardID) -> Result<()> {
         self.db
             .prepare_cached("delete from cards where id = ?")?
@@ -190,6 +217,15 @@ impl super::SqliteStorage {
             .prepare("update cards set usn = 0 where usn = -1")?
             .execute(NO_PARAMS)?;
         Ok(())
+    }
+
+    pub(crate) fn have_at_least_one_card(&self) -> Result<bool> {
+        self.db
+            .prepare_cached("select null from cards")?
+            .query(NO_PARAMS)?
+            .next()
+            .map(|o| o.is_none())
+            .map_err(Into::into)
     }
 }
 

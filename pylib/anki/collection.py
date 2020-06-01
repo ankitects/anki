@@ -26,7 +26,7 @@ from anki.lang import _
 from anki.media import MediaManager, media_paths_from_col_path
 from anki.models import ModelManager
 from anki.notes import Note
-from anki.rsbackend import TR, DBError, FormatTimeSpanContext, RustBackend, pb
+from anki.rsbackend import TR, DBError, FormatTimeSpanContext, Progress, RustBackend, pb
 from anki.sched import Scheduler as V1Scheduler
 from anki.schedv2 import Scheduler as V2Scheduler
 from anki.tags import TagManager
@@ -64,6 +64,12 @@ class Collection:
         self.conf = ConfigManager(self)
         self._loadScheduler()
 
+    def __repr__(self) -> str:
+        d = dict(self.__dict__)
+        del d["models"]
+        del d["backend"]
+        return f"{super().__repr__()} {pprint.pformat(d, width=300)}"
+
     def name(self) -> Any:
         n = os.path.splitext(os.path.basename(self.path))[0]
         return n
@@ -84,6 +90,12 @@ class Collection:
         context: FormatTimeSpanContextValue = FormatTimeSpanContext.INTERVALS,
     ) -> str:
         return self.backend.format_timespan(seconds=seconds, context=context)
+
+    # Progress
+    ##########################################################################
+
+    def latest_progress(self) -> Progress:
+        return Progress.from_proto(self.backend.latest_progress())
 
     # Scheduler
     ##########################################################################
@@ -227,11 +239,20 @@ class Collection:
             self.media.close()
             self._closeLog()
 
+    def close_for_full_sync(self) -> None:
+        # save and cleanup, but backend will take care of collection close
+        if self.db:
+            self.save(trx=False)
+            self.models._clear_cache()
+            self.db = None
+            self.media.close()
+            self._closeLog()
+
     def rollback(self) -> None:
         self.db.rollback()
         self.db.begin()
 
-    def reopen(self) -> None:
+    def reopen(self, after_full_sync=False) -> None:
         assert not self.db
         assert self.path.endswith(".anki2")
 
@@ -243,12 +264,13 @@ class Collection:
             log_path = self.path.replace(".anki2", "2.log")
 
         # connect
-        self.backend.open_collection(
-            collection_path=self.path,
-            media_folder_path=media_dir,
-            media_db_path=media_db,
-            log_path=log_path,
-        )
+        if not after_full_sync:
+            self.backend.open_collection(
+                collection_path=self.path,
+                media_folder_path=media_dir,
+                media_db_path=media_db,
+                log_path=log_path,
+            )
         self.db = DBProxy(weakref.proxy(self.backend))
         self.db.begin()
 

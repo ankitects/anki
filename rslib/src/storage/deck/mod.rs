@@ -101,6 +101,11 @@ impl SqliteStorage {
     // fixme: bail instead of assert
     pub(crate) fn update_deck(&self, deck: &Deck) -> Result<()> {
         assert!(deck.id.0 != 0);
+        self.add_or_update_deck(deck)
+    }
+
+    /// Used for syncing; will keep existing ID.
+    pub(crate) fn add_or_update_deck(&self, deck: &Deck) -> Result<()> {
         let mut stmt = self.db.prepare_cached(include_str!("update_deck.sql"))?;
         let mut common = vec![];
         deck.common.encode(&mut common)?;

@@ -10,7 +10,6 @@ use crate::media::files::{
 use crate::media::MediaManager;
 use crate::version;
 use bytes::Bytes;
-use coarsetime::Instant;
 use reqwest::{multipart, Client, Response};
 use serde_derive::{Deserialize, Serialize};
 use serde_tuple::Serialize_tuple;
@@ -21,12 +20,13 @@ use std::io::{Read, Write};
 use std::path::Path;
 use std::{io, time};
 use time::Duration;
+use version::sync_client_version;
 
 static SYNC_MAX_FILES: usize = 25;
 static SYNC_MAX_BYTES: usize = (2.5 * 1024.0 * 1024.0) as usize;
 static SYNC_SINGLE_FILE_MAX_BYTES: usize = 100 * 1024 * 1024;
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone, Copy)]
 pub struct MediaSyncProgress {
     pub checked: usize,
     pub downloaded_files: usize,
@@ -37,7 +37,7 @@ pub struct MediaSyncProgress {
 
 pub struct MediaSyncer<'a, P>
 where
-    P: Fn(&MediaSyncProgress) -> bool,
+    P: FnMut(MediaSyncProgress) -> bool,
 {
     mgr: &'a MediaManager,
     ctx: MediaDatabaseContext<'a>,
@@ -45,8 +45,7 @@ where
     client: Client,
     progress_cb: P,
     progress: MediaSyncProgress,
-    progress_updated: Instant,
-    endpoint: &'a str,
+    endpoint: String,
     log: Logger,
 }
 
@@ -133,23 +132,36 @@ struct FinalizeResponse {
     err: String,
 }
 
+fn media_sync_endpoint(host_number: u32) -> String {
+    if let Ok(endpoint) = std::env::var("SYNC_ENDPOINT_MEDIA") {
+        endpoint
+    } else {
+        let suffix = if host_number > 0 {
+            format!("{}", host_number)
+        } else {
+            "".to_string()
+        };
+        format!("https://sync{}.ankiweb.net/msync/", suffix)
+    }
+}
+
 impl<P> MediaSyncer<'_, P>
 where
-    P: Fn(&MediaSyncProgress) -> bool,
+    P: FnMut(MediaSyncProgress) -> bool,
 {
-    pub fn new<'a>(
-        mgr: &'a MediaManager,
+    pub fn new(
+        mgr: &MediaManager,
         progress_cb: P,
-        endpoint: &'a str,
+        host_number: u32,
         log: Logger,
-    ) -> MediaSyncer<'a, P> {
+    ) -> MediaSyncer<'_, P> {
         let client = Client::builder()
             .connect_timeout(Duration::from_secs(30))
             .timeout(Duration::from_secs(60))
             .build()
             .unwrap();
+        let endpoint = media_sync_endpoint(host_number);
         let ctx = mgr.dbctx();
-
         MediaSyncer {
             mgr,
             ctx,
@@ -157,7 +169,6 @@ where
             client,
             progress_cb,
             progress: Default::default(),
-            progress_updated: Instant::now(),
             endpoint,
             log,
         }
@@ -220,18 +231,11 @@ where
     fn register_changes(&mut self) -> Result<()> {
         // make borrow checker happy
         let progress = &mut self.progress;
-        let updated = &mut self.progress_updated;
-        let progress_cb = &self.progress_cb;
+        let progress_cb = &mut self.progress_cb;
 
         let progress = |checked| {
             progress.checked = checked;
-            let now = Instant::now();
-            if now.duration_since(*updated).as_secs() < 1 {
-                true
-            } else {
-                *updated = now;
-                (progress_cb)(progress)
-            }
+            (progress_cb)(*progress)
         };
 
         ChangeTracker::new(self.mgr.media_folder.as_path(), progress, &self.log)
@@ -244,7 +248,7 @@ where
         let resp = self
             .client
             .get(&url)
-            .query(&[("k", hkey), ("v", &version_string())])
+            .query(&[("k", hkey), ("v", &sync_client_version())])
             .send()
             .await?
             .error_for_status()?;
@@ -275,7 +279,7 @@ where
             last_usn = batch.last().unwrap().usn;
 
             self.progress.checked += batch.len();
-            self.maybe_fire_progress_cb()?;
+            self.fire_progress_cb()?;
 
             let (to_download, to_delete, to_remove_pending) =
                 determine_required_changes(&mut self.ctx, &batch, &self.log)?;
@@ -283,7 +287,7 @@ where
             // file removal
             self.mgr.remove_files(&mut self.ctx, to_delete.as_slice())?;
             self.progress.downloaded_deletions += to_delete.len();
-            self.maybe_fire_progress_cb()?;
+            self.fire_progress_cb()?;
 
             // file download
             let mut downloaded = vec![];
@@ -306,7 +310,7 @@ where
                 downloaded.extend(download_batch);
 
                 self.progress.downloaded_files += len;
-                self.maybe_fire_progress_cb()?;
+                self.fire_progress_cb()?;
             }
 
             // then update the DB
@@ -338,7 +342,7 @@ where
             let zip_data = zip_files(&mut self.ctx, &self.mgr.media_folder, &pending, &self.log)?;
             if zip_data.is_none() {
                 self.progress.checked += pending.len();
-                self.maybe_fire_progress_cb()?;
+                self.fire_progress_cb()?;
                 // discard zip info and retry batch - not particularly efficient,
                 // but this is a corner case
                 continue;
@@ -353,7 +357,7 @@ where
 
             self.progress.uploaded_files += processed_files.len();
             self.progress.uploaded_deletions += processed_deletions.len();
-            self.maybe_fire_progress_cb()?;
+            self.fire_progress_cb()?;
 
             let fnames: Vec<_> = processed_files
                 .iter()
@@ -406,21 +410,12 @@ where
         }
     }
 
-    fn fire_progress_cb(&self) -> Result<()> {
-        if (self.progress_cb)(&self.progress) {
+    fn fire_progress_cb(&mut self) -> Result<()> {
+        if (self.progress_cb)(self.progress) {
             Ok(())
         } else {
             Err(AnkiError::Interrupted)
         }
-    }
-
-    fn maybe_fire_progress_cb(&mut self) -> Result<()> {
-        let now = Instant::now();
-        if now.duration_since(self.progress_updated).as_f64() < 0.15 {
-            return Ok(());
-        }
-        self.progress_updated = now;
-        self.fire_progress_cb()
     }
 
     async fn fetch_record_batch(&self, last_usn: i32) -> Result<Vec<ServerMediaRecord>> {
@@ -809,10 +804,6 @@ fn zip_files<'a>(
     Ok(Some(w.into_inner()))
 }
 
-fn version_string() -> String {
-    format!("anki,{},{}", version(), std::env::consts::OS)
-}
-
 #[cfg(test)]
 mod test {
     use crate::err::Result;
@@ -831,7 +822,7 @@ mod test {
 
         std::fs::write(media_dir.join("test.file").as_path(), "hello")?;
 
-        let progress = |progress: &MediaSyncProgress| {
+        let progress = |progress: MediaSyncProgress| {
             println!("got progress: {:?}", progress);
             true
         };
@@ -839,8 +830,7 @@ mod test {
         let log = crate::log::terminal();
 
         let mgr = MediaManager::new(&media_dir, &media_db)?;
-        mgr.sync_media(progress, "https://sync.ankiweb.net/msync/", hkey, log)
-            .await?;
+        mgr.sync_media(progress, 0, hkey, log).await?;
 
         Ok(())
     }

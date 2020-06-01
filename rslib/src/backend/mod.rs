@@ -8,7 +8,6 @@ use crate::{
     backend_proto::builtin_search_order::BuiltinSortKind,
     backend_proto::{
         AddOrUpdateDeckConfigLegacyIn, BackendResult, Empty, RenderedTemplateReplacement,
-        SyncMediaIn,
     },
     card::{Card, CardID},
     card::{CardQueue, CardType},
@@ -33,6 +32,10 @@ use crate::{
     sched::cutoff::local_minutes_west_for_stamp,
     sched::timespan::{answer_button_time, learning_congrats, studied_today, time_span},
     search::SortMode,
+    sync::{
+        sync_abort, sync_login, FullSyncProgress, NormalSyncProgress, SyncActionRequired, SyncAuth,
+        SyncOutput, SyncStage,
+    },
     template::RenderedNode,
     text::{extract_av_tags, strip_av_tags, AVTag},
     timestamp::TimestampSecs,
@@ -55,19 +58,47 @@ use tokio::runtime::Runtime;
 
 mod dbproxy;
 
-pub type ProtoProgressCallback = Box<dyn Fn(Vec<u8>) -> bool + Send>;
+struct ThrottlingProgressHandler {
+    state: Arc<Mutex<ProgressState>>,
+    last_update: coarsetime::Instant,
+}
+
+impl ThrottlingProgressHandler {
+    /// Returns true if should continue.
+    fn update(&mut self, progress: impl Into<Progress>, throttle: bool) -> bool {
+        let now = coarsetime::Instant::now();
+        if throttle && now.duration_since(self.last_update).as_f64() < 0.1 {
+            return true;
+        }
+        self.last_update = now;
+        let mut guard = self.state.lock().unwrap();
+        guard.last_progress.replace(progress.into());
+        let want_abort = guard.want_abort;
+        guard.want_abort = false;
+        !want_abort
+    }
+}
+
+struct ProgressState {
+    want_abort: bool,
+    last_progress: Option<Progress>,
+}
 
 pub struct Backend {
     col: Arc<Mutex<Option<Collection>>>,
-    progress_callback: Option<ProtoProgressCallback>,
     i18n: I18n,
     server: bool,
+    sync_abort: Option<AbortHandle>,
     media_sync_abort: Option<AbortHandle>,
+    progress_state: Arc<Mutex<ProgressState>>,
 }
 
-enum Progress<'a> {
-    MediaSync(&'a MediaSyncProgress),
+#[derive(Clone, Copy)]
+enum Progress {
+    MediaSync(MediaSyncProgress),
     MediaCheck(u32),
+    FullSync(FullSyncProgress),
+    NormalSync(NormalSyncProgress),
 }
 
 /// Convert an Anki error to a protobuf error.
@@ -121,7 +152,9 @@ impl std::convert::From<SyncErrorKind> for i32 {
             SyncErrorKind::AuthFailed => V::AuthFailed,
             SyncErrorKind::ServerMessage => V::ServerMessage,
             SyncErrorKind::ResyncRequired => V::ResyncRequired,
+            SyncErrorKind::DatabaseCheckRequired => V::DatabaseCheckRequired,
             SyncErrorKind::Other => V::Other,
+            SyncErrorKind::ClockIncorrect => V::ClockIncorrect,
         }) as i32
     }
 }
@@ -202,6 +235,16 @@ impl From<pb::DeckConfigId> for DeckConfID {
 }
 
 impl BackendService for Backend {
+    fn latest_progress(&mut self, _input: Empty) -> BackendResult<pb::Progress> {
+        let progress = self.progress_state.lock().unwrap().last_progress;
+        Ok(progress_to_proto(progress, &self.i18n))
+    }
+
+    fn set_wants_abort(&mut self, _input: Empty) -> BackendResult<Empty> {
+        self.progress_state.lock().unwrap().want_abort = true;
+        Ok(().into())
+    }
+
     // card rendering
 
     fn render_existing_card(
@@ -797,13 +840,14 @@ impl BackendService for Backend {
     }
 
     fn empty_trash(&mut self, _input: Empty) -> BackendResult<Empty> {
-        let callback =
-            |progress: usize| self.fire_progress_callback(Progress::MediaCheck(progress as u32));
+        let mut handler = self.new_progress_handler();
+        let progress_fn =
+            move |progress| handler.update(Progress::MediaCheck(progress as u32), true);
 
         self.with_col(|col| {
             let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
             col.transact(None, |ctx| {
-                let mut checker = MediaChecker::new(ctx, &mgr, callback);
+                let mut checker = MediaChecker::new(ctx, &mgr, progress_fn);
 
                 checker.empty_trash()
             })
@@ -812,14 +856,14 @@ impl BackendService for Backend {
     }
 
     fn restore_trash(&mut self, _input: Empty) -> BackendResult<Empty> {
-        let callback =
-            |progress: usize| self.fire_progress_callback(Progress::MediaCheck(progress as u32));
-
+        let mut handler = self.new_progress_handler();
+        let progress_fn =
+            move |progress| handler.update(Progress::MediaCheck(progress as u32), true);
         self.with_col(|col| {
             let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
 
             col.transact(None, |ctx| {
-                let mut checker = MediaChecker::new(ctx, &mgr, callback);
+                let mut checker = MediaChecker::new(ctx, &mgr, progress_fn);
 
                 checker.restore_trash()
             })
@@ -837,13 +881,13 @@ impl BackendService for Backend {
     }
 
     fn check_media(&mut self, _input: pb::Empty) -> Result<pb::CheckMediaOut> {
-        let callback =
-            |progress: usize| self.fire_progress_callback(Progress::MediaCheck(progress as u32));
-
+        let mut handler = self.new_progress_handler();
+        let progress_fn =
+            move |progress| handler.update(Progress::MediaCheck(progress as u32), true);
         self.with_col(|col| {
             let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
             col.transact(None, |ctx| {
-                let mut checker = MediaChecker::new(ctx, &mgr, callback);
+                let mut checker = MediaChecker::new(ctx, &mgr, progress_fn);
                 let mut output = checker.check()?;
 
                 let report = checker.summarize_output(&mut output);
@@ -922,7 +966,29 @@ impl BackendService for Backend {
     // sync
     //-------------------------------------------------------------------
 
-    fn sync_media(&mut self, input: SyncMediaIn) -> BackendResult<Empty> {
+    fn sync_login(&mut self, input: pb::SyncLoginIn) -> BackendResult<pb::SyncAuth> {
+        self.sync_login_inner(input)
+    }
+
+    fn sync_status(&mut self, input: pb::SyncAuth) -> BackendResult<pb::SyncCollectionOut> {
+        self.sync_collection_inner(input, true)
+    }
+
+    fn sync_collection(&mut self, input: pb::SyncAuth) -> BackendResult<pb::SyncCollectionOut> {
+        self.sync_collection_inner(input, false)
+    }
+
+    fn full_upload(&mut self, input: pb::SyncAuth) -> BackendResult<Empty> {
+        self.full_sync_inner(input, true)?;
+        Ok(().into())
+    }
+
+    fn full_download(&mut self, input: pb::SyncAuth) -> BackendResult<Empty> {
+        self.full_sync_inner(input, false)?;
+        Ok(().into())
+    }
+
+    fn sync_media(&mut self, input: pb::SyncAuth) -> BackendResult<Empty> {
         let mut guard = self.col.lock().unwrap();
 
         let col = guard.as_mut().unwrap();
@@ -939,6 +1005,13 @@ impl BackendService for Backend {
         self.with_col(|col| col.set_media_sync_finished())?;
 
         res.map(Into::into)
+    }
+
+    fn abort_sync(&mut self, _input: Empty) -> BackendResult<Empty> {
+        if let Some(handle) = self.sync_abort.take() {
+            handle.abort();
+        }
+        Ok(().into())
     }
 
     fn abort_media_sync(&mut self, _input: Empty) -> BackendResult<Empty> {
@@ -1013,16 +1086,6 @@ impl BackendService for Backend {
         })
     }
 
-    fn get_changed_tags(&mut self, input: pb::Int32) -> BackendResult<pb::GetChangedTagsOut> {
-        self.with_col(|col| {
-            col.transact(None, |col| {
-                Ok(pb::GetChangedTagsOut {
-                    tags: col.storage.get_changed_tags(Usn(input.val))?,
-                })
-            })
-        })
-    }
-
     // config/preferences
     //-------------------------------------------------------------------
 
@@ -1084,10 +1147,14 @@ impl Backend {
     pub fn new(i18n: I18n, server: bool) -> Backend {
         Backend {
             col: Arc::new(Mutex::new(None)),
-            progress_callback: None,
             i18n,
             server,
+            sync_abort: None,
             media_sync_abort: None,
+            progress_state: Arc::new(Mutex::new(ProgressState {
+                want_abort: false,
+                last_progress: None,
+            })),
         }
     }
 
@@ -1124,22 +1191,21 @@ impl Backend {
         )
     }
 
-    fn fire_progress_callback(&self, progress: Progress) -> bool {
-        if let Some(cb) = &self.progress_callback {
-            let bytes = progress_to_proto_bytes(progress, &self.i18n);
-            cb(bytes)
-        } else {
-            true
+    fn new_progress_handler(&self) -> ThrottlingProgressHandler {
+        {
+            let mut guard = self.progress_state.lock().unwrap();
+            guard.want_abort = false;
+            guard.last_progress = None;
         }
-    }
-
-    pub fn set_progress_callback(&mut self, progress_cb: Option<ProtoProgressCallback>) {
-        self.progress_callback = progress_cb;
+        ThrottlingProgressHandler {
+            state: self.progress_state.clone(),
+            last_update: coarsetime::Instant::now(),
+        }
     }
 
     fn sync_media_inner(
         &mut self,
-        input: pb::SyncMediaIn,
+        input: pb::SyncAuth,
         folder: PathBuf,
         db: PathBuf,
         log: Logger,
@@ -1147,13 +1213,12 @@ impl Backend {
         let (abort_handle, abort_reg) = AbortHandle::new_pair();
         self.media_sync_abort = Some(abort_handle);
 
-        let callback = |progress: &MediaSyncProgress| {
-            self.fire_progress_callback(Progress::MediaSync(progress))
-        };
+        let mut handler = self.new_progress_handler();
+        let progress_fn = move |progress| handler.update(progress, true);
 
         let mgr = MediaManager::new(&folder, &db)?;
         let mut rt = Runtime::new().unwrap();
-        let sync_fut = mgr.sync_media(callback, &input.endpoint, &input.hkey, log);
+        let sync_fut = mgr.sync_media(progress_fn, input.host_number, &input.hkey, log);
         let abortable_sync = Abortable::new(sync_fut, abort_reg);
         let ret = match rt.block_on(abortable_sync) {
             Ok(sync_result) => sync_result,
@@ -1164,6 +1229,125 @@ impl Backend {
         };
         self.media_sync_abort = None;
         ret
+    }
+
+    fn sync_login_inner(&mut self, input: pb::SyncLoginIn) -> BackendResult<pb::SyncAuth> {
+        let (abort_handle, abort_reg) = AbortHandle::new_pair();
+        self.sync_abort = Some(abort_handle);
+
+        let mut rt = Runtime::new().unwrap();
+        let sync_fut = sync_login(&input.username, &input.password);
+        let abortable_sync = Abortable::new(sync_fut, abort_reg);
+        let ret = match rt.block_on(abortable_sync) {
+            Ok(sync_result) => sync_result,
+            Err(_) => Err(AnkiError::Interrupted),
+        };
+        self.sync_abort = None;
+        ret.map(|a| pb::SyncAuth {
+            hkey: a.hkey,
+            host_number: a.host_number,
+        })
+    }
+
+    fn sync_collection_inner(
+        &mut self,
+        input: pb::SyncAuth,
+        check_only: bool,
+    ) -> BackendResult<pb::SyncCollectionOut> {
+        let (abort_handle, abort_reg) = AbortHandle::new_pair();
+        self.sync_abort = Some(abort_handle);
+
+        let mut rt = Runtime::new().unwrap();
+        let input_copy = input.clone();
+
+        let ret = self.with_col(|col| {
+            let result = if check_only {
+                let sync_fut = col.get_sync_status(input.into());
+                let abortable_sync = Abortable::new(sync_fut, abort_reg);
+                rt.block_on(abortable_sync)
+            } else {
+                let mut handler = self.new_progress_handler();
+                let progress_fn = move |progress: NormalSyncProgress, throttle: bool| {
+                    handler.update(progress, throttle);
+                };
+
+                let sync_fut = col.normal_sync(input.into(), progress_fn);
+                let abortable_sync = Abortable::new(sync_fut, abort_reg);
+                rt.block_on(abortable_sync)
+            };
+            match result {
+                Ok(sync_result) => sync_result,
+                Err(_) => {
+                    // if the user aborted, we'll need to clean up the transaction
+                    if !check_only {
+                        col.storage.rollback_trx()?;
+                        // and tell AnkiWeb to clean up
+                        let _handle = std::thread::spawn(move || {
+                            let _ =
+                                rt.block_on(sync_abort(input_copy.hkey, input_copy.host_number));
+                        });
+                    }
+
+                    Err(AnkiError::Interrupted)
+                }
+            }
+        });
+        self.sync_abort = None;
+        let output: SyncOutput = ret?;
+        Ok(output.into())
+    }
+
+    fn full_sync_inner(&mut self, input: pb::SyncAuth, upload: bool) -> Result<()> {
+        let mut col = self.col.lock().unwrap();
+        if col.is_none() {
+            return Err(AnkiError::CollectionNotOpen);
+        }
+        if !col.as_ref().unwrap().can_close() {
+            return Err(AnkiError::invalid_input("can't close yet"));
+        }
+
+        let col_inner = col.take().unwrap();
+
+        let (abort_handle, abort_reg) = AbortHandle::new_pair();
+        self.sync_abort = Some(abort_handle);
+
+        let col_path = col_inner.col_path.clone();
+        let media_folder_path = col_inner.media_folder.clone();
+        let media_db_path = col_inner.media_db.clone();
+        let logger = col_inner.log.clone();
+
+        let mut handler = self.new_progress_handler();
+        let progress_fn = move |progress: FullSyncProgress, throttle: bool| {
+            handler.update(progress, throttle);
+        };
+
+        let mut rt = Runtime::new().unwrap();
+
+        let result = if upload {
+            let sync_fut = col_inner.full_upload(input.into(), progress_fn);
+            let abortable_sync = Abortable::new(sync_fut, abort_reg);
+            rt.block_on(abortable_sync)
+        } else {
+            let sync_fut = col_inner.full_download(input.into(), progress_fn);
+            let abortable_sync = Abortable::new(sync_fut, abort_reg);
+            rt.block_on(abortable_sync)
+        };
+        self.sync_abort = None;
+
+        // ensure re-opened regardless of outcome
+        col.replace(open_collection(
+            col_path,
+            media_folder_path,
+            media_db_path,
+            self.server,
+            self.i18n.clone(),
+            logger,
+        )?);
+
+        match result {
+            Ok(sync_result) => sync_result,
+            Err(_) => Err(AnkiError::Interrupted),
+        }
     }
 
     pub fn db_command(&self, input: &[u8]) -> Result<String> {
@@ -1219,23 +1403,51 @@ impl From<RenderCardOutput> for pb::RenderCardOut {
     }
 }
 
-fn progress_to_proto_bytes(progress: Progress, i18n: &I18n) -> Vec<u8> {
-    let proto = pb::Progress {
-        value: Some(match progress {
+fn progress_to_proto(progress: Option<Progress>, i18n: &I18n) -> pb::Progress {
+    let progress = if let Some(progress) = progress {
+        match progress {
             Progress::MediaSync(p) => pb::progress::Value::MediaSync(media_sync_progress(p, i18n)),
             Progress::MediaCheck(n) => {
                 let s = i18n.trn(TR::MediaCheckChecked, tr_args!["count"=>n]);
                 pb::progress::Value::MediaCheck(s)
             }
-        }),
+            Progress::FullSync(p) => pb::progress::Value::FullSync(pb::FullSyncProgress {
+                transferred: p.transferred_bytes as u32,
+                total: p.total_bytes as u32,
+            }),
+            Progress::NormalSync(p) => {
+                let stage = match p.stage {
+                    SyncStage::Connecting => i18n.tr(TR::SyncSyncing),
+                    SyncStage::Syncing => i18n.tr(TR::SyncSyncing),
+                    SyncStage::Finalizing => i18n.tr(TR::SyncChecking),
+                }
+                .to_string();
+                let added = i18n.trn(
+                    TR::SyncAddedUpdatedCount,
+                    tr_args![
+                            "up"=>p.local_update, "down"=>p.remote_update],
+                );
+                let removed = i18n.trn(
+                    TR::SyncMediaRemovedCount,
+                    tr_args![
+                            "up"=>p.local_remove, "down"=>p.remote_remove],
+                );
+                pb::progress::Value::NormalSync(pb::NormalSyncProgress {
+                    stage,
+                    added,
+                    removed,
+                })
+            }
+        }
+    } else {
+        pb::progress::Value::None(pb::Empty {})
     };
-
-    let mut buf = vec![];
-    proto.encode(&mut buf).expect("encode failed");
-    buf
+    pb::Progress {
+        value: Some(progress),
+    }
 }
 
-fn media_sync_progress(p: &MediaSyncProgress, i18n: &I18n) -> pb::MediaSyncProgress {
+fn media_sync_progress(p: MediaSyncProgress, i18n: &I18n) -> pb::MediaSyncProgress {
     pb::MediaSyncProgress {
         checked: i18n.trn(TR::SyncMediaCheckedCount, tr_args!["count"=>p.checked]),
         added: i18n.trn(
@@ -1327,5 +1539,61 @@ impl From<crate::sched::cutoff::SchedTimingToday> for pb::SchedTimingTodayOut {
             days_elapsed: t.days_elapsed,
             next_day_at: t.next_day_at,
         }
+    }
+}
+
+impl From<SyncOutput> for pb::SyncCollectionOut {
+    fn from(o: SyncOutput) -> Self {
+        pb::SyncCollectionOut {
+            host_number: o.host_number,
+            server_message: o.server_message,
+            required: match o.required {
+                SyncActionRequired::NoChanges => {
+                    pb::sync_collection_out::ChangesRequired::NoChanges as i32
+                }
+                SyncActionRequired::FullSyncRequired {
+                    upload_ok,
+                    download_ok,
+                } => {
+                    if !upload_ok {
+                        pb::sync_collection_out::ChangesRequired::FullDownload as i32
+                    } else if !download_ok {
+                        pb::sync_collection_out::ChangesRequired::FullUpload as i32
+                    } else {
+                        pb::sync_collection_out::ChangesRequired::FullSync as i32
+                    }
+                }
+                SyncActionRequired::NormalSyncRequired => {
+                    pb::sync_collection_out::ChangesRequired::NormalSync as i32
+                }
+            },
+        }
+    }
+}
+
+impl From<pb::SyncAuth> for SyncAuth {
+    fn from(a: pb::SyncAuth) -> Self {
+        SyncAuth {
+            hkey: a.hkey,
+            host_number: a.host_number,
+        }
+    }
+}
+
+impl From<FullSyncProgress> for Progress {
+    fn from(p: FullSyncProgress) -> Self {
+        Progress::FullSync(p)
+    }
+}
+
+impl From<MediaSyncProgress> for Progress {
+    fn from(p: MediaSyncProgress) -> Self {
+        Progress::MediaSync(p)
+    }
+}
+
+impl From<NormalSyncProgress> for Progress {
+    fn from(p: NormalSyncProgress) -> Self {
+        Progress::NormalSync(p)
     }
 }

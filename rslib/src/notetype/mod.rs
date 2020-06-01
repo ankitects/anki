@@ -45,7 +45,7 @@ pub(crate) const DEFAULT_CSS: &str = include_str!("styling.css");
 pub(crate) const DEFAULT_LATEX_HEADER: &str = include_str!("header.tex");
 pub(crate) const DEFAULT_LATEX_FOOTER: &str = r"\end{document}";
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct NoteType {
     pub id: NoteTypeID,
     pub name: String,

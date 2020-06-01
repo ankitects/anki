@@ -91,13 +91,13 @@ fn want_release_gil(method: u32) -> bool {
             BackendMethod::RestoreTrash => true,
             BackendMethod::OpenCollection => true,
             BackendMethod::CloseCollection => true,
+            BackendMethod::AbortSync => true,
             BackendMethod::AbortMediaSync => true,
             BackendMethod::BeforeUpload => true,
             BackendMethod::TranslateString => false,
             BackendMethod::FormatTimespan => false,
             BackendMethod::RegisterTags => true,
             BackendMethod::AllTags => true,
-            BackendMethod::GetChangedTags => true,
             BackendMethod::GetConfigJson => true,
             BackendMethod::SetConfigJson => true,
             BackendMethod::RemoveConfig => true,
@@ -106,6 +106,13 @@ fn want_release_gil(method: u32) -> bool {
             BackendMethod::GetPreferences => true,
             BackendMethod::SetPreferences => true,
             BackendMethod::NoteIsDuplicateOrEmpty => true,
+            BackendMethod::SyncLogin => true,
+            BackendMethod::SyncCollection => true,
+            BackendMethod::LatestProgress => false,
+            BackendMethod::SetWantsAbort => false,
+            BackendMethod::SyncStatus => true,
+            BackendMethod::FullUpload => true,
+            BackendMethod::FullDownload => true,
         }
     } else {
         false
@@ -126,35 +133,6 @@ impl Backend {
             out_obj.into()
         })
         .map_err(|err_bytes| BackendError::py_err(err_bytes))
-    }
-
-    fn set_progress_callback(&mut self, callback: PyObject) {
-        if callback.is_none() {
-            self.backend.set_progress_callback(None);
-        } else {
-            let func = move |bytes: Vec<u8>| {
-                let gil = Python::acquire_gil();
-                let py = gil.python();
-                let out_bytes = PyBytes::new(py, &bytes);
-                let out_obj: PyObject = out_bytes.into();
-                let res: PyObject = match callback.call1(py, (out_obj,)) {
-                    Ok(res) => res,
-                    Err(e) => {
-                        println!("error calling callback:");
-                        e.print(py);
-                        return false;
-                    }
-                };
-                match res.extract(py) {
-                    Ok(cont) => cont,
-                    Err(e) => {
-                        println!("callback did not return bool: {:?}", e);
-                        false
-                    }
-                }
-            };
-            self.backend.set_progress_callback(Some(Box::new(func)));
-        }
     }
 
     fn db_command(&mut self, py: Python, input: &PyBytes) -> PyResult<PyObject> {

@@ -10,6 +10,8 @@ mod note;
 mod notetype;
 mod revlog;
 mod sqlite;
+mod sync;
+mod sync_check;
 mod tag;
 mod upgrades;
 

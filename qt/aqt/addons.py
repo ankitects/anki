@@ -441,7 +441,7 @@ and have been disabled: %(found)s"
         log = []
         errs = []
 
-        self.mw.progress.start(immediate=True, parent=parent)
+        self.mw.progress.start(parent=parent)
         try:
             for path in paths:
                 base = os.path.basename(path)

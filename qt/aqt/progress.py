@@ -52,7 +52,6 @@ class ProgressManager:
     # Creating progress dialogs
     ##########################################################################
 
-    # note: immediate is no longer used
     def start(
         self, max=0, min=0, label=None, parent=None, immediate=False
     ) -> Optional[ProgressDialog]:
@@ -83,11 +82,18 @@ class ProgressManager:
         self._updating = False
         self._show_timer = QTimer(self.mw)
         self._show_timer.setSingleShot(True)
-        self._show_timer.start(600)
+        self._show_timer.start(immediate and 100 or 600)
         qconnect(self._show_timer.timeout, self._on_show_timer)
         return self._win
 
-    def update(self, label=None, value=None, process=True, maybeShow=True) -> None:
+    def update(
+        self,
+        label=None,
+        value=None,
+        process=True,
+        maybeShow=True,
+        max: Optional[int] = None,
+    ) -> None:
         # print self._min, self._counter, self._max, label, time.time() - self._lastTime
         if not self.mw.inMainThread():
             print("progress.update() called on wrong thread")
@@ -101,7 +107,9 @@ class ProgressManager:
         elapsed = time.time() - self._lastUpdate
         if label:
             self._win.form.label.setText(label)
+        self._max = max
         if self._max:
+            self._win.form.progressBar.setMaximum(max)
             self._counter = value or (self._counter + 1)
             self._win.form.progressBar.setValue(self._counter)
         if process and elapsed >= 0.2:
@@ -170,6 +178,18 @@ class ProgressManager:
         self._show_timer = None
         self._showWin()
 
+    def want_cancel(self) -> bool:
+        win = self._win
+        if win:
+            return win.wantCancel
+        else:
+            return False
+
+    def set_title(self, title: str) -> None:
+        win = self._win
+        if win:
+            win.setWindowTitle(title)
+
 
 class ProgressDialog(QDialog):
     def __init__(self, parent):
@@ -178,6 +198,8 @@ class ProgressDialog(QDialog):
         self.form.setupUi(self)
         self._closingDown = False
         self.wantCancel = False
+        # required for smooth progress bars
+        self.form.progressBar.setStyleSheet("QProgressBar::chunk { width: 1px; }")
 
     def cancel(self):
         self._closingDown = True

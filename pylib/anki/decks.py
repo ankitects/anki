@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import copy
+import pprint
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, Union
 
 import anki  # pylint: disable=unused-import
@@ -79,6 +80,11 @@ class DeckManager:
     # legacy
     def flush(self):
         pass
+
+    def __repr__(self) -> str:
+        d = dict(self.__dict__)
+        del d["col"]
+        return f"{super().__repr__()} {pprint.pformat(d, width=300)}"
 
     # Deck save/load
     #############################################################
@@ -396,11 +402,11 @@ class DeckManager:
         "Select a new branch."
         # make sure arg is an int
         did = int(did)
-        # current deck
-        self.col.conf["curDeck"] = did
-        # and active decks (current + all children)
-        self.col.conf["activeDecks"] = self.deck_and_child_ids(did)
-        self.col.setMod()
+        current = self.selected()
+        active = self.deck_and_child_ids(did)
+        if current != did or active != self.active():
+            self.col.conf["curDeck"] = did
+            self.col.conf["activeDecks"] = active
 
     # don't use this, it will likely go away
     def update_active(self):

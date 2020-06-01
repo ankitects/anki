@@ -28,33 +28,6 @@ from anki.notes import Note
 # @@AUTOGEN@@
 
 
-class _BgThreadProgressCallbackFilter:
-    """Warning: this is called on a background thread."""
-
-    _hooks: List[Callable[[bool, "anki.rsbackend.Progress"], bool]] = []
-
-    def append(self, cb: Callable[[bool, "anki.rsbackend.Progress"], bool]) -> None:
-        """(proceed: bool, progress: anki.rsbackend.Progress)"""
-        self._hooks.append(cb)
-
-    def remove(self, cb: Callable[[bool, "anki.rsbackend.Progress"], bool]) -> None:
-        if cb in self._hooks:
-            self._hooks.remove(cb)
-
-    def __call__(self, proceed: bool, progress: anki.rsbackend.Progress) -> bool:
-        for filter in self._hooks:
-            try:
-                proceed = filter(proceed, progress)
-            except:
-                # if the hook fails, remove it
-                self._hooks.remove(filter)
-                raise
-        return proceed
-
-
-bg_thread_progress_callback = _BgThreadProgressCallbackFilter()
-
-
 class _CardDidLeechHook:
     _hooks: List[Callable[[Card], None]] = []
 
@@ -493,6 +466,8 @@ schema_will_change = _SchemaWillChangeFilter()
 
 
 class _SyncProgressDidChangeHook:
+    """Obsolete, do not use."""
+
     _hooks: List[Callable[[str], None]] = []
 
     def append(self, cb: Callable[[str], None]) -> None:
@@ -511,14 +486,14 @@ class _SyncProgressDidChangeHook:
                 # if the hook fails, remove it
                 self._hooks.remove(hook)
                 raise
-        # legacy support
-        runHook("syncMsg", msg)
 
 
 sync_progress_did_change = _SyncProgressDidChangeHook()
 
 
 class _SyncStageDidChangeHook:
+    """Obsolete, do not use."""
+
     _hooks: List[Callable[[str], None]] = []
 
     def append(self, cb: Callable[[str], None]) -> None:
@@ -537,8 +512,6 @@ class _SyncStageDidChangeHook:
                 # if the hook fails, remove it
                 self._hooks.remove(hook)
                 raise
-        # legacy support
-        runHook("sync", stage)
 
 
 sync_stage_did_change = _SyncStageDidChangeHook()

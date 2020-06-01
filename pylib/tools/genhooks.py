@@ -33,14 +33,6 @@ hooks = [
         args=["exporters: List[Tuple[str, Any]]"],
         legacy_hook="exportersList",
     ),
-    Hook(name="sync_stage_did_change", args=["stage: str"], legacy_hook="sync"),
-    Hook(name="sync_progress_did_change", args=["msg: str"], legacy_hook="syncMsg"),
-    Hook(
-        name="bg_thread_progress_callback",
-        args=["proceed: bool", "progress: anki.rsbackend.Progress"],
-        return_type="bool",
-        doc="Warning: this is called on a background thread.",
-    ),
     Hook(
         name="field_filter",
         args=[
@@ -97,6 +89,12 @@ hooks = [
         name="note_type_added",
         args=["notetype: Dict[str, Any]"],
         doc="Obsolete, do not use.",
+    ),
+    Hook(
+        name="sync_stage_did_change", args=["stage: str"], doc="Obsolete, do not use.",
+    ),
+    Hook(
+        name="sync_progress_did_change", args=["msg: str"], doc="Obsolete, do not use.",
     ),
 ]
 

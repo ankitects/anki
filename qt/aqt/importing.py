@@ -192,7 +192,7 @@ you can enter it here. Use \\t to represent tab."""
             self.importer.model["did"] = did
             self.mw.col.models.save(self.importer.model, updateReqs=False)
         self.mw.col.decks.select(did)
-        self.mw.progress.start(immediate=True)
+        self.mw.progress.start()
         self.mw.checkpoint(_("Import"))
 
         def on_done(future: Future):

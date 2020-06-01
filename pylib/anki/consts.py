@@ -66,13 +66,6 @@ MODEL_CLOZE = 1
 
 STARTING_FACTOR = 2500
 
-# deck schema & syncing vars
-SCHEMA_VERSION = 11
-SYNC_ZIP_SIZE = int(2.5 * 1024 * 1024)
-SYNC_ZIP_COUNT = 25
-SYNC_BASE = "https://sync%s.ankiweb.net/"
-SYNC_VER = 10
-
 HELP_SITE = "https://apps.ankiweb.net/docs/manual.html"
 
 # Leech actions

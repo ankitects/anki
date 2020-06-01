@@ -42,6 +42,7 @@ from aqt.mediasync import MediaSyncer
 from aqt.profiles import ProfileManager as ProfileManagerType
 from aqt.qt import *
 from aqt.qt import sip
+from aqt.sync import sync_collection, sync_login
 from aqt.taskman import TaskManager
 from aqt.theme import theme_manager
 from aqt.utils import (
@@ -380,12 +381,8 @@ close the profile or restart Anki."""
         self.taskman.run_in_background(downgrade, on_done)
 
     def loadProfile(self, onsuccess: Optional[Callable] = None) -> None:
-        self.maybeAutoSync()
-
         if not self.loadCollection():
             return
-
-        self.maybe_auto_sync_media()
 
         self.pm.apply_profile_options()
 
@@ -408,16 +405,15 @@ close the profile or restart Anki."""
                 self.handleImport(self.pendingImport)
             self.pendingImport = None
         gui_hooks.profile_did_open()
-        if onsuccess:
-            onsuccess()
+
+        if onsuccess is None:
+            onsuccess = lambda: None
+        self.maybe_auto_sync_on_open_close(onsuccess)
 
     def unloadProfile(self, onsuccess: Callable) -> None:
         def callback():
             self._unloadProfile()
             onsuccess()
-
-        # start media sync if not already running
-        self.maybe_auto_sync_media()
 
         gui_hooks.profile_will_close()
         self.unloadCollection(callback)
@@ -432,8 +428,6 @@ close the profile or restart Anki."""
 
         # at this point there should be no windows left
         self._checkForUnclosedWidgets()
-
-        self.maybeAutoSync()
 
     def _checkForUnclosedWidgets(self) -> None:
         for w in self.app.topLevelWidgets():
@@ -520,13 +514,18 @@ close the profile or restart Anki."""
         self.col.reopen()
 
     def unloadCollection(self, onsuccess: Callable) -> None:
-        def callback():
-            self.setEnabled(False)
-            self.media_syncer.show_diag_until_finished()
+        def after_media_sync():
             self._unloadCollection()
             onsuccess()
 
-        self.closeAllWindows(callback)
+        def after_sync():
+            self.media_syncer.show_diag_until_finished(after_media_sync)
+
+        def before_sync():
+            self.setEnabled(False)
+            self.maybe_auto_sync_on_open_close(after_sync)
+
+        self.closeAllWindows(before_sync)
 
     def _unloadCollection(self) -> None:
         if not self.col:
@@ -535,7 +534,7 @@ close the profile or restart Anki."""
             label = _("Closing...")
         else:
             label = _("Backing Up...")
-        self.progress.start(label=label, immediate=True)
+        self.progress.start(label=label)
         corrupt = False
         try:
             self.maybeOptimize()
@@ -621,7 +620,7 @@ from the profile screen."
         # have two weeks passed?
         if (intTime() - self.pm.profile["lastOptimize"]) < 86400 * 14:
             return
-        self.progress.start(label=_("Optimizing..."), immediate=True)
+        self.progress.start(label=_("Optimizing..."))
         self.col.optimize()
         self.pm.profile["lastOptimize"] = intTime()
         self.pm.save()
@@ -874,46 +873,54 @@ title="%s" %s>%s</button>""" % (
     # Syncing
     ##########################################################################
 
-    # expects a current profile and a loaded collection; reloads
-    # collection after sync completes
-    def onSync(self):
+    def on_sync_button_clicked(self):
         if self.media_syncer.is_syncing():
             self.media_syncer.show_sync_log()
         else:
-            self.unloadCollection(self._onSync)
+            auth = self.pm.sync_auth()
+            if not auth:
+                sync_login(self, self._sync_collection_and_media)
+            else:
+                self._sync_collection_and_media(lambda: None)
 
-    def _onSync(self):
-        self._sync()
-        if not self.loadCollection():
-            return
-        self.media_syncer.start()
+    def _sync_collection_and_media(self, after_sync: Callable[[], None]):
+        "Caller should ensure auth available."
+        # start media sync if not already running
+        if not self.media_syncer.is_syncing():
+            self.media_syncer.start()
 
-    # expects a current profile, but no collection loaded
-    def maybeAutoSync(self) -> None:
-        if (
-            not self.pm.profile["syncKey"]
-            or not self.pm.profile["autoSync"]
-            or self.safeMode
-            or self.restoringBackup
-        ):
-            return
+        def on_collection_sync_finished():
+            self.reset()
+            after_sync()
 
-        # ok to sync
-        self._sync()
+        sync_collection(self, on_done=on_collection_sync_finished)
+
+    def maybe_auto_sync_on_open_close(self, after_sync: Callable[[], None]) -> None:
+        "If disabled, after_sync() is called immediately."
+        if self.can_auto_sync():
+            self._sync_collection_and_media(after_sync)
+        else:
+            after_sync()
 
     def maybe_auto_sync_media(self) -> None:
-        if not self.pm.profile["autoSync"] or self.safeMode or self.restoringBackup:
+        if self.can_auto_sync():
             return
+        # media_syncer takes care of media syncing preference check
         self.media_syncer.start()
 
-    def _sync(self):
-        from aqt.sync import SyncManager
+    def can_auto_sync(self) -> bool:
+        return (
+            self.pm.auto_syncing_enabled()
+            and bool(self.pm.sync_auth())
+            and not self.safeMode
+            and not self.restoringBackup
+        )
 
-        self.state = "sync"
-        self.app.setQuitOnLastWindowClosed(False)
-        self.syncer = SyncManager(self, self.pm)
-        self.syncer.sync()
-        self.app.setQuitOnLastWindowClosed(True)
+    # legacy
+    def _sync(self):
+        pass
+
+    onSync = on_sync_button_clicked
 
     # Tools
     ##########################################################################
@@ -939,7 +946,7 @@ title="%s" %s>%s</button>""" % (
             ("a", self.onAddCard),
             ("b", self.onBrowse),
             ("t", self.onStats),
-            ("y", self.onSync),
+            ("y", self.on_sync_button_clicked),
         ]
         self.applyShortcuts(globalShortcuts)
 

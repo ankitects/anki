@@ -130,14 +130,14 @@ impl MediaManager {
     pub async fn sync_media<'a, F>(
         &'a self,
         progress: F,
-        endpoint: &'a str,
+        host_number: u32,
         hkey: &'a str,
         log: Logger,
     ) -> Result<()>
     where
-        F: Fn(&MediaSyncProgress) -> bool,
+        F: FnMut(MediaSyncProgress) -> bool,
     {
-        let mut syncer = MediaSyncer::new(self, progress, endpoint, log);
+        let mut syncer = MediaSyncer::new(self, progress, host_number, log);
         syncer.sync(hkey).await
     }
 

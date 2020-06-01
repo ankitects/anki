@@ -6,23 +6,20 @@ from __future__ import annotations
 import time
 from concurrent.futures import Future
 from dataclasses import dataclass
-from typing import List, Union
+from typing import Callable, List, Optional, Union
 
 import aqt
-from anki import hooks
-from anki.consts import SYNC_BASE
 from anki.rsbackend import (
     TR,
     Interrupted,
     MediaSyncProgress,
     NetworkError,
-    Progress,
     ProgressKind,
 )
 from anki.types import assert_impossible
 from anki.utils import intTime
 from aqt import gui_hooks
-from aqt.qt import QDialog, QDialogButtonBox, QPushButton, qconnect
+from aqt.qt import QDialog, QDialogButtonBox, QPushButton, QTimer, qconnect
 from aqt.utils import showWarning, tr
 
 LogEntry = Union[MediaSyncProgress, str]
@@ -39,52 +36,41 @@ class MediaSyncer:
         self.mw = mw
         self._syncing: bool = False
         self._log: List[LogEntryWithTime] = []
-        self._want_stop = False
-        hooks.bg_thread_progress_callback.append(self._on_rust_progress)
+        self._progress_timer: Optional[QTimer] = None
         gui_hooks.media_sync_did_start_or_stop.append(self._on_start_stop)
 
-    def _on_rust_progress(self, proceed: bool, progress: Progress) -> bool:
+    def _on_progress(self):
+        progress = self.mw.col.latest_progress()
         if progress.kind != ProgressKind.MediaSync:
-            return proceed
+            return
 
         assert isinstance(progress.val, MediaSyncProgress)
         self._log_and_notify(progress.val)
-
-        if self._want_stop:
-            return False
-        else:
-            return proceed
 
     def start(self) -> None:
         "Start media syncing in the background, if it's not already running."
         if self._syncing:
             return
 
-        hkey = self.mw.pm.sync_key()
-        if hkey is None:
-            return
-
         if not self.mw.pm.media_syncing_enabled():
             self._log_and_notify(tr(TR.SYNC_MEDIA_DISABLED))
             return
 
+        auth = self.mw.pm.sync_auth()
+        if auth is None:
+            return
+
         self._log_and_notify(tr(TR.SYNC_MEDIA_STARTING))
         self._syncing = True
-        self._want_stop = False
+        self._progress_timer = self.mw.progress.timer(
+            1000, self._on_progress, True, False
+        )
         gui_hooks.media_sync_did_start_or_stop(True)
 
         def run() -> None:
-            self.mw.col.backend.sync_media(hkey=hkey, endpoint=self._endpoint())
+            self.mw.col.backend.sync_media(auth)
 
         self.mw.taskman.run_in_background(run, self._on_finished)
-
-    def _endpoint(self) -> str:
-        shard = self.mw.pm.sync_shard()
-        if shard is not None:
-            shard_str = str(shard)
-        else:
-            shard_str = ""
-        return f"{SYNC_BASE % shard_str}msync/"
 
     def _log_and_notify(self, entry: LogEntry) -> None:
         entry_with_time = LogEntryWithTime(time=intTime(), entry=entry)
@@ -95,6 +81,9 @@ class MediaSyncer:
 
     def _on_finished(self, future: Future) -> None:
         self._syncing = False
+        if self._progress_timer:
+            self._progress_timer.stop()
+            self._progress_timer = None
         gui_hooks.media_sync_did_start_or_stop(False)
 
         exc = future.exception()
@@ -122,7 +111,7 @@ class MediaSyncer:
         if not self.is_syncing():
             return
         self._log_and_notify(tr(TR.SYNC_MEDIA_ABORTING))
-        self._want_stop = True
+        self.mw.col.backend.set_wants_abort()
         self.mw.col.backend.abort_media_sync()
 
     def is_syncing(self) -> bool:
@@ -134,13 +123,22 @@ class MediaSyncer:
     def show_sync_log(self):
         aqt.dialogs.open("sync_log", self.mw, self)
 
-    def show_diag_until_finished(self):
+    def show_diag_until_finished(self, on_finished: Callable[[], None]):
         # nothing to do if not syncing
         if not self.is_syncing():
-            return
+            return on_finished()
 
         diag: MediaSyncDialog = aqt.dialogs.open("sync_log", self.mw, self, True)
-        diag.exec_()
+        diag.show()
+
+        timer: Optional[QTimer] = None
+
+        def check_finished():
+            if not self.is_syncing():
+                timer.stop()
+                on_finished()
+
+        timer = self.mw.progress.timer(150, check_finished, True, False)
 
     def seconds_since_last_sync(self) -> int:
         if self.is_syncing():

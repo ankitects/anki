@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import os
+import pprint
 import re
 import sys
 import time
@@ -60,6 +61,11 @@ class MediaManager:
         except OSError:
             raise Exception("invalidTempFolder")
 
+    def __repr__(self) -> str:
+        d = dict(self.__dict__)
+        del d["col"]
+        return f"{super().__repr__()} {pprint.pformat(d, width=300)}"
+
     def connect(self) -> None:
         if self.col.server:
             return
@@ -80,7 +86,10 @@ class MediaManager:
         return self._dir
 
     def force_resync(self) -> None:
-        os.unlink(media_paths_from_col_path(self.col.path)[1])
+        try:
+            os.unlink(media_paths_from_col_path(self.col.path)[1])
+        except FileNotFoundError:
+            pass
 
     # File manipulation
     ##########################################################################
@@ -106,6 +115,7 @@ class MediaManager:
             type_map = {
                 "image/jpeg": ".jpg",
                 "image/png": ".png",
+                "image/svg+xml": ".svg",
             }
             if content_type in type_map:
                 fname += type_map[content_type]

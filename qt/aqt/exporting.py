@@ -163,7 +163,7 @@ class ExportDialog(QDialog):
                 future.result()
                 self.on_export_finished()
 
-            self.mw.progress.start(immediate=True)
+            self.mw.progress.start()
             hooks.media_files_did_export.append(exported_media)
 
             self.mw.taskman.run_in_background(do_export, on_done)

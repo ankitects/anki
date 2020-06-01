@@ -9,8 +9,7 @@ from concurrent.futures import Future
 from typing import Iterable, List, Optional, Sequence, TypeVar
 
 import aqt
-from anki import hooks
-from anki.rsbackend import TR, Interrupted, Progress, ProgressKind, pb
+from anki.rsbackend import TR, Interrupted, ProgressKind, pb
 from aqt.qt import *
 from aqt.utils import askUser, restoreGeom, saveGeom, showText, tooltip, tr
 
@@ -36,28 +35,42 @@ class MediaChecker:
 
     def __init__(self, mw: aqt.AnkiQt) -> None:
         self.mw = mw
+        self._progress_timer: Optional[QTimer] = None
 
     def check(self) -> None:
         self.progress_dialog = self.mw.progress.start()
-        hooks.bg_thread_progress_callback.append(self._on_progress)
+        self._set_progress_enabled(True)
         self.mw.taskman.run_in_background(self._check, self._on_finished)
 
-    def _on_progress(self, proceed: bool, progress: Progress) -> bool:
-        if progress.kind != ProgressKind.MediaCheck:
-            return proceed
+    def _set_progress_enabled(self, enabled: bool) -> None:
+        if self._progress_timer:
+            self._progress_timer.stop()
+            self._progress_timer = None
+        if enabled:
+            self._progress_timer = self.mw.progress.timer(100, self._on_progress, True)
 
-        if self.progress_dialog.wantCancel:
-            return False
+    def _on_progress(self) -> None:
+        progress = self.mw.col.latest_progress()
+        if progress.kind != ProgressKind.MediaCheck:
+            return
+
+        assert isinstance(progress.val, str)
+
+        try:
+            if self.progress_dialog.wantCancel:
+                self.mw.col.backend.set_wants_abort()
+        except AttributeError:
+            # dialog may not be active
+            pass
 
         self.mw.taskman.run_on_main(lambda: self.mw.progress.update(progress.val))
-        return True
 
     def _check(self) -> pb.CheckMediaOut:
         "Run the check on a background thread."
         return self.mw.col.media.check()
 
     def _on_finished(self, future: Future) -> None:
-        hooks.bg_thread_progress_callback.remove(self._on_progress)
+        self._set_progress_enabled(False)
         self.mw.progress.finish()
         self.progress_dialog = None
 
@@ -162,14 +175,14 @@ class MediaChecker:
 
     def _on_empty_trash(self):
         self.progress_dialog = self.mw.progress.start()
-        hooks.bg_thread_progress_callback.append(self._on_progress)
+        self._set_progress_enabled(True)
 
         def empty_trash():
             self.mw.col.backend.empty_trash()
 
         def on_done(fut: Future):
             self.mw.progress.finish()
-            hooks.bg_thread_progress_callback.remove(self._on_progress)
+            self._set_progress_enabled(False)
             # check for errors
             fut.result()
 
@@ -179,14 +192,14 @@ class MediaChecker:
 
     def _on_restore_trash(self):
         self.progress_dialog = self.mw.progress.start()
-        hooks.bg_thread_progress_callback.append(self._on_progress)
+        self._set_progress_enabled(True)
 
         def restore_trash():
             self.mw.col.backend.restore_trash()
 
         def on_done(fut: Future):
             self.mw.progress.finish()
-            hooks.bg_thread_progress_callback.remove(self._on_progress)
+            self._set_progress_enabled(False)
             # check for errors
             fut.result()
 

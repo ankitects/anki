@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import pprint
 import random
 import time
 from heapq import *
@@ -41,6 +42,11 @@ class Scheduler:
         self._haveQueues = False
         self._lrnCutoff = 0
         self._updateCutoff()
+
+    def __repr__(self) -> str:
+        d = dict(self.__dict__)
+        del d["col"]
+        return f"{super().__repr__()} {pprint.pformat(d, width=300)}"
 
     def getCard(self) -> Optional[Card]:
         """Pop the next card from the queue. None if finished."""
@@ -1523,7 +1529,7 @@ update cards set queue=?,mod=?,usn=? where id in """
     ##########################################################################
 
     def _burySiblings(self, card: Card) -> None:
-        toBury = []
+        toBury: List[int] = []
         nconf = self._newConf(card)
         buryNew = nconf.get("bury", True)
         rconf = self._revConf(card)
@@ -1538,21 +1544,19 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
             self.today,
         ):
             if queue == QUEUE_TYPE_REV:
+                queue_obj = self._revQueue
                 if buryRev:
                     toBury.append(cid)
-                # if bury disabled, we still discard to give same-day spacing
-                try:
-                    self._revQueue.remove(cid)
-                except ValueError:
-                    pass
             else:
-                # if bury disabled, we still discard to give same-day spacing
+                queue_obj = self._newQueue
                 if buryNew:
                     toBury.append(cid)
-                try:
-                    self._newQueue.remove(cid)
-                except ValueError:
-                    pass
+
+            # even if burying disabled, we still discard to give same-day spacing
+            try:
+                queue_obj.remove(cid)
+            except ValueError:
+                pass
 
         # bury related sources
         from anki.utils import stripHTML

@@ -1,0 +1,42 @@
+insert
+  or replace into cards (
+    id,
+    nid,
+    did,
+    ord,
+    mod,
+    usn,
+    type,
+    queue,
+    due,
+    ivl,
+    factor,
+    reps,
+    lapses,
+    left,
+    odue,
+    odid,
+    flags,
+    data
+  )
+values
+  (
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?
+  )
