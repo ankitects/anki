@@ -498,15 +498,6 @@ def restoreComboIndex(widget: QComboBox, history: List[str], key: str):
             widget.setCurrentIndex(index)
 
 
-def restoreComboHistory(comboBox: QComboBox, name: str):
-    name += "BoxHistory"
-    history = aqt.mw.pm.profile.get(name, [])
-    comboBox.addItems(history)
-    comboBox.lineEdit().setText(history[0] if history else "")
-    comboBox.lineEdit().selectAll()
-    return history
-
-
 def saveComboHistory(comboBox: QComboBox, history: List[str], name: str):
     name += "BoxHistory"
     text_input = comboBox.lineEdit().text()
@@ -518,6 +509,15 @@ def saveComboHistory(comboBox: QComboBox, history: List[str], name: str):
     comboBox.addItems(history)
     aqt.mw.pm.profile[name] = history
     return text_input
+
+
+def restoreComboHistory(comboBox: QComboBox, name: str):
+    name += "BoxHistory"
+    history = aqt.mw.pm.profile.get(name, [])
+    comboBox.addItems(history)
+    comboBox.lineEdit().setText(history[0] if history else "")
+    comboBox.lineEdit().selectAll()
+    return history
 
 
 def saveSplitter(widget, key):
