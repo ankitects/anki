@@ -54,7 +54,7 @@ use std::{
     result,
     sync::{Arc, Mutex},
 };
-use tokio::runtime::Runtime;
+use tokio::runtime::{self, Runtime};
 
 mod dbproxy;
 
@@ -91,6 +91,7 @@ pub struct Backend {
     sync_abort: Option<AbortHandle>,
     media_sync_abort: Option<AbortHandle>,
     progress_state: Arc<Mutex<ProgressState>>,
+    runtime: Option<Runtime>,
 }
 
 #[derive(Clone, Copy)]
@@ -1155,6 +1156,7 @@ impl Backend {
                 want_abort: false,
                 last_progress: None,
             })),
+            runtime: None,
         }
     }
 
@@ -1203,6 +1205,20 @@ impl Backend {
         }
     }
 
+    fn runtime_handle(&mut self) -> runtime::Handle {
+        if self.runtime.is_none() {
+            self.runtime = Some(
+                runtime::Builder::new()
+                    .threaded_scheduler()
+                    .core_threads(1)
+                    .enable_all()
+                    .build()
+                    .unwrap(),
+            )
+        }
+        self.runtime.as_ref().unwrap().handle().clone()
+    }
+
     fn sync_media_inner(
         &mut self,
         input: pb::SyncAuth,
@@ -1217,7 +1233,7 @@ impl Backend {
         let progress_fn = move |progress| handler.update(progress, true);
 
         let mgr = MediaManager::new(&folder, &db)?;
-        let mut rt = Runtime::new().unwrap();
+        let rt = self.runtime_handle();
         let sync_fut = mgr.sync_media(progress_fn, input.host_number, &input.hkey, log);
         let abortable_sync = Abortable::new(sync_fut, abort_reg);
         let ret = match rt.block_on(abortable_sync) {
@@ -1235,7 +1251,7 @@ impl Backend {
         let (abort_handle, abort_reg) = AbortHandle::new_pair();
         self.sync_abort = Some(abort_handle);
 
-        let mut rt = Runtime::new().unwrap();
+        let rt = self.runtime_handle();
         let sync_fut = sync_login(&input.username, &input.password);
         let abortable_sync = Abortable::new(sync_fut, abort_reg);
         let ret = match rt.block_on(abortable_sync) {
@@ -1257,7 +1273,7 @@ impl Backend {
         let (abort_handle, abort_reg) = AbortHandle::new_pair();
         self.sync_abort = Some(abort_handle);
 
-        let mut rt = Runtime::new().unwrap();
+        let rt = self.runtime_handle();
         let input_copy = input.clone();
 
         let ret = self.with_col(|col| {
@@ -1298,6 +1314,8 @@ impl Backend {
     }
 
     fn full_sync_inner(&mut self, input: pb::SyncAuth, upload: bool) -> Result<()> {
+        let rt = self.runtime_handle();
+
         let mut col = self.col.lock().unwrap();
         if col.is_none() {
             return Err(AnkiError::CollectionNotOpen);
@@ -1320,8 +1338,6 @@ impl Backend {
         let progress_fn = move |progress: FullSyncProgress, throttle: bool| {
             handler.update(progress, throttle);
         };
-
-        let mut rt = Runtime::new().unwrap();
 
         let result = if upload {
             let sync_fut = col_inner.full_upload(input.into(), progress_fn);
