@@ -848,7 +848,9 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?"""
             self.col.usn(),
         )
 
-    def buryCards(self, cids: List[int]) -> None:  # type: ignore[override]
+    def buryCards(self, cids: List[int], manual: bool = False) -> None:
+        # v1 only supported automatic burying
+        assert not manual
         self.col.log(cids)
         self.remFromDyn(cids)
         self.removeLrn(cids)
