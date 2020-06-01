@@ -1523,7 +1523,7 @@ update cards set queue=?,mod=?,usn=? where id in """
     ##########################################################################
 
     def _burySiblings(self, card: Card) -> None:
-        toBury = []
+        toBury: List[int] = []
         nconf = self._newConf(card)
         buryNew = nconf.get("bury", True)
         rconf = self._revConf(card)
@@ -1538,21 +1538,19 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
             self.today,
         ):
             if queue == QUEUE_TYPE_REV:
+                queue_obj = self._revQueue
                 if buryRev:
                     toBury.append(cid)
-                # if bury disabled, we still discard to give same-day spacing
-                try:
-                    self._revQueue.remove(cid)
-                except ValueError:
-                    pass
             else:
-                # if bury disabled, we still discard to give same-day spacing
+                queue_obj = self._newQueue
                 if buryNew:
                     toBury.append(cid)
-                try:
-                    self._newQueue.remove(cid)
-                except ValueError:
-                    pass
+
+            # even if burying disabled, we still discard to give same-day spacing
+            try:
+                queue_obj.remove(cid)
+            except ValueError:
+                pass
         # then bury
         if toBury:
             self.buryCards(toBury, manual=False)
