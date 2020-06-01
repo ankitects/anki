@@ -30,6 +30,8 @@ pub struct DeckConfSchema11 {
     pub(crate) new: NewConfSchema11,
     pub(crate) rev: RevConfSchema11,
     pub(crate) lapse: LapseConfSchema11,
+    #[serde(rename = "dyn", default, deserialize_with = "default_on_invalid")]
+    dynamic: bool,
     #[serde(flatten)]
     other: HashMap<String, Value>,
 }
@@ -184,6 +186,7 @@ impl Default for DeckConfSchema11 {
             autoplay: true,
             timer: 0,
             replayq: true,
+            dynamic: false,
             new: Default::default(),
             rev: Default::default(),
             lapse: Default::default(),
@@ -291,6 +294,7 @@ impl From<DeckConf> for DeckConfSchema11 {
             autoplay: !i.disable_autoplay,
             timer: i.visible_timer_secs as u8,
             replayq: !i.skip_question_when_replaying_answer,
+            dynamic: false,
             new: NewConfSchema11 {
                 bury: i.bury_new,
                 delays: i.learn_steps,
