@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import os
+import pprint
 import re
 import sys
 import time
@@ -59,6 +60,11 @@ class MediaManager:
             os.chdir(self._dir)
         except OSError:
             raise Exception("invalidTempFolder")
+
+    def __repr__(self) -> str:
+        d = dict(self.__dict__)
+        del d["col"]
+        return f"{super().__repr__()} {pprint.pformat(d, width=300)}"
 
     def connect(self) -> None:
         if self.col.server:
