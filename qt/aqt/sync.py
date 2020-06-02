@@ -41,7 +41,7 @@ class FullSyncChoice(enum.Enum):
 def get_sync_status(mw: aqt.main.AnkiQt, callback: Callable[[SyncStatus], None]):
     auth = mw.pm.sync_auth()
     if not auth:
-        return SyncStatus(required=SyncStatus.NO_CHANGES)
+        return SyncStatus(required=SyncStatus.NO_CHANGES)  # pylint:disable=no-member
 
     def on_future_done(fut):
         try:
