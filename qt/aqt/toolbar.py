@@ -8,8 +8,10 @@ from typing import Any, Dict, Optional
 
 import aqt
 from anki.lang import _
+from anki.rsbackend import SyncStatus
 from aqt import gui_hooks
 from aqt.qt import *
+from aqt.sync import get_sync_status
 from aqt.webview import AnkiWebView
 
 
@@ -45,11 +47,16 @@ class Toolbar:
         link_handler = link_handler or self._linkHandler
         self.web.set_bridge_command(link_handler, web_context)
         self.web.stdHtml(
-            self._body % self._centerLinks(), css=["toolbar.css"], context=web_context,
+            self._body % self._centerLinks(),
+            css=["toolbar.css"],
+            js=["webview.js", "jquery.js", "toolbar.js"],
+            context=web_context,
         )
         self.web.adjustHeightToFit()
-        if self.mw.media_syncer.is_syncing():
-            self.set_sync_active(True)
+
+    def redraw(self) -> None:
+        self.set_sync_active(self.mw.media_syncer.is_syncing())
+        self.update_sync_status()
 
     # Available links
     ######################################################################
@@ -128,6 +135,9 @@ class Toolbar:
 
         return "\n".join(links)
 
+    # Sync
+    ######################################################################
+
     def _create_sync_link(self) -> str:
         name = _("Sync")
         title = _("Shortcut key: %s") % "Y"
@@ -145,6 +155,12 @@ class Toolbar:
         else:
             meth = "removeClass"
         self.web.eval(f"$('#sync-spinner').{meth}('spin')")
+
+    def set_sync_status(self, status: SyncStatus) -> None:
+        self.web.eval(f"updateSyncColor({status.required})")
+
+    def update_sync_status(self) -> None:
+        get_sync_status(self.mw, self.mw.toolbar.set_sync_status)
 
     # Link handling
     ######################################################################

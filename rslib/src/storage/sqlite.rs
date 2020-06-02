@@ -307,6 +307,15 @@ impl SqliteStorage {
             .map_err(Into::into)
     }
 
+    pub(crate) fn get_last_sync(&self) -> Result<TimestampMillis> {
+        self.db
+            .prepare_cached("select ls from col")?
+            .query_and_then(NO_PARAMS, |r| r.get(0))?
+            .next()
+            .ok_or_else(|| AnkiError::invalid_input("missing col"))?
+            .map_err(Into::into)
+    }
+
     pub(crate) fn set_last_sync(&self, stamp: TimestampMillis) -> Result<()> {
         self.db
             .prepare("update col set ls = ?")?

@@ -33,8 +33,8 @@ use crate::{
     sched::timespan::{answer_button_time, learning_congrats, studied_today, time_span},
     search::SortMode,
     sync::{
-        sync_abort, sync_login, FullSyncProgress, NormalSyncProgress, SyncActionRequired, SyncAuth,
-        SyncOutput, SyncStage,
+        get_remote_sync_meta, sync_abort, sync_login, FullSyncProgress, NormalSyncProgress,
+        SyncActionRequired, SyncAuth, SyncMeta, SyncOutput, SyncStage,
     },
     template::RenderedNode,
     text::{extract_av_tags, strip_av_tags, AVTag},
@@ -44,7 +44,7 @@ use crate::{
 use fluent::FluentValue;
 use futures::future::{AbortHandle, Abortable};
 use log::error;
-use pb::BackendService;
+use pb::{sync_status_out, BackendService};
 use prost::Message;
 use serde_json::Value as JsonValue;
 use std::collections::{HashMap, HashSet};
@@ -92,6 +92,27 @@ pub struct Backend {
     media_sync_abort: Option<AbortHandle>,
     progress_state: Arc<Mutex<ProgressState>>,
     runtime: Option<Runtime>,
+    state: Arc<Mutex<BackendState>>,
+}
+
+// fixme: move other items like runtime into here as well
+
+#[derive(Default)]
+struct BackendState {
+    remote_sync_status: RemoteSyncStatus,
+}
+
+#[derive(Default, Debug)]
+pub(crate) struct RemoteSyncStatus {
+    last_check: TimestampSecs,
+    last_response: sync_status_out::Required,
+}
+
+impl RemoteSyncStatus {
+    fn update(&mut self, required: sync_status_out::Required) {
+        self.last_check = TimestampSecs::now();
+        self.last_response = required
+    }
 }
 
 #[derive(Clone, Copy)]
@@ -971,12 +992,12 @@ impl BackendService for Backend {
         self.sync_login_inner(input)
     }
 
-    fn sync_status(&mut self, input: pb::SyncAuth) -> BackendResult<pb::SyncCollectionOut> {
-        self.sync_collection_inner(input, true)
+    fn sync_status(&mut self, input: pb::SyncAuth) -> BackendResult<pb::SyncStatusOut> {
+        self.sync_status_inner(input)
     }
 
     fn sync_collection(&mut self, input: pb::SyncAuth) -> BackendResult<pb::SyncCollectionOut> {
-        self.sync_collection_inner(input, false)
+        self.sync_collection_inner(input)
     }
 
     fn full_upload(&mut self, input: pb::SyncAuth) -> BackendResult<Empty> {
@@ -1157,6 +1178,7 @@ impl Backend {
                 last_progress: None,
             })),
             runtime: None,
+            state: Arc::new(Mutex::new(BackendState::default())),
         }
     }
 
@@ -1265,10 +1287,38 @@ impl Backend {
         })
     }
 
+    fn sync_status_inner(&mut self, input: pb::SyncAuth) -> BackendResult<pb::SyncStatusOut> {
+        // any local changes mean we can skip the network round-trip
+        let req = self.with_col(|col| col.get_local_sync_status())?;
+        if req != pb::sync_status_out::Required::NoChanges {
+            return Ok(req.into());
+        }
+
+        // return cached server response if only a short time has elapsed
+        {
+            let guard = self.state.lock().unwrap();
+            if guard.remote_sync_status.last_check.elapsed_secs() < 300 {
+                return Ok(guard.remote_sync_status.last_response.into());
+            }
+        }
+
+        // fetch and cache result
+        let rt = self.runtime_handle();
+        let remote: SyncMeta = rt.block_on(get_remote_sync_meta(input.into()))?;
+        let response = self.with_col(|col| col.get_sync_status(remote).map(Into::into))?;
+
+        {
+            let mut guard = self.state.lock().unwrap();
+            guard.remote_sync_status.last_check = TimestampSecs::now();
+            guard.remote_sync_status.last_response = response;
+        }
+
+        Ok(response.into())
+    }
+
     fn sync_collection_inner(
         &mut self,
         input: pb::SyncAuth,
-        check_only: bool,
     ) -> BackendResult<pb::SyncCollectionOut> {
         let (abort_handle, abort_reg) = AbortHandle::new_pair();
         self.sync_abort = Some(abort_handle);
@@ -1277,39 +1327,36 @@ impl Backend {
         let input_copy = input.clone();
 
         let ret = self.with_col(|col| {
-            let result = if check_only {
-                let sync_fut = col.get_sync_status(input.into());
-                let abortable_sync = Abortable::new(sync_fut, abort_reg);
-                rt.block_on(abortable_sync)
-            } else {
-                let mut handler = self.new_progress_handler();
-                let progress_fn = move |progress: NormalSyncProgress, throttle: bool| {
-                    handler.update(progress, throttle);
-                };
-
-                let sync_fut = col.normal_sync(input.into(), progress_fn);
-                let abortable_sync = Abortable::new(sync_fut, abort_reg);
-                rt.block_on(abortable_sync)
+            let mut handler = self.new_progress_handler();
+            let progress_fn = move |progress: NormalSyncProgress, throttle: bool| {
+                handler.update(progress, throttle);
             };
-            match result {
+
+            let sync_fut = col.normal_sync(input.into(), progress_fn);
+            let abortable_sync = Abortable::new(sync_fut, abort_reg);
+
+            match rt.block_on(abortable_sync) {
                 Ok(sync_result) => sync_result,
                 Err(_) => {
                     // if the user aborted, we'll need to clean up the transaction
-                    if !check_only {
-                        col.storage.rollback_trx()?;
-                        // and tell AnkiWeb to clean up
-                        let _handle = std::thread::spawn(move || {
-                            let _ =
-                                rt.block_on(sync_abort(input_copy.hkey, input_copy.host_number));
-                        });
-                    }
+                    col.storage.rollback_trx()?;
+                    // and tell AnkiWeb to clean up
+                    let _handle = std::thread::spawn(move || {
+                        let _ = rt.block_on(sync_abort(input_copy.hkey, input_copy.host_number));
+                    });
 
                     Err(AnkiError::Interrupted)
                 }
             }
         });
         self.sync_abort = None;
+
         let output: SyncOutput = ret?;
+        self.state
+            .lock()
+            .unwrap()
+            .remote_sync_status
+            .update(output.required.into());
         Ok(output.into())
     }
 
@@ -1361,7 +1408,16 @@ impl Backend {
         )?);
 
         match result {
-            Ok(sync_result) => sync_result,
+            Ok(sync_result) => {
+                if sync_result.is_ok() {
+                    self.state
+                        .lock()
+                        .unwrap()
+                        .remote_sync_status
+                        .update(sync_status_out::Required::NoChanges);
+                }
+                sync_result
+            }
             Err(_) => Err(AnkiError::Interrupted),
         }
     }
