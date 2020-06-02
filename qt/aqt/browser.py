@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import html
 import time
+import traceback
 from dataclasses import dataclass
 from enum import Enum
 from operator import itemgetter
@@ -171,7 +172,7 @@ class DataModel(QAbstractTableModel):
     def search(self, txt: str) -> None:
         self.beginReset()
         self.cards = []
-        invalid = False
+        invalid = ""
         try:
             ctx = SearchContext(search=txt)
             gui_hooks.browser_will_search(ctx)
@@ -180,13 +181,19 @@ class DataModel(QAbstractTableModel):
             gui_hooks.browser_did_search(ctx)
             self.cards = ctx.card_ids
         except Exception as e:
-            print("search failed:", e)
-            invalid = True
+            error = (
+                str(e).replace("\\\\", "\\").replace("\\n", "\n").replace('\\"', '"')
+            )
+            print(f"search failed:\n{traceback.format_exc()}{error}")
+            invalid = f"\n\n{error}\n\n{traceback.format_exc()}"
         finally:
             self.endReset()
 
         if invalid:
-            showWarning(_("Invalid search - please check for typing mistakes."))
+            invalid = invalid.replace("\n", "<br>").replace(" ", "&nbsp;")
+            showWarning(
+                _("Invalid search - please check for typing mistakes.") + invalid
+            )
 
     def reset(self):
         self.beginReset()
