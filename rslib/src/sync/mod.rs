@@ -665,6 +665,7 @@ impl Collection {
                 kind: SyncErrorKind::Other,
             });
         }
+        db.execute_batch("update col set ls=mod")?;
         drop(db);
         // overwrite existing collection atomically
         out_file
