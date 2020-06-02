@@ -147,4 +147,4 @@ class Note:
 
     def dupeOrEmpty(self) -> int:
         "1 if first is empty; 2 if first is a duplicate, 0 otherwise."
-        return self.col.backend.note_is_duplicate_or_empty(self.to_backend_note())
+        return self.col.backend.note_is_duplicate_or_empty(self.to_backend_note()).state
