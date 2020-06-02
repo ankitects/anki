@@ -699,8 +699,6 @@ class Browser(QMainWindow):
         saveGeom(self, "editor")
         saveState(self, "editor")
         saveHeader(self.form.tableView.horizontalHeader(), "editor")
-        self.col.conf["activeCols"] = self.model.activeCols
-        self.col.setMod()
         self.teardownHooks()
         self.mw.maybeReset()
         aqt.dialogs.markClosed("Browser")
@@ -983,6 +981,7 @@ QTableView {{ gridline-color: {grid} }}
         else:
             self.model.activeCols.append(type)
             adding = True
+        self.col.conf["activeCols"] = self.model.activeCols
         # sorted field may have been hidden
         self.setSortIndicator()
         self.setColumnSizes()
