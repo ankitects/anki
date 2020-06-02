@@ -874,7 +874,7 @@ title="%s" %s>%s</button>""" % (
         else:
             auth = self.pm.sync_auth()
             if not auth:
-                sync_login(self, self._sync_collection_and_media)
+                sync_login(self, lambda: self._sync_collection_and_media(lambda: None))
             else:
                 self._sync_collection_and_media(lambda: None)
 
