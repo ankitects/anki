@@ -665,6 +665,7 @@ impl Collection {
                 kind: SyncErrorKind::Other,
             });
         }
+        drop(db);
         // overwrite existing collection atomically
         out_file
             .persist(&col_path)
