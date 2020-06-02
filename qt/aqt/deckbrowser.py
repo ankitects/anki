@@ -15,7 +15,6 @@ from anki.utils import ids2str
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.sound import av_player
-from aqt.sync import get_sync_status
 from aqt.toolbar import BottomBar
 from aqt.utils import askUser, getOnlyText, openLink, shortcut, showWarning, tr
 
