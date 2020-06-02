@@ -20,7 +20,7 @@ use crate::{
     i18n::{tr_args, I18n, TR},
     latex::{extract_latex, extract_latex_expanding_clozes, ExtractedLatex},
     log,
-    log::{default_logger, Logger},
+    log::default_logger,
     media::check::MediaChecker,
     media::sync::MediaSyncProgress,
     media::MediaManager,
@@ -49,7 +49,6 @@ use prost::Message;
 use serde_json::Value as JsonValue;
 use std::collections::{HashMap, HashSet};
 use std::convert::TryFrom;
-use std::path::PathBuf;
 use std::{
     result,
     sync::{Arc, Mutex},
@@ -89,7 +88,6 @@ pub struct Backend {
     i18n: I18n,
     server: bool,
     sync_abort: Option<AbortHandle>,
-    media_sync_abort: Option<AbortHandle>,
     progress_state: Arc<Mutex<ProgressState>>,
     runtime: Option<Runtime>,
     state: Arc<Mutex<BackendState>>,
@@ -100,6 +98,7 @@ pub struct Backend {
 #[derive(Default)]
 struct BackendState {
     remote_sync_status: RemoteSyncStatus,
+    media_sync_abort: Option<AbortHandle>,
 }
 
 #[derive(Default, Debug)]
@@ -965,13 +964,11 @@ impl BackendService for Backend {
     }
 
     fn close_collection(&mut self, input: pb::CloseCollectionIn) -> BackendResult<Empty> {
+        self.abort_media_sync_and_wait();
+
         let mut col = self.col.lock().unwrap();
         if col.is_none() {
             return Err(AnkiError::CollectionNotOpen);
-        }
-
-        if !col.as_ref().unwrap().can_close() {
-            return Err(AnkiError::invalid_input("can't close yet"));
         }
 
         let col_inner = col.take().unwrap();
@@ -1011,22 +1008,7 @@ impl BackendService for Backend {
     }
 
     fn sync_media(&mut self, input: pb::SyncAuth) -> BackendResult<Empty> {
-        let mut guard = self.col.lock().unwrap();
-
-        let col = guard.as_mut().unwrap();
-        col.set_media_sync_running()?;
-
-        let folder = col.media_folder.clone();
-        let db = col.media_db.clone();
-        let log = col.log.clone();
-
-        drop(guard);
-
-        let res = self.sync_media_inner(input, folder, db, log);
-
-        self.with_col(|col| col.set_media_sync_finished())?;
-
-        res.map(Into::into)
+        self.sync_media_inner(input).map(Into::into)
     }
 
     fn abort_sync(&mut self, _input: Empty) -> BackendResult<Empty> {
@@ -1036,8 +1018,10 @@ impl BackendService for Backend {
         Ok(().into())
     }
 
+    /// Abort the media sync. Does not wait for completion.
     fn abort_media_sync(&mut self, _input: Empty) -> BackendResult<Empty> {
-        if let Some(handle) = self.media_sync_abort.take() {
+        let guard = self.state.lock().unwrap();
+        if let Some(handle) = &guard.media_sync_abort {
             handle.abort();
         }
         Ok(().into())
@@ -1172,7 +1156,6 @@ impl Backend {
             i18n,
             server,
             sync_abort: None,
-            media_sync_abort: None,
             progress_state: Arc::new(Mutex::new(ProgressState {
                 want_abort: false,
                 last_progress: None,
@@ -1241,16 +1224,28 @@ impl Backend {
         self.runtime.as_ref().unwrap().handle().clone()
     }
 
-    fn sync_media_inner(
-        &mut self,
-        input: pb::SyncAuth,
-        folder: PathBuf,
-        db: PathBuf,
-        log: Logger,
-    ) -> Result<()> {
+    fn sync_media_inner(&mut self, input: pb::SyncAuth) -> Result<()> {
+        // mark media sync as active
         let (abort_handle, abort_reg) = AbortHandle::new_pair();
-        self.media_sync_abort = Some(abort_handle);
+        {
+            let mut guard = self.state.lock().unwrap();
+            if guard.media_sync_abort.is_some() {
+                // media sync is already active
+                return Ok(());
+            } else {
+                guard.media_sync_abort = Some(abort_handle);
+            }
+        }
 
+        // get required info from collection
+        let mut guard = self.col.lock().unwrap();
+        let col = guard.as_mut().unwrap();
+        let folder = col.media_folder.clone();
+        let db = col.media_db.clone();
+        let log = col.log.clone();
+        drop(guard);
+
+        // start the sync
         let mut handler = self.new_progress_handler();
         let progress_fn = move |progress| handler.update(progress, true);
 
@@ -1258,15 +1253,35 @@ impl Backend {
         let rt = self.runtime_handle();
         let sync_fut = mgr.sync_media(progress_fn, input.host_number, &input.hkey, log);
         let abortable_sync = Abortable::new(sync_fut, abort_reg);
-        let ret = match rt.block_on(abortable_sync) {
+        let result = rt.block_on(abortable_sync);
+
+        // mark inactive
+        self.state.lock().unwrap().media_sync_abort.take();
+
+        // return result
+        match result {
             Ok(sync_result) => sync_result,
             Err(_) => {
                 // aborted sync
                 Err(AnkiError::Interrupted)
             }
-        };
-        self.media_sync_abort = None;
-        ret
+        }
+    }
+
+    /// Abort the media sync. Won't return until aborted.
+    fn abort_media_sync_and_wait(&mut self) {
+        let guard = self.state.lock().unwrap();
+        if let Some(handle) = &guard.media_sync_abort {
+            handle.abort();
+            self.progress_state.lock().unwrap().want_abort = true;
+        }
+        drop(guard);
+
+        // block until it aborts
+        while self.state.lock().unwrap().media_sync_abort.is_some() {
+            std::thread::sleep(std::time::Duration::from_millis(100));
+            self.progress_state.lock().unwrap().want_abort = true;
+        }
     }
 
     fn sync_login_inner(&mut self, input: pb::SyncLoginIn) -> BackendResult<pb::SyncAuth> {
@@ -1361,14 +1376,13 @@ impl Backend {
     }
 
     fn full_sync_inner(&mut self, input: pb::SyncAuth, upload: bool) -> Result<()> {
+        self.abort_media_sync_and_wait();
+
         let rt = self.runtime_handle();
 
         let mut col = self.col.lock().unwrap();
         if col.is_none() {
             return Err(AnkiError::CollectionNotOpen);
-        }
-        if !col.as_ref().unwrap().can_close() {
-            return Err(AnkiError::invalid_input("can't close yet"));
         }
 
         let col_inner = col.take().unwrap();

@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::err::{AnkiError, Result};
+use crate::err::Result;
 use crate::i18n::I18n;
 use crate::log::Logger;
 use crate::types::Usn;
@@ -47,23 +47,9 @@ pub fn open_test_collection() -> Collection {
 
 #[derive(Debug, Default)]
 pub struct CollectionState {
-    task_state: CollectionTaskState,
     pub(crate) undo: UndoManager,
     pub(crate) notetype_cache: HashMap<NoteTypeID, Arc<NoteType>>,
     pub(crate) deck_cache: HashMap<DeckID, Arc<Deck>>,
-}
-
-#[derive(Debug, PartialEq)]
-pub enum CollectionTaskState {
-    Normal,
-    // in this state, the DB must not be closed
-    MediaSyncRunning,
-}
-
-impl Default for CollectionTaskState {
-    fn default() -> Self {
-        Self::Normal
-    }
 }
 
 pub struct Collection {
@@ -111,28 +97,6 @@ impl Collection {
         }
 
         res
-    }
-
-    pub(crate) fn set_media_sync_running(&mut self) -> Result<()> {
-        if self.state.task_state == CollectionTaskState::Normal {
-            self.state.task_state = CollectionTaskState::MediaSyncRunning;
-            Ok(())
-        } else {
-            Err(AnkiError::invalid_input("media sync already running"))
-        }
-    }
-
-    pub(crate) fn set_media_sync_finished(&mut self) -> Result<()> {
-        if self.state.task_state == CollectionTaskState::MediaSyncRunning {
-            self.state.task_state = CollectionTaskState::Normal;
-            Ok(())
-        } else {
-            Err(AnkiError::invalid_input("media sync not running"))
-        }
-    }
-
-    pub(crate) fn can_close(&self) -> bool {
-        self.state.task_state == CollectionTaskState::Normal
     }
 
     pub(crate) fn close(self, downgrade: bool) -> Result<()> {
