@@ -4,6 +4,7 @@
 mod http_client;
 
 use crate::{
+    backend_proto::{sync_status_out, SyncStatusOut},
     card::{Card, CardQueue, CardType},
     deckconf::DeckConfSchema11,
     decks::DeckSchema11,
@@ -211,7 +212,7 @@ pub struct FullSyncProgress {
     pub total_bytes: usize,
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone, Copy)]
 pub enum SyncActionRequired {
     NoChanges,
     FullSyncRequired { upload_ok: bool, download_ok: bool },
@@ -258,6 +259,35 @@ impl Usn {
             "usn = ?"
         } else {
             "usn >= ?"
+        }
+    }
+}
+
+impl SyncMeta {
+    fn compared_to_remote(&self, remote: SyncMeta) -> SyncState {
+        let local = self;
+        let required = if remote.modified == local.modified {
+            SyncActionRequired::NoChanges
+        } else if remote.schema != local.schema {
+            let upload_ok = !local.empty || remote.empty;
+            let download_ok = !remote.empty || local.empty;
+            SyncActionRequired::FullSyncRequired {
+                upload_ok,
+                download_ok,
+            }
+        } else {
+            SyncActionRequired::NormalSyncRequired
+        };
+
+        SyncState {
+            required,
+            local_is_newer: local.modified > remote.modified,
+            usn_at_last_sync: local.usn,
+            latest_usn: remote.usn,
+            pending_usn: Usn(-1),
+            new_usn: Some(remote.usn),
+            server_message: remote.server_message,
+            host_number: remote.host_number,
         }
     }
 }
@@ -338,29 +368,7 @@ where
             });
         }
 
-        let required = if remote.modified == local.modified {
-            SyncActionRequired::NoChanges
-        } else if remote.schema != local.schema {
-            let upload_ok = !local.empty || remote.empty;
-            let download_ok = !remote.empty || local.empty;
-            SyncActionRequired::FullSyncRequired {
-                upload_ok,
-                download_ok,
-            }
-        } else {
-            SyncActionRequired::NormalSyncRequired
-        };
-
-        Ok(SyncState {
-            required,
-            local_is_newer: local.modified > remote.modified,
-            usn_at_last_sync: local.usn,
-            latest_usn: remote.usn,
-            pending_usn: Usn(-1),
-            new_usn: Some(remote.usn),
-            server_message: remote.server_message,
-            host_number: remote.host_number,
-        })
+        Ok(local.compared_to_remote(remote))
     }
 
     /// Sync. Caller must have created a transaction, and should call
@@ -593,12 +601,29 @@ pub async fn sync_abort(hkey: String, host_number: u32) -> Result<()> {
     remote.abort().await
 }
 
+pub(crate) async fn get_remote_sync_meta(auth: SyncAuth) -> Result<SyncMeta> {
+    let remote = HTTPSyncClient::new(Some(auth.hkey), auth.host_number);
+    remote.meta().await
+}
+
 impl Collection {
-    pub async fn get_sync_status(&mut self, auth: SyncAuth) -> Result<SyncOutput> {
-        NormalSyncer::new(self, auth, |_p, _t| ())
-            .get_sync_state()
-            .await
-            .map(Into::into)
+    pub fn get_local_sync_status(&mut self) -> Result<sync_status_out::Required> {
+        let last_sync = self.storage.get_last_sync()?;
+        let schema_mod = self.storage.get_schema_mtime()?;
+        let normal_mod = self.storage.get_modified_time()?;
+        let required = if schema_mod > last_sync {
+            sync_status_out::Required::FullSync
+        } else if normal_mod > last_sync {
+            sync_status_out::Required::NormalSync
+        } else {
+            sync_status_out::Required::NoChanges
+        };
+
+        Ok(required)
+    }
+
+    pub fn get_sync_status(&self, remote: SyncMeta) -> Result<sync_status_out::Required> {
+        Ok(self.sync_meta()?.compared_to_remote(remote).required.into())
     }
 
     pub async fn normal_sync<F>(&mut self, auth: SyncAuth, progress_fn: F) -> Result<SyncOutput>
@@ -1130,6 +1155,22 @@ impl From<SyncState> for SyncOutput {
     }
 }
 
+impl From<sync_status_out::Required> for SyncStatusOut {
+    fn from(r: sync_status_out::Required) -> Self {
+        SyncStatusOut { required: r.into() }
+    }
+}
+
+impl From<SyncActionRequired> for sync_status_out::Required {
+    fn from(r: SyncActionRequired) -> Self {
+        match r {
+            SyncActionRequired::NoChanges => sync_status_out::Required::NoChanges,
+            SyncActionRequired::FullSyncRequired { .. } => sync_status_out::Required::FullSync,
+            SyncActionRequired::NormalSyncRequired => sync_status_out::Required::NormalSync,
+        }
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -1246,8 +1287,9 @@ mod test {
         // col1.storage.set_creation_stamp(TimestampSecs(12345))?;
 
         // and sync our changes
-        let out: SyncOutput = col1.get_sync_status(ctx.auth.clone()).await?;
-        assert_eq!(out.required, SyncActionRequired::NormalSyncRequired);
+        let remote = get_remote_sync_meta(ctx.auth.clone()).await?;
+        let out = col1.get_sync_status(remote)?;
+        assert_eq!(out, sync_status_out::Required::NormalSync);
 
         let out: SyncOutput = col1.normal_sync(ctx.auth.clone(), norm_progress).await?;
         assert_eq!(out.required, SyncActionRequired::NoChanges);

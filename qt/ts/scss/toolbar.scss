@@ -45,6 +45,14 @@ body {
     #header {
         border-bottom-color: vars.$night-faint-border;
     }
+
+    .normal-sync {
+        color: vars.$night-new-count;
+    }
+
+    .full-sync {
+        color: vars.$night-learn-count;
+    }
 }
 
 .isMac.nightMode #header {
@@ -71,3 +79,13 @@ body {
     margin-bottom: -3px;
     visibility: hidden;
 }
+
+.normal-sync {
+    color: vars.$day-new-count;
+}
+
+.full-sync {
+    color: vars.$day-learn-count;
+}
+
+

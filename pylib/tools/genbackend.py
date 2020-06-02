@@ -107,7 +107,10 @@ def render_method(method, idx):
         input_args = f"self, input: {fullname(method.input_type.full_name)}"
         input_assign_outer = ""
     name = fix_snakecase(stringcase.snakecase(method.name))
-    if len(method.output_type.fields) == 1:
+    if (
+        len(method.output_type.fields) == 1
+        and method.output_type.fields[0].type != TYPE_ENUM
+    ):
         # unwrap single return arg
         f = method.output_type.fields[0]
         single_field = f".{f.name}"

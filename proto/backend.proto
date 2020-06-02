@@ -164,7 +164,7 @@ service BackendService {
     rpc AbortMediaSync (Empty) returns (Empty);
     rpc BeforeUpload (Empty) returns (Empty);
     rpc SyncLogin (SyncLoginIn) returns (SyncAuth);
-    rpc SyncStatus (SyncAuth) returns (SyncCollectionOut);
+    rpc SyncStatus (SyncAuth) returns (SyncStatusOut);
     rpc SyncCollection (SyncAuth) returns (SyncCollectionOut);
     rpc FullUpload (SyncAuth) returns (Empty);
     rpc FullDownload (SyncAuth) returns (Empty);
@@ -902,6 +902,15 @@ message NoteIsDuplicateOrEmptyOut {
 message SyncLoginIn {
     string username = 1;
     string password = 2;
+}
+
+message SyncStatusOut {
+    enum Required {
+        NO_CHANGES = 0;
+        NORMAL_SYNC = 1;
+        FULL_SYNC = 2;
+    }
+    Required required = 1;
 }
 
 message SyncCollectionOut {
