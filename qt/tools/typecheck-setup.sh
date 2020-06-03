@@ -14,7 +14,7 @@ if [[ -z "${OS+x}" ]]; then
 fi
 
 TOOLS="$(cd "`dirname "$0"`"; pwd)"
-modDir=$(python -c 'import PyQt5, sys, os; sys.stdout.write(os.path.dirname(sys.modules["PyQt5"].__file__))')
+modDir="$(python -c 'import PyQt5, sys, os; sys.stdout.write(os.path.dirname(sys.modules["PyQt5"].__file__))')"
 
 # fix broken stubs in pyqt5.15.0 release
-(cd $modDir && perl -i'' -pe 's/(\s*None) =/$1_ =/' *.pyi && touch py.typed)
+(cd "$modDir" && perl -i'' -pe 's/(\s*None) =/$1_ =/' *.pyi && touch py.typed)
