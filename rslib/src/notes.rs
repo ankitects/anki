@@ -261,6 +261,13 @@ impl Collection {
     }
 
     pub fn update_note(&mut self, note: &mut Note) -> Result<()> {
+        if let Some(existing_note) = self.storage.get_note(note.id)? {
+            if &existing_note == note {
+                // nothing to do
+                return Ok(());
+            }
+        }
+
         self.transact(None, |col| {
             let nt = col
                 .get_notetype(note.ntid)?

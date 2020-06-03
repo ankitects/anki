@@ -16,6 +16,7 @@ from anki.rsbackend import (
     SyncError,
     SyncErrorKind,
     SyncOutput,
+    SyncStatus,
 )
 from aqt.qt import (
     QDialog,
@@ -37,13 +38,19 @@ class FullSyncChoice(enum.Enum):
     DOWNLOAD = 2
 
 
-def get_sync_status(mw: aqt.main.AnkiQt, callback: Callable[[SyncOutput], None]):
+def get_sync_status(mw: aqt.main.AnkiQt, callback: Callable[[SyncStatus], None]):
     auth = mw.pm.sync_auth()
     if not auth:
-        return
+        return SyncStatus(required=SyncStatus.NO_CHANGES)  # pylint:disable=no-member
 
     def on_future_done(fut):
-        callback(fut.result())
+        try:
+            out = fut.result()
+        except Exception as e:
+            # swallow errors
+            print("sync status check failed:", str(e))
+            return
+        callback(out)
 
     mw.taskman.run_in_background(
         lambda: mw.col.backend.sync_status(auth), on_future_done

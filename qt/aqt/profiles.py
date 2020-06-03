@@ -79,6 +79,7 @@ class ProfileManager:
     def __init__(self, base=None):
         self.name = None
         self.db = None
+        self.profile: Optional[Dict] = None
         # instantiate base folder
         self._setBaseFolder(base)
 

@@ -57,7 +57,7 @@ class DeckBrowser:
         self.web.set_bridge_command(self._linkHandler, self)
         self._renderPage()
         # redraw top bar for theme change
-        self.mw.toolbar.draw()
+        self.mw.toolbar.redraw()
 
     def refresh(self):
         self._renderPage()

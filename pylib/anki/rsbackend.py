@@ -54,6 +54,7 @@ DeckTreeNode = pb.DeckTreeNode
 StockNoteType = pb.StockNoteType
 SyncAuth = pb.SyncAuth
 SyncOutput = pb.SyncCollectionOut
+SyncStatus = pb.SyncStatusOut
 
 try:
     import orjson

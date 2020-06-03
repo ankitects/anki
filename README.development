@@ -33,7 +33,8 @@ need to use WSL or Cygwin to use them.
 
 Once you've installed the above components, execute ./run in this repo,
 which will build the subcomponents, and start Anki. Any arguments included
-on the command line will be passed on to Anki.
+on the command line will be passed on to Anki. The first run will take
+quite a while to download and build everything - please be patient.
 
 Before contributing code, please read README.contributing.
 

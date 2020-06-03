@@ -20,7 +20,7 @@ use crate::{
     i18n::{tr_args, I18n, TR},
     latex::{extract_latex, extract_latex_expanding_clozes, ExtractedLatex},
     log,
-    log::{default_logger, Logger},
+    log::default_logger,
     media::check::MediaChecker,
     media::sync::MediaSyncProgress,
     media::MediaManager,
@@ -33,8 +33,8 @@ use crate::{
     sched::timespan::{answer_button_time, learning_congrats, studied_today, time_span},
     search::SortMode,
     sync::{
-        sync_abort, sync_login, FullSyncProgress, NormalSyncProgress, SyncActionRequired, SyncAuth,
-        SyncOutput, SyncStage,
+        get_remote_sync_meta, sync_abort, sync_login, FullSyncProgress, NormalSyncProgress,
+        SyncActionRequired, SyncAuth, SyncMeta, SyncOutput, SyncStage,
     },
     template::RenderedNode,
     text::{extract_av_tags, strip_av_tags, AVTag},
@@ -44,17 +44,16 @@ use crate::{
 use fluent::FluentValue;
 use futures::future::{AbortHandle, Abortable};
 use log::error;
-use pb::BackendService;
+use pb::{sync_status_out, BackendService};
 use prost::Message;
 use serde_json::Value as JsonValue;
 use std::collections::{HashMap, HashSet};
 use std::convert::TryFrom;
-use std::path::PathBuf;
 use std::{
     result,
     sync::{Arc, Mutex},
 };
-use tokio::runtime::Runtime;
+use tokio::runtime::{self, Runtime};
 
 mod dbproxy;
 
@@ -89,8 +88,30 @@ pub struct Backend {
     i18n: I18n,
     server: bool,
     sync_abort: Option<AbortHandle>,
-    media_sync_abort: Option<AbortHandle>,
     progress_state: Arc<Mutex<ProgressState>>,
+    runtime: Option<Runtime>,
+    state: Arc<Mutex<BackendState>>,
+}
+
+// fixme: move other items like runtime into here as well
+
+#[derive(Default)]
+struct BackendState {
+    remote_sync_status: RemoteSyncStatus,
+    media_sync_abort: Option<AbortHandle>,
+}
+
+#[derive(Default, Debug)]
+pub(crate) struct RemoteSyncStatus {
+    last_check: TimestampSecs,
+    last_response: sync_status_out::Required,
+}
+
+impl RemoteSyncStatus {
+    fn update(&mut self, required: sync_status_out::Required) {
+        self.last_check = TimestampSecs::now();
+        self.last_response = required
+    }
 }
 
 #[derive(Clone, Copy)]
@@ -943,13 +964,11 @@ impl BackendService for Backend {
     }
 
     fn close_collection(&mut self, input: pb::CloseCollectionIn) -> BackendResult<Empty> {
+        self.abort_media_sync_and_wait();
+
         let mut col = self.col.lock().unwrap();
         if col.is_none() {
             return Err(AnkiError::CollectionNotOpen);
-        }
-
-        if !col.as_ref().unwrap().can_close() {
-            return Err(AnkiError::invalid_input("can't close yet"));
         }
 
         let col_inner = col.take().unwrap();
@@ -970,12 +989,12 @@ impl BackendService for Backend {
         self.sync_login_inner(input)
     }
 
-    fn sync_status(&mut self, input: pb::SyncAuth) -> BackendResult<pb::SyncCollectionOut> {
-        self.sync_collection_inner(input, true)
+    fn sync_status(&mut self, input: pb::SyncAuth) -> BackendResult<pb::SyncStatusOut> {
+        self.sync_status_inner(input)
     }
 
     fn sync_collection(&mut self, input: pb::SyncAuth) -> BackendResult<pb::SyncCollectionOut> {
-        self.sync_collection_inner(input, false)
+        self.sync_collection_inner(input)
     }
 
     fn full_upload(&mut self, input: pb::SyncAuth) -> BackendResult<Empty> {
@@ -989,22 +1008,7 @@ impl BackendService for Backend {
     }
 
     fn sync_media(&mut self, input: pb::SyncAuth) -> BackendResult<Empty> {
-        let mut guard = self.col.lock().unwrap();
-
-        let col = guard.as_mut().unwrap();
-        col.set_media_sync_running()?;
-
-        let folder = col.media_folder.clone();
-        let db = col.media_db.clone();
-        let log = col.log.clone();
-
-        drop(guard);
-
-        let res = self.sync_media_inner(input, folder, db, log);
-
-        self.with_col(|col| col.set_media_sync_finished())?;
-
-        res.map(Into::into)
+        self.sync_media_inner(input).map(Into::into)
     }
 
     fn abort_sync(&mut self, _input: Empty) -> BackendResult<Empty> {
@@ -1014,8 +1018,10 @@ impl BackendService for Backend {
         Ok(().into())
     }
 
+    /// Abort the media sync. Does not wait for completion.
     fn abort_media_sync(&mut self, _input: Empty) -> BackendResult<Empty> {
-        if let Some(handle) = self.media_sync_abort.take() {
+        let guard = self.state.lock().unwrap();
+        if let Some(handle) = &guard.media_sync_abort {
             handle.abort();
         }
         Ok(().into())
@@ -1150,11 +1156,12 @@ impl Backend {
             i18n,
             server,
             sync_abort: None,
-            media_sync_abort: None,
             progress_state: Arc::new(Mutex::new(ProgressState {
                 want_abort: false,
                 last_progress: None,
             })),
+            runtime: None,
+            state: Arc::new(Mutex::new(BackendState::default())),
         }
     }
 
@@ -1203,39 +1210,85 @@ impl Backend {
         }
     }
 
-    fn sync_media_inner(
-        &mut self,
-        input: pb::SyncAuth,
-        folder: PathBuf,
-        db: PathBuf,
-        log: Logger,
-    ) -> Result<()> {
-        let (abort_handle, abort_reg) = AbortHandle::new_pair();
-        self.media_sync_abort = Some(abort_handle);
+    fn runtime_handle(&mut self) -> runtime::Handle {
+        if self.runtime.is_none() {
+            self.runtime = Some(
+                runtime::Builder::new()
+                    .threaded_scheduler()
+                    .core_threads(1)
+                    .enable_all()
+                    .build()
+                    .unwrap(),
+            )
+        }
+        self.runtime.as_ref().unwrap().handle().clone()
+    }
 
+    fn sync_media_inner(&mut self, input: pb::SyncAuth) -> Result<()> {
+        // mark media sync as active
+        let (abort_handle, abort_reg) = AbortHandle::new_pair();
+        {
+            let mut guard = self.state.lock().unwrap();
+            if guard.media_sync_abort.is_some() {
+                // media sync is already active
+                return Ok(());
+            } else {
+                guard.media_sync_abort = Some(abort_handle);
+            }
+        }
+
+        // get required info from collection
+        let mut guard = self.col.lock().unwrap();
+        let col = guard.as_mut().unwrap();
+        let folder = col.media_folder.clone();
+        let db = col.media_db.clone();
+        let log = col.log.clone();
+        drop(guard);
+
+        // start the sync
         let mut handler = self.new_progress_handler();
         let progress_fn = move |progress| handler.update(progress, true);
 
         let mgr = MediaManager::new(&folder, &db)?;
-        let mut rt = Runtime::new().unwrap();
+        let rt = self.runtime_handle();
         let sync_fut = mgr.sync_media(progress_fn, input.host_number, &input.hkey, log);
         let abortable_sync = Abortable::new(sync_fut, abort_reg);
-        let ret = match rt.block_on(abortable_sync) {
+        let result = rt.block_on(abortable_sync);
+
+        // mark inactive
+        self.state.lock().unwrap().media_sync_abort.take();
+
+        // return result
+        match result {
             Ok(sync_result) => sync_result,
             Err(_) => {
                 // aborted sync
                 Err(AnkiError::Interrupted)
             }
-        };
-        self.media_sync_abort = None;
-        ret
+        }
+    }
+
+    /// Abort the media sync. Won't return until aborted.
+    fn abort_media_sync_and_wait(&mut self) {
+        let guard = self.state.lock().unwrap();
+        if let Some(handle) = &guard.media_sync_abort {
+            handle.abort();
+            self.progress_state.lock().unwrap().want_abort = true;
+        }
+        drop(guard);
+
+        // block until it aborts
+        while self.state.lock().unwrap().media_sync_abort.is_some() {
+            std::thread::sleep(std::time::Duration::from_millis(100));
+            self.progress_state.lock().unwrap().want_abort = true;
+        }
     }
 
     fn sync_login_inner(&mut self, input: pb::SyncLoginIn) -> BackendResult<pb::SyncAuth> {
         let (abort_handle, abort_reg) = AbortHandle::new_pair();
         self.sync_abort = Some(abort_handle);
 
-        let mut rt = Runtime::new().unwrap();
+        let rt = self.runtime_handle();
         let sync_fut = sync_login(&input.username, &input.password);
         let abortable_sync = Abortable::new(sync_fut, abort_reg);
         let ret = match rt.block_on(abortable_sync) {
@@ -1249,61 +1302,87 @@ impl Backend {
         })
     }
 
+    fn sync_status_inner(&mut self, input: pb::SyncAuth) -> BackendResult<pb::SyncStatusOut> {
+        // any local changes mean we can skip the network round-trip
+        let req = self.with_col(|col| col.get_local_sync_status())?;
+        if req != pb::sync_status_out::Required::NoChanges {
+            return Ok(req.into());
+        }
+
+        // return cached server response if only a short time has elapsed
+        {
+            let guard = self.state.lock().unwrap();
+            if guard.remote_sync_status.last_check.elapsed_secs() < 300 {
+                return Ok(guard.remote_sync_status.last_response.into());
+            }
+        }
+
+        // fetch and cache result
+        let rt = self.runtime_handle();
+        let remote: SyncMeta = rt.block_on(get_remote_sync_meta(input.into()))?;
+        let response = self.with_col(|col| col.get_sync_status(remote).map(Into::into))?;
+
+        {
+            let mut guard = self.state.lock().unwrap();
+            guard.remote_sync_status.last_check = TimestampSecs::now();
+            guard.remote_sync_status.last_response = response;
+        }
+
+        Ok(response.into())
+    }
+
     fn sync_collection_inner(
         &mut self,
         input: pb::SyncAuth,
-        check_only: bool,
     ) -> BackendResult<pb::SyncCollectionOut> {
         let (abort_handle, abort_reg) = AbortHandle::new_pair();
         self.sync_abort = Some(abort_handle);
 
-        let mut rt = Runtime::new().unwrap();
+        let rt = self.runtime_handle();
         let input_copy = input.clone();
 
         let ret = self.with_col(|col| {
-            let result = if check_only {
-                let sync_fut = col.get_sync_status(input.into());
-                let abortable_sync = Abortable::new(sync_fut, abort_reg);
-                rt.block_on(abortable_sync)
-            } else {
-                let mut handler = self.new_progress_handler();
-                let progress_fn = move |progress: NormalSyncProgress, throttle: bool| {
-                    handler.update(progress, throttle);
-                };
-
-                let sync_fut = col.normal_sync(input.into(), progress_fn);
-                let abortable_sync = Abortable::new(sync_fut, abort_reg);
-                rt.block_on(abortable_sync)
+            let mut handler = self.new_progress_handler();
+            let progress_fn = move |progress: NormalSyncProgress, throttle: bool| {
+                handler.update(progress, throttle);
             };
-            match result {
+
+            let sync_fut = col.normal_sync(input.into(), progress_fn);
+            let abortable_sync = Abortable::new(sync_fut, abort_reg);
+
+            match rt.block_on(abortable_sync) {
                 Ok(sync_result) => sync_result,
                 Err(_) => {
                     // if the user aborted, we'll need to clean up the transaction
-                    if !check_only {
-                        col.storage.rollback_trx()?;
-                        // and tell AnkiWeb to clean up
-                        let _handle = std::thread::spawn(move || {
-                            let _ =
-                                rt.block_on(sync_abort(input_copy.hkey, input_copy.host_number));
-                        });
-                    }
+                    col.storage.rollback_trx()?;
+                    // and tell AnkiWeb to clean up
+                    let _handle = std::thread::spawn(move || {
+                        let _ = rt.block_on(sync_abort(input_copy.hkey, input_copy.host_number));
+                    });
 
                     Err(AnkiError::Interrupted)
                 }
             }
         });
         self.sync_abort = None;
+
         let output: SyncOutput = ret?;
+        self.state
+            .lock()
+            .unwrap()
+            .remote_sync_status
+            .update(output.required.into());
         Ok(output.into())
     }
 
     fn full_sync_inner(&mut self, input: pb::SyncAuth, upload: bool) -> Result<()> {
+        self.abort_media_sync_and_wait();
+
+        let rt = self.runtime_handle();
+
         let mut col = self.col.lock().unwrap();
         if col.is_none() {
             return Err(AnkiError::CollectionNotOpen);
-        }
-        if !col.as_ref().unwrap().can_close() {
-            return Err(AnkiError::invalid_input("can't close yet"));
         }
 
         let col_inner = col.take().unwrap();
@@ -1320,8 +1399,6 @@ impl Backend {
         let progress_fn = move |progress: FullSyncProgress, throttle: bool| {
             handler.update(progress, throttle);
         };
-
-        let mut rt = Runtime::new().unwrap();
 
         let result = if upload {
             let sync_fut = col_inner.full_upload(input.into(), progress_fn);
@@ -1345,7 +1422,16 @@ impl Backend {
         )?);
 
         match result {
-            Ok(sync_result) => sync_result,
+            Ok(sync_result) => {
+                if sync_result.is_ok() {
+                    self.state
+                        .lock()
+                        .unwrap()
+                        .remote_sync_status
+                        .update(sync_status_out::Required::NoChanges);
+                }
+                sync_result
+            }
             Err(_) => Err(AnkiError::Interrupted),
         }
     }

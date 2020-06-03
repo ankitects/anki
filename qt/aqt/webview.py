@@ -21,7 +21,7 @@ serverbaseurl = re.compile(r"^.+:\/\/[^\/]+")
 ##########################################################################
 
 
-class AnkiWebPage(QWebEnginePage):  # type: ignore
+class AnkiWebPage(QWebEnginePage):
     def __init__(self, onBridgeCmd):
         QWebEnginePage.__init__(self)
         self._onBridgeCmd = onBridgeCmd
@@ -183,12 +183,12 @@ class WebContent:
 ##########################################################################
 
 
-class AnkiWebView(QWebEngineView):  # type: ignore
+class AnkiWebView(QWebEngineView):
     def __init__(
         self, parent: Optional[QWidget] = None, title: str = "default"
     ) -> None:
-        QWebEngineView.__init__(self, parent=parent)  # type: ignore
-        self.title = title
+        QWebEngineView.__init__(self, parent=parent)
+        self.title = title  # type: ignore
         self._page = AnkiWebPage(self._onBridgeCmd)
         self._page.setBackgroundColor(self._getWindowColor())  # reduce flicker
 
@@ -200,7 +200,7 @@ class AnkiWebView(QWebEngineView):  # type: ignore
         self.requiresCol = True
         self.setPage(self._page)
 
-        self._page.profile().setHttpCacheType(QWebEngineProfile.NoCache)  # type: ignore
+        self._page.profile().setHttpCacheType(QWebEngineProfile.NoCache)
         self.resetHandlers()
         self.allowDrops = False
         self._filterSet = False
@@ -278,7 +278,7 @@ class AnkiWebView(QWebEngineView):  # type: ignore
     def dropEvent(self, evt):
         pass
 
-    def setHtml(self, html: str) -> None:
+    def setHtml(self, html: str) -> None:  #  type: ignore
         # discard any previous pending actions
         self._pendingActions = []
         self._domDone = True

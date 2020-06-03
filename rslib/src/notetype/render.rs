@@ -137,7 +137,7 @@ impl Collection {
             .or_insert_with(|| deck_name.to_string().into());
         map.entry("CardFlag")
             .or_insert_with(|| flag_name(card.flags).into());
-        map.entry("Template")
+        map.entry("Card")
             .or_insert_with(|| template.name.clone().into());
 
         Ok(())
