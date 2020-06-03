@@ -75,9 +75,7 @@ pyenv:
 	python --version; \
 	python -m pip install --upgrade pip setuptools; \
 	${ANKI_EXTRA_PIP}; \
-	if ! python -c 'import PyQt5' 2>/dev/null; then \
-		python -m pip install -r qt/requirements.qt; \
-	fi;
+	python -m pip install -r qt/requirements.qt;
 
 # update build hash
 .PHONY: buildhash
