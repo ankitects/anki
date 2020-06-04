@@ -12,7 +12,7 @@ modifying it.
 
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, List, Tuple
+from typing import Any, Callable, Dict, List, Sequence, Tuple
 
 import decorator
 
@@ -38,6 +38,9 @@ class _CardDidLeechHook:
     def remove(self, cb: Callable[[Card], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
 
     def __call__(self, card: Card) -> None:
         for hook in self._hooks:
@@ -93,6 +96,9 @@ class _CardDidRenderHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(
         self,
         output: anki.template.TemplateRenderOutput,
@@ -121,6 +127,9 @@ class _CardOdueWasInvalidHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self) -> None:
         for hook in self._hooks:
             try:
@@ -146,6 +155,9 @@ class _CardWillFlushHook:
     def remove(self, cb: Callable[[Card], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
 
     def __call__(self, card: Card) -> None:
         for hook in self._hooks:
@@ -173,6 +185,9 @@ class _DeckAddedHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self, deck: Dict[str, Any]) -> None:
         for hook in self._hooks:
             try:
@@ -196,6 +211,9 @@ class _ExportersListCreatedHook:
     def remove(self, cb: Callable[[List[Tuple[str, Any]]], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
 
     def __call__(self, exporters: List[Tuple[str, Any]]) -> None:
         for hook in self._hooks:
@@ -234,6 +252,9 @@ class _FieldFilterFilter:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(
         self,
         field_text: str,
@@ -265,6 +286,9 @@ class _MediaFilesDidExportHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self, count: int) -> None:
         for hook in self._hooks:
             try:
@@ -290,6 +314,9 @@ class _NoteTypeAddedHook:
     def remove(self, cb: Callable[[Dict[str, Any]], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
 
     def __call__(self, notetype: Dict[str, Any]) -> None:
         for hook in self._hooks:
@@ -317,6 +344,9 @@ class _NoteWillFlushHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self, note: Note) -> None:
         for hook in self._hooks:
             try:
@@ -331,21 +361,24 @@ note_will_flush = _NoteWillFlushHook()
 
 
 class _NotesWillBeDeletedHook:
-    _hooks: List[Callable[["anki.collection.Collection", List[int]], None]] = []
+    _hooks: List[Callable[["anki.collection.Collection", Sequence[int]], None]] = []
 
     def append(
-        self, cb: Callable[["anki.collection.Collection", List[int]], None]
+        self, cb: Callable[["anki.collection.Collection", Sequence[int]], None]
     ) -> None:
-        """(col: anki.collection.Collection, ids: List[int])"""
+        """(col: anki.collection.Collection, ids: Sequence[int])"""
         self._hooks.append(cb)
 
     def remove(
-        self, cb: Callable[["anki.collection.Collection", List[int]], None]
+        self, cb: Callable[["anki.collection.Collection", Sequence[int]], None]
     ) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
-    def __call__(self, col: anki.collection.Collection, ids: List[int]) -> None:
+    def count(self) -> int:
+        return len(self._hooks)
+
+    def __call__(self, col: anki.collection.Collection, ids: Sequence[int]) -> None:
         for hook in self._hooks:
             try:
                 hook(col, ids)
@@ -373,6 +406,9 @@ class _SchedulerNewLimitForSingleDeckFilter:
     def remove(self, cb: Callable[[int, Dict[str, Any]], int]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
 
     def __call__(self, count: int, deck: Dict[str, Any]) -> int:
         for filter in self._hooks:
@@ -402,6 +438,9 @@ class _SchedulerReviewLimitForSingleDeckFilter:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self, count: int, deck: Dict[str, Any]) -> int:
         for filter in self._hooks:
             try:
@@ -427,6 +466,9 @@ class _Schedv2DidAnswerReviewCardHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self, card: anki.cards.Card, ease: int, early: bool) -> None:
         for hook in self._hooks:
             try:
@@ -450,6 +492,9 @@ class _SchemaWillChangeFilter:
     def remove(self, cb: Callable[[bool], bool]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
 
     def __call__(self, proceed: bool) -> bool:
         for filter in self._hooks:
@@ -478,6 +523,9 @@ class _SyncProgressDidChangeHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self, msg: str) -> None:
         for hook in self._hooks:
             try:
@@ -503,6 +551,9 @@ class _SyncStageDidChangeHook:
     def remove(self, cb: Callable[[str], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
 
     def __call__(self, stage: str) -> None:
         for hook in self._hooks:
