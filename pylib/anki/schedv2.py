@@ -224,7 +224,9 @@ order by due"""
     def deck_due_tree(self, top_deck_id: int = 0) -> DeckTreeNode:
         """Returns a tree of decks with counts.
         If top_deck_id provided, counts are limited to that node."""
-        return self.col.backend.deck_tree(include_counts=True, top_deck_id=top_deck_id)
+        return self.col.backend.deck_tree(
+            include_counts=True, top_deck_id=top_deck_id, today_delta=0
+        )
 
     # Getting the next card
     ##########################################################################

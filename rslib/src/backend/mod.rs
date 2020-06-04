@@ -476,7 +476,14 @@ impl BackendService for Backend {
         } else {
             None
         };
-        self.with_col(|col| col.deck_tree(input.include_counts, lim))
+        self.with_col(|col| {
+            let today = if input.include_counts {
+                Some(col.current_due_day(input.today_delta)?)
+            } else {
+                None
+            };
+            col.deck_tree(today, lim)
+        })
     }
 
     fn deck_tree_legacy(&mut self, _input: pb::Empty) -> BackendResult<pb::Json> {
