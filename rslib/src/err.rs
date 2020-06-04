@@ -107,6 +107,7 @@ impl AnkiError {
             }
             AnkiError::DBError { info, kind } => match kind {
                 DBErrorKind::Corrupt => info.clone(),
+                DBErrorKind::ParsingError => info.clone(),
                 _ => format!("{:?}", self),
             },
             _ => format!("{:?}", self),
@@ -138,9 +139,15 @@ impl From<io::Error> for AnkiError {
 
 impl From<rusqlite::Error> for AnkiError {
     fn from(err: rusqlite::Error) -> Self {
-        AnkiError::DBError {
-            info: format!("{:?}", err),
-            kind: DBErrorKind::Other,
+        match err {
+            rusqlite::Error::SqliteFailure(_error, _reason) => AnkiError::DBError {
+                info: _reason.unwrap(),
+                kind: DBErrorKind::ParsingError,
+            },
+            _ => AnkiError::DBError {
+                info: format!("{:?}", err),
+                kind: DBErrorKind::Other,
+            },
         }
     }
 }
@@ -273,4 +280,5 @@ pub enum DBErrorKind {
     MissingEntity,
     Corrupt,
     Other,
+    ParsingError,
 }

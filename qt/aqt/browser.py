@@ -180,12 +180,15 @@ class DataModel(QAbstractTableModel):
                 ctx.card_ids = self.col.find_cards(ctx.search, order=ctx.order)
             gui_hooks.browser_did_search(ctx)
             self.cards = ctx.card_ids
+        except anki.rsbackend.DBError as e:
+            error = str(e).replace("\\n", "\n")
+            invalid = f"\n\n{error}"
+            print(f"search failed: {traceback.format_exc()}")
         except Exception as e:
-            error = (
-                str(e).replace("\\\\", "\\").replace("\\n", "\n").replace('\\"', '"')
-            )
-            print(f"search failed:\n{traceback.format_exc()}{error}")
+            error = str(e).replace("\\\\", "\\")
+            error = error.replace("\\n", "\n").replace('\\"', '"')
             invalid = f"\n\n{error}\n\n{traceback.format_exc()}"
+            print(f"search failed: {traceback.format_exc()}{error}")
         finally:
             self.endReset()
 
