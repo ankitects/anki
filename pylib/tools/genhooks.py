@@ -24,7 +24,7 @@ hooks = [
     Hook(name="schema_will_change", args=["proceed: bool"], return_type="bool"),
     Hook(
         name="notes_will_be_deleted",
-        args=["col: anki.collection.Collection", "ids: List[int]"],
+        args=["col: anki.collection.Collection", "ids: Sequence[int]"],
         legacy_hook="remNotes",
     ),
     Hook(name="media_files_did_export", args=["count: int"]),

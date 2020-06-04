@@ -83,6 +83,10 @@ class {self.classname()}:
     def remove(self, cb: {self.callable()}) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
+
 {self.fire_code()}
 {self.name} = {self.classname()}()
 """
