@@ -14,7 +14,7 @@ use rusqlite::{
     types::{FromSql, FromSqlError, ValueRef},
     OptionalExtension, Row, NO_PARAMS,
 };
-use std::{convert::TryFrom, result};
+use std::{collections::HashSet, convert::TryFrom, result};
 
 impl FromSql for CardType {
     fn column_result(value: ValueRef<'_>) -> std::result::Result<Self, FromSqlError> {
@@ -226,6 +226,29 @@ impl super::SqliteStorage {
             .next()
             .map(|o| o.is_none())
             .map_err(Into::into)
+    }
+
+    pub(crate) fn all_cards_of_note(&self, nid: NoteID) -> Result<Vec<Card>> {
+        self.db
+            .prepare_cached(concat!(include_str!("get_card.sql"), " where nid = ?"))?
+            .query_and_then(&[nid], |r| row_to_card(r).map_err(Into::into))?
+            .collect()
+    }
+
+    pub(crate) fn note_ids_of_cards(&self, cids: &[CardID]) -> Result<HashSet<NoteID>> {
+        let mut stmt = self
+            .db
+            .prepare_cached("select nid from cards where id = ?")?;
+        let mut nids = HashSet::new();
+        for cid in cids {
+            if let Some(nid) = stmt
+                .query_row(&[cid], |r| r.get::<_, NoteID>(0))
+                .optional()?
+            {
+                nids.insert(nid);
+            }
+        }
+        Ok(nids)
     }
 }
 

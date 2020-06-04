@@ -46,7 +46,7 @@ def test_anki2_mediadupes():
     imp.run()
     assert os.listdir(empty.media.dir()) == ["foo.mp3"]
     # and importing again will not duplicate, as the file content matches
-    empty.remCards(empty.db.list("select id from cards"))
+    empty.remove_cards_and_orphaned_notes(empty.db.list("select id from cards"))
     imp = Anki2Importer(empty, tmp.path)
     imp.run()
     assert os.listdir(empty.media.dir()) == ["foo.mp3"]
@@ -54,7 +54,7 @@ def test_anki2_mediadupes():
     assert "foo.mp3" in n.fields[0]
     # if the local file content is different, and import should trigger a
     # rename
-    empty.remCards(empty.db.list("select id from cards"))
+    empty.remove_cards_and_orphaned_notes(empty.db.list("select id from cards"))
     with open(os.path.join(empty.media.dir(), "foo.mp3"), "w") as f:
         f.write("bar")
     imp = Anki2Importer(empty, tmp.path)
@@ -64,7 +64,7 @@ def test_anki2_mediadupes():
     assert "_" in n.fields[0]
     # if the localized media file already exists, we rewrite the note and
     # media
-    empty.remCards(empty.db.list("select id from cards"))
+    empty.remove_cards_and_orphaned_notes(empty.db.list("select id from cards"))
     with open(os.path.join(empty.media.dir(), "foo.mp3"), "w") as f:
         f.write("bar")
     imp = Anki2Importer(empty, tmp.path)
@@ -83,12 +83,12 @@ def test_apkg():
     imp.run()
     assert os.listdir(tmp.media.dir()) == ["foo.wav"]
     # importing again should be idempotent in terms of media
-    tmp.remCards(tmp.db.list("select id from cards"))
+    tmp.remove_cards_and_orphaned_notes(tmp.db.list("select id from cards"))
     imp = AnkiPackageImporter(tmp, apkg)
     imp.run()
     assert os.listdir(tmp.media.dir()) == ["foo.wav"]
     # but if the local file has different data, it will rename
-    tmp.remCards(tmp.db.list("select id from cards"))
+    tmp.remove_cards_and_orphaned_notes(tmp.db.list("select id from cards"))
     with open(os.path.join(tmp.media.dir(), "foo.wav"), "w") as f:
         f.write("xyz")
     imp = AnkiPackageImporter(tmp, apkg)

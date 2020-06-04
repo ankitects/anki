@@ -321,6 +321,25 @@ impl Collection {
         Ok(())
     }
 
+    /// Remove provided notes, and any cards that use them.
+    pub(crate) fn remove_notes(&mut self, nids: &[NoteID]) -> Result<()> {
+        let usn = self.usn()?;
+        self.transact(None, |col| {
+            for nid in nids {
+                let nid = *nid;
+                if let Some(_existing_note) = col.storage.get_note(nid)? {
+                    // fixme: undo
+                    for card in col.storage.all_cards_of_note(nid)? {
+                        col.remove_card_only(card, usn)?;
+                    }
+                    col.remove_note_only(nid, usn)?;
+                }
+            }
+
+            Ok(())
+        })
+    }
+
     /// Update cards and field cache after notes modified externally.
     /// If gencards is false, skip card generation.
     pub(crate) fn after_note_updates(
@@ -501,7 +520,7 @@ mod test {
             1
         );
         let cids = col.search_cards("", SortMode::NoOrder)?;
-        col.remove_cards_inner(&cids)?;
+        col.remove_cards_and_orphaned_notes(&cids)?;
 
         // if normalization turned off, note text is entered as-is
         let mut note = nt.new_note();

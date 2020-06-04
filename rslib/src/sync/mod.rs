@@ -1400,7 +1400,7 @@ mod test {
         }
 
         // fixme: inconsistent usn arg
-        col1.remove_cards_inner(&[cardid])?;
+        col1.remove_cards_and_orphaned_notes(&[cardid])?;
         col1.remove_note_only(noteid, col1.usn()?)?;
         col1.remove_deck_and_child_decks(deckid)?;
 

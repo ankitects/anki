@@ -653,6 +653,21 @@ impl BackendService for Backend {
         Ok(pb::CardId { cid: card.id.0 })
     }
 
+    fn remove_cards(&mut self, input: pb::RemoveCardsIn) -> BackendResult<Empty> {
+        self.with_col(|col| {
+            col.transact(None, |col| {
+                col.remove_cards_and_orphaned_notes(
+                    &input
+                        .card_ids
+                        .into_iter()
+                        .map(Into::into)
+                        .collect::<Vec<_>>(),
+                )?;
+                Ok(().into())
+            })
+        })
+    }
+
     // notes
     //-------------------------------------------------------------------
 
@@ -685,6 +700,31 @@ impl BackendService for Backend {
                 .get_note(input.into())?
                 .ok_or(AnkiError::NotFound)
                 .map(Into::into)
+        })
+    }
+
+    fn remove_notes(&mut self, input: pb::RemoveNotesIn) -> BackendResult<Empty> {
+        self.with_col(|col| {
+            if !input.note_ids.is_empty() {
+                col.remove_notes(
+                    &input
+                        .note_ids
+                        .into_iter()
+                        .map(Into::into)
+                        .collect::<Vec<_>>(),
+                )?;
+            }
+            if !input.card_ids.is_empty() {
+                let nids = col.storage.note_ids_of_cards(
+                    &input
+                        .card_ids
+                        .into_iter()
+                        .map(Into::into)
+                        .collect::<Vec<_>>(),
+                )?;
+                col.remove_notes(&nids.into_iter().collect::<Vec<_>>())?
+            }
+            Ok(().into())
         })
     }
 

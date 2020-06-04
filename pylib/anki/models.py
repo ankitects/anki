@@ -466,7 +466,7 @@ and notes.mid = ? and cards.ord = ?""",
             else:
                 deleted.append(cid)
         self.col.db.executemany("update cards set ord=?,usn=?,mod=? where id=?", d)
-        self.col.remCards(deleted)
+        self.col.remove_cards_and_orphaned_notes(deleted)
 
     # Schema hash
     ##########################################################################

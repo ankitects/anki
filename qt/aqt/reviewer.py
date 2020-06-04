@@ -791,7 +791,7 @@ time = %(time)d;
             return
         self.mw.checkpoint(_("Delete"))
         cnt = len(self.card.note().cards())
-        self.mw.col.remNotes([self.card.note().id])
+        self.mw.col.remove_notes([self.card.note().id])
         self.mw.reset()
         tooltip(
             ngettext(
