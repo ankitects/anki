@@ -127,6 +127,7 @@ service BackendService {
     rpc GetCard (CardID) returns (Card);
     rpc UpdateCard (Card) returns (Empty);
     rpc AddCard (Card) returns (CardID);
+    rpc RemoveCards (RemoveCardsIn) returns (Empty);
 
     // notes
 
@@ -134,6 +135,7 @@ service BackendService {
     rpc AddNote (AddNoteIn) returns (NoteID);
     rpc UpdateNote (Note) returns (Empty);
     rpc GetNote (NoteID) returns (Note);
+    rpc RemoveNotes (RemoveNotesIn) returns (Empty);
     rpc AddNoteTags (AddNoteTagsIn) returns (UInt32);
     rpc UpdateNoteTags (UpdateNoteTagsIn) returns (UInt32);
     rpc ClozeNumbersInNote (Note) returns (ClozeNumbersInNoteOut);
@@ -932,4 +934,13 @@ message SyncCollectionOut {
 message SyncAuth {
     string hkey = 1;
     uint32 host_number = 2;
+}
+
+message RemoveNotesIn {
+    repeated int64 note_ids = 1;
+    repeated int64 card_ids = 2;
+}
+
+message RemoveCardsIn {
+    repeated int64 card_ids = 1;
 }

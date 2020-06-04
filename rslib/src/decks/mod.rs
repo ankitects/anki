@@ -420,7 +420,7 @@ impl Collection {
 
     fn delete_all_cards_in_normal_deck(&mut self, did: DeckID) -> Result<()> {
         let cids = self.storage.all_cards_in_single_deck(did)?;
-        self.remove_cards_inner(&cids)
+        self.remove_cards_and_orphaned_notes(&cids)
     }
 
     fn return_all_cards_in_filtered_deck(&mut self, did: DeckID) -> Result<()> {

@@ -1279,7 +1279,7 @@ and if the problem comes up again, please ask on the support site."""
     # Log note deletion
     ##########################################################################
 
-    def onRemNotes(self, col: Collection, nids: List[int]) -> None:
+    def onRemNotes(self, col: Collection, nids: Sequence[int]) -> None:
         path = os.path.join(self.pm.profileFolder(), "deleted.txt")
         existed = os.path.exists(path)
         with open(path, "ab") as f:

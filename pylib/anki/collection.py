@@ -10,7 +10,7 @@ import re
 import time
 import traceback
 import weakref
-from typing import TYPE_CHECKING, Any, Iterable, List, Optional, Sequence, Tuple, Union
+from typing import TYPE_CHECKING, Any, List, Optional, Sequence, Tuple, Union
 
 import anki.find
 import anki.latex  # sets up hook
@@ -343,24 +343,29 @@ class Collection:
     def add_note(self, note: Note, deck_id: int) -> None:
         note.id = self.backend.add_note(note=note.to_backend_note(), deck_id=deck_id)
 
+    def remove_notes(self, note_ids: Sequence[int]) -> None:
+        hooks.notes_will_be_deleted(self, note_ids)
+        self.backend.remove_notes(note_ids=note_ids, card_ids=[])
+
+    def remove_notes_by_card(self, card_ids: List[int]) -> None:
+        if hooks.notes_will_be_deleted.count():
+            nids = self.db.list(
+                "select nid from cards where id in " + ids2str(card_ids)
+            )
+            hooks.notes_will_be_deleted(self, nids)
+        self.backend.remove_notes(note_ids=[], card_ids=card_ids)
+
+    # legacy
+
     def addNote(self, note: Note) -> int:
         self.add_note(note, note.model()["did"])
         return len(note.cards())
 
-    def remNotes(self, ids: Iterable[int]) -> None:
-        """Deletes notes with the given IDs."""
-        self.remCards(self.db.list("select id from cards where nid in " + ids2str(ids)))
+    def remNotes(self, ids: Sequence[int]) -> None:
+        self.remove_notes(ids)
 
     def _remNotes(self, ids: List[int]) -> None:
-        """Bulk delete notes by ID. Don't call this directly."""
-        if not ids:
-            return
-        strids = ids2str(ids)
-        # we need to log these independently of cards, as one side may have
-        # more card templates
-        hooks.notes_will_be_deleted(self, ids)
-        self._logRem(ids, REM_NOTE)
-        self.db.execute("delete from notes where id in %s" % strids)
+        pass
 
     # Cards
     ##########################################################################
@@ -371,24 +376,14 @@ class Collection:
     def cardCount(self) -> Any:
         return self.db.scalar("select count() from cards")
 
+    def remove_cards_and_orphaned_notes(self, card_ids: Sequence[int]):
+        "You probably want .remove_notes_by_card() instead."
+        self.backend.remove_cards(card_ids=card_ids)
+
+    # legacy
+
     def remCards(self, ids: List[int], notes: bool = True) -> None:
-        "Bulk delete cards by ID."
-        if not ids:
-            return
-        sids = ids2str(ids)
-        nids = self.db.list("select nid from cards where id in " + sids)
-        # remove cards
-        self._logRem(ids, REM_CARD)
-        self.db.execute("delete from cards where id in " + sids)
-        # then notes
-        if not notes:
-            return
-        nids = self.db.list(
-            """
-select id from notes where id in %s and id not in (select nid from cards)"""
-            % ids2str(nids)
-        )
-        self._remNotes(nids)
+        self.remove_cards_and_orphaned_notes(ids)
 
     def emptyCids(self) -> List[int]:
         print("emptyCids() will go away")

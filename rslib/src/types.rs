@@ -52,6 +52,18 @@ macro_rules! define_newtype {
                 ))
             }
         }
+
+        impl From<$type> for $name {
+            fn from(t: $type) -> $name {
+                $name(t)
+            }
+        }
+
+        impl From<$name> for $type {
+            fn from(n: $name) -> $type {
+                n.0
+            }
+        }
     };
 }
 

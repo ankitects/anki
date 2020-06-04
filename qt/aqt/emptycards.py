@@ -95,5 +95,5 @@ class EmptyCardsDialog(QDialog):
             else:
                 to_delete.extend(note.card_ids)
 
-        self.mw.col.remCards(to_delete)
+        self.mw.col.remove_cards_and_orphaned_notes(to_delete)
         return len(to_delete)
