@@ -155,4 +155,15 @@ describe("Test question and answer exception handling", () => {
             setAnkiMedia(some => {}, document.createElement("div"))
         ).toThrowError(`is not a valid array object`);
     });
+
+    test(`Creating an audio with trailing spaces on the name must fail on setup()`, async function() {
+        let fake_audio = document.createElement("audio");
+        document.body.appendChild(fake_audio);
+
+        fake_audio.setAttribute("src", "cool.mp3 ");
+        fake_audio.setAttribute("data-where", "front");
+        expect(() => ankimedia.setup()).toThrowError(
+            `A media element has leading or trailing whitespaces on its 'src=`
+        );
+    });
 });
