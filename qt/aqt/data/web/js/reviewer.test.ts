@@ -155,7 +155,7 @@ describe("Test question and answer audios", () => {
     let getAudioSource = async mp3file =>
         await page.evaluate(async mp3 => {
             let audio = document.getElementById(mp3) as HTMLAudioElement;
-            return audio.src;
+            return audio.getAttribute("src");
         }, mp3file);
 
     beforeAll(async () => {
@@ -230,7 +230,7 @@ describe("Test question and answer audios", () => {
             let question_times = await getPlayTimes(front_mp3);
             let audio_src = await getAudioSource(front_mp3);
 
-            expect(audio_src.replace(/%20/g, " ")).toEqual(`${address}/${front_mp3}`);
+            expect(audio_src).toEqual(front_mp3);
             expect(question_times[0]).toBeLessThan(question_times[1]);
 
             expect(await page.evaluate(() => ankimedia.is_playing)).toEqual(false);
@@ -476,12 +476,8 @@ describe("Test question and answer audios", () => {
             let second_question_times = await getPlayTimes(refront_mp3);
             let second_audio_src = await getAudioSource(refront_mp3);
 
-            expect(first_audio_src.replace(/%20/g, " ")).toEqual(
-                `${address}/${front_mp3}`
-            );
-            expect(second_audio_src.replace(/%20/g, " ")).toEqual(
-                `${address}/${refront_mp3}`
-            );
+            expect(first_audio_src).toEqual(front_mp3);
+            expect(second_audio_src).toEqual(refront_mp3);
 
             expect(second_question_times[0]).toBeLessThan(second_question_times[1]);
             expect(first_question_times[0]).toBeLessThan(second_question_times[0]);
@@ -562,12 +558,8 @@ describe("Test question and answer audios", () => {
             let answer_times = await getPlayTimes(selector);
             let answer_audio_src = await getAudioSource(selector);
 
-            expect(question_audio_src.replace(/%20/g, " ")).toEqual(
-                `${address}/${front_mp3}`
-            );
-            expect(answer_audio_src.replace(/%20/g, " ")).toEqual(
-                `${address}/${back_mp3}`
-            );
+            expect(question_audio_src).toEqual(front_mp3);
+            expect(answer_audio_src).toEqual(back_mp3);
 
             // assert the question audio was not replayed when showing the answer
             expect(question_times[0]).toEqual(question_times_recheck[0]);
