@@ -51,8 +51,8 @@ class AnkiMediaQueue {
     replay_back_queue: Array<[string, number]>;
     replay_front_queue: Array<[string, number]>;
     other_medias: Array<any>;
-    files: Map<string, HTMLAudioElement>;
-    medias: Map<string, HTMLAudioElement>;
+    files: Map<string, HTMLMediaElement>;
+    medias: Map<string, HTMLMediaElement>;
     duplicates: Map<string, number>;
     frontmedias: Map<string, number>;
     add_duplicates: Map<string, number>;
@@ -60,7 +60,7 @@ class AnkiMediaQueue {
     _addall_reset: number;
     _addall_last_where: "front" | "back";
     play_duplicates: Map<string, number>;
-    _playing_element: HTMLAudioElement | undefined;
+    _playing_element: HTMLMediaElement | undefined;
     _startnext: Function;
     autoplay: boolean;
     is_playing: boolean;
@@ -619,7 +619,7 @@ class AnkiMediaQueue {
         this._moveAudioElements(extra);
     }
 
-    _getSource(media: HTMLAudioElement) {
+    _getSource(media: HTMLMediaElement) {
         let source = media.getAttribute("src");
         if (!source && media.firstChild) {
             source = (media.firstChild as HTMLSourceElement).getAttribute("src");
@@ -725,7 +725,7 @@ class AnkiMediaQueue {
         }, this.other_medias);
     }
 
-    _setupAudioPlay(media: HTMLAudioElement, clone: HTMLAudioElement) {
+    _setupAudioPlay(media: HTMLMediaElement, clone: HTMLMediaElement) {
         // Set to automatically play the audio when seeking the progress bar.
         let auto_play = target => {
             return event => {
