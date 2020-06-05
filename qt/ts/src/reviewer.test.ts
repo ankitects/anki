@@ -233,7 +233,6 @@ describe("Test question and answer audios", () => {
             expect(audio_src.replace(/%20/g, " ")).toEqual(`${address}/${front_mp3}`);
             expect(question_times[0]).toBeLessThan(question_times[1]);
 
-            expect(await page.evaluate(() => ankimedia.is_first)).toEqual(false);
             expect(await page.evaluate(() => ankimedia.is_playing)).toEqual(false);
         }
     );
@@ -275,8 +274,6 @@ describe("Test question and answer audios", () => {
             `noAudioTemplate`
         );
         await page.waitForSelector(`input[type="button"]`);
-
-        expect(await page.evaluate(() => ankimedia.is_first)).toEqual(false);
         expect(await page.evaluate(() => ankimedia.is_playing)).toEqual(true);
     });
 
@@ -295,9 +292,8 @@ describe("Test question and answer audios", () => {
             )
         );
         await page.waitForSelector(`div[id="noAudioTemplate"]`);
-        expect(await page.evaluate(async () => ankimedia.is_setup)).toEqual(true);
 
-        expect(await page.evaluate(() => ankimedia.is_first)).toEqual(false);
+        expect(await page.evaluate(async () => ankimedia.is_setup)).toEqual(true);
         expect(await page.evaluate(() => ankimedia.is_playing)).toEqual(true);
     });
 
@@ -327,7 +323,6 @@ describe("Test question and answer audios", () => {
             expect(answer_times[1]).toBeTruthy();
 
             expect(await getPausedMedias()).toEqual(0);
-            expect(await page.evaluate(() => ankimedia.is_first)).toEqual(false);
             expect(await page.evaluate(() => ankimedia.is_playing)).toEqual(false);
         }
     );
@@ -358,7 +353,6 @@ describe("Test question and answer audios", () => {
             expect(answer_times[1]).toBeTruthy();
 
             expect(await getPausedMedias()).toEqual(0);
-            expect(await page.evaluate(() => ankimedia.is_first)).toEqual(false);
             expect(await page.evaluate(() => ankimedia.is_playing)).toEqual(false);
         }
     );
@@ -371,21 +365,20 @@ describe("Test question and answer audios", () => {
         async function(front_setup, back_setup) {
             await showQuestion(
                 "silence 1.mp3",
-                `ankimedia.setup({delay: 0}); ankimedia.add( "silence 1.mp3", ${front_setup} );`,
+                `ankimedia.setup(); ankimedia.add( "silence 1.mp3", ${front_setup} );`,
                 `questionTemplate`
             );
             await questionAndAnswer(
                 "silence 1.mp3",
-                `ankimedia.setup({delay: 0}); ankimedia.add( "silence 1.mp3", ${front_setup} );`,
+                `ankimedia.setup(); ankimedia.add( "silence 1.mp3", ${front_setup} );`,
                 "silence 2.mp3",
-                `ankimedia.setup({delay: 0}); ankimedia.add( "silence 2.mp3", ${back_setup} );`
+                `ankimedia.setup(); ankimedia.add( "silence 2.mp3", ${back_setup} );`
             );
             await page.waitForSelector(`audio[id="silence 2.mp3"][data-has-ended-at]`);
             let question_times = await getPlayTimes("silence 1.mp3");
             let answer_times = await getPlayTimes("silence 2.mp3");
 
             expect(await getPausedMedias()).toEqual(0);
-            expect(await page.evaluate(() => ankimedia.is_first)).toEqual(false);
             expect(await page.evaluate(() => ankimedia.is_playing)).toEqual(false);
 
             await deletePlayTimes("silence 2.mp3");
@@ -396,7 +389,6 @@ describe("Test question and answer audios", () => {
             let answer_times1 = await getPlayTimes("silence 2.mp3");
 
             expect(await getPausedMedias()).toEqual(0);
-            expect(await page.evaluate(() => ankimedia.is_first)).toEqual(false);
             expect(await page.evaluate(() => ankimedia.is_playing)).toEqual(false);
 
             expect(question_times[0]).toBeLessThan(question_times1[0]);
@@ -419,7 +411,6 @@ describe("Test question and answer audios", () => {
             expect(answer_times1[1]).toBeLessThan(answer_times2[1]);
 
             expect(await getPausedMedias()).toEqual(0);
-            expect(await page.evaluate(() => ankimedia.is_first)).toEqual(false);
             expect(await page.evaluate(() => ankimedia.is_playing)).toEqual(false);
         }
     );
@@ -480,7 +471,6 @@ describe("Test question and answer audios", () => {
             expect(first_question_times[1]).toBeLessThan(second_question_times[1]);
 
             expect(await getPausedMedias()).toEqual(0);
-            expect(await page.evaluate(() => ankimedia.is_first)).toEqual(false);
             expect(await page.evaluate(() => ankimedia.is_playing)).toEqual(false);
         }
     );
@@ -572,7 +562,6 @@ describe("Test question and answer audios", () => {
             expect(question_times[1]).toBeLessThan(answer_times[1]);
 
             expect(await getPausedMedias()).toEqual(0);
-            expect(await page.evaluate(() => ankimedia.is_first)).toEqual(false);
             expect(await page.evaluate(() => ankimedia.is_playing)).toEqual(false);
         }
     );
@@ -589,9 +578,9 @@ describe("Test question and answer audios", () => {
             let showEverything = async (first_mp3, second_mp3) =>
                 await questionAndAnswer(
                     first_mp3,
-                    `ankimedia.setup({delay: 0}); ankimedia.addall( ${front_setup} );`,
+                    `ankimedia.setup(); ankimedia.addall( ${front_setup} );`,
                     second_mp3,
-                    `ankimedia.setup({delay: 0}); ankimedia.addall( ${back_setup} );`
+                    `ankimedia.setup(); ankimedia.addall( ${back_setup} );`
                 );
 
             await showEverything("silence 1.mp3", "silence 2.mp3");
@@ -618,7 +607,6 @@ describe("Test question and answer audios", () => {
             await page.waitForSelector(`audio[id="silence 2.mp3"]`);
 
             expect(await getPausedMedias()).toEqual(0);
-            expect(await page.evaluate(() => ankimedia.is_first)).toEqual(false);
             expect(await page.evaluate(() => ankimedia.is_playing)).toEqual(false);
         }
     );

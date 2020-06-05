@@ -70,7 +70,6 @@ class AnkiMediaQueue {
     _is_autoseek_timer: any;
     _playing_element_timer: any;
     _check_preview_page_timer: any;
-    is_first: boolean;
     is_setup: boolean;
     where: "front" | "back";
     _answer_element: HTMLElement | null;
@@ -164,7 +163,6 @@ class AnkiMediaQueue {
         this._is_autoseek_timer = undefined;
         this._check_preview_page_timer = undefined;
         this._is_autoseek_callback = () => {};
-        this.is_first = false;
         this.is_setup = false;
         this.where = "front";
         this.wait_question = true;
@@ -429,7 +427,6 @@ class AnkiMediaQueue {
 
         // this._debug(`queues ${this.replay_front_queue} ${this.replay_back_queue}`);
         this.is_playing = true;
-        this.is_first = true;
         if (this.where == "front") {
             // this._debug(`play_duplicates ${Array.from(this.play_duplicates.values())}`);
             this.play_duplicates.clear();
@@ -470,10 +467,9 @@ class AnkiMediaQueue {
         }
 
         if (media) {
-            let is_first = this.is_first;
             let data_speed = media.getAttribute("data-speed") || speed;
-
             media.playbackRate = parseFloat(data_speed as any);
+
             this.is_autoplay = true;
             let playpromise = media.play();
             if (playpromise) {
@@ -490,10 +486,14 @@ class AnkiMediaQueue {
                 );
             }
             this._startnext = event => {
-                this._playing_element_timer = setTimeout(
-                    this._playnext,
-                    is_first ? 0 : this.delay * 1000
-                );
+                if (this.playing_back.length || this.playing_back.length) {
+                    this._playing_element_timer = setTimeout(
+                        this._playnext,
+                        this.delay * 1000
+                    );
+                } else {
+                    this._playnext();
+                }
             };
             this._playing_element = media;
             this._startnext = this._startnext.bind(this);
@@ -502,7 +502,6 @@ class AnkiMediaQueue {
             this.is_playing = false;
             this._playing_element = undefined;
         }
-        this.is_first = false;
     }
 
     _getMediaInfo(media) {
