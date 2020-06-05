@@ -177,5 +177,8 @@ describe("Test question and answer exception handling", () => {
         expect(() => ankimedia.setup()).toThrowError(
             `A media element is missing its 'src=null`
         );
+        expect(() => ankimedia.setup()).toThrowError(
+            `id=|src=|source=|data-id=null|data-speed=null|`
+        );
     });
 });
