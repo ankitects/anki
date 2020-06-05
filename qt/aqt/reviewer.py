@@ -158,6 +158,7 @@ class Reviewer:
                 "browsersel.js",
                 "mathjax/conf.js",
                 "mathjax/MathJax.js",
+                "ankimedia.js",
                 "reviewer.js",
             ],
             context=self,

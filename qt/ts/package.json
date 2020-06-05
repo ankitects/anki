@@ -5,7 +5,6 @@
   "scripts": {
     "build": "tsc --build",
     "sass": "sass --no-source-map scss:../aqt_data/web",
-    "gulp": "gulp reviewer",
     "pretty": "prettier --write src/*.ts",
     "test": "jest --verbose --runInBand",
     "check-pretty": "prettier --check src/*.ts"
@@ -32,16 +31,9 @@
   "author": "Ankitects Pty Ltd",
   "license": "AGPL-3.0-or-later",
   "dependencies": {
-    "@types/gulp": "^4.0.6",
-    "@types/gulp-concat": "0.0.32",
-    "@types/gulp-typescript": "^2.13.0",
     "@types/jquery": "^3.3.31",
     "@types/jqueryui": "^1.12.9",
     "@types/mathjax": "0.0.36",
-    "gulp": "^4.0.2",
-    "gulp-concat": "^2.6.1",
-    "gulp-resolve-dependencies": "^3.0.1",
-    "gulp-typescript": "^6.0.0-alpha.1",
     "sass": "^1.25.0",
     "typescript": "^3.7.3"
   },

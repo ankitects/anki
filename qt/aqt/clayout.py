@@ -314,6 +314,7 @@ class CardLayout(QDialog):
             "browsersel.js",
             "mathjax/conf.js",
             "mathjax/MathJax.js",
+            "ankimedia.js",
             "reviewer.js",
         ]
         self.preview_web.stdHtml(

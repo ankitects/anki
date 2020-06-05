@@ -1,12 +1,10 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 /// <reference path="./types/global.d.ts" />
-/// <reference path="./ankimedia.ts" />
 
 var ankiPlatform = "desktop";
 var typeans;
 var _updatingQA = false;
-var ankimedia = new AnkiMediaQueue();
 
 var qFade = 100;
 var aFade = 0;

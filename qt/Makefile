@@ -55,17 +55,11 @@ all: check
 TS_BUILD_DEPS := ts/tsconfig.json ts/package.json
 TSDEPS := ${TS_BUILD_DEPS} $(shell "${FIND}" ts/src ! -name "*.test.ts" -name '*.ts')
 
-.build/js: .build/scss .build/alljs .build/reviewer
+.build/js: .build/scss .build/alljs
 
 .build/alljs: $(TS_BUILD_DEPS) $(shell "${FIND}" ts/src \
-		! -name "ankimedia.ts" \
-		! -name "reviewer.ts" \
 		! -name "*.test.ts" -name '*.ts')
 	(cd ts && npm run build)
-	@touch $@
-
-.build/reviewer: $(TS_BUILD_DEPS) ts/src/ankimedia.ts ts/src/reviewer.ts
-	(cd ts && npm run gulp)
 	@touch $@
 
 .build/scss: .build/prodDependencies $(wildcard ts/scss/*.scss)

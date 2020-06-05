@@ -759,6 +759,8 @@ class AnkiMediaQueue {
     }
 }
 
+var ankimedia = new AnkiMediaQueue();
+
 // @ts-ignore: Allow jest to import this and do unit tests
 if (typeof exports != "undefined") {
     // @ts-ignore
