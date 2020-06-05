@@ -11,7 +11,7 @@ from http import HTTPStatus
 
 import flask
 import flask_cors  # type: ignore
-from waitress.server import create_server  # type: ignore
+from waitress.server import create_server
 
 from anki.utils import devMode
 from aqt.qt import *
