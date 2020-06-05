@@ -37,12 +37,12 @@ describe("Test question and answer exception handling", () => {
         );
         let fake_audio = document.createElement("div");
         expect(() => ankimedia.setup({ medias: [fake_audio] })).toThrowError(
-            `media element is missing its 'data-file=`
+            `media element is missing its 'src=`
         );
         expect(() => ankimedia.setup({ extra: {} })).toThrowError(
             `is not a valid function`
         );
-        fake_audio.setAttribute("data-file", "cool.mp3");
+        fake_audio.setAttribute("src", "cool.mp3");
         fake_audio.setAttribute("data-speed", "{5}");
         expect(() => ankimedia.setup({ medias: [fake_audio] })).toThrowError(
             `media element has an invalid 'data-speed=`
@@ -86,7 +86,7 @@ describe("Test question and answer exception handling", () => {
         let fake_audio = document.createElement("audio");
         document.body.appendChild(fake_audio);
 
-        fake_audio.setAttribute("data-file", "cool.mp3");
+        fake_audio.setAttribute("src", "cool.mp3");
         fake_audio.setAttribute("data-where", "cool.mp3");
         ankimedia.setup();
         expect(() => ankimedia.addall("front")).toThrowError(`Invalid 'where=`);
@@ -96,7 +96,7 @@ describe("Test question and answer exception handling", () => {
         let fake_audio = document.createElement("audio");
         document.body.appendChild(fake_audio);
 
-        fake_audio.setAttribute("data-file", "cool.mp3");
+        fake_audio.setAttribute("src", "cool.mp3");
         fake_audio.setAttribute("data-where", "cool.mp3");
         ankimedia.setup();
         expect(() => ankimedia.addall("front")).toThrowError(`Invalid 'where=`);
@@ -106,7 +106,7 @@ describe("Test question and answer exception handling", () => {
         let fake_audio = document.createElement("audio");
         document.body.appendChild(fake_audio);
 
-        fake_audio.setAttribute("data-file", "cool.mp3");
+        fake_audio.setAttribute("src", "cool.mp3");
         fake_audio.setAttribute("data-where", "cool.mp3");
         ankimedia.setup();
         expect(() => ankimedia.add("cool.mp3")).toThrowError(`Invalid 'where=`);
