@@ -630,8 +630,6 @@ class AnkiMediaQueue {
             if (!media.id) {
                 media.id = data_file;
             }
-            // trim later to allow to select the audio elements by their full name
-            data_file = data_file.trim();
 
             // Remove duplicated element ids
             let media_id = media.id;
@@ -664,6 +662,13 @@ class AnkiMediaQueue {
         if (typeof data_file != "string") {
             throw new Error(
                 `A media element is missing its 'src=${data_file}' attribute. ` +
+                    this._getMediaInfo(media)
+            );
+        }
+        let timmed_data_file = data_file.trim();
+        if (timmed_data_file != data_file) {
+            throw new Error(
+                `A media element has leading or trailing whitespaces on its 'src=${data_file}' attribute. ` +
                     this._getMediaInfo(media)
             );
         }
