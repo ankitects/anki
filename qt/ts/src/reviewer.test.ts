@@ -263,7 +263,7 @@ describe("Test question and answer audios", () => {
         }
     );
 
-    test(`Test playing an audio without a HTML tag does not throw:\nfront '%s'\n...`, async function() {
+    test(`Test playing an audio without a HTML tag does not throw\n...`, async function() {
         await showQuestion(
             ``,
             `ankimedia.setup(); ankimedia.add( "silence 1.mp3", "front" );`,
