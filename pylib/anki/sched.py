@@ -51,6 +51,10 @@ class Scheduler(V2):
         # former is for logging new cards, latter also covers filt. decks
         card.wasNew = card.type == CARD_TYPE_NEW  # type: ignore
         wasNewQ = card.queue == QUEUE_TYPE_NEW
+
+        new_delta = 0
+        review_delta = 0
+
         if wasNewQ:
             # came from the new queue, move to learning
             card.queue = QUEUE_TYPE_LRN
@@ -65,17 +69,22 @@ class Scheduler(V2):
                     # reviews get their ivl boosted on first sight
                     card.ivl = self._dynIvlBoost(card)
                     card.odue = self.today + card.ivl
-            self._updateStats(card, "new")
+            new_delta = +1
         if card.queue in (QUEUE_TYPE_LRN, QUEUE_TYPE_DAY_LEARN_RELEARN):
             self._answerLrnCard(card, ease)
-            if not wasNewQ:
-                self._updateStats(card, "lrn")
         elif card.queue == QUEUE_TYPE_REV:
             self._answerRevCard(card, ease)
-            self._updateStats(card, "rev")
+            review_delta = +1
         else:
             raise Exception("Invalid queue '%s'" % card)
-        self._updateStats(card, "time", card.timeTaken())
+
+        self.update_stats(
+            card.did,
+            new_delta=new_delta,
+            review_delta=review_delta,
+            milliseconds_delta=+card.timeTaken(),
+        )
+
         card.mod = intTime()
         card.usn = self.col.usn()
         card.flush()
@@ -447,7 +456,7 @@ and due <= ? limit ?)""",
         if d["dyn"]:
             return self.reportLimit
         c = self.col.decks.confForDid(d["id"])
-        limit = max(0, c["rev"]["perDay"] - self._update_stats(d, "rev", 0))
+        limit = max(0, c["rev"]["perDay"] - self.counts_for_deck_today(d["id"]).review)
         return hooks.scheduler_review_limit_for_single_deck(limit, d)
 
     def _revForDeck(self, did: int, lim: int) -> int:  # type: ignore[override]

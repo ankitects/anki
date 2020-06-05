@@ -93,6 +93,9 @@ service BackendService {
     rpc SchedTimingToday (Empty) returns (SchedTimingTodayOut);
     rpc StudiedToday (StudiedTodayIn) returns (String);
     rpc CongratsLearnMessage (CongratsLearnMessageIn) returns (String);
+    rpc UpdateStats (UpdateStatsIn) returns (Empty);
+    rpc ExtendLimits (ExtendLimitsIn) returns (Empty);
+    rpc CountsForDeckToday (DeckID) returns (CountsForDeckTodayOut);
 
     // media
 
@@ -250,8 +253,11 @@ message DeckCommon {
     uint32 last_day_studied = 3;
     int32 new_studied = 4;
     int32 review_studied = 5;
+    int32 milliseconds_studied = 7;
+
+    // previously set in the v1 scheduler,
+    // but not currently used for anything
     int32 learning_studied = 6;
-    int32 secs_studied = 7;
 
     bytes other = 255;
 }
@@ -944,4 +950,22 @@ message RemoveNotesIn {
 
 message RemoveCardsIn {
     repeated int64 card_ids = 1;
+}
+
+message UpdateStatsIn {
+    int64 deck_id = 1;
+    int32 new_delta = 2;
+    int32 review_delta = 4;
+    int32 millisecond_delta = 5;
+}
+
+message ExtendLimitsIn {
+    int64 deck_id = 1;
+    int32 new_delta = 2;
+    int32 review_delta = 3;
+}
+
+message CountsForDeckTodayOut {
+    int32 new = 1;
+    int32 review = 2;
 }

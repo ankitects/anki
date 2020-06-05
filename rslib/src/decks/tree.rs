@@ -16,8 +16,6 @@ use std::{
 };
 use unicase::UniCase;
 
-// fixme: handle mixed case of parents
-
 fn deck_names_to_tree(names: Vec<(DeckID, String)>) -> DeckTreeNode {
     let mut top = DeckTreeNode::default();
     let mut it = names.into_iter().peekable();
