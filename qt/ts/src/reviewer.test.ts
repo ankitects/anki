@@ -79,6 +79,15 @@ describe("Test question and answer audios", () => {
         );
     };
 
+    var sourceAudioTemplate = (file_name, setup_code) => {
+        return cardTemplate(
+            file_name,
+            setup_code,
+            `What is the past simple of the verb to bumb?<br>`,
+            test_setup
+        );
+    };
+
     let showQuestion = async (front_mp3, front_setup, templateName) =>
         await page.evaluate(
             async (mp3, setup, template) =>
@@ -164,6 +173,7 @@ describe("Test question and answer audios", () => {
         await page.exposeFunction("answerTemplate", answerTemplate);
         await page.exposeFunction("dataSpeedTemplate", dataSpeedTemplate);
         await page.exposeFunction("noAudioTemplate", noAudioTemplate);
+        await page.exposeFunction("sourceAudioTemplate", sourceAudioTemplate);
     });
 
     beforeEach(async () => {
@@ -266,6 +276,18 @@ describe("Test question and answer audios", () => {
             expect(second_question_times[1]).toBeFalsy();
         }
     );
+
+    test(`Test defining media with a child/nested media source file\n...`, async function() {
+        await showQuestion(
+            `<audio controlslist="nodownload" controls><source src="silence 1.mp3"></audio>`,
+            `ankimedia.setup(); ankimedia.add( "silence 1.mp3", "front" );`,
+            `sourceAudioTemplate`
+        );
+        await page.waitForSelector(`audio[id="silence 1.mp3"][data-has-ended-at]`);
+
+        expect(await getPausedMedias()).toEqual(0);
+        expect(await page.evaluate(() => ankimedia.is_playing)).toEqual(false);
+    });
 
     test(`Test playing an audio without a HTML tag does not throw\n...`, async function() {
         await showQuestion(
