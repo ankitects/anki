@@ -467,6 +467,40 @@ impl BackendService for Backend {
         Ok(learning_congrats(input.remaining as usize, input.next_due, &self.i18n).into())
     }
 
+    fn update_stats(&mut self, input: pb::UpdateStatsIn) -> BackendResult<Empty> {
+        self.with_col(|col| {
+            col.transact(None, |col| {
+                let today = col.current_due_day(0)?;
+                let usn = col.usn()?;
+                col.update_deck_stats(today, usn, input).map(Into::into)
+            })
+        })
+    }
+
+    fn extend_limits(&mut self, input: pb::ExtendLimitsIn) -> BackendResult<Empty> {
+        self.with_col(|col| {
+            col.transact(None, |col| {
+                let today = col.current_due_day(0)?;
+                let usn = col.usn()?;
+                col.extend_limits(
+                    today,
+                    usn,
+                    input.deck_id.into(),
+                    input.new_delta,
+                    input.review_delta,
+                )
+                .map(Into::into)
+            })
+        })
+    }
+
+    fn counts_for_deck_today(
+        &mut self,
+        input: pb::DeckId,
+    ) -> BackendResult<pb::CountsForDeckTodayOut> {
+        self.with_col(|col| col.counts_for_deck_today(input.did.into()))
+    }
+
     // decks
     //-----------------------------------------------
 

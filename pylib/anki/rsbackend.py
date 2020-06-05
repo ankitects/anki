@@ -55,6 +55,7 @@ StockNoteType = pb.StockNoteType
 SyncAuth = pb.SyncAuth
 SyncOutput = pb.SyncCollectionOut
 SyncStatus = pb.SyncStatusOut
+CountsForDeckToday = pb.CountsForDeckTodayOut
 
 try:
     import orjson

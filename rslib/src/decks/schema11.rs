@@ -280,7 +280,7 @@ impl From<&DeckCommonSchema11> for DeckCommon {
             new_studied: today.new.amount,
             review_studied: today.rev.amount,
             learning_studied: today.lrn.amount,
-            secs_studied: common.today.time.amount,
+            milliseconds_studied: common.today.time.amount,
             other,
         }
     }
@@ -393,7 +393,7 @@ impl From<&Deck> for DeckTodaySchema11 {
             },
             time: TodayAmountSchema11 {
                 day,
-                amount: c.secs_studied,
+                amount: c.milliseconds_studied,
             },
         }
     }

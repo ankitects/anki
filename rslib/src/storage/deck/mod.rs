@@ -6,6 +6,7 @@ use crate::{
     card::CardID,
     card::CardQueue,
     config::SchedulerVersion,
+    decks::immediate_parent_name,
     decks::{Deck, DeckCommon, DeckID, DeckKindProto, DeckSchema11, DueCounts},
     err::{AnkiError, DBErrorKind, Result},
     i18n::{I18n, TR},
@@ -150,6 +151,20 @@ impl SqliteStorage {
             ))?
             .query_and_then(&[prefix_start, prefix_end], row_to_deck)?
             .collect()
+    }
+
+    pub(crate) fn parent_decks(&self, child: &Deck) -> Result<Vec<Deck>> {
+        let mut decks: Vec<Deck> = vec![];
+        while let Some(parent_name) =
+            immediate_parent_name(decks.last().map(|d| &d.name).unwrap_or_else(|| &child.name))
+        {
+            if let Some(parent_did) = self.get_deck_id(parent_name)? {
+                let parent = self.get_deck(parent_did)?.unwrap();
+                decks.push(parent);
+            }
+        }
+
+        Ok(decks)
     }
 
     pub(crate) fn due_counts(

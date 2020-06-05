@@ -14,7 +14,12 @@ from anki import hooks
 from anki.cards import Card
 from anki.consts import *
 from anki.lang import _
-from anki.rsbackend import DeckTreeNode, FormatTimeSpanContext, SchedTimingToday
+from anki.rsbackend import (
+    CountsForDeckToday,
+    DeckTreeNode,
+    FormatTimeSpanContext,
+    SchedTimingToday,
+)
 from anki.utils import ids2str, intTime
 
 # card types: 0=new, 1=lrn, 2=rev, 3=relrn
@@ -82,7 +87,6 @@ class Scheduler:
 
         self._answerCard(card, ease)
 
-        self._updateStats(card, "time", card.timeTaken())
         card.mod = intTime()
         card.usn = self.col.usn()
         card.flush()
@@ -94,23 +98,31 @@ class Scheduler:
 
         card.reps += 1
 
+        new_delta = 0
+        review_delta = 0
+
         if card.queue == QUEUE_TYPE_NEW:
             # came from the new queue, move to learning
             card.queue = QUEUE_TYPE_LRN
             card.type = CARD_TYPE_LRN
             # init reps to graduation
             card.left = self._startingLeft(card)
-            # update daily limit
-            self._updateStats(card, "new")
+            new_delta = +1
 
         if card.queue in (QUEUE_TYPE_LRN, QUEUE_TYPE_DAY_LEARN_RELEARN):
             self._answerLrnCard(card, ease)
         elif card.queue == QUEUE_TYPE_REV:
             self._answerRevCard(card, ease)
-            # update daily limit
-            self._updateStats(card, "rev")
+            review_delta = +1
         else:
             raise Exception("Invalid queue '%s'" % card)
+
+        self.update_stats(
+            card.did,
+            new_delta=new_delta,
+            review_delta=review_delta,
+            milliseconds_delta=+card.timeTaken(),
+        )
 
         # once a card has been answered once, the original due date
         # no longer applies
@@ -187,29 +199,33 @@ order by due"""
     # Rev/lrn/time daily stats
     ##########################################################################
 
-    def _updateStats(self, card: Card, type: str, cnt: int = 1) -> None:
-        for g in [self.col.decks.get(card.did)] + self.col.decks.parents(card.did):
-            self._update_stats(g, type, cnt)
-            self.col.decks.save(g)
+    def update_stats(
+        self, deck_id: int, new_delta=0, review_delta=0, milliseconds_delta=0
+    ):
+        self.col.backend.update_stats(
+            deck_id=deck_id,
+            new_delta=new_delta,
+            review_delta=review_delta,
+            millisecond_delta=milliseconds_delta,
+        )
 
-    # resets stat if day has changed, applies delta, and returns modified value
-    def _update_stats(self, deck: Dict, type: str, delta: int) -> int:
-        key = type + "Today"
-        if deck[key][0] != self.today:
-            deck[key] = [self.today, 0]
-        deck[key][1] += delta
-        return deck[key][1]
+    def counts_for_deck_today(self, deck_id: int) -> CountsForDeckToday:
+        return self.col.backend.counts_for_deck_today(deck_id)
 
     def extendLimits(self, new: int, rev: int) -> None:
-        cur = self.col.decks.current()
-        parents = self.col.decks.parents(cur["id"])
-        children = [
-            self.col.decks.get(did) for did in self.col.decks.child_ids(cur["name"])
-        ]
-        for g in [cur] + parents + children:
-            self._update_stats(g, "new", -new)
-            self._update_stats(g, "rev", -rev)
-            self.col.decks.save(g)
+        did = self.col.decks.current()["id"]
+        self.col.backend.extend_limits(deck_id=did, new_delta=new, review_delta=rev)
+
+    # legacy
+
+    def _updateStats(self, card: Card, type: str, cnt: int = 1) -> None:
+        did = card.did
+        if type == "new":
+            self.update_stats(did, new_delta=cnt)
+        elif type == "rev":
+            self.update_stats(did, review_delta=cnt)
+        elif type == "time":
+            self.update_stats(did, milliseconds_delta=cnt)
 
     # Deck list
     ##########################################################################
@@ -373,7 +389,7 @@ select count() from
         if g["dyn"]:
             return self.dynReportLimit
         c = self.col.decks.confForDid(g["id"])
-        limit = max(0, c["new"]["perDay"] - self._update_stats(g, "new", 0))
+        limit = max(0, c["new"]["perDay"] - self.counts_for_deck_today(g["id"]).new)
         return hooks.scheduler_new_limit_for_single_deck(limit, g)
 
     def totalNewForCurrentDeck(self) -> int:
@@ -766,7 +782,7 @@ and due <= ? limit ?)""",
             return self.dynReportLimit
 
         c = self.col.decks.confForDid(d["id"])
-        lim = max(0, c["rev"]["perDay"] - self._update_stats(d, "rev", 0))
+        lim = max(0, c["rev"]["perDay"] - self.counts_for_deck_today(d["id"]).review)
 
         if parentLimit is not None:
             lim = min(parentLimit, lim)
