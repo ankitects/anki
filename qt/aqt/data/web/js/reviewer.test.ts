@@ -297,6 +297,23 @@ describe("Test question and answer audios", () => {
         expect(await page.evaluate(() => ankimedia.is_playing)).toEqual(true);
     });
 
+    test(`Test ankimedia.setup{delay} parameter creates an delay between medias\n...`, async function() {
+        await questionAndAnswer(
+            "silence 1.mp3",
+            `ankimedia.setup({delay: 1.0}); ankimedia.add( "silence 1.mp3", "back" );`,
+            "silence 2.mp3",
+            `ankimedia.setup({delay: 1.0}); ankimedia.add( "silence 2.mp3", "back" );`
+        );
+        await page.waitForSelector(`audio[id="silence 2.mp3"][data-has-ended-at]`);
+
+        let question_times = await getPlayTimes("silence 1.mp3");
+        let answer_times = await getPlayTimes("silence 2.mp3");
+
+        expect(answer_times[0] - question_times[1]).toBeGreaterThan(1000);
+        expect(await getPausedMedias()).toEqual(0);
+        expect(await page.evaluate(() => ankimedia.is_playing)).toEqual(false);
+    });
+
     test.each([
         [`"front"`, `"back"`],
         [``, ``],
