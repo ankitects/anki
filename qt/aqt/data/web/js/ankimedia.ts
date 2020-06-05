@@ -510,6 +510,13 @@ class AnkiMediaQueue {
         if (media) {
             results += "id=" + String(media.id) + "|";
             results += "src=" + String(media.src) + "|";
+            if (media.children) {
+                let children = media.children;
+                for (var index = 0; index < children.length; index++) {
+                    let child = children[index];
+                    results += "source=" + String(child.src) + "|";
+                }
+            }
             results += "data-id=" + String(media.getAttribute("data-id")) + "|";
             results += "data-speed=" + String(media.getAttribute("data-speed")) + "|";
         } else {
