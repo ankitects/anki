@@ -45,7 +45,7 @@ describe("Test question and answer audios", () => {
 
     var questionTemplate = (file_name, setup_code) => {
         return cardTemplate(
-            `<audio data-file="${file_name}" controlslist="nodownload" controls></audio>`,
+            `<audio src="${file_name}" controlslist="nodownload" controls></audio>`,
             setup_code,
             `What is the past simple of the verb to bumb?<br>`,
             test_setup
@@ -54,7 +54,7 @@ describe("Test question and answer audios", () => {
 
     var answerTemplate = (file_name, setup_code) => {
         return cardTemplate(
-            `<audio data-file="${file_name}" controlslist="nodownload" controls></audio>`,
+            `<audio src="${file_name}" controlslist="nodownload" controls></audio>`,
             setup_code,
             `<hr id="answer">The past simple is to boobs.<br>`,
             test_setup
@@ -63,7 +63,7 @@ describe("Test question and answer audios", () => {
 
     var dataSpeedTemplate = (file_name, setup_code) => {
         return cardTemplate(
-            `<audio data-file="${file_name}" data-speed="5" controlslist="nodownload" controls></audio>`,
+            `<audio src="${file_name}" data-speed="5" controlslist="nodownload" controls></audio>`,
             setup_code,
             `What is the past simple of the verb to bumb?<br>`,
             test_setup

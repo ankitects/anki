@@ -281,7 +281,7 @@ class AnkiMediaQueue {
                     return;
                 }
 
-                this.add(media.getAttribute("data-file"), localwhere, speed);
+                this.add(media.getAttribute("src"), localwhere, speed);
             }, this.other_medias);
         }
     }
@@ -511,7 +511,6 @@ class AnkiMediaQueue {
             results += "id=" + String(media.id) + "|";
             results += "src=" + String(media.src) + "|";
             results += "data-id=" + String(media.getAttribute("data-id")) + "|";
-            results += "data-file=" + String(media.getAttribute("data-file")) + "|";
             results += "data-speed=" + String(media.getAttribute("data-speed")) + "|";
         } else {
             results += String(media);
@@ -626,17 +625,15 @@ class AnkiMediaQueue {
 
         setAnkiMedia(media => {
             this._checkDataAttributes(media);
-            let data_file = media.getAttribute("data-file");
-            data_file = data_file.trim();
-            media.setAttribute("data-file", data_file);
+            let data_file = media.getAttribute("src");
 
             // Automatically gives an object.id to every media file, if they do not have one.
             if (!media.id) {
                 media.id = data_file;
             }
-            if (!media.src) {
-                media.src = data_file;
-            }
+            // trim later to allow to select the audio elements by their full name
+            data_file = data_file.trim();
+
             // Remove duplicated element ids
             let media_id = media.id;
 
@@ -662,12 +659,12 @@ class AnkiMediaQueue {
     }
 
     _checkDataAttributes(media) {
-        let data_file = media.getAttribute("data-file");
+        let data_file = media.getAttribute("src");
         let data_speed = media.getAttribute("data-speed");
 
         if (typeof data_file != "string") {
             throw new Error(
-                `A media element is missing its 'data-file=${data_file}' attribute. ` +
+                `A media element is missing its 'src=${data_file}' attribute. ` +
                     this._getMediaInfo(media)
             );
         }
