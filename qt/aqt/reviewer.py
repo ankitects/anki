@@ -320,6 +320,7 @@ class Reviewer:
             js=[
                 "js/mathjax.js",
                 "js/vendor/mathjax/tex-chtml.js",
+                "js/ankimedia.js",
                 "js/reviewer.js",
             ],
             context=self,
