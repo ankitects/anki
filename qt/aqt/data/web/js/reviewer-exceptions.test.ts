@@ -166,4 +166,16 @@ describe("Test question and answer exception handling", () => {
             `A media element has leading or trailing whitespaces on its 'src=`
         );
     });
+
+    test(`Test defining media with a invalid child/nested media source file`, async function() {
+        let fake_audio = document.createElement("audio");
+        let fake_source = document.createElement("source");
+        fake_audio.appendChild(fake_source);
+        fake_audio.setAttribute("src", "");
+
+        document.body.appendChild(fake_audio);
+        expect(() => ankimedia.setup()).toThrowError(
+            `A media element is missing its 'src=null`
+        );
+    });
 });

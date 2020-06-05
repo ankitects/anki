@@ -95,6 +95,7 @@ class AnkiMediaQueue {
         this._playnext = this._playnext.bind(this);
         this._getMediaElement = this._getMediaElement.bind(this);
         this.setup = this.setup.bind(this);
+        this._getSource = this._getSource.bind(this);
         this._fixDuplicates = this._fixDuplicates.bind(this);
         this._setupAudioPlay = this._setupAudioPlay.bind(this);
         this._checkDataAttributes = this._checkDataAttributes.bind(this);
@@ -279,7 +280,7 @@ class AnkiMediaQueue {
                     return;
                 }
 
-                this.add(media.getAttribute("src"), localwhere, speed);
+                this.add(this._getSource(media), localwhere, speed);
             }, this.other_medias);
         }
     }
@@ -618,13 +619,21 @@ class AnkiMediaQueue {
         this._moveAudioElements(extra);
     }
 
+    _getSource(media: HTMLAudioElement) {
+        let source = media.getAttribute("src");
+        if (!source && media.firstChild) {
+            source = (media.firstChild as HTMLSourceElement).getAttribute("src");
+        }
+        return source;
+    }
+
     _fixDuplicates() {
         let selected = new Map();
         this.duplicates.clear();
 
         setAnkiMedia(media => {
             this._checkDataAttributes(media);
-            let data_file = media.getAttribute("src");
+            let data_file = this._getSource(media);
 
             // Automatically gives an object.id to every media file, if they do not have one.
             if (!media.id) {
@@ -656,7 +665,7 @@ class AnkiMediaQueue {
     }
 
     _checkDataAttributes(media) {
-        let data_file = media.getAttribute("src");
+        let data_file = this._getSource(media);
         let data_speed = media.getAttribute("data-speed");
 
         if (typeof data_file != "string") {
