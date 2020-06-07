@@ -24,8 +24,6 @@ use std::{
 
 define_newtype!(NoteID, i64);
 
-// fixme: ensure nulls and x1f not in field contents
-
 #[derive(Default)]
 pub(crate) struct TransformNoteOutput {
     pub changed: bool,
@@ -72,7 +70,16 @@ impl Note {
             ));
         }
 
-        self.fields[idx] = text.into();
+        let text = text.into();
+        for c in text.as_bytes() {
+            match c {
+                0x1f => return Err(AnkiError::invalid_input("contains field separator")),
+                0x00 => return Err(AnkiError::invalid_input("contains null character")),
+                _ => {}
+            }
+        }
+
+        self.fields[idx] = text;
 
         Ok(())
     }
@@ -416,7 +423,8 @@ impl Collection {
 
 #[cfg(test)]
 mod test {
-    use super::{anki_base91, field_checksum};
+    use super::{anki_base91, field_checksum, AnkiError, Note, NoteField, NoteType};
+
     use crate::{
         collection::open_test_collection, config::ConfigKey, decks::DeckID, err::Result,
         search::SortMode,
@@ -515,6 +523,45 @@ mod test {
         // but original characters will
         assert_eq!(col.search_cards("\u{fa47}", SortMode::NoOrder)?.len(), 1);
 
+        Ok(())
+    }
+
+    #[test]
+    fn set_field_checks_idx() -> Result<()> {
+        let note_type = NoteType::default();
+        let mut note = Note::new(&note_type);
+        assert_eq!(
+            note.set_field(0, ""),
+            Err(AnkiError::invalid_input("field idx out of range"))
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn set_field_checks_null() -> Result<()> {
+        let note_type = NoteType {
+            fields: vec![NoteField::new("")],
+            ..Default::default()
+        };
+        let mut note = Note::new(&note_type);
+        assert_eq!(
+            note.set_field(0, "\u{0}"),
+            Err(AnkiError::invalid_input("contains null character"))
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn set_field_checks_field_separator() -> Result<()> {
+        let note_type = NoteType {
+            fields: vec![NoteField::new("")],
+            ..Default::default()
+        };
+        let mut note = Note::new(&note_type);
+        assert_eq!(
+            note.set_field(0, "\u{1f}"),
+            Err(AnkiError::invalid_input("contains field separator"))
+        );
         Ok(())
     }
 }
