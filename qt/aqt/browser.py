@@ -37,14 +37,14 @@ from aqt.utils import (
     openHelp,
     qtMenuShortcutWorkaround,
     restore_combo_history,
-    restore_combo_index,
+    restore_combo_index_for_session,
     restore_is_checked,
     restoreGeom,
     restoreHeader,
     restoreSplitter,
     restoreState,
     save_combo_history,
-    save_combo_index,
+    save_combo_index_for_session,
     save_is_checked,
     saveGeom,
     saveHeader,
@@ -1946,7 +1946,7 @@ update cards set usn=?, mod=?, did=? where id in """
         frm.find.setFocus()
         allfields = [_("All Fields")] + fields
         frm.field.addItems(allfields)
-        restore_combo_index(frm.field, allfields, combo + "Field")
+        restore_combo_index_for_session(frm.field, allfields, combo + "Field")
         qconnect(frm.buttonBox.helpRequested, self.onFindReplaceHelp)
         restoreGeom(d, "findreplace")
         r = d.exec_()
@@ -1954,7 +1954,7 @@ update cards set usn=?, mod=?, did=? where id in """
         if not r:
             return
 
-        save_combo_index(frm.field, combo + "Field")
+        save_combo_index_for_session(frm.field, combo + "Field")
         if frm.field.currentIndex() == 0:
             field = None
         else:
@@ -2019,7 +2019,7 @@ update cards set usn=?, mod=?, did=? where id in """
             anki.find.fieldNames(self.col, downcase=False), key=lambda x: x.lower()
         )
         frm.fields.addItems(fields)
-        restore_combo_index(frm.fields, fields, "findDupesFields")
+        restore_combo_index_for_session(frm.fields, fields, "findDupesFields")
         self._dupesButton = None
 
         # links
@@ -2035,7 +2035,7 @@ update cards set usn=?, mod=?, did=? where id in """
 
         def onClick():
             search_text = save_combo_history(frm.search, searchHistory, "findDupesFind")
-            save_combo_index(frm.fields, "findDupesFields")
+            save_combo_index_for_session(frm.fields, "findDupesFields")
             field = fields[frm.fields.currentIndex()]
             self.duplicatesReport(frm.webView, field, search_text, frm, web_context)
 
