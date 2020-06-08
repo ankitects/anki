@@ -231,7 +231,7 @@ jobs:
         shell: cmd
         run: |
           echo on
-          curl -LO https://download.lfd.uci.edu/pythonlibs/s2jqpv5t/%pyaudio%
+          curl -LO https://github.com/ankitects/pyaudio-windows/raw/master/%pyaudio%
           curl -LO http://repo.msys2.org/msys/x86_64/%rsyncbin%
 
           :: https://stackoverflow.com/questions/1359793/programmatically-extract-tar-gz
