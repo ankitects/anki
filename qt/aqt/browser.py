@@ -1617,7 +1617,7 @@ where id in %s"""
         else:
             # last selection at top; place one above topmost selection
             newRow = min(selectedRows) - 1
-        self.col.remNotes(nids)
+        self.col.remove_notes(nids)
         self.search()
         if len(self.model.cards):
             newRow = min(newRow, len(self.model.cards) - 1)

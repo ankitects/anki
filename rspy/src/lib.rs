@@ -113,6 +113,11 @@ fn want_release_gil(method: u32) -> bool {
             BackendMethod::SyncStatus => true,
             BackendMethod::FullUpload => true,
             BackendMethod::FullDownload => true,
+            BackendMethod::RemoveNotes => true,
+            BackendMethod::RemoveCards => true,
+            BackendMethod::UpdateStats => true,
+            BackendMethod::ExtendLimits => true,
+            BackendMethod::CountsForDeckToday => true,
         }
     } else {
         false

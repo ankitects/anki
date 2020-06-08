@@ -93,6 +93,9 @@ service BackendService {
     rpc SchedTimingToday (Empty) returns (SchedTimingTodayOut);
     rpc StudiedToday (StudiedTodayIn) returns (String);
     rpc CongratsLearnMessage (CongratsLearnMessageIn) returns (String);
+    rpc UpdateStats (UpdateStatsIn) returns (Empty);
+    rpc ExtendLimits (ExtendLimitsIn) returns (Empty);
+    rpc CountsForDeckToday (DeckID) returns (CountsForDeckTodayOut);
 
     // media
 
@@ -127,6 +130,7 @@ service BackendService {
     rpc GetCard (CardID) returns (Card);
     rpc UpdateCard (Card) returns (Empty);
     rpc AddCard (Card) returns (CardID);
+    rpc RemoveCards (RemoveCardsIn) returns (Empty);
 
     // notes
 
@@ -134,6 +138,7 @@ service BackendService {
     rpc AddNote (AddNoteIn) returns (NoteID);
     rpc UpdateNote (Note) returns (Empty);
     rpc GetNote (NoteID) returns (Note);
+    rpc RemoveNotes (RemoveNotesIn) returns (Empty);
     rpc AddNoteTags (AddNoteTagsIn) returns (UInt32);
     rpc UpdateNoteTags (UpdateNoteTagsIn) returns (UInt32);
     rpc ClozeNumbersInNote (Note) returns (ClozeNumbersInNoteOut);
@@ -248,8 +253,11 @@ message DeckCommon {
     uint32 last_day_studied = 3;
     int32 new_studied = 4;
     int32 review_studied = 5;
+    int32 milliseconds_studied = 7;
+
+    // previously set in the v1 scheduler,
+    // but not currently used for anything
     int32 learning_studied = 6;
-    int32 secs_studied = 7;
 
     bytes other = 255;
 }
@@ -526,6 +534,7 @@ message SchedTimingTodayOut {
 message DeckTreeIn {
     bool include_counts = 1;
     int64 top_deck_id = 2;
+    int32 today_delta = 3;
 }
 
 message DeckTreeNode {
@@ -932,4 +941,31 @@ message SyncCollectionOut {
 message SyncAuth {
     string hkey = 1;
     uint32 host_number = 2;
+}
+
+message RemoveNotesIn {
+    repeated int64 note_ids = 1;
+    repeated int64 card_ids = 2;
+}
+
+message RemoveCardsIn {
+    repeated int64 card_ids = 1;
+}
+
+message UpdateStatsIn {
+    int64 deck_id = 1;
+    int32 new_delta = 2;
+    int32 review_delta = 4;
+    int32 millisecond_delta = 5;
+}
+
+message ExtendLimitsIn {
+    int64 deck_id = 1;
+    int32 new_delta = 2;
+    int32 review_delta = 3;
+}
+
+message CountsForDeckTodayOut {
+    int32 new = 1;
+    int32 review = 2;
 }

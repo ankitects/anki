@@ -44,8 +44,8 @@ class MediaManager:
 
     def __init__(self, col: anki.collection.Collection, server: bool) -> None:
         self.col = col.weakref()
+        self._dir: Optional[str] = None
         if server:
-            self._dir = None
             return
         # media directory
         self._dir = media_paths_from_col_path(self.col.path)[0]
@@ -82,7 +82,7 @@ class MediaManager:
                 # may have been deleted
                 pass
 
-    def dir(self) -> Any:
+    def dir(self) -> Optional[str]:
         return self._dir
 
     def force_resync(self) -> None:

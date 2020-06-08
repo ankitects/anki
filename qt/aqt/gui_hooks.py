@@ -35,6 +35,9 @@ class _AddCardsDidAddNoteHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self, note: anki.notes.Note) -> None:
         for hook in self._hooks:
             try:
@@ -60,6 +63,9 @@ class _AddCardsDidInitHook:
     def remove(self, cb: Callable[["aqt.addcards.AddCards"], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
 
     def __call__(self, addcards: aqt.addcards.AddCards) -> None:
         for hook in self._hooks:
@@ -97,6 +103,9 @@ class _AddCardsWillAddNoteFilter:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self, problem: Optional[str], note: anki.notes.Note) -> Optional[str]:
         for filter in self._hooks:
             try:
@@ -121,6 +130,9 @@ class _AddCardsWillShowHistoryMenuHook:
     def remove(self, cb: Callable[["aqt.addcards.AddCards", QMenu], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
 
     def __call__(self, addcards: aqt.addcards.AddCards, menu: QMenu) -> None:
         for hook in self._hooks:
@@ -154,6 +166,9 @@ class _AddonConfigEditorWillDisplayJsonFilter:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self, text: str) -> str:
         for filter in self._hooks:
             try:
@@ -182,6 +197,9 @@ class _AddonConfigEditorWillSaveJsonFilter:
     def remove(self, cb: Callable[[str], str]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
 
     def __call__(self, text: str) -> str:
         for filter in self._hooks:
@@ -216,6 +234,9 @@ class _AddonsDialogDidChangeSelectedAddonHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(
         self, dialog: aqt.addons.AddonsDialog, add_on: aqt.addons.AddonMeta
     ) -> None:
@@ -245,6 +266,9 @@ class _AddonsDialogWillShowHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self, dialog: aqt.addons.AddonsDialog) -> None:
         for hook in self._hooks:
             try:
@@ -273,6 +297,9 @@ class _AvPlayerDidBeginPlayingHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self, player: aqt.sound.Player, tag: anki.sound.AVTag) -> None:
         for hook in self._hooks:
             try:
@@ -296,6 +323,9 @@ class _AvPlayerDidEndPlayingHook:
     def remove(self, cb: Callable[["aqt.sound.Player"], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
 
     def __call__(self, player: aqt.sound.Player) -> None:
         for hook in self._hooks:
@@ -321,6 +351,9 @@ class _AvPlayerWillPlayHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self, tag: anki.sound.AVTag) -> None:
         for hook in self._hooks:
             try:
@@ -345,6 +378,9 @@ class _BackupDidCompleteHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self) -> None:
         for hook in self._hooks:
             try:
@@ -368,6 +404,9 @@ class _BrowserDidChangeRowHook:
     def remove(self, cb: Callable[["aqt.browser.Browser"], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
 
     def __call__(self, browser: aqt.browser.Browser) -> None:
         for hook in self._hooks:
@@ -397,6 +436,9 @@ class _BrowserDidSearchHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self, context: aqt.browser.SearchContext) -> None:
         for hook in self._hooks:
             try:
@@ -421,6 +463,9 @@ class _BrowserHeaderWillShowContextMenuHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self, browser: aqt.browser.Browser, menu: QMenu) -> None:
         for hook in self._hooks:
             try:
@@ -444,6 +489,9 @@ class _BrowserMenusDidInitHook:
     def remove(self, cb: Callable[["aqt.browser.Browser"], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
 
     def __call__(self, browser: aqt.browser.Browser) -> None:
         for hook in self._hooks:
@@ -539,6 +587,9 @@ class _BrowserWillBuildTreeFilter:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(
         self,
         handled: bool,
@@ -582,6 +633,9 @@ class _BrowserWillSearchHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self, context: aqt.browser.SearchContext) -> None:
         for hook in self._hooks:
             try:
@@ -606,6 +660,9 @@ class _BrowserWillShowHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self, browser: aqt.browser.Browser) -> None:
         for hook in self._hooks:
             try:
@@ -629,6 +686,9 @@ class _BrowserWillShowContextMenuHook:
     def remove(self, cb: Callable[["aqt.browser.Browser", QMenu], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
 
     def __call__(self, browser: aqt.browser.Browser, menu: QMenu) -> None:
         for hook in self._hooks:
@@ -659,6 +719,9 @@ class _CardLayoutWillShowHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self, clayout: aqt.clayout.CardLayout) -> None:
         for hook in self._hooks:
             try:
@@ -684,6 +747,9 @@ class _CardWillShowFilter:
     def remove(self, cb: Callable[[str, Card, str], str]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
 
     def __call__(self, text: str, card: Card, kind: str) -> str:
         for filter in self._hooks:
@@ -712,6 +778,9 @@ class _CollectionDidLoadHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self, col: anki.collection.Collection) -> None:
         for hook in self._hooks:
             try:
@@ -737,6 +806,9 @@ class _CurrentNoteTypeDidChangeHook:
     def remove(self, cb: Callable[[Dict[str, Any]], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
 
     def __call__(self, notetype: Dict[str, Any]) -> None:
         for hook in self._hooks:
@@ -767,6 +839,9 @@ class _DebugConsoleDidEvaluatePythonFilter:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self, output: str, query: str, debug_window: QDialog) -> str:
         for filter in self._hooks:
             try:
@@ -795,6 +870,9 @@ class _DebugConsoleWillShowHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self, debug_window: QDialog) -> None:
         for hook in self._hooks:
             try:
@@ -820,6 +898,9 @@ class _DeckBrowserDidRenderHook:
     def remove(self, cb: Callable[["aqt.deckbrowser.DeckBrowser"], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
 
     def __call__(self, deck_browser: aqt.deckbrowser.DeckBrowser) -> None:
         for hook in self._hooks:
@@ -874,6 +955,9 @@ class _DeckBrowserWillRenderContentHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(
         self,
         deck_browser: aqt.deckbrowser.DeckBrowser,
@@ -901,6 +985,9 @@ class _DeckBrowserWillShowOptionsMenuHook:
     def remove(self, cb: Callable[[QMenu, int], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
 
     def __call__(self, menu: QMenu, deck_id: int) -> None:
         for hook in self._hooks:
@@ -943,6 +1030,9 @@ class _DeckConfDidAddConfigHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(
         self,
         deck_conf: aqt.deckconf.DeckConf,
@@ -976,6 +1066,9 @@ class _DeckConfDidLoadConfigHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(
         self, deck_conf: aqt.deckconf.DeckConf, deck: Any, config: Any
     ) -> None:
@@ -1004,6 +1097,9 @@ class _DeckConfDidSetupUiFormHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self, deck_conf: aqt.deckconf.DeckConf) -> None:
         for hook in self._hooks:
             try:
@@ -1029,6 +1125,9 @@ class _DeckConfWillRemoveConfigHook:
     def remove(self, cb: Callable[["aqt.deckconf.DeckConf", Any, Any], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
 
     def __call__(
         self, deck_conf: aqt.deckconf.DeckConf, deck: Any, config: Any
@@ -1062,6 +1161,9 @@ class _DeckConfWillRenameConfigHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(
         self, deck_conf: aqt.deckconf.DeckConf, deck: Any, config: Any, new_name: str
     ) -> None:
@@ -1089,6 +1191,9 @@ class _DeckConfWillSaveConfigHook:
     def remove(self, cb: Callable[["aqt.deckconf.DeckConf", Any, Any], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
 
     def __call__(
         self, deck_conf: aqt.deckconf.DeckConf, deck: Any, config: Any
@@ -1118,6 +1223,9 @@ class _DeckConfWillShowHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self, deck_conf: aqt.deckconf.DeckConf) -> None:
         for hook in self._hooks:
             try:
@@ -1141,6 +1249,9 @@ class _EditorDidFireTypingTimerHook:
     def remove(self, cb: Callable[["anki.notes.Note"], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
 
     def __call__(self, note: anki.notes.Note) -> None:
         for hook in self._hooks:
@@ -1168,6 +1279,9 @@ class _EditorDidFocusFieldHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self, note: anki.notes.Note, current_field_idx: int) -> None:
         for hook in self._hooks:
             try:
@@ -1194,6 +1308,9 @@ class _EditorDidInitHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self, editor: aqt.editor.Editor) -> None:
         for hook in self._hooks:
             try:
@@ -1218,6 +1335,9 @@ class _EditorDidInitButtonsHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self, buttons: List, editor: aqt.editor.Editor) -> None:
         for hook in self._hooks:
             try:
@@ -1241,6 +1361,9 @@ class _EditorDidInitShortcutsHook:
     def remove(self, cb: Callable[[List[Tuple], "aqt.editor.Editor"], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
 
     def __call__(self, shortcuts: List[Tuple], editor: aqt.editor.Editor) -> None:
         for hook in self._hooks:
@@ -1268,6 +1391,9 @@ class _EditorDidLoadNoteHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self, editor: aqt.editor.Editor) -> None:
         for hook in self._hooks:
             try:
@@ -1293,6 +1419,9 @@ class _EditorDidUnfocusFieldFilter:
     def remove(self, cb: Callable[[bool, "anki.notes.Note", int], bool]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
 
     def __call__(
         self, changed: bool, note: anki.notes.Note, current_field_idx: int
@@ -1323,6 +1452,9 @@ class _EditorDidUpdateTagsHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self, note: anki.notes.Note) -> None:
         for hook in self._hooks:
             try:
@@ -1348,6 +1480,9 @@ class _EditorWebViewDidInitHook:
     def remove(self, cb: Callable[["aqt.editor.EditorWebView"], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
 
     def __call__(self, editor_web_view: aqt.editor.EditorWebView) -> None:
         for hook in self._hooks:
@@ -1380,6 +1515,9 @@ class _EditorWillLoadNoteFilter:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(
         self, js: str, note: anki.notes.Note, editor: aqt.editor.Editor
     ) -> str:
@@ -1407,6 +1545,9 @@ class _EditorWillShowContextMenuHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self, editor_webview: aqt.editor.EditorWebView, menu: QMenu) -> None:
         for hook in self._hooks:
             try:
@@ -1432,6 +1573,9 @@ class _EditorWillUseFontForFieldFilter:
     def remove(self, cb: Callable[[str], str]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
 
     def __call__(self, font: str) -> str:
         for filter in self._hooks:
@@ -1461,6 +1605,9 @@ class _EmptyCardsWillShowHook:
     def remove(self, cb: Callable[["aqt.emptycards.EmptyCardsDialog"], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
 
     def __call__(self, diag: aqt.emptycards.EmptyCardsDialog) -> None:
         for hook in self._hooks:
@@ -1494,6 +1641,9 @@ class _MainWindowDidInitHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self) -> None:
         for hook in self._hooks:
             try:
@@ -1517,6 +1667,9 @@ class _MediaSyncDidProgressHook:
     def remove(self, cb: Callable[["aqt.mediasync.LogEntryWithTime"], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
 
     def __call__(self, entry: aqt.mediasync.LogEntryWithTime) -> None:
         for hook in self._hooks:
@@ -1542,6 +1695,9 @@ class _MediaSyncDidStartOrStopHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self, running: bool) -> None:
         for hook in self._hooks:
             try:
@@ -1565,6 +1721,9 @@ class _ModelsAdvancedWillShowHook:
     def remove(self, cb: Callable[[QDialog], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
 
     def __call__(self, advanced: QDialog) -> None:
         for hook in self._hooks:
@@ -1592,6 +1751,9 @@ class _OverviewDidRefreshHook:
     def remove(self, cb: Callable[["aqt.overview.Overview"], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
 
     def __call__(self, overview: aqt.overview.Overview) -> None:
         for hook in self._hooks:
@@ -1640,6 +1802,9 @@ class _OverviewWillRenderContentHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(
         self, overview: aqt.overview.Overview, content: aqt.overview.OverviewContent
     ) -> None:
@@ -1673,6 +1838,9 @@ class _ProfileDidOpenHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self) -> None:
         for hook in self._hooks:
             try:
@@ -1698,6 +1866,9 @@ class _ProfileWillCloseHook:
     def remove(self, cb: Callable[[], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
 
     def __call__(self) -> None:
         for hook in self._hooks:
@@ -1725,6 +1896,9 @@ class _ReviewDidUndoHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self, card_id: int) -> None:
         for hook in self._hooks:
             try:
@@ -1751,6 +1925,9 @@ class _ReviewerDidAnswerCardHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self, reviewer: aqt.reviewer.Reviewer, card: Card, ease: int) -> None:
         for hook in self._hooks:
             try:
@@ -1774,6 +1951,9 @@ class _ReviewerDidShowAnswerHook:
     def remove(self, cb: Callable[[Card], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
 
     def __call__(self, card: Card) -> None:
         for hook in self._hooks:
@@ -1800,6 +1980,9 @@ class _ReviewerDidShowQuestionHook:
     def remove(self, cb: Callable[[Card], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
 
     def __call__(self, card: Card) -> None:
         for hook in self._hooks:
@@ -1849,6 +2032,9 @@ class _ReviewerWillAnswerCardFilter:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(
         self, ease_tuple: Tuple[bool, int], reviewer: aqt.reviewer.Reviewer, card: Card
     ) -> Tuple[bool, int]:
@@ -1878,6 +2064,9 @@ class _ReviewerWillEndHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self) -> None:
         for hook in self._hooks:
             try:
@@ -1903,6 +2092,9 @@ class _ReviewerWillShowContextMenuHook:
     def remove(self, cb: Callable[["aqt.reviewer.Reviewer", QMenu], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
 
     def __call__(self, reviewer: aqt.reviewer.Reviewer, menu: QMenu) -> None:
         for hook in self._hooks:
@@ -1930,6 +2122,9 @@ class _SidebarShouldRefreshDecksHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self) -> None:
         for hook in self._hooks:
             try:
@@ -1954,6 +2149,9 @@ class _SidebarShouldRefreshNotetypesHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self) -> None:
         for hook in self._hooks:
             try:
@@ -1977,6 +2175,9 @@ class _StateDidChangeHook:
     def remove(self, cb: Callable[[str, str], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
 
     def __call__(self, new_state: str, old_state: str) -> None:
         for hook in self._hooks:
@@ -2006,6 +2207,9 @@ class _StateDidResetHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self) -> None:
         for hook in self._hooks:
             try:
@@ -2034,6 +2238,9 @@ class _StateDidRevertHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self, action: str) -> None:
         for hook in self._hooks:
             try:
@@ -2060,6 +2267,9 @@ class _StateShortcutsWillChangeHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self, state: str, shortcuts: List[Tuple[str, Callable]]) -> None:
         for hook in self._hooks:
             try:
@@ -2083,6 +2293,9 @@ class _StateWillChangeHook:
     def remove(self, cb: Callable[[str, str], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
 
     def __call__(self, new_state: str, old_state: str) -> None:
         for hook in self._hooks:
@@ -2110,6 +2323,9 @@ class _StyleDidInitFilter:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self, style: str) -> str:
         for filter in self._hooks:
             try:
@@ -2136,6 +2352,9 @@ class _TagEditorDidProcessKeyHook:
     def remove(self, cb: Callable[[TagEdit, QEvent], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
 
     def __call__(self, tag_edit: TagEdit, evt: QEvent) -> None:
         for hook in self._hooks:
@@ -2172,6 +2391,9 @@ class _TopToolbarDidInitLinksHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(self, links: List[str], top_toolbar: aqt.toolbar.Toolbar) -> None:
         for hook in self._hooks:
             try:
@@ -2195,6 +2417,9 @@ class _UndoStateDidChangeHook:
     def remove(self, cb: Callable[[bool], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
 
     def __call__(self, can_undo: bool) -> None:
         for hook in self._hooks:
@@ -2256,6 +2481,9 @@ class _WebviewDidReceiveJsMessageFilter:
     ) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
 
     def __call__(
         self, handled: Tuple[bool, Any], message: str, context: Any
@@ -2319,6 +2547,9 @@ class _WebviewWillSetContentHook:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
+    def count(self) -> int:
+        return len(self._hooks)
+
     def __call__(
         self, web_content: aqt.webview.WebContent, context: Optional[Any]
     ) -> None:
@@ -2344,6 +2575,9 @@ class _WebviewWillShowContextMenuHook:
     def remove(self, cb: Callable[["aqt.webview.AnkiWebView", QMenu], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
 
     def __call__(self, webview: aqt.webview.AnkiWebView, menu: QMenu) -> None:
         for hook in self._hooks:

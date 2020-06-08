@@ -265,8 +265,8 @@ class AnkiQt(QMainWindow):
         # will be shown again
         self.loadProfile(self.profileDiag.closeWithoutQuitting)
 
-    def profileNameOk(self, str):
-        return not checkInvalidFilename(str)
+    def profileNameOk(self, name: str) -> bool:
+        return not checkInvalidFilename(name) and name != "addons21"
 
     def onAddProfile(self):
         name = getOnlyText(_("Name:")).strip()
@@ -1284,7 +1284,7 @@ and if the problem comes up again, please ask on the support site."""
     # Log note deletion
     ##########################################################################
 
-    def onRemNotes(self, col: Collection, nids: List[int]) -> None:
+    def onRemNotes(self, col: Collection, nids: Sequence[int]) -> None:
         path = os.path.join(self.pm.profileFolder(), "deleted.txt")
         existed = os.path.exists(path)
         with open(path, "ab") as f:

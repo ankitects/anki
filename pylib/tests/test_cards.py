@@ -12,7 +12,7 @@ def test_delete():
     cid = f.cards()[0].id
     deck.reset()
     deck.sched.answerCard(deck.sched.getCard(), 2)
-    deck.remCards([cid])
+    deck.remove_cards_and_orphaned_notes([cid])
     assert deck.cardCount() == 0
     assert deck.noteCount() == 0
     assert deck.db.scalar("select count() from notes") == 0
@@ -53,7 +53,7 @@ def test_genrem():
     mm.save(m, templates=True)
     rep = d.backend.get_empty_cards()
     for note in rep.notes:
-        d.remCards(note.card_ids)
+        d.remove_cards_and_orphaned_notes(note.card_ids)
     assert len(f.cards()) == 1
     # if we add to the note, a card should be automatically generated
     f.load()

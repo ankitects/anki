@@ -69,6 +69,17 @@ impl Deck {
             kind: DeckKind::Filtered(filt),
         }
     }
+
+    fn reset_stats_if_day_changed(&mut self, today: u32) {
+        let c = &mut self.common;
+        if c.last_day_studied != today {
+            c.new_studied = 0;
+            c.learning_studied = 0;
+            c.review_studied = 0;
+            c.milliseconds_studied = 0;
+            c.last_day_studied = today;
+        }
+    }
 }
 
 impl Deck {
@@ -185,7 +196,7 @@ impl From<DeckKind> for pb::deck::Kind {
     }
 }
 
-fn immediate_parent_name(machine_name: &str) -> Option<&str> {
+pub(crate) fn immediate_parent_name(machine_name: &str) -> Option<&str> {
     machine_name.rsplitn(2, '\x1f').nth(1)
 }
 
@@ -420,7 +431,7 @@ impl Collection {
 
     fn delete_all_cards_in_normal_deck(&mut self, did: DeckID) -> Result<()> {
         let cids = self.storage.all_cards_in_single_deck(did)?;
-        self.remove_cards_inner(&cids)
+        self.remove_cards_and_orphaned_notes(&cids)
     }
 
     fn return_all_cards_in_filtered_deck(&mut self, did: DeckID) -> Result<()> {
@@ -464,6 +475,86 @@ impl Collection {
                 _ => true,
             })
             .collect())
+    }
+
+    /// Apply input delta to deck, and its parents.
+    /// Caller should ensure transaction.
+    pub(crate) fn update_deck_stats(
+        &mut self,
+        today: u32,
+        usn: Usn,
+        input: pb::UpdateStatsIn,
+    ) -> Result<()> {
+        let did = input.deck_id.into();
+        let mutator = |c: &mut DeckCommon| {
+            c.new_studied += input.new_delta;
+            c.review_studied += input.review_delta;
+            c.milliseconds_studied += input.millisecond_delta;
+        };
+        if let Some(mut deck) = self.storage.get_deck(did)? {
+            self.update_deck_stats_single(today, usn, &mut deck, mutator)?;
+            for mut deck in self.storage.parent_decks(&deck)? {
+                self.update_deck_stats_single(today, usn, &mut deck, mutator)?;
+            }
+        }
+        Ok(())
+    }
+
+    /// Modify the deck's limits by adjusting the 'done today' count.
+    /// Positive values increase the limit, negative value decrease it.
+    /// Caller should ensure a transaction.
+    pub(crate) fn extend_limits(
+        &mut self,
+        today: u32,
+        usn: Usn,
+        did: DeckID,
+        new_delta: i32,
+        review_delta: i32,
+    ) -> Result<()> {
+        let mutator = |c: &mut DeckCommon| {
+            c.new_studied -= new_delta;
+            c.review_studied -= review_delta;
+        };
+        if let Some(mut deck) = self.storage.get_deck(did)? {
+            self.update_deck_stats_single(today, usn, &mut deck, mutator)?;
+            for mut deck in self.storage.parent_decks(&deck)? {
+                self.update_deck_stats_single(today, usn, &mut deck, mutator)?;
+            }
+            for mut deck in self.storage.child_decks(&deck)? {
+                self.update_deck_stats_single(today, usn, &mut deck, mutator)?;
+            }
+        }
+
+        Ok(())
+    }
+
+    pub(crate) fn counts_for_deck_today(
+        &mut self,
+        did: DeckID,
+    ) -> Result<pb::CountsForDeckTodayOut> {
+        let today = self.current_due_day(0)?;
+        let mut deck = self.storage.get_deck(did)?.ok_or(AnkiError::NotFound)?;
+        deck.reset_stats_if_day_changed(today);
+        Ok(pb::CountsForDeckTodayOut {
+            new: deck.common.new_studied,
+            review: deck.common.review_studied,
+        })
+    }
+
+    fn update_deck_stats_single<F>(
+        &mut self,
+        today: u32,
+        usn: Usn,
+        deck: &mut Deck,
+        mutator: F,
+    ) -> Result<()>
+    where
+        F: FnOnce(&mut DeckCommon),
+    {
+        deck.reset_stats_if_day_changed(today);
+        mutator(&mut deck.common);
+        deck.set_modified(usn);
+        self.add_or_update_single_deck(deck, usn)
     }
 }
 

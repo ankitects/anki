@@ -702,7 +702,7 @@ _tooltipTimer: Optional[QTimer] = None
 _tooltipLabel: Optional[QLabel] = None
 
 
-def tooltip(msg, period=3000, parent=None):
+def tooltip(msg, period=3000, parent=None, x_offset=0, y_offset=100):
     global _tooltipTimer, _tooltipLabel
 
     class CustomLabel(QLabel):
@@ -732,7 +732,7 @@ def tooltip(msg, period=3000, parent=None):
         p.setColor(QPalette.Window, QColor("#feffc4"))
         p.setColor(QPalette.WindowText, QColor("#000000"))
         lab.setPalette(p)
-    lab.move(aw.mapToGlobal(QPoint(0, -100 + aw.height())))
+    lab.move(aw.mapToGlobal(QPoint(0 + x_offset, aw.height() - y_offset)))
     lab.show()
     _tooltipTimer = aqt.mw.progress.timer(
         period, closeTooltip, False, requiresCollection=False

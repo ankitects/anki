@@ -467,6 +467,40 @@ impl BackendService for Backend {
         Ok(learning_congrats(input.remaining as usize, input.next_due, &self.i18n).into())
     }
 
+    fn update_stats(&mut self, input: pb::UpdateStatsIn) -> BackendResult<Empty> {
+        self.with_col(|col| {
+            col.transact(None, |col| {
+                let today = col.current_due_day(0)?;
+                let usn = col.usn()?;
+                col.update_deck_stats(today, usn, input).map(Into::into)
+            })
+        })
+    }
+
+    fn extend_limits(&mut self, input: pb::ExtendLimitsIn) -> BackendResult<Empty> {
+        self.with_col(|col| {
+            col.transact(None, |col| {
+                let today = col.current_due_day(0)?;
+                let usn = col.usn()?;
+                col.extend_limits(
+                    today,
+                    usn,
+                    input.deck_id.into(),
+                    input.new_delta,
+                    input.review_delta,
+                )
+                .map(Into::into)
+            })
+        })
+    }
+
+    fn counts_for_deck_today(
+        &mut self,
+        input: pb::DeckId,
+    ) -> BackendResult<pb::CountsForDeckTodayOut> {
+        self.with_col(|col| col.counts_for_deck_today(input.did.into()))
+    }
+
     // decks
     //-----------------------------------------------
 
@@ -476,7 +510,14 @@ impl BackendService for Backend {
         } else {
             None
         };
-        self.with_col(|col| col.deck_tree(input.include_counts, lim))
+        self.with_col(|col| {
+            let today = if input.include_counts {
+                Some(col.current_due_day(input.today_delta)?)
+            } else {
+                None
+            };
+            col.deck_tree(today, lim)
+        })
     }
 
     fn deck_tree_legacy(&mut self, _input: pb::Empty) -> BackendResult<pb::Json> {
@@ -653,6 +694,21 @@ impl BackendService for Backend {
         Ok(pb::CardId { cid: card.id.0 })
     }
 
+    fn remove_cards(&mut self, input: pb::RemoveCardsIn) -> BackendResult<Empty> {
+        self.with_col(|col| {
+            col.transact(None, |col| {
+                col.remove_cards_and_orphaned_notes(
+                    &input
+                        .card_ids
+                        .into_iter()
+                        .map(Into::into)
+                        .collect::<Vec<_>>(),
+                )?;
+                Ok(().into())
+            })
+        })
+    }
+
     // notes
     //-------------------------------------------------------------------
 
@@ -685,6 +741,31 @@ impl BackendService for Backend {
                 .get_note(input.into())?
                 .ok_or(AnkiError::NotFound)
                 .map(Into::into)
+        })
+    }
+
+    fn remove_notes(&mut self, input: pb::RemoveNotesIn) -> BackendResult<Empty> {
+        self.with_col(|col| {
+            if !input.note_ids.is_empty() {
+                col.remove_notes(
+                    &input
+                        .note_ids
+                        .into_iter()
+                        .map(Into::into)
+                        .collect::<Vec<_>>(),
+                )?;
+            }
+            if !input.card_ids.is_empty() {
+                let nids = col.storage.note_ids_of_cards(
+                    &input
+                        .card_ids
+                        .into_iter()
+                        .map(Into::into)
+                        .collect::<Vec<_>>(),
+                )?;
+                col.remove_notes(&nids.into_iter().collect::<Vec<_>>())?
+            }
+            Ok(().into())
         })
     }
 

@@ -715,7 +715,7 @@ to a cloze type first, via Edit>Change Note Type."""
         # return a local html link
         return self.fnameToLink(fname)
 
-    def _addMediaFromData(self, fname, data):
+    def _addMediaFromData(self, fname: str, data: bytes) -> str:
         return self.mw.col.media.writeData(fname, data)
 
     def onRecSound(self):
@@ -734,13 +734,13 @@ to a cloze type first, via Edit>Change Note Type."""
     # Media downloads
     ######################################################################
 
-    def urlToLink(self, url):
+    def urlToLink(self, url: str) -> Optional[str]:
         fname = self.urlToFile(url)
         if not fname:
             return None
         return self.fnameToLink(fname)
 
-    def fnameToLink(self, fname):
+    def fnameToLink(self, fname: str) -> str:
         ext = fname.split(".")[-1].lower()
         if ext in pics:
             name = urllib.parse.quote(fname.encode("utf8"))
@@ -749,13 +749,13 @@ to a cloze type first, via Edit>Change Note Type."""
             av_player.play_file(fname)
             return "[sound:%s]" % fname
 
-    def urlToFile(self, url):
+    def urlToFile(self, url: str) -> Optional[str]:
         l = url.lower()
         for suffix in pics + audio:
             if l.endswith("." + suffix):
                 return self._retrieveURL(url)
         # not a supported type
-        return
+        return None
 
     def isURL(self, s):
         s = s.lower()
@@ -766,7 +766,7 @@ to a cloze type first, via Edit>Change Note Type."""
             or s.startswith("file://")
         )
 
-    def inlinedImageToFilename(self, txt):
+    def inlinedImageToFilename(self, txt: str) -> str:
         prefix = "data:image/"
         suffix = ";base64,"
         for ext in ("jpg", "jpeg", "png", "gif"):
@@ -780,7 +780,7 @@ to a cloze type first, via Edit>Change Note Type."""
 
         return ""
 
-    def inlinedImageToLink(self, src):
+    def inlinedImageToLink(self, src: str) -> str:
         fname = self.inlinedImageToFilename(src)
         if fname:
             return self.fnameToLink(fname)
@@ -788,13 +788,13 @@ to a cloze type first, via Edit>Change Note Type."""
         return ""
 
     # ext should include dot
-    def _addPastedImage(self, data, ext):
+    def _addPastedImage(self, data: bytes, ext: str) -> str:
         # hash and write
         csum = checksum(data)
         fname = "{}-{}{}".format("paste", csum, ext)
         return self._addMediaFromData(fname, data)
 
-    def _retrieveURL(self, url):
+    def _retrieveURL(self, url: str) -> Optional[str]:
         "Download file into media folder and return local filename or None."
         # urllib doesn't understand percent-escaped utf8, but requires things like
         # '#' to be escaped.
@@ -824,12 +824,12 @@ to a cloze type first, via Edit>Change Note Type."""
                             error_msg = (
                                 _("Unexpected response code: %s") % response.status_code
                             )
-                            return
+                            return None
                         filecontents = response.content
                         content_type = response.headers.get("content-type")
         except (urllib.error.URLError, requests.exceptions.RequestException) as e:
             error_msg = _("An error occurred while opening %s") % e
-            return
+            return None
         finally:
             self.mw.progress.finish()
             if error_msg:
@@ -893,15 +893,14 @@ to a cloze type first, via Edit>Change Note Type."""
         html = str(doc)
         return html
 
-    def doPaste(self, html, internal, extended=False):
+    def doPaste(self, html: str, internal: bool, extended: bool = False) -> None:
         html = self._pastePreFilter(html, internal)
         if extended:
-            extended = "true"
+            ext = "true"
         else:
-            extended = "false"
+            ext = "false"
         self.web.eval(
-            "pasteHTML(%s, %s, %s);"
-            % (json.dumps(html), json.dumps(internal), extended)
+            "pasteHTML(%s, %s, %s);" % (json.dumps(html), json.dumps(internal), ext)
         )
 
     def doDrop(self, html, internal):
@@ -1009,7 +1008,7 @@ class EditorWebView(AnkiWebView):
     def onCopy(self):
         self.triggerPageAction(QWebEnginePage.Copy)
 
-    def _onPaste(self, mode):
+    def _onPaste(self, mode: QClipboard.Mode) -> None:
         extended = not (self.editor.mw.app.queryKeyboardModifiers() & Qt.ShiftModifier)
         if self.editor.mw.pm.profile.get("pasteInvert", False):
             extended = not extended
@@ -1019,10 +1018,10 @@ class EditorWebView(AnkiWebView):
             return
         self.editor.doPaste(html, internal, extended)
 
-    def onPaste(self):
+    def onPaste(self) -> None:
         self._onPaste(QClipboard.Clipboard)
 
-    def onMiddleClickPaste(self):
+    def onMiddleClickPaste(self) -> None:
         self._onPaste(QClipboard.Selection)
 
     def dropEvent(self, evt):
@@ -1040,7 +1039,7 @@ class EditorWebView(AnkiWebView):
         self.editor.doDrop(html, internal)
 
     # returns (html, isInternal)
-    def _processMime(self, mime):
+    def _processMime(self, mime: QMimeData) -> Tuple[str, bool]:
         # print("html=%s image=%s urls=%s txt=%s" % (
         #     mime.hasHtml(), mime.hasImage(), mime.hasUrls(), mime.hasText()))
         # print("html", mime.html())
@@ -1064,22 +1063,22 @@ class EditorWebView(AnkiWebView):
                 return html, True
         return "", False
 
-    def _processUrls(self, mime):
+    def _processUrls(self, mime: QMimeData) -> Optional[str]:
         if not mime.hasUrls():
-            return
+            return None
 
         buf = ""
-        for url in mime.urls():
-            url = url.toString()
+        for qurl in mime.urls():
+            url = qurl.toString()
             # chrome likes to give us the URL twice with a \n
             url = url.splitlines()[0]
             buf += self.editor.urlToLink(url) or ""
 
         return buf
 
-    def _processText(self, mime):
+    def _processText(self, mime: QMimeData) -> Optional[str]:
         if not mime.hasText():
-            return
+            return None
 
         txt = mime.text()
 
@@ -1111,7 +1110,7 @@ class EditorWebView(AnkiWebView):
 
         return txt
 
-    def _processHtml(self, mime):
+    def _processHtml(self, mime: QMimeData) -> Tuple[Optional[str], bool]:
         if not mime.hasHtml():
             return None, False
         html = mime.html()
@@ -1122,9 +1121,9 @@ class EditorWebView(AnkiWebView):
 
         return html, False
 
-    def _processImage(self, mime):
+    def _processImage(self, mime: QMimeData) -> Optional[str]:
         if not mime.hasImage():
-            return
+            return None
         im = QImage(mime.imageData())
         uname = namedtmp("paste")
         if self.editor.mw.pm.profile.get("pastePNG", False):
@@ -1137,13 +1136,14 @@ class EditorWebView(AnkiWebView):
         # invalid image?
         path = uname + ext
         if not os.path.exists(path):
-            return
+            return None
 
         with open(path, "rb") as file:
             data = file.read()
         fname = self.editor._addPastedImage(data, ext)
         if fname:
             return self.editor.fnameToLink(fname)
+        return None
 
     def flagAnkiText(self):
         # be ready to adjust when clipboard event fires

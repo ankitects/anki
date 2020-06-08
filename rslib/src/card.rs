@@ -206,7 +206,7 @@ impl Collection {
 
     /// Remove cards and any resulting orphaned notes.
     /// Expects a transaction.
-    pub(crate) fn remove_cards_inner(&mut self, cids: &[CardID]) -> Result<()> {
+    pub(crate) fn remove_cards_and_orphaned_notes(&mut self, cids: &[CardID]) -> Result<()> {
         let usn = self.usn()?;
         let mut nids = HashSet::new();
         for cid in cids {
@@ -222,6 +222,14 @@ impl Collection {
                 self.remove_note_only(nid, usn)?;
             }
         }
+
+        Ok(())
+    }
+
+    pub(crate) fn remove_card_only(&mut self, card: Card, usn: Usn) -> Result<()> {
+        // fixme: undo
+        self.storage.remove_card(card.id)?;
+        self.storage.add_card_grave(card.id, usn)?;
 
         Ok(())
     }

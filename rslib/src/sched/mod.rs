@@ -18,6 +18,10 @@ impl Collection {
         self.timing_for_timestamp(TimestampSecs::now())
     }
 
+    pub fn current_due_day(&mut self, delta: i32) -> Result<u32> {
+        Ok(((self.timing_today()?.days_elapsed as i32) + delta).max(0) as u32)
+    }
+
     pub(crate) fn timing_for_timestamp(&mut self, now: TimestampSecs) -> Result<SchedTimingToday> {
         let local_offset = if self.server {
             self.get_local_mins_west()
