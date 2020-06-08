@@ -470,6 +470,28 @@ def restoreState(widget, key: str):
         widget.restoreState(aqt.mw.pm.profile[key])
 
 
+def saveSplitter(widget, key):
+    key += "Splitter"
+    aqt.mw.pm.profile[key] = widget.saveState()
+
+
+def restoreSplitter(widget, key):
+    key += "Splitter"
+    if aqt.mw.pm.profile.get(key):
+        widget.restoreState(aqt.mw.pm.profile[key])
+
+
+def saveHeader(widget, key):
+    key += "Header"
+    aqt.mw.pm.profile[key] = widget.saveState()
+
+
+def restoreHeader(widget, key):
+    key += "Header"
+    if aqt.mw.pm.profile.get(key):
+        widget.restoreState(aqt.mw.pm.profile[key])
+
+
 def save_is_checked(widget, key: str):
     key += "IsChecked"
     aqt.mw.pm.profile[key] = widget.isChecked()
@@ -522,28 +544,6 @@ def restore_combo_history(comboBox: QComboBox, name: str):
             comboBox.lineEdit().setText(session_input)
             comboBox.lineEdit().selectAll()
     return history
-
-
-def saveSplitter(widget, key):
-    key += "Splitter"
-    aqt.mw.pm.profile[key] = widget.saveState()
-
-
-def restoreSplitter(widget, key):
-    key += "Splitter"
-    if aqt.mw.pm.profile.get(key):
-        widget.restoreState(aqt.mw.pm.profile[key])
-
-
-def saveHeader(widget, key):
-    key += "Header"
-    aqt.mw.pm.profile[key] = widget.saveState()
-
-
-def restoreHeader(widget, key):
-    key += "Header"
-    if aqt.mw.pm.profile.get(key):
-        widget.restoreState(aqt.mw.pm.profile[key])
 
 
 def mungeQA(col, txt):
