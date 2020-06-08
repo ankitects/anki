@@ -23,6 +23,9 @@ import uuid
 import PyQt5.QtSvg
 import socks
 
+# legacy compat
+import anki.storage
+import anki.sync
 from anki.utils import isLin, isWin
 
 # external module access in Windows
