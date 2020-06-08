@@ -13,7 +13,6 @@ import time
 import weakref
 import zipfile
 from argparse import Namespace
-from concurrent.futures import Future
 from threading import Thread
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
@@ -35,6 +34,7 @@ from anki.sound import AVTag, SoundOrVideoTag
 from anki.utils import devMode, ids2str, intTime, isMac, isWin, splitFields
 from aqt import gui_hooks
 from aqt.addons import DownloadLogEntry, check_and_prompt_for_updates, show_log_to_user
+from aqt.dbcheck import check_db
 from aqt.emptycards import show_empty_cards
 from aqt.legacy import install_pylib_legacy
 from aqt.mediacheck import check_media_db
@@ -59,7 +59,6 @@ from aqt.utils import (
     saveGeom,
     saveSplitter,
     showInfo,
-    showText,
     showWarning,
     tooltip,
     tr,
@@ -1334,28 +1333,7 @@ will be lost. Continue?"""
     ##########################################################################
 
     def onCheckDB(self):
-        def on_done(future: Future):
-            ret, ok = future.result()
-
-            if not ok:
-                showText(ret)
-            else:
-                tooltip(ret)
-
-            # if an error has directed the user to check the database,
-            # silently clean up any broken reset hooks which distract from
-            # the underlying issue
-            n = 0
-            while n < 10:
-                try:
-                    self.reset()
-                    break
-                except Exception as e:
-                    print("swallowed exception in reset hook:", e)
-                    n += 1
-                    continue
-
-        self.taskman.with_progress(self.col.fixIntegrity, on_done)
+        check_db(self)
 
     def on_check_media_db(self) -> None:
         check_media_db(self)

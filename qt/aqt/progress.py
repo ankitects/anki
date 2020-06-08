@@ -107,11 +107,13 @@ class ProgressManager:
         elapsed = time.time() - self._lastUpdate
         if label:
             self._win.form.label.setText(label)
-        self._max = max
+
+        self._max = max or 0
+        self._win.form.progressBar.setMaximum(self._max)
         if self._max:
-            self._win.form.progressBar.setMaximum(max)
             self._counter = value or (self._counter + 1)
             self._win.form.progressBar.setValue(self._counter)
+
         if process and elapsed >= 0.2:
             self._updating = True
             self.app.processEvents()
@@ -139,7 +141,6 @@ class ProgressManager:
         if not self._levels:
             return
         if self._shown:
-            self.update(maybeShow=False)
             return
         delta = time.time() - self._firstTime
         if delta > 0.5:
