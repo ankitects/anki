@@ -481,14 +481,14 @@ def restore_is_checked(widget, key: str):
         widget.setChecked(aqt.mw.pm.profile[key])
 
 
-def save_combo_index(widget: QComboBox, key: str):
+def save_combo_index_for_session(widget: QComboBox, key: str):
     textKey = key + "ComboActiveText"
     indexKey = key + "ComboActiveIndex"
     aqt.mw.pm.session[textKey] = widget.currentText()
     aqt.mw.pm.session[indexKey] = widget.currentIndex()
 
 
-def restore_combo_index(widget: QComboBox, history: List[str], key: str):
+def restore_combo_index_for_session(widget: QComboBox, history: List[str], key: str):
     textKey = key + "ComboActiveText"
     indexKey = key + "ComboActiveIndex"
     text = aqt.mw.pm.session.get(textKey)
