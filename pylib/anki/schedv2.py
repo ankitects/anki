@@ -19,6 +19,7 @@ from anki.rsbackend import (
     DeckTreeNode,
     FormatTimeSpanContext,
     SchedTimingToday,
+    from_json_bytes,
 )
 from anki.utils import ids2str, intTime
 
@@ -230,12 +231,12 @@ order by due"""
     # Deck list
     ##########################################################################
 
-    def deckDueTree(self) -> Any:
+    def deckDueTree(self) -> List:
         "List of (base name, did, rev, lrn, new, children)"
         print(
             "deckDueTree() is deprecated; use decks.deck_tree() for a tree without counts, or sched.deck_due_tree()"
         )
-        return self.col.backend.deck_tree_legacy()
+        return from_json_bytes(self.col.backend.deck_tree_legacy())[5]
 
     def deck_due_tree(self, top_deck_id: int = 0) -> DeckTreeNode:
         """Returns a tree of decks with counts.
