@@ -496,6 +496,7 @@ message Progress {
         string media_check = 3;
         FullSyncProgress full_sync = 4;
         NormalSyncProgress normal_sync = 5;
+        DatabaseCheckProgress database_check = 6;
     }
 }
 
@@ -519,6 +520,12 @@ message NormalSyncProgress {
     string stage = 1;
     string added = 2;
     string removed = 3;
+}
+
+message DatabaseCheckProgress {
+    string stage = 1;
+    uint32 stage_total = 2;
+    uint32 stage_current = 3;
 }
 
 

@@ -130,4 +130,12 @@ impl super::SqliteStorage {
             .query_and_then(params![csum, ntid, nid], |r| r.get(0).map_err(Into::into))?
             .collect()
     }
+
+    /// Return total number of notes. Slow.
+    pub(crate) fn total_notes(&self) -> Result<u32> {
+        self.db
+            .prepare("select count() from notes")?
+            .query_row(NO_PARAMS, |r| r.get(0))
+            .map_err(Into::into)
+    }
 }
