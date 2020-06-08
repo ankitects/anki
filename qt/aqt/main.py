@@ -265,8 +265,8 @@ class AnkiQt(QMainWindow):
         # will be shown again
         self.loadProfile(self.profileDiag.closeWithoutQuitting)
 
-    def profileNameOk(self, str):
-        return not checkInvalidFilename(str)
+    def profileNameOk(self, name: str) -> bool:
+        return not checkInvalidFilename(name) and name != "addons21"
 
     def onAddProfile(self):
         name = getOnlyText(_("Name:")).strip()
