@@ -532,13 +532,14 @@ class Editor:
         form.textEdit.moveCursor(QTextCursor.End)
         d.exec_()
         html = form.textEdit.toPlainText()
-        # https://anki.tenderapp.com/discussions/ankidesktop/39543-anki-is-replacing-the-character-by-when-i-exit-the-html-edit-mode-ctrlshiftx
         if html.find(">") > -1:
             # filter html through beautifulsoup so we can strip out things like a
             # leading </div>
+            html_escaped = self.mw.col.media.escapeImages(html)
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore", UserWarning)
-                html = str(BeautifulSoup(html, "html.parser"))
+                html_escaped = str(BeautifulSoup(html_escaped, "html.parser"))
+                html = self.mw.col.media.escapeImages(html_escaped, unescape=True)
         self.note.fields[field] = html
         if not self.addMode:
             self.note.flush()
