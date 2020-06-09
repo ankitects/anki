@@ -34,7 +34,20 @@
       </widget>
      </item>
      <item row="2" column="2" colspan="2">
-      <widget class="QLineEdit" name="search"/>
+      <widget class="QComboBox" name="search">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>9</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="editable">
+        <bool>true</bool>
+       </property>
+       <property name="insertPolicy">
+        <enum>QComboBox::NoInsert</enum>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
