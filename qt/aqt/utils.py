@@ -8,7 +8,7 @@ import os
 import re
 import subprocess
 import sys
-from typing import TYPE_CHECKING, Any, Optional, Union
+from typing import TYPE_CHECKING, Any, List, Optional, Union
 
 import anki
 import aqt
@@ -409,7 +409,7 @@ def getSaveFile(parent, title, dir_description, key, ext, fname=None):
     return file
 
 
-def saveGeom(widget, key):
+def saveGeom(widget, key: str):
     key += "Geom"
     if isMac and widget.windowState() & Qt.WindowFullScreen:
         geom = None
@@ -418,7 +418,7 @@ def saveGeom(widget, key):
     aqt.mw.pm.profile[key] = geom
 
 
-def restoreGeom(widget, key, offset=None, adjustSize=False):
+def restoreGeom(widget, key: str, offset=None, adjustSize=False):
     key += "Geom"
     if aqt.mw.pm.profile.get(key):
         widget.restoreGeometry(aqt.mw.pm.profile[key])
@@ -459,12 +459,12 @@ def ensureWidgetInScreenBoundaries(widget):
         widget.move(x, y)
 
 
-def saveState(widget, key):
+def saveState(widget, key: str):
     key += "State"
     aqt.mw.pm.profile[key] = widget.saveState()
 
 
-def restoreState(widget, key):
+def restoreState(widget, key: str):
     key += "State"
     if aqt.mw.pm.profile.get(key):
         widget.restoreState(aqt.mw.pm.profile[key])
@@ -490,6 +490,60 @@ def restoreHeader(widget, key):
     key += "Header"
     if aqt.mw.pm.profile.get(key):
         widget.restoreState(aqt.mw.pm.profile[key])
+
+
+def save_is_checked(widget, key: str):
+    key += "IsChecked"
+    aqt.mw.pm.profile[key] = widget.isChecked()
+
+
+def restore_is_checked(widget, key: str):
+    key += "IsChecked"
+    if aqt.mw.pm.profile.get(key) is not None:
+        widget.setChecked(aqt.mw.pm.profile[key])
+
+
+def save_combo_index_for_session(widget: QComboBox, key: str):
+    textKey = key + "ComboActiveText"
+    indexKey = key + "ComboActiveIndex"
+    aqt.mw.pm.session[textKey] = widget.currentText()
+    aqt.mw.pm.session[indexKey] = widget.currentIndex()
+
+
+def restore_combo_index_for_session(widget: QComboBox, history: List[str], key: str):
+    textKey = key + "ComboActiveText"
+    indexKey = key + "ComboActiveIndex"
+    text = aqt.mw.pm.session.get(textKey)
+    index = aqt.mw.pm.session.get(indexKey)
+    if text is not None and index is not None:
+        if index < len(history) and history[index] == text:
+            widget.setCurrentIndex(index)
+
+
+def save_combo_history(comboBox: QComboBox, history: List[str], name: str):
+    name += "BoxHistory"
+    text_input = comboBox.lineEdit().text()
+    if text_input in history:
+        history.remove(text_input)
+    history.insert(0, text_input)
+    history = history[:50]
+    comboBox.clear()
+    comboBox.addItems(history)
+    aqt.mw.pm.session[name] = text_input
+    aqt.mw.pm.profile[name] = history
+    return text_input
+
+
+def restore_combo_history(comboBox: QComboBox, name: str):
+    name += "BoxHistory"
+    history = aqt.mw.pm.profile.get(name, [])
+    comboBox.addItems([""] + history)
+    if history:
+        session_input = aqt.mw.pm.session.get(name)
+        if session_input and session_input == history[0]:
+            comboBox.lineEdit().setText(session_input)
+            comboBox.lineEdit().selectAll()
+    return history
 
 
 def mungeQA(col, txt):

@@ -36,10 +36,16 @@ from aqt.utils import (
     getTag,
     openHelp,
     qtMenuShortcutWorkaround,
+    restore_combo_history,
+    restore_combo_index_for_session,
+    restore_is_checked,
     restoreGeom,
     restoreHeader,
     restoreSplitter,
     restoreState,
+    save_combo_history,
+    save_combo_index_for_session,
+    save_is_checked,
     saveGeom,
     saveHeader,
     saveSplitter,
@@ -1928,22 +1934,39 @@ update cards set usn=?, mod=?, did=? where id in """
         frm = aqt.forms.findreplace.Ui_Dialog()
         frm.setupUi(d)
         d.setWindowModality(Qt.WindowModal)
-        frm.field.addItems([_("All Fields")] + fields)
+
+        combo = "BrowserFindAndReplace"
+        findhistory = restore_combo_history(frm.find, combo + "Find")
+        replacehistory = restore_combo_history(frm.replace, combo + "Replace")
+
+        restore_is_checked(frm.re, combo + "Regex")
+        restore_is_checked(frm.ignoreCase, combo + "ignoreCase")
+
+        frm.find.setFocus()
+        allfields = [_("All Fields")] + fields
+        frm.field.addItems(allfields)
+        restore_combo_index_for_session(frm.field, allfields, combo + "Field")
         qconnect(frm.buttonBox.helpRequested, self.onFindReplaceHelp)
         restoreGeom(d, "findreplace")
         r = d.exec_()
         saveGeom(d, "findreplace")
         if not r:
             return
+
+        save_combo_index_for_session(frm.field, combo + "Field")
         if frm.field.currentIndex() == 0:
             field = None
         else:
             field = fields[frm.field.currentIndex() - 1]
 
-        search = frm.find.text()
-        replace = frm.replace.text()
+        search = save_combo_history(frm.find, findhistory, combo + "Find")
+        replace = save_combo_history(frm.replace, replacehistory, combo + "Replace")
+
         regex = frm.re.isChecked()
         nocase = frm.ignoreCase.isChecked()
+
+        save_is_checked(frm.re, combo + "Regex")
+        save_is_checked(frm.ignoreCase, combo + "ignoreCase")
 
         self.mw.checkpoint(_("Find and Replace"))
         # starts progress dialog as well
@@ -1989,11 +2012,15 @@ update cards set usn=?, mod=?, did=? where id in """
         frm = aqt.forms.finddupes.Ui_Dialog()
         frm.setupUi(d)
         restoreGeom(d, "findDupes")
+        searchHistory = restore_combo_history(frm.search, "findDupesFind")
+
         fields = sorted(
             anki.find.fieldNames(self.col, downcase=False), key=lambda x: x.lower()
         )
         frm.fields.addItems(fields)
+        restore_combo_index_for_session(frm.fields, fields, "findDupesFields")
         self._dupesButton = None
+
         # links
         frm.webView.title = "find duplicates"
         web_context = FindDupesDialog(dialog=d, browser=self)
@@ -2006,10 +2033,10 @@ update cards set usn=?, mod=?, did=? where id in """
         qconnect(d.finished, onFin)
 
         def onClick():
+            search_text = save_combo_history(frm.search, searchHistory, "findDupesFind")
+            save_combo_index_for_session(frm.fields, "findDupesFields")
             field = fields[frm.fields.currentIndex()]
-            self.duplicatesReport(
-                frm.webView, field, frm.search.text(), frm, web_context
-            )
+            self.duplicatesReport(frm.webView, field, search_text, frm, web_context)
 
         search = frm.buttonBox.addButton(_("Search"), QDialogButtonBox.ActionRole)
         qconnect(search.clicked, onClick)
