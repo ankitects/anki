@@ -149,6 +149,36 @@ class _AddCardsWillShowHistoryMenuHook:
 add_cards_will_show_history_menu = _AddCardsWillShowHistoryMenuHook()
 
 
+class _AddcardsWillAddHistoryEntryFilter:
+    """Allows changing the history line in the add-card window."""
+
+    _hooks: List[Callable[[str, "anki.notes.Note"], str]] = []
+
+    def append(self, cb: Callable[[str, "anki.notes.Note"], str]) -> None:
+        """(line: str, note: anki.notes.Note)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[str, "anki.notes.Note"], str]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
+
+    def __call__(self, line: str, note: anki.notes.Note) -> str:
+        for filter in self._hooks:
+            try:
+                line = filter(line, note)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return line
+
+
+addcards_will_add_history_entry = _AddcardsWillAddHistoryEntryFilter()
+
+
 class _AddonConfigEditorWillDisplayJsonFilter:
     """Allows changing the text of the json configuration before actually
         displaying it to the user. For example, you can replace "\n" by
