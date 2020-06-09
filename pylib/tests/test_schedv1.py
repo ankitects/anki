@@ -3,7 +3,6 @@
 import copy
 import time
 
-from anki import hooks
 from anki.consts import *
 from anki.lang import without_unicode_isolation
 from anki.utils import intTime
@@ -376,23 +375,6 @@ def test_reviews():
     assert c.due == d.sched.today + c.ivl
     # factor should have been increased
     assert c.factor == 2650
-    # leech handling
-    ##################################################
-    c = copy.copy(cardcopy)
-    c.lapses = 7
-    c.flush()
-    # steup hook
-    hooked = []
-
-    def onLeech(card):
-        hooked.append(1)
-
-    hooks.card_did_leech.append(onLeech)
-    d.sched.answerCard(c, 1)
-    assert hooked
-    assert c.queue == QUEUE_TYPE_SUSPENDED
-    c.load()
-    assert c.queue == QUEUE_TYPE_SUSPENDED
 
 
 def test_button_spacing():

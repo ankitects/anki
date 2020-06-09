@@ -654,6 +654,60 @@ def restoreHeader(widget, key):
         widget.restoreState(aqt.mw.pm.profile[key])
 
 
+def save_is_checked(widget, key: str):
+    key += "IsChecked"
+    aqt.mw.pm.profile[key] = widget.isChecked()
+
+
+def restore_is_checked(widget, key: str):
+    key += "IsChecked"
+    if aqt.mw.pm.profile.get(key) is not None:
+        widget.setChecked(aqt.mw.pm.profile[key])
+
+
+def save_combo_index_for_session(widget: QComboBox, key: str):
+    textKey = key + "ComboActiveText"
+    indexKey = key + "ComboActiveIndex"
+    aqt.mw.pm.session[textKey] = widget.currentText()
+    aqt.mw.pm.session[indexKey] = widget.currentIndex()
+
+
+def restore_combo_index_for_session(widget: QComboBox, history: List[str], key: str):
+    textKey = key + "ComboActiveText"
+    indexKey = key + "ComboActiveIndex"
+    text = aqt.mw.pm.session.get(textKey)
+    index = aqt.mw.pm.session.get(indexKey)
+    if text is not None and index is not None:
+        if index < len(history) and history[index] == text:
+            widget.setCurrentIndex(index)
+
+
+def save_combo_history(comboBox: QComboBox, history: List[str], name: str):
+    name += "BoxHistory"
+    text_input = comboBox.lineEdit().text()
+    if text_input in history:
+        history.remove(text_input)
+    history.insert(0, text_input)
+    history = history[:50]
+    comboBox.clear()
+    comboBox.addItems(history)
+    aqt.mw.pm.session[name] = text_input
+    aqt.mw.pm.profile[name] = history
+    return text_input
+
+
+def restore_combo_history(comboBox: QComboBox, name: str):
+    name += "BoxHistory"
+    history = aqt.mw.pm.profile.get(name, [])
+    comboBox.addItems([""] + history)
+    if history:
+        session_input = aqt.mw.pm.session.get(name)
+        if session_input and session_input == history[0]:
+            comboBox.lineEdit().setText(session_input)
+            comboBox.lineEdit().selectAll()
+    return history
+
+
 def mungeQA(col, txt):
     print("mungeQA() deprecated; use mw.prepare_card_text_for_display()")
     txt = col.media.escapeImages(txt)

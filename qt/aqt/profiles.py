@@ -77,6 +77,8 @@ class AnkiRestart(SystemExit):
 
 class ProfileManager:
     def __init__(self, base=None):
+        ## Settings which should be forgotten each Anki restart
+        self.session = {}
         self.name = None
         self.db = None
         self.profile: Optional[Dict] = None

@@ -36,18 +36,18 @@ from aqt.utils import (
     getTag,
     openHelp,
     qtMenuShortcutWorkaround,
-    restoreComboHistory,
-    restoreComboIndex,
+    restore_combo_history,
+    restore_combo_index_for_session,
+    restore_is_checked,
     restoreGeom,
     restoreHeader,
-    restoreIsChecked,
     restoreSplitter,
     restoreState,
-    saveComboHistory,
-    saveComboIndex,
+    save_combo_history,
+    save_combo_index_for_session,
+    save_is_checked,
     saveGeom,
     saveHeader,
-    saveIsChecked,
     saveSplitter,
     saveState,
     shortcut,
@@ -177,7 +177,7 @@ class DataModel(QAbstractTableModel):
     def search(self, txt: str) -> None:
         self.beginReset()
         self.cards = []
-        invalid = False
+        error_message: Optional[str] = None
         try:
             ctx = SearchContext(search=txt)
             gui_hooks.browser_will_search(ctx)
@@ -186,13 +186,12 @@ class DataModel(QAbstractTableModel):
             gui_hooks.browser_did_search(ctx)
             self.cards = ctx.card_ids
         except Exception as e:
-            print("search failed:", e)
-            invalid = True
+            error_message = str(e)
         finally:
             self.endReset()
 
-        if invalid:
-            showWarning(_("Invalid search - please check for typing mistakes."))
+        if error_message:
+            showWarning(error_message)
 
     def reset(self):
         self.beginReset()
@@ -1937,16 +1936,16 @@ update cards set usn=?, mod=?, did=? where id in """
         d.setWindowModality(Qt.WindowModal)
 
         combo = "BrowserFindAndReplace"
-        findhistory = restoreComboHistory(frm.find, combo + "Find")
-        replacehistory = restoreComboHistory(frm.replace, combo + "Replace")
+        findhistory = restore_combo_history(frm.find, combo + "Find")
+        replacehistory = restore_combo_history(frm.replace, combo + "Replace")
 
-        restoreIsChecked(frm.re, combo + "Regex")
-        restoreIsChecked(frm.ignoreCase, combo + "ignoreCase")
+        restore_is_checked(frm.re, combo + "Regex")
+        restore_is_checked(frm.ignoreCase, combo + "ignoreCase")
 
         frm.find.setFocus()
         allfields = [_("All Fields")] + fields
         frm.field.addItems(allfields)
-        restoreComboIndex(frm.field, allfields, combo + "Field")
+        restore_combo_index_for_session(frm.field, allfields, combo + "Field")
         qconnect(frm.buttonBox.helpRequested, self.onFindReplaceHelp)
         restoreGeom(d, "findreplace")
         r = d.exec_()
@@ -1954,20 +1953,20 @@ update cards set usn=?, mod=?, did=? where id in """
         if not r:
             return
 
-        saveComboIndex(frm.field, combo + "Field")
+        save_combo_index_for_session(frm.field, combo + "Field")
         if frm.field.currentIndex() == 0:
             field = None
         else:
             field = fields[frm.field.currentIndex() - 1]
 
-        search = saveComboHistory(frm.find, findhistory, combo + "Find")
-        replace = saveComboHistory(frm.replace, replacehistory, combo + "Replace")
+        search = save_combo_history(frm.find, findhistory, combo + "Find")
+        replace = save_combo_history(frm.replace, replacehistory, combo + "Replace")
 
         regex = frm.re.isChecked()
         nocase = frm.ignoreCase.isChecked()
 
-        saveIsChecked(frm.re, combo + "Regex")
-        saveIsChecked(frm.ignoreCase, combo + "ignoreCase")
+        save_is_checked(frm.re, combo + "Regex")
+        save_is_checked(frm.ignoreCase, combo + "ignoreCase")
 
         self.mw.checkpoint(_("Find and Replace"))
         # starts progress dialog as well
@@ -2013,13 +2012,13 @@ update cards set usn=?, mod=?, did=? where id in """
         frm = aqt.forms.finddupes.Ui_Dialog()
         frm.setupUi(d)
         restoreGeom(d, "findDupes")
-        searchHistory = restoreComboHistory(frm.search, "findDupesFind")
+        searchHistory = restore_combo_history(frm.search, "findDupesFind")
 
         fields = sorted(
             anki.find.fieldNames(self.col, downcase=False), key=lambda x: x.lower()
         )
         frm.fields.addItems(fields)
-        restoreComboIndex(frm.fields, fields, "findDupesFields")
+        restore_combo_index_for_session(frm.fields, fields, "findDupesFields")
         self._dupesButton = None
 
         # links
@@ -2034,8 +2033,8 @@ update cards set usn=?, mod=?, did=? where id in """
         qconnect(d.finished, onFin)
 
         def onClick():
-            search_text = saveComboHistory(frm.search, searchHistory, "findDupesFind")
-            saveComboIndex(frm.fields, "findDupesFields")
+            search_text = save_combo_history(frm.search, searchHistory, "findDupesFind")
+            save_combo_index_for_session(frm.fields, "findDupesFields")
             field = fields[frm.fields.currentIndex()]
             self.duplicatesReport(frm.webView, field, search_text, frm, web_context)
 

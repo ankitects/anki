@@ -295,6 +295,7 @@ class Anki2Importer(Importer):
 
     def _importCards(self) -> None:
         if self.mustResetLearning:
+            self.src.modSchema(check=False)
             self.src.changeSchedulerVer(2)
         # build map of (guid, ord) -> cid and used id cache
         self._cards: Dict[Tuple[str, int], int] = {}

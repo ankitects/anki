@@ -56,7 +56,7 @@ impl Default for DeckConf {
                 graduating_interval_good: 1,
                 graduating_interval_easy: 4,
                 new_card_order: NewCardOrder::Due as i32,
-                leech_action: LeechAction::Suspend as i32,
+                leech_action: LeechAction::TagOnly as i32,
                 leech_threshold: 8,
                 other: vec![],
             },

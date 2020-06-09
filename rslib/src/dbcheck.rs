@@ -29,6 +29,15 @@ pub struct CheckDatabaseOutput {
     field_count_mismatch: usize,
 }
 
+#[derive(Debug, Clone, Copy)]
+pub(crate) enum DatabaseCheckProgress {
+    Integrity,
+    Optimize,
+    Cards,
+    Notes { current: u32, total: u32 },
+    History,
+}
+
 impl CheckDatabaseOutput {
     pub fn to_i18n_strings(&self, i18n: &I18n) -> Vec<String> {
         let mut probs = Vec::new();
@@ -88,7 +97,11 @@ impl CheckDatabaseOutput {
 
 impl Collection {
     /// Check the database, returning a list of problems that were fixed.
-    pub(crate) fn check_database(&mut self) -> Result<CheckDatabaseOutput> {
+    pub(crate) fn check_database<F>(&mut self, mut progress_fn: F) -> Result<CheckDatabaseOutput>
+    where
+        F: FnMut(DatabaseCheckProgress, bool),
+    {
+        progress_fn(DatabaseCheckProgress::Integrity, false);
         debug!(self.log, "quick check");
         if self.storage.quick_check_corrupt() {
             debug!(self.log, "quick check failed");
@@ -98,16 +111,21 @@ impl Collection {
             });
         }
 
+        progress_fn(DatabaseCheckProgress::Optimize, false);
         debug!(self.log, "optimize");
         self.storage.optimize()?;
 
-        self.transact(None, |col| col.check_database_inner())
+        self.transact(None, |col| col.check_database_inner(progress_fn))
     }
 
-    fn check_database_inner(&mut self) -> Result<CheckDatabaseOutput> {
+    fn check_database_inner<F>(&mut self, mut progress_fn: F) -> Result<CheckDatabaseOutput>
+    where
+        F: FnMut(DatabaseCheckProgress, bool),
+    {
         let mut out = CheckDatabaseOutput::default();
 
         // cards first, as we need to be able to read them to process notes
+        progress_fn(DatabaseCheckProgress::Cards, false);
         debug!(self.log, "check cards");
         self.check_card_properties(&mut out)?;
         self.check_orphaned_cards(&mut out)?;
@@ -117,7 +135,9 @@ impl Collection {
         self.check_filtered_cards(&mut out)?;
 
         debug!(self.log, "check notetypes");
-        self.check_notetypes(&mut out)?;
+        self.check_notetypes(&mut out, &mut progress_fn)?;
+
+        progress_fn(DatabaseCheckProgress::History, false);
 
         debug!(self.log, "check review log");
         self.check_revlog(&mut out)?;
@@ -192,7 +212,14 @@ impl Collection {
         Ok(())
     }
 
-    fn check_notetypes(&mut self, out: &mut CheckDatabaseOutput) -> Result<()> {
+    fn check_notetypes<F>(
+        &mut self,
+        out: &mut CheckDatabaseOutput,
+        mut progress_fn: F,
+    ) -> Result<()>
+    where
+        F: FnMut(DatabaseCheckProgress, bool),
+    {
         let nids_by_notetype = self.storage.all_note_ids_by_notetype()?;
         let norm = self.normalize_note_text();
         let usn = self.usn()?;
@@ -200,6 +227,9 @@ impl Collection {
 
         // will rebuild tag list below
         self.storage.clear_tags()?;
+
+        let total_notes = self.storage.total_notes()?;
+        let mut checked_notes = 0;
 
         for (ntid, group) in &nids_by_notetype.into_iter().group_by(|tup| tup.0) {
             debug!(self.log, "check notetype: {}", ntid);
@@ -214,6 +244,15 @@ impl Collection {
 
             let mut genctx = None;
             for (_, nid) in group {
+                progress_fn(
+                    DatabaseCheckProgress::Notes {
+                        current: checked_notes,
+                        total: total_notes,
+                    },
+                    true,
+                );
+                checked_notes += 1;
+
                 let mut note = self.storage.get_note(nid)?.unwrap();
 
                 let cards = self.storage.existing_cards_for_note(nid)?;
@@ -328,6 +367,8 @@ mod test {
     use super::*;
     use crate::{collection::open_test_collection, decks::DeckID, search::SortMode};
 
+    fn progress_fn(_progress: DatabaseCheckProgress, _throttle: bool) {}
+
     #[test]
     fn cards() -> Result<()> {
         let mut col = open_test_collection();
@@ -340,7 +381,7 @@ mod test {
             .db
             .execute_batch("update cards set ivl=1.5,due=2000000,odue=1.5")?;
 
-        let out = col.check_database()?;
+        let out = col.check_database(progress_fn)?;
         assert_eq!(
             out,
             CheckDatabaseOutput {
@@ -350,12 +391,12 @@ mod test {
             }
         );
         // should be idempotent
-        assert_eq!(col.check_database()?, Default::default());
+        assert_eq!(col.check_database(progress_fn)?, Default::default());
 
         // missing deck
         col.storage.db.execute_batch("update cards set did=123")?;
 
-        let out = col.check_database()?;
+        let out = col.check_database(progress_fn)?;
         assert_eq!(
             out,
             CheckDatabaseOutput {
@@ -370,7 +411,7 @@ mod test {
 
         // missing note
         col.storage.remove_note(note.id)?;
-        let out = col.check_database()?;
+        let out = col.check_database(progress_fn)?;
         assert_eq!(
             out,
             CheckDatabaseOutput {
@@ -396,7 +437,7 @@ mod test {
         values (0,0,0,0,1.5,1.5,0,0,0)",
         )?;
 
-        let out = col.check_database()?;
+        let out = col.check_database(progress_fn)?;
         assert_eq!(
             out,
             CheckDatabaseOutput {
@@ -426,7 +467,7 @@ mod test {
         card.id.0 += 1;
         col.storage.add_card(&mut card)?;
 
-        let out = col.check_database()?;
+        let out = col.check_database(progress_fn)?;
         assert_eq!(
             out,
             CheckDatabaseOutput {
@@ -446,7 +487,7 @@ mod test {
         card.ord = 10;
         col.storage.add_card(&mut card)?;
 
-        let out = col.check_database()?;
+        let out = col.check_database(progress_fn)?;
         assert_eq!(
             out,
             CheckDatabaseOutput {
@@ -473,7 +514,7 @@ mod test {
         col.storage
             .db
             .execute_batch("update notes set flds = 'a\x1fb\x1fc\x1fd'")?;
-        let out = col.check_database()?;
+        let out = col.check_database(progress_fn)?;
         assert_eq!(
             out,
             CheckDatabaseOutput {
@@ -488,7 +529,7 @@ mod test {
         col.storage
             .db
             .execute_batch("update notes set flds = 'a'")?;
-        let out = col.check_database()?;
+        let out = col.check_database(progress_fn)?;
         assert_eq!(
             out,
             CheckDatabaseOutput {
@@ -516,7 +557,7 @@ mod test {
             .execute(&[deck.id])?;
         assert_eq!(col.storage.get_all_deck_names()?.len(), 2);
 
-        let out = col.check_database()?;
+        let out = col.check_database(progress_fn)?;
         assert_eq!(
             out,
             CheckDatabaseOutput {

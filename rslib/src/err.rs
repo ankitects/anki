@@ -54,6 +54,9 @@ pub enum AnkiError {
 
     #[fail(display = "Unable to place item in/under a filtered deck.")]
     DeckIsFiltered,
+
+    #[fail(display = "Invalid search.")]
+    SearchError(Option<String>),
 }
 
 // error helpers
@@ -109,6 +112,13 @@ impl AnkiError {
                 DBErrorKind::Corrupt => info.clone(),
                 _ => format!("{:?}", self),
             },
+            AnkiError::SearchError(details) => {
+                if let Some(details) = details {
+                    details.to_owned()
+                } else {
+                    i18n.tr(TR::SearchInvalid).to_string()
+                }
+            }
             _ => format!("{:?}", self),
         }
     }
@@ -138,6 +148,11 @@ impl From<io::Error> for AnkiError {
 
 impl From<rusqlite::Error> for AnkiError {
     fn from(err: rusqlite::Error) -> Self {
+        if let rusqlite::Error::SqliteFailure(_error, Some(reason)) = &err {
+            if reason.contains("regex parse error") {
+                return AnkiError::SearchError(Some(reason.to_owned()));
+            }
+        }
         AnkiError::DBError {
             info: format!("{:?}", err),
             kind: DBErrorKind::Other,

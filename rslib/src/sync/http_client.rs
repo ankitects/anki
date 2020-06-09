@@ -260,8 +260,16 @@ impl HTTPSyncClient {
     async fn upload_inner(&self, body: Body) -> Result<()> {
         let data_part = multipart::Part::stream(body);
         let resp = self.request("upload", data_part, true).await?;
-        resp.error_for_status()?;
-        Ok(())
+        resp.error_for_status_ref()?;
+        let text = resp.text().await?;
+        if text != "OK" {
+            Err(AnkiError::SyncError {
+                info: text,
+                kind: SyncErrorKind::Other,
+            })
+        } else {
+            Ok(())
+        }
     }
 
     pub(crate) async fn upload<P>(&mut self, col_path: &Path, progress_fn: P) -> Result<()>

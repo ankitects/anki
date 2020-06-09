@@ -153,6 +153,7 @@ def proto_exception_to_native(err: pb.BackendError) -> Exception:
 MediaSyncProgress = pb.MediaSyncProgress
 FullSyncProgress = pb.FullSyncProgress
 NormalSyncProgress = pb.NormalSyncProgress
+DatabaseCheckProgress = pb.DatabaseCheckProgress
 
 FormatTimeSpanContext = pb.FormatTimespanIn.Context
 
@@ -163,12 +164,19 @@ class ProgressKind(enum.Enum):
     MediaCheck = 2
     FullSync = 3
     NormalSync = 4
+    DatabaseCheck = 5
 
 
 @dataclass
 class Progress:
     kind: ProgressKind
-    val: Union[MediaSyncProgress, pb.FullSyncProgress, NormalSyncProgress, str]
+    val: Union[
+        MediaSyncProgress,
+        pb.FullSyncProgress,
+        NormalSyncProgress,
+        DatabaseCheckProgress,
+        str,
+    ]
 
     @staticmethod
     def from_proto(proto: pb.Progress) -> Progress:
@@ -181,6 +189,8 @@ class Progress:
             return Progress(kind=ProgressKind.FullSync, val=proto.full_sync)
         elif kind == "normal_sync":
             return Progress(kind=ProgressKind.NormalSync, val=proto.normal_sync)
+        elif kind == "database_check":
+            return Progress(kind=ProgressKind.DatabaseCheck, val=proto.database_check)
         else:
             return Progress(kind=ProgressKind.NoProgress, val="")
 

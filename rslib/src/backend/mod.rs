@@ -14,6 +14,7 @@ use crate::{
     cloze::add_cloze_numbers_in_string,
     collection::{open_collection, Collection},
     config::SortKind,
+    dbcheck::DatabaseCheckProgress,
     deckconf::{DeckConf, DeckConfID, DeckConfSchema11},
     decks::{Deck, DeckID, DeckSchema11},
     err::{AnkiError, NetworkErrorKind, Result, SyncErrorKind},
@@ -120,6 +121,7 @@ enum Progress {
     MediaCheck(u32),
     FullSync(FullSyncProgress),
     NormalSync(NormalSyncProgress),
+    DatabaseCheck(DatabaseCheckProgress),
 }
 
 /// Convert an Anki error to a protobuf error.
@@ -143,6 +145,7 @@ fn anki_error_to_proto_error(err: AnkiError, i18n: &I18n) -> pb::BackendError {
         AnkiError::NotFound => V::NotFoundError(Empty {}),
         AnkiError::Existing => V::Exists(Empty {}),
         AnkiError::DeckIsFiltered => V::DeckIsFiltered(Empty {}),
+        AnkiError::SearchError(_) => V::InvalidInput(pb::Empty {}),
     };
 
     pb::BackendError {
@@ -1008,10 +1011,15 @@ impl BackendService for Backend {
     //-------------------------------------------------------------------
 
     fn check_database(&mut self, _input: pb::Empty) -> BackendResult<pb::CheckDatabaseOut> {
+        let mut handler = self.new_progress_handler();
+        let progress_fn = move |progress, throttle| {
+            handler.update(Progress::DatabaseCheck(progress), throttle);
+        };
         self.with_col(|col| {
-            col.check_database().map(|problems| pb::CheckDatabaseOut {
-                problems: problems.to_i18n_strings(&col.i18n),
-            })
+            col.check_database(progress_fn)
+                .map(|problems| pb::CheckDatabaseOut {
+                    problems: problems.to_i18n_strings(&col.i18n),
+                })
         })
     }
 
@@ -1603,6 +1611,27 @@ fn progress_to_proto(progress: Option<Progress>, i18n: &I18n) -> pb::Progress {
                     stage,
                     added,
                     removed,
+                })
+            }
+            Progress::DatabaseCheck(p) => {
+                let mut stage_total = 0;
+                let mut stage_current = 0;
+                let stage = match p {
+                    DatabaseCheckProgress::Integrity => i18n.tr(TR::DatabaseCheckCheckingIntegrity),
+                    DatabaseCheckProgress::Optimize => i18n.tr(TR::DatabaseCheckRebuilding),
+                    DatabaseCheckProgress::Cards => i18n.tr(TR::DatabaseCheckCheckingCards),
+                    DatabaseCheckProgress::Notes { current, total } => {
+                        stage_total = total;
+                        stage_current = current;
+                        i18n.tr(TR::DatabaseCheckCheckingNotes)
+                    }
+                    DatabaseCheckProgress::History => i18n.tr(TR::DatabaseCheckCheckingHistory),
+                }
+                .to_string();
+                pb::progress::Value::DatabaseCheck(pb::DatabaseCheckProgress {
+                    stage,
+                    stage_current,
+                    stage_total,
                 })
             }
         }
