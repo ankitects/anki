@@ -108,7 +108,7 @@ Windows users (using Visual Studio)
 
 User-contributed instructions for building using Cygwin:
 
-1. Download and install Cygwin and put its `/bin/` directory on your system path (This PC > Properties > Advancded system settings > Environment Variables > double-click Path > New).
+1. Download and install Cygwin and put its `/bin/` directory on your system path (This PC > Properties > Advanced System Settings > Environment Variables > double-click Path > New).
 1. Install the Cygwin Packages: `apt-cyg install rsync make` OR select rsync package during Cygwin installation
     1. Download `gettext` 0.20.1 or superior and put its `bin` directory on your system path.
         1. https://mlocati.github.io/articles/gettext-iconv-windows.html
