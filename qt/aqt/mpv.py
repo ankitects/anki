@@ -181,7 +181,7 @@ class MPVBase:
                 # unix socket
                 try:
                     self._sock = socket.socket(socket.AF_UNIX)
-                    qconnect(self._sock, self._sock_filename)
+                    self._sock.connect(self._sock_filename)
                 except (FileNotFoundError, ConnectionRefusedError):
                     self._sock.close()
                     continue
