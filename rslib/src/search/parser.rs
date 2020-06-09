@@ -119,8 +119,8 @@ pub(super) fn parse(input: &str) -> Result<Vec<Node>> {
         return Ok(vec![Node::Search(SearchNode::WholeCollection)]);
     }
 
-    let (_, nodes) = all_consuming(group_inner)(input)
-        .map_err(|_e| AnkiError::invalid_input("unable to parse search"))?;
+    let (_, nodes) =
+        all_consuming(group_inner)(input).map_err(|_e| AnkiError::SearchError(None))?;
 
     Ok(nodes)
 }

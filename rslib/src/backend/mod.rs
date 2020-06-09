@@ -145,6 +145,7 @@ fn anki_error_to_proto_error(err: AnkiError, i18n: &I18n) -> pb::BackendError {
         AnkiError::NotFound => V::NotFoundError(Empty {}),
         AnkiError::Existing => V::Exists(Empty {}),
         AnkiError::DeckIsFiltered => V::DeckIsFiltered(Empty {}),
+        AnkiError::SearchError(_) => V::InvalidInput(pb::Empty {}),
     };
 
     pb::BackendError {
