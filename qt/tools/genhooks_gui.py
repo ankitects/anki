@@ -485,6 +485,12 @@ hooks = [
         replace return the reason to reject. Otherwise return the
         input.""",
     ),
+    Hook(
+        name="addcards_will_add_history_entry",
+        args=["line: str", "note: anki.notes.Note"],
+        return_type="str",
+        doc="""Allows changing the history line in the add-card window.""",
+    ),
     # Editing
     ###################
     Hook(

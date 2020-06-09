@@ -135,11 +135,14 @@ class AddCards(QDialog):
         m = QMenu(self)
         for nid in self.history:
             if self.mw.col.findNotes("nid:%s" % nid):
-                fields = self.mw.col.getNote(nid).fields
+                note = self.mw.col.getNote(nid)
+                fields = note.fields
                 txt = htmlToTextLine(", ".join(fields))
                 if len(txt) > 30:
                     txt = txt[:30] + "..."
-                a = m.addAction(_('Edit "%s"') % txt)
+                line = _('Edit "%s"') % txt
+                line = gui_hooks.addcards_will_add_history_entry(line, note)
+                a = m.addAction(line)
                 qconnect(a.triggered, lambda b, nid=nid: self.editHistory(nid))
             else:
                 a = m.addAction(_("(Note deleted)"))
