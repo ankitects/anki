@@ -389,6 +389,9 @@ def test_reviews():
     assert c.factor == 2650
     # leech handling
     ##################################################
+    conf = d.decks.getConf(1)
+    conf["lapse"]["leechAction"] = LEECH_SUSPEND
+    d.decks.save(conf)
     c = copy.copy(cardcopy)
     c.lapses = 7
     c.flush()
