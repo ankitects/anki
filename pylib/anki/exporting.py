@@ -52,6 +52,7 @@ class Exporter:
         # fixme: we should probably quote fields with newlines
         # instead of converting them to spaces
         text = text.replace("\n", " ")
+        text = text.replace("\r", "")
         text = text.replace("\t", " " * 8)
         text = re.sub("(?i)<style>.*?</style>", "", text)
         text = re.sub(r"\[\[type:[^]]+\]\]", "", text)
