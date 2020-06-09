@@ -302,6 +302,9 @@ class AnkiWebView(QWebEngineView):
         if isMac:
             return 1
         screen = QApplication.desktop().screen()
+        if screen is None:
+            return 1
+
         dpi = screen.logicalDpiX()
         factor = dpi / 96.0
         if isLin:
