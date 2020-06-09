@@ -168,7 +168,7 @@ impl super::SqliteStorage {
         let mut other_cnt = self
             .db
             .prepare(include_str!("fix_due_other.sql"))?
-            .execute(params![mtime, usn, today])?;
+            .execute(params![today, mtime, usn])?;
         other_cnt += self
             .db
             .prepare(include_str!("fix_odue.sql"))?
