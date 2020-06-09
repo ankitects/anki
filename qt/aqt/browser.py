@@ -171,7 +171,7 @@ class DataModel(QAbstractTableModel):
     def search(self, txt: str) -> None:
         self.beginReset()
         self.cards = []
-        invalid = False
+        error_message: Optional[str] = None
         try:
             ctx = SearchContext(search=txt)
             gui_hooks.browser_will_search(ctx)
@@ -180,13 +180,12 @@ class DataModel(QAbstractTableModel):
             gui_hooks.browser_did_search(ctx)
             self.cards = ctx.card_ids
         except Exception as e:
-            print("search failed:", e)
-            invalid = True
+            error_message = str(e)
         finally:
             self.endReset()
 
-        if invalid:
-            showWarning(_("Invalid search - please check for typing mistakes."))
+        if error_message:
+            showWarning(error_message)
 
     def reset(self):
         self.beginReset()
