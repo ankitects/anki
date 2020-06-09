@@ -42,7 +42,6 @@ from queue import Empty, Full, Queue
 from typing import Dict, Optional
 
 from anki.utils import isWin
-from aqt import qconnect
 
 
 class MPVError(Exception):
