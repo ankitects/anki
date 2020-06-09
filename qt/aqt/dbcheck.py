@@ -16,7 +16,8 @@ def on_progress(mw: aqt.main.AnkiQt):
 
     assert isinstance(progress.val, DatabaseCheckProgress)
     mw.progress.update(
-        process=False, label=progress.val.stage,
+        process=False,
+        label=progress.val.stage,
         value=progress.val.stage_current,
         max=progress.val.stage_total,
     )
