@@ -8,23 +8,14 @@ import os
 import re
 import subprocess
 import sys
-import traceback
 from typing import TYPE_CHECKING, Any, List, Optional, Union
 
 import anki
 import aqt
 from anki.lang import _
 from anki.rsbackend import TR  # pylint: disable=unused-import
-from anki.utils import (
-    devMode,
-    invalidFilename,
-    isMac,
-    isWin,
-    noBundledLibs,
-    versionWithBuild,
-)
+from anki.utils import invalidFilename, isMac, isWin, noBundledLibs, versionWithBuild
 from aqt.qt import *
-from aqt.qt import Qsci
 from aqt.theme import theme_manager
 
 if TYPE_CHECKING:
@@ -291,6 +282,8 @@ try:
     Qsci_font.setFixedPitch(True)
     Qsci_font.setPointSize(10)
 
+    from aqt.qt import Qsci
+
     class SimplePythonEditor(Qsci.QsciScintilla):
         def __init__(self, parent=None):
             super().__init__(parent)
@@ -348,6 +341,9 @@ try:
 
 
 except Exception as error:
+    import traceback
+    from anki.utils import devMode
+
     Qsci = None
     if devMode:
         sys.stderr.write(
@@ -368,6 +364,8 @@ def setupSyntaxHighlighter(parent, name, layout_name):
             setattr(parent, name, editor)
         except:
             QsciEnabled = False
+            import traceback
+
             sys.stderr.write(
                 f"Could not create the syntax highlighter: {error}\n{traceback.format_exc()}\n"
             )
@@ -382,6 +380,8 @@ def changeSyntaxName(editor, syntax_name):
             editor.setLexer(lexer)
         except Exception as error:
             QsciEnabled = False
+            import traceback
+
             sys.stderr.write(
                 f"Could not change the syntax highlighting to '{syntax_name}': {error}\n{traceback.format_exc()}\n"
             )

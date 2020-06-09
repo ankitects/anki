@@ -14,7 +14,6 @@ from anki.notes import Note
 from anki.rsbackend import TemplateError
 from anki.template import TemplateRenderContext
 from aqt import AnkiQt, gui_hooks
-from aqt import utils as aqtUtils
 from aqt.qt import *
 from aqt.schema_change_tracker import ChangeTracker
 from aqt.sound import av_player, play_clicked_audio
@@ -22,7 +21,6 @@ from aqt.theme import theme_manager
 from aqt.utils import (
     TR,
     askUser,
-    changeSyntaxName,
     downArrow,
     getOnlyText,
     openHelp,
@@ -30,7 +28,6 @@ from aqt.utils import (
     restoreSplitter,
     saveGeom,
     saveSplitter,
-    setupSyntaxHighlighter,
     shortcut,
     showInfo,
     showWarning,
@@ -186,9 +183,12 @@ class CardLayout(QDialog):
         left = QWidget()
         tform = self.tform = aqt.forms.template.Ui_Form()
         tform.setupUi(left)
-        setupSyntaxHighlighter(tform, "edit_area", "verticalLayout")
         split.addWidget(left)
         split.setCollapsible(0, False)
+
+        from aqt.utils import setupSyntaxHighlighter
+
+        setupSyntaxHighlighter(tform, "edit_area", "verticalLayout")
 
         right = QWidget()
         self.pform = aqt.forms.preview.Ui_Form()
@@ -254,6 +254,8 @@ class CardLayout(QDialog):
         self._renderPreview()
 
     def on_editor_toggled(self):
+        from aqt.utils import changeSyntaxName
+
         if self.tform.front_button.isChecked():
             self.current_editor_index = 0
             self.pform.preview_front.setChecked(True)
@@ -275,6 +277,8 @@ class CardLayout(QDialog):
 
     def on_search_changed(self, text: str, selectNext=False):
         editor = self.tform.edit_area
+        from aqt import utils as aqtUtils
+
         if aqtUtils.Qsci and aqtUtils.QsciEnabled:
             if not selectNext:
                 line_from, index_from, line_to, index_to = editor.getSelection()

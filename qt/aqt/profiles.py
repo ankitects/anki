@@ -24,7 +24,6 @@ from anki.lang import _, without_unicode_isolation
 from anki.rsbackend import SyncAuth
 from anki.utils import intTime, isMac, isWin
 from aqt import appHelpSite
-from aqt import utils as aqtUtils
 from aqt.qt import *
 from aqt.utils import TR, locale_dir, showWarning, tr
 
@@ -259,6 +258,8 @@ details have been forgotten."""
             self.profile = profileConf.copy()
             self.save()
         finally:
+            from aqt import utils as aqtUtils
+
             aqtUtils.QsciEnabled = self.syntax_highlight()
         return True
 
@@ -612,6 +613,8 @@ create table if not exists profiles
         return self.profile.get("syntax_highlight", True)
 
     def set_syntax_highlight(self, val: bool) -> None:
+        from aqt import utils as aqtUtils
+
         aqtUtils.QsciEnabled = val
         self.profile["syntax_highlight"] = val
 
