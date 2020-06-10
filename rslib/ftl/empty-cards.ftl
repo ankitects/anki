@@ -9,3 +9,6 @@ empty-cards-deleted-count = Deleted { $cards ->
   [one] { $cards } card.
  *[other] { $cards } cards.
  }
+empty-cards-delete-empty-cards = Delete Empty Cards
+empty-cards-delete-empty-notes = Delete Empty Notes
+empty-cards-deleting = Deleting...
