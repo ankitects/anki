@@ -71,3 +71,6 @@ fluent-syntax = "0.9.2"
 [dev-dependencies]
 env_logger = "0.7.1"
 
+[patch.crates-io]
+hyper = { git = "https://github.com/ankitects/hyper.git", branch = "gai-cancel-panic" }
+
