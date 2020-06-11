@@ -13,7 +13,6 @@ class DeckChooser(QHBoxLayout):
         QHBoxLayout.__init__(self)
         self.widget = widget  # type: ignore
         self.mw = mw
-        self.deck = mw.col
         self.label = label
         self.setContentsMargins(0, 0, 0, 0)
         self.setSpacing(8)
