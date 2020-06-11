@@ -2,18 +2,21 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+from typing import Any
+
 from anki.lang import _
-from aqt import gui_hooks
+from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.utils import shortcut
 
 
 class DeckChooser(QHBoxLayout):
-    def __init__(self, mw, widget: QWidget, label=True, start=None) -> None:
+    def __init__(
+        self, mw: AnkiQt, widget: QWidget, label: bool = True, start: Any = None
+    ) -> None:
         QHBoxLayout.__init__(self)
         self.widget = widget  # type: ignore
         self.mw = mw
-        self.deck = mw.col
         self.label = label
         self.setContentsMargins(0, 0, 0, 0)
         self.setSpacing(8)
@@ -21,15 +24,15 @@ class DeckChooser(QHBoxLayout):
         self.widget.setLayout(self)
         gui_hooks.current_note_type_did_change.append(self.onModelChangeNew)
 
-    def setupDecks(self):
+    def setupDecks(self) -> None:
         if self.label:
             self.deckLabel = QLabel(_("Deck"))
             self.addWidget(self.deckLabel)
         # decks box
-        self.deck = QPushButton(clicked=self.onDeckChange)
+        self.deck = QPushButton(clicked=self.onDeckChange)  # type: ignore
         self.deck.setAutoDefault(False)
         self.deck.setToolTip(shortcut(_("Target Deck (Ctrl+D)")))
-        s = QShortcut(QKeySequence("Ctrl+D"), self.widget, activated=self.onDeckChange)
+        s = QShortcut(QKeySequence("Ctrl+D"), self.widget, activated=self.onDeckChange)  # type: ignore
         self.addWidget(self.deck)
         # starting label
         if self.mw.col.conf.get("addToCur", True):
@@ -55,26 +58,26 @@ class DeckChooser(QHBoxLayout):
         sizePolicy = QSizePolicy(QSizePolicy.Policy(7), QSizePolicy.Policy(0))
         self.deck.setSizePolicy(sizePolicy)
 
-    def show(self):
-        self.widget.show()
+    def show(self) -> None:
+        self.widget.show()  # type: ignore
 
-    def hide(self):
-        self.widget.hide()
+    def hide(self) -> None:
+        self.widget.hide()  # type: ignore
 
     def cleanup(self) -> None:
         gui_hooks.current_note_type_did_change.remove(self.onModelChangeNew)
 
-    def onModelChangeNew(self, unused=None):
+    def onModelChangeNew(self, unused: Any = None) -> None:
         self.onModelChange()
 
-    def onModelChange(self):
+    def onModelChange(self) -> None:
         if not self.mw.col.conf.get("addToCur", True):
             self.setDeckName(
                 self.mw.col.decks.nameOrNone(self.mw.col.models.current()["did"])
                 or _("Default")
             )
 
-    def onDeckChange(self):
+    def onDeckChange(self) -> None:
         from aqt.studydeck import StudyDeck
 
         current = self.deckName()
@@ -91,14 +94,14 @@ class DeckChooser(QHBoxLayout):
         if ret.name:
             self.setDeckName(ret.name)
 
-    def setDeckName(self, name):
+    def setDeckName(self, name: str) -> None:
         self.deck.setText(name.replace("&", "&&"))
         self._deckName = name
 
-    def deckName(self):
+    def deckName(self) -> str:
         return self._deckName
 
-    def selectedId(self):
+    def selectedId(self) -> int:
         # save deck name
         name = self.deckName()
         if not name.strip():
