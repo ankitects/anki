@@ -151,4 +151,7 @@ class StudyDeck(QDialog):
             self.name = self.mw.col.decks.name(did)
             # make sure we clean up reset hook when manually exiting
             gui_hooks.state_did_reset.remove(self.onReset)
+            if self.mw.state == "deckBrowser":
+                self.mw.deckBrowser.refresh()
+            gui_hooks.sidebar_should_refresh_decks()
             QDialog.accept(self)
