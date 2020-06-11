@@ -635,7 +635,7 @@ class Editor:
                     _(
                         """\
 To make a cloze deletion on an existing note, you need to change it \
-to a cloze type first, via 'Notes>Change Note Type...'"""
+to a cloze type first, via 'Notes>Change Note Type'"""
                     )
                 )
                 return
