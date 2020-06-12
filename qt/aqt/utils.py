@@ -338,6 +338,7 @@ class CheckableListDialog(QDialog):
         choices: Iterable[str],
         parent: QWidget,
         checked: bool = False,
+        cancel_btn: bool = False,
         title: str = "Anki",
     ) -> None:
         QDialog.__init__(self, parent)
@@ -368,9 +369,13 @@ class CheckableListDialog(QDialog):
             item.setCheckState(check_state)
         layout.addWidget(clist)
         qconnect(clist.itemClicked, self.toggle_check)
-        btn = QDialogButtonBox.StandardButton(QDialogButtonBox.Ok)
+        btn = QDialogButtonBox.Ok
         bbox = QDialogButtonBox(btn)
         qconnect(bbox.button(QDialogButtonBox.Ok).clicked, self.accept)
+        if cancel_btn:
+            cbtn = QDialogButtonBox.Cancel
+            bbox.addButton(cbtn)
+            qconnect(bbox.button(QDialogButtonBox.Cancel).clicked, self.reject)
         layout.addWidget(bbox)
         self.setLayout(layout)
 
@@ -406,18 +411,28 @@ class CheckableListDialog(QDialog):
     def accept(self):
         return QDialog.accept(self)
 
+    def reject(self):
+        self.set_check_all(Qt.Unchecked)
+        return QDialog.reject(self)
+
 
 def checkable_list(
     text: str,
     choices: Iterable[str],
     parent: Optional[QWidget] = None,
     checked: bool = False,
+    cancel_btn: bool = False,
     title: str = "Anki",
 ) -> List[int]:
-    "Returns a list of index of checked items"
+    """
+        Returns a list of index of checked items.
+        If cancel_btn is True, returns an empty list when cancel is pressed.
+    """
     if not parent:
         parent = aqt.mw.app.activeWindow() or aqt.mw
-    dial = CheckableListDialog(text, choices, parent, checked=checked, title=title)
+    dial = CheckableListDialog(
+        text, choices, parent, checked=checked, cancel_btn=cancel_btn, title=title
+    )
     dial.setWindowModality(Qt.WindowModal)
     ret = dial.exec_()
     checked_choices = []
