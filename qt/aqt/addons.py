@@ -31,6 +31,7 @@ from aqt.qt import *
 from aqt.utils import (
     TR,
     askUser,
+    checkable_list,
     getFile,
     isWin,
     openFolder,
@@ -1259,15 +1260,10 @@ def prompt_to_update(
     on_done: Callable[[List[DownloadLogEntry]], None],
 ) -> None:
     names = map(lambda x: mgr.addonName(str(x)), ids)
-    if not askUser(
-        _("The following add-ons have updates available. Install them now?")
-        + "\n\n"
-        + "\n".join(names)
-    ):
-        # on_done is not called if the user cancels
-        return
-
-    download_addons(parent, mgr, ids, on_done, client)
+    prompt = _("The following add-ons have updates available. Install them now?")
+    res = checkable_list(prompt, names, parent=parent, checked=True)
+    to_update = [ids[i] for i in res]
+    download_addons(parent, mgr, to_update, on_done, client)
 
 
 # Editing config
