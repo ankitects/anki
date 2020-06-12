@@ -329,6 +329,9 @@ def chooseList(prompt, choices, startrow=0, parent=None):
 
 
 class CheckableListDialog(QDialog):
+    NORMAL_ITEM = 0
+    HEADER_ITEM = 1
+
     def __init__(
         self,
         text: str,
@@ -339,6 +342,11 @@ class CheckableListDialog(QDialog):
     ) -> None:
         QDialog.__init__(self, parent)
         self.setWindowTitle(title)
+        self.setWindowFlags(
+            Qt.WindowType(
+                (self.windowFlags() | Qt.CustomizeWindowHint) ^ Qt.WindowCloseButtonHint
+            )
+        )
         layout = QVBoxLayout()
         label = QLabel(text)
         layout.addWidget(label)
@@ -347,32 +355,56 @@ class CheckableListDialog(QDialog):
         check_state = Qt.Unchecked
         if checked:
             check_state = Qt.Checked
+        header_item = QListWidgetItem("", clist, type=self.HEADER_ITEM)
+        self.header_item = header_item
+        header_item.setFlags(Qt.ItemFlag(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled))
+        header_item.setForeground(Qt.gray)
+        header_item.setBackground(Qt.lightGray)
+        header_item.setCheckState(check_state)
         for choice in choices:
-            item = QListWidgetItem(choice, clist)
-            item.setFlags(Qt.ItemFlag(Qt.ItemIsEnabled))
+            item = QListWidgetItem(choice, clist, type=self.NORMAL_ITEM)
+            # Not user checkable because it overlaps with itemClicked signal
+            item.setFlags(Qt.ItemIsEnabled)
             item.setCheckState(check_state)
         layout.addWidget(clist)
         qconnect(clist.itemClicked, self.toggle_check)
-        buttons = QDialogButtonBox.StandardButton(
-            QDialogButtonBox.Ok | QDialogButtonBox.Cancel
-        )
-        bbox = QDialogButtonBox(buttons)
+        btn = QDialogButtonBox.StandardButton(QDialogButtonBox.Ok)
+        bbox = QDialogButtonBox(btn)
         qconnect(bbox.button(QDialogButtonBox.Ok).clicked, self.accept)
-        qconnect(bbox.button(QDialogButtonBox.Cancel).clicked, self.reject)
         layout.addWidget(bbox)
         self.setLayout(layout)
 
     def toggle_check(self, item: QListWidgetItem) -> None:
+        if item.type() == self.HEADER_ITEM:
+            if item.checkState() == Qt.Checked:
+                check = Qt.Checked
+            else:
+                check = Qt.Unchecked
+            self.set_check_all(check)
+            return
+        # Normal Item
         if item.checkState() == Qt.Checked:
             item.setCheckState(Qt.Unchecked)
+            self.header_item.setCheckState(Qt.Unchecked)
         else:
             item.setCheckState(Qt.Checked)
+            if self.every_item_is_checked():
+                self.header_item.setCheckState(Qt.Checked)
+
+    def set_check_all(self, check: Qt.CheckState = Qt.Checked) -> None:
+        for i in range(1, self.clist.count()):
+            item = self.clist.item(i)
+            item.setCheckState(check)
+
+    def every_item_is_checked(self) -> bool:
+        for i in range(1, self.clist.count()):
+            item = self.clist.item(i)
+            if item.checkState() == Qt.Unchecked:
+                return False
+        return True
 
     def accept(self):
         return QDialog.accept(self)
-
-    def reject(self):
-        return QDialog.reject(self)
 
 
 def checkable_list(
@@ -390,11 +422,12 @@ def checkable_list(
     ret = dial.exec_()
     checked_choices = []
     clist = dial.clist
-    for i in range(clist.count()):
+    for i in range(1, clist.count()):
         item = clist.item(i)
         check_state = item.checkState()
         if check_state == Qt.Checked:
-            checked_choices.append(i)
+            # First item is the header item
+            checked_choices.append(i - 1)
     return checked_choices
 
 
