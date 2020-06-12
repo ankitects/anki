@@ -1261,7 +1261,7 @@ def prompt_to_update(
 ) -> None:
     names = map(lambda x: mgr.addonName(str(x)), ids)
     prompt = _("The following add-ons have updates available. Install them now?")
-    res = checkable_list(prompt, names, parent=parent, checked=True)
+    res = checkable_list(prompt, names, parent=parent, checked=True, cancel_btn=True)
     to_update = [ids[i] for i in res]
     download_addons(parent, mgr, to_update, on_done, client)
 
