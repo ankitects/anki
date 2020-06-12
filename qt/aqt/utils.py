@@ -8,7 +8,7 @@ import os
 import re
 import subprocess
 import sys
-from typing import TYPE_CHECKING, Any, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Iterable, List, Optional, Union
 
 import anki
 import aqt
@@ -332,7 +332,7 @@ class CheckableListDialog(QDialog):
     def __init__(
         self,
         text: str,
-        choices: List[str],
+        choices: Iterable[str],
         parent: QWidget,
         checked: bool = False,
         title: str = "Anki",
@@ -377,7 +377,7 @@ class CheckableListDialog(QDialog):
 
 def checkable_list(
     text: str,
-    choices: List[str],
+    choices: Iterable[str],
     parent: Optional[QWidget] = None,
     checked: bool = False,
     title: str = "Anki",
