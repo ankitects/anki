@@ -147,8 +147,8 @@ impl Backend {
                 .db_command(in_bytes)
                 .map_err(|e| DBError::py_err(e.localized_description(&self.backend.i18n())))
         });
-        let out_string = out_res?;
-        let out_obj = PyBytes::new(py, out_string.as_bytes());
+        let out_bytes = out_res?;
+        let out_obj = PyBytes::new(py, &out_bytes);
         Ok(out_obj.into())
     }
 }

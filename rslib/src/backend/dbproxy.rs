@@ -67,7 +67,7 @@ impl FromSql for SqlValue {
     }
 }
 
-pub(super) fn db_command_bytes(ctx: &SqliteStorage, input: &[u8]) -> Result<String> {
+pub(super) fn db_command_bytes(ctx: &SqliteStorage, input: &[u8]) -> Result<Vec<u8>> {
     let req: DBRequest = serde_json::from_slice(input)?;
     let resp = match req {
         DBRequest::Query {
@@ -95,7 +95,7 @@ pub(super) fn db_command_bytes(ctx: &SqliteStorage, input: &[u8]) -> Result<Stri
         }
         DBRequest::ExecuteMany { sql, args } => db_execute_many(ctx, &sql, &args)?,
     };
-    Ok(serde_json::to_string(&resp)?)
+    Ok(serde_json::to_vec(&resp)?)
 }
 
 pub(super) fn db_query_row(ctx: &SqliteStorage, sql: &str, args: &[SqlValue]) -> Result<DBResult> {
