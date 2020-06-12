@@ -19,7 +19,7 @@ from anki.rsbackend import (
 from anki.types import assert_impossible
 from anki.utils import intTime
 from aqt import gui_hooks
-from aqt.qt import QDialog, QDialogButtonBox, QPushButton, QTimer, qconnect
+from aqt.qt import QDialog, QDialogButtonBox, QPushButton, QTextCursor, QTimer, qconnect
 from aqt.utils import showWarning, tr
 
 LogEntry = Union[MediaSyncProgress, str]
@@ -176,6 +176,7 @@ class MediaSyncDialog(QDialog):
         self.form.plainTextEdit.setPlainText(
             "\n".join(self._entry_to_text(x) for x in syncer.entries())
         )
+        self.form.plainTextEdit.moveCursor(QTextCursor.End)
         self.show()
 
     def reject(self) -> None:
