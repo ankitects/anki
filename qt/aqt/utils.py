@@ -349,7 +349,7 @@ class CheckableListDialog(QDialog):
             check_state = Qt.Checked
         for choice in choices:
             item = QListWidgetItem(choice, clist)
-            item.setFlags(Qt.ItemFlag(Qt.ItemIsEnabled | Qt.ItemIsUserCheckable))
+            item.setFlags(Qt.ItemFlag(Qt.ItemIsEnabled))
             item.setCheckState(check_state)
         layout.addWidget(clist)
         qconnect(clist.itemClicked, self.toggle_check)
