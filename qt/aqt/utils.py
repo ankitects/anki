@@ -328,6 +328,76 @@ def chooseList(prompt, choices, startrow=0, parent=None):
     return c.currentRow()
 
 
+class CheckableListDialog(QDialog):
+    def __init__(
+        self,
+        text: str,
+        choices: List[str],
+        parent: QWidget,
+        checked: bool = False,
+        title: str = "Anki",
+    ) -> None:
+        QDialog.__init__(self, parent)
+        self.setWindowTitle(title)
+        layout = QVBoxLayout()
+        label = QLabel(text)
+        layout.addWidget(label)
+        clist = QListWidget()
+        self.clist = clist
+        check_state = Qt.Unchecked
+        if checked:
+            check_state = Qt.Checked
+        for choice in choices:
+            item = QListWidgetItem(choice, clist)
+            item.setFlags(Qt.ItemFlag(Qt.ItemIsEnabled | Qt.ItemIsUserCheckable))
+            item.setCheckState(check_state)
+        layout.addWidget(clist)
+        qconnect(clist.itemClicked, self.toggle_check)
+        buttons = QDialogButtonBox.StandardButton(
+            QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+        )
+        bbox = QDialogButtonBox(buttons)
+        qconnect(bbox.button(QDialogButtonBox.Ok).clicked, self.accept)
+        qconnect(bbox.button(QDialogButtonBox.Cancel).clicked, self.reject)
+        layout.addWidget(bbox)
+        self.setLayout(layout)
+
+    def toggle_check(self, item: QListWidgetItem) -> None:
+        if item.checkState() == Qt.Checked:
+            item.setCheckState(Qt.Unchecked)
+        else:
+            item.setCheckState(Qt.Checked)
+
+    def accept(self):
+        return QDialog.accept(self)
+
+    def reject(self):
+        return QDialog.reject(self)
+
+
+def checkable_list(
+    text: str,
+    choices: List[str],
+    parent: Optional[QWidget] = None,
+    checked: bool = False,
+    title: str = "Anki",
+) -> List[int]:
+    "Returns a list of index of checked items"
+    if not parent:
+        parent = aqt.mw.app.activeWindow() or aqt.mw
+    dial = CheckableListDialog(text, choices, parent, checked=checked, title=title)
+    dial.setWindowModality(Qt.WindowModal)
+    ret = dial.exec_()
+    checked_choices = []
+    clist = dial.clist
+    for i in range(clist.count()):
+        item = clist.item(i)
+        check_state = item.checkState()
+        if check_state == Qt.Checked:
+            checked_choices.append(i)
+    return checked_choices
+
+
 def getTag(parent, deck, question, tags="user", **kwargs):
     from aqt.tagedit import TagEdit
 
