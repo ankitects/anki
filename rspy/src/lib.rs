@@ -16,7 +16,6 @@ struct Backend {
     backend: RustBackend,
 }
 
-create_exception!(ankirspy, DBError, Exception);
 create_exception!(ankirspy, BackendError, Exception);
 
 #[pyfunction]
@@ -140,12 +139,14 @@ impl Backend {
         .map_err(|err_bytes| BackendError::py_err(err_bytes))
     }
 
+    /// This takes and returns JSON, due to Python's slow protobuf
+    /// encoding/decoding.
     fn db_command(&mut self, py: Python, input: &PyBytes) -> PyResult<PyObject> {
         let in_bytes = input.as_bytes();
         let out_res = py.allow_threads(move || {
             self.backend
-                .db_command(in_bytes)
-                .map_err(|e| DBError::py_err(e.localized_description(&self.backend.i18n())))
+                .run_db_command_bytes(in_bytes)
+                .map_err(|err_bytes| BackendError::py_err(err_bytes))
         });
         let out_bytes = out_res?;
         let out_obj = PyBytes::new(py, &out_bytes);

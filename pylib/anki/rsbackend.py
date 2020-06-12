@@ -233,7 +233,13 @@ class RustBackend(RustBackendGenerated):
         return self._db_command(dict(kind="rollback"))
 
     def _db_command(self, input: Dict[str, Any]) -> Any:
-        return from_json_bytes(self._backend.db_command(to_json_bytes(input)))
+        try:
+            return from_json_bytes(self._backend.db_command(to_json_bytes(input)))
+        except Exception as e:
+            err_bytes = bytes(e.args[0])
+        err = pb.BackendError()
+        err.ParseFromString(err_bytes)
+        raise proto_exception_to_native(err)
 
     def translate(self, key: TRValue, **kwargs: Union[str, int, float]) -> str:
         return self.translate_string(translate_string_in(key, **kwargs))
@@ -254,7 +260,7 @@ class RustBackend(RustBackendGenerated):
             return self._backend.command(method, input_bytes)
         except Exception as e:
             err_bytes = bytes(e.args[0])
-            err = pb.BackendError()
+        err = pb.BackendError()
         err.ParseFromString(err_bytes)
         raise proto_exception_to_native(err)
 

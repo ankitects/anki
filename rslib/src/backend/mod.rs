@@ -1528,6 +1528,15 @@ impl Backend {
     pub fn db_command(&self, input: &[u8]) -> Result<Vec<u8>> {
         self.with_col(|col| db_command_bytes(&col.storage, input))
     }
+
+    pub fn run_db_command_bytes(&self, input: &[u8]) -> std::result::Result<Vec<u8>, Vec<u8>> {
+        self.db_command(input).map_err(|err| {
+            let backend_err = anki_error_to_proto_error(err, &self.i18n);
+            let mut bytes = Vec::new();
+            backend_err.encode(&mut bytes).unwrap();
+            bytes
+        })
+    }
 }
 
 fn to_nids(ids: Vec<i64>) -> Vec<NoteID> {
