@@ -82,12 +82,12 @@ SyncErrorKind = pb.SyncError.SyncErrorKind
 
 
 class NetworkError(StringError):
-    def kind(self) -> NetworkErrorKind:
+    def kind(self) -> pb.NetworkError.NetworkErrorKindValue:
         return self.args[1]
 
 
 class SyncError(StringError):
-    def kind(self) -> SyncErrorKind:
+    def kind(self) -> pb.SyncError.SyncErrorKindValue:
         return self.args[1]
 
 
