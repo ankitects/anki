@@ -99,9 +99,10 @@ impl SqliteStorage {
         })
     }
 
-    // fixme: bail instead of assert
     pub(crate) fn update_deck(&self, deck: &Deck) -> Result<()> {
-        assert!(deck.id.0 != 0);
+        if deck.id.0 == 0 {
+            return Err(AnkiError::invalid_input("deck with id 0"));
+        }
         self.add_or_update_deck(deck)
     }
 
@@ -257,12 +258,16 @@ impl SqliteStorage {
         self.update_deck(&deck)
     }
 
-    // fixme: make sure conflicting deck names don't break things
-    pub(crate) fn upgrade_decks_to_schema15(&self) -> Result<()> {
+    pub(crate) fn upgrade_decks_to_schema15(&self, server: bool) -> Result<()> {
+        let usn = self.usn(server)?;
         let decks = self.get_schema11_decks()?;
         let mut names = HashSet::new();
         for (_id, deck) in decks {
+            let oldname = deck.name().to_string();
             let mut deck = Deck::from(deck);
+            if deck.human_name() != oldname {
+                deck.set_modified(usn);
+            }
             loop {
                 let name = UniCase::new(deck.name.clone());
                 if !names.contains(&name) {
@@ -270,6 +275,7 @@ impl SqliteStorage {
                     break;
                 }
                 deck.name.push('_');
+                deck.set_modified(usn);
             }
             self.update_deck(&deck)?;
         }
