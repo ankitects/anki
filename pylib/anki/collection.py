@@ -426,21 +426,25 @@ class Collection:
     # the reverse argument only applies when a BuiltinSortKind is provided;
     # otherwise the collection config defines whether reverse is set or not
     def find_cards(
-        self, query: str, order: Union[bool, str, int] = False, reverse: bool = False,
+        self,
+        query: str,
+        order: Union[
+            bool,
+            str,
+            pb.BuiltinSearchOrder.BuiltinSortKindValue,  # pylint: disable=no-member
+        ] = False,
+        reverse: bool = False,
     ) -> Sequence[int]:
         if isinstance(order, str):
             mode = pb.SortOrder(custom=order)
-        elif order is True:
-            mode = pb.SortOrder(from_config=pb.Empty())
-        elif order is False:
-            mode = pb.SortOrder(none=pb.Empty())
+        elif isinstance(order, bool):
+            if order is True:
+                mode = pb.SortOrder(from_config=pb.Empty())
+            else:
+                mode = pb.SortOrder(none=pb.Empty())
         else:
-            # sadly we can't use the protobuf type in a Union, so we
-            # have to accept an int and convert it
-            BKind = pb.BuiltinSearchOrder.BuiltinSortKind  # pylint: disable=no-member
-            kind = BKind.Value(BKind.Name(order))
             mode = pb.SortOrder(
-                builtin=pb.BuiltinSearchOrder(kind=kind, reverse=reverse)
+                builtin=pb.BuiltinSearchOrder(kind=order, reverse=reverse)
             )
         return self.backend.search_cards(search=query, order=mode)
 
