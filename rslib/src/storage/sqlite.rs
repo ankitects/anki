@@ -138,7 +138,7 @@ fn trace(s: &str) {
 }
 
 impl SqliteStorage {
-    pub(crate) fn open_or_create(path: &Path, i18n: &I18n) -> Result<Self> {
+    pub(crate) fn open_or_create(path: &Path, i18n: &I18n, server: bool) -> Result<Self> {
         let db = open_or_create_collection_db(path)?;
         let (create, ver) = schema_version(&db)?;
 
@@ -180,7 +180,7 @@ impl SqliteStorage {
         let storage = Self { db };
 
         if create || upgrade {
-            storage.upgrade_to_latest_schema(ver)?;
+            storage.upgrade_to_latest_schema(ver, server)?;
         }
 
         if create {
