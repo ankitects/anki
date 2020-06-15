@@ -100,6 +100,18 @@ impl NoteType {
         }
     }
 
+    /// Return the template for the given card ordinal. Cloze notetypes
+    /// always return the first and only template.
+    pub fn get_template(&self, card_ord: u16) -> Result<&CardTemplate> {
+        let template = if self.config.kind() == NoteTypeKind::Cloze {
+            self.templates.get(0)
+        } else {
+            self.templates.get(card_ord as usize)
+        };
+
+        template.ok_or(AnkiError::NotFound)
+    }
+
     pub(crate) fn set_modified(&mut self, usn: Usn) {
         self.mtime_secs = TimestampSecs::now();
         self.usn = usn;

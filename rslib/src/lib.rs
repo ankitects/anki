@@ -26,6 +26,7 @@ pub mod revlog;
 pub mod sched;
 pub mod search;
 pub mod serde;
+mod stats;
 pub mod storage;
 mod sync;
 pub mod tags;

@@ -4,7 +4,21 @@
 use super::SqliteStorage;
 use crate::prelude::*;
 use crate::{err::Result, sync::ReviewLogEntry};
-use rusqlite::{params, NO_PARAMS};
+use rusqlite::{params, Row, NO_PARAMS};
+
+fn row_to_revlog_entry(row: &Row) -> Result<ReviewLogEntry> {
+    Ok(ReviewLogEntry {
+        id: row.get(0)?,
+        cid: row.get(1)?,
+        usn: row.get(2)?,
+        ease: row.get(3)?,
+        interval: row.get(4)?,
+        last_interval: row.get(5)?,
+        factor: row.get(6)?,
+        time: row.get(7)?,
+        kind: row.get(8)?,
+    })
+}
 
 impl SqliteStorage {
     pub(crate) fn fix_revlog_properties(&self) -> Result<usize> {
@@ -41,20 +55,15 @@ impl SqliteStorage {
     pub(crate) fn get_revlog_entry(&self, id: RevlogID) -> Result<Option<ReviewLogEntry>> {
         self.db
             .prepare_cached(concat!(include_str!("get.sql"), " where id=?"))?
-            .query_and_then(&[id], |row| {
-                Ok(ReviewLogEntry {
-                    id: row.get(0)?,
-                    cid: row.get(1)?,
-                    usn: row.get(2)?,
-                    ease: row.get(3)?,
-                    interval: row.get(4)?,
-                    last_interval: row.get(5)?,
-                    factor: row.get(6)?,
-                    time: row.get(7)?,
-                    kind: row.get(8)?,
-                })
-            })?
+            .query_and_then(&[id], row_to_revlog_entry)?
             .next()
             .transpose()
+    }
+
+    pub(crate) fn get_revlog_entries_for_card(&self, cid: CardID) -> Result<Vec<ReviewLogEntry>> {
+        self.db
+            .prepare_cached(concat!(include_str!("get.sql"), " where cid=?"))?
+            .query_and_then(&[cid], row_to_revlog_entry)?
+            .collect()
     }
 }

@@ -489,15 +489,34 @@ class Collection:
     # Stats
     ##########################################################################
 
-    def cardStats(self, card: Card) -> str:
-        from anki.stats import CardStats
-
-        return CardStats(self, card).report()
-
     def stats(self) -> "anki.stats.CollectionStats":
         from anki.stats import CollectionStats
 
         return CollectionStats(self)
+
+    def card_stats(self, card_id: int, include_revlog: bool) -> str:
+        import anki.stats as st
+
+        if include_revlog:
+            revlog_style = "margin-top: 2em;"
+        else:
+            revlog_style = "display: none;"
+
+        style = f"""<style>
+.revlog-learn {{ color: {st.colLearn} }}
+.revlog-review {{ color: {st.colMature} }}
+.revlog-relearn {{ color: {st.colRelearn} }}
+.revlog-filtered {{ color: {st.colCram} }}
+.revlog-ease1 {{ color: {st.colRelearn} }}
+table.review-log {{ {revlog_style} }}
+</style>"""
+
+        return style + self.backend.card_stats(card_id)
+
+    # legacy
+
+    def cardStats(self, card: Card) -> str:
+        return self.card_stats(card.id, include_revlog=False)
 
     # Timeboxing
     ##########################################################################
