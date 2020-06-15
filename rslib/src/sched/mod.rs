@@ -8,13 +8,14 @@ use crate::{
 pub mod cutoff;
 pub mod timespan;
 
+use chrono::FixedOffset;
 use cutoff::{
-    sched_timing_today, v1_creation_date_adjusted_to_hour, v1_rollover_from_creation_stamp,
-    SchedTimingToday,
+    fixed_offset_from_minutes, local_minutes_west_for_stamp, sched_timing_today,
+    v1_creation_date_adjusted_to_hour, v1_rollover_from_creation_stamp, SchedTimingToday,
 };
 
 impl Collection {
-    pub fn timing_today(&mut self) -> Result<SchedTimingToday> {
+    pub fn timing_today(&self) -> Result<SchedTimingToday> {
         self.timing_for_timestamp(TimestampSecs::now())
     }
 
@@ -22,7 +23,7 @@ impl Collection {
         Ok(((self.timing_today()?.days_elapsed as i32) + delta).max(0) as u32)
     }
 
-    pub(crate) fn timing_for_timestamp(&mut self, now: TimestampSecs) -> Result<SchedTimingToday> {
+    pub(crate) fn timing_for_timestamp(&self, now: TimestampSecs) -> Result<SchedTimingToday> {
         let local_offset = if self.server {
             self.get_local_mins_west()
         } else {
@@ -36,6 +37,19 @@ impl Collection {
             local_offset,
             self.get_v2_rollover(),
         ))
+    }
+
+    /// Get the local timezone.
+    /// We could use this to simplify timing_for_timestamp() in the future
+    pub(crate) fn local_offset(&self) -> FixedOffset {
+        let local_mins_west = if self.server {
+            self.get_local_mins_west()
+        } else {
+            None
+        };
+        let local_mins_west =
+            local_mins_west.unwrap_or_else(|| local_minutes_west_for_stamp(TimestampSecs::now().0));
+        fixed_offset_from_minutes(local_mins_west)
     }
 
     pub fn rollover_for_current_scheduler(&self) -> Result<u8> {

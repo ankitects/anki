@@ -117,6 +117,7 @@ fn want_release_gil(method: u32) -> bool {
             BackendMethod::UpdateStats => true,
             BackendMethod::ExtendLimits => true,
             BackendMethod::CountsForDeckToday => true,
+            BackendMethod::CardStats => true,
         }
     } else {
         false

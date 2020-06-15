@@ -67,7 +67,7 @@ fn days_elapsed(
 }
 
 /// Build a FixedOffset struct, capping minutes_west if out of bounds.
-fn fixed_offset_from_minutes(minutes_west: i32) -> FixedOffset {
+pub(crate) fn fixed_offset_from_minutes(minutes_west: i32) -> FixedOffset {
     let bounded_minutes = minutes_west.max(-23 * 60).min(23 * 60);
     FixedOffset::west(bounded_minutes * 60)
 }

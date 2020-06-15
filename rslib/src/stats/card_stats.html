@@ -1,0 +1,34 @@
+<table class="card-stats" width="100%">
+  {% for row in stats %}
+  <tr>
+    <td align="left" style="padding-right: 3px;">
+      <b>{{ row.0 }}</b>
+    </td>
+    <td>{{ row.1 }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+{% if !revlog.is_empty() %}
+<table class="review-log" width="100%">
+  <tr>
+    <th>{{ revlog_titles.time }}</th>
+    <th align="right">{{ revlog_titles.kind }}</th>
+    <th align="center">{{ revlog_titles.rating }}</th>
+    <th>{{ revlog_titles.interval }}</th>
+    <th align="right">{{ revlog_titles.ease }}</th>
+    <th align="right">{{ revlog_titles.taken_secs }}</th>
+  </tr>
+
+  {% for entry in revlog %}
+  <tr>
+    <td>{{ entry.time|safe }}</td>
+    <td align="right" class="{{ entry.kind_class }}">{{ entry.kind }}</td>
+    <td align="center" class="{{ entry.rating_class }}">{{ entry.rating }}</td>
+    <td>{{ entry.interval }}</td>
+    <td align="right">{{ entry.ease }}</td>
+    <td align="right">{{ entry.taken_secs }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endif %}

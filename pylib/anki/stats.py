@@ -18,59 +18,22 @@ from anki.utils import ids2str
 ##########################################################################
 
 
-PERIOD_MONTH = 0
-PERIOD_YEAR = 1
-PERIOD_LIFE = 2
-
-
 class CardStats:
+    """
+    New code should just call collection.card_stats() directly - this class
+    is only left around for backwards compatibility.
+    """
+
     def __init__(self, col: anki.collection.Collection, card: anki.cards.Card) -> None:
         if col:
             self.col = col.weakref()
         self.card = card
         self.txt = ""
 
-    def report(self) -> str:
-        c = self.card
-        self.txt = "<table width=100%>"
-        self.addLine(_("Added"), self.date(c.id / 1000))
-        first = self.col.db.scalar("select min(id) from revlog where cid = ?", c.id)
-        last = self.col.db.scalar("select max(id) from revlog where cid = ?", c.id)
-        if first:
-            self.addLine(_("First Review"), self.date(first / 1000))
-            self.addLine(_("Latest Review"), self.date(last / 1000))
-        if c.type in (CARD_TYPE_LRN, CARD_TYPE_REV):
-            next: Optional[str] = None
-            if c.odid or c.queue < QUEUE_TYPE_NEW:
-                pass
-            else:
-                if c.queue in (QUEUE_TYPE_REV, QUEUE_TYPE_DAY_LEARN_RELEARN):
-                    n = time.time() + ((c.due - self.col.sched.today) * 86400)
-                else:
-                    n = c.due
-                next = self.date(n)
-            if next:
-                self.addLine(self.col.tr(TR.STATISTICS_DUE_DATE), next)
-            if c.queue == QUEUE_TYPE_REV:
-                self.addLine(_("Interval"), self.col.format_timespan(c.ivl * 86400))
-            self.addLine(_("Ease"), "%d%%" % (c.factor / 10.0))
-            self.addLine(_("Reviews"), "%d" % c.reps)
-            self.addLine(_("Lapses"), "%d" % c.lapses)
-            (cnt, total) = self.col.db.first(
-                "select count(), sum(time)/1000 from revlog where cid = ?", c.id
-            )
-            if cnt:
-                self.addLine(_("Average Time"), self.time(total / float(cnt)))
-                self.addLine(_("Total Time"), self.time(total))
-        elif c.queue == QUEUE_TYPE_NEW:
-            self.addLine(_("Position"), c.due)
-        self.addLine(_("Card Type"), c.template()["name"])
-        self.addLine(_("Note Type"), c.model()["name"])
-        self.addLine(_("Deck"), self.col.decks.name(c.did))
-        self.addLine(_("Note ID"), c.nid)
-        self.addLine(_("Card ID"), c.id)
-        self.txt += "</table>"
-        return self.txt
+    def report(self, include_revlog: bool = False) -> str:
+        return self.col.card_stats(self.card.id, include_revlog=include_revlog)
+
+    # legacy
 
     def addLine(self, k: str, v: Union[int, str]) -> None:
         self.txt += self.makeLine(k, v)
@@ -89,6 +52,10 @@ class CardStats:
 
 # Collection stats
 ##########################################################################
+
+PERIOD_MONTH = 0
+PERIOD_YEAR = 1
+PERIOD_LIFE = 2
 
 colYoung = "#7c7"
 colMature = "#070"

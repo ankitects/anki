@@ -504,6 +504,14 @@ impl BackendService for Backend {
         self.with_col(|col| col.counts_for_deck_today(input.did.into()))
     }
 
+    // statistics
+    //-----------------------------------------------
+
+    fn card_stats(&mut self, input: pb::CardId) -> BackendResult<pb::String> {
+        self.with_col(|col| col.card_stats(input.into()))
+            .map(Into::into)
+    }
+
     // decks
     //-----------------------------------------------
 

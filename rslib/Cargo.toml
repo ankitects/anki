@@ -49,6 +49,7 @@ itertools = "0.9.0"
 flate2 = "1.0.14"
 pin-project = "0.4.17"
 async-compression = { version = "0.3.4", features = ["stream", "gzip"] }
+askama = "0.9.0"
 
 [target.'cfg(target_vendor="apple")'.dependencies.rusqlite]
 version = "0.23.1"
