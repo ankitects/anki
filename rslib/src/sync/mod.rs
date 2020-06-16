@@ -12,6 +12,7 @@ use crate::{
     notes::{guid, Note},
     notetype::{NoteType, NoteTypeSchema11},
     prelude::*,
+    revlog::RevlogEntry,
     serde::default_on_invalid,
     tags::{join_tags, split_tags},
     version::sync_client_version,
@@ -102,7 +103,7 @@ pub struct UnchunkedChanges {
 pub struct Chunk {
     done: bool,
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
-    revlog: Vec<ReviewLogEntry>,
+    revlog: Vec<RevlogEntry>,
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     cards: Vec<CardEntry>,
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
@@ -113,22 +114,6 @@ struct ChunkableIDs {
     revlog: Vec<RevlogID>,
     cards: Vec<CardID>,
     notes: Vec<NoteID>,
-}
-
-#[derive(Serialize_tuple, Deserialize, Debug, Default, PartialEq)]
-pub struct ReviewLogEntry {
-    pub id: TimestampMillis,
-    pub cid: CardID,
-    pub usn: Usn,
-    pub ease: u8,
-    #[serde(rename = "ivl")]
-    pub interval: i32,
-    #[serde(rename = "lastIvl")]
-    pub last_interval: i32,
-    pub factor: u32,
-    pub time: u32,
-    #[serde(rename = "type")]
-    pub kind: u8,
 }
 
 #[derive(Serialize_tuple, Deserialize, Debug)]
@@ -904,7 +889,7 @@ impl Collection {
         self.merge_notes(chunk.notes)
     }
 
-    fn merge_revlog(&self, entries: Vec<ReviewLogEntry>) -> Result<()> {
+    fn merge_revlog(&self, entries: Vec<RevlogEntry>) -> Result<()> {
         for entry in entries {
             self.storage.add_revlog_entry(&entry)?;
         }
@@ -1275,7 +1260,7 @@ mod test {
         col1.add_note(&mut note, deck.id)?;
 
         // mock revlog entry
-        col1.storage.add_revlog_entry(&ReviewLogEntry {
+        col1.storage.add_revlog_entry(&RevlogEntry {
             id: TimestampMillis(123),
             cid: CardID(456),
             usn: Usn(-1),
