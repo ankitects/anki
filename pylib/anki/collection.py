@@ -506,7 +506,6 @@ class Collection:
 .revlog-learn {{ color: {st.colLearn} }}
 .revlog-review {{ color: {st.colMature} }}
 .revlog-relearn {{ color: {st.colRelearn} }}
-.revlog-filtered {{ color: {st.colCram} }}
 .revlog-ease1 {{ color: {st.colRelearn} }}
 table.review-log {{ {revlog_style} }}
 </style>"""
