@@ -2,7 +2,11 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::{
-    card::CardQueue, i18n::I18n, prelude::*, sched::timespan::time_span, sync::ReviewLogEntry,
+    card::CardQueue,
+    i18n::I18n,
+    prelude::*,
+    revlog::{RevlogEntry, RevlogReviewKind},
+    sched::timespan::time_span,
 };
 use askama::Template;
 use chrono::prelude::*;
@@ -23,7 +27,7 @@ struct CardStats {
     deck: String,
     nid: NoteID,
     cid: CardID,
-    revlog: Vec<BasicRevlog>,
+    revlog: Vec<RevlogEntry>,
 }
 
 #[derive(Template)]
@@ -40,15 +44,6 @@ enum Due {
     Unknown,
 }
 
-struct BasicRevlog {
-    time: TimestampSecs,
-    kind: u8,
-    rating: u8,
-    interval: i32,
-    ease: u32,
-    taken_secs: f32,
-}
-
 struct RevlogText {
     time: String,
     kind: String,
@@ -58,19 +53,6 @@ struct RevlogText {
     interval: String,
     ease: String,
     taken_secs: String,
-}
-
-impl From<ReviewLogEntry> for BasicRevlog {
-    fn from(e: ReviewLogEntry) -> Self {
-        BasicRevlog {
-            time: e.id.as_secs(),
-            kind: e.kind,
-            rating: e.ease,
-            interval: e.interval,
-            ease: e.factor,
-            taken_secs: (e.time as f32) / 1000.0,
-        }
-    }
 }
 
 impl Collection {
@@ -98,7 +80,10 @@ impl Collection {
             average_secs = 0.0;
             total_secs = 0.0;
         } else {
-            total_secs = revlog.iter().map(|e| (e.time as f32) / 1000.0).sum();
+            total_secs = revlog
+                .iter()
+                .map(|e| (e.taken_millis as f32) / 1000.0)
+                .sum();
             average_secs = total_secs / (revlog.len() as f32);
         }
 
@@ -233,49 +218,41 @@ impl Collection {
     }
 }
 
-fn revlog_to_text(e: BasicRevlog, i18n: &I18n, offset: FixedOffset) -> RevlogText {
-    let dt = offset.timestamp(e.time.0, 0);
+fn revlog_to_text(e: RevlogEntry, i18n: &I18n, offset: FixedOffset) -> RevlogText {
+    let dt = offset.timestamp(e.id.as_secs().0, 0);
     let time = dt.format("<b>%Y-%m-%d</b> @ %H:%M").to_string();
-    let kind = match e.kind {
-        0 => i18n.tr(TR::CardStatsReviewLogTypeLearn).into(),
-        1 => i18n.tr(TR::CardStatsReviewLogTypeReview).into(),
-        2 => i18n.tr(TR::CardStatsReviewLogTypeRelearn).into(),
-        3 => i18n.tr(TR::CardStatsReviewLogTypeFiltered).into(),
-        4 => i18n.tr(TR::CardStatsReviewLogTypeRescheduled).into(),
-        _ => String::from("?"),
+    let kind = match e.review_kind {
+        RevlogReviewKind::Learning => i18n.tr(TR::CardStatsReviewLogTypeLearn).into(),
+        RevlogReviewKind::Review => i18n.tr(TR::CardStatsReviewLogTypeReview).into(),
+        RevlogReviewKind::Relearning => i18n.tr(TR::CardStatsReviewLogTypeRelearn).into(),
+        RevlogReviewKind::EarlyReview => i18n.tr(TR::CardStatsReviewLogTypeFiltered).into(),
     };
-    let kind_class = match e.kind {
-        0 => String::from("revlog-learn"),
-        1 => String::from("revlog-review"),
-        2 => String::from("revlog-relearn"),
-        3 => String::from("revlog-filtered"),
-        4 => String::from("revlog-rescheduled"),
-        _ => String::from(""),
+    let kind_class = match e.review_kind {
+        RevlogReviewKind::Learning => String::from("revlog-learn"),
+        RevlogReviewKind::Review => String::from("revlog-review"),
+        RevlogReviewKind::Relearning => String::from("revlog-relearn"),
+        RevlogReviewKind::EarlyReview => String::from("revlog-filtered"),
     };
-    let rating = e.rating.to_string();
+    let rating = e.button_chosen.to_string();
     let interval = if e.interval == 0 {
         String::from("")
     } else {
-        let interval_secs = if e.interval > 0 {
-            e.interval * 86_400
-        } else {
-            e.interval.abs()
-        };
+        let interval_secs = e.interval_secs();
         time_span(interval_secs as f32, i18n, true)
     };
-    let ease = if e.ease > 0 {
-        format!("{:.0}%", (e.ease as f32) / 10.0)
+    let ease = if e.ease_factor > 0 {
+        format!("{}%", e.ease_factor / 10)
     } else {
         "".to_string()
     };
-    let rating_class = if e.rating == 1 {
+    let rating_class = if e.button_chosen == 1 {
         String::from("revlog-ease1")
     } else {
         "".to_string()
     };
     let taken_secs = i18n.trn(
         TR::StatisticsSecondsTaken,
-        tr_args!["seconds"=>e.taken_secs as i32],
+        tr_args!["seconds"=>(e.taken_millis / 1000) as i32],
     );
 
     RevlogText {
