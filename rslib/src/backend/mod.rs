@@ -512,6 +512,10 @@ impl BackendService for Backend {
             .map(Into::into)
     }
 
+    fn graphs(&mut self, input: pb::GraphsIn) -> BackendResult<pb::GraphsOut> {
+        self.with_col(|col| col.graph_data_for_search(&input.search, input.days))
+    }
+
     // decks
     //-----------------------------------------------
 

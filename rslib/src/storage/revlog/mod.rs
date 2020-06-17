@@ -84,4 +84,25 @@ impl SqliteStorage {
             .query_and_then(&[cid], row_to_revlog_entry)?
             .collect()
     }
+
+    pub(crate) fn for_each_revlog_entry_of_card<F>(
+        &self,
+        cid: CardID,
+        from: TimestampSecs,
+        mut func: F,
+    ) -> Result<()>
+    where
+        F: FnMut(&RevlogEntry) -> Result<()>,
+    {
+        let mut stmt = self
+            .db
+            .prepare_cached(concat!(include_str!("get.sql"), " where cid=? and id>=?"))?;
+        let mut rows = stmt.query(&[cid.0, from.0 * 1000])?;
+        while let Some(row) = rows.next()? {
+            let entry = row_to_revlog_entry(row)?;
+            func(&entry)?
+        }
+
+        Ok(())
+    }
 }
