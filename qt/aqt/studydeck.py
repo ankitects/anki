@@ -145,6 +145,7 @@ class StudyDeck(QDialog):
         else:
             default = self.names[self.form.list.currentRow()]
         n = getOnlyText(_("New deck name:"), default=default)
+        n = n.strip()
         if n:
             did = self.mw.col.decks.id(n)
             # deck name may not be the same as user input. ex: ", ::
