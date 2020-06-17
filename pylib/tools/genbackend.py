@@ -62,9 +62,9 @@ def python_type_inner(field):
 
 def fullname(fullname):
     if "FluentString" in fullname:
-        return fullname.replace("backend_proto", "anki.fluent_pb2")
+        return fullname.replace("BackendProto", "anki.fluent_pb2")
     else:
-        return fullname.replace("backend_proto", "pb")
+        return fullname.replace("BackendProto", "pb")
 
 
 # get_deck_i_d -> get_deck_id etc

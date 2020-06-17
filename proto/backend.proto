@@ -2,7 +2,7 @@ syntax = "proto3";
 
 import "fluent.proto";
 
-package backend_proto;
+package BackendProto;
 
 // Generic containers
 ///////////////////////////////////////////////////////////
