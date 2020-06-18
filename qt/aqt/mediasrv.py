@@ -93,6 +93,18 @@ def allroutes(path):
             mimetype="text/plain",
         )
 
+    directory = os.path.realpath(directory)
+    path = os.path.normpath(path)
+    fullpath = os.path.realpath(os.path.join(directory, path))
+
+    # protect against directory transversal: https://security.openstack.org/guidelines/dg_using-file-paths.html
+    if not fullpath.startswith(directory):
+        return flask.Response(
+            "Path for '%s - %s' is a security leak!" % (directory, path),
+            status=HTTPStatus.FORBIDDEN,
+            mimetype="text/plain",
+        )
+
     if isdir:
         return flask.Response(
             "Path for '%s - %s' is a directory (not supported)!" % (directory, path),
@@ -103,6 +115,9 @@ def allroutes(path):
     try:
         if devMode:
             print("Sending file '%s - %s'" % (directory, path))
+
+        path = os.path.basename(fullpath)
+        directory = os.path.dirname(fullpath)
         return flask.send_from_directory(directory, path)
 
     except Exception as error:
