@@ -333,6 +333,14 @@ class MpvManager(MPV, SoundOrVideoPlayer):
         self._on_done: Optional[OnDoneCallback] = None
         self.default_argv += ["--config-dir=" + base_path]
         super().__init__(window_id=None, debug=False)
+        self.init()
+
+    def init(self) -> None:
+        self.command("keybind", "q", "stop")
+        self.command("keybind", "Q", "stop")
+        self.command("keybind", "CLOSE_WIN", "stop")
+        self.command("keybind", "ctrl+w", "stop")
+        self.command("keybind", "ctrl+c", "stop")
 
     def play(self, tag: AVTag, on_done: OnDoneCallback) -> None:
         assert isinstance(tag, SoundOrVideoTag)
