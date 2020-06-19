@@ -97,6 +97,10 @@ service BackendService {
     rpc ExtendLimits (ExtendLimitsIn) returns (Empty);
     rpc CountsForDeckToday (DeckID) returns (CountsForDeckTodayOut);
 
+    // stats
+
+    rpc CardStats (CardID) returns (String);
+
     // media
 
     rpc CheckMedia (Empty) returns (CheckMediaOut);

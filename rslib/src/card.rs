@@ -15,6 +15,12 @@ use std::collections::HashSet;
 
 define_newtype!(CardID, i64);
 
+impl CardID {
+    pub fn as_secs(self) -> TimestampSecs {
+        TimestampSecs(self.0 / 1000)
+    }
+}
+
 #[derive(Serialize_repr, Deserialize_repr, Debug, PartialEq, TryFromPrimitive, Clone, Copy)]
 #[repr(u8)]
 pub enum CardType {

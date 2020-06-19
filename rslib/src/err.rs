@@ -243,6 +243,9 @@ fn error_for_status_code(info: String, code: StatusCode) -> AnkiError {
 }
 
 fn guess_reqwest_error(info: String) -> AnkiError {
+    if info.contains("dns error: cancelled") {
+        return AnkiError::Interrupted;
+    }
     let kind = if info.contains("unreachable") || info.contains("dns") {
         NetworkErrorKind::Offline
     } else {

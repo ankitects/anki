@@ -426,21 +426,25 @@ class Collection:
     # the reverse argument only applies when a BuiltinSortKind is provided;
     # otherwise the collection config defines whether reverse is set or not
     def find_cards(
-        self, query: str, order: Union[bool, str, int] = False, reverse: bool = False,
+        self,
+        query: str,
+        order: Union[
+            bool,
+            str,
+            pb.BuiltinSearchOrder.BuiltinSortKindValue,  # pylint: disable=no-member
+        ] = False,
+        reverse: bool = False,
     ) -> Sequence[int]:
         if isinstance(order, str):
             mode = pb.SortOrder(custom=order)
-        elif order is True:
-            mode = pb.SortOrder(from_config=pb.Empty())
-        elif order is False:
-            mode = pb.SortOrder(none=pb.Empty())
+        elif isinstance(order, bool):
+            if order is True:
+                mode = pb.SortOrder(from_config=pb.Empty())
+            else:
+                mode = pb.SortOrder(none=pb.Empty())
         else:
-            # sadly we can't use the protobuf type in a Union, so we
-            # have to accept an int and convert it
-            BKind = pb.BuiltinSearchOrder.BuiltinSortKind  # pylint: disable=no-member
-            kind = BKind.Value(BKind.Name(order))
             mode = pb.SortOrder(
-                builtin=pb.BuiltinSearchOrder(kind=kind, reverse=reverse)
+                builtin=pb.BuiltinSearchOrder(kind=order, reverse=reverse)
             )
         return self.backend.search_cards(search=query, order=mode)
 
@@ -485,15 +489,34 @@ class Collection:
     # Stats
     ##########################################################################
 
-    def cardStats(self, card: Card) -> str:
-        from anki.stats import CardStats
-
-        return CardStats(self, card).report()
-
     def stats(self) -> "anki.stats.CollectionStats":
         from anki.stats import CollectionStats
 
         return CollectionStats(self)
+
+    def card_stats(self, card_id: int, include_revlog: bool) -> str:
+        import anki.stats as st
+
+        if include_revlog:
+            revlog_style = "margin-top: 2em;"
+        else:
+            revlog_style = "display: none;"
+
+        style = f"""<style>
+.revlog-learn {{ color: {st.colLearn} }}
+.revlog-review {{ color: {st.colMature} }}
+.revlog-relearn {{ color: {st.colRelearn} }}
+.revlog-filtered {{ color: {st.colCram} }}
+.revlog-ease1 {{ color: {st.colRelearn} }}
+table.review-log {{ {revlog_style} }}
+</style>"""
+
+        return style + self.backend.card_stats(card_id)
+
+    # legacy
+
+    def cardStats(self, card: Card) -> str:
+        return self.card_stats(card.id, include_revlog=False)
 
     # Timeboxing
     ##########################################################################

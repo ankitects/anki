@@ -504,6 +504,14 @@ impl BackendService for Backend {
         self.with_col(|col| col.counts_for_deck_today(input.did.into()))
     }
 
+    // statistics
+    //-----------------------------------------------
+
+    fn card_stats(&mut self, input: pb::CardId) -> BackendResult<pb::String> {
+        self.with_col(|col| col.card_stats(input.into()))
+            .map(Into::into)
+    }
+
     // decks
     //-----------------------------------------------
 
@@ -1525,8 +1533,17 @@ impl Backend {
         }
     }
 
-    pub fn db_command(&self, input: &[u8]) -> Result<String> {
+    pub fn db_command(&self, input: &[u8]) -> Result<Vec<u8>> {
         self.with_col(|col| db_command_bytes(&col.storage, input))
+    }
+
+    pub fn run_db_command_bytes(&self, input: &[u8]) -> std::result::Result<Vec<u8>, Vec<u8>> {
+        self.db_command(input).map_err(|err| {
+            let backend_err = anki_error_to_proto_error(err, &self.i18n);
+            let mut bytes = Vec::new();
+            backend_err.encode(&mut bytes).unwrap();
+            bytes
+        })
     }
 }
 

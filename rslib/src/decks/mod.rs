@@ -469,7 +469,6 @@ impl Collection {
             .storage
             .get_all_deck_names()?
             .into_iter()
-            .filter(|(id, _name)| id.0 != 1)
             .filter(|(id, _name)| match self.get_deck(*id) {
                 Ok(Some(deck)) => !deck.is_filtered(),
                 _ => true,

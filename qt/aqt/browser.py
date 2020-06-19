@@ -9,7 +9,7 @@ import time
 from dataclasses import dataclass
 from enum import Enum
 from operator import itemgetter
-from typing import Callable, List, Optional, Sequence, Union
+from typing import Callable, List, Optional, Sequence, Tuple, Union
 
 import anki
 import aqt
@@ -21,6 +21,7 @@ from anki.lang import _, ngettext
 from anki.models import NoteType
 from anki.notes import Note
 from anki.rsbackend import TR, DeckTreeNode, InvalidInput
+from anki.stats import CardStats
 from anki.utils import htmlToTextLine, ids2str, intTime, isMac, isWin
 from aqt import AnkiQt, gui_hooks
 from aqt.editor import Editor
@@ -1414,6 +1415,7 @@ QTableView {{ gridline-color: {grid} }}
     def showCardInfo(self):
         if not self.card:
             return
+
         info, cs = self._cardInfoData()
         reps = self._revlogData(cs)
 
@@ -1432,79 +1434,16 @@ QTableView {{ gridline-color: {grid} }}
         restoreGeom(card_info_dialog, "revlog")
         card_info_dialog.show()
 
-    def _cardInfoData(self):
-        from anki.stats import CardStats
-
+    def _cardInfoData(self) -> Tuple[str, CardStats]:
         cs = CardStats(self.col, self.card)
-        rep = cs.report()
-        m = self.card.model()
-        rep = (
-            """
-<div style='width: 400px; margin: 0 auto 0;
-border: 1px solid #000; padding: 3px; '>%s</div>"""
-            % rep
-        )
+        rep = cs.report(include_revlog=True)
         return rep, cs
 
-    def _revlogData(self, cs):
-        entries = self.mw.col.db.all(
-            "select id/1000.0, ease, ivl, factor, time/1000.0, type "
-            "from revlog where cid = ?",
-            self.card.id,
-        )
-        if not entries:
-            return ""
-        s = "<table width=100%%><tr><th align=left>%s</th>" % _("Date")
-        s += "<th align=right>%s</th>" % _("Type")
-        s += "<th align=center>%s</th>" % _("Rating")
-        s += "<th align=left>%s</th>" % _("Interval")
-        s += ("<th align=right>%s</th>" * 2) % (_("Ease"), _("Time"),)
-        cnt = 0
-        for (date, ease, ivl, factor, taken, type) in reversed(entries):
-            cnt += 1
-            s += "<tr><td>%s</td>" % time.strftime(
-                _("<b>%Y-%m-%d</b> @ %H:%M"), time.localtime(date)
-            )
-            tstr = [_("Learn"), _("Review"), _("Relearn"), _("Filtered"), _("Resched")][
-                type
-            ]
-            import anki.stats as st
+    # legacy - revlog used to be generated here, and some add-ons
+    # wrapped this function
 
-            fmt = "<span style='color:%s'>%s</span>"
-            if type == CARD_TYPE_NEW:
-                tstr = fmt % (st.colLearn, tstr)
-            elif type == CARD_TYPE_LRN:
-                tstr = fmt % (st.colMature, tstr)
-            elif type == 2:
-                tstr = fmt % (st.colRelearn, tstr)
-            elif type == 3:
-                tstr = fmt % (st.colCram, tstr)
-            else:
-                tstr = fmt % ("#000", tstr)
-            if ease == 1:
-                ease = fmt % (st.colRelearn, ease)
-            if ivl == 0:
-                ivl = ""
-            else:
-                if ivl > 0:
-                    ivl *= 86_400
-                ivl = cs.time(abs(ivl))
-            s += "<td align=right>%s</td>" % tstr
-            s += "<td align=center>%s</td>" % ease
-            s += "<td align=left>%s</td>" % ivl
-
-            s += ("<td align=right>%s</td>" * 2) % (
-                "%d%%" % (factor / 10) if factor else "",
-                self.col.format_timespan(taken),
-            ) + "</tr>"
-        s += "</table>"
-        if cnt < self.card.reps:
-            s += _(
-                """\
-Note: Some of the history is missing. For more information, \
-please see the browser documentation."""
-            )
-        return s
+    def _revlogData(self, cs: CardStats) -> str:
+        return ""
 
     # Menu helpers
     ######################################################################
