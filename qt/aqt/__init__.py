@@ -309,6 +309,7 @@ def parseArgs(argv):
     parser.add_argument("-b", "--base", help="path to base folder", default="")
     parser.add_argument("-p", "--profile", help="profile name to load", default="")
     parser.add_argument("-l", "--lang", help="interface language (en, de, etc)")
+    parser.add_argument("-v", "--version", help="print the Anki version and exit")
     return parser.parse_known_args(argv[1:])
 
 
@@ -411,6 +412,10 @@ def _run(argv=None, exec=True):
 
     # parse args
     opts, args = parseArgs(argv)
+
+    if opts.version:
+        print(f"Anki version '{appVersion}'")
+        return
 
     if PROFILE_CODE:
         import cProfile
