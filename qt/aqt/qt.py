@@ -30,7 +30,7 @@ except ImportError:
 
 try:
     # pylint: disable=no-name-in-module
-    from PyQt5 import Qsci  # type: ignore
+    from PyQt5 import Qsci
 except Exception as error:
     from anki.utils import devMode
 
