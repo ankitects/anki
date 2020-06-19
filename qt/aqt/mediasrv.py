@@ -116,9 +116,7 @@ def allroutes(path):
         if devMode:
             print("Sending file '%s - %s'" % (directory, path))
 
-        path = os.path.basename(fullpath)
-        directory = os.path.dirname(fullpath)
-        return flask.send_from_directory(directory, path)
+        return flask.send_file(fullpath, conditional=True)
 
     except Exception as error:
         if devMode:
