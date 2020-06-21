@@ -13,6 +13,7 @@ from anki.consts import *
 from anki.lang import _, ngettext
 from anki.rsbackend import TR, FormatTimeSpanContext
 from anki.utils import ids2str
+from aqt.theme import theme_manager
 
 # Card stats
 ##########################################################################
@@ -1007,6 +1008,8 @@ from cards where did in %s"""
                     background=dict(opacity=0.5, color="#000"),
                 ),
             )
+            if theme_manager.night_mode:
+                conf["series"]["pie"]["stroke"] = dict(color="#2f2f31", width=5)
         return """
 <table cellpadding=0 cellspacing=10>
 <tr>
