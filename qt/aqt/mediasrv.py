@@ -14,6 +14,7 @@ from typing import Optional
 
 import aqt
 from anki.collection import Collection
+from anki.rsbackend import from_json_bytes
 from anki.utils import devMode
 from aqt.qt import *
 from aqt.utils import aqt_data_folder
@@ -78,7 +79,7 @@ class MediaServer(threading.Thread):
 
 class RequestHandler(http.server.SimpleHTTPRequestHandler):
 
-    timeout = 1
+    timeout = 10
     mw: Optional[aqt.main.AnkiQt] = None
 
     def do_GET(self):
@@ -181,7 +182,9 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
         cmd = self.path[len("/_anki/") :]
 
         if cmd == "graphData":
-            data = graph_data(self.mw.col)
+            content_length = int(self.headers['Content-Length'])
+            body = self.rfile.read(content_length)
+            data = graph_data(self.mw.col, **from_json_bytes(body))
         else:
             self.send_error(HTTPStatus.NOT_FOUND, "Method not found")
             return
@@ -195,10 +198,13 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
         self.wfile.write(data)
 
 
-def graph_data(col: Collection) -> bytes:
-    graphs = col.backend.graphs(search="", days=0)
-    return graphs
-
+def graph_data(col: Collection, search: str, days: str) -> bytes:
+    try:
+        return col.backend.graphs(search=search, days=days)
+    except Exception as e:
+        # likely searching error
+        print(e)
+        return b''
 
 # work around Windows machines with incorrect mime type
 RequestHandler.extensions_map[".css"] = "text/css"

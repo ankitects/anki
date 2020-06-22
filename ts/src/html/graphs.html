@@ -4,9 +4,11 @@
         <meta charset="utf-8" />
     </head>
     <body>
-        <div id="svelte"></div>
+        <div id="main"></div>
     </body>
     <script>
-        anki.renderGraphs();
+        new anki.default({
+            target: document.getElementById("main"),
+        });
     </script>
 </html>

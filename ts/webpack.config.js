@@ -5,7 +5,7 @@ var path = require("path");
 
 module.exports = {
     entry: {
-        graphs: ["./src/stats/graphs.ts"],
+        graphs: ["./src/stats/GraphsPage.svelte"],
     },
     output: {
         library: "anki",

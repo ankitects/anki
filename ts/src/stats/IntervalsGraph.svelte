@@ -9,7 +9,7 @@
     import { onMount } from "svelte";
     import pb from "../backend/proto";
 
-    export let cards: pb.BackendProto.Card[] | null = null;
+    export let data: pb.BackendProto.GraphsOut | null = null;
 
     let svg = null as HTMLElement | SVGElement | null;
     let updater = null as IntervalUpdateFn | null;
@@ -20,10 +20,14 @@
 
     let range = IntervalRange.Percentile95;
 
-    let graphData: IntervalGraphData;
-    $: graphData = gatherIntervalData(cards!);
-    $: if (updater) {
-        updater(graphData, range);
+    let intervalData: IntervalGraphData | null = null;
+    $: if (data) {
+        console.log("gathering data");
+        intervalData = gatherIntervalData(data);
+    }
+
+    $: if (intervalData && updater) {
+        updater(intervalData, range);
     }
 </script>
 

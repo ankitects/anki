@@ -31,8 +31,8 @@ export enum IntervalRange {
     All = 4,
 }
 
-export function gatherIntervalData(cards: pb.BackendProto.Card[]): IntervalGraphData {
-    const intervals = cards
+export function gatherIntervalData(data: pb.BackendProto.GraphsOut): IntervalGraphData {
+    const intervals = (data.cards2 as pb.BackendProto.Card[])
         .filter((c) => c.queue == CardQueue.Review)
         .map((c) => c.ivl);
     return { intervals };
@@ -152,11 +152,16 @@ export function intervalGraph(svgElem: SVGElement): IntervalUpdateFn {
 
         yAxisGroup.transition(t as any).call(updateYAxis as any, y);
 
+        function barWidth(d: any): number {
+            const width = Math.max(0, x(d.x1) - x(d.x0) - 1);
+            return width ? width : 0;
+        }
+
         const updateBar = (sel: any) => {
             return sel.call((sel) =>
                 sel
                     .transition(t as any)
-                    .attr("width", (d: any) => Math.max(0, x(d.x1) - x(d.x0) - 1))
+                    .attr("width", barWidth)
                     .attr("x", (d: any) => x(d.x0))
                     .attr("y", (d: any) => y(d.length)!)
                     .attr("height", (d: any) => y(0) - y(d.length))
@@ -210,7 +215,7 @@ export function intervalGraph(svgElem: SVGElement): IntervalUpdateFn {
             .join("rect")
             .attr("x", (d: any) => x(d.x0))
             .attr("y", () => y(yMax!))
-            .attr("width", (d: any) => Math.max(0, x(d.x1) - x(d.x0) - 1))
+            .attr("width", barWidth)
             .attr("height", () => y(0) - y(yMax!))
             .attr("fill", "none")
             .attr("pointer-events", "all")
