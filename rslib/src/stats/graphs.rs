@@ -8,7 +8,6 @@ use crate::{
     prelude::*,
     revlog::{RevlogEntry, RevlogReviewKind},
     sched::cutoff::SchedTimingToday,
-    search::SortMode,
 };
 
 struct GraphsContext {
@@ -27,6 +26,8 @@ struct AllStats {
     buttons: pb::ButtonsGraphData,
     hours: Vec<pb::HourGraphData>,
     cards: pb::CardsGraphData,
+    cards2: Vec<Card>,
+    revlog: Vec<pb::RevlogEntry>,
 }
 
 impl Default for AllStats {
@@ -41,6 +42,8 @@ impl Default for AllStats {
             buttons,
             hours: vec![Default::default(); 24],
             cards: Default::default(),
+            cards2: vec![],
+            revlog: vec![],
         }
     }
 }
@@ -52,6 +55,8 @@ impl From<AllStats> for pb::GraphsOut {
             hours: s.hours,
             today: Some(s.today),
             buttons: Some(s.buttons),
+            cards2: s.cards2.into_iter().map(Into::into).collect(),
+            revlog: s.revlog,
         }
     }
 }
@@ -217,13 +222,15 @@ impl Collection {
         search: &str,
         days: u32,
     ) -> Result<pb::GraphsOut> {
-        let cids = self.search_cards(search, SortMode::NoOrder)?;
-        let stats = self.graph_data(&cids, days)?;
-        println!("{:#?}", stats);
-        Ok(stats.into())
+        self.search_cards_into_table(search)?;
+        let i = std::time::Instant::now();
+        let all = search.trim().is_empty();
+        let stats = self.graph_data(all, days)?;
+        let stats = stats.into();
+        Ok(stats)
     }
 
-    fn graph_data(&self, cids: &[CardID], days: u32) -> Result<AllStats> {
+    fn graph_data(&self, all: bool, days: u32) -> Result<AllStats> {
         let timing = self.timing_today()?;
         let revlog_start = TimestampSecs(if days > 0 {
             timing.next_day_at - (((days as i64) + 1) * 86_400)
@@ -242,17 +249,35 @@ impl Collection {
             stats: AllStats::default(),
         };
 
-        for cid in cids {
-            let card = self.storage.get_card(*cid)?.ok_or(AnkiError::NotFound)?;
-            ctx.observe_card(&card);
+        let cards = self.storage.all_searched_cards()?;
+        let revlog = if all {
+            self.storage.get_all_revlog_entries(revlog_start)?
+        } else {
             self.storage
-                .for_each_revlog_entry_of_card(*cid, revlog_start, |entry| {
-                    Ok(ctx.observe_review(entry))
-                })?;
-        }
+                .get_revlog_entries_for_searched_cards(revlog_start)?
+        };
 
-        ctx.stats.cards.note_count = self.storage.note_ids_of_cards(cids)?.len() as u32;
+        ctx.stats.cards2 = cards;
+        ctx.stats.revlog = revlog;
+
+        // ctx.stats.cards.note_count = self.storage.note_ids_of_cards(cids)?.len() as u32;
 
         Ok(ctx.stats)
+    }
+}
+
+impl From<RevlogEntry> for pb::RevlogEntry {
+    fn from(e: RevlogEntry) -> Self {
+        pb::RevlogEntry {
+            id: e.id.0,
+            cid: e.cid.0,
+            usn: e.usn.0,
+            button_chosen: e.button_chosen as u32,
+            interval: e.interval,
+            last_interval: e.last_interval,
+            ease_factor: e.ease_factor,
+            taken_millis: e.taken_millis,
+            review_kind: e.review_kind as u32,
+        }
     }
 }

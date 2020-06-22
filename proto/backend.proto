@@ -992,6 +992,8 @@ message GraphsOut {
     repeated HourGraphData hours = 2;
     TodayGraphData today = 3;
     ButtonsGraphData buttons = 4;
+    repeated Card cards2 = 5;
+    repeated RevlogEntry revlog = 6;
 }
 
 message CardsGraphData {
@@ -1028,4 +1030,16 @@ message ButtonsGraphData {
     repeated uint32 learn = 1;
     repeated uint32 young = 2;
     repeated uint32 mature = 3;
+}
+
+message RevlogEntry {
+    int64 id = 1;
+    int64 cid = 2;
+    int32 usn = 3;
+    uint32 button_chosen = 4;
+    int32 interval = 5;
+    int32 last_interval = 6;
+    uint32 ease_factor = 7;
+    uint32 taken_millis = 8;
+    uint32 review_kind = 9;
 }

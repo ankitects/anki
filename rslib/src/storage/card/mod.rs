@@ -250,6 +250,33 @@ impl super::SqliteStorage {
         }
         Ok(nids)
     }
+
+    pub(crate) fn for_each_card_in_search<F>(&self, mut func: F) -> Result<()>
+    where
+        F: FnMut(&Card) -> Result<()>,
+    {
+        let mut stmt = self.db.prepare_cached(concat!(
+            include_str!("get_card.sql"),
+            " where id in (select id from search_cids)"
+        ))?;
+        let mut rows = stmt.query(NO_PARAMS)?;
+        while let Some(row) = rows.next()? {
+            let entry = row_to_card(row)?;
+            func(&entry)?
+        }
+
+        Ok(())
+    }
+
+    pub(crate) fn all_searched_cards(&self) -> Result<Vec<Card>> {
+        self.db
+            .prepare_cached(concat!(
+                include_str!("get_card.sql"),
+                " where id in (select id from search_cids)"
+            ))?
+            .query_and_then(NO_PARAMS, |r| row_to_card(r).map_err(Into::into))?
+            .collect()
+    }
 }
 
 #[cfg(test)]
