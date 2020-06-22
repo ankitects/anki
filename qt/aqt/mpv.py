@@ -84,6 +84,7 @@ class MPVBase:
         "--ontop",
         "--audio-display=no",
         "--keep-open=no",
+        "--reset-on-next-file=pause",
     ]
 
     def __init__(self, window_id=None, debug=False):
