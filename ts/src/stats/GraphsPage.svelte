@@ -23,7 +23,8 @@
     };
 
     $: {
-        switch (range) {
+        const rangeTmp = range as GraphRange; // ts workaround
+        switch (rangeTmp) {
             case GraphRange.Month:
                 days = 31;
                 break;
@@ -34,7 +35,7 @@
                 days = 0;
                 break;
             default:
-                assertUnreachable(range);
+                assertUnreachable(rangeTmp);
         }
         console.log("refresh");
         refresh();
