@@ -5,8 +5,6 @@
 </script>
 
 <script lang="typescript">
-    import debounce from "lodash.debounce";
-
     import { assertUnreachable } from "../typing";
     import pb from "../backend/proto";
     import { getGraphData, GraphRange } from "./graphs";
@@ -25,6 +23,7 @@
     let days: number = 31;
 
     let search = "deck:current";
+    let displayedSearch = search;
 
     const refresh = async () => {
         console.log(`search is ${search}`);
@@ -32,14 +31,19 @@
     };
 
     $: {
+        // refresh if either of these change
+        search;
+        days;
+        refresh();
+    }
+
+    $: {
         switch (searchRange as SearchRange) {
             case SearchRange.Deck:
-                search = "deck:current";
-                refresh();
+                search = displayedSearch = "deck:current";
                 break;
             case SearchRange.Collection:
-                search = "";
-                refresh();
+                search = displayedSearch = "";
                 break;
             case SearchRange.Custom:
                 break;
@@ -47,8 +51,7 @@
     }
 
     $: {
-        const rangeTmp = range as GraphRange; // ts workaround
-        switch (rangeTmp) {
+        switch (range as GraphRange) {
             case GraphRange.Month:
                 days = 31;
                 break;
@@ -58,16 +61,15 @@
             case GraphRange.All:
                 days = 0;
                 break;
-            default:
-                assertUnreachable(rangeTmp);
         }
-        console.log("refresh");
-        refresh();
     }
 
-    const scheduleRefresh = debounce(() => {
-        refresh();
-    }, 1000);
+    const searchKeyUp = (e: KeyboardEvent) => {
+        // fetch data on enter
+        if (e.keyCode == 13) {
+            search = displayedSearch;
+        }
+    };
 </script>
 
 <div class="range-box">
@@ -84,7 +86,7 @@
         Custom
     </label>
 
-    <input type="text" bind:value={search} on:input={scheduleRefresh} />
+    <input type="text" bind:value={displayedSearch} on:keyup={searchKeyUp} />
 
 </div>
 
