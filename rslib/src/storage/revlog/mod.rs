@@ -4,6 +4,7 @@
 use super::SqliteStorage;
 use crate::err::Result;
 use crate::{
+    backend_proto as pb,
     prelude::*,
     revlog::{RevlogEntry, RevlogReviewKind},
 };
@@ -34,7 +35,7 @@ fn row_to_revlog_entry(row: &Row) -> Result<RevlogEntry> {
         last_interval: row.get(5)?,
         ease_factor: row.get(6)?,
         taken_millis: row.get(7)?,
-        review_kind: row.get(8)?,
+        review_kind: row.get(8).unwrap_or_default(),
     })
 }
 
@@ -85,24 +86,31 @@ impl SqliteStorage {
             .collect()
     }
 
-    pub(crate) fn for_each_revlog_entry_of_card<F>(
+    pub(crate) fn get_revlog_entries_for_searched_cards(
         &self,
-        cid: CardID,
-        from: TimestampSecs,
-        mut func: F,
-    ) -> Result<()>
-    where
-        F: FnMut(&RevlogEntry) -> Result<()>,
-    {
-        let mut stmt = self
-            .db
-            .prepare_cached(concat!(include_str!("get.sql"), " where cid=? and id>=?"))?;
-        let mut rows = stmt.query(&[cid.0, from.0 * 1000])?;
-        while let Some(row) = rows.next()? {
-            let entry = row_to_revlog_entry(row)?;
-            func(&entry)?
-        }
+        after: TimestampSecs,
+    ) -> Result<Vec<pb::RevlogEntry>> {
+        self.db
+            .prepare_cached(concat!(
+                include_str!("get.sql"),
+                " where cid in (select id from search_cids) and id >= ?"
+            ))?
+            .query_and_then(&[after.0 * 1000], |r| {
+                row_to_revlog_entry(r).map(Into::into)
+            })?
+            .collect()
+    }
 
-        Ok(())
+    /// This includes entries from deleted cards.
+    pub(crate) fn get_all_revlog_entries(
+        &self,
+        after: TimestampSecs,
+    ) -> Result<Vec<pb::RevlogEntry>> {
+        self.db
+            .prepare_cached(concat!(include_str!("get.sql"), " where id >= ?"))?
+            .query_and_then(&[after.0 * 1000], |r| {
+                row_to_revlog_entry(r).map(Into::into)
+            })?
+            .collect()
     }
 }

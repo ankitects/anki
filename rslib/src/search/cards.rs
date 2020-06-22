@@ -11,6 +11,7 @@ use crate::collection::Collection;
 use crate::config::SortKind;
 use crate::err::Result;
 use crate::search::parser::parse;
+use rusqlite::NO_PARAMS;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum SortMode {
@@ -85,6 +86,31 @@ impl Collection {
             .collect::<std::result::Result<_, _>>()?;
 
         Ok(ids)
+    }
+
+    /// Place the matched card ids into a temporary 'search_cids' table
+    /// instead of returning them. Use clear_searched_cards() to remove it.
+    pub(crate) fn search_cards_into_table(&mut self, search: &str) -> Result<()> {
+        let top_node = Node::Group(parse(search)?);
+        let writer = SqlWriter::new(self);
+
+        let (mut sql, args) = writer.build_cards_query(&top_node, RequiredTable::Cards)?;
+        self.storage.db.execute_batch(concat!(
+            "drop table if exists search_cids;",
+            "create temporary table search_cids (id integer primary key not null);"
+        ))?;
+        let sql = format!("insert into search_cids {}", sql);
+
+        self.storage.db.prepare(&sql)?.execute(&args)?;
+
+        Ok(())
+    }
+
+    pub(crate) fn clear_searched_cards(&mut self) -> Result<()> {
+        self.storage
+            .db
+            .execute("drop table if exists search_cids", NO_PARAMS)?;
+        Ok(())
     }
 
     /// If the sort mode is based on a config setting, look it up.

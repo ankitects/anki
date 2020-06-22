@@ -1,6 +1,9 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+from __future__ import annotations
+
 import http.server
 import re
 import socket
@@ -9,6 +12,7 @@ import threading
 from http import HTTPStatus
 from typing import Optional
 
+import aqt
 from anki.collection import Collection
 from anki.utils import devMode
 from aqt.qt import *
@@ -59,7 +63,8 @@ class MediaServer(threading.Thread):
 
     def run(self):
         RequestHandler.mw = self.mw
-        self.server = ThreadedHTTPServer(("127.0.0.1", 0), RequestHandler)
+        desired_port = int(os.getenv("ANKI_API_PORT", 0))
+        self.server = ThreadedHTTPServer(("127.0.0.1", desired_port), RequestHandler)
         self._ready.set()
         self.server.serve_forever()
 
@@ -74,7 +79,7 @@ class MediaServer(threading.Thread):
 class RequestHandler(http.server.SimpleHTTPRequestHandler):
 
     timeout = 1
-    mw: Optional[Collection] = None
+    mw: Optional[aqt.main.AnkiQt] = None
 
     def do_GET(self):
         f = self.send_head()
@@ -167,6 +172,32 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
                 return newPath
 
         return path
+
+    def do_POST(self):
+        if not self.path.startswith("/_anki/"):
+            self.send_error(HTTPStatus.NOT_FOUND, "Method not found")
+            return
+
+        cmd = self.path[len("/_anki/") :]
+
+        if cmd == "graphData":
+            data = graph_data(self.mw.col)
+        else:
+            self.send_error(HTTPStatus.NOT_FOUND, "Method not found")
+            return
+
+        self.send_response(HTTPStatus.OK)
+        self.send_header("Content-Type", "application/binary")
+        self.send_header("Content-Length", str(len(data)))
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.end_headers()
+
+        self.wfile.write(data)
+
+
+def graph_data(col: Collection) -> bytes:
+    graphs = col.backend.graphs(search="", days=0)
+    return graphs
 
 
 # work around Windows machines with incorrect mime type
