@@ -14,13 +14,37 @@
 
     let data: pb.BackendProto.GraphsOut | null = null;
 
-    let search = "deck:current";
+    enum SearchRange {
+        Deck = 1,
+        Collection = 2,
+        Custom = 3,
+    }
+
+    let searchRange: SearchRange = SearchRange.Deck;
     let range: GraphRange = GraphRange.Month;
     let days: number = 31;
 
+    let search = "deck:current";
+
     const refresh = async () => {
+        console.log(`search is ${search}`);
         data = await getGraphData(search, days);
     };
+
+    $: {
+        switch (searchRange as SearchRange) {
+            case SearchRange.Deck:
+                search = "deck:current";
+                refresh();
+                break;
+            case SearchRange.Collection:
+                search = "";
+                refresh();
+                break;
+            case SearchRange.Custom:
+                break;
+        }
+    }
 
     $: {
         const rangeTmp = range as GraphRange; // ts workaround
@@ -48,6 +72,25 @@
 
 <div class="range-box">
     <label>
+        <input type="radio" bind:group={searchRange} value={SearchRange.Deck} />
+        Deck
+    </label>
+    <label>
+        <input type="radio" bind:group={searchRange} value={SearchRange.Collection} />
+        Collection
+    </label>
+    <label>
+        <input type="radio" bind:group={searchRange} value={SearchRange.Custom} />
+        Custom
+    </label>
+
+    <input type="text" bind:value={search} on:input={scheduleRefresh} />
+
+</div>
+
+<div class="range-box">
+    Review history:
+    <label>
         <input type="radio" bind:group={range} value={GraphRange.Month} />
         Month
     </label>
@@ -60,7 +103,5 @@
         All
     </label>
 </div>
-
-<input type="text" bind:value={search} on:input={scheduleRefresh} />
 
 <IntervalsGraph {data} />
