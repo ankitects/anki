@@ -333,11 +333,20 @@ class MpvManager(MPV, SoundOrVideoPlayer):
         self._on_done: Optional[OnDoneCallback] = None
         self.default_argv += ["--config-dir=" + base_path]
         super().__init__(window_id=None, debug=False)
+        self.init()
+
+    def init(self) -> None:
+        self.command("keybind", "q", "stop")
+        self.command("keybind", "Q", "stop")
+        self.command("keybind", "CLOSE_WIN", "stop")
+        self.command("keybind", "ctrl+w", "stop")
+        self.command("keybind", "ctrl+c", "stop")
 
     def play(self, tag: AVTag, on_done: OnDoneCallback) -> None:
         assert isinstance(tag, SoundOrVideoTag)
         self._on_done = on_done
         path = os.path.join(os.getcwd(), tag.filename)
+        self.command("script-message", "osc-visibility", "never", "no-osd")
         self.command("loadfile", path, "append-play")
         gui_hooks.av_player_did_begin_playing(self, tag)
 
@@ -350,9 +359,12 @@ class MpvManager(MPV, SoundOrVideoPlayer):
     def seek_relative(self, secs: int) -> None:
         self.command("seek", secs, "relative")
 
-    def on_idle(self) -> None:
-        if self._on_done:
+    def on_property_idle_active(self, val) -> None:
+        if val and self._on_done:
             self._on_done()
+
+    def on_start_file(self) -> None:
+        self.command("script-message", "osc-visibility", "auto", "no-osd")
 
     def shutdown(self) -> None:
         self.close()
