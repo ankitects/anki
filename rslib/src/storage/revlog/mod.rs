@@ -5,7 +5,7 @@ use super::SqliteStorage;
 use crate::err::Result;
 use crate::{
     prelude::*,
-    revlog::{RevlogReviewKind, RevlogEntry},
+    revlog::{RevlogEntry, RevlogReviewKind},
 };
 use rusqlite::{
     params,
