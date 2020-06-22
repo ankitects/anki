@@ -1,0 +1,58 @@
+* {
+    box-sizing: border-box;
+}
+
+.graph-tooltip {
+    position: absolute;
+    background-color: white;
+    padding: 15px;
+    border-radius: 5px;
+    font-size: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    background: #fff;
+}
+
+.graph {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.graph h1 {
+    text-align: center;
+}
+
+/* .cards-graph-grid {
+    display: flex;
+    flex-wrap: wrap;
+    padding-left: 0;
+    padding-right: 1em;
+    align-items: center;
+}
+
+.cards-graph-grid svg {
+    flex: 3 0 0;
+    flex-direction: column;
+    min-width: 500px;
+}
+
+.cards-graph-grid div.graph-description {
+    flex: 0 0 10em;
+    font-family: "Arial";
+} */
+
+.no-domain-line .domain {
+    display: none;
+}
+
+.range-box {
+    display: flex;
+    justify-content: center;
+}
+
+.intervals .area {
+    opacity: 0.05;
+    pointer-events: none;
+    stroke: black;
+}
