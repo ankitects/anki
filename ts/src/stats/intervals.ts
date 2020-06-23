@@ -32,6 +32,18 @@ export function gatherIntervalData(data: pb.BackendProto.GraphsOut): IntervalGra
     return { intervals };
 }
 
+function hoverText(data: HistogramData, binIdx: number, percent: number): string {
+    const bin = data.bins[binIdx];
+    const interval =
+        bin.x1! - bin.x0! === 1
+            ? `${bin.x0} day interval`
+            : `${bin.x0}~${bin.x1} day interval`;
+    return (
+        `${bin.length} cards with ${interval}. ` +
+        `<br>${percent.toFixed(1)}% cards at or before this point.`
+    );
+}
+
 function prepareIntervalData(
     data: IntervalGraphData,
     range: IntervalRange
@@ -59,16 +71,17 @@ function prepareIntervalData(
         case IntervalRange.All:
             break;
     }
+    xMax = xMax! + 1;
 
     // cap bars to available range
     const desiredBars = Math.min(70, xMax! - xMin!);
 
-    const scale = scaleLinear().domain([xMin!, xMax!]);
+    const scale = scaleLinear().domain([xMin!, xMax!]).nice();
     const bins = histogram()
         .domain(scale.domain() as any)
         .thresholds(scale.ticks(desiredBars))(allIntervals);
 
-    return { scale, bins, total };
+    return { scale, bins, total, hoverText };
 }
 
 export function intervalGraph(

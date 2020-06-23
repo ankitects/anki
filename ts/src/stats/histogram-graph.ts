@@ -20,6 +20,7 @@ export interface HistogramData {
     scale: ScaleLinear<number, number>;
     bins: Bin<number, number>[];
     total: number;
+    hoverText: (data: HistogramData, binIdx: number, percent: number) => string;
 }
 
 export function histogramGraph(
@@ -111,7 +112,6 @@ export function histogramGraph(
         );
 
     // hover/tooltip
-
     svg.select("g.hoverzone")
         .selectAll("rect")
         .data(data.bins)
@@ -122,13 +122,8 @@ export function histogramGraph(
         .attr("height", () => y(0) - y(yMax!))
         .on("mousemove", function (this: any, d: any, idx) {
             const [x, y] = mouse(document.body);
-            const pct = ((areaData[idx] / data.total) * 100).toFixed(2);
-            showTooltip(
-                `${d.length} cards with interval ${d.x0}~${d.x1} days. ` +
-                    `<br>${pct}% cards below this point.`,
-                x,
-                y
-            );
+            const pct = (areaData[idx + 1] / data.total) * 100;
+            showTooltip(data.hoverText(data, idx, pct), x, y);
         })
         .on("mouseout", hideTooltip);
 }

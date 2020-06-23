@@ -54,7 +54,7 @@
 .intervals .area {
     opacity: 0.05;
     pointer-events: none;
-    fill: #555;
+    fill: black;
 }
 
 .axis-label {
