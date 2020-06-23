@@ -9,8 +9,8 @@
 import "d3-transition";
 import { select, mouse } from "d3-selection";
 import { cumsum, max, Bin } from "d3-array";
-import { interpolateBlues } from "d3-scale-chromatic";
-import { scaleLinear, scaleSequential, ScaleLinear } from "d3-scale";
+import { interpolateBlues, interpolateRdYlGn } from "d3-scale-chromatic";
+import { scaleLinear, scaleSequential, ScaleLinear, ScaleSequential } from "d3-scale";
 import { axisBottom, axisLeft } from "d3-axis";
 import { area } from "d3-shape";
 import { showTooltip, hideTooltip } from "./tooltip";
@@ -21,6 +21,8 @@ export interface HistogramData {
     bins: Bin<number, number>[];
     total: number;
     hoverText: (data: HistogramData, binIdx: number, percent: number) => string;
+    showArea: boolean;
+    colourScale: ScaleSequential<string>;
 }
 
 export function histogramGraph(
@@ -57,16 +59,14 @@ export function histogramGraph(
         return width ? width : 0;
     }
 
-    const colour = scaleSequential(interpolateBlues).domain([-5, data.bins.length]);
-
     const updateBar = (sel: any): any => {
         return sel
-            .transition(trans)
             .attr("width", barWidth)
+            .transition(trans)
             .attr("x", (d: any) => x(d.x0))
             .attr("y", (d: any) => y(d.length)!)
             .attr("height", (d: any) => y(0) - y(d.length))
-            .attr("fill", (d, idx) => colour(idx));
+            .attr("fill", (d, idx) => data.colourScale(d.x1));
     };
 
     svg.select("g.bars")
@@ -95,21 +95,23 @@ export function histogramGraph(
     const areaData = cumsum(areaCounts);
     const yAreaScale = y.copy().domain([0, data.total]);
 
-    svg.select("path.area")
-        .datum(areaData as any)
-        .attr(
-            "d",
-            area()
-                .x((d, idx) => {
-                    if (idx === 0) {
-                        return x(data.bins[0].x0!);
-                    } else {
-                        return x(data.bins[idx - 1].x1!);
-                    }
-                })
-                .y0(bounds.height - bounds.marginBottom)
-                .y1((d: any) => yAreaScale(d)) as any
-        );
+    if (data.showArea && data.bins.length) {
+        svg.select("path.area")
+            .datum(areaData as any)
+            .attr(
+                "d",
+                area()
+                    .x((d, idx) => {
+                        if (idx === 0) {
+                            return x(data.bins[0].x0!);
+                        } else {
+                            return x(data.bins[idx - 1].x1!);
+                        }
+                    })
+                    .y0(bounds.height - bounds.marginBottom)
+                    .y1((d: any) => yAreaScale(d)) as any
+            );
+    }
 
     // hover/tooltip
     svg.select("g.hoverzone")
@@ -122,7 +124,7 @@ export function histogramGraph(
         .attr("height", () => y(0) - y(yMax!))
         .on("mousemove", function (this: any, d: any, idx) {
             const [x, y] = mouse(document.body);
-            const pct = (areaData[idx + 1] / data.total) * 100;
+            const pct = data.showArea ? (areaData[idx + 1] / data.total) * 100 : 0;
             showTooltip(data.hoverText(data, idx, pct), x, y);
         })
         .on("mouseout", hideTooltip);
