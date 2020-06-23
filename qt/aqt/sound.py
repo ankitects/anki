@@ -338,7 +338,6 @@ class MpvManager(MPV, SoundOrVideoPlayer):
         assert isinstance(tag, SoundOrVideoTag)
         self._on_done = on_done
         path = os.path.join(os.getcwd(), tag.filename)
-        self.command("script-message", "osc-visibility", "never", "no-osd")
         self.command("loadfile", path, "append-play")
         gui_hooks.av_player_did_begin_playing(self, tag)
 
@@ -354,9 +353,6 @@ class MpvManager(MPV, SoundOrVideoPlayer):
     def on_property_idle_active(self, val) -> None:
         if val and self._on_done:
             self._on_done()
-
-    def on_start_file(self) -> None:
-        self.command("script-message", "osc-visibility", "auto", "no-osd")
 
     def shutdown(self) -> None:
         self.close()
