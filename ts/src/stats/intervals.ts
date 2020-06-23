@@ -134,8 +134,10 @@ export function intervalGraph(
 
     // cumulative area
 
-    const areaData = cumsum(data.map((d) => d.length));
-    const xAreaScale = x.copy().domain([0, areaData.length]);
+    const areaCounts = data.map((d) => d.length);
+    areaCounts.unshift(0);
+    const areaData = cumsum(areaCounts);
+    const xAreaScale = x.copy().domain([0, areaData.length - 1]);
     const yAreaScale = y.copy().domain([0, allIntervals.length]);
 
     svg.select("path.area")
