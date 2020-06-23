@@ -10,8 +10,7 @@ import pb from "../backend/proto";
 import { extent, histogram, quantile } from "d3-array";
 import { scaleLinear } from "d3-scale";
 import { CardQueue } from "../cards";
-import { HistogramData, histogramGraph } from "./histogram-graph";
-import { GraphBounds } from "./graphs";
+import { HistogramData } from "./histogram-graph";
 
 export interface IntervalGraphData {
     intervals: number[];
@@ -44,7 +43,7 @@ function hoverText(data: HistogramData, binIdx: number, percent: number): string
     );
 }
 
-function prepareIntervalData(
+export function prepareIntervalData(
     data: IntervalGraphData,
     range: IntervalRange
 ): HistogramData {
@@ -82,14 +81,4 @@ function prepareIntervalData(
         .thresholds(scale.ticks(desiredBars))(allIntervals);
 
     return { scale, bins, total, hoverText };
-}
-
-export function intervalGraph(
-    svgElem: SVGElement,
-    bounds: GraphBounds,
-    data: IntervalGraphData,
-    range: IntervalRange
-): void {
-    const histogram = prepareIntervalData(data, range);
-    histogramGraph(svgElem, bounds, histogram);
 }
