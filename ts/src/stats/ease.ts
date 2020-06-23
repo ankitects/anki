@@ -18,7 +18,7 @@ export interface GraphData {
 }
 
 export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
-    const eases = (data.cards2 as pb.BackendProto.Card[])
+    const eases = (data.cards as pb.BackendProto.Card[])
         .filter((c) => c.queue == CardQueue.Review)
         .map((c) => c.factor / 10);
     return { eases };

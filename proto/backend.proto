@@ -988,21 +988,25 @@ message GraphsIn {
 }
 
 message GraphsOut {
-    CardsGraphData cards = 1;
-    repeated HourGraphData hours = 2;
-    TodayGraphData today = 3;
-    ButtonsGraphData buttons = 4;
-    repeated Card cards2 = 5;
-    repeated RevlogEntry revlog = 6;
+//    CardsGraphData cards = 1;
+//    TodayGraphData today = 3;
+//    ButtonsGraphData buttons = 4;
+//    repeated HourGraphData hours = 2;
+    repeated Card cards = 1;
+    repeated RevlogEntry revlog = 2;
+
+    uint32 days_elapsed = 3;
+    // Based on rollover hour
+    uint32 next_day_at_secs = 4;
+    uint32 scheduler_version = 5;
+    /// Seconds to add to UTC timestamps to get local time.
+    uint32 local_offset_secs = 7;
+
+    uint32 note_count = 10;
+
 }
 
 message CardsGraphData {
-    uint32 card_count = 1;
-    uint32 note_count = 2;
-    float ease_factor_min = 3;
-    float ease_factor_max = 4;
-    float ease_factor_sum = 5;
-    uint32 ease_factor_count = 6;
     uint32 mature_count = 7;
     uint32 young_or_learning_count = 8;
     uint32 new_count = 9;
