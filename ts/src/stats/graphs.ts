@@ -39,3 +39,23 @@ export enum GraphRange {
     Year = 2,
     All = 3,
 }
+
+export interface GraphBounds {
+    width: number;
+    height: number;
+    marginLeft: number;
+    marginRight: number;
+    marginTop: number;
+    marginBottom: number;
+}
+
+export function defaultGraphBounds(): GraphBounds {
+    return {
+        width: 600,
+        height: 250,
+        marginLeft: 100,
+        marginRight: 20,
+        marginTop: 20,
+        marginBottom: 40,
+    };
+}
