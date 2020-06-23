@@ -54,5 +54,20 @@
 .intervals .area {
     opacity: 0.05;
     pointer-events: none;
-    stroke: black;
+    fill: #555;
+}
+
+.axis-label {
+    text-anchor: middle;
+    font-size: 10px;
+}
+
+.y-axis-label {
+    writing-mode: vertical-rl;
+    rotate: 180;
+}
+
+.hoverzone rect {
+    fill: none;
+    pointer-events: all;
 }
