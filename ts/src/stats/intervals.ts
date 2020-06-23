@@ -8,9 +8,10 @@
 
 import pb from "../backend/proto";
 import { extent, histogram, quantile } from "d3-array";
-import { scaleLinear } from "d3-scale";
+import { scaleLinear, scaleSequential } from "d3-scale";
 import { CardQueue } from "../cards";
 import { HistogramData } from "./histogram-graph";
+import { interpolateBlues } from "d3-scale-chromatic";
 
 export interface IntervalGraphData {
     intervals: number[];
@@ -46,9 +47,13 @@ function hoverText(data: HistogramData, binIdx: number, percent: number): string
 export function prepareIntervalData(
     data: IntervalGraphData,
     range: IntervalRange
-): HistogramData {
+): HistogramData | null {
     // get min/max
     const allIntervals = data.intervals;
+    if (!allIntervals.length) {
+        return null;
+    }
+
     const total = allIntervals.length;
     const [xMin, origXMax] = extent(allIntervals);
     let xMax = origXMax;
@@ -80,5 +85,9 @@ export function prepareIntervalData(
         .domain(scale.domain() as any)
         .thresholds(scale.ticks(desiredBars))(allIntervals);
 
-    return { scale, bins, total, hoverText };
+    // start slightly darker
+    const shiftedMin = xMin! - Math.round((xMax - xMin!) / 10);
+    const colourScale = scaleSequential(interpolateBlues).domain([shiftedMin, xMax]);
+
+    return { scale, bins, total, hoverText, colourScale, showArea: true };
 }

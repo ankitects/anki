@@ -27,37 +27,45 @@
     }
 </script>
 
-<div class="graph intervals">
-    <h1>Review Intervals</h1>
+{#if histogramData}
+    <div class="graph intervals">
+        <h1>Review Intervals</h1>
 
-    <div class="range-box">
-        <label>
-            <input type="radio" bind:group={range} value={IntervalRange.Month} />
-            Month
-        </label>
-        <label>
-            <input type="radio" bind:group={range} value={IntervalRange.Percentile50} />
-            50th percentile
-        </label>
-        <label>
-            <input type="radio" bind:group={range} value={IntervalRange.Percentile95} />
-            95th percentile
-        </label>
-        <label>
-            <input
-                type="radio"
-                bind:group={range}
-                value={IntervalRange.Percentile999} />
-            99.9th percentile
-        </label>
-        <label>
-            <input type="radio" bind:group={range} value={IntervalRange.All} />
-            All
-        </label>
+        <div class="range-box">
+            <label>
+                <input type="radio" bind:group={range} value={IntervalRange.Month} />
+                Month
+            </label>
+            <label>
+                <input
+                    type="radio"
+                    bind:group={range}
+                    value={IntervalRange.Percentile50} />
+                50th percentile
+            </label>
+            <label>
+                <input
+                    type="radio"
+                    bind:group={range}
+                    value={IntervalRange.Percentile95} />
+                95th percentile
+            </label>
+            <label>
+                <input
+                    type="radio"
+                    bind:group={range}
+                    value={IntervalRange.Percentile999} />
+                99.9th percentile
+            </label>
+            <label>
+                <input type="radio" bind:group={range} value={IntervalRange.All} />
+                All
+            </label>
+        </div>
+
+        <HistogramGraph
+            data={histogramData}
+            xText="Interval (days)"
+            yText="Number of cards" />
     </div>
-
-    <HistogramGraph
-        data={histogramData}
-        xText="Interval (days)"
-        yText="Number of cards" />
-</div>
+{/if}

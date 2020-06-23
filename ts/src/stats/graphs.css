@@ -51,7 +51,7 @@
     justify-content: center;
 }
 
-.intervals .area {
+.graph .area {
     opacity: 0.05;
     pointer-events: none;
     fill: black;
