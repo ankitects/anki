@@ -9,6 +9,10 @@ module.exports = {
     rules: {
         "prefer-const": "warn",
         "@typescript-eslint/ban-ts-ignore": "warn",
+        "@typescript-eslint/no-unused-vars": [
+            "error",
+            { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
+        ],
     },
     overrides: [
         {

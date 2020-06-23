@@ -26,13 +26,18 @@ export enum IntervalRange {
 }
 
 export function gatherIntervalData(data: pb.BackendProto.GraphsOut): IntervalGraphData {
-    const intervals = (data.cards2 as pb.BackendProto.Card[])
+    const intervals = (data.cards as pb.BackendProto.Card[])
         .filter((c) => c.queue == CardQueue.Review)
         .map((c) => c.ivl);
     return { intervals };
 }
 
-function hoverText(data: HistogramData, binIdx: number, percent: number): string {
+function hoverText(
+    data: HistogramData,
+    binIdx: number,
+    _cumulative: number,
+    percent: number
+): string {
     const bin = data.bins[binIdx];
     const interval =
         bin.x1! - bin.x0! === 1

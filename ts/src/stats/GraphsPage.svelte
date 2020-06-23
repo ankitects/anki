@@ -10,6 +10,7 @@
     import { getGraphData, GraphRange } from "./graphs";
     import IntervalsGraph from "./IntervalsGraph.svelte";
     import EaseGraph from "./EaseGraph.svelte";
+    import AddedGraph from "./AddedGraph.svelte";
 
     let data: pb.BackendProto.GraphsOut | null = null;
 
@@ -107,5 +108,6 @@
     </label>
 </div>
 
+<AddedGraph {data} />
 <IntervalsGraph {data} />
 <EaseGraph {data} />

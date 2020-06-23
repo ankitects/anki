@@ -9,8 +9,7 @@
 import "d3-transition";
 import { select, mouse } from "d3-selection";
 import { cumsum, max, Bin } from "d3-array";
-import { interpolateBlues, interpolateRdYlGn } from "d3-scale-chromatic";
-import { scaleLinear, scaleSequential, ScaleLinear, ScaleSequential } from "d3-scale";
+import { scaleLinear, ScaleLinear, ScaleSequential } from "d3-scale";
 import { axisBottom, axisLeft } from "d3-axis";
 import { area } from "d3-shape";
 import { showTooltip, hideTooltip } from "./tooltip";
@@ -20,7 +19,12 @@ export interface HistogramData {
     scale: ScaleLinear<number, number>;
     bins: Bin<number, number>[];
     total: number;
-    hoverText: (data: HistogramData, binIdx: number, percent: number) => string;
+    hoverText: (
+        data: HistogramData,
+        binIdx: number,
+        cumulative: number,
+        percent: number
+    ) => string;
     showArea: boolean;
     colourScale: ScaleSequential<string>;
 }
@@ -66,7 +70,7 @@ export function histogramGraph(
             .attr("x", (d: any) => x(d.x0))
             .attr("y", (d: any) => y(d.length)!)
             .attr("height", (d: any) => y(0) - y(d.length))
-            .attr("fill", (d, idx) => data.colourScale(d.x1));
+            .attr("fill", (d) => data.colourScale(d.x1));
     };
 
     svg.select("g.bars")
@@ -125,7 +129,7 @@ export function histogramGraph(
         .on("mousemove", function (this: any, d: any, idx) {
             const [x, y] = mouse(document.body);
             const pct = data.showArea ? (areaData[idx + 1] / data.total) * 100 : 0;
-            showTooltip(data.hoverText(data, idx, pct), x, y);
+            showTooltip(data.hoverText(data, idx, areaData[idx + 1], pct), x, y);
         })
         .on("mouseout", hideTooltip);
 }

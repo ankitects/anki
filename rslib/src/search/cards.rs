@@ -94,7 +94,7 @@ impl Collection {
         let top_node = Node::Group(parse(search)?);
         let writer = SqlWriter::new(self);
 
-        let (mut sql, args) = writer.build_cards_query(&top_node, RequiredTable::Cards)?;
+        let (sql, args) = writer.build_cards_query(&top_node, RequiredTable::Cards)?;
         self.storage.db.execute_batch(concat!(
             "drop table if exists search_cids;",
             "create temporary table search_cids (id integer primary key not null);"
@@ -106,7 +106,7 @@ impl Collection {
         Ok(())
     }
 
-    pub(crate) fn clear_searched_cards(&mut self) -> Result<()> {
+    pub(crate) fn clear_searched_cards(&self) -> Result<()> {
         self.storage
             .db
             .execute("drop table if exists search_cids", NO_PARAMS)?;
