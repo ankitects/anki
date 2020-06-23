@@ -271,6 +271,8 @@ class Collection:
                 media_db_path=media_db,
                 log_path=log_path,
             )
+        else:
+            self.media.connect()
         self.db = DBProxy(weakref.proxy(self.backend))
         self.db.begin()
 
