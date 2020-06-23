@@ -1,14 +1,15 @@
 <script lang="typescript">
-    import { defaultGraphBounds } from "./graphs";
+    import AxisLabels from "./AxisLabels.svelte";
+    import AxisTicks from "./AxisTicks.svelte";
 
+    import { defaultGraphBounds } from "./graphs";
     import { gatherIntervalData, intervalGraph, IntervalRange } from "./intervals";
     import type { IntervalGraphData } from "./intervals";
-    import { onMount } from "svelte";
     import pb from "../backend/proto";
 
-    const bounds = defaultGraphBounds();
-
     export let data: pb.BackendProto.GraphsOut | null = null;
+
+    const bounds = defaultGraphBounds();
 
     let svg = null as HTMLElement | SVGElement | null;
     let range = IntervalRange.Percentile95;
@@ -57,21 +58,7 @@
         <g class="bars" />
         <g class="hoverzone" />
         <path class="area" />
-        <g
-            class="x-ticks no-domain-line"
-            transform={`translate(0,${bounds.height - bounds.marginBottom})`} />
-        <g
-            class="y-ticks no-domain-line"
-            transform={`translate(${bounds.marginLeft}, 0)`} />
-        <text
-            class="axis-label"
-            transform={`translate(${bounds.width / 2}, ${bounds.height - 5})`}>
-            Interval (days)
-        </text>
-        <text
-            class="axis-label y-axis-label"
-            transform={`translate(${bounds.marginLeft / 3}, ${(bounds.height - bounds.marginBottom) / 2 + bounds.marginTop}) rotate(-180)`}>
-            Number of cards
-        </text>
+        <AxisTicks {bounds} />
+        <AxisLabels {bounds} xText="Interval (days)" yText="Number of cards" />
     </svg>
 </div>
