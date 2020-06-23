@@ -1,18 +1,19 @@
 <script lang="typescript">
-    import AxisLabels from "./AxisLabels.svelte";
-    import AxisTicks from "./AxisTicks.svelte";
-
-    import { defaultGraphBounds } from "./graphs";
-    import { gatherIntervalData, intervalGraph, IntervalRange } from "./intervals";
-    import type { IntervalGraphData } from "./intervals";
+    import { HistogramData } from "./histogram-graph";
+    import {
+        gatherIntervalData,
+        IntervalRange,
+        prepareIntervalData,
+        IntervalGraphData,
+    } from "./intervals";
     import pb from "../backend/proto";
+    import HistogramGraph from "./HistogramGraph.svelte";
 
     export let data: pb.BackendProto.GraphsOut | null = null;
 
-    const bounds = defaultGraphBounds();
-
     let svg = null as HTMLElement | SVGElement | null;
     let range = IntervalRange.Percentile95;
+    let histogramData = null as HistogramData | null;
 
     let intervalData: IntervalGraphData | null = null;
     $: if (data) {
@@ -21,7 +22,8 @@
     }
 
     $: if (intervalData) {
-        intervalGraph(svg as SVGElement, bounds, intervalData, range);
+        console.log("preparing data");
+        histogramData = prepareIntervalData(intervalData, range);
     }
 </script>
 
@@ -54,11 +56,8 @@
         </label>
     </div>
 
-    <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
-        <g class="bars" />
-        <g class="hoverzone" />
-        <path class="area" />
-        <AxisTicks {bounds} />
-        <AxisLabels {bounds} xText="Interval (days)" yText="Number of cards" />
-    </svg>
+    <HistogramGraph
+        data={histogramData}
+        xText="Interval (days)"
+        yText="Number of cards" />
 </div>
