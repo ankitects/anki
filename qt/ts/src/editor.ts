@@ -13,9 +13,9 @@ declare interface String {
 }
 
 /* kept for compatibility with add-ons */
-String.prototype.format = function() {
+String.prototype.format = function () {
     const args = arguments;
-    return this.replace(/\{\d+\}/g, function(m) {
+    return this.replace(/\{\d+\}/g, function (m) {
         return args[m.match(/\d+/)];
     });
 };
@@ -41,7 +41,7 @@ function saveNow(keepFocus) {
 
 function triggerKeyTimer() {
     clearChangeTimer();
-    changeTimer = setTimeout(function() {
+    changeTimer = setTimeout(function () {
         updateButtonState();
         saveField("key");
     }, 600);
@@ -391,7 +391,7 @@ function hideDupes() {
 }
 
 /// If the field has only an empty br, remove it first.
-let insertHtmlRemovingInitialBR = function(html: string) {
+let insertHtmlRemovingInitialBR = function (html: string) {
     if (html !== "") {
         // remove <br> in empty field
         if (currentField && currentField.innerHTML === "<br>") {
@@ -401,12 +401,12 @@ let insertHtmlRemovingInitialBR = function(html: string) {
     }
 };
 
-let pasteHTML = function(html, internal, extendedMode) {
+let pasteHTML = function (html, internal, extendedMode) {
     html = filterHTML(html, internal, extendedMode);
     insertHtmlRemovingInitialBR(html);
 };
 
-let filterHTML = function(html, internal, extendedMode) {
+let filterHTML = function (html, internal, extendedMode) {
     // wrap it in <top> as we aren't allowed to change top level elements
     const top = $.parseHTML("<ankitop>" + html + "</ankitop>")[0] as Element;
     if (internal) {
@@ -476,11 +476,11 @@ const allowedStyling = {
     "text-decoration-line": true,
 };
 
-let isNightMode = function(): boolean {
+let isNightMode = function (): boolean {
     return document.body.classList.contains("nightMode");
 };
 
-let filterExternalSpan = function(node) {
+let filterExternalSpan = function (node) {
     // filter out attributes
     let toRemove = [];
     for (const attr of node.attributes) {
@@ -520,7 +520,7 @@ allowedTagsExtended["SPAN"] = filterExternalSpan;
 Object.assign(allowedTagsExtended, allowedTagsBasic);
 
 // filtering from another field
-let filterInternalNode = function(node) {
+let filterInternalNode = function (node) {
     if (node.style) {
         node.style.removeProperty("background-color");
         node.style.removeProperty("font-size");
@@ -533,7 +533,7 @@ let filterInternalNode = function(node) {
 };
 
 // filtering from external sources
-let filterNode = function(node, extendedMode) {
+let filterNode = function (node, extendedMode) {
     // text node?
     if (node.nodeType === 3) {
         return;
@@ -586,7 +586,7 @@ let filterNode = function(node, extendedMode) {
     }
 };
 
-let adjustFieldsTopMargin = function() {
+let adjustFieldsTopMargin = function () {
     const topHeight = $("#topbuts").height();
     const margin = topHeight + 8;
     document.getElementById("fields").style.marginTop = margin + "px";
@@ -594,16 +594,16 @@ let adjustFieldsTopMargin = function() {
 
 let mouseDown = 0;
 
-$(function() {
-    document.body.onmousedown = function() {
+$(function () {
+    document.body.onmousedown = function () {
         mouseDown++;
     };
 
-    document.body.onmouseup = function() {
+    document.body.onmouseup = function () {
         mouseDown--;
     };
 
-    document.onclick = function(evt: MouseEvent) {
+    document.onclick = function (evt: MouseEvent) {
         const src = evt.target as Element;
         if (src.tagName === "IMG") {
             // image clicked; find contenteditable parent
@@ -618,11 +618,11 @@ $(function() {
     };
 
     // prevent editor buttons from taking focus
-    $("button.linkb").on("mousedown", function(e) {
+    $("button.linkb").on("mousedown", function (e) {
         e.preventDefault();
     });
 
-    window.onresize = function() {
+    window.onresize = function () {
         adjustFieldsTopMargin();
     };
 

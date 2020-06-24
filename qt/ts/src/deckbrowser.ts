@@ -8,7 +8,7 @@ function init() {
         scroll: false,
 
         // can't use "helper: 'clone'" because of a bug in jQuery 1.5
-        helper: function(event) {
+        helper: function (event) {
             return $(this).clone(false);
         },
         delay: 200,

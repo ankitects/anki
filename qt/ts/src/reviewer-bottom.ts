@@ -4,16 +4,16 @@
 var time: number; // set in python code
 
 let maxTime = 0;
-$(function() {
+$(function () {
     $("#ansbut").focus();
     updateTime();
-    setInterval(function() {
+    setInterval(function () {
         time += 1;
         updateTime();
     }, 1000);
 });
 
-let updateTime = function() {
+let updateTime = function () {
     let timeNode = $("#time");
     if (!maxTime) {
         timeNode.text("");
