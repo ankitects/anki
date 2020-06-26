@@ -44,7 +44,10 @@ function hoverText(
     );
 }
 
-export function prepareData(data: GraphData, range: AddedRange): HistogramData | null {
+export function buildHistogram(
+    data: GraphData,
+    range: AddedRange
+): HistogramData | null {
     // get min/max
     const total = data.daysAdded.length;
     if (!total) {
