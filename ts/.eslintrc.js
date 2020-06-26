@@ -10,7 +10,7 @@ module.exports = {
         "prefer-const": "warn",
         "@typescript-eslint/ban-ts-ignore": "warn",
         "@typescript-eslint/no-unused-vars": [
-            "error",
+            "warn",
             { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
         ],
     },

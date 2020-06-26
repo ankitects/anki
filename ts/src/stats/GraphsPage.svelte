@@ -14,6 +14,7 @@
     import TodayStats from "./TodayStats.svelte";
     import ButtonsGraph from "./ButtonsGraph.svelte";
     import CardCounts from "./CardCounts.svelte";
+    import HourGraph from "./HourGraph.svelte";
 
     let sourceData: pb.BackendProto.GraphsOut | null = null;
 
@@ -117,3 +118,4 @@
 <IntervalsGraph {sourceData} />
 <EaseGraph {sourceData} />
 <ButtonsGraph {sourceData} />
+<HourGraph {sourceData} />
