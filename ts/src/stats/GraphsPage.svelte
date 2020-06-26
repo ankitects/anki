@@ -27,13 +27,15 @@
     let searchRange: SearchRange = SearchRange.Deck;
     let range: GraphRange = GraphRange.Month;
     let days: number = 31;
+    let refreshing = false;
 
     let search = "deck:current";
     let displayedSearch = search;
 
     const refresh = async () => {
-        console.log(`search is ${search}`);
+        refreshing = true;
         sourceData = await getGraphData(search, days);
+        refreshing = false;
     };
 
     $: {
@@ -79,38 +81,45 @@
 </script>
 
 <div class="range-box">
-    <label>
-        <input type="radio" bind:group={searchRange} value={SearchRange.Deck} />
-        Deck
-    </label>
-    <label>
-        <input type="radio" bind:group={searchRange} value={SearchRange.Collection} />
-        Collection
-    </label>
-    <label>
-        <input type="radio" bind:group={searchRange} value={SearchRange.Custom} />
-        Custom
-    </label>
+    <div class="spin {refreshing ? 'active' : ''}">◐</div>
 
-    <input type="text" bind:value={displayedSearch} on:keyup={searchKeyUp} />
+    <div class="range-box-inner">
+        <label>
+            <input type="radio" bind:group={searchRange} value={SearchRange.Deck} />
+            Deck
+        </label>
+        <label>
+            <input
+                type="radio"
+                bind:group={searchRange}
+                value={SearchRange.Collection} />
+            Collection
+        </label>
+        <label>
+            <input type="radio" bind:group={searchRange} value={SearchRange.Custom} />
+            Custom
+        </label>
 
+        <input type="text" bind:value={displayedSearch} on:keyup={searchKeyUp} />
+    </div>
+
+    <div class="range-box-inner">
+        Review history:
+        <label>
+            <input type="radio" bind:group={range} value={GraphRange.Month} />
+            Month
+        </label>
+        <label>
+            <input type="radio" bind:group={range} value={GraphRange.Year} />
+            Year
+        </label>
+        <label>
+            <input type="radio" bind:group={range} value={GraphRange.All} />
+            All
+        </label>
+    </div>
 </div>
-
-<div class="range-box">
-    Review history:
-    <label>
-        <input type="radio" bind:group={range} value={GraphRange.Month} />
-        Month
-    </label>
-    <label>
-        <input type="radio" bind:group={range} value={GraphRange.Year} />
-        Year
-    </label>
-    <label>
-        <input type="radio" bind:group={range} value={GraphRange.All} />
-        All
-    </label>
-</div>
+<div class="range-box-pad" />
 
 <TodayStats {sourceData} />
 <CardCounts {sourceData} />

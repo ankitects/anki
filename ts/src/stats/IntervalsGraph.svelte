@@ -31,7 +31,7 @@
     <div class="graph intervals">
         <h1>Review Intervals</h1>
 
-        <div class="range-box">
+        <div class="range-box-inner">
             <label>
                 <input type="radio" bind:group={range} value={IntervalRange.Month} />
                 Month

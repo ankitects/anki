@@ -100,8 +100,6 @@ export function renderButtons(
         }),
     ];
 
-    console.log(data);
-
     const yMax = Math.max(...data.map((d) => d.count));
 
     const svg = select(svgElem);
