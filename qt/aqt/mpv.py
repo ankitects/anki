@@ -448,6 +448,10 @@ class MPV(MPVBase):
             if not inspect.ismethod(method):
                 continue
 
+            # Bypass MPVError: no such event 'init'
+            if method_name == "on_init":
+                continue
+
             if method_name.startswith("on_property_"):
                 name = method_name[12:]
                 name = name.replace("_", "-")

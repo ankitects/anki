@@ -19,7 +19,7 @@ from anki.lang import _
 from anki.sound import AV_REF_RE, AVTag, SoundOrVideoTag
 from anki.utils import isLin, isMac, isWin
 from aqt import gui_hooks
-from aqt.mpv import MPV, MPVBase
+from aqt.mpv import MPV, MPVBase, MPVCommandError
 from aqt.qt import *
 from aqt.taskman import TaskManager
 from aqt.utils import restoreGeom, saveGeom, showWarning, startup_info
@@ -333,6 +333,16 @@ class MpvManager(MPV, SoundOrVideoPlayer):
         self._on_done: Optional[OnDoneCallback] = None
         self.default_argv += ["--config-dir=" + base_path]
         super().__init__(window_id=None, debug=False)
+
+    def on_init(self) -> None:
+        try:
+            self.command("keybind", "q", "stop")
+            self.command("keybind", "Q", "stop")
+            self.command("keybind", "CLOSE_WIN", "stop")
+            self.command("keybind", "ctrl+w", "stop")
+            self.command("keybind", "ctrl+c", "stop")
+        except MPVCommandError:
+            print("mpv too old")
 
     def play(self, tag: AVTag, on_done: OnDoneCallback) -> None:
         assert isinstance(tag, SoundOrVideoTag)
