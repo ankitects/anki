@@ -1,7 +1,20 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+/* eslint
+@typescript-eslint/no-non-null-assertion: "off",
+@typescript-eslint/no-explicit-any: "off",
+ */
+
 import pb from "../backend/proto";
+import { interpolateBlues } from "d3-scale-chromatic";
+import "d3-transition";
+import { select, mouse } from "d3-selection";
+import { scaleLinear, scaleBand, scaleSequential } from "d3-scale";
+import { axisBottom, axisLeft } from "d3-axis";
+import { showTooltip, hideTooltip } from "./tooltip";
+import { GraphBounds } from "./graphs";
+import { area, curveBasis } from "d3-shape";
 
 type ButtonCounts = [number, number, number, number];
 
@@ -18,19 +31,18 @@ export interface GraphData {
 const ReviewKind = pb.BackendProto.RevlogEntry.ReviewKind;
 
 export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
-    const hours = Array(24).map((n: number) => {
-        return { hour: n, totalCount: 0, correctCount: 0 } as Hour;
+    const hours = [...Array(24)].map((_n, idx: number) => {
+        return { hour: idx, totalCount: 0, correctCount: 0 } as Hour;
     });
-
-    // fixme: relative to midnight, not rollover
 
     for (const review of data.revlog as pb.BackendProto.RevlogEntry[]) {
         if (review.reviewKind == ReviewKind.EARLY_REVIEW) {
             continue;
         }
 
-        const hour =
-            (((review.id as number) / 1000 + data.localOffsetSecs) / 3600) % 24;
+        const hour = Math.floor(
+            (((review.id as number) / 1000 + data.localOffsetSecs) / 3600) % 24
+        );
         hours[hour].totalCount += 1;
         if (review.buttonChosen != 1) {
             hours[hour].correctCount += 1;
@@ -38,4 +50,110 @@ export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
     }
 
     return { hours };
+}
+
+function tooltipText(d: Hour): string {
+    return JSON.stringify(d);
+}
+
+export function renderHours(
+    svgElem: SVGElement,
+    bounds: GraphBounds,
+    sourceData: GraphData
+): void {
+    const data = sourceData.hours;
+
+    console.log(data);
+
+    const yMax = Math.max(...data.map((d) => d.totalCount));
+
+    const svg = select(svgElem);
+    const trans = svg.transition().duration(600) as any;
+
+    const x = scaleBand()
+        .domain(data.map((d) => d.hour.toString()))
+        .range([bounds.marginLeft, bounds.width - bounds.marginRight])
+        .paddingInner(0.1);
+    svg.select<SVGGElement>(".x-ticks")
+        .transition(trans)
+        .call(axisBottom(x).tickSizeOuter(0));
+
+    const colour = scaleSequential(interpolateBlues).domain([0, yMax]);
+
+    // y scale
+
+    const y = scaleLinear()
+        .range([bounds.height - bounds.marginBottom, bounds.marginTop])
+        .domain([0, yMax]);
+    svg.select<SVGGElement>(".y-ticks")
+        .transition(trans)
+        .call(
+            axisLeft(y)
+                .ticks(bounds.height / 80)
+                .tickSizeOuter(0)
+        );
+
+    const yArea = y.copy().domain([0, 1]);
+
+    // x bars
+
+    const updateBar = (sel: any): any => {
+        return sel
+            .attr("width", x.bandwidth())
+            .transition(trans)
+            .attr("x", (d: Hour) => x(d.hour.toString())!)
+            .attr("y", (d: Hour) => y(d.totalCount)!)
+            .attr("height", (d: Hour) => y(0) - y(d.totalCount))
+            .attr("fill", (d: Hour) => colour(d.totalCount!));
+    };
+
+    svg.select("g.bars")
+        .selectAll("rect")
+        .data(data)
+        .join(
+            (enter) =>
+                enter
+                    .append("rect")
+                    .attr("rx", 1)
+                    .attr("x", (d: Hour) => x(d.hour.toString())!)
+                    .attr("y", y(0))
+                    .attr("height", 0)
+                    .call(updateBar),
+            (update) => update.call(updateBar),
+            (remove) =>
+                remove.call((remove) =>
+                    remove.transition(trans).attr("height", 0).attr("y", y(0))
+                )
+        );
+
+    svg.select("path.area")
+        .datum(data)
+        .attr(
+            "d",
+            area<Hour>()
+                .curve(curveBasis)
+                .x((d: Hour) => {
+                    return x(d.hour.toString())! + x.bandwidth() / 2;
+                })
+                .y0(bounds.height - bounds.marginBottom)
+                .y1((d: Hour) => {
+                    const correctRatio = d.correctCount! / d.totalCount!;
+                    return yArea(isNaN(correctRatio) ? 0 : correctRatio);
+                })
+        );
+
+    // hover/tooltip
+    svg.select("g.hoverzone")
+        .selectAll("rect")
+        .data(data)
+        .join("rect")
+        .attr("x", (d: Hour) => x(d.hour.toString())!)
+        .attr("y", () => y(yMax)!)
+        .attr("width", x.bandwidth())
+        .attr("height", () => y(0) - y(yMax!))
+        .on("mousemove", function (this: any, d: Hour) {
+            const [x, y] = mouse(document.body);
+            showTooltip(tooltipText(d), x, y);
+        })
+        .on("mouseout", hideTooltip);
 }
