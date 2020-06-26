@@ -9,16 +9,16 @@
     import pb from "../backend/proto";
     import HistogramGraph from "./HistogramGraph.svelte";
 
-    export let data: pb.BackendProto.GraphsOut | null = null;
+    export let sourceData: pb.BackendProto.GraphsOut | null = null;
 
     let svg = null as HTMLElement | SVGElement | null;
     let range = IntervalRange.Percentile95;
     let histogramData = null as HistogramData | null;
 
     let intervalData: IntervalGraphData | null = null;
-    $: if (data) {
+    $: if (sourceData) {
         console.log("gathering data");
-        intervalData = gatherIntervalData(data);
+        intervalData = gatherIntervalData(sourceData);
     }
 
     $: if (intervalData) {

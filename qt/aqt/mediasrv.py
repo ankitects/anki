@@ -182,7 +182,7 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
         cmd = self.path[len("/_anki/") :]
 
         if cmd == "graphData":
-            content_length = int(self.headers['Content-Length'])
+            content_length = int(self.headers["Content-Length"])
             body = self.rfile.read(content_length)
             data = graph_data(self.mw.col, **from_json_bytes(body))
         else:
@@ -198,13 +198,14 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
         self.wfile.write(data)
 
 
-def graph_data(col: Collection, search: str, days: str) -> bytes:
+def graph_data(col: Collection, search: str, days: int) -> bytes:
     try:
         return col.backend.graphs(search=search, days=days)
     except Exception as e:
         # likely searching error
         print(e)
-        return b''
+        return b""
+
 
 # work around Windows machines with incorrect mime type
 RequestHandler.extensions_map[".css"] = "text/css"

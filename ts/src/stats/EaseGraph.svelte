@@ -4,14 +4,14 @@
     import pb from "../backend/proto";
     import HistogramGraph from "./HistogramGraph.svelte";
 
-    export let data: pb.BackendProto.GraphsOut | null = null;
+    export let sourceData: pb.BackendProto.GraphsOut | null = null;
 
     let svg = null as HTMLElement | SVGElement | null;
     let histogramData = null as HistogramData | null;
 
-    $: if (data) {
+    $: if (sourceData) {
         console.log("gathering data");
-        histogramData = prepareData(gatherData(data));
+        histogramData = prepareData(gatherData(sourceData));
     }
 </script>
 

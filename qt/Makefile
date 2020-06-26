@@ -55,7 +55,7 @@ all: check
 TSDEPS := $(wildcard ts/src/*.ts) $(wildcard ts/scss/*.scss)
 
 .build/js: $(TSDEPS)
-	(cd ts && npm i && npm run build)
+	(cd ts && make build)
 	python ./tools/extract_scss_colors.py
 	@touch $@
 
@@ -81,7 +81,7 @@ check: .build/pyaudio $(BUILD_STEPS) .build/mypy .build/test .build/fmt .build/i
 fix: $(BUILD_STEPS)
 	isort $(ISORTARGS)
 	python -m black $(BLACKARGS)
-	(cd ts && npm run pretty)
+	(cd ts && make fix)
 
 .PHONY: clean
 clean:
@@ -93,7 +93,7 @@ clean:
 JSDEPS := $(patsubst ts/src/%.ts, web/%.js, $(TSDEPS))
 
 .build/ts-fmt: $(TSDEPS)
-	(cd ts && npm i && npm run check-pretty)
+	(cd ts && make check)
 	@touch $@
 
 # Checking python

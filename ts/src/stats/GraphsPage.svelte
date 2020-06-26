@@ -11,8 +11,11 @@
     import IntervalsGraph from "./IntervalsGraph.svelte";
     import EaseGraph from "./EaseGraph.svelte";
     import AddedGraph from "./AddedGraph.svelte";
+    import TodayStats from "./TodayStats.svelte";
+    import ButtonsGraph from "./ButtonsGraph.svelte";
+    import CardCounts from "./CardCounts.svelte";
 
-    let data: pb.BackendProto.GraphsOut | null = null;
+    let sourceData: pb.BackendProto.GraphsOut | null = null;
 
     enum SearchRange {
         Deck = 1,
@@ -29,7 +32,7 @@
 
     const refresh = async () => {
         console.log(`search is ${search}`);
-        data = await getGraphData(search, days);
+        sourceData = await getGraphData(search, days);
     };
 
     $: {
@@ -108,6 +111,9 @@
     </label>
 </div>
 
-<AddedGraph {data} />
-<IntervalsGraph {data} />
-<EaseGraph {data} />
+<TodayStats {sourceData} />
+<CardCounts {sourceData} />
+<AddedGraph {sourceData} />
+<IntervalsGraph {sourceData} />
+<EaseGraph {sourceData} />
+<ButtonsGraph {sourceData} />

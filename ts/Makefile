@@ -38,14 +38,22 @@ dev: .build/proto
 PHONY: build
 build: .build/build
 
+PHONY: develop
+develop: .build/build
+
 .build/build: .build/proto $(BUILDDEPS) $(wildcard src/*/*.svelte src/*/*.ts)
+	npm i
 	npm run build
 	@touch $@
 
 .PHONY: check
-check:
+check: .build/build
 	npm run check
 
 .PHONY: fix
-fix:
+fix: .build/build
 	npm run fix
+
+.PHONY: clean
+clean:
+	rm -rf .build node_modules src/backend/*
