@@ -11,11 +11,12 @@
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
 
-    let svg = null as HTMLElement | SVGElement | null;
-    let range = IntervalRange.Percentile95;
+    let intervalData: IntervalGraphData | null = null;
     let histogramData = null as HistogramData | null;
 
-    let intervalData: IntervalGraphData | null = null;
+    let svg = null as HTMLElement | SVGElement | null;
+    let range = IntervalRange.Percentile95;
+    
     $: if (sourceData) {
         console.log("gathering data");
         intervalData = gatherIntervalData(sourceData);

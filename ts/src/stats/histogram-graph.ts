@@ -27,6 +27,7 @@ export interface HistogramData {
     ) => string;
     showArea: boolean;
     colourScale: ScaleSequential<string>;
+    binValue?: (bin: Bin<any, any>) => number;
 }
 
 export function histogramGraph(
@@ -34,6 +35,8 @@ export function histogramGraph(
     bounds: GraphBounds,
     data: HistogramData
 ): void {
+    const binValue = data.binValue ?? ((bin: any) => bin.length as number);
+
     const svg = select(svgElem);
     const trans = svg.transition().duration(600) as any;
 
@@ -44,7 +47,7 @@ export function histogramGraph(
 
     // y scale
 
-    const yMax = max(data.bins, (d) => d.length)!;
+    const yMax = max(data.bins, (d) => binValue(d))!;
     const y = scaleLinear()
         .range([bounds.height - bounds.marginBottom, bounds.marginTop])
         .domain([0, yMax]);
@@ -68,8 +71,8 @@ export function histogramGraph(
             .attr("width", barWidth)
             .transition(trans)
             .attr("x", (d: any) => x(d.x0))
-            .attr("y", (d: any) => y(d.length)!)
-            .attr("height", (d: any) => y(0) - y(d.length))
+            .attr("y", (d: any) => y(binValue(d))!)
+            .attr("height", (d: any) => y(0) - y(binValue(d)))
             .attr("fill", (d) => data.colourScale(d.x1));
     };
 
@@ -94,7 +97,7 @@ export function histogramGraph(
 
     // cumulative area
 
-    const areaCounts = data.bins.map((d) => d.length);
+    const areaCounts = data.bins.map((d) => binValue(d));
     areaCounts.unshift(0);
     const areaData = cumsum(areaCounts);
     const yAreaScale = y.copy().domain([0, data.total]);

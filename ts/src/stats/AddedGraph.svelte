@@ -1,6 +1,6 @@
 <script lang="typescript">
     import { HistogramData } from "./histogram-graph";
-    import { gatherData, prepareData, GraphData, AddedRange } from "./added";
+    import { gatherData, buildHistogram, GraphData, AddedRange } from "./added";
     import pb from "../backend/proto";
     import HistogramGraph from "./HistogramGraph.svelte";
 
@@ -18,7 +18,7 @@
 
     $: if (addedData) {
         console.log("preparing data");
-        histogramData = prepareData(addedData, range);
+        histogramData = buildHistogram(addedData, range);
     }
 </script>
 
