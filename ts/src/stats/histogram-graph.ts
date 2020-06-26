@@ -11,7 +11,7 @@ import { select, mouse } from "d3-selection";
 import { cumsum, max, Bin } from "d3-array";
 import { scaleLinear, ScaleLinear, ScaleSequential } from "d3-scale";
 import { axisBottom, axisLeft } from "d3-axis";
-import { area } from "d3-shape";
+import { area, curveBasis } from "d3-shape";
 import { showTooltip, hideTooltip } from "./tooltip";
 import { GraphBounds } from "./graphs";
 
@@ -108,6 +108,7 @@ export function histogramGraph(
             .attr(
                 "d",
                 area()
+                    .curve(curveBasis)
                     .x((d, idx) => {
                         if (idx === 0) {
                             return x(data.bins[0].x0!);
