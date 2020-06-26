@@ -360,8 +360,8 @@ class MpvManager(MPV, SoundOrVideoPlayer):
     def seek_relative(self, secs: int) -> None:
         self.command("seek", secs, "relative")
 
-    def on_property_idle_active(self, val) -> None:
-        if val and self._on_done:
+    def on_end_file(self) -> None:
+        if self._on_done:
             self._on_done()
 
     def shutdown(self) -> None:
