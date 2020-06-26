@@ -26,7 +26,7 @@
     <div class="graph">
         <h1>Added</h1>
 
-        <div class="range-box">
+        <div class="range-box-inner">
             <label>
                 <input type="radio" bind:group={range} value={AddedRange.Month} />
                 Month

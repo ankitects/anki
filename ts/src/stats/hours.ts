@@ -63,8 +63,6 @@ export function renderHours(
 ): void {
     const data = sourceData.hours;
 
-    console.log(data);
-
     const yMax = Math.max(...data.map((d) => d.totalCount));
 
     const svg = select(svgElem);

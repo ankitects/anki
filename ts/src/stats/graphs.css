@@ -47,6 +47,19 @@
 }
 
 .range-box {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 4em;
+    background: white;
+    padding: 0.5em;
+}
+
+.range-box-pad {
+    height: 4em;
+}
+
+.range-box-inner {
     display: flex;
     justify-content: center;
 }
@@ -70,4 +83,28 @@
 .hoverzone rect {
     fill: none;
     pointer-events: all;
+}
+
+@keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(360deg);
+    }
+}
+
+.spin {
+    position: absolute;
+    animation: spin;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+    display: inline-block;
+    font-size: 2em;
+    opacity: 0;
+}
+
+.spin.active {
+    opacity: 1;
+    transition: opacity 1s;
 }
