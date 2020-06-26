@@ -254,6 +254,7 @@ fn quoted_term_inner(s: &str) -> IResult<&str, &str> {
 fn partially_quoted_term(s: &str) -> IResult<&str, Node> {
     let term = take_while1(|c| c != ' ' && c != ')' && c != ':');
     let (s, (term, _, quoted_val)) = tuple((term, char(':'), quoted_term_str))(s)?;
+    let quoted_val = unescape_quotes(quoted_val);
 
     match search_node_for_text_with_argument(term.into(), quoted_val.into()) {
         Ok(search) => Ok((s, Node::Search(search))),
@@ -474,6 +475,17 @@ mod test {
                 is_re: true
             })]
         );
+
+        // partially quoted text should handle escaping the same way
+        assert_eq!(
+            parse(r#""field:va\"lue""#)?,
+            vec![Search(SingleField {
+                field: "field".into(),
+                text: "va\"lue".into(),
+                is_re: false
+            })]
+        );
+        assert_eq!(parse(r#""field:va\"lue""#)?, parse(r#"field:"va\"lue""#)?,);
 
         // any character should be escapable in quotes
         assert_eq!(
