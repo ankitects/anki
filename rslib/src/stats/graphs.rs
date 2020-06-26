@@ -3,103 +3,6 @@
 
 use crate::{backend_proto as pb, prelude::*, revlog::RevlogEntry};
 
-// impl GraphsContext {
-//     fn observe_button_stats_for_review(&mut self, review: &RevlogEntry) {
-//         let mut button_num = review.button_chosen as usize;
-//         if button_num == 0 {
-//             return;
-//         }
-
-//         let buttons = &mut self.stats.buttons;
-//         let category = match review.review_kind {
-//             RevlogReviewKind::Learning | RevlogReviewKind::Relearning => {
-//                 // V1 scheduler only had 3 buttons in learning
-//                 if button_num == 4 && self.scheduler == SchedulerVersion::V1 {
-//                     button_num = 3;
-//                 }
-
-//                 &mut buttons.learn
-//             }
-//             RevlogReviewKind::Review | RevlogReviewKind::EarlyReview => {
-//                 if review.last_interval < 21 {
-//                     &mut buttons.young
-//                 } else {
-//                     &mut buttons.mature
-//                 }
-//             }
-//         };
-
-//         if let Some(count) = category.get_mut(button_num - 1) {
-//             *count += 1;
-//         }
-//     }
-
-//     fn observe_hour_stats_for_review(&mut self, review: &RevlogEntry) {
-//         match review.review_kind {
-//             RevlogReviewKind::Learning
-//             | RevlogReviewKind::Review
-//             | RevlogReviewKind::Relearning => {
-//                 let hour_idx = (((review.id.0 / 1000) + self.local_offset_secs) / 3600) % 24;
-//                 let hour = &mut self.stats.hours[hour_idx as usize];
-
-//                 hour.review_count += 1;
-//                 if review.button_chosen != 1 {
-//                     hour.correct_count += 1;
-//                 }
-//             }
-//             RevlogReviewKind::EarlyReview => {}
-//         }
-//     }
-
-//     fn observe_today_stats_for_review(&mut self, review: &RevlogEntry) {
-//         if review.id.0 < self.today_rolled_over_at_millis {
-//             return;
-//         }
-
-//         let today = &mut self.stats.today;
-
-//         // total
-//         today.answer_count += 1;
-//         today.answer_millis += review.taken_millis;
-
-//         // correct
-//         if review.button_chosen > 1 {
-//             today.correct_count += 1;
-//         }
-
-//         // mature
-//         if review.last_interval >= 21 {
-//             today.mature_count += 1;
-//             if review.button_chosen > 1 {
-//                 today.mature_correct += 1;
-//             }
-//         }
-
-//         // type counts
-//         match review.review_kind {
-//             RevlogReviewKind::Learning => today.learn_count += 1,
-//             RevlogReviewKind::Review => today.review_count += 1,
-//             RevlogReviewKind::Relearning => today.relearn_count += 1,
-//             RevlogReviewKind::EarlyReview => today.early_review_count += 1,
-//         }
-//     }
-
-//     fn observe_card_stats_for_card(&mut self, card: &Card) {
-//         counts by type
-//         match card.queue {
-//             CardQueue::New => cstats.new_count += 1,
-//             CardQueue::Review if card.ivl >= 21 => cstats.mature_count += 1,
-//             CardQueue::Review | CardQueue::Learn | CardQueue::DayLearn => {
-//                 cstats.young_or_learning_count += 1
-//             }
-//             CardQueue::Suspended | CardQueue::UserBuried | CardQueue::SchedBuried => {
-//                 cstats.suspended_or_buried_count += 1
-//             }
-//             CardQueue::PreviewRepeat => {}
-//         }
-//     }
-// }
-
 impl Collection {
     pub(crate) fn graph_data_for_search(
         &mut self,
@@ -155,7 +58,7 @@ impl From<RevlogEntry> for pb::RevlogEntry {
             last_interval: e.last_interval,
             ease_factor: e.ease_factor,
             taken_millis: e.taken_millis,
-            review_kind: e.review_kind as u32,
+            review_kind: e.review_kind as i32,
         }
     }
 }

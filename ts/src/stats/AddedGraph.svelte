@@ -4,16 +4,16 @@
     import pb from "../backend/proto";
     import HistogramGraph from "./HistogramGraph.svelte";
 
-    export let data: pb.BackendProto.GraphsOut | null = null;
+    export let sourceData: pb.BackendProto.GraphsOut | null = null;
 
     let svg = null as HTMLElement | SVGElement | null;
     let histogramData = null as HistogramData | null;
     let range = AddedRange.Month;
 
     let addedData: GraphData | null = null;
-    $: if (data) {
+    $: if (sourceData) {
         console.log("gathering data");
-        addedData = gatherData(data);
+        addedData = gatherData(sourceData);
     }
 
     $: if (addedData) {
