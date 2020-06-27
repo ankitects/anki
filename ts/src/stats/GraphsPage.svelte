@@ -16,6 +16,7 @@
     import CardCounts from "./CardCounts.svelte";
     import HourGraph from "./HourGraph.svelte";
     import FutureDue from "./FutureDue.svelte";
+    import ReviewsGraph from "./ReviewsGraph.svelte";
 
     let sourceData: pb.BackendProto.GraphsOut | null = null;
 
@@ -122,6 +123,7 @@
 </div>
 <div class="range-box-pad" />
 
+<ReviewsGraph {sourceData} />
 <FutureDue {sourceData} />
 <TodayStats {sourceData} />
 <CardCounts {sourceData} />
