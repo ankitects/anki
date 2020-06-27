@@ -115,21 +115,6 @@
     transition: opacity 1s;
 }
 
-.tooltip-area {
-    height: 4em;
-}
-
-.tooltip-area > * {
-    flex: 1 100%;
-    justify-content: center;
-    display: flex;
-}
-
 .legend-outer {
-    display: flex;
-    justify-content: center;
-}
-
-.legend-outer div {
-    padding-left: 1em;
+    text-align: center;
 }

@@ -6,15 +6,8 @@ import { studiedToday } from "../time";
 import { I18n } from "../i18n";
 
 export interface TodayData {
-    correctCount: number;
-    matureCorrect: number;
-    matureCount: number;
-    learnCount: number;
-    reviewCount: number;
-    relearnCount: number;
-    earlyReviewCount: number;
-
-    studiedToday: string;
+    title: string;
+    lines: string[];
 }
 
 const ReviewKind = pb.BackendProto.RevlogEntry.ReviewKind;
@@ -71,16 +64,38 @@ export function gatherData(data: pb.BackendProto.GraphsOut, i18n: I18n): TodayDa
         }
     }
 
-    const studiedTodayText = studiedToday(i18n, answerCount, answerMillis / 1000);
+    let lines: string[];
+    if (answerCount) {
+        const studiedTodayText = studiedToday(i18n, answerCount, answerMillis / 1000);
+        const againCount = answerCount - correctCount;
+        let againCountText = i18n.tr(i18n.TR.STATISTICS_TODAY_AGAIN_COUNT);
+        againCountText += ` ${againCount} (${((againCount / answerCount) * 100).toFixed(
+            2
+        )}%)`;
+        const typeCounts = i18n.tr(i18n.TR.STATISTICS_TODAY_TYPE_COUNTS, {
+            learnCount,
+            reviewCount,
+            relearnCount,
+            filteredCount: earlyReviewCount,
+        });
+        let matureText: string;
+        if (matureCount) {
+            matureText = i18n.tr(i18n.TR.STATISTICS_TODAY_CORRECT_MATURE, {
+                correct: matureCorrect,
+                total: matureCount,
+                percent: (matureCorrect / matureCount) * 100,
+            });
+        } else {
+            matureText = i18n.tr(i18n.TR.STATISTICS_TODAY_NO_MATURE_CARDS);
+        }
+
+        lines = [studiedTodayText, againCountText, typeCounts, matureText];
+    } else {
+        lines = [i18n.tr(i18n.TR.STATISTICS_TODAY_NO_CARDS)];
+    }
 
     return {
-        studiedToday: studiedTodayText,
-        correctCount,
-        matureCorrect,
-        matureCount,
-        learnCount,
-        reviewCount,
-        relearnCount,
-        earlyReviewCount,
+        title: i18n.tr(i18n.TR.STATISTICS_TODAY_TITLE),
+        lines,
     };
 }
