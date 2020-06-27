@@ -65,6 +65,10 @@
     justify-content: center;
 }
 
+.range-box-inner > * {
+    padding-right: 1em;
+}
+
 .graph .area {
     opacity: 0.05;
     pointer-events: none;
