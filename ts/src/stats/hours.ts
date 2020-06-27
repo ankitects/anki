@@ -116,6 +116,7 @@ export function renderHours(
                     .attr("x", (d: Hour) => x(d.hour.toString())!)
                     .attr("y", y(0))
                     .attr("height", 0)
+                    .attr("opacity", 0.7)
                     .call(updateBar),
             (update) => update.call(updateBar),
             (remove) =>

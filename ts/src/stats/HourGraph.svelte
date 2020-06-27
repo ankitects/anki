@@ -23,8 +23,8 @@
     <h1>Hours</h1>
 
     <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
-        <path class="area" />
         <g class="bars" />
+        <path class="area" />
         <g class="hoverzone" />
         <AxisTicks {bounds} />
         <AxisLabels {bounds} {xText} {yText} />
