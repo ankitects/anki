@@ -98,12 +98,15 @@
                 value={SearchRange.Collection} />
             Collection
         </label>
-        <label>
-            <input type="radio" bind:group={searchRange} value={SearchRange.Custom} />
-            Custom
-        </label>
 
-        <input type="text" bind:value={displayedSearch} on:keyup={searchKeyUp} />
+        <input
+            type="text"
+            bind:value={displayedSearch}
+            on:keyup={searchKeyUp}
+            on:focus={() => {
+                searchRange = SearchRange.Custom;
+            }}
+            placeholder="Custom search" />
     </div>
 
     <div class="range-box-inner">
