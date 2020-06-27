@@ -384,6 +384,11 @@ class MPVBase:
             else:
                 raise
 
+    def _register_callbacks(self):
+        """Will be called after mpv restart to reinitialize callbacks
+           defined in MPV subclass
+        """
+
     #
     # Public API
     #
