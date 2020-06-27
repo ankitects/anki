@@ -34,7 +34,7 @@ export async function getGraphData(
     return pb.BackendProto.GraphsOut.decode(bytes);
 }
 
-export enum GraphRange {
+export enum RevlogRange {
     Month = 1,
     Year = 2,
     All = 3,

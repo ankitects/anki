@@ -7,7 +7,7 @@
 <script lang="typescript">
     import { assertUnreachable } from "../typing";
     import pb from "../backend/proto";
-    import { getGraphData, GraphRange } from "./graphs";
+    import { getGraphData, RevlogRange } from "./graphs";
     import IntervalsGraph from "./IntervalsGraph.svelte";
     import EaseGraph from "./EaseGraph.svelte";
     import AddedGraph from "./AddedGraph.svelte";
@@ -27,7 +27,7 @@
     }
 
     let searchRange: SearchRange = SearchRange.Deck;
-    let range: GraphRange = GraphRange.Month;
+    let revlogRange: RevlogRange = RevlogRange.Month;
     let days: number = 31;
     let refreshing = false;
 
@@ -61,14 +61,14 @@
     }
 
     $: {
-        switch (range as GraphRange) {
-            case GraphRange.Month:
+        switch (revlogRange as RevlogRange) {
+            case RevlogRange.Month:
                 days = 31;
                 break;
-            case GraphRange.Year:
+            case RevlogRange.Year:
                 days = 365;
                 break;
-            case GraphRange.All:
+            case RevlogRange.All:
                 days = 0;
                 break;
         }
@@ -108,25 +108,25 @@
     <div class="range-box-inner">
         Review history:
         <label>
-            <input type="radio" bind:group={range} value={GraphRange.Month} />
+            <input type="radio" bind:group={revlogRange} value={RevlogRange.Month} />
             Month
         </label>
         <label>
-            <input type="radio" bind:group={range} value={GraphRange.Year} />
+            <input type="radio" bind:group={revlogRange} value={RevlogRange.Year} />
             Year
         </label>
         <label>
-            <input type="radio" bind:group={range} value={GraphRange.All} />
+            <input type="radio" bind:group={revlogRange} value={RevlogRange.All} />
             All
         </label>
     </div>
 </div>
 <div class="range-box-pad" />
 
-<ReviewsGraph {sourceData} />
-<FutureDue {sourceData} />
 <TodayStats {sourceData} />
 <CardCounts {sourceData} />
+<FutureDue {sourceData} />
+<ReviewsGraph {sourceData} {revlogRange} />
 <IntervalsGraph {sourceData} />
 <EaseGraph {sourceData} />
 <ButtonsGraph {sourceData} />
