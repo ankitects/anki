@@ -26,7 +26,7 @@ export enum FutureDueRange {
 
 export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
     const due = (data.cards as pb.BackendProto.Card[])
-        .filter((c) => c.queue == CardQueue.Review) //  && c.due >= data.daysElapsed)
+        .filter((c) => c.queue == CardQueue.Review && c.due >= data.daysElapsed)
         .map((c) => c.due - data.daysElapsed);
     const dueCounts = rollup(
         due,

@@ -7,7 +7,7 @@
     background-color: white;
     padding: 15px;
     border-radius: 5px;
-    font-size: 20px;
+    font-size: 15px;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s;
@@ -48,6 +48,7 @@
 
 .range-box {
     position: fixed;
+    z-index: 1;
     top: 0;
     width: 100%;
     height: 4em;
@@ -85,6 +86,11 @@
     pointer-events: all;
 }
 
+.hoverzone rect:hover {
+    fill: grey;
+    opacity: 0.05;
+}
+
 @keyframes spin {
     0% {
         -webkit-transform: rotate(0deg);
@@ -107,4 +113,23 @@
 .spin.active {
     opacity: 0.5;
     transition: opacity 1s;
+}
+
+.tooltip-area {
+    height: 4em;
+}
+
+.tooltip-area > * {
+    flex: 1 100%;
+    justify-content: center;
+    display: flex;
+}
+
+.legend-outer {
+    display: flex;
+    justify-content: center;
+}
+
+.legend-outer div {
+    padding-left: 1em;
 }

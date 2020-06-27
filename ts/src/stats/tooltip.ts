@@ -12,8 +12,8 @@ function showTooltipInner(msg: string, x: number, y: number): void {
         document.body.appendChild(tooltipDiv);
     }
     tooltipDiv.innerHTML = msg;
-    tooltipDiv.style.left = `${x - 50}px`;
-    tooltipDiv.style.top = `${y - 50}px`;
+    tooltipDiv.style.right = `${document.body.clientWidth - x + 10}px`;
+    tooltipDiv.style.top = `${y + 20}px`;
 
     tooltipDiv.style.opacity = "1";
 }

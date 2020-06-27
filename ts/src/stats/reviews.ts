@@ -106,19 +106,14 @@ function cumulativeBinValue(bin: BinType, idx: number): number {
     return sum(totalsForBin(bin).slice(0, idx + 1));
 }
 
-function tooltipText(d: BinType, cumulative: number): string {
-    return `bin: ${JSON.stringify(totalsForBin(d))}<br>cumulative: ${cumulative}`;
-}
-
 export function renderReviews(
     svgElem: SVGElement,
     bounds: GraphBounds,
     sourceData: GraphData,
     range: ReviewRange,
-    showTime: boolean
+    showTime: boolean,
+    tooltipArea: HTMLDivElement
 ): void {
-    console.log(sourceData);
-
     const xMax = 0;
     let xMin = 0;
     // cap max to selected range
@@ -137,7 +132,6 @@ export function renderReviews(
             break;
     }
     const desiredBars = Math.min(70, Math.abs(xMin!));
-    console.log(`xmin ${xMin}`);
 
     const x = scaleLinear().domain([xMin!, xMax]);
     const sourceMap = showTime ? sourceData.reviewTime : sourceData.reviewCount;
@@ -159,7 +153,6 @@ export function renderReviews(
     // y scale
 
     const yMax = max(bins, (b: Bin<any, any>) => cumulativeBinValue(b, 4))!;
-    console.log(`ymax ${yMax}`);
     const y = scaleLinear()
         .range([bounds.height - bounds.marginBottom, bounds.marginTop])
         .domain([0, yMax]);
@@ -195,6 +188,23 @@ export function renderReviews(
     const oranges = scaleSequential((n) => interpolateOranges(cappedRange(n))).domain(
         x.domain() as any
     );
+
+    function tooltipText(d: BinType, cumulative: number): string {
+        let buf = `<div>day ${d.x0}-${d.x1}</div>`;
+        const totals = totalsForBin(d);
+        const lines = [
+            [darkerGreens(1), `Mature: ${totals[0]}`],
+            [lighterGreens(1), `Young: ${totals[1]}`],
+            [blues(1), `New/learn: ${totals[2]}`],
+            [reds(1), `Relearn: ${totals[3]}`],
+            [oranges(1), `Early: ${totals[4]}`],
+            ["grey", `Total: ${cumulative}`],
+        ];
+        for (const [colour, text] of lines) {
+            buf += `<div><span style="color: ${colour}">■</span>${text}</div>`;
+        }
+        return buf;
+    }
 
     const updateBar = (sel: any, idx: number): any => {
         return sel
