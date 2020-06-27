@@ -2,10 +2,10 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import pb from "../backend/proto";
+import { studiedToday } from "../time";
+import { I18n } from "../i18n";
 
 export interface TodayData {
-    answerCount: number;
-    answerMillis: number;
     correctCount: number;
     matureCorrect: number;
     matureCount: number;
@@ -13,11 +13,13 @@ export interface TodayData {
     reviewCount: number;
     relearnCount: number;
     earlyReviewCount: number;
+
+    studiedToday: string;
 }
 
 const ReviewKind = pb.BackendProto.RevlogEntry.ReviewKind;
 
-export function gatherData(data: pb.BackendProto.GraphsOut): TodayData {
+export function gatherData(data: pb.BackendProto.GraphsOut, i18n: I18n): TodayData {
     let answerCount = 0;
     let answerMillis = 0;
     let correctCount = 0;
@@ -69,9 +71,10 @@ export function gatherData(data: pb.BackendProto.GraphsOut): TodayData {
         }
     }
 
+    const studiedTodayText = studiedToday(i18n, answerCount, answerMillis / 1000);
+
     return {
-        answerCount,
-        answerMillis,
+        studiedToday: studiedTodayText,
         correctCount,
         matureCorrect,
         matureCount,

@@ -1167,6 +1167,12 @@ impl BackendService for Backend {
         .into())
     }
 
+    fn i18n_resources(&mut self, _input: Empty) -> BackendResult<pb::Json> {
+        serde_json::to_vec(&self.i18n.resources_for_js())
+            .map(Into::into)
+            .map_err(Into::into)
+    }
+
     // tags
     //-------------------------------------------------------------------
 
