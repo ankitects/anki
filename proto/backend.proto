@@ -989,52 +989,14 @@ message GraphsIn {
 }
 
 message GraphsOut {
-//    CardsGraphData cards = 1;
-//    TodayGraphData today = 3;
-//    ButtonsGraphData buttons = 4;
-//    repeated HourGraphData hours = 2;
     repeated Card cards = 1;
     repeated RevlogEntry revlog = 2;
-
     uint32 days_elapsed = 3;
     // Based on rollover hour
     uint32 next_day_at_secs = 4;
     uint32 scheduler_version = 5;
     /// Seconds to add to UTC timestamps to get local time.
     uint32 local_offset_secs = 7;
-
-    uint32 note_count = 10;
-
-}
-
-message CardsGraphData {
-    uint32 mature_count = 7;
-    uint32 young_or_learning_count = 8;
-    uint32 new_count = 9;
-    uint32 suspended_or_buried_count = 10;
-}
-
-message TodayGraphData {
-    uint32 answer_count = 1;
-    uint32 answer_millis = 2;
-    uint32 correct_count = 3;
-    uint32 learn_count = 4;
-    uint32 review_count = 5;
-    uint32 relearn_count = 6;
-    uint32 early_review_count = 7;
-    uint32 mature_count = 8;
-    uint32 mature_correct = 9;
-}
-
-message HourGraphData {
-    uint32 review_count = 1;
-    uint32 correct_count = 2;
-}
-
-message ButtonsGraphData {
-    repeated uint32 learn = 1;
-    repeated uint32 young = 2;
-    repeated uint32 mature = 3;
 }
 
 message RevlogEntry {

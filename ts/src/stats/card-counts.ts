@@ -3,19 +3,15 @@
 
 import pb from "../backend/proto";
 import { CardQueue } from "../cards";
+import { I18n } from "../i18n";
 
+type Count = [string, number];
 export interface CardCounts {
-    totalCards: number;
-    totalNotes: number;
-    newCards: number;
-    young: number;
-    mature: number;
-    suspended: number;
-    buried: number;
+    title: string;
+    counts: Count[];
 }
 
-export function gatherData(data: pb.BackendProto.GraphsOut): CardCounts {
-    const totalNotes = data.noteCount;
+export function gatherData(data: pb.BackendProto.GraphsOut, i18n: I18n): CardCounts {
     const totalCards = data.cards.length;
     let newCards = 0;
     let young = 0;
@@ -48,13 +44,17 @@ export function gatherData(data: pb.BackendProto.GraphsOut): CardCounts {
         }
     }
 
+    const counts = [
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_TOTAL_CARDS), totalCards] as Count,
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_NEW_CARDS), newCards] as Count,
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_YOUNG_CARDS), young] as Count,
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_MATURE_CARDS), mature] as Count,
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_SUSPENDED_CARDS), suspended] as Count,
+        [i18n.tr(i18n.TR.STATISTICS_COUNTS_BURIED_CARDS), buried] as Count,
+    ];
+
     return {
-        totalCards,
-        totalNotes,
-        newCards,
-        young,
-        mature,
-        suspended,
-        buried,
+        title: i18n.tr(i18n.TR.STATISTICS_COUNTS_TITLE),
+        counts,
     };
 }

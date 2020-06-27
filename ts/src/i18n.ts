@@ -4,14 +4,18 @@
 import pb from "./backend/proto";
 import { FluentBundle, FluentResource, FluentNumber } from "@fluent/bundle";
 
-function formatNumbers(args?: Record<string, any>): void {
+type RecordVal = number | string | FluentNumber;
+
+function formatNumbers(args?: Record<string, RecordVal>): void {
     if (!args) {
         return;
     }
 
     for (const key of Object.keys(args)) {
         if (typeof args[key] === "number") {
-            args[key] = new FluentNumber(args[key], { maximumSignificantDigits: 2 });
+            args[key] = new FluentNumber(args[key] as number, {
+                maximumSignificantDigits: 2,
+            });
         }
     }
 }
@@ -20,7 +24,7 @@ export class I18n {
     bundles: FluentBundle[] = [];
     TR = pb.BackendProto.FluentString;
 
-    tr(id: pb.BackendProto.FluentString, args?: Record<string, any>): string {
+    tr(id: pb.BackendProto.FluentString, args?: Record<string, RecordVal>): string {
         formatNumbers(args);
         const key = this.keyName(id);
         for (const bundle of this.bundles) {
