@@ -34,7 +34,7 @@ fn row_to_revlog_entry(row: &Row) -> Result<RevlogEntry> {
         interval: row.get(4)?,
         last_interval: row.get(5)?,
         ease_factor: row.get(6)?,
-        taken_millis: row.get(7)?,
+        taken_millis: row.get(7).unwrap_or_default(),
         review_kind: row.get(8).unwrap_or_default(),
     })
 }
