@@ -111,8 +111,7 @@ export function renderReviews(
     bounds: GraphBounds,
     sourceData: GraphData,
     range: ReviewRange,
-    showTime: boolean,
-    tooltipArea: HTMLDivElement
+    showTime: boolean
 ): void {
     const xMax = 0;
     let xMin = 0;

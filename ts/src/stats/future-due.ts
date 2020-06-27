@@ -7,7 +7,7 @@
  */
 
 import pb from "../backend/proto";
-import { extent, histogram, rollup, max, sum, Bin } from "d3-array";
+import { extent, histogram, rollup, sum, Bin } from "d3-array";
 import { scaleLinear, scaleSequential } from "d3-scale";
 import { CardQueue } from "../cards";
 import { HistogramData } from "./histogram-graph";
@@ -65,7 +65,7 @@ export function buildHistogram(
         return null;
     }
 
-    const [xMinOrig, origXMax] = extent<number>(data.keys());
+    const [_xMinOrig, origXMax] = extent<number>(data.keys());
     const xMin = 0;
     let xMax = origXMax;
 

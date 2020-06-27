@@ -2,7 +2,6 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { I18n } from "./i18n";
-import { FluentNumber } from "@fluent/bundle";
 
 const SECOND = 1.0;
 const MINUTE = 60.0 * SECOND;

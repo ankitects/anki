@@ -15,7 +15,6 @@
     let svg = null as HTMLElement | SVGElement | null;
     let range: ReviewRange;
     let showTime = false;
-    let tooltip = null as null | HTMLDivElement;
 
     $: switch (revlogRange as RevlogRange) {
         case RevlogRange.Month:
@@ -38,7 +37,7 @@
     }
 
     $: if (graphData) {
-        renderReviews(svg as SVGElement, bounds, graphData, range, showTime, tooltip);
+        renderReviews(svg as SVGElement, bounds, graphData, range, showTime);
     }
 </script>
 
@@ -82,7 +81,5 @@
         <AxisTicks {bounds} />
         <AxisLabels {bounds} {xText} {yText} />
     </svg>
-
-    <div bind:this={tooltip} class="tooltip-area" />
 
 </div>

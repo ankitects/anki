@@ -125,7 +125,7 @@
 <div class="range-box-pad" />
 
 <TodayStats {sourceData} {i18n} />
-<CardCounts {sourceData} />
+<CardCounts {sourceData} {i18n} />
 <FutureDue {sourceData} />
 <ReviewsGraph {sourceData} {revlogRange} />
 <IntervalsGraph {sourceData} />

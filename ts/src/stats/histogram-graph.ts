@@ -35,7 +35,7 @@ export function histogramGraph(
     bounds: GraphBounds,
     data: HistogramData
 ): void {
-    const binValue = data.binValue ?? ((bin: any) => bin.length as number);
+    const binValue = data.binValue ?? ((bin: any): number => bin.length as number);
 
     const svg = select(svgElem);
     const trans = svg.transition().duration(600) as any;

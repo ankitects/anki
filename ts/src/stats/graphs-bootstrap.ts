@@ -4,7 +4,7 @@
 import { setupI18n } from "../i18n";
 import GraphsPage from "./GraphsPage.svelte";
 
-export function graphs(target: HTMLDivElement) {
+export function graphs(target: HTMLDivElement): void {
     setupI18n().then((i18n) => {
         new GraphsPage({
             target,

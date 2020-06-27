@@ -42,7 +42,6 @@ impl Collection {
             next_day_at_secs: timing.next_day_at as u32,
             scheduler_version: self.sched_ver() as u32,
             local_offset_secs: local_offset_secs as u32,
-            note_count: 0,
         })
     }
 }
