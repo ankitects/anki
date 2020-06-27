@@ -1,4 +1,6 @@
 <script lang="typescript">
+    import { timeSpan, MONTH, YEAR } from "../time";
+    import { I18n } from "../i18n";
     import { HistogramData } from "./histogram-graph";
     import { defaultGraphBounds } from "./graphs";
     import {
@@ -12,6 +14,8 @@
     import HistogramGraph from "./HistogramGraph.svelte";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
+    export let i18n: I18n;
+
     let graphData = null as GraphData | null;
     let histogramData = null as HistogramData | null;
 
@@ -27,6 +31,10 @@
         console.log("preparing data");
         histogramData = buildHistogram(graphData, range);
     }
+
+    const month = timeSpan(i18n, 1 * MONTH);
+    const month3 = timeSpan(i18n, 3 * MONTH);
+    const year = timeSpan(i18n, 1 * YEAR);
 </script>
 
 {#if histogramData}
@@ -37,15 +45,15 @@
         <div class="range-box-inner">
             <label>
                 <input type="radio" bind:group={range} value={FutureDueRange.Month} />
-                Month
+                {month}
             </label>
             <label>
                 <input type="radio" bind:group={range} value={FutureDueRange.Quarter} />
-                3 months
+                {month3}
             </label>
             <label>
                 <input type="radio" bind:group={range} value={FutureDueRange.Year} />
-                Year
+                {year}
             </label>
             <label>
                 <input type="radio" bind:group={range} value={FutureDueRange.AllTime} />

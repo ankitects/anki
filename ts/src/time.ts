@@ -3,12 +3,12 @@
 
 import { I18n } from "./i18n";
 
-const SECOND = 1.0;
-const MINUTE = 60.0 * SECOND;
-const HOUR = 60.0 * MINUTE;
-const DAY = 24.0 * HOUR;
-const MONTH = 30.0 * DAY;
-const YEAR = 12.0 * MONTH;
+export const SECOND = 1.0;
+export const MINUTE = 60.0 * SECOND;
+export const HOUR = 60.0 * MINUTE;
+export const DAY = 24.0 * HOUR;
+export const MONTH = 30.0 * DAY;
+export const YEAR = 12.0 * MONTH;
 
 enum TimespanUnit {
     Seconds,
@@ -70,6 +70,15 @@ function unitAmount(unit: TimespanUnit, secs: number): number {
     }
 }
 
+function unitAmountRounded(unit: TimespanUnit, secs: number): number {
+    const value = unitAmount(unit, secs);
+    if (unit === TimespanUnit.Seconds || unit === TimespanUnit.Days) {
+        return Math.round(value);
+    } else {
+        return value;
+    }
+}
+
 export function studiedToday(i18n: I18n, cards: number, secs: number): string {
     const unit = naturalUnit(secs);
     const amount = unitAmount(unit, secs);
@@ -85,4 +94,41 @@ export function studiedToday(i18n: I18n, cards: number, secs: number): string {
         unit: name,
         "secs-per-card": secsPer,
     });
+}
+
+/// Describe the given seconds using the largest appropriate unit.
+/// If precise is true, show to two decimal places, eg
+/// eg 70 seconds -> "1.17 minutes"
+/// If false, seconds and days are shown without decimals.
+export function timeSpan(i18n: I18n, seconds: number, precise = true): string {
+    const unit = naturalUnit(seconds);
+    let amount: number;
+    if (precise) {
+        amount = unitAmount(unit, seconds);
+    } else {
+        amount = unitAmountRounded(unit, seconds);
+    }
+    let key: number;
+    switch (unit) {
+        case TimespanUnit.Seconds:
+            key = i18n.TR.SCHEDULING_TIME_SPAN_SECONDS;
+            break;
+        case TimespanUnit.Minutes:
+            key = i18n.TR.SCHEDULING_TIME_SPAN_MINUTES;
+            break;
+        case TimespanUnit.Hours:
+            key = i18n.TR.SCHEDULING_TIME_SPAN_HOURS;
+            break;
+        case TimespanUnit.Days:
+            key = i18n.TR.SCHEDULING_TIME_SPAN_DAYS;
+            break;
+        case TimespanUnit.Months:
+            key = i18n.TR.SCHEDULING_TIME_SPAN_MONTHS;
+            break;
+        case TimespanUnit.Years:
+            key = i18n.TR.SCHEDULING_TIME_SPAN_YEARS;
+            break;
+    }
+
+    return i18n.tr(key, { amount });
 }

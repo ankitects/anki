@@ -5,9 +5,12 @@
     import { defaultGraphBounds, RevlogRange } from "./graphs";
     import { GraphData, gatherData, renderReviews, ReviewRange } from "./reviews";
     import pb from "../backend/proto";
+    import { timeSpan, MONTH, YEAR } from "../time";
+    import { I18n } from "../i18n";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
     export let revlogRange: RevlogRange = RevlogRange.Month;
+    export let i18n: I18n;
 
     let graphData: GraphData | null = null;
 
@@ -39,6 +42,10 @@
     $: if (graphData) {
         renderReviews(svg as SVGElement, bounds, graphData, range, showTime);
     }
+
+    const month = timeSpan(i18n, 1 * MONTH);
+    const month3 = timeSpan(i18n, 3 * MONTH);
+    const year = timeSpan(i18n, 1 * YEAR);
 </script>
 
 <div class="graph">
@@ -53,15 +60,15 @@
         {#if revlogRange >= RevlogRange.Year}
             <label>
                 <input type="radio" bind:group={range} value={ReviewRange.Month} />
-                Month
+                {month}
             </label>
             <label>
                 <input type="radio" bind:group={range} value={ReviewRange.Quarter} />
-                3 months
+                {month3}
             </label>
             <label>
                 <input type="radio" bind:group={range} value={ReviewRange.Year} />
-                Year
+                {year}
             </label>
         {/if}
         {#if revlogRange === RevlogRange.All}

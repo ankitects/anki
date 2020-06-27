@@ -3,8 +3,9 @@
 </script>
 
 <script lang="typescript">
-    import { assertUnreachable } from "../typing";
+    import { timeSpan, MONTH, YEAR } from "../time";
     import { I18n } from "../i18n";
+    import { assertUnreachable } from "../typing";
     import pb from "../backend/proto";
     import { getGraphData, RevlogRange } from "./graphs";
     import IntervalsGraph from "./IntervalsGraph.svelte";
@@ -81,6 +82,9 @@
             search = displayedSearch;
         }
     };
+
+    const month = timeSpan(i18n, 1 * MONTH);
+    const year = timeSpan(i18n, 1 * YEAR);
 </script>
 
 <div class="range-box">
@@ -113,11 +117,11 @@
         Review history:
         <label>
             <input type="radio" bind:group={revlogRange} value={RevlogRange.Month} />
-            Month
+            {month}
         </label>
         <label>
             <input type="radio" bind:group={revlogRange} value={RevlogRange.Year} />
-            Year
+            {year}
         </label>
         <label>
             <input type="radio" bind:group={revlogRange} value={RevlogRange.All} />
@@ -129,10 +133,10 @@
 
 <TodayStats {sourceData} {i18n} />
 <CardCounts {sourceData} {i18n} />
-<FutureDue {sourceData} />
-<ReviewsGraph {sourceData} {revlogRange} />
-<IntervalsGraph {sourceData} />
+<FutureDue {sourceData} {i18n} />
+<ReviewsGraph {sourceData} {revlogRange} {i18n} />
+<IntervalsGraph {sourceData} {i18n} />
 <EaseGraph {sourceData} />
 <ButtonsGraph {sourceData} />
 <HourGraph {sourceData} />
-<AddedGraph {sourceData} />
+<AddedGraph {sourceData} {i18n} />
