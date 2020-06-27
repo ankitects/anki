@@ -9,16 +9,18 @@
 
     let todayData: TodayData | null = null;
     $: if (sourceData) {
-        console.log("gathering data");
         todayData = gatherData(sourceData, i18n);
     }
 </script>
 
 {#if todayData}
     <div class="graph">
-        <h1>Today</h1>
+        <h1>{todayData.title}</h1>
 
-        <div>{todayData.studiedToday}</div>
-        {JSON.stringify(todayData)}
+        <div class="legend-outer">
+            {#each todayData.lines as line}
+                <div>{line}</div>
+            {/each}
+        </div>
     </div>
 {/if}
