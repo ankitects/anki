@@ -6,6 +6,7 @@ use crate::log::{error, Logger};
 use fluent::{FluentArgs, FluentBundle, FluentResource, FluentValue};
 use intl_memoizer::IntlLangMemoizer;
 use num_format::Locale;
+use serde::Serialize;
 use std::borrow::Cow;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -64,79 +65,76 @@ fn lang_folder(lang: Option<&LanguageIdentifier>, ftl_folder: &Path) -> Option<P
 
 /// Get the template/English resource text for the given group.
 /// These are embedded in the binary.
-fn ftl_template_text() -> String {
-    include_str!("ftl/template.ftl").to_string()
+fn ftl_template_text() -> &'static str {
+    include_str!("ftl/template.ftl")
 }
 
-fn ftl_localized_text(lang: &LanguageIdentifier) -> Option<String> {
-    Some(
-        match lang.language() {
-            "en" => {
-                match lang.region() {
-                    Some("GB") | Some("AU") => include_str!("ftl/en-GB.ftl"),
-                    // use fallback language instead
-                    _ => return None,
-                }
+fn ftl_localized_text(lang: &LanguageIdentifier) -> Option<&'static str> {
+    Some(match lang.language() {
+        "en" => {
+            match lang.region() {
+                Some("GB") | Some("AU") => include_str!("ftl/en-GB.ftl"),
+                // use fallback language instead
+                _ => return None,
             }
-            "zh" => match lang.region() {
-                Some("TW") | Some("HK") => include_str!("ftl/zh-TW.ftl"),
-                _ => include_str!("ftl/zh-CN.ftl"),
-            },
-            "pt" => {
-                if let Some("PT") = lang.region() {
-                    include_str!("ftl/pt-PT.ftl")
-                } else {
-                    include_str!("ftl/pt-BR.ftl")
-                }
-            }
-            "ga" => include_str!("ftl/ga-IE.ftl"),
-            "hy" => include_str!("ftl/hy-AM.ftl"),
-            "nb" => include_str!("ftl/nb-NO.ftl"),
-            "sv" => include_str!("ftl/sv-SE.ftl"),
-            "jbo" => include_str!("ftl/jbo.ftl"),
-            "kab" => include_str!("ftl/kab.ftl"),
-            "af" => include_str!("ftl/af.ftl"),
-            "ar" => include_str!("ftl/ar.ftl"),
-            "bg" => include_str!("ftl/bg.ftl"),
-            "ca" => include_str!("ftl/ca.ftl"),
-            "cs" => include_str!("ftl/cs.ftl"),
-            "da" => include_str!("ftl/da.ftl"),
-            "de" => include_str!("ftl/de.ftl"),
-            "el" => include_str!("ftl/el.ftl"),
-            "eo" => include_str!("ftl/eo.ftl"),
-            "es" => include_str!("ftl/es.ftl"),
-            "et" => include_str!("ftl/et.ftl"),
-            "eu" => include_str!("ftl/eu.ftl"),
-            "fa" => include_str!("ftl/fa.ftl"),
-            "fi" => include_str!("ftl/fi.ftl"),
-            "fr" => include_str!("ftl/fr.ftl"),
-            "gl" => include_str!("ftl/gl.ftl"),
-            "he" => include_str!("ftl/he.ftl"),
-            "hr" => include_str!("ftl/hr.ftl"),
-            "hu" => include_str!("ftl/hu.ftl"),
-            "it" => include_str!("ftl/it.ftl"),
-            "ja" => include_str!("ftl/ja.ftl"),
-            "ko" => include_str!("ftl/ko.ftl"),
-            "la" => include_str!("ftl/la.ftl"),
-            "mn" => include_str!("ftl/mn.ftl"),
-            "mr" => include_str!("ftl/mr.ftl"),
-            "ms" => include_str!("ftl/ms.ftl"),
-            "nl" => include_str!("ftl/nl.ftl"),
-            "oc" => include_str!("ftl/oc.ftl"),
-            "pl" => include_str!("ftl/pl.ftl"),
-            "ro" => include_str!("ftl/ro.ftl"),
-            "ru" => include_str!("ftl/ru.ftl"),
-            "sk" => include_str!("ftl/sk.ftl"),
-            "sl" => include_str!("ftl/sl.ftl"),
-            "sr" => include_str!("ftl/sr.ftl"),
-            "th" => include_str!("ftl/th.ftl"),
-            "tr" => include_str!("ftl/tr.ftl"),
-            "uk" => include_str!("ftl/uk.ftl"),
-            "vi" => include_str!("ftl/vi.ftl"),
-            _ => return None,
         }
-        .to_string(),
-    )
+        "zh" => match lang.region() {
+            Some("TW") | Some("HK") => include_str!("ftl/zh-TW.ftl"),
+            _ => include_str!("ftl/zh-CN.ftl"),
+        },
+        "pt" => {
+            if let Some("PT") = lang.region() {
+                include_str!("ftl/pt-PT.ftl")
+            } else {
+                include_str!("ftl/pt-BR.ftl")
+            }
+        }
+        "ga" => include_str!("ftl/ga-IE.ftl"),
+        "hy" => include_str!("ftl/hy-AM.ftl"),
+        "nb" => include_str!("ftl/nb-NO.ftl"),
+        "sv" => include_str!("ftl/sv-SE.ftl"),
+        "jbo" => include_str!("ftl/jbo.ftl"),
+        "kab" => include_str!("ftl/kab.ftl"),
+        "af" => include_str!("ftl/af.ftl"),
+        "ar" => include_str!("ftl/ar.ftl"),
+        "bg" => include_str!("ftl/bg.ftl"),
+        "ca" => include_str!("ftl/ca.ftl"),
+        "cs" => include_str!("ftl/cs.ftl"),
+        "da" => include_str!("ftl/da.ftl"),
+        "de" => include_str!("ftl/de.ftl"),
+        "el" => include_str!("ftl/el.ftl"),
+        "eo" => include_str!("ftl/eo.ftl"),
+        "es" => include_str!("ftl/es.ftl"),
+        "et" => include_str!("ftl/et.ftl"),
+        "eu" => include_str!("ftl/eu.ftl"),
+        "fa" => include_str!("ftl/fa.ftl"),
+        "fi" => include_str!("ftl/fi.ftl"),
+        "fr" => include_str!("ftl/fr.ftl"),
+        "gl" => include_str!("ftl/gl.ftl"),
+        "he" => include_str!("ftl/he.ftl"),
+        "hr" => include_str!("ftl/hr.ftl"),
+        "hu" => include_str!("ftl/hu.ftl"),
+        "it" => include_str!("ftl/it.ftl"),
+        "ja" => include_str!("ftl/ja.ftl"),
+        "ko" => include_str!("ftl/ko.ftl"),
+        "la" => include_str!("ftl/la.ftl"),
+        "mn" => include_str!("ftl/mn.ftl"),
+        "mr" => include_str!("ftl/mr.ftl"),
+        "ms" => include_str!("ftl/ms.ftl"),
+        "nl" => include_str!("ftl/nl.ftl"),
+        "oc" => include_str!("ftl/oc.ftl"),
+        "pl" => include_str!("ftl/pl.ftl"),
+        "ro" => include_str!("ftl/ro.ftl"),
+        "ru" => include_str!("ftl/ru.ftl"),
+        "sk" => include_str!("ftl/sk.ftl"),
+        "sl" => include_str!("ftl/sl.ftl"),
+        "sr" => include_str!("ftl/sr.ftl"),
+        "th" => include_str!("ftl/th.ftl"),
+        "tr" => include_str!("ftl/tr.ftl"),
+        "uk" => include_str!("ftl/uk.ftl"),
+        "vi" => include_str!("ftl/vi.ftl"),
+        _ => return None,
+    })
 }
 
 /// Return the text from any .ftl files in the given folder.
@@ -163,12 +161,12 @@ fn ftl_external_text(folder: &Path) -> Result<String> {
 /// at runtime. If it contains errors, they will not prevent a
 /// bundle from being returned.
 fn get_bundle(
-    text: String,
+    text: &str,
     extra_text: String,
     locales: &[LanguageIdentifier],
     log: &Logger,
 ) -> Option<FluentBundle<FluentResource>> {
-    let res = FluentResource::try_new(text)
+    let res = FluentResource::try_new(text.into())
         .map_err(|e| {
             error!(log, "Unable to parse translations file: {:?}", e);
         })
@@ -202,7 +200,7 @@ fn get_bundle(
 
 /// Get a bundle that includes any filesystem overrides.
 fn get_bundle_with_extra(
-    text: String,
+    text: &str,
     lang: Option<&LanguageIdentifier>,
     ftl_folder: &Path,
     locales: &[LanguageIdentifier],
@@ -236,14 +234,20 @@ impl I18n {
         log: Logger,
     ) -> Self {
         let ftl_folder = ftl_folder.into();
-
         let mut langs = vec![];
         let mut bundles = Vec::with_capacity(locale_codes.len() + 1);
+        let mut resource_text = vec![];
 
         for code in locale_codes {
             let code = code.as_ref();
             if let Ok(lang) = code.parse::<LanguageIdentifier>() {
                 langs.push(lang.clone());
+                if lang.language() == "en" {
+                    // if English was listed, any further preferences are skipped,
+                    // as the template has 100% coverage, and we need to ensure
+                    // it is tried prior to any other langs.
+                    break;
+                }
             }
         }
         // add fallback date/time
@@ -255,29 +259,27 @@ impl I18n {
                 if let Some(bundle) =
                     get_bundle_with_extra(text, Some(lang), &ftl_folder, &langs, &log)
                 {
+                    resource_text.push(text);
                     bundles.push(bundle);
                 } else {
                     error!(log, "Failed to create bundle for {:?}", lang.language())
                 }
             }
-
-            // if English was listed, any further preferences are skipped,
-            // as the template has 100% coverage, and we need to ensure
-            // it is tried prior to any other langs. But we do keep a file
-            // if one was returned, to allow locale English variants to take
-            // priority over the template.
-            if lang.language() == "en" {
-                break;
-            }
         }
 
         // add English templates
+        let template_text = ftl_template_text();
         let template_bundle =
-            get_bundle_with_extra(ftl_template_text(), None, &ftl_folder, &langs, &log).unwrap();
+            get_bundle_with_extra(template_text, None, &ftl_folder, &langs, &log).unwrap();
+        resource_text.push(template_text);
         bundles.push(template_bundle);
 
         Self {
-            inner: Arc::new(Mutex::new(I18nInner { bundles })),
+            inner: Arc::new(Mutex::new(I18nInner {
+                bundles,
+                langs,
+                resource_text,
+            })),
             log,
         }
     }
@@ -320,12 +322,23 @@ impl I18n {
         // return the key name if it was missing
         key.to_string().into()
     }
+
+    /// Return text from configured locales for use with the JS Fluent implementation.
+    pub fn resources_for_js(&self) -> ResourcesForJavascript {
+        let inner = self.inner.lock().unwrap();
+        ResourcesForJavascript {
+            langs: inner.langs.iter().map(ToString::to_string).collect(),
+            resources: inner.resource_text.clone(),
+        }
+    }
 }
 
 struct I18nInner {
     // bundles in preferred language order, with template English as the
     // last element
     bundles: Vec<FluentBundle<FluentResource>>,
+    langs: Vec<LanguageIdentifier>,
+    resource_text: Vec<&'static str>,
 }
 
 fn set_bundle_formatter_for_langs<T>(bundle: &mut FluentBundle<T>, langs: &[LanguageIdentifier]) {
@@ -392,6 +405,12 @@ impl NumberFormatter {
             num
         }
     }
+}
+
+#[derive(Serialize)]
+pub struct ResourcesForJavascript {
+    langs: Vec<String>,
+    resources: Vec<&'static str>,
 }
 
 #[cfg(test)]

@@ -119,6 +119,7 @@ fn want_release_gil(method: u32) -> bool {
             BackendMethod::CountsForDeckToday => true,
             BackendMethod::CardStats => true,
             BackendMethod::Graphs => true,
+            BackendMethod::I18nResources => false,
         }
     } else {
         false

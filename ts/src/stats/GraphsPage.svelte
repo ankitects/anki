@@ -1,11 +1,10 @@
 <script context="module">
     import style from "./graphs.css";
-
-    document.head.append(style);
 </script>
 
 <script lang="typescript">
     import { assertUnreachable } from "../typing";
+    import { I18n } from "../i18n";
     import pb from "../backend/proto";
     import { getGraphData, RevlogRange } from "./graphs";
     import IntervalsGraph from "./IntervalsGraph.svelte";
@@ -17,6 +16,8 @@
     import HourGraph from "./HourGraph.svelte";
     import FutureDue from "./FutureDue.svelte";
     import ReviewsGraph from "./ReviewsGraph.svelte";
+
+    export let i18n: I18n;
 
     let sourceData: pb.BackendProto.GraphsOut | null = null;
 
@@ -123,7 +124,7 @@
 </div>
 <div class="range-box-pad" />
 
-<TodayStats {sourceData} />
+<TodayStats {sourceData} {i18n} />
 <CardCounts {sourceData} />
 <FutureDue {sourceData} />
 <ReviewsGraph {sourceData} {revlogRange} />

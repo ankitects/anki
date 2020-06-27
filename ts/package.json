@@ -49,6 +49,7 @@
         "dev": "webpack-dev-server"
     },
     "dependencies": {
+        "@fluent/bundle": "^0.15.1",
         "d3-array": "^2.4.0",
         "d3-axis": "^1.0.12",
         "d3-scale": "^3.2.1",

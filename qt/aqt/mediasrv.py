@@ -185,6 +185,8 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
             content_length = int(self.headers["Content-Length"])
             body = self.rfile.read(content_length)
             data = graph_data(self.mw.col, **from_json_bytes(body))
+        elif cmd == "i18nResources":
+            data = self.mw.col.backend.i18n_resources()
         else:
             self.send_error(HTTPStatus.NOT_FOUND, "Method not found")
             return

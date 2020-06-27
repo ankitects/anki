@@ -183,6 +183,7 @@ service BackendService {
 
     rpc TranslateString (TranslateStringIn) returns (String);
     rpc FormatTimespan (FormatTimespanIn) returns (String);
+    rpc I18nResources (Empty) returns (Json);
 
     // tags
 
