@@ -20,10 +20,6 @@ $(shell mkdir -p .build)
 PHONY: all
 all: check
 
-.build/npm: package.json
-	npm i
-	@touch $@
-
 PROTODEPS := ../proto/backend.proto ../proto/fluent.proto
 BUILDDEPS := .build/npm webpack.config.js
 
@@ -42,9 +38,12 @@ PHONY: develop
 develop: .build/build
 
 .build/build: .build/proto $(BUILDDEPS) $(wildcard src/*/*.svelte src/*/*.ts)
-	npm i
 	npm run build
 	@touch $@
+
+.build/npm: package.json package-lock.json
+	npm i
+	touch $@
 
 .PHONY: check
 check: .build/build
