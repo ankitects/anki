@@ -10,11 +10,10 @@ function formatNumbers(args?: Record<string, RecordVal>): void {
     if (!args) {
         return;
     }
-
     for (const key of Object.keys(args)) {
         if (typeof args[key] === "number") {
             args[key] = new FluentNumber(args[key] as number, {
-                maximumSignificantDigits: 2,
+                maximumFractionDigits: 2,
             });
         }
     }

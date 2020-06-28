@@ -12,6 +12,8 @@ import { scaleLinear, scaleSequential } from "d3-scale";
 import { CardQueue } from "../cards";
 import { HistogramData } from "./histogram-graph";
 import { interpolateGreens } from "d3-scale-chromatic";
+import { dayLabel } from "../time";
+import { I18n } from "../i18n";
 
 export interface GraphData {
     dueCounts: Map<number, number>;
@@ -26,7 +28,7 @@ export enum FutureDueRange {
 
 export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
     const due = (data.cards as pb.BackendProto.Card[])
-        .filter((c) => c.queue == CardQueue.Review && c.due >= data.daysElapsed)
+        .filter((c) => c.queue == CardQueue.Review) // && c.due >= data.daysElapsed)
         .map((c) => c.due - data.daysElapsed);
     const dueCounts = rollup(
         due,
@@ -40,24 +42,11 @@ function binValue(d: Bin<Map<number, number>, number>): number {
     return sum(d, (d) => d[1]);
 }
 
-function hoverText(
-    data: HistogramData,
-    binIdx: number,
-    cumulative: number,
-    _percent: number
-): string {
-    const bin = data.bins[binIdx];
-    const interval =
-        bin.x1! - bin.x0! === 1 ? `${bin.x0} days` : `${bin.x0}~${bin.x1} days`;
-    return (
-        `${binValue(data.bins[binIdx] as any)} cards due in ${interval}. ` +
-        `<br>${cumulative} cards at or before this point.`
-    );
-}
-
 export function buildHistogram(
     sourceData: GraphData,
-    range: FutureDueRange
+    range: FutureDueRange,
+    backlog: boolean,
+    i18n: I18n
 ): HistogramData | null {
     // get min/max
     const data = sourceData.dueCounts;
@@ -65,8 +54,11 @@ export function buildHistogram(
         return null;
     }
 
-    const [_xMinOrig, origXMax] = extent<number>(data.keys());
-    const xMin = 0;
+    const [xMinOrig, origXMax] = extent<number>(data.keys());
+    let xMin = xMinOrig;
+    if (!backlog) {
+        xMin = 0;
+    }
     let xMax = origXMax;
 
     // cap max to selected range
@@ -102,6 +94,22 @@ export function buildHistogram(
     ).domain([xMin!, xMax]);
 
     const total = sum(bins as any, binValue);
+
+    function hoverText(
+        data: HistogramData,
+        binIdx: number,
+        cumulative: number,
+        _percent: number
+    ): string {
+        const bin = data.bins[binIdx];
+        const days = dayLabel(i18n, bin.x0!, bin.x1!);
+        const cards = i18n.tr(i18n.TR.STATISTICS_CARDS_DUE, {
+            cards: binValue(data.bins[binIdx] as any),
+        });
+        const totalLabel = i18n.tr(i18n.TR.STATISTICS_RUNNING_TOTAL);
+
+        return `${days}:<br>${cards}<br>${totalLabel}: ${cumulative}`;
+    }
 
     return {
         scale: x,

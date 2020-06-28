@@ -132,3 +132,26 @@ export function timeSpan(i18n: I18n, seconds: number, precise = true): string {
 
     return i18n.tr(key, { amount });
 }
+
+export function dayLabel(i18n: I18n, daysStart: number, daysEnd: number): string {
+    const larger = Math.max(Math.abs(daysStart), Math.abs(daysEnd));
+    const smaller = Math.min(Math.abs(daysStart), Math.abs(daysEnd));
+    if (larger - smaller <= 1) {
+        // singular
+        if (daysStart >= 0) {
+            return i18n.tr(i18n.TR.STATISTICS_IN_DAYS_SINGLE, { days: daysStart });
+        } else {
+            return i18n.tr(i18n.TR.STATISTICS_DAYS_AGO_SINGLE, { days: -daysStart });
+        }
+    } else {
+        // range
+        if (daysStart >= 0) {
+            return i18n.tr(i18n.TR.STATISTICS_IN_DAYS_RANGE, { daysStart, daysEnd });
+        } else {
+            return i18n.tr(i18n.TR.STATISTICS_DAYS_AGO_RANGE, {
+                daysStart: Math.abs(daysEnd),
+                daysEnd: -daysStart,
+            });
+        }
+    }
+}
