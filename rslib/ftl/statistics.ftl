@@ -95,9 +95,19 @@ statistics-future-due-title = Future Due
 statistics-reviews-title = Reviews
 statistics-intervals-title = Review Intervals
 statistics-answer-buttons-title = Answer Buttons
+# eg Button: 4
+statistics-answer-buttons-button-number = Button
+# eg Times pressed: 123
+statistics-answer-buttons-button-pressed = Times pressed
 statistics-hours-title = Hourly Breakdown
 statistics-added-title = Added
 statistics-card-ease-title = Card Ease
+statistics-card-ease-subtitle = The lower the ease, the more frequently a card will appear.
+# eg "3 cards with 150-170% ease"
+statistics-card-ease-tooltip = { $cards ->
+  [one] 1 card with { $percent } ease
+  *[other] { $cards } cards with { $percent } ease
+  }
 statistics-future-due-subtitle = The number of reviews due in the future.
 statistics-added-subtitle = The number of new cards you have added.
 statistics-reviews-count-subtitle = The number of questions you have answered.
@@ -111,15 +121,26 @@ statistics-in-days-single = { $days ->
   [1] Tomorrow
   *[other] In { $days } days
   }
-statistics-in-days-range = In { $daysStart }~{ $daysEnd } days
+statistics-in-days-range = In { $daysStart }-{ $daysEnd } days
 statistics-days-ago-single = { $days ->
   [1] Yesterday
   *[other] { $days } days ago
   }
-statistics-days-ago-range = { $daysStart }~{ $daysEnd } days ago
+statistics-days-ago-range = { $daysStart }-{ $daysEnd } days ago
 statistics-running-total = Running total
 statistics-cards-due = { $cards ->
   [one] 1 card due
   *[other] { $cards } cards due
   }
 statistics-backlog-checkbox = Backlog
+statistics-intervals-day-range = { $cards ->
+  [one] 1 card with a { $daysStart }~{ $daysEnd } day interval
+  *[other] { $cards } cards with a { $daysStart }~{ $daysEnd } day interval
+  }
+statistics-intervals-day-single = { $cards ->
+  [one] 1 card with a { $day } day interval
+  *[other] { $cards } card with a { $day } day interval
+  }
+# hour range, eg "From 14:00-15:00"
+statistics-hours-range = From { $hourStart }:00~{ $hourEnd }:00
+statistics-hours-correct = { $correct }/{ $total } correct ({ $percent }%)

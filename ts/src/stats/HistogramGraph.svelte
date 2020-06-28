@@ -1,6 +1,5 @@
 <script lang="typescript">
     import { HistogramData, histogramGraph } from "./histogram-graph";
-    import AxisLabels from "./AxisLabels.svelte";
     import AxisTicks from "./AxisTicks.svelte";
     import { defaultGraphBounds } from "./graphs";
 

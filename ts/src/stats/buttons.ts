@@ -14,6 +14,7 @@ import { scaleLinear, scaleBand, scaleSequential } from "d3-scale";
 import { axisBottom, axisLeft } from "d3-axis";
 import { showTooltip, hideTooltip } from "./tooltip";
 import { GraphBounds } from "./graphs";
+import { I18n } from "../i18n";
 
 type ButtonCounts = [number, number, number, number];
 
@@ -67,14 +68,11 @@ interface Datum {
     count: number;
 }
 
-function tooltipText(d: Datum): string {
-    return JSON.stringify(d);
-}
-
 export function renderButtons(
     svgElem: SVGElement,
     bounds: GraphBounds,
-    sourceData: GraphData
+    sourceData: GraphData,
+    i18n: I18n
 ): void {
     const data = [
         ...sourceData.learning.map((count: number, idx: number) => {
@@ -108,11 +106,24 @@ export function renderButtons(
     const xGroup = scaleBand()
         .domain(["learning", "young", "mature"])
         .range([bounds.marginLeft, bounds.width - bounds.marginRight]);
-    svg.select<SVGGElement>(".x-ticks").transition(trans).call(
-        axisBottom(xGroup)
-            // .ticks()
-            .tickSizeOuter(0)
-    );
+    svg.select<SVGGElement>(".x-ticks")
+        .transition(trans)
+        .call(
+            axisBottom(xGroup)
+                .tickFormat(((d: string) => {
+                    switch (d) {
+                        case "learning":
+                            return i18n.tr(i18n.TR.STATISTICS_COUNTS_LEARNING_CARDS);
+                        case "young":
+                            return i18n.tr(i18n.TR.STATISTICS_COUNTS_YOUNG_CARDS);
+                        case "mature":
+                            return i18n.tr(i18n.TR.STATISTICS_COUNTS_MATURE_CARDS);
+                        default:
+                            console.log(d);
+                    }
+                }) as any)
+                .tickSizeOuter(0)
+        );
 
     const xButton = scaleBand()
         .domain(["1", "2", "3", "4"])
@@ -177,6 +188,13 @@ export function renderButtons(
         );
 
     // hover/tooltip
+
+    function tooltipText(d: Datum): string {
+        const button = i18n.tr(i18n.TR.STATISTICS_ANSWER_BUTTONS_BUTTON_NUMBER);
+        const timesPressed = i18n.tr(i18n.TR.STATISTICS_ANSWER_BUTTONS_BUTTON_PRESSED);
+        return `${button}: ${d.buttonNum}<br>${timesPressed}: ${d.count}`;
+    }
+
     svg.select("g.hoverzone")
         .selectAll("rect")
         .data(data)
