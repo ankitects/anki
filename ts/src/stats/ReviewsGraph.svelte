@@ -44,6 +44,7 @@
     const month3 = timeSpan(i18n, 3 * MONTH);
     const year = timeSpan(i18n, 1 * YEAR);
     const all = i18n.tr(i18n.TR.STATISTICS_RANGE_ALL_TIME);
+    const time = i18n.tr(i18n.TR.STATISTICS_REVIEWS_TIME_CHECKBOX);
 
     let subtitle: string;
     $: if (showTime) {
@@ -59,7 +60,7 @@
     <div class="range-box-inner">
         <label>
             <input type="checkbox" bind:checked={showTime} />
-            Time
+            {time}
         </label>
 
         {#if revlogRange >= RevlogRange.Year}

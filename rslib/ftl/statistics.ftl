@@ -83,6 +83,9 @@ statistics-counts-young-cards = Young
 statistics-counts-mature-cards = Mature
 statistics-counts-suspended-cards = Suspended
 statistics-counts-buried-cards = Buried
+statistics-counts-early-cards = Early
+statistics-counts-learning-cards = Learning
+statistics-counts-relearning-cards = Relearning
 statistics-counts-title = Card Counts
 statistics-range-all-time = deck life
 statistics-range-deck = deck
@@ -102,3 +105,21 @@ statistics-reviews-time-subtitle = The time taken to answer the questions.
 statistics-intervals-subtitle = Delays until reviews are shown again.
 statistics-answer-buttons-subtitle = The number of times you have pressed each button.
 statistics-hours-subtitle = Review success rate for each hour of the day.
+statistics-reviews-time-checkbox = Time
+statistics-in-days-single = { $days ->
+  [0] Today
+  [1] Tomorrow
+  *[other] In { $days } days
+  }
+statistics-in-days-range = In { $daysStart }~{ $daysEnd } days
+statistics-days-ago-single = { $days ->
+  [1] Yesterday
+  *[other] { $days } days ago
+  }
+statistics-days-ago-range = { $daysStart }~{ $daysEnd } days ago
+statistics-running-total = Running total
+statistics-cards-due = { $cards ->
+  [one] 1 card due
+  *[other] { $cards } cards due
+  }
+statistics-backlog-checkbox = Backlog

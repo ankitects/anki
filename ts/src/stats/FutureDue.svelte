@@ -18,7 +18,7 @@
 
     let graphData = null as GraphData | null;
     let histogramData = null as HistogramData | null;
-
+    let backlog: boolean = true;
     let svg = null as HTMLElement | SVGElement | null;
     let range = FutureDueRange.Month;
 
@@ -27,7 +27,7 @@
     }
 
     $: if (graphData) {
-        histogramData = buildHistogram(graphData, range);
+        histogramData = buildHistogram(graphData, range, backlog, i18n);
     }
 
     const title = i18n.tr(i18n.TR.STATISTICS_FUTURE_DUE_TITLE);
@@ -36,6 +36,7 @@
     const year = timeSpan(i18n, 1 * YEAR);
     const all = i18n.tr(i18n.TR.STATISTICS_RANGE_ALL_TIME);
     const subtitle = i18n.tr(i18n.TR.STATISTICS_FUTURE_DUE_SUBTITLE);
+    const backlogLabel = i18n.tr(i18n.TR.STATISTICS_BACKLOG_CHECKBOX);
 </script>
 
 {#if histogramData}
@@ -44,6 +45,11 @@
         <h1>{title}</h1>
 
         <div class="range-box-inner">
+            <label>
+                <input type="checkbox" bind:checked={backlog} />
+                {backlogLabel}
+            </label>
+
             <label>
                 <input type="radio" bind:group={range} value={FutureDueRange.Month} />
                 {month}

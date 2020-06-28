@@ -21,7 +21,7 @@ import { showTooltip, hideTooltip } from "./tooltip";
 import { GraphBounds } from "./graphs";
 import { area, curveBasis } from "d3-shape";
 import { min, histogram, sum, max, Bin, cumsum } from "d3-array";
-import { timeSpan } from "../time";
+import { timeSpan, dayLabel } from "../time";
 import { I18n } from "../i18n";
 
 interface Reviews {
@@ -116,7 +116,7 @@ export function renderReviews(
     showTime: boolean,
     i18n: I18n
 ): void {
-    const xMax = 0;
+    const xMax = 1;
     let xMin = 0;
     // cap max to selected range
     switch (range) {
@@ -202,19 +202,58 @@ export function renderReviews(
         x.domain() as any
     );
 
+    function valueLabel(n: number): string {
+        if (showTime) {
+            return timeSpan(i18n, n / 1000);
+        } else {
+            return i18n.tr(i18n.TR.STATISTICS_CARDS, { cards: n });
+        }
+    }
+
     function tooltipText(d: BinType, cumulative: number): string {
-        let buf = `<div>day ${d.x0}-${d.x1}</div>`;
+        const day = dayLabel(i18n, d.x0!, d.x1!);
+        let buf = `<div>${day}</div>`;
         const totals = totalsForBin(d);
         const lines = [
-            [darkerGreens(1), `Mature: ${totals[0]}`],
-            [lighterGreens(1), `Young: ${totals[1]}`],
-            [blues(1), `New/learn: ${totals[2]}`],
-            [reds(1), `Relearn: ${totals[3]}`],
-            [oranges(1), `Early: ${totals[4]}`],
-            ["grey", `Total: ${cumulative}`],
+            [
+                darkerGreens(1),
+                `${i18n.tr(i18n.TR.STATISTICS_COUNTS_MATURE_CARDS)}: ${valueLabel(
+                    totals[0]
+                )}`,
+            ],
+            [
+                lighterGreens(1),
+                `${i18n.tr(i18n.TR.STATISTICS_COUNTS_YOUNG_CARDS)}: ${valueLabel(
+                    totals[1]
+                )}`,
+            ],
+            [
+                blues(1),
+                `${i18n.tr(i18n.TR.STATISTICS_COUNTS_LEARNING_CARDS)}: ${valueLabel(
+                    totals[2]
+                )}`,
+            ],
+            [
+                reds(1),
+                `${i18n.tr(i18n.TR.STATISTICS_COUNTS_RELEARNING_CARDS)}: ${valueLabel(
+                    totals[3]
+                )}`,
+            ],
+            [
+                oranges(1),
+                `${i18n.tr(i18n.TR.STATISTICS_COUNTS_EARLY_CARDS)}: ${valueLabel(
+                    totals[4]
+                )}`,
+            ],
+            [
+                "grey",
+                `${i18n.tr(i18n.TR.STATISTICS_COUNTS_TOTAL_CARDS)}: ${valueLabel(
+                    cumulative
+                )}`,
+            ],
         ];
         for (const [colour, text] of lines) {
-            buf += `<div><span style="color: ${colour}">■</span>${text}</div>`;
+            buf += `<div><span style="color: ${colour};">■</span>${text}</div>`;
         }
         return buf;
     }
