@@ -53,8 +53,8 @@ export function defaultGraphBounds(): GraphBounds {
     return {
         width: 600,
         height: 250,
-        marginLeft: 100,
-        marginRight: 20,
+        marginLeft: 70,
+        marginRight: 30,
         marginTop: 20,
         marginBottom: 40,
     };

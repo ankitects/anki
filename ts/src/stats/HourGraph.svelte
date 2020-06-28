@@ -10,7 +10,6 @@
     export let i18n: I18n;
 
     const bounds = defaultGraphBounds();
-    const xText = "";
 
     let svg = null as HTMLElement | SVGElement | null;
 
@@ -19,17 +18,18 @@
     }
 
     const title = i18n.tr(i18n.TR.STATISTICS_HOURS_TITLE);
-    const yText = i18n.tr(i18n.TR.STATISTICS_AXIS_LABEL_ANSWER_COUNT);
+    const subtitle = i18n.tr(i18n.TR.STATISTICS_HOURS_SUBTITLE);
 </script>
 
 <div class="graph">
     <h1>{title}</h1>
+
+    <div class="subtitle">{subtitle}</div>
 
     <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
         <g class="bars" />
         <path class="area" />
         <g class="hoverzone" />
         <AxisTicks {bounds} />
-        <AxisLabels {bounds} {xText} {yText} {i18n} />
     </svg>
 </div>
