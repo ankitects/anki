@@ -85,6 +85,10 @@
 
     const month = timeSpan(i18n, 1 * MONTH);
     const year = timeSpan(i18n, 1 * YEAR);
+    const deck = i18n.tr(i18n.TR.STATISTICS_RANGE_DECK);
+    const collection = i18n.tr(i18n.TR.STATISTICS_RANGE_COLLECTION);
+    const searchLabel = i18n.tr(i18n.TR.STATISTICS_RANGE_SEARCH);
+    const all = i18n.tr(i18n.TR.STATISTICS_RANGE_ALL_TIME);
 </script>
 
 <div class="range-box">
@@ -93,14 +97,14 @@
     <div class="range-box-inner">
         <label>
             <input type="radio" bind:group={searchRange} value={SearchRange.Deck} />
-            Deck
+            {deck}
         </label>
         <label>
             <input
                 type="radio"
                 bind:group={searchRange}
                 value={SearchRange.Collection} />
-            Collection
+            {collection}
         </label>
 
         <input
@@ -110,11 +114,10 @@
             on:focus={() => {
                 searchRange = SearchRange.Custom;
             }}
-            placeholder="Custom search" />
+            placeholder={searchLabel} />
     </div>
 
     <div class="range-box-inner">
-        Review history:
         <label>
             <input type="radio" bind:group={revlogRange} value={RevlogRange.Month} />
             {month}
@@ -125,7 +128,7 @@
         </label>
         <label>
             <input type="radio" bind:group={revlogRange} value={RevlogRange.All} />
-            All
+            {all}
         </label>
     </div>
 </div>
