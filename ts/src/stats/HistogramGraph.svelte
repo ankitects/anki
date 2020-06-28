@@ -3,12 +3,8 @@
     import AxisLabels from "./AxisLabels.svelte";
     import AxisTicks from "./AxisTicks.svelte";
     import { defaultGraphBounds } from "./graphs";
-    import { I18n } from "../i18n";
 
     export let data: HistogramData | null = null;
-    export let i18n: I18n;
-    export let xText: string;
-    export let yText: string;
 
     let bounds = defaultGraphBounds();
     let svg = null as HTMLElement | SVGElement | null;
@@ -23,5 +19,4 @@
     <g class="hoverzone" />
     <path class="area" />
     <AxisTicks {bounds} />
-    <AxisLabels {bounds} {xText} {yText} {i18n} />
 </svg>

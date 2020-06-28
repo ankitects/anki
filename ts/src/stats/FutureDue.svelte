@@ -35,17 +35,13 @@
     const month3 = timeSpan(i18n, 3 * MONTH);
     const year = timeSpan(i18n, 1 * YEAR);
     const all = i18n.tr(i18n.TR.STATISTICS_RANGE_ALL_TIME);
-    const yText = i18n.tr(i18n.TR.STATISTICS_AXIS_LABEL_CARD_COUNT);
+    const subtitle = i18n.tr(i18n.TR.STATISTICS_FUTURE_DUE_SUBTITLE);
 </script>
 
 {#if histogramData}
 
     <div class="graph">
         <h1>{title}</h1>
-
-        <div class="range-box-inner">
-            The number of cards studied each day, relative to today.
-        </div>
 
         <div class="range-box-inner">
             <label>
@@ -66,7 +62,9 @@
             </label>
         </div>
 
-        <HistogramGraph data={histogramData} xText="" {yText} {i18n} />
+        <div class="subtitle">{subtitle}</div>
+
+        <HistogramGraph data={histogramData} />
 
     </div>
 {/if}

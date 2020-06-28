@@ -31,8 +31,6 @@
             break;
     }
 
-    const xText = "";
-
     $: if (sourceData) {
         graphData = gatherData(sourceData);
     }
@@ -47,11 +45,11 @@
     const year = timeSpan(i18n, 1 * YEAR);
     const all = i18n.tr(i18n.TR.STATISTICS_RANGE_ALL_TIME);
 
-    let yText: string;
+    let subtitle: string;
     $: if (showTime) {
-        yText = i18n.tr(i18n.TR.STATISTICS_AXIS_LABEL_REVIEW_TIME);
+        subtitle = i18n.tr(i18n.TR.STATISTICS_REVIEWS_TIME_SUBTITLE);
     } else {
-        yText = i18n.tr(i18n.TR.STATISTICS_AXIS_LABEL_ANSWER_COUNT);
+        subtitle = i18n.tr(i18n.TR.STATISTICS_REVIEWS_COUNT_SUBTITLE);
     }
 </script>
 
@@ -86,6 +84,8 @@
         {/if}
     </div>
 
+    <div class="subtitle">{subtitle}</div>
+
     <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
         {#each [4, 3, 2, 1, 0] as i}
             <g class="bars{i}" />
@@ -93,7 +93,6 @@
         <path class="area" />
         <g class="hoverzone" />
         <AxisTicks {bounds} />
-        <AxisLabels {bounds} {xText} {yText} {i18n} />
     </svg>
 
 </div>

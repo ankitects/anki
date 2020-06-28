@@ -31,7 +31,7 @@
     const title = i18n.tr(i18n.TR.STATISTICS_INTERVALS_TITLE);
     const month = timeSpan(i18n, 1 * MONTH);
     const all = i18n.tr(i18n.TR.STATISTICS_RANGE_ALL_TIME);
-    const yText = i18n.tr(i18n.TR.STATISTICS_AXIS_LABEL_CARD_COUNT);
+    const subtitle = i18n.tr(i18n.TR.STATISTICS_INTERVALS_SUBTITLE);
 </script>
 
 {#if histogramData}
@@ -70,6 +70,8 @@
             </label>
         </div>
 
-        <HistogramGraph data={histogramData} xText="Interval (days)" {yText} {i18n} />
+        <div class="subtitle">{subtitle}</div>
+
+        <HistogramGraph data={histogramData} />
     </div>
 {/if}
