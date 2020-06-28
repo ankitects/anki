@@ -12,6 +12,7 @@ import { scaleLinear, scaleSequential } from "d3-scale";
 import { CardQueue } from "../cards";
 import { HistogramData } from "./histogram-graph";
 import { interpolateBlues } from "d3-scale-chromatic";
+import { I18n } from "../i18n";
 
 export interface IntervalGraphData {
     intervals: number[];
@@ -32,26 +33,32 @@ export function gatherIntervalData(data: pb.BackendProto.GraphsOut): IntervalGra
     return { intervals };
 }
 
-function hoverText(
-    data: HistogramData,
-    binIdx: number,
-    _cumulative: number,
-    percent: number
+export function intervalLabel(
+    i18n: I18n,
+    daysStart: number,
+    daysEnd: number,
+    cards: number
 ): string {
-    const bin = data.bins[binIdx];
-    const interval =
-        bin.x1! - bin.x0! === 1
-            ? `${bin.x0} day interval`
-            : `${bin.x0}~${bin.x1} day interval`;
-    return (
-        `${bin.length} cards with ${interval}. ` +
-        `<br>${percent.toFixed(1)}% cards at or before this point.`
-    );
+    if (daysEnd - daysStart <= 1) {
+        // singular
+        return i18n.tr(i18n.TR.STATISTICS_INTERVALS_DAY_SINGLE, {
+            day: daysStart,
+            cards,
+        });
+    } else {
+        // range
+        return i18n.tr(i18n.TR.STATISTICS_INTERVALS_DAY_RANGE, {
+            daysStart,
+            daysEnd,
+            cards,
+        });
+    }
 }
 
 export function prepareIntervalData(
     data: IntervalGraphData,
-    range: IntervalRange
+    range: IntervalRange,
+    i18n: I18n
 ): HistogramData | null {
     // get min/max
     const allIntervals = data.intervals;
@@ -60,7 +67,7 @@ export function prepareIntervalData(
     }
 
     const total = allIntervals.length;
-    const [xMin, origXMax] = extent(allIntervals);
+    const [_xMinOrig, origXMax] = extent(allIntervals);
     let xMax = origXMax;
 
     // cap max to selected range
@@ -80,6 +87,7 @@ export function prepareIntervalData(
         case IntervalRange.All:
             break;
     }
+    const xMin = 0;
     xMax = xMax! + 1;
 
     // cap bars to available range
@@ -93,6 +101,19 @@ export function prepareIntervalData(
     // start slightly darker
     const shiftedMin = xMin! - Math.round((xMax - xMin!) / 10);
     const colourScale = scaleSequential(interpolateBlues).domain([shiftedMin, xMax]);
+
+    function hoverText(
+        data: HistogramData,
+        binIdx: number,
+        _cumulative: number,
+        percent: number
+    ): string {
+        const bin = data.bins[binIdx];
+        // const day = dayLabel(i18n, bin.x0!, bin.x1!);
+        const interval = intervalLabel(i18n, bin.x0!, bin.x1!, bin.length);
+        const total = i18n.tr(i18n.TR.STATISTICS_RUNNING_TOTAL);
+        return `${interval}<br>${total}: ${percent.toFixed(1)}%`;
+    }
 
     return { scale, bins, total, hoverText, colourScale, showArea: true };
 }

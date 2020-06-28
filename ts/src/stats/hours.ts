@@ -15,6 +15,7 @@ import { axisBottom, axisLeft } from "d3-axis";
 import { showTooltip, hideTooltip } from "./tooltip";
 import { GraphBounds } from "./graphs";
 import { area, curveBasis } from "d3-shape";
+import { I18n } from "../i18n";
 
 type ButtonCounts = [number, number, number, number];
 
@@ -52,14 +53,11 @@ export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
     return { hours };
 }
 
-function tooltipText(d: Hour): string {
-    return JSON.stringify(d);
-}
-
 export function renderHours(
     svgElem: SVGElement,
     bounds: GraphBounds,
-    sourceData: GraphData
+    sourceData: GraphData,
+    i18n: I18n
 ): void {
     const data = sourceData.hours;
 
@@ -140,6 +138,19 @@ export function renderHours(
                     return yArea(isNaN(correctRatio) ? 0 : correctRatio);
                 })
         );
+
+    function tooltipText(d: Hour): string {
+        const hour = i18n.tr(i18n.TR.STATISTICS_HOURS_RANGE, {
+            hourStart: d.hour,
+            hourEnd: d.hour + 1,
+        });
+        const correct = i18n.tr(i18n.TR.STATISTICS_HOURS_CORRECT, {
+            correct: d.correctCount,
+            total: d.totalCount,
+            percent: d.totalCount ? (d.correctCount / d.totalCount) * 100 : 0,
+        });
+        return `${hour}<br>${correct}`;
+    }
 
     // hover/tooltip
     svg.select("g.hoverzone")

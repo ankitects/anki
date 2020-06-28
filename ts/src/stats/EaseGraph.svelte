@@ -12,11 +12,11 @@
     let histogramData = null as HistogramData | null;
 
     $: if (sourceData) {
-        histogramData = prepareData(gatherData(sourceData));
+        histogramData = prepareData(gatherData(sourceData), i18n);
     }
 
     const title = i18n.tr(i18n.TR.STATISTICS_CARD_EASE_TITLE);
-    const subtitle = "temp"; //i18n.tr(i18n.TR.STATISTICS_EASE_SUBTITLE);
+    const subtitle = i18n.tr(i18n.TR.STATISTICS_CARD_EASE_SUBTITLE);
 </script>
 
 {#if histogramData}

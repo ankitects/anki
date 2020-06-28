@@ -1,7 +1,6 @@
 <script lang="typescript">
     import { defaultGraphBounds } from "./graphs";
     import AxisTicks from "./AxisTicks.svelte";
-    import AxisLabels from "./AxisLabels.svelte";
     import { gatherData, GraphData, renderHours } from "./hours";
     import pb from "../backend/proto";
     import { I18n } from "../i18n";
@@ -14,7 +13,7 @@
     let svg = null as HTMLElement | SVGElement | null;
 
     $: if (sourceData) {
-        renderHours(svg as SVGElement, bounds, gatherData(sourceData));
+        renderHours(svg as SVGElement, bounds, gatherData(sourceData), i18n);
     }
 
     const title = i18n.tr(i18n.TR.STATISTICS_HOURS_TITLE);

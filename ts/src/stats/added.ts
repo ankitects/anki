@@ -11,6 +11,8 @@ import { extent, histogram } from "d3-array";
 import { scaleLinear, scaleSequential } from "d3-scale";
 import { HistogramData } from "./histogram-graph";
 import { interpolateBlues } from "d3-scale-chromatic";
+import { I18n } from "../i18n";
+import { dayLabel } from "../time";
 
 export enum AddedRange {
     Month = 0,
@@ -31,22 +33,10 @@ export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
     return { daysAdded };
 }
 
-function hoverText(
-    data: HistogramData,
-    binIdx: number,
-    cumulative: number,
-    _percent: number
-): string {
-    const bin = data.bins[binIdx];
-    return (
-        `${bin.length} at ${bin.x1! - 1} days.<br>` +
-        ` ${cumulative} cards at or below this point.`
-    );
-}
-
 export function buildHistogram(
     data: GraphData,
-    range: AddedRange
+    range: AddedRange,
+    i18n: I18n
 ): HistogramData | null {
     // get min/max
     const total = data.daysAdded.length;
@@ -80,6 +70,20 @@ export function buildHistogram(
         .thresholds(scale.ticks(desiredBars))(data.daysAdded);
 
     const colourScale = scaleSequential(interpolateBlues).domain([xMin!, xMax]);
+
+    function hoverText(
+        data: HistogramData,
+        binIdx: number,
+        cumulative: number,
+        _percent: number
+    ): string {
+        const bin = data.bins[binIdx];
+        const day = dayLabel(i18n, bin.x0!, bin.x1!);
+        const cards = i18n.tr(i18n.TR.STATISTICS_CARDS, { cards: bin.length });
+        const total = i18n.tr(i18n.TR.STATISTICS_RUNNING_TOTAL);
+        const totalCards = i18n.tr(i18n.TR.STATISTICS_CARDS, { cards: cumulative });
+        return `${day}:<br>${cards}<br>${total}: ${totalCards}`;
+    }
 
     return { scale, bins, total, hoverText, colourScale, showArea: true };
 }

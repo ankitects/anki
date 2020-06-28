@@ -19,7 +19,7 @@
     }
 
     $: if (addedData) {
-        histogramData = buildHistogram(addedData, range);
+        histogramData = buildHistogram(addedData, range, i18n);
     }
 
     const title = i18n.tr(i18n.TR.STATISTICS_ADDED_TITLE);

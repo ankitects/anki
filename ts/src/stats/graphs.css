@@ -2,6 +2,10 @@
     box-sizing: border-box;
 }
 
+body {
+    font-family: Arial;
+}
+
 .graph-tooltip {
     position: absolute;
     background-color: white;
@@ -22,25 +26,6 @@
 .graph h1 {
     text-align: center;
 }
-
-/* .cards-graph-grid {
-    display: flex;
-    flex-wrap: wrap;
-    padding-left: 0;
-    padding-right: 1em;
-    align-items: center;
-}
-
-.cards-graph-grid svg {
-    flex: 3 0 0;
-    flex-direction: column;
-    min-width: 500px;
-}
-
-.cards-graph-grid div.graph-description {
-    flex: 0 0 10em;
-    font-family: "Arial";
-} */
 
 .no-domain-line .domain {
     display: none;

@@ -25,7 +25,7 @@
     }
 
     $: if (intervalData) {
-        histogramData = prepareIntervalData(intervalData, range);
+        histogramData = prepareIntervalData(intervalData, range, i18n);
     }
 
     const title = i18n.tr(i18n.TR.STATISTICS_INTERVALS_TITLE);
