@@ -32,6 +32,7 @@
         histogramData = buildHistogram(graphData, range);
     }
 
+    const title = i18n.tr(i18n.TR.STATISTICS_FUTURE_DUE_TITLE);
     const month = timeSpan(i18n, 1 * MONTH);
     const month3 = timeSpan(i18n, 3 * MONTH);
     const year = timeSpan(i18n, 1 * YEAR);
@@ -41,7 +42,7 @@
 {#if histogramData}
 
     <div class="graph">
-        <h1>Future Due</h1>
+        <h1>{title}</h1>
 
         <div class="range-box-inner">
             <label>

@@ -96,9 +96,10 @@ export function buildHistogram(
         .domain(x.domain() as any)
         .thresholds(x.ticks(desiredBars))(data.entries() as any);
 
-    // start slightly darker
-    const shiftedMin = xMin! - Math.round((xMax - xMin!) / 10);
-    const colourScale = scaleSequential(interpolateGreens).domain([shiftedMin, xMax]);
+    const adjustedRange = scaleLinear().range([0.8, 0.3]);
+    const colourScale = scaleSequential((n) =>
+        interpolateGreens(adjustedRange(n))
+    ).domain([xMin!, xMax]);
 
     const total = sum(bins as any, binValue);
 
