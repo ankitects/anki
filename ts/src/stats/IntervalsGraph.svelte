@@ -31,6 +31,7 @@
     }
 
     const month = timeSpan(i18n, 1 * MONTH);
+    const all = i18n.tr(i18n.TR.STATISTICS_RANGE_ALL_TIME);
 </script>
 
 {#if histogramData}
@@ -65,7 +66,7 @@
             </label>
             <label>
                 <input type="radio" bind:group={range} value={IntervalRange.All} />
-                All
+                {all}
             </label>
         </div>
 

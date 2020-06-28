@@ -84,3 +84,7 @@ statistics-counts-mature-cards = Mature
 statistics-counts-suspended-cards = Suspended
 statistics-counts-buried-cards = Buried
 statistics-counts-title = Card Counts
+statistics-range-all-time = deck life
+statistics-range-deck = deck
+statistics-range-collection = collection
+statistics-range-search = Search
