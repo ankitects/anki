@@ -11,16 +11,15 @@
 
     const bounds = defaultGraphBounds();
     const xText = "";
-    const yText = "Times pressed";
 
     let svg = null as HTMLElement | SVGElement | null;
 
     $: if (sourceData) {
-        console.log("gathering data");
         renderHours(svg as SVGElement, bounds, gatherData(sourceData));
     }
 
     const title = i18n.tr(i18n.TR.STATISTICS_HOURS_TITLE);
+    const yText = i18n.tr(i18n.TR.STATISTICS_AXIS_LABEL_ANSWER_COUNT);
 </script>
 
 <div class="graph">
@@ -31,6 +30,6 @@
         <path class="area" />
         <g class="hoverzone" />
         <AxisTicks {bounds} />
-        <AxisLabels {bounds} {xText} {yText} />
+        <AxisLabels {bounds} {xText} {yText} {i18n} />
     </svg>
 </div>

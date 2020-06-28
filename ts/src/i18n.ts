@@ -36,6 +36,15 @@ export class I18n {
         return `missing key: ${key}`;
     }
 
+    supportsVerticalText(): boolean {
+        const firstLang = this.bundles[0].locales[0];
+        return (
+            firstLang.startsWith("ja") ||
+            firstLang.startsWith("zh") ||
+            firstLang.startsWith("ko")
+        );
+    }
+
     private keyName(msg: pb.BackendProto.FluentString): string {
         return this.TR[msg].toLowerCase().replace(/_/g, "-");
     }
