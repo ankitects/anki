@@ -32,21 +32,27 @@
     }
 
     const xText = "";
-    const yText = "Times pressed";
 
     $: if (sourceData) {
-        console.log("gathering data");
         graphData = gatherData(sourceData);
     }
 
     $: if (graphData) {
-        renderReviews(svg as SVGElement, bounds, graphData, range, showTime);
+        renderReviews(svg as SVGElement, bounds, graphData, range, showTime, i18n);
     }
 
     const title = i18n.tr(i18n.TR.STATISTICS_REVIEWS_TITLE);
     const month = timeSpan(i18n, 1 * MONTH);
     const month3 = timeSpan(i18n, 3 * MONTH);
     const year = timeSpan(i18n, 1 * YEAR);
+    const all = i18n.tr(i18n.TR.STATISTICS_RANGE_ALL_TIME);
+
+    let yText: string;
+    $: if (showTime) {
+        yText = i18n.tr(i18n.TR.STATISTICS_AXIS_LABEL_REVIEW_TIME);
+    } else {
+        yText = i18n.tr(i18n.TR.STATISTICS_AXIS_LABEL_ANSWER_COUNT);
+    }
 </script>
 
 <div class="graph">
@@ -75,7 +81,7 @@
         {#if revlogRange === RevlogRange.All}
             <label>
                 <input type="radio" bind:group={range} value={ReviewRange.AllTime} />
-                All time
+                {all}
             </label>
         {/if}
     </div>
@@ -87,7 +93,7 @@
         <path class="area" />
         <g class="hoverzone" />
         <AxisTicks {bounds} />
-        <AxisLabels {bounds} {xText} {yText} />
+        <AxisLabels {bounds} {xText} {yText} {i18n} />
     </svg>
 
 </div>

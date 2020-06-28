@@ -8,7 +8,6 @@
 
     let cardCounts: CardCounts | null = null;
     $: if (sourceData) {
-        console.log("gathering data");
         cardCounts = gatherData(sourceData, i18n);
     }
 </script>

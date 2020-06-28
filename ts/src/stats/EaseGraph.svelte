@@ -12,17 +12,17 @@
     let histogramData = null as HistogramData | null;
 
     $: if (sourceData) {
-        console.log("gathering data");
         histogramData = prepareData(gatherData(sourceData));
     }
 
     const title = i18n.tr(i18n.TR.STATISTICS_CARD_EASE_TITLE);
+    const yText = i18n.tr(i18n.TR.STATISTICS_AXIS_LABEL_CARD_COUNT);
 </script>
 
 {#if histogramData}
     <div class="graph">
         <h1>{title}</h1>
 
-        <HistogramGraph data={histogramData} xText="Ease (%)" yText="Number of cards" />
+        <HistogramGraph data={histogramData} xText="Ease (%)" {yText} {i18n} />
     </div>
 {/if}

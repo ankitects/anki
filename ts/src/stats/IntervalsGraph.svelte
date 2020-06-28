@@ -21,18 +21,17 @@
     let range = IntervalRange.Percentile95;
 
     $: if (sourceData) {
-        console.log("gathering data");
         intervalData = gatherIntervalData(sourceData);
     }
 
     $: if (intervalData) {
-        console.log("preparing data");
         histogramData = prepareIntervalData(intervalData, range);
     }
 
     const title = i18n.tr(i18n.TR.STATISTICS_INTERVALS_TITLE);
     const month = timeSpan(i18n, 1 * MONTH);
     const all = i18n.tr(i18n.TR.STATISTICS_RANGE_ALL_TIME);
+    const yText = i18n.tr(i18n.TR.STATISTICS_AXIS_LABEL_CARD_COUNT);
 </script>
 
 {#if histogramData}
@@ -71,9 +70,6 @@
             </label>
         </div>
 
-        <HistogramGraph
-            data={histogramData}
-            xText="Interval (days)"
-            yText="Number of cards" />
+        <HistogramGraph data={histogramData} xText="Interval (days)" {yText} {i18n} />
     </div>
 {/if}

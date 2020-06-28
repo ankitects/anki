@@ -81,8 +81,7 @@
 }
 
 .y-axis-label {
-    writing-mode: vertical-rl;
-    rotate: 180;
+    writing-mode: vertical-lr;
 }
 
 .hoverzone rect {

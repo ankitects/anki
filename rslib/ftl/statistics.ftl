@@ -95,3 +95,6 @@ statistics-answer-buttons-title = Answer Buttons
 statistics-hours-title = Hourly Breakdown
 statistics-added-title = Added
 statistics-card-ease-title = Card Ease
+statistics-axis-label-answer-count = Answers
+statistics-axis-label-card-count = Cards
+statistics-axis-label-review-time = Review Time

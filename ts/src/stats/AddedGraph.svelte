@@ -15,12 +15,10 @@
 
     let addedData: GraphData | null = null;
     $: if (sourceData) {
-        console.log("gathering data");
         addedData = gatherData(sourceData);
     }
 
     $: if (addedData) {
-        console.log("preparing data");
         histogramData = buildHistogram(addedData, range);
     }
 
@@ -29,6 +27,7 @@
     const month3 = timeSpan(i18n, 3 * MONTH);
     const year = timeSpan(i18n, 1 * YEAR);
     const all = i18n.tr(i18n.TR.STATISTICS_RANGE_ALL_TIME);
+    const yText = i18n.tr(i18n.TR.STATISTICS_AXIS_LABEL_CARD_COUNT);
 </script>
 
 {#if histogramData}
@@ -54,6 +53,6 @@
             </label>
         </div>
 
-        <HistogramGraph data={histogramData} xText="Days" yText="Number of cards" />
+        <HistogramGraph data={histogramData} xText="Days" {yText} {i18n} />
     </div>
 {/if}

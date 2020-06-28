@@ -21,6 +21,8 @@ import { showTooltip, hideTooltip } from "./tooltip";
 import { GraphBounds } from "./graphs";
 import { area, curveBasis } from "d3-shape";
 import { min, histogram, sum, max, Bin, cumsum } from "d3-array";
+import { timeSpan } from "../time";
+import { I18n } from "../i18n";
 
 interface Reviews {
     mature: number;
@@ -111,7 +113,8 @@ export function renderReviews(
     bounds: GraphBounds,
     sourceData: GraphData,
     range: ReviewRange,
-    showTime: boolean
+    showTime: boolean,
+    i18n: I18n
 ): void {
     const xMax = 0;
     let xMin = 0;
@@ -161,6 +164,17 @@ export function renderReviews(
             axisLeft(y)
                 .ticks(bounds.height / 80)
                 .tickSizeOuter(0)
+                .tickFormat(((n: number): string => {
+                    if (showTime) {
+                        return timeSpan(i18n, n / 1000);
+                    } else {
+                        if (Math.round(n) != n) {
+                            return "";
+                        } else {
+                            return n.toString();
+                        }
+                    }
+                }) as any)
         );
 
     // x bars
