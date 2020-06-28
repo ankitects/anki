@@ -43,13 +43,14 @@
         renderReviews(svg as SVGElement, bounds, graphData, range, showTime);
     }
 
+    const title = i18n.tr(i18n.TR.STATISTICS_REVIEWS_TITLE);
     const month = timeSpan(i18n, 1 * MONTH);
     const month3 = timeSpan(i18n, 3 * MONTH);
     const year = timeSpan(i18n, 1 * YEAR);
 </script>
 
 <div class="graph">
-    <h1>Reviews</h1>
+    <h1>{title}</h1>
 
     <div class="range-box-inner">
         <label>

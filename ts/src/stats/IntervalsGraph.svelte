@@ -30,13 +30,14 @@
         histogramData = prepareIntervalData(intervalData, range);
     }
 
+    const title = i18n.tr(i18n.TR.STATISTICS_INTERVALS_TITLE);
     const month = timeSpan(i18n, 1 * MONTH);
     const all = i18n.tr(i18n.TR.STATISTICS_RANGE_ALL_TIME);
 </script>
 
 {#if histogramData}
     <div class="graph intervals">
-        <h1>Review Intervals</h1>
+        <h1>{title}</h1>
 
         <div class="range-box-inner">
             <label>
