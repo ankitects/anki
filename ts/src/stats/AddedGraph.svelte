@@ -1,4 +1,5 @@
 <script lang="typescript">
+    import { RevlogRange } from "./graphs";
     import { timeSpan, MONTH, YEAR } from "../time";
     import { I18n } from "../i18n";
     import { HistogramData } from "./histogram-graph";
@@ -8,10 +9,23 @@
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
     export let i18n: I18n;
+    export let revlogRange: RevlogRange;
 
     let svg = null as HTMLElement | SVGElement | null;
     let histogramData = null as HistogramData | null;
-    let range = AddedRange.Month;
+    let range: AddedRange;
+
+    $: switch (revlogRange as RevlogRange) {
+        case RevlogRange.Month:
+            range = AddedRange.Month;
+            break;
+        case RevlogRange.Year:
+            range = AddedRange.Year;
+            break;
+        case RevlogRange.All:
+            range = AddedRange.AllTime;
+            break;
+    }
 
     let addedData: GraphData | null = null;
     $: if (sourceData) {
