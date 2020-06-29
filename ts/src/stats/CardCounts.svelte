@@ -16,7 +16,7 @@
     .counts-outer {
         display: flex;
         flex-wrap: wrap;
-        justify-content: space-evenly;
+        justify-content: space-around;
     }
 </style>
 

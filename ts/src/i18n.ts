@@ -2,7 +2,8 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import pb from "./backend/proto";
-import { FluentBundle, FluentResource, FluentNumber } from "@fluent/bundle";
+import "intl-pluralrules";
+import { FluentBundle, FluentResource, FluentNumber } from "@fluent/bundle/compat";
 
 type RecordVal = number | string | FluentNumber;
 
