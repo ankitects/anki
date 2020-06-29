@@ -24,7 +24,8 @@ PROTODEPS := ../proto/backend.proto ../proto/fluent.proto
 BUILDDEPS := .build/npm webpack.config.js
 
 .build/proto: $(BUILDDEPS) $(PROTODEPS)
-	npm run proto
+	npx pbjs -t json-module -w es6 ../proto/backend.proto -o src/backend/proto.js
+	npx pbjs -t static-module ../proto/backend.proto | npx pbts -o src/backend/proto.d.ts -
 	@touch $@
 
 PHONY: dev
