@@ -41,7 +41,7 @@ develop: .build/build
 	npm run build
 	@touch $@
 
-.build/npm: package.json package-lock.json
+.build/npm: package.json
 	npm i
 	touch $@
 
