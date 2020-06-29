@@ -37,7 +37,7 @@ build: .build/build
 PHONY: develop
 develop: .build/build
 
-.build/build: .build/proto $(BUILDDEPS) $(wildcard src/*/*.svelte src/*/*.ts)
+.build/build: .build/proto $(BUILDDEPS) $(wildcard src/*/*.svelte src/*/*.ts src/*/*.css)
 	npm run build
 	@touch $@
 
