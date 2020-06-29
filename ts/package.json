@@ -42,7 +42,6 @@
         "webpack-dev-server": "^3.11.0"
     },
     "scripts": {
-        "proto": "pbjs -t json-module -w es6 ../proto/backend.proto -o src/backend/proto.js; pbjs -t static-module ../proto/backend.proto | pbts -o src/backend/proto.d.ts -",
         "fix": "prettier --write src/*/*.ts",
         "check": "prettier --check src/*/*.ts && eslint --max-warnings=0 --ext .ts src",
         "build": "cross-env NODE_ENV=production webpack",
