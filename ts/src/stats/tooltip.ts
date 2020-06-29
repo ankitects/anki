@@ -12,9 +12,14 @@ function showTooltipInner(msg: string, x: number, y: number): void {
         document.body.appendChild(tooltipDiv);
     }
     tooltipDiv.innerHTML = msg;
-    tooltipDiv.style.right = `${document.body.clientWidth - x + 10}px`;
-    tooltipDiv.style.top = `${y + 20}px`;
 
+    // move tooltip away from edge as user approaches right side
+    const shiftLeftAmount = Math.round(
+        tooltipDiv.clientWidth * 1.2 * (x / document.body.clientWidth)
+    );
+
+    tooltipDiv.style.left = `${x + 40 - shiftLeftAmount}px`;
+    tooltipDiv.style.top = `${y + 40}px`;
     tooltipDiv.style.opacity = "1";
 }
 
