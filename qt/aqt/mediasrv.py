@@ -64,7 +64,7 @@ class MediaServer(threading.Thread):
 
     def run(self):
         RequestHandler.mw = self.mw
-        desired_port = int(os.getenv("ANKI_API_PORT", 0))
+        desired_port = int(os.getenv("ANKI_API_PORT", "0"))
         self.server = ThreadedHTTPServer(("127.0.0.1", desired_port), RequestHandler)
         self._ready.set()
         self.server.serve_forever()
