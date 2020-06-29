@@ -275,7 +275,7 @@ jobs:
       - name: Set up node
         uses: actions/setup-node@v1
         with:
-          node-version: 14
+          node-version: 12
 
       - run: make develop
         if: matrix.BUILD_TYPE == 'build'
