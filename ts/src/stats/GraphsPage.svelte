@@ -79,7 +79,12 @@
     const searchKeyUp = (e: KeyboardEvent) => {
         // fetch data on enter
         if (e.keyCode == 13) {
+            const wasSame = search == displayedSearch;
             search = displayedSearch;
+            if (wasSame) {
+                //  force a refresh (user may have changed current deck, etc)
+                refresh();
+            }
         }
     };
 
