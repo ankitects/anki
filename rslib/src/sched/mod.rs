@@ -30,12 +30,17 @@ impl Collection {
             None
         };
 
+        let rollover_hour = match self.sched_ver() {
+            SchedulerVersion::V1 => None,
+            SchedulerVersion::V2 => self.get_v2_rollover(),
+        };
+
         Ok(sched_timing_today(
             self.storage.creation_stamp()?,
             now,
             self.get_creation_mins_west(),
             local_offset,
-            self.get_v2_rollover(),
+            rollover_hour,
         ))
     }
 

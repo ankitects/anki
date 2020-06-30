@@ -84,6 +84,7 @@ class MPVBase:
         "--ontop",
         "--audio-display=no",
         "--keep-open=no",
+        "--reset-on-next-file=pause",
     ]
 
     def __init__(self, window_id=None, debug=False):
@@ -244,10 +245,13 @@ class MPVBase:
             else:
                 r, w, e = select.select([self._sock], [], [], 1)
                 if r:
-                    b = self._sock.recv(1024)
-                    if not b:
-                        break
-                    buf += b
+                    try:
+                        b = self._sock.recv(1024)
+                        if not b:
+                            break
+                        buf += b
+                    except ConnectionResetError:
+                        return
 
             newline = buf.find(b"\n")
             while newline >= 0:
@@ -372,13 +376,18 @@ class MPVBase:
             return self._get_response(timeout)
         except MPVCommandError as e:
             raise MPVCommandError("%r: %s" % (message["command"], e))
-        except MPVTimeoutError as e:
+        except Exception as e:
             if _retry:
                 print("mpv timed out, restarting")
                 self._stop_process()
                 return self._send_request(message, timeout, _retry - 1)
             else:
                 raise
+
+    def _register_callbacks(self):
+        """Will be called after mpv restart to reinitialize callbacks
+           defined in MPV subclass
+        """
 
     #
     # Public API
@@ -399,6 +408,7 @@ class MPVBase:
             self._start_socket()
             self._prepare_thread()
             self._start_thread()
+            self._register_callbacks()
 
     def close(self):
         """Shutdown the mpv process and our communication setup.
@@ -437,6 +447,9 @@ class MPV(MPVBase):
 
         super().__init__(*args, **kwargs)
 
+        self._register_callbacks()
+
+    def _register_callbacks(self):
         self._callbacks = {}
         self._property_serials = {}
         self._new_serial = iter(range(sys.maxsize))
@@ -445,6 +458,10 @@ class MPV(MPVBase):
         # events and property-changes.
         for method_name, method in inspect.getmembers(self):
             if not inspect.ismethod(method):
+                continue
+
+            # Bypass MPVError: no such event 'init'
+            if method_name == "on_init":
                 continue
 
             if method_name.startswith("on_property_"):
@@ -478,16 +495,10 @@ class MPV(MPVBase):
         """Start up the communication threads.
         """
         super()._start_thread()
-        self._event_thread = threading.Thread(target=self._event_reader)
-        self._event_thread.daemon = True
-        self._event_thread.start()
-
-    def _stop_thread(self):
-        """Stop the communication threads.
-        """
-        super()._stop_thread()
-        if hasattr(self, "_event_thread"):
-            self._event_thread.join()
+        if not hasattr(self, "_event_thread"):
+            self._event_thread = threading.Thread(target=self._event_reader)
+            self._event_thread.daemon = True
+            self._event_thread.start()
 
     #
     # Event/callback API
@@ -495,7 +506,7 @@ class MPV(MPVBase):
     def _event_reader(self):
         """Collect incoming event messages and call the event handler.
         """
-        while not self._stop_event.is_set():
+        while True:
             message = self._get_event(timeout=1)
             if message is None:
                 continue

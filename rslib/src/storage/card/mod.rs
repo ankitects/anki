@@ -250,6 +250,16 @@ impl super::SqliteStorage {
         }
         Ok(nids)
     }
+
+    pub(crate) fn all_searched_cards(&self) -> Result<Vec<Card>> {
+        self.db
+            .prepare_cached(concat!(
+                include_str!("get_card.sql"),
+                " where id in (select id from search_cids)"
+            ))?
+            .query_and_then(NO_PARAMS, |r| row_to_card(r).map_err(Into::into))?
+            .collect()
+    }
 }
 
 #[cfg(test)]

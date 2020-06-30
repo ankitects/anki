@@ -1,0 +1,112 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial;
+}
+
+.graph-tooltip {
+    position: absolute;
+    background-color: white;
+    padding: 15px;
+    border-radius: 5px;
+    font-size: 15px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    background: #fff;
+}
+
+.graph {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.graph h1 {
+    text-align: center;
+}
+
+.no-domain-line .domain {
+    display: none;
+}
+
+.range-box {
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    width: 100%;
+    height: 4em;
+    background: white;
+    padding: 0.5em;
+}
+
+.range-box-pad {
+    height: 4em;
+}
+
+.range-box-inner {
+    display: flex;
+    justify-content: center;
+}
+
+.range-box-inner > * {
+    padding-right: 1em;
+}
+
+.graph .area {
+    opacity: 0.05;
+    pointer-events: none;
+    fill: black;
+}
+
+.axis-label {
+    text-anchor: middle;
+    font-size: 10px;
+}
+
+.y-axis-label {
+    writing-mode: vertical-lr;
+}
+
+.hoverzone rect {
+    fill: none;
+    pointer-events: all;
+}
+
+.hoverzone rect:hover {
+    fill: grey;
+    opacity: 0.05;
+}
+
+@keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(360deg);
+    }
+}
+
+.spin {
+    position: absolute;
+    animation: spin;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+    display: inline-block;
+    font-size: 2em;
+    opacity: 0;
+}
+
+.spin.active {
+    opacity: 0.5;
+    transition: opacity 1s;
+}
+
+.legend-outer {
+    text-align: center;
+}
+
+.subtitle {
+    text-align: center;
+}

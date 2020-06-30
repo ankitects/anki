@@ -21,6 +21,8 @@ aqt_data/web/reviewer-bottom.js
 aqt_data/web/reviewer.js
 aqt_data/web/webview.js
 aqt_data/web/toolbar.js
+aqt_data/web/graphs*
+aqt_data/web/*.css
 dist
 aqt.egg-info
 build

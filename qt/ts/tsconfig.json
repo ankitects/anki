@@ -1,27 +1,25 @@
 {
-  "compilerOptions": {
-    "target": "es2018",
-    "module": "commonjs",
-    "lib": [
-      "es2018",
-      "dom"
+    "compilerOptions": {
+        "target": "es6",
+        "module": "commonjs",
+        "lib": ["es6", "dom"],
+        "rootDir": "src",
+        "outDir": "../aqt_data/web",
+        "typeRoots": ["../../ts/node_modules/@types"],
+        "strict": true,
+        /* Enable all strict type-checking options. */
+        "noImplicitAny": false,
+        /* Raise error on expressions and declarations with an implied 'any' type. */
+        "strictNullChecks": false,
+        /* Enable strict null checks. */
+        "noImplicitThis": false,
+        /* Raise error on 'this' expressions with an implied 'any' type. */
+        "esModuleInterop": true
+    },
+    "include": [
+        "src/**/*"
     ],
-    "rootDir": "src",
-    "outDir": "../aqt_data/web",
-    "strict": true,
-    /* Enable all strict type-checking options. */
-    "noImplicitAny": false,
-    /* Raise error on expressions and declarations with an implied 'any' type. */
-    "strictNullChecks": false,
-    /* Enable strict null checks. */
-    "noImplicitThis": false,
-    /* Raise error on 'this' expressions with an implied 'any' type. */
-    "esModuleInterop": true
-  },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "src/**/*.test.ts"
-  ]
+    "exclude": [
+        "src/**/*.test.ts"
+    ]
 }

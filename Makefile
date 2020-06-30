@@ -53,7 +53,7 @@ DEVFLAGS := $(BUILDFLAGS)
 RUNFLAGS :=
 CHECKABLE_PY := pylib qt
 CHECKABLE_RS := rslib rspy
-DEVEL := rslib rspy pylib qt
+DEVEL := rslib rspy pylib ts qt
 
 .PHONY: all
 all: run
@@ -115,9 +115,13 @@ qt/po/repo:
 	$(MAKE) pull-i18n
 
 .PHONY: build
-build: clean-dist build-rspy build-pylib build-qt add-buildhash
+build: clean-dist build-ts build-rspy build-pylib build-qt add-buildhash
 	@echo
 	@echo "Build complete."
+
+.PHONY: build-ts
+build-ts:
+	$(SUBMAKE) -C ts build
 
 .PHONY: build-rspy
 build-rspy: pyenv buildhash
@@ -154,7 +158,7 @@ check: pyenv buildhash prepare
 	@set -eu -o pipefail ${SHELLFLAGS}; \
 	.github/scripts/trailing-newlines.sh; \
 	. "${ACTIVATE_SCRIPT}"; \
-	for dir in $(CHECKABLE_RS) $(CHECKABLE_PY); do \
+	for dir in $(CHECKABLE_RS) ts $(CHECKABLE_PY); do \
 		$(SUBMAKE) -C $$dir check; \
 	done;
 	@echo
@@ -190,3 +194,11 @@ push-i18n-ftl: pull-i18n
 .PHONY: push-i18n-po
 push-i18n-po: pull-i18n
 	(cd qt/po && scripts/upload-latest-template)
+
+.PHONY: ts-dev
+ts-dev: develop
+	@set -eu -o pipefail ${SHELLFLAGS}; \
+	. "${ACTIVATE_SCRIPT}"; \
+	tmux new -d -s anki-ts "ANKIDEV=1 ANKI_API_PORT=9001 python qt/runanki $(RUNFLAGS)"
+	tmux split-window "(cd ts && make dev)"
+	tmux attach

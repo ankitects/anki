@@ -31,6 +31,7 @@ LABEL_REPEATED = 3
 
 # messages we don't want to unroll in codegen
 SKIP_UNROLL_INPUT = {"TranslateString"}
+SKIP_DECODE = {"Graphs"}
 
 
 def python_type(field):
@@ -62,9 +63,9 @@ def python_type_inner(field):
 
 def fullname(fullname):
     if "FluentString" in fullname:
-        return fullname.replace("backend_proto", "anki.fluent_pb2")
+        return fullname.replace("BackendProto", "anki.fluent_pb2")
     else:
-        return fullname.replace("backend_proto", "pb")
+        return fullname.replace("BackendProto", "pb")
 
 
 # get_deck_i_d -> get_deck_id etc
@@ -118,12 +119,24 @@ def render_method(method, idx):
     else:
         single_field = ""
         return_type = f"pb.{method.output_type.name}"
-    return f"""\
+
+    if method.name in SKIP_DECODE:
+        return_type = "bytes"
+
+    buf = f"""\
     def {name}({input_args}) -> {return_type}:
-        {input_assign_outer}output = pb.{method.output_type.name}()
+        {input_assign_outer}"""
+
+    if method.name in SKIP_DECODE:
+        buf += f"""return self._run_command({idx+1}, input)
+"""
+    else:
+        buf += f"""output = pb.{method.output_type.name}()
         output.ParseFromString(self._run_command({idx+1}, input))
         return output{single_field}
 """
+
+    return buf
 
 
 out = []

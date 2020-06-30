@@ -52,18 +52,10 @@ all: check
 	./scripts/copy-qt-files)
 	@touch $@
 
-TS_BUILD_DEPS := ts/tsconfig.json ts/package.json
-TSDEPS := ${TS_BUILD_DEPS} $(shell "${FIND}" ts/src ! -name "*.test.ts" -name '*.ts')
+TSDEPS := $(wildcard ts/src/*.ts) $(wildcard ts/scss/*.scss)
 
-.build/js: .build/scss .build/alljs
-
-.build/alljs: $(TS_BUILD_DEPS) $(shell "${FIND}" ts/src \
-		! -name "*.test.ts" -name '*.ts')
-	(cd ts && npm run build)
-	@touch $@
-
-.build/scss: .build/prodDependencies $(wildcard ts/scss/*.scss)
-	(cd ts && npm run sass)
+.build/js: $(TSDEPS)
+	(cd ts && make build)
 	python ./tools/extract_scss_colors.py
 	@touch $@
 
@@ -86,20 +78,22 @@ check: .build/pyaudio $(BUILD_STEPS) .build/mypy .build/test .build/fmt .build/i
 	@touch $@
 
 .PHONY: fix
-fix: .build/devDependencies $(BUILD_STEPS)
+fix: $(BUILD_STEPS)
 	isort $(ISORTARGS)
 	python -m black $(BLACKARGS)
-	(cd ts && npm run pretty)
+	(cd ts && make fix)
 
 .PHONY: clean
 clean:
-	rm -rf .build ts/node_modules aqt.egg-info build dist
+	rm -rf .build aqt.egg-info build dist
 
 # Checking Typescript
 ######################
 
-.build/ts-fmt: .build/devDependencies $(TSDEPS)
-	(cd ts && npm run check-pretty)
+JSDEPS := $(patsubst ts/src/%.ts, web/%.js, $(TSDEPS))
+
+.build/ts-fmt: $(TSDEPS)
+	(cd ts && make check)
 	@touch $@
 
 # Checking python
@@ -113,22 +107,8 @@ CHECKDEPS := $(shell "${FIND}" aqt tests -name '*.py' | grep -v buildinfo.py)
 	python -m mypy ${MYPY_ARGS} aqt
 	@touch $@
 
-.build/test: $(CHECKDEPS) .build/testjs
+.build/test: $(CHECKDEPS)
 	python -m pytest -s
-	@touch $@
-
-.build/testjs: .build/js .build/devDependencies $(wildcard ts/src/*.?s) $(wildcard ts/*.js)
-	(cd ts && npm run test)
-	@touch $@
-
-.build/devDependencies: ts/package.json
-# 	https://github.com/fsevents/fsevents/issues/321
-	(cd ts && npm install --no-optional --only=dev)
-	@touch $@
-
-.build/prodDependencies: ts/package.json
-# 	https://github.com/fsevents/fsevents/issues/321
-	(cd ts && npm install --no-optional --only=prod)
 	@touch $@
 
 .build/lint: $(CHECKDEPS)
@@ -154,14 +134,16 @@ CHECKDEPS := $(shell "${FIND}" aqt tests -name '*.py' | grep -v buildinfo.py)
 .PHONY: build
 build: .build/build
 
-.build/build: $(BUILD_STEPS) $(CHECKDEPS)
+.build/build: $(BUILD_STEPS) $(CHECKDEPS) $(wildcard ../ts/dist/*)
 	rm -rf dist build
+	rsync -a ../ts/dist/ aqt_data/web/
 	python setup.py -q bdist_wheel
 	rsync -a dist/*.whl ../dist/
 	touch $@
 
 .PHONY: develop
-develop: $(BUILD_STEPS)
+develop: $(BUILD_STEPS) $(wildcard ../ts/dist/*)
+	rsync -a ../ts/dist/ aqt_data/web/
 
 aqt/buildinfo.py: ../meta/version ../meta/buildhash
 	echo "buildhash='$$(cat ../meta/buildhash)'" > $@

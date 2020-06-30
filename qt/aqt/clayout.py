@@ -4,7 +4,7 @@
 import copy
 import json
 import re
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 import aqt
 from anki.cards import Card
@@ -87,7 +87,7 @@ class CardLayout(QDialog):
         self.ignore_change_signals = False
         self.update_current_ordinal_and_redraw(self.ord)
 
-    def update_current_ordinal_and_redraw(self, idx):
+    def update_current_ordinal_and_redraw(self, idx: int) -> None:
         if self.ignore_change_signals:
             return
         self.ord = idx
@@ -136,7 +136,7 @@ class CardLayout(QDialog):
             self._fieldsOnTemplate(tmpl["afmt"]),
         )
 
-    def _fieldsOnTemplate(self, fmt):
+    def _fieldsOnTemplate(self, fmt: str) -> str:
         matches = re.findall("{{[^#/}]+?}}", fmt)
         chars_allowed = 30
         field_names: List[str] = []

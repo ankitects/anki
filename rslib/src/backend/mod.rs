@@ -512,6 +512,10 @@ impl BackendService for Backend {
             .map(Into::into)
     }
 
+    fn graphs(&mut self, input: pb::GraphsIn) -> BackendResult<pb::GraphsOut> {
+        self.with_col(|col| col.graph_data_for_search(&input.search, input.days))
+    }
+
     // decks
     //-----------------------------------------------
 
@@ -681,7 +685,7 @@ impl BackendService for Backend {
             col.storage
                 .get_card(input.into())
                 .and_then(|opt| opt.ok_or(AnkiError::NotFound))
-                .map(card_to_pb)
+                .map(Into::into)
         })
     }
 
@@ -1161,6 +1165,12 @@ impl BackendService for Backend {
             }
         }
         .into())
+    }
+
+    fn i18n_resources(&mut self, _input: Empty) -> BackendResult<pb::Json> {
+        serde_json::to_vec(&self.i18n.resources_for_js())
+            .map(Into::into)
+            .map_err(Into::into)
     }
 
     // tags
@@ -1696,26 +1706,28 @@ fn sort_kind_from_pb(kind: i32) -> SortKind {
     }
 }
 
-fn card_to_pb(c: Card) -> pb::Card {
-    pb::Card {
-        id: c.id.0,
-        nid: c.nid.0,
-        did: c.did.0,
-        ord: c.ord as u32,
-        mtime: c.mtime.0,
-        usn: c.usn.0,
-        ctype: c.ctype as u32,
-        queue: c.queue as i32,
-        due: c.due,
-        ivl: c.ivl,
-        factor: c.factor as u32,
-        reps: c.reps,
-        lapses: c.lapses,
-        left: c.left,
-        odue: c.odue,
-        odid: c.odid.0,
-        flags: c.flags as u32,
-        data: c.data,
+impl From<Card> for pb::Card {
+    fn from(c: Card) -> Self {
+        pb::Card {
+            id: c.id.0,
+            nid: c.nid.0,
+            did: c.did.0,
+            ord: c.ord as u32,
+            mtime: c.mtime.0,
+            usn: c.usn.0,
+            ctype: c.ctype as u32,
+            queue: c.queue as i32,
+            due: c.due,
+            ivl: c.ivl,
+            factor: c.factor as u32,
+            reps: c.reps,
+            lapses: c.lapses,
+            left: c.left,
+            odue: c.odue,
+            odid: c.odid.0,
+            flags: c.flags as u32,
+            data: c.data,
+        }
     }
 }
 

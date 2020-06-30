@@ -1320,6 +1320,8 @@ class ConfigEditor(QDialog):
         )
         text = gui_hooks.addon_config_editor_will_display_json(text)
         self.form.editor.setPlainText(text)
+        if isMac:
+            self.form.editor.repaint()
 
     def onClose(self):
         saveGeom(self, "addonconf")

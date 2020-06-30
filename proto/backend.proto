@@ -2,7 +2,7 @@ syntax = "proto3";
 
 import "fluent.proto";
 
-package backend_proto;
+package BackendProto;
 
 // Generic containers
 ///////////////////////////////////////////////////////////
@@ -100,6 +100,7 @@ service BackendService {
     // stats
 
     rpc CardStats (CardID) returns (String);
+    rpc Graphs(GraphsIn) returns (GraphsOut);
 
     // media
 
@@ -182,6 +183,7 @@ service BackendService {
 
     rpc TranslateString (TranslateStringIn) returns (String);
     rpc FormatTimespan (FormatTimespanIn) returns (String);
+    rpc I18nResources (Empty) returns (Json);
 
     // tags
 
@@ -979,4 +981,38 @@ message ExtendLimitsIn {
 message CountsForDeckTodayOut {
     int32 new = 1;
     int32 review = 2;
+}
+
+message GraphsIn {
+    string search = 1;
+    uint32 days = 2;
+}
+
+message GraphsOut {
+    repeated Card cards = 1;
+    repeated RevlogEntry revlog = 2;
+    uint32 days_elapsed = 3;
+    // Based on rollover hour
+    uint32 next_day_at_secs = 4;
+    uint32 scheduler_version = 5;
+    /// Seconds to add to UTC timestamps to get local time.
+    uint32 local_offset_secs = 7;
+}
+
+message RevlogEntry {
+    enum ReviewKind {
+        LEARNING = 0;
+        REVIEW = 1;
+        RELEARNING = 2;
+        EARLY_REVIEW = 4;
+    }
+    int64 id = 1;
+    int64 cid = 2;
+    int32 usn = 3;
+    uint32 button_chosen = 4;
+    int32 interval = 5;
+    int32 last_interval = 6;
+    uint32 ease_factor = 7;
+    uint32 taken_millis = 8;
+    ReviewKind review_kind = 9;
 }
