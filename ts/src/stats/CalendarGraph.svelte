@@ -11,6 +11,7 @@
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
     export let revlogRange: RevlogRange = RevlogRange.Month;
     export let i18n: I18n;
+    export let nightMode: boolean;
 
     let graphData: GraphData | null = null;
 
@@ -42,7 +43,14 @@
     }
 
     $: if (graphData) {
-        renderCalendar(svg as SVGElement, bounds, graphData, targetYear, i18n);
+        renderCalendar(
+            svg as SVGElement,
+            bounds,
+            graphData,
+            targetYear,
+            i18n,
+            nightMode
+        );
     }
 
     const title = i18n.tr(i18n.TR.STATISTICS_REVIEWS_TITLE);

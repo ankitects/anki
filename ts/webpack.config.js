@@ -41,8 +41,8 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.css$/i,
-                use: ["style-loader", "css-loader"],
+                test: /\.s?css$/i,
+                use: ["style-loader", "css-loader", "sass-loader"],
             },
             {
                 test: /\.(svelte)$/,

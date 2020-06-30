@@ -40,6 +40,13 @@ export enum RevlogRange {
     All = 3,
 }
 
+export interface GraphsContext {
+    cards: pb.BackendProto.Card[];
+    revlog: pb.BackendProto.RevlogEntry[];
+    revlogRange: RevlogRange;
+    nightMode: boolean;
+}
+
 export interface GraphBounds {
     width: number;
     height: number;

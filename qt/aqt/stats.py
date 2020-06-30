@@ -9,6 +9,7 @@ import time
 import aqt
 from anki.lang import _
 from aqt.qt import *
+from aqt.theme import theme_manager
 from aqt.utils import (
     addCloseShortcut,
     getSaveFile,
@@ -87,4 +88,8 @@ class DeckStats(QDialog):
 
     def refresh(self):
         self.form.web.set_open_links_externally(False)
-        self.form.web.load(QUrl(f"{self.mw.serverURL()}_anki/graphs.html"))
+        if theme_manager.night_mode:
+            extra = "#night"
+        else:
+            extra = ""
+        self.form.web.load(QUrl(f"{self.mw.serverURL()}_anki/graphs.html"+extra))

@@ -8,6 +8,10 @@
         <div id="main"></div>
     </body>
     <script>
-        anki.graphs(document.getElementById("main"));
+        const nightMode = window.location.hash == "#night";
+        if (nightMode) {
+            document.body.className = "night-mode";
+        }
+        anki.graphs(document.getElementById("main"), nightMode);
     </script>
 </html>

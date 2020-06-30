@@ -154,9 +154,9 @@ export function renderButtons(
             .attr("opacity", (d: Datum) => {
                 switch (d.group) {
                     case "learning":
-                        return 0.3;
+                        return 0.6;
                     case "young":
-                        return 0.5;
+                        return 0.8;
                     case "mature":
                         return 1;
                 }
