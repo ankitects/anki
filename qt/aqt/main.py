@@ -1060,7 +1060,11 @@ title="%s" %s>%s</button>""" % (
         deck = self._selectedDeck()
         if not deck:
             return
-        aqt.dialogs.open("DeckStats", self)
+        want_old = self.app.queryKeyboardModifiers() & Qt.ShiftModifier
+        if want_old:
+            aqt.dialogs.open("DeckStats", self)
+        else:
+            aqt.dialogs.open("NewDeckStats", self)
 
     def onPrefs(self):
         aqt.dialogs.open("Preferences", self)
