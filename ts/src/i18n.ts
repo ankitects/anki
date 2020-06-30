@@ -22,6 +22,7 @@ function formatNumbers(args?: Record<string, RecordVal>): void {
 
 export class I18n {
     bundles: FluentBundle[] = [];
+    langs: string[] = [];
     TR = pb.BackendProto.FluentString;
 
     tr(id: pb.BackendProto.FluentString, args?: Record<string, RecordVal>): string {
@@ -65,6 +66,7 @@ export async function setupI18n(): Promise<I18n> {
         bundle.addResource(resource);
         i18n.bundles.push(bundle);
     }
+    i18n.langs = json.langs;
 
     return i18n;
 }

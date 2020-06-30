@@ -17,6 +17,7 @@
     import HourGraph from "./HourGraph.svelte";
     import FutureDue from "./FutureDue.svelte";
     import ReviewsGraph from "./ReviewsGraph.svelte";
+    import CalendarGraph from "./CalendarGraph.svelte";
 
     export let i18n: I18n;
 
@@ -141,6 +142,7 @@
 
 <TodayStats {sourceData} {i18n} />
 <CardCounts {sourceData} {i18n} />
+<CalendarGraph {sourceData} {revlogRange} {i18n} />
 <FutureDue {sourceData} {revlogRange} {i18n} />
 <ReviewsGraph {sourceData} {revlogRange} {i18n} />
 <IntervalsGraph {sourceData} {i18n} />
