@@ -128,6 +128,7 @@ export function renderCalendar(
         .selectAll("rect")
         .data(data)
         .join("rect")
+        .attr("fill", emptyColour)
         .attr("width", (d) => {
             return x(d.weekNumber + 1) - x(d.weekNumber) - 2;
         })
@@ -139,6 +140,8 @@ export function renderCalendar(
             showTooltip(tooltipText(d), x, y);
         })
         .on("mouseout", hideTooltip)
+        .transition()
+        .duration(800)
         .attr("fill", (d) => {
             if (d.count === 0) {
                 return emptyColour;
