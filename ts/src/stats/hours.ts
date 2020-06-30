@@ -74,7 +74,11 @@ export function renderHours(
         .transition(trans)
         .call(axisBottom(x).tickSizeOuter(0));
 
-    const colour = scaleSequential(interpolateBlues).domain([0, yMax]);
+    const cappedRange = scaleLinear().range([0.1, 0.8]);
+    const colour = scaleSequential((n) => interpolateBlues(cappedRange(n))).domain([
+        0,
+        yMax,
+    ]);
 
     // y scale
 
@@ -114,7 +118,7 @@ export function renderHours(
                     .attr("x", (d: Hour) => x(d.hour.toString())!)
                     .attr("y", y(0))
                     .attr("height", 0)
-                    .attr("opacity", 0.7)
+                    // .attr("opacity", 0.7)
                     .call(updateBar),
             (update) => update.call(updateBar),
             (remove) =>

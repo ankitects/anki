@@ -1,9 +1,16 @@
+$day-fg: black;
+$day-bg: white;
+$night-fg: white;
+$night-bg: #222;
+
 * {
     box-sizing: border-box;
 }
 
 body {
     font-family: Arial;
+    background: $day-bg;
+    color: $day-fg;
 }
 
 .graph-tooltip {
@@ -15,7 +22,8 @@ body {
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s;
-    background: #fff;
+    color: $day-fg;
+    background: $day-bg;
 }
 
 .graph {
@@ -37,7 +45,8 @@ body {
     top: 0;
     width: 100%;
     height: 4em;
-    background: white;
+    color: $day-fg;
+    background: $day-bg;
     padding: 0.5em;
 }
 
@@ -57,7 +66,7 @@ body {
 .graph .area {
     opacity: 0.05;
     pointer-events: none;
-    fill: black;
+    fill: $day-fg;
 }
 
 .axis-label {
@@ -109,4 +118,24 @@ body {
 
 .subtitle {
     text-align: center;
+}
+
+body.night-mode {
+    background: $night-bg;
+    color: $night-fg;
+}
+
+.night-mode {
+    .graph-tooltip {
+        background: $night-bg;
+        color: $night-fg;
+    }
+    .range-box {
+        background: $night-bg;
+        color: $night-fg;
+    }
+    .graph .area {
+        fill: $night-fg;
+        opacity: 0.1;
+    }
 }
