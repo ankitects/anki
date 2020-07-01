@@ -129,6 +129,7 @@ impl SqlWriter<'_> {
 
             // other
             SearchNode::AddedInDays(days) => self.write_added(*days)?,
+            SearchNode::EditedInDays(days) => self.write_edited(*days)?,
             SearchNode::CardTemplate(template) => match template {
                 TemplateKind::Ordinal(_) => {
                     self.write_template(template)?;
@@ -424,6 +425,13 @@ impl SqlWriter<'_> {
         Ok(())
     }
 
+    fn write_edited(&mut self, days: u32) -> Result<()> {
+        let timing = self.col.timing_today()?;
+        let cutoff = timing.next_day_at - (86_400 * (days as i64));
+        write!(self.sql, "n.mod > {}", cutoff).unwrap();
+        Ok(())
+    }
+
     fn write_regex(&mut self, word: &str) {
         self.sql.push_str("n.flds regexp ?");
         self.args.push(format!(r"(?i){}", word));
@@ -537,6 +545,7 @@ impl SearchNode<'_> {
             SearchNode::WordBoundary(_) => RequiredTable::Notes,
             SearchNode::NoteTypeID(_) => RequiredTable::Notes,
             SearchNode::NoteType(_) => RequiredTable::Notes,
+            SearchNode::EditedInDays(_) => RequiredTable::Notes,
 
             SearchNode::NoteIDs(_) => RequiredTable::CardsOrNotes,
             SearchNode::WholeCollection => RequiredTable::CardsOrNotes,
