@@ -111,7 +111,7 @@ impl MediaDatabaseContext<'_> {
     }
 
     fn begin(&mut self) -> Result<()> {
-        self.db.execute_batch("begin").map_err(Into::into)
+        self.db.execute_batch("begin immediate").map_err(Into::into)
     }
 
     fn commit(&mut self) -> Result<()> {
