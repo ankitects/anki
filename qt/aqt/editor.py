@@ -699,7 +699,11 @@ to a cloze type first, via 'Notes>Change Note Type'"""
         self.parentWindow.activateWindow()
 
     def addMedia(self, path, canDelete=False):
-        html = self._addMedia(path, canDelete)
+        try:
+            html = self._addMedia(path, canDelete)
+        except Exception as e:
+            showWarning(str(e))
+            return
         self.web.eval("insertHtmlRemovingInitialBR(%s);" % json.dumps(html))
 
     def _addMedia(self, path, canDelete=False):
