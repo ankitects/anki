@@ -110,6 +110,7 @@ impl AnkiError {
             }
             AnkiError::DBError { info, kind } => match kind {
                 DBErrorKind::Corrupt => info.clone(),
+                DBErrorKind::Locked => "Anki already open, or media currently syncing.".into(),
                 _ => format!("{:?}", self),
             },
             AnkiError::SearchError(details) => {
@@ -148,7 +149,13 @@ impl From<io::Error> for AnkiError {
 
 impl From<rusqlite::Error> for AnkiError {
     fn from(err: rusqlite::Error) -> Self {
-        if let rusqlite::Error::SqliteFailure(_error, Some(reason)) = &err {
+        if let rusqlite::Error::SqliteFailure(error, Some(reason)) = &err {
+            if error.code == rusqlite::ErrorCode::DatabaseBusy {
+                return AnkiError::DBError {
+                    info: "".to_string(),
+                    kind: DBErrorKind::Locked,
+                };
+            }
             if reason.contains("regex parse error") {
                 return AnkiError::SearchError(Some(reason.to_owned()));
             }
@@ -290,5 +297,6 @@ pub enum DBErrorKind {
     FileTooOld,
     MissingEntity,
     Corrupt,
+    Locked,
     Other,
 }
