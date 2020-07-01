@@ -635,6 +635,12 @@ create table if not exists profiles
         self.profile["syncUser"] = None
         self.profile["hostNum"] = 0
 
+    def auto_sync_media_minutes(self) -> int:
+        return self.profile.get("autoSyncMediaMinutes", 15)
+
+    def set_auto_sync_media_minutes(self, val: int):
+        self.profile["autoSyncMediaMinutes"] = val
+
     ######################################################################
 
     def apply_profile_options(self) -> None:
