@@ -169,6 +169,7 @@ class Preferences(QDialog):
         qconnect(self.form.media_log.clicked, self.on_media_log)
         self.form.syncOnProgramOpen.setChecked(self.prof["autoSync"])
         self.form.syncMedia.setChecked(self.prof["syncMedia"])
+        self.form.autoSyncMedia.setChecked(self.mw.pm.auto_sync_media_minutes() != 0)
         if not self.prof["syncKey"]:
             self._hideAuth()
         else:
@@ -200,6 +201,7 @@ Not currently enabled; click the sync button in the main window to enable."""
     def updateNetwork(self):
         self.prof["autoSync"] = self.form.syncOnProgramOpen.isChecked()
         self.prof["syncMedia"] = self.form.syncMedia.isChecked()
+        self.mw.pm.set_auto_sync_media_minutes(self.form.autoSyncMedia.isChecked() and 15 or 0)
         if self.form.fullSync.isChecked():
             self.mw.col.modSchema(check=False)
             self.mw.col.setMod()

@@ -1231,8 +1231,10 @@ Difference to correct time: %s."""
 
     def on_autosync_timer(self):
         elap = self.media_syncer.seconds_since_last_sync()
-        # autosync if 15 minutes have elapsed since last sync
-        if elap > 15 * 60:
+        minutes = self.pm.auto_sync_media_minutes()
+        if not minutes:
+            return
+        if elap > minutes * 60:
             self.maybe_auto_sync_media()
 
     # Permanent libanki hooks

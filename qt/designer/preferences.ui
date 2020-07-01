@@ -364,6 +364,13 @@
             </widget>
            </item>
            <item>
+            <widget class="QCheckBox" name="autoSyncMedia">
+             <property name="text">
+              <string>Periodically sync media</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QCheckBox" name="fullSync">
              <property name="text">
               <string>On next sync, force changes in one direction</string>
@@ -581,6 +588,7 @@
   </layout>
  </widget>
  <tabstops>
+  <tabstop>lang</tabstop>
   <tabstop>hwAccel</tabstop>
   <tabstop>showPlayButtons</tabstop>
   <tabstop>interrupt_audio</tabstop>
@@ -600,6 +608,7 @@
   <tabstop>timeLimit</tabstop>
   <tabstop>syncMedia</tabstop>
   <tabstop>syncOnProgramOpen</tabstop>
+  <tabstop>autoSyncMedia</tabstop>
   <tabstop>fullSync</tabstop>
   <tabstop>syncDeauth</tabstop>
   <tabstop>media_log</tabstop>
