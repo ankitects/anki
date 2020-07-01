@@ -102,7 +102,7 @@ export function histogramGraph(
     const areaData = cumsum(areaCounts);
     const yAreaScale = y.copy().domain([0, data.total]);
 
-    if (data.showArea && data.bins.length) {
+    if (data.showArea && data.bins.length && areaData.slice(-1)[0]) {
         svg.select("path.area")
             .datum(areaData as any)
             .attr(
