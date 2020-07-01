@@ -1260,7 +1260,7 @@ where id = ?
 
         # unbury if the day has rolled over
         unburied = self.col.conf.get("lastUnburied", 0)
-        if unburied < self.today or self.today+7 < unburied:
+        if unburied < self.today or self.today + 7 < unburied:
             self.unburyCards()
             self.col.conf["lastUnburied"] = self.today
 

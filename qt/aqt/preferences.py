@@ -201,7 +201,9 @@ Not currently enabled; click the sync button in the main window to enable."""
     def updateNetwork(self):
         self.prof["autoSync"] = self.form.syncOnProgramOpen.isChecked()
         self.prof["syncMedia"] = self.form.syncMedia.isChecked()
-        self.mw.pm.set_auto_sync_media_minutes(self.form.autoSyncMedia.isChecked() and 15 or 0)
+        self.mw.pm.set_auto_sync_media_minutes(
+            self.form.autoSyncMedia.isChecked() and 15 or 0
+        )
         if self.form.fullSync.isChecked():
             self.mw.col.modSchema(check=False)
             self.mw.col.setMod()
