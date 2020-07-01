@@ -1,6 +1,7 @@
 #!/bin/bash
 #
-# update template .pot file from source code strings
+# update template .pot file from source code strings,
+# and merge new strings into translations
 #
 
 set -eu -o pipefail ${SHELLFLAGS}
@@ -19,3 +20,8 @@ done
 
 xgettext -cT: -s --no-wrap --files-from=$all --output=qt/po/repo/desktop/anki.pot
 rm $all
+
+cd qt/po/repo/desktop
+for dir in $(ls | grep -v anki.pot); do
+    msgmerge --no-wrap -U --backup off $dir/anki.po anki.pot
+done
