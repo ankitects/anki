@@ -101,6 +101,7 @@ class AnkiQt(QMainWindow):
         try:
             self.setupUI()
             self.setupAddons(args)
+            self.finish_ui_setup()
         except:
             showInfo(_("Error during startup:\n%s") % traceback.format_exc())
             sys.exit(1)
@@ -153,6 +154,10 @@ class AnkiQt(QMainWindow):
         self.setupDeckBrowser()
         self.setupOverview()
         self.setupReviewer()
+
+    def finish_ui_setup(self) -> None:
+        "Actions that are deferred until after add-on loading."
+        self.toolbar.draw()
 
     def setupProfileAfterWebviewsLoaded(self):
         for w in (self.web, self.bottomWeb):
@@ -763,7 +768,6 @@ title="%s" %s>%s</button>""" % (
         tweb = self.toolbarWeb = aqt.webview.AnkiWebView(title="top toolbar")
         tweb.setFocusPolicy(Qt.WheelFocus)
         self.toolbar = aqt.toolbar.Toolbar(self, tweb)
-        self.toolbar.draw()
         # main area
         self.web = aqt.webview.AnkiWebView(title="main webview")
         self.web.setFocusPolicy(Qt.WheelFocus)
