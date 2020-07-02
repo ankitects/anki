@@ -49,7 +49,6 @@ develop: .build/build
 .PHONY: check
 check: .build/build
 	npm run check
-	npm run jest
 
 .PHONY: fix
 fix: .build/build

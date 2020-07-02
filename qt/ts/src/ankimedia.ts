@@ -39,7 +39,7 @@ function setAnkiMedia(callback, initial = undefined) {
     }
     items.push(...Array.from(document.querySelectorAll("audio")));
     items.push(...Array.from(document.querySelectorAll("video")));
-    items.forEach(media => {
+    items.forEach((media) => {
         callback(media);
     });
 }
@@ -149,7 +149,7 @@ class AnkiMediaQueue {
         }
         this._playing_element = new Audio();
         this._playing_element_timer = undefined;
-        this._startnext = event => {};
+        this._startnext = (event) => {};
         this._clearPlayingElement();
         this.autoplay = true;
         this.is_playing = false;
@@ -183,7 +183,7 @@ class AnkiMediaQueue {
         }
         this._playing_element = undefined;
         this._playing_element_timer = undefined;
-        this._startnext = event => {};
+        this._startnext = (event) => {};
     }
 
     _whereIs(element: HTMLElement): "front" | "back" {
@@ -267,7 +267,7 @@ class AnkiMediaQueue {
         }
 
         if (!where || where == this.where) {
-            setAnkiMedia(media => {
+            setAnkiMedia((media) => {
                 let localwhere =
                     media.getAttribute("data-where") || this._whereIs(media);
                 this._validateWhere(localwhere, "addall", media);
@@ -362,7 +362,7 @@ class AnkiMediaQueue {
                     ANKI_MEDIA_QUEUE_PREVIEW_TIMEOUT
                 );
             } else {
-                document.addEventListener("DOMContentLoaded", function() {
+                document.addEventListener("DOMContentLoaded", function () {
                     this._check_preview_page_timer = setTimeout(
                         block_preview,
                         ANKI_MEDIA_QUEUE_PREVIEW_TIMEOUT
@@ -396,7 +396,7 @@ class AnkiMediaQueue {
             this.playing_front.length = 0;
             this.playing_back.length = 0;
 
-            setAnkiMedia(media => {
+            setAnkiMedia((media) => {
                 media.pause();
                 media.currentTime = 0;
             }, this.other_medias);
@@ -474,7 +474,7 @@ class AnkiMediaQueue {
             this.is_autoplay = true;
             let playpromise = media.play();
             if (playpromise) {
-                playpromise.catch(error =>
+                playpromise.catch((error) =>
                     console.log(
                         `Could not play '${filename}' due to '${error}'! ` +
                             this._getMediaInfo(media)
@@ -486,7 +486,7 @@ class AnkiMediaQueue {
                         this._getMediaInfo(media)
                 );
             }
-            this._startnext = event => {
+            this._startnext = (event) => {
                 if (this.playing_back.length || this.playing_back.length) {
                     this._playing_element_timer = setTimeout(
                         this._playnext,
@@ -638,7 +638,7 @@ class AnkiMediaQueue {
         let selected = new Map();
         this.duplicates.clear();
 
-        setAnkiMedia(media => {
+        setAnkiMedia((media) => {
             this._checkDataAttributes(media);
             let data_file = this._getSource(media);
 
@@ -705,7 +705,7 @@ class AnkiMediaQueue {
 
         // Move all audio elements into this object to avoid the audio from stopping
         // when the answer is showed.
-        setAnkiMedia(media => {
+        setAnkiMedia((media) => {
             let clone;
 
             if (this.medias.has(media.id)) {
@@ -734,8 +734,8 @@ class AnkiMediaQueue {
 
     _setupAudioPlay(media: HTMLMediaElement, clone: HTMLMediaElement) {
         // Set to automatically play the audio when seeking the progress bar.
-        let auto_play = target => {
-            return event => {
+        let auto_play = (target) => {
+            return (event) => {
                 if (this.is_autoseek) {
                     target.play();
                 }
@@ -745,8 +745,8 @@ class AnkiMediaQueue {
         clone.addEventListener("seeked", auto_play(clone));
 
         // Set to automatically pause all other medias when playing a new media.
-        let auto_pause = target => {
-            return event => {
+        let auto_pause = (target) => {
+            return (event) => {
                 // only clear the queue if the play event was from an user action
                 if (!this.is_autoplay) {
                     this.playing_front.length = 0;
@@ -754,7 +754,7 @@ class AnkiMediaQueue {
                 }
                 this.is_autoplay = false;
 
-                setAnkiMedia(media => {
+                setAnkiMedia((media) => {
                     if (media.id != target.id) {
                         media.pause();
                     }

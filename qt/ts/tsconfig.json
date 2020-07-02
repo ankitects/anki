@@ -1,8 +1,8 @@
 {
     "compilerOptions": {
-        "target": "es6",
+        "target": "es2018",
         "module": "commonjs",
-        "lib": ["es6", "dom"],
+        "lib": ["es2018", "dom"],
         "rootDir": "src",
         "outDir": "../aqt_data/web",
         "typeRoots": ["../../ts/node_modules/@types"],

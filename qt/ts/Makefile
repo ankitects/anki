@@ -26,8 +26,13 @@ build:
 	$(BIN)/sass --no-source-map scss:../aqt_data/web
 
 .PHONY: check
-check:
+check: devDependencies
 	$(BIN)/prettier --check src/*.ts
+	npm run test
+
+devDependencies: package.json
+# 	https://github.com/fsevents/fsevents/issues/321
+	npm install --no-optional --only=dev
 
 .PHONY: fix
 fix:

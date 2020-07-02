@@ -14,6 +14,7 @@ from http import HTTPStatus
 
 import flask
 import flask_cors  # type: ignore
+from flask import request
 from waitress.server import create_server
 
 import aqt
@@ -49,7 +50,8 @@ class MediaServer(threading.Thread):
     def __init__(self, mw: aqt.main.AnkiQt, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.is_shutdown = False
-        _redirectWebExports.mw = mw
+        _redirectWebExports.mw = mw  # type: ignore
+        allroutes.mw = mw  # type: ignore
 
     def run(self):
         try:
@@ -87,8 +89,8 @@ class MediaServer(threading.Thread):
         return int(self.server.effective_port)
 
 
-@app.route("/", defaults={"path": ""}, methods=['GET', 'POST'])
-@app.route("/<path:path>")
+@app.route("/", defaults={"path": ""})
+@app.route("/<path:pathin>", methods=["GET", "POST"])
 def allroutes(pathin):
     directory, path = _redirectWebExports(pathin)
     try:
@@ -119,8 +121,11 @@ def allroutes(pathin):
             mimetype="text/plain",
         )
 
+    if devMode:
+        print("Sending file '%s - %s'" % (directory, path))
+
     try:
-        if flask.request.method == 'POST':  
+        if flask.request.method == "POST":
             if not pathin.startswith("_anki/"):
                 return flask.Response(
                     "Path for '%s - %s' is a security leak!" % (directory, path),
@@ -129,11 +134,10 @@ def allroutes(pathin):
                 )
 
             if path == "graphData":
-                content_length = int(self.headers["Content-Length"])
-                body = self.rfile.read(content_length)
-                data = graph_data(self.mw.col, **from_json_bytes(body))
+                body = request.data
+                data = graph_data(allroutes.mw.col, **from_json_bytes(body))
             elif path == "i18nResources":
-                data = self.mw.col.backend.i18n_resources()
+                data = allroutes.mw.col.backend.i18n_resources()
             else:
                 return flask.Response(
                     "Path for '%s - %s' is a security leak!" % (directory, path),
@@ -144,9 +148,6 @@ def allroutes(pathin):
             response = flask.make_response(data)
             response.headers["Content-Type"] = "application/binary"
             return response
-
-        if devMode:
-            print("Sending file '%s - %s'" % (directory, path))
 
         return flask.send_file(fullpath, conditional=True)
 
@@ -209,4 +210,3 @@ def graph_data(col: Collection, search: str, days: int) -> bytes:
         # likely searching error
         print(e)
         return b""
-

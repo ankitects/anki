@@ -1,0 +1,26 @@
+{
+  "name": "anki-dtop-js",
+  "version": "1.0.0",
+  "description": "Anki desktop js support files",
+  "scripts": {
+    "test": "jest --verbose --runInBand"
+  },
+  "jshintConfig": {
+    "esversion": 8
+  },
+  "private": true,
+  "author": "Ankitects Pty Ltd",
+  "license": "AGPL-3.0-or-later",
+  "dependencies": {},
+  "devDependencies": {
+    "@types/express": "^4.17.6",
+    "@types/jest": "^25.2.1",
+    "@types/node": "^13.11.1",
+    "@types/puppeteer": "^2.0.1",
+    "express": "^4.17.1",
+    "jest": "^25.3.0",
+    "puppeteer": "^3.0.0",
+    "ts-jest": "^25.3.1",
+    "typescript": "^3.7.3"
+  }
+}
