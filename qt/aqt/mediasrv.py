@@ -126,13 +126,6 @@ def allroutes(pathin):
 
     try:
         if flask.request.method == "POST":
-            if not pathin.startswith("_anki/"):
-                return flask.Response(
-                    "Path for '%s - %s' is a security leak!" % (directory, path),
-                    status=HTTPStatus.FORBIDDEN,
-                    mimetype="text/plain",
-                )
-
             if path == "graphData":
                 body = request.data
                 data = graph_data(allroutes.mw.col, **from_json_bytes(body))
@@ -140,7 +133,7 @@ def allroutes(pathin):
                 data = allroutes.mw.col.backend.i18n_resources()
             else:
                 return flask.Response(
-                    "Path for '%s - %s' is a security leak!" % (directory, path),
+                    "Post request to '%s - %s' is a security leak!" % (directory, path),
                     status=HTTPStatus.FORBIDDEN,
                     mimetype="text/plain",
                 )
