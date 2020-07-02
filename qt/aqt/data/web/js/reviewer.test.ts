@@ -125,7 +125,7 @@ describe("Test question and answer audios", () => {
             let paused_medias = 0;
             let has_medias = 0;
             let playing = "";
-            setAnkiMedia(media => {
+            setAnkiMedia((media) => {
                 has_medias += 1;
                 if (media.paused) {
                     paused_medias += 1;
@@ -145,8 +145,8 @@ describe("Test question and answer audios", () => {
             }
         });
 
-    let getPlayTimes = async mp3file =>
-        await page.evaluate(async mp3 => {
+    let getPlayTimes = async (mp3file) =>
+        await page.evaluate(async (mp3) => {
             let audio = document.getElementById(mp3) as HTMLAudioElement;
             return [
                 parseFloat(audio.getAttribute("data-has-started-at")),
@@ -154,15 +154,15 @@ describe("Test question and answer audios", () => {
             ];
         }, mp3file);
 
-    let deletePlayTimes = async mp3file =>
-        await page.evaluate(async mp3 => {
+    let deletePlayTimes = async (mp3file) =>
+        await page.evaluate(async (mp3) => {
             let audio = document.getElementById(mp3) as HTMLAudioElement;
             audio.removeAttribute("data-has-started-at");
             audio.removeAttribute("data-has-ended-at");
         }, mp3file);
 
-    let getAudioSource = async mp3file =>
-        await page.evaluate(async mp3 => {
+    let getAudioSource = async (mp3file) =>
+        await page.evaluate(async (mp3) => {
             let audio = document.getElementById(mp3) as HTMLAudioElement;
             return audio.getAttribute("src");
         }, mp3file);
@@ -232,7 +232,7 @@ describe("Test question and answer audios", () => {
         ],
     ])(
         `Showing a question should play its audio file automatically:\nfront %s '%s'\n...`,
-        async function(front_mp3, front_setup, templateName) {
+        async function (front_mp3, front_setup, templateName) {
             await showQuestion(front_mp3, front_setup, templateName);
             await page.waitForSelector(`audio[id="${front_mp3}"][data-has-ended-at]`);
             expect(await getPausedMedias()).toEqual(0);
@@ -249,7 +249,7 @@ describe("Test question and answer audios", () => {
 
     test.each([[`"front"`], [``]])(
         `Test disabling the setup(auto=false) stops starting the audio immediately:\nfront '%s'\n...`,
-        async function(front_setup) {
+        async function (front_setup) {
             await showQuestion(
                 `silence 1.mp3`,
                 `ankimedia.setup({auto: false}); ankimedia.add( "silence 1.mp3", ${front_setup} );`,
@@ -277,7 +277,7 @@ describe("Test question and answer audios", () => {
         }
     );
 
-    test(`Test defining media with a child/nested media source file\n...`, async function() {
+    test(`Test defining media with a child/nested media source file\n...`, async function () {
         await showQuestion(
             `<audio controlslist="nodownload" controls><source src="silence 1.mp3"></audio>`,
             `ankimedia.setup(); ankimedia.add( "silence 1.mp3", "front" );`,
@@ -289,7 +289,7 @@ describe("Test question and answer audios", () => {
         expect(await page.evaluate(() => ankimedia.is_playing)).toEqual(false);
     });
 
-    test(`Test playing an audio without a HTML tag does not throw\n...`, async function() {
+    test(`Test playing an audio without a HTML tag does not throw\n...`, async function () {
         await showQuestion(
             ``,
             `ankimedia.setup(); ankimedia.add( "silence 1.mp3", "front" );`,
@@ -299,7 +299,7 @@ describe("Test question and answer audios", () => {
         expect(await page.evaluate(() => ankimedia.is_playing)).toEqual(true);
     });
 
-    test(`Test showing a question does not reset ankimedia state\n...`, async function() {
+    test(`Test showing a question does not reset ankimedia state\n...`, async function () {
         await showQuestion(
             ``,
             `ankimedia.setup(); ankimedia.add( "silence 1.mp3", "front" );`,
@@ -319,7 +319,7 @@ describe("Test question and answer audios", () => {
         expect(await page.evaluate(() => ankimedia.is_playing)).toEqual(true);
     });
 
-    test(`Test ankimedia.setup{delay} parameter creates an delay between medias\n...`, async function() {
+    test(`Test ankimedia.setup{delay} parameter creates an delay between medias\n...`, async function () {
         await questionAndAnswer(
             "silence 1.mp3",
             `ankimedia.setup({delay: 1.0}); ankimedia.add( "silence 1.mp3", "back" );`,
@@ -341,7 +341,7 @@ describe("Test question and answer audios", () => {
         [``, ``],
     ])(
         `Test ankimedia.skip_front with addall should skip playing the front media:\nfront '%s', back '%s'\n...`,
-        async function(front_setup, back_setup) {
+        async function (front_setup, back_setup) {
             await page.evaluate(async () => ankimedia.setup({ skip: true }));
 
             await questionAndAnswer(
@@ -371,7 +371,7 @@ describe("Test question and answer audios", () => {
         [``, ``],
     ])(
         `Test ankimedia.skip_front with add should skip playing the front media:\nfront '%s', back '%s'\n...`,
-        async function(front_setup, back_setup) {
+        async function (front_setup, back_setup) {
             await page.evaluate(async () => ankimedia.setup({ skip: true }));
 
             await questionAndAnswer(
@@ -401,7 +401,7 @@ describe("Test question and answer audios", () => {
         [``, ``],
     ])(
         `Test ankimedia.replay() should replay all the media:\nfront '%s', back '%s'\n...`,
-        async function(front_setup, back_setup) {
+        async function (front_setup, back_setup) {
             await showQuestion(
                 "silence 1.mp3",
                 `ankimedia.setup(); ankimedia.add( "silence 1.mp3", ${front_setup} );`,
@@ -482,7 +482,7 @@ describe("Test question and answer audios", () => {
         ],
     ])(
         `Showing a new question should play its audio automatically:\nfront %s '%s',\nrefront %s '%s'\n...`,
-        async function(front_mp3, front_setup, refront_mp3, refront_setup) {
+        async function (front_mp3, front_setup, refront_mp3, refront_setup) {
             await showQuestion(front_mp3, front_setup, "questionTemplate");
             await page.waitForSelector(`audio[id="${front_mp3}"][data-has-ended-at]`);
             expect(await getPausedMedias()).toEqual(0);
@@ -562,7 +562,7 @@ describe("Test question and answer audios", () => {
         ],
     ])(
         `Showing an answer with the same audio id as the question should only play the answer audio:\nfront %s '%s',\nback %s '%s'\n...`,
-        async function(front_mp3, front_setup, back_mp3, back_setup) {
+        async function (front_mp3, front_setup, back_mp3, back_setup) {
             let selector = back_mp3 == front_mp3 ? `${front_mp3}1` : back_mp3;
 
             await showQuestion(front_mp3, front_setup, "questionTemplate");
@@ -602,7 +602,7 @@ describe("Test question and answer audios", () => {
         [``, ``],
     ])(
         `The card preview should not play multiple times while editing the page:\nfront '%s', back '%s'\n...`,
-        async function(front_setup, back_setup) {
+        async function (front_setup, back_setup) {
             await page.goto(`${address}/card_layout.html`);
             await page.waitForSelector(`[id="qa"]`);
 
