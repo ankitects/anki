@@ -1,6 +1,9 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+from __future__ import annotations
+
 import logging
 import os
 import re
@@ -11,8 +14,12 @@ from http import HTTPStatus
 
 import flask
 import flask_cors  # type: ignore
+from flask import request
 from waitress.server import create_server
 
+import aqt
+from anki.collection import Collection
+from anki.rsbackend import from_json_bytes
 from anki.utils import devMode
 from aqt.qt import *
 from aqt.utils import aqt_data_folder
@@ -40,10 +47,11 @@ class MediaServer(threading.Thread):
     _ready = threading.Event()
     daemon = True
 
-    def __init__(self, mw, *args, **kwargs):
+    def __init__(self, mw: aqt.main.AnkiQt, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.is_shutdown = False
-        _redirectWebExports.mw = mw
+        _redirectWebExports.mw = mw  # type: ignore
+        allroutes.mw = mw  # type: ignore
 
     def run(self):
         try:
@@ -53,7 +61,8 @@ class MediaServer(threading.Thread):
             else:
                 logging.getLogger("waitress").setLevel(logging.ERROR)
 
-            self.server = create_server(app, host="127.0.0.1", port=0)
+            desired_port = int(os.getenv("ANKI_API_PORT", "0"))
+            self.server = create_server(app, host="127.0.0.1", port=desired_port)
             if devMode:
                 print(
                     "Serving on http://%s:%s"
@@ -81,9 +90,9 @@ class MediaServer(threading.Thread):
 
 
 @app.route("/", defaults={"path": ""})
-@app.route("/<path:path>")
-def allroutes(path):
-    directory, path = _redirectWebExports(path)
+@app.route("/<path:pathin>", methods=["GET", "POST"])
+def allroutes(pathin):
+    directory, path = _redirectWebExports(pathin)
     try:
         isdir = os.path.isdir(os.path.join(directory, path))
     except ValueError:
@@ -112,9 +121,33 @@ def allroutes(path):
             mimetype="text/plain",
         )
 
+    if devMode:
+        print("Sending file '%s - %s'" % (directory, path))
+
     try:
-        if devMode:
-            print("Sending file '%s - %s'" % (directory, path))
+        if flask.request.method == "POST":
+            if not pathin.startswith("_anki/"):
+                return flask.Response(
+                    "Path for '%s - %s' is a security leak!" % (directory, path),
+                    status=HTTPStatus.FORBIDDEN,
+                    mimetype="text/plain",
+                )
+
+            if path == "graphData":
+                body = request.data
+                data = graph_data(allroutes.mw.col, **from_json_bytes(body))
+            elif path == "i18nResources":
+                data = allroutes.mw.col.backend.i18n_resources()
+            else:
+                return flask.Response(
+                    "Path for '%s - %s' is a security leak!" % (directory, path),
+                    status=HTTPStatus.FORBIDDEN,
+                    mimetype="text/plain",
+                )
+
+            response = flask.make_response(data)
+            response.headers["Content-Type"] = "application/binary"
+            return response
 
         return flask.send_file(fullpath, conditional=True)
 
@@ -168,3 +201,12 @@ def _redirectWebExports(path):
             return addMgr.addonsFolder(), addonPath
 
     return _redirectWebExports.mw.col.media.dir(), path
+
+
+def graph_data(col: Collection, search: str, days: int) -> bytes:
+    try:
+        return col.backend.graphs(search=search, days=days)
+    except Exception as e:
+        # likely searching error
+        print(e)
+        return b""
