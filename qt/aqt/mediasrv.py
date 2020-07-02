@@ -96,10 +96,9 @@ def allroutes(pathin):
     try:
         isdir = os.path.isdir(os.path.join(directory, path))
     except ValueError:
-        return flask.Response(
+        return flask.make_response(
             "Path for '%s - %s' is too long!" % (directory, path),
-            status=HTTPStatus.BAD_REQUEST,
-            mimetype="text/plain",
+            HTTPStatus.BAD_REQUEST,
         )
 
     directory = os.path.realpath(directory)
@@ -108,17 +107,15 @@ def allroutes(pathin):
 
     # protect against directory transversal: https://security.openstack.org/guidelines/dg_using-file-paths.html
     if not fullpath.startswith(directory):
-        return flask.Response(
+        return flask.make_response(
             "Path for '%s - %s' is a security leak!" % (directory, path),
-            status=HTTPStatus.FORBIDDEN,
-            mimetype="text/plain",
+            HTTPStatus.FORBIDDEN,
         )
 
     if isdir:
-        return flask.Response(
+        return flask.make_response(
             "Path for '%s - %s' is a directory (not supported)!" % (directory, path),
-            status=HTTPStatus.FORBIDDEN,
-            mimetype="text/plain",
+            HTTPStatus.FORBIDDEN,
         )
 
     if devMode:
@@ -132,10 +129,9 @@ def allroutes(pathin):
             elif path == "i18nResources":
                 data = allroutes.mw.col.backend.i18n_resources()
             else:
-                return flask.Response(
+                return flask.make_response(
                     "Post request to '%s - %s' is a security leak!" % (directory, path),
-                    status=HTTPStatus.FORBIDDEN,
-                    mimetype="text/plain",
+                    HTTPStatus.FORBIDDEN,
                 )
 
             response = flask.make_response(data)
@@ -154,10 +150,9 @@ def allroutes(pathin):
         # swallow it - user likely surfed away from
         # review screen before an image had finished
         # downloading
-        return flask.Response(
+        return flask.make_response(
             "For path '%s - %s' %s!" % (directory, path, error),
-            status=HTTPStatus.INTERNAL_SERVER_ERROR,
-            mimetype="text/plain",
+            HTTPStatus.INTERNAL_SERVER_ERROR,
         )
 
 
