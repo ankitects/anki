@@ -309,7 +309,7 @@ export function renderReviews(
     const areaData = cumsum(areaCounts);
     const yAreaScale = y.copy().domain([0, areaData.slice(-1)[0]]);
 
-    if (bins.length) {
+    if (areaData.slice(-1)[0]) {
         svg.select("path.area")
             .datum(areaData as any)
             .attr(

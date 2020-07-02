@@ -60,6 +60,7 @@ pub(super) enum SearchNode<'a> {
         is_re: bool,
     },
     AddedInDays(u32),
+    EditedInDays(u32),
     CardTemplate(TemplateKind),
     Deck(Cow<'a, str>),
     NoteTypeID(NoteTypeID),
@@ -269,6 +270,7 @@ fn search_node_for_text_with_argument<'a>(
 ) -> ParseResult<SearchNode<'a>> {
     Ok(match key.to_ascii_lowercase().as_str() {
         "added" => SearchNode::AddedInDays(val.parse()?),
+        "edited" => SearchNode::EditedInDays(val.parse()?),
         "deck" => SearchNode::Deck(val),
         "note" => SearchNode::NoteType(val),
         "tag" => SearchNode::Tag(val),

@@ -101,6 +101,7 @@ class AnkiQt(QMainWindow):
         try:
             self.setupUI()
             self.setupAddons(args)
+            self.finish_ui_setup()
         except:
             showInfo(_("Error during startup:\n%s") % traceback.format_exc())
             sys.exit(1)
@@ -153,6 +154,10 @@ class AnkiQt(QMainWindow):
         self.setupDeckBrowser()
         self.setupOverview()
         self.setupReviewer()
+
+    def finish_ui_setup(self) -> None:
+        "Actions that are deferred until after add-on loading."
+        self.toolbar.draw()
 
     def setupProfileAfterWebviewsLoaded(self):
         for w in (self.web, self.bottomWeb):
@@ -763,7 +768,6 @@ title="%s" %s>%s</button>""" % (
         tweb = self.toolbarWeb = aqt.webview.AnkiWebView(title="top toolbar")
         tweb.setFocusPolicy(Qt.WheelFocus)
         self.toolbar = aqt.toolbar.Toolbar(self, tweb)
-        self.toolbar.draw()
         # main area
         self.web = aqt.webview.AnkiWebView(title="main webview")
         self.web.setFocusPolicy(Qt.WheelFocus)
@@ -1065,7 +1069,11 @@ title="%s" %s>%s</button>""" % (
         deck = self._selectedDeck()
         if not deck:
             return
-        aqt.dialogs.open("DeckStats", self)
+        want_old = self.app.queryKeyboardModifiers() & Qt.ShiftModifier
+        if want_old:
+            aqt.dialogs.open("DeckStats", self)
+        else:
+            aqt.dialogs.open("NewDeckStats", self)
 
     def onPrefs(self):
         aqt.dialogs.open("Preferences", self)
@@ -1232,8 +1240,10 @@ Difference to correct time: %s."""
 
     def on_autosync_timer(self):
         elap = self.media_syncer.seconds_since_last_sync()
-        # autosync if 15 minutes have elapsed since last sync
-        if elap > 15 * 60:
+        minutes = self.pm.auto_sync_media_minutes()
+        if not minutes:
+            return
+        if elap > minutes * 60:
             self.maybe_auto_sync_media()
 
     # Permanent libanki hooks

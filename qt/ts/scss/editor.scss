@@ -9,6 +9,7 @@
     color: vars.$day-text-fg;
     padding: 5px;
     overflow-wrap: break-word;
+    overflow: auto;
 }
 
 .clearfix:after {

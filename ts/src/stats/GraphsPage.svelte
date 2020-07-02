@@ -1,5 +1,5 @@
 <script context="module">
-    import style from "./graphs.css";
+    import style from "./graphs.scss";
 </script>
 
 <script lang="typescript">
@@ -17,8 +17,10 @@
     import HourGraph from "./HourGraph.svelte";
     import FutureDue from "./FutureDue.svelte";
     import ReviewsGraph from "./ReviewsGraph.svelte";
+    import CalendarGraph from "./CalendarGraph.svelte";
 
     export let i18n: I18n;
+    export let nightMode: boolean;
 
     let sourceData: pb.BackendProto.GraphsOut | null = null;
 
@@ -141,6 +143,7 @@
 
 <TodayStats {sourceData} {i18n} />
 <CardCounts {sourceData} {i18n} />
+<CalendarGraph {sourceData} {revlogRange} {i18n} {nightMode} />
 <FutureDue {sourceData} {revlogRange} {i18n} />
 <ReviewsGraph {sourceData} {revlogRange} {i18n} />
 <IntervalsGraph {sourceData} {i18n} />
