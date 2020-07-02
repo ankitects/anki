@@ -34,6 +34,10 @@ devDependencies: package.json
 # 	https://github.com/fsevents/fsevents/issues/321
 	npm install --no-optional --only=dev
 
+.PHONY: clean
+clean:
+	rm -rf .build node_modules
+
 .PHONY: fix
 fix:
 	$(BIN)/prettier --write src/*.ts

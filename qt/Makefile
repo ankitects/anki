@@ -86,6 +86,7 @@ fix: $(BUILD_STEPS)
 .PHONY: clean
 clean:
 	rm -rf .build aqt.egg-info build dist
+	(cd ts && make clean)
 
 # Checking Typescript
 ######################
