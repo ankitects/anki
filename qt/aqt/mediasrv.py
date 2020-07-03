@@ -138,7 +138,13 @@ def allroutes(pathin):
             response.headers["Content-Type"] = "application/binary"
             return response
 
-        return flask.send_file(fullpath, conditional=True)
+        if fullpath.endswith(".css"):
+            # some users may have invalid mime type in the Windows registry
+            mimetype = "text/css"
+        else:
+            # autodetect
+            mimetype = None
+        return flask.send_file(fullpath, mimetype=mimetype, conditional=True)
 
     except Exception as error:
         if devMode:
