@@ -11,6 +11,7 @@ import locale
 import pickle
 import random
 import shutil
+import traceback
 from typing import Any, Dict, List, Optional
 
 from send2trash import send2trash
@@ -134,6 +135,7 @@ class ProfileManager:
             except AnkiRestart:
                 raise
             except:
+                print("migration failed")
                 self.base = newBase
                 shutil.move(oldBase, self.base)
 
@@ -253,7 +255,7 @@ Anki could not read your profile data. Window sizes and your sync login \
 details have been forgotten."""
                 ),
             )
-
+            traceback.print_stack()
             print("resetting corrupt profile")
             self.profile = profileConf.copy()
             self.save()
@@ -446,6 +448,7 @@ create table if not exists profiles
                 "select cast(data as blob) from profiles where name = '_global'"
             )
         except:
+            traceback.print_stack()
             if result.loadError:
                 # already failed, prevent infinite loop
                 raise
@@ -459,6 +462,7 @@ create table if not exists profiles
                 self.meta = self._unpickle(data)
                 return result
             except:
+                traceback.print_stack()
                 print("resetting corrupt _global")
                 result.loadError = True
                 result.firstTime = True
