@@ -628,7 +628,11 @@ class AnkiMediaQueue {
 
     _getSource(media: HTMLMediaElement) {
         let source = media.getAttribute("src");
-        if (!source && media.firstChild) {
+        if (
+            !source &&
+            media.firstChild &&
+            (media.firstChild as HTMLSourceElement).getAttribute
+        ) {
             source = (media.firstChild as HTMLSourceElement).getAttribute("src");
         }
         return source;
