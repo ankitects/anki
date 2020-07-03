@@ -50,8 +50,6 @@ class MediaServer(threading.Thread):
     def __init__(self, mw: aqt.main.AnkiQt, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.is_shutdown = False
-        _redirectWebExports.mw = mw  # type: ignore
-        allroutes.mw = mw  # type: ignore
 
     def run(self):
         try:
@@ -125,9 +123,9 @@ def allroutes(pathin):
         if flask.request.method == "POST":
             if path == "graphData":
                 body = request.data
-                data = graph_data(allroutes.mw.col, **from_json_bytes(body))
+                data = graph_data(aqt.mw.col, **from_json_bytes(body))
             elif path == "i18nResources":
-                data = allroutes.mw.col.backend.i18n_resources()
+                data = aqt.mw.col.backend.i18n_resources()
             else:
                 return flask.make_response(
                     "Post request to '%s - %s' is a security leak!" % (directory, path),
@@ -174,7 +172,7 @@ def _redirectWebExports(path):
         addonPath = path[len(targetPath) :]
 
         try:
-            addMgr = _redirectWebExports.mw.addonManager
+            addMgr = aqt.mw.addonManager
         except AttributeError as error:
             if devMode:
                 print("_redirectWebExports: %s" % error)
@@ -194,7 +192,7 @@ def _redirectWebExports(path):
         if re.fullmatch(pattern, subPath):
             return addMgr.addonsFolder(), addonPath
 
-    return _redirectWebExports.mw.col.media.dir(), path
+    return aqt.mw.col.media.dir(), path
 
 
 def graph_data(col: Collection, search: str, days: int) -> bytes:
