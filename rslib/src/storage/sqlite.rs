@@ -167,10 +167,12 @@ impl SqliteStorage {
         if create {
             db.execute_batch(include_str!("schema11.sql"))?;
             // start at schema 11, then upgrade below
+            let crt = v1_creation_date();
             db.execute(
-                "update col set crt=?, ver=?, conf=?",
+                "update col set crt=?, scm=?, ver=?, conf=?",
                 params![
-                    v1_creation_date(),
+                    crt,
+                    crt * 1000,
                     SCHEMA_STARTING_VERSION,
                     &schema11_config_as_string()
                 ],
