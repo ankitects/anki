@@ -126,6 +126,7 @@ class AnkiMediaQueue {
     _reset(parameters: any = {}) {
         // this._debug(`_reset parameters '${JSON.stringify(parameters)}'`);
         let { skip_front_reset = false } = parameters;
+
         this.delay = 0.3;
         this.playing_front.length = 0;
         this.playing_back.length = 0;
@@ -141,6 +142,7 @@ class AnkiMediaQueue {
         this._add_duplicates_reset = 0;
         this._addall_reset = 0;
         this._addall_last_where = "front";
+
         if (this._playing_element) {
             this._playing_element.removeEventListener("ended", this._startnext as any);
         }
@@ -155,6 +157,7 @@ class AnkiMediaQueue {
         this.is_playing = false;
         this.is_autoplay = false;
         this.is_autoseek = true;
+
         if (this._is_autoseek_timer) {
             clearTimeout(this._is_autoseek_timer);
         }
@@ -169,6 +172,7 @@ class AnkiMediaQueue {
         this.wait_question = true;
         this._answer_element = null;
         this.has_previewed = false;
+
         if (!skip_front_reset) {
             this.skip_front = false;
         }
