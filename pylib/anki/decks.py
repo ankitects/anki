@@ -140,9 +140,7 @@ class DeckManager:
         return from_json_bytes(self.col.backend.new_deck_legacy(filtered))
 
     def deck_tree(self) -> pb.DeckTreeNode:
-        return self.col.backend.deck_tree(
-            include_counts=False, top_deck_id=0, today_delta=0
-        )
+        return self.col.backend.deck_tree(top_deck_id=0, now=0)
 
     @classmethod
     def find_deck_in_tree(

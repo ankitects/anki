@@ -8,6 +8,7 @@ use crate::{
     deckconf::{DeckConf, DeckConfID},
     decks::DeckID,
     err::Result,
+    timestamp::TimestampSecs,
 };
 use serde_tuple::Serialize_tuple;
 use std::{
@@ -208,13 +209,13 @@ impl From<DeckTreeNode> for LegacyDueCounts {
 
 impl Collection {
     /// Get the deck tree.
-    /// If today is provided, due counts for the provided day will be populated.
+    /// If now is provided, due counts for the provided timestamp will be populated.
     /// If top_deck_id is provided, only the node starting at the provided deck ID will
     /// have the counts populated. Currently the entire tree is returned in this case, but
     /// this may change in the future.
     pub fn deck_tree(
         &mut self,
-        today: Option<u32>,
+        now: Option<TimestampSecs>,
         top_deck_id: Option<DeckID>,
     ) -> Result<DeckTreeNode> {
         let names = self.storage.get_all_deck_names()?;
@@ -227,12 +228,12 @@ impl Collection {
             .map(|d| (d.id, d))
             .collect();
 
-        add_collapsed_and_filtered(&mut tree, &decks_map, today.is_none());
+        add_collapsed_and_filtered(&mut tree, &decks_map, now.is_none());
         if self.default_deck_is_empty()? {
             hide_default_deck(&mut tree);
         }
 
-        if let Some(today) = today {
+        if let Some(now) = now {
             let limit = top_deck_id.and_then(|did| {
                 if let Some(deck) = decks_map.get(&did) {
                     Some(deck.name.as_str())
@@ -240,7 +241,9 @@ impl Collection {
                     None
                 }
             });
-            let counts = self.due_counts(limit)?;
+            let days_elapsed = self.timing_for_timestamp(now)?.days_elapsed;
+            let learn_cutoff = (now.0 as u32) + self.learn_ahead_secs();
+            let counts = self.due_counts(days_elapsed, learn_cutoff, limit)?;
             let dconf: HashMap<_, _> = self
                 .storage
                 .all_deck_config()?
@@ -250,7 +253,7 @@ impl Collection {
             add_counts(&mut tree, &counts);
             apply_limits(
                 &mut tree,
-                today,
+                days_elapsed,
                 &decks_map,
                 &dconf,
                 (std::u32::MAX, std::u32::MAX),
@@ -262,14 +265,12 @@ impl Collection {
 
     pub fn current_deck_tree(&mut self) -> Result<Option<DeckTreeNode>> {
         let target = self.get_current_deck_id();
-        let today = self.current_due_day(0)?;
-        let tree = self.deck_tree(Some(today), Some(target))?;
+        let tree = self.deck_tree(Some(TimestampSecs::now()), Some(target))?;
         Ok(get_subnode(tree, target))
     }
 
     pub(crate) fn legacy_deck_tree(&mut self) -> Result<LegacyDueCounts> {
-        let today = self.current_due_day(0)?;
-        let tree = self.deck_tree(Some(today), None)?;
+        let tree = self.deck_tree(Some(TimestampSecs::now()), None)?;
         Ok(LegacyDueCounts::from(tree))
     }
 
@@ -293,6 +294,7 @@ impl Collection {
 
 #[cfg(test)]
 mod test {
+    use super::*;
     use crate::{collection::open_test_collection, deckconf::DeckConfID, err::Result};
 
     #[test]
@@ -349,7 +351,7 @@ mod test {
         note.fields[0] = "{{c1::}} {{c2::}} {{c3::}} {{c4::}}".into();
         col.add_note(&mut note, child_deck.id)?;
 
-        let tree = col.deck_tree(Some(0), None)?;
+        let tree = col.deck_tree(Some(TimestampSecs::now()), None)?;
         assert_eq!(tree.children[0].new_count, 4);
         assert_eq!(tree.children[0].children[0].new_count, 4);
 
@@ -360,7 +362,7 @@ mod test {
         col.add_or_update_deck(&mut parent_deck)?;
 
         // with the default limit of 20, there should still be 4 due
-        let tree = col.deck_tree(Some(0), None)?;
+        let tree = col.deck_tree(Some(TimestampSecs::now()), None)?;
         assert_eq!(tree.children[0].new_count, 4);
         assert_eq!(tree.children[0].children[0].new_count, 4);
 
@@ -369,7 +371,7 @@ mod test {
         conf.inner.new_per_day = 4;
         col.add_or_update_deck_config(&mut conf, false)?;
 
-        let tree = col.deck_tree(Some(0), None)?;
+        let tree = col.deck_tree(Some(TimestampSecs::now()), None)?;
         assert_eq!(tree.children[0].new_count, 3);
         assert_eq!(tree.children[0].children[0].new_count, 3);
 

@@ -78,8 +78,4 @@ impl Collection {
             SchedulerVersion::V2 => self.set_v2_rollover(hour as u32),
         }
     }
-
-    pub(crate) fn learn_cutoff(&self) -> u32 {
-        TimestampSecs::now().0 as u32 + self.learn_ahead_secs()
-    }
 }
