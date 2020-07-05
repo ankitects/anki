@@ -526,12 +526,12 @@ impl BackendService for Backend {
             None
         };
         self.with_col(|col| {
-            let today = if input.include_counts {
-                Some(col.current_due_day(input.today_delta)?)
-            } else {
+            let now = if input.now == 0 {
                 None
+            } else {
+                Some(TimestampSecs(input.now))
             };
-            col.deck_tree(today, lim)
+            col.deck_tree(now, lim)
         })
     }
 

@@ -545,9 +545,9 @@ message SchedTimingTodayOut {
 }
 
 message DeckTreeIn {
-    bool include_counts = 1;
+    // if non-zero, counts for the provided timestamp will be included
+    int64 now = 1;
     int64 top_deck_id = 2;
-    int32 today_delta = 3;
 }
 
 message DeckTreeNode {

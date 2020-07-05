@@ -12,12 +12,13 @@ pub(crate) struct DueCounts {
 }
 
 impl Collection {
+    /// Get due counts for decks at the given timestamp.
     pub(crate) fn due_counts(
         &mut self,
+        days_elapsed: u32,
+        learn_cutoff: u32,
         limit_to: Option<&str>,
     ) -> Result<HashMap<DeckID, DueCounts>> {
-        let days_elapsed = self.timing_today()?.days_elapsed;
-        let learn_cutoff = self.learn_cutoff();
         if let Some(limit) = limit_to {
             self.storage
                 .due_counts_limited(self.sched_ver(), days_elapsed, learn_cutoff, limit)
