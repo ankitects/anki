@@ -18,7 +18,7 @@ import { select, mouse } from "d3-selection";
 import { scaleLinear, scaleSequential } from "d3-scale";
 import { axisBottom, axisLeft } from "d3-axis";
 import { showTooltip, hideTooltip } from "./tooltip";
-import { GraphBounds } from "./graphs";
+import { GraphBounds, setDataAvailable } from "./graphs";
 import { area, curveBasis } from "d3-shape";
 import { min, histogram, sum, max, Bin, cumsum } from "d3-array";
 import { timeSpan, dayLabel } from "../time";
@@ -40,7 +40,7 @@ export interface GraphData {
 
 export enum ReviewRange {
     Month = 0,
-    Quarter = 1,
+    ThreeMonths = 1,
     Year = 2,
     AllTime = 3,
 }
@@ -116,6 +116,9 @@ export function renderReviews(
     showTime: boolean,
     i18n: I18n
 ): void {
+    const svg = select(svgElem);
+    const trans = svg.transition().duration(600) as any;
+
     const xMax = 1;
     let xMin = 0;
     // cap max to selected range
@@ -123,7 +126,7 @@ export function renderReviews(
         case ReviewRange.Month:
             xMin = -31;
             break;
-        case ReviewRange.Quarter:
+        case ReviewRange.ThreeMonths:
             xMin = -90;
             break;
         case ReviewRange.Year:
@@ -135,7 +138,7 @@ export function renderReviews(
     }
     const desiredBars = Math.min(70, Math.abs(xMin!));
 
-    const x = scaleLinear().domain([xMin!, xMax]);
+    const x = scaleLinear().domain([xMin!, xMax]).nice(desiredBars);
     const sourceMap = showTime ? sourceData.reviewTime : sourceData.reviewCount;
     const bins = histogram()
         .value((m) => {
@@ -144,8 +147,13 @@ export function renderReviews(
         .domain(x.domain() as any)
         .thresholds(x.ticks(desiredBars))(sourceMap.entries() as any);
 
-    const svg = select(svgElem);
-    const trans = svg.transition().duration(600) as any;
+    // empty graph?
+    if (!sum(bins, (bin) => bin.length)) {
+        setDataAvailable(svg, false);
+        return;
+    } else {
+        setDataAvailable(svg, true);
+    }
 
     x.range([bounds.marginLeft, bounds.width - bounds.marginRight]);
     svg.select<SVGGElement>(".x-ticks")
@@ -206,7 +214,7 @@ export function renderReviews(
         if (showTime) {
             return timeSpan(i18n, n / 1000);
         } else {
-            return i18n.tr(i18n.TR.STATISTICS_CARDS, { cards: n });
+            return i18n.tr(i18n.TR.STATISTICS_REVIEWS, { reviews: n });
         }
     }
 
@@ -247,7 +255,7 @@ export function renderReviews(
             ],
             [
                 "grey",
-                `${i18n.tr(i18n.TR.STATISTICS_COUNTS_TOTAL_CARDS)}: ${valueLabel(
+                `${i18n.tr(i18n.TR.STATISTICS_RUNNING_TOTAL)}: ${valueLabel(
                     cumulative
                 )}`,
             ],
@@ -339,6 +347,10 @@ export function renderReviews(
         .attr("height", () => y(0) - y(yMax!))
         .on("mousemove", function (this: any, d: any, idx) {
             const [x, y] = mouse(document.body);
+            if (d.x0! >= 0) {
+                // don't show 'in x days' at the end of the graph
+                return;
+            }
             showTooltip(tooltipText(d, areaData[idx + 1]), x, y);
         })
         .on("mouseout", hideTooltip);

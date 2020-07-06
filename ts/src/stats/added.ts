@@ -7,7 +7,7 @@
  */
 
 import pb from "../backend/proto";
-import { extent, histogram } from "d3-array";
+import { extent, histogram, sum } from "d3-array";
 import { scaleLinear, scaleSequential } from "d3-scale";
 import { HistogramData } from "./histogram-graph";
 import { interpolateBlues } from "d3-scale-chromatic";
@@ -16,7 +16,7 @@ import { dayLabel } from "../time";
 
 export enum AddedRange {
     Month = 0,
-    Quarter = 1,
+    ThreeMonths = 1,
     Year = 2,
     AllTime = 3,
 }
@@ -52,7 +52,7 @@ export function buildHistogram(
         case AddedRange.Month:
             xMin = -31;
             break;
-        case AddedRange.Quarter:
+        case AddedRange.ThreeMonths:
             xMin = -90;
             break;
         case AddedRange.Year:
@@ -68,6 +68,11 @@ export function buildHistogram(
     const bins = histogram()
         .domain(scale.domain() as any)
         .thresholds(scale.ticks(desiredBars))(data.daysAdded);
+
+    // empty graph?
+    if (!sum(bins, (bin) => bin.length)) {
+        return null;
+    }
 
     const colourScale = scaleSequential(interpolateBlues).domain([xMin!, xMax]);
 

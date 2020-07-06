@@ -2,10 +2,9 @@
     import { timeSpan, MONTH, YEAR } from "../time";
     import { I18n } from "../i18n";
     import { HistogramData } from "./histogram-graph";
-    import { defaultGraphBounds, RevlogRange } from "./graphs";
+    import { defaultGraphBounds } from "./graphs";
     import {
         gatherData,
-        renderFutureDue,
         GraphData,
         FutureDueRange,
         buildHistogram,
@@ -15,25 +14,12 @@
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
     export let i18n: I18n;
-    export let revlogRange: RevlogRange;
 
     let graphData = null as GraphData | null;
     let histogramData = null as HistogramData | null;
     let backlog: boolean = true;
     let svg = null as HTMLElement | SVGElement | null;
-    let range: FutureDueRange;
-
-    $: switch (revlogRange as RevlogRange) {
-        case RevlogRange.Month:
-            range = FutureDueRange.Month;
-            break;
-        case RevlogRange.Year:
-            range = FutureDueRange.Year;
-            break;
-        case RevlogRange.All:
-            range = FutureDueRange.AllTime;
-            break;
-    }
+    let range: FutureDueRange = FutureDueRange.Month;
 
     $: if (sourceData) {
         graphData = gatherData(sourceData);
@@ -52,38 +38,35 @@
     const backlogLabel = i18n.tr(i18n.TR.STATISTICS_BACKLOG_CHECKBOX);
 </script>
 
-{#if histogramData}
+<div class="graph">
+    <h1>{title}</h1>
 
-    <div class="graph">
-        <h1>{title}</h1>
+    <div class="range-box-inner">
+        <label>
+            <input type="checkbox" bind:checked={backlog} />
+            {backlogLabel}
+        </label>
 
-        <div class="range-box-inner">
-            <label>
-                <input type="checkbox" bind:checked={backlog} />
-                {backlogLabel}
-            </label>
-
-            <label>
-                <input type="radio" bind:group={range} value={FutureDueRange.Month} />
-                {month}
-            </label>
-            <label>
-                <input type="radio" bind:group={range} value={FutureDueRange.Quarter} />
-                {month3}
-            </label>
-            <label>
-                <input type="radio" bind:group={range} value={FutureDueRange.Year} />
-                {year}
-            </label>
-            <label>
-                <input type="radio" bind:group={range} value={FutureDueRange.AllTime} />
-                {all}
-            </label>
-        </div>
-
-        <div class="subtitle">{subtitle}</div>
-
-        <HistogramGraph data={histogramData} />
-
+        <label>
+            <input type="radio" bind:group={range} value={FutureDueRange.Month} />
+            {month}
+        </label>
+        <label>
+            <input type="radio" bind:group={range} value={FutureDueRange.Quarter} />
+            {month3}
+        </label>
+        <label>
+            <input type="radio" bind:group={range} value={FutureDueRange.Year} />
+            {year}
+        </label>
+        <label>
+            <input type="radio" bind:group={range} value={FutureDueRange.AllTime} />
+            {all}
+        </label>
     </div>
-{/if}
+
+    <div class="subtitle">{subtitle}</div>
+
+    <HistogramGraph data={histogramData} {i18n} />
+
+</div>

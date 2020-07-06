@@ -29,6 +29,7 @@ body {
 .graph {
     margin-left: auto;
     margin-right: auto;
+    max-width: 80em;
 }
 
 .graph h1 {
@@ -125,6 +126,16 @@ body.night-mode {
     color: $night-fg;
 }
 
+.no-data {
+    text {
+        text-anchor: middle;
+        fill: grey;
+    }
+    rect {
+        fill: $day-bg;
+    }
+}
+
 .night-mode {
     .graph-tooltip {
         background: $night-bg;
@@ -138,4 +149,11 @@ body.night-mode {
         fill: $night-fg;
         opacity: 0.1;
     }
+    .no-data rect {
+        fill: $night-bg;
+    }
+}
+
+.centered {
+    text-align: center;
 }

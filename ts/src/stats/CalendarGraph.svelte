@@ -1,15 +1,14 @@
 <script lang="typescript">
-    import ReviewsGraph from "./ReviewsGraph.svelte";
-
+    import NoDataOverlay from "./NoDataOverlay.svelte";
     import AxisTicks from "./AxisTicks.svelte";
     import { defaultGraphBounds, RevlogRange } from "./graphs";
-    import { GraphData, gatherData, renderCalendar, ReviewRange } from "./calendar";
+    import { GraphData, gatherData, renderCalendar } from "./calendar";
     import pb from "../backend/proto";
     import { timeSpan, MONTH, YEAR } from "../time";
     import { I18n } from "../i18n";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
-    export let revlogRange: RevlogRange = RevlogRange.Month;
+    export let revlogRange: RevlogRange;
     export let i18n: I18n;
     export let nightMode: boolean;
 
@@ -53,7 +52,7 @@
         );
     }
 
-    const title = i18n.tr(i18n.TR.STATISTICS_REVIEWS_TITLE);
+    const title = i18n.tr(i18n.TR.STATISTICS_CALENDAR_TITLE);
 </script>
 
 <div class="graph">
@@ -76,6 +75,7 @@
     <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
         <g class="days" />
         <AxisTicks {bounds} />
+        <NoDataOverlay {bounds} {i18n} />
     </svg>
 
 </div>

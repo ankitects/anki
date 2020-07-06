@@ -19,12 +19,10 @@
     const subtitle = i18n.tr(i18n.TR.STATISTICS_CARD_EASE_SUBTITLE);
 </script>
 
-{#if histogramData}
-    <div class="graph">
-        <h1>{title}</h1>
+<div class="graph">
+    <h1>{title}</h1>
 
-        <div class="subtitle">{subtitle}</div>
+    <div class="subtitle">{subtitle}</div>
 
-        <HistogramGraph data={histogramData} />
-    </div>
-{/if}
+    <HistogramGraph data={histogramData} {i18n} />
+</div>

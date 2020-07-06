@@ -91,7 +91,9 @@ statistics-counts-learning-cards = Learning
 statistics-counts-relearning-cards = Relearning
 statistics-counts-title = Card Counts
 
-statistics-range-all-time = deck life
+statistics-range-all-time = all
+statistics-range-1-year-history = last 12 months
+statistics-range-all-history = all history
 statistics-range-deck = deck
 statistics-range-collection = collection
 statistics-range-search = Search
@@ -157,3 +159,6 @@ statistics-hours-range = From { $hourStart }:00~{ $hourEnd }:00
 statistics-hours-correct = { $correct }/{ $total } correct ({ $percent }%)
 statistics-hours-title = Hourly Breakdown
 statistics-hours-subtitle = Review success rate for each hour of the day.
+# shown when graph is empty
+statistics-no-data = NO DATA
+statistics-calendar-title = Calendar

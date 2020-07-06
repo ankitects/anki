@@ -34,44 +34,36 @@
     const subtitle = i18n.tr(i18n.TR.STATISTICS_INTERVALS_SUBTITLE);
 </script>
 
-{#if histogramData}
-    <div class="graph intervals">
-        <h1>{title}</h1>
+<div class="graph intervals">
+    <h1>{title}</h1>
 
-        <div class="range-box-inner">
-            <label>
-                <input type="radio" bind:group={range} value={IntervalRange.Month} />
-                {month}
-            </label>
-            <label>
-                <input
-                    type="radio"
-                    bind:group={range}
-                    value={IntervalRange.Percentile50} />
-                50%
-            </label>
-            <label>
-                <input
-                    type="radio"
-                    bind:group={range}
-                    value={IntervalRange.Percentile95} />
-                95%
-            </label>
-            <label>
-                <input
-                    type="radio"
-                    bind:group={range}
-                    value={IntervalRange.Percentile999} />
-                99.9%
-            </label>
-            <label>
-                <input type="radio" bind:group={range} value={IntervalRange.All} />
-                {all}
-            </label>
-        </div>
-
-        <div class="subtitle">{subtitle}</div>
-
-        <HistogramGraph data={histogramData} />
+    <div class="range-box-inner">
+        <label>
+            <input type="radio" bind:group={range} value={IntervalRange.Month} />
+            {month}
+        </label>
+        <label>
+            <input type="radio" bind:group={range} value={IntervalRange.Percentile50} />
+            50%
+        </label>
+        <label>
+            <input type="radio" bind:group={range} value={IntervalRange.Percentile95} />
+            95%
+        </label>
+        <label>
+            <input
+                type="radio"
+                bind:group={range}
+                value={IntervalRange.Percentile999} />
+            99.9%
+        </label>
+        <label>
+            <input type="radio" bind:group={range} value={IntervalRange.All} />
+            {all}
+        </label>
     </div>
-{/if}
+
+    <div class="subtitle">{subtitle}</div>
+
+    <HistogramGraph data={histogramData} {i18n} />
+</div>

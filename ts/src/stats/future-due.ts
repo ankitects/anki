@@ -88,6 +88,11 @@ export function buildHistogram(
         .domain(x.domain() as any)
         .thresholds(x.ticks(desiredBars))(data.entries() as any);
 
+    // empty graph?
+    if (!sum(bins, (bin) => bin.length)) {
+        return null;
+    }
+
     const adjustedRange = scaleLinear().range([0.8, 0.3]);
     const colourScale = scaleSequential((n) =>
         interpolateGreens(adjustedRange(n))

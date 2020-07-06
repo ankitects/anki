@@ -31,7 +31,7 @@
     }
 
     let searchRange: SearchRange = SearchRange.Deck;
-    let revlogRange: RevlogRange = RevlogRange.Month;
+    let revlogRange: RevlogRange = RevlogRange.Year;
     let days: number = 31;
     let refreshing = false;
 
@@ -66,9 +66,6 @@
 
     $: {
         switch (revlogRange as RevlogRange) {
-            case RevlogRange.Month:
-                days = 31;
-                break;
             case RevlogRange.Year:
                 days = 365;
                 break;
@@ -90,12 +87,12 @@
         }
     };
 
-    const month = timeSpan(i18n, 1 * MONTH);
-    const year = timeSpan(i18n, 1 * YEAR);
+    const month = timeSpan(i18n, 3 * MONTH);
+    const year = i18n.tr(i18n.TR.STATISTICS_RANGE_1_YEAR_HISTORY);
     const deck = i18n.tr(i18n.TR.STATISTICS_RANGE_DECK);
     const collection = i18n.tr(i18n.TR.STATISTICS_RANGE_COLLECTION);
     const searchLabel = i18n.tr(i18n.TR.STATISTICS_RANGE_SEARCH);
-    const all = i18n.tr(i18n.TR.STATISTICS_RANGE_ALL_TIME);
+    const all = i18n.tr(i18n.TR.STATISTICS_RANGE_ALL_HISTORY);
 </script>
 
 <div class="range-box">
@@ -126,10 +123,6 @@
 
     <div class="range-box-inner">
         <label>
-            <input type="radio" bind:group={revlogRange} value={RevlogRange.Month} />
-            {month}
-        </label>
-        <label>
             <input type="radio" bind:group={revlogRange} value={RevlogRange.Year} />
             {year}
         </label>
@@ -141,13 +134,15 @@
 </div>
 <div class="range-box-pad" />
 
-<TodayStats {sourceData} {i18n} />
-<CardCounts {sourceData} {i18n} />
-<CalendarGraph {sourceData} {revlogRange} {i18n} {nightMode} />
-<FutureDue {sourceData} {revlogRange} {i18n} />
-<ReviewsGraph {sourceData} {revlogRange} {i18n} />
-<IntervalsGraph {sourceData} {i18n} />
-<EaseGraph {sourceData} {i18n} />
-<HourGraph {sourceData} {i18n} />
-<ButtonsGraph {sourceData} {i18n} />
-<AddedGraph {sourceData} {revlogRange} {i18n} />
+{#if sourceData}
+    <TodayStats {sourceData} {i18n} />
+    <CardCounts {sourceData} {i18n} />
+    <CalendarGraph {sourceData} {revlogRange} {i18n} {nightMode} />
+    <FutureDue {sourceData} {revlogRange} {i18n} />
+    <ReviewsGraph {sourceData} {revlogRange} {i18n} />
+    <IntervalsGraph {sourceData} {i18n} />
+    <EaseGraph {sourceData} {i18n} />
+    <HourGraph {sourceData} {i18n} />
+    <ButtonsGraph {sourceData} {i18n} />
+    <AddedGraph {sourceData} {revlogRange} {i18n} />
+{/if}

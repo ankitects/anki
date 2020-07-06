@@ -13,8 +13,9 @@ import { select, mouse } from "d3-selection";
 import { scaleLinear, scaleBand, scaleSequential } from "d3-scale";
 import { axisBottom, axisLeft } from "d3-axis";
 import { showTooltip, hideTooltip } from "./tooltip";
-import { GraphBounds } from "./graphs";
+import { GraphBounds, setDataAvailable } from "./graphs";
 import { I18n } from "../i18n";
+import { sum } from "d3-array";
 
 type ButtonCounts = [number, number, number, number];
 
@@ -62,10 +63,18 @@ export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
     return { learning, young, mature };
 }
 
+type GroupKind = "learning" | "young" | "mature";
+
 interface Datum {
-    buttonNum: string;
-    group: "learning" | "young" | "mature";
+    buttonNum: number;
+    group: GroupKind;
     count: number;
+}
+
+interface TotalCorrect {
+    total: number;
+    correct: number;
+    percent: string;
 }
 
 export function renderButtons(
@@ -77,31 +86,49 @@ export function renderButtons(
     const data = [
         ...sourceData.learning.map((count: number, idx: number) => {
             return {
-                buttonNum: (idx + 1).toString(),
+                buttonNum: idx + 1,
                 group: "learning",
                 count,
             } as Datum;
         }),
         ...sourceData.young.map((count: number, idx: number) => {
             return {
-                buttonNum: (idx + 1).toString(),
+                buttonNum: idx + 1,
                 group: "young",
                 count,
             } as Datum;
         }),
         ...sourceData.mature.map((count: number, idx: number) => {
             return {
-                buttonNum: (idx + 1).toString(),
+                buttonNum: idx + 1,
                 group: "mature",
                 count,
             } as Datum;
         }),
     ];
 
+    const totalCorrect = (kind: GroupKind): TotalCorrect => {
+        const groupData = data.filter((d) => d.group == kind);
+        const total = sum(groupData, (d) => d.count);
+        const correct = sum(
+            groupData.filter((d) => d.buttonNum > 1),
+            (d) => d.count
+        );
+        const percent = total ? ((correct / total) * 100).toFixed(2) : "0";
+        return { total, correct, percent };
+    };
+
     const yMax = Math.max(...data.map((d) => d.count));
 
     const svg = select(svgElem);
     const trans = svg.transition().duration(600) as any;
+
+    if (!yMax) {
+        setDataAvailable(svg, false);
+        return;
+    } else {
+        setDataAvailable(svg, true);
+    }
 
     const xGroup = scaleBand()
         .domain(["learning", "young", "mature"])
@@ -110,17 +137,21 @@ export function renderButtons(
         .transition(trans)
         .call(
             axisBottom(xGroup)
-                .tickFormat(((d: string) => {
+                .tickFormat(((d: GroupKind) => {
+                    let kind: string;
                     switch (d) {
                         case "learning":
-                            return i18n.tr(i18n.TR.STATISTICS_COUNTS_LEARNING_CARDS);
+                            kind = i18n.tr(i18n.TR.STATISTICS_COUNTS_LEARNING_CARDS);
+                            break;
                         case "young":
-                            return i18n.tr(i18n.TR.STATISTICS_COUNTS_YOUNG_CARDS);
+                            kind = i18n.tr(i18n.TR.STATISTICS_COUNTS_YOUNG_CARDS);
+                            break;
                         case "mature":
-                            return i18n.tr(i18n.TR.STATISTICS_COUNTS_MATURE_CARDS);
                         default:
-                            console.log(d);
+                            kind = i18n.tr(i18n.TR.STATISTICS_COUNTS_MATURE_CARDS);
+                            break;
                     }
+                    return `${kind} (${totalCorrect(d).percent}%)`;
                 }) as any)
                 .tickSizeOuter(0)
         );
@@ -162,10 +193,13 @@ export function renderButtons(
                 }
             })
             .transition(trans)
-            .attr("x", (d: Datum) => xGroup(d.group)! + xButton(d.buttonNum)!)
+            .attr(
+                "x",
+                (d: Datum) => xGroup(d.group)! + xButton(d.buttonNum.toString())!
+            )
             .attr("y", (d: Datum) => y(d.count)!)
             .attr("height", (d: Datum) => y(0) - y(d.count))
-            .attr("fill", (d: Datum) => colour(parseInt(d.buttonNum)));
+            .attr("fill", (d: Datum) => colour(d.buttonNum));
     };
 
     svg.select("g.bars")
@@ -176,7 +210,11 @@ export function renderButtons(
                 enter
                     .append("rect")
                     .attr("rx", 1)
-                    .attr("x", (d: Datum) => xGroup(d.group)! + xButton(d.buttonNum)!)
+                    .attr(
+                        "x",
+                        (d: Datum) =>
+                            xGroup(d.group)! + xButton(d.buttonNum.toString())!
+                    )
                     .attr("y", y(0))
                     .attr("height", 0)
                     .call(updateBar),
@@ -192,14 +230,18 @@ export function renderButtons(
     function tooltipText(d: Datum): string {
         const button = i18n.tr(i18n.TR.STATISTICS_ANSWER_BUTTONS_BUTTON_NUMBER);
         const timesPressed = i18n.tr(i18n.TR.STATISTICS_ANSWER_BUTTONS_BUTTON_PRESSED);
-        return `${button}: ${d.buttonNum}<br>${timesPressed}: ${d.count}`;
+        const correctStr = i18n.tr(
+            i18n.TR.STATISTICS_HOURS_CORRECT,
+            totalCorrect(d.group)
+        );
+        return `${button}: ${d.buttonNum}<br>${timesPressed}: ${d.count}<br>${correctStr}`;
     }
 
     svg.select("g.hoverzone")
         .selectAll("rect")
         .data(data)
         .join("rect")
-        .attr("x", (d: Datum) => xGroup(d.group)! + xButton(d.buttonNum)!)
+        .attr("x", (d: Datum) => xGroup(d.group)! + xButton(d.buttonNum.toString())!)
         .attr("y", () => y(yMax!))
         .attr("width", xButton.bandwidth())
         .attr("height", () => y(0) - y(yMax!))
