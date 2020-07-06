@@ -91,7 +91,9 @@ statistics-counts-learning-cards = Learning
 statistics-counts-relearning-cards = Relearning
 statistics-counts-title = Card Counts
 
-statistics-range-all-time = deck life
+statistics-range-all-time = all
+statistics-range-1-year-history = last 12 months
+statistics-range-all-history = all history
 statistics-range-deck = deck
 statistics-range-collection = collection
 statistics-range-search = Search

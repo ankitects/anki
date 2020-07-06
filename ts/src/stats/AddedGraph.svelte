@@ -9,23 +9,10 @@
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
     export let i18n: I18n;
-    export let revlogRange: RevlogRange;
 
     let svg = null as HTMLElement | SVGElement | null;
     let histogramData = null as HistogramData | null;
-    let range: AddedRange;
-
-    $: switch (revlogRange as RevlogRange) {
-        case RevlogRange.Month:
-            range = AddedRange.Month;
-            break;
-        case RevlogRange.Year:
-            range = AddedRange.Year;
-            break;
-        case RevlogRange.All:
-            range = AddedRange.AllTime;
-            break;
-    }
+    let range: AddedRange = AddedRange.Month;
 
     let addedData: GraphData | null = null;
     $: if (sourceData) {
@@ -53,7 +40,7 @@
             {month}
         </label>
         <label>
-            <input type="radio" bind:group={range} value={AddedRange.Quarter} />
+            <input type="radio" bind:group={range} value={AddedRange.ThreeMonths} />
             {month3}
         </label>
         <label>
