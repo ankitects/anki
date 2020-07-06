@@ -214,7 +214,7 @@ export function renderReviews(
         if (showTime) {
             return timeSpan(i18n, n / 1000);
         } else {
-            return i18n.tr(i18n.TR.STATISTICS_CARDS, { cards: n });
+            return i18n.tr(i18n.TR.STATISTICS_REVIEWS, { reviews: n });
         }
     }
 
@@ -255,7 +255,7 @@ export function renderReviews(
             ],
             [
                 "grey",
-                `${i18n.tr(i18n.TR.STATISTICS_COUNTS_TOTAL_CARDS)}: ${valueLabel(
+                `${i18n.tr(i18n.TR.STATISTICS_RUNNING_TOTAL)}: ${valueLabel(
                     cumulative
                 )}`,
             ],
