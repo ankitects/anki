@@ -52,7 +52,7 @@
         );
     }
 
-    const title = i18n.tr(i18n.TR.STATISTICS_REVIEWS_TITLE);
+    const title = i18n.tr(i18n.TR.STATISTICS_CALENDAR_TITLE);
 </script>
 
 <div class="graph">
