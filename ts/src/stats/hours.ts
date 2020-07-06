@@ -13,7 +13,7 @@ import { select, mouse } from "d3-selection";
 import { scaleLinear, scaleBand, scaleSequential } from "d3-scale";
 import { axisBottom, axisLeft } from "d3-axis";
 import { showTooltip, hideTooltip } from "./tooltip";
-import { GraphBounds } from "./graphs";
+import { GraphBounds, setDataAvailable } from "./graphs";
 import { area, curveBasis } from "d3-shape";
 import { I18n } from "../i18n";
 
@@ -65,6 +65,13 @@ export function renderHours(
 
     const svg = select(svgElem);
     const trans = svg.transition().duration(600) as any;
+
+    if (!yMax) {
+        setDataAvailable(svg, false);
+        return;
+    } else {
+        setDataAvailable(svg, true);
+    }
 
     const x = scaleBand()
         .domain(data.map((d) => d.hour.toString()))

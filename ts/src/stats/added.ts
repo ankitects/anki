@@ -7,7 +7,7 @@
  */
 
 import pb from "../backend/proto";
-import { extent, histogram } from "d3-array";
+import { extent, histogram, sum } from "d3-array";
 import { scaleLinear, scaleSequential } from "d3-scale";
 import { HistogramData } from "./histogram-graph";
 import { interpolateBlues } from "d3-scale-chromatic";
@@ -68,6 +68,11 @@ export function buildHistogram(
     const bins = histogram()
         .domain(scale.domain() as any)
         .thresholds(scale.ticks(desiredBars))(data.daysAdded);
+
+    // empty graph?
+    if (!sum(bins, (bin) => bin.length)) {
+        return null;
+    }
 
     const colourScale = scaleSequential(interpolateBlues).domain([xMin!, xMax]);
 

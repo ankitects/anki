@@ -1,9 +1,8 @@
 <script lang="typescript">
-    import ReviewsGraph from "./ReviewsGraph.svelte";
-
+    import NoDataOverlay from "./NoDataOverlay.svelte";
     import AxisTicks from "./AxisTicks.svelte";
     import { defaultGraphBounds, RevlogRange } from "./graphs";
-    import { GraphData, gatherData, renderCalendar, ReviewRange } from "./calendar";
+    import { GraphData, gatherData, renderCalendar } from "./calendar";
     import pb from "../backend/proto";
     import { timeSpan, MONTH, YEAR } from "../time";
     import { I18n } from "../i18n";
@@ -76,6 +75,7 @@
     <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
         <g class="days" />
         <AxisTicks {bounds} />
+        <NoDataOverlay {bounds} {i18n} />
     </svg>
 
 </div>

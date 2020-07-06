@@ -6,6 +6,7 @@
     import pb from "../backend/proto";
     import { timeSpan, MONTH, YEAR } from "../time";
     import { I18n } from "../i18n";
+    import NoDataOverlay from "./NoDataOverlay.svelte";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
     export let revlogRange: RevlogRange = RevlogRange.Month;
@@ -93,6 +94,7 @@
         <path class="area" />
         <g class="hoverzone" />
         <AxisTicks {bounds} />
+        <NoDataOverlay {bounds} {i18n} />
     </svg>
 
 </div>

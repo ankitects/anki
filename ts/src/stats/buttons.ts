@@ -13,7 +13,7 @@ import { select, mouse } from "d3-selection";
 import { scaleLinear, scaleBand, scaleSequential } from "d3-scale";
 import { axisBottom, axisLeft } from "d3-axis";
 import { showTooltip, hideTooltip } from "./tooltip";
-import { GraphBounds } from "./graphs";
+import { GraphBounds, setDataAvailable } from "./graphs";
 import { I18n } from "../i18n";
 
 type ButtonCounts = [number, number, number, number];
@@ -102,6 +102,13 @@ export function renderButtons(
 
     const svg = select(svgElem);
     const trans = svg.transition().duration(600) as any;
+
+    if (!yMax) {
+        setDataAvailable(svg, false);
+        return;
+    } else {
+        setDataAvailable(svg, true);
+    }
 
     const xGroup = scaleBand()
         .domain(["learning", "young", "mature"])

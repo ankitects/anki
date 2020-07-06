@@ -94,12 +94,14 @@ export function renderCards(
             total: n,
         };
     });
-    const xMax = summed.slice(-1)[0];
+    // ensuring a non-zero range makes a better animation
+    // in the empty data case
+    const xMax = Math.max(1, summed.slice(-1)[0]);
     const x = scaleLinear().domain([0, xMax]);
     const svg = select(svgElem);
     const trans = svg.transition().duration(600) as any;
 
-    x.range([bounds.marginLeft, bounds.width - bounds.marginRight]);
+    x.range([bounds.marginLeft, bounds.width - bounds.marginRight - bounds.marginLeft]);
 
     const tooltipText = (d: any): string => {
         const pct = ((d.count[1] / xMax) * 100).toFixed(2);
@@ -113,7 +115,7 @@ export function renderCards(
                 showTooltip(tooltipText(d), x, y);
             })
             .transition(trans)
-            .attr("width", (d) => x(d.total) - bounds.marginLeft);
+            .attr("width", (d) => x(d.total));
     };
 
     data.reverse();

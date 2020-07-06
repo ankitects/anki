@@ -12,7 +12,7 @@ import "d3-transition";
 import { select, mouse } from "d3-selection";
 import { scaleLinear, scaleSequential } from "d3-scale";
 import { showTooltip, hideTooltip } from "./tooltip";
-import { GraphBounds } from "./graphs";
+import { GraphBounds, setDataAvailable } from "./graphs";
 import { timeDay, timeYear, timeWeek } from "d3-time";
 import { I18n } from "../i18n";
 
@@ -80,6 +80,14 @@ export function renderCalendar(
             maxCount = count;
         }
     }
+
+    if (!maxCount) {
+        setDataAvailable(svg, false);
+        return;
+    } else {
+        setDataAvailable(svg, true);
+    }
+
     // fill in any blanks
     const startDate = timeYear(nowForYear);
     for (let i = 0; i < 366; i++) {
