@@ -138,7 +138,7 @@ export function renderReviews(
     }
     const desiredBars = Math.min(70, Math.abs(xMin!));
 
-    const x = scaleLinear().domain([xMin!, xMax]);
+    const x = scaleLinear().domain([xMin!, xMax]).nice(desiredBars);
     const sourceMap = showTime ? sourceData.reviewTime : sourceData.reviewCount;
     const bins = histogram()
         .value((m) => {
@@ -347,6 +347,10 @@ export function renderReviews(
         .attr("height", () => y(0) - y(yMax!))
         .on("mousemove", function (this: any, d: any, idx) {
             const [x, y] = mouse(document.body);
+            if (d.x0! >= 0) {
+                // don't show 'in x days' at the end of the graph
+                return;
+            }
             showTooltip(tooltipText(d, areaData[idx + 1]), x, y);
         })
         .on("mouseout", hideTooltip);
