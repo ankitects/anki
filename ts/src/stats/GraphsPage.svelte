@@ -141,13 +141,15 @@
 </div>
 <div class="range-box-pad" />
 
-<TodayStats {sourceData} {i18n} />
-<CardCounts {sourceData} {i18n} />
-<CalendarGraph {sourceData} {revlogRange} {i18n} {nightMode} />
-<FutureDue {sourceData} {revlogRange} {i18n} />
-<ReviewsGraph {sourceData} {revlogRange} {i18n} />
-<IntervalsGraph {sourceData} {i18n} />
-<EaseGraph {sourceData} {i18n} />
-<HourGraph {sourceData} {i18n} />
-<ButtonsGraph {sourceData} {i18n} />
-<AddedGraph {sourceData} {revlogRange} {i18n} />
+{#if sourceData}
+    <TodayStats {sourceData} {i18n} />
+    <CardCounts {sourceData} {i18n} />
+    <CalendarGraph {sourceData} {revlogRange} {i18n} {nightMode} />
+    <FutureDue {sourceData} {revlogRange} {i18n} />
+    <ReviewsGraph {sourceData} {revlogRange} {i18n} />
+    <IntervalsGraph {sourceData} {i18n} />
+    <EaseGraph {sourceData} {i18n} />
+    <HourGraph {sourceData} {i18n} />
+    <ButtonsGraph {sourceData} {i18n} />
+    <AddedGraph {sourceData} {revlogRange} {i18n} />
+{/if}

@@ -13,7 +13,7 @@ import { scaleLinear, ScaleLinear, ScaleSequential } from "d3-scale";
 import { axisBottom, axisLeft } from "d3-axis";
 import { area, curveBasis } from "d3-shape";
 import { showTooltip, hideTooltip } from "./tooltip";
-import { GraphBounds } from "./graphs";
+import { GraphBounds, setDataAvailable } from "./graphs";
 
 export interface HistogramData {
     scale: ScaleLinear<number, number>;
@@ -33,12 +33,19 @@ export interface HistogramData {
 export function histogramGraph(
     svgElem: SVGElement,
     bounds: GraphBounds,
-    data: HistogramData
+    data: HistogramData | null
 ): void {
-    const binValue = data.binValue ?? ((bin: any): number => bin.length as number);
-
     const svg = select(svgElem);
     const trans = svg.transition().duration(600) as any;
+
+    if (!data) {
+        setDataAvailable(svg, false);
+        return;
+    } else {
+        setDataAvailable(svg, true);
+    }
+
+    const binValue = data.binValue ?? ((bin: any): number => bin.length as number);
 
     const x = data.scale.range([bounds.marginLeft, bounds.width - bounds.marginRight]);
     svg.select<SVGGElement>(".x-ticks")

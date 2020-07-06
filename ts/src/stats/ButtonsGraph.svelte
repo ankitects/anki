@@ -4,6 +4,7 @@
     import { gatherData, GraphData, renderButtons } from "./buttons";
     import pb from "../backend/proto";
     import { I18n } from "../i18n";
+    import NoDataOverlay from "./NoDataOverlay.svelte";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
     export let i18n: I18n;
@@ -29,5 +30,6 @@
         <g class="bars" />
         <g class="hoverzone" />
         <AxisTicks {bounds} />
+        <NoDataOverlay {bounds} {i18n} />
     </svg>
 </div>

@@ -157,3 +157,5 @@ statistics-hours-range = From { $hourStart }:00~{ $hourEnd }:00
 statistics-hours-correct = { $correct }/{ $total } correct ({ $percent }%)
 statistics-hours-title = Hourly Breakdown
 statistics-hours-subtitle = Review success rate for each hour of the day.
+# shown when graph is empty
+statistics-no-data = NO DATA

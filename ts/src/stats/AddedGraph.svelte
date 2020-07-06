@@ -44,31 +44,29 @@
     const subtitle = i18n.tr(i18n.TR.STATISTICS_ADDED_SUBTITLE);
 </script>
 
-{#if histogramData}
-    <div class="graph">
-        <h1>{title}</h1>
+<div class="graph">
+    <h1>{title}</h1>
 
-        <div class="range-box-inner">
-            <label>
-                <input type="radio" bind:group={range} value={AddedRange.Month} />
-                {month}
-            </label>
-            <label>
-                <input type="radio" bind:group={range} value={AddedRange.Quarter} />
-                {month3}
-            </label>
-            <label>
-                <input type="radio" bind:group={range} value={AddedRange.Year} />
-                {year}
-            </label>
-            <label>
-                <input type="radio" bind:group={range} value={AddedRange.AllTime} />
-                {all}
-            </label>
-        </div>
-
-        <div class="subtitle">{subtitle}</div>
-
-        <HistogramGraph data={histogramData} />
+    <div class="range-box-inner">
+        <label>
+            <input type="radio" bind:group={range} value={AddedRange.Month} />
+            {month}
+        </label>
+        <label>
+            <input type="radio" bind:group={range} value={AddedRange.Quarter} />
+            {month3}
+        </label>
+        <label>
+            <input type="radio" bind:group={range} value={AddedRange.Year} />
+            {year}
+        </label>
+        <label>
+            <input type="radio" bind:group={range} value={AddedRange.AllTime} />
+            {all}
+        </label>
     </div>
-{/if}
+
+    <div class="subtitle">{subtitle}</div>
+
+    <HistogramGraph data={histogramData} {i18n} />
+</div>

@@ -4,7 +4,7 @@
     import pb from "../backend/proto";
     import { I18n } from "../i18n";
 
-    export let sourceData: pb.BackendProto.GraphsOut | null = null;
+    export let sourceData: pb.BackendProto.GraphsOut;
     export let i18n: I18n;
 
     let svg = null as HTMLElement | SVGElement | null;
@@ -15,27 +15,31 @@
     bounds.marginRight = 20;
     bounds.marginTop = 0;
 
-    let graphData: GraphData | null = null;
-    $: if (sourceData) {
+    let graphData: GraphData;
+    $: {
         graphData = gatherData(sourceData, i18n);
-    }
-
-    $: if (graphData) {
         renderCards(svg as any, bounds, graphData);
     }
 
     const total = i18n.tr(i18n.TR.STATISTICS_COUNTS_TOTAL_CARDS);
 </script>
 
-{#if graphData}
-    <div class="graph">
-        <h1>{graphData.title}</h1>
+<style>
+    svg {
+        transition: opacity 1s;
+    }
+</style>
 
-        <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
-            <g class="days" />
-        </svg>
+<div class="graph">
+    <h1>{graphData.title}</h1>
 
-        <div class="centered">{total}: {graphData.totalCards}</div>
+    <svg
+        bind:this={svg}
+        viewBox={`0 0 ${bounds.width} ${bounds.height}`}
+        style="opacity: {graphData.totalCards ? 1 : 0}">
+        <g class="days" />
+    </svg>
 
-    </div>
-{/if}
+    <div class="centered">{total}: {graphData.totalCards}</div>
+
+</div>

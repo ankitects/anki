@@ -7,7 +7,7 @@
  */
 
 import pb from "../backend/proto";
-import { extent, histogram, quantile } from "d3-array";
+import { extent, histogram, quantile, sum } from "d3-array";
 import { scaleLinear, scaleSequential } from "d3-scale";
 import { CardQueue } from "../cards";
 import { HistogramData } from "./histogram-graph";
@@ -97,6 +97,11 @@ export function prepareIntervalData(
     const bins = histogram()
         .domain(scale.domain() as any)
         .thresholds(scale.ticks(desiredBars))(allIntervals);
+
+    // empty graph?
+    if (!sum(bins, (bin) => bin.length)) {
+        return null;
+    }
 
     // start slightly darker
     const shiftedMin = xMin! - Math.round((xMax - xMin!) / 10);

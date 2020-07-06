@@ -126,6 +126,16 @@ body.night-mode {
     color: $night-fg;
 }
 
+.no-data {
+    text {
+        text-anchor: middle;
+        fill: grey;
+    }
+    rect {
+        fill: $day-bg;
+    }
+}
+
 .night-mode {
     .graph-tooltip {
         background: $night-bg;
@@ -138,6 +148,9 @@ body.night-mode {
     .graph .area {
         fill: $night-fg;
         opacity: 0.1;
+    }
+    .no-data rect {
+        fill: $night-bg;
     }
 }
 

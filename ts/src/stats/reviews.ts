@@ -18,7 +18,7 @@ import { select, mouse } from "d3-selection";
 import { scaleLinear, scaleSequential } from "d3-scale";
 import { axisBottom, axisLeft } from "d3-axis";
 import { showTooltip, hideTooltip } from "./tooltip";
-import { GraphBounds } from "./graphs";
+import { GraphBounds, setDataAvailable } from "./graphs";
 import { area, curveBasis } from "d3-shape";
 import { min, histogram, sum, max, Bin, cumsum } from "d3-array";
 import { timeSpan, dayLabel } from "../time";
@@ -116,6 +116,9 @@ export function renderReviews(
     showTime: boolean,
     i18n: I18n
 ): void {
+    const svg = select(svgElem);
+    const trans = svg.transition().duration(600) as any;
+
     const xMax = 1;
     let xMin = 0;
     // cap max to selected range
@@ -144,8 +147,13 @@ export function renderReviews(
         .domain(x.domain() as any)
         .thresholds(x.ticks(desiredBars))(sourceMap.entries() as any);
 
-    const svg = select(svgElem);
-    const trans = svg.transition().duration(600) as any;
+    // empty graph?
+    if (!sum(bins, (bin) => bin.length)) {
+        setDataAvailable(svg, false);
+        return;
+    } else {
+        setDataAvailable(svg, true);
+    }
 
     x.range([bounds.marginLeft, bounds.width - bounds.marginRight]);
     svg.select<SVGGElement>(".x-ticks")

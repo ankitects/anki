@@ -7,6 +7,7 @@
 @typescript-eslint/ban-ts-ignore: "off" */
 
 import pb from "../backend/proto";
+import { Selection } from "d3-selection";
 
 async function fetchData(search: string, days: number): Promise<Uint8Array> {
     const resp = await fetch("/_anki/graphData", {
@@ -65,4 +66,15 @@ export function defaultGraphBounds(): GraphBounds {
         marginTop: 20,
         marginBottom: 40,
     };
+}
+
+export function setDataAvailable(
+    svg: Selection<SVGElement, any, any, any>,
+    available: boolean
+): void {
+    svg.select(".no-data")
+        .attr("pointer-events", available ? "none" : "all")
+        .transition()
+        .duration(600)
+        .attr("opacity", available ? 0 : 1);
 }

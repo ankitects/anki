@@ -52,38 +52,35 @@
     const backlogLabel = i18n.tr(i18n.TR.STATISTICS_BACKLOG_CHECKBOX);
 </script>
 
-{#if histogramData}
+<div class="graph">
+    <h1>{title}</h1>
 
-    <div class="graph">
-        <h1>{title}</h1>
+    <div class="range-box-inner">
+        <label>
+            <input type="checkbox" bind:checked={backlog} />
+            {backlogLabel}
+        </label>
 
-        <div class="range-box-inner">
-            <label>
-                <input type="checkbox" bind:checked={backlog} />
-                {backlogLabel}
-            </label>
-
-            <label>
-                <input type="radio" bind:group={range} value={FutureDueRange.Month} />
-                {month}
-            </label>
-            <label>
-                <input type="radio" bind:group={range} value={FutureDueRange.Quarter} />
-                {month3}
-            </label>
-            <label>
-                <input type="radio" bind:group={range} value={FutureDueRange.Year} />
-                {year}
-            </label>
-            <label>
-                <input type="radio" bind:group={range} value={FutureDueRange.AllTime} />
-                {all}
-            </label>
-        </div>
-
-        <div class="subtitle">{subtitle}</div>
-
-        <HistogramGraph data={histogramData} />
-
+        <label>
+            <input type="radio" bind:group={range} value={FutureDueRange.Month} />
+            {month}
+        </label>
+        <label>
+            <input type="radio" bind:group={range} value={FutureDueRange.Quarter} />
+            {month3}
+        </label>
+        <label>
+            <input type="radio" bind:group={range} value={FutureDueRange.Year} />
+            {year}
+        </label>
+        <label>
+            <input type="radio" bind:group={range} value={FutureDueRange.AllTime} />
+            {all}
+        </label>
     </div>
-{/if}
+
+    <div class="subtitle">{subtitle}</div>
+
+    <HistogramGraph data={histogramData} {i18n} />
+
+</div>
