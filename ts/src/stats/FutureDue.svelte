@@ -2,10 +2,9 @@
     import { timeSpan, MONTH, YEAR } from "../time";
     import { I18n } from "../i18n";
     import { HistogramData } from "./histogram-graph";
-    import { defaultGraphBounds, RevlogRange } from "./graphs";
+    import { defaultGraphBounds } from "./graphs";
     import {
         gatherData,
-        renderFutureDue,
         GraphData,
         FutureDueRange,
         buildHistogram,
@@ -15,25 +14,12 @@
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
     export let i18n: I18n;
-    export let revlogRange: RevlogRange;
 
     let graphData = null as GraphData | null;
     let histogramData = null as HistogramData | null;
     let backlog: boolean = true;
     let svg = null as HTMLElement | SVGElement | null;
-    let range: FutureDueRange;
-
-    $: switch (revlogRange as RevlogRange) {
-        case RevlogRange.Month:
-            range = FutureDueRange.Month;
-            break;
-        case RevlogRange.Year:
-            range = FutureDueRange.Year;
-            break;
-        case RevlogRange.All:
-            range = FutureDueRange.AllTime;
-            break;
-    }
+    let range: FutureDueRange = FutureDueRange.Month;
 
     $: if (sourceData) {
         graphData = gatherData(sourceData);

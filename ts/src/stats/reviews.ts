@@ -40,7 +40,7 @@ export interface GraphData {
 
 export enum ReviewRange {
     Month = 0,
-    Quarter = 1,
+    ThreeMonths = 1,
     Year = 2,
     AllTime = 3,
 }
@@ -126,7 +126,7 @@ export function renderReviews(
         case ReviewRange.Month:
             xMin = -31;
             break;
-        case ReviewRange.Quarter:
+        case ReviewRange.ThreeMonths:
             xMin = -90;
             break;
         case ReviewRange.Year:

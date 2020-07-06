@@ -9,27 +9,15 @@
     import NoDataOverlay from "./NoDataOverlay.svelte";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
-    export let revlogRange: RevlogRange = RevlogRange.Month;
+    export let revlogRange: RevlogRange;
     export let i18n: I18n;
 
     let graphData: GraphData | null = null;
 
     let bounds = defaultGraphBounds();
     let svg = null as HTMLElement | SVGElement | null;
-    let range: ReviewRange;
+    let range: ReviewRange = ReviewRange.Month;
     let showTime = false;
-
-    $: switch (revlogRange as RevlogRange) {
-        case RevlogRange.Month:
-            range = ReviewRange.Month;
-            break;
-        case RevlogRange.Year:
-            range = ReviewRange.Year;
-            break;
-        case RevlogRange.All:
-            range = ReviewRange.AllTime;
-            break;
-    }
 
     $: if (sourceData) {
         graphData = gatherData(sourceData);
@@ -63,20 +51,18 @@
             {time}
         </label>
 
-        {#if revlogRange >= RevlogRange.Year}
-            <label>
-                <input type="radio" bind:group={range} value={ReviewRange.Month} />
-                {month}
-            </label>
-            <label>
-                <input type="radio" bind:group={range} value={ReviewRange.Quarter} />
-                {month3}
-            </label>
-            <label>
-                <input type="radio" bind:group={range} value={ReviewRange.Year} />
-                {year}
-            </label>
-        {/if}
+        <label>
+            <input type="radio" bind:group={range} value={ReviewRange.Month} />
+            {month}
+        </label>
+        <label>
+            <input type="radio" bind:group={range} value={ReviewRange.ThreeMonths} />
+            {month3}
+        </label>
+        <label>
+            <input type="radio" bind:group={range} value={ReviewRange.Year} />
+            {year}
+        </label>
         {#if revlogRange === RevlogRange.All}
             <label>
                 <input type="radio" bind:group={range} value={ReviewRange.AllTime} />

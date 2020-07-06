@@ -16,7 +16,7 @@ import { dayLabel } from "../time";
 
 export enum AddedRange {
     Month = 0,
-    Quarter = 1,
+    ThreeMonths = 1,
     Year = 2,
     AllTime = 3,
 }
@@ -52,7 +52,7 @@ export function buildHistogram(
         case AddedRange.Month:
             xMin = -31;
             break;
-        case AddedRange.Quarter:
+        case AddedRange.ThreeMonths:
             xMin = -90;
             break;
         case AddedRange.Year:

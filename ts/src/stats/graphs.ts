@@ -36,9 +36,8 @@ export async function getGraphData(
 }
 
 export enum RevlogRange {
-    Month = 1,
-    Year = 2,
-    All = 3,
+    Year = 1,
+    All = 2,
 }
 
 export interface GraphsContext {

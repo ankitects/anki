@@ -8,7 +8,7 @@
     import { I18n } from "../i18n";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
-    export let revlogRange: RevlogRange = RevlogRange.Month;
+    export let revlogRange: RevlogRange;
     export let i18n: I18n;
     export let nightMode: boolean;
 
