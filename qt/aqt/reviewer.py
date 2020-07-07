@@ -455,9 +455,6 @@ Please run Tools>Empty Cards"""
     def tokenizeComparison(
         self, given: str, correct: str
     ) -> Tuple[List[Tuple[bool, str]], List[Tuple[bool, str]]]:
-        # compare in NFC form so accents appear correct
-        given = ucd.normalize("NFC", given)
-        correct = ucd.normalize("NFC", correct)
         s = difflib.SequenceMatcher(None, given, correct, autojunk=False)
         givenElems: List[Tuple[bool, str]] = []
         correctElems: List[Tuple[bool, str]] = []
@@ -499,6 +496,9 @@ Please run Tools>Empty Cards"""
             if given == correct:
                 typed_correct = True
             else:
+                # compare in NFC form so accents appear correct
+                given = ucd.normalize("NFC", given)
+                correct = ucd.normalize("NFC", correct)
                 givenElems, correctElems = self.tokenizeComparison(given, correct)
         else:
             given_stripped = "".join(
