@@ -9,12 +9,12 @@ import os
 import re
 import sys
 import threading
+import time
 import traceback
 from http import HTTPStatus
 
 import flask
 import flask_cors  # type: ignore
-import time
 from flask import request
 from waitress.server import create_server
 
@@ -93,10 +93,7 @@ def allroutes(pathin):
     try:
         directory, path = _redirectWebExports(pathin)
     except TypeError:
-        return flask.make_response(
-            f"Invalid path: {pathin}",
-            HTTPStatus.FORBIDDEN,
-            )
+        return flask.make_response(f"Invalid path: {pathin}", HTTPStatus.FORBIDDEN,)
 
     try:
         isdir = os.path.isdir(os.path.join(directory, path))
@@ -153,10 +150,7 @@ def allroutes(pathin):
             return flask.send_file(fullpath, mimetype=mimetype, conditional=True)
         else:
             print(f"Not found: {pathin}")
-            return flask.make_response(
-                f"Invalid path: {pathin}",
-                HTTPStatus.NOT_FOUND,
-            )
+            return flask.make_response(f"Invalid path: {pathin}", HTTPStatus.NOT_FOUND,)
 
     except Exception as error:
         if devMode:
@@ -178,12 +172,12 @@ def _redirectWebExports(path):
     # catch /_anki references and rewrite them to web export folder
     targetPath = "_anki/"
     if path.startswith(targetPath):
-        return _exportFolder, path[len(targetPath):]
+        return _exportFolder, path[len(targetPath) :]
 
     # catch /_addons references and rewrite them to addons folder
     targetPath = "_addons/"
     if path.startswith(targetPath):
-        addonPath = path[len(targetPath):]
+        addonPath = path[len(targetPath) :]
 
         try:
             addMgr = aqt.mw.addonManager
