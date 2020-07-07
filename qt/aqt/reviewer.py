@@ -490,6 +490,9 @@ Please run Tools>Empty Cards"""
     def correct(self, given: str, correct: str, showBad: bool = True) -> str:
         "Diff-corrects the typed-in answer."
 
+        if not given:
+            return "<div><code id=typeans>" + correct + "</code></div>"
+
         typed_correct = False
 
         if self.combining:
