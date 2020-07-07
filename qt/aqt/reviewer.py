@@ -51,6 +51,7 @@ class Reviewer:
         self.hadCardQueue = False
         self._answeredIds: List[int] = []
         self._recordedAudio: Optional[str] = None
+        self.combining: bool = True
         self.typeCorrect: str = None  # web init happens before this is set
         self.state: Optional[str] = None
         self.bottom = BottomBar(mw, mw.bottomWeb)
@@ -348,6 +349,7 @@ class Reviewer:
 
     def typeAnsQuestionFilter(self, buf: str) -> str:
         self.typeCorrect = None
+        self.combining = True
         clozeIdx = None
         m = re.search(self.typeAnsPat, buf)
         if not m:
@@ -357,6 +359,9 @@ class Reviewer:
         if fld.startswith("cloze:"):
             # get field and cloze position
             clozeIdx = self.card.ord + 1
+            fld = fld.split(":")[1]
+        if fld.startswith("nc:"):
+            self.combining = False
             fld = fld.split(":")[1]
         # loop through fields for a match
         for f in self.card.model()["flds"]:
@@ -487,7 +492,39 @@ Please run Tools>Empty Cards"""
 
     def correct(self, given: str, correct: str, showBad: bool = True) -> str:
         "Diff-corrects the typed-in answer."
-        givenElems, correctElems = self.tokenizeComparison(given, correct)
+
+        typed_correct = False
+
+        if self.combining:
+            if given == correct:
+                typed_correct = True
+            else:
+                givenElems, correctElems = self.tokenizeComparison(given, correct)
+        else:
+            given_stripped = "".join(
+                [c for c in ucd.normalize("NFKD", given) if not ucd.combining(c)]
+            )
+            correct = ucd.normalize("NFKD", correct)
+
+            correct_stripped = ""
+            correct_split: List[str] = []
+
+            for c in correct:
+                if ucd.combining(c):
+                    # ignore any that preceed first non-combining char
+                    if correct_split:
+                        correct_split[-1] += c
+                else:
+                    correct_stripped += c
+                    correct_split.append(c)
+            assert len(correct_stripped) == len(correct_split)
+
+            if given_stripped == correct_stripped:
+                typed_correct = True
+            else:
+                givenElems, correctElems = self.tokenizeComparison(
+                    given_stripped, correct_stripped
+                )
 
         def good(s: str) -> str:
             return "<span class=typeGood>" + html.escape(s) + "</span>"
@@ -498,7 +535,7 @@ Please run Tools>Empty Cards"""
         def missed(s: str) -> str:
             return "<span class=typeMissed>" + html.escape(s) + "</span>"
 
-        if given == correct:
+        if typed_correct:
             res = good(given)
         else:
             res = ""
@@ -509,12 +546,20 @@ Please run Tools>Empty Cards"""
                 else:
                     res += bad(txt)
             res += "<br><span id=typearrow>&darr;</span><br>"
+
+            idx = 0
             for ok, txt in correctElems:
-                txt = self._noLoneMarks(txt)
+                if self.combining:
+                    txt = self._noLoneMarks(txt)
+                else:
+                    end = idx + len(txt)
+                    txt = "".join(correct_split[idx:end])
+                    idx = end
                 if ok:
                     res += good(txt)
                 else:
                     res += missed(txt)
+
         res = "<div><code id=typeans>" + res + "</code></div>"
         return res
 
