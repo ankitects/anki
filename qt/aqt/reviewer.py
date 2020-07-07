@@ -415,7 +415,7 @@ Please run Tools>Empty Cards"""
         cor = cor.strip()
         given = self.typedAnswer
         # compare with typed answer
-        res = self.correct(given, cor, showBad=False)
+        res = self.correct(given, cor)
         # and update the type answer area
         def repl(match):
             # can't pass a string in directly, and can't use re.escape as it
@@ -487,7 +487,7 @@ Please run Tools>Empty Cards"""
             logGood(y, cnt, correct, correctElems)
         return givenElems, correctElems
 
-    def correct(self, given: str, correct: str, showBad: bool = True) -> str:
+    def correct(self, given: str, correct: str) -> str:
         "Diff-corrects the typed-in answer."
 
         if not given:
