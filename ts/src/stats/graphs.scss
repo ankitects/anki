@@ -37,7 +37,17 @@ body {
 }
 
 .no-domain-line .domain {
-    display: none;
+    opacity: 0.05;
+}
+
+.tick {
+    line {
+        opacity: 0.1;
+    }
+
+    text {
+        opacity: 0.5;
+    }
 }
 
 .range-box {
