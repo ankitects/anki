@@ -14,6 +14,7 @@ from http import HTTPStatus
 
 import flask
 import flask_cors  # type: ignore
+import time
 from flask import request
 from waitress.server import create_server
 
@@ -56,8 +57,7 @@ class MediaServer(threading.Thread):
             if devMode:
                 # idempotent if logging has already been set up
                 logging.basicConfig()
-            else:
-                logging.getLogger("waitress").setLevel(logging.ERROR)
+            logging.getLogger("waitress").setLevel(logging.ERROR)
 
             desired_port = int(os.getenv("ANKI_API_PORT", "0"))
             self.server = create_server(app, host="127.0.0.1", port=desired_port)
@@ -124,7 +124,7 @@ def allroutes(pathin):
         )
 
     if devMode:
-        print("Sending file '%s - %s'" % (directory, path))
+        print(f"{time.time():.3f} {flask.request.method} /{pathin}")
 
     try:
         if flask.request.method == "POST":
@@ -149,7 +149,14 @@ def allroutes(pathin):
         else:
             # autodetect
             mimetype = None
-        return flask.send_file(fullpath, mimetype=mimetype, conditional=True)
+        if os.path.exists(fullpath):
+            return flask.send_file(fullpath, mimetype=mimetype, conditional=True)
+        else:
+            print(f"Not found: {pathin}")
+            return flask.make_response(
+                f"Invalid path: {pathin}",
+                HTTPStatus.NOT_FOUND,
+            )
 
     except Exception as error:
         if devMode:
