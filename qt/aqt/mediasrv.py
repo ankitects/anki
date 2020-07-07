@@ -179,7 +179,7 @@ def _redirectWebExports(path):
             return _exportFolder, addonPath
 
         try:
-            addon, subPath = addonPath.split(os.path.sep, 1)
+            addon, subPath = addonPath.split("/", 1)
         except ValueError:
             return addMgr.addonsFolder(), path
         if not addon:
