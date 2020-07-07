@@ -536,7 +536,7 @@ Please run Tools>Empty Cards"""
             return "<span class=typeMissed>" + html.escape(s) + "</span>"
 
         if typed_correct:
-            res = good(given)
+            res = good(correct)
         else:
             res = ""
             for ok, txt in givenElems:
