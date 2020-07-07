@@ -90,7 +90,14 @@ class MediaServer(threading.Thread):
 @app.route("/", defaults={"path": ""})
 @app.route("/<path:pathin>", methods=["GET", "POST"])
 def allroutes(pathin):
-    directory, path = _redirectWebExports(pathin)
+    try:
+        directory, path = _redirectWebExports(pathin)
+    except TypeError:
+        return flask.make_response(
+            f"Invalid path: {pathin}",
+            HTTPStatus.FORBIDDEN,
+            )
+
     try:
         isdir = os.path.isdir(os.path.join(directory, path))
     except ValueError:
@@ -164,30 +171,30 @@ def _redirectWebExports(path):
     # catch /_anki references and rewrite them to web export folder
     targetPath = "_anki/"
     if path.startswith(targetPath):
-        return _exportFolder, path[len(targetPath) :]
+        return _exportFolder, path[len(targetPath):]
 
     # catch /_addons references and rewrite them to addons folder
     targetPath = "_addons/"
     if path.startswith(targetPath):
-        addonPath = path[len(targetPath) :]
+        addonPath = path[len(targetPath):]
 
         try:
             addMgr = aqt.mw.addonManager
         except AttributeError as error:
             if devMode:
                 print("_redirectWebExports: %s" % error)
-            return _exportFolder, addonPath
+            return None
 
         try:
             addon, subPath = addonPath.split("/", 1)
         except ValueError:
-            return addMgr.addonsFolder(), path
+            return None
         if not addon:
-            return addMgr.addonsFolder(), path
+            return None
 
         pattern = addMgr.getWebExports(addon)
         if not pattern:
-            return addMgr.addonsFolder(), path
+            return None
 
         if re.fullmatch(pattern, subPath):
             return addMgr.addonsFolder(), addonPath
