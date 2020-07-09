@@ -1,7 +1,9 @@
 $day-fg: black;
 $day-bg: white;
+$day-tooltip-bg: #fcfcfc;
 $night-fg: white;
 $night-bg: #222;
+$night-tooltip-bg: #272727;
 
 * {
     box-sizing: border-box;
@@ -23,7 +25,7 @@ body {
     pointer-events: none;
     transition: opacity 0.3s;
     color: $day-fg;
-    background: $day-bg;
+    background: $day-tooltip-bg;
 }
 
 .graph {
@@ -37,7 +39,17 @@ body {
 }
 
 .no-domain-line .domain {
-    display: none;
+    opacity: 0.05;
+}
+
+.tick {
+    line {
+        opacity: 0.1;
+    }
+
+    text {
+        opacity: 0.5;
+    }
 }
 
 .range-box {
@@ -138,7 +150,7 @@ body.night-mode {
 
 .night-mode {
     .graph-tooltip {
-        background: $night-bg;
+        background: $night-tooltip-bg;
         color: $night-fg;
     }
     .range-box {

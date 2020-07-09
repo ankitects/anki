@@ -49,7 +49,7 @@ export function intervalLabel(
         // range
         return i18n.tr(i18n.TR.STATISTICS_INTERVALS_DAY_RANGE, {
             daysStart,
-            daysEnd,
+            daysEnd: daysEnd - 1,
             cards,
         });
     }

@@ -115,10 +115,10 @@ export function renderCards(
                 showTooltip(tooltipText(d), x, y);
             })
             .transition(trans)
-            .attr("width", (d) => x(d.total));
+            .attr("x", (d) => x(d.total - d.count[1]))
+            .attr("width", (d) => x(d.count[1]) - x(0));
     };
 
-    data.reverse();
     svg.select("g.days")
         .selectAll("rect")
         .data(data)
@@ -127,7 +127,6 @@ export function renderCards(
                 enter
                     .append("rect")
                     .attr("height", 10)
-                    .attr("x", x(0))
                     .attr("y", bounds.marginTop)
                     .attr("fill", (d: any): any => {
                         switch (d.idx) {

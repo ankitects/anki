@@ -3,7 +3,7 @@
 
 use super::parser::{Node, PropertyKind, SearchNode, StateKind, TemplateKind};
 use crate::{
-    card::CardQueue,
+    card::{CardQueue, CardType},
     collection::Collection,
     decks::human_deck_name_to_native,
     err::Result,
@@ -259,8 +259,13 @@ impl SqlWriter<'_> {
     fn write_state(&mut self, state: &StateKind) -> Result<()> {
         let timing = self.col.timing_today()?;
         match state {
-            StateKind::New => write!(self.sql, "c.type = {}", CardQueue::New as i8),
-            StateKind::Review => write!(self.sql, "c.type = {}", CardQueue::Review as i8),
+            StateKind::New => write!(self.sql, "c.type = {}", CardType::New as i8),
+            StateKind::Review => write!(
+                self.sql,
+                "c.type in ({}, {})",
+                CardType::Review as i8,
+                CardType::Relearn as i8,
+            ),
             StateKind::Learning => write!(
                 self.sql,
                 "c.queue in ({},{})",
@@ -707,7 +712,7 @@ mod test {
         );
         assert_eq!(
             s(ctx, "is:new").0,
-            format!("(c.type = {})", CardQueue::New as i8)
+            format!("(c.type = {})", CardType::New as i8)
         );
 
         // rated

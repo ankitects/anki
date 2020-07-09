@@ -146,11 +146,14 @@ export function dayLabel(i18n: I18n, daysStart: number, daysEnd: number): string
     } else {
         // range
         if (daysStart >= 0) {
-            return i18n.tr(i18n.TR.STATISTICS_IN_DAYS_RANGE, { daysStart, daysEnd });
+            return i18n.tr(i18n.TR.STATISTICS_IN_DAYS_RANGE, {
+                daysStart,
+                daysEnd: daysEnd - 1,
+            });
         } else {
             return i18n.tr(i18n.TR.STATISTICS_DAYS_AGO_RANGE, {
                 daysStart: Math.abs(daysEnd),
-                daysEnd: -daysStart,
+                daysEnd: -daysStart - 1,
             });
         }
     }
