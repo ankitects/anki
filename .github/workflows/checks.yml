@@ -176,8 +176,9 @@ jobs:
           sudo chown -R $(whoami):$(id -ng) ~/.cargo/
 
       # Disable it for macos because it pyenv cache is bugged (https://github.com/ankitects/anki/pull/563)
+      # Disable pyenv cache for linux because maturin is bugged as hell (https://github.com/ankitects/anki/pull/581)
       - name: Cache pyenv
-        if: matrix.os != 'macos-latest' && matrix.python == '3.7'
+        if: matrix.os != 'macos-latest' && matrix.os != 'ubuntu-latest' && matrix.python == '3.7'
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}${{ matrix.SEP }}pyenv
