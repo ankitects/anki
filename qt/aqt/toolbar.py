@@ -57,6 +57,7 @@ class Toolbar:
     def redraw(self) -> None:
         self.set_sync_active(self.mw.media_syncer.is_syncing())
         self.update_sync_status()
+        gui_hooks.top_toolbar_did_redraw(self)
 
     # Available links
     ######################################################################

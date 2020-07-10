@@ -2437,6 +2437,35 @@ class _TopToolbarDidInitLinksHook:
 top_toolbar_did_init_links = _TopToolbarDidInitLinksHook()
 
 
+class _TopToolbarDidRedrawHook:
+    """Executed when the top toolbar is redrawn"""
+
+    _hooks: List[Callable[["aqt.toolbar.Toolbar"], None]] = []
+
+    def append(self, cb: Callable[["aqt.toolbar.Toolbar"], None]) -> None:
+        """(top_toolbar: aqt.toolbar.Toolbar)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[["aqt.toolbar.Toolbar"], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
+
+    def __call__(self, top_toolbar: aqt.toolbar.Toolbar) -> None:
+        for hook in self._hooks:
+            try:
+                hook(top_toolbar)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+top_toolbar_did_redraw = _TopToolbarDidRedrawHook()
+
+
 class _UndoStateDidChangeHook:
     _hooks: List[Callable[[bool], None]] = []
 

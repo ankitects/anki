@@ -452,6 +452,11 @@ hooks = [
         """,
     ),
     Hook(
+        name="top_toolbar_did_redraw",
+        args=["top_toolbar: aqt.toolbar.Toolbar"],
+        doc="""Executed when the top toolbar is redrawn""",
+    ),
+    Hook(
         name="media_sync_did_progress", args=["entry: aqt.mediasync.LogEntryWithTime"],
     ),
     Hook(name="media_sync_did_start_or_stop", args=["running: bool"]),
