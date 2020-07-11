@@ -105,7 +105,7 @@ def allroutes(pathin):
 
     directory = os.path.realpath(directory)
     path = os.path.normpath(path)
-    fullpath = os.path.realpath(os.path.join(directory, path))
+    fullpath = os.path.abspath(os.path.join(directory, path))
 
     # protect against directory transversal: https://security.openstack.org/guidelines/dg_using-file-paths.html
     if not fullpath.startswith(directory):
