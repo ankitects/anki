@@ -11,7 +11,7 @@ readme = "README.md"
 anki = { path = "../rslib" }
 
 [dependencies.pyo3]
-version = "0.11.1"
+version = "0.8.0"
 features = ["extension-module"]
 
 [lib]
