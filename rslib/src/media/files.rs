@@ -328,7 +328,7 @@ where
         let secs = time::SystemTime::now()
             .duration_since(time::UNIX_EPOCH)
             .unwrap()
-            .as_secs();
+            .as_secs() as i64;
         utime::set_file_times(&dst_path, secs, secs)?;
     }
 
