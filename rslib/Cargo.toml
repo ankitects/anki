@@ -8,6 +8,9 @@ description = "Anki's Rust library code"
 readme = "README.md"
 
 [dependencies]
+# pinned as any changes could invalidate sqlite indexes
+unicase = "=2.6.0"
+
 nom = "5.1.2"
 failure = "0.1.8"
 prost = "0.6.1"
@@ -27,7 +30,7 @@ tokio = { version = "0.2.21", features = ["fs", "rt-threaded"] }
 serde_derive = "1.0.114"
 zip = "0.5.6"
 serde_tuple = "0.5.0"
-coarsetime = "=0.1.11"
+coarsetime = { git = "https://github.com/ankitects/rust-coarsetime.git", branch="old-mac-compat" }
 utime = "0.3.1"
 serde-aux = "0.6.1"
 unic-langid = { version = "0.8.0", features = ["macros"] }
@@ -40,8 +43,6 @@ slog-async = "2.5.0"
 slog-envlogger = "2.2.0"
 serde_repr = "0.1.6"
 num_enum = "0.5.0"
-# pinned as any changes could invalidate sqlite indexes
-unicase = "=2.6.0"
 futures = "0.3.5"
 rand = "0.7.3"
 num-integer = "0.1.43"
