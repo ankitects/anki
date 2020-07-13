@@ -77,19 +77,23 @@ class StudyDeck(QDialog):
 
     def eventFilter(self, obj: QObject, evt: QEvent) -> bool:
         if evt.type() == QEvent.KeyPress:
-            if evt.key() == Qt.Key_Up:
-                c = self.form.list.count()
-                row = self.form.list.currentRow() - 1
-                if row < 0:
-                    row = c - 1
-                self.form.list.setCurrentRow(row)
-                return True
-            elif evt.key() == Qt.Key_Down:
-                c = self.form.list.count()
-                row = self.form.list.currentRow() + 1
-                if row == c:
-                    row = 0
-                self.form.list.setCurrentRow(row)
+            new_row = current_row = self.form.list.currentRow()
+            rows_count = self.form.list.count()
+            key = evt.key()
+
+            if key == Qt.Key_Up:
+                new_row = current_row - 1
+            elif key == Qt.Key_Down:
+                new_row = current_row + 1
+            elif evt.modifiers() & Qt.ControlModifier and Qt.Key_1 <= key <= Qt.Key_9:
+                row_index = key - Qt.Key_1
+                if row_index < rows_count:
+                    new_row = row_index
+
+            if rows_count:
+                new_row %= rows_count  # don't let row index overflow/underflow
+            if new_row != current_row:
+                self.form.list.setCurrentRow(new_row)
                 return True
         return False
 
