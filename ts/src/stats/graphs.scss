@@ -72,6 +72,12 @@ body {
     justify-content: center;
 }
 
+@media only screen and (max-device-width: 480px) and (orientation: portrait) {
+    .range-box-inner {
+        font-size: smaller;
+    }
+}
+
 .range-box-inner > * {
     padding-right: 1em;
 }
