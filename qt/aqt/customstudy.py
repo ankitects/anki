@@ -22,7 +22,7 @@ TYPE_ALL = 3
 
 
 class CustomStudy(QDialog):
-    def __init__(self, mw) -> None:
+    def __init__(self, mw: aqt.AnkiQt) -> None:
         QDialog.__init__(self, mw)
         self.mw = mw
         self.deck = self.mw.col.decks.current()
@@ -35,7 +35,7 @@ class CustomStudy(QDialog):
         f.radioNew.click()
         self.exec_()
 
-    def setupSignals(self):
+    def setupSignals(self) -> None:
         f = self.form
         qconnect(f.radioNew.clicked, lambda: self.onRadioChange(RADIO_NEW))
         qconnect(f.radioRev.clicked, lambda: self.onRadioChange(RADIO_REV))
@@ -44,7 +44,7 @@ class CustomStudy(QDialog):
         qconnect(f.radioPreview.clicked, lambda: self.onRadioChange(RADIO_PREVIEW))
         qconnect(f.radioCram.clicked, lambda: self.onRadioChange(RADIO_CRAM))
 
-    def onRadioChange(self, idx):
+    def onRadioChange(self, idx: int) -> None:
         f = self.form
         sp = f.spin
         smin = 1
@@ -56,8 +56,8 @@ class CustomStudy(QDialog):
         typeShow = False
         ok = _("OK")
 
-        def plus(num):
-            if num == 1000:
+        def plus(num: int) -> str:
+            if num > 1000:
                 num = "1000+"
             return "<b>" + str(num) + "</b>"
 
