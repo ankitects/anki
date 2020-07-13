@@ -68,7 +68,7 @@ class CustomStudy(QDialog):
                 new, self.conf["new"]["perDay"] - self.deck["newToday"][1]
             )
             newExceeding = min(new, new - newUnderLearning)
-            tit = _("New cards in deck over today's limit: %s") % plus(newExceeding)
+            tit = _("New cards in deck over today limit: %s") % plus(newExceeding)
             pre = _("Increase today's new card limit by")
             sval = min(new, self.deck.get("extendNew", 10))
             smin = -DYN_MAX_SIZE
