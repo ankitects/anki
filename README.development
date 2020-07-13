@@ -76,12 +76,7 @@ installed as well. You'll need to create the venv with --system-site-packages.
 Debian/Ubuntu users
 -------------------
 
-Install Python 3.7 (not necessary for Ubuntu 19.04 and later):
-```
-sudo apt install python3.7 python3.7-dev
-sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 1
-sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.7 2
-```
+Install Python 3.7+ if it's not installed.
 
 Install other dependencies:
 ```
