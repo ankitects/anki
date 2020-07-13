@@ -92,8 +92,9 @@ class StudyDeck(QDialog):
 
             if rows_count:
                 new_row %= rows_count  # don't let row index overflow/underflow
-            self.form.list.setCurrentRow(new_row)
-            return new_row != current_row
+            if new_row != current_row:
+                self.form.list.setCurrentRow(new_row)
+                return True
         return False
 
     def redraw(self, filt, focus=None):
