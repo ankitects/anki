@@ -149,7 +149,7 @@ def allroutes(pathin):
         if os.path.exists(fullpath):
             return flask.send_file(fullpath, mimetype=mimetype, conditional=True)
         else:
-            print(f"Not found: {pathin}")
+            print(f"Not found: {ascii(pathin)}")
             return flask.make_response(f"Invalid path: {pathin}", HTTPStatus.NOT_FOUND,)
 
     except Exception as error:
