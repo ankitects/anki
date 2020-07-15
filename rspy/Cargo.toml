@@ -17,6 +17,3 @@ features = ["extension-module"]
 [lib]
 name = "ankirspy"
 crate-type = ["cdylib"]
-
-[patch.crates-io]
-hyper = { git = "https://github.com/ankitects/hyper.git", branch = "gai-cancel-panic" }
