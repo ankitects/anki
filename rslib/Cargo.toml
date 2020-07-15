@@ -51,6 +51,7 @@ flate2 = "1.0.16"
 pin-project = "0.4.22"
 async-compression = { version = "0.3.5", features = ["stream", "gzip"] }
 askama = "0.10.1"
+hyper = "0.13.7"
 
 [target.'cfg(target_vendor="apple")'.dependencies.rusqlite]
 version = "0.23.1"
@@ -72,7 +73,3 @@ fluent-syntax = "0.9.3"
 
 [dev-dependencies]
 env_logger = "0.7.1"
-
-[patch.crates-io]
-hyper = { git = "https://github.com/ankitects/hyper.git", branch = "gai-cancel-panic" }
-
