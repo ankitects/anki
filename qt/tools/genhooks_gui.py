@@ -601,6 +601,18 @@ hooks = [
     # Model
     ###################
     Hook(name="models_advanced_will_show", args=["advanced: QDialog"],),
+    # Stats
+    ###################
+    Hook(
+        name="stats_dialog_will_show",
+        args=["dialog: aqt.stats.NewDeckStats"],
+        doc="""Allows changing the stats dialog before it is shown.""",
+    ),
+    Hook(
+        name="stats_dialog_old_will_show",
+        args=["dialog: aqt.stats.NewDeckStats"],
+        doc="""Allows changing the old stats dialog before it is shown.""",
+    ),
     # Other
     ###################
     Hook(
