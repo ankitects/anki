@@ -300,6 +300,11 @@ class AnkiWebView(QWebEngineView):
         if oldFocus:
             oldFocus.setFocus()
 
+    def load(self, url: QUrl):
+        # allow queuing actions when loading url directly
+        self._domDone = False
+        super().load(url)
+
     def zoomFactor(self) -> float:
         # overridden scale factor?
         webscale = os.environ.get("ANKI_WEBSCALE")
