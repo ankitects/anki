@@ -42,7 +42,7 @@
     }
 </script>
 
-<div class="graph">
+<div class="graph" id="graph-reviews">
     <h1>{title}</h1>
 
     <div class="range-box-inner">

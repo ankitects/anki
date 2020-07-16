@@ -30,7 +30,7 @@
     }
 </style>
 
-<div class="graph">
+<div class="graph" id="graph-card-counts">
     <h1>{graphData.title}</h1>
 
     <svg
