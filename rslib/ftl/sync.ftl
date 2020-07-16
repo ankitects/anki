@@ -38,6 +38,8 @@ sync-password-label = Password:
 sync-account-required =
     <h1>Account Required</h1>
     A free account is required to keep your collection synchronized. Please <a href="{ $link }">sign up</a> for an account, then enter your details below.
+sync-sanity-check-failed = Please use the Check Database function, then sync again. If problems persist, please force a full sync in the preferences screen.
+sync-clock-off = Unable to sync - your clock is not set to the correct time.
 
 ## Buttons
 

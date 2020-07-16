@@ -89,9 +89,8 @@ impl AnkiError {
                 SyncErrorKind::ClientTooOld => i18n.tr(TR::SyncClientTooOld),
                 SyncErrorKind::AuthFailed => i18n.tr(TR::SyncWrongPass),
                 SyncErrorKind::ResyncRequired => i18n.tr(TR::SyncResyncRequired),
-                // fixme: i18n
-                SyncErrorKind::ClockIncorrect => "Please check your clock.".into(),
-                SyncErrorKind::DatabaseCheckRequired => "Please check the database.".into(),
+                SyncErrorKind::ClockIncorrect => i18n.tr(TR::SyncClockOff),
+                SyncErrorKind::DatabaseCheckRequired => i18n.tr(TR::SyncSanityCheckFailed),
             }
             .into(),
             AnkiError::NetworkError { kind, info } => {
