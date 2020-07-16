@@ -160,7 +160,7 @@ export function renderReviews(
     x.range([bounds.marginLeft, bounds.width - bounds.marginRight]);
     svg.select<SVGGElement>(".x-ticks")
         .transition(trans)
-        .call(axisBottom(x).ticks(6).tickSizeOuter(0));
+        .call(axisBottom(x).ticks(7).tickSizeOuter(0));
 
     // y scale
 
