@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import enum
+import os
 from typing import Callable, Tuple
 
 import aqt
@@ -18,6 +19,7 @@ from anki.rsbackend import (
     SyncOutput,
     SyncStatus,
 )
+from anki.utils import platDesc
 from aqt.qt import (
     QDialog,
     QDialogButtonBox,
@@ -316,3 +318,6 @@ def get_id_and_pass_from_user(
     if not accepted:
         return ("", "")
     return (user.text().strip(), passwd.text())
+
+# export platform version to syncing code
+os.environ["PLATFORM"] = platDesc()
