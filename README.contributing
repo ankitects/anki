@@ -18,7 +18,7 @@ New features are not currently the top priority, unless they are easy wins as
 part of the refactoring process.
 
 If you are planning to contribute any non-trivial changes, please reach out
-on the support site before you begin work. Some areas (primary pylib/) are
+on the support site before you begin work. Some areas (primarily pylib/) are
 likely to change/conflict with other work, and larger changes will likely need
 to wait until the refactoring process nears completion.
 
