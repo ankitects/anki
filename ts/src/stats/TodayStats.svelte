@@ -14,7 +14,7 @@
 </script>
 
 {#if todayData}
-    <div class="graph">
+    <div class="graph" id="graph-today-stats">
         <h1>{todayData.title}</h1>
 
         <div class="legend-outer">

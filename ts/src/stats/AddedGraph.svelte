@@ -31,7 +31,7 @@
     const subtitle = i18n.tr(i18n.TR.STATISTICS_ADDED_SUBTITLE);
 </script>
 
-<div class="graph">
+<div class="graph" id="graph-added">
     <h1>{title}</h1>
 
     <div class="range-box-inner">
