@@ -28,6 +28,11 @@ body {
     background: $day-tooltip-bg;
 }
 
+.graph-tooltip td {
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
 .graph {
     margin-left: auto;
     margin-right: auto;

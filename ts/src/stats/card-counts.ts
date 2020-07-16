@@ -99,8 +99,10 @@ function barColour(idx: number): string {
 
 interface SummedDatum {
     label: string;
+    // count of this particular item
     count: number;
     idx: number;
+    // running total
     total: number;
 }
 
@@ -129,17 +131,24 @@ export function renderCards(
     x.range([bounds.marginLeft, bounds.width - bounds.marginRight - bounds.marginLeft]);
 
     const tooltipText = (current: SummedDatum): string => {
-        const lines: string[] = [];
+        const rows: string[] = [];
         for (const [idx, d] of data.entries()) {
             const pct = ((d.count / xMax) * 100).toFixed(2);
             const colour = `<span style="color: ${barColour(idx)};">■</span>`;
-            let line = `${colour} ${d.label}: ${d.count} (${pct}%)`;
+            let label = `${colour} ${d.label}`;
             if (idx === current.idx) {
-                line = `<b>${line}</b>`;
+                label = `<b>${label}</b>`;
             }
-            lines.push(line);
+            const count = d.count;
+            const pctStr = `${pct}%`;
+            const row = `<tr>
+            <td>${label}</td>
+            <td align=right>${count}</td>
+            <td align=right>${pctStr}</td>
+            </tr>`;
+            rows.push(row);
         }
-        return lines.join("<br>");
+        return `<table>${rows.join("")}</table>`;
     };
 
     const updateBar = (sel: any): any => {
