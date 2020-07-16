@@ -172,7 +172,7 @@ export function renderReviews(
         .transition(trans)
         .call(
             axisLeft(y)
-                .ticks(bounds.height / 80)
+                .ticks(bounds.height / 50)
                 .tickSizeOuter(0)
                 .tickFormat(((n: number): string => {
                     if (showTime) {

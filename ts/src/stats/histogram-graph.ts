@@ -62,7 +62,7 @@ export function histogramGraph(
         .transition(trans)
         .call(
             axisLeft(y)
-                .ticks(bounds.height / 80)
+                .ticks(bounds.height / 50)
                 .tickSizeOuter(0)
         );
 
