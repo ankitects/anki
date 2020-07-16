@@ -28,9 +28,8 @@ body {
     background: $day-tooltip-bg;
 }
 
-.graph-tooltip td {
-    padding-left: 1em;
-    padding-right: 1em;
+.graph-tooltip table {
+    border-spacing: 1em 0;
 }
 
 .graph {
