@@ -224,47 +224,40 @@ export function renderReviews(
         const day = dayLabel(i18n, d.x0!, d.x1!);
         const totals = totalsForBin(d);
         const dayTotal = valueLabel(sum(totals));
-        let buf = `<div>${day}: ${dayTotal}</div>`;
+        let buf = `<table><tr><td>${day}</td><td align=right>${dayTotal}</td></tr>`;
         const lines = [
             [
                 darkerGreens(1),
-                `${i18n.tr(i18n.TR.STATISTICS_COUNTS_MATURE_CARDS)}: ${valueLabel(
-                    totals[0]
-                )}`,
+                i18n.tr(i18n.TR.STATISTICS_COUNTS_MATURE_CARDS),
+                valueLabel(totals[0]),
             ],
             [
                 lighterGreens(1),
-                `${i18n.tr(i18n.TR.STATISTICS_COUNTS_YOUNG_CARDS)}: ${valueLabel(
-                    totals[1]
-                )}`,
+                i18n.tr(i18n.TR.STATISTICS_COUNTS_YOUNG_CARDS),
+                valueLabel(totals[1]),
             ],
             [
                 blues(1),
-                `${i18n.tr(i18n.TR.STATISTICS_COUNTS_LEARNING_CARDS)}: ${valueLabel(
-                    totals[2]
-                )}`,
+                i18n.tr(i18n.TR.STATISTICS_COUNTS_LEARNING_CARDS),
+                valueLabel(totals[2]),
             ],
             [
                 reds(1),
-                `${i18n.tr(i18n.TR.STATISTICS_COUNTS_RELEARNING_CARDS)}: ${valueLabel(
-                    totals[3]
-                )}`,
+                i18n.tr(i18n.TR.STATISTICS_COUNTS_RELEARNING_CARDS),
+                valueLabel(totals[3]),
             ],
             [
                 oranges(1),
-                `${i18n.tr(i18n.TR.STATISTICS_COUNTS_EARLY_CARDS)}: ${valueLabel(
-                    totals[4]
-                )}`,
+                i18n.tr(i18n.TR.STATISTICS_COUNTS_EARLY_CARDS),
+                valueLabel(totals[4]),
             ],
-            [
-                "grey",
-                `${i18n.tr(i18n.TR.STATISTICS_RUNNING_TOTAL)}: ${valueLabel(
-                    cumulative
-                )}`,
-            ],
+            ["grey", i18n.tr(i18n.TR.STATISTICS_RUNNING_TOTAL), valueLabel(cumulative)],
         ];
-        for (const [colour, text] of lines) {
-            buf += `<div><span style="color: ${colour};">■</span>${text}</div>`;
+        for (const [colour, label, detail] of lines) {
+            buf += `<tr>
+            <td><span style="color: ${colour};">■</span>${label}</td>
+            <td align=right>${detail}</td>
+            </tr>`;
         }
         return buf;
     }
