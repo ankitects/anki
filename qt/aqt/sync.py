@@ -319,5 +319,6 @@ def get_id_and_pass_from_user(
         return ("", "")
     return (user.text().strip(), passwd.text())
 
+
 # export platform version to syncing code
 os.environ["PLATFORM"] = platDesc()
