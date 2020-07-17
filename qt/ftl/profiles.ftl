@@ -4,3 +4,6 @@ profiles-folder-readme =
     please see:
     
     {$link}
+
+# will appear as 'Downgrade & Quit'
+profiles-downgrade-and-quit = Downgrade && Quit

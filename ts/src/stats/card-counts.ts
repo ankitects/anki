@@ -81,6 +81,31 @@ interface Reviews {
     early: number;
 }
 
+function barColour(idx: number): string {
+    switch (idx) {
+        case 0:
+            return schemeBlues[5][2];
+        case 1:
+            return schemeGreens[5][2];
+        case 2:
+            return schemeGreens[5][3];
+        case 3:
+            return "#FFDC41";
+        case 4:
+        default:
+            return "grey";
+    }
+}
+
+interface SummedDatum {
+    label: string;
+    // count of this particular item
+    count: number;
+    idx: number;
+    // running total
+    total: number;
+}
+
 export function renderCards(
     svgElem: SVGElement,
     bounds: GraphBounds,
@@ -88,11 +113,13 @@ export function renderCards(
 ): void {
     const summed = cumsum(sourceData.counts, (d) => d[1]);
     const data = Array.from(summed).map((n, idx) => {
+        const count = sourceData.counts[idx];
         return {
-            count: sourceData.counts[idx],
+            label: count[0],
+            count: count[1],
             idx,
             total: n,
-        };
+        } as SummedDatum;
     });
     // ensuring a non-zero range makes a better animation
     // in the empty data case
@@ -103,20 +130,36 @@ export function renderCards(
 
     x.range([bounds.marginLeft, bounds.width - bounds.marginRight - bounds.marginLeft]);
 
-    const tooltipText = (d: any): string => {
-        const pct = ((d.count[1] / xMax) * 100).toFixed(2);
-        return `${d.count[0]}: ${d.count[1]} (${pct}%)`;
+    const tooltipText = (current: SummedDatum): string => {
+        const rows: string[] = [];
+        for (const [idx, d] of data.entries()) {
+            const pct = ((d.count / xMax) * 100).toFixed(2);
+            const colour = `<span style="color: ${barColour(idx)};">■</span>`;
+            let label = `${colour} ${d.label}`;
+            if (idx === current.idx) {
+                label = `<b>${label}</b>`;
+            }
+            const count = d.count;
+            const pctStr = `${pct}%`;
+            const row = `<tr>
+            <td>${label}</td>
+            <td align=right>${count}</td>
+            <td align=right>${pctStr}</td>
+            </tr>`;
+            rows.push(row);
+        }
+        return `<table>${rows.join("")}</table>`;
     };
 
     const updateBar = (sel: any): any => {
         return sel
-            .on("mousemove", function (this: any, d: any) {
+            .on("mousemove", function (this: any, d: SummedDatum) {
                 const [x, y] = mouse(document.body);
                 showTooltip(tooltipText(d), x, y);
             })
             .transition(trans)
-            .attr("x", (d) => x(d.total - d.count[1]))
-            .attr("width", (d) => x(d.count[1]) - x(0));
+            .attr("x", (d: SummedDatum) => x(d.total - d.count))
+            .attr("width", (d: SummedDatum) => x(d.count) - x(0));
     };
 
     svg.select("g.days")
@@ -128,22 +171,8 @@ export function renderCards(
                     .append("rect")
                     .attr("height", 10)
                     .attr("y", bounds.marginTop)
-                    .attr("fill", (d: any): any => {
-                        switch (d.idx) {
-                            case 0:
-                                return schemeBlues[5][2];
-                            case 1:
-                                return schemeGreens[5][2];
-                            case 2:
-                                return schemeGreens[5][3];
-                            case 3:
-                                return "#FFDC41";
-                            case 4:
-                                return "grey";
-                        }
-                    })
+                    .attr("fill", (d: SummedDatum): any => barColour(d.idx))
                     .on("mouseout", hideTooltip)
-
                     .call((d) => updateBar(d)),
             (update) => update.call((d) => updateBar(d))
         );

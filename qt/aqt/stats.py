@@ -8,6 +8,7 @@ import time
 
 import aqt
 from anki.lang import _
+from aqt import gui_hooks
 from aqt.qt import *
 from aqt.theme import theme_manager
 from aqt.utils import (
@@ -43,6 +44,7 @@ class NewDeckStats(QDialog):
         b.setAutoDefault(False)
         maybeHideClose(self.form.buttonBox)
         addCloseShortcut(self)
+        gui_hooks.stats_dialog_will_show(self)
         self.show()
         self.refresh()
         self.activateWindow()
@@ -125,6 +127,7 @@ class DeckStats(QDialog):
         qconnect(f.life.clicked, lambda: self.changePeriod(2))
         maybeHideClose(self.form.buttonBox)
         addCloseShortcut(self)
+        gui_hooks.stats_dialog_old_will_show(self)
         self.show()
         self.refresh()
         self.activateWindow()

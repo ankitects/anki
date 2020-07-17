@@ -261,7 +261,7 @@ mod test {
         let secs = new_mtime
             .duration_since(time::UNIX_EPOCH)
             .unwrap()
-            .as_secs();
+            .as_secs() as i64;
         utime::set_file_times(p, secs, secs).unwrap();
     }
 

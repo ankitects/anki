@@ -9,7 +9,6 @@ readme = "README.md"
 
 [dependencies]
 anki = { path = "../rslib" }
-tokio = "0.2.11"
 
 [dependencies.pyo3]
 version = "0.8.0"
@@ -18,6 +17,3 @@ features = ["extension-module"]
 [lib]
 name = "ankirspy"
 crate-type = ["cdylib"]
-
-[patch.crates-io]
-hyper = { git = "https://github.com/ankitects/hyper.git", branch = "gai-cancel-panic" }

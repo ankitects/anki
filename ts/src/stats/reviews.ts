@@ -18,7 +18,7 @@ import { select, mouse } from "d3-selection";
 import { scaleLinear, scaleSequential } from "d3-scale";
 import { axisBottom, axisLeft } from "d3-axis";
 import { showTooltip, hideTooltip } from "./tooltip";
-import { GraphBounds, setDataAvailable } from "./graphs";
+import { GraphBounds, setDataAvailable, GraphRange } from "./graphs";
 import { area, curveBasis } from "d3-shape";
 import { min, histogram, sum, max, Bin, cumsum } from "d3-array";
 import { timeSpan, dayLabel } from "../time";
@@ -36,13 +36,6 @@ export interface GraphData {
     // indexed by day, where day is relative to today
     reviewCount: Map<number, Reviews>;
     reviewTime: Map<number, Reviews>;
-}
-
-export enum ReviewRange {
-    Month = 0,
-    ThreeMonths = 1,
-    Year = 2,
-    AllTime = 3,
 }
 
 const ReviewKind = pb.BackendProto.RevlogEntry.ReviewKind;
@@ -112,7 +105,7 @@ export function renderReviews(
     svgElem: SVGElement,
     bounds: GraphBounds,
     sourceData: GraphData,
-    range: ReviewRange,
+    range: GraphRange,
     showTime: boolean,
     i18n: I18n
 ): void {
@@ -123,16 +116,16 @@ export function renderReviews(
     let xMin = 0;
     // cap max to selected range
     switch (range) {
-        case ReviewRange.Month:
+        case GraphRange.Month:
             xMin = -31;
             break;
-        case ReviewRange.ThreeMonths:
+        case GraphRange.ThreeMonths:
             xMin = -90;
             break;
-        case ReviewRange.Year:
+        case GraphRange.Year:
             xMin = -365;
             break;
-        case ReviewRange.AllTime:
+        case GraphRange.AllTime:
             xMin = min(sourceData.reviewCount.keys())!;
             break;
     }
@@ -160,7 +153,7 @@ export function renderReviews(
     x.range([bounds.marginLeft, bounds.width - bounds.marginRight]);
     svg.select<SVGGElement>(".x-ticks")
         .transition(trans)
-        .call(axisBottom(x).ticks(6).tickSizeOuter(0));
+        .call(axisBottom(x).ticks(7).tickSizeOuter(0));
 
     // y scale
 
@@ -172,7 +165,7 @@ export function renderReviews(
         .transition(trans)
         .call(
             axisLeft(y)
-                .ticks(bounds.height / 80)
+                .ticks(bounds.height / 50)
                 .tickSizeOuter(0)
                 .tickFormat(((n: number): string => {
                     if (showTime) {
@@ -224,47 +217,40 @@ export function renderReviews(
         const day = dayLabel(i18n, d.x0!, d.x1!);
         const totals = totalsForBin(d);
         const dayTotal = valueLabel(sum(totals));
-        let buf = `<div>${day}: ${dayTotal}</div>`;
+        let buf = `<table><tr><td>${day}</td><td align=right>${dayTotal}</td></tr>`;
         const lines = [
             [
                 darkerGreens(1),
-                `${i18n.tr(i18n.TR.STATISTICS_COUNTS_MATURE_CARDS)}: ${valueLabel(
-                    totals[0]
-                )}`,
+                i18n.tr(i18n.TR.STATISTICS_COUNTS_MATURE_CARDS),
+                valueLabel(totals[0]),
             ],
             [
                 lighterGreens(1),
-                `${i18n.tr(i18n.TR.STATISTICS_COUNTS_YOUNG_CARDS)}: ${valueLabel(
-                    totals[1]
-                )}`,
+                i18n.tr(i18n.TR.STATISTICS_COUNTS_YOUNG_CARDS),
+                valueLabel(totals[1]),
             ],
             [
                 blues(1),
-                `${i18n.tr(i18n.TR.STATISTICS_COUNTS_LEARNING_CARDS)}: ${valueLabel(
-                    totals[2]
-                )}`,
+                i18n.tr(i18n.TR.STATISTICS_COUNTS_LEARNING_CARDS),
+                valueLabel(totals[2]),
             ],
             [
                 reds(1),
-                `${i18n.tr(i18n.TR.STATISTICS_COUNTS_RELEARNING_CARDS)}: ${valueLabel(
-                    totals[3]
-                )}`,
+                i18n.tr(i18n.TR.STATISTICS_COUNTS_RELEARNING_CARDS),
+                valueLabel(totals[3]),
             ],
             [
                 oranges(1),
-                `${i18n.tr(i18n.TR.STATISTICS_COUNTS_EARLY_CARDS)}: ${valueLabel(
-                    totals[4]
-                )}`,
+                i18n.tr(i18n.TR.STATISTICS_COUNTS_EARLY_CARDS),
+                valueLabel(totals[4]),
             ],
-            [
-                "grey",
-                `${i18n.tr(i18n.TR.STATISTICS_RUNNING_TOTAL)}: ${valueLabel(
-                    cumulative
-                )}`,
-            ],
+            ["grey", i18n.tr(i18n.TR.STATISTICS_RUNNING_TOTAL), valueLabel(cumulative)],
         ];
-        for (const [colour, text] of lines) {
-            buf += `<div><span style="color: ${colour};">■</span>${text}</div>`;
+        for (const [colour, label, detail] of lines) {
+            buf += `<tr>
+            <td><span style="color: ${colour};">■</span>${label}</td>
+            <td align=right>${detail}</td>
+            </tr>`;
         }
         return buf;
     }

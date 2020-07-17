@@ -91,7 +91,7 @@
         <item>
          <widget class="QPushButton" name="downgrade_button">
           <property name="text">
-           <string notr="true">Downgrade &amp;&amp; Quit</string>
+           <string notr="true">DOWNGRADE</string>
           </property>
          </widget>
         </item>

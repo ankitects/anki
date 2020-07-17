@@ -105,7 +105,7 @@ def allroutes(pathin):
 
     directory = os.path.realpath(directory)
     path = os.path.normpath(path)
-    fullpath = os.path.realpath(os.path.join(directory, path))
+    fullpath = os.path.abspath(os.path.join(directory, path))
 
     # protect against directory transversal: https://security.openstack.org/guidelines/dg_using-file-paths.html
     if not fullpath.startswith(directory):
@@ -149,7 +149,7 @@ def allroutes(pathin):
         if os.path.exists(fullpath):
             return flask.send_file(fullpath, mimetype=mimetype, conditional=True)
         else:
-            print(f"Not found: {pathin}")
+            print(f"Not found: {ascii(pathin)}")
             return flask.make_response(f"Invalid path: {pathin}", HTTPStatus.NOT_FOUND,)
 
     except Exception as error:

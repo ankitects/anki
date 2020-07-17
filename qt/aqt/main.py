@@ -232,6 +232,7 @@ class AnkiQt(QMainWindow):
         qconnect(f.profiles.currentRowChanged, self.onProfileRowChange)
         f.statusbar.setVisible(False)
         qconnect(f.downgrade_button.clicked, self._on_downgrade)
+        f.downgrade_button.setText(tr(TR.PROFILES_DOWNGRADE_AND_QUIT))
         # enter key opens profile
         QShortcut(QKeySequence("Return"), d, activated=self.onOpenProfile)  # type: ignore
         self.refreshProfilesList()

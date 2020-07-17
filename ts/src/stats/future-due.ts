@@ -14,16 +14,10 @@ import { HistogramData } from "./histogram-graph";
 import { interpolateGreens } from "d3-scale-chromatic";
 import { dayLabel } from "../time";
 import { I18n } from "../i18n";
+import { GraphRange } from "./graphs";
 
 export interface GraphData {
     dueCounts: Map<number, number>;
-}
-
-export enum FutureDueRange {
-    Month = 0,
-    Quarter = 1,
-    Year = 2,
-    AllTime = 3,
 }
 
 export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
@@ -44,7 +38,7 @@ function binValue(d: Bin<Map<number, number>, number>): number {
 
 export function buildHistogram(
     sourceData: GraphData,
-    range: FutureDueRange,
+    range: GraphRange,
     backlog: boolean,
     i18n: I18n
 ): HistogramData | null {
@@ -63,16 +57,16 @@ export function buildHistogram(
 
     // cap max to selected range
     switch (range) {
-        case FutureDueRange.Month:
+        case GraphRange.Month:
             xMax = 31;
             break;
-        case FutureDueRange.Quarter:
+        case GraphRange.ThreeMonths:
             xMax = 90;
             break;
-        case FutureDueRange.Year:
+        case GraphRange.Year:
             xMax = 365;
             break;
-        case FutureDueRange.AllTime:
+        case GraphRange.AllTime:
             break;
     }
     xMax = xMax! + 1;

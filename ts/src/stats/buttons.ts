@@ -13,7 +13,12 @@ import { select, mouse } from "d3-selection";
 import { scaleLinear, scaleBand, scaleSequential } from "d3-scale";
 import { axisBottom, axisLeft } from "d3-axis";
 import { showTooltip, hideTooltip } from "./tooltip";
-import { GraphBounds, setDataAvailable } from "./graphs";
+import {
+    GraphBounds,
+    setDataAvailable,
+    GraphRange,
+    millisecondCutoffForRange,
+} from "./graphs";
 import { I18n } from "../i18n";
 import { sum } from "d3-array";
 
@@ -27,12 +32,20 @@ export interface GraphData {
 
 const ReviewKind = pb.BackendProto.RevlogEntry.ReviewKind;
 
-export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
+export function gatherData(
+    data: pb.BackendProto.GraphsOut,
+    range: GraphRange
+): GraphData {
+    const cutoff = millisecondCutoffForRange(range, data.nextDayAtSecs);
     const learning: ButtonCounts = [0, 0, 0, 0];
     const young: ButtonCounts = [0, 0, 0, 0];
     const mature: ButtonCounts = [0, 0, 0, 0];
 
     for (const review of data.revlog as pb.BackendProto.RevlogEntry[]) {
+        if (cutoff && (review.id as number) < cutoff) {
+            continue;
+        }
+
         let buttonNum = review.buttonChosen;
         if (buttonNum <= 0 || buttonNum > 4) {
             continue;
@@ -80,9 +93,11 @@ interface TotalCorrect {
 export function renderButtons(
     svgElem: SVGElement,
     bounds: GraphBounds,
-    sourceData: GraphData,
-    i18n: I18n
+    origData: pb.BackendProto.GraphsOut,
+    i18n: I18n,
+    range: GraphRange
 ): void {
+    const sourceData = gatherData(origData, range);
     const data = [
         ...sourceData.learning.map((count: number, idx: number) => {
             return {
@@ -173,7 +188,7 @@ export function renderButtons(
         .transition(trans)
         .call(
             axisLeft(y)
-                .ticks(bounds.height / 80)
+                .ticks(bounds.height / 50)
                 .tickSizeOuter(0)
         );
 

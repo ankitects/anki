@@ -452,6 +452,11 @@ hooks = [
         """,
     ),
     Hook(
+        name="top_toolbar_did_redraw",
+        args=["top_toolbar: aqt.toolbar.Toolbar"],
+        doc="""Executed when the top toolbar is redrawn""",
+    ),
+    Hook(
         name="media_sync_did_progress", args=["entry: aqt.mediasync.LogEntryWithTime"],
     ),
     Hook(name="media_sync_did_start_or_stop", args=["running: bool"]),
@@ -596,6 +601,18 @@ hooks = [
     # Model
     ###################
     Hook(name="models_advanced_will_show", args=["advanced: QDialog"],),
+    # Stats
+    ###################
+    Hook(
+        name="stats_dialog_will_show",
+        args=["dialog: aqt.stats.NewDeckStats"],
+        doc="""Allows changing the stats dialog before it is shown.""",
+    ),
+    Hook(
+        name="stats_dialog_old_will_show",
+        args=["dialog: aqt.stats.DeckStats"],
+        doc="""Allows changing the old stats dialog before it is shown.""",
+    ),
     # Other
     ###################
     Hook(

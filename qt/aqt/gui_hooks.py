@@ -2342,6 +2342,64 @@ class _StateWillChangeHook:
 state_will_change = _StateWillChangeHook()
 
 
+class _StatsDialogOldWillShowHook:
+    """Allows changing the old stats dialog before it is shown."""
+
+    _hooks: List[Callable[["aqt.stats.DeckStats"], None]] = []
+
+    def append(self, cb: Callable[["aqt.stats.DeckStats"], None]) -> None:
+        """(dialog: aqt.stats.DeckStats)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[["aqt.stats.DeckStats"], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
+
+    def __call__(self, dialog: aqt.stats.DeckStats) -> None:
+        for hook in self._hooks:
+            try:
+                hook(dialog)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+stats_dialog_old_will_show = _StatsDialogOldWillShowHook()
+
+
+class _StatsDialogWillShowHook:
+    """Allows changing the stats dialog before it is shown."""
+
+    _hooks: List[Callable[["aqt.stats.NewDeckStats"], None]] = []
+
+    def append(self, cb: Callable[["aqt.stats.NewDeckStats"], None]) -> None:
+        """(dialog: aqt.stats.NewDeckStats)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[["aqt.stats.NewDeckStats"], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
+
+    def __call__(self, dialog: aqt.stats.NewDeckStats) -> None:
+        for hook in self._hooks:
+            try:
+                hook(dialog)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+stats_dialog_will_show = _StatsDialogWillShowHook()
+
+
 class _StyleDidInitFilter:
     _hooks: List[Callable[[str], str]] = []
 
@@ -2435,6 +2493,35 @@ class _TopToolbarDidInitLinksHook:
 
 
 top_toolbar_did_init_links = _TopToolbarDidInitLinksHook()
+
+
+class _TopToolbarDidRedrawHook:
+    """Executed when the top toolbar is redrawn"""
+
+    _hooks: List[Callable[["aqt.toolbar.Toolbar"], None]] = []
+
+    def append(self, cb: Callable[["aqt.toolbar.Toolbar"], None]) -> None:
+        """(top_toolbar: aqt.toolbar.Toolbar)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[["aqt.toolbar.Toolbar"], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
+
+    def __call__(self, top_toolbar: aqt.toolbar.Toolbar) -> None:
+        for hook in self._hooks:
+            try:
+                hook(top_toolbar)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+top_toolbar_did_redraw = _TopToolbarDidRedrawHook()
 
 
 class _UndoStateDidChangeHook:
