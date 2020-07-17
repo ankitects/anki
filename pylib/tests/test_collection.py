@@ -74,13 +74,13 @@ def test_noteAddDelete():
     # it should not be a duplicate
     assert not note.dupeOrEmpty()
     # now let's make a duplicate
-    f2 = deck.newNote()
-    f2["Front"] = "one"
-    f2["Back"] = ""
-    assert f2.dupeOrEmpty()
+    note2 = deck.newNote()
+    note2["Front"] = "one"
+    note2["Back"] = ""
+    assert note2.dupeOrEmpty()
     # empty first field should not be permitted either
-    f2["Front"] = " "
-    assert f2.dupeOrEmpty()
+    note2["Front"] = " "
+    assert note2.dupeOrEmpty()
 
 
 def test_fieldChecksum():
@@ -101,15 +101,15 @@ def test_addDelTags():
     note = deck.newNote()
     note["Front"] = "1"
     deck.addNote(note)
-    f2 = deck.newNote()
-    f2["Front"] = "2"
-    deck.addNote(f2)
+    note2 = deck.newNote()
+    note2["Front"] = "2"
+    deck.addNote(note2)
     # adding for a given id
     deck.tags.bulkAdd([note.id], "foo")
     note.load()
-    f2.load()
+    note2.load()
     assert "foo" in note.tags
-    assert "foo" not in f2.tags
+    assert "foo" not in note2.tags
     # should be canonified
     deck.tags.bulkAdd([note.id], "foo aaa")
     note.load()

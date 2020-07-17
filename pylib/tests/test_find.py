@@ -235,25 +235,25 @@ def test_findReplace():
     note["Front"] = "foo"
     note["Back"] = "bar"
     deck.addNote(note)
-    f2 = deck.newNote()
-    f2["Front"] = "baz"
-    f2["Back"] = "foo"
-    deck.addNote(f2)
-    nids = [note.id, f2.id]
+    note2 = deck.newNote()
+    note2["Front"] = "baz"
+    note2["Back"] = "foo"
+    deck.addNote(note2)
+    nids = [note.id, note2.id]
     # should do nothing
     assert deck.findReplace(nids, "abc", "123") == 0
     # global replace
     assert deck.findReplace(nids, "foo", "qux") == 2
     note.load()
     assert note["Front"] == "qux"
-    f2.load()
-    assert f2["Back"] == "qux"
+    note2.load()
+    assert note2["Back"] == "qux"
     # single field replace
     assert deck.findReplace(nids, "qux", "foo", field="Front") == 1
     note.load()
     assert note["Front"] == "foo"
-    f2.load()
-    assert f2["Back"] == "qux"
+    note2.load()
+    assert note2["Back"] == "qux"
     # regex replace
     assert deck.findReplace(nids, "B.r", "reg") == 0
     note.load()
@@ -269,10 +269,10 @@ def test_findDupes():
     note["Front"] = "foo"
     note["Back"] = "bar"
     deck.addNote(note)
-    f2 = deck.newNote()
-    f2["Front"] = "baz"
-    f2["Back"] = "bar"
-    deck.addNote(f2)
+    note2 = deck.newNote()
+    note2["Front"] = "baz"
+    note2["Back"] = "bar"
+    deck.addNote(note2)
     f3 = deck.newNote()
     f3["Front"] = "quux"
     f3["Back"] = "bar"
