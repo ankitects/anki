@@ -810,9 +810,9 @@ def test_preview():
     d.addNote(note)
     c = note.cards()[0]
     orig = copy.copy(c)
-    f2 = d.newNote()
-    f2["Front"] = "two"
-    d.addNote(f2)
+    note2 = d.newNote()
+    note2["Front"] = "two"
+    d.addNote(note2)
     # cram deck
     did = d.decks.newDyn("Cram")
     cram = d.decks.get(did)
@@ -1085,10 +1085,10 @@ def test_reorder():
     note = d.newNote()
     note["Front"] = "one"
     d.addNote(note)
-    f2 = d.newNote()
-    f2["Front"] = "two"
-    d.addNote(f2)
-    assert f2.cards()[0].due == 2
+    note2 = d.newNote()
+    note2["Front"] = "two"
+    d.addNote(note2)
+    assert note2.cards()[0].due == 2
     found = False
     # 50/50 chance of being reordered
     for i in range(20):
@@ -1107,12 +1107,12 @@ def test_reorder():
     f4["Front"] = "four"
     d.addNote(f4)
     assert note.cards()[0].due == 1
-    assert f2.cards()[0].due == 2
+    assert note2.cards()[0].due == 2
     assert f3.cards()[0].due == 3
     assert f4.cards()[0].due == 4
     d.sched.sortCards([f3.cards()[0].id, f4.cards()[0].id], start=1, shift=True)
     assert note.cards()[0].due == 3
-    assert f2.cards()[0].due == 4
+    assert note2.cards()[0].due == 4
     assert f3.cards()[0].due == 1
     assert f4.cards()[0].due == 2
 
