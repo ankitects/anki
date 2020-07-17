@@ -18,7 +18,7 @@ import { select, mouse } from "d3-selection";
 import { scaleLinear, scaleSequential } from "d3-scale";
 import { axisBottom, axisLeft } from "d3-axis";
 import { showTooltip, hideTooltip } from "./tooltip";
-import { GraphBounds, setDataAvailable } from "./graphs";
+import { GraphBounds, setDataAvailable, GraphRange } from "./graphs";
 import { area, curveBasis } from "d3-shape";
 import { min, histogram, sum, max, Bin, cumsum } from "d3-array";
 import { timeSpan, dayLabel } from "../time";
@@ -36,13 +36,6 @@ export interface GraphData {
     // indexed by day, where day is relative to today
     reviewCount: Map<number, Reviews>;
     reviewTime: Map<number, Reviews>;
-}
-
-export enum ReviewRange {
-    Month = 0,
-    ThreeMonths = 1,
-    Year = 2,
-    AllTime = 3,
 }
 
 const ReviewKind = pb.BackendProto.RevlogEntry.ReviewKind;
@@ -112,7 +105,7 @@ export function renderReviews(
     svgElem: SVGElement,
     bounds: GraphBounds,
     sourceData: GraphData,
-    range: ReviewRange,
+    range: GraphRange,
     showTime: boolean,
     i18n: I18n
 ): void {
@@ -123,16 +116,16 @@ export function renderReviews(
     let xMin = 0;
     // cap max to selected range
     switch (range) {
-        case ReviewRange.Month:
+        case GraphRange.Month:
             xMin = -31;
             break;
-        case ReviewRange.ThreeMonths:
+        case GraphRange.ThreeMonths:
             xMin = -90;
             break;
-        case ReviewRange.Year:
+        case GraphRange.Year:
             xMin = -365;
             break;
-        case ReviewRange.AllTime:
+        case GraphRange.AllTime:
             xMin = min(sourceData.reviewCount.keys())!;
             break;
     }
