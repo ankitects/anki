@@ -33,79 +33,79 @@ def test_modelCopy():
 
 
 def test_fields():
-    d = getEmptyCol()
-    note = d.newNote()
+    col = getEmptyCol()
+    note = col.newNote()
     note["Front"] = "1"
     note["Back"] = "2"
-    d.addNote(note)
-    m = d.models.current()
+    col.addNote(note)
+    m = col.models.current()
     # make sure renaming a field updates the templates
-    d.models.renameField(m, m["flds"][0], "NewFront")
+    col.models.renameField(m, m["flds"][0], "NewFront")
     assert "{{NewFront}}" in m["tmpls"][0]["qfmt"]
-    h = d.models.scmhash(m)
+    h = col.models.scmhash(m)
     # add a field
-    note = d.models.newField("foo")
-    d.models.addField(m, note)
-    assert d.getNote(d.models.nids(m)[0]).fields == ["1", "2", ""]
-    assert d.models.scmhash(m) != h
+    note = col.models.newField("foo")
+    col.models.addField(m, note)
+    assert col.getNote(col.models.nids(m)[0]).fields == ["1", "2", ""]
+    assert col.models.scmhash(m) != h
     # rename it
     note = m["flds"][2]
-    d.models.renameField(m, note, "bar")
-    assert d.getNote(d.models.nids(m)[0])["bar"] == ""
+    col.models.renameField(m, note, "bar")
+    assert col.getNote(col.models.nids(m)[0])["bar"] == ""
     # delete back
-    d.models.remField(m, m["flds"][1])
-    assert d.getNote(d.models.nids(m)[0]).fields == ["1", ""]
+    col.models.remField(m, m["flds"][1])
+    assert col.getNote(col.models.nids(m)[0]).fields == ["1", ""]
     # move 0 -> 1
-    d.models.moveField(m, m["flds"][0], 1)
-    assert d.getNote(d.models.nids(m)[0]).fields == ["", "1"]
+    col.models.moveField(m, m["flds"][0], 1)
+    assert col.getNote(col.models.nids(m)[0]).fields == ["", "1"]
     # move 1 -> 0
-    d.models.moveField(m, m["flds"][1], 0)
-    assert d.getNote(d.models.nids(m)[0]).fields == ["1", ""]
+    col.models.moveField(m, m["flds"][1], 0)
+    assert col.getNote(col.models.nids(m)[0]).fields == ["1", ""]
     # add another and put in middle
-    note = d.models.newField("baz")
-    d.models.addField(m, note)
-    note = d.getNote(d.models.nids(m)[0])
+    note = col.models.newField("baz")
+    col.models.addField(m, note)
+    note = col.getNote(col.models.nids(m)[0])
     note["baz"] = "2"
     note.flush()
-    assert d.getNote(d.models.nids(m)[0]).fields == ["1", "", "2"]
+    assert col.getNote(col.models.nids(m)[0]).fields == ["1", "", "2"]
     # move 2 -> 1
-    d.models.moveField(m, m["flds"][2], 1)
-    assert d.getNote(d.models.nids(m)[0]).fields == ["1", "2", ""]
+    col.models.moveField(m, m["flds"][2], 1)
+    assert col.getNote(col.models.nids(m)[0]).fields == ["1", "2", ""]
     # move 0 -> 2
-    d.models.moveField(m, m["flds"][0], 2)
-    assert d.getNote(d.models.nids(m)[0]).fields == ["2", "", "1"]
+    col.models.moveField(m, m["flds"][0], 2)
+    assert col.getNote(col.models.nids(m)[0]).fields == ["2", "", "1"]
     # move 0 -> 1
-    d.models.moveField(m, m["flds"][0], 1)
-    assert d.getNote(d.models.nids(m)[0]).fields == ["", "2", "1"]
+    col.models.moveField(m, m["flds"][0], 1)
+    assert col.getNote(col.models.nids(m)[0]).fields == ["", "2", "1"]
 
 
 def test_templates():
-    d = getEmptyCol()
-    m = d.models.current()
-    mm = d.models
+    col = getEmptyCol()
+    m = col.models.current()
+    mm = col.models
     t = mm.newTemplate("Reverse")
     t["qfmt"] = "{{Back}}"
     t["afmt"] = "{{Front}}"
     mm.addTemplate(m, t)
     mm.save(m)
-    note = d.newNote()
+    note = col.newNote()
     note["Front"] = "1"
     note["Back"] = "2"
-    d.addNote(note)
-    assert d.cardCount() == 2
+    col.addNote(note)
+    assert col.cardCount() == 2
     (c, c2) = note.cards()
     # first card should have first ord
     assert c.ord == 0
     assert c2.ord == 1
     # switch templates
-    d.models.moveTemplate(m, c.template(), 1)
+    col.models.moveTemplate(m, c.template(), 1)
     c.load()
     c2.load()
     assert c.ord == 1
     assert c2.ord == 0
     # removing a template should delete its cards
-    d.models.remTemplate(m, m["tmpls"][0])
-    assert d.cardCount() == 1
+    col.models.remTemplate(m, m["tmpls"][0])
+    assert col.cardCount() == 1
     # and should have updated the other cards' ordinals
     c = note.cards()[0]
     assert c.ord == 0
@@ -113,18 +113,20 @@ def test_templates():
     # it shouldn't be possible to orphan notes by removing templates
     t = mm.newTemplate("template name")
     mm.addTemplate(m, t)
-    d.models.remTemplate(m, m["tmpls"][0])
+    col.models.remTemplate(m, m["tmpls"][0])
     assert (
-        d.db.scalar("select count() from cards where nid not in (select id from notes)")
+        col.db.scalar(
+            "select count() from cards where nid not in (select id from notes)"
+        )
         == 0
     )
 
 
 def test_cloze_ordinals():
-    d = getEmptyCol()
-    d.models.setCurrent(d.models.byName("Cloze"))
-    m = d.models.current()
-    mm = d.models
+    col = getEmptyCol()
+    col.models.setCurrent(col.models.byName("Cloze"))
+    m = col.models.current()
+    mm = col.models
 
     # We replace the default Cloze template
     t = mm.newTemplate("ChainedCloze")
@@ -132,12 +134,12 @@ def test_cloze_ordinals():
     t["afmt"] = "{{text:cloze:Text}}"
     mm.addTemplate(m, t)
     mm.save(m)
-    d.models.remTemplate(m, m["tmpls"][0])
+    col.models.remTemplate(m, m["tmpls"][0])
 
-    note = d.newNote()
+    note = col.newNote()
     note["Text"] = "{{c1::firstQ::firstA}}{{c2::secondQ::secondA}}"
-    d.addNote(note)
-    assert d.cardCount() == 2
+    col.addNote(note)
+    assert col.cardCount() == 2
     (c, c2) = note.cards()
     # first card should have first ord
     assert c.ord == 0
@@ -145,40 +147,40 @@ def test_cloze_ordinals():
 
 
 def test_text():
-    d = getEmptyCol()
-    m = d.models.current()
+    col = getEmptyCol()
+    m = col.models.current()
     m["tmpls"][0]["qfmt"] = "{{text:Front}}"
-    d.models.save(m)
-    note = d.newNote()
+    col.models.save(m)
+    note = col.newNote()
     note["Front"] = "hello<b>world"
-    d.addNote(note)
+    col.addNote(note)
     assert "helloworld" in note.cards()[0].q()
 
 
 def test_cloze():
-    d = getEmptyCol()
-    d.models.setCurrent(d.models.byName("Cloze"))
-    note = d.newNote()
+    col = getEmptyCol()
+    col.models.setCurrent(col.models.byName("Cloze"))
+    note = col.newNote()
     assert note.model()["name"] == "Cloze"
     # a cloze model with no clozes is not empty
     note["Text"] = "nothing"
-    assert d.addNote(note)
+    assert col.addNote(note)
     # try with one cloze
-    note = d.newNote()
+    note = col.newNote()
     note["Text"] = "hello {{c1::world}}"
-    assert d.addNote(note) == 1
+    assert col.addNote(note) == 1
     assert "hello <span class=cloze>[...]</span>" in note.cards()[0].q()
     assert "hello <span class=cloze>world</span>" in note.cards()[0].a()
     # and with a comment
-    note = d.newNote()
+    note = col.newNote()
     note["Text"] = "hello {{c1::world::typical}}"
-    assert d.addNote(note) == 1
+    assert col.addNote(note) == 1
     assert "<span class=cloze>[typical]</span>" in note.cards()[0].q()
     assert "<span class=cloze>world</span>" in note.cards()[0].a()
     # and with 2 clozes
-    note = d.newNote()
+    note = col.newNote()
     note["Text"] = "hello {{c1::world}} {{c2::bar}}"
-    assert d.addNote(note) == 2
+    assert col.addNote(note) == 2
     (c1, c2) = note.cards()
     assert "<span class=cloze>[...]</span> bar" in c1.q()
     assert "<span class=cloze>world</span> bar" in c1.a()
@@ -186,17 +188,17 @@ def test_cloze():
     assert "world <span class=cloze>bar</span>" in c2.a()
     # if there are multiple answers for a single cloze, they are given in a
     # list
-    note = d.newNote()
+    note = col.newNote()
     note["Text"] = "a {{c1::b}} {{c1::c}}"
-    assert d.addNote(note) == 1
+    assert col.addNote(note) == 1
     assert "<span class=cloze>b</span> <span class=cloze>c</span>" in (
         note.cards()[0].a()
     )
     # if we add another cloze, a card should be generated
-    cnt = d.cardCount()
+    cnt = col.cardCount()
     note["Text"] = "{{c2::hello}} {{c1::foo}}"
     note.flush()
-    assert d.cardCount() == cnt + 1
+    assert col.cardCount() == cnt + 1
     # 0 or negative indices are not supported
     note["Text"] += "{{c0::zero}} {{c-1:foo}}"
     note.flush()
@@ -204,13 +206,13 @@ def test_cloze():
 
 
 def test_cloze_mathjax():
-    d = getEmptyCol()
-    d.models.setCurrent(d.models.byName("Cloze"))
-    note = d.newNote()
+    col = getEmptyCol()
+    col.models.setCurrent(col.models.byName("Cloze"))
+    note = col.newNote()
     note[
         "Text"
     ] = r"{{c1::ok}} \(2^2\) {{c2::not ok}} \(2^{{c3::2}}\) \(x^3\) {{c4::blah}} {{c5::text with \(x^2\) jax}}"
-    assert d.addNote(note)
+    assert col.addNote(note)
     assert len(note.cards()) == 5
     assert "class=cloze" in note.cards()[0].q()
     assert "class=cloze" in note.cards()[1].q()
@@ -218,9 +220,9 @@ def test_cloze_mathjax():
     assert "class=cloze" in note.cards()[3].q()
     assert "class=cloze" in note.cards()[4].q()
 
-    note = d.newNote()
+    note = col.newNote()
     note["Text"] = r"\(a\) {{c1::b}} \[ {{c1::c}} \]"
-    assert d.addNote(note)
+    assert col.addNote(note)
     assert len(note.cards()) == 1
     assert (
         note.cards()[0]
@@ -230,22 +232,22 @@ def test_cloze_mathjax():
 
 
 def test_typecloze():
-    d = getEmptyCol()
-    m = d.models.byName("Cloze")
-    d.models.setCurrent(m)
+    col = getEmptyCol()
+    m = col.models.byName("Cloze")
+    col.models.setCurrent(m)
     m["tmpls"][0]["qfmt"] = "{{cloze:Text}}{{type:cloze:Text}}"
-    d.models.save(m)
-    note = d.newNote()
+    col.models.save(m)
+    note = col.newNote()
     note["Text"] = "hello {{c1::world}}"
-    d.addNote(note)
+    col.addNote(note)
     assert "[[type:cloze:Text]]" in note.cards()[0].q()
 
 
 def test_chained_mods():
-    d = getEmptyCol()
-    d.models.setCurrent(d.models.byName("Cloze"))
-    m = d.models.current()
-    mm = d.models
+    col = getEmptyCol()
+    col.models.setCurrent(col.models.byName("Cloze"))
+    m = col.models.current()
+    mm = col.models
 
     # We replace the default Cloze template
     t = mm.newTemplate("ChainedCloze")
@@ -253,9 +255,9 @@ def test_chained_mods():
     t["afmt"] = "{{cloze:text:Text}}"
     mm.addTemplate(m, t)
     mm.save(m)
-    d.models.remTemplate(m, m["tmpls"][0])
+    col.models.remTemplate(m, m["tmpls"][0])
 
-    note = d.newNote()
+    note = col.newNote()
     q1 = '<span style="color:red">phrase</span>'
     a1 = "<b>sentence</b>"
     q2 = '<span style="color:red">en chaine</span>'
@@ -266,7 +268,7 @@ def test_chained_mods():
         q2,
         a2,
     )
-    assert d.addNote(note) == 1
+    assert col.addNote(note) == 1
     assert (
         "This <span class=cloze>[sentence]</span> demonstrates <span class=cloze>[chained]</span> clozes."
         in note.cards()[0].q()
@@ -366,8 +368,8 @@ def test_req():
             return
         assert len(model["tmpls"]) == len(model["req"])
 
-    d = getEmptyCol()
-    mm = d.models
+    col = getEmptyCol()
+    mm = col.models
     basic = mm.byName("Basic")
     assert "req" in basic
     reqSize(basic)

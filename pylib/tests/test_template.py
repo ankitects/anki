@@ -2,14 +2,14 @@ from tests.shared import getEmptyCol
 
 
 def test_deferred_frontside():
-    d = getEmptyCol()
-    m = d.models.current()
+    col = getEmptyCol()
+    m = col.models.current()
     m["tmpls"][0]["qfmt"] = "{{custom:Front}}"
-    d.models.save(m)
+    col.models.save(m)
 
-    note = d.newNote()
+    note = col.newNote()
     note["Front"] = "xxtest"
     note["Back"] = ""
-    d.addNote(note)
+    col.addNote(note)
 
     assert "xxtest" in note.cards()[0].a()

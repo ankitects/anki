@@ -90,8 +90,8 @@ def test_findCards():
     assert col.findCards("is:suspended") == [c.id]
     # nids
     assert col.findCards("nid:54321") == []
-    assert len(col.findCards("nid:%d" % note.id)) == 2
-    assert len(col.findCards("nid:%d,%d" % (f1id, f2id))) == 2
+    assert len(col.findCards(f"nid:{note.id}")) == 2
+    assert len(col.findCards(f"nid:{f1id},{f2id}")) == 2
     # templates
     assert len(col.findCards("card:foo")) == 0
     assert len(col.findCards('"card:card 1"')) == 4

@@ -8,29 +8,29 @@ from tests.shared import getEmptyCol
 
 
 def test_stats():
-    d = getEmptyCol()
-    note = d.newNote()
+    col = getEmptyCol()
+    note = col.newNote()
     note["Front"] = "foo"
-    d.addNote(note)
+    col.addNote(note)
     c = note.cards()[0]
     # card stats
-    assert d.cardStats(c)
-    d.reset()
-    c = d.sched.getCard()
-    d.sched.answerCard(c, 3)
-    d.sched.answerCard(c, 2)
-    assert d.cardStats(c)
+    assert col.cardStats(c)
+    col.reset()
+    c = col.sched.getCard()
+    col.sched.answerCard(c, 3)
+    col.sched.answerCard(c, 2)
+    assert col.cardStats(c)
 
 
 def test_graphs_empty():
-    d = getEmptyCol()
-    assert d.stats().report()
+    col = getEmptyCol()
+    assert col.stats().report()
 
 
 def test_graphs():
     dir = tempfile.gettempdir()
-    d = getEmptyCol()
-    g = d.stats()
+    col = getEmptyCol()
+    g = col.stats()
     rep = g.report()
     with open(os.path.join(dir, "test.html"), "w", encoding="UTF-8") as note:
         note.write(rep)
