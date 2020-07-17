@@ -6,6 +6,21 @@
     export let i18n: I18n;
     export let revlogRange: RevlogRange;
     export let graphRange: GraphRange;
+    export let followRevlog: boolean = false;
+
+    function onFollowRevlog(revlogRange: RevlogRange) {
+        if (revlogRange === RevlogRange.All) {
+            graphRange = GraphRange.AllTime;
+        } else if (graphRange === GraphRange.AllTime) {
+            graphRange = GraphRange.Year;
+        }
+    }
+
+    $: if (followRevlog) {
+        // split into separate function so svelte does not
+        // run this when graphRange changes
+        onFollowRevlog(revlogRange);
+    }
 
     const month = timeSpan(i18n, 1 * MONTH);
     const month3 = timeSpan(i18n, 3 * MONTH);
