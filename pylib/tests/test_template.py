@@ -7,9 +7,9 @@ def test_deferred_frontside():
     m["tmpls"][0]["qfmt"] = "{{custom:Front}}"
     d.models.save(m)
 
-    f = d.newNote()
-    f["Front"] = "xxtest"
-    f["Back"] = ""
-    d.addNote(f)
+    note = d.newNote()
+    note["Front"] = "xxtest"
+    note["Back"] = ""
+    d.addNote(note)
 
-    assert "xxtest" in f.cards()[0].a()
+    assert "xxtest" in note.cards()[0].a()

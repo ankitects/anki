@@ -34,9 +34,9 @@ def test_op():
     assert not d.undoName()
     # and a review will, too
     d.save("add")
-    f = d.newNote()
-    f["Front"] = "one"
-    d.addNote(f)
+    note = d.newNote()
+    note["Front"] = "one"
+    d.addNote(note)
     d.reset()
     assert d.undoName() == "add"
     c = d.sched.getCard()
@@ -47,9 +47,9 @@ def test_op():
 def test_review():
     d = getEmptyCol()
     d.conf["counts"] = COUNT_REMAINING
-    f = d.newNote()
-    f["Front"] = "one"
-    d.addNote(f)
+    note = d.newNote()
+    note["Front"] = "one"
+    d.addNote(note)
     d.reset()
     assert not d.undoName()
     # answer
@@ -70,9 +70,9 @@ def test_review():
     assert c.left != 1001
     assert not d.undoName()
     # we should be able to undo multiple answers too
-    f = d.newNote()
-    f["Front"] = "two"
-    d.addNote(f)
+    note = d.newNote()
+    note["Front"] = "two"
+    d.addNote(note)
     d.reset()
     assert d.sched.counts() == (2, 0, 0)
     c = d.sched.getCard()

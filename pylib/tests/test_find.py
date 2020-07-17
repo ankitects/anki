@@ -13,24 +13,24 @@ class DummyCollection:
 
 def test_findCards():
     deck = getEmptyCol()
-    f = deck.newNote()
-    f["Front"] = "dog"
-    f["Back"] = "cat"
-    f.tags.append("monkey animal_1 * %")
-    deck.addNote(f)
-    f1id = f.id
-    firstCardId = f.cards()[0].id
-    f = deck.newNote()
-    f["Front"] = "goats are fun"
-    f["Back"] = "sheep"
-    f.tags.append("sheep goat horse animal11")
-    deck.addNote(f)
-    f2id = f.id
-    f = deck.newNote()
-    f["Front"] = "cat"
-    f["Back"] = "sheep"
-    deck.addNote(f)
-    catCard = f.cards()[0]
+    note = deck.newNote()
+    note["Front"] = "dog"
+    note["Back"] = "cat"
+    note.tags.append("monkey animal_1 * %")
+    deck.addNote(note)
+    f1id = note.id
+    firstCardId = note.cards()[0].id
+    note = deck.newNote()
+    note["Front"] = "goats are fun"
+    note["Back"] = "sheep"
+    note.tags.append("sheep goat horse animal11")
+    deck.addNote(note)
+    f2id = note.id
+    note = deck.newNote()
+    note["Front"] = "cat"
+    note["Back"] = "sheep"
+    deck.addNote(note)
+    catCard = note.cards()[0]
     m = deck.models.current()
     m = deck.models.copy(m)
     mm = deck.models
@@ -39,12 +39,12 @@ def test_findCards():
     t["afmt"] = "{{Front}}"
     mm.addTemplate(m, t)
     mm.save(m)
-    f = deck.newNote()
-    f["Front"] = "test"
-    f["Back"] = "foo bar"
-    deck.addNote(f)
+    note = deck.newNote()
+    note["Front"] = "test"
+    note["Back"] = "foo bar"
+    deck.addNote(note)
     deck.save()
-    latestCardIds = [c.id for c in f.cards()]
+    latestCardIds = [c.id for c in note.cards()]
     # tag searches
     assert len(deck.findCards("tag:*")) == 5
     assert len(deck.findCards("tag:\\*")) == 1
@@ -72,7 +72,7 @@ def test_findCards():
     assert len(deck.findCards('"are goats"')) == 0
     assert len(deck.findCards('"goats are"')) == 1
     # card states
-    c = f.cards()[0]
+    c = note.cards()[0]
     c.queue = c.type = CARD_TYPE_REV
     assert deck.findCards("is:review") == []
     c.flush()
@@ -90,7 +90,7 @@ def test_findCards():
     assert deck.findCards("is:suspended") == [c.id]
     # nids
     assert deck.findCards("nid:54321") == []
-    assert len(deck.findCards("nid:%d" % f.id)) == 2
+    assert len(deck.findCards("nid:%d" % note.id)) == 2
     assert len(deck.findCards("nid:%d,%d" % (f1id, f2id))) == 2
     # templates
     assert len(deck.findCards("card:foo")) == 0
@@ -142,16 +142,16 @@ def test_findCards():
     assert len(deck.findCards("deck:*EFAULT")) == 5
     assert len(deck.findCards("deck:*cefault")) == 0
     # full search
-    f = deck.newNote()
-    f["Front"] = "hello<b>world</b>"
-    f["Back"] = "abc"
-    deck.addNote(f)
+    note = deck.newNote()
+    note["Front"] = "hello<b>world</b>"
+    note["Back"] = "abc"
+    deck.addNote(note)
     # as it's the sort field, it matches
     assert len(deck.findCards("helloworld")) == 2
     # assert len(deck.findCards("helloworld", full=True)) == 2
     # if we put it on the back, it won't
-    (f["Front"], f["Back"]) = (f["Back"], f["Front"])
-    f.flush()
+    (note["Front"], note["Back"]) = (note["Back"], note["Front"])
+    note.flush()
     assert len(deck.findCards("helloworld")) == 0
     # assert len(deck.findCards("helloworld", full=True)) == 2
     # assert len(deck.findCards("back:helloworld", full=True)) == 2
@@ -213,10 +213,10 @@ def test_findCards():
         print("some find tests disabled near cutoff")
     # empty field
     assert len(deck.findCards("front:")) == 0
-    f = deck.newNote()
-    f["Front"] = ""
-    f["Back"] = "abc2"
-    assert deck.addNote(f) == 1
+    note = deck.newNote()
+    note["Front"] = ""
+    note["Back"] = "abc2"
+    assert deck.addNote(note) == 1
     assert len(deck.findCards("front:")) == 1
     # OR searches and nesting
     assert len(deck.findCards("tag:monkey or tag:sheep")) == 2
@@ -231,44 +231,44 @@ def test_findCards():
 
 def test_findReplace():
     deck = getEmptyCol()
-    f = deck.newNote()
-    f["Front"] = "foo"
-    f["Back"] = "bar"
-    deck.addNote(f)
+    note = deck.newNote()
+    note["Front"] = "foo"
+    note["Back"] = "bar"
+    deck.addNote(note)
     f2 = deck.newNote()
     f2["Front"] = "baz"
     f2["Back"] = "foo"
     deck.addNote(f2)
-    nids = [f.id, f2.id]
+    nids = [note.id, f2.id]
     # should do nothing
     assert deck.findReplace(nids, "abc", "123") == 0
     # global replace
     assert deck.findReplace(nids, "foo", "qux") == 2
-    f.load()
-    assert f["Front"] == "qux"
+    note.load()
+    assert note["Front"] == "qux"
     f2.load()
     assert f2["Back"] == "qux"
     # single field replace
     assert deck.findReplace(nids, "qux", "foo", field="Front") == 1
-    f.load()
-    assert f["Front"] == "foo"
+    note.load()
+    assert note["Front"] == "foo"
     f2.load()
     assert f2["Back"] == "qux"
     # regex replace
     assert deck.findReplace(nids, "B.r", "reg") == 0
-    f.load()
-    assert f["Back"] != "reg"
+    note.load()
+    assert note["Back"] != "reg"
     assert deck.findReplace(nids, "B.r", "reg", regex=True) == 1
-    f.load()
-    assert f["Back"] == "reg"
+    note.load()
+    assert note["Back"] == "reg"
 
 
 def test_findDupes():
     deck = getEmptyCol()
-    f = deck.newNote()
-    f["Front"] = "foo"
-    f["Back"] = "bar"
-    deck.addNote(f)
+    note = deck.newNote()
+    note["Front"] = "foo"
+    note["Back"] = "bar"
+    deck.addNote(note)
     f2 = deck.newNote()
     f2["Front"] = "baz"
     f2["Back"] = "bar"

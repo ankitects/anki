@@ -38,10 +38,10 @@ def test_new():
     d.reset()
     assert d.sched.newCount == 0
     # add a note
-    f = d.newNote()
-    f["Front"] = "one"
-    f["Back"] = "two"
-    d.addNote(f)
+    note = d.newNote()
+    note["Front"] = "one"
+    note["Back"] = "two"
+    d.addNote(note)
     d.reset()
     assert d.sched.newCount == 1
     # fetch it
@@ -65,12 +65,12 @@ def test_new():
     # t['afmt'] = "{{Front}}"
     # mm.addTemplate(m, t)
     # mm.save(m)
-    # f = d.newNote()
-    # f['Front'] = u"2"; f['Back'] = u"2"
-    # d.addNote(f)
-    # f = d.newNote()
-    # f['Front'] = u"3"; f['Back'] = u"3"
-    # d.addNote(f)
+    # note = d.newNote()
+    # note['Front'] = u"2"; note['Back'] = u"2"
+    # d.addNote(note)
+    # note = d.newNote()
+    # note['Front'] = u"3"; note['Back'] = u"3"
+    # d.addNote(note)
     # d.reset()
     # qs = ("2", "3", "2", "3")
     # for n in range(4):
@@ -84,11 +84,11 @@ def test_newLimits():
     # add some notes
     g2 = d.decks.id("Default::foo")
     for i in range(30):
-        f = d.newNote()
-        f["Front"] = str(i)
+        note = d.newNote()
+        note["Front"] = str(i)
         if i > 4:
-            f.model()["did"] = g2
-        d.addNote(f)
+            note.model()["did"] = g2
+        d.addNote(note)
     # give the child deck a different configuration
     c2 = d.decks.add_config_returning_id("new conf")
     d.decks.setConf(d.decks.get(g2), c2)
@@ -114,9 +114,9 @@ def test_newLimits():
 
 def test_newBoxes():
     d = getEmptyCol()
-    f = d.newNote()
-    f["Front"] = "one"
-    d.addNote(f)
+    note = d.newNote()
+    note["Front"] = "one"
+    d.addNote(note)
     d.reset()
     c = d.sched.getCard()
     conf = d.sched._cardConf(c)
@@ -132,10 +132,10 @@ def test_newBoxes():
 def test_learn():
     d = getEmptyCol()
     # add a note
-    f = d.newNote()
-    f["Front"] = "one"
-    f["Back"] = "two"
-    f = d.addNote(f)
+    note = d.newNote()
+    note["Front"] = "one"
+    note["Back"] = "two"
+    note = d.addNote(note)
     # set as a learn card and rebuild queues
     d.db.execute("update cards set queue=0, type=0")
     d.reset()
@@ -194,10 +194,10 @@ def test_learn():
 
 def test_relearn():
     d = getEmptyCol()
-    f = d.newNote()
-    f["Front"] = "one"
-    d.addNote(f)
-    c = f.cards()[0]
+    note = d.newNote()
+    note["Front"] = "one"
+    d.addNote(note)
+    c = note.cards()[0]
     c.ivl = 100
     c.due = d.sched.today
     c.queue = CARD_TYPE_REV
@@ -221,10 +221,10 @@ def test_relearn():
 
 def test_relearn_no_steps():
     d = getEmptyCol()
-    f = d.newNote()
-    f["Front"] = "one"
-    d.addNote(f)
-    c = f.cards()[0]
+    note = d.newNote()
+    note["Front"] = "one"
+    d.addNote(note)
+    c = note.cards()[0]
     c.ivl = 100
     c.due = d.sched.today
     c.queue = CARD_TYPE_REV
@@ -245,12 +245,12 @@ def test_relearn_no_steps():
 def test_learn_collapsed():
     d = getEmptyCol()
     # add 2 notes
-    f = d.newNote()
-    f["Front"] = "1"
-    f = d.addNote(f)
-    f = d.newNote()
-    f["Front"] = "2"
-    f = d.addNote(f)
+    note = d.newNote()
+    note["Front"] = "1"
+    note = d.addNote(note)
+    note = d.newNote()
+    note["Front"] = "2"
+    note = d.addNote(note)
     # set as a learn card and rebuild queues
     d.db.execute("update cards set queue=0, type=0")
     d.reset()
@@ -272,9 +272,9 @@ def test_learn_collapsed():
 def test_learn_day():
     d = getEmptyCol()
     # add a note
-    f = d.newNote()
-    f["Front"] = "one"
-    f = d.addNote(f)
+    note = d.newNote()
+    note["Front"] = "one"
+    note = d.addNote(note)
     d.sched.reset()
     c = d.sched.getCard()
     conf = d.sched._cardConf(c)
@@ -335,12 +335,12 @@ def test_learn_day():
 def test_reviews():
     d = getEmptyCol()
     # add a note
-    f = d.newNote()
-    f["Front"] = "one"
-    f["Back"] = "two"
-    d.addNote(f)
+    note = d.newNote()
+    note["Front"] = "one"
+    note["Back"] = "two"
+    d.addNote(note)
     # set the card up as a review card, due 8 days ago
-    c = f.cards()[0]
+    c = note.cards()[0]
     c.type = CARD_TYPE_REV
     c.queue = QUEUE_TYPE_REV
     c.due = d.sched.today - 8
@@ -431,13 +431,13 @@ def test_review_limits():
 
     # add some cards
     for i in range(20):
-        f = d.newNote()
-        f["Front"] = "one"
-        f["Back"] = "two"
-        d.addNote(f)
+        note = d.newNote()
+        note["Front"] = "one"
+        note["Back"] = "two"
+        d.addNote(note)
 
         # make them reviews
-        c = f.cards()[0]
+        c = note.cards()[0]
         c.queue = CARD_TYPE_REV
         c.type = QUEUE_TYPE_REV
         c.due = 0
@@ -465,11 +465,11 @@ def test_review_limits():
 
 def test_button_spacing():
     d = getEmptyCol()
-    f = d.newNote()
-    f["Front"] = "one"
-    d.addNote(f)
+    note = d.newNote()
+    note["Front"] = "one"
+    d.addNote(note)
     # 1 day ivl review card due now
-    c = f.cards()[0]
+    c = note.cards()[0]
     c.type = CARD_TYPE_REV
     c.queue = QUEUE_TYPE_REV
     c.due = d.sched.today
@@ -496,11 +496,11 @@ def test_overdue_lapse():
     return
     d = getEmptyCol()  # pylint: disable=unreachable
     # add a note
-    f = d.newNote()
-    f["Front"] = "one"
-    d.addNote(f)
+    note = d.newNote()
+    note["Front"] = "one"
+    d.addNote(note)
     # simulate a review that was lapsed and is now due for its normal review
-    c = f.cards()[0]
+    c = note.cards()[0]
     c.type = CARD_TYPE_REV
     c.queue = 1
     c.due = -1
@@ -532,15 +532,15 @@ def test_finished():
     # nothing due
     assert "Congratulations" in d.sched.finishedMsg()
     assert "limit" not in d.sched.finishedMsg()
-    f = d.newNote()
-    f["Front"] = "one"
-    f["Back"] = "two"
-    d.addNote(f)
+    note = d.newNote()
+    note["Front"] = "one"
+    note["Back"] = "two"
+    d.addNote(note)
     # have a new card
     assert "new cards available" in d.sched.finishedMsg()
     # turn it into a review
     d.reset()
-    c = f.cards()[0]
+    c = note.cards()[0]
     c.startTimer()
     d.sched.answerCard(c, 3)
     # nothing should be due tomorrow, as it's due in a week
@@ -550,10 +550,10 @@ def test_finished():
 
 def test_nextIvl():
     d = getEmptyCol()
-    f = d.newNote()
-    f["Front"] = "one"
-    f["Back"] = "two"
-    d.addNote(f)
+    note = d.newNote()
+    note["Front"] = "one"
+    note["Back"] = "two"
+    d.addNote(note)
     d.reset()
     conf = d.decks.confForDid(1)
     conf["new"]["delays"] = [0.5, 3, 10]
@@ -613,14 +613,14 @@ def test_nextIvl():
 
 def test_bury():
     d = getEmptyCol()
-    f = d.newNote()
-    f["Front"] = "one"
-    d.addNote(f)
-    c = f.cards()[0]
-    f = d.newNote()
-    f["Front"] = "two"
-    d.addNote(f)
-    c2 = f.cards()[0]
+    note = d.newNote()
+    note["Front"] = "one"
+    d.addNote(note)
+    c = note.cards()[0]
+    note = d.newNote()
+    note["Front"] = "two"
+    d.addNote(note)
+    c2 = note.cards()[0]
     # burying
     d.sched.buryCards([c.id], manual=True)  # pylint: disable=unexpected-keyword-arg
     c.load()
@@ -654,10 +654,10 @@ def test_bury():
 
 def test_suspend():
     d = getEmptyCol()
-    f = d.newNote()
-    f["Front"] = "one"
-    d.addNote(f)
-    c = f.cards()[0]
+    note = d.newNote()
+    note["Front"] = "one"
+    d.addNote(note)
+    c = note.cards()[0]
     # suspending
     d.reset()
     assert d.sched.getCard()
@@ -704,10 +704,10 @@ def test_suspend():
 
 def test_filt_reviewing_early_normal():
     d = getEmptyCol()
-    f = d.newNote()
-    f["Front"] = "one"
-    d.addNote(f)
-    c = f.cards()[0]
+    note = d.newNote()
+    note["Front"] = "one"
+    d.addNote(note)
+    c = note.cards()[0]
     c.ivl = 100
     c.queue = CARD_TYPE_REV
     c.type = QUEUE_TYPE_REV
@@ -761,9 +761,9 @@ def test_filt_reviewing_early_normal():
 def test_filt_keep_lrn_state():
     d = getEmptyCol()
 
-    f = d.newNote()
-    f["Front"] = "one"
-    d.addNote(f)
+    note = d.newNote()
+    note["Front"] = "one"
+    d.addNote(note)
 
     # fail the card outside filtered deck
     c = d.sched.getCard()
@@ -805,10 +805,10 @@ def test_filt_keep_lrn_state():
 def test_preview():
     # add cards
     d = getEmptyCol()
-    f = d.newNote()
-    f["Front"] = "one"
-    d.addNote(f)
-    c = f.cards()[0]
+    note = d.newNote()
+    note["Front"] = "one"
+    d.addNote(note)
+    c = note.cards()[0]
     orig = copy.copy(c)
     f2 = d.newNote()
     f2["Front"] = "two"
@@ -867,10 +867,10 @@ def test_ordcycle():
     mm.addTemplate(m, t)
     mm.save(m)
     # create a new note; it should have 3 cards
-    f = d.newNote()
-    f["Front"] = "1"
-    f["Back"] = "1"
-    d.addNote(f)
+    note = d.newNote()
+    note["Front"] = "1"
+    note["Back"] = "1"
+    d.addNote(note)
     assert d.cardCount() == 3
     d.reset()
     # ordinals should arrive in order
@@ -881,10 +881,10 @@ def test_ordcycle():
 
 def test_counts_idx():
     d = getEmptyCol()
-    f = d.newNote()
-    f["Front"] = "one"
-    f["Back"] = "two"
-    d.addNote(f)
+    note = d.newNote()
+    note["Front"] = "one"
+    note["Back"] = "two"
+    d.addNote(note)
     d.reset()
     assert d.sched.counts() == (1, 0, 0)
     c = d.sched.getCard()
@@ -905,9 +905,9 @@ def test_counts_idx():
 
 def test_repCounts():
     d = getEmptyCol()
-    f = d.newNote()
-    f["Front"] = "one"
-    d.addNote(f)
+    note = d.newNote()
+    note["Front"] = "one"
+    d.addNote(note)
     d.reset()
     # lrnReps should be accurate on pass/fail
     assert d.sched.counts() == (1, 0, 0)
@@ -923,9 +923,9 @@ def test_repCounts():
     assert d.sched.counts() == (0, 1, 0)
     d.sched.answerCard(d.sched.getCard(), 3)
     assert d.sched.counts() == (0, 0, 0)
-    f = d.newNote()
-    f["Front"] = "two"
-    d.addNote(f)
+    note = d.newNote()
+    note["Front"] = "two"
+    d.addNote(note)
     d.reset()
     # initial pass should be correct too
     d.sched.answerCard(d.sched.getCard(), 3)
@@ -935,17 +935,17 @@ def test_repCounts():
     d.sched.answerCard(d.sched.getCard(), 4)
     assert d.sched.counts() == (0, 0, 0)
     # immediate graduate should work
-    f = d.newNote()
-    f["Front"] = "three"
-    d.addNote(f)
+    note = d.newNote()
+    note["Front"] = "three"
+    d.addNote(note)
     d.reset()
     d.sched.answerCard(d.sched.getCard(), 4)
     assert d.sched.counts() == (0, 0, 0)
     # and failing a review should too
-    f = d.newNote()
-    f["Front"] = "three"
-    d.addNote(f)
-    c = f.cards()[0]
+    note = d.newNote()
+    note["Front"] = "three"
+    d.addNote(note)
+    c = note.cards()[0]
     c.type = CARD_TYPE_REV
     c.queue = QUEUE_TYPE_REV
     c.due = d.sched.today
@@ -960,10 +960,10 @@ def test_timing():
     d = getEmptyCol()
     # add a few review cards, due today
     for i in range(5):
-        f = d.newNote()
-        f["Front"] = "num" + str(i)
-        d.addNote(f)
-        c = f.cards()[0]
+        note = d.newNote()
+        note["Front"] = "num" + str(i)
+        d.addNote(note)
+        c = note.cards()[0]
         c.type = CARD_TYPE_REV
         c.queue = QUEUE_TYPE_REV
         c.due = 0
@@ -986,9 +986,9 @@ def test_timing():
 def test_collapse():
     d = getEmptyCol()
     # add a note
-    f = d.newNote()
-    f["Front"] = "one"
-    d.addNote(f)
+    note = d.newNote()
+    note["Front"] = "one"
+    d.addNote(note)
     d.reset()
     # test collapsing
     c = d.sched.getCard()
@@ -1001,29 +1001,29 @@ def test_collapse():
 def test_deckDue():
     d = getEmptyCol()
     # add a note with default deck
-    f = d.newNote()
-    f["Front"] = "one"
-    d.addNote(f)
+    note = d.newNote()
+    note["Front"] = "one"
+    d.addNote(note)
     # and one that's a child
-    f = d.newNote()
-    f["Front"] = "two"
-    default1 = f.model()["did"] = d.decks.id("Default::1")
-    d.addNote(f)
+    note = d.newNote()
+    note["Front"] = "two"
+    default1 = note.model()["did"] = d.decks.id("Default::1")
+    d.addNote(note)
     # make it a review card
-    c = f.cards()[0]
+    c = note.cards()[0]
     c.queue = QUEUE_TYPE_REV
     c.due = 0
     c.flush()
     # add one more with a new deck
-    f = d.newNote()
-    f["Front"] = "two"
-    foobar = f.model()["did"] = d.decks.id("foo::bar")
-    d.addNote(f)
+    note = d.newNote()
+    note["Front"] = "two"
+    foobar = note.model()["did"] = d.decks.id("foo::bar")
+    d.addNote(note)
     # and one that's a sibling
-    f = d.newNote()
-    f["Front"] = "three"
-    foobaz = f.model()["did"] = d.decks.id("foo::baz")
-    d.addNote(f)
+    note = d.newNote()
+    note["Front"] = "three"
+    foobaz = note.model()["did"] = d.decks.id("foo::baz")
+    d.addNote(note)
     d.reset()
     assert len(d.decks.all_names_and_ids()) == 5
     tree = d.sched.deck_due_tree().children
@@ -1057,19 +1057,19 @@ def test_deckTree():
 def test_deckFlow():
     d = getEmptyCol()
     # add a note with default deck
-    f = d.newNote()
-    f["Front"] = "one"
-    d.addNote(f)
+    note = d.newNote()
+    note["Front"] = "one"
+    d.addNote(note)
     # and one that's a child
-    f = d.newNote()
-    f["Front"] = "two"
-    default1 = f.model()["did"] = d.decks.id("Default::2")
-    d.addNote(f)
+    note = d.newNote()
+    note["Front"] = "two"
+    default1 = note.model()["did"] = d.decks.id("Default::2")
+    d.addNote(note)
     # and another that's higher up
-    f = d.newNote()
-    f["Front"] = "three"
-    default1 = f.model()["did"] = d.decks.id("Default::1")
-    d.addNote(f)
+    note = d.newNote()
+    note["Front"] = "three"
+    default1 = note.model()["did"] = d.decks.id("Default::1")
+    d.addNote(note)
     # should get top level one first, then ::1, then ::2
     d.reset()
     assert d.sched.counts() == (3, 0, 0)
@@ -1082,9 +1082,9 @@ def test_deckFlow():
 def test_reorder():
     d = getEmptyCol()
     # add a note with default deck
-    f = d.newNote()
-    f["Front"] = "one"
-    d.addNote(f)
+    note = d.newNote()
+    note["Front"] = "one"
+    d.addNote(note)
     f2 = d.newNote()
     f2["Front"] = "two"
     d.addNote(f2)
@@ -1093,12 +1093,12 @@ def test_reorder():
     # 50/50 chance of being reordered
     for i in range(20):
         d.sched.randomizeCards(1)
-        if f.cards()[0].due != f.id:
+        if note.cards()[0].due != note.id:
             found = True
             break
     assert found
     d.sched.orderCards(1)
-    assert f.cards()[0].due == 1
+    assert note.cards()[0].due == 1
     # shifting
     f3 = d.newNote()
     f3["Front"] = "three"
@@ -1106,12 +1106,12 @@ def test_reorder():
     f4 = d.newNote()
     f4["Front"] = "four"
     d.addNote(f4)
-    assert f.cards()[0].due == 1
+    assert note.cards()[0].due == 1
     assert f2.cards()[0].due == 2
     assert f3.cards()[0].due == 3
     assert f4.cards()[0].due == 4
     d.sched.sortCards([f3.cards()[0].id, f4.cards()[0].id], start=1, shift=True)
-    assert f.cards()[0].due == 3
+    assert note.cards()[0].due == 3
     assert f2.cards()[0].due == 4
     assert f3.cards()[0].due == 1
     assert f4.cards()[0].due == 2
@@ -1119,10 +1119,10 @@ def test_reorder():
 
 def test_forget():
     d = getEmptyCol()
-    f = d.newNote()
-    f["Front"] = "one"
-    d.addNote(f)
-    c = f.cards()[0]
+    note = d.newNote()
+    note["Front"] = "one"
+    d.addNote(note)
+    c = note.cards()[0]
     c.queue = QUEUE_TYPE_REV
     c.type = CARD_TYPE_REV
     c.ivl = 100
@@ -1137,10 +1137,10 @@ def test_forget():
 
 def test_resched():
     d = getEmptyCol()
-    f = d.newNote()
-    f["Front"] = "one"
-    d.addNote(f)
-    c = f.cards()[0]
+    note = d.newNote()
+    note["Front"] = "one"
+    d.addNote(note)
+    c = note.cards()[0]
     d.sched.reschedCards([c.id], 0, 0)
     c.load()
     assert c.due == d.sched.today
@@ -1155,10 +1155,10 @@ def test_resched():
 def test_norelearn():
     d = getEmptyCol()
     # add a note
-    f = d.newNote()
-    f["Front"] = "one"
-    d.addNote(f)
-    c = f.cards()[0]
+    note = d.newNote()
+    note["Front"] = "one"
+    d.addNote(note)
+    c = note.cards()[0]
     c.type = CARD_TYPE_REV
     c.queue = QUEUE_TYPE_REV
     c.due = 0
@@ -1176,11 +1176,11 @@ def test_norelearn():
 
 def test_failmult():
     d = getEmptyCol()
-    f = d.newNote()
-    f["Front"] = "one"
-    f["Back"] = "two"
-    d.addNote(f)
-    c = f.cards()[0]
+    note = d.newNote()
+    note["Front"] = "one"
+    note["Back"] = "two"
+    d.addNote(note)
+    c = note.cards()[0]
     c.type = CARD_TYPE_REV
     c.queue = QUEUE_TYPE_REV
     c.ivl = 100
@@ -1264,11 +1264,11 @@ def test_negativeDueFilter():
     d = getEmptyCol()
 
     # card due prior to collection date
-    f = d.newNote()
-    f["Front"] = "one"
-    f["Back"] = "two"
-    d.addNote(f)
-    c = f.cards()[0]
+    note = d.newNote()
+    note["Front"] = "one"
+    note["Back"] = "two"
+    d.addNote(note)
+    c = note.cards()[0]
     c.due = -5
     c.queue = QUEUE_TYPE_REV
     c.ivl = 5
@@ -1288,10 +1288,10 @@ def test_negativeDueFilter():
 # and it should be logged properly
 def test_initial_repeat():
     d = getEmptyCol()
-    f = d.newNote()
-    f["Front"] = "one"
-    f["Back"] = "two"
-    d.addNote(f)
+    note = d.newNote()
+    note["Front"] = "one"
+    note["Back"] = "two"
+    d.addNote(note)
 
     d.reset()
     c = d.sched.getCard()

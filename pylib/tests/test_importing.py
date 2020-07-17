@@ -37,8 +37,8 @@ def test_anki2_mediadupes():
     mid = n.model()["id"]
     tmp.addNote(n)
     # add that sound to media folder
-    with open(os.path.join(tmp.media.dir(), "foo.mp3"), "w") as f:
-        f.write("foo")
+    with open(os.path.join(tmp.media.dir(), "foo.mp3"), "w") as note:
+        note.write("foo")
     tmp.close()
     # it should be imported correctly into an empty deck
     empty = getEmptyCol()
@@ -55,8 +55,8 @@ def test_anki2_mediadupes():
     # if the local file content is different, and import should trigger a
     # rename
     empty.remove_cards_and_orphaned_notes(empty.db.list("select id from cards"))
-    with open(os.path.join(empty.media.dir(), "foo.mp3"), "w") as f:
-        f.write("bar")
+    with open(os.path.join(empty.media.dir(), "foo.mp3"), "w") as note:
+        note.write("bar")
     imp = Anki2Importer(empty, tmp.path)
     imp.run()
     assert sorted(os.listdir(empty.media.dir())) == ["foo.mp3", "foo_%s.mp3" % mid]
@@ -65,8 +65,8 @@ def test_anki2_mediadupes():
     # if the localized media file already exists, we rewrite the note and
     # media
     empty.remove_cards_and_orphaned_notes(empty.db.list("select id from cards"))
-    with open(os.path.join(empty.media.dir(), "foo.mp3"), "w") as f:
-        f.write("bar")
+    with open(os.path.join(empty.media.dir(), "foo.mp3"), "w") as note:
+        note.write("bar")
     imp = Anki2Importer(empty, tmp.path)
     imp.run()
     assert sorted(os.listdir(empty.media.dir())) == ["foo.mp3", "foo_%s.mp3" % mid]
@@ -89,8 +89,8 @@ def test_apkg():
     assert os.listdir(tmp.media.dir()) == ["foo.wav"]
     # but if the local file has different data, it will rename
     tmp.remove_cards_and_orphaned_notes(tmp.db.list("select id from cards"))
-    with open(os.path.join(tmp.media.dir(), "foo.wav"), "w") as f:
-        f.write("xyz")
+    with open(os.path.join(tmp.media.dir(), "foo.wav"), "w") as note:
+        note.write("xyz")
     imp = AnkiPackageImporter(tmp, apkg)
     imp.run()
     assert len(os.listdir(tmp.media.dir())) == 2
@@ -185,8 +185,8 @@ def test_csv2():
     deck = getEmptyCol()
     mm = deck.models
     m = mm.current()
-    f = mm.newField("Three")
-    mm.addField(m, f)
+    note = mm.newField("Three")
+    mm.addField(m, note)
     mm.save(m)
     n = deck.newNote()
     n["Front"] = "1"
@@ -209,8 +209,8 @@ def test_tsv_tag_modified():
     deck = getEmptyCol()
     mm = deck.models
     m = mm.current()
-    f = mm.newField("Top")
-    mm.addField(m, f)
+    note = mm.newField("Top")
+    mm.addField(m, note)
     mm.save(m)
     n = deck.newNote()
     n["Front"] = "1"
@@ -245,8 +245,8 @@ def test_tsv_tag_multiple_tags():
     deck = getEmptyCol()
     mm = deck.models
     m = mm.current()
-    f = mm.newField("Top")
-    mm.addField(m, f)
+    note = mm.newField("Top")
+    mm.addField(m, note)
     mm.save(m)
     n = deck.newNote()
     n["Front"] = "1"
@@ -279,8 +279,8 @@ def test_csv_tag_only_if_modified():
     deck = getEmptyCol()
     mm = deck.models
     m = mm.current()
-    f = mm.newField("Left")
-    mm.addField(m, f)
+    note = mm.newField("Left")
+    mm.addField(m, note)
     mm.save(m)
     n = deck.newNote()
     n["Front"] = "1"

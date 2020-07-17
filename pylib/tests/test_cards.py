@@ -5,11 +5,11 @@ from tests.shared import getEmptyCol
 
 def test_delete():
     deck = getEmptyCol()
-    f = deck.newNote()
-    f["Front"] = "1"
-    f["Back"] = "2"
-    deck.addNote(f)
-    cid = f.cards()[0].id
+    note = deck.newNote()
+    note["Front"] = "1"
+    note["Back"] = "2"
+    deck.addNote(note)
+    cid = note.cards()[0].id
     deck.reset()
     deck.sched.answerCard(deck.sched.getCard(), 2)
     deck.remove_cards_and_orphaned_notes([cid])
@@ -22,22 +22,22 @@ def test_delete():
 
 def test_misc():
     d = getEmptyCol()
-    f = d.newNote()
-    f["Front"] = "1"
-    f["Back"] = "2"
-    d.addNote(f)
-    c = f.cards()[0]
+    note = d.newNote()
+    note["Front"] = "1"
+    note["Back"] = "2"
+    d.addNote(note)
+    c = note.cards()[0]
     id = d.models.current()["id"]
     assert c.template()["ord"] == 0
 
 
 def test_genrem():
     d = getEmptyCol()
-    f = d.newNote()
-    f["Front"] = "1"
-    f["Back"] = ""
-    d.addNote(f)
-    assert len(f.cards()) == 1
+    note = d.newNote()
+    note["Front"] = "1"
+    note["Back"] = ""
+    d.addNote(note)
+    assert len(note.cards()) == 1
     m = d.models.current()
     mm = d.models
     # adding a new template should automatically create cards
@@ -46,7 +46,7 @@ def test_genrem():
     t["afmt"] = ""
     mm.addTemplate(m, t)
     mm.save(m, templates=True)
-    assert len(f.cards()) == 2
+    assert len(note.cards()) == 2
     # if the template is changed to remove cards, they'll be removed
     t = m["tmpls"][1]
     t["qfmt"] = "{{Back}}"
@@ -54,40 +54,40 @@ def test_genrem():
     rep = d.backend.get_empty_cards()
     for n in rep.notes:
         d.remove_cards_and_orphaned_notes(n.card_ids)
-    assert len(f.cards()) == 1
+    assert len(note.cards()) == 1
     # if we add to the note, a card should be automatically generated
-    f.load()
-    f["Back"] = "1"
-    f.flush()
-    assert len(f.cards()) == 2
+    note.load()
+    note["Back"] = "1"
+    note.flush()
+    assert len(note.cards()) == 2
 
 
 def test_gendeck():
     d = getEmptyCol()
     cloze = d.models.byName("Cloze")
     d.models.setCurrent(cloze)
-    f = d.newNote()
-    f["Text"] = "{{c1::one}}"
-    d.addNote(f)
+    note = d.newNote()
+    note["Text"] = "{{c1::one}}"
+    d.addNote(note)
     assert d.cardCount() == 1
-    assert f.cards()[0].did == 1
+    assert note.cards()[0].did == 1
     # set the model to a new default deck
     newId = d.decks.id("new")
     cloze["did"] = newId
     d.models.save(cloze, updateReqs=False)
     # a newly generated card should share the first card's deck
-    f["Text"] += "{{c2::two}}"
-    f.flush()
-    assert f.cards()[1].did == 1
+    note["Text"] += "{{c2::two}}"
+    note.flush()
+    assert note.cards()[1].did == 1
     # and same with multiple cards
-    f["Text"] += "{{c3::three}}"
-    f.flush()
-    assert f.cards()[2].did == 1
+    note["Text"] += "{{c3::three}}"
+    note.flush()
+    assert note.cards()[2].did == 1
     # if one of the cards is in a different deck, it should revert to the
     # model default
-    c = f.cards()[1]
+    c = note.cards()[1]
     c.did = newId
     c.flush()
-    f["Text"] += "{{c4::four}}"
-    f.flush()
-    assert f.cards()[3].did == newId
+    note["Text"] += "{{c4::four}}"
+    note.flush()
+    assert note.cards()[3].did == newId

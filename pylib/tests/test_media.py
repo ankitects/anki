@@ -11,15 +11,15 @@ def test_add():
     d = getEmptyCol()
     dir = tempfile.mkdtemp(prefix="anki")
     path = os.path.join(dir, "foo.jpg")
-    with open(path, "w") as f:
-        f.write("hello")
+    with open(path, "w") as note:
+        note.write("hello")
     # new file, should preserve name
     assert d.media.addFile(path) == "foo.jpg"
     # adding the same file again should not create a duplicate
     assert d.media.addFile(path) == "foo.jpg"
     # but if it has a different sha1, it should
-    with open(path, "w") as f:
-        f.write("world")
+    with open(path, "w") as note:
+        note.write("world")
     assert d.media.addFile(path) == "foo-7c211433f02071597741e6ff5a8ea34789abbf43.jpg"
 
 
@@ -60,18 +60,18 @@ def test_deckIntegration():
     file = str(os.path.join(testDir, "support/fake.png"))
     d.media.addFile(file)
     # add a note which references it
-    f = d.newNote()
-    f["Front"] = "one"
-    f["Back"] = "<img src='fake.png'>"
-    d.addNote(f)
+    note = d.newNote()
+    note["Front"] = "one"
+    note["Back"] = "<img src='fake.png'>"
+    d.addNote(note)
     # and one which references a non-existent file
-    f = d.newNote()
-    f["Front"] = "one"
-    f["Back"] = "<img src='fake2.png'>"
-    d.addNote(f)
+    note = d.newNote()
+    note["Front"] = "one"
+    note["Back"] = "<img src='fake2.png'>"
+    d.addNote(note)
     # and add another file which isn't used
-    with open(os.path.join(d.media.dir(), "foo.jpg"), "w") as f:
-        f.write("test")
+    with open(os.path.join(d.media.dir(), "foo.jpg"), "w") as note:
+        note.write("test")
     # check media
     ret = d.media.check()
     assert ret.missing == ["fake2.png"]
