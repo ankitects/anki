@@ -55,7 +55,7 @@
     const title = i18n.tr(i18n.TR.STATISTICS_CALENDAR_TITLE);
 </script>
 
-<div class="graph">
+<div class="graph" id="graph-calendar">
     <h1>{title}</h1>
 
     <div class="range-box-inner">

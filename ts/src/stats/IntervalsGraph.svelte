@@ -34,7 +34,7 @@
     const subtitle = i18n.tr(i18n.TR.STATISTICS_INTERVALS_SUBTITLE);
 </script>
 
-<div class="graph intervals">
+<div class="graph intervals" id="graph-intervals">
     <h1>{title}</h1>
 
     <div class="range-box-inner">

@@ -38,7 +38,7 @@
     const backlogLabel = i18n.tr(i18n.TR.STATISTICS_BACKLOG_CHECKBOX);
 </script>
 
-<div class="graph">
+<div class="graph" id="graph-future-due">
     <h1>{title}</h1>
 
     <div class="range-box-inner">
