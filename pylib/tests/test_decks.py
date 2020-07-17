@@ -46,15 +46,15 @@ def test_basic():
 def test_remove():
     col = getEmptyCol()
     # create a new col, and add a note/card to it
-    g1 = col.decks.id("g1")
+    deck1 = col.decks.id("deck1")
     note = col.newNote()
     note["Front"] = "1"
-    note.model()["did"] = g1
+    note.model()["did"] = deck1
     col.addNote(note)
     c = note.cards()[0]
-    assert c.did == g1
+    assert c.did == deck1
     assert col.cardCount() == 1
-    col.decks.rem(g1)
+    col.decks.rem(deck1)
     assert col.cardCount() == 0
     # if we try to get it, we get the default
     assert col.decks.name(c.did) == "[no deck]"

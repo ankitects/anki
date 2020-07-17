@@ -82,16 +82,16 @@ def test_new():
 def test_newLimits():
     col = getEmptyCol()
     # add some notes
-    g2 = col.decks.id("Default::foo")
+    deck2 = col.decks.id("Default::foo")
     for i in range(30):
         note = col.newNote()
         note["Front"] = str(i)
         if i > 4:
-            note.model()["did"] = g2
+            note.model()["did"] = deck2
         col.addNote(note)
     # give the child deck a different configuration
     c2 = col.decks.add_config_returning_id("new conf")
-    col.decks.setConf(col.decks.get(g2), c2)
+    col.decks.setConf(col.decks.get(deck2), c2)
     col.reset()
     # both confs have defaulted to a limit of 20
     assert col.sched.newCount == 20
@@ -105,7 +105,7 @@ def test_newLimits():
     col.reset()
     assert col.sched.newCount == 10
     # if we limit child to 4, we should get 9
-    conf2 = col.decks.confForDid(g2)
+    conf2 = col.decks.confForDid(deck2)
     conf2["new"]["perDay"] = 4
     col.decks.save(conf2)
     col.reset()
