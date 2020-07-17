@@ -273,10 +273,10 @@ def test_findDupes():
     note2["Front"] = "baz"
     note2["Back"] = "bar"
     col.addNote(note2)
-    f3 = col.newNote()
-    f3["Front"] = "quux"
-    f3["Back"] = "bar"
-    col.addNote(f3)
+    note3 = col.newNote()
+    note3["Front"] = "quux"
+    note3["Back"] = "bar"
+    col.addNote(note3)
     f4 = col.newNote()
     f4["Front"] = "quuux"
     f4["Back"] = "nope"
