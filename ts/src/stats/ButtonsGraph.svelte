@@ -1,20 +1,24 @@
 <script lang="typescript">
-    import { defaultGraphBounds } from "./graphs";
+    import { defaultGraphBounds, GraphRange, RevlogRange } from "./graphs";
     import AxisTicks from "./AxisTicks.svelte";
-    import { gatherData, GraphData, renderButtons } from "./buttons";
+    import { renderButtons } from "./buttons";
     import pb from "../backend/proto";
     import { I18n } from "../i18n";
     import NoDataOverlay from "./NoDataOverlay.svelte";
+    import GraphRangeRadios from "./GraphRangeRadios.svelte";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
     export let i18n: I18n;
+    export let revlogRange: RevlogRange;
+
+    let graphRange: GraphRange = GraphRange.Year;
 
     const bounds = defaultGraphBounds();
 
     let svg = null as HTMLElement | SVGElement | null;
 
     $: if (sourceData) {
-        renderButtons(svg as SVGElement, bounds, gatherData(sourceData), i18n);
+        renderButtons(svg as SVGElement, bounds, sourceData, i18n, graphRange);
     }
 
     const title = i18n.tr(i18n.TR.STATISTICS_ANSWER_BUTTONS_TITLE);
@@ -23,6 +27,10 @@
 
 <div class="graph" id="graph-buttons">
     <h1>{title}</h1>
+
+    <div class="range-box-inner">
+        <GraphRangeRadios bind:graphRange {i18n} {revlogRange} />
+    </div>
 
     <div class="subtitle">{subtitle}</div>
 

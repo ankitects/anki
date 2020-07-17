@@ -13,13 +13,7 @@ import { HistogramData } from "./histogram-graph";
 import { interpolateBlues } from "d3-scale-chromatic";
 import { I18n } from "../i18n";
 import { dayLabel } from "../time";
-
-export enum AddedRange {
-    Month = 0,
-    ThreeMonths = 1,
-    Year = 2,
-    AllTime = 3,
-}
+import { GraphRange } from "./graphs";
 
 export interface GraphData {
     daysAdded: number[];
@@ -35,7 +29,7 @@ export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
 
 export function buildHistogram(
     data: GraphData,
-    range: AddedRange,
+    range: GraphRange,
     i18n: I18n
 ): HistogramData | null {
     // get min/max
@@ -49,16 +43,16 @@ export function buildHistogram(
 
     // cap max to selected range
     switch (range) {
-        case AddedRange.Month:
+        case GraphRange.Month:
             xMin = -31;
             break;
-        case AddedRange.ThreeMonths:
+        case GraphRange.ThreeMonths:
             xMin = -90;
             break;
-        case AddedRange.Year:
+        case GraphRange.Year:
             xMin = -365;
             break;
-        case AddedRange.AllTime:
+        case GraphRange.AllTime:
             break;
     }
     const xMax = 1;

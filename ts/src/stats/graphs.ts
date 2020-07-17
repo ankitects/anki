@@ -35,9 +35,18 @@ export async function getGraphData(
     return pb.BackendProto.GraphsOut.decode(bytes);
 }
 
+// amount of data to fetch from backend
 export enum RevlogRange {
     Year = 1,
     All = 2,
+}
+
+// period a graph should cover
+export enum GraphRange {
+    Month = 0,
+    ThreeMonths = 1,
+    Year = 2,
+    AllTime = 3,
 }
 
 export interface GraphsContext {
@@ -76,4 +85,27 @@ export function setDataAvailable(
         .transition()
         .duration(600)
         .attr("opacity", available ? 0 : 1);
+}
+
+export function millisecondCutoffForRange(
+    range: GraphRange,
+    nextDayAtSecs: number
+): number {
+    let days;
+    switch (range) {
+        case GraphRange.Month:
+            days = 31;
+            break;
+        case GraphRange.ThreeMonths:
+            days = 90;
+            break;
+        case GraphRange.Year:
+            days = 365;
+            break;
+        case GraphRange.AllTime:
+        default:
+            return 0;
+    }
+
+    return (nextDayAtSecs - 86400 * days) * 1000;
 }
