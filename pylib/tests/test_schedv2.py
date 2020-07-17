@@ -1102,20 +1102,20 @@ def test_reorder():
     col.sched.orderCards(1)
     assert note.cards()[0].due == 1
     # shifting
-    f3 = col.newNote()
-    f3["Front"] = "three"
-    col.addNote(f3)
+    note3 = col.newNote()
+    note3["Front"] = "three"
+    col.addNote(note3)
     f4 = col.newNote()
     f4["Front"] = "four"
     col.addNote(f4)
     assert note.cards()[0].due == 1
     assert note2.cards()[0].due == 2
-    assert f3.cards()[0].due == 3
+    assert note3.cards()[0].due == 3
     assert f4.cards()[0].due == 4
-    col.sched.sortCards([f3.cards()[0].id, f4.cards()[0].id], start=1, shift=True)
+    col.sched.sortCards([note3.cards()[0].id, f4.cards()[0].id], start=1, shift=True)
     assert note.cards()[0].due == 3
     assert note2.cards()[0].due == 4
-    assert f3.cards()[0].due == 1
+    assert note3.cards()[0].due == 1
     assert f4.cards()[0].due == 2
 
 
