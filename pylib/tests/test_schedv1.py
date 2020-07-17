@@ -1069,18 +1069,18 @@ def test_reorder():
     note3 = col.newNote()
     note3["Front"] = "three"
     col.addNote(note3)
-    f4 = col.newNote()
-    f4["Front"] = "four"
-    col.addNote(f4)
+    note4 = col.newNote()
+    note4["Front"] = "four"
+    col.addNote(note4)
     assert note.cards()[0].due == 1
     assert note2.cards()[0].due == 2
     assert note3.cards()[0].due == 3
-    assert f4.cards()[0].due == 4
-    col.sched.sortCards([note3.cards()[0].id, f4.cards()[0].id], start=1, shift=True)
+    assert note4.cards()[0].due == 4
+    col.sched.sortCards([note3.cards()[0].id, note4.cards()[0].id], start=1, shift=True)
     assert note.cards()[0].due == 3
     assert note2.cards()[0].due == 4
     assert note3.cards()[0].due == 1
-    assert f4.cards()[0].due == 2
+    assert note4.cards()[0].due == 2
 
 
 def test_forget():
