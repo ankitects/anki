@@ -7,17 +7,17 @@ from tests.shared import getEmptyCol
 
 
 def test_latex():
-    d = getEmptyCol()
+    col = getEmptyCol()
     # change latex cmd to simulate broken build
     import anki.latex
 
     anki.latex.pngCommands[0][0] = "nolatex"
     # add a note with latex
-    note = d.newNote()
+    note = col.newNote()
     note["Front"] = "[latex]hello[/latex]"
-    d.addNote(note)
+    col.addNote(note)
     # but since latex couldn't run, there's nothing there
-    assert len(os.listdir(d.media.dir())) == 0
+    assert len(os.listdir(col.media.dir())) == 0
     # check the error message
     msg = note.cards()[0].q()
     assert "executing nolatex" in msg
@@ -29,29 +29,29 @@ def test_latex():
     # fix path
     anki.latex.pngCommands[0][0] = "latex"
     # check media db should cause latex to be generated
-    d.media.render_all_latex()
-    assert len(os.listdir(d.media.dir())) == 1
+    col.media.render_all_latex()
+    assert len(os.listdir(col.media.dir())) == 1
     assert ".png" in note.cards()[0].q()
     # adding new notes should cause generation on question display
-    note = d.newNote()
+    note = col.newNote()
     note["Front"] = "[latex]world[/latex]"
-    d.addNote(note)
+    col.addNote(note)
     note.cards()[0].q()
-    assert len(os.listdir(d.media.dir())) == 2
+    assert len(os.listdir(col.media.dir())) == 2
     # another note with the same media should reuse
-    note = d.newNote()
+    note = col.newNote()
     note["Front"] = " [latex]world[/latex]"
-    d.addNote(note)
-    assert len(os.listdir(d.media.dir())) == 2
+    col.addNote(note)
+    assert len(os.listdir(col.media.dir())) == 2
     oldcard = note.cards()[0]
     assert ".png" in oldcard.q()
     # if we turn off building, then previous cards should work, but cards with
     # missing media will show a broken image
     anki.latex.build = False
-    note = d.newNote()
+    note = col.newNote()
     note["Front"] = "[latex]foo[/latex]"
-    d.addNote(note)
-    assert len(os.listdir(d.media.dir())) == 2
+    col.addNote(note)
+    assert len(os.listdir(col.media.dir())) == 2
     assert ".png" in oldcard.q()
     # turn it on again so other test don't suffer
     anki.latex.build = True
@@ -87,9 +87,9 @@ def test_latex():
 
 
 def _test_includes_bad_command(bad):
-    d = getEmptyCol()
-    note = d.newNote()
+    col = getEmptyCol()
+    note = col.newNote()
     note["Front"] = "[latex]%s[/latex]" % bad
-    d.addNote(note)
+    col.addNote(note)
     q = note.cards()[0].q()
     return ("'%s' is not allowed on cards" % bad in q, "Card content: %s" % q)

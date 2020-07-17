@@ -13,84 +13,84 @@ def getEmptyCol():
 
 
 def test_op():
-    d = getEmptyCol()
+    col = getEmptyCol()
     # should have no undo by default
-    assert not d.undoName()
+    assert not col.undoName()
     # let's adjust a study option
-    d.save("studyopts")
-    d.conf["abc"] = 5
+    col.save("studyopts")
+    col.conf["abc"] = 5
     # it should be listed as undoable
-    assert d.undoName() == "studyopts"
+    assert col.undoName() == "studyopts"
     # with about 5 minutes until it's clobbered
-    assert time.time() - d._lastSave < 1
+    assert time.time() - col._lastSave < 1
     # undoing should restore the old value
-    d.undo()
-    assert not d.undoName()
-    assert "abc" not in d.conf
+    col.undo()
+    assert not col.undoName()
+    assert "abc" not in col.conf
     # an (auto)save will clear the undo
-    d.save("foo")
-    assert d.undoName() == "foo"
-    d.save()
-    assert not d.undoName()
+    col.save("foo")
+    assert col.undoName() == "foo"
+    col.save()
+    assert not col.undoName()
     # and a review will, too
-    d.save("add")
-    note = d.newNote()
+    col.save("add")
+    note = col.newNote()
     note["Front"] = "one"
-    d.addNote(note)
-    d.reset()
-    assert d.undoName() == "add"
-    c = d.sched.getCard()
-    d.sched.answerCard(c, 2)
-    assert d.undoName() == "Review"
+    col.addNote(note)
+    col.reset()
+    assert col.undoName() == "add"
+    c = col.sched.getCard()
+    col.sched.answerCard(c, 2)
+    assert col.undoName() == "Review"
 
 
 def test_review():
-    d = getEmptyCol()
-    d.conf["counts"] = COUNT_REMAINING
-    note = d.newNote()
+    col = getEmptyCol()
+    col.conf["counts"] = COUNT_REMAINING
+    note = col.newNote()
     note["Front"] = "one"
-    d.addNote(note)
-    d.reset()
-    assert not d.undoName()
+    col.addNote(note)
+    col.reset()
+    assert not col.undoName()
     # answer
-    assert d.sched.counts() == (1, 0, 0)
-    c = d.sched.getCard()
+    assert col.sched.counts() == (1, 0, 0)
+    c = col.sched.getCard()
     assert c.queue == QUEUE_TYPE_NEW
-    d.sched.answerCard(c, 3)
+    col.sched.answerCard(c, 3)
     assert c.left == 1001
-    assert d.sched.counts() == (0, 1, 0)
+    assert col.sched.counts() == (0, 1, 0)
     assert c.queue == QUEUE_TYPE_LRN
     # undo
-    assert d.undoName()
-    d.undo()
-    d.reset()
-    assert d.sched.counts() == (1, 0, 0)
+    assert col.undoName()
+    col.undo()
+    col.reset()
+    assert col.sched.counts() == (1, 0, 0)
     c.load()
     assert c.queue == QUEUE_TYPE_NEW
     assert c.left != 1001
-    assert not d.undoName()
+    assert not col.undoName()
     # we should be able to undo multiple answers too
-    note = d.newNote()
+    note = col.newNote()
     note["Front"] = "two"
-    d.addNote(note)
-    d.reset()
-    assert d.sched.counts() == (2, 0, 0)
-    c = d.sched.getCard()
-    d.sched.answerCard(c, 3)
-    c = d.sched.getCard()
-    d.sched.answerCard(c, 3)
-    assert d.sched.counts() == (0, 2, 0)
-    d.undo()
-    d.reset()
-    assert d.sched.counts() == (1, 1, 0)
-    d.undo()
-    d.reset()
-    assert d.sched.counts() == (2, 0, 0)
+    col.addNote(note)
+    col.reset()
+    assert col.sched.counts() == (2, 0, 0)
+    c = col.sched.getCard()
+    col.sched.answerCard(c, 3)
+    c = col.sched.getCard()
+    col.sched.answerCard(c, 3)
+    assert col.sched.counts() == (0, 2, 0)
+    col.undo()
+    col.reset()
+    assert col.sched.counts() == (1, 1, 0)
+    col.undo()
+    col.reset()
+    assert col.sched.counts() == (2, 0, 0)
     # performing a normal op will clear the review queue
-    c = d.sched.getCard()
-    d.sched.answerCard(c, 3)
-    assert d.undoName() == "Review"
-    d.save("foo")
-    assert d.undoName() == "foo"
-    d.undo()
-    assert not d.undoName()
+    c = col.sched.getCard()
+    col.sched.answerCard(c, 3)
+    assert col.undoName() == "Review"
+    col.save("foo")
+    assert col.undoName() == "foo"
+    col.undo()
+    assert not col.undoName()

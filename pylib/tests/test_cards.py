@@ -21,25 +21,25 @@ def test_delete():
 
 
 def test_misc():
-    d = getEmptyCol()
-    note = d.newNote()
+    col = getEmptyCol()
+    note = col.newNote()
     note["Front"] = "1"
     note["Back"] = "2"
-    d.addNote(note)
+    col.addNote(note)
     c = note.cards()[0]
-    id = d.models.current()["id"]
+    id = col.models.current()["id"]
     assert c.template()["ord"] == 0
 
 
 def test_genrem():
-    d = getEmptyCol()
-    note = d.newNote()
+    col = getEmptyCol()
+    note = col.newNote()
     note["Front"] = "1"
     note["Back"] = ""
-    d.addNote(note)
+    col.addNote(note)
     assert len(note.cards()) == 1
-    m = d.models.current()
-    mm = d.models
+    m = col.models.current()
+    mm = col.models
     # adding a new template should automatically create cards
     t = mm.newTemplate("rev")
     t["qfmt"] = "{{Front}}"
@@ -51,9 +51,10 @@ def test_genrem():
     t = m["tmpls"][1]
     t["qfmt"] = "{{Back}}"
     mm.save(m, templates=True)
-    rep = d.backend.get_empty_cards()
+    rep = col.backend.get_empty_cards()
+    rep = col.backend.get_empty_cards()
     for n in rep.notes:
-        d.remove_cards_and_orphaned_notes(n.card_ids)
+        col.remove_cards_and_orphaned_notes(n.card_ids)
     assert len(note.cards()) == 1
     # if we add to the note, a card should be automatically generated
     note.load()
@@ -63,18 +64,18 @@ def test_genrem():
 
 
 def test_gendeck():
-    d = getEmptyCol()
-    cloze = d.models.byName("Cloze")
-    d.models.setCurrent(cloze)
-    note = d.newNote()
+    col = getEmptyCol()
+    cloze = col.models.byName("Cloze")
+    col.models.setCurrent(cloze)
+    note = col.newNote()
     note["Text"] = "{{c1::one}}"
-    d.addNote(note)
-    assert d.cardCount() == 1
+    col.addNote(note)
+    assert col.cardCount() == 1
     assert note.cards()[0].did == 1
     # set the model to a new default col
-    newId = d.decks.id("new")
+    newId = col.decks.id("new")
     cloze["did"] = newId
-    d.models.save(cloze, updateReqs=False)
+    col.models.save(cloze, updateReqs=False)
     # a newly generated card should share the first card's col
     note["Text"] += "{{c2::two}}"
     note.flush()
