@@ -4,20 +4,20 @@ from tests.shared import getEmptyCol
 
 
 def test_delete():
-    deck = getEmptyCol()
-    note = deck.newNote()
+    col = getEmptyCol()
+    note = col.newNote()
     note["Front"] = "1"
     note["Back"] = "2"
-    deck.addNote(note)
+    col.addNote(note)
     cid = note.cards()[0].id
-    deck.reset()
-    deck.sched.answerCard(deck.sched.getCard(), 2)
-    deck.remove_cards_and_orphaned_notes([cid])
-    assert deck.cardCount() == 0
-    assert deck.noteCount() == 0
-    assert deck.db.scalar("select count() from notes") == 0
-    assert deck.db.scalar("select count() from cards") == 0
-    assert deck.db.scalar("select count() from graves") == 2
+    col.reset()
+    col.sched.answerCard(col.sched.getCard(), 2)
+    col.remove_cards_and_orphaned_notes([cid])
+    assert col.cardCount() == 0
+    assert col.noteCount() == 0
+    assert col.db.scalar("select count() from notes") == 0
+    assert col.db.scalar("select count() from cards") == 0
+    assert col.db.scalar("select count() from graves") == 2
 
 
 def test_misc():
@@ -71,11 +71,11 @@ def test_gendeck():
     d.addNote(note)
     assert d.cardCount() == 1
     assert note.cards()[0].did == 1
-    # set the model to a new default deck
+    # set the model to a new default col
     newId = d.decks.id("new")
     cloze["did"] = newId
     d.models.save(cloze, updateReqs=False)
-    # a newly generated card should share the first card's deck
+    # a newly generated card should share the first card's col
     note["Text"] += "{{c2::two}}"
     note.flush()
     assert note.cards()[1].did == 1
@@ -83,7 +83,7 @@ def test_gendeck():
     note["Text"] += "{{c3::three}}"
     note.flush()
     assert note.cards()[2].did == 1
-    # if one of the cards is in a different deck, it should revert to the
+    # if one of the cards is in a different col, it should revert to the
     # model default
     c = note.cards()[1]
     c.did = newId

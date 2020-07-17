@@ -8,20 +8,20 @@ from tests.shared import getEmptyCol
 
 
 def test_modelDelete():
-    deck = getEmptyCol()
-    note = deck.newNote()
+    col = getEmptyCol()
+    note = col.newNote()
     note["Front"] = "1"
     note["Back"] = "2"
-    deck.addNote(note)
-    assert deck.cardCount() == 1
-    deck.models.rem(deck.models.current())
-    assert deck.cardCount() == 0
+    col.addNote(note)
+    assert col.cardCount() == 1
+    col.models.rem(col.models.current())
+    assert col.cardCount() == 0
 
 
 def test_modelCopy():
-    deck = getEmptyCol()
-    m = deck.models.current()
-    m2 = deck.models.copy(m)
+    col = getEmptyCol()
+    m = col.models.current()
+    m2 = col.models.copy(m)
     assert m2["name"] == "Basic copy"
     assert m2["id"] != m["id"]
     assert len(m2["flds"]) == 2
@@ -29,7 +29,7 @@ def test_modelCopy():
     assert len(m2["flds"]) == len(m["flds"])
     assert len(m["tmpls"]) == 1
     assert len(m2["tmpls"]) == 1
-    assert deck.models.scmhash(m) == deck.models.scmhash(m2)
+    assert col.models.scmhash(m) == col.models.scmhash(m2)
 
 
 def test_fields():
@@ -278,24 +278,24 @@ def test_chained_mods():
 
 
 def test_modelChange():
-    deck = getEmptyCol()
-    cloze = deck.models.byName("Cloze")
+    col = getEmptyCol()
+    cloze = col.models.byName("Cloze")
     # enable second template and add a note
-    m = deck.models.current()
-    mm = deck.models
+    m = col.models.current()
+    mm = col.models
     t = mm.newTemplate("Reverse")
     t["qfmt"] = "{{Back}}"
     t["afmt"] = "{{Front}}"
     mm.addTemplate(m, t)
     mm.save(m)
     basic = m
-    note = deck.newNote()
+    note = col.newNote()
     note["Front"] = "note"
     note["Back"] = "b123"
-    deck.addNote(note)
+    col.addNote(note)
     # switch fields
     map = {0: 1, 1: 0}
-    deck.models.change(basic, [note.id], basic, map, None)
+    col.models.change(basic, [note.id], basic, map, None)
     note.load()
     assert note["Front"] == "b123"
     assert note["Back"] == "note"
@@ -306,7 +306,7 @@ def test_modelChange():
     assert "note" in c1.q()
     assert c0.ord == 0
     assert c1.ord == 1
-    deck.models.change(basic, [note.id], basic, None, map)
+    col.models.change(basic, [note.id], basic, None, map)
     note.load()
     c0.load()
     c1.load()
@@ -321,7 +321,7 @@ def test_modelChange():
     if isWin:
         # The low precision timer on Windows reveals a race condition
         time.sleep(0.05)
-    deck.models.change(basic, [note.id], basic, None, map)
+    col.models.change(basic, [note.id], basic, None, map)
     note.load()
     c0.load()
     # the card was deleted
@@ -335,29 +335,29 @@ def test_modelChange():
     # an unmapped field becomes blank
     assert note["Front"] == "b123"
     assert note["Back"] == "note"
-    deck.models.change(basic, [note.id], basic, map, None)
+    col.models.change(basic, [note.id], basic, map, None)
     note.load()
     assert note["Front"] == ""
     assert note["Back"] == "note"
     # another note to try model conversion
-    note = deck.newNote()
+    note = col.newNote()
     note["Front"] = "f2"
     note["Back"] = "b2"
-    deck.addNote(note)
-    counts = deck.models.all_use_counts()
+    col.addNote(note)
+    counts = col.models.all_use_counts()
     assert next(c.use_count for c in counts if c.name == "Basic") == 2
     assert next(c.use_count for c in counts if c.name == "Cloze") == 0
     map = {0: 0, 1: 1}
-    deck.models.change(basic, [note.id], cloze, map, map)
+    col.models.change(basic, [note.id], cloze, map, map)
     note.load()
     assert note["Text"] == "f2"
     assert len(note.cards()) == 2
     # back the other way, with deletion of second ord
-    deck.models.remTemplate(basic, basic["tmpls"][1])
-    assert deck.db.scalar("select count() from cards where nid = ?", note.id) == 2
+    col.models.remTemplate(basic, basic["tmpls"][1])
+    assert col.db.scalar("select count() from cards where nid = ?", note.id) == 2
     map = {0: 0}
-    deck.models.change(cloze, [note.id], basic, map, map)
-    assert deck.db.scalar("select count() from cards where nid = ?", note.id) == 1
+    col.models.change(cloze, [note.id], basic, map, map)
+    assert col.db.scalar("select count() from cards where nid = ?", note.id) == 1
 
 
 def test_req():
