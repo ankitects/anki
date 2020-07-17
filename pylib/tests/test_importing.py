@@ -30,24 +30,24 @@ def clear_tempfile(tf):
 
 
 def test_anki2_mediadupes():
-    tmp = getEmptyCol()
+    col = getEmptyCol()
     # add a note that references a sound
-    n = tmp.newNote()
+    n = col.newNote()
     n["Front"] = "[sound:foo.mp3]"
     mid = n.model()["id"]
-    tmp.addNote(n)
+    col.addNote(n)
     # add that sound to media folder
-    with open(os.path.join(tmp.media.dir(), "foo.mp3"), "w") as note:
+    with open(os.path.join(col.media.dir(), "foo.mp3"), "w") as note:
         note.write("foo")
-    tmp.close()
+    col.close()
     # it should be imported correctly into an empty deck
     empty = getEmptyCol()
-    imp = Anki2Importer(empty, tmp.path)
+    imp = Anki2Importer(empty, col.path)
     imp.run()
     assert os.listdir(empty.media.dir()) == ["foo.mp3"]
     # and importing again will not duplicate, as the file content matches
     empty.remove_cards_and_orphaned_notes(empty.db.list("select id from cards"))
-    imp = Anki2Importer(empty, tmp.path)
+    imp = Anki2Importer(empty, col.path)
     imp.run()
     assert os.listdir(empty.media.dir()) == ["foo.mp3"]
     n = empty.getNote(empty.db.scalar("select id from notes"))
@@ -57,7 +57,7 @@ def test_anki2_mediadupes():
     empty.remove_cards_and_orphaned_notes(empty.db.list("select id from cards"))
     with open(os.path.join(empty.media.dir(), "foo.mp3"), "w") as note:
         note.write("bar")
-    imp = Anki2Importer(empty, tmp.path)
+    imp = Anki2Importer(empty, col.path)
     imp.run()
     assert sorted(os.listdir(empty.media.dir())) == ["foo.mp3", "foo_%s.mp3" % mid]
     n = empty.getNote(empty.db.scalar("select id from notes"))
@@ -67,7 +67,7 @@ def test_anki2_mediadupes():
     empty.remove_cards_and_orphaned_notes(empty.db.list("select id from cards"))
     with open(os.path.join(empty.media.dir(), "foo.mp3"), "w") as note:
         note.write("bar")
-    imp = Anki2Importer(empty, tmp.path)
+    imp = Anki2Importer(empty, col.path)
     imp.run()
     assert sorted(os.listdir(empty.media.dir())) == ["foo.mp3", "foo_%s.mp3" % mid]
     assert sorted(os.listdir(empty.media.dir())) == ["foo.mp3", "foo_%s.mp3" % mid]
@@ -76,24 +76,24 @@ def test_anki2_mediadupes():
 
 
 def test_apkg():
-    tmp = getEmptyCol()
+    col = getEmptyCol()
     apkg = str(os.path.join(testDir, "support/media.apkg"))
-    imp = AnkiPackageImporter(tmp, apkg)
-    assert os.listdir(tmp.media.dir()) == []
+    imp = AnkiPackageImporter(col, apkg)
+    assert os.listdir(col.media.dir()) == []
     imp.run()
-    assert os.listdir(tmp.media.dir()) == ["foo.wav"]
+    assert os.listdir(col.media.dir()) == ["foo.wav"]
     # importing again should be idempotent in terms of media
-    tmp.remove_cards_and_orphaned_notes(tmp.db.list("select id from cards"))
-    imp = AnkiPackageImporter(tmp, apkg)
+    col.remove_cards_and_orphaned_notes(col.db.list("select id from cards"))
+    imp = AnkiPackageImporter(col, apkg)
     imp.run()
-    assert os.listdir(tmp.media.dir()) == ["foo.wav"]
+    assert os.listdir(col.media.dir()) == ["foo.wav"]
     # but if the local file has different data, it will rename
-    tmp.remove_cards_and_orphaned_notes(tmp.db.list("select id from cards"))
-    with open(os.path.join(tmp.media.dir(), "foo.wav"), "w") as note:
+    col.remove_cards_and_orphaned_notes(col.db.list("select id from cards"))
+    with open(os.path.join(col.media.dir(), "foo.wav"), "w") as note:
         note.write("xyz")
-    imp = AnkiPackageImporter(tmp, apkg)
+    imp = AnkiPackageImporter(col, apkg)
     imp.run()
-    assert len(os.listdir(tmp.media.dir())) == 2
+    assert len(os.listdir(col.media.dir())) == 2
 
 
 def test_anki2_diffmodel_templates():
@@ -101,13 +101,13 @@ def test_anki2_diffmodel_templates():
     # changed, not the number of cards/fields
     dst = getEmptyCol()
     # import the first version of the model
-    tmp = getUpgradeDeckPath("diffmodeltemplates-1.apkg")
-    imp = AnkiPackageImporter(dst, tmp)
+    col = getUpgradeDeckPath("diffmodeltemplates-1.apkg")
+    imp = AnkiPackageImporter(dst, col)
     imp.dupeOnSchemaChange = True
     imp.run()
     # then the version with updated template
-    tmp = getUpgradeDeckPath("diffmodeltemplates-2.apkg")
-    imp = AnkiPackageImporter(dst, tmp)
+    col = getUpgradeDeckPath("diffmodeltemplates-2.apkg")
+    imp = AnkiPackageImporter(dst, col)
     imp.dupeOnSchemaChange = True
     imp.run()
     # collection should contain the note we imported
@@ -121,14 +121,14 @@ def test_anki2_diffmodel_templates():
 def test_anki2_updates():
     # create a new empty deck
     dst = getEmptyCol()
-    tmp = getUpgradeDeckPath("update1.apkg")
-    imp = AnkiPackageImporter(dst, tmp)
+    col = getUpgradeDeckPath("update1.apkg")
+    imp = AnkiPackageImporter(dst, col)
     imp.run()
     assert imp.dupes == 0
     assert imp.added == 1
     assert imp.updated == 0
     # importing again should be idempotent
-    imp = AnkiPackageImporter(dst, tmp)
+    imp = AnkiPackageImporter(dst, col)
     imp.run()
     assert imp.dupes == 1
     assert imp.added == 0
@@ -136,8 +136,8 @@ def test_anki2_updates():
     # importing a newer note should update
     assert dst.noteCount() == 1
     assert dst.db.scalar("select flds from notes").startswith("hello")
-    tmp = getUpgradeDeckPath("update2.apkg")
-    imp = AnkiPackageImporter(dst, tmp)
+    col = getUpgradeDeckPath("update2.apkg")
+    imp = AnkiPackageImporter(dst, col)
     imp.run()
     assert imp.dupes == 0
     assert imp.added == 0
