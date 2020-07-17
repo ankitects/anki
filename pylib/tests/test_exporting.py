@@ -125,12 +125,12 @@ def test_export_anki_due():
     os.unlink(newname)
     e.exportInto(newname)
     # importing into a new deck, the due date should be equivalent
-    deck2 = getEmptyCol()
-    imp = Anki2Importer(deck2, newname)
+    col2 = getEmptyCol()
+    imp = Anki2Importer(col2, newname)
     imp.run()
-    c = deck2.getCard(c.id)
-    deck2.sched.reset()
-    assert c.due - deck2.sched.today == 1
+    c = col2.getCard(c.id)
+    col2.sched.reset()
+    assert c.due - col2.sched.today == 1
 
 
 # def test_export_textcard():
