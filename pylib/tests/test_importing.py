@@ -37,8 +37,8 @@ def test_anki2_mediadupes():
     mid = n.model()["id"]
     tmp.addNote(n)
     # add that sound to media folder
-    with open(os.path.join(tmp.media.dir(), "foo.mp3"), "w") as f:
-        f.write("foo")
+    with open(os.path.join(tmp.media.dir(), "foo.mp3"), "w") as note:
+        note.write("foo")
     tmp.close()
     # it should be imported correctly into an empty deck
     empty = getEmptyCol()
@@ -55,8 +55,8 @@ def test_anki2_mediadupes():
     # if the local file content is different, and import should trigger a
     # rename
     empty.remove_cards_and_orphaned_notes(empty.db.list("select id from cards"))
-    with open(os.path.join(empty.media.dir(), "foo.mp3"), "w") as f:
-        f.write("bar")
+    with open(os.path.join(empty.media.dir(), "foo.mp3"), "w") as note:
+        note.write("bar")
     imp = Anki2Importer(empty, tmp.path)
     imp.run()
     assert sorted(os.listdir(empty.media.dir())) == ["foo.mp3", "foo_%s.mp3" % mid]
@@ -65,8 +65,8 @@ def test_anki2_mediadupes():
     # if the localized media file already exists, we rewrite the note and
     # media
     empty.remove_cards_and_orphaned_notes(empty.db.list("select id from cards"))
-    with open(os.path.join(empty.media.dir(), "foo.mp3"), "w") as f:
-        f.write("bar")
+    with open(os.path.join(empty.media.dir(), "foo.mp3"), "w") as note:
+        note.write("bar")
     imp = Anki2Importer(empty, tmp.path)
     imp.run()
     assert sorted(os.listdir(empty.media.dir())) == ["foo.mp3", "foo_%s.mp3" % mid]
@@ -89,8 +89,8 @@ def test_apkg():
     assert os.listdir(tmp.media.dir()) == ["foo.wav"]
     # but if the local file has different data, it will rename
     tmp.remove_cards_and_orphaned_notes(tmp.db.list("select id from cards"))
-    with open(os.path.join(tmp.media.dir(), "foo.wav"), "w") as f:
-        f.write("xyz")
+    with open(os.path.join(tmp.media.dir(), "foo.wav"), "w") as note:
+        note.write("xyz")
     imp = AnkiPackageImporter(tmp, apkg)
     imp.run()
     assert len(os.listdir(tmp.media.dir())) == 2
@@ -147,9 +147,9 @@ def test_anki2_updates():
 
 
 def test_csv():
-    deck = getEmptyCol()
+    col = getEmptyCol()
     file = str(os.path.join(testDir, "support/text-2fields.txt"))
-    i = TextImporter(deck, file)
+    i = TextImporter(col, file)
     i.initMapping()
     i.run()
     # four problems - too many & too few fields, a missing front, and a
@@ -161,7 +161,7 @@ def test_csv():
     assert len(i.log) == 10
     assert i.total == 5
     # but importing should not clobber tags if they're unmapped
-    n = deck.getNote(deck.db.scalar("select id from notes"))
+    n = col.getNote(col.db.scalar("select id from notes"))
     n.addTag("test")
     n.flush()
     i.run()
@@ -172,58 +172,58 @@ def test_csv():
     i.run()
     assert i.total == 0
     # and if dupes mode, will reimport everything
-    assert deck.cardCount() == 5
+    assert col.cardCount() == 5
     i.importMode = 2
     i.run()
     # includes repeated field
     assert i.total == 6
-    assert deck.cardCount() == 11
-    deck.close()
+    assert col.cardCount() == 11
+    col.close()
 
 
 def test_csv2():
-    deck = getEmptyCol()
-    mm = deck.models
+    col = getEmptyCol()
+    mm = col.models
     m = mm.current()
-    f = mm.newField("Three")
-    mm.addField(m, f)
+    note = mm.newField("Three")
+    mm.addField(m, note)
     mm.save(m)
-    n = deck.newNote()
+    n = col.newNote()
     n["Front"] = "1"
     n["Back"] = "2"
     n["Three"] = "3"
-    deck.addNote(n)
+    col.addNote(n)
     # an update with unmapped fields should not clobber those fields
     file = str(os.path.join(testDir, "support/text-update.txt"))
-    i = TextImporter(deck, file)
+    i = TextImporter(col, file)
     i.initMapping()
     i.run()
     n.load()
     assert n["Front"] == "1"
     assert n["Back"] == "x"
     assert n["Three"] == "3"
-    deck.close()
+    col.close()
 
 
 def test_tsv_tag_modified():
-    deck = getEmptyCol()
-    mm = deck.models
+    col = getEmptyCol()
+    mm = col.models
     m = mm.current()
-    f = mm.newField("Top")
-    mm.addField(m, f)
+    note = mm.newField("Top")
+    mm.addField(m, note)
     mm.save(m)
-    n = deck.newNote()
+    n = col.newNote()
     n["Front"] = "1"
     n["Back"] = "2"
     n["Top"] = "3"
     n.addTag("four")
-    deck.addNote(n)
+    col.addNote(n)
 
     # https://stackoverflow.com/questions/23212435/permission-denied-to-write-to-my-temporary-file
     with NamedTemporaryFile(mode="w", delete=False) as tf:
         tf.write("1\tb\tc\n")
         tf.flush()
-        i = TextImporter(deck, tf.name)
+        i = TextImporter(col, tf.name)
         i.initMapping()
         i.tagModified = "boom"
         i.run()
@@ -238,29 +238,29 @@ def test_tsv_tag_modified():
     assert len(n.tags) == 2
     assert i.updateCount == 1
 
-    deck.close()
+    col.close()
 
 
 def test_tsv_tag_multiple_tags():
-    deck = getEmptyCol()
-    mm = deck.models
+    col = getEmptyCol()
+    mm = col.models
     m = mm.current()
-    f = mm.newField("Top")
-    mm.addField(m, f)
+    note = mm.newField("Top")
+    mm.addField(m, note)
     mm.save(m)
-    n = deck.newNote()
+    n = col.newNote()
     n["Front"] = "1"
     n["Back"] = "2"
     n["Top"] = "3"
     n.addTag("four")
     n.addTag("five")
-    deck.addNote(n)
+    col.addNote(n)
 
     # https://stackoverflow.com/questions/23212435/permission-denied-to-write-to-my-temporary-file
     with NamedTemporaryFile(mode="w", delete=False) as tf:
         tf.write("1\tb\tc\n")
         tf.flush()
-        i = TextImporter(deck, tf.name)
+        i = TextImporter(col, tf.name)
         i.initMapping()
         i.tagModified = "five six"
         i.run()
@@ -272,27 +272,27 @@ def test_tsv_tag_multiple_tags():
     assert n["Top"] == "c"
     assert list(sorted(n.tags)) == list(sorted(["four", "five", "six"]))
 
-    deck.close()
+    col.close()
 
 
 def test_csv_tag_only_if_modified():
-    deck = getEmptyCol()
-    mm = deck.models
+    col = getEmptyCol()
+    mm = col.models
     m = mm.current()
-    f = mm.newField("Left")
-    mm.addField(m, f)
+    note = mm.newField("Left")
+    mm.addField(m, note)
     mm.save(m)
-    n = deck.newNote()
+    n = col.newNote()
     n["Front"] = "1"
     n["Back"] = "2"
     n["Left"] = "3"
-    deck.addNote(n)
+    col.addNote(n)
 
     # https://stackoverflow.com/questions/23212435/permission-denied-to-write-to-my-temporary-file
     with NamedTemporaryFile(mode="w", delete=False) as tf:
         tf.write("1,2,3\n")
         tf.flush()
-        i = TextImporter(deck, tf.name)
+        i = TextImporter(col, tf.name)
         i.initMapping()
         i.tagModified = "right"
         i.run()
@@ -302,31 +302,31 @@ def test_csv_tag_only_if_modified():
     assert n.tags == []
     assert i.updateCount == 0
 
-    deck.close()
+    col.close()
 
 
 @pytest.mark.filterwarnings("ignore:Using or importing the ABCs")
 def test_supermemo_xml_01_unicode():
-    deck = getEmptyCol()
+    col = getEmptyCol()
     file = str(os.path.join(testDir, "support/supermemo1.xml"))
-    i = SupermemoXmlImporter(deck, file)
+    i = SupermemoXmlImporter(col, file)
     # i.META.logToStdOutput = True
     i.run()
     assert i.total == 1
-    cid = deck.db.scalar("select id from cards")
-    c = deck.getCard(cid)
+    cid = col.db.scalar("select id from cards")
+    c = col.getCard(cid)
     # Applies A Factor-to-E Factor conversion
     assert c.factor == 2879
     assert c.reps == 7
-    deck.close()
+    col.close()
 
 
 def test_mnemo():
-    deck = getEmptyCol()
+    col = getEmptyCol()
     file = str(os.path.join(testDir, "support/mnemo.db"))
-    i = MnemosyneImporter(deck, file)
+    i = MnemosyneImporter(col, file)
     i.run()
-    assert deck.cardCount() == 7
-    assert "a_longer_tag" in deck.tags.all()
-    assert deck.db.scalar("select count() from cards where type = 0") == 1
-    deck.close()
+    assert col.cardCount() == 7
+    assert "a_longer_tag" in col.tags.all()
+    assert col.db.scalar("select count() from cards where type = 0") == 1
+    col.close()

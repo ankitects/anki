@@ -5,141 +5,141 @@ from tests.shared import assertException, getEmptyCol
 
 
 def test_basic():
-    deck = getEmptyCol()
-    # we start with a standard deck
-    assert len(deck.decks.all_names_and_ids()) == 1
+    col = getEmptyCol()
+    # we start with a standard col
+    assert len(col.decks.all_names_and_ids()) == 1
     # it should have an id of 1
-    assert deck.decks.name(1)
-    # create a new deck
-    parentId = deck.decks.id("new deck")
+    assert col.decks.name(1)
+    # create a new col
+    parentId = col.decks.id("new deck")
     assert parentId
-    assert len(deck.decks.all_names_and_ids()) == 2
+    assert len(col.decks.all_names_and_ids()) == 2
     # should get the same id
-    assert deck.decks.id("new deck") == parentId
-    # we start with the default deck selected
-    assert deck.decks.selected() == 1
-    assert deck.decks.active() == [1]
-    # we can select a different deck
-    deck.decks.select(parentId)
-    assert deck.decks.selected() == parentId
-    assert deck.decks.active() == [parentId]
+    assert col.decks.id("new deck") == parentId
+    # we start with the default col selected
+    assert col.decks.selected() == 1
+    assert col.decks.active() == [1]
+    # we can select a different col
+    col.decks.select(parentId)
+    assert col.decks.selected() == parentId
+    assert col.decks.active() == [parentId]
     # let's create a child
-    childId = deck.decks.id("new deck::child")
-    deck.sched.reset()
+    childId = col.decks.id("new deck::child")
+    col.sched.reset()
     # it should have been added to the active list
-    assert deck.decks.selected() == parentId
-    assert deck.decks.active() == [parentId, childId]
+    assert col.decks.selected() == parentId
+    assert col.decks.active() == [parentId, childId]
     # we can select the child individually too
-    deck.decks.select(childId)
-    assert deck.decks.selected() == childId
-    assert deck.decks.active() == [childId]
+    col.decks.select(childId)
+    assert col.decks.selected() == childId
+    assert col.decks.active() == [childId]
     # parents with a different case should be handled correctly
-    deck.decks.id("ONE")
-    m = deck.models.current()
-    m["did"] = deck.decks.id("one::two")
-    deck.models.save(m, updateReqs=False)
-    n = deck.newNote()
+    col.decks.id("ONE")
+    m = col.models.current()
+    m["did"] = col.decks.id("one::two")
+    col.models.save(m, updateReqs=False)
+    n = col.newNote()
     n["Front"] = "abc"
-    deck.addNote(n)
+    col.addNote(n)
 
 
 def test_remove():
-    deck = getEmptyCol()
-    # create a new deck, and add a note/card to it
-    g1 = deck.decks.id("g1")
-    f = deck.newNote()
-    f["Front"] = "1"
-    f.model()["did"] = g1
-    deck.addNote(f)
-    c = f.cards()[0]
-    assert c.did == g1
-    assert deck.cardCount() == 1
-    deck.decks.rem(g1)
-    assert deck.cardCount() == 0
+    col = getEmptyCol()
+    # create a new col, and add a note/card to it
+    deck1 = col.decks.id("deck1")
+    note = col.newNote()
+    note["Front"] = "1"
+    note.model()["did"] = deck1
+    col.addNote(note)
+    c = note.cards()[0]
+    assert c.did == deck1
+    assert col.cardCount() == 1
+    col.decks.rem(deck1)
+    assert col.cardCount() == 0
     # if we try to get it, we get the default
-    assert deck.decks.name(c.did) == "[no deck]"
+    assert col.decks.name(c.did) == "[no deck]"
 
 
 def test_rename():
-    d = getEmptyCol()
-    id = d.decks.id("hello::world")
+    col = getEmptyCol()
+    id = col.decks.id("hello::world")
     # should be able to rename into a completely different branch, creating
     # parents as necessary
-    d.decks.rename(d.decks.get(id), "foo::bar")
-    names = [n.name for n in d.decks.all_names_and_ids()]
+    col.decks.rename(col.decks.get(id), "foo::bar")
+    names = [n.name for n in col.decks.all_names_and_ids()]
     assert "foo" in names
     assert "foo::bar" in names
     assert "hello::world" not in names
-    # create another deck
-    id = d.decks.id("tmp")
+    # create another col
+    id = col.decks.id("tmp")
     # automatically adjusted if a duplicate name
-    d.decks.rename(d.decks.get(id), "FOO")
-    names = [n.name for n in d.decks.all_names_and_ids()]
+    col.decks.rename(col.decks.get(id), "FOO")
+    names = [n.name for n in col.decks.all_names_and_ids()]
     assert "FOO+" in names
     # when renaming, the children should be renamed too
-    d.decks.id("one::two::three")
-    id = d.decks.id("one")
-    d.decks.rename(d.decks.get(id), "yo")
-    names = [n.name for n in d.decks.all_names_and_ids()]
+    col.decks.id("one::two::three")
+    id = col.decks.id("one")
+    col.decks.rename(col.decks.get(id), "yo")
+    names = [n.name for n in col.decks.all_names_and_ids()]
     for n in "yo", "yo::two", "yo::two::three":
         assert n in names
     # over filtered
-    filteredId = d.decks.newDyn("filtered")
-    filtered = d.decks.get(filteredId)
-    childId = d.decks.id("child")
-    child = d.decks.get(childId)
-    assertException(DeckRenameError, lambda: d.decks.rename(child, "filtered::child"))
-    assertException(DeckRenameError, lambda: d.decks.rename(child, "FILTERED::child"))
+    filteredId = col.decks.newDyn("filtered")
+    filtered = col.decks.get(filteredId)
+    childId = col.decks.id("child")
+    child = col.decks.get(childId)
+    assertException(DeckRenameError, lambda: col.decks.rename(child, "filtered::child"))
+    assertException(DeckRenameError, lambda: col.decks.rename(child, "FILTERED::child"))
 
 
 def test_renameForDragAndDrop():
-    d = getEmptyCol()
+    col = getEmptyCol()
 
     def deckNames():
-        return [n.name for n in d.decks.all_names_and_ids(skip_empty_default=True)]
+        return [n.name for n in col.decks.all_names_and_ids(skip_empty_default=True)]
 
-    languages_did = d.decks.id("Languages")
-    chinese_did = d.decks.id("Chinese")
-    hsk_did = d.decks.id("Chinese::HSK")
+    languages_did = col.decks.id("Languages")
+    chinese_did = col.decks.id("Chinese")
+    hsk_did = col.decks.id("Chinese::HSK")
 
     # Renaming also renames children
-    d.decks.renameForDragAndDrop(chinese_did, languages_did)
+    col.decks.renameForDragAndDrop(chinese_did, languages_did)
     assert deckNames() == ["Languages", "Languages::Chinese", "Languages::Chinese::HSK"]
 
-    # Dragging a deck onto itself is a no-op
-    d.decks.renameForDragAndDrop(languages_did, languages_did)
+    # Dragging a col onto itself is a no-op
+    col.decks.renameForDragAndDrop(languages_did, languages_did)
     assert deckNames() == ["Languages", "Languages::Chinese", "Languages::Chinese::HSK"]
 
-    # Dragging a deck onto its parent is a no-op
-    d.decks.renameForDragAndDrop(hsk_did, chinese_did)
+    # Dragging a col onto its parent is a no-op
+    col.decks.renameForDragAndDrop(hsk_did, chinese_did)
     assert deckNames() == ["Languages", "Languages::Chinese", "Languages::Chinese::HSK"]
 
-    # Dragging a deck onto a descendant is a no-op
-    d.decks.renameForDragAndDrop(languages_did, hsk_did)
+    # Dragging a col onto a descendant is a no-op
+    col.decks.renameForDragAndDrop(languages_did, hsk_did)
     assert deckNames() == ["Languages", "Languages::Chinese", "Languages::Chinese::HSK"]
 
     # Can drag a grandchild onto its grandparent.  It becomes a child
-    d.decks.renameForDragAndDrop(hsk_did, languages_did)
+    col.decks.renameForDragAndDrop(hsk_did, languages_did)
     assert deckNames() == ["Languages", "Languages::Chinese", "Languages::HSK"]
 
-    # Can drag a deck onto its sibling
-    d.decks.renameForDragAndDrop(hsk_did, chinese_did)
+    # Can drag a col onto its sibling
+    col.decks.renameForDragAndDrop(hsk_did, chinese_did)
     assert deckNames() == ["Languages", "Languages::Chinese", "Languages::Chinese::HSK"]
 
-    # Can drag a deck back to the top level
-    d.decks.renameForDragAndDrop(chinese_did, None)
+    # Can drag a col back to the top level
+    col.decks.renameForDragAndDrop(chinese_did, None)
     assert deckNames() == ["Chinese", "Chinese::HSK", "Languages"]
 
-    # Dragging a top level deck to the top level is a no-op
-    d.decks.renameForDragAndDrop(chinese_did, None)
+    # Dragging a top level col to the top level is a no-op
+    col.decks.renameForDragAndDrop(chinese_did, None)
     assert deckNames() == ["Chinese", "Chinese::HSK", "Languages"]
 
     # decks are renamed if necessary
-    new_hsk_did = d.decks.id("hsk")
-    d.decks.renameForDragAndDrop(new_hsk_did, chinese_did)
+    new_hsk_did = col.decks.id("hsk")
+    col.decks.renameForDragAndDrop(new_hsk_did, chinese_did)
     assert deckNames() == ["Chinese", "Chinese::HSK", "Chinese::hsk+", "Languages"]
-    d.decks.rem(new_hsk_did)
+    col.decks.rem(new_hsk_did)
 
     # '' is a convenient alias for the top level DID
-    d.decks.renameForDragAndDrop(hsk_did, "")
+    col.decks.renameForDragAndDrop(hsk_did, "")
     assert deckNames() == ["Chinese", "HSK", "Languages"]

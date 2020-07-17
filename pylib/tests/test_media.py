@@ -8,25 +8,25 @@ from .shared import getEmptyCol, testDir
 
 # copying files to media folder
 def test_add():
-    d = getEmptyCol()
+    col = getEmptyCol()
     dir = tempfile.mkdtemp(prefix="anki")
     path = os.path.join(dir, "foo.jpg")
-    with open(path, "w") as f:
-        f.write("hello")
+    with open(path, "w") as note:
+        note.write("hello")
     # new file, should preserve name
-    assert d.media.addFile(path) == "foo.jpg"
+    assert col.media.addFile(path) == "foo.jpg"
     # adding the same file again should not create a duplicate
-    assert d.media.addFile(path) == "foo.jpg"
+    assert col.media.addFile(path) == "foo.jpg"
     # but if it has a different sha1, it should
-    with open(path, "w") as f:
-        f.write("world")
-    assert d.media.addFile(path) == "foo-7c211433f02071597741e6ff5a8ea34789abbf43.jpg"
+    with open(path, "w") as note:
+        note.write("world")
+    assert col.media.addFile(path) == "foo-7c211433f02071597741e6ff5a8ea34789abbf43.jpg"
 
 
 def test_strings():
-    d = getEmptyCol()
-    mf = d.media.filesInStr
-    mid = d.models.current()["id"]
+    col = getEmptyCol()
+    mf = col.media.filesInStr
+    mid = col.models.current()["id"]
     assert mf(mid, "aoeu") == []
     assert mf(mid, "aoeu<img src='foo.jpg'>ao") == ["foo.jpg"]
     assert mf(mid, "aoeu<img src='foo.jpg' style='test'>ao") == ["foo.jpg"]
@@ -42,37 +42,37 @@ def test_strings():
         "fo",
     ]
     assert mf(mid, "aou[sound:foo.mp3]aou") == ["foo.mp3"]
-    sp = d.media.strip
+    sp = col.media.strip
     assert sp("aoeu") == "aoeu"
     assert sp("aoeu[sound:foo.mp3]aoeu") == "aoeuaoeu"
     assert sp("a<img src=yo>oeu") == "aoeu"
-    es = d.media.escapeImages
+    es = col.media.escapeImages
     assert es("aoeu") == "aoeu"
     assert es("<img src='http://foo.com'>") == "<img src='http://foo.com'>"
     assert es('<img src="foo bar.jpg">') == '<img src="foo%20bar.jpg">'
 
 
 def test_deckIntegration():
-    d = getEmptyCol()
+    col = getEmptyCol()
     # create a media dir
-    d.media.dir()
+    col.media.dir()
     # put a file into it
     file = str(os.path.join(testDir, "support/fake.png"))
-    d.media.addFile(file)
+    col.media.addFile(file)
     # add a note which references it
-    f = d.newNote()
-    f["Front"] = "one"
-    f["Back"] = "<img src='fake.png'>"
-    d.addNote(f)
+    note = col.newNote()
+    note["Front"] = "one"
+    note["Back"] = "<img src='fake.png'>"
+    col.addNote(note)
     # and one which references a non-existent file
-    f = d.newNote()
-    f["Front"] = "one"
-    f["Back"] = "<img src='fake2.png'>"
-    d.addNote(f)
+    note = col.newNote()
+    note["Front"] = "one"
+    note["Back"] = "<img src='fake2.png'>"
+    col.addNote(note)
     # and add another file which isn't used
-    with open(os.path.join(d.media.dir(), "foo.jpg"), "w") as f:
-        f.write("test")
+    with open(os.path.join(col.media.dir(), "foo.jpg"), "w") as note:
+        note.write("test")
     # check media
-    ret = d.media.check()
+    ret = col.media.check()
     assert ret.missing == ["fake2.png"]
     assert ret.unused == ["foo.jpg"]
