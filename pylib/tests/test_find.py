@@ -277,10 +277,10 @@ def test_findDupes():
     note3["Front"] = "quux"
     note3["Back"] = "bar"
     col.addNote(note3)
-    f4 = col.newNote()
-    f4["Front"] = "quuux"
-    f4["Back"] = "nope"
-    col.addNote(f4)
+    note4 = col.newNote()
+    note4["Front"] = "quuux"
+    note4["Back"] = "nope"
+    col.addNote(note4)
     r = col.findDupes("Back")
     assert r[0][0] == "bar"
     assert len(r[0][1]) == 3
