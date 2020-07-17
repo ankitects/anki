@@ -16,25 +16,25 @@ def getEmptyCol():
     return col
 
 
-deck = None
+col = None
 ds = None
 testDir = os.path.dirname(__file__)
 
 
 def setup1():
-    global deck
-    deck = getEmptyCol()
-    f = deck.newNote()
-    f["Front"] = "foo"
-    f["Back"] = "bar<br>"
-    f.tags = ["tag", "tag2"]
-    deck.addNote(f)
-    # with a different deck
-    f = deck.newNote()
-    f["Front"] = "baz"
-    f["Back"] = "qux"
-    f.model()["did"] = deck.decks.id("new deck")
-    deck.addNote(f)
+    global col
+    col = getEmptyCol()
+    note = col.newNote()
+    note["Front"] = "foo"
+    note["Back"] = "bar<br>"
+    note.tags = ["tag", "tag2"]
+    col.addNote(note)
+    # with a different col
+    note = col.newNote()
+    note["Front"] = "baz"
+    note["Back"] = "qux"
+    note.model()["did"] = col.decks.id("new col")
+    col.addNote(note)
 
 
 ##########################################################################
@@ -42,23 +42,23 @@ def setup1():
 
 def test_export_anki():
     setup1()
-    # create a new deck with its own conf to test conf copying
-    did = deck.decks.id("test")
-    dobj = deck.decks.get(did)
-    confId = deck.decks.add_config_returning_id("newconf")
-    conf = deck.decks.get_config(confId)
+    # create a new col with its own conf to test conf copying
+    did = col.decks.id("test")
+    dobj = col.decks.get(did)
+    confId = col.decks.add_config_returning_id("newconf")
+    conf = col.decks.get_config(confId)
     conf["new"]["perDay"] = 5
-    deck.decks.save(conf)
-    deck.decks.setConf(dobj, confId)
+    col.decks.save(conf)
+    col.decks.setConf(dobj, confId)
     # export
-    e = AnkiExporter(deck)
+    e = AnkiExporter(col)
     fd, newname = tempfile.mkstemp(prefix="ankitest", suffix=".anki2")
     newname = str(newname)
     os.close(fd)
     os.unlink(newname)
     e.exportInto(newname)
     # exporting should not have changed conf for original deck
-    conf = deck.decks.confForDid(did)
+    conf = col.decks.confForDid(did)
     assert conf["id"] != 1
     # connect to new deck
     d2 = aopen(newname)
@@ -85,12 +85,12 @@ def test_export_anki():
 def test_export_ankipkg():
     setup1()
     # add a test file to the media folder
-    with open(os.path.join(deck.media.dir(), "今日.mp3"), "w") as f:
-        f.write("test")
-    n = deck.newNote()
+    with open(os.path.join(col.media.dir(), "今日.mp3"), "w") as note:
+        note.write("test")
+    n = col.newNote()
     n["Front"] = "[sound:今日.mp3]"
-    deck.addNote(n)
-    e = AnkiPackageExporter(deck)
+    col.addNote(n)
+    e = AnkiPackageExporter(col)
     fd, newname = tempfile.mkstemp(prefix="ankitest", suffix=".apkg")
     newname = str(newname)
     os.close(fd)
@@ -101,23 +101,23 @@ def test_export_ankipkg():
 @errorsAfterMidnight
 def test_export_anki_due():
     setup1()
-    deck = getEmptyCol()
-    f = deck.newNote()
-    f["Front"] = "foo"
-    deck.addNote(f)
-    deck.crt -= 86400 * 10
-    deck.flush()
-    deck.sched.reset()
-    c = deck.sched.getCard()
-    deck.sched.answerCard(c, 3)
-    deck.sched.answerCard(c, 3)
+    col = getEmptyCol()
+    note = col.newNote()
+    note["Front"] = "foo"
+    col.addNote(note)
+    col.crt -= 86400 * 10
+    col.flush()
+    col.sched.reset()
+    c = col.sched.getCard()
+    col.sched.answerCard(c, 3)
+    col.sched.answerCard(c, 3)
     # should have ivl of 1, due on day 11
     assert c.ivl == 1
     assert c.due == 11
-    assert deck.sched.today == 10
-    assert c.due - deck.sched.today == 1
+    assert col.sched.today == 10
+    assert c.due - col.sched.today == 1
     # export
-    e = AnkiExporter(deck)
+    e = AnkiExporter(col)
     e.includeSched = True
     fd, newname = tempfile.mkstemp(prefix="ankitest", suffix=".anki2")
     newname = str(newname)
@@ -135,28 +135,28 @@ def test_export_anki_due():
 
 # def test_export_textcard():
 #     setup1()
-#     e = TextCardExporter(deck)
-#     f = unicode(tempfile.mkstemp(prefix="ankitest")[1])
-#     os.unlink(f)
-#     e.exportInto(f)
+#     e = TextCardExporter(col)
+#     note = unicode(tempfile.mkstemp(prefix="ankitest")[1])
+#     os.unlink(note)
+#     e.exportInto(note)
 #     e.includeTags = True
-#     e.exportInto(f)
+#     e.exportInto(note)
 
 
 def test_export_textnote():
     setup1()
-    e = TextNoteExporter(deck)
-    fd, f = tempfile.mkstemp(prefix="ankitest")
-    f = str(f)
+    e = TextNoteExporter(col)
+    fd, note = tempfile.mkstemp(prefix="ankitest")
+    note = str(note)
     os.close(fd)
-    os.unlink(f)
-    e.exportInto(f)
-    with open(f) as file:
+    os.unlink(note)
+    e.exportInto(note)
+    with open(note) as file:
         assert file.readline() == "foo\tbar<br>\ttag tag2\n"
     e.includeTags = False
     e.includeHTML = False
-    e.exportInto(f)
-    with open(f) as file:
+    e.exportInto(note)
+    with open(note) as file:
         assert file.readline() == "foo\tbar\n"
 
 
