@@ -52,8 +52,8 @@ def test_genrem():
     t["qfmt"] = "{{Back}}"
     mm.save(m, templates=True)
     rep = d.backend.get_empty_cards()
-    for note in rep.notes:
-        d.remove_cards_and_orphaned_notes(note.card_ids)
+    for n in rep.notes:
+        d.remove_cards_and_orphaned_notes(n.card_ids)
     assert len(f.cards()) == 1
     # if we add to the note, a card should be automatically generated
     f.load()
