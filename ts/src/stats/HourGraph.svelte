@@ -29,7 +29,7 @@
     <h1>{title}</h1>
 
     <div class="range-box-inner">
-        <GraphRangeRadios bind:graphRange {i18n} {revlogRange} />
+        <GraphRangeRadios bind:graphRange {i18n} {revlogRange} followRevlog={true} />
     </div>
 
     <div class="subtitle">{subtitle}</div>

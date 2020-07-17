@@ -48,7 +48,7 @@
             {time}
         </label>
 
-        <GraphRangeRadios bind:graphRange {i18n} {revlogRange} />
+        <GraphRangeRadios bind:graphRange {i18n} {revlogRange} followRevlog={true} />
     </div>
 
     <div class="subtitle">{subtitle}</div>
