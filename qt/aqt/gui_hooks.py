@@ -2345,20 +2345,20 @@ state_will_change = _StateWillChangeHook()
 class _StatsDialogOldWillShowHook:
     """Allows changing the old stats dialog before it is shown."""
 
-    _hooks: List[Callable[["aqt.stats.NewDeckStats"], None]] = []
+    _hooks: List[Callable[["aqt.stats.DeckStats"], None]] = []
 
-    def append(self, cb: Callable[["aqt.stats.NewDeckStats"], None]) -> None:
-        """(dialog: aqt.stats.NewDeckStats)"""
+    def append(self, cb: Callable[["aqt.stats.DeckStats"], None]) -> None:
+        """(dialog: aqt.stats.DeckStats)"""
         self._hooks.append(cb)
 
-    def remove(self, cb: Callable[["aqt.stats.NewDeckStats"], None]) -> None:
+    def remove(self, cb: Callable[["aqt.stats.DeckStats"], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
     def count(self) -> int:
         return len(self._hooks)
 
-    def __call__(self, dialog: aqt.stats.NewDeckStats) -> None:
+    def __call__(self, dialog: aqt.stats.DeckStats) -> None:
         for hook in self._hooks:
             try:
                 hook(dialog)
