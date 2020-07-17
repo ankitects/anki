@@ -21,7 +21,7 @@
     const subtitle = i18n.tr(i18n.TR.STATISTICS_ANSWER_BUTTONS_SUBTITLE);
 </script>
 
-<div class="graph">
+<div class="graph" id="graph-buttons">
     <h1>{title}</h1>
 
     <div class="subtitle">{subtitle}</div>
