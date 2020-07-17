@@ -47,11 +47,11 @@ def test_remove():
     deck = getEmptyCol()
     # create a new deck, and add a note/card to it
     g1 = deck.decks.id("g1")
-    f = deck.newNote()
-    f["Front"] = "1"
-    f.model()["did"] = g1
-    deck.addNote(f)
-    c = f.cards()[0]
+    note = deck.newNote()
+    note["Front"] = "1"
+    note.model()["did"] = g1
+    deck.addNote(note)
+    c = note.cards()[0]
     assert c.did == g1
     assert deck.cardCount() == 1
     deck.decks.rem(g1)

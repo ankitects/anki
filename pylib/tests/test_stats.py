@@ -9,10 +9,10 @@ from tests.shared import getEmptyCol
 
 def test_stats():
     d = getEmptyCol()
-    f = d.newNote()
-    f["Front"] = "foo"
-    d.addNote(f)
-    c = f.cards()[0]
+    note = d.newNote()
+    note["Front"] = "foo"
+    d.addNote(note)
+    c = note.cards()[0]
     # card stats
     assert d.cardStats(c)
     d.reset()
@@ -32,6 +32,6 @@ def test_graphs():
     d = getEmptyCol()
     g = d.stats()
     rep = g.report()
-    with open(os.path.join(dir, "test.html"), "w", encoding="UTF-8") as f:
-        f.write(rep)
+    with open(os.path.join(dir, "test.html"), "w", encoding="UTF-8") as note:
+        note.write(rep)
     return

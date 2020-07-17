@@ -24,17 +24,17 @@ testDir = os.path.dirname(__file__)
 def setup1():
     global deck
     deck = getEmptyCol()
-    f = deck.newNote()
-    f["Front"] = "foo"
-    f["Back"] = "bar<br>"
-    f.tags = ["tag", "tag2"]
-    deck.addNote(f)
+    note = deck.newNote()
+    note["Front"] = "foo"
+    note["Back"] = "bar<br>"
+    note.tags = ["tag", "tag2"]
+    deck.addNote(note)
     # with a different deck
-    f = deck.newNote()
-    f["Front"] = "baz"
-    f["Back"] = "qux"
-    f.model()["did"] = deck.decks.id("new deck")
-    deck.addNote(f)
+    note = deck.newNote()
+    note["Front"] = "baz"
+    note["Back"] = "qux"
+    note.model()["did"] = deck.decks.id("new deck")
+    deck.addNote(note)
 
 
 ##########################################################################
@@ -85,8 +85,8 @@ def test_export_anki():
 def test_export_ankipkg():
     setup1()
     # add a test file to the media folder
-    with open(os.path.join(deck.media.dir(), "今日.mp3"), "w") as f:
-        f.write("test")
+    with open(os.path.join(deck.media.dir(), "今日.mp3"), "w") as note:
+        note.write("test")
     n = deck.newNote()
     n["Front"] = "[sound:今日.mp3]"
     deck.addNote(n)
@@ -102,9 +102,9 @@ def test_export_ankipkg():
 def test_export_anki_due():
     setup1()
     deck = getEmptyCol()
-    f = deck.newNote()
-    f["Front"] = "foo"
-    deck.addNote(f)
+    note = deck.newNote()
+    note["Front"] = "foo"
+    deck.addNote(note)
     deck.crt -= 86400 * 10
     deck.flush()
     deck.sched.reset()
@@ -136,27 +136,27 @@ def test_export_anki_due():
 # def test_export_textcard():
 #     setup1()
 #     e = TextCardExporter(deck)
-#     f = unicode(tempfile.mkstemp(prefix="ankitest")[1])
-#     os.unlink(f)
-#     e.exportInto(f)
+#     note = unicode(tempfile.mkstemp(prefix="ankitest")[1])
+#     os.unlink(note)
+#     e.exportInto(note)
 #     e.includeTags = True
-#     e.exportInto(f)
+#     e.exportInto(note)
 
 
 def test_export_textnote():
     setup1()
     e = TextNoteExporter(deck)
-    fd, f = tempfile.mkstemp(prefix="ankitest")
-    f = str(f)
+    fd, note = tempfile.mkstemp(prefix="ankitest")
+    note = str(note)
     os.close(fd)
-    os.unlink(f)
-    e.exportInto(f)
-    with open(f) as file:
+    os.unlink(note)
+    e.exportInto(note)
+    with open(note) as file:
         assert file.readline() == "foo\tbar<br>\ttag tag2\n"
     e.includeTags = False
     e.includeHTML = False
-    e.exportInto(f)
-    with open(f) as file:
+    e.exportInto(note)
+    with open(note) as file:
         assert file.readline() == "foo\tbar\n"
 
 

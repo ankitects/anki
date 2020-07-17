@@ -47,10 +47,10 @@ def test_create_open():
 def test_noteAddDelete():
     deck = getEmptyCol()
     # add a note
-    f = deck.newNote()
-    f["Front"] = "one"
-    f["Back"] = "two"
-    n = deck.addNote(f)
+    note = deck.newNote()
+    note["Front"] = "one"
+    note["Back"] = "two"
+    n = deck.addNote(note)
     assert n == 1
     # test multiple cards - add another template
     m = deck.models.current()
@@ -62,17 +62,17 @@ def test_noteAddDelete():
     mm.save(m)
     assert deck.cardCount() == 2
     # creating new notes should use both cards
-    f = deck.newNote()
-    f["Front"] = "three"
-    f["Back"] = "four"
-    n = deck.addNote(f)
+    note = deck.newNote()
+    note["Front"] = "three"
+    note["Back"] = "four"
+    n = deck.addNote(note)
     assert n == 2
     assert deck.cardCount() == 4
     # check q/a generation
-    c0 = f.cards()[0]
+    c0 = note.cards()[0]
     assert "three" in c0.q()
     # it should not be a duplicate
-    assert not f.dupeOrEmpty()
+    assert not note.dupeOrEmpty()
     # now let's make a duplicate
     f2 = deck.newNote()
     f2["Front"] = "one"
@@ -85,36 +85,36 @@ def test_noteAddDelete():
 
 def test_fieldChecksum():
     deck = getEmptyCol()
-    f = deck.newNote()
-    f["Front"] = "new"
-    f["Back"] = "new2"
-    deck.addNote(f)
+    note = deck.newNote()
+    note["Front"] = "new"
+    note["Back"] = "new2"
+    deck.addNote(note)
     assert deck.db.scalar("select csum from notes") == int("c2a6b03f", 16)
     # changing the val should change the checksum
-    f["Front"] = "newx"
-    f.flush()
+    note["Front"] = "newx"
+    note.flush()
     assert deck.db.scalar("select csum from notes") == int("302811ae", 16)
 
 
 def test_addDelTags():
     deck = getEmptyCol()
-    f = deck.newNote()
-    f["Front"] = "1"
-    deck.addNote(f)
+    note = deck.newNote()
+    note["Front"] = "1"
+    deck.addNote(note)
     f2 = deck.newNote()
     f2["Front"] = "2"
     deck.addNote(f2)
     # adding for a given id
-    deck.tags.bulkAdd([f.id], "foo")
-    f.load()
+    deck.tags.bulkAdd([note.id], "foo")
+    note.load()
     f2.load()
-    assert "foo" in f.tags
+    assert "foo" in note.tags
     assert "foo" not in f2.tags
     # should be canonified
-    deck.tags.bulkAdd([f.id], "foo aaa")
-    f.load()
-    assert f.tags[0] == "aaa"
-    assert len(f.tags) == 2
+    deck.tags.bulkAdd([note.id], "foo aaa")
+    note.load()
+    assert note.tags[0] == "aaa"
+    assert len(note.tags) == 2
 
 
 def test_timestamps():
