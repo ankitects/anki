@@ -709,6 +709,7 @@ class AddonsDialog(QDialog):
         qconnect(f.config.clicked, self.onConfig)
         qconnect(self.form.addonList.itemDoubleClicked, self.onConfig)
         qconnect(self.form.addonList.currentRowChanged, self._onAddonItemSelected)
+        self.setWindowTitle(tr(TR.ADDONS_WINDOW_TITLE))
         self.setAcceptDrops(True)
         self.redrawAddons()
         restoreGeom(self, "addons")
