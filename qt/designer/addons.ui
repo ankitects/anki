@@ -14,7 +14,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Add-ons</string>
+   <string notr="true">ADD-ONS</string>
   </property>
   <property name="modal">
    <bool>true</bool>
