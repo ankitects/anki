@@ -18,14 +18,14 @@ def test_findCards():
     note["Back"] = "cat"
     note.tags.append("monkey animal_1 * %")
     col.addNote(note)
-    f1id = note.id
+    n1id = note.id
     firstCardId = note.cards()[0].id
     note = col.newNote()
     note["Front"] = "goats are fun"
     note["Back"] = "sheep"
     note.tags.append("sheep goat horse animal11")
     col.addNote(note)
-    f2id = note.id
+    n2id = note.id
     note = col.newNote()
     note["Front"] = "cat"
     note["Back"] = "sheep"
@@ -91,7 +91,7 @@ def test_findCards():
     # nids
     assert col.findCards("nid:54321") == []
     assert len(col.findCards(f"nid:{note.id}")) == 2
-    assert len(col.findCards(f"nid:{f1id},{f2id}")) == 2
+    assert len(col.findCards(f"nid:{n1id},{n2id}")) == 2
     # templates
     assert len(col.findCards("card:foo")) == 0
     assert len(col.findCards('"card:card 1"')) == 4
@@ -273,14 +273,14 @@ def test_findDupes():
     note2["Front"] = "baz"
     note2["Back"] = "bar"
     col.addNote(note2)
-    f3 = col.newNote()
-    f3["Front"] = "quux"
-    f3["Back"] = "bar"
-    col.addNote(f3)
-    f4 = col.newNote()
-    f4["Front"] = "quuux"
-    f4["Back"] = "nope"
-    col.addNote(f4)
+    note3 = col.newNote()
+    note3["Front"] = "quux"
+    note3["Back"] = "bar"
+    col.addNote(note3)
+    note4 = col.newNote()
+    note4["Front"] = "quuux"
+    note4["Back"] = "nope"
+    col.addNote(note4)
     r = col.findDupes("Back")
     assert r[0][0] == "bar"
     assert len(r[0][1]) == 3

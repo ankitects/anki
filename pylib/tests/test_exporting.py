@@ -61,14 +61,14 @@ def test_export_anki():
     conf = col.decks.confForDid(did)
     assert conf["id"] != 1
     # connect to new deck
-    d2 = aopen(newname)
-    assert d2.cardCount() == 2
+    col2 = aopen(newname)
+    assert col2.cardCount() == 2
     # as scheduling was reset, should also revert decks to default conf
-    did = d2.decks.id("test", create=False)
+    did = col2.decks.id("test", create=False)
     assert did
-    conf2 = d2.decks.confForDid(did)
+    conf2 = col2.decks.confForDid(did)
     assert conf2["new"]["perDay"] == 20
-    dobj = d2.decks.get(did)
+    dobj = col2.decks.get(did)
     # conf should be 1
     assert dobj["conf"] == 1
     # try again, limited to a deck
@@ -78,8 +78,8 @@ def test_export_anki():
     os.unlink(newname)
     e.did = 1
     e.exportInto(newname)
-    d2 = aopen(newname)
-    assert d2.cardCount() == 1
+    col2 = aopen(newname)
+    assert col2.cardCount() == 1
 
 
 def test_export_ankipkg():
@@ -125,12 +125,12 @@ def test_export_anki_due():
     os.unlink(newname)
     e.exportInto(newname)
     # importing into a new deck, the due date should be equivalent
-    deck2 = getEmptyCol()
-    imp = Anki2Importer(deck2, newname)
+    col2 = getEmptyCol()
+    imp = Anki2Importer(col2, newname)
     imp.run()
-    c = deck2.getCard(c.id)
-    deck2.sched.reset()
-    assert c.due - deck2.sched.today == 1
+    c = col2.getCard(c.id)
+    col2.sched.reset()
+    assert c.due - col2.sched.today == 1
 
 
 # def test_export_textcard():
