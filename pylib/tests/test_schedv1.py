@@ -179,8 +179,8 @@ def test_learn():
     assert c.due == col.sched.today + 1
     assert c.ivl == 1
     # or normal removal
-    c.type = 0
-    c.queue = 1
+    c.type = CARD_TYPE_NEW
+    c.queue = QUEUE_TYPE_LRN
     col.sched.answerCard(c, 3)
     assert c.type == CARD_TYPE_REV
     assert c.queue == QUEUE_TYPE_REV
@@ -189,7 +189,7 @@ def test_learn():
     assert col.db.scalar("select count() from revlog where type = 0") == 5
     # now failed card handling
     c.type = CARD_TYPE_REV
-    c.queue = 1
+    c.queue = QUEUE_TYPE_LRN
     c.odue = 123
     col.sched.answerCard(c, 3)
     assert c.due == 123
@@ -197,7 +197,7 @@ def test_learn():
     assert c.queue == QUEUE_TYPE_REV
     # we should be able to remove manually, too
     c.type = CARD_TYPE_REV
-    c.queue = 1
+    c.queue = QUEUE_TYPE_LRN
     c.odue = 321
     c.flush()
     col.sched.removeLrn()
@@ -410,7 +410,7 @@ def test_overdue_lapse():
     # simulate a review that was lapsed and is now due for its normal review
     c = note.cards()[0]
     c.type = CARD_TYPE_REV
-    c.queue = 1
+    c.queue = QUEUE_TYPE_LRN
     c.due = -1
     c.odue = -1
     c.factor = STARTING_FACTOR

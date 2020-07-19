@@ -5,6 +5,7 @@ from tempfile import NamedTemporaryFile
 
 import pytest
 
+from anki.consts import *
 from anki.importing import (
     Anki2Importer,
     AnkiPackageImporter,
@@ -328,5 +329,5 @@ def test_mnemo():
     i.run()
     assert col.cardCount() == 7
     assert "a_longer_tag" in col.tags.all()
-    assert col.db.scalar("select count() from cards where type = 0") == 1
+    assert col.db.scalar(f"select count() from cards where type = {CARD_TYPE_NEW}") == 1
     col.close()
