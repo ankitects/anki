@@ -150,12 +150,12 @@ def test_learn():
     # it should have three reps left to graduation
     assert c.left % 1000 == 3
     assert c.left // 1000 == 3
-    # it should by due in 30 seconds
+    # it should be due in 30 seconds
     t = round(c.due - time.time())
     assert t >= 25 and t <= 40
     # pass it once
     col.sched.answerCard(c, 3)
-    # it should by due in 3 minutes
+    # it should be due in 3 minutes
     dueIn = c.due - time.time()
     assert 178 <= dueIn <= 180 * 1.25
     assert c.left % 1000 == 2
@@ -167,7 +167,7 @@ def test_learn():
     assert log[5] == -30
     # pass again
     col.sched.answerCard(c, 3)
-    # it should by due in 10 minutes
+    # it should be due in 10 minutes
     dueIn = c.due - time.time()
     assert 599 <= dueIn <= 600 * 1.25
     assert c.left % 1000 == 1
