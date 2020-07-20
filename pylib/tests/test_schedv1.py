@@ -680,7 +680,6 @@ def test_cram():
     c2.id = 0
     c2.ord = 1
     c2.due = 325
-    c2.col = c.col
     c2.flush()
     # should be able to answer it
     c = col.sched.getCard()
