@@ -134,7 +134,7 @@ def test_learn():
     note = col.newNote()
     note["Front"] = "one"
     note["Back"] = "two"
-    note = col.addNote(note)
+    col.addNote(note)
     # set as a learn card and rebuild queues
     col.db.execute("update cards set queue=0, type=0")
     col.reset()
@@ -211,10 +211,10 @@ def test_learn_collapsed():
     # add 2 notes
     note = col.newNote()
     note["Front"] = "1"
-    note = col.addNote(note)
+    col.addNote(note)
     note = col.newNote()
     note["Front"] = "2"
-    note = col.addNote(note)
+    col.addNote(note)
     # set as a learn card and rebuild queues
     col.db.execute("update cards set queue=0, type=0")
     col.reset()
@@ -238,7 +238,7 @@ def test_learn_day():
     # add a note
     note = col.newNote()
     note["Front"] = "one"
-    note = col.addNote(note)
+    col.addNote(note)
     col.sched.reset()
     c = col.sched.getCard()
     conf = col.sched._cardConf(c)
