@@ -322,7 +322,6 @@ class Anki2Importer(Importer):
             # does the card's note exist in dst col?
             if guid not in self._notes:
                 continue
-            dnid = self._notes[guid]
             # does the card already exist in the dst col?
             ord = card[5]
             if (guid, ord) in self._cards:
