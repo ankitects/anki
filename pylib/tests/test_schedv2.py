@@ -395,7 +395,7 @@ def test_reviews():
     c = copy.copy(cardcopy)
     c.lapses = 7
     c.flush()
-    # steup hook
+    # setup hook
     hooked = []
 
     def onLeech(card):
