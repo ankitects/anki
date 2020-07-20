@@ -44,13 +44,13 @@ def test_fields():
     assert "{{NewFront}}" in m["tmpls"][0]["qfmt"]
     h = col.models.scmhash(m)
     # add a field
-    note = col.models.newField("foo")
-    col.models.addField(m, note)
+    field = col.models.newField("foo")
+    col.models.addField(m, field)
     assert col.getNote(col.models.nids(m)[0]).fields == ["1", "2", ""]
     assert col.models.scmhash(m) != h
     # rename it
-    note = m["flds"][2]
-    col.models.renameField(m, note, "bar")
+    field = m["flds"][2]
+    col.models.renameField(m, field, "bar")
     assert col.getNote(col.models.nids(m)[0])["bar"] == ""
     # delete back
     col.models.remField(m, m["flds"][1])
@@ -62,8 +62,8 @@ def test_fields():
     col.models.moveField(m, m["flds"][1], 0)
     assert col.getNote(col.models.nids(m)[0]).fields == ["1", ""]
     # add another and put in middle
-    note = col.models.newField("baz")
-    col.models.addField(m, note)
+    field = col.models.newField("baz")
+    col.models.addField(m, field)
     note = col.getNote(col.models.nids(m)[0])
     note["baz"] = "2"
     note.flush()
