@@ -1017,12 +1017,12 @@ def test_deckDue():
     # add one more with a new deck
     note = col.newNote()
     note["Front"] = "two"
-    foobar = note.model()["did"] = col.decks.id("foo::bar")
+    note.model()["did"] = col.decks.id("foo::bar")
     col.addNote(note)
     # and one that's a sibling
     note = col.newNote()
     note["Front"] = "three"
-    foobaz = note.model()["did"] = col.decks.id("foo::baz")
+    note.model()["did"] = col.decks.id("foo::baz")
     col.addNote(note)
     col.reset()
     assert len(col.decks.all_names_and_ids()) == 5
@@ -1063,7 +1063,7 @@ def test_deckFlow():
     # and one that's a child
     note = col.newNote()
     note["Front"] = "two"
-    default1 = note.model()["did"] = col.decks.id("Default::2")
+    note.model()["did"] = col.decks.id("Default::2")
     col.addNote(note)
     # and another that's higher up
     note = col.newNote()
