@@ -182,8 +182,8 @@ def test_learn():
     assert c.due == col.sched.today + 1
     assert c.ivl == 1
     # or normal removal
-    c.type = 0
-    c.queue = 1
+    c.type = CARD_TYPE_NEW
+    c.queue = QUEUE_TYPE_LRN
     col.sched.answerCard(c, 4)
     assert c.type == CARD_TYPE_REV
     assert c.queue == QUEUE_TYPE_REV
@@ -502,7 +502,7 @@ def test_overdue_lapse():
     # simulate a review that was lapsed and is now due for its normal review
     c = note.cards()[0]
     c.type = CARD_TYPE_REV
-    c.queue = 1
+    c.queue = QUEUE_TYPE_LRN
     c.due = -1
     c.odue = -1
     c.factor = STARTING_FACTOR

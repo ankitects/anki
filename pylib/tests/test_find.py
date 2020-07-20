@@ -83,7 +83,7 @@ def test_findCards():
     c.flush()
     assert col.findCards("is:due") == [c.id]
     assert len(col.findCards("-is:due")) == 4
-    c.queue = -1
+    c.queue = QUEUE_TYPE_SUSPENDED
     # ensure this card gets a later mod time
     c.flush()
     col.db.execute("update cards set mod = mod + 1 where id = ?", c.id)
