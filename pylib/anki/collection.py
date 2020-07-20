@@ -71,8 +71,7 @@ class Collection:
         return f"{super().__repr__()} {pprint.pformat(d, width=300)}"
 
     def name(self) -> Any:
-        n = os.path.splitext(os.path.basename(self.path))[0]
-        return n
+        return os.path.splitext(os.path.basename(self.path))[0]
 
     def weakref(self) -> Collection:
         "Shortcut to create a weak reference that doesn't break code completion."
