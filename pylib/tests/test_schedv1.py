@@ -417,7 +417,6 @@ def test_overdue_lapse():
     c.left = 2002
     c.ivl = 0
     c.flush()
-    col.sched._clearOverdue = False
     # checkpoint
     col.save()
     col.sched.reset()
@@ -428,7 +427,6 @@ def test_overdue_lapse():
     assert c.due == col.sched.today + 1
     # revert to before
     col.rollback()
-    col.sched._clearOverdue = True
     # with the default settings, the overdue card should be removed from the
     # learning queue
     col.sched.reset()
