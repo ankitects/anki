@@ -566,7 +566,7 @@ def test_suspend():
     # should cope with cards in cram decks
     c.due = 1
     c.flush()
-    cram = col.decks.newDyn("tmp")
+    col.decks.newDyn("tmp")
     col.sched.rebuildDyn()
     c.load()
     assert c.due != 1
