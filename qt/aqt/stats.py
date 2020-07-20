@@ -85,6 +85,9 @@ class NewDeckStats(QDialog):
     def changeScope(self, type):
         pass
 
+    def reopen(self, mw):
+        self.refresh()
+
     def refresh(self):
         self.form.web.set_open_links_externally(False)
         if theme_manager.night_mode:
@@ -168,6 +171,9 @@ class DeckStats(QDialog):
 
     def changeScope(self, type):
         self.wholeCollection = type == "collection"
+        self.refresh()
+
+    def reopen(self, mw):
         self.refresh()
 
     def refresh(self):
