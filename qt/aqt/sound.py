@@ -462,6 +462,9 @@ class PyAudioThreadedRecorder(threading.Thread):
         threading.Thread.__init__(self)
         self.startupDelay = startupDelay
         self.finish = False
+        if isMac and qtminor > 12:
+            # trigger permission prompt
+            QAudioDeviceInfo.defaultInputDevice()  # type: ignore
 
     def run(self) -> None:
         chunk = 1024
