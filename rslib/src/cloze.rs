@@ -92,6 +92,33 @@ pub fn reveal_cloze_text(text: &str, cloze_ord: u16, question: bool) -> Cow<str>
     }
 }
 
+pub fn reveal_cloze_text_only(text: &str, cloze_ord: u16, question: bool) -> Cow<str> {
+    for caps in CLOZE.captures_iter(text) {
+        let captured_ord = caps
+            .get(cloze_caps::ORD)
+            .unwrap()
+            .as_str()
+            .parse()
+            .unwrap_or(0);
+
+        if captured_ord == cloze_ord {
+            let cloze = if question {
+                // hint provided?
+                if let Some(hint) = caps.get(cloze_caps::HINT) {
+                    hint.as_str()
+                } else {
+                    "..."
+                }
+            } else {
+                caps.get(cloze_caps::TEXT).unwrap().as_str()
+            };
+            return cloze.to_owned().into();
+        }
+    }
+
+    "".into()
+}
+
 /// If text contains any LaTeX tags, render the front and back
 /// of each cloze deletion so that LaTeX can be generated. If
 /// no LaTeX is found, returns an empty string.
@@ -144,10 +171,13 @@ pub(crate) fn cloze_filter<'a>(text: &'a str, context: &RenderContext) -> Cow<'a
     .into()
 }
 
+pub(crate) fn cloze_only_filter<'a>(text: &'a str, context: &RenderContext) -> Cow<'a, str> {
+    reveal_cloze_text_only(text, context.card_ord + 1, context.question_side)
+}
+
 #[cfg(test)]
 mod test {
-    use super::strip_html_inside_mathjax;
-    use crate::cloze::{cloze_numbers_in_string, expand_clozes_to_reveal_latex};
+    use super::*;
     use crate::text::strip_html;
     use std::collections::HashSet;
 
@@ -172,6 +202,18 @@ mod test {
         assert!(expanded.contains("foo [baz]"));
         assert!(expanded.contains("[...] bar"));
         assert!(expanded.contains("foo bar"));
+    }
+
+    #[test]
+    fn cloze_only() {
+        assert_eq!(reveal_cloze_text_only("foo", 1, true), "");
+        assert_eq!(reveal_cloze_text_only("foo {{c1::bar}}", 1, true), "...");
+        assert_eq!(
+            reveal_cloze_text_only("foo {{c1::bar::baz}}", 1, true),
+            "baz"
+        );
+        assert_eq!(reveal_cloze_text_only("foo {{c1::bar}}", 1, false), "bar");
+        assert_eq!(reveal_cloze_text_only("foo {{c1::bar}}", 2, false), "");
     }
 
     #[test]
