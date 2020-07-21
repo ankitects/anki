@@ -1,6 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
 import dataclasses
 import json
 import math
@@ -8,7 +9,8 @@ import re
 import sys
 from typing import Any, Callable, List, Optional, Sequence, Tuple
 
-from anki.lang import _
+import anki
+from anki.lang import _, is_rtl
 from anki.utils import isLin, isMac, isWin
 from aqt import gui_hooks
 from aqt.qt import *
@@ -420,13 +422,19 @@ div[contenteditable="true"]:focus {
 
         body_class = theme_manager.body_class()
 
+        if is_rtl(anki.lang.currentLang):
+            lang_dir = "rtl"
+        else:
+            lang_dir = "ltr"
+
+
         html = """
 <!doctype html>
 <html><head>
 <title>{}</title>
 
 <style>
-body {{ zoom: {}; background: {}; {} }}
+body {{ zoom: {}; background: {}; direction: {}; {} }}
 {}
 </style>
   
@@ -438,6 +446,7 @@ body {{ zoom: {}; background: {}; {} }}
             self.title,
             self.zoomFactor(),
             self._getWindowColor().name(),
+            lang_dir,
             fontspec,
             widgetspec,
             head,
