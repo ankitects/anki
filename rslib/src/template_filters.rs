@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::cloze::cloze_filter;
+use crate::cloze::{cloze_filter, cloze_only_filter};
 use crate::template::RenderContext;
 use crate::text::strip_html;
 use blake3::Hasher;
@@ -73,6 +73,7 @@ fn apply_filter<'a>(
         "type-cloze" => type_cloze_filter(field_name),
         "hint" => hint_filter(text, field_name),
         "cloze" => cloze_filter(text, context),
+        "cloze-only" => cloze_only_filter(text, context),
         // an empty filter name (caused by using two colons) is ignored
         "" => text.into(),
         _ => {
