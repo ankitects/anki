@@ -483,7 +483,7 @@ class PyAudioThreadedRecorder(threading.Thread):
             frames_per_buffer=chunk,
         )
 
-        stream.read(wait)
+        stream.read(wait, exception_on_overflow=False)
 
         data = b""
         while not self.finish:
