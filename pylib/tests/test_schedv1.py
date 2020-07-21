@@ -417,7 +417,6 @@ def test_overdue_lapse():
     c.left = 2002
     c.ivl = 0
     c.flush()
-    col.sched._clearOverdue = False
     # checkpoint
     col.save()
     col.sched.reset()
@@ -428,7 +427,6 @@ def test_overdue_lapse():
     assert c.due == col.sched.today + 1
     # revert to before
     col.rollback()
-    col.sched._clearOverdue = True
     # with the default settings, the overdue card should be removed from the
     # learning queue
     col.sched.reset()
@@ -568,7 +566,7 @@ def test_suspend():
     # should cope with cards in cram decks
     c.due = 1
     c.flush()
-    cram = col.decks.newDyn("tmp")
+    col.decks.newDyn("tmp")
     col.sched.rebuildDyn()
     c.load()
     assert c.due != 1
@@ -682,7 +680,6 @@ def test_cram():
     c2.id = 0
     c2.ord = 1
     c2.due = 325
-    c2.col = c.col
     c2.flush()
     # should be able to answer it
     c = col.sched.getCard()
@@ -993,12 +990,12 @@ def test_deckDue():
     # add one more with a new deck
     note = col.newNote()
     note["Front"] = "two"
-    foobar = note.model()["did"] = col.decks.id("foo::bar")
+    note.model()["did"] = col.decks.id("foo::bar")
     col.addNote(note)
     # and one that's a sibling
     note = col.newNote()
     note["Front"] = "three"
-    foobaz = note.model()["did"] = col.decks.id("foo::baz")
+    note.model()["did"] = col.decks.id("foo::baz")
     col.addNote(note)
     col.reset()
     assert len(col.decks.all_names_and_ids()) == 5
@@ -1029,7 +1026,7 @@ def test_deckFlow():
     # and one that's a child
     note = col.newNote()
     note["Front"] = "two"
-    default1 = note.model()["did"] = col.decks.id("Default::2")
+    note.model()["did"] = col.decks.id("Default::2")
     col.addNote(note)
     # and another that's higher up
     note = col.newNote()
