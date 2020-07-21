@@ -427,7 +427,6 @@ div[contenteditable="true"]:focus {
         else:
             lang_dir = "ltr"
 
-
         html = """
 <!doctype html>
 <html><head>
