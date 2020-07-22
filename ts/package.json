@@ -34,6 +34,7 @@
         "sass-loader": "^8.0.2",
         "style-loader": "^1.2.1",
         "svelte": "^3.23.2",
+        "svelte-check": "^0.1.55",
         "svelte-loader": "^2.13.6",
         "svelte-preprocess": "^3.9.9",
         "ts-loader": "^7.0.5",
@@ -44,7 +45,7 @@
     },
     "scripts": {
         "fix": "prettier --write src/*/*.ts",
-        "check": "prettier --check src/*/*.ts && eslint --max-warnings=0 --ext .ts src",
+        "check": "svelte-check  && eslint --max-warnings=0 --ext .ts src && prettier --check src/*/*.ts",
         "build": "cross-env NODE_ENV=production webpack",
         "dev": "webpack-dev-server"
     },
