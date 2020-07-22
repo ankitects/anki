@@ -108,6 +108,7 @@ body {background-image: url(data:image/png;base64,%s); }
 @media print {
     .section { page-break-inside: avoid; padding-top: 5mm; }
 }
+body { direction: ltr !important; }
 </style>
 """
 
