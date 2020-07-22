@@ -70,15 +70,6 @@ function unitAmount(unit: TimespanUnit, secs: number): number {
     }
 }
 
-function unitAmountRounded(unit: TimespanUnit, secs: number): number {
-    const value = unitAmount(unit, secs);
-    if (unit === TimespanUnit.Seconds || unit === TimespanUnit.Days) {
-        return Math.round(value);
-    } else {
-        return value;
-    }
-}
-
 export function studiedToday(i18n: I18n, cards: number, secs: number): string {
     const unit = naturalUnit(secs);
     const amount = unitAmount(unit, secs);
@@ -96,40 +87,48 @@ export function studiedToday(i18n: I18n, cards: number, secs: number): string {
     });
 }
 
+function i18nKeyForUnit(i18n: I18n, unit: TimespanUnit, short: boolean): number {
+    if (short) {
+        switch (unit) {
+            case TimespanUnit.Seconds:
+                return i18n.TR.STATISTICS_ELAPSED_TIME_SECONDS;
+            case TimespanUnit.Minutes:
+                return i18n.TR.STATISTICS_ELAPSED_TIME_MINUTES;
+            case TimespanUnit.Hours:
+                return i18n.TR.STATISTICS_ELAPSED_TIME_HOURS;
+            case TimespanUnit.Days:
+                return i18n.TR.STATISTICS_ELAPSED_TIME_DAYS;
+            case TimespanUnit.Months:
+                return i18n.TR.STATISTICS_ELAPSED_TIME_MONTHS;
+            case TimespanUnit.Years:
+                return i18n.TR.STATISTICS_ELAPSED_TIME_YEARS;
+        }
+    } else {
+        switch (unit) {
+            case TimespanUnit.Seconds:
+                return i18n.TR.SCHEDULING_TIME_SPAN_SECONDS;
+            case TimespanUnit.Minutes:
+                return i18n.TR.SCHEDULING_TIME_SPAN_MINUTES;
+            case TimespanUnit.Hours:
+                return i18n.TR.SCHEDULING_TIME_SPAN_HOURS;
+            case TimespanUnit.Days:
+                return i18n.TR.SCHEDULING_TIME_SPAN_DAYS;
+            case TimespanUnit.Months:
+                return i18n.TR.SCHEDULING_TIME_SPAN_MONTHS;
+            case TimespanUnit.Years:
+                return i18n.TR.SCHEDULING_TIME_SPAN_YEARS;
+        }
+    }
+}
+
 /// Describe the given seconds using the largest appropriate unit.
 /// If precise is true, show to two decimal places, eg
 /// eg 70 seconds -> "1.17 minutes"
 /// If false, seconds and days are shown without decimals.
-export function timeSpan(i18n: I18n, seconds: number, precise = true): string {
+export function timeSpan(i18n: I18n, seconds: number, short = false): string {
     const unit = naturalUnit(seconds);
-    let amount: number;
-    if (precise) {
-        amount = unitAmount(unit, seconds);
-    } else {
-        amount = unitAmountRounded(unit, seconds);
-    }
-    let key: number;
-    switch (unit) {
-        case TimespanUnit.Seconds:
-            key = i18n.TR.SCHEDULING_TIME_SPAN_SECONDS;
-            break;
-        case TimespanUnit.Minutes:
-            key = i18n.TR.SCHEDULING_TIME_SPAN_MINUTES;
-            break;
-        case TimespanUnit.Hours:
-            key = i18n.TR.SCHEDULING_TIME_SPAN_HOURS;
-            break;
-        case TimespanUnit.Days:
-            key = i18n.TR.SCHEDULING_TIME_SPAN_DAYS;
-            break;
-        case TimespanUnit.Months:
-            key = i18n.TR.SCHEDULING_TIME_SPAN_MONTHS;
-            break;
-        case TimespanUnit.Years:
-            key = i18n.TR.SCHEDULING_TIME_SPAN_YEARS;
-            break;
-    }
-
+    const amount = unitAmount(unit, seconds);
+    const key = i18nKeyForUnit(i18n, unit, short);
     return i18n.tr(key, { amount });
 }
 
