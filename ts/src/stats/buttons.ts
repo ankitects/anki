@@ -166,7 +166,7 @@ export function renderButtons(
                             kind = i18n.tr(i18n.TR.STATISTICS_COUNTS_MATURE_CARDS);
                             break;
                     }
-                    return `${kind} (${totalCorrect(d).percent}%)`;
+                    return `${kind} \u200e(${totalCorrect(d).percent}%)`;
                 }) as any)
                 .tickSizeOuter(0)
         );
