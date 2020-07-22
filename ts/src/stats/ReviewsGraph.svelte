@@ -1,10 +1,8 @@
 <script lang="typescript">
-    import { HistogramData, histogramGraph } from "./histogram-graph";
     import AxisTicks from "./AxisTicks.svelte";
     import { defaultGraphBounds, RevlogRange, GraphRange } from "./graphs";
     import { GraphData, gatherData, renderReviews } from "./reviews";
     import pb from "../backend/proto";
-    import { timeSpan, MONTH, YEAR } from "../time";
     import { I18n } from "../i18n";
     import NoDataOverlay from "./NoDataOverlay.svelte";
     import GraphRangeRadios from "./GraphRangeRadios.svelte";
@@ -31,7 +29,7 @@
     const title = i18n.tr(i18n.TR.STATISTICS_REVIEWS_TITLE);
     const time = i18n.tr(i18n.TR.STATISTICS_REVIEWS_TIME_CHECKBOX);
 
-    let subtitle: string;
+    let subtitle = "";
     $: if (showTime) {
         subtitle = i18n.tr(i18n.TR.STATISTICS_REVIEWS_TIME_SUBTITLE);
     } else {
