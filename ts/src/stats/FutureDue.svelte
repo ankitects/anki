@@ -1,8 +1,7 @@
 <script lang="typescript">
-    import { timeSpan, MONTH, YEAR } from "../time";
     import { I18n } from "../i18n";
     import { HistogramData } from "./histogram-graph";
-    import { defaultGraphBounds, GraphRange, RevlogRange } from "./graphs";
+    import { GraphRange, RevlogRange } from "./graphs";
     import { gatherData, GraphData, buildHistogram } from "./future-due";
     import pb from "../backend/proto";
     import HistogramGraph from "./HistogramGraph.svelte";
@@ -14,7 +13,6 @@
     let graphData = null as GraphData | null;
     let histogramData = null as HistogramData | null;
     let backlog: boolean = true;
-    let svg = null as HTMLElement | SVGElement | null;
     let graphRange: GraphRange = GraphRange.Month;
 
     $: if (sourceData) {

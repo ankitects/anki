@@ -4,7 +4,6 @@
     import { defaultGraphBounds, RevlogRange } from "./graphs";
     import { GraphData, gatherData, renderCalendar } from "./calendar";
     import pb from "../backend/proto";
-    import { timeSpan, MONTH, YEAR } from "../time";
     import { I18n } from "../i18n";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
@@ -21,7 +20,7 @@
 
     let svg = null as HTMLElement | SVGElement | null;
     let maxYear = new Date().getFullYear();
-    let minYear;
+    let minYear = 0;
     let targetYear = maxYear;
 
     $: if (sourceData) {

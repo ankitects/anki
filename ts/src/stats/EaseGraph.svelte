@@ -1,6 +1,6 @@
 <script lang="typescript">
     import { HistogramData } from "./histogram-graph";
-    import { gatherData, prepareData, GraphData } from "./ease";
+    import { gatherData, prepareData } from "./ease";
     import pb from "../backend/proto";
     import HistogramGraph from "./HistogramGraph.svelte";
     import { I18n } from "../i18n";
@@ -8,7 +8,6 @@
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
     export let i18n: I18n;
 
-    let svg = null as HTMLElement | SVGElement | null;
     let histogramData = null as HistogramData | null;
 
     $: if (sourceData) {
