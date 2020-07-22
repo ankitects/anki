@@ -117,7 +117,7 @@ export function prepareIntervalData(
         // const day = dayLabel(i18n, bin.x0!, bin.x1!);
         const interval = intervalLabel(i18n, bin.x0!, bin.x1!, bin.length);
         const total = i18n.tr(i18n.TR.STATISTICS_RUNNING_TOTAL);
-        return `${interval}<br>${total}: ${percent.toFixed(1)}%`;
+        return `${interval}<br>${total}: \u200e${percent.toFixed(1)}%`;
     }
 
     return { scale, bins, total, hoverText, colourScale, showArea: true };
