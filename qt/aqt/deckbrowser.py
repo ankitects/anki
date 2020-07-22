@@ -150,7 +150,7 @@ where id > ?""",
 
     def _renderDeckTree(self, top: DeckTreeNode) -> str:
         buf = """
-<tr><th colspan=5 align=left>%s</th><th class=count>%s</th>
+<tr><th colspan=5 align=start>%s</th><th class=count>%s</th>
 <th class=count>%s</th><th class=optscol></th></tr>""" % (
             _("Deck"),
             tr(TR.STATISTICS_DUE_COUNT),
