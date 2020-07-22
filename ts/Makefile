@@ -47,7 +47,7 @@ develop: .build/build
 	touch $@
 
 .PHONY: check
-check: .build/build
+check: .build/proto
 	npm run check
 
 .PHONY: fix
