@@ -38,7 +38,12 @@
 
     const refresh = async () => {
         refreshing = true;
-        sourceData = await getGraphData(search, days);
+        try {
+            sourceData = await getGraphData(search, days);
+        } catch (e) {
+            sourceData = null;
+            alert(i18n.tr(i18n.TR.STATISTICS_ERROR_FETCHING));
+        }
         refreshing = false;
     };
 
