@@ -1,5 +1,4 @@
 <script lang="typescript">
-    import { timeSpan, MONTH, YEAR } from "../time";
     import { defaultGraphBounds, RevlogRange, GraphRange } from "./graphs";
     import AxisTicks from "./AxisTicks.svelte";
     import { renderHours } from "./hours";

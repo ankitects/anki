@@ -1,6 +1,5 @@
 <script lang="typescript">
     import { RevlogRange, GraphRange } from "./graphs";
-    import { timeSpan, MONTH, YEAR } from "../time";
     import { I18n } from "../i18n";
     import { HistogramData } from "./histogram-graph";
     import { gatherData, buildHistogram, GraphData } from "./added";
@@ -11,7 +10,6 @@
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
     export let i18n: I18n;
 
-    let svg = null as HTMLElement | SVGElement | null;
     let histogramData = null as HistogramData | null;
     let graphRange: GraphRange = GraphRange.Month;
 

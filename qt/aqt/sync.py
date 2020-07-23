@@ -191,6 +191,7 @@ def full_download(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
             fut.result()
         except Exception as err:
             handle_sync_error(mw, err)
+        mw.media_syncer.start()
         return on_done()
 
     mw.taskman.with_progress(
@@ -219,6 +220,7 @@ def full_upload(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
         except Exception as err:
             handle_sync_error(mw, err)
             return on_done()
+        mw.media_syncer.start()
         return on_done()
 
     mw.taskman.with_progress(

@@ -1,11 +1,9 @@
 <script context="module">
-    import style from "./graphs.scss";
+    import _ from "./graphs.scss";
 </script>
 
 <script lang="typescript">
-    import { timeSpan, MONTH, YEAR } from "../time";
     import { I18n } from "../i18n";
-    import { assertUnreachable } from "../typing";
     import pb from "../backend/proto";
     import { getGraphData, RevlogRange } from "./graphs";
     import IntervalsGraph from "./IntervalsGraph.svelte";
@@ -87,7 +85,6 @@
         }
     };
 
-    const month = timeSpan(i18n, 3 * MONTH);
     const year = i18n.tr(i18n.TR.STATISTICS_RANGE_1_YEAR_HISTORY);
     const deck = i18n.tr(i18n.TR.STATISTICS_RANGE_DECK);
     const collection = i18n.tr(i18n.TR.STATISTICS_RANGE_COLLECTION);

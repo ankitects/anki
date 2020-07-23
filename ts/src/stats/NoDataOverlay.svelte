@@ -8,7 +8,5 @@
 
 <g class="no-data">
     <rect x="0" y="0" width={bounds.width} height={bounds.height} />
-    <text x="{bounds.width / 2}," y={bounds.height / 2} letter-spacing="3">
-        {noData}
-    </text>
+    <text x="{bounds.width / 2}," y={bounds.height / 2}>{noData}</text>
 </g>

@@ -15,7 +15,7 @@
     bounds.marginRight = 20;
     bounds.marginTop = 0;
 
-    let graphData: GraphData;
+    let graphData = (null as unknown) as GraphData;
     $: {
         graphData = gatherData(sourceData, i18n);
         renderCards(svg as any, bounds, graphData);

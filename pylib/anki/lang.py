@@ -185,6 +185,10 @@ def set_lang(lang: str, locale_dir: str) -> None:
     locale_folder = locale_dir
 
 
+def is_rtl(lang: str) -> bool:
+    return lang in ("he", "ar", "fa")
+
+
 # strip off unicode isolation markers from a translated string
 # for testing purposes
 def without_unicode_isolation(s: str) -> str:

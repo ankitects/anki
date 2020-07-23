@@ -462,6 +462,10 @@ class PyAudioThreadedRecorder(threading.Thread):
         threading.Thread.__init__(self)
         self.startupDelay = startupDelay
         self.finish = False
+        if isMac and qtminor > 12:
+            # trigger permission prompt
+            # pylint: disable=undefined-variable
+            QAudioDeviceInfo.defaultInputDevice()  # type: ignore
 
     def run(self) -> None:
         chunk = 1024
@@ -480,7 +484,7 @@ class PyAudioThreadedRecorder(threading.Thread):
             frames_per_buffer=chunk,
         )
 
-        stream.read(wait)
+        stream.read(wait, exception_on_overflow=False)
 
         data = b""
         while not self.finish:

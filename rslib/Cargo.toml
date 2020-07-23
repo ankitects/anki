@@ -1,6 +1,6 @@
 [package]
 name = "anki"
-version = "2.1.28"  # automatically updated
+version = "2.1.29"  # automatically updated
 edition = "2018"
 authors = ["Ankitects Pty Ltd and contributors <pypi@cargo.bug>"]
 license = "AGPL-3.0-or-later"

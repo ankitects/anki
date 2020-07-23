@@ -169,7 +169,7 @@ export function renderReviews(
                 .tickSizeOuter(0)
                 .tickFormat(((n: number): string => {
                     if (showTime) {
-                        return timeSpan(i18n, n / 1000);
+                        return timeSpan(i18n, n / 1000, true);
                     } else {
                         if (Math.round(n) != n) {
                             return "";

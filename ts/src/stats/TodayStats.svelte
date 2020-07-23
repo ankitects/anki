@@ -1,6 +1,5 @@
 <script lang="typescript">
     import { gatherData, TodayData } from "./today";
-    import { studiedToday } from "../time";
     import pb from "../backend/proto";
     import { I18n } from "../i18n";
 

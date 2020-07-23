@@ -209,7 +209,7 @@ def setupLangAndBackend(
     anki.lang.set_lang(lang, ldir)
 
     # switch direction for RTL languages
-    if lang in ("he", "ar", "fa"):
+    if anki.lang.is_rtl(lang):
         app.setLayoutDirection(Qt.RightToLeft)
     else:
         app.setLayoutDirection(Qt.LeftToRight)

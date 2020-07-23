@@ -2,7 +2,7 @@
     "exclude": ["node_modules", "dist"],
     "compilerOptions": {
         /* Basic Options */
-        "target": "es6",
+        "target": "es2016",
         "module": "es6",
         "declaration": false /* Generates corresponding '.d.ts' file. */,
         "rootDir": "src",

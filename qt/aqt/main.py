@@ -601,8 +601,7 @@ from the profile screen."
         newpath = os.path.join(dir, fname)
         with open(path, "rb") as f:
             data = f.read()
-        b = self.BackupThread(newpath, data)
-        b.start()
+        self.BackupThread(newpath, data).start()
 
         # find existing backups
         backups = []
@@ -804,9 +803,10 @@ title="%s" %s>%s</button>""" % (
     ##########################################################################
 
     def setupSignals(self) -> None:
-        signal.signal(signal.SIGINT, self.onSigInt)
+        signal.signal(signal.SIGINT, self.onUnixSignal)
+        signal.signal(signal.SIGTERM, self.onUnixSignal)
 
-    def onSigInt(self, signum, frame):
+    def onUnixSignal(self, signum, frame):
         # schedule a rollback & quit
         def quit():
             self.col.db.rollback()
@@ -1232,6 +1232,9 @@ Difference to correct time: %s."""
         self.progress.timer(10 * 60 * 1000, self.onRefreshTimer, True)
         # check media sync every 5 minutes
         self.progress.timer(5 * 60 * 1000, self.on_autosync_timer, True)
+        # ensure Python interpreter runs at least once per second, so that
+        # SIGINT/SIGTERM is processed without a long delay
+        self.progress.timer(1000, lambda: None, True, False)
 
     def onRefreshTimer(self):
         if self.state == "deckBrowser":

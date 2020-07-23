@@ -1,5 +1,5 @@
 <script lang="typescript">
-    import { timeSpan, MONTH, YEAR } from "../time";
+    import { timeSpan, MONTH } from "../time";
     import { I18n } from "../i18n";
     import { HistogramData } from "./histogram-graph";
     import {
@@ -16,8 +16,6 @@
 
     let intervalData: IntervalGraphData | null = null;
     let histogramData = null as HistogramData | null;
-
-    let svg = null as HTMLElement | SVGElement | null;
     let range = IntervalRange.Percentile95;
 
     $: if (sourceData) {

@@ -134,7 +134,7 @@ def test_learn():
     note = col.newNote()
     note["Front"] = "one"
     note["Back"] = "two"
-    note = col.addNote(note)
+    col.addNote(note)
     # set as a learn card and rebuild queues
     col.db.execute("update cards set queue=0, type=0")
     col.reset()
@@ -149,12 +149,12 @@ def test_learn():
     # it should have three reps left to graduation
     assert c.left % 1000 == 3
     assert c.left // 1000 == 3
-    # it should by due in 30 seconds
+    # it should be due in 30 seconds
     t = round(c.due - time.time())
     assert t >= 25 and t <= 40
     # pass it once
     col.sched.answerCard(c, 2)
-    # it should by due in 3 minutes
+    # it should be due in 3 minutes
     assert round(c.due - time.time()) in (179, 180)
     assert c.left % 1000 == 2
     assert c.left // 1000 == 2
@@ -165,7 +165,7 @@ def test_learn():
     assert log[5] == -30
     # pass again
     col.sched.answerCard(c, 2)
-    # it should by due in 10 minutes
+    # it should be due in 10 minutes
     assert round(c.due - time.time()) in (599, 600)
     assert c.left % 1000 == 1
     assert c.left // 1000 == 1
@@ -179,8 +179,8 @@ def test_learn():
     assert c.due == col.sched.today + 1
     assert c.ivl == 1
     # or normal removal
-    c.type = 0
-    c.queue = 1
+    c.type = CARD_TYPE_NEW
+    c.queue = QUEUE_TYPE_LRN
     col.sched.answerCard(c, 3)
     assert c.type == CARD_TYPE_REV
     assert c.queue == QUEUE_TYPE_REV
@@ -189,7 +189,7 @@ def test_learn():
     assert col.db.scalar("select count() from revlog where type = 0") == 5
     # now failed card handling
     c.type = CARD_TYPE_REV
-    c.queue = 1
+    c.queue = QUEUE_TYPE_LRN
     c.odue = 123
     col.sched.answerCard(c, 3)
     assert c.due == 123
@@ -197,7 +197,7 @@ def test_learn():
     assert c.queue == QUEUE_TYPE_REV
     # we should be able to remove manually, too
     c.type = CARD_TYPE_REV
-    c.queue = 1
+    c.queue = QUEUE_TYPE_LRN
     c.odue = 321
     c.flush()
     col.sched.removeLrn()
@@ -211,10 +211,10 @@ def test_learn_collapsed():
     # add 2 notes
     note = col.newNote()
     note["Front"] = "1"
-    note = col.addNote(note)
+    col.addNote(note)
     note = col.newNote()
     note["Front"] = "2"
-    note = col.addNote(note)
+    col.addNote(note)
     # set as a learn card and rebuild queues
     col.db.execute("update cards set queue=0, type=0")
     col.reset()
@@ -238,7 +238,7 @@ def test_learn_day():
     # add a note
     note = col.newNote()
     note["Front"] = "one"
-    note = col.addNote(note)
+    col.addNote(note)
     col.sched.reset()
     c = col.sched.getCard()
     conf = col.sched._cardConf(c)
@@ -410,14 +410,13 @@ def test_overdue_lapse():
     # simulate a review that was lapsed and is now due for its normal review
     c = note.cards()[0]
     c.type = CARD_TYPE_REV
-    c.queue = 1
+    c.queue = QUEUE_TYPE_LRN
     c.due = -1
     c.odue = -1
     c.factor = STARTING_FACTOR
     c.left = 2002
     c.ivl = 0
     c.flush()
-    col.sched._clearOverdue = False
     # checkpoint
     col.save()
     col.sched.reset()
@@ -428,7 +427,6 @@ def test_overdue_lapse():
     assert c.due == col.sched.today + 1
     # revert to before
     col.rollback()
-    col.sched._clearOverdue = True
     # with the default settings, the overdue card should be removed from the
     # learning queue
     col.sched.reset()
@@ -568,7 +566,7 @@ def test_suspend():
     # should cope with cards in cram decks
     c.due = 1
     c.flush()
-    cram = col.decks.newDyn("tmp")
+    col.decks.newDyn("tmp")
     col.sched.rebuildDyn()
     c.load()
     assert c.due != 1
@@ -682,7 +680,6 @@ def test_cram():
     c2.id = 0
     c2.ord = 1
     c2.due = 325
-    c2.col = c.col
     c2.flush()
     # should be able to answer it
     c = col.sched.getCard()
@@ -993,12 +990,12 @@ def test_deckDue():
     # add one more with a new deck
     note = col.newNote()
     note["Front"] = "two"
-    foobar = note.model()["did"] = col.decks.id("foo::bar")
+    note.model()["did"] = col.decks.id("foo::bar")
     col.addNote(note)
     # and one that's a sibling
     note = col.newNote()
     note["Front"] = "three"
-    foobaz = note.model()["did"] = col.decks.id("foo::baz")
+    note.model()["did"] = col.decks.id("foo::baz")
     col.addNote(note)
     col.reset()
     assert len(col.decks.all_names_and_ids()) == 5
@@ -1029,7 +1026,7 @@ def test_deckFlow():
     # and one that's a child
     note = col.newNote()
     note["Front"] = "two"
-    default1 = note.model()["did"] = col.decks.id("Default::2")
+    note.model()["did"] = col.decks.id("Default::2")
     col.addNote(note)
     # and another that's higher up
     note = col.newNote()
@@ -1066,21 +1063,21 @@ def test_reorder():
     col.sched.orderCards(1)
     assert note.cards()[0].due == 1
     # shifting
-    f3 = col.newNote()
-    f3["Front"] = "three"
-    col.addNote(f3)
-    f4 = col.newNote()
-    f4["Front"] = "four"
-    col.addNote(f4)
+    note3 = col.newNote()
+    note3["Front"] = "three"
+    col.addNote(note3)
+    note4 = col.newNote()
+    note4["Front"] = "four"
+    col.addNote(note4)
     assert note.cards()[0].due == 1
     assert note2.cards()[0].due == 2
-    assert f3.cards()[0].due == 3
-    assert f4.cards()[0].due == 4
-    col.sched.sortCards([f3.cards()[0].id, f4.cards()[0].id], start=1, shift=True)
+    assert note3.cards()[0].due == 3
+    assert note4.cards()[0].due == 4
+    col.sched.sortCards([note3.cards()[0].id, note4.cards()[0].id], start=1, shift=True)
     assert note.cards()[0].due == 3
     assert note2.cards()[0].due == 4
-    assert f3.cards()[0].due == 1
-    assert f4.cards()[0].due == 2
+    assert note3.cards()[0].due == 1
+    assert note4.cards()[0].due == 2
 
 
 def test_forget():
