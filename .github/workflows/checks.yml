@@ -309,7 +309,7 @@ jobs:
 
       - name: Upload python wheels
         if: matrix.BUILD_TYPE == 'build'
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.ANKI_PYTHON_WHEELS }}${{ matrix.python }}
           path: dist
