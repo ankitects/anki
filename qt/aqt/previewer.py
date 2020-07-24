@@ -5,7 +5,7 @@
 import json
 import re
 import time
-from typing import Any, Callable, List, Optional, Union
+from typing import Any, Callable, Optional, Union
 
 from anki.cards import Card
 from anki.lang import _
@@ -226,6 +226,10 @@ class MultiCardPreviewer(Previewer):
         # need to state explicitly it's not implement to avoid W0223
         raise NotImplementedError
 
+    def card_changed(self) -> bool:
+        # need to state explicitly it's not implement to avoid W0223
+        raise NotImplementedError
+
     def _create_gui(self):
         super()._create_gui()
         self._prev = self.bbox.addButton("<", QDialogButtonBox.ActionRole)
@@ -323,82 +327,3 @@ class BrowserPreviewer(MultiCardPreviewer):
     def _render_scheduled(self) -> None:
         super()._render_scheduled()
         self._updateButtons()
-
-
-class CardListPreviewer(MultiCardPreviewer):
-    def __init__(self, cards: List[Union[Card, int]], *args, **kwargs):
-        """A previewer displaying a list of card.
-
-        List can be changed by setting self.cards to a new value.
-
-        self.cards contains both cid and card. So that card is loaded
-        only when required and is not loaded twice.
-
-        """
-        self.index = 0
-        self.cards = cards
-        super().__init__(*args, **kwargs)
-
-    def card(self):
-        if not self.cards:
-            return None
-        entry = self.cards[self.index]
-        if isinstance(entry, int):
-            card = self.mw.col.getCard(entry)
-            self.cards[self.index] = card
-            return card
-        else:
-            return entry
-
-    def open(self):
-        if not self.cards:
-            return
-        super().open()
-
-    def _on_prev_card(self):
-        self.index -= 1
-        self.render_card()
-
-    def _on_next_card(self):
-        self.index += 1
-        self.render_card()
-
-    def _should_enable_prev(self):
-        return super()._should_enable_prev() or self.index > 0
-
-    def _should_enable_next(self):
-        return super()._should_enable_next() or self.index < len(self.cards) - 1
-
-    def _on_other_side(self):
-        if self._state == "question":
-            self._state = "answer"
-        else:
-            self._state = "question"
-        self.render_card()
-
-
-class SingleCardPreviewer(Previewer):
-    def __init__(self, card: Card, *args, **kwargs):
-        self._card = card
-        super().__init__(*args, **kwargs)
-
-    def card(self) -> Card:
-        return self._card
-
-    def _create_gui(self):
-        super()._create_gui()
-        self._other_side = self.bbox.addButton(
-            "Other side", QDialogButtonBox.ActionRole
-        )
-        self._other_side.setAutoDefault(False)
-        self._other_side.setShortcut(QKeySequence("Right"))
-        self._other_side.setShortcut(QKeySequence("Left"))
-        self._other_side.setToolTip(_("Shortcut key: Left or Right arrow"))
-        qconnect(self._other_side.clicked, self._on_other_side)
-
-    def _on_other_side(self):
-        if self._state == "question":
-            self._state = "answer"
-        else:
-            self._state = "question"
-        self.render_card()
