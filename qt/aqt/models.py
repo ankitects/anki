@@ -6,6 +6,7 @@ from typing import List, Optional
 
 import aqt.clayout
 from anki import stdmodels
+from anki.backend_pb2 import NoteTypeNameIDUseCount
 from anki.lang import _, ngettext
 from anki.models import NoteType
 from anki.notes import Note
@@ -88,7 +89,7 @@ class Models(QDialog):
 
         self.mw.taskman.with_progress(save, on_done, self)
 
-    def updateModelsList(self, notetypes):
+    def updateModelsList(self, notetypes: List[NoteTypeNameIDUseCount]) -> None:
         row = self.form.modelsList.currentRow()
         if row == -1:
             row = 0
@@ -96,8 +97,7 @@ class Models(QDialog):
 
         self.models = notetypes
         for m in self.models:
-            mUse = m.use_count
-            mUse = ngettext("%d note", "%d notes", mUse) % mUse
+            mUse = ngettext("%d note", "%d notes", m.use_count) % m.use_count
             item = QListWidgetItem("%s [%s]" % (m.name, mUse))
             self.form.modelsList.addItem(item)
         self.form.modelsList.setCurrentRow(row)
