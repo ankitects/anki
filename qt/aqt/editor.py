@@ -1095,7 +1095,7 @@ class EditorWebView(AnkiWebView):
         lines = txt.split("\n")
 
         for line in lines:
-            for token in re.split("(\S+)", line):
+            for token in re.split(r"(\S+)", line):
                 # inlined data in base64?
                 if token.startswith("data:image/"):
                     processed.append(self.editor.inlinedImageToLink(token))
