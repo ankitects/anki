@@ -881,10 +881,10 @@ QTableView {{ gridline-color: {grid} }}
             self.singleCard = True
         self._updateFlagsMenu()
         gui_hooks.browser_did_change_row(self)
-        self._renderPreview(True)
 
     def refreshCurrentCard(self, note: Note) -> None:
         self.model.refreshNote(note)
+        self._renderPreview()
 
     def onLoadNote(self, editor):
         self.refreshCurrentCard(editor.note)
@@ -1513,9 +1513,9 @@ where id in %s"""
             self._previewer = PreviewDialog(self, self.mw, self._on_preview_closed)
             self._previewer.open()
 
-    def _renderPreview(self, cardChanged=False):
+    def _renderPreview(self):
         if self._previewer:
-            self._previewer.render_card(cardChanged)
+            self._previewer.render_card()
 
     def _cleanup_preview(self):
         if self._previewer:
