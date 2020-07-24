@@ -1091,34 +1091,35 @@ class EditorWebView(AnkiWebView):
             return None
 
         txt = mime.text()
+        processed = ''
+        lines = txt.split("\n")
 
-        # inlined data in base64?
-        if txt.startswith("data:image/"):
-            return self.editor.inlinedImageToLink(txt)
+        for line in lines:
+            for token in re.split('(\S+)', line):
+                # inlined data in base64?
+                if token.startswith("data:image/"):
+                    processed += self.editor.inlinedImageToLink(token)
+                elif self.editor.isURL(token):
+                    # if the user is pasting an image or sound link, convert it to local
+                    link = self.editor.urlToLink(token)
+                    if link:
+                        processed += link
+                    else:
+                        # not media; add it as a normal link
+                        link = '<a href="{}">{}</a>'.format(token, html.escape(token))
+                        processed += link
+                else:
+                    token = html.escape(token).replace("\t", " " * 4)
+                    # if there's more than one consecutive space,
+                    # use non-breaking spaces for the second one on
+                    def repl(match):
+                        return match.group(1).replace(" ", "&nbsp;") + " "
+                    token = re.sub(" ( +)", repl, token)
+                    processed += token
 
-        # if the user is pasting an image or sound link, convert it to local
-        if self.editor.isURL(txt):
-            url = txt.split("\r\n")[0]
-            link = self.editor.urlToLink(url)
-            if link:
-                return link
-
-            # not media; add it as a normal link if pasting with shift
-            link = '<a href="{}">{}</a>'.format(url, html.escape(txt))
-            return link
-
-        # normal text; convert it to HTML
-        txt = html.escape(txt)
-        txt = txt.replace("\n", "<br>").replace("\t", " " * 4)
-
-        # if there's more than one consecutive space,
-        # use non-breaking spaces for the second one on
-        def repl(match):
-            return match.group(1).replace(" ", "&nbsp;") + " "
-
-        txt = re.sub(" ( +)", repl, txt)
-
-        return txt
+            processed += "<br>"
+        # return without last <br>
+        return processed[:-4]
 
     def _processHtml(self, mime: QMimeData) -> Tuple[Optional[str], bool]:
         if not mime.hasHtml():
