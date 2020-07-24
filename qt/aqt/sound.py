@@ -342,7 +342,7 @@ class MpvManager(MPV, SoundOrVideoPlayer):
             self.command("keybind", "ctrl+w", "stop")
             self.command("keybind", "ctrl+c", "stop")
         except MPVCommandError:
-            print("mpv too old")
+            print("mpv too old for key rebinding")
 
     def play(self, tag: AVTag, on_done: OnDoneCallback) -> None:
         assert isinstance(tag, SoundOrVideoTag)
