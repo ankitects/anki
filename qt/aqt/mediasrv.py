@@ -162,10 +162,7 @@ def allroutes(pathin):
         # swallow it - user likely surfed away from
         # review screen before an image had finished
         # downloading
-        return flask.make_response(
-            str(error),
-            HTTPStatus.INTERNAL_SERVER_ERROR,
-        )
+        return flask.make_response(str(error), HTTPStatus.INTERNAL_SERVER_ERROR,)
 
 
 def _redirectWebExports(path):
