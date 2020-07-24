@@ -50,12 +50,15 @@ class Previewer(QDialog):
     def card(self) -> Optional[Card]:
         raise NotImplementedError
 
+    def card_changed(self) -> bool:
+        raise NotImplementedError
+
     def open(self):
         self._state = "question"
         self._last_state = None
         self._create_gui()
         self._setup_web_view()
-        self.render_card(True)
+        self.render_card()
         self.show()
 
     def _create_gui(self):
@@ -124,11 +127,11 @@ class Previewer(QDialog):
         if cmd.startswith("play:"):
             play_clicked_audio(cmd, self.card())
 
-    def render_card(self, cardChanged=False):
+    def render_card(self):
         self.cancel_timer()
         # Keep track of whether render() has ever been called
         # with cardChanged=True since the last successful render
-        self._card_changed |= cardChanged
+        self._card_changed |= self.card_changed()
         # avoid rendering in quick succession
         elap_ms = int((time.time() - self._last_render) * 1000)
         delay = 300
@@ -277,11 +280,22 @@ class MultiCardPreviewer(Previewer):
 
 
 class BrowserPreviewer(MultiCardPreviewer):
+    _last_card_id = 0
+
     def card(self) -> Optional[Card]:
         if self._parent.singleCard:
             return self._parent.card
         else:
             return None
+
+    def card_changed(self) -> bool:
+        c = self.card()
+        if not c:
+            return True
+        else:
+            changed = c.id != self._last_card_id
+            self._last_card_id = c.id
+            return changed
 
     def _on_finished(self, ok):
         super()._on_finished(ok)
