@@ -1114,6 +1114,7 @@ class EditorWebView(AnkiWebView):
                     # use non-breaking spaces for the second one on
                     def repl(match):
                         return match.group(1).replace(" ", "&nbsp;") + " "
+
                     token = re.sub(" ( +)", repl, token)
                     processed.append(token)
 
