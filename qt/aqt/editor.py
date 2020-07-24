@@ -1091,23 +1091,23 @@ class EditorWebView(AnkiWebView):
             return None
 
         txt = mime.text()
-        processed = ''
+        processed = []
         lines = txt.split("\n")
 
         for line in lines:
-            for token in re.split('(\S+)', line):
+            for token in re.split("(\S+)", line):
                 # inlined data in base64?
                 if token.startswith("data:image/"):
-                    processed += self.editor.inlinedImageToLink(token)
+                    processed.append(self.editor.inlinedImageToLink(token))
                 elif self.editor.isURL(token):
                     # if the user is pasting an image or sound link, convert it to local
                     link = self.editor.urlToLink(token)
                     if link:
-                        processed += link
+                        processed.append(link)
                     else:
                         # not media; add it as a normal link
                         link = '<a href="{}">{}</a>'.format(token, html.escape(token))
-                        processed += link
+                        processed.append(link)
                 else:
                     token = html.escape(token).replace("\t", " " * 4)
                     # if there's more than one consecutive space,
@@ -1115,11 +1115,12 @@ class EditorWebView(AnkiWebView):
                     def repl(match):
                         return match.group(1).replace(" ", "&nbsp;") + " "
                     token = re.sub(" ( +)", repl, token)
-                    processed += token
+                    processed.append(token)
 
-            processed += "<br>"
-        # return without last <br>
-        return processed[:-4]
+            processed.append("<br>")
+        # remove last <br>
+        processed.pop()
+        return "".join(processed)
 
     def _processHtml(self, mime: QMimeData) -> Tuple[Optional[str], bool]:
         if not mime.hasHtml():
