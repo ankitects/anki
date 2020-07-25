@@ -10,6 +10,7 @@ import traceback
 import unicodedata
 import zipfile
 from concurrent.futures import Future
+from typing import Optional
 
 import anki.importing as importing
 import aqt.deckchooser
@@ -55,7 +56,7 @@ class ChangeMap(QDialog):
                 self.frm.fields.setCurrentRow(n)
             else:
                 self.frm.fields.setCurrentRow(n + 1)
-        self.field = None
+        self.field: Optional[str] = None
 
     def getField(self):
         self.exec_()
@@ -488,7 +489,9 @@ def _replaceWithApkg(mw, filename, backup):
             colname = "collection.anki2"
 
         with z.open(colname) as source, open(mw.pm.collectionPath(), "wb") as target:
-            shutil.copyfileobj(source, target)
+            # ignore appears related to https://github.com/python/typeshed/issues/4349
+            # see if can turn off once issue fix is merged in
+            shutil.copyfileobj(source, target)  # type: ignore
 
         d = os.path.join(mw.pm.profileFolder(), "collection.media")
         for n, (cStr, file) in enumerate(
