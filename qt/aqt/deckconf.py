@@ -3,7 +3,9 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from operator import itemgetter
-from typing import Dict, Union
+from typing import Any, Dict
+
+from PyQt5.QtWidgets import QLineEdit
 
 import aqt
 from anki.consts import NEW_CARDS_RANDOM
@@ -257,14 +259,14 @@ class DeckConf(QDialog):
     # Saving
     ##################################################
 
-    def updateList(self, conf, key, w, minSize=1):
+    def updateList(self, conf: Any, key: str, w: QLineEdit, minSize: int = 1) -> None:
         items = str(w.text()).split(" ")
         ret = []
-        for i in items:
-            if not i:
+        for item in items:
+            if not item:
                 continue
             try:
-                i = float(i)
+                i = float(item)
                 assert i > 0
                 if i == int(i):
                     i = int(i)
