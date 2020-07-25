@@ -162,10 +162,7 @@ def allroutes(pathin):
         # swallow it - user likely surfed away from
         # review screen before an image had finished
         # downloading
-        return flask.make_response(
-            "For path '%s - %s' %s!" % (directory, path, error),
-            HTTPStatus.INTERNAL_SERVER_ERROR,
-        )
+        return flask.make_response(str(error), HTTPStatus.INTERNAL_SERVER_ERROR,)
 
 
 def _redirectWebExports(path):
@@ -204,9 +201,4 @@ def _redirectWebExports(path):
 
 
 def graph_data(col: Collection, search: str, days: int) -> bytes:
-    try:
-        return col.backend.graphs(search=search, days=days)
-    except Exception as e:
-        # likely searching error
-        print(e)
-        return b""
+    return col.backend.graphs(search=search, days=days)

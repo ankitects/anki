@@ -457,6 +457,9 @@ def _run(argv=None, exec=True):
     if os.environ.get("ANKI_SOFTWAREOPENGL"):
         QCoreApplication.setAttribute(Qt.AA_UseSoftwareOpenGL)
 
+    if isWin and qtminor == 15 and qtpoint == 0:
+        os.environ["QT_QPA_PLATFORM"] = "windows:altgr"
+
     # create the app
     QCoreApplication.setApplicationName("Anki")
     QGuiApplication.setDesktopFileName("anki.desktop")

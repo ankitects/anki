@@ -24,8 +24,6 @@ use std::{
 
 define_newtype!(NoteID, i64);
 
-// fixme: ensure nulls and x1f not in field contents
-
 #[derive(Default)]
 pub(crate) struct TransformNoteOutput {
     pub changed: bool,
@@ -86,6 +84,12 @@ impl Note {
                 self.fields.len(),
                 nt.fields.len()
             )));
+        }
+
+        for field in &mut self.fields {
+            if field.contains(invalid_char_for_field) {
+                *field = field.replace(invalid_char_for_field, "");
+            }
         }
 
         if normalize_text {
@@ -224,6 +228,10 @@ fn anki_base91(mut n: u64) -> String {
     }
 
     buf.chars().rev().collect()
+}
+
+fn invalid_char_for_field(c: char) -> bool {
+    c.is_ascii_control() && c != '\n' && c != '\t'
 }
 
 impl Collection {

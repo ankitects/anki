@@ -54,7 +54,7 @@ class ErrorHandler(QObject):
     def setTimer(self):
         # we can't create a timer from a different thread, so we post a
         # message to the object on the main thread
-        self.errorTimer.emit()
+        self.errorTimer.emit()  # type: ignore
 
     def _setTimer(self):
         if not self.timer:
