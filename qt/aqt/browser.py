@@ -9,7 +9,7 @@ import time
 from dataclasses import dataclass
 from enum import Enum
 from operator import itemgetter
-from typing import Callable, List, Optional, Sequence, Tuple, Union
+from typing import Callable, List, Optional, Sequence, Tuple, Union, cast
 
 import anki
 import aqt
@@ -26,7 +26,7 @@ from anki.utils import htmlToTextLine, ids2str, intTime, isMac, isWin
 from aqt import AnkiQt, gui_hooks
 from aqt.editor import Editor
 from aqt.exporting import ExportDialog
-from aqt.previewer import BrowserPreviewer as PreviewDialog
+from aqt.previewer import BrowserPreviewer as PreviewDialog, Previewer
 from aqt.qt import *
 from aqt.theme import theme_manager
 from aqt.utils import (
@@ -103,7 +103,7 @@ class DataModel(QAbstractTableModel):
                 del self.cardObjs[c.id]
                 refresh = True
         if refresh:
-            self.layoutChanged.emit()
+            self.layoutChanged.emit()  # type: ignore
 
     # Model interface
     ######################################################################
@@ -130,12 +130,12 @@ class DataModel(QAbstractTableModel):
             if not t.get("bfont"):
                 return
             f = QFont()
-            f.setFamily(t.get("bfont", "arial"))
-            f.setPixelSize(t.get("bsize", 12))
+            f.setFamily(cast(str, t.get("bfont", "arial")))
+            f.setPixelSize(cast(int, t.get("bsize", 12)))
             return f
 
         elif role == Qt.TextAlignmentRole:
-            align = Qt.AlignVCenter
+            align: Union[Qt.AlignmentFlag, int] = Qt.AlignVCenter
             if self.activeCols[index.column()] not in (
                 "question",
                 "answer",
@@ -299,7 +299,7 @@ class DataModel(QAbstractTableModel):
         elif type == "template":
             t = c.template()["name"]
             if c.model()["type"] == MODEL_CLOZE:
-                t += " %d" % (c.ord + 1)
+                t = f"{t} {c.ord + 1}"
             return t
         elif type == "cardDue":
             # catch invalid dates
@@ -308,7 +308,7 @@ class DataModel(QAbstractTableModel):
             except:
                 t = ""
             if c.queue < 0:
-                t = "(" + t + ")"
+                t = f"({t})"
             return t
         elif type == "noteCrt":
             return time.strftime(self.time_format(), time.localtime(c.note().id / 1000))
@@ -582,8 +582,8 @@ class Browser(QMainWindow):
         self.mw = mw
         self.col = self.mw.col
         self.lastFilter = ""
-        self.focusTo = None
-        self._previewer = None
+        self.focusTo: Optional[int] = None
+        self._previewer: Optional[Previewer] = None
         self._closeEventHasCleanedUp = False
         self.form = aqt.forms.browser.Ui_Dialog()
         self.form.setupUi(self)
@@ -2225,16 +2225,16 @@ class ChangeModel(QDialog):
             old = self.oldModel["tmpls"]
             combos = self.tcombos
             new = self.targetModel["tmpls"]
-        map = {}
+        template_map: Dict[int, Optional[int]] = {}
         for i, f in enumerate(old):
             idx = combos[i].currentIndex()
             if idx == len(new):
                 # ignore
-                map[f["ord"]] = None
+                template_map[f["ord"]] = None
             else:
                 f2 = new[idx]
-                map[f["ord"]] = f2["ord"]
-        return map
+                template_map[f["ord"]] = f2["ord"]
+        return template_map
 
     def getFieldMap(self):
         return self.getTemplateMap(
