@@ -1540,11 +1540,14 @@ update cards set queue=?,mod=?,usn=? where id in """
     ##########################################################################
 
     def _burySiblings(self, card: Card) -> None:
+        should_bury = hooks.scheduler_might_bury_siblings(None, self, card)
+        if should_bury is False:
+            return
         toBury: List[int] = []
         nconf = self._newConf(card)
-        buryNew = nconf.get("bury", True)
+        buryNew = nconf.get("bury", True) or bool(should_bury)
         rconf = self._revConf(card)
-        buryRev = rconf.get("bury", True)
+        buryRev = rconf.get("bury", True) or bool(should_bury)
         # loop through and remove from queues
         for cid, queue in self.col.db.execute(
             f"""

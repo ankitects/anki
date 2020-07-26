@@ -83,6 +83,29 @@ hooks = [
         doc="""Allows changing the number of rev card for this deck (without
         considering descendants).""",
     ),
+    Hook(
+        name="scheduler_might_bury_siblings",
+        args=[
+            "should_bury: Optional[bool]",
+            "scheduler: Union[anki.sched.Scheduler, anki.schedv2.Scheduler]",
+            "card: anki.cards.Card",
+        ],
+        return_type="Optional[bool]",
+        doc="""Allows customizing the sibling burying behavior.
+        
+        `should_bury` is a bool or None governing the burying behavior:
+        
+            - Return None to let sibling burying proceed as it was, with the
+              scheduler and user-set deck options determining the outcome
+            - Return True to force sibling burying, regardless of user-set deck
+              options
+            - Return False to completely bypass sibling burying and sibling
+              spacing.
+        
+        If your add-on does not need to modify the sibling burying behavior, please
+        return `should_bury` unchanged to preserve behaviors set by other add-ons.
+        """,
+    ),
     # obsolete
     Hook(name="deck_added", args=["deck: Dict[str, Any]"], doc="Obsolete, do not use."),
     Hook(

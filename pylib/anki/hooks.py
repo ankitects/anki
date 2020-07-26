@@ -12,7 +12,7 @@ modifying it.
 
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, List, Sequence, Tuple
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 
 import decorator
 
@@ -391,6 +391,83 @@ class _NotesWillBeDeletedHook:
 
 
 notes_will_be_deleted = _NotesWillBeDeletedHook()
+
+
+class _SchedulerMightBurySiblingsFilter:
+    """Allows customizing the sibling burying behavior.
+        
+        `should_bury` is a bool or None governing the burying behavior:
+        
+            - Return None to let sibling burying proceed as it was, with the
+              scheduler and user-set deck options determining the outcome
+            - Return True to force sibling burying, regardless of user-set deck
+              options
+            - Return False to completely bypass sibling burying and sibling
+              spacing.
+        
+        If your add-on does not need to modify the sibling burying behavior, please
+        return `should_bury` unchanged to preserve behaviors set by other add-ons.
+        """
+
+    _hooks: List[
+        Callable[
+            [
+                Optional[bool],
+                "Union[anki.sched.Scheduler, anki.schedv2.Scheduler]",
+                "anki.cards.Card",
+            ],
+            Optional[bool],
+        ]
+    ] = []
+
+    def append(
+        self,
+        cb: Callable[
+            [
+                Optional[bool],
+                "Union[anki.sched.Scheduler, anki.schedv2.Scheduler]",
+                "anki.cards.Card",
+            ],
+            Optional[bool],
+        ],
+    ) -> None:
+        """(should_bury: Optional[bool], scheduler: Union[anki.sched.Scheduler, anki.schedv2.Scheduler], card: anki.cards.Card)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self,
+        cb: Callable[
+            [
+                Optional[bool],
+                "Union[anki.sched.Scheduler, anki.schedv2.Scheduler]",
+                "anki.cards.Card",
+            ],
+            Optional[bool],
+        ],
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
+
+    def __call__(
+        self,
+        should_bury: Optional[bool],
+        scheduler: Union[anki.sched.Scheduler, anki.schedv2.Scheduler],
+        card: anki.cards.Card,
+    ) -> Optional[bool]:
+        for filter in self._hooks:
+            try:
+                should_bury = filter(should_bury, scheduler, card)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return should_bury
+
+
+scheduler_might_bury_siblings = _SchedulerMightBurySiblingsFilter()
 
 
 class _SchedulerNewLimitForSingleDeckFilter:
