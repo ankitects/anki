@@ -29,7 +29,14 @@ export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
                 // or learning cards due today
                 (c.queue == CardQueue.Learn && c.due < data.nextDayAtSecs)
         )
-        .map((c) => (c.queue == CardQueue.Learn ? 0 : c.due - data.daysElapsed));
+        .map((c) => {
+            if (c.queue == CardQueue.Learn) {
+                return 0;
+            } else {
+                const due = c.odid ? c.odue : c.due;
+                return due - data.daysElapsed;
+            }
+        });
 
     const dueCounts = rollup(
         due,
