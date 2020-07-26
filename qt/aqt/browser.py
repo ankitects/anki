@@ -2017,7 +2017,7 @@ update cards set usn=?, mod=?, did=? where id in """
         nids = set()
         for s, nidlist in res:
             nids.update(nidlist)
-        self.col.tags.bulkAdd(nids, _("duplicate"))
+        self.col.tags.bulkAdd(list(nids), _("duplicate"))
         self.mw.progress.finish()
         self.model.endReset()
         self.mw.requireReset()
