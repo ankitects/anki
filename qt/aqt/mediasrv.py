@@ -87,9 +87,9 @@ class MediaServer(threading.Thread):
         return int(self.server.effective_port)
 
 
-@app.route("/", defaults={"path": ""})
-@app.route("/<path:pathin>", methods=["GET", "POST"])
-def allroutes(pathin):
+@app.route("/<path:path>", methods=["GET", "POST"])
+def allroutes(path=""):
+    pathin = path
     try:
         directory, path = _redirectWebExports(pathin)
     except TypeError:
