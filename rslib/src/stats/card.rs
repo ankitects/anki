@@ -195,6 +195,7 @@ impl Collection {
         let revlog = cs
             .revlog
             .into_iter()
+            .rev()
             .map(|e| revlog_to_text(e, i18n, offset))
             .collect();
         let revlog_titles = RevlogText {
