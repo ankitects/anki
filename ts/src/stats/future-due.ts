@@ -33,7 +33,10 @@ export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
             if (c.queue == CardQueue.Learn) {
                 return 0;
             } else {
-                const due = c.odid ? c.odue : c.due;
+                // - testing just odue fails on day 1
+                // - testing just odid fails on lapsed cards that
+                //   have due calculated at regraduation time
+                const due = c.odid && c.odue ? c.odue : c.due;
                 return due - data.daysElapsed;
             }
         });
