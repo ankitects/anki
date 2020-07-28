@@ -47,18 +47,18 @@ class LatestVersionFinder(QThread):
             print("update check failed")
             return
         if resp["msg"]:
-            self.newMsg.emit(resp)
+            self.newMsg.emit(resp)  # type: ignore
         if resp["ver"]:
-            self.newVerAvail.emit(resp["ver"])
+            self.newVerAvail.emit(resp["ver"])  # type: ignore
         diff = resp["time"] - time.time()
         if abs(diff) > 300:
-            self.clockIsOff.emit(diff)
+            self.clockIsOff.emit(diff)  # type: ignore
 
 
 def askAndUpdate(mw, ver):
     baseStr = _("""<h1>Anki Updated</h1>Anki %s has been released.<br><br>""") % ver
     msg = QMessageBox(mw)
-    msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+    msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)  # type: ignore
     msg.setIcon(QMessageBox.Information)
     msg.setText(baseStr + _("Would you like to download it now?"))
     button = QPushButton(_("Ignore this update"))
