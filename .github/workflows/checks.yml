@@ -23,7 +23,6 @@ jobs:
           matrix = json.loads(r"""
           {
             "BUILD_TYPE": [
-              "check",
               "build"
             ],
             "os": [
@@ -74,6 +73,8 @@ jobs:
 
           if args.tagged:
             matrix["python"].append("3.8")
+          else:
+            matrix["BUILD_TYPE"].append("check")
 
           print(json.dumps(matrix))
           ' > buildmatrix.py;
