@@ -19,6 +19,11 @@ from anki.utils import ids2str, namedtmp, splitFields, stripHTML
 
 class Exporter:
     includeHTML: Union[bool, None] = None
+    ext: Optional[str] = None
+    key: Optional[str] = None
+    includeTags: Optional[bool] = None
+    includeSched: Optional[bool] = None
+    includeMedia: Optional[bool] = None
 
     def __init__(
         self,
