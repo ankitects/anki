@@ -1,5 +1,6 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/copyleft/agpl.html
+from typing import List, Optional
 
 import aqt
 from aqt.qt import *
@@ -9,8 +10,9 @@ from aqt.utils import restoreGeom, saveGeom
 class TagLimit(QDialog):
     def __init__(self, mw, parent):
         QDialog.__init__(self, parent, Qt.Window)
+        self.tags: Union[str, List] = ""
         self.mw = mw
-        self.parent = parent
+        self.parent: Optional[QWidget] = parent
         self.deck = self.parent.deck
         self.dialog = aqt.forms.taglimit.Ui_Dialog()
         self.dialog.setupUi(self)
