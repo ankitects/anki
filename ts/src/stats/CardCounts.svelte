@@ -36,7 +36,7 @@
     <svg
         bind:this={svg}
         viewBox={`0 0 ${bounds.width} ${bounds.height}`}
-        style={{ opacity: graphData.totalCards ? 1 : 0 }}>
+        style="opacity: {graphData.totalCards ? 1 : 0};">
         <g class="days" />
     </svg>
 
