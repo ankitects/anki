@@ -13,6 +13,7 @@ import urllib.request
 import warnings
 from typing import Callable, List, Optional, Tuple
 
+import bs4
 import requests
 from bs4 import BeautifulSoup
 
@@ -859,7 +860,7 @@ to a cloze type first, via 'Notes>Change Note Type'"""
 
     removeTags = ["script", "iframe", "object", "style"]
 
-    def _pastePreFilter(self, html, internal):
+    def _pastePreFilter(self, html: str, internal: bool) -> str:
         # https://anki.tenderapp.com/discussions/ankidesktop/39543-anki-is-replacing-the-character-by-when-i-exit-the-html-edit-mode-ctrlshiftx
         if html.find(">") < 0:
             return html
@@ -868,6 +869,7 @@ to a cloze type first, via 'Notes>Change Note Type'"""
             warnings.simplefilter("ignore", UserWarning)
             doc = BeautifulSoup(html, "html.parser")
 
+        tag: bs4.element.Tag
         if not internal:
             for tag in self.removeTags:
                 for node in doc(tag):
