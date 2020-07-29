@@ -46,6 +46,7 @@ export function gatherData(data: pb.BackendProto.GraphsOut, i18n: I18n): GraphDa
             // young falls through
             case CardQueue.Learn:
             case CardQueue.DayLearn:
+            case CardQueue.PreviewRepeat:
                 young += 1;
                 break;
             case CardQueue.Suspended:
