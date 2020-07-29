@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::i18n::{tr_strs, I18n, TR};
+use crate::i18n::{tr_args, tr_strs, I18n, TR};
 pub use failure::{Error, Fail};
 use reqwest::StatusCode;
 use std::io;
@@ -15,6 +15,9 @@ pub enum AnkiError {
 
     #[fail(display = "invalid card template: {}", info)]
     TemplateError { info: String },
+
+    #[fail(display = "unable to save template {}", ordinal)]
+    TemplateSaveError { ordinal: usize },
 
     #[fail(display = "I/O error: {}", info)]
     IOError { info: String },
@@ -107,6 +110,10 @@ impl AnkiError {
                 // already localized
                 info.into()
             }
+            AnkiError::TemplateSaveError { ordinal } => i18n.trn(
+                TR::CardTemplatesInvalidTemplateNumber,
+                tr_args!["number"=>ordinal+1],
+            ),
             AnkiError::DBError { info, kind } => match kind {
                 DBErrorKind::Corrupt => info.clone(),
                 DBErrorKind::Locked => "Anki already open, or media currently syncing.".into(),

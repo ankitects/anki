@@ -747,7 +747,7 @@ Enter deck to place new %s cards in, or leave blank:"""
             try:
                 fut.result()
             except TemplateError as e:
-                showWarning("Unable to save changes: " + str(e))
+                showWarning(str(e))
                 return
             self.mw.reset()
             tooltip("Changes saved.", parent=self.parent())
