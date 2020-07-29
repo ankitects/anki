@@ -138,7 +138,7 @@ class ModelManager:
     # Current note type
     #############################################################
 
-    def current(self, forDeck: bool = True) -> Any:
+    def current(self, forDeck: bool = True) -> Optional[NoteType]:
         "Get current model."
         m = self.get(self.col.decks.current().get("mid"))
         if not forDeck or not m:
@@ -243,7 +243,7 @@ class ModelManager:
     # Tools
     ##################################################
 
-    def nids(self, ntid: int) -> Any:
+    def nids(self, ntid: int) -> List[Any]:
         "Note ids for M."
         if isinstance(ntid, dict):
             # legacy callers passed in note type
@@ -257,7 +257,7 @@ class ModelManager:
     # Copying
     ##################################################
 
-    def copy(self, m: NoteType) -> Any:
+    def copy(self, m: NoteType) -> NoteType:
         "Copy, save and return."
         m2 = copy.deepcopy(m)
         m2["name"] = _("%s copy") % m2["name"]
@@ -275,7 +275,7 @@ class ModelManager:
     def fieldNames(self, m: NoteType) -> List[str]:
         return [f["name"] for f in m["flds"]]
 
-    def sortIdx(self, m: NoteType) -> Any:
+    def sortIdx(self, m: NoteType) -> NoteType:
         return m["sortf"]
 
     # Adding & changing fields
