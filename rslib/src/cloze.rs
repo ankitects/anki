@@ -93,15 +93,19 @@ pub fn reveal_cloze_text(text: &str, cloze_ord: u16, question: bool) -> Cow<str>
 }
 
 pub fn reveal_cloze_text_only(text: &str, cloze_ord: u16, question: bool) -> Cow<str> {
-    for caps in CLOZE.captures_iter(text) {
-        let captured_ord = caps
-            .get(cloze_caps::ORD)
-            .unwrap()
-            .as_str()
-            .parse()
-            .unwrap_or(0);
+    CLOZE
+        .captures_iter(text)
+        .filter(|caps| {
+            let captured_ord = caps
+                .get(cloze_caps::ORD)
+                .unwrap()
+                .as_str()
+                .parse()
+                .unwrap_or(0);
 
-        if captured_ord == cloze_ord {
+            captured_ord == cloze_ord
+        })
+        .map(|caps| {
             let cloze = if question {
                 // hint provided?
                 if let Some(hint) = caps.get(cloze_caps::HINT) {
@@ -112,11 +116,12 @@ pub fn reveal_cloze_text_only(text: &str, cloze_ord: u16, question: bool) -> Cow
             } else {
                 caps.get(cloze_caps::TEXT).unwrap().as_str()
             };
-            return cloze.to_owned().into();
-        }
-    }
 
-    "".into()
+            cloze
+        })
+        .collect::<Vec<_>>()
+        .join(", ")
+        .into()
 }
 
 /// If text contains any LaTeX tags, render the front and back
@@ -214,6 +219,10 @@ mod test {
         );
         assert_eq!(reveal_cloze_text_only("foo {{c1::bar}}", 1, false), "bar");
         assert_eq!(reveal_cloze_text_only("foo {{c1::bar}}", 2, false), "");
+        assert_eq!(
+            reveal_cloze_text_only("{{c1::foo}} {{c1::bar}}", 1, false),
+            "foo, bar"
+        );
     }
 
     #[test]
