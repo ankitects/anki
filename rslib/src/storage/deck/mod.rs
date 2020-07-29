@@ -13,7 +13,7 @@ use crate::{
     timestamp::TimestampMillis,
 };
 use prost::Message;
-use rusqlite::{params, Row, NO_PARAMS};
+use rusqlite::{named_params, params, Row, NO_PARAMS};
 use std::collections::{HashMap, HashSet};
 use unicase::UniCase;
 
@@ -173,54 +173,48 @@ impl SqliteStorage {
         sched: SchedulerVersion,
         day_cutoff: u32,
         learn_cutoff: u32,
+        top_deck: Option<&str>,
     ) -> Result<HashMap<DeckID, DueCounts>> {
-        self.db
-            .prepare_cached(concat!(include_str!("due_counts.sql"), " group by did"))?
-            .query_and_then(
-                params![
-                    CardQueue::New as u8,
-                    CardQueue::Review as u8,
-                    day_cutoff,
-                    sched as u8,
-                    CardQueue::Learn as u8,
-                    learn_cutoff,
-                    CardQueue::DayLearn as u8,
-                ],
-                row_to_due_counts,
-            )?
-            .collect()
-    }
+        let sched_ver = sched as u8;
+        let mut params = named_params! {
+            ":new_queue": CardQueue::New as u8,
+            ":review_queue": CardQueue::Review as u8,
+            ":day_cutoff": day_cutoff,
+            ":sched_ver": sched_ver,
+            ":learn_queue": CardQueue::Learn as u8,
+            ":learn_cutoff": learn_cutoff,
+            ":daylearn_queue": CardQueue::DayLearn as u8,
+            ":preview_queue": CardQueue::PreviewRepeat as u8,
+        }
+        .to_vec();
 
-    pub(crate) fn due_counts_limited(
-        &self,
-        sched: SchedulerVersion,
-        day_cutoff: u32,
-        learn_cutoff: u32,
-        top: &str,
-    ) -> Result<HashMap<DeckID, DueCounts>> {
-        let prefix_start = format!("{}\x1f", top);
-        let prefix_end = format!("{}\x20", top);
-        self.db
-            .prepare_cached(concat!(
+        let sql;
+        let prefix_start;
+        let prefix_end;
+        let top;
+        if let Some(top_inner) = top_deck {
+            // limited to deck node
+            top = top_inner;
+            prefix_start = format!("{}\x1f", top);
+            prefix_end = format!("{}\x20", top);
+            params.extend(named_params! {
+                ":top_deck": top,
+                ":prefix_start": prefix_start,
+                ":prefix_end": prefix_end,
+            });
+            sql = concat!(
                 include_str!("due_counts.sql"),
-                " and did in (select id from decks where name = ? ",
-                "or (name >= ? and name < ?)) group by did "
-            ))?
-            .query_and_then(
-                params![
-                    CardQueue::New as u8,
-                    CardQueue::Review as u8,
-                    day_cutoff,
-                    sched as u8,
-                    CardQueue::Learn as u8,
-                    learn_cutoff,
-                    CardQueue::DayLearn as u8,
-                    top,
-                    prefix_start,
-                    prefix_end,
-                ],
-                row_to_due_counts,
-            )?
+                " and did in (select id from decks where name = :top_deck ",
+                "or (name >= :prefix_start and name < :prefix_end)) group by did "
+            );
+        } else {
+            // entire tree
+            sql = concat!(include_str!("due_counts.sql"), " group by did");
+        }
+
+        self.db
+            .prepare_cached(sql)?
+            .query_and_then_named(&params, row_to_due_counts)?
             .collect()
     }
 
