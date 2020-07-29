@@ -5,15 +5,16 @@ use crate::{
     err::{AnkiError, Result},
     notetype::NoteTypeID,
 };
+use lazy_static::lazy_static;
 use nom::{
     branch::alt,
     bytes::complete::{escaped, is_not, tag, take_while1},
     character::complete::{anychar, char, one_of},
-    character::is_digit,
     combinator::{all_consuming, map, map_res},
     sequence::{delimited, preceded, tuple},
     {multi::many0, IResult},
 };
+use regex::Regex;
 use std::{borrow::Cow, num};
 
 // fixme: need to preserve \ when used twice in string
@@ -294,10 +295,13 @@ fn search_node_for_text_with_argument<'a>(
 /// ensure a list of ids contains only numbers and commas, returning unchanged if true
 /// used by nid: and cid:
 fn check_id_list(s: Cow<str>) -> ParseResult<Cow<str>> {
-    if s.is_empty() || s.as_bytes().iter().any(|&c| !is_digit(c) && c != b',') {
-        Err(ParseError {})
-    } else {
+    lazy_static! {
+        static ref RE: Regex = Regex::new(r"^(\d+,)*\d+$").unwrap();
+    }
+    if RE.is_match(s.as_ref()) {
         Ok(s)
+    } else {
+        Err(ParseError {})
     }
 }
 
