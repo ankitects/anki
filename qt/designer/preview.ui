@@ -65,9 +65,9 @@
          </spacer>
         </item>
         <item>
-         <widget class="QCheckBox" name="fill_empty">
+         <widget class="QPushButton" name="preview_options">
           <property name="text">
-           <string notr="true">FILL_EMPTY</string>
+           <string/>
           </property>
          </widget>
         </item>
