@@ -290,8 +290,10 @@ class CardLayout(QDialog):
         pform.preview_front.isChecked()
         qconnect(pform.preview_front.clicked, self.on_preview_toggled)
         qconnect(pform.preview_back.clicked, self.on_preview_toggled)
-        pform.preview_options.setText(_("Options") + " " + downArrow())
-        qconnect(pform.preview_options.clicked, self.on_preview_options)
+        pform.preview_settings.setText(
+            tr(TR.CARD_TEMPLATES_PREVIEW_SETTINGS) + " " + downArrow()
+        )
+        qconnect(pform.preview_settings.clicked, self.on_preview_settings)
 
         jsinc = [
             "jquery.js",
@@ -328,7 +330,7 @@ class CardLayout(QDialog):
         self.mobile_class_action_toggled = not self.mobile_class_action_toggled
         self.on_preview_toggled()
 
-    def on_preview_options(self):
+    def on_preview_settings(self):
         m = QMenu(self)
 
         a = m.addAction(tr(TR.CARD_TEMPLATES_FILL_EMPTY))
@@ -348,7 +350,7 @@ class CardLayout(QDialog):
         a.setChecked(self.mobile_class_action_toggled)
         qconnect(a.toggled, self.on_mobile_class_action_toggled)
 
-        m.exec_(self.pform.preview_options.mapToGlobal(QPoint(0, 0)))
+        m.exec_(self.pform.preview_settings.mapToGlobal(QPoint(0, 0)))
 
     def on_preview_toggled(self):
         self.have_autoplayed = False

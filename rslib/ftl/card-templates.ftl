@@ -16,4 +16,4 @@ card-templates-fill-empty = Fill Empty Fields
 card-templates-invalid-template-number = Please correct the problems on card template { $number } first.
 card-templates-invert-night-mode = Invert Night Mode
 card-templates-add-mobile-class = Add mobile Class
-
+card-templates-preview-settings = Preview Settings
