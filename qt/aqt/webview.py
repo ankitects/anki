@@ -30,9 +30,9 @@ class AnkiWebPage(QWebEnginePage):
         self._setupBridge()
         self.open_links_externally = True
 
-    def _setupBridge(self):
+    def _setupBridge(self) -> None:
         class Bridge(QObject):
-            @pyqtSlot(str, result=str)
+            @pyqtSlot(str, result=str)  # type: ignore
             def cmd(self, str):
                 return json.dumps(self.onCmd(str))
 
