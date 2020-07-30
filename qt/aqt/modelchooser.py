@@ -3,13 +3,13 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from anki.lang import _
-from aqt import gui_hooks
+from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.utils import shortcut
 
 
 class ModelChooser(QHBoxLayout):
-    def __init__(self, mw, widget, label=True) -> None:
+    def __init__(self, mw: AnkiQt, widget: QWidget, label: bool = True) -> None:
         QHBoxLayout.__init__(self)
         self.widget = widget  # type: ignore
         self.mw = mw
@@ -19,9 +19,9 @@ class ModelChooser(QHBoxLayout):
         self.setSpacing(8)
         self.setupModels()
         gui_hooks.state_did_reset.append(self.onReset)
-        self.widget.setLayout(self)  # type: ignore
+        self.widget.setLayout(self)
 
-    def setupModels(self):
+    def setupModels(self) -> None:
         if self.label:
             self.modelLabel = QLabel(_("Type"))
             self.addWidget(self.modelLabel)
@@ -29,7 +29,7 @@ class ModelChooser(QHBoxLayout):
         self.models = QPushButton()
         # self.models.setStyleSheet("* { text-align: left; }")
         self.models.setToolTip(shortcut(_("Change Note Type (Ctrl+N)")))
-        QShortcut(QKeySequence("Ctrl+N"), self.widget, activated=self.onModelChange)
+        QShortcut(QKeySequence("Ctrl+N"), self.widget, activated=self.onModelChange)  # type: ignore
         self.models.setAutoDefault(False)
         self.addWidget(self.models)
         qconnect(self.models.clicked, self.onModelChange)
@@ -41,16 +41,16 @@ class ModelChooser(QHBoxLayout):
     def cleanup(self) -> None:
         gui_hooks.state_did_reset.remove(self.onReset)
 
-    def onReset(self):
+    def onReset(self) -> None:
         self.updateModels()
 
-    def show(self):
-        self.widget.show()
+    def show(self) -> None:
+        self.widget.show()  # type: ignore
 
-    def hide(self):
-        self.widget.hide()
+    def hide(self) -> None:
+        self.widget.hide()  # type: ignore
 
-    def onEdit(self):
+    def onEdit(self) -> None:
         import aqt.models
 
         aqt.models.Models(self.mw, self.widget)
@@ -87,5 +87,5 @@ class ModelChooser(QHBoxLayout):
         gui_hooks.current_note_type_did_change(current)
         self.mw.reset()
 
-    def updateModels(self):
+    def updateModels(self) -> None:
         self.models.setText(self.deck.models.current()["name"])
