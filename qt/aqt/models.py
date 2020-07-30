@@ -2,7 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from operator import itemgetter
-from typing import List, Optional
+from typing import Any, List, Optional, Sequence
 
 import aqt.clayout
 from anki import stdmodels
@@ -45,7 +45,7 @@ class Models(QDialog):
     # Models
     ##########################################################################
 
-    def setupModels(self):
+    def setupModels(self) -> None:
         self.model = None
         f = self.form
         box = f.buttonBox
@@ -65,14 +65,14 @@ class Models(QDialog):
         qconnect(b.clicked, self.onAdvanced)
         qconnect(f.modelsList.itemDoubleClicked, self.onRename)
 
-        def on_done(fut):
+        def on_done(fut) -> None:
             self.updateModelsList(fut.result())
 
         self.mw.taskman.with_progress(self.col.models.all_use_counts, on_done, self)
         f.modelsList.setCurrentRow(0)
         maybeHideClose(box)
 
-    def onRename(self):
+    def onRename(self) -> None:
         nt = self.current_notetype()
         txt = getText(_("New name:"), default=nt["name"])
         if txt[1] and txt[0]:
@@ -80,11 +80,11 @@ class Models(QDialog):
             self.saveAndRefresh(nt)
 
     def saveAndRefresh(self, nt: NoteType) -> None:
-        def save():
+        def save() -> Sequence[pb.NoteTypeNameIDUseCount]:
             self.mm.save(nt)
             return self.col.models.all_use_counts()
 
-        def on_done(fut):
+        def on_done(fut) -> None:
             self.updateModelsList(fut.result())
 
         self.mw.taskman.with_progress(save, on_done, self)
@@ -106,7 +106,7 @@ class Models(QDialog):
         row = self.form.modelsList.currentRow()
         return self.mm.get(self.models[row].id)
 
-    def onAdd(self):
+    def onAdd(self) -> None:
         m = AddModel(self.mw, self).get()
         if m:
             txt = getText(_("Name:"), default=m["name"])[0]
@@ -114,7 +114,7 @@ class Models(QDialog):
                 m["name"] = txt
             self.saveAndRefresh(m)
 
-    def onDelete(self):
+    def onDelete(self) -> None:
         if len(self.models) < 2:
             showInfo(_("Please add another note type first."), parent=self)
             return
@@ -130,16 +130,16 @@ class Models(QDialog):
 
         nt = self.current_notetype()
 
-        def save():
+        def save() -> Sequence[pb.NoteTypeNameIDUseCount]:
             self.mm.rem(nt)
             return self.col.models.all_use_counts()
 
-        def on_done(fut):
+        def on_done(fut) -> None:
             self.updateModelsList(fut.result())
 
         self.mw.taskman.with_progress(save, on_done, self)
 
-    def onAdvanced(self):
+    def onAdvanced(self) -> None:
         nt = self.current_notetype()
         d = QDialog(self)
         frm = aqt.forms.modelopts.Ui_Dialog()
@@ -158,16 +158,16 @@ class Models(QDialog):
         nt["latexPost"] = str(frm.latexFooter.toPlainText())
         self.saveAndRefresh(nt)
 
-    def _tmpNote(self):
+    def _tmpNote(self) -> Note:
         nt = self.current_notetype()
         return Note(self.col, nt)
 
-    def onFields(self):
+    def onFields(self) -> None:
         from aqt.fields import FieldDialog
 
         FieldDialog(self.mw, self.current_notetype(), parent=self)
 
-    def onCards(self):
+    def onCards(self) -> None:
         from aqt.clayout import CardLayout
 
         n = self._tmpNote()
@@ -178,7 +178,7 @@ class Models(QDialog):
 
     # need to flush model on change or reject
 
-    def reject(self):
+    def reject(self) -> None:
         self.mw.reset()
         saveGeom(self, "models")
         QDialog.reject(self)
@@ -211,14 +211,14 @@ class AddModel(QDialog):
         # help
         qconnect(self.dialog.buttonBox.helpRequested, self.onHelp)
 
-    def get(self):
+    def get(self) -> Any:
         self.exec_()
         return self.model
 
-    def reject(self):
+    def reject(self) -> None:
         QDialog.reject(self)
 
-    def accept(self):
+    def accept(self) -> None:
         (isStd, model) = self.models[self.dialog.models.currentRow()]
         if isStd:
             # create
@@ -229,5 +229,5 @@ class AddModel(QDialog):
             self.mw.col.models.setCurrent(self.model)
         QDialog.accept(self)
 
-    def onHelp(self):
+    def onHelp(self) -> None:
         openHelp("notetypes")
