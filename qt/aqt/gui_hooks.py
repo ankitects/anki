@@ -2112,6 +2112,60 @@ class _ReviewerWillEndHook:
 reviewer_will_end = _ReviewerWillEndHook()
 
 
+class _ReviewerWillPlayAnswerSoundsHook:
+    _hooks: List[Callable[[Card, "List[anki.sound.AVTag]"], None]] = []
+
+    def append(self, cb: Callable[[Card, "List[anki.sound.AVTag]"], None]) -> None:
+        """(card: Card, tags: List[anki.sound.AVTag])"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[Card, "List[anki.sound.AVTag]"], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
+
+    def __call__(self, card: Card, tags: List[anki.sound.AVTag]) -> None:
+        for hook in self._hooks:
+            try:
+                hook(card, tags)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+reviewer_will_play_answer_sounds = _ReviewerWillPlayAnswerSoundsHook()
+
+
+class _ReviewerWillPlayQuestionSoundsHook:
+    _hooks: List[Callable[[Card, "List[anki.sound.AVTag]"], None]] = []
+
+    def append(self, cb: Callable[[Card, "List[anki.sound.AVTag]"], None]) -> None:
+        """(card: Card, tags: List[anki.sound.AVTag])"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[Card, "List[anki.sound.AVTag]"], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
+
+    def __call__(self, card: Card, tags: List[anki.sound.AVTag]) -> None:
+        for hook in self._hooks:
+            try:
+                hook(card, tags)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+reviewer_will_play_question_sounds = _ReviewerWillPlayQuestionSoundsHook()
+
+
 class _ReviewerWillShowContextMenuHook:
     _hooks: List[Callable[["aqt.reviewer.Reviewer", QMenu], None]] = []
 

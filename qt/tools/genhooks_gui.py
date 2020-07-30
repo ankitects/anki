@@ -90,6 +90,14 @@ hooks = [
         legacy_hook="reviewCleanup",
         doc="Called before Anki transitions from the review screen to another screen.",
     ),
+    Hook(
+        name="reviewer_will_play_question_sounds",
+        args=["card: Card", "tags: List[anki.sound.AVTag]"],
+    ),
+    Hook(
+        name="reviewer_will_play_answer_sounds",
+        args=["card: Card", "tags: List[anki.sound.AVTag]"],
+    ),
     # Debug
     ###################
     Hook(
