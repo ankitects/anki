@@ -58,6 +58,11 @@ audio = (
     "spx",
     "oga",
     "webm",
+    "mpg",
+    "ogx",
+    "avi",
+    "flv",
+    "ogv",
 )
 
 _html = """
