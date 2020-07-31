@@ -66,10 +66,6 @@
         </item>
         <item>
          <widget class="QPushButton" name="preview_settings">
-          <property name="styleSheet">
-           <string notr="true">padding: 3px;
-padding-left: 5px;</string>
-          </property>
           <property name="text">
            <string/>
           </property>
