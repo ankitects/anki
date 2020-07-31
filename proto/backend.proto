@@ -996,7 +996,7 @@ message GraphsOut {
     uint32 next_day_at_secs = 4;
     uint32 scheduler_version = 5;
     /// Seconds to add to UTC timestamps to get local time.
-    uint32 local_offset_secs = 7;
+    int32 local_offset_secs = 7;
 }
 
 message RevlogEntry {
@@ -1004,7 +1004,7 @@ message RevlogEntry {
         LEARNING = 0;
         REVIEW = 1;
         RELEARNING = 2;
-        EARLY_REVIEW = 4;
+        EARLY_REVIEW = 3;
     }
     int64 id = 1;
     int64 cid = 2;

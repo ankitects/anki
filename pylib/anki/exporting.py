@@ -8,7 +8,7 @@ import shutil
 import unicodedata
 import zipfile
 from io import BufferedWriter
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 from zipfile import ZipFile
 
 from anki import hooks
@@ -20,7 +20,7 @@ from anki.utils import ids2str, namedtmp, splitFields, stripHTML
 class Exporter:
     includeHTML: Union[bool, None] = None
     ext: Optional[str] = None
-    key: Optional[str] = None
+    key: Union[str, Callable, None] = None
     includeTags: Optional[bool] = None
     includeSched: Optional[bool] = None
     includeMedia: Optional[bool] = None
@@ -92,7 +92,7 @@ class Exporter:
 
 class TextCardExporter(Exporter):
 
-    key = _("Cards in Plain Text")
+    key = lambda: _("Cards in Plain Text")
     ext = ".txt"
     includeHTML = True
 
@@ -122,7 +122,7 @@ class TextCardExporter(Exporter):
 
 class TextNoteExporter(Exporter):
 
-    key = _("Notes in Plain Text")
+    key = lambda: _("Notes in Plain Text")
     ext = ".txt"
     includeTags = True
     includeHTML = True
@@ -164,7 +164,7 @@ where cards.id in %s)"""
 
 class AnkiExporter(Exporter):
 
-    key = _("Anki 2.0 Deck")
+    key = lambda: _("Anki 2.0 Deck")
     ext = ".anki2"
     includeSched: Union[bool, None] = False
     includeMedia = True
@@ -313,7 +313,7 @@ class AnkiExporter(Exporter):
 
 class AnkiPackageExporter(AnkiExporter):
 
-    key = _("Anki Deck Package")
+    key = lambda: _("Anki Deck Package")
     ext = ".apkg"
 
     def __init__(self, col: Collection) -> None:
@@ -394,7 +394,7 @@ class AnkiPackageExporter(AnkiExporter):
 
 class AnkiCollectionPackageExporter(AnkiPackageExporter):
 
-    key = _("Anki Collection Package")
+    key = lambda: _("Anki Collection Package")
     ext = ".colpkg"
     verbatim = True
     includeSched = None
@@ -426,7 +426,11 @@ class AnkiCollectionPackageExporter(AnkiPackageExporter):
 
 def exporters() -> List[Tuple[str, Any]]:
     def id(obj):
-        return ("%s (*%s)" % (obj.key, obj.ext), obj)
+        if callable(obj.key):
+            key_str = obj.key()
+        else:
+            key_str = obj.key
+        return ("%s (*%s)" % (key_str, obj.ext), obj)
 
     exps = [
         id(AnkiCollectionPackageExporter),

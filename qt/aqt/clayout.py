@@ -750,7 +750,7 @@ Enter deck to place new %s cards in, or leave blank:"""
                 showWarning(str(e))
                 return
             self.mw.reset()
-            tooltip("Changes saved.", parent=self.parent())
+            tooltip(tr(TR.CARD_TEMPLATES_CHANGES_SAVED), parent=self.parent())
             self.cleanup()
             gui_hooks.sidebar_should_refresh_notetypes()
             return QDialog.accept(self)
@@ -759,7 +759,7 @@ Enter deck to place new %s cards in, or leave blank:"""
 
     def reject(self) -> None:
         if self.change_tracker.changed():
-            if not askUser("Discard changes?"):
+            if not askUser(tr(TR.CARD_TEMPLATES_DISCARD_CHANGES)):
                 return
         self.cleanup()
         return QDialog.reject(self)

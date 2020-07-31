@@ -1655,6 +1655,7 @@ update cards set usn=?, mod=?, did=? where id in """
 
     def _clearUnusedTags(self):
         self.col.tags.registerNotes()
+        self.on_tag_list_update()
 
     # Suspending
     ######################################################################
