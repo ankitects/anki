@@ -14,3 +14,5 @@ card-templates-template-box = Template
 card-templates-sample-cloze = This is a {"{{c1::"}sample{"}}"} cloze deletion.
 card-templates-fill-empty = Fill Empty Fields
 card-templates-invalid-template-number = Card template { $number } has a problem.
+card-templates-changes-saved = Changes saved.
+card-templates-discard-changes = Discard changes?
