@@ -187,10 +187,14 @@ class Reviewer:
         q = c.q()
         # play audio?
         if c.autoplay():
-            av_player.play_tags(c.question_av_tags())
+            sounds = c.question_av_tags()
+            gui_hooks.reviewer_will_play_question_sounds(c, sounds)
+            av_player.play_tags(sounds)
         else:
             av_player.clear_queue_and_maybe_interrupt()
-
+            sounds = []
+            gui_hooks.reviewer_will_play_question_sounds(c, sounds)
+            av_player.play_tags(sounds)
         # render & update bottom
         q = self._mungeQA(q)
         q = gui_hooks.card_will_show(q, c, "reviewQuestion")
@@ -233,10 +237,14 @@ class Reviewer:
         a = c.a()
         # play audio?
         if c.autoplay():
-            av_player.play_tags(c.answer_av_tags())
+            sounds = c.answer_av_tags()
+            gui_hooks.reviewer_will_play_answer_sounds(c, sounds)
+            av_player.play_tags(sounds)
         else:
             av_player.clear_queue_and_maybe_interrupt()
-
+            sounds = []
+            gui_hooks.reviewer_will_play_answer_sounds(c, sounds)
+            av_player.play_tags(sounds)
         a = self._mungeQA(a)
         a = gui_hooks.card_will_show(a, c, "reviewAnswer")
         # render and update bottom

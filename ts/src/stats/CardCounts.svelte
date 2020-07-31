@@ -1,6 +1,6 @@
 <script lang="typescript">
     import { defaultGraphBounds } from "./graphs";
-    import { gatherData, GraphData, renderCards } from "./card-counts";
+    import { gatherData, GraphData, renderCards, TableDatum } from "./card-counts";
     import pb from "../backend/proto";
     import { I18n } from "../i18n";
 
@@ -15,10 +15,16 @@
     bounds.marginRight = 20;
     bounds.marginTop = 0;
 
+    let activeIdx: null | number = null;
+    function onHover(idx: null | number): void {
+        activeIdx = idx;
+    }
+
     let graphData = (null as unknown) as GraphData;
+    let tableData = (null as unknown) as TableDatum[];
     $: {
         graphData = gatherData(sourceData, i18n);
-        renderCards(svg as any, bounds, graphData);
+        tableData = renderCards(svg as any, bounds, graphData, onHover);
     }
 
     const total = i18n.tr(i18n.TR.STATISTICS_COUNTS_TOTAL_CARDS);
@@ -27,6 +33,23 @@
 <style>
     svg {
         transition: opacity 1s;
+    }
+
+    .counts-table {
+        display: flex;
+        justify-content: center;
+    }
+
+    table {
+        border-spacing: 1em 0;
+    }
+
+    .right {
+        text-align: right;
+    }
+
+    .bold {
+        font-weight: bold;
     }
 </style>
 
@@ -40,6 +63,29 @@
         <g class="days" />
     </svg>
 
-    <div class="centered">{total}: {graphData.totalCards}</div>
+    <div class="counts-table">
+        <table>
+            {#each tableData as d, idx}
+                <tr class:bold={activeIdx === idx}>
+                    <td>
+                        <span style="color: {d.colour};">■</span>
+                        {d.label}
+                    </td>
+                    <td class="right">{d.count}</td>
+                    <td class="right">{d.percent}</td>
+                </tr>
+            {/each}
+
+            <tr class:bold={activeIdx === null}>
+                <td>
+                    <span style="visibility: hidden;">■</span>
+                    {total}
+                </td>
+                <td class="right">{graphData.totalCards}</td>
+                <td />
+            </tr>
+
+        </table>
+    </div>
 
 </div>

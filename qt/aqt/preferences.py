@@ -226,7 +226,6 @@ Not currently enabled; click the sync button in the main window to enable."""
         self.form.pasteInvert.setChecked(self.prof.get("pasteInvert", False))
         self.form.showPlayButtons.setChecked(self.prof.get("showPlayButtons", True))
         self.form.nightMode.setChecked(self.mw.pm.night_mode())
-        self.form.nightMode.setChecked(self.mw.pm.night_mode())
         self.form.enableSyntaxHighlight.setChecked(self.mw.pm.syntax_highlight())
         self.form.interrupt_audio.setChecked(self.mw.pm.interrupt_audio())
 

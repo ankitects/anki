@@ -21,15 +21,27 @@ export interface GraphData {
 }
 
 export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
+    const isLearning = (queue: number): boolean =>
+        [CardQueue.Learn, CardQueue.PreviewRepeat].includes(queue);
     const due = (data.cards as pb.BackendProto.Card[])
         .filter(
             (c) =>
                 // reviews
                 [CardQueue.Review, CardQueue.DayLearn].includes(c.queue) ||
                 // or learning cards due today
-                (c.queue == CardQueue.Learn && c.due < data.nextDayAtSecs)
+                (isLearning(c.queue) && c.due < data.nextDayAtSecs)
         )
-        .map((c) => (c.queue == CardQueue.Learn ? 0 : c.due - data.daysElapsed));
+        .map((c) => {
+            if (isLearning(c.queue)) {
+                return 0;
+            } else {
+                // - testing just odue fails on day 1
+                // - testing just odid fails on lapsed cards that
+                //   have due calculated at regraduation time
+                const due = c.odid && c.odue ? c.odue : c.due;
+                return due - data.daysElapsed;
+            }
+        });
 
     const dueCounts = rollup(
         due,

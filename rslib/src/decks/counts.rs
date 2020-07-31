@@ -19,12 +19,7 @@ impl Collection {
         learn_cutoff: u32,
         limit_to: Option<&str>,
     ) -> Result<HashMap<DeckID, DueCounts>> {
-        if let Some(limit) = limit_to {
-            self.storage
-                .due_counts_limited(self.sched_ver(), days_elapsed, learn_cutoff, limit)
-        } else {
-            self.storage
-                .due_counts(self.sched_ver(), days_elapsed, learn_cutoff)
-        }
+        self.storage
+            .due_counts(self.sched_ver(), days_elapsed, learn_cutoff, limit_to)
     }
 }

@@ -72,7 +72,7 @@ class LoadMetaResult:
 class AnkiRestart(SystemExit):
     def __init__(self, *args, **kwargs):
         self.exitcode = kwargs.pop("exitcode", 0)
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)  # type: ignore
 
 
 class ProfileManager:
@@ -83,6 +83,7 @@ class ProfileManager:
         self.db = None
         self.profile: Optional[Dict] = None
         # instantiate base folder
+        self.base: str
         self._setBaseFolder(base)
 
     def setupMeta(self) -> LoadMetaResult:
@@ -92,7 +93,7 @@ class ProfileManager:
         return res
 
     # profile load on startup
-    def openProfile(self, profile):
+    def openProfile(self, profile) -> None:
         if profile:
             if profile not in self.profiles():
                 QMessageBox.critical(None, "Error", "Requested profile does not exist.")
@@ -105,13 +106,13 @@ class ProfileManager:
     # Base creation
     ######################################################################
 
-    def ensureBaseExists(self):
+    def ensureBaseExists(self) -> None:
         self._ensureExists(self.base)
 
     # Folder migration
     ######################################################################
 
-    def _oldFolderLocation(self):
+    def _oldFolderLocation(self) -> str:
         if isMac:
             return os.path.expanduser("~/Documents/Anki")
         elif isWin:
@@ -153,7 +154,7 @@ class ProfileManager:
         confirmation = QMessageBox()
         confirmation.setIcon(QMessageBox.Warning)
         confirmation.setWindowIcon(icon)
-        confirmation.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        confirmation.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)  # type: ignore
         confirmation.setWindowTitle(window_title)
         confirmation.setText(
             "Anki needs to move its data folder from Documents/Anki to a new location. Proceed?"
@@ -168,7 +169,7 @@ class ProfileManager:
             progress.setWindowTitle(window_title)
             progress.setText("Please wait...")
             progress.show()
-            app.processEvents()
+            app.processEvents()  # type: ignore
 
             shutil.move(oldBase, self.base)
             progress.hide()
@@ -198,8 +199,8 @@ class ProfileManager:
     # Profile load/save
     ######################################################################
 
-    def profiles(self):
-        def names():
+    def profiles(self) -> List:
+        def names() -> List:
             return self.db.list("select name from profiles where name != '_global'")
 
         n = names()
@@ -209,9 +210,9 @@ class ProfileManager:
 
         return n
 
-    def _unpickle(self, data):
+    def _unpickle(self, data) -> Any:
         class Unpickler(pickle.Unpickler):
-            def find_class(self, module, name):
+            def find_class(self, module: str, name: str) -> Any:
                 if module == "PyQt5.sip":
                     try:
                         import PyQt5.sip  # pylint: disable=unused-import
@@ -234,10 +235,10 @@ class ProfileManager:
         up = Unpickler(io.BytesIO(data), errors="ignore")
         return up.load()
 
-    def _pickle(self, obj):
+    def _pickle(self, obj) -> Any:
         return pickle.dumps(obj, protocol=0)
 
-    def load(self, name):
+    def load(self, name) -> bool:
         assert name != "_global"
         data = self.db.scalar(
             "select cast(data as blob) from profiles where name = ?", name
@@ -265,32 +266,32 @@ details have been forgotten."""
             aqtUtils.QsciEnabled = self.syntax_highlight()
         return True
 
-    def save(self):
+    def save(self) -> None:
         sql = "update profiles set data = ? where name = ?"
         self.db.execute(sql, self._pickle(self.profile), self.name)
         self.db.execute(sql, self._pickle(self.meta), "_global")
         self.db.commit()
 
-    def create(self, name):
+    def create(self, name) -> None:
         prof = profileConf.copy()
         self.db.execute(
             "insert or ignore into profiles values (?, ?)", name, self._pickle(prof)
         )
         self.db.commit()
 
-    def remove(self, name):
+    def remove(self, name) -> None:
         p = self.profileFolder()
         if os.path.exists(p):
             send2trash(p)
         self.db.execute("delete from profiles where name = ?", name)
         self.db.commit()
 
-    def trashCollection(self):
+    def trashCollection(self) -> None:
         p = self.collectionPath()
         if os.path.exists(p):
             send2trash(p)
 
-    def rename(self, name):
+    def rename(self, name) -> None:
         oldName = self.name
         oldFolder = self.profileFolder()
         self.name = name
@@ -341,19 +342,19 @@ and no other programs are accessing your profile folders, then try again."""
     # Folder handling
     ######################################################################
 
-    def profileFolder(self, create=True):
+    def profileFolder(self, create=True) -> str:
         path = os.path.join(self.base, self.name)
         if create:
             self._ensureExists(path)
         return path
 
-    def addonFolder(self):
+    def addonFolder(self) -> str:
         return self._ensureExists(os.path.join(self.base, "addons21"))
 
-    def backupFolder(self):
+    def backupFolder(self) -> str:
         return self._ensureExists(os.path.join(self.profileFolder(), "backups"))
 
-    def collectionPath(self):
+    def collectionPath(self) -> str:
         return os.path.join(self.profileFolder(), "collection.anki2")
 
     # Downgrade
@@ -381,12 +382,12 @@ and no other programs are accessing your profile folders, then try again."""
     # Helpers
     ######################################################################
 
-    def _ensureExists(self, path):
+    def _ensureExists(self, path: str) -> str:
         if not os.path.exists(path):
             os.makedirs(path)
         return path
 
-    def _setBaseFolder(self, cmdlineBase):
+    def _setBaseFolder(self, cmdlineBase: None) -> None:
         if cmdlineBase:
             self.base = os.path.abspath(cmdlineBase)
         elif os.environ.get("ANKI_BASE"):
@@ -396,7 +397,7 @@ and no other programs are accessing your profile folders, then try again."""
             self.maybeMigrateFolder()
         self.ensureBaseExists()
 
-    def _defaultBase(self):
+    def _defaultBase(self) -> str:
         if isWin:
             from aqt.winpaths import get_appdata
 
@@ -423,7 +424,7 @@ and no other programs are accessing your profile folders, then try again."""
 
         result.firstTime = not os.path.exists(path)
 
-        def recover():
+        def recover() -> None:
             # if we can't load profile, start with a new one
             if self.db:
                 try:
@@ -475,7 +476,7 @@ create table if not exists profiles
         )
         return result
 
-    def _ensureProfile(self):
+    def _ensureProfile(self) -> None:
         "Create a new profile if none exists."
         self.create(_("User 1"))
         p = os.path.join(self.base, "README.txt")
@@ -490,7 +491,7 @@ create table if not exists profiles
     ######################################################################
     # On first run, allow the user to choose the default language
 
-    def setDefaultLang(self):
+    def setDefaultLang(self) -> None:
         # create dialog
         class NoCloseDiag(QDialog):
             def reject(self):
@@ -523,20 +524,20 @@ create table if not exists profiles
         f.lang.setCurrentRow(idx)
         d.exec_()
 
-    def _onLangSelected(self):
+    def _onLangSelected(self) -> None:
         f = self.langForm
         obj = anki.lang.langs[f.lang.currentRow()]
         code = obj[1]
         name = obj[0]
         en = "Are you sure you wish to display Anki's interface in %s?"
         r = QMessageBox.question(
-            None, "Anki", en % name, QMessageBox.Yes | QMessageBox.No, QMessageBox.No
+            None, "Anki", en % name, QMessageBox.Yes | QMessageBox.No, QMessageBox.No  # type: ignore
         )
         if r != QMessageBox.Yes:
             return self.setDefaultLang()
         self.setLang(code)
 
-    def setLang(self, code):
+    def setLang(self, code) -> None:
         self.meta["defaultLang"] = code
         sql = "update profiles set data = ? where name = ?"
         self.db.execute(sql, self._pickle(self.meta), "_global")
@@ -546,10 +547,10 @@ create table if not exists profiles
     # OpenGL
     ######################################################################
 
-    def _glPath(self):
+    def _glPath(self) -> str:
         return os.path.join(self.base, "gldriver")
 
-    def glMode(self):
+    def glMode(self) -> str:
         if isMac:
             return "auto"
 
@@ -566,11 +567,11 @@ create table if not exists profiles
             return mode
         return "auto"
 
-    def setGlMode(self, mode):
+    def setGlMode(self, mode) -> None:
         with open(self._glPath(), "w") as file:
             file.write(mode)
 
-    def nextGlMode(self):
+    def nextGlMode(self) -> None:
         mode = self.glMode()
         if mode == "software":
             self.setGlMode("auto")
@@ -595,7 +596,7 @@ create table if not exists profiles
     def last_addon_update_check(self) -> int:
         return self.meta.get("last_addon_update_check", 0)
 
-    def set_last_addon_update_check(self, secs):
+    def set_last_addon_update_check(self, secs) -> None:
         self.meta["last_addon_update_check"] = secs
 
     def night_mode(self) -> bool:
@@ -655,7 +656,7 @@ create table if not exists profiles
     def auto_sync_media_minutes(self) -> int:
         return self.profile.get("autoSyncMediaMinutes", 15)
 
-    def set_auto_sync_media_minutes(self, val: int):
+    def set_auto_sync_media_minutes(self, val: int) -> None:
         self.profile["autoSyncMediaMinutes"] = val
 
     ######################################################################

@@ -229,9 +229,7 @@ impl NoteType {
                 }
             });
         if let Some(idx) = invalid_card_idx {
-            return Err(AnkiError::TemplateError {
-                info: format!("invalid card {}", idx + 1),
-            });
+            return Err(AnkiError::TemplateSaveError { ordinal: idx });
         }
         let reqs = self.updated_requirements(&parsed_templates);
 

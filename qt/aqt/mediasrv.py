@@ -87,7 +87,6 @@ class MediaServer(threading.Thread):
         return int(self.server.effective_port)
 
 
-@app.route("/", defaults={"path": ""})
 @app.route("/<path:pathin>", methods=["GET", "POST"])
 def allroutes(pathin):
     try:

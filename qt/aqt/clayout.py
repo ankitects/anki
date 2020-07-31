@@ -55,7 +55,9 @@ class CardLayout(QDialog):
         self.mm = self.mw.col.models
         self.model = note.model()
         self.templates = self.model["tmpls"]
-        self._want_fill_empty_on = fill_empty
+        self.fill_empty_action_toggled = fill_empty
+        self.night_mode_is_enabled = self.mw.pm.night_mode()
+        self.mobile_class_action_toggled = False
         self.have_autoplayed = False
         self.mm._remove_from_cache(self.model["id"])
         self.mw.checkpoint(_("Card Types"))
@@ -307,12 +309,11 @@ class CardLayout(QDialog):
         pform.preview_front.isChecked()
         qconnect(pform.preview_front.clicked, self.on_preview_toggled)
         qconnect(pform.preview_back.clicked, self.on_preview_toggled)
-        if self._want_fill_empty_on:
-            pform.fill_empty.setChecked(True)
-        qconnect(pform.fill_empty.toggled, self.on_preview_toggled)
-        if not self.note_has_empty_field():
-            pform.fill_empty.setHidden(True)
-        pform.fill_empty.setText(tr(TR.CARD_TEMPLATES_FILL_EMPTY))
+        pform.preview_settings.setText(
+            tr(TR.CARD_TEMPLATES_PREVIEW_SETTINGS) + " " + downArrow()
+        )
+        qconnect(pform.preview_settings.clicked, self.on_preview_settings)
+
         jsinc = [
             "jquery.js",
             "browsersel.js",
@@ -341,6 +342,40 @@ class CardLayout(QDialog):
         else:
             self.cloze_numbers = []
             self.pform.cloze_number_combo.setHidden(True)
+
+    def on_fill_empty_action_toggled(self):
+        self.fill_empty_action_toggled = not self.fill_empty_action_toggled
+        self.on_preview_toggled()
+
+    def on_night_mode_action_toggled(self):
+        self.night_mode_is_enabled = not self.night_mode_is_enabled
+        self.on_preview_toggled()
+
+    def on_mobile_class_action_toggled(self):
+        self.mobile_class_action_toggled = not self.mobile_class_action_toggled
+        self.on_preview_toggled()
+
+    def on_preview_settings(self):
+        m = QMenu(self)
+
+        a = m.addAction(tr(TR.CARD_TEMPLATES_FILL_EMPTY))
+        a.setCheckable(True)
+        a.setChecked(self.fill_empty_action_toggled)
+        qconnect(a.triggered, self.on_fill_empty_action_toggled)
+        if not self.note_has_empty_field():
+            a.setVisible(False)
+
+        a = m.addAction(tr(TR.CARD_TEMPLATES_NIGHT_MODE))
+        a.setCheckable(True)
+        a.setChecked(self.night_mode_is_enabled)
+        qconnect(a.triggered, self.on_night_mode_action_toggled)
+
+        a = m.addAction(tr(TR.CARD_TEMPLATES_ADD_MOBILE_CLASS))
+        a.setCheckable(True)
+        a.setChecked(self.mobile_class_action_toggled)
+        qconnect(a.toggled, self.on_mobile_class_action_toggled)
+
+        m.exec_(self.pform.preview_settings.mapToGlobal(QPoint(0, 0)))
 
     def on_preview_toggled(self):
         self.have_autoplayed = False
@@ -448,7 +483,11 @@ class CardLayout(QDialog):
 
         ti = self.maybeTextInput
 
-        bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
+        bodyclass = theme_manager.body_classes_for_card_ord(
+            c.ord, self.night_mode_is_enabled
+        )
+        if self.mobile_class_action_toggled:
+            bodyclass += " mobile"
 
         if not self.have_autoplayed:
             self.preview_web.eval("ankimedia._reset();")
@@ -517,7 +556,7 @@ class CardLayout(QDialog):
             card,
             notetype=self.model,
             template=template,
-            fill_empty=self.pform.fill_empty.isChecked(),
+            fill_empty=self.fill_empty_action_toggled,
         ).render()
         card.set_render_output(output)
         return card
@@ -779,10 +818,10 @@ Enter deck to place new %s cards in, or leave blank:"""
             try:
                 fut.result()
             except TemplateError as e:
-                showWarning("Unable to save changes: " + str(e))
+                showWarning(str(e))
                 return
             self.mw.reset()
-            tooltip("Changes saved.", parent=self.parent())
+            tooltip(tr(TR.CARD_TEMPLATES_CHANGES_SAVED), parent=self.parent())
             self.cleanup()
             gui_hooks.sidebar_should_refresh_notetypes()
             return QDialog.accept(self)
@@ -791,7 +830,7 @@ Enter deck to place new %s cards in, or leave blank:"""
 
     def reject(self) -> None:
         if self.change_tracker.changed():
-            if not askUser("Discard changes?"):
+            if not askUser(tr(TR.CARD_TEMPLATES_DISCARD_CHANGES)):
                 return
         self.cleanup()
         return QDialog.reject(self)

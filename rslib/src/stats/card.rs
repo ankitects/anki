@@ -189,12 +189,13 @@ impl Collection {
         stats.push((i18n.tr(TR::CardStatsCardTemplate).into(), cs.card_type));
         stats.push((i18n.tr(TR::CardStatsNoteType).into(), cs.note_type));
         stats.push((i18n.tr(TR::CardStatsDeckName).into(), cs.deck));
-        stats.push((i18n.tr(TR::CardStatsNoteId).into(), cs.cid.0.to_string()));
-        stats.push((i18n.tr(TR::CardStatsCardId).into(), cs.nid.0.to_string()));
+        stats.push((i18n.tr(TR::CardStatsCardId).into(), cs.cid.0.to_string()));
+        stats.push((i18n.tr(TR::CardStatsNoteId).into(), cs.nid.0.to_string()));
 
         let revlog = cs
             .revlog
             .into_iter()
+            .rev()
             .map(|e| revlog_to_text(e, i18n, offset))
             .collect();
         let revlog_titles = RevlogText {

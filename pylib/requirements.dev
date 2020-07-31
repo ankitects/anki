@@ -2,7 +2,8 @@ wheel
 mypy
 mypy_protobuf>=1.21
 black
-pytest
+# fixme: remove pin when https://github.com/pytest-dev/pytest/issues/7558 closed
+pytest<6
 # fixme: when isort 5.0 is released, switch to pypi
 git+https://github.com/ankitects/isort#egg=isort
 # fixme: when pylint supports isort 5.0, switch to pypi

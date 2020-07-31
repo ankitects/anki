@@ -85,10 +85,10 @@ class EmptyCardsDialog(QDialog):
 
         self.mw.taskman.run_in_background(delete, on_done)
 
-    def _delete_cards(self, keep_notes):
+    def _delete_cards(self, keep_notes: bool) -> int:
         to_delete = []
+        note: NoteWithEmptyCards
         for note in self.report.notes:
-            note: NoteWithEmptyCards = note
             if keep_notes and note.will_delete_note:
                 # leave first card
                 to_delete.extend(note.card_ids[1:])

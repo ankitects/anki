@@ -457,7 +457,11 @@ def _run(argv=None, exec=True):
     if os.environ.get("ANKI_SOFTWAREOPENGL"):
         QCoreApplication.setAttribute(Qt.AA_UseSoftwareOpenGL)
 
-    if isWin and qtminor == 15 and qtpoint == 0:
+    if (
+        isWin
+        and (qtminor == 14 or (qtminor == 15 and qtpoint == 0))
+        and "QT_QPA_PLATFORM" not in os.environ
+    ):
         os.environ["QT_QPA_PLATFORM"] = "windows:altgr"
 
     # create the app
