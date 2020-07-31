@@ -340,7 +340,7 @@ class CardLayout(QDialog):
         if not self.note_has_empty_field():
             a.setVisible(False)
 
-        a = m.addAction(tr(TR.CARD_TEMPLATES_INVERT_NIGHT_MODE))
+        a = m.addAction(tr(TR.CARD_TEMPLATES_NIGHT_MODE))
         a.setCheckable(True)
         a.setChecked(self.night_mode_action_toggled)
         qconnect(a.triggered, self.on_night_mode_action_toggled)
