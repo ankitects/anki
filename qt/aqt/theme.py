@@ -3,7 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import platform
-from typing import Dict
+from typing import Dict, Optional
 
 from anki.utils import isMac
 from aqt import QApplication, gui_hooks, isWin
@@ -54,7 +54,7 @@ class ThemeManager:
 
         return cache.setdefault(path, icon)
 
-    def body_class(self) -> str:
+    def body_class(self, night_mode: Optional[bool] = None) -> str:
         "Returns space-separated class list for platform/theme."
         classes = []
         if isWin:
@@ -63,15 +63,20 @@ class ThemeManager:
             classes.append("isMac")
         else:
             classes.append("isLin")
-        if self.night_mode:
+
+        if night_mode is None:
+            night_mode = self.night_mode
+        if night_mode:
             classes.extend(["nightMode", "night_mode"])
             if self.macos_dark_mode():
                 classes.append("macos-dark-mode")
         return " ".join(classes)
 
-    def body_classes_for_card_ord(self, card_ord: int) -> str:
+    def body_classes_for_card_ord(
+        self, card_ord: int, night_mode: Optional[bool] = None
+    ) -> str:
         "Returns body classes used when showing a card."
-        return f"card card{card_ord+1} {self.body_class()}"
+        return f"card card{card_ord+1} {self.body_class(night_mode)}"
 
     def str_color(self, key: str) -> str:
         """Get a color defined in _vars.scss
