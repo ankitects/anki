@@ -10,9 +10,8 @@ import { CardQueue } from "../cards";
 import pb from "../backend/proto";
 import { schemeGreens, schemeBlues } from "d3-scale-chromatic";
 import "d3-transition";
-import { select, mouse } from "d3-selection";
+import { select } from "d3-selection";
 import { scaleLinear } from "d3-scale";
-import { showTooltip, hideTooltip } from "./tooltip";
 import { GraphBounds } from "./graphs";
 import { cumsum } from "d3-array";
 import { I18n } from "../i18n";
@@ -98,7 +97,7 @@ function barColour(idx: number): string {
     }
 }
 
-interface SummedDatum {
+export interface SummedDatum {
     label: string;
     // count of this particular item
     count: number;
@@ -107,11 +106,19 @@ interface SummedDatum {
     total: number;
 }
 
+export interface TableDatum {
+    label: string;
+    count: number;
+    percent: string;
+    colour: string;
+}
+
 export function renderCards(
     svgElem: SVGElement,
     bounds: GraphBounds,
-    sourceData: GraphData
-): void {
+    sourceData: GraphData,
+    onHover: (idx: null | number) => void
+): TableDatum[] {
     const summed = cumsum(sourceData.counts, (d) => d[1]);
     const data = Array.from(summed).map((n, idx) => {
         const count = sourceData.counts[idx];
@@ -131,32 +138,20 @@ export function renderCards(
 
     x.range([bounds.marginLeft, bounds.width - bounds.marginRight - bounds.marginLeft]);
 
-    const tooltipText = (current: SummedDatum): string => {
-        const rows: string[] = [];
-        for (const [idx, d] of data.entries()) {
-            const pct = ((d.count / xMax) * 100).toFixed(2);
-            const colour = `<span style="color: ${barColour(idx)};">■</span>`;
-            let label = `${colour} ${d.label}`;
-            if (idx === current.idx) {
-                label = `<b>${label}</b>`;
-            }
-            const count = d.count;
-            const pctStr = `${pct}%`;
-            const row = `<tr>
-            <td>${label}</td>
-            <td align=right>${count}</td>
-            <td align=right>${pctStr}</td>
-            </tr>`;
-            rows.push(row);
-        }
-        return `<table>${rows.join("")}</table>`;
-    };
+    const tableData = data.map((d, idx) => {
+        const percent = ((d.count / xMax) * 100).toFixed(1);
+        return {
+            label: d.label,
+            count: d.count,
+            percent: `${percent}%`,
+            colour: barColour(idx),
+        } as TableDatum;
+    });
 
     const updateBar = (sel: any): any => {
         return sel
             .on("mousemove", function (this: any, d: SummedDatum) {
-                const [x, y] = mouse(document.body);
-                showTooltip(tooltipText(d), x, y);
+                onHover(d.idx);
             })
             .transition(trans)
             .attr("x", (d: SummedDatum) => x(d.total - d.count))
@@ -173,8 +168,10 @@ export function renderCards(
                     .attr("height", 10)
                     .attr("y", bounds.marginTop)
                     .attr("fill", (d: SummedDatum): any => barColour(d.idx))
-                    .on("mouseout", hideTooltip)
+                    .on("mouseout", () => onHover(null))
                     .call((d) => updateBar(d)),
             (update) => update.call((d) => updateBar(d))
         );
+
+    return tableData;
 }
