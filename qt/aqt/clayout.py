@@ -56,7 +56,7 @@ class CardLayout(QDialog):
         self.model = note.model()
         self.templates = self.model["tmpls"]
         self.fill_empty_action_toggled = fill_empty
-        self.night_mode_action_toggled = self.mw.pm.night_mode()
+        self.night_mode_is_enabled = self.mw.pm.night_mode()
         self.mobile_class_action_toggled = False
         self.have_autoplayed = False
         self.mm._remove_from_cache(self.model["id"])
@@ -323,7 +323,7 @@ class CardLayout(QDialog):
         self.on_preview_toggled()
 
     def on_night_mode_action_toggled(self):
-        self.night_mode_action_toggled = not self.night_mode_action_toggled
+        self.night_mode_is_enabled = not self.night_mode_is_enabled
         self.on_preview_toggled()
 
     def on_mobile_class_action_toggled(self):
@@ -342,7 +342,7 @@ class CardLayout(QDialog):
 
         a = m.addAction(tr(TR.CARD_TEMPLATES_NIGHT_MODE))
         a.setCheckable(True)
-        a.setChecked(self.night_mode_action_toggled)
+        a.setChecked(self.night_mode_is_enabled)
         qconnect(a.triggered, self.on_night_mode_action_toggled)
 
         a = m.addAction(tr(TR.CARD_TEMPLATES_ADD_MOBILE_CLASS))
@@ -458,9 +458,9 @@ class CardLayout(QDialog):
 
         ti = self.maybeTextInput
 
-        theme_manager.set_night_mode(self.night_mode_action_toggled)
-
-        bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
+        bodyclass = theme_manager.body_classes_for_card_ord(
+            c.ord, self.night_mode_is_enabled
+        )
         if self.mobile_class_action_toggled:
             bodyclass += " mobile"
 
@@ -788,7 +788,6 @@ Enter deck to place new %s cards in, or leave blank:"""
             except TemplateError as e:
                 showWarning(str(e))
                 return
-            theme_manager.set_night_mode(self.mw.pm.night_mode())
             self.mw.reset()
             tooltip(tr(TR.CARD_TEMPLATES_CHANGES_SAVED), parent=self.parent())
             self.cleanup()
@@ -812,7 +811,6 @@ Enter deck to place new %s cards in, or leave blank:"""
         self.preview_web = None
         self.model = None
         self.rendered_card = None
-        theme_manager.set_night_mode(self.mw.pm.night_mode())
         self.mw = None
 
     def onHelp(self):
