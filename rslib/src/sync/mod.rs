@@ -246,6 +246,14 @@ impl Usn {
             "usn >= ?"
         }
     }
+
+    pub(crate) fn is_pending_sync(self, pending_usn: Usn) -> bool {
+        if pending_usn.0 == -1 {
+            self.0 == -1
+        } else {
+            self.0 >= pending_usn.0
+        }
+    }
 }
 
 impl SyncMeta {
@@ -367,7 +375,7 @@ where
         debug!(self.col.log, "unchunked changes");
         self.process_unchunked_changes(&state).await?;
         debug!(self.col.log, "begin stream from server");
-        self.process_chunks_from_server().await?;
+        self.process_chunks_from_server(&state).await?;
         debug!(self.col.log, "begin stream to server");
         self.send_chunks_to_server(&state).await?;
 
@@ -467,7 +475,7 @@ where
         Ok(())
     }
 
-    async fn process_chunks_from_server(&mut self) -> Result<()> {
+    async fn process_chunks_from_server(&mut self, state: &SyncState) -> Result<()> {
         loop {
             let chunk: Chunk = self.remote.chunk().await?;
 
@@ -482,7 +490,7 @@ where
                 chunk.cards.len() + chunk.notes.len() + chunk.revlog.len();
 
             let done = chunk.done;
-            self.col.apply_chunk(chunk)?;
+            self.col.apply_chunk(chunk, state.pending_usn)?;
 
             self.fire_progress_cb(true);
 
@@ -883,10 +891,10 @@ impl Collection {
     // Remote->local chunks
     //----------------------------------------------------------------
 
-    fn apply_chunk(&mut self, chunk: Chunk) -> Result<()> {
+    fn apply_chunk(&mut self, chunk: Chunk, pending_usn: Usn) -> Result<()> {
         self.merge_revlog(chunk.revlog)?;
-        self.merge_cards(chunk.cards)?;
-        self.merge_notes(chunk.notes)
+        self.merge_cards(chunk.cards, pending_usn)?;
+        self.merge_notes(chunk.notes, pending_usn)
     }
 
     fn merge_revlog(&self, entries: Vec<RevlogEntry>) -> Result<()> {
@@ -896,16 +904,16 @@ impl Collection {
         Ok(())
     }
 
-    fn merge_cards(&self, entries: Vec<CardEntry>) -> Result<()> {
+    fn merge_cards(&self, entries: Vec<CardEntry>, pending_usn: Usn) -> Result<()> {
         for entry in entries {
-            self.add_or_update_card_if_newer(entry)?;
+            self.add_or_update_card_if_newer(entry, pending_usn)?;
         }
         Ok(())
     }
 
-    fn add_or_update_card_if_newer(&self, entry: CardEntry) -> Result<()> {
+    fn add_or_update_card_if_newer(&self, entry: CardEntry, pending_usn: Usn) -> Result<()> {
         let proceed = if let Some(existing_card) = self.storage.get_card(entry.id)? {
-            existing_card.mtime < entry.mtime
+            !existing_card.usn.is_pending_sync(pending_usn) || existing_card.mtime < entry.mtime
         } else {
             true
         };
@@ -916,16 +924,16 @@ impl Collection {
         Ok(())
     }
 
-    fn merge_notes(&mut self, entries: Vec<NoteEntry>) -> Result<()> {
+    fn merge_notes(&mut self, entries: Vec<NoteEntry>, pending_usn: Usn) -> Result<()> {
         for entry in entries {
-            self.add_or_update_note_if_newer(entry)?;
+            self.add_or_update_note_if_newer(entry, pending_usn)?;
         }
         Ok(())
     }
 
-    fn add_or_update_note_if_newer(&mut self, entry: NoteEntry) -> Result<()> {
+    fn add_or_update_note_if_newer(&mut self, entry: NoteEntry, pending_usn: Usn) -> Result<()> {
         let proceed = if let Some(existing_note) = self.storage.get_note(entry.id)? {
-            existing_note.mtime < entry.mtime
+            !existing_note.usn.is_pending_sync(pending_usn) || existing_note.mtime < entry.mtime
         } else {
             true
         };
