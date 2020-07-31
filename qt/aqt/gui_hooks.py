@@ -2121,7 +2121,7 @@ class _ReviewerWillPlayAnswerSoundsHook:
         This won't be called when the user manually plays sounds
         using `Replay Audio`.
 
-        Not that this hook is called even when the `Automatically play audio`
+        Note that this hook is called even when the `Automatically play audio`
         option is unchecked; This is so as to allow playing custom
         sounds regardless of that option."""
 
@@ -2160,7 +2160,7 @@ class _ReviewerWillPlayQuestionSoundsHook:
         This won't be called when the user manually plays sounds
         using `Replay Audio`.
 
-        Not that this hook is called even when the `Automatically play audio`
+        Note that this hook is called even when the `Automatically play audio`
         option is unchecked; This is so as to allow playing custom
         sounds regardless of that option."""
 
