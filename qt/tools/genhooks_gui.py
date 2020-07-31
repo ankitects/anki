@@ -101,7 +101,7 @@ hooks = [
         This won't be called when the user manually plays sounds
         using `Replay Audio`.
 
-        Not that this hook is called even when the `Automatically play audio`
+        Note that this hook is called even when the `Automatically play audio`
         option is unchecked; This is so as to allow playing custom
         sounds regardless of that option.""",
     ),
@@ -116,7 +116,7 @@ hooks = [
         This won't be called when the user manually plays sounds
         using `Replay Audio`.
 
-        Not that this hook is called even when the `Automatically play audio`
+        Note that this hook is called even when the `Automatically play audio`
         option is unchecked; This is so as to allow playing custom
         sounds regardless of that option.""",
     ),
