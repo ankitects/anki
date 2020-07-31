@@ -2113,6 +2113,18 @@ reviewer_will_end = _ReviewerWillEndHook()
 
 
 class _ReviewerWillPlayAnswerSoundsHook:
+    """Called before showing the answer/back side.
+
+        `tags` can be used to inspect and manipulate the sounds
+        that will be played (if any).
+
+        This won't be called when the user manually plays sounds
+        using `Replay Audio`.
+
+        Not that this hook is called even when the `Automatically play audio`
+        option is unchecked; This is so as to allow playing custom
+        sounds regardless of that option."""
+
     _hooks: List[Callable[[Card, "List[anki.sound.AVTag]"], None]] = []
 
     def append(self, cb: Callable[[Card, "List[anki.sound.AVTag]"], None]) -> None:
@@ -2140,6 +2152,18 @@ reviewer_will_play_answer_sounds = _ReviewerWillPlayAnswerSoundsHook()
 
 
 class _ReviewerWillPlayQuestionSoundsHook:
+    """Called before showing the question/front side.
+
+        `tags` can be used to inspect and manipulate the sounds
+        that will be played (if any).
+
+        This won't be called when the user manually plays sounds
+        using `Replay Audio`.
+
+        Not that this hook is called even when the `Automatically play audio`
+        option is unchecked; This is so as to allow playing custom
+        sounds regardless of that option."""
+
     _hooks: List[Callable[[Card, "List[anki.sound.AVTag]"], None]] = []
 
     def append(self, cb: Callable[[Card, "List[anki.sound.AVTag]"], None]) -> None:
