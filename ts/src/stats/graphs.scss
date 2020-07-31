@@ -36,6 +36,7 @@ body {
     margin-left: auto;
     margin-right: auto;
     max-width: 80em;
+    page-break-inside: avoid;
 }
 
 .graph h1 {
@@ -65,6 +66,12 @@ body {
     color: $day-fg;
     background: $day-bg;
     padding: 0.5em;
+}
+
+@media print {
+    .range-box {
+        position: absolute;
+    }
 }
 
 .range-box-pad {
