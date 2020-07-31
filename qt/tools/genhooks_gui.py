@@ -90,6 +90,36 @@ hooks = [
         legacy_hook="reviewCleanup",
         doc="Called before Anki transitions from the review screen to another screen.",
     ),
+    Hook(
+        name="reviewer_will_play_question_sounds",
+        args=["card: Card", "tags: List[anki.sound.AVTag]"],
+        doc="""Called before showing the question/front side.
+
+        `tags` can be used to inspect and manipulate the sounds
+        that will be played (if any).
+
+        This won't be called when the user manually plays sounds
+        using `Replay Audio`.
+
+        Note that this hook is called even when the `Automatically play audio`
+        option is unchecked; This is so as to allow playing custom
+        sounds regardless of that option.""",
+    ),
+    Hook(
+        name="reviewer_will_play_answer_sounds",
+        args=["card: Card", "tags: List[anki.sound.AVTag]"],
+        doc="""Called before showing the answer/back side.
+
+        `tags` can be used to inspect and manipulate the sounds
+        that will be played (if any).
+
+        This won't be called when the user manually plays sounds
+        using `Replay Audio`.
+
+        Note that this hook is called even when the `Automatically play audio`
+        option is unchecked; This is so as to allow playing custom
+        sounds regardless of that option.""",
+    ),
     # Debug
     ###################
     Hook(
