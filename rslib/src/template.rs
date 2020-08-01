@@ -689,12 +689,12 @@ fn rename_and_remove_fields(
                     // remove the field, preserving children
                     Some(None) => out.extend(children),
                     // rename it
-                    Some(Some(new_name)) => out.push(ParsedNode::Conditional {
+                    Some(Some(new_name)) => out.push(ParsedNode::NegatedConditional {
                         key: new_name.into(),
                         children,
                     }),
                     // or leave it alone
-                    None => out.push(ParsedNode::Conditional { key, children }),
+                    None => out.push(ParsedNode::NegatedConditional { key, children }),
                 }
             }
         }
