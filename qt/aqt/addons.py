@@ -179,7 +179,7 @@ class AddonManager:
         sys.path.insert(0, self.addonsFolder())
 
     # in new code, you may want all_addon_meta() instead
-    def allAddons(self) -> Iterable[str]:
+    def allAddons(self) -> List[str]:
         l = []
         for d in os.listdir(self.addonsFolder()):
             path = self.addonsFolder(d)
@@ -188,8 +188,8 @@ class AddonManager:
             l.append(d)
         l.sort()
         if os.getenv("ANKIREVADDONS", ""):
-            it = reversed(l)
-        return it
+            l = list(reversed(l))
+        return l
 
     def all_addon_meta(self) -> Iterable[AddonMeta]:
         return map(self.addon_meta, self.allAddons())
