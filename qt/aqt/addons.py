@@ -171,7 +171,7 @@ class AddonManager:
         "required": ["package", "name"],
     }
 
-    def __init__(self, mw: aqt.main.AnkiQt):
+    def __init__(self, mw: aqt.main.AnkiQt) -> None:
         self.mw = mw
         self.dirty = False
         f = self.mw.form
@@ -179,7 +179,7 @@ class AddonManager:
         sys.path.insert(0, self.addonsFolder())
 
     # in new code, you may want all_addon_meta() instead
-    def allAddons(self) -> List[str]:
+    def allAddons(self) -> Iterable[str]:
         l = []
         for d in os.listdir(self.addonsFolder()):
             path = self.addonsFolder(d)
@@ -188,13 +188,13 @@ class AddonManager:
             l.append(d)
         l.sort()
         if os.getenv("ANKIREVADDONS", ""):
-            l = list(reversed(l))
-        return l
+            it = reversed(l)
+        return it
 
     def all_addon_meta(self) -> Iterable[AddonMeta]:
         return map(self.addon_meta, self.allAddons())
 
-    def addonsFolder(self, dir=None):
+    def addonsFolder(self, dir=None) -> str:
         root = self.mw.pm.addonFolder()
         if not dir:
             return root
@@ -218,7 +218,7 @@ class AddonManager:
                     )
                 )
 
-    def onAddonsDialog(self):
+    def onAddonsDialog(self) -> None:
         AddonsDialog(self)
 
     # Metadata
@@ -246,7 +246,7 @@ class AddonManager:
 
         self.writeAddonMeta(addon.dir_name, json_obj)
 
-    def _addonMetaPath(self, dir):
+    def _addonMetaPath(self, dir: str) -> str:
         return os.path.join(self.addonsFolder(dir), "meta.json")
 
     # in new code, use self.addon_meta() instead
@@ -263,7 +263,7 @@ class AddonManager:
             return dict()
 
     # in new code, use write_addon_meta() instead
-    def writeAddonMeta(self, dir, meta):
+    def writeAddonMeta(self, dir: str, meta: Dict[str, Any]) -> None:
         path = self._addonMetaPath(dir)
         with open(path, "w", encoding="utf8") as f:
             json.dump(meta, f)
@@ -303,7 +303,7 @@ and have been disabled: %(found)s"
     def addonName(self, dir: str) -> str:
         return self.addon_meta(dir).human_name()
 
-    def addonConflicts(self, dir) -> List[str]:
+    def addonConflicts(self, dir: str) -> List[str]:
         return self.addon_meta(dir).conflicts
 
     def annotatedName(self, dir: str) -> str:
@@ -325,7 +325,7 @@ and have been disabled: %(found)s"
                 all_conflicts[other_dir].append(addon.dir_name)
         return all_conflicts
 
-    def _disableConflicting(self, dir, conflicts=None):
+    def _disableConflicting(self, dir: str, conflicts: List[str] = None) -> List[str]:
         conflicts = conflicts or self.addonConflicts(dir)
 
         installed = self.allAddons()
@@ -342,7 +342,7 @@ and have been disabled: %(found)s"
     # Installing and deleting add-ons
     ######################################################################
 
-    def readManifestFile(self, zfile):
+    def readManifestFile(self, zfile: ZipFile) -> Dict[Any, Any]:
         try:
             with zfile.open("manifest.json") as f:
                 data = json.loads(f.read())
@@ -356,7 +356,7 @@ and have been disabled: %(found)s"
         return manifest
 
     def install(
-        self, file: Union[IO, str], manifest: dict = None
+        self, file: Union[IO, str], manifest: Dict[str, Any] = None
     ) -> Union[InstallOk, InstallError]:
         """Install add-on from path or file-like object. Metadata is read
         from the manifest file, with keys overriden by supplying a 'manifest'
@@ -392,7 +392,7 @@ and have been disabled: %(found)s"
             name=meta["name"], conflicts=found_conflicts, compatible=meta2.compatible()
         )
 
-    def _install(self, dir, zfile):
+    def _install(self, dir: str, zfile: ZipFile) -> None:
         # previously installed?
         base = self.addonsFolder(dir)
         if os.path.exists(base):
@@ -417,7 +417,7 @@ and have been disabled: %(found)s"
             zfile.extract(n, base)
 
     # true on success
-    def deleteAddon(self, dir):
+    def deleteAddon(self, dir: str) -> bool:
         try:
             send2trash(self.addonsFolder(dir))
             return True
@@ -525,7 +525,7 @@ and have been disabled: %(found)s"
         for item in items:
             self.update_supported_version(item)
 
-    def update_supported_version(self, item: UpdateInfo):
+    def update_supported_version(self, item: UpdateInfo) -> None:
         addon = self.addon_meta(str(item.id))
         updated = False
         is_latest = addon.is_latest(item.current_branch_last_modified)
@@ -579,7 +579,7 @@ and have been disabled: %(found)s"
     _configButtonActions: Dict[str, Callable[[], Optional[bool]]] = {}
     _configUpdatedActions: Dict[str, Callable[[Any], None]] = {}
 
-    def addonConfigDefaults(self, dir):
+    def addonConfigDefaults(self, dir: str) -> Optional[Dict[str, Any]]:
         path = os.path.join(self.addonsFolder(dir), "config.json")
         try:
             with open(path, encoding="utf8") as f:
@@ -587,7 +587,7 @@ and have been disabled: %(found)s"
         except:
             return None
 
-    def addonConfigHelp(self, dir):
+    def addonConfigHelp(self, dir: str) -> str:
         path = os.path.join(self.addonsFolder(dir), "config.md")
         if os.path.exists(path):
             with open(path, encoding="utf-8") as f:
@@ -595,7 +595,7 @@ and have been disabled: %(found)s"
         else:
             return ""
 
-    def addonFromModule(self, module):
+    def addonFromModule(self, module: str) -> str:
         return module.split(".")[0]
 
     def configAction(self, addon: str) -> Callable[[], Optional[bool]]:
@@ -607,10 +607,10 @@ and have been disabled: %(found)s"
     # Schema
     ######################################################################
 
-    def _addon_schema_path(self, dir):
+    def _addon_schema_path(self, dir: str) -> str:
         return os.path.join(self.addonsFolder(dir), "config.schema.json")
 
-    def _addon_schema(self, dir):
+    def _addon_schema(self, dir: str):
         path = self._addon_schema_path(dir)
         try:
             if not os.path.exists(path):
@@ -625,7 +625,7 @@ and have been disabled: %(found)s"
     # Add-on Config API
     ######################################################################
 
-    def getConfig(self, module: str) -> Optional[dict]:
+    def getConfig(self, module: str) -> Optional[Dict[str, Any]]:
         addon = self.addonFromModule(module)
         # get default config
         config = self.addonConfigDefaults(addon)
@@ -637,15 +637,15 @@ and have been disabled: %(found)s"
         config.update(userConf)
         return config
 
-    def setConfigAction(self, module: str, fn: Callable[[], Optional[bool]]):
+    def setConfigAction(self, module: str, fn: Callable[[], Optional[bool]]) -> None:
         addon = self.addonFromModule(module)
         self._configButtonActions[addon] = fn
 
-    def setConfigUpdatedAction(self, module: str, fn: Callable[[Any], None]):
+    def setConfigUpdatedAction(self, module: str, fn: Callable[[Any], None]) -> None:
         addon = self.addonFromModule(module)
         self._configUpdatedActions[addon] = fn
 
-    def writeConfig(self, module: str, conf: dict):
+    def writeConfig(self, module: str, conf: dict) -> None:
         addon = self.addonFromModule(module)
         meta = self.addonMeta(addon)
         meta["config"] = conf
@@ -654,18 +654,18 @@ and have been disabled: %(found)s"
     # user_files
     ######################################################################
 
-    def _userFilesPath(self, sid):
+    def _userFilesPath(self, sid: str) -> str:
         return os.path.join(self.addonsFolder(sid), "user_files")
 
-    def _userFilesBackupPath(self):
+    def _userFilesBackupPath(self) -> str:
         return os.path.join(self.addonsFolder(), "files_backup")
 
-    def backupUserFiles(self, sid):
+    def backupUserFiles(self, sid: str) -> None:
         p = self._userFilesPath(sid)
         if os.path.exists(p):
             os.rename(p, self._userFilesBackupPath())
 
-    def restoreUserFiles(self, sid):
+    def restoreUserFiles(self, sid: str) -> None:
         p = self._userFilesPath(sid)
         bp = self._userFilesBackupPath()
         # did we back up userFiles?
@@ -678,11 +678,12 @@ and have been disabled: %(found)s"
 
     _webExports: Dict[str, str] = {}
 
-    def setWebExports(self, module: str, pattern: str):
+    def setWebExports(self, module: str, pattern: str) -> None:
         addon = self.addonFromModule(module)
         self._webExports[addon] = pattern
 
-    def getWebExports(self, addon):
+    # CHECK
+    def getWebExports(self, addon) -> str:
         return self._webExports.get(addon)
 
 
@@ -691,7 +692,7 @@ and have been disabled: %(found)s"
 
 
 class AddonsDialog(QDialog):
-    def __init__(self, addonsManager: AddonManager):
+    def __init__(self, addonsManager: AddonManager) -> None:
         self.mgr = addonsManager
         self.mw = addonsManager.mw
 
@@ -716,7 +717,7 @@ class AddonsDialog(QDialog):
         gui_hooks.addons_dialog_will_show(self)
         self.show()
 
-    def dragEnterEvent(self, event):
+    def dragEnterEvent(self, event: QEvent) -> None:
         mime = event.mimeData()
         if not mime.hasUrls():
             return None
@@ -725,7 +726,7 @@ class AddonsDialog(QDialog):
         if all(url.toLocalFile().endswith(ext) for url in urls):
             event.acceptProposedAction()
 
-    def dropEvent(self, event):
+    def dropEvent(self, event: QEvent) -> None:
         mime = event.mimeData()
         paths = []
         for url in mime.urls():
@@ -734,7 +735,7 @@ class AddonsDialog(QDialog):
                 paths.append(path)
         self.onInstallFiles(paths)
 
-    def reject(self):
+    def reject(self) -> None:
         saveGeom(self, "addons")
         return QDialog.reject(self)
 
@@ -756,7 +757,7 @@ class AddonsDialog(QDialog):
             max = abs(addon.max_point_version)
             return f"Anki <= 2.1.{max}"
 
-    def should_grey(self, addon: AddonMeta):
+    def should_grey(self, addon: AddonMeta) -> bool:
         return not addon.enabled or not addon.compatible()
 
     def redrawAddons(self,) -> None:
@@ -798,19 +799,19 @@ class AddonsDialog(QDialog):
         idxs = [x.row() for x in self.form.addonList.selectedIndexes()]
         return [self.addons[idx].dir_name for idx in idxs]
 
-    def onlyOneSelected(self):
+    def onlyOneSelected(self) -> Optional[str]:
         dirs = self.selectedAddons()
         if len(dirs) != 1:
             showInfo(_("Please select a single add-on first."))
-            return
+            return None
         return dirs[0]
 
-    def onToggleEnabled(self):
+    def onToggleEnabled(self) -> None:
         for dir in self.selectedAddons():
             self.mgr.toggleEnabled(dir)
         self.redrawAddons()
 
-    def onViewPage(self):
+    def onViewPage(self) -> None:
         addon = self.onlyOneSelected()
         if not addon:
             return
@@ -819,7 +820,7 @@ class AddonsDialog(QDialog):
         else:
             showWarning(_("Add-on was not downloaded from AnkiWeb."))
 
-    def onViewFiles(self):
+    def onViewFiles(self) -> None:
         # if nothing selected, open top level folder
         selected = self.selectedAddons()
         if not selected:
@@ -833,7 +834,7 @@ class AddonsDialog(QDialog):
         path = self.mgr.addonsFolder(addon)
         openFolder(path)
 
-    def onDelete(self):
+    def onDelete(self) -> None:
         selected = self.selectedAddons()
         if not selected:
             return
@@ -852,19 +853,19 @@ class AddonsDialog(QDialog):
         self.form.addonList.clearSelection()
         self.redrawAddons()
 
-    def onGetAddons(self):
+    def onGetAddons(self) -> None:
         obj = GetAddons(self)
         if obj.ids:
             download_addons(self, self.mgr, obj.ids, self.after_downloading)
 
-    def after_downloading(self, log: List[DownloadLogEntry]):
+    def after_downloading(self, log: List[DownloadLogEntry]) -> None:
         self.redrawAddons()
         if log:
             show_log_to_user(self, log)
         else:
             tooltip(_("No updates available."))
 
-    def onInstallFiles(self, paths: Optional[List[str]] = None):
+    def onInstallFiles(self, paths: Optional[List[str]] = None) -> Optional[bool]:
         if not paths:
             key = _("Packaged Anki Add-on") + " (*{})".format(self.mgr.ext)
             paths = getFile(
@@ -876,12 +877,13 @@ class AddonsDialog(QDialog):
         installAddonPackages(self.mgr, paths, parent=self)
 
         self.redrawAddons()
+        return None
 
-    def check_for_updates(self):
+    def check_for_updates(self) -> None:
         tooltip(_("Checking..."))
         check_and_prompt_for_updates(self, self.mgr, self.after_downloading)
 
-    def onConfig(self):
+    def onConfig(self) -> None:
         addon = self.onlyOneSelected()
         if not addon:
             return
@@ -906,7 +908,7 @@ class AddonsDialog(QDialog):
 
 
 class GetAddons(QDialog):
-    def __init__(self, dlg):
+    def __init__(self, dlg) -> None:
         QDialog.__init__(self, dlg)
         self.addonsDlg = dlg
         self.mgr = dlg.mgr
@@ -922,10 +924,10 @@ class GetAddons(QDialog):
         self.exec_()
         saveGeom(self, "getaddons")
 
-    def onBrowse(self):
+    def onBrowse(self) -> None:
         openLink(aqt.appShared + "addons/2.1")
 
-    def accept(self):
+    def accept(self) -> None:
         # get codes
         try:
             ids = [int(n) for n in self.form.code.text().split()]
@@ -1091,11 +1093,11 @@ class DownloaderInstaller(QObject):
             % dict(a=len(self.log) + 1, b=len(self.ids), kb=self.dl_bytes / 1024)
         )
 
-    def _download_all(self):
+    def _download_all(self) -> None:
         for id in self.ids:
             self.log.append(download_and_install_addon(self.mgr, self.client, id))
 
-    def _download_done(self, future):
+    def _download_done(self, future: Future) -> None:
         self.mgr.mw.progress.finish()
         # qt gets confused if on_done() opens new windows while the progress
         # modal is still cleaning up
@@ -1168,8 +1170,8 @@ def check_and_prompt_for_updates(
     parent: QWidget,
     mgr: AddonManager,
     on_done: Callable[[List[DownloadLogEntry]], None],
-):
-    def on_updates_received(client: HttpClient, items: List[Dict]):
+) -> None:
+    def on_updates_received(client: HttpClient, items: List[Dict]) -> None:
         handle_update_info(parent, mgr, client, items, on_done)
 
     check_for_updates(mgr, on_updates_received)
@@ -1177,13 +1179,13 @@ def check_and_prompt_for_updates(
 
 def check_for_updates(
     mgr: AddonManager, on_done: Callable[[HttpClient, List[Dict]], None]
-):
+) -> None:
     client = HttpClient()
 
-    def check():
+    def check() -> List[Dict]:
         return fetch_update_info(client, mgr.ankiweb_addons())
 
-    def update_info_received(future: Future):
+    def update_info_received(future: Future) -> None:
         # if syncing/in profile screen, defer message delivery
         if not mgr.mw.col:
             mgr.mw.progress.timer(
@@ -1276,7 +1278,7 @@ def prompt_to_update(
 
 
 class ConfigEditor(QDialog):
-    def __init__(self, dlg, addon, conf):
+    def __init__(self, dlg, addon, conf) -> None:
         super().__init__(dlg)
         self.addon = addon
         self.conf = conf
@@ -1298,24 +1300,24 @@ class ConfigEditor(QDialog):
         )
         self.show()
 
-    def onRestoreDefaults(self):
+    def onRestoreDefaults(self) -> None:
         default_conf = self.mgr.addonConfigDefaults(self.addon)
         self.updateText(default_conf)
         tooltip(_("Restored defaults"), parent=self)
 
-    def setupFonts(self):
+    def setupFonts(self) -> None:
         font_mono = QFontDatabase.systemFont(QFontDatabase.FixedFont)
         font_mono.setPointSize(font_mono.pointSize() + 1)
         self.form.editor.setFont(font_mono)
 
-    def updateHelp(self):
+    def updateHelp(self) -> None:
         txt = self.mgr.addonConfigHelp(self.addon)
         if txt:
             self.form.label.setText(txt)
         else:
             self.form.scrollArea.setVisible(False)
 
-    def updateText(self, conf):
+    def updateText(self, conf: Dict[str, Any]) -> None:
         text = json.dumps(
             conf, ensure_ascii=False, sort_keys=True, indent=4, separators=(",", ": "),
         )
@@ -1324,15 +1326,15 @@ class ConfigEditor(QDialog):
         if isMac:
             self.form.editor.repaint()
 
-    def onClose(self):
+    def onClose(self) -> None:
         saveGeom(self, "addonconf")
         saveSplitter(self.form.splitter, "addonconf")
 
-    def reject(self):
+    def reject(self) -> None:
         self.onClose()
         super().reject()
 
-    def accept(self):
+    def accept(self) -> None:
         txt = self.form.editor.toPlainText()
         txt = gui_hooks.addon_config_editor_will_save_json(txt)
         try:
