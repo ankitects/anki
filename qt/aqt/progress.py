@@ -73,7 +73,7 @@ class ProgressManager:
         self._win.setWindowModality(Qt.ApplicationModal)
         self._win.setMinimumWidth(300)
         self._setBusy()
-        self._shown = 0
+        self._shown: float = 0
         self._counter = min
         self._min = min
         self._max = max
@@ -116,7 +116,7 @@ class ProgressManager:
 
         if process and elapsed >= 0.2:
             self._updating = True
-            self.app.processEvents()
+            self.app.processEvents()  # type: ignore #possibly related to https://github.com/python/mypy/issues/6910
             self._updating = False
             self._lastUpdate = time.time()
 
@@ -146,7 +146,7 @@ class ProgressManager:
         if delta > 0.5:
             self._showWin()
 
-    def _showWin(self):
+    def _showWin(self) -> None:
         self._shown = time.time()
         self._win.show()
 
@@ -160,7 +160,7 @@ class ProgressManager:
                 elap = time.time() - self._shown
                 if elap >= 0.5:
                     break
-                self.app.processEvents(QEventLoop.ExcludeUserInputEvents)
+                self.app.processEvents(QEventLoop.ExcludeUserInputEvents)  # type: ignore #possibly related to https://github.com/python/mypy/issues/6910
         self._win.cancel()
         self._win = None
         self._shown = 0
