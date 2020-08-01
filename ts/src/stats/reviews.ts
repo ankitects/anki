@@ -57,7 +57,7 @@ export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
 
         switch (review.reviewKind) {
             case ReviewKind.REVIEW:
-                if (review.interval < 21) {
+                if (review.lastInterval < 21) {
                     countEntry.young += 1;
                     timeEntry.young += review.takenMillis;
                 } else {
