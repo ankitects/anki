@@ -64,7 +64,7 @@ class MediaServer(threading.Thread):
             if devMode:
                 print(
                     "Serving on http://%s:%s"
-                    % (self.server.effective_host, self.server.effective_port)
+                    % (self.server.effective_host, self.server.effective_port)  # type: ignore
                 )
 
             self._ready.set()
@@ -76,7 +76,7 @@ class MediaServer(threading.Thread):
 
     def shutdown(self):
         self.is_shutdown = True
-        sockets = list(self.server._map.values())
+        sockets = list(self.server._map.values())  # type: ignore
         for socket in sockets:
             socket.handle_close()
         # https://github.com/Pylons/webtest/blob/4b8a3ebf984185ff4fefb31b4d0cf82682e1fcf7/webtest/http.py#L93-L104
@@ -84,7 +84,7 @@ class MediaServer(threading.Thread):
 
     def getPort(self):
         self._ready.wait()
-        return int(self.server.effective_port)
+        return int(self.server.effective_port)  # type: ignore
 
 
 @app.route("/<path:pathin>", methods=["GET", "POST"])
