@@ -13,7 +13,7 @@ use crate::{
     notetype::{NoteType, NoteTypeSchema11},
     prelude::*,
     revlog::RevlogEntry,
-    serde::default_on_invalid,
+    serde::{default_on_invalid, deserialize_int_from_number},
     tags::{join_tags, split_tags},
     version::sync_client_version,
 };
@@ -139,11 +139,13 @@ pub struct CardEntry {
     pub nid: NoteID,
     pub did: DeckID,
     pub ord: u16,
+    #[serde(deserialize_with = "deserialize_int_from_number")]
     pub mtime: TimestampSecs,
     pub usn: Usn,
     pub ctype: CardType,
     pub queue: CardQueue,
     pub due: i32,
+    #[serde(deserialize_with = "deserialize_int_from_number")]
     pub ivl: u32,
     pub factor: u16,
     pub reps: u32,
