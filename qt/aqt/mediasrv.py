@@ -124,6 +124,10 @@ def allroutes(pathin):
 
     try:
         if flask.request.method == "POST":
+            if not aqt.mw.col:
+                print(f"collection not open, ignore request for {path}")
+                return flask.make_response(f"Collection not open", HTTPStatus.NOT_FOUND)
+
             if path == "graphData":
                 body = request.data
                 data = graph_data(aqt.mw.col, **from_json_bytes(body))
@@ -195,6 +199,13 @@ def _redirectWebExports(path):
 
         if re.fullmatch(pattern, subPath):
             return addMgr.addonsFolder(), addonPath
+
+        print(f"couldn't locate item in add-on folder {path}")
+        return None
+
+    if not aqt.mw.col:
+        print(f"collection not open, ignore request for {path}")
+        return None
 
     return aqt.mw.col.media.dir(), path
 
