@@ -61,7 +61,7 @@ def get_sync_status(mw: aqt.main.AnkiQt, callback: Callable[[SyncStatus], None])
 
 def handle_sync_error(mw: aqt.main.AnkiQt, err: Exception):
     if isinstance(err, SyncError):
-        if err.kind == SyncErrorKind.AUTH_FAILED:
+        if err.kind() == SyncErrorKind.AUTH_FAILED:
             mw.pm.clear_sync_auth()
     elif isinstance(err, Interrupted):
         # no message to show
