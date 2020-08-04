@@ -108,7 +108,7 @@ export function renderReviews(
     range: GraphRange,
     showTime: boolean,
     i18n: I18n
-): void {
+): [string, string][] {
     const svg = select(svgElem);
     const trans = svg.transition().duration(600) as any;
 
@@ -143,9 +143,10 @@ export function renderReviews(
         .thresholds(x.ticks(desiredBars))(sourceMap.entries() as any);
 
     // empty graph?
-    if (!sum(bins, (bin) => bin.length)) {
+    const totalDays = sum(bins, (bin) => bin.length);
+    if (!totalDays) {
         setDataAvailable(svg, false);
-        return;
+        return [];
     } else {
         setDataAvailable(svg, true);
     }
@@ -304,9 +305,10 @@ export function renderReviews(
     const areaCounts = bins.map((d: any) => cumulativeBinValue(d, 4));
     areaCounts.unshift(0);
     const areaData = cumsum(areaCounts);
-    const yAreaScale = y.copy().domain([0, areaData.slice(-1)[0]]);
+    const yCumMax = areaData.slice(-1)[0];
+    const yAreaScale = y.copy().domain([0, yCumMax]);
 
-    if (areaData.slice(-1)[0]) {
+    if (yCumMax) {
         svg.select("path.area")
             .datum(areaData as any)
             .attr(
@@ -339,4 +341,74 @@ export function renderReviews(
             showTooltip(tooltipText(d, areaData[idx + 1]), x, y);
         })
         .on("mouseout", hideTooltip);
+
+    const periodDays = -xMin;
+    const studiedDays = sum(bins, (bin) => bin.length);
+    const total = yCumMax;
+    const periodAvg = total / periodDays;
+    const studiedAvg = total / studiedDays;
+
+    let totalString: string,
+        averageForDaysStudied: string,
+        averageForPeriod: string,
+        averageAnswerTime: string,
+        averageAnswerTimeLabel: string;
+    if (showTime) {
+        totalString = timeSpan(i18n, total / 1000, false);
+        averageForDaysStudied = i18n.tr(i18n.TR.STATISTICS_MINUTES_PER_DAY, {
+            count: Math.round(studiedAvg / 1000 / 60),
+        });
+        averageForPeriod = i18n.tr(i18n.TR.STATISTICS_MINUTES_PER_DAY, {
+            count: Math.round(periodAvg / 1000 / 60),
+        });
+        averageAnswerTimeLabel = i18n.tr(i18n.TR.STATISTICS_AVERAGE_ANSWER_TIME_LABEL);
+
+        // need to get total review count to calculate average time
+        const countBins = histogram()
+            .value((m) => {
+                return m[0];
+            })
+            .domain(x.domain() as any)(sourceData.reviewCount.entries() as any);
+        const totalReviews = sum(countBins, (bin) => cumulativeBinValue(bin as any, 4));
+        const totalSecs = total / 1000;
+        console.log(`total secs ${totalSecs} total reviews ${totalReviews}`);
+        const avgSecs = totalSecs / totalReviews;
+        const cardsPerMin = (totalReviews * 60) / totalSecs;
+        averageAnswerTime = i18n.tr(i18n.TR.STATISTICS_AVERAGE_ANSWER_TIME, {
+            "average-seconds": avgSecs,
+            "cards-per-minute": cardsPerMin,
+        });
+    } else {
+        totalString = i18n.tr(i18n.TR.STATISTICS_REVIEWS, { reviews: total });
+        averageForDaysStudied = i18n.tr(i18n.TR.STATISTICS_REVIEWS_PER_DAY, {
+            count: Math.round(studiedAvg),
+        });
+        averageForPeriod = i18n.tr(i18n.TR.STATISTICS_REVIEWS_PER_DAY, {
+            count: Math.round(periodAvg),
+        });
+        averageAnswerTime = averageAnswerTimeLabel = "";
+    }
+
+    const tableData: [string, string][] = [
+        [
+            i18n.tr(i18n.TR.STATISTICS_DAYS_STUDIED),
+            i18n.tr(i18n.TR.STATISTICS_AMOUNT_OF_TOTAL_WITH_PERCENTAGE, {
+                amount: studiedDays,
+                total: periodDays,
+                percent: Math.round((studiedDays / periodDays) * 100),
+            }),
+        ],
+
+        [i18n.tr(i18n.TR.STATISTICS_TOTAL), totalString],
+
+        [i18n.tr(i18n.TR.STATISTICS_AVERAGE_FOR_DAYS_STUDIED), averageForDaysStudied],
+
+        [i18n.tr(i18n.TR.STATISTICS_AVERAGE_OVER_PERIOD), averageForPeriod],
+    ];
+
+    if (averageAnswerTime) {
+        tableData.push([averageAnswerTimeLabel, averageAnswerTime]);
+    }
+
+    return tableData;
 }

@@ -22,8 +22,16 @@
         graphData = gatherData(sourceData);
     }
 
+    let tableStrings: [string, string][] = [];
     $: if (graphData) {
-        renderReviews(svg as SVGElement, bounds, graphData, graphRange, showTime, i18n);
+        tableStrings = renderReviews(
+            svg as SVGElement,
+            bounds,
+            graphData,
+            graphRange,
+            showTime,
+            i18n
+        );
     }
 
     const title = i18n.tr(i18n.TR.STATISTICS_REVIEWS_TITLE);
@@ -61,4 +69,14 @@
         <NoDataOverlay {bounds} {i18n} />
     </svg>
 
+    <div class="centered">
+        <table dir={i18n.direction()}>
+            {#each tableStrings as [label, value]}
+                <tr>
+                    <td class="align-end">{label}:</td>
+                    <td class="align-start">{value}</td>
+                </tr>
+            {/each}
+        </table>
+    </div>
 </div>
