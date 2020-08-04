@@ -7,12 +7,14 @@
  */
 
 import pb from "../backend/proto";
-import { extent, histogram, quantile, sum } from "d3-array";
+import { extent, histogram, quantile, sum, mean } from "d3-array";
 import { scaleLinear, scaleSequential } from "d3-scale";
 import { CardQueue } from "../cards";
 import { HistogramData } from "./histogram-graph";
 import { interpolateBlues } from "d3-scale-chromatic";
 import { I18n } from "../i18n";
+import { TableDatum } from "./graphs";
+import { timeSpan } from "../time";
 
 export interface IntervalGraphData {
     intervals: number[];
@@ -59,11 +61,11 @@ export function prepareIntervalData(
     data: IntervalGraphData,
     range: IntervalRange,
     i18n: I18n
-): HistogramData | null {
+): [HistogramData | null, TableDatum[]] {
     // get min/max
     const allIntervals = data.intervals;
     if (!allIntervals.length) {
-        return null;
+        return [null, []];
     }
 
     const total = allIntervals.length;
@@ -100,7 +102,7 @@ export function prepareIntervalData(
 
     // empty graph?
     if (!sum(bins, (bin) => bin.length)) {
-        return null;
+        return [null, []];
     }
 
     // start slightly darker
@@ -120,5 +122,13 @@ export function prepareIntervalData(
         return `${interval}<br>${total}: \u200e${percent.toFixed(1)}%`;
     }
 
-    return { scale, bins, total, hoverText, colourScale, showArea: true };
+    const meanInterval = Math.round(mean(allIntervals) ?? 0);
+    const meanIntervalString = timeSpan(i18n, meanInterval * 86400, false);
+    const tableData = [
+        {
+            label: i18n.tr(i18n.TR.STATISTICS_AVERAGE_INTERVAL),
+            value: meanIntervalString,
+        },
+    ];
+    return [{ scale, bins, total, hoverText, colourScale, showArea: true }, tableData];
 }
