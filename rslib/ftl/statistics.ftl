@@ -168,6 +168,9 @@ statistics-elapsed-time-hours = { $amount }h
 statistics-elapsed-time-days = { $amount }d
 statistics-elapsed-time-months = { $amount }mo
 statistics-elapsed-time-years = { $amount }y
+
+##
+
 statistics-error-fetching = Invalid data found - please use Check Database to fix the problem.
 statistics-average-for-days-studied = Average for days studied
 statistics-total = Total
