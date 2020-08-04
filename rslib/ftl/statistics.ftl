@@ -188,3 +188,7 @@ statistics-minutes-per-day = { $count ->
   [one] { $count } minute/day
   *[other] { $count } minutes/day
   }
+statistics-cards-per-day = { $count ->
+  [one] { $count } card/day
+  *[other] { $count } cards/day
+  }
