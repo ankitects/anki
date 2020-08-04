@@ -54,6 +54,18 @@ body {
 
     text {
         opacity: 0.5;
+        font-size: 10px;
+    }
+}
+
+@media only screen and (max-width: 800px) {
+    .tick text {
+        font-size: 13px;
+    }
+}
+@media only screen and (max-width: 600px) {
+    .tick text {
+        font-size: 15px;
     }
 }
 
@@ -97,15 +109,6 @@ body {
     opacity: 0.05;
     pointer-events: none;
     fill: $day-fg;
-}
-
-.axis-label {
-    text-anchor: middle;
-    font-size: 10px;
-}
-
-.y-axis-label {
-    writing-mode: vertical-lr;
 }
 
 .hoverzone rect {
