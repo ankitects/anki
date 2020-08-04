@@ -18,7 +18,7 @@ import { select, mouse } from "d3-selection";
 import { scaleLinear, scaleSequential } from "d3-scale";
 import { axisBottom, axisLeft } from "d3-axis";
 import { showTooltip, hideTooltip } from "./tooltip";
-import { GraphBounds, setDataAvailable, GraphRange } from "./graphs";
+import { GraphBounds, setDataAvailable, GraphRange, TableDatum } from "./graphs";
 import { area, curveBasis } from "d3-shape";
 import { min, histogram, sum, max, Bin, cumsum } from "d3-array";
 import { timeSpan, dayLabel } from "../time";
@@ -108,7 +108,7 @@ export function renderReviews(
     range: GraphRange,
     showTime: boolean,
     i18n: I18n
-): [string, string][] {
+): TableDatum[] {
     const svg = select(svgElem);
     const trans = svg.transition().duration(600) as any;
 
@@ -389,25 +389,31 @@ export function renderReviews(
         averageAnswerTime = averageAnswerTimeLabel = "";
     }
 
-    const tableData: [string, string][] = [
-        [
-            i18n.tr(i18n.TR.STATISTICS_DAYS_STUDIED),
-            i18n.tr(i18n.TR.STATISTICS_AMOUNT_OF_TOTAL_WITH_PERCENTAGE, {
+    const tableData: TableDatum[] = [
+        {
+            label: i18n.tr(i18n.TR.STATISTICS_DAYS_STUDIED),
+            value: i18n.tr(i18n.TR.STATISTICS_AMOUNT_OF_TOTAL_WITH_PERCENTAGE, {
                 amount: studiedDays,
                 total: periodDays,
                 percent: Math.round((studiedDays / periodDays) * 100),
             }),
-        ],
+        },
 
-        [i18n.tr(i18n.TR.STATISTICS_TOTAL), totalString],
+        { label: i18n.tr(i18n.TR.STATISTICS_TOTAL), value: totalString },
 
-        [i18n.tr(i18n.TR.STATISTICS_AVERAGE_FOR_DAYS_STUDIED), averageForDaysStudied],
+        {
+            label: i18n.tr(i18n.TR.STATISTICS_AVERAGE_FOR_DAYS_STUDIED),
+            value: averageForDaysStudied,
+        },
 
-        [i18n.tr(i18n.TR.STATISTICS_AVERAGE_OVER_PERIOD), averageForPeriod],
+        {
+            label: i18n.tr(i18n.TR.STATISTICS_AVERAGE_OVER_PERIOD),
+            value: averageForPeriod,
+        },
     ];
 
     if (averageAnswerTime) {
-        tableData.push([averageAnswerTimeLabel, averageAnswerTime]);
+        tableData.push({ label: averageAnswerTimeLabel, value: averageAnswerTime });
     }
 
     return tableData;

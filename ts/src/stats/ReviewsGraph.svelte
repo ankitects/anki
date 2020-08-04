@@ -1,11 +1,12 @@
 <script lang="typescript">
     import AxisTicks from "./AxisTicks.svelte";
-    import { defaultGraphBounds, RevlogRange, GraphRange } from "./graphs";
+    import { defaultGraphBounds, RevlogRange, GraphRange, TableDatum } from "./graphs";
     import { GraphData, gatherData, renderReviews } from "./reviews";
     import pb from "../backend/proto";
     import { I18n } from "../i18n";
     import NoDataOverlay from "./NoDataOverlay.svelte";
     import GraphRangeRadios from "./GraphRangeRadios.svelte";
+    import TableData from "./TableData.svelte";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
     export let revlogRange: RevlogRange;
@@ -22,9 +23,9 @@
         graphData = gatherData(sourceData);
     }
 
-    let tableStrings: [string, string][] = [];
+    let tableData: TableDatum[] = [] as any;
     $: if (graphData) {
-        tableStrings = renderReviews(
+        tableData = renderReviews(
             svg as SVGElement,
             bounds,
             graphData,
@@ -69,14 +70,5 @@
         <NoDataOverlay {bounds} {i18n} />
     </svg>
 
-    <div class="centered">
-        <table dir={i18n.direction()}>
-            {#each tableStrings as [label, value]}
-                <tr>
-                    <td class="align-end">{label}:</td>
-                    <td class="align-start">{value}</td>
-                </tr>
-            {/each}
-        </table>
-    </div>
+    <TableData {i18n} {tableData} />
 </div>

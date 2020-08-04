@@ -109,3 +109,8 @@ export function millisecondCutoffForRange(
 
     return (nextDayAtSecs - 86400 * days) * 1000;
 }
+
+export interface TableDatum {
+    label: string;
+    value: string;
+}
