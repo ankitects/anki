@@ -180,3 +180,11 @@ statistics-due-tomorrow = Due tomorrow
 # eg 5 of 15 (33.3%)
 statistics-amount-of-total-with-percentage = { $amount } of { $total } ({ $percent }%)
 statistics-average-over-period = If you studied every day
+statistics-reviews-per-day = { $count ->
+  [one] { $count } review/day
+  *[other] { $count } reviews/day
+  }
+statistics-minutes-per-day = { $count ->
+  [one] { $count } minute/day
+  *[other] { $count } minutes/day
+  }

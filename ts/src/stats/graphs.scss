@@ -184,5 +184,14 @@ body.night-mode {
 }
 
 .centered {
-    text-align: center;
+    display: flex;
+    justify-content: center;
+}
+
+.align-end {
+    text-align: end;
+}
+
+.align-start {
+    text-align: start;
 }

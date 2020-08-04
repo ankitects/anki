@@ -46,6 +46,19 @@ export class I18n {
         );
     }
 
+    direction(): string {
+        const firstLang = this.bundles[0].locales[0];
+        if (
+            firstLang.startsWith("ar") ||
+            firstLang.startsWith("he") ||
+            firstLang.startsWith("fa")
+        ) {
+            return "rtl";
+        } else {
+            return "ltr";
+        }
+    }
+
     private keyName(msg: pb.BackendProto.FluentString): string {
         return this.TR[msg].toLowerCase().replace(/_/g, "-");
     }
