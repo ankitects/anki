@@ -38,6 +38,8 @@
 <div class="graph intervals" id="graph-intervals">
     <h1>{title}</h1>
 
+    <div class="subtitle">{subtitle}</div>
+
     <div class="range-box-inner">
         <label>
             <input type="radio" bind:group={range} value={IntervalRange.Month} />
@@ -63,8 +65,6 @@
             {all}
         </label>
     </div>
-
-    <div class="subtitle">{subtitle}</div>
 
     <HistogramGraph data={histogramData} {i18n} />
 

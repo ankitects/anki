@@ -31,11 +31,11 @@
 <div class="graph" id="graph-added">
     <h1>{title}</h1>
 
+    <div class="subtitle">{subtitle}</div>
+
     <div class="range-box-inner">
         <GraphRangeRadios bind:graphRange {i18n} revlogRange={RevlogRange.All} />
     </div>
-
-    <div class="subtitle">{subtitle}</div>
 
     <HistogramGraph data={histogramData} {i18n} />
 
