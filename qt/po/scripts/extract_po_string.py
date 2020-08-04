@@ -21,7 +21,6 @@ repo_templates_dir = sys.argv[1]
 assert os.path.abspath(repo_templates_dir).endswith("templates")
 strings = json.load(open("strings.json"))
 plurals = json.load(open("plurals.json"))
-# i18ndir = os.path.join(ftl_dir, "..")
 
 
 def transform_entry(entry, replacements):
@@ -106,6 +105,10 @@ def add_message(fname, key, translation):
     else:
         text = plural_text(key, lang, translation)
         open(fname, "a").write(text)
+
+
+def key_already_used(key: str) -> bool:
+    return not subprocess.call(["grep", "-r", f"{key} =", repo_templates_dir])
 
 
 class Window(QDialog, Ui_Dialog):
@@ -197,6 +200,10 @@ class Window(QDialog, Ui_Dialog):
     def on_add(self):
         to_insert = self.get_adjusted_strings()
         key = self.get_key()
+        if key_already_used(key):
+            QMessageBox.warning(None, "Error", "Duplicate Key")
+            return
+
         # for each language's translation
         for lang, translation in to_insert:
             ftl_path = self.filename_for_lang(lang)
