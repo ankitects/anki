@@ -145,7 +145,7 @@ statistics-intervals-day-range =
 statistics-intervals-day-single =
     { $cards ->
         [one] 1 card with a { $day } day interval
-       *[other] { $cards } card with a { $day } day interval
+       *[other] { $cards } cards with a { $day } day interval
     }
 # hour range, eg "From 14:00-15:00"
 statistics-hours-range = From { $hourStart }:00~{ $hourEnd }:00
