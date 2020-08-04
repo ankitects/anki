@@ -14,7 +14,7 @@ import { HistogramData } from "./histogram-graph";
 import { interpolateGreens } from "d3-scale-chromatic";
 import { dayLabel } from "../time";
 import { I18n } from "../i18n";
-import { GraphRange } from "./graphs";
+import { GraphRange, TableDatum } from "./graphs";
 
 export interface GraphData {
     dueCounts: Map<number, number>;
@@ -60,11 +60,11 @@ export function buildHistogram(
     range: GraphRange,
     backlog: boolean,
     i18n: I18n
-): HistogramData | null {
+): [HistogramData | null, TableDatum[]] {
     // get min/max
     const data = sourceData.dueCounts;
     if (!data) {
-        return null;
+        return [null, []];
     }
 
     const [xMinOrig, origXMax] = extent<number>(data.keys());
@@ -88,12 +88,10 @@ export function buildHistogram(
         case GraphRange.AllTime:
             break;
     }
-    xMax = xMax! + 1;
-
     // cap bars to available range
     const desiredBars = Math.min(70, xMax! - xMin!);
 
-    const x = scaleLinear().domain([xMin!, xMax!]).nice();
+    const x = scaleLinear().domain([xMin!, xMax!]);
     const bins = histogram()
         .value((m) => {
             return m[0];
@@ -103,13 +101,13 @@ export function buildHistogram(
 
     // empty graph?
     if (!sum(bins, (bin) => bin.length)) {
-        return null;
+        return [null, []];
     }
 
     const adjustedRange = scaleLinear().range([0.8, 0.3]);
     const colourScale = scaleSequential((n) =>
         interpolateGreens(adjustedRange(n))
-    ).domain([xMin!, xMax]);
+    ).domain([xMin!, xMax!]);
 
     const total = sum(bins as any, binValue);
 
@@ -129,13 +127,36 @@ export function buildHistogram(
         return `${days}:<br>${cards}<br>${totalLabel}: ${cumulative}`;
     }
 
-    return {
-        scale: x,
-        bins,
-        total,
-        hoverText,
-        showArea: true,
-        colourScale,
-        binValue,
-    };
+    const periodDays = xMax! - xMin!;
+    const tableData = [
+        {
+            label: i18n.tr(i18n.TR.STATISTICS_TOTAL),
+            value: i18n.tr(i18n.TR.STATISTICS_REVIEWS, { reviews: total }),
+        },
+        {
+            label: i18n.tr(i18n.TR.STATISTICS_AVERAGE),
+            value: i18n.tr(i18n.TR.STATISTICS_REVIEWS_PER_DAY, {
+                count: Math.round(total / periodDays),
+            }),
+        },
+        {
+            label: i18n.tr(i18n.TR.STATISTICS_DUE_TOMORROW),
+            value: i18n.tr(i18n.TR.STATISTICS_REVIEWS, {
+                reviews: sourceData.dueCounts.get(1) ?? 0,
+            }),
+        },
+    ];
+
+    return [
+        {
+            scale: x,
+            bins,
+            total,
+            hoverText,
+            showArea: true,
+            colourScale,
+            binValue,
+        },
+        tableData,
+    ];
 }
