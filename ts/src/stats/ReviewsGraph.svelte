@@ -49,6 +49,8 @@
 <div class="graph" id="graph-reviews">
     <h1>{title}</h1>
 
+    <div class="subtitle">{subtitle}</div>
+
     <div class="range-box-inner">
         <label>
             <input type="checkbox" bind:checked={showTime} />
@@ -57,8 +59,6 @@
 
         <GraphRangeRadios bind:graphRange {i18n} {revlogRange} followRevlog={true} />
     </div>
-
-    <div class="subtitle">{subtitle}</div>
 
     <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
         {#each [4, 3, 2, 1, 0] as i}

@@ -38,6 +38,8 @@
 <div class="graph" id="graph-future-due">
     <h1>{title}</h1>
 
+    <div class="subtitle">{subtitle}</div>
+
     <div class="range-box-inner">
         <label>
             <input type="checkbox" bind:checked={backlog} />
@@ -46,8 +48,6 @@
 
         <GraphRangeRadios bind:graphRange {i18n} revlogRange={RevlogRange.All} />
     </div>
-
-    <div class="subtitle">{subtitle}</div>
 
     <HistogramGraph data={histogramData} {i18n} />
 

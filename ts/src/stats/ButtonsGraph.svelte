@@ -28,11 +28,11 @@
 <div class="graph" id="graph-buttons">
     <h1>{title}</h1>
 
+    <div class="subtitle">{subtitle}</div>
+
     <div class="range-box-inner">
         <GraphRangeRadios bind:graphRange {i18n} {revlogRange} followRevlog={true} />
     </div>
-
-    <div class="subtitle">{subtitle}</div>
 
     <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
         <g class="bars" />
