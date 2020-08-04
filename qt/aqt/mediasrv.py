@@ -126,7 +126,7 @@ def allroutes(pathin):
         if flask.request.method == "POST":
             if not aqt.mw.col:
                 print(f"collection not open, ignore request for {path}")
-                return flask.make_response(f"Collection not open", HTTPStatus.NOT_FOUND)
+                return flask.make_response("Collection not open", HTTPStatus.NOT_FOUND)
 
             if path == "graphData":
                 body = request.data
