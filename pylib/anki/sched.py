@@ -123,24 +123,22 @@ class Scheduler(V2):
     def unburyCards(self) -> None:
         "Unbury cards."
         self.col.log(
-            self.col.db.list(
-                f"select id from cards where queue = {QUEUE_TYPE_SIBLING_BURIED}"
-            )
+            self.col.db.list(f"select id from cards where {self._queueIsBuriedSnippet}")
         )
         self.col.db.execute(
-            f"update cards set {self._restoreQueueSnippet} where queue = {QUEUE_TYPE_SIBLING_BURIED}"
+            f"update cards set {self._restoreQueueSnippet} where {self._queueIsBuriedSnippet}"
         )
 
     def unburyCardsForDeck(self) -> None:  # type: ignore[override]
         sids = self._deckLimit()
         self.col.log(
             self.col.db.list(
-                f"select id from cards where queue = {QUEUE_TYPE_SIBLING_BURIED} and did in %s"
+                f"select id from cards where {self._queueIsBuriedSnippet} and did in %s"
                 % sids
             )
         )
         self.col.db.execute(
-            f"update cards set mod=?,usn=?,{self._restoreQueueSnippet} where queue = {QUEUE_TYPE_SIBLING_BURIED} and did in %s"
+            f"update cards set mod=?,usn=?,{self._restoreQueueSnippet} where {self._queueIsBuriedSnippet} and did in %s"
             % sids,
             intTime(),
             self.col.usn(),
@@ -809,7 +807,7 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?"""
     def haveBuried(self) -> bool:
         sdids = self._deckLimit()
         cnt = self.col.db.scalar(
-            f"select 1 from cards where queue = {QUEUE_TYPE_SIBLING_BURIED} and did in %s limit 1"
+            f"select 1 from cards where {self._queueIsBuriedSnippet} and did in %s limit 1"
             % sdids
         )
         return not not cnt
@@ -858,6 +856,7 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?"""
     ##########################################################################
 
     _restoreQueueSnippet = "queue = type"
+    _queueIsBuriedSnippet = f"queue = {QUEUE_TYPE_SIBLING_BURIED}"
 
     def suspendCards(self, ids: List[int]) -> None:
         "Suspend cards."

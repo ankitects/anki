@@ -1468,6 +1468,9 @@ else
   type
 end)
 """
+    _queueIsBuriedSnippet = (
+        f"queue in ({QUEUE_TYPE_SIBLING_BURIED}, {QUEUE_TYPE_MANUALLY_BURIED})"
+    )
 
     def suspendCards(self, ids: List[int]) -> None:
         "Suspend cards."
@@ -1513,19 +1516,15 @@ update cards set queue=?,mod=?,usn=? where id in """
     def unburyCards(self) -> None:
         "Unbury all buried cards in all decks."
         self.col.log(
-            self.col.db.list(
-                f"select id from cards where queue in ({QUEUE_TYPE_SIBLING_BURIED}, {QUEUE_TYPE_MANUALLY_BURIED})"
-            )
+            self.col.db.list(f"select id from cards where {self._queueIsBuriedSnippet}")
         )
         self.col.db.execute(
-            f"update cards set {self._restoreQueueSnippet} where queue in ({QUEUE_TYPE_SIBLING_BURIED}, {QUEUE_TYPE_MANUALLY_BURIED})"
+            f"update cards set {self._restoreQueueSnippet} where {self._queueIsBuriedSnippet}"
         )
 
     def unburyCardsForDeck(self, type: str = "all") -> None:
         if type == "all":
-            queue = (
-                f"queue in ({QUEUE_TYPE_SIBLING_BURIED}, {QUEUE_TYPE_MANUALLY_BURIED})"
-            )
+            queue = self._queueIsBuriedSnippet
         elif type == "manual":
             queue = f"queue = {QUEUE_TYPE_MANUALLY_BURIED}"
         elif type == "siblings":
