@@ -165,7 +165,7 @@ export function renderReviews(
             if (Math.round(n) != n) {
                 return "";
             } else {
-                return n.toString();
+                return n.toLocaleString();
             }
         }
     };
