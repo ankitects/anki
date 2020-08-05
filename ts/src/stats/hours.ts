@@ -156,6 +156,7 @@ export function renderHours(
             "d",
             area<Hour>()
                 .curve(curveBasis)
+                .defined((d) => d.totalCount > 0)
                 .x((d: Hour) => {
                     return x(d.hour.toString())! + x.bandwidth() / 2;
                 })
