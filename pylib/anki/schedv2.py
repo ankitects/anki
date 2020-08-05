@@ -686,7 +686,7 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
         self, card: Card, conf: Dict[str, Any], early: bool, fuzz: bool = True
     ) -> Any:
         if card.type in (CARD_TYPE_REV, CARD_TYPE_RELEARNING):
-            bonus = early and 1 or 0
+            bonus = 1 if early else 0
             return card.ivl + bonus
         if not early:
             # graduate
@@ -1495,7 +1495,7 @@ end)
         )
 
     def buryCards(self, cids: List[int], manual: bool = True) -> None:
-        queue = manual and QUEUE_TYPE_MANUALLY_BURIED or QUEUE_TYPE_SIBLING_BURIED
+        queue = QUEUE_TYPE_MANUALLY_BURIED if manual else QUEUE_TYPE_SIBLING_BURIED
         self.col.log(cids)
         self.col.db.execute(
             """
