@@ -862,13 +862,7 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?"""
         "Suspend cards."
         self.remFromDyn(ids)
         self.removeLrn(ids)
-        self.col.log(ids)
-        self.col.db.execute(
-            f"update cards set queue={QUEUE_TYPE_SUSPENDED},mod=?,usn=? where id in "
-            + ids2str(ids),
-            intTime(),
-            self.col.usn(),
-        )
+        super().suspendCards(ids)
 
     def unsuspendCards(self, ids: List[int]) -> None:
         "Unsuspend cards."
@@ -885,11 +879,4 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?"""
         assert not manual
         self.remFromDyn(cids)
         self.removeLrn(cids)
-        self.col.log(cids)
-        self.col.db.execute(
-            f"""
-update cards set queue={QUEUE_TYPE_SIBLING_BURIED},mod=?,usn=? where id in """
-            + ids2str(cids),
-            intTime(),
-            self.col.usn(),
-        )
+        super().buryCards(cids, False)
