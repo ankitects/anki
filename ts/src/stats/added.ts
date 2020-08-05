@@ -68,7 +68,10 @@ export function buildHistogram(
         return [null, []];
     }
 
-    const colourScale = scaleSequential(interpolateBlues).domain([xMin!, xMax]);
+    const adjustedRange = scaleLinear().range([0.7, 0.3]);
+    const colourScale = scaleSequential((n) =>
+        interpolateBlues(adjustedRange(n))
+    ).domain([xMax!, xMin!]);
 
     const totalInPeriod = sum(bins, (bin) => bin.length);
     const cardsPerDay = Math.round(mean(bins, (bin) => bin.length) ?? 0);

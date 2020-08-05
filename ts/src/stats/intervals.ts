@@ -67,7 +67,6 @@ export function prepareIntervalData(
         return [null, []];
     }
 
-    const total = allIntervals.length;
     const [_xMinOrig, origXMax] = extent(allIntervals);
     let xMax = origXMax;
 
@@ -102,9 +101,10 @@ export function prepareIntervalData(
         return [null, []];
     }
 
-    // start slightly darker
-    const shiftedMin = xMin! - Math.round((xMax - xMin!) / 10);
-    const colourScale = scaleSequential(interpolateBlues).domain([shiftedMin, xMax]);
+    const adjustedRange = scaleLinear().range([0.7, 0.3]);
+    const colourScale = scaleSequential((n) =>
+        interpolateBlues(adjustedRange(n))
+    ).domain([xMax!, xMin!]);
 
     function hoverText(
         data: HistogramData,
