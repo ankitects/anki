@@ -10,7 +10,7 @@ import "d3-transition";
 import { select, mouse } from "d3-selection";
 import { cumsum, max, Bin } from "d3-array";
 import { scaleLinear, ScaleLinear, ScaleSequential } from "d3-scale";
-import { axisBottom, axisLeft } from "d3-axis";
+import { axisBottom, axisLeft, axisRight } from "d3-axis";
 import { area, curveBasis } from "d3-shape";
 import { showTooltip, hideTooltip } from "./tooltip";
 import { GraphBounds, setDataAvailable } from "./graphs";
@@ -57,7 +57,8 @@ export function histogramGraph(
     const yMax = max(data.bins, (d) => binValue(d))!;
     const y = scaleLinear()
         .range([bounds.height - bounds.marginBottom, bounds.marginTop])
-        .domain([0, yMax]);
+        .domain([0, yMax])
+        .nice();
     svg.select<SVGGElement>(".y-ticks")
         .transition(trans)
         .call(
@@ -107,9 +108,17 @@ export function histogramGraph(
     const areaCounts = data.bins.map((d) => binValue(d));
     areaCounts.unshift(0);
     const areaData = cumsum(areaCounts);
-    const yAreaScale = y.copy().domain([0, data.total]);
+    const yAreaScale = y.copy().domain([0, data.total]).nice();
 
     if (data.showArea && data.bins.length && areaData.slice(-1)[0]) {
+        svg.select<SVGGElement>(".y2-ticks")
+            .transition(trans)
+            .call(
+                axisRight(yAreaScale)
+                    .ticks(bounds.height / 50)
+                    .tickSizeOuter(0)
+            );
+
         svg.select("path.area")
             .datum(areaData as any)
             .attr(

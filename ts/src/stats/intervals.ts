@@ -101,7 +101,8 @@ export function prepareIntervalData(
         .thresholds(scale.ticks(desiredBars))(allIntervals);
 
     // empty graph?
-    if (!sum(bins, (bin) => bin.length)) {
+    const totalInPeriod = sum(bins, (bin) => bin.length);
+    if (!totalInPeriod) {
         return [null, []];
     }
 
@@ -130,5 +131,8 @@ export function prepareIntervalData(
             value: meanIntervalString,
         },
     ];
-    return [{ scale, bins, total, hoverText, colourScale, showArea: true }, tableData];
+    return [
+        { scale, bins, total: totalInPeriod, hoverText, colourScale, showArea: true },
+        tableData,
+    ];
 }
