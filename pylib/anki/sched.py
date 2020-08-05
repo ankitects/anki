@@ -836,7 +836,7 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?"""
 
     # this isn't easily extracted from the learn code
     def _nextLrnIvl(self, card: Card, ease: int) -> float:
-        if card.queue == 0:
+        if card.queue == QUEUE_TYPE_NEW:
             card.left = self._startingLeft(card)
         conf = self._lrnConf(card)
         if ease == BUTTON_ONE:
