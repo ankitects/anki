@@ -453,20 +453,22 @@ select count() from cards where did in %s and queue = {QUEUE_TYPE_PREVIEW}
         self._lrnDayQueue: List[int] = []
         self._lrnDids = self.col.decks.active()[:]
 
+    def _cutoff(self):
+        return intTime() + self.col.conf["collapseTime"]
+
     # sub-day learning
     def _fillLrn(self) -> Union[bool, List[Any]]:
         if not self.lrnCount:
             return False
         if self._lrnQueue:
             return True
-        cutoff = intTime() + self.col.conf["collapseTime"]
         self._lrnQueue = self.col.db.all(  # type: ignore
             f"""
 select due, id from cards where
 did in %s and queue in ({QUEUE_TYPE_LRN},{QUEUE_TYPE_PREVIEW}) and due < ?
 limit %d"""
             % (self._deckLimit(), self.reportLimit),
-            cutoff,
+            self._cutoff(),
         )
         for i in range(len(self._lrnQueue)):
             self._lrnQueue[i] = (self._lrnQueue[i][0], self._lrnQueue[i][1])

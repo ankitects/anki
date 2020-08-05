@@ -217,6 +217,9 @@ and due <= ? limit %d"""
         self._lrnDayQueue: List[Any] = []
         self._lrnDids = self.col.decks.active()[:]
 
+    def _cutoff(self):
+        return self.dayCutoff
+
     # sub-day learning
     def _fillLrn(self) -> Union[bool, List[Any]]:
         if not self.lrnCount:
@@ -229,7 +232,7 @@ select due, id from cards where
 did in %s and queue = {QUEUE_TYPE_LRN} and due < ?
 limit %d"""
             % (self._deckLimit(), self.reportLimit),
-            self.dayCutoff,
+            self._cutoff(),
         )
         for i in range(len(self._lrnQueue)):
             self._lrnQueue[i] = (self._lrnQueue[i][0], self._lrnQueue[i][1])
