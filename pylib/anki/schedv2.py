@@ -246,6 +246,9 @@ order by due"""
     # Getting the next card
     ##########################################################################
 
+    def _dayLearnFirst(self):
+        return self.col.conf.get("dayLearnFirst", False)
+
     def _getCard(self) -> Optional[Card]:
         """Return the next due card, or None."""
         # learning card due?
@@ -260,7 +263,7 @@ order by due"""
                 return c
 
         # day learning first and card due?
-        dayLearnFirst = self.col.conf.get("dayLearnFirst", False)
+        dayLearnFirst = self._dayLearnFirst()
         if dayLearnFirst:
             c = self._getLrnDayCard()
             if c:
