@@ -104,7 +104,7 @@ export function buildHistogram(
         return [null, []];
     }
 
-    const adjustedRange = scaleLinear().range([0.8, 0.3]);
+    const adjustedRange = scaleLinear().range([0.7, 0.3]);
     const colourScale = scaleSequential((n) =>
         interpolateGreens(adjustedRange(n))
     ).domain([xMin!, xMax!]);
