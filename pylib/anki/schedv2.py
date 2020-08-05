@@ -1484,9 +1484,9 @@ end)
         self.col.log(ids)
         self.col.db.execute(
             (
-                f"update cards set %s,mod=?,usn=? where queue = {QUEUE_TYPE_SUSPENDED} and id in %s"
+                f"update cards set {self._restoreQueueSnippet},mod=?,usn=? where queue = {QUEUE_TYPE_SUSPENDED} and id in %s"
             )
-            % (self._restoreQueueSnippet, ids2str(ids)),
+            % (ids2str(ids)),
             intTime(),
             self.col.usn(),
         )
@@ -1518,8 +1518,7 @@ update cards set queue=?,mod=?,usn=? where id in """
             )
         )
         self.col.db.execute(
-            f"update cards set %s where queue in ({QUEUE_TYPE_SIBLING_BURIED}, {QUEUE_TYPE_MANUALLY_BURIED})"
-            % self._restoreQueueSnippet
+            f"update cards set {self._restoreQueueSnippet} where queue in ({QUEUE_TYPE_SIBLING_BURIED}, {QUEUE_TYPE_MANUALLY_BURIED})"
         )
 
     def unburyCardsForDeck(self, type: str = "all") -> None:
@@ -1541,8 +1540,8 @@ update cards set queue=?,mod=?,usn=? where id in """
             )
         )
         self.col.db.execute(
-            "update cards set mod=?,usn=?,%s where %s and did in %s"
-            % (self._restoreQueueSnippet, queue, self._deckLimit()),
+            f"update cards set mod=?,usn=?,{self._restoreQueueSnippet} where %s and did in %s"
+            % (queue, self._deckLimit()),
             intTime(),
             self.col.usn(),
         )

@@ -128,7 +128,7 @@ class Scheduler(V2):
             )
         )
         self.col.db.execute(
-            f"update cards set queue=type where queue = {QUEUE_TYPE_SIBLING_BURIED}"
+            f"update cards set {self._restoreQueueSnippet} where queue = {QUEUE_TYPE_SIBLING_BURIED}"
         )
 
     def unburyCardsForDeck(self) -> None:  # type: ignore[override]
@@ -140,7 +140,7 @@ class Scheduler(V2):
             )
         )
         self.col.db.execute(
-            f"update cards set mod=?,usn=?,queue=type where queue = {QUEUE_TYPE_SIBLING_BURIED} and did in %s"
+            f"update cards set mod=?,usn=?,{self._restoreQueueSnippet} where queue = {QUEUE_TYPE_SIBLING_BURIED} and did in %s"
             % sids,
             intTime(),
             self.col.usn(),
@@ -857,6 +857,8 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?"""
     # Suspending
     ##########################################################################
 
+    _restoreQueueSnippet = "queue = type"
+
     def suspendCards(self, ids: List[int]) -> None:
         "Suspend cards."
         self.col.log(ids)
@@ -873,7 +875,7 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?"""
         "Unsuspend cards."
         self.col.log(ids)
         self.col.db.execute(
-            "update cards set queue=type,mod=?,usn=? "
+            f"update cards set {self._restoreQueueSnippet},mod=?,usn=? "
             f"where queue = {QUEUE_TYPE_SUSPENDED} and id in " + ids2str(ids),
             intTime(),
             self.col.usn(),
