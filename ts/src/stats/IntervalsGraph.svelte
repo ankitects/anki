@@ -54,13 +54,6 @@
             95%
         </label>
         <label>
-            <input
-                type="radio"
-                bind:group={range}
-                value={IntervalRange.Percentile999} />
-            99.9%
-        </label>
-        <label>
             <input type="radio" bind:group={range} value={IntervalRange.All} />
             {all}
         </label>

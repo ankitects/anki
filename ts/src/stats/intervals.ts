@@ -24,8 +24,7 @@ export enum IntervalRange {
     Month = 0,
     Percentile50 = 1,
     Percentile95 = 2,
-    Percentile999 = 3,
-    All = 4,
+    All = 3,
 }
 
 export function gatherIntervalData(data: pb.BackendProto.GraphsOut): IntervalGraphData {
@@ -82,9 +81,6 @@ export function prepareIntervalData(
             break;
         case IntervalRange.Percentile95:
             xMax = quantile(allIntervals, 0.95);
-            break;
-        case IntervalRange.Percentile999:
-            xMax = quantile(allIntervals, 0.999);
             break;
         case IntervalRange.All:
             break;
