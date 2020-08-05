@@ -182,7 +182,7 @@ statistics-longest-interval = Longest interval
 statistics-due-tomorrow = Due tomorrow
 # eg 5 of 15 (33.3%)
 statistics-amount-of-total-with-percentage = { $amount } of { $total } ({ $percent }%)
-statistics-average-over-period = If you studied every day
+statistics-average-over-period = Average over period
 statistics-reviews-per-day = { $count ->
   [one] { $count } review/day
   *[other] { $count } reviews/day
