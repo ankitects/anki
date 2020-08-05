@@ -15,7 +15,7 @@ from anki.utils import isLin, isMac, isWin
 from aqt import gui_hooks
 from aqt.qt import *
 from aqt.theme import theme_manager
-from aqt.utils import openLink
+from aqt.utils import openLink, showInfo
 
 serverbaseurl = re.compile(r"^.+:\/\/[^\/]+")
 
@@ -121,6 +121,9 @@ class AnkiWebPage(QWebEnginePage):
 
     def _onCmd(self, str):
         return self._onBridgeCmd(str)
+
+    def javaScriptAlert(self, url: QUrl, text: str):
+        showInfo(text)
 
 
 # Add-ons
