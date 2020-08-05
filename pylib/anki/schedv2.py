@@ -456,6 +456,10 @@ select count() from cards where did in %s and queue = {QUEUE_TYPE_PREVIEW}
     def _cutoff(self):
         return intTime() + self.col.conf["collapseTime"]
 
+    _queueInLearningSnippet = (
+        f"queue in ({QUEUE_TYPE_LRN},{QUEUE_TYPE_DAY_LEARN_RELEARN})"
+    )
+
     # sub-day learning
     def _fillLrn(self) -> Union[bool, List[Any]]:
         if not self.lrnCount:
@@ -1742,7 +1746,7 @@ due = odue, odue = 0, odid = 0, usn = ? where odid != 0""",
                 f"""
     update cards set
     due = odue, queue = {QUEUE_TYPE_REV}, type = {CARD_TYPE_REV}, mod = %d, usn = %d, odue = 0
-    where queue in ({QUEUE_TYPE_LRN},{QUEUE_TYPE_DAY_LEARN_RELEARN}) and type in ({CARD_TYPE_REV}, {CARD_TYPE_RELEARNING})
+    where {self._queueInLearningSnippet} and type in ({CARD_TYPE_REV}, {CARD_TYPE_RELEARNING})
     """
                 % (intTime(), self.col.usn())
             )
@@ -1751,14 +1755,14 @@ due = odue, odue = 0, odid = 0, usn = ? where odid != 0""",
                 f"""
     update cards set
     due = %d+ivl, queue = {QUEUE_TYPE_REV}, type = {CARD_TYPE_REV}, mod = %d, usn = %d, odue = 0
-    where queue in ({QUEUE_TYPE_LRN},{QUEUE_TYPE_DAY_LEARN_RELEARN}) and type in ({CARD_TYPE_REV}, {CARD_TYPE_RELEARNING})
+    where {self._queueInLearningSnippet} and type in ({CARD_TYPE_REV}, {CARD_TYPE_RELEARNING})
     """
                 % (self.today, intTime(), self.col.usn())
             )
         # remove new cards from learning
         self.forgetCards(
             self.col.db.list(
-                f"select id from cards where queue in ({QUEUE_TYPE_LRN},{QUEUE_TYPE_DAY_LEARN_RELEARN})"
+                f"select id from cards where {self._queueInLearningSnippet}"
             )
         )
 
