@@ -26,8 +26,12 @@ assert anki.buildinfo.buildhash == aqt.buildinfo.buildhash
 
 # we want to be able to print unicode debug info to console without
 # fear of a traceback on systems with the console set to ASCII
-sys.stdout.reconfigure(encoding="utf-8")  # type: ignore
-sys.stderr.reconfigure(encoding="utf-8")  # type: ignore
+try:
+    sys.stdout.reconfigure(encoding="utf-8")  # type: ignore
+    sys.stderr.reconfigure(encoding="utf-8")  # type: ignore
+except AttributeError:
+    # on Windows without console, NullWriter doesn't support this
+    pass
 
 appVersion = _version
 appWebsite = "https://apps.ankiweb.net/"
