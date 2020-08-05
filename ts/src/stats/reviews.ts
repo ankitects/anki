@@ -191,7 +191,7 @@ export function renderReviews(
         return width ? width : 0;
     }
 
-    const cappedRange = scaleLinear().range([0.2, 0.5]);
+    const cappedRange = scaleLinear().range([0.3, 0.5]);
     const shiftedRange = scaleLinear().range([0.4, 0.7]);
     const darkerGreens = scaleSequential((n) =>
         interpolateGreens(shiftedRange(n))
