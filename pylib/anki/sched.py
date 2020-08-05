@@ -751,6 +751,11 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?"""
     # Tools
     ##########################################################################
 
+    def _newConfDelays(self, card: Card):
+        conf = self._cardConf(card)
+        oconf = self.col.decks.confForDid(card.odid)
+        return conf["delays"] or oconf["new"]["delays"]
+
     def _newConf(self, card: Card) -> Dict[str, Any]:
         conf = self._cardConf(card)
         # normal deck
@@ -758,17 +763,21 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?"""
             return conf["new"]
         # dynamic deck; override some attributes, use original deck for others
         oconf = self.col.decks.confForDid(card.odid)
-        delays = conf["delays"] or oconf["new"]["delays"]
         return dict(
             # original deck
             ints=oconf["new"]["ints"],
             initialFactor=oconf["new"]["initialFactor"],
             bury=oconf["new"].get("bury", True),
             # overrides
-            delays=delays,
+            delays=self._newConfDelays(card),
             order=NEW_CARDS_DUE,
             perDay=self.reportLimit,
         )
+
+    def _lapseConfDelays(self, card: Card) -> Dict[str, Any]:
+        conf = self._cardConf(card)
+        oconf = self.col.decks.confForDid(card.odid)
+        return conf["delays"] or oconf["lapse"]["delays"]
 
     def _lapseConf(self, card: Card) -> Dict[str, Any]:
         conf = self._cardConf(card)
@@ -777,7 +786,6 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?"""
             return conf["lapse"]
         # dynamic deck; override some attributes, use original deck for others
         oconf = self.col.decks.confForDid(card.odid)
-        delays = conf["delays"] or oconf["lapse"]["delays"]
         return dict(
             # original deck
             minInt=oconf["lapse"]["minInt"],
@@ -785,7 +793,7 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?"""
             leechAction=oconf["lapse"]["leechAction"],
             mult=oconf["lapse"]["mult"],
             # overrides
-            delays=delays,
+            delays=self._lapseConfDelays(card),
             resched=conf["resched"],
         )
 

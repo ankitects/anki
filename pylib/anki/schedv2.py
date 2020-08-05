@@ -1196,6 +1196,10 @@ where id = ?
     def _cardConf(self, card: Card) -> Dict[str, Any]:
         return self.col.decks.confForDid(card.did)
 
+    def _newConfDelays(self, card: Card):
+        oconf = self.col.decks.confForDid(card.odid)
+        return oconf["new"]["delays"]
+
     def _newConf(self, card: Card) -> Any:
         conf = self._cardConf(card)
         # normal deck
@@ -1208,11 +1212,15 @@ where id = ?
             ints=oconf["new"]["ints"],
             initialFactor=oconf["new"]["initialFactor"],
             bury=oconf["new"].get("bury", True),
-            delays=oconf["new"]["delays"],
+            delays=self._newConfDelays(card),
             # overrides
             order=NEW_CARDS_DUE,
             perDay=self.reportLimit,
         )
+
+    def _lapseConfDelays(self, card: Card) -> Dict[str, Any]:
+        oconf = self.col.decks.confForDid(card.odid)
+        return oconf["lapse"]["delays"]
 
     def _lapseConf(self, card: Card) -> Any:
         conf = self._cardConf(card)
@@ -1227,7 +1235,7 @@ where id = ?
             leechFails=oconf["lapse"]["leechFails"],
             leechAction=oconf["lapse"]["leechAction"],
             mult=oconf["lapse"]["mult"],
-            delays=oconf["lapse"]["delays"],
+            delays=self._lapseConfDelays(card),
             # overrides
             resched=conf["resched"],
         )
