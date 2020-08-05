@@ -860,9 +860,9 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?"""
 
     def suspendCards(self, ids: List[int]) -> None:
         "Suspend cards."
-        self.col.log(ids)
         self.remFromDyn(ids)
         self.removeLrn(ids)
+        self.col.log(ids)
         self.col.db.execute(
             f"update cards set queue={QUEUE_TYPE_SUSPENDED},mod=?,usn=? where id in "
             + ids2str(ids),
@@ -883,9 +883,9 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?"""
     def buryCards(self, cids: List[int], manual: bool = False) -> None:
         # v1 only supported automatic burying
         assert not manual
-        self.col.log(cids)
         self.remFromDyn(cids)
         self.removeLrn(cids)
+        self.col.log(cids)
         self.col.db.execute(
             f"""
 update cards set queue={QUEUE_TYPE_SIBLING_BURIED},mod=?,usn=? where id in """
