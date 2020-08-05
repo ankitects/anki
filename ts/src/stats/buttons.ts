@@ -197,16 +197,7 @@ export function renderButtons(
     const updateBar = (sel: any): any => {
         return sel
             .attr("width", xButton.bandwidth())
-            .attr("opacity", (d: Datum) => {
-                switch (d.group) {
-                    case "learning":
-                        return 0.6;
-                    case "young":
-                        return 0.8;
-                    case "mature":
-                        return 1;
-                }
-            })
+            .attr("opacity", 0.8)
             .transition(trans)
             .attr(
                 "x",
