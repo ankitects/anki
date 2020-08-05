@@ -97,5 +97,8 @@ export function buildHistogram(
         return `${day}:<br>${cards}<br>${total}: ${totalCards}`;
     }
 
-    return [{ scale, bins, total, hoverText, colourScale, showArea: true }, tableData];
+    return [
+        { scale, bins, total: totalInPeriod, hoverText, colourScale, showArea: true },
+        tableData,
+    ];
 }
