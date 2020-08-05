@@ -11,7 +11,7 @@ import { interpolateBlues } from "d3-scale-chromatic";
 import "d3-transition";
 import { select, mouse } from "d3-selection";
 import { scaleLinear, scaleBand, scaleSequential } from "d3-scale";
-import { axisBottom, axisLeft } from "d3-axis";
+import { axisBottom, axisLeft, axisRight } from "d3-axis";
 import { showTooltip, hideTooltip } from "./tooltip";
 import {
     GraphBounds,
@@ -97,7 +97,8 @@ export function renderHours(
 
     const y = scaleLinear()
         .range([bounds.height - bounds.marginBottom, bounds.marginTop])
-        .domain([0, yMax]);
+        .domain([0, yMax])
+        .nice();
     svg.select<SVGGElement>(".y-ticks")
         .transition(trans)
         .call(
@@ -138,6 +139,15 @@ export function renderHours(
                 remove.call((remove) =>
                     remove.transition(trans).attr("height", 0).attr("y", y(0))
                 )
+        );
+
+    svg.select<SVGGElement>(".y2-ticks")
+        .transition(trans)
+        .call(
+            axisRight(yArea)
+                .ticks(bounds.height / 50)
+                .tickFormat((n: any) => `${Math.round(n * 100)}%`)
+                .tickSizeOuter(0)
         );
 
     svg.select("path.area")
