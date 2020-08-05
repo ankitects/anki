@@ -67,6 +67,9 @@ body {
 @media only screen and (max-width: 600px) {
     .tick text {
         font-size: 15px;
+
+    .tick-odd {
+        display: none;
     }
 }
 

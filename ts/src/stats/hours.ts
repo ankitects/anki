@@ -85,7 +85,15 @@ export function renderHours(
         .paddingInner(0.1);
     svg.select<SVGGElement>(".x-ticks")
         .transition(trans)
-        .call(axisBottom(x).tickSizeOuter(0));
+        .call(axisBottom(x).tickSizeOuter(0))
+        .selectAll("text")
+        .attr("class", (n: any) => {
+            if (n % 2 != 0) {
+                return "tick-odd";
+            } else {
+                return "";
+            }
+        });
 
     const cappedRange = scaleLinear().range([0.1, 0.8]);
     const colour = scaleSequential((n) => interpolateBlues(cappedRange(n))).domain([
