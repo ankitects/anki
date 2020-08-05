@@ -16,7 +16,7 @@ import {
 import "d3-transition";
 import { select, mouse } from "d3-selection";
 import { scaleLinear, scaleSequential } from "d3-scale";
-import { axisBottom, axisLeft } from "d3-axis";
+import { axisBottom, axisLeft, axisRight } from "d3-axis";
 import { showTooltip, hideTooltip } from "./tooltip";
 import { GraphBounds, setDataAvailable, GraphRange, TableDatum } from "./graphs";
 import { area, curveBasis } from "d3-shape";
@@ -158,27 +158,30 @@ export function renderReviews(
 
     // y scale
 
+    const yTickFormat = (n: number): string => {
+        if (showTime) {
+            return timeSpan(i18n, n / 1000, true);
+        } else {
+            if (Math.round(n) != n) {
+                return "";
+            } else {
+                return n.toString();
+            }
+        }
+    };
+
     const yMax = max(bins, (b: Bin<any, any>) => cumulativeBinValue(b, 4))!;
     const y = scaleLinear()
         .range([bounds.height - bounds.marginBottom, bounds.marginTop])
-        .domain([0, yMax]);
+        .domain([0, yMax])
+        .nice();
     svg.select<SVGGElement>(".y-ticks")
         .transition(trans)
         .call(
             axisLeft(y)
                 .ticks(bounds.height / 50)
                 .tickSizeOuter(0)
-                .tickFormat(((n: number): string => {
-                    if (showTime) {
-                        return timeSpan(i18n, n / 1000, true);
-                    } else {
-                        if (Math.round(n) != n) {
-                            return "";
-                        } else {
-                            return n.toString();
-                        }
-                    }
-                }) as any)
+                .tickFormat(yTickFormat as any)
         );
 
     // x bars
@@ -306,9 +309,18 @@ export function renderReviews(
     areaCounts.unshift(0);
     const areaData = cumsum(areaCounts);
     const yCumMax = areaData.slice(-1)[0];
-    const yAreaScale = y.copy().domain([0, yCumMax]);
+    const yAreaScale = y.copy().domain([0, yCumMax]).nice();
 
     if (yCumMax) {
+        svg.select<SVGGElement>(".y2-ticks")
+            .transition(trans)
+            .call(
+                axisRight(yAreaScale)
+                    .ticks(bounds.height / 50)
+                    .tickFormat(yTickFormat as any)
+                    .tickSizeOuter(0)
+            );
+
         svg.select("path.area")
             .datum(areaData as any)
             .attr(
