@@ -519,20 +519,6 @@ queue = (case when type = {CARD_TYPE_LRN} then {QUEUE_TYPE_NEW}
 else type end), type = (case when type = {CARD_TYPE_LRN} then {CARD_TYPE_NEW} else type end)
     """
 
-    def rebuildDyn(self, did: Optional[int] = None) -> Optional[Sequence[int]]:  # type: ignore[override]
-        "Rebuild a dynamic deck."
-        did = did or self.col.decks.selected()
-        deck = self.col.decks.get(did)
-        assert deck["dyn"]
-        # move any existing cards back first, then fill
-        self.emptyDyn(did)
-        cnt = self._fillDyn(deck)
-        if not cnt:
-            return None
-        # and change to our new deck
-        self.col.decks.select(did)
-        return cnt
-
     def _fillDyn(self, deck: Dict[str, Any]) -> Sequence[int]:  # type: ignore[override]
         search, limit, order = deck["terms"][0]
         orderlimit = self._dynOrder(order, limit)
