@@ -115,15 +115,6 @@ class Scheduler(V2):
         else:
             return 3
 
-    def unburyCards(self) -> None:
-        "Unbury cards."
-        self.col.log(
-            self.col.db.list(f"select id from cards where {self._queueIsBuriedSnippet}")
-        )
-        self.col.db.execute(
-            f"update cards set {self._restoreQueueSnippet} where {self._queueIsBuriedSnippet}"
-        )
-
     def unburyCardsForDeck(self) -> None:  # type: ignore[override]
         super().unburyCardsForDeck("all")
 
