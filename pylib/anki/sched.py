@@ -636,24 +636,6 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?"""
         oconf = self.col.decks.confForDid(card.odid)
         return conf["delays"] or oconf["new"]["delays"]
 
-    def _newConf(self, card: Card) -> Dict[str, Any]:
-        conf = self._cardConf(card)
-        # normal deck
-        if not card.odid:
-            return conf["new"]
-        # dynamic deck; override some attributes, use original deck for others
-        oconf = self.col.decks.confForDid(card.odid)
-        return dict(
-            # original deck
-            ints=oconf["new"]["ints"],
-            initialFactor=oconf["new"]["initialFactor"],
-            bury=oconf["new"].get("bury", True),
-            # overrides
-            delays=self._newConfDelays(card),
-            order=NEW_CARDS_DUE,
-            perDay=self.reportLimit,
-        )
-
     def _lapseConfDelays(self, card: Card) -> Dict[str, Any]:
         conf = self._cardConf(card)
         oconf = self.col.decks.confForDid(card.odid)
