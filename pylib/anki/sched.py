@@ -313,18 +313,6 @@ select sum(left/1000) from
             or 0
         )
 
-    def _lrnForDeck(self, did: int) -> int:
-        cnt = self._subDayLrnForDeck(did)
-        return cnt + self.col.db.scalar(
-            f"""
-select count() from
-(select 1 from cards where did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN}
-and due <= ? limit ?)""",
-            did,
-            self.today,
-            self.reportLimit,
-        )
-
     # Reviews
     ##########################################################################
 
