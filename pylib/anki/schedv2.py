@@ -1401,7 +1401,11 @@ To study outside of the normal schedule, click the Custom Study button below."""
         return not not cnt
 
     def haveBuried(self) -> bool:
-        return self.haveManuallyBuried() or self.haveBuriedSiblings()
+        cnt = self.col.db.scalar(
+            f"select 1 from cards where {self._queueIsBuriedSnippet} and did in %s limit 1"
+            % self._deckLimit()
+        )
+        return not not cnt
 
     # Next time reports
     ##########################################################################
