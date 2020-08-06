@@ -255,13 +255,23 @@ fn error_for_status_code(info: String, code: StatusCode) -> AnkiError {
     }
 }
 
-fn guess_reqwest_error(info: String) -> AnkiError {
+fn guess_reqwest_error(mut info: String) -> AnkiError {
     if info.contains("dns error: cancelled") {
         return AnkiError::Interrupted;
     }
     let kind = if info.contains("unreachable") || info.contains("dns") {
         NetworkErrorKind::Offline
     } else {
+        if info.contains("invalid type") {
+            info = format!(
+                "{} {} {}\n\n{}",
+                "Please force a full sync in the Preferences screen to bring your devices into sync.",
+                "Then, please use the Check Database feature, and sync to your other devices.",
+                "If problems persist, please post on the support forum.",
+                info,
+            );
+        }
+
         NetworkErrorKind::Other
     };
     AnkiError::NetworkError { info, kind }
