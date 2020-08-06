@@ -1176,6 +1176,9 @@ where id = ?
     # Leeches
     ##########################################################################
 
+    def _filteredLeech(self, card: Card):
+        pass
+
     def _checkLeech(self, card: Card, conf: Dict[str, Any]) -> bool:
         "Leech handler. True if card was a leech."
         lf = conf["leechFails"]
@@ -1190,6 +1193,7 @@ where id = ?
             # handle
             a = conf["leechAction"]
             if a == LEECH_SUSPEND:
+                self._filteredLeech(card)
                 card.queue = QUEUE_TYPE_SUSPENDED
             # notify UI
             hooks.card_did_leech(card)

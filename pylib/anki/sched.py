@@ -724,6 +724,14 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?"""
     # Leeches
     ##########################################################################
 
+    def _filteredLeech(self, card: Card):
+        # if it has an old due, remove it from cram/relearning
+        if card.odue:
+            card.due = card.odue
+        if card.odid:
+            card.did = card.odid
+            card.odue = card.odid = 0
+
     def _checkLeech(self, card: Card, conf: Dict[str, Any]) -> bool:
         "Leech handler. True if card was a leech."
         lf = conf["leechFails"]
@@ -738,12 +746,7 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?"""
             # handle
             a = conf["leechAction"]
             if a == LEECH_SUSPEND:
-                # if it has an old due, remove it from cram/relearning
-                if card.odue:
-                    card.due = card.odue
-                if card.odid:
-                    card.did = card.odid
-                card.odue = card.odid = 0
+                self._filteredLeech(card)
                 card.queue = QUEUE_TYPE_SUSPENDED
             # notify UI
             hooks.card_did_leech(card)
