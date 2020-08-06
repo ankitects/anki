@@ -214,7 +214,11 @@ and due <= ? limit %d"""
             self.today,
         )
 
+    def _updateLrnCutoff(self, force):
+        pass
+
     def _resetLrn(self) -> None:
+        self._updateLrnCutoff(force=True)
         self._resetLrnCount()
         self._lrnQueue: List[Any] = []
         self._lrnDayQueue: List[Any] = []
