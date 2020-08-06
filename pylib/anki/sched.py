@@ -258,15 +258,6 @@ and due <= ? limit %d"""
 
     _relearning_type = CARD_TYPE_REV
 
-    def _startingLeft(self, card: Card) -> int:
-        if card.type == self._relearning_type:
-            conf = self._lapseConf(card)
-        else:
-            conf = self._lrnConf(card)
-        tot = len(conf["delays"])
-        tod = self._leftToday(conf["delays"], tot)
-        return tot + tod * 1000
-
     def _graduatingIvl(
         self, card: Card, conf: Dict[str, Any], early: bool, adj: bool = True
     ) -> int:
