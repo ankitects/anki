@@ -647,17 +647,6 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?"""
             return True
         return conf["resched"]
 
-    # Deck finished state
-    ##########################################################################
-
-    def haveBuried(self) -> bool:
-        sdids = self._deckLimit()
-        cnt = self.col.db.scalar(
-            f"select 1 from cards where {self._queueIsBuriedSnippet} and did in %s limit 1"
-            % sdids
-        )
-        return not not cnt
-
     # Next time reports
     ##########################################################################
 
