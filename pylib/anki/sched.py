@@ -281,42 +281,6 @@ and due <= ? limit %d"""
     def _logLrnNotLeaving(self, card: Card, ease: int, conf: Dict[str, Any]):
         return -(self._delayForGrade(conf, card.left))
 
-    def _logLrn(
-        self,
-        card: Card,
-        ease: int,
-        conf: Dict[str, Any],
-        leaving: bool,
-        type: int,
-        lastLeft: int,
-    ) -> None:
-        lastIvl = -(self._delayForGrade(conf, lastLeft))
-        if leaving:
-            ivl = card.ivl
-        else:
-            ivl = self._logLrnNotLeaving(card, ease, conf)
-
-        def log():
-            self.col.db.execute(
-                "insert into revlog values (?,?,?,?,?,?,?,?,?)",
-                int(time.time() * 1000),
-                card.id,
-                self.col.usn(),
-                ease,
-                ivl,
-                lastIvl,
-                card.factor,
-                card.timeTaken(),
-                type,
-            )
-
-        try:
-            log()
-        except:
-            # duplicate pk; retry in 10ms
-            time.sleep(0.01)
-            log()
-
     def removeLrn(self, ids: Optional[List[int]] = None) -> None:
         "Remove cards from the learning queues."
         if ids:
