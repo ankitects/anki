@@ -389,6 +389,7 @@ class CardLayout(QDialog):
         l.addStretch()
         save = QPushButton(_("Save"))
         save.setAutoDefault(False)
+        save.setShortcut(QKeySequence("Ctrl+Return"))
         l.addWidget(save)
         qconnect(save.clicked, self.accept)
 
