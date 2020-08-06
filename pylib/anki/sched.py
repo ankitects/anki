@@ -380,6 +380,9 @@ limit %d"""
         card.due = self.today + card.ivl
         card.factor = conf["initialFactor"]
 
+    def _logLrnNotLeaving(self, card: Card, ease: int, conf: Dict[str, Any]):
+        return -(self._delayForGrade(conf, card.left))
+
     def _logLrn(
         self,
         card: Card,
@@ -393,7 +396,7 @@ limit %d"""
         if leaving:
             ivl = card.ivl
         else:
-            ivl = -(self._delayForGrade(conf, card.left))
+            ivl = self._logLrnNotLeaving(card, ease, conf)
 
         def log():
             self.col.db.execute(

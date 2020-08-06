@@ -711,6 +711,12 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
         card.factor = conf["initialFactor"]
         card.type = card.queue = QUEUE_TYPE_REV
 
+    def _logLrnNotLeaving(self, card: Card, ease: int, conf: Dict[str, Any]):
+        if ease == BUTTON_TWO:
+            return -self._delayForRepeatingGrade(conf, card.left)
+        else:
+            return -self._delayForGrade(conf, card.left)
+
     def _logLrn(
         self,
         card: Card,
@@ -724,10 +730,7 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
         if leaving:
             ivl = card.ivl
         else:
-            if ease == BUTTON_TWO:
-                ivl = -self._delayForRepeatingGrade(conf, card.left)
-            else:
-                ivl = -self._delayForGrade(conf, card.left)
+            ivl = self._logLrnNotLeaving(card, ease, conf)
 
         def log() -> None:
             self.col.db.execute(
