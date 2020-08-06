@@ -130,17 +130,7 @@ class Scheduler(V2):
         )
 
     def unburyCardsForDeck(self) -> None:  # type: ignore[override]
-        sids = self._deckLimit()
-        self.col.log(
-            self.col.db.list(
-                f"select id from cards where {self._queueIsBuriedSnippet} and did in {sids}"
-            )
-        )
-        self.col.db.execute(
-            f"update cards set mod=?,usn=?,{self._restoreQueueSnippet} where {self._queueIsBuriedSnippet} and did in {sids}",
-            intTime(),
-            self.col.usn(),
-        )
+        super().unburyCardsForDeck("all")
 
     # Getting the next card
     ##########################################################################
