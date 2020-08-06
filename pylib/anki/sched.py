@@ -6,7 +6,7 @@ from __future__ import annotations
 import random
 import time
 from heapq import *
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import anki
 from anki import hooks
@@ -200,53 +200,13 @@ and due <= ? limit %d"""
     def _updateLrnCutoff(self, force):
         pass
 
-    def _resetLrn(self) -> None:
-        self._updateLrnCutoff(force=True)
-        self._resetLrnCount()
-        self._lrnQueue: List[Any] = []
-        self._lrnDayQueue: List[Any] = []
-        self._lrnDids = self.col.decks.active()[:]
-
     def _cutoff(self):
         return self.dayCutoff
 
     _queueInLearningSnippet = f"queue = {QUEUE_TYPE_LRN}"
 
-    # sub-day learning
-    def _fillLrn(self) -> Union[bool, List[Any]]:
-        if not self.lrnCount:
-            return False
-        if self._lrnQueue:
-            return True
-        self._lrnQueue = self.col.db.all(
-            f"""
-select due, id from cards where
-did in %s and {self._queueInLearningSnippet} and due < ?
-limit %d"""
-            % (self._deckLimit(), self.reportLimit),
-            self._cutoff(),
-        )
-        for i in range(len(self._lrnQueue)):
-            self._lrnQueue[i] = (self._lrnQueue[i][0], self._lrnQueue[i][1])
-        # as it arrives sorted by did first, we need to sort it
-        self._lrnQueue.sort()
-        return self._lrnQueue
-
     def _lrnCountDecrease(self, card: Card):
         self.lrnCount -= card.left // 1000
-
-    def _getLrnCard(self, collapse: bool = False) -> Optional[Card]:
-        self._maybeResetLrn(force=collapse and self.lrnCount == 0)
-        if self._fillLrn():
-            cutoff = time.time()
-            if collapse:
-                cutoff += self.col.conf["collapseTime"]
-            if self._lrnQueue[0][0] < cutoff:
-                id = heappop(self._lrnQueue)[1]
-                card = self.col.getCard(id)
-                self._lrnCountDecrease(card)
-                return card
-        return None
 
     def _answerLrnCard(self, card: Card, ease: int) -> None:
         # ease 1=no, 2=yes, 3=remove
