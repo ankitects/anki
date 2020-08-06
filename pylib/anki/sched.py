@@ -190,6 +190,9 @@ class Scheduler(V2):
     # Learning queues
     ##########################################################################
 
+    def _maybeResetLrn(self, force: bool) -> None:
+        pass
+
     def _resetLrnCount(self) -> None:
         # sub-day
         self.lrnCount = (
@@ -246,6 +249,7 @@ limit %d"""
         self.lrnCount -= card.left // 1000
 
     def _getLrnCard(self, collapse: bool = False) -> Optional[Card]:
+        self._maybeResetLrn(force=collapse and self.lrnCount == 0)
         if self._fillLrn():
             cutoff = time.time()
             if collapse:
