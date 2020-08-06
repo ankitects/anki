@@ -345,8 +345,10 @@ limit %d"""
                 card.queue = card.type = CARD_TYPE_NEW
                 card.due = self.col.nextID("pos")
 
+    _relearning_type = CARD_TYPE_REV
+
     def _startingLeft(self, card: Card) -> int:
-        if card.type == CARD_TYPE_REV:
+        if card.type == self._relearning_type:
             conf = self._lapseConf(card)
         else:
             conf = self._lrnConf(card)

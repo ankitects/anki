@@ -664,8 +664,10 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
         card.queue = QUEUE_TYPE_REV
         card.type = CARD_TYPE_REV
 
+    _relearning_type = CARD_TYPE_RELEARNING
+
     def _startingLeft(self, card: Card) -> int:
-        if card.type == CARD_TYPE_RELEARNING:
+        if card.type == self._relearning_type:
             conf = self._lapseConf(card)
         else:
             conf = self._lrnConf(card)
