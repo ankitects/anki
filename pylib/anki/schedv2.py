@@ -750,8 +750,8 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
             time.sleep(0.01)
             log()
 
-    def _lrnForDeck(self, did: int) -> int:
-        cnt = (
+    def _subDayLrnForDeck(self, did: int) -> int:
+        return (
             self.col.db.scalar(
                 f"""
 select count() from
@@ -762,6 +762,9 @@ select count() from
             )
             or 0
         )
+
+    def _lrnForDeck(self, did: int) -> int:
+        cnt = self._subDayLrnForDeck(did)
         return cnt + self.col.db.scalar(
             f"""
 select count() from

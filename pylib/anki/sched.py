@@ -441,8 +441,8 @@ where queue in ({QUEUE_TYPE_LRN},{QUEUE_TYPE_DAY_LEARN_RELEARN}) and type = {CAR
             )
         )
 
-    def _lrnForDeck(self, did: int) -> int:
-        cnt = (
+    def _subDayLrnForDeck(self, did: int) -> int:
+        return (
             self.col.db.scalar(
                 f"""
 select sum(left/1000) from
@@ -453,6 +453,9 @@ select sum(left/1000) from
             )
             or 0
         )
+
+    def _lrnForDeck(self, did: int) -> int:
+        cnt = self._subDayLrnForDeck(did)
         return cnt + self.col.db.scalar(
             f"""
 select count() from
