@@ -316,12 +316,6 @@ limit %d"""
                 card.queue = QUEUE_TYPE_DAY_LEARN_RELEARN
         self._logLrn(card, ease, conf, leaving, type, lastLeft)
 
-    def _lrnConf(self, card: Card) -> Dict[str, Any]:
-        if card.type == CARD_TYPE_REV:
-            return self._lapseConf(card)
-        else:
-            return self._newConf(card)
-
     def _rescheduleAsRev(self, card: Card, conf: Dict[str, Any], early: bool) -> None:
         lapse = card.type == CARD_TYPE_REV
         if lapse:
