@@ -643,6 +643,10 @@ did = ? and queue = {QUEUE_TYPE_REV} and due <= ? limit ?""",
 
     # Dynamic deck handling
     ##########################################################################
+    _restoreQueueWhenEmptyingSnippet = f"""
+queue = (case when type = {CARD_TYPE_LRN} then {QUEUE_TYPE_NEW}
+else type end), type = (case when type = {CARD_TYPE_LRN} then {CARD_TYPE_NEW} else type end)
+    """
 
     def rebuildDyn(self, did: Optional[int] = None) -> Optional[Sequence[int]]:  # type: ignore[override]
         "Rebuild a dynamic deck."
@@ -681,10 +685,9 @@ did = ? and queue = {QUEUE_TYPE_REV} and due <= ? limit ?""",
         # move out of cram queue
         self.col.db.execute(
             f"""
-update cards set did = odid, queue = (case when type = {CARD_TYPE_LRN} then {QUEUE_TYPE_NEW}
-else type end), type = (case when type = {CARD_TYPE_LRN} then {CARD_TYPE_NEW} else type end),
-due = odue, odue = 0, odid = 0, usn = ? where %s"""
-            % lim,
+update cards set did = odid,
+{self._restoreQueueWhenEmptyingSnippet},
+due = odue, odue = 0, odid = 0, usn = ? where {lim}""",
             self.col.usn(),
         )
 

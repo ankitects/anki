@@ -1091,10 +1091,9 @@ end)
         self.col.log(self.col.db.list("select id from cards where %s" % lim))
 
         self.col.db.execute(
-            """
-update cards set did = odid, %s,
-due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? where %s"""
-            % (self._restoreQueueWhenEmptyingSnippet, lim),
+            f"""
+update cards set did = odid, {self._restoreQueueWhenEmptyingSnippet},
+due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? where {lim}""",
             self.col.usn(),
         )
 
