@@ -101,11 +101,6 @@ class Scheduler(V2):
         new, lrn, rev = counts
         return (new, lrn, rev)
 
-    def countIdx(self, card: Card) -> int:
-        if card.queue == QUEUE_TYPE_DAY_LEARN_RELEARN:
-            return QUEUE_TYPE_LRN
-        return card.queue
-
     def answerButtons(self, card: Card) -> int:
         if card.odue:
             # normal review in dyn deck?
