@@ -699,16 +699,6 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?"""
         self.removeLrn(ids)
         super().suspendCards(ids)
 
-    def unsuspendCards(self, ids: List[int]) -> None:
-        "Unsuspend cards."
-        self.col.log(ids)
-        self.col.db.execute(
-            f"update cards set {self._restoreQueueSnippet},mod=?,usn=? "
-            f"where queue = {QUEUE_TYPE_SUSPENDED} and id in " + ids2str(ids),
-            intTime(),
-            self.col.usn(),
-        )
-
     def buryCards(self, cids: List[int], manual: bool = False) -> None:
         # v1 only supported automatic burying
         assert not manual
