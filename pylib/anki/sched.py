@@ -390,7 +390,10 @@ limit %d"""
         lastLeft: int,
     ) -> None:
         lastIvl = -(self._delayForGrade(conf, lastLeft))
-        ivl = card.ivl if leaving else -(self._delayForGrade(conf, card.left))
+        if leaving:
+            ivl = card.ivl
+        else:
+            ivl = -(self._delayForGrade(conf, card.left))
 
         def log():
             self.col.db.execute(
