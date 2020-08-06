@@ -374,12 +374,6 @@ limit %d"""
         else:
             return ideal
 
-    def _rescheduleNew(self, card: Card, conf: Dict[str, Any], early: bool) -> None:
-        "Reschedule a new card that's graduated for the first time."
-        card.ivl = self._graduatingIvl(card, conf, early)
-        card.due = self.today + card.ivl
-        card.factor = conf["initialFactor"]
-
     def _logLrnNotLeaving(self, card: Card, ease: int, conf: Dict[str, Any]):
         return -(self._delayForGrade(conf, card.left))
 
