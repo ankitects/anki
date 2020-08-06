@@ -480,6 +480,9 @@ limit %d"""
         self._lrnQueue.sort()
         return self._lrnQueue
 
+    def _lrnCountDecrease(self, card: Card):
+        self.lrnCount -= 1
+
     def _getLrnCard(self, collapse: bool = False) -> Optional[Card]:
         self._maybeResetLrn(force=collapse and self.lrnCount == 0)
         if self._fillLrn():
@@ -489,7 +492,7 @@ limit %d"""
             if self._lrnQueue[0][0] < cutoff:
                 id = heappop(self._lrnQueue)[1]
                 card = self.col.getCard(id)
-                self.lrnCount -= 1
+                self._lrnCountDecrease(card)
                 return card
         return None
 
