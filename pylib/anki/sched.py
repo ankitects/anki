@@ -655,12 +655,12 @@ else type end), type = (case when type = {CARD_TYPE_LRN} then {CARD_TYPE_NEW} el
         assert deck["dyn"]
         # move any existing cards back first, then fill
         self.emptyDyn(did)
-        ids = self._fillDyn(deck)
-        if not ids:
+        cnt = self._fillDyn(deck)
+        if not cnt:
             return None
         # and change to our new deck
         self.col.decks.select(did)
-        return ids
+        return cnt
 
     def _fillDyn(self, deck: Dict[str, Any]) -> Sequence[int]:  # type: ignore[override]
         search, limit, order = deck["terms"][0]
