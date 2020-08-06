@@ -606,28 +606,6 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?"""
             card.did = card.odid
             card.odue = card.odid = 0
 
-    def _checkLeech(self, card: Card, conf: Dict[str, Any]) -> bool:
-        "Leech handler. True if card was a leech."
-        lf = conf["leechFails"]
-        if not lf:
-            return False
-        # if over threshold or every half threshold reps after that
-        if card.lapses >= lf and (card.lapses - lf) % (max(lf // 2, 1)) == 0:
-            # add a leech tag
-            n = card.note()
-            n.addTag("leech")
-            n.flush()
-            # handle
-            a = conf["leechAction"]
-            if a == LEECH_SUSPEND:
-                self._filteredLeech(card)
-                card.queue = QUEUE_TYPE_SUSPENDED
-            # notify UI
-            hooks.card_did_leech(card)
-            return True
-        else:
-            return False
-
     # Tools
     ##########################################################################
 
