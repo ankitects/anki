@@ -133,13 +133,11 @@ class Scheduler(V2):
         sids = self._deckLimit()
         self.col.log(
             self.col.db.list(
-                f"select id from cards where {self._queueIsBuriedSnippet} and did in %s"
-                % sids
+                f"select id from cards where {self._queueIsBuriedSnippet} and did in {sids}"
             )
         )
         self.col.db.execute(
-            f"update cards set mod=?,usn=?,{self._restoreQueueSnippet} where {self._queueIsBuriedSnippet} and did in %s"
-            % sids,
+            f"update cards set mod=?,usn=?,{self._restoreQueueSnippet} where {self._queueIsBuriedSnippet} and did in {sids}",
             intTime(),
             self.col.usn(),
         )

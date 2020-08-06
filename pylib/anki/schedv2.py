@@ -1556,15 +1556,12 @@ update cards set queue=?,mod=?,usn=? where id in """
         else:
             raise Exception("unknown type")
 
+        sids = self._deckLimit()
         self.col.log(
-            self.col.db.list(
-                "select id from cards where %s and did in %s"
-                % (queue, self._deckLimit())
-            )
+            self.col.db.list(f"select id from cards where {queue} and did in {sids}")
         )
         self.col.db.execute(
-            f"update cards set mod=?,usn=?,{self._restoreQueueSnippet} where %s and did in %s"
-            % (queue, self._deckLimit()),
+            f"update cards set mod=?,usn=?,{self._restoreQueueSnippet} where {queue} and did in {sids}",
             intTime(),
             self.col.usn(),
         )
