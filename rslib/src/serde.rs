@@ -17,49 +17,49 @@ where
     Ok(T::deserialize(v).unwrap_or_default())
 }
 
-pub fn deserialize_int_from_number<'de, T, D>(deserializer: D) -> Result<T, D::Error>
+pub(crate) fn deserialize_int_from_number<'de, T, D>(deserializer: D) -> Result<T, D::Error>
 where
     D: Deserializer<'de>,
-    T: serde::Deserialize<'de> + FromF64,
+    T: serde::Deserialize<'de> + FromI64,
 {
     #[derive(DeTrait)]
     #[serde(untagged)]
-    enum IntOrFloat<T> {
-        Int(T),
+    enum IntOrFloat {
+        Int(i64),
         Float(f64),
     }
 
-    match IntOrFloat::<T>::deserialize(deserializer)? {
-        IntOrFloat::Float(s) => Ok(T::from_f64(s)),
-        IntOrFloat::Int(i) => Ok(i),
+    match IntOrFloat::deserialize(deserializer)? {
+        IntOrFloat::Float(f) => Ok(T::from_i64(f as i64)),
+        IntOrFloat::Int(i) => Ok(T::from_i64(i)),
     }
 }
 
 // It may be possible to use the num_traits crate instead in the future.
-pub trait FromF64 {
-    fn from_f64(val: f64) -> Self;
+pub(crate) trait FromI64 {
+    fn from_i64(val: i64) -> Self;
 }
 
-impl FromF64 for i32 {
-    fn from_f64(val: f64) -> Self {
+impl FromI64 for i32 {
+    fn from_i64(val: i64) -> Self {
         val as Self
     }
 }
 
-impl FromF64 for u32 {
-    fn from_f64(val: f64) -> Self {
-        val as Self
+impl FromI64 for u32 {
+    fn from_i64(val: i64) -> Self {
+        val.max(0) as Self
     }
 }
 
-impl FromF64 for i64 {
-    fn from_f64(val: f64) -> Self {
-        val as Self
+impl FromI64 for i64 {
+    fn from_i64(val: i64) -> Self {
+        val
     }
 }
 
-impl FromF64 for TimestampSecs {
-    fn from_f64(val: f64) -> Self {
+impl FromI64 for TimestampSecs {
+    fn from_i64(val: i64) -> Self {
         TimestampSecs(val as i64)
     }
 }
