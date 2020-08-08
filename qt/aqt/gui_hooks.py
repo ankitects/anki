@@ -1737,6 +1737,41 @@ class _MainWindowDidInitHook:
 main_window_did_init = _MainWindowDidInitHook()
 
 
+class _MainWindowWillRequireResetFilter:
+    """Executed before the main window will require a reset
+        
+        This hook can be used to change the behavior of the main window,
+        when other dialogs, like the AddCards or Browser, require a reset
+        from the main window.
+        """
+
+    _hooks: List[Callable[[bool], bool]] = []
+
+    def append(self, cb: Callable[[bool], bool]) -> None:
+        """(will_reset: bool)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[bool], bool]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
+
+    def __call__(self, will_reset: bool) -> bool:
+        for filter in self._hooks:
+            try:
+                will_reset = filter(will_reset)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return will_reset
+
+
+main_window_will_require_reset = _MainWindowWillRequireResetFilter()
+
+
 class _MediaSyncDidProgressHook:
     _hooks: List[Callable[["aqt.mediasync.LogEntryWithTime"], None]] = []
 
