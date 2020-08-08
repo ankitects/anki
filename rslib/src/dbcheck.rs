@@ -267,6 +267,9 @@ impl Collection {
                     out.field_count_mismatch += 1;
                 }
 
+                // note type ID may have changed if we created a recovery notetype
+                note.ntid = nt.id;
+
                 // write note, updating tags and generating missing cards
                 let ctx = genctx.get_or_insert_with(|| CardGenContext::new(&nt, usn));
                 self.update_note_inner_generating_cards(&ctx, &mut note, false, norm)?;
