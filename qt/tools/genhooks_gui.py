@@ -440,6 +440,17 @@ hooks = [
         is thus suitable for single-shot subscribers.
         """,
     ),
+    Hook(
+        name="main_window_will_require_reset",
+        args=["will_reset: bool"],
+        return_type="bool",
+        doc="""Executed before the main window will require a reset
+        
+        This hook can be used to change the behavior of the main window,
+        when other dialogs, like the AddCards or Browser, require a reset
+        from the main window.
+        """,
+    ),
     Hook(name="backup_did_complete"),
     Hook(
         name="profile_did_open",
