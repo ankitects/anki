@@ -382,7 +382,7 @@
              <item>
               <widget class="QPushButton" name="syncDeauth">
                <property name="text">
-                <string>Deauthorize</string>
+                <string notr="true">LOGOUT</string>
                </property>
                <property name="autoDefault">
                 <bool>false</bool>
