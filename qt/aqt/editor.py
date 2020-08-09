@@ -1199,13 +1199,16 @@ def fontMungeHack(font):
 def munge_html(txt, editor):
     return "" if txt in ("<br>", "<div><br></div>") else txt
 
+
 def remove_null_bytes(txt, editor):
     # misbehaving apps may include a null byte in the text
     return txt.replace("\x00", "")
 
+
 def reverse_url_quoting(txt, editor):
     # reverse the url quoting we added to get images to display
     return editor.mw.col.media.escapeImages(txt, unescape=True)
+
 
 gui_hooks.editor_will_use_font_for_field.append(fontMungeHack)
 gui_hooks.editor_will_munge_html.append(munge_html)
