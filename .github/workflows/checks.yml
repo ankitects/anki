@@ -218,7 +218,7 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}${{ matrix.SEP }}rslib${{ matrix.SEP }}target
-          key: ${{ runner.os }}-cargo-rslib-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-${{ matrix.BUILD_TYPE }}-22-
+          key: ${{ runner.os }}-cargo-rslib-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-${{ matrix.BUILD_TYPE }}-23-
 
       - name: Cache cargo rspy
         if: matrix.python == '3.7'
