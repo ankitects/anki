@@ -389,8 +389,6 @@ class Editor:
                 print("ignored late blur")
                 return
             txt = self.mungeHTML(txt)
-            # misbehaving apps may include a null byte in the text
-            txt = txt.replace("\x00", "")
             # reverse the url quoting we added to get images to display
             txt = self.mw.col.media.escapeImages(txt, unescape=True)
             self.note.fields[ord] = txt
@@ -1202,6 +1200,10 @@ def fontMungeHack(font):
 def munge_html(txt, editor):
     return "" if txt in ("<br>", "<div><br></div>") else txt
 
+def remove_null_bytes(txt, editor):
+    # misbehaving apps may include a null byte in the text
+    return txt.replace("\x00", "")
 
 gui_hooks.editor_will_use_font_for_field.append(fontMungeHack)
 gui_hooks.editor_will_munge_html.append(munge_html)
+gui_hooks.editor_will_munge_html.append(remove_null_bytes)
