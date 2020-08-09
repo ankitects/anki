@@ -442,7 +442,7 @@ hooks = [
     ),
     Hook(
         name="main_window_will_require_reset",
-        args=["will_reset: bool"],
+        args=["will_reset: bool", "reason: str", "context: Optional[Any]"],
         return_type="bool",
         doc="""Executed before the main window will require a reset
         

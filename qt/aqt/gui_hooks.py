@@ -1745,23 +1745,23 @@ class _MainWindowWillRequireResetFilter:
         from the main window.
         """
 
-    _hooks: List[Callable[[bool], bool]] = []
+    _hooks: List[Callable[[bool, str, Optional[Any]], bool]] = []
 
-    def append(self, cb: Callable[[bool], bool]) -> None:
-        """(will_reset: bool)"""
+    def append(self, cb: Callable[[bool, str, Optional[Any]], bool]) -> None:
+        """(will_reset: bool, reason: str, context: Optional[Any])"""
         self._hooks.append(cb)
 
-    def remove(self, cb: Callable[[bool], bool]) -> None:
+    def remove(self, cb: Callable[[bool, str, Optional[Any]], bool]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
     def count(self) -> int:
         return len(self._hooks)
 
-    def __call__(self, will_reset: bool) -> bool:
+    def __call__(self, will_reset: bool, reason: str, context: Optional[Any]) -> bool:
         for filter in self._hooks:
             try:
-                will_reset = filter(will_reset)
+                will_reset = filter(will_reset, reason, context)
             except:
                 # if the hook fails, remove it
                 self._hooks.remove(filter)
