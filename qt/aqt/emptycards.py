@@ -82,6 +82,7 @@ class EmptyCardsDialog(QDialog):
             finally:
                 self.close()
             tooltip(tr(TR.EMPTY_CARDS_DELETED_COUNT, cards=count))
+            self.mw.reset()
 
         self.mw.taskman.run_in_background(delete, on_done)
 
