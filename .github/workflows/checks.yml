@@ -197,7 +197,7 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ${{ matrix.CARGO_INDEX_DIR }}
-          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-22-
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-23-
 
       - name: Cache cargo registry
         if: matrix.python == '3.7'
