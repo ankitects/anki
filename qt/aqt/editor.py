@@ -388,8 +388,9 @@ class Editor:
             if nid != self.note.id:
                 print("ignored late blur")
                 return
-            txt = self.mungeHTML(txt)
-            self.note.fields[ord] = txt
+
+            self.note.fields[ord] = self.mungeHTML(txt)
+
             if not self.addMode:
                 self.note.flush()
                 self.mw.requireReset()
