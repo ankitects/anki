@@ -684,11 +684,11 @@ from the profile screen."
             self.maybeEnableUndo()
             self.moveToState(self.state)
 
-    def requireReset(self, modal=False):
+    def requireReset(self, reason, context=None, modal=False):
         "Signal queue needs to be rebuilt when edits are finished or by user."
         self.autosave()
         self.resetModal = modal
-        if gui_hooks.main_window_will_require_reset(self.interactiveState()):
+        if gui_hooks.main_window_will_require_reset(self.interactiveState(), reason, context):
             self.moveToState("resetRequired")
 
     def interactiveState(self):

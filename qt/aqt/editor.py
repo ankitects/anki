@@ -393,7 +393,7 @@ class Editor:
 
             if not self.addMode:
                 self.note.flush()
-                self.mw.requireReset()
+                self.mw.requireReset('editorBridgeCmd', self)
             if type == "blur":
                 self.currentField = None
                 # run any filters
