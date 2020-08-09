@@ -19,7 +19,7 @@ from fluent.syntax.ast import Message, TextElement, Identifier, Pattern, Junk
 # the templates folder inside the ftl repo
 repo_templates_dir = sys.argv[1]
 assert os.path.abspath(repo_templates_dir).endswith("templates")
-strings = json.load(open("strings.json"))
+strings = json.load(open("strings.json" if len(sys.argv) < 3 else sys.argv[2]))
 plurals = json.load(open("plurals.json"))
 
 
