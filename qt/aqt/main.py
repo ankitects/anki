@@ -688,7 +688,9 @@ from the profile screen."
         "Signal queue needs to be rebuilt when edits are finished or by user."
         self.autosave()
         self.resetModal = modal
-        if gui_hooks.main_window_will_require_reset(self.interactiveState(), reason, context):
+        if gui_hooks.main_window_will_require_reset(
+            self.interactiveState(), reason, context
+        ):
             self.moveToState("resetRequired")
 
     def interactiveState(self):
