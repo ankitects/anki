@@ -569,6 +569,12 @@ hooks = [
         legacy_hook="tagsUpdated",
     ),
     Hook(
+        name="editor_will_munge_html",
+        args=["txt: str", "editor: aqt.editor.Editor"],
+        return_type="str",
+        doc="""Allows manipulating the text that will be saved by the editor""",
+    ),
+    Hook(
         name="editor_will_use_font_for_field",
         args=["font: str"],
         return_type="str",

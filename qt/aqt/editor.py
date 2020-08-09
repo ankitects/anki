@@ -420,9 +420,7 @@ class Editor:
             print("uncaught cmd", cmd)
 
     def mungeHTML(self, txt):
-        if txt in ("<br>", "<div><br></div>"):
-            return ""
-        return txt
+        return gui_hooks.editor_will_munge_html(txt, self)
 
     # Setting/unsetting the current note
     ######################################################################
@@ -1201,4 +1199,9 @@ def fontMungeHack(font):
     return re.sub(" L$", " Light", font)
 
 
+def munge_html(txt, editor):
+    return "" if txt in ("<br>", "<div><br></div>") else txt
+
+
 gui_hooks.editor_will_use_font_for_field.append(fontMungeHack)
+gui_hooks.editor_will_munge_html.append(munge_html)

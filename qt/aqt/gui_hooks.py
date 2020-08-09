@@ -1564,6 +1564,36 @@ class _EditorWillLoadNoteFilter:
 editor_will_load_note = _EditorWillLoadNoteFilter()
 
 
+class _EditorWillMungeHtmlFilter:
+    """Allows manipulating the text that will be saved by the editor"""
+
+    _hooks: List[Callable[[str, "aqt.editor.Editor"], str]] = []
+
+    def append(self, cb: Callable[[str, "aqt.editor.Editor"], str]) -> None:
+        """(txt: str, editor: aqt.editor.Editor)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[str, "aqt.editor.Editor"], str]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
+
+    def __call__(self, txt: str, editor: aqt.editor.Editor) -> str:
+        for filter in self._hooks:
+            try:
+                txt = filter(txt, editor)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return txt
+
+
+editor_will_munge_html = _EditorWillMungeHtmlFilter()
+
+
 class _EditorWillShowContextMenuHook:
     _hooks: List[Callable[["aqt.editor.EditorWebView", QMenu], None]] = []
 
