@@ -1,4 +1,4 @@
 .build
 repo
 ftl
-strings.json
+strings*.json
