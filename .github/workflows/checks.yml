@@ -225,7 +225,7 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}${{ matrix.SEP }}rspy${{ matrix.SEP }}target
-          key: ${{ runner.os }}-cargo-rspy-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-${{ matrix.BUILD_TYPE }}-22-
+          key: ${{ runner.os }}-cargo-rspy-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-${{ matrix.BUILD_TYPE }}-23-
 
       - name: Set up curl pyaudio, rsync
         if: matrix.os == 'windows-latest'
