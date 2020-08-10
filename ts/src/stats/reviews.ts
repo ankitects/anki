@@ -117,13 +117,13 @@ export function renderReviews(
     // cap max to selected range
     switch (range) {
         case GraphRange.Month:
-            xMin = -31;
+            xMin = -30;
             break;
         case GraphRange.ThreeMonths:
-            xMin = -90;
+            xMin = -89;
             break;
         case GraphRange.Year:
-            xMin = -365;
+            xMin = -364;
             break;
         case GraphRange.AllTime:
             xMin = min(sourceData.reviewCount.keys())!;
@@ -354,7 +354,7 @@ export function renderReviews(
         })
         .on("mouseout", hideTooltip);
 
-    const periodDays = -xMin;
+    const periodDays = -xMin + 1;
     const studiedDays = sum(bins, (bin) => bin.length);
     const total = yCumMax;
     const periodAvg = total / periodDays;
