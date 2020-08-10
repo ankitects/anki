@@ -97,7 +97,7 @@ impl Collection {
                                 nt.templates
                                     .get(*ord as usize)
                                     .map(|t| t.name.clone())
-                                    .unwrap_or_default()
+                                    .unwrap_or_else(|| format!("Card {}", *ord + 1))
                             })
                             .collect::<Vec<_>>()
                             .join(", "),
