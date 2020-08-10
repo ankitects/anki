@@ -6,7 +6,8 @@ use crate::{
     err::{AnkiError, DBErrorKind, Result},
     i18n::{tr_args, I18n, TR},
     notetype::{
-        all_stock_notetypes, AlreadyGeneratedCardInfo, CardGenContext, NoteType, NoteTypeKind,
+        all_stock_notetypes, AlreadyGeneratedCardInfo, CardGenContext, NoteType, NoteTypeID,
+        NoteTypeKind,
     },
     timestamp::{TimestampMillis, TimestampSecs},
 };
@@ -27,6 +28,7 @@ pub struct CheckDatabaseOutput {
     templates_missing: usize,
     card_ords_duplicated: usize,
     field_count_mismatch: usize,
+    notetypes_recovered: usize,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -41,6 +43,13 @@ pub(crate) enum DatabaseCheckProgress {
 impl CheckDatabaseOutput {
     pub fn to_i18n_strings(&self, i18n: &I18n) -> Vec<String> {
         let mut probs = Vec::new();
+
+        if self.notetypes_recovered > 0 {
+            probs.push(i18n.trn(
+                TR::DatabaseCheckNotetypesRecovered,
+                tr_args!["count"=>self.revlog_properties_invalid],
+            ));
+        }
 
         if self.card_position_too_high > 0 {
             probs.push(i18n.trn(
@@ -237,7 +246,8 @@ impl Collection {
             let nt = match self.get_notetype(ntid)? {
                 None => {
                     let first_note = self.storage.get_note(group.peek().unwrap().1)?.unwrap();
-                    self.recover_notetype(stamp, first_note.fields.len())?
+                    out.notetypes_recovered += 1;
+                    self.recover_notetype(stamp, first_note.fields.len(), ntid)?
                 }
                 Some(nt) => nt,
             };
@@ -283,7 +293,10 @@ impl Collection {
             self.add_notetype_inner(&mut nt, usn)?;
         }
 
-        if out.card_ords_duplicated > 0 || out.field_count_mismatch > 0 || out.templates_missing > 0
+        if out.card_ords_duplicated > 0
+            || out.field_count_mismatch > 0
+            || out.templates_missing > 0
+            || out.notetypes_recovered > 0
         {
             self.storage.set_schema_modified()?;
         }
@@ -330,8 +343,12 @@ impl Collection {
         &mut self,
         stamp: TimestampMillis,
         field_count: usize,
+        previous_id: NoteTypeID,
     ) -> Result<Arc<NoteType>> {
         debug!(self.log, "create recovery notetype");
+        let extra_cards_required = self
+            .storage
+            .highest_card_ordinal_for_notetype(previous_id)?;
         let mut basic = all_stock_notetypes(&self.i18n).remove(0);
         let mut field = 3;
         while basic.fields.len() < field_count {
@@ -339,6 +356,11 @@ impl Collection {
             field += 1;
         }
         basic.name = format!("db-check-{}-{}", stamp, field_count);
+        let qfmt = basic.templates[0].config.q_format.clone();
+        let afmt = basic.templates[0].config.a_format.clone();
+        for n in 0..extra_cards_required {
+            basic.add_template(&format!("Card {}", n + 2), &qfmt, &afmt);
+        }
         self.add_notetype(&mut basic)?;
         Ok(Arc::new(basic))
     }
