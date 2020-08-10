@@ -11,8 +11,6 @@
 
     let bounds = defaultGraphBounds();
     bounds.height = 20;
-    bounds.marginLeft = 20;
-    bounds.marginRight = 20;
     bounds.marginTop = 0;
 
     let activeIdx: null | number = null;

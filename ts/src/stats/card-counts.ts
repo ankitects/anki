@@ -136,7 +136,7 @@ export function renderCards(
     const svg = select(svgElem);
     const trans = svg.transition().duration(600) as any;
 
-    x.range([bounds.marginLeft, bounds.width - bounds.marginRight - bounds.marginLeft]);
+    x.range([bounds.marginLeft, bounds.width - bounds.marginRight]);
 
     const tableData = data.map((d, idx) => {
         const percent = ((d.count / xMax) * 100).toFixed(1);
