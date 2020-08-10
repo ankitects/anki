@@ -18,11 +18,13 @@ import { GraphRange, TableDatum } from "./graphs";
 
 export interface GraphData {
     dueCounts: Map<number, number>;
+    haveBacklog: boolean;
 }
 
 export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
     const isLearning = (queue: number): boolean =>
         [CardQueue.Learn, CardQueue.PreviewRepeat].includes(queue);
+    let haveBacklog = false;
     const due = (data.cards as pb.BackendProto.Card[])
         .filter(
             (c) =>
@@ -39,7 +41,11 @@ export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
                 // - testing just odid fails on lapsed cards that
                 //   have due calculated at regraduation time
                 const due = c.odid && c.odue ? c.odue : c.due;
-                return due - data.daysElapsed;
+                const dueDay = due - data.daysElapsed;
+                if (dueDay < 0) {
+                    haveBacklog = true;
+                }
+                return dueDay;
             }
         });
 
@@ -48,11 +54,16 @@ export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
         (v) => v.length,
         (d) => d
     );
-    return { dueCounts };
+    return { dueCounts, haveBacklog };
 }
 
 function binValue(d: Bin<Map<number, number>, number>): number {
     return sum(d, (d) => d[1]);
+}
+
+export interface FutureDueOut {
+    histogramData: HistogramData | null;
+    tableData: TableDatum[];
 }
 
 export function buildHistogram(
@@ -60,11 +71,12 @@ export function buildHistogram(
     range: GraphRange,
     backlog: boolean,
     i18n: I18n
-): [HistogramData | null, TableDatum[]] {
+): FutureDueOut {
+    const output = { histogramData: null, tableData: [] };
     // get min/max
     const data = sourceData.dueCounts;
     if (!data) {
-        return [null, []];
+        return output;
     }
 
     const [xMinOrig, origXMax] = extent<number>(data.keys());
@@ -101,7 +113,7 @@ export function buildHistogram(
 
     // empty graph?
     if (!sum(bins, (bin) => bin.length)) {
-        return [null, []];
+        return output;
     }
 
     const adjustedRange = scaleLinear().range([0.7, 0.3]);
@@ -147,8 +159,8 @@ export function buildHistogram(
         },
     ];
 
-    return [
-        {
+    return {
+        histogramData: {
             scale: x,
             bins,
             total,
@@ -158,5 +170,5 @@ export function buildHistogram(
             binValue,
         },
         tableData,
-    ];
+    };
 }
