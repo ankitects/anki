@@ -14,6 +14,7 @@
     let graphData = null as GraphData | null;
     let histogramData = null as HistogramData | null;
     let tableData: TableDatum[] = [] as any;
+    let haveBacklog: boolean = false;
     let backlog: boolean = true;
     let graphRange: GraphRange = GraphRange.Month;
 
@@ -22,12 +23,12 @@
     }
 
     $: if (graphData) {
-        [histogramData, tableData] = buildHistogram(
+        ({ histogramData, tableData } = buildHistogram(
             graphData,
             graphRange,
             backlog,
             i18n
-        );
+        ));
     }
 
     const title = i18n.tr(i18n.TR.STATISTICS_FUTURE_DUE_TITLE);
@@ -41,10 +42,12 @@
     <div class="subtitle">{subtitle}</div>
 
     <div class="range-box-inner">
-        <label>
-            <input type="checkbox" bind:checked={backlog} />
-            {backlogLabel}
-        </label>
+        {#if graphData && graphData.haveBacklog}
+            <label>
+                <input type="checkbox" bind:checked={backlog} />
+                {backlogLabel}
+            </label>
+        {/if}
 
         <GraphRangeRadios bind:graphRange {i18n} revlogRange={RevlogRange.All} />
     </div>
