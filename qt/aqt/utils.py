@@ -362,7 +362,7 @@ def setupSyntaxHighlighter(parent, name, layout_name):
             layout.replaceWidget(old_editor, editor)
             old_editor.setParent(None)
             setattr(parent, name, editor)
-        except:
+        except Exception as error:
             QsciEnabled = False
             import traceback
 
