@@ -252,7 +252,7 @@ export function renderReviews(
         ];
         for (const [colour, label, detail] of lines) {
             buf += `<tr>
-            <td><span style="color: ${colour};">■</span>${label}</td>
+            <td><span style="color: ${colour};">■</span> ${label}</td>
             <td align=right>${detail}</td>
             </tr>`;
         }
