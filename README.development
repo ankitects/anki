@@ -1,11 +1,30 @@
-For non-developers who want to try this development code, the easiest way is
-to use a binary package - please see:
+Anki development
+=================
 
-https://anki.tenderapp.com/discussions/beta-testing
+Packaged betas
+---------------
+
+For non-developers who want to try this development code, the easiest way is
+to use a packaged version - please see:
+
+https://betas.ankiweb.net/#/
 
 You are welcome to run Anki from source instead, but it is expected that you
 can sort out all dependencies and issues by yourself - we are not able to
 provide support for problems you encounter when running from source.
+
+Python wheels
+--------------
+
+If you want to run Anki from a local Python installation but don't want
+to make changes to the source code, you can install pre-built packages from PyPI.
+
+$ python -m venv pyenv
+$ pyenv/bin/pip install aqt anki ankirspy pyqt5 pyqtwebengine
+$ pyenv/bin/python -c 'import aqt; aqt.run()'
+
+Building from source
+--------------------
 
 To start, make sure you have the following installed:
 
@@ -44,7 +63,7 @@ of http://ankisrs.net/docs/manual.html#_contributing
 Subcomponents
 --------------
 
-- pylib contains a Python module (anki) with most of the non-GUI code.
+- pylib contains a Python module (anki) with the non-GUI Python code.
 - qt contains the Qt GUI implementation (aqt).
 - rspy contains a Python module (ankirspy) for accessing the Rust code.
 - rslib contains the parts of the code implemented in Rust.

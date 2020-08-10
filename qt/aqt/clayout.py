@@ -57,7 +57,7 @@ class CardLayout(QDialog):
         self.templates = self.model["tmpls"]
         self.fill_empty_action_toggled = fill_empty
         self.night_mode_is_enabled = self.mw.pm.night_mode()
-        self.mobile_class_action_toggled = False
+        self.mobile_emulation_enabled = False
         self.have_autoplayed = False
         self.mm._remove_from_cache(self.model["id"])
         self.mw.checkpoint(_("Card Types"))
@@ -352,7 +352,7 @@ class CardLayout(QDialog):
         self.on_preview_toggled()
 
     def on_mobile_class_action_toggled(self):
-        self.mobile_class_action_toggled = not self.mobile_class_action_toggled
+        self.mobile_emulation_enabled = not self.mobile_emulation_enabled
         self.on_preview_toggled()
 
     def on_preview_settings(self):
@@ -372,7 +372,7 @@ class CardLayout(QDialog):
 
         a = m.addAction(tr(TR.CARD_TEMPLATES_ADD_MOBILE_CLASS))
         a.setCheckable(True)
-        a.setChecked(self.mobile_class_action_toggled)
+        a.setChecked(self.mobile_emulation_enabled)
         qconnect(a.toggled, self.on_mobile_class_action_toggled)
 
         m.exec_(self.pform.preview_settings.mapToGlobal(QPoint(0, 0)))
@@ -414,6 +414,7 @@ class CardLayout(QDialog):
         l.addStretch()
         save = QPushButton(_("Save"))
         save.setAutoDefault(False)
+        save.setShortcut(QKeySequence("Ctrl+Return"))
         l.addWidget(save)
         qconnect(save.clicked, self.accept)
 
@@ -486,8 +487,6 @@ class CardLayout(QDialog):
         bodyclass = theme_manager.body_classes_for_card_ord(
             c.ord, self.night_mode_is_enabled
         )
-        if self.mobile_class_action_toggled:
-            bodyclass += " mobile"
 
         if not self.have_autoplayed:
             self.preview_web.eval("ankimedia._reset();")
@@ -507,6 +506,9 @@ class CardLayout(QDialog):
 
         # use _showAnswer to avoid the longer delay
         self.preview_web.eval("_showAnswer(%s,'%s');" % (json.dumps(text), bodyclass))
+        self.preview_web.eval(
+            f"_emulateMobile({json.dumps(self.mobile_emulation_enabled)});"
+        )
 
         if not self.have_autoplayed:
             self.have_autoplayed = True

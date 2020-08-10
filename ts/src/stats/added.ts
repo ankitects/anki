@@ -7,13 +7,13 @@
  */
 
 import pb from "../backend/proto";
-import { extent, histogram, sum } from "d3-array";
+import { extent, histogram, sum, mean } from "d3-array";
 import { scaleLinear, scaleSequential } from "d3-scale";
 import { HistogramData } from "./histogram-graph";
 import { interpolateBlues } from "d3-scale-chromatic";
 import { I18n } from "../i18n";
 import { dayLabel } from "../time";
-import { GraphRange } from "./graphs";
+import { GraphRange, TableDatum } from "./graphs";
 
 export interface GraphData {
     daysAdded: number[];
@@ -31,11 +31,11 @@ export function buildHistogram(
     data: GraphData,
     range: GraphRange,
     i18n: I18n
-): HistogramData | null {
+): [HistogramData | null, TableDatum[]] {
     // get min/max
     const total = data.daysAdded.length;
     if (!total) {
-        return null;
+        return [null, []];
     }
 
     const [xMinOrig, _xMax] = extent(data.daysAdded);
@@ -65,10 +65,26 @@ export function buildHistogram(
 
     // empty graph?
     if (!sum(bins, (bin) => bin.length)) {
-        return null;
+        return [null, []];
     }
 
-    const colourScale = scaleSequential(interpolateBlues).domain([xMin!, xMax]);
+    const adjustedRange = scaleLinear().range([0.7, 0.3]);
+    const colourScale = scaleSequential((n) =>
+        interpolateBlues(adjustedRange(n))
+    ).domain([xMax!, xMin!]);
+
+    const totalInPeriod = sum(bins, (bin) => bin.length);
+    const cardsPerDay = Math.round(mean(bins, (bin) => bin.length) ?? 0);
+    const tableData = [
+        {
+            label: i18n.tr(i18n.TR.STATISTICS_TOTAL),
+            value: i18n.tr(i18n.TR.STATISTICS_CARDS, { cards: totalInPeriod }),
+        },
+        {
+            label: i18n.tr(i18n.TR.STATISTICS_AVERAGE),
+            value: i18n.tr(i18n.TR.STATISTICS_CARDS_PER_DAY, { count: cardsPerDay }),
+        },
+    ];
 
     function hoverText(
         data: HistogramData,
@@ -84,5 +100,8 @@ export function buildHistogram(
         return `${day}:<br>${cards}<br>${total}: ${totalCards}`;
     }
 
-    return { scale, bins, total, hoverText, colourScale, showArea: true };
+    return [
+        { scale, bins, total: totalInPeriod, hoverText, colourScale, showArea: true },
+        tableData,
+    ];
 }

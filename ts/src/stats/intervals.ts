@@ -7,12 +7,14 @@
  */
 
 import pb from "../backend/proto";
-import { extent, histogram, quantile, sum } from "d3-array";
+import { extent, histogram, quantile, sum, mean } from "d3-array";
 import { scaleLinear, scaleSequential } from "d3-scale";
 import { CardQueue } from "../cards";
 import { HistogramData } from "./histogram-graph";
 import { interpolateBlues } from "d3-scale-chromatic";
 import { I18n } from "../i18n";
+import { TableDatum } from "./graphs";
+import { timeSpan } from "../time";
 
 export interface IntervalGraphData {
     intervals: number[];
@@ -22,8 +24,7 @@ export enum IntervalRange {
     Month = 0,
     Percentile50 = 1,
     Percentile95 = 2,
-    Percentile999 = 3,
-    All = 4,
+    All = 3,
 }
 
 export function gatherIntervalData(data: pb.BackendProto.GraphsOut): IntervalGraphData {
@@ -59,14 +60,13 @@ export function prepareIntervalData(
     data: IntervalGraphData,
     range: IntervalRange,
     i18n: I18n
-): HistogramData | null {
+): [HistogramData | null, TableDatum[]] {
     // get min/max
     const allIntervals = data.intervals;
     if (!allIntervals.length) {
-        return null;
+        return [null, []];
     }
 
-    const total = allIntervals.length;
     const [_xMinOrig, origXMax] = extent(allIntervals);
     let xMax = origXMax;
 
@@ -80,9 +80,6 @@ export function prepareIntervalData(
             break;
         case IntervalRange.Percentile95:
             xMax = quantile(allIntervals, 0.95);
-            break;
-        case IntervalRange.Percentile999:
-            xMax = quantile(allIntervals, 0.999);
             break;
         case IntervalRange.All:
             break;
@@ -99,13 +96,15 @@ export function prepareIntervalData(
         .thresholds(scale.ticks(desiredBars))(allIntervals);
 
     // empty graph?
-    if (!sum(bins, (bin) => bin.length)) {
-        return null;
+    const totalInPeriod = sum(bins, (bin) => bin.length);
+    if (!totalInPeriod) {
+        return [null, []];
     }
 
-    // start slightly darker
-    const shiftedMin = xMin! - Math.round((xMax - xMin!) / 10);
-    const colourScale = scaleSequential(interpolateBlues).domain([shiftedMin, xMax]);
+    const adjustedRange = scaleLinear().range([0.7, 0.3]);
+    const colourScale = scaleSequential((n) =>
+        interpolateBlues(adjustedRange(n))
+    ).domain([xMax!, xMin!]);
 
     function hoverText(
         data: HistogramData,
@@ -120,5 +119,16 @@ export function prepareIntervalData(
         return `${interval}<br>${total}: \u200e${percent.toFixed(1)}%`;
     }
 
-    return { scale, bins, total, hoverText, colourScale, showArea: true };
+    const meanInterval = Math.round(mean(allIntervals) ?? 0);
+    const meanIntervalString = timeSpan(i18n, meanInterval * 86400, false);
+    const tableData = [
+        {
+            label: i18n.tr(i18n.TR.STATISTICS_AVERAGE_INTERVAL),
+            value: meanIntervalString,
+        },
+    ];
+    return [
+        { scale, bins, total: totalInPeriod, hoverText, colourScale, showArea: true },
+        tableData,
+    ];
 }

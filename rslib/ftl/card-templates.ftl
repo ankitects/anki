@@ -14,6 +14,8 @@ card-templates-template-box = Template
 card-templates-sample-cloze = This is a {"{{c1::"}sample{"}}"} cloze deletion.
 card-templates-fill-empty = Fill Empty Fields
 card-templates-night-mode = Night Mode
+# Add "mobile" class to card preview, so the card appears like it would
+# on a mobile device.
 card-templates-add-mobile-class = Add Mobile Class
 card-templates-preview-settings = Options
 card-templates-invalid-template-number = Card template { $number } has a problem.

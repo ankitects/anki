@@ -24,6 +24,15 @@ from aqt.utils import locale_dir
 
 assert anki.buildinfo.buildhash == aqt.buildinfo.buildhash
 
+# we want to be able to print unicode debug info to console without
+# fear of a traceback on systems with the console set to ASCII
+try:
+    sys.stdout.reconfigure(encoding="utf-8")  # type: ignore
+    sys.stderr.reconfigure(encoding="utf-8")  # type: ignore
+except AttributeError:
+    # on Windows without console, NullWriter doesn't support this
+    pass
+
 appVersion = _version
 appWebsite = "https://apps.ankiweb.net/"
 appChanges = "https://apps.ankiweb.net/docs/changes.html"
@@ -289,7 +298,7 @@ class AnkiApp(QApplication):
             sys.stderr.write(sock.errorString())
             return
         path = bytes(sock.readAll()).decode("utf8")
-        self.appMsg.emit(path)
+        self.appMsg.emit(path)  # type: ignore
         sock.disconnectFromServer()
 
     # OS X file/url handler
@@ -297,7 +306,7 @@ class AnkiApp(QApplication):
 
     def event(self, evt):
         if evt.type() == QEvent.FileOpen:
-            self.appMsg.emit(evt.file() or "raise")
+            self.appMsg.emit(evt.file() or "raise")  # type: ignore
             return True
         return QApplication.event(self, evt)
 
@@ -381,6 +390,9 @@ PROFILE_CODE = os.environ.get("ANKI_PROFILE_CODE")
 
 
 def write_profile_results():
+    import cProfile
+
+    profiler: cProfile.Profile
     profiler.disable()
     profiler.dump_stats("anki.prof")
     print("profile stats written to anki.prof")

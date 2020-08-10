@@ -191,7 +191,7 @@ def askUser(text, parent=None, help="", defaultno=False, msgfunc=None, title="An
 class ButtonedDialog(QMessageBox):
     def __init__(self, text, buttons, parent=None, help="", title="Anki"):
         QMessageBox.__init__(self, parent)
-        self.buttons = []
+        self._buttons = []
         self.setWindowTitle(title)
         self.help = help
         self.setIcon(QMessageBox.Warning)
@@ -201,7 +201,7 @@ class ButtonedDialog(QMessageBox):
         # box = QDialogButtonBox()
         # v.addWidget(box)
         for b in buttons:
-            self.buttons.append(self.addButton(b, QMessageBox.AcceptRole))
+            self._buttons.append(self.addButton(b, QMessageBox.AcceptRole))
         if help:
             self.addButton(_("Help"), QMessageBox.HelpRole)
             buttons.append(_("Help"))
@@ -218,7 +218,7 @@ class ButtonedDialog(QMessageBox):
         return txt.replace("&", "")
 
     def setDefault(self, idx):
-        self.setDefaultButton(self.buttons[idx])
+        self.setDefaultButton(self._buttons[idx])
 
 
 def askUserDialog(text, buttons, parent=None, help="", title="Anki"):
@@ -257,7 +257,7 @@ class GetTextDialog(QDialog):
         buts = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
         if help:
             buts |= QDialogButtonBox.Help
-        b = QDialogButtonBox(buts)
+        b = QDialogButtonBox(buts)  # type: ignore
         v.addWidget(b)
         self.setLayout(v)
         qconnect(b.button(QDialogButtonBox.Ok).clicked, self.accept)

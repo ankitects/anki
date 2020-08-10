@@ -70,9 +70,9 @@ export function defaultGraphBounds(): GraphBounds {
         width: 600,
         height: 250,
         marginLeft: 70,
-        marginRight: 30,
+        marginRight: 70,
         marginTop: 20,
-        marginBottom: 40,
+        marginBottom: 25,
     };
 }
 
@@ -108,4 +108,9 @@ export function millisecondCutoffForRange(
     }
 
     return (nextDayAtSecs - 86400 * days) * 1000;
+}
+
+export interface TableDatum {
+    label: string;
+    value: string;
 }

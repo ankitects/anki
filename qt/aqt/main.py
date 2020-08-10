@@ -14,7 +14,7 @@ import weakref
 import zipfile
 from argparse import Namespace
 from threading import Thread
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Callable, Dict, List, Optional, Sequence, TextIO, Tuple, cast
 
 import anki
 import aqt
@@ -185,9 +185,9 @@ class AnkiQt(QMainWindow):
         onClose = pyqtSignal()
         closeFires = True
 
-        def closeEvent(self, evt):
+        def closeEvent(self, evt: QCloseEvent) -> None:
             if self.closeFires:
-                self.onClose.emit()
+                self.onClose.emit()  # type: ignore
             evt.accept()
 
         def closeWithoutQuitting(self):
@@ -929,10 +929,10 @@ title="%s" %s>%s</button>""" % (
     # Tools
     ##########################################################################
 
-    def raiseMain(self):
+    def raiseMain(self) -> bool:
         if not self.app.activeWindow():
             # make sure window is shown
-            self.setWindowState(self.windowState() & ~Qt.WindowMinimized)
+            self.setWindowState(self.windowState() & ~Qt.WindowMinimized)  # type: ignore
         return True
 
     def setupStyle(self) -> None:
@@ -1417,7 +1417,7 @@ will be lost. Continue?"""
         gui_hooks.debug_console_will_show(d)
         d.show()
 
-    def _captureOutput(self, on):
+    def _captureOutput(self, on: bool) -> None:
         mw = self
 
         class Stream:
@@ -1428,7 +1428,7 @@ will be lost. Continue?"""
             self._output = ""
             self._oldStderr = sys.stderr
             self._oldStdout = sys.stdout
-            s = Stream()
+            s = cast(TextIO, Stream())
             sys.stderr = s
             sys.stdout = s
         else:
@@ -1552,8 +1552,8 @@ will be lost. Continue?"""
         for action in self.findChildren(QAction):
             action.setStatusTip("")
 
-    def onMacMinimize(self):
-        self.setWindowState(self.windowState() | Qt.WindowMinimized)
+    def onMacMinimize(self) -> None:
+        self.setWindowState(self.windowState() | Qt.WindowMinimized)  # type: ignore
 
     # Single instance support
     ##########################################################################

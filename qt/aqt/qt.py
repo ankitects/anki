@@ -13,6 +13,7 @@ from PyQt5.Qt import *  # type: ignore
 from PyQt5.QtCore import *
 from PyQt5.QtCore import pyqtRemoveInputHook  # pylint: disable=no-name-in-module
 from PyQt5.QtGui import *  # type: ignore
+from PyQt5.QtNetwork import QLocalServer, QLocalSocket, QNetworkProxy
 from PyQt5.QtWebChannel import QWebChannel
 from PyQt5.QtWebEngineWidgets import *
 from PyQt5.QtWidgets import *

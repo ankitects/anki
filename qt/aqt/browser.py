@@ -1878,7 +1878,9 @@ update cards set usn=?, mod=?, did=? where id in """
 
         combo = "BrowserFindAndReplace"
         findhistory = restore_combo_history(frm.find, combo + "Find")
+        frm.find.completer().setCaseSensitivity(True)
         replacehistory = restore_combo_history(frm.replace, combo + "Replace")
+        frm.replace.completer().setCaseSensitivity(True)
 
         restore_is_checked(frm.re, combo + "Regex")
         restore_is_checked(frm.ignoreCase, combo + "ignoreCase")

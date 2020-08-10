@@ -1,11 +1,12 @@
 <script lang="typescript">
     import AxisTicks from "./AxisTicks.svelte";
-    import { defaultGraphBounds, RevlogRange, GraphRange } from "./graphs";
+    import { defaultGraphBounds, RevlogRange, GraphRange, TableDatum } from "./graphs";
     import { GraphData, gatherData, renderReviews } from "./reviews";
     import pb from "../backend/proto";
     import { I18n } from "../i18n";
     import NoDataOverlay from "./NoDataOverlay.svelte";
     import GraphRangeRadios from "./GraphRangeRadios.svelte";
+    import TableData from "./TableData.svelte";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
     export let revlogRange: RevlogRange;
@@ -22,8 +23,16 @@
         graphData = gatherData(sourceData);
     }
 
+    let tableData: TableDatum[] = [] as any;
     $: if (graphData) {
-        renderReviews(svg as SVGElement, bounds, graphData, graphRange, showTime, i18n);
+        tableData = renderReviews(
+            svg as SVGElement,
+            bounds,
+            graphData,
+            graphRange,
+            showTime,
+            i18n
+        );
     }
 
     const title = i18n.tr(i18n.TR.STATISTICS_REVIEWS_TITLE);
@@ -40,6 +49,8 @@
 <div class="graph" id="graph-reviews">
     <h1>{title}</h1>
 
+    <div class="subtitle">{subtitle}</div>
+
     <div class="range-box-inner">
         <label>
             <input type="checkbox" bind:checked={showTime} />
@@ -48,8 +59,6 @@
 
         <GraphRangeRadios bind:graphRange {i18n} {revlogRange} followRevlog={true} />
     </div>
-
-    <div class="subtitle">{subtitle}</div>
 
     <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
         {#each [4, 3, 2, 1, 0] as i}
@@ -61,4 +70,5 @@
         <NoDataOverlay {bounds} {i18n} />
     </svg>
 
+    <TableData {i18n} {tableData} />
 </div>

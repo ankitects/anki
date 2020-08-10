@@ -16,9 +16,9 @@ import {
 import "d3-transition";
 import { select, mouse } from "d3-selection";
 import { scaleLinear, scaleSequential } from "d3-scale";
-import { axisBottom, axisLeft } from "d3-axis";
+import { axisBottom, axisLeft, axisRight } from "d3-axis";
 import { showTooltip, hideTooltip } from "./tooltip";
-import { GraphBounds, setDataAvailable, GraphRange } from "./graphs";
+import { GraphBounds, setDataAvailable, GraphRange, TableDatum } from "./graphs";
 import { area, curveBasis } from "d3-shape";
 import { min, histogram, sum, max, Bin, cumsum } from "d3-array";
 import { timeSpan, dayLabel } from "../time";
@@ -57,7 +57,7 @@ export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
 
         switch (review.reviewKind) {
             case ReviewKind.REVIEW:
-                if (review.interval < 21) {
+                if (review.lastInterval < 21) {
                     countEntry.young += 1;
                     timeEntry.young += review.takenMillis;
                 } else {
@@ -108,7 +108,7 @@ export function renderReviews(
     range: GraphRange,
     showTime: boolean,
     i18n: I18n
-): void {
+): TableDatum[] {
     const svg = select(svgElem);
     const trans = svg.transition().duration(600) as any;
 
@@ -117,13 +117,13 @@ export function renderReviews(
     // cap max to selected range
     switch (range) {
         case GraphRange.Month:
-            xMin = -31;
+            xMin = -30;
             break;
         case GraphRange.ThreeMonths:
-            xMin = -90;
+            xMin = -89;
             break;
         case GraphRange.Year:
-            xMin = -365;
+            xMin = -364;
             break;
         case GraphRange.AllTime:
             xMin = min(sourceData.reviewCount.keys())!;
@@ -143,9 +143,10 @@ export function renderReviews(
         .thresholds(x.ticks(desiredBars))(sourceMap.entries() as any);
 
     // empty graph?
-    if (!sum(bins, (bin) => bin.length)) {
+    const totalDays = sum(bins, (bin) => bin.length);
+    if (!totalDays) {
         setDataAvailable(svg, false);
-        return;
+        return [];
     } else {
         setDataAvailable(svg, true);
     }
@@ -157,27 +158,30 @@ export function renderReviews(
 
     // y scale
 
+    const yTickFormat = (n: number): string => {
+        if (showTime) {
+            return timeSpan(i18n, n / 1000, true);
+        } else {
+            if (Math.round(n) != n) {
+                return "";
+            } else {
+                return n.toLocaleString();
+            }
+        }
+    };
+
     const yMax = max(bins, (b: Bin<any, any>) => cumulativeBinValue(b, 4))!;
     const y = scaleLinear()
         .range([bounds.height - bounds.marginBottom, bounds.marginTop])
-        .domain([0, yMax]);
+        .domain([0, yMax])
+        .nice();
     svg.select<SVGGElement>(".y-ticks")
         .transition(trans)
         .call(
             axisLeft(y)
                 .ticks(bounds.height / 50)
                 .tickSizeOuter(0)
-                .tickFormat(((n: number): string => {
-                    if (showTime) {
-                        return timeSpan(i18n, n / 1000, true);
-                    } else {
-                        if (Math.round(n) != n) {
-                            return "";
-                        } else {
-                            return n.toString();
-                        }
-                    }
-                }) as any)
+                .tickFormat(yTickFormat as any)
         );
 
     // x bars
@@ -187,7 +191,7 @@ export function renderReviews(
         return width ? width : 0;
     }
 
-    const cappedRange = scaleLinear().range([0.2, 0.5]);
+    const cappedRange = scaleLinear().range([0.3, 0.5]);
     const shiftedRange = scaleLinear().range([0.4, 0.7]);
     const darkerGreens = scaleSequential((n) =>
         interpolateGreens(shiftedRange(n))
@@ -248,7 +252,7 @@ export function renderReviews(
         ];
         for (const [colour, label, detail] of lines) {
             buf += `<tr>
-            <td><span style="color: ${colour};">■</span>${label}</td>
+            <td><span style="color: ${colour};">■</span> ${label}</td>
             <td align=right>${detail}</td>
             </tr>`;
         }
@@ -304,9 +308,19 @@ export function renderReviews(
     const areaCounts = bins.map((d: any) => cumulativeBinValue(d, 4));
     areaCounts.unshift(0);
     const areaData = cumsum(areaCounts);
-    const yAreaScale = y.copy().domain([0, areaData.slice(-1)[0]]);
+    const yCumMax = areaData.slice(-1)[0];
+    const yAreaScale = y.copy().domain([0, yCumMax]).nice();
 
-    if (areaData.slice(-1)[0]) {
+    if (yCumMax) {
+        svg.select<SVGGElement>(".y2-ticks")
+            .transition(trans)
+            .call(
+                axisRight(yAreaScale)
+                    .ticks(bounds.height / 50)
+                    .tickFormat(yTickFormat as any)
+                    .tickSizeOuter(0)
+            );
+
         svg.select("path.area")
             .datum(areaData as any)
             .attr(
@@ -339,4 +353,80 @@ export function renderReviews(
             showTooltip(tooltipText(d, areaData[idx + 1]), x, y);
         })
         .on("mouseout", hideTooltip);
+
+    const periodDays = -xMin + 1;
+    const studiedDays = sum(bins, (bin) => bin.length);
+    const total = yCumMax;
+    const periodAvg = total / periodDays;
+    const studiedAvg = total / studiedDays;
+
+    let totalString: string,
+        averageForDaysStudied: string,
+        averageForPeriod: string,
+        averageAnswerTime: string,
+        averageAnswerTimeLabel: string;
+    if (showTime) {
+        totalString = timeSpan(i18n, total / 1000, false);
+        averageForDaysStudied = i18n.tr(i18n.TR.STATISTICS_MINUTES_PER_DAY, {
+            count: Math.round(studiedAvg / 1000 / 60),
+        });
+        averageForPeriod = i18n.tr(i18n.TR.STATISTICS_MINUTES_PER_DAY, {
+            count: Math.round(periodAvg / 1000 / 60),
+        });
+        averageAnswerTimeLabel = i18n.tr(i18n.TR.STATISTICS_AVERAGE_ANSWER_TIME_LABEL);
+
+        // need to get total review count to calculate average time
+        const countBins = histogram()
+            .value((m) => {
+                return m[0];
+            })
+            .domain(x.domain() as any)(sourceData.reviewCount.entries() as any);
+        const totalReviews = sum(countBins, (bin) => cumulativeBinValue(bin as any, 4));
+        const totalSecs = total / 1000;
+        console.log(`total secs ${totalSecs} total reviews ${totalReviews}`);
+        const avgSecs = totalSecs / totalReviews;
+        const cardsPerMin = (totalReviews * 60) / totalSecs;
+        averageAnswerTime = i18n.tr(i18n.TR.STATISTICS_AVERAGE_ANSWER_TIME, {
+            "average-seconds": avgSecs,
+            "cards-per-minute": cardsPerMin,
+        });
+    } else {
+        totalString = i18n.tr(i18n.TR.STATISTICS_REVIEWS, { reviews: total });
+        averageForDaysStudied = i18n.tr(i18n.TR.STATISTICS_REVIEWS_PER_DAY, {
+            count: Math.round(studiedAvg),
+        });
+        averageForPeriod = i18n.tr(i18n.TR.STATISTICS_REVIEWS_PER_DAY, {
+            count: Math.round(periodAvg),
+        });
+        averageAnswerTime = averageAnswerTimeLabel = "";
+    }
+
+    const tableData: TableDatum[] = [
+        {
+            label: i18n.tr(i18n.TR.STATISTICS_DAYS_STUDIED),
+            value: i18n.tr(i18n.TR.STATISTICS_AMOUNT_OF_TOTAL_WITH_PERCENTAGE, {
+                amount: studiedDays,
+                total: periodDays,
+                percent: Math.round((studiedDays / periodDays) * 100),
+            }),
+        },
+
+        { label: i18n.tr(i18n.TR.STATISTICS_TOTAL), value: totalString },
+
+        {
+            label: i18n.tr(i18n.TR.STATISTICS_AVERAGE_FOR_DAYS_STUDIED),
+            value: averageForDaysStudied,
+        },
+
+        {
+            label: i18n.tr(i18n.TR.STATISTICS_AVERAGE_OVER_PERIOD),
+            value: averageForPeriod,
+        },
+    ];
+
+    if (averageAnswerTime) {
+        tableData.push({ label: averageAnswerTimeLabel, value: averageAnswerTime });
+    }
+
+    return tableData;
 }

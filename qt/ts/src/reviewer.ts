@@ -136,3 +136,12 @@ function _typeAnsPress() {
         pycmd("ans");
     }
 }
+
+function _emulateMobile(enabled: boolean) {
+    const list = document.documentElement.classList;
+    if (enabled) {
+        list.add("mobile");
+    } else {
+        list.remove("mobile");
+    }
+}

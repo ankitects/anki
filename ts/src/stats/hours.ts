@@ -11,7 +11,7 @@ import { interpolateBlues } from "d3-scale-chromatic";
 import "d3-transition";
 import { select, mouse } from "d3-selection";
 import { scaleLinear, scaleBand, scaleSequential } from "d3-scale";
-import { axisBottom, axisLeft } from "d3-axis";
+import { axisBottom, axisLeft, axisRight } from "d3-axis";
 import { showTooltip, hideTooltip } from "./tooltip";
 import {
     GraphBounds,
@@ -85,7 +85,15 @@ export function renderHours(
         .paddingInner(0.1);
     svg.select<SVGGElement>(".x-ticks")
         .transition(trans)
-        .call(axisBottom(x).tickSizeOuter(0));
+        .call(axisBottom(x).tickSizeOuter(0))
+        .selectAll("text")
+        .attr("class", (n: any) => {
+            if (n % 2 != 0) {
+                return "tick-odd";
+            } else {
+                return "";
+            }
+        });
 
     const cappedRange = scaleLinear().range([0.1, 0.8]);
     const colour = scaleSequential((n) => interpolateBlues(cappedRange(n))).domain([
@@ -97,7 +105,8 @@ export function renderHours(
 
     const y = scaleLinear()
         .range([bounds.height - bounds.marginBottom, bounds.marginTop])
-        .domain([0, yMax]);
+        .domain([0, yMax])
+        .nice();
     svg.select<SVGGElement>(".y-ticks")
         .transition(trans)
         .call(
@@ -140,12 +149,22 @@ export function renderHours(
                 )
         );
 
+    svg.select<SVGGElement>(".y2-ticks")
+        .transition(trans)
+        .call(
+            axisRight(yArea)
+                .ticks(bounds.height / 50)
+                .tickFormat((n: any) => `${Math.round(n * 100)}%`)
+                .tickSizeOuter(0)
+        );
+
     svg.select("path.area")
         .datum(data)
         .attr(
             "d",
             area<Hour>()
                 .curve(curveBasis)
+                .defined((d) => d.totalCount > 0)
                 .x((d: Hour) => {
                     return x(d.hour.toString())! + x.bandwidth() / 2;
                 })

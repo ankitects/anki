@@ -388,12 +388,9 @@ class Editor:
             if nid != self.note.id:
                 print("ignored late blur")
                 return
-            txt = self.mungeHTML(txt)
-            # misbehaving apps may include a null byte in the text
-            txt = txt.replace("\x00", "")
-            # reverse the url quoting we added to get images to display
-            txt = self.mw.col.media.escapeImages(txt, unescape=True)
-            self.note.fields[ord] = txt
+
+            self.note.fields[ord] = self.mungeHTML(txt)
+
             if not self.addMode:
                 self.note.flush()
                 self.mw.requireReset()
@@ -420,9 +417,7 @@ class Editor:
             print("uncaught cmd", cmd)
 
     def mungeHTML(self, txt):
-        if txt in ("<br>", "<div><br></div>"):
-            return ""
-        return txt
+        return gui_hooks.editor_will_munge_html(txt, self)
 
     # Setting/unsetting the current note
     ######################################################################
@@ -1201,4 +1196,21 @@ def fontMungeHack(font):
     return re.sub(" L$", " Light", font)
 
 
+def munge_html(txt, editor):
+    return "" if txt in ("<br>", "<div><br></div>") else txt
+
+
+def remove_null_bytes(txt, editor):
+    # misbehaving apps may include a null byte in the text
+    return txt.replace("\x00", "")
+
+
+def reverse_url_quoting(txt, editor):
+    # reverse the url quoting we added to get images to display
+    return editor.mw.col.media.escapeImages(txt, unescape=True)
+
+
 gui_hooks.editor_will_use_font_for_field.append(fontMungeHack)
+gui_hooks.editor_will_munge_html.append(munge_html)
+gui_hooks.editor_will_munge_html.append(remove_null_bytes)
+gui_hooks.editor_will_munge_html.append(reverse_url_quoting)

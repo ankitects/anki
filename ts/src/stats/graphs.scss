@@ -35,12 +35,14 @@ body {
 .graph {
     margin-left: auto;
     margin-right: auto;
-    max-width: 80em;
+    max-width: 60em;
     page-break-inside: avoid;
 }
 
 .graph h1 {
     text-align: center;
+    margin-bottom: 0.25em;
+    margin-top: 1.5em;
 }
 
 .no-domain-line .domain {
@@ -54,6 +56,26 @@ body {
 
     text {
         opacity: 0.5;
+        font-size: 10px;
+    }
+}
+
+@media only screen and (max-width: 800px) {
+    .tick text {
+        font-size: 13px;
+    }
+}
+@media only screen and (max-width: 600px) {
+    body {
+        font-size: 12px;
+    }
+
+    .tick text {
+        font-size: 16px;
+    }
+
+    .tick-odd {
+        display: none;
     }
 }
 
@@ -62,7 +84,6 @@ body {
     z-index: 1;
     top: 0;
     width: 100%;
-    height: 4em;
     color: $day-fg;
     background: $day-bg;
     padding: 0.5em;
@@ -75,7 +96,7 @@ body {
 }
 
 .range-box-pad {
-    height: 4em;
+    height: 2em;
 }
 
 .range-box-inner {
@@ -94,18 +115,9 @@ body {
 }
 
 .graph .area {
-    opacity: 0.05;
     pointer-events: none;
-    fill: $day-fg;
-}
-
-.axis-label {
-    text-anchor: middle;
-    font-size: 10px;
-}
-
-.y-axis-label {
-    writing-mode: vertical-lr;
+    fill: #00000008;
+    stroke: #00000015;
 }
 
 .hoverzone rect {
@@ -148,6 +160,7 @@ body {
 
 .subtitle {
     text-align: center;
+    margin-bottom: 1em;
 }
 
 body.night-mode {
@@ -175,8 +188,8 @@ body.night-mode {
         color: $night-fg;
     }
     .graph .area {
-        fill: $night-fg;
-        opacity: 0.1;
+        fill: #ffffff15;
+        stroke: #00000030;
     }
     .no-data rect {
         fill: $night-bg;
@@ -184,5 +197,14 @@ body.night-mode {
 }
 
 .centered {
-    text-align: center;
+    display: flex;
+    justify-content: center;
+}
+
+.align-end {
+    text-align: end;
+}
+
+.align-start {
+    text-align: start;
 }

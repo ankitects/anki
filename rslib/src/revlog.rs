@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::serde::default_on_invalid;
+use crate::serde::{default_on_invalid, deserialize_int_from_number};
 use crate::{define_newtype, prelude::*};
 use num_enum::TryFromPrimitive;
 use serde::Deserialize;
@@ -20,16 +20,16 @@ pub struct RevlogEntry {
     #[serde(rename = "ease")]
     pub button_chosen: u8,
     /// Positive values are in days, negative values in seconds.
-    #[serde(rename = "ivl")]
+    #[serde(rename = "ivl", deserialize_with = "deserialize_int_from_number")]
     pub interval: i32,
     /// Positive values are in days, negative values in seconds.
-    #[serde(rename = "lastIvl")]
+    #[serde(rename = "lastIvl", deserialize_with = "deserialize_int_from_number")]
     pub last_interval: i32,
     /// Card's ease after answering, stored as 10x the %, eg 2500 represents 250%.
-    #[serde(rename = "factor")]
+    #[serde(rename = "factor", deserialize_with = "deserialize_int_from_number")]
     pub ease_factor: u32,
     /// Amount of milliseconds taken to answer the card.
-    #[serde(rename = "time")]
+    #[serde(rename = "time", deserialize_with = "deserialize_int_from_number")]
     pub taken_millis: u32,
     #[serde(rename = "type", default, deserialize_with = "default_on_invalid")]
     pub review_kind: RevlogReviewKind,

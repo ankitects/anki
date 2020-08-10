@@ -175,6 +175,7 @@ class Preferences(QDialog):
         else:
             self.form.syncUser.setText(self.prof.get("syncUser", ""))
             qconnect(self.form.syncDeauth.clicked, self.onSyncDeauth)
+        self.form.syncDeauth.setText(tr(TR.SYNC_LOG_OUT_BUTTON))
 
     def on_media_log(self):
         self.mw.media_syncer.show_sync_log()
