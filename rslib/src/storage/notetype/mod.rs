@@ -328,6 +328,13 @@ and ord in ",
         Ok(())
     }
 
+    pub(crate) fn highest_card_ordinal_for_notetype(&self, ntid: NoteTypeID) -> Result<u16> {
+        self.db
+            .prepare(include_str!("highest_card_ord.sql"))?
+            .query_row(&[ntid], |row| row.get(0))
+            .map_err(Into::into)
+    }
+
     // Upgrading/downgrading/legacy
 
     pub(crate) fn get_all_notetypes_as_schema11(
