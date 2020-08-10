@@ -138,10 +138,10 @@
 
 {#if sourceData}
     <TodayStats {sourceData} {i18n} />
-    <CardCounts {sourceData} {i18n} />
-    <CalendarGraph {sourceData} {revlogRange} {i18n} {nightMode} />
     <FutureDue {sourceData} {i18n} />
+    <CalendarGraph {sourceData} {revlogRange} {i18n} {nightMode} />
     <ReviewsGraph {sourceData} {revlogRange} {i18n} />
+    <CardCounts {sourceData} {i18n} />
     <IntervalsGraph {sourceData} {i18n} />
     <EaseGraph {sourceData} {i18n} />
     <HourGraph {sourceData} {revlogRange} {i18n} />
