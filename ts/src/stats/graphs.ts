@@ -72,7 +72,7 @@ export function defaultGraphBounds(): GraphBounds {
         marginLeft: 70,
         marginRight: 70,
         marginTop: 20,
-        marginBottom: 40,
+        marginBottom: 25,
     };
 }
 
