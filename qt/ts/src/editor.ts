@@ -47,6 +47,10 @@ function triggerKeyTimer() {
     }, 600);
 }
 
+interface Selection {
+    modify(s: string, t: string, u: string): void;
+}
+
 function onKey(evt: KeyboardEvent) {
     // esc clears focus, allowing dialog to close
     if (evt.which === 27) {
