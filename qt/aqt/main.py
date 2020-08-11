@@ -14,7 +14,7 @@ import weakref
 import zipfile
 from argparse import Namespace
 from threading import Thread
-from typing import Any, Callable, Dict, List, Optional, Sequence, TextIO, Tuple, cast
+from typing import Any, Callable, List, Optional, Sequence, TextIO, Tuple, cast
 
 import anki
 import aqt
@@ -27,6 +27,7 @@ import aqt.toolbar
 import aqt.webview
 from anki import hooks
 from anki.collection import Collection
+from anki.decks import Deck
 from anki.hooks import runHook
 from anki.lang import _, ngettext
 from anki.rsbackend import RustBackend
@@ -652,7 +653,7 @@ from the profile screen."
         self.maybe_check_for_addon_updates()
         self.deckBrowser.show()
 
-    def _selectedDeck(self) -> Optional[Dict[str, Any]]:
+    def _selectedDeck(self) -> Optional[Deck]:
         did = self.col.decks.selected()
         if not self.col.decks.nameOrNone(did):
             showInfo(_("Please select a deck."))

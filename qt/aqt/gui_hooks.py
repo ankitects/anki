@@ -7,12 +7,14 @@ See pylib/anki/hooks.py
 
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, List, Optional, Tuple
 
 import anki
 import aqt
 from anki.cards import Card
+from anki.decks import Deck, DeckConfig
 from anki.hooks import runFilter, runHook
+from anki.models import NoteType
 from aqt.qt import QDialog, QEvent, QMenu
 from aqt.tagedit import TagEdit
 
@@ -1046,16 +1048,18 @@ class _DeckConfDidAddConfigHook:
         Config groups are created as clones of the current one.
         """
 
-    _hooks: List[Callable[["aqt.deckconf.DeckConf", Any, Any, str, int], None]] = []
+    _hooks: List[
+        Callable[["aqt.deckconf.DeckConf", Deck, DeckConfig, str, int], None]
+    ] = []
 
     def append(
-        self, cb: Callable[["aqt.deckconf.DeckConf", Any, Any, str, int], None]
+        self, cb: Callable[["aqt.deckconf.DeckConf", Deck, DeckConfig, str, int], None]
     ) -> None:
-        """(deck_conf: aqt.deckconf.DeckConf, deck: Any, config: Any, new_name: str, new_conf_id: int)"""
+        """(deck_conf: aqt.deckconf.DeckConf, deck: Deck, config: DeckConfig, new_name: str, new_conf_id: int)"""
         self._hooks.append(cb)
 
     def remove(
-        self, cb: Callable[["aqt.deckconf.DeckConf", Any, Any, str, int], None]
+        self, cb: Callable[["aqt.deckconf.DeckConf", Deck, DeckConfig, str, int], None]
     ) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
@@ -1066,8 +1070,8 @@ class _DeckConfDidAddConfigHook:
     def __call__(
         self,
         deck_conf: aqt.deckconf.DeckConf,
-        deck: Any,
-        config: Any,
+        deck: Deck,
+        config: DeckConfig,
         new_name: str,
         new_conf_id: int,
     ) -> None:
@@ -1086,13 +1090,17 @@ deck_conf_did_add_config = _DeckConfDidAddConfigHook()
 class _DeckConfDidLoadConfigHook:
     """Called once widget state has been set from deck config"""
 
-    _hooks: List[Callable[["aqt.deckconf.DeckConf", Any, Any], None]] = []
+    _hooks: List[Callable[["aqt.deckconf.DeckConf", Deck, DeckConfig], None]] = []
 
-    def append(self, cb: Callable[["aqt.deckconf.DeckConf", Any, Any], None]) -> None:
-        """(deck_conf: aqt.deckconf.DeckConf, deck: Any, config: Any)"""
+    def append(
+        self, cb: Callable[["aqt.deckconf.DeckConf", Deck, DeckConfig], None]
+    ) -> None:
+        """(deck_conf: aqt.deckconf.DeckConf, deck: Deck, config: DeckConfig)"""
         self._hooks.append(cb)
 
-    def remove(self, cb: Callable[["aqt.deckconf.DeckConf", Any, Any], None]) -> None:
+    def remove(
+        self, cb: Callable[["aqt.deckconf.DeckConf", Deck, DeckConfig], None]
+    ) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
@@ -1100,7 +1108,7 @@ class _DeckConfDidLoadConfigHook:
         return len(self._hooks)
 
     def __call__(
-        self, deck_conf: aqt.deckconf.DeckConf, deck: Any, config: Any
+        self, deck_conf: aqt.deckconf.DeckConf, deck: Deck, config: DeckConfig
     ) -> None:
         for hook in self._hooks:
             try:
@@ -1146,13 +1154,17 @@ deck_conf_did_setup_ui_form = _DeckConfDidSetupUiFormHook()
 class _DeckConfWillRemoveConfigHook:
     """Called before current config group is removed"""
 
-    _hooks: List[Callable[["aqt.deckconf.DeckConf", Any, Any], None]] = []
+    _hooks: List[Callable[["aqt.deckconf.DeckConf", Deck, DeckConfig], None]] = []
 
-    def append(self, cb: Callable[["aqt.deckconf.DeckConf", Any, Any], None]) -> None:
-        """(deck_conf: aqt.deckconf.DeckConf, deck: Any, config: Any)"""
+    def append(
+        self, cb: Callable[["aqt.deckconf.DeckConf", Deck, DeckConfig], None]
+    ) -> None:
+        """(deck_conf: aqt.deckconf.DeckConf, deck: Deck, config: DeckConfig)"""
         self._hooks.append(cb)
 
-    def remove(self, cb: Callable[["aqt.deckconf.DeckConf", Any, Any], None]) -> None:
+    def remove(
+        self, cb: Callable[["aqt.deckconf.DeckConf", Deck, DeckConfig], None]
+    ) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
@@ -1160,7 +1172,7 @@ class _DeckConfWillRemoveConfigHook:
         return len(self._hooks)
 
     def __call__(
-        self, deck_conf: aqt.deckconf.DeckConf, deck: Any, config: Any
+        self, deck_conf: aqt.deckconf.DeckConf, deck: Deck, config: DeckConfig
     ) -> None:
         for hook in self._hooks:
             try:
@@ -1177,16 +1189,16 @@ deck_conf_will_remove_config = _DeckConfWillRemoveConfigHook()
 class _DeckConfWillRenameConfigHook:
     """Called before config group is renamed"""
 
-    _hooks: List[Callable[["aqt.deckconf.DeckConf", Any, Any, str], None]] = []
+    _hooks: List[Callable[["aqt.deckconf.DeckConf", Deck, DeckConfig, str], None]] = []
 
     def append(
-        self, cb: Callable[["aqt.deckconf.DeckConf", Any, Any, str], None]
+        self, cb: Callable[["aqt.deckconf.DeckConf", Deck, DeckConfig, str], None]
     ) -> None:
-        """(deck_conf: aqt.deckconf.DeckConf, deck: Any, config: Any, new_name: str)"""
+        """(deck_conf: aqt.deckconf.DeckConf, deck: Deck, config: DeckConfig, new_name: str)"""
         self._hooks.append(cb)
 
     def remove(
-        self, cb: Callable[["aqt.deckconf.DeckConf", Any, Any, str], None]
+        self, cb: Callable[["aqt.deckconf.DeckConf", Deck, DeckConfig, str], None]
     ) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
@@ -1195,7 +1207,11 @@ class _DeckConfWillRenameConfigHook:
         return len(self._hooks)
 
     def __call__(
-        self, deck_conf: aqt.deckconf.DeckConf, deck: Any, config: Any, new_name: str
+        self,
+        deck_conf: aqt.deckconf.DeckConf,
+        deck: Deck,
+        config: DeckConfig,
+        new_name: str,
     ) -> None:
         for hook in self._hooks:
             try:
@@ -1212,13 +1228,17 @@ deck_conf_will_rename_config = _DeckConfWillRenameConfigHook()
 class _DeckConfWillSaveConfigHook:
     """Called before widget state is saved to config"""
 
-    _hooks: List[Callable[["aqt.deckconf.DeckConf", Any, Any], None]] = []
+    _hooks: List[Callable[["aqt.deckconf.DeckConf", Deck, DeckConfig], None]] = []
 
-    def append(self, cb: Callable[["aqt.deckconf.DeckConf", Any, Any], None]) -> None:
-        """(deck_conf: aqt.deckconf.DeckConf, deck: Any, config: Any)"""
+    def append(
+        self, cb: Callable[["aqt.deckconf.DeckConf", Deck, DeckConfig], None]
+    ) -> None:
+        """(deck_conf: aqt.deckconf.DeckConf, deck: Deck, config: DeckConfig)"""
         self._hooks.append(cb)
 
-    def remove(self, cb: Callable[["aqt.deckconf.DeckConf", Any, Any], None]) -> None:
+    def remove(
+        self, cb: Callable[["aqt.deckconf.DeckConf", Deck, DeckConfig], None]
+    ) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
@@ -1226,7 +1246,7 @@ class _DeckConfWillSaveConfigHook:
         return len(self._hooks)
 
     def __call__(
-        self, deck_conf: aqt.deckconf.DeckConf, deck: Any, config: Any
+        self, deck_conf: aqt.deckconf.DeckConf, deck: Deck, config: DeckConfig
     ) -> None:
         for hook in self._hooks:
             try:
@@ -1355,20 +1375,20 @@ editor_did_init = _EditorDidInitHook()
 
 
 class _EditorDidInitButtonsHook:
-    _hooks: List[Callable[[List, "aqt.editor.Editor"], None]] = []
+    _hooks: List[Callable[[List[str], "aqt.editor.Editor"], None]] = []
 
-    def append(self, cb: Callable[[List, "aqt.editor.Editor"], None]) -> None:
-        """(buttons: List, editor: aqt.editor.Editor)"""
+    def append(self, cb: Callable[[List[str], "aqt.editor.Editor"], None]) -> None:
+        """(buttons: List[str], editor: aqt.editor.Editor)"""
         self._hooks.append(cb)
 
-    def remove(self, cb: Callable[[List, "aqt.editor.Editor"], None]) -> None:
+    def remove(self, cb: Callable[[List[str], "aqt.editor.Editor"], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
     def count(self) -> int:
         return len(self._hooks)
 
-    def __call__(self, buttons: List, editor: aqt.editor.Editor) -> None:
+    def __call__(self, buttons: List[str], editor: aqt.editor.Editor) -> None:
         for hook in self._hooks:
             try:
                 hook(buttons, editor)

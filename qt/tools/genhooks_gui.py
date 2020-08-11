@@ -194,20 +194,20 @@ hooks = [
     ),
     Hook(
         name="deck_conf_did_load_config",
-        args=["deck_conf: aqt.deckconf.DeckConf", "deck: Any", "config: Any"],
+        args=["deck_conf: aqt.deckconf.DeckConf", "deck: Deck", "config: DeckConfig"],
         doc="Called once widget state has been set from deck config",
     ),
     Hook(
         name="deck_conf_will_save_config",
-        args=["deck_conf: aqt.deckconf.DeckConf", "deck: Any", "config: Any"],
+        args=["deck_conf: aqt.deckconf.DeckConf", "deck: Deck", "config: DeckConfig"],
         doc="Called before widget state is saved to config",
     ),
     Hook(
         name="deck_conf_did_add_config",
         args=[
             "deck_conf: aqt.deckconf.DeckConf",
-            "deck: Any",
-            "config: Any",
+            "deck: Deck",
+            "config: DeckConfig",
             "new_name: str",
             "new_conf_id: int",
         ],
@@ -224,15 +224,15 @@ hooks = [
     ),
     Hook(
         name="deck_conf_will_remove_config",
-        args=["deck_conf: aqt.deckconf.DeckConf", "deck: Any", "config: Any"],
+        args=["deck_conf: aqt.deckconf.DeckConf", "deck: Deck", "config: DeckConfig"],
         doc="Called before current config group is removed",
     ),
     Hook(
         name="deck_conf_will_rename_config",
         args=[
             "deck_conf: aqt.deckconf.DeckConf",
-            "deck: Any",
-            "config: Any",
+            "deck: Deck",
+            "config: DeckConfig",
             "new_name: str",
         ],
         doc="Called before config group is renamed",
@@ -530,7 +530,7 @@ hooks = [
     ###################
     Hook(
         name="editor_did_init_buttons",
-        args=["buttons: List", "editor: aqt.editor.Editor"],
+        args=["buttons: List[str]", "editor: aqt.editor.Editor"],
     ),
     Hook(
         name="editor_did_init_shortcuts",
@@ -653,7 +653,7 @@ hooks = [
     ###################
     Hook(
         name="current_note_type_did_change",
-        args=["notetype: Dict[str, Any]"],
+        args=["notetype: NoteType"],
         legacy_hook="currentModelChanged",
         legacy_no_args=True,
     ),

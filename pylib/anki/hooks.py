@@ -175,20 +175,20 @@ card_will_flush = _CardWillFlushHook()
 class _DeckAddedHook:
     """Obsolete, do not use."""
 
-    _hooks: List[Callable[[Deck], None]] = []
+    _hooks: List[Callable[["anki.decks.Deck"], None]] = []
 
-    def append(self, cb: Callable[[Deck], None]) -> None:
-        """(deck: Deck)"""
+    def append(self, cb: Callable[["anki.decks.Deck"], None]) -> None:
+        """(deck: anki.decks.Deck)"""
         self._hooks.append(cb)
 
-    def remove(self, cb: Callable[[Deck], None]) -> None:
+    def remove(self, cb: Callable[["anki.decks.Deck"], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
     def count(self) -> int:
         return len(self._hooks)
 
-    def __call__(self, deck: Deck) -> None:
+    def __call__(self, deck: anki.decks.Deck) -> None:
         for hook in self._hooks:
             try:
                 hook(deck)
@@ -305,20 +305,20 @@ media_files_did_export = _MediaFilesDidExportHook()
 class _NoteTypeAddedHook:
     """Obsolete, do not use."""
 
-    _hooks: List[Callable[[NoteType], None]] = []
+    _hooks: List[Callable[["anki.models.NoteType"], None]] = []
 
-    def append(self, cb: Callable[[NoteType], None]) -> None:
-        """(notetype: NoteType)"""
+    def append(self, cb: Callable[["anki.models.NoteType"], None]) -> None:
+        """(notetype: anki.models.NoteType)"""
         self._hooks.append(cb)
 
-    def remove(self, cb: Callable[[NoteType], None]) -> None:
+    def remove(self, cb: Callable[["anki.models.NoteType"], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
     def count(self) -> int:
         return len(self._hooks)
 
-    def __call__(self, notetype: NoteType) -> None:
+    def __call__(self, notetype: anki.models.NoteType) -> None:
         for hook in self._hooks:
             try:
                 hook(notetype)
@@ -397,20 +397,20 @@ class _SchedulerNewLimitForSingleDeckFilter:
     """Allows changing the number of new card for this deck (without
         considering descendants)."""
 
-    _hooks: List[Callable[[int, Deck], int]] = []
+    _hooks: List[Callable[[int, "anki.decks.Deck"], int]] = []
 
-    def append(self, cb: Callable[[int, Deck], int]) -> None:
-        """(count: int, deck: Deck)"""
+    def append(self, cb: Callable[[int, "anki.decks.Deck"], int]) -> None:
+        """(count: int, deck: anki.decks.Deck)"""
         self._hooks.append(cb)
 
-    def remove(self, cb: Callable[[int, Deck], int]) -> None:
+    def remove(self, cb: Callable[[int, "anki.decks.Deck"], int]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
     def count(self) -> int:
         return len(self._hooks)
 
-    def __call__(self, count: int, deck: Deck) -> int:
+    def __call__(self, count: int, deck: anki.decks.Deck) -> int:
         for filter in self._hooks:
             try:
                 count = filter(count, deck)
@@ -428,20 +428,20 @@ class _SchedulerReviewLimitForSingleDeckFilter:
     """Allows changing the number of rev card for this deck (without
         considering descendants)."""
 
-    _hooks: List[Callable[[int, Deck], int]] = []
+    _hooks: List[Callable[[int, "anki.decks.Deck"], int]] = []
 
-    def append(self, cb: Callable[[int, Deck], int]) -> None:
-        """(count: int, deck: Deck)"""
+    def append(self, cb: Callable[[int, "anki.decks.Deck"], int]) -> None:
+        """(count: int, deck: anki.decks.Deck)"""
         self._hooks.append(cb)
 
-    def remove(self, cb: Callable[[int, Deck], int]) -> None:
+    def remove(self, cb: Callable[[int, "anki.decks.Deck"], int]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
     def count(self) -> int:
         return len(self._hooks)
 
-    def __call__(self, count: int, deck: Deck) -> int:
+    def __call__(self, count: int, deck: anki.decks.Deck) -> int:
         for filter in self._hooks:
             try:
                 count = filter(count, deck)
