@@ -460,8 +460,11 @@ class DeckManager:
         out.extend(self.child_ids(parent_name))
         return out
 
-    def childDids(self, did: int, childMap: Dict[int, Any]) -> List:
-        def gather(node, arr):
+    childMapNode = Dict[int, Any]
+    # Change to Dict[int, "DeckManager.childMapNode"] when MyPy allow recursive type
+
+    def childDids(self, did: int, childMap: DeckManager.childMapNode) -> List:
+        def gather(node: DeckManager.childMapNode, arr):
             for did, child in node.items():
                 arr.append(did)
                 gather(child, arr)
@@ -470,9 +473,9 @@ class DeckManager:
         gather(childMap[did], arr)
         return arr
 
-    def childMap(self) -> Dict[Any, Dict[Any, dict]]:
+    def childMap(self) -> DeckManager.childMapNode:
         nameMap = self.nameMap()
-        childMap = {}
+        childMap: DeckManager.childMapNode = {}
 
         # go through all decks, sorted by name
         for deck in sorted(self.all(), key=self.key):

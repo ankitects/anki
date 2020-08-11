@@ -827,20 +827,20 @@ collection_did_load = _CollectionDidLoadHook()
 
 
 class _CurrentNoteTypeDidChangeHook:
-    _hooks: List[Callable[[Dict[str, Any]], None]] = []
+    _hooks: List[Callable[[NoteType], None]] = []
 
-    def append(self, cb: Callable[[Dict[str, Any]], None]) -> None:
-        """(notetype: Dict[str, Any])"""
+    def append(self, cb: Callable[[NoteType], None]) -> None:
+        """(notetype: NoteType)"""
         self._hooks.append(cb)
 
-    def remove(self, cb: Callable[[Dict[str, Any]], None]) -> None:
+    def remove(self, cb: Callable[[NoteType], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
     def count(self) -> int:
         return len(self._hooks)
 
-    def __call__(self, notetype: Dict[str, Any]) -> None:
+    def __call__(self, notetype: NoteType) -> None:
         for hook in self._hooks:
             try:
                 hook(notetype)
