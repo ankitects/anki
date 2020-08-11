@@ -6,12 +6,13 @@ from __future__ import annotations
 import random
 import time
 from heapq import *
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, List, Optional, Sequence, Tuple, Union
 
 import anki
 from anki import hooks
 from anki.cards import Card
 from anki.consts import *
+from anki.decks import Deck, QueueConfig
 from anki.schedv2 import Scheduler as V2
 from anki.utils import ids2str, intTime
 
@@ -299,13 +300,13 @@ limit %d"""
                 card.queue = QUEUE_TYPE_DAY_LEARN_RELEARN
         self._logLrn(card, ease, conf, leaving, type, lastLeft)
 
-    def _lrnConf(self, card: Card) -> Dict[str, Any]:
+    def _lrnConf(self, card: Card) -> QueueConfig:
         if card.type == CARD_TYPE_REV:
             return self._lapseConf(card)
         else:
             return self._newConf(card)
 
-    def _rescheduleAsRev(self, card: Card, conf: Dict[str, Any], early: bool) -> None:
+    def _rescheduleAsRev(self, card: Card, conf: QueueConfig, early: bool) -> None:
         lapse = card.type == CARD_TYPE_REV
         if lapse:
             if self._resched(card):
@@ -338,7 +339,7 @@ limit %d"""
         return tot + tod * 1000
 
     def _graduatingIvl(
-        self, card: Card, conf: Dict[str, Any], early: bool, adj: bool = True
+        self, card: Card, conf: QueueConfig, early: bool, adj: bool = True
     ) -> int:
         if card.type == CARD_TYPE_REV:
             # lapsed card being relearnt
@@ -357,7 +358,7 @@ limit %d"""
         else:
             return ideal
 
-    def _rescheduleNew(self, card: Card, conf: Dict[str, Any], early: bool) -> None:
+    def _rescheduleNew(self, card: Card, conf: QueueConfig, early: bool) -> None:
         "Reschedule a new card that's graduated for the first time."
         card.ivl = self._graduatingIvl(card, conf, early)
         card.due = self.today + card.ivl
@@ -367,7 +368,7 @@ limit %d"""
         self,
         card: Card,
         ease: int,
-        conf: Dict[str, Any],
+        conf: QueueConfig,
         leaving: bool,
         type: int,
         lastLeft: int,
@@ -452,7 +453,7 @@ and due <= ? limit ?)""",
     def _deckRevLimit(self, did: int) -> int:
         return self._deckNewLimit(did, self._deckRevLimitSingle)
 
-    def _deckRevLimitSingle(self, d: Dict[str, Any]) -> int:  # type: ignore[override]
+    def _deckRevLimitSingle(self, d: Deck) -> int:  # type: ignore[override]
         if d["dyn"]:
             return self.reportLimit
         c = self.col.decks.confForDid(d["id"])
@@ -567,7 +568,7 @@ did = ? and queue = {QUEUE_TYPE_REV} and due <= ? limit ?""",
             card.queue = QUEUE_TYPE_DAY_LEARN_RELEARN
         return delay
 
-    def _nextLapseIvl(self, card: Card, conf: Dict[str, Any]) -> int:
+    def _nextLapseIvl(self, card: Card, conf: QueueConfig) -> int:
         return max(conf["minInt"], int(card.ivl * conf["mult"]))
 
     def _rescheduleRev(self, card: Card, ease: int) -> None:  # type: ignore[override]
@@ -607,7 +608,7 @@ did = ? and queue = {QUEUE_TYPE_REV} and due <= ? limit ?""",
         # interval capped?
         return min(interval, conf["maxIvl"])
 
-    def _constrainedIvl(self, ivl: float, conf: Dict[str, Any], prev: int) -> int:  # type: ignore[override]
+    def _constrainedIvl(self, ivl: float, conf: QueueConfig, prev: int) -> int:  # type: ignore[override]
         "Integer interval after interval factor and prev+1 constraints applied."
         new = ivl * conf.get("ivlFct", 1)
         return int(max(new, prev + 1))
@@ -641,7 +642,7 @@ did = ? and queue = {QUEUE_TYPE_REV} and due <= ? limit ?""",
         self.col.decks.select(did)
         return ids
 
-    def _fillDyn(self, deck: Dict[str, Any]) -> Sequence[int]:  # type: ignore[override]
+    def _fillDyn(self, deck: Deck) -> Sequence[int]:  # type: ignore[override]
         search, limit, order = deck["terms"][0]
         orderlimit = self._dynOrder(order, limit)
         if search.strip():
@@ -707,7 +708,7 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?"""
     # Leeches
     ##########################################################################
 
-    def _checkLeech(self, card: Card, conf: Dict[str, Any]) -> bool:
+    def _checkLeech(self, card: Card, conf: QueueConfig) -> bool:
         "Leech handler. True if card was a leech."
         lf = conf["leechFails"]
         if not lf:
@@ -737,7 +738,7 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?"""
     # Tools
     ##########################################################################
 
-    def _newConf(self, card: Card) -> Dict[str, Any]:
+    def _newConf(self, card: Card) -> QueueConfig:
         conf = self._cardConf(card)
         # normal deck
         if not card.odid:
@@ -756,7 +757,7 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?"""
             perDay=self.reportLimit,
         )
 
-    def _lapseConf(self, card: Card) -> Dict[str, Any]:
+    def _lapseConf(self, card: Card) -> QueueConfig:
         conf = self._cardConf(card)
         # normal deck
         if not card.odid:

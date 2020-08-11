@@ -19,6 +19,21 @@ from anki.utils import ids2str, intTime
 defaultDeck = 0
 defaultDynamicDeck = 1
 
+NonFilteredDeck = Dict[str, Any]
+FilteredDeck = Dict[str, Any]
+
+"""Any kind of deck """
+Deck = Union[NonFilteredDeck, FilteredDeck]
+
+"""Configuration of standard deck, as seen from the deck picker's gear."""
+Config = Dict[str, Any]
+
+"""Configurationf of some deck, filtered deck for filtered deck, config for standard deck"""
+DeckConfig = Union[FilteredDeck, Config]
+
+""" New/lrn/rev conf, from deck config"""
+QueueConfig = Dict[str, Any]
+
 
 class DecksDictProxy:
     def __init__(self, col: anki.collection.Collection):
@@ -64,7 +79,7 @@ class DeckManager:
         self.col = col.weakref()
         self.decks = DecksDictProxy(col)
 
-    def save(self, g: Dict = None) -> None:
+    def save(self, g: Union[Deck, Config] = None) -> None:
         "Can be called with either a deck or a deck configuration."
         if not g:
             print("col.decks.save() should be passed the changed deck")
@@ -124,7 +139,7 @@ class DeckManager:
         except NotFoundError:
             return None
 
-    def get_legacy(self, did: int) -> Optional[Dict]:
+    def get_legacy(self, did: int) -> Optional[Deck]:
         try:
             return from_json_bytes(self.col.backend.get_deck_legacy(did))
         except NotFoundError:
@@ -133,10 +148,10 @@ class DeckManager:
     def have(self, id: int) -> bool:
         return not self.get_legacy(int(id))
 
-    def get_all_legacy(self) -> List[Dict]:
+    def get_all_legacy(self) -> List[Deck]:
         return list(from_json_bytes(self.col.backend.get_all_decks_legacy()).values())
 
-    def new_deck_legacy(self, filtered: bool) -> Dict:
+    def new_deck_legacy(self, filtered: bool) -> Deck:
         return from_json_bytes(self.col.backend.new_deck_legacy(filtered))
 
     def deck_tree(self) -> pb.DeckTreeNode:
@@ -154,7 +169,7 @@ class DeckManager:
                 return match
         return None
 
-    def all(self) -> List:
+    def all(self) -> List[Deck]:
         "All decks. Expensive; prefer all_names_and_ids()"
         return self.get_all_legacy()
 
@@ -162,7 +177,7 @@ class DeckManager:
         print("decks.allIds() is deprecated, use .all_names_and_ids()")
         return [str(x.id) for x in self.all_names_and_ids()]
 
-    def allNames(self, dyn: bool = True, force_default: bool = True) -> List:
+    def allNames(self, dyn: bool = True, force_default: bool = True) -> List[str]:
         print("decks.allNames() is deprecated, use .all_names_and_ids()")
         return [
             x.name
@@ -185,7 +200,7 @@ class DeckManager:
     def count(self) -> int:
         return len(self.all_names_and_ids())
 
-    def get(self, did: Union[int, str], default: bool = True) -> Optional[Dict]:
+    def get(self, did: Union[int, str], default: bool = True) -> Optional[Deck]:
         if not did:
             if default:
                 return self.get_legacy(1)
@@ -200,14 +215,14 @@ class DeckManager:
         else:
             return None
 
-    def byName(self, name: str) -> Optional[Dict]:
+    def byName(self, name: str) -> Optional[Deck]:
         """Get deck with NAME, ignoring case."""
         id = self.id_for_name(name)
         if id:
             return self.get_legacy(id)
         return None
 
-    def update(self, g: Dict[str, Any], preserve_usn=True) -> None:
+    def update(self, g: Deck, preserve_usn=True) -> None:
         "Add or update an existing deck. Used for syncing and merging."
         try:
             g["id"] = self.col.backend.add_or_update_deck_legacy(
@@ -216,7 +231,7 @@ class DeckManager:
         except anki.rsbackend.DeckIsFilteredError:
             raise DeckRenameError("deck was filtered")
 
-    def rename(self, g: Dict[str, Any], newName: str) -> None:
+    def rename(self, g: Deck, newName: str) -> None:
         "Rename deck prefix to NAME if not exists. Updates children."
         g["name"] = newName
         self.update(g, preserve_usn=False)
@@ -225,7 +240,9 @@ class DeckManager:
     # Drag/drop
     #############################################################
 
-    def renameForDragAndDrop(self, draggedDeckDid: int, ontoDeckDid: Any) -> None:
+    def renameForDragAndDrop(
+        self, draggedDeckDid: int, ontoDeckDid: Optional[Union[int, str]]
+    ) -> None:
         draggedDeck = self.get(draggedDeckDid)
         draggedDeckName = draggedDeck["name"]
         ontoDeckName = self.get(ontoDeckDid)["name"]
@@ -252,23 +269,23 @@ class DeckManager:
         else:
             return True
 
-    def _isParent(self, parentDeckName: str, childDeckName: str) -> Any:
+    def _isParent(self, parentDeckName: str, childDeckName: str) -> bool:
         return self.path(childDeckName) == self.path(parentDeckName) + [
             self.basename(childDeckName)
         ]
 
-    def _isAncestor(self, ancestorDeckName: str, descendantDeckName: str) -> Any:
+    def _isAncestor(self, ancestorDeckName: str, descendantDeckName: str) -> bool:
         ancestorPath = self.path(ancestorDeckName)
         return ancestorPath == self.path(descendantDeckName)[0 : len(ancestorPath)]
 
     # Deck configurations
     #############################################################
 
-    def all_config(self) -> List:
+    def all_config(self) -> List[Config]:
         "A list of all deck config."
         return list(from_json_bytes(self.col.backend.all_deck_config_legacy()))
 
-    def confForDid(self, did: int) -> Any:
+    def confForDid(self, did: int) -> DeckConfig:
         deck = self.get(did, default=False)
         assert deck
         if "conf" in deck:
@@ -282,20 +299,20 @@ class DeckManager:
         # dynamic decks have embedded conf
         return deck
 
-    def get_config(self, conf_id: int) -> Any:
+    def get_config(self, conf_id: int) -> Optional[DeckConfig]:
         try:
             return from_json_bytes(self.col.backend.get_deck_config_legacy(conf_id))
         except NotFoundError:
             return None
 
-    def update_config(self, conf: Dict[str, Any], preserve_usn=False) -> None:
+    def update_config(self, conf: DeckConfig, preserve_usn=False) -> None:
         conf["id"] = self.col.backend.add_or_update_deck_config_legacy(
             config=to_json_bytes(conf), preserve_usn_and_mtime=preserve_usn
         )
 
     def add_config(
-        self, name: str, clone_from: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
+        self, name: str, clone_from: Optional[DeckConfig] = None
+    ) -> DeckConfig:
         if clone_from is not None:
             conf = copy.deepcopy(clone_from)
             conf["id"] = 0
@@ -306,7 +323,7 @@ class DeckManager:
         return conf
 
     def add_config_returning_id(
-        self, name: str, clone_from: Optional[Dict[str, Any]] = None
+        self, name: str, clone_from: Optional[DeckConfig] = None
     ) -> int:
         return self.add_config(name, clone_from)["id"]
 
@@ -322,11 +339,11 @@ class DeckManager:
                 self.save(g)
         self.col.backend.remove_deck_config(id)
 
-    def setConf(self, grp: Dict[str, Any], id: int) -> None:
+    def setConf(self, grp: DeckConfig, id: int) -> None:
         grp["conf"] = id
         self.save(grp)
 
-    def didsForConf(self, conf) -> List:
+    def didsForConf(self, conf) -> List[int]:
         dids = []
         for deck in self.all():
             if "conf" in deck and deck["conf"] == conf["id"]:
@@ -353,13 +370,13 @@ class DeckManager:
     # Deck utils
     #############################################################
 
-    def name(self, did: int, default: bool = False) -> Any:
+    def name(self, did: int, default: bool = False) -> str:
         deck = self.get(did, default=default)
         if deck:
             return deck["name"]
         return _("[no deck]")
 
-    def nameOrNone(self, did: int) -> Any:
+    def nameOrNone(self, did: int) -> Optional[str]:
         deck = self.get(did, default=False)
         if deck:
             return deck["name"]
@@ -373,7 +390,7 @@ class DeckManager:
             intTime(),
         )
 
-    def cids(self, did: int, children: bool = False) -> Any:
+    def cids(self, did: int, children: bool = False) -> List[int]:
         if not children:
             return self.col.db.list("select id from cards where did=?", did)
         dids = [did]
@@ -387,15 +404,15 @@ class DeckManager:
     # Deck selection
     #############################################################
 
-    def active(self) -> Any:
+    def active(self) -> List[int]:
         "The currrently active dids."
         return self.col.get_config("activeDecks", [1])
 
-    def selected(self) -> Any:
+    def selected(self) -> int:
         "The currently selected did."
         return self.col.conf["curDeck"]
 
-    def current(self) -> Any:
+    def current(self) -> Deck:
         return self.get(self.selected())
 
     def select(self, did: int) -> None:
@@ -416,32 +433,33 @@ class DeckManager:
     #############################################################
 
     @staticmethod
-    def path(name: str) -> Any:
+    def path(name: str) -> List[str]:
         return name.split("::")
 
     _path = path
 
     @classmethod
-    def basename(cls, name: str) -> Any:
+    def basename(cls, name: str) -> str:
         return cls.path(name)[-1]
 
     _basename = basename
 
     @classmethod
-    def immediate_parent_path(cls, name: str) -> Any:
+    def immediate_parent_path(cls, name: str) -> List[str]:
         return cls._path(name)[:-1]
 
     @classmethod
-    def immediate_parent(cls, name: str) -> Any:
+    def immediate_parent(cls, name: str) -> Optional[str]:
         pp = cls.immediate_parent_path(name)
         if pp:
             return "::".join(pp)
+        return None
 
     @classmethod
-    def key(cls, deck: Dict[str, Any]) -> List[str]:
+    def key(cls, deck: Deck) -> List[str]:
         return cls.path(deck["name"])
 
-    def children(self, did: int) -> List[Tuple[Any, Any]]:
+    def children(self, did: int) -> List[Tuple[str, int]]:
         "All children of did, as (name, id)."
         name = self.get(did)["name"]
         actv = []
@@ -469,7 +487,7 @@ class DeckManager:
                 arr.append(did)
                 gather(child, arr)
 
-        arr: List = []
+        arr: List[int] = []
         gather(childMap[did], arr)
         return arr
 
@@ -490,31 +508,34 @@ class DeckManager:
 
         return childMap
 
-    def parents(self, did: int, nameMap: Optional[Any] = None) -> List:
+    def parents(
+        self, did: int, nameMap: Optional[Dict[str, Deck]] = None
+    ) -> List[Deck]:
         "All parents of did."
         # get parent and grandparent names
-        parents: List[str] = []
+        parents_names: List[str] = []
         for part in self.immediate_parent_path(self.get(did)["name"]):
-            if not parents:
-                parents.append(part)
+            if not parents_names:
+                parents_names.append(part)
             else:
-                parents.append(parents[-1] + "::" + part)
+                parents_names.append(parents_names[-1] + "::" + part)
+        parents: List[Deck] = []
         # convert to objects
-        for c, p in enumerate(parents):
+        for parent_name in parents_names:
             if nameMap:
-                deck = nameMap[p]
+                deck = nameMap[parent_name]
             else:
-                deck = self.get(self.id(p))
-            parents[c] = deck
+                deck = self.get(self.id(parent_name))
+            parents.append(deck)
         return parents
 
-    def parentsByName(self, name: str) -> List:
+    def parentsByName(self, name: str) -> List[Deck]:
         "All existing parents of name"
         if "::" not in name:
             return []
         names = self.immediate_parent_path(name)
         head = []
-        parents = []
+        parents: List[Deck] = []
 
         while names:
             head.append(names.pop(0))
@@ -524,7 +545,7 @@ class DeckManager:
 
         return parents
 
-    def nameMap(self) -> dict:
+    def nameMap(self) -> Dict[str, Deck]:
         return dict((d["name"], d) for d in self.all())
 
     # Dynamic decks
@@ -536,5 +557,6 @@ class DeckManager:
         self.select(did)
         return did
 
-    def isDyn(self, did: Union[int, str]) -> Any:
+    # 1 for dyn, 0 for standard
+    def isDyn(self, did: Union[int, str]) -> int:
         return self.get(did)["dyn"]
