@@ -13,6 +13,7 @@ import anki  # pylint: disable=unused-import
 from anki import hooks
 from anki.cards import Card
 from anki.consts import *
+from anki.decks import DeckManager
 from anki.lang import _
 from anki.rsbackend import (
     CountsForDeckToday,
@@ -791,7 +792,7 @@ and due <= ? limit ?)""",
                 lim = min(lim, self._deckRevLimitSingle(parent, parentLimit=lim))
         return hooks.scheduler_review_limit_for_single_deck(lim, d)
 
-    def _revForDeck(self, did: int, lim: int, childMap: Dict[int, Any]) -> Any:
+    def _revForDeck(self, did: int, lim: int, childMap: DeckManager.childMapNode) -> Any:
         dids = [did] + self.col.decks.childDids(did, childMap)
         lim = min(lim, self.reportLimit)
         return self.col.db.scalar(
