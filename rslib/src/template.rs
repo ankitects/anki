@@ -107,13 +107,31 @@ fn classify_handle(s: &str) -> Token {
 static ALT_HANDLEBAR_DIRECTIVE: &str = "{{=<% %>=}}";
 
 fn legacy_text_token(s: &str) -> nom::IResult<&str, Token> {
-    map(
-        verify(
-            alt((take_until("{{"), take_until("<%"), rest)),
-            |out: &str| !out.is_empty(),
-        ),
-        Token::Text,
-    )(s)
+    if s.is_empty() {
+        return Err(nom::Err::Error(nom::error::make_error(
+            s,
+            nom::error::ErrorKind::TakeUntil,
+        )));
+    }
+    // if we locate a starting normal or alternate handlebar, use
+    // whichever one we found first
+    let normal_result: nom::IResult<&str, &str> = take_until("{{")(s);
+    let (normal_remaining, normal_span) = normal_result.unwrap_or_else(|_e| ("", s));
+    let alt_result: nom::IResult<&str, &str> = take_until("<%")(s);
+    let (alt_remaining, alt_span) = alt_result.unwrap_or_else(|_e| ("", s));
+    match (normal_span.len(), alt_span.len()) {
+        (0, 0) => {
+            // neither handlebar kind found
+            map(rest, Token::Text)(s)
+        }
+        (n, a) => {
+            if n < a {
+                Ok((normal_remaining, Token::Text(normal_span)))
+            } else {
+                Ok((alt_remaining, Token::Text(alt_span)))
+            }
+        }
+    }
 }
 
 fn legacy_next_token(input: &str) -> nom::IResult<&str, Token> {
@@ -964,6 +982,30 @@ mod test {
                     key: "Back".into(),
                     children: vec![Text("\n".into())]
                 }
+            ]
+        );
+        let input = "
+{{=<% %>=}}
+{{#foo}}
+<%Front%>
+{{/foo}}
+";
+        assert_eq!(
+            PT::from_text(input).unwrap().0,
+            vec![
+                Text("\n".into()),
+                Conditional {
+                    key: "foo".into(),
+                    children: vec![
+                        Text("\n".into()),
+                        Replacement {
+                            key: "Front".into(),
+                            filters: vec![]
+                        },
+                        Text("\n".into())
+                    ]
+                },
+                Text("\n".into())
             ]
         );
     }
