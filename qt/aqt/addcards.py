@@ -178,7 +178,7 @@ class AddCards(QDialog):
         self.mw.col.clearUndo()
         self.addHistory(note)
         self.previousNote = note
-        self.mw.requireReset("addCardsAddNote", self)
+        self.mw.requireReset(reason="addCardsAddNote", context=self)
         gui_hooks.add_cards_did_add_note(note)
         return note
 
