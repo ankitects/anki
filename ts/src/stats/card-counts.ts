@@ -12,6 +12,8 @@ import { schemeGreens, schemeBlues } from "d3-scale-chromatic";
 import "d3-transition";
 import { select } from "d3-selection";
 import { scaleLinear } from "d3-scale";
+import { pie, arc } from "d3-shape";
+import { interpolate } from "d3-interpolate";
 import { GraphBounds } from "./graphs";
 import { cumsum } from "d3-array";
 import { I18n } from "../i18n";
@@ -24,7 +26,6 @@ export interface GraphData {
 }
 
 export function gatherData(data: pb.BackendProto.GraphsOut, i18n: I18n): GraphData {
-    // fixme: handle preview cards
     const totalCards = data.cards.length;
     let newCards = 0;
     let young = 0;
@@ -116,8 +117,7 @@ export interface TableDatum {
 export function renderCards(
     svgElem: SVGElement,
     bounds: GraphBounds,
-    sourceData: GraphData,
-    onHover: (idx: null | number) => void
+    sourceData: GraphData
 ): TableDatum[] {
     const summed = cumsum(sourceData.counts, (d) => d[1]);
     const data = Array.from(summed).map((n, idx) => {
@@ -129,12 +129,41 @@ export function renderCards(
             total: n,
         } as SummedDatum;
     });
-    // ensuring a non-zero range makes a better animation
-    // in the empty data case
+    // ensuring a non-zero range makes the percentages not break
+    // in an empty collection
     const xMax = Math.max(1, summed.slice(-1)[0]);
     const x = scaleLinear().domain([0, xMax]);
     const svg = select(svgElem);
+    const paths = svg.select(".counts");
+    const pieData = pie()(sourceData.counts.map((d) => d[1]));
+    const radius = bounds.height / 2 - bounds.marginTop - bounds.marginBottom;
+    const arcGen = arc().innerRadius(0).outerRadius(radius);
     const trans = svg.transition().duration(600) as any;
+
+    paths
+        .attr("transform", `translate(${radius},${radius + bounds.marginTop})`)
+        .selectAll("path")
+        .data(pieData)
+        .join(
+            (enter) =>
+                enter
+                    .append("path")
+                    .attr("fill", function (d, i) {
+                        return barColour(i);
+                    })
+                    .attr("d", arcGen as any),
+            function (update) {
+                return update.call((d) =>
+                    d.transition(trans).attrTween("d", (d) => {
+                        const interpolator = interpolate(
+                            { startAngle: 0, endAngle: 0 },
+                            d
+                        );
+                        return (t): string => arcGen(interpolator(t)) as string;
+                    })
+                );
+            }
+        );
 
     x.range([bounds.marginLeft, bounds.width - bounds.marginRight]);
 
@@ -147,31 +176,6 @@ export function renderCards(
             colour: barColour(idx),
         } as TableDatum;
     });
-
-    const updateBar = (sel: any): any => {
-        return sel
-            .on("mousemove", function (this: any, d: SummedDatum) {
-                onHover(d.idx);
-            })
-            .transition(trans)
-            .attr("x", (d: SummedDatum) => x(d.total - d.count))
-            .attr("width", (d: SummedDatum) => x(d.count) - x(0));
-    };
-
-    svg.select("g.days")
-        .selectAll("rect")
-        .data(data)
-        .join(
-            (enter) =>
-                enter
-                    .append("rect")
-                    .attr("height", 10)
-                    .attr("y", bounds.marginTop)
-                    .attr("fill", (d: SummedDatum): any => barColour(d.idx))
-                    .on("mouseout", () => onHover(null))
-                    .call((d) => updateBar(d)),
-            (update) => update.call((d) => updateBar(d))
-        );
 
     return tableData;
 }
