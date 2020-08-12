@@ -1564,7 +1564,7 @@ where id in %s"""
             newRow = max(newRow, 0)
             self.model.focusedCard = self.model.cards[newRow]
         self.model.endReset()
-        self.mw.requireReset("browserDeleteNote", self)
+        self.mw.requireReset(reason="browserDeleteNote", context=self)
         tooltip(
             ngettext("%d note deleted.", "%d notes deleted.", len(nids)) % len(nids)
         )
@@ -1616,7 +1616,7 @@ update cards set usn=?, mod=?, did=? where id in """
             did,
         )
         self.model.endReset()
-        self.mw.requireReset("browserSetDeck", self)
+        self.mw.requireReset(reason="browserSetDeck", context=self)
 
     # Tags
     ######################################################################
@@ -1642,7 +1642,7 @@ update cards set usn=?, mod=?, did=? where id in """
         self.model.beginReset()
         func(self.selectedNotes(), tags)
         self.model.endReset()
-        self.mw.requireReset("browserAddTags", self)
+        self.mw.requireReset(reason="browserAddTags", context=self)
 
     def deleteTags(self, tags=None, label=None):
         if label is None:
@@ -1675,7 +1675,7 @@ update cards set usn=?, mod=?, did=? where id in """
         else:
             self.col.sched.unsuspendCards(c)
         self.model.reset()
-        self.mw.requireReset("browserSuspend", self)
+        self.mw.requireReset(reason="browserSuspend", context=self)
 
     # Exporting
     ######################################################################
@@ -1763,7 +1763,7 @@ update cards set usn=?, mod=?, did=? where id in """
             shift=frm.shift.isChecked(),
         )
         self.search()
-        self.mw.requireReset("browserReposition", self)
+        self.mw.requireReset(reason="browserReposition", context=self)
         self.model.endReset()
 
     # Rescheduling
@@ -1789,7 +1789,7 @@ update cards set usn=?, mod=?, did=? where id in """
             fmax = max(fmin, fmax)
             self.col.sched.reschedCards(self.selectedCards(), fmin, fmax)
         self.search()
-        self.mw.requireReset("browserReschedule", self)
+        self.mw.requireReset(reason="browserReschedule", context=self)
         self.model.endReset()
 
     # Edit: selection
@@ -1923,7 +1923,7 @@ update cards set usn=?, mod=?, did=? where id in """
 
         def on_done(fut):
             self.search()
-            self.mw.requireReset("browserFindReplace", self)
+            self.mw.requireReset(reason="browserFindReplace", context=self)
             self.model.endReset()
 
             total = len(nids)
@@ -2025,7 +2025,7 @@ update cards set usn=?, mod=?, did=? where id in """
         self.col.tags.bulkAdd(list(nids), _("duplicate"))
         self.mw.progress.finish()
         self.model.endReset()
-        self.mw.requireReset("browserTagDupes", self)
+        self.mw.requireReset(reason="browserTagDupes", context=self)
         tooltip(_("Notes tagged."))
 
     def dupeLinkClicked(self, link):
