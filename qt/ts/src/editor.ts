@@ -47,6 +47,10 @@ function triggerKeyTimer() {
     }, 600);
 }
 
+interface Selection {
+    modify(s: string, t: string, u: string): void;
+}
+
 function onKey(evt: KeyboardEvent) {
     // esc clears focus, allowing dialog to close
     if (evt.which === 27) {
@@ -59,6 +63,29 @@ function onKey(evt: KeyboardEvent) {
         focusPrevious();
         return;
     }
+
+    // fix Ctrl+right/left handling in RTL fields
+    if (currentField.dir === "rtl") {
+        const selection = window.getSelection();
+        let granularity = "character";
+        let alter = "move";
+        if (evt.ctrlKey) {
+            granularity = "word";
+        }
+        if (evt.shiftKey) {
+            alter = "extend";
+        }
+        if (evt.which === 39) {
+            selection.modify(alter, "right", granularity);
+            evt.preventDefault();
+            return;
+        } else if (evt.which === 37) {
+            selection.modify(alter, "left", granularity);
+            evt.preventDefault();
+            return;
+        }
+    }
+
     triggerKeyTimer();
 }
 
