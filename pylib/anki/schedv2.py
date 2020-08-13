@@ -13,6 +13,7 @@ import anki  # pylint: disable=unused-import
 from anki import hooks
 from anki.cards import Card
 from anki.consts import *
+from anki.decks import Deck, DeckConfig, DeckManager, FilteredDeck, QueueConfig
 from anki.lang import _
 from anki.rsbackend import (
     CountsForDeckToday,
@@ -355,7 +356,7 @@ order by due"""
             return None
 
     def _deckNewLimit(
-        self, did: int, fn: Optional[Callable[[Dict[str, Any]], int]] = None
+        self, did: int, fn: Optional[Callable[[Deck], int]] = None
     ) -> int:
         if not fn:
             fn = self._deckNewLimitSingle
@@ -383,7 +384,7 @@ select count() from
             lim,
         )
 
-    def _deckNewLimitSingle(self, g: Dict[str, Any]) -> int:
+    def _deckNewLimitSingle(self, g: DeckConfig) -> int:
         "Limit for deck without parent limits."
         if g["dyn"]:
             return self.dynReportLimit
@@ -552,11 +553,11 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
 
         self._logLrn(card, ease, conf, leaving, type, lastLeft)
 
-    def _updateRevIvlOnFail(self, card: Card, conf: Dict[str, Any]) -> None:
+    def _updateRevIvlOnFail(self, card: Card, conf: QueueConfig) -> None:
         card.lastIvl = card.ivl
         card.ivl = self._lapseIvl(card, conf)
 
-    def _moveToFirstStep(self, card: Card, conf: Dict[str, Any]) -> Any:
+    def _moveToFirstStep(self, card: Card, conf: QueueConfig) -> Any:
         card.left = self._startingLeft(card)
 
         # relearning card?
@@ -565,19 +566,19 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
 
         return self._rescheduleLrnCard(card, conf)
 
-    def _moveToNextStep(self, card: Card, conf: Dict[str, Any]) -> None:
+    def _moveToNextStep(self, card: Card, conf: QueueConfig) -> None:
         # decrement real left count and recalculate left today
         left = (card.left % 1000) - 1
         card.left = self._leftToday(conf["delays"], left) * 1000 + left
 
         self._rescheduleLrnCard(card, conf)
 
-    def _repeatStep(self, card: Card, conf: Dict[str, Any]) -> None:
+    def _repeatStep(self, card: Card, conf: QueueConfig) -> None:
         delay = self._delayForRepeatingGrade(conf, card.left)
         self._rescheduleLrnCard(card, conf, delay=delay)
 
     def _rescheduleLrnCard(
-        self, card: Card, conf: Dict[str, Any], delay: Optional[int] = None
+        self, card: Card, conf: QueueConfig, delay: Optional[int] = None
     ) -> Any:
         # normal delay for the current step?
         if delay is None:
@@ -608,7 +609,7 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
             card.queue = QUEUE_TYPE_DAY_LEARN_RELEARN
         return delay
 
-    def _delayForGrade(self, conf: Dict[str, Any], left: int) -> int:
+    def _delayForGrade(self, conf: QueueConfig, left: int) -> int:
         left = left % 1000
         try:
             delay = conf["delays"][-left]
@@ -620,7 +621,7 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
                 delay = 1
         return delay * 60
 
-    def _delayForRepeatingGrade(self, conf: Dict[str, Any], left: int) -> Any:
+    def _delayForRepeatingGrade(self, conf: QueueConfig, left: int) -> Any:
         # halfway between last and next
         delay1 = self._delayForGrade(conf, left)
         if len(conf["delays"]) > 1:
@@ -636,7 +637,7 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
         else:
             return self._newConf(card)
 
-    def _rescheduleAsRev(self, card: Card, conf: Dict[str, Any], early: bool) -> None:
+    def _rescheduleAsRev(self, card: Card, conf: QueueConfig, early: bool) -> None:
         lapse = card.type in (CARD_TYPE_REV, CARD_TYPE_RELEARNING)
 
         if lapse:
@@ -680,7 +681,7 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
         return ok + 1
 
     def _graduatingIvl(
-        self, card: Card, conf: Dict[str, Any], early: bool, fuzz: bool = True
+        self, card: Card, conf: QueueConfig, early: bool, fuzz: bool = True
     ) -> Any:
         if card.type in (CARD_TYPE_REV, CARD_TYPE_RELEARNING):
             bonus = early and 1 or 0
@@ -695,7 +696,7 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
             ideal = self._fuzzedIvl(ideal)
         return ideal
 
-    def _rescheduleNew(self, card: Card, conf: Dict[str, Any], early: bool) -> None:
+    def _rescheduleNew(self, card: Card, conf: QueueConfig, early: bool) -> None:
         "Reschedule a new card that's graduated for the first time."
         card.ivl = self._graduatingIvl(card, conf, early)
         card.due = self.today + card.ivl
@@ -706,7 +707,7 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
         self,
         card: Card,
         ease: int,
-        conf: Dict[str, Any],
+        conf: QueueConfig,
         leaving: bool,
         type: int,
         lastLeft: int,
@@ -791,7 +792,9 @@ and due <= ? limit ?)""",
                 lim = min(lim, self._deckRevLimitSingle(parent, parentLimit=lim))
         return hooks.scheduler_review_limit_for_single_deck(lim, d)
 
-    def _revForDeck(self, did: int, lim: int, childMap: Dict[int, Any]) -> Any:
+    def _revForDeck(
+        self, did: int, lim: int, childMap: DeckManager.childMapNode
+    ) -> Any:
         dids = [did] + self.col.decks.childDids(did, childMap)
         lim = min(lim, self.reportLimit)
         return self.col.db.scalar(
@@ -888,7 +891,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
 
         return delay
 
-    def _lapseIvl(self, card: Card, conf: Dict[str, Any]) -> Any:
+    def _lapseIvl(self, card: Card, conf: QueueConfig) -> Any:
         ivl = max(1, conf["minInt"], int(card.ivl * conf["mult"]))
         return ivl
 
@@ -975,7 +978,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
         return [ivl - fuzz, ivl + fuzz]
 
     def _constrainedIvl(
-        self, ivl: float, conf: Dict[str, Any], prev: int, fuzz: bool
+        self, ivl: float, conf: QueueConfig, prev: int, fuzz: bool
     ) -> int:
         ivl = int(ivl * conf.get("ivlFct", 1))
         if fuzz:
@@ -1058,7 +1061,7 @@ end)
         self.col.decks.select(did)
         return cnt
 
-    def _fillDyn(self, deck: Dict[str, Any]) -> int:
+    def _fillDyn(self, deck: FilteredDeck) -> int:
         start = -100000
         total = 0
         for search, limit, order in deck["terms"]:
@@ -1167,7 +1170,7 @@ where id = ?
     # Leeches
     ##########################################################################
 
-    def _checkLeech(self, card: Card, conf: Dict[str, Any]) -> bool:
+    def _checkLeech(self, card: Card, conf: QueueConfig) -> bool:
         "Leech handler. True if card was a leech."
         lf = conf["leechFails"]
         if not lf:
@@ -1190,7 +1193,7 @@ where id = ?
     # Tools
     ##########################################################################
 
-    def _cardConf(self, card: Card) -> Dict[str, Any]:
+    def _cardConf(self, card: Card) -> DeckConfig:
         return self.col.decks.confForDid(card.did)
 
     def _newConf(self, card: Card) -> Any:
@@ -1229,7 +1232,7 @@ where id = ?
             resched=conf["resched"],
         )
 
-    def _revConf(self, card: Card) -> Dict[str, Any]:
+    def _revConf(self, card: Card) -> QueueConfig:
         conf = self._cardConf(card)
         # normal deck
         if not card.odid:

@@ -185,6 +185,8 @@ class Models(QDialog):
 
 
 class AddModel(QDialog):
+    model: Optional[NoteType]
+
     def __init__(self, mw: AnkiQt, parent: Optional[QWidget] = None):
         self.parent_ = parent or mw
         self.mw = mw
