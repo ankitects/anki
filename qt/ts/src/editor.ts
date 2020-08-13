@@ -291,10 +291,6 @@ function wrapIntoText(front, back) {
 }
 
 function wrapInternal(front, back, plainText) {
-    if (currentField.dir === "rtl") {
-        front = "&#8235;" + front + "&#8236;";
-        back = "&#8235;" + back + "&#8236;";
-    }
     const s = window.getSelection();
     let r = s.getRangeAt(0);
     const content = r.cloneContents();
