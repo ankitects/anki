@@ -1,5 +1,7 @@
 # coding: utf-8
 
+from copy import deepcopy
+
 from tests.shared import getEmptyCol
 
 
@@ -92,3 +94,122 @@ def test_gendeck():
     note["Text"] += "{{c4::four}}"
     note.flush()
     assert note.cards()[3].did == newId
+
+
+def assert_ord(note, ords):
+    assert {card.ord for card in note.cards()} == ords
+
+
+def test_gen_or():
+    col = getEmptyCol()
+    models = col.models
+    model = models.byName("Basic")
+    flds = model["flds"]
+    models.rename_field(model, flds[0], "A")
+    models.rename_field(model, flds[1], "B")
+    fld2 = deepcopy(flds[0])
+    fld2["name"] = "C"
+    fld2["ord"] = None
+    models.addField(model, fld2)
+
+    tmpls = model["tmpls"]
+    tmpls[0]["qfmt"] = """{{A}}{{B}}{{C}}"""
+    # ensure first card is always generated,
+    # because at last one card is generated
+    tmpl = models.new_template("AND_OR")
+    tmpl[
+        "qfmt"
+    ] = """
+    {{A}}
+{{#B}}
+    {{#C}}
+        {{B}}
+    {{/C}}
+{{/B}}"""
+    models.add_template(model, tmpl)
+
+    models.save(model)
+    models.setCurrent(model)
+
+    note = col.newNote()
+    note["A"] = "foo"
+    col.addNote(note)
+    assert_ord(note, {0, 1})
+
+    note = col.newNote()
+    note["B"] = note["C"] = "foo"
+    col.addNote(note)
+    assert_ord(note, {0, 1})
+
+    note = col.newNote()
+    note["B"] = "foo"
+    col.addNote(note)
+    assert_ord(note, {0})
+
+    note = col.newNote()
+    note["C"] = "foo"
+    col.addNote(note)
+    assert_ord(note, {0})
+
+    note = col.newNote()
+    note["A"] = note["B"] = note["C"] = "foo"
+    col.addNote(note)
+    assert_ord(note, {0, 1})
+
+    note = col.newNote()
+    col.addNote(note)
+    assert_ord(note, {0})  # First card generated if no other cards
+
+
+def test_gen_not():
+    col = getEmptyCol()
+    models = col.models
+    model = models.byName("Basic")
+    flds = model["flds"]
+    models.rename_field(model, flds[0], "First")
+    models.rename_field(model, flds[1], "Front")
+    fld2 = deepcopy(flds[0])
+    fld2["name"] = "AddIfEmpty"
+    fld2["ord"] = None
+    models.addField(model, fld2)
+
+    tmpls = model["tmpls"]
+    # ensure first card is always generated,
+    # because at last one card is generated
+    tmpls[0]["qfmt"] = "{{AddIfEmpty}}{{Front}}{{First}}"
+    tmpl = models.new_template("NOT")
+    tmpl[
+        "qfmt"
+    ] = """
+{{^AddIfEmpty}}
+    {{Front}}
+{{/AddIfEmpty}}
+"""
+
+    models.add_template(model, tmpl)
+
+    models.save(model)
+    models.setCurrent(model)
+
+    note = col.newNote()
+    note["First"] = "foo"
+    note["AddIfEmpty"] = note["Front"] = "foo"
+    col.addNote(note)
+    assert_ord(note, {0})
+
+    note = col.newNote()
+    note["First"] = "foo"
+    note["AddIfEmpty"] = "foo"
+    col.addNote(note)
+    assert_ord(note, {0})
+
+    note = col.newNote()
+    note["First"] = "foo"  # ensure first note generated
+    col.addNote(note)
+    assert_ord(note, {0})
+
+    note = col.newNote()
+    note["First"] = "foo"
+    note["Front"] = "foo"
+    col.addNote(note)
+    assert_ord(note, {0, 1})
