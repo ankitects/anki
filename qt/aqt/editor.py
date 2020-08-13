@@ -254,7 +254,7 @@ class Editor:
         id: Optional[str] = None,
         toggleable: bool = False,
         disables: bool = True,
-    ):
+    ) -> str:
         if icon:
             if icon.startswith("qrc:/"):
                 iconstr = icon

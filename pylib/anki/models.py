@@ -138,7 +138,7 @@ class ModelManager:
     # Current note type
     #############################################################
 
-    def current(self, forDeck: bool = True) -> Any:
+    def current(self, forDeck: bool = True) -> NoteType:
         "Get current model."
         m = self.get(self.col.decks.current().get("mid"))
         if not forDeck or not m:
@@ -243,21 +243,21 @@ class ModelManager:
     # Tools
     ##################################################
 
-    def nids(self, ntid: int) -> Any:
+    def nids(self, ntid: int) -> List[int]:
         "Note ids for M."
         if isinstance(ntid, dict):
             # legacy callers passed in note type
             ntid = ntid["id"]
         return self.col.db.list("select id from notes where mid = ?", ntid)
 
-    def useCount(self, m: NoteType) -> Any:
+    def useCount(self, m: NoteType) -> int:
         "Number of note using M."
         return self.col.db.scalar("select count() from notes where mid = ?", m["id"])
 
     # Copying
     ##################################################
 
-    def copy(self, m: NoteType) -> Any:
+    def copy(self, m: NoteType) -> NoteType:
         "Copy, save and return."
         m2 = copy.deepcopy(m)
         m2["name"] = _("%s copy") % m2["name"]
@@ -275,7 +275,7 @@ class ModelManager:
     def fieldNames(self, m: NoteType) -> List[str]:
         return [f["name"] for f in m["flds"]]
 
-    def sortIdx(self, m: NoteType) -> Any:
+    def sortIdx(self, m: NoteType) -> int:
         return m["sortf"]
 
     # Adding & changing fields
@@ -406,7 +406,12 @@ and notes.mid = ? and cards.ord = ?""",
     # - newModel should be self if model is not changing
 
     def change(
-        self, m: NoteType, nids: List[int], newModel: NoteType, fmap: Any, cmap: Any
+        self,
+        m: NoteType,
+        nids: List[int],
+        newModel: NoteType,
+        fmap: Optional[Dict[int, Union[None, int]]],
+        cmap: Optional[Dict[int, Union[None, int]]],
     ) -> None:
         self.col.modSchema(check=True)
         assert newModel["id"] == m["id"] or (fmap and cmap)
@@ -483,7 +488,9 @@ and notes.mid = ? and cards.ord = ?""",
     # Cloze
     ##########################################################################
 
-    def _availClozeOrds(self, m: NoteType, flds: str, allowEmpty: bool = True) -> List:
+    def _availClozeOrds(
+        self, m: NoteType, flds: str, allowEmpty: bool = True
+    ) -> List[int]:
         print("_availClozeOrds() is deprecated; use note.cloze_numbers_in_fields()")
         note = anki.rsbackend.BackendNote(fields=[flds])
         return list(self.col.backend.cloze_numbers_in_note(note))
