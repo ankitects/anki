@@ -2079,6 +2079,52 @@ class _ReviewerDidShowQuestionHook:
 reviewer_did_show_question = _ReviewerDidShowQuestionHook()
 
 
+class _ReviewerWillInitAnswerButtonsFilter:
+    """Used to modify the answer buttons shown for a card.
+    """
+
+    _hooks: List[
+        Callable["aqt.reviewer.Reviewer", Card], Tuple[Tuple[int, str]]]
+    ] = []
+
+    def append(
+        self,
+        cb: Callable[
+            "aqt.reviewer.Reviewer", Card], Tuple[Tuple[int, str]]]
+        ],
+    ) -> None:
+        """(reviewer: aqt.reviewer.Reviewer, card: Card)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self,
+        cb: Callable[
+            "aqt.reviewer.Reviewer", Card], Tuple[Tuple[int, str]]]
+        ],
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
+
+    def __call__(
+        self, reviewer: aqt.reviewer.Reviewer, card: Card
+    ) -> Tuple[Tuple[int, str]]:
+        buttons_tuple = None
+        for filter in self._hooks:
+            try:
+                buttons_tuple = filter(reviewer, card)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return buttons_tuple
+
+
+reviewer_will_init_answer_buttons = _ReviewerWillInitAnswerButtonsFilter()
+
+
 class _ReviewerWillAnswerCardFilter:
     """Used to modify the ease at which a card is rated or to bypass
         rating the card completely.

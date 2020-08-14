@@ -59,6 +59,17 @@ hooks = [
         legacy_no_args=True,
     ),
     Hook(
+        name="reviewer_will_init_answer_buttons",
+        args=["reviewer: aqt.reviewer.Reviewer", "card: Card"],
+        doc="""Used to modify list of answer buttons
+
+        Return a tuple of the form ((1, "Label1"), (2, "Label2"))
+
+        import _ from anki.lang to support translation, as
+           ((1, _("Label1)), ...)
+        """,
+    ),
+    Hook(
         name="reviewer_will_answer_card",
         args=[
             "ease_tuple: Tuple[bool, int]",
