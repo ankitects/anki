@@ -316,8 +316,6 @@ class AnkiMediaQueue {
             where = media.getAttribute("data-where") || where || this._whereIs(media);
         }
         this._validateSetup("add");
-        this._validateWhere(where, "add", media);
-        this._validateSpeed(speed, media);
 
         if (!(typeof filename == "string")) {
             throw new Error(
@@ -333,6 +331,8 @@ class AnkiMediaQueue {
             );
             return;
         }
+        this._validateWhere(where, "add", media);
+        this._validateSpeed(speed, media);
 
         // this._debug(`Trying ${filename} ${where} ${this.where}...`);
         if (!this.has_previewed && (this._checkPreviewPage() || where == this.where)) {
