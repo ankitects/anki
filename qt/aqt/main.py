@@ -70,7 +70,17 @@ install_pylib_legacy()
 
 
 class ResetReason(enum.Enum):
-    pass
+    AddCardsAddNote = "addCardsAddNote"
+    EditCurrentInit = "editCurrentInit"
+    EditorBridgeCmd = "editorBridgeCmd"
+    BrowserDeleteNote = "browserDeleteNote"
+    BrowserSetDeck = "browserSetDeck"
+    BrowserAddTags = "browserAddTags"
+    BrowserSuspend = "browserSuspend"
+    BrowserReposition = "browserReposition"
+    BrowserReschedule = "browserReschedule"
+    BrowserFindReplace = "browserFindReplace"
+    BrowserTagDupes = "browserTagDupes"
 
 
 class ResetRequired:

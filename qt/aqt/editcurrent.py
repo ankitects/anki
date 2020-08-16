@@ -5,6 +5,7 @@
 import aqt.editor
 from anki.lang import _
 from aqt import gui_hooks
+from aqt.main import ResetReason
 from aqt.qt import *
 from aqt.utils import restoreGeom, saveGeom, tooltip
 
@@ -27,7 +28,7 @@ class EditCurrent(QDialog):
         self.editor.setNote(self.mw.reviewer.card.note(), focusTo=0)
         restoreGeom(self, "editcurrent")
         gui_hooks.state_did_reset.append(self.onReset)
-        self.mw.requireReset(reason="editCurrentInit", context=self)
+        self.mw.requireReset(reason=ResetReason.EditCurrentInit, context=self)
         self.show()
         # reset focus after open, taking care not to retain webview
         # pylint: disable=unnecessary-lambda
