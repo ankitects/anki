@@ -19,6 +19,7 @@ import decorator
 import anki
 from anki.cards import Card
 from anki.notes import Note
+from anki.schedv2 import Scheduler
 
 # New hook/filter handling
 ##############################################################################
@@ -391,6 +392,39 @@ class _NotesWillBeDeletedHook:
 
 
 notes_will_be_deleted = _NotesWillBeDeletedHook()
+
+
+class _SchedulerDidBurySiblingsNotesFilter:
+    """Allows changing sibling buried cards of 'card'.
+
+    Either by adding new cards to be buried or removing buried cards
+    added on 'toBury'."""
+
+    _hooks: List[Callable[[Card, List[int], Scheduler], None]] = []
+
+    def append(self, cb: Callable[[Card, List[int], Scheduler], None]) -> None:
+        """(card: Card, toBury: List[int], scheduler: Scheduler)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[Card, List[int], Scheduler], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
+
+    def __call__(self, card: Card, toBury: List[int], scheduler: Scheduler) -> None:
+        for filter in self._hooks:
+            try:
+                card = filter(card, toBury, scheduler)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return card
+
+
+scheduler_did_bury_siblings_notes = _SchedulerDidBurySiblingsNotesFilter()
 
 
 class _SchedulerNewLimitForSingleDeckFilter:

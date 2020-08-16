@@ -1399,6 +1399,9 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
                 queue_obj.remove(cid)
             except ValueError:
                 pass
+
+        hooks.scheduler_did_bury_siblings_notes(card, toBury, self)
+
         # then bury
         if toBury:
             self.bury_cards(toBury, manual=False)
