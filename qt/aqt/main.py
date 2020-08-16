@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import enum
 import faulthandler
 import gc
 import os
@@ -66,6 +67,10 @@ from aqt.utils import (
 )
 
 install_pylib_legacy()
+
+
+class ResetReason(enum.Enum):
+    pass
 
 
 class ResetRequired:
@@ -688,7 +693,7 @@ from the profile screen."
         "Signal queue needs to be rebuilt when edits are finished or by user."
         self.autosave()
         self.resetModal = modal
-        if gui_hooks.main_window_will_require_reset(
+        if gui_hooks.main_window_should_require_reset(
             self.interactiveState(), reason, context
         ):
             self.moveToState("resetRequired")
