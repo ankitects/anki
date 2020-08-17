@@ -5,6 +5,7 @@ use crate::{
     collection::Collection,
     err::{AnkiError, Result},
     notes::{NoteID, TransformNoteOutput},
+    text::text_to_re,
     {text::normalize_to_nfc, types::Usn},
 };
 use regex::{NoExpand, Regex, Replacer};
@@ -123,11 +124,7 @@ impl Collection {
         // generate regexps
         let tags = split_tags(tags)
             .map(|tag| {
-                let tag = if regex {
-                    tag.into()
-                } else {
-                    regex::escape(tag)
-                };
+                let tag = if regex { tag.into() } else { text_to_re(tag) };
                 Regex::new(&format!("(?i){}", tag))
                     .map_err(|_| AnkiError::invalid_input("invalid regex"))
             })
@@ -233,6 +230,10 @@ mod test {
         col.replace_tags_for_notes(&[note.id], "b.r", "baz", false)?;
         let note = col.storage.get_note(note.id)?.unwrap();
         assert_eq!(note.tags[0], "bar");
+
+        col.replace_tags_for_notes(&[note.id], "b*r", "baz", false)?;
+        let note = col.storage.get_note(note.id)?.unwrap();
+        assert_eq!(note.tags[0], "baz");
 
         col.replace_tags_for_notes(&[note.id], "b.r", "baz", true)?;
         let note = col.storage.get_note(note.id)?.unwrap();
