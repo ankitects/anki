@@ -163,15 +163,26 @@ impl NoteType {
             .collect()
     }
 
+    /// Adjust sort index to match repositioned fields.
     fn reposition_sort_idx(&mut self) {
-        let adjusted_idx = self.fields.iter().enumerate().find_map(|(idx, f)| {
-            if f.ord == Some(self.config.sort_field_idx) {
-                Some(idx)
-            } else {
-                None
-            }
-        });
-        self.config.sort_field_idx = adjusted_idx.unwrap_or(0) as u32;
+        self.config.sort_field_idx = self
+            .fields
+            .iter()
+            .enumerate()
+            .find_map(|(idx, f)| {
+                if f.ord == Some(self.config.sort_field_idx) {
+                    Some(idx as u32)
+                } else {
+                    None
+                }
+            })
+            .unwrap_or_else(|| {
+                // provided ordinal not on any existing field; cap to bounds
+                self.config
+                    .sort_field_idx
+                    .max(0)
+                    .min((self.fields.len() - 1) as u32)
+            });
     }
 
     pub(crate) fn normalize_names(&mut self) {
