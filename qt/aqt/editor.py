@@ -26,6 +26,7 @@ from anki.lang import _
 from anki.notes import Note
 from anki.utils import checksum, isLin, isWin, namedtmp, stripHTMLMedia
 from aqt import AnkiQt, gui_hooks
+from aqt.main import ResetReason
 from aqt.qt import *
 from aqt.sound import av_player, getAudio
 from aqt.theme import theme_manager
@@ -393,7 +394,7 @@ class Editor:
 
             if not self.addMode:
                 self.note.flush()
-                self.mw.requireReset()
+                self.mw.requireReset(reason=ResetReason.EditorBridgeCmd, context=self)
             if type == "blur":
                 self.currentField = None
                 # run any filters

@@ -440,6 +440,24 @@ hooks = [
         is thus suitable for single-shot subscribers.
         """,
     ),
+    Hook(
+        name="main_window_should_require_reset",
+        args=[
+            "will_reset: bool",
+            "reason: Union[aqt.main.ResetReason, str]",
+            "context: Optional[Any]",
+        ],
+        return_type="bool",
+        doc="""Executed before the main window will require a reset
+
+        This hook can be used to change the behavior of the main window,
+        when other dialogs, like the AddCards or Browser, require a reset
+        from the main window.
+        If you decide to use this hook, make you sure you check the reason for the reset.
+        Some reasons require more attention than others, and skipping important ones might
+        put the main window into an invalid state (e.g. display a deleted note).
+        """,
+    ),
     Hook(name="backup_did_complete"),
     Hook(
         name="profile_did_open",
