@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import enum
 import faulthandler
 import gc
 import os
@@ -66,6 +67,19 @@ from aqt.utils import (
 )
 
 install_pylib_legacy()
+
+
+class ResetReason(enum.Enum):
+    AddCardsAddNote = "addCardsAddNote"
+    EditCurrentInit = "editCurrentInit"
+    EditorBridgeCmd = "editorBridgeCmd"
+    BrowserSetDeck = "browserSetDeck"
+    BrowserAddTags = "browserAddTags"
+    BrowserSuspend = "browserSuspend"
+    BrowserReposition = "browserReposition"
+    BrowserReschedule = "browserReschedule"
+    BrowserFindReplace = "browserFindReplace"
+    BrowserTagDupes = "browserTagDupes"
 
 
 class ResetRequired:
@@ -684,11 +698,13 @@ from the profile screen."
             self.maybeEnableUndo()
             self.moveToState(self.state)
 
-    def requireReset(self, modal=False):
+    def requireReset(self, modal=False, reason="unknown", context=None):
         "Signal queue needs to be rebuilt when edits are finished or by user."
         self.autosave()
         self.resetModal = modal
-        if self.interactiveState():
+        if gui_hooks.main_window_should_require_reset(
+            self.interactiveState(), reason, context
+        ):
             self.moveToState("resetRequired")
 
     def interactiveState(self):

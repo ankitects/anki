@@ -7,7 +7,7 @@ See pylib/anki/hooks.py
 
 from __future__ import annotations
 
-from typing import Any, Callable, List, Optional, Tuple
+from typing import Any, Callable, List, Optional, Tuple, Union
 
 import anki
 import aqt
@@ -1735,6 +1735,57 @@ class _MainWindowDidInitHook:
 
 
 main_window_did_init = _MainWindowDidInitHook()
+
+
+class _MainWindowShouldRequireResetFilter:
+    """Executed before the main window will require a reset
+
+        This hook can be used to change the behavior of the main window,
+        when other dialogs, like the AddCards or Browser, require a reset
+        from the main window.
+        If you decide to use this hook, make you sure you check the reason for the reset.
+        Some reasons require more attention than others, and skipping important ones might
+        put the main window into an invalid state (e.g. display a deleted note).
+        """
+
+    _hooks: List[
+        Callable[[bool, "Union[aqt.main.ResetReason, str]", Optional[Any]], bool]
+    ] = []
+
+    def append(
+        self,
+        cb: Callable[[bool, "Union[aqt.main.ResetReason, str]", Optional[Any]], bool],
+    ) -> None:
+        """(will_reset: bool, reason: Union[aqt.main.ResetReason, str], context: Optional[Any])"""
+        self._hooks.append(cb)
+
+    def remove(
+        self,
+        cb: Callable[[bool, "Union[aqt.main.ResetReason, str]", Optional[Any]], bool],
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
+
+    def __call__(
+        self,
+        will_reset: bool,
+        reason: Union[aqt.main.ResetReason, str],
+        context: Optional[Any],
+    ) -> bool:
+        for filter in self._hooks:
+            try:
+                will_reset = filter(will_reset, reason, context)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return will_reset
+
+
+main_window_should_require_reset = _MainWindowShouldRequireResetFilter()
 
 
 class _MediaSyncDidProgressHook:

@@ -12,6 +12,7 @@ from anki.lang import _
 from anki.notes import Note
 from anki.utils import htmlToTextLine, isMac
 from aqt import AnkiQt, gui_hooks
+from aqt.main import ResetReason
 from aqt.qt import *
 from aqt.sound import av_player
 from aqt.utils import (
@@ -177,8 +178,8 @@ class AddCards(QDialog):
         self.mw.col.add_note(note, self.deckChooser.selectedId())
         self.mw.col.clearUndo()
         self.addHistory(note)
-        self.mw.requireReset()
         self.previousNote = note
+        self.mw.requireReset(reason=ResetReason.AddCardsAddNote, context=self)
         gui_hooks.add_cards_did_add_note(note)
         return note
 
