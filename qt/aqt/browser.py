@@ -1565,7 +1565,7 @@ where id in %s"""
             newRow = max(newRow, 0)
             self.model.focusedCard = self.model.cards[newRow]
         self.model.endReset()
-        self.mw.requireReset(reason=ResetReason.BrowserDeleteNote, context=self)
+        self.mw.reset()
         tooltip(
             ngettext("%d note deleted.", "%d notes deleted.", len(nids)) % len(nids)
         )

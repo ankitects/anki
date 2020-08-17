@@ -9,11 +9,9 @@ use crate::{
     err::Result,
     notes::field_checksum,
     notetype::NoteTypeID,
-    text::matches_wildcard,
+    text::{matches_wildcard, text_to_re},
     text::{normalize_to_nfc, strip_html_preserving_image_filenames, without_combining},
 };
-use lazy_static::lazy_static;
-use regex::{Captures, Regex};
 use std::{borrow::Cow, fmt::Write};
 
 pub(crate) struct SqlWriter<'a> {
@@ -456,38 +454,6 @@ fn glob_to_re(glob: &str) -> Option<String> {
         return None;
     }
     Some(text_to_re(glob))
-}
-
-/// Escape text, converting glob characters to regex syntax, then return.
-fn text_to_re(glob: &str) -> String {
-    lazy_static! {
-        static ref ESCAPED: Regex = Regex::new(r"(\\\\)?\\\*").unwrap();
-        static ref GLOB: Regex = Regex::new(r"(\\\\)?[_%]").unwrap();
-    }
-
-    let escaped = regex::escape(glob);
-
-    let text = ESCAPED.replace_all(&escaped, |caps: &Captures| {
-        if caps.get(0).unwrap().as_str().len() == 2 {
-            ".*"
-        } else {
-            r"\*"
-        }
-    });
-
-    let text2 = GLOB.replace_all(&text, |caps: &Captures| {
-        match caps.get(0).unwrap().as_str() {
-            "_" => ".",
-            "%" => ".*",
-            other => {
-                // strip off the escaping char
-                &other[2..]
-            }
-        }
-        .to_string()
-    });
-
-    text2.into()
 }
 
 #[derive(Debug, PartialEq, Clone, Copy)]
