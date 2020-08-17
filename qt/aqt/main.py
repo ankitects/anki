@@ -73,7 +73,6 @@ class ResetReason(enum.Enum):
     AddCardsAddNote = "addCardsAddNote"
     EditCurrentInit = "editCurrentInit"
     EditorBridgeCmd = "editorBridgeCmd"
-    BrowserDeleteNote = "browserDeleteNote"
     BrowserSetDeck = "browserSetDeck"
     BrowserAddTags = "browserAddTags"
     BrowserSuspend = "browserSuspend"
