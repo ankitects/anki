@@ -274,6 +274,8 @@ impl Collection {
                 // nothing to do
                 return Ok(());
             }
+        } else {
+            return Err(AnkiError::NotFound);
         }
 
         self.transact(None, |col| {

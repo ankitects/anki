@@ -907,6 +907,7 @@ title="%s" %s>%s</button>""" % (
             self.media_syncer.start()
 
         def on_collection_sync_finished():
+            self.col.clearUndo()
             self.reset()
             after_sync()
 
