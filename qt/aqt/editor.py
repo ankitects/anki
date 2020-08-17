@@ -490,7 +490,7 @@ class Editor:
         self.web.eval("setBackgrounds(%s);" % json.dumps(cols))
 
     def showDupes(self):
-        contents = stripHTMLMedia(self.note.fields[0])
+        contents = html.escape(stripHTMLMedia(self.note.fields[0]))
         browser = aqt.dialogs.open("Browser", self.mw)
         browser.form.searchEdit.lineEdit().setText(
             '"dupe:%s,%s"' % (self.note.model()["id"], contents)
