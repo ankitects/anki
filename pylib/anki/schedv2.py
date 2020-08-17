@@ -82,7 +82,13 @@ class Scheduler:
         self._checkDay()
         if not self._haveQueues:
             self.reset()
-        card = self._getCard()
+        while True:
+            card = self._getCard()
+            if not card:
+                break
+            # https://anki.tenderapp.com/discussions/beta-testing/1850-cards-marked-as-buried-are-being-scheduled
+            if card.queue > -1:
+                break
         if card:
             self.col.log(card)
             if not self._burySiblingsOnAnswer:
