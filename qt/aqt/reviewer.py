@@ -621,19 +621,16 @@ time = %(time)d;
         else:
             return 2
 
-    def _answerButtonList(self) -> Sequence[Tuple[int, str]]:
-        buttons_tuple = gui_hooks.reviewer_will_init_answer_buttons(self, self.card)
-        if buttons_tuple is not None:
-            return buttons_tuple
+    def _answerButtonList(self) -> Sequence[Tuple[int, str], ...]:
+        button_count = self.mw.col.sched.answerButtons(self.card)
+        if button_count == 2:
+            buttons_tuple = ((1, _("Again")), (2, _("Good")),)
+        elif button_count == 3:
+            buttons_tuple = ((1, _("Again")), (2, _("Good")), (3, _("Easy")))
         else:
-            l = ((1, _("Again")),)
-            cnt = self.mw.col.sched.answerButtons(self.card)
-            if cnt == 2:
-                return l + ((2, _("Good")),)
-            elif cnt == 3:
-                return l + ((2, _("Good")), (3, _("Easy")))
-            else:
-                return l + ((2, _("Hard")), (3, _("Good")), (4, _("Easy")))
+            buttons_tuple = ((1, _("Again")), (2, _("Hard")), (3, _("Good")), (4, _("Easy")))
+        buttons_tuple = gui_hooks.reviewer_will_init_answer_buttons(buttons_tuple, self, self.card)
+        return buttons_tuple
 
     def _answerButtons(self) -> str:
         default = self._defaultEase()
