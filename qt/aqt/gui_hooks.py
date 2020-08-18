@@ -2081,50 +2081,6 @@ reviewer_did_show_question = _ReviewerDidShowQuestionHook()
 
 class _ReviewerWillInitAnswerButtonsFilter:
     """Used to modify the answer buttons shown for a card.
-    """
-
-    _hooks: List[
-        Callable["aqt.reviewer.Reviewer", Card], Tuple[Tuple[int, str]]]
-    ] = []
-
-    def append(
-        self,
-        cb: Callable[
-            "aqt.reviewer.Reviewer", Card], Tuple[Tuple[int, str]]]
-        ],
-    ) -> None:
-        """(reviewer: aqt.reviewer.Reviewer, card: Card)"""
-        self._hooks.append(cb)
-
-    def remove(
-        self,
-        cb: Callable[
-            "aqt.reviewer.Reviewer", Card], Tuple[Tuple[int, str]]]
-        ],
-    ) -> None:
-        if cb in self._hooks:
-            self._hooks.remove(cb)
-
-    def count(self) -> int:
-        return len(self._hooks)
-
-    def __call__(
-        self, reviewer: aqt.reviewer.Reviewer, card: Card
-    ) -> Tuple[Tuple[int, str]]:
-        buttons_tuple = None
-        for filter in self._hooks:
-            try:
-                buttons_tuple = filter(reviewer, card)
-            except:
-                # if the hook fails, remove it
-                self._hooks.remove(filter)
-                raise
-        return buttons_tuple
-
-
-reviewer_will_init_answer_buttons = _ReviewerWillInitAnswerButtonsFilter()
-
-
 class _ReviewerWillAnswerCardFilter:
     """Used to modify the ease at which a card is rated or to bypass
         rating the card completely.
@@ -2206,6 +2162,67 @@ class _ReviewerWillEndHook:
 
 
 reviewer_will_end = _ReviewerWillEndHook()
+
+
+class _ReviewerWillInitAnswerButtonsFilter:
+    """Used to modify list of answer buttons
+
+        buttons_tuple is a tuple of buttons, with each button represented by a tuple
+        containing an int for the button's number and a string for the button's label.
+
+        Return a tuple of the form ((1, "Label1"), (2, "Label2"), ...)
+
+        Note: import _ from anki.lang to support automatic translation, using, e.g.,
+            ((1, _("Label1")), ...)
+        """
+
+    _hooks: List[
+        Callable[
+            ["Optional[Tuple[Tuple[int, str], ...]]", "aqt.reviewer.Reviewer", Card],
+            Tuple[Tuple[int, str], ...],
+        ]
+    ] = []
+
+    def append(
+        self,
+        cb: Callable[
+            ["Optional[Tuple[Tuple[int, str], ...]]", "aqt.reviewer.Reviewer", Card],
+            Tuple[Tuple[int, str], ...],
+        ],
+    ) -> None:
+        """(buttons_tuple: Optional[Tuple[Tuple[int, str], ...]], reviewer: aqt.reviewer.Reviewer, card: Card)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self,
+        cb: Callable[
+            ["Optional[Tuple[Tuple[int, str], ...]]", "aqt.reviewer.Reviewer", Card],
+            Tuple[Tuple[int, str], ...],
+        ],
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
+
+    def __call__(
+        self,
+        buttons_tuple: Optional[Tuple[Tuple[int, str], ...]],
+        reviewer: aqt.reviewer.Reviewer,
+        card: Card,
+    ) -> Tuple[Tuple[int, str], ...]:
+        for filter in self._hooks:
+            try:
+                buttons_tuple = filter(buttons_tuple, reviewer, card)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return buttons_tuple
+
+
+reviewer_will_init_answer_buttons = _ReviewerWillInitAnswerButtonsFilter()
 
 
 class _ReviewerWillPlayAnswerSoundsHook:
