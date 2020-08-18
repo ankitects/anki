@@ -2079,8 +2079,6 @@ class _ReviewerDidShowQuestionHook:
 reviewer_did_show_question = _ReviewerDidShowQuestionHook()
 
 
-class _ReviewerWillInitAnswerButtonsFilter:
-    """Used to modify the answer buttons shown for a card.
 class _ReviewerWillAnswerCardFilter:
     """Used to modify the ease at which a card is rated or to bypass
         rating the card completely.
