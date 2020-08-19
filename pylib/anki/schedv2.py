@@ -131,6 +131,8 @@ class Scheduler:
         if card.odue:
             card.odue = 0
 
+    # note: when adding revlog entries in the future, make sure undo
+    # code deletes the entries
     def _answerCardPreview(self, card: Card, ease: int) -> None:
         assert 1 <= ease <= 2
 
