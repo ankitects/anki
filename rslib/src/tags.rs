@@ -135,7 +135,7 @@ impl Collection {
         let tags = split_tags(tags)
             .map(|tag| {
                 let tag = if regex { tag.into() } else { text_to_re(tag) };
-                Regex::new(&format!("(?i){}", tag))
+                Regex::new(&format!("(?i)^{}$", tag))
                     .map_err(|_| AnkiError::invalid_input("invalid regex"))
             })
             .collect::<Result<Vec<Regex>>>()?;
