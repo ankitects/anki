@@ -2176,7 +2176,6 @@ class _ReviewerWillInitAnswerButtonsFilter:
 
     _hooks: List[
         Callable[
-            ["Optional[Tuple[Tuple[int, str], ...]]", "aqt.reviewer.Reviewer", Card],
             ["Tuple[Tuple[int, str], ...]", "aqt.reviewer.Reviewer", Card],
             Tuple[Tuple[int, str], ...],
         ]
