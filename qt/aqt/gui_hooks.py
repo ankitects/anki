@@ -7,7 +7,7 @@ See pylib/anki/hooks.py
 
 from __future__ import annotations
 
-from typing import Any, Callable, List, Optional, Tuple, Sequence
+from typing import Any, Callable, List, Optional, Tuple, Union, Sequence
 
 import anki
 import aqt
