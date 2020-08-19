@@ -13,8 +13,7 @@ use std::{borrow::Cow, collections::HashSet};
 use unicase::UniCase;
 
 pub(crate) fn split_tags(tags: &str) -> impl Iterator<Item = &str> {
-    tags.split(|c| c == ' ' || c == '\u{3000}')
-        .filter(|tag| !tag.is_empty())
+    tags.split(is_tag_separator).filter(|tag| !tag.is_empty())
 }
 
 pub(crate) fn join_tags(tags: &[String]) -> String {
@@ -25,6 +24,14 @@ pub(crate) fn join_tags(tags: &[String]) -> String {
     }
 }
 
+fn is_tag_separator(c: char) -> bool {
+    c == ' ' || c == '\u{3000}'
+}
+
+fn invalid_char_for_tag(c: char) -> bool {
+    c.is_ascii_control() || is_tag_separator(c)
+}
+
 impl Collection {
     /// Given a list of tags, fix case, ordering and duplicates.
     /// Returns true if any new tags were added.
@@ -32,13 +39,16 @@ impl Collection {
         let mut seen = HashSet::new();
         let mut added = false;
 
-        let tags: Vec<_> = tags
+        let mut tags: Vec<_> = tags
             .iter()
             .flat_map(|t| split_tags(t))
             .map(|s| normalize_to_nfc(&s))
             .collect();
 
-        for tag in &tags {
+        for tag in &mut tags {
+            if tag.contains(invalid_char_for_tag) {
+                *tag = tag.replace(invalid_char_for_tag, "").into();
+            }
             if tag.trim().is_empty() {
                 continue;
             }
