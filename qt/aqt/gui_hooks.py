@@ -7,7 +7,7 @@ See pylib/anki/hooks.py
 
 from __future__ import annotations
 
-from typing import Any, Callable, List, Optional, Tuple
+from typing import Any, Callable, List, Optional, Tuple, Sequence
 
 import anki
 import aqt
@@ -2177,6 +2177,7 @@ class _ReviewerWillInitAnswerButtonsFilter:
     _hooks: List[
         Callable[
             ["Optional[Tuple[Tuple[int, str], ...]]", "aqt.reviewer.Reviewer", Card],
+            ["Tuple[Tuple[int, str], ...]", "aqt.reviewer.Reviewer", Card],
             Tuple[Tuple[int, str], ...],
         ]
     ] = []
@@ -2184,17 +2185,17 @@ class _ReviewerWillInitAnswerButtonsFilter:
     def append(
         self,
         cb: Callable[
-            ["Optional[Tuple[Tuple[int, str], ...]]", "aqt.reviewer.Reviewer", Card],
+            ["Tuple[Tuple[int, str], ...]", "aqt.reviewer.Reviewer", Card],
             Tuple[Tuple[int, str], ...],
         ],
     ) -> None:
-        """(buttons_tuple: Optional[Tuple[Tuple[int, str], ...]], reviewer: aqt.reviewer.Reviewer, card: Card)"""
+        """(buttons_tuple: Tuple[Tuple[int, str], ...], reviewer: aqt.reviewer.Reviewer, card: Card)"""
         self._hooks.append(cb)
 
     def remove(
         self,
         cb: Callable[
-            ["Optional[Tuple[Tuple[int, str], ...]]", "aqt.reviewer.Reviewer", Card],
+            ["Tuple[Tuple[int, str], ...]", "aqt.reviewer.Reviewer", Card],
             Tuple[Tuple[int, str], ...],
         ],
     ) -> None:
@@ -2206,7 +2207,7 @@ class _ReviewerWillInitAnswerButtonsFilter:
 
     def __call__(
         self,
-        buttons_tuple: Optional[Tuple[Tuple[int, str], ...]],
+        buttons_tuple: Tuple[Tuple[int, str], ...],
         reviewer: aqt.reviewer.Reviewer,
         card: Card,
     ) -> Tuple[Tuple[int, str], ...]:
