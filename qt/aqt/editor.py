@@ -917,8 +917,13 @@ to a cloze type first, via 'Notes>Change Note Type'"""
         )
 
     def doDrop(self, html, internal):
+        def pasteIfField(ret):
+            if ret:
+                self.doPaste(html, internal)
+
+        p = self.web.mapFromGlobal(QCursor.pos())
         self.web.evalWithCallback(
-            "makeDropTargetCurrent();", lambda _: self.doPaste(html, internal)
+            f"focusIfField(document.elementFromPoint({p.x()}, {p.y()}));", pasteIfField
         )
 
     def onPaste(self):
@@ -1036,6 +1041,9 @@ class EditorWebView(AnkiWebView):
 
     def onMiddleClickPaste(self) -> None:
         self._onPaste(QClipboard.Selection)
+
+    def dragEnterEvent(self, evt):
+        evt.accept()
 
     def dropEvent(self, evt):
         mime = evt.mimeData()
