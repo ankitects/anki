@@ -621,10 +621,10 @@ time = %(time)d;
         else:
             return 2
 
-    def _answerButtonList(self) -> Sequence[Tuple[int, str], ...]:
+    def _answerButtonList(self) -> Tuple[Tuple[int, str], ...]:
         button_count = self.mw.col.sched.answerButtons(self.card)
         if button_count == 2:
-            buttons_tuple = ((1, _("Again")), (2, _("Good")),)
+            buttons_tuple: Tuple[Tuple[int, str], ...] = ((1, _("Again")), (2, _("Good")),)
         elif button_count == 3:
             buttons_tuple = ((1, _("Again")), (2, _("Good")), (3, _("Easy")))
         else:
