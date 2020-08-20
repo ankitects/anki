@@ -907,6 +907,7 @@ title="%s" %s>%s</button>""" % (
 
         def on_collection_sync_finished():
             self.col.clearUndo()
+            self.col.models._clear_cache()
             self.reset()
             after_sync()
 
