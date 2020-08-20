@@ -2165,12 +2165,14 @@ reviewer_will_end = _ReviewerWillEndHook()
 class _ReviewerWillInitAnswerButtonsFilter:
     """Used to modify list of answer buttons
 
-        buttons_tuple is a tuple of buttons, with each button represented by a tuple
-        containing an int for the button's number and a string for the button's label.
+        buttons_tuple is a tuple of buttons, with each button represented by a 
+        tuple containing an int for the button's ease and a string for the 
+        button's label.
 
-        Return a tuple of the form ((1, "Label1"), (2, "Label2"), ...)
+        Return a tuple of the form ((int, str), ...), e.g.:
+            ((1, "Label1"), (2, "Label2"), ...)
 
-        Note: import _ from anki.lang to support automatic translation, using, e.g.,
+        Note: import _ from anki.lang to support translation, using, e.g.,
             ((1, _("Label1")), ...)
         """
 
