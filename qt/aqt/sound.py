@@ -335,6 +335,7 @@ class MpvManager(MPV, SoundOrVideoPlayer):
         super().__init__(window_id=None, debug=False)
 
     def on_init(self) -> None:
+        self.on_end_file()
         try:
             self.command("keybind", "q", "stop")
             self.command("keybind", "Q", "stop")
