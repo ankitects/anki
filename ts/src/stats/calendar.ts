@@ -12,7 +12,7 @@ import "d3-transition";
 import { select, mouse } from "d3-selection";
 import { scaleLinear, scaleSequential } from "d3-scale";
 import { showTooltip, hideTooltip } from "./tooltip";
-import { GraphBounds, setDataAvailable } from "./graphs";
+import { GraphBounds, setDataAvailable, RevlogRange } from "./graphs";
 import { timeDay, timeYear, timeWeek } from "d3-time";
 import { I18n } from "../i18n";
 
@@ -54,7 +54,8 @@ export function renderCalendar(
     sourceData: GraphData,
     targetYear: number,
     i18n: I18n,
-    nightMode: boolean
+    nightMode: boolean,
+    revlogRange: RevlogRange
 ): void {
     const svg = select(svgElem);
     const now = new Date();
@@ -90,10 +91,16 @@ export function renderCalendar(
 
     // fill in any blanks
     const startDate = timeYear(nowForYear);
+    const oneYearAgoFromNow = new Date(now);
+    oneYearAgoFromNow.setFullYear(now.getFullYear() - 1);
     for (let i = 0; i < 365; i++) {
         const date = new Date(startDate.getTime() + i * 86400 * 1000);
         if (date > now) {
             // don't fill out future dates
+            continue;
+        }
+        if (revlogRange == RevlogRange.Year && date < oneYearAgoFromNow) {
+            // don't fill out dates older than a year
             continue;
         }
         const yearDay = timeDay.count(timeYear(date), date);
