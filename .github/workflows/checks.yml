@@ -345,3 +345,7 @@ jobs:
           # https://github.com/ankitects/anki/pull/535
           perl scripts/rename -f "s@\+[\w\d]+-@-@g" dist/*
           python -m twine upload --non-interactive --skip-existing --verbose dist/*
+
+      - name: macOS CI workaround test
+        if: matrix.BUILD_TYPE == 'check' && matrix.os == 'macos-latest'
+        run: sync && sleep 10
