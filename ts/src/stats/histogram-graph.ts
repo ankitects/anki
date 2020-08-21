@@ -28,6 +28,7 @@ export interface HistogramData {
     showArea: boolean;
     colourScale: ScaleSequential<string>;
     binValue?: (bin: Bin<any, any>) => number;
+    xTickFormat?: (d: any) => string;
 }
 
 export function histogramGraph(
@@ -50,7 +51,12 @@ export function histogramGraph(
     const x = data.scale.range([bounds.marginLeft, bounds.width - bounds.marginRight]);
     svg.select<SVGGElement>(".x-ticks")
         .transition(trans)
-        .call(axisBottom(x).ticks(7).tickSizeOuter(0));
+        .call(
+            axisBottom(x)
+                .ticks(7)
+                .tickSizeOuter(0)
+                .tickFormat((data.xTickFormat ?? null) as any)
+        );
 
     // y scale
 
