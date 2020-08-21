@@ -142,6 +142,9 @@ jobs:
           # https://stackoverflow.com/questions/59644349/msgmerge-on-macos-catalina
           echo "::set-env name=PATH::/usr/local/opt/gettext/bin:$PATH"
 
+          # gnu tar for cache issue
+          echo "::add-path::/usr/local/opt/gnu-tar/libexec/gnubin"
+
       - name: Configure Windows environment variables
         if: matrix.os == 'windows-latest'
         run: |
@@ -175,6 +178,12 @@ jobs:
         if: matrix.os == 'ubuntu-latest' && matrix.python == '3.7'
         run: |
           sudo chown -R $(whoami):$(id -ng) ~/.cargo/
+
+      - name: Set up brew ripgrep, pyaudio, gettext, etc
+        if: matrix.os == 'macos-latest'
+        run: |
+          set -x
+          brew install portaudio protobuf gettext ripgrep make tar
 
       # Disable it for macos because it pyenv cache is bugged (https://github.com/ankitects/anki/pull/563)
       - name: Cache pyenv
@@ -256,12 +265,6 @@ jobs:
           # sudo apt-get install ripgrep
           curl --fail -LO https://github.com/BurntSushi/ripgrep/releases/download/11.0.2/ripgrep_11.0.2_amd64.deb
           sudo dpkg -i ripgrep_11.0.2_amd64.deb
-
-      - name: Set up brew ripgrep, pyaudio, gettext
-        if: matrix.os == 'macos-latest'
-        run: |
-          set -x
-          brew install portaudio protobuf gettext ripgrep make
 
       - name: Set up python
         uses: actions/setup-python@v1
@@ -345,7 +348,3 @@ jobs:
           # https://github.com/ankitects/anki/pull/535
           perl scripts/rename -f "s@\+[\w\d]+-@-@g" dist/*
           python -m twine upload --non-interactive --skip-existing --verbose dist/*
-
-      - name: macOS CI workaround test
-        if: matrix.BUILD_TYPE == 'check' && matrix.os == 'macos-latest'
-        run: sync && sleep 10
