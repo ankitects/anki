@@ -278,43 +278,6 @@ jobs:
         with:
           node-version: 12
 
-      # Upload things so we can download it and compare to fix the bug:
-      # can't find crate for `prost_derive` which `prost_build` - https://github.com/ankitects/anki/pull/729
-      - name: Upload pyenv
-        if: matrix.os == 'macos-latest' && matrix.BUILD_TYPE == 'check'
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ matrix.os }}-pyenv
-          path: ${{ github.workspace }}${{ matrix.SEP }}pyenv
-
-      - name: Upload index
-        if: matrix.os == 'macos-latest' && matrix.BUILD_TYPE == 'check'
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ matrix.os }}-index
-          path: ${{ matrix.CARGO_INDEX_DIR }}
-
-      - name: Upload registry
-        if: matrix.os == 'macos-latest' && matrix.BUILD_TYPE == 'check'
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ matrix.os }}-registry
-          path: ${{ matrix.CARGO_REGISTRY_DIR }}
-
-      - name: Upload rslib
-        if: matrix.os == 'macos-latest' && matrix.BUILD_TYPE == 'check'
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ matrix.os }}-rslib
-          path: ${{ github.workspace }}${{ matrix.SEP }}rslib${{ matrix.SEP }}target
-
-      - name: Upload rspy
-        if: matrix.os == 'macos-latest' && matrix.BUILD_TYPE == 'check'
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ matrix.os }}-rspy
-          path: ${{ github.workspace }}${{ matrix.SEP }}rspy${{ matrix.SEP }}target
-
       - run: make develop
         if: matrix.BUILD_TYPE == 'build'
 
