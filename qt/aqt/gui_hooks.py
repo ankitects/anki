@@ -2213,6 +2213,69 @@ class _ReviewerWillEndHook:
 reviewer_will_end = _ReviewerWillEndHook()
 
 
+class _ReviewerWillInitAnswerButtonsFilter:
+    """Used to modify list of answer buttons
+
+        buttons_tuple is a tuple of buttons, with each button represented by a 
+        tuple containing an int for the button's ease and a string for the 
+        button's label.
+
+        Return a tuple of the form ((int, str), ...), e.g.:
+            ((1, "Label1"), (2, "Label2"), ...)
+
+        Note: import _ from anki.lang to support translation, using, e.g.,
+            ((1, _("Label1")), ...)
+        """
+
+    _hooks: List[
+        Callable[
+            ["Tuple[Tuple[int, str], ...]", "aqt.reviewer.Reviewer", Card],
+            Tuple[Tuple[int, str], ...],
+        ]
+    ] = []
+
+    def append(
+        self,
+        cb: Callable[
+            ["Tuple[Tuple[int, str], ...]", "aqt.reviewer.Reviewer", Card],
+            Tuple[Tuple[int, str], ...],
+        ],
+    ) -> None:
+        """(buttons_tuple: Tuple[Tuple[int, str], ...], reviewer: aqt.reviewer.Reviewer, card: Card)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self,
+        cb: Callable[
+            ["Tuple[Tuple[int, str], ...]", "aqt.reviewer.Reviewer", Card],
+            Tuple[Tuple[int, str], ...],
+        ],
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
+
+    def __call__(
+        self,
+        buttons_tuple: Tuple[Tuple[int, str], ...],
+        reviewer: aqt.reviewer.Reviewer,
+        card: Card,
+    ) -> Tuple[Tuple[int, str], ...]:
+        for filter in self._hooks:
+            try:
+                buttons_tuple = filter(buttons_tuple, reviewer, card)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return buttons_tuple
+
+
+reviewer_will_init_answer_buttons = _ReviewerWillInitAnswerButtonsFilter()
+
+
 class _ReviewerWillPlayAnswerSoundsHook:
     """Called before showing the answer/back side.
 
