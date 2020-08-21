@@ -59,6 +59,27 @@ hooks = [
         legacy_no_args=True,
     ),
     Hook(
+        name="reviewer_will_init_answer_buttons",
+        args=[
+            "buttons_tuple: Tuple[Tuple[int, str], ...]",
+            "reviewer: aqt.reviewer.Reviewer",
+            "card: Card",
+        ],
+        return_type="Tuple[Tuple[int, str], ...]",
+        doc="""Used to modify list of answer buttons
+
+        buttons_tuple is a tuple of buttons, with each button represented by a 
+        tuple containing an int for the button's ease and a string for the 
+        button's label.
+
+        Return a tuple of the form ((int, str), ...), e.g.:
+            ((1, "Label1"), (2, "Label2"), ...)
+
+        Note: import _ from anki.lang to support translation, using, e.g.,
+            ((1, _("Label1")), ...)
+        """,
+    ),
+    Hook(
         name="reviewer_will_answer_card",
         args=[
             "ease_tuple: Tuple[bool, int]",
