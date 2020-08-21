@@ -7,12 +7,13 @@
  */
 
 import pb from "../backend/proto";
-import { extent, histogram } from "d3-array";
+import { extent, histogram, sum } from "d3-array";
 import { scaleLinear, scaleSequential } from "d3-scale";
 import { CardQueue } from "../cards";
 import { HistogramData } from "./histogram-graph";
 import { interpolateRdYlGn } from "d3-scale-chromatic";
 import { I18n } from "../i18n";
+import { TableDatum } from "./graphs";
 
 export interface GraphData {
     eases: number[];
@@ -25,11 +26,14 @@ export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
     return { eases };
 }
 
-export function prepareData(data: GraphData, i18n: I18n): HistogramData | null {
+export function prepareData(
+    data: GraphData,
+    i18n: I18n
+): [HistogramData | null, TableDatum[]] {
     // get min/max
     const allEases = data.eases;
     if (!allEases.length) {
-        return null;
+        return [null, []];
     }
     const total = allEases.length;
     const [_xMin, origXMax] = extent(allEases);
@@ -57,5 +61,16 @@ export function prepareData(data: GraphData, i18n: I18n): HistogramData | null {
         });
     }
 
-    return { scale, bins, total, hoverText, colourScale, showArea: false };
+    const xTickFormat = (num: number): string => `${num.toFixed(0)}%`;
+    const tableData = [
+        {
+            label: i18n.tr(i18n.TR.STATISTICS_AVERAGE_EASE),
+            value: xTickFormat(sum(allEases) / total),
+        },
+    ];
+
+    return [
+        { scale, bins, total, hoverText, colourScale, showArea: false, xTickFormat },
+        tableData,
+    ];
 }
