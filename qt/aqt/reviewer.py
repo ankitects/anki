@@ -9,7 +9,7 @@ import html
 import json
 import re
 import unicodedata as ucd
-from typing import Callable, List, Optional, Sequence, Tuple, Union
+from typing import Callable, List, Optional, Tuple, Union
 
 from PyQt5.QtCore import Qt
 
@@ -624,12 +624,22 @@ time = %(time)d;
     def _answerButtonList(self) -> Tuple[Tuple[int, str], ...]:
         button_count = self.mw.col.sched.answerButtons(self.card)
         if button_count == 2:
-            buttons_tuple: Tuple[Tuple[int, str], ...] = ((1, _("Again")), (2, _("Good")),)
+            buttons_tuple: Tuple[Tuple[int, str], ...] = (
+                (1, _("Again")),
+                (2, _("Good")),
+            )
         elif button_count == 3:
             buttons_tuple = ((1, _("Again")), (2, _("Good")), (3, _("Easy")))
         else:
-            buttons_tuple = ((1, _("Again")), (2, _("Hard")), (3, _("Good")), (4, _("Easy")))
-        buttons_tuple = gui_hooks.reviewer_will_init_answer_buttons(buttons_tuple, self, self.card)
+            buttons_tuple = (
+                (1, _("Again")),
+                (2, _("Hard")),
+                (3, _("Good")),
+                (4, _("Easy")),
+            )
+        buttons_tuple = gui_hooks.reviewer_will_init_answer_buttons(
+            buttons_tuple, self, self.card
+        )
         return buttons_tuple
 
     def _answerButtons(self) -> str:
