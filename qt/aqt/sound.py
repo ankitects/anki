@@ -338,7 +338,7 @@ class MpvManager(MPV, SoundOrVideoPlayer):
         # if mpv dies and is restarted, tell Anki the
         # current file is done
         self.on_end_file()
-        
+
         try:
             self.command("keybind", "q", "stop")
             self.command("keybind", "Q", "stop")
