@@ -64,9 +64,9 @@
             <table>
                 {#each tableData as d, idx}
                     <tr>
+                        <!-- prettier-ignore -->
                         <td>
-                            <span style="color: {d.colour};">■</span>
-                            {d.label}
+                            <span style="color: {d.colour};">■&nbsp;</span>{d.label}
                         </td>
                         <td class="right">{d.count}</td>
                         <td class="right">{d.percent}</td>
