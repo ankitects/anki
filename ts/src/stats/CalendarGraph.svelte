@@ -47,7 +47,8 @@
             graphData,
             targetYear,
             i18n,
-            nightMode
+            nightMode,
+            revlogRange,
         );
     }
 
