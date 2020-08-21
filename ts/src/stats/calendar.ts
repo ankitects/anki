@@ -90,7 +90,7 @@ export function renderCalendar(
 
     // fill in any blanks
     const startDate = timeYear(nowForYear);
-    for (let i = 0; i < 366; i++) {
+    for (let i = 0; i < 365; i++) {
         const date = new Date(startDate.getTime() + i * 86400 * 1000);
         if (date > now) {
             // don't fill out future dates
