@@ -194,20 +194,20 @@ hooks = [
     ),
     Hook(
         name="deck_conf_did_load_config",
-        args=["deck_conf: aqt.deckconf.DeckConf", "deck: Any", "config: Any"],
+        args=["deck_conf: aqt.deckconf.DeckConf", "deck: Deck", "config: DeckConfig"],
         doc="Called once widget state has been set from deck config",
     ),
     Hook(
         name="deck_conf_will_save_config",
-        args=["deck_conf: aqt.deckconf.DeckConf", "deck: Any", "config: Any"],
+        args=["deck_conf: aqt.deckconf.DeckConf", "deck: Deck", "config: DeckConfig"],
         doc="Called before widget state is saved to config",
     ),
     Hook(
         name="deck_conf_did_add_config",
         args=[
             "deck_conf: aqt.deckconf.DeckConf",
-            "deck: Any",
-            "config: Any",
+            "deck: Deck",
+            "config: DeckConfig",
             "new_name: str",
             "new_conf_id: int",
         ],
@@ -224,15 +224,15 @@ hooks = [
     ),
     Hook(
         name="deck_conf_will_remove_config",
-        args=["deck_conf: aqt.deckconf.DeckConf", "deck: Any", "config: Any"],
+        args=["deck_conf: aqt.deckconf.DeckConf", "deck: Deck", "config: DeckConfig"],
         doc="Called before current config group is removed",
     ),
     Hook(
         name="deck_conf_will_rename_config",
         args=[
             "deck_conf: aqt.deckconf.DeckConf",
-            "deck: Any",
-            "config: Any",
+            "deck: Deck",
+            "config: DeckConfig",
             "new_name: str",
         ],
         doc="Called before config group is renamed",
@@ -440,6 +440,24 @@ hooks = [
         is thus suitable for single-shot subscribers.
         """,
     ),
+    Hook(
+        name="main_window_should_require_reset",
+        args=[
+            "will_reset: bool",
+            "reason: Union[aqt.main.ResetReason, str]",
+            "context: Optional[Any]",
+        ],
+        return_type="bool",
+        doc="""Executed before the main window will require a reset
+
+        This hook can be used to change the behavior of the main window,
+        when other dialogs, like the AddCards or Browser, require a reset
+        from the main window.
+        If you decide to use this hook, make you sure you check the reason for the reset.
+        Some reasons require more attention than others, and skipping important ones might
+        put the main window into an invalid state (e.g. display a deleted note).
+        """,
+    ),
     Hook(name="backup_did_complete"),
     Hook(
         name="profile_did_open",
@@ -530,7 +548,7 @@ hooks = [
     ###################
     Hook(
         name="editor_did_init_buttons",
-        args=["buttons: List", "editor: aqt.editor.Editor"],
+        args=["buttons: List[str]", "editor: aqt.editor.Editor"],
     ),
     Hook(
         name="editor_did_init_shortcuts",
@@ -653,7 +671,7 @@ hooks = [
     ###################
     Hook(
         name="current_note_type_did_change",
-        args=["notetype: Dict[str, Any]"],
+        args=["notetype: NoteType"],
         legacy_hook="currentModelChanged",
         legacy_no_args=True,
     ),

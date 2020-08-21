@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import enum
 import faulthandler
 import gc
 import os
@@ -14,7 +15,7 @@ import weakref
 import zipfile
 from argparse import Namespace
 from threading import Thread
-from typing import Any, Callable, Dict, List, Optional, Sequence, TextIO, Tuple, cast
+from typing import Any, Callable, List, Optional, Sequence, TextIO, Tuple, cast
 
 import anki
 import aqt
@@ -27,6 +28,7 @@ import aqt.toolbar
 import aqt.webview
 from anki import hooks
 from anki.collection import Collection
+from anki.decks import Deck
 from anki.hooks import runHook
 from anki.lang import _, ngettext
 from anki.rsbackend import RustBackend
@@ -65,6 +67,19 @@ from aqt.utils import (
 )
 
 install_pylib_legacy()
+
+
+class ResetReason(enum.Enum):
+    AddCardsAddNote = "addCardsAddNote"
+    EditCurrentInit = "editCurrentInit"
+    EditorBridgeCmd = "editorBridgeCmd"
+    BrowserSetDeck = "browserSetDeck"
+    BrowserAddTags = "browserAddTags"
+    BrowserSuspend = "browserSuspend"
+    BrowserReposition = "browserReposition"
+    BrowserReschedule = "browserReschedule"
+    BrowserFindReplace = "browserFindReplace"
+    BrowserTagDupes = "browserTagDupes"
 
 
 class ResetRequired:
@@ -652,7 +667,7 @@ from the profile screen."
         self.maybe_check_for_addon_updates()
         self.deckBrowser.show()
 
-    def _selectedDeck(self) -> Optional[Dict[str, Any]]:
+    def _selectedDeck(self) -> Optional[Deck]:
         did = self.col.decks.selected()
         if not self.col.decks.nameOrNone(did):
             showInfo(_("Please select a deck."))
@@ -683,11 +698,13 @@ from the profile screen."
             self.maybeEnableUndo()
             self.moveToState(self.state)
 
-    def requireReset(self, modal=False):
+    def requireReset(self, modal=False, reason="unknown", context=None):
         "Signal queue needs to be rebuilt when edits are finished or by user."
         self.autosave()
         self.resetModal = modal
-        if self.interactiveState():
+        if gui_hooks.main_window_should_require_reset(
+            self.interactiveState(), reason, context
+        ):
             self.moveToState("resetRequired")
 
     def interactiveState(self):
@@ -894,6 +911,8 @@ title="%s" %s>%s</button>""" % (
             self.media_syncer.start()
 
         def on_collection_sync_finished():
+            self.col.clearUndo()
+            self.col.models._clear_cache()
             self.reset()
             after_sync()
 

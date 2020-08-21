@@ -273,6 +273,38 @@ pub(crate) fn without_combining(s: &str) -> Cow<str> {
         .into()
 }
 
+/// Escape text, converting glob characters to regex syntax, then return.
+pub(crate) fn text_to_re(glob: &str) -> String {
+    lazy_static! {
+        static ref ESCAPED: Regex = Regex::new(r"(\\\\)?\\\*").unwrap();
+        static ref GLOB: Regex = Regex::new(r"(\\\\)?[_%]").unwrap();
+    }
+
+    let escaped = regex::escape(glob);
+
+    let text = ESCAPED.replace_all(&escaped, |caps: &Captures| {
+        if caps.get(0).unwrap().as_str().len() == 2 {
+            ".*"
+        } else {
+            r"\*"
+        }
+    });
+
+    let text2 = GLOB.replace_all(&text, |caps: &Captures| {
+        match caps.get(0).unwrap().as_str() {
+            "_" => ".",
+            "%" => ".*",
+            other => {
+                // strip off the escaping char
+                &other[2..]
+            }
+        }
+        .to_string()
+    });
+
+    text2.into()
+}
+
 #[cfg(test)]
 mod test {
     use super::matches_wildcard;

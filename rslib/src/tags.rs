@@ -5,6 +5,7 @@ use crate::{
     collection::Collection,
     err::{AnkiError, Result},
     notes::{NoteID, TransformNoteOutput},
+    text::text_to_re,
     {text::normalize_to_nfc, types::Usn},
 };
 use regex::{NoExpand, Regex, Replacer};
@@ -12,8 +13,7 @@ use std::{borrow::Cow, collections::HashSet};
 use unicase::UniCase;
 
 pub(crate) fn split_tags(tags: &str) -> impl Iterator<Item = &str> {
-    tags.split(|c| c == ' ' || c == '\u{3000}')
-        .filter(|tag| !tag.is_empty())
+    tags.split(is_tag_separator).filter(|tag| !tag.is_empty())
 }
 
 pub(crate) fn join_tags(tags: &[String]) -> String {
@@ -24,6 +24,14 @@ pub(crate) fn join_tags(tags: &[String]) -> String {
     }
 }
 
+fn is_tag_separator(c: char) -> bool {
+    c == ' ' || c == '\u{3000}'
+}
+
+fn invalid_char_for_tag(c: char) -> bool {
+    c.is_ascii_control() || is_tag_separator(c)
+}
+
 impl Collection {
     /// Given a list of tags, fix case, ordering and duplicates.
     /// Returns true if any new tags were added.
@@ -31,13 +39,16 @@ impl Collection {
         let mut seen = HashSet::new();
         let mut added = false;
 
-        let tags: Vec<_> = tags
+        let mut tags: Vec<_> = tags
             .iter()
             .flat_map(|t| split_tags(t))
             .map(|s| normalize_to_nfc(&s))
             .collect();
 
-        for tag in &tags {
+        for tag in &mut tags {
+            if tag.contains(invalid_char_for_tag) {
+                *tag = tag.replace(invalid_char_for_tag, "").into();
+            }
             if tag.trim().is_empty() {
                 continue;
             }
@@ -123,12 +134,8 @@ impl Collection {
         // generate regexps
         let tags = split_tags(tags)
             .map(|tag| {
-                let tag = if regex {
-                    tag.into()
-                } else {
-                    regex::escape(tag)
-                };
-                Regex::new(&format!("(?i){}", tag))
+                let tag = if regex { tag.into() } else { text_to_re(tag) };
+                Regex::new(&format!("(?i)^{}$", tag))
                     .map_err(|_| AnkiError::invalid_input("invalid regex"))
             })
             .collect::<Result<Vec<Regex>>>()?;
@@ -233,6 +240,10 @@ mod test {
         col.replace_tags_for_notes(&[note.id], "b.r", "baz", false)?;
         let note = col.storage.get_note(note.id)?.unwrap();
         assert_eq!(note.tags[0], "bar");
+
+        col.replace_tags_for_notes(&[note.id], "b*r", "baz", false)?;
+        let note = col.storage.get_note(note.id)?.unwrap();
+        assert_eq!(note.tags[0], "baz");
 
         col.replace_tags_for_notes(&[note.id], "b.r", "baz", true)?;
         let note = col.storage.get_note(note.id)?.unwrap();

@@ -1,11 +1,8 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
-import DragOverEvent = JQuery.DragOverEvent;
-
 let currentField = null;
 let changeTimer = null;
-let dropTarget = null;
 let currentNoteId = null;
 
 declare interface String {
@@ -47,6 +44,10 @@ function triggerKeyTimer() {
     }, 600);
 }
 
+interface Selection {
+    modify(s: string, t: string, u: string): void;
+}
+
 function onKey(evt: KeyboardEvent) {
     // esc clears focus, allowing dialog to close
     if (evt.which === 27) {
@@ -59,6 +60,29 @@ function onKey(evt: KeyboardEvent) {
         focusPrevious();
         return;
     }
+
+    // fix Ctrl+right/left handling in RTL fields
+    if (currentField.dir === "rtl") {
+        const selection = window.getSelection();
+        let granularity = "character";
+        let alter = "move";
+        if (evt.ctrlKey) {
+            granularity = "word";
+        }
+        if (evt.shiftKey) {
+            alter = "extend";
+        }
+        if (evt.which === 39) {
+            selection.modify(alter, "right", granularity);
+            evt.preventDefault();
+            return;
+        } else if (evt.which === 37) {
+            selection.modify(alter, "left", granularity);
+            evt.preventDefault();
+            return;
+        }
+    }
+
     triggerKeyTimer();
 }
 
@@ -192,20 +216,15 @@ function focusPrevious() {
     }
 }
 
-function onDragOver(elem) {
-    const e = (window.event as unknown) as DragOverEvent;
-    //e.dataTransfer.dropEffect = "copy";
-    e.preventDefault();
-    // if we focus the target element immediately, the drag&drop turns into a
-    // copy, so note it down for later instead
-    dropTarget = elem;
-}
-
-function makeDropTargetCurrent() {
-    dropTarget.focus();
-    // the focus event may not fire if the window is not active, so make sure
-    // the current field is set
-    currentField = dropTarget;
+function focusIfField(elem) {
+    if (elem.classList.contains("field")) {
+        elem.focus();
+        // the focus event may not fire if the window is not active, so make sure
+        // the current field is set
+        currentField = elem;
+        return true;
+    }
+    return false;
 }
 
 function onPaste(elem) {
@@ -291,10 +310,6 @@ function wrapIntoText(front, back) {
 }
 
 function wrapInternal(front, back, plainText) {
-    if (currentField.dir === "rtl") {
-        front = "&#8235;" + front + "&#8236;";
-        back = "&#8235;" + back + "&#8236;";
-    }
     const s = window.getSelection();
     let r = s.getRangeAt(0);
     const content = r.cloneContents();
@@ -343,7 +358,6 @@ function setFields(fields) {
                      onfocus='onFocus(this);'
                      onblur='onBlur();'
                      class='field clearfix'
-                     ondragover='onDragOver(this);'
                      onpaste='onPaste(this);'
                      oncopy='onCutOrCopy(this);'
                      oncut='onCutOrCopy(this);'

@@ -26,6 +26,7 @@ from anki.utils import htmlToTextLine, ids2str, intTime, isMac, isWin
 from aqt import AnkiQt, gui_hooks
 from aqt.editor import Editor
 from aqt.exporting import ExportDialog
+from aqt.main import ResetReason
 from aqt.previewer import BrowserPreviewer as PreviewDialog
 from aqt.previewer import Previewer
 from aqt.qt import *
@@ -70,6 +71,7 @@ class FindDupesDialog:
 @dataclass
 class SearchContext:
     search: str
+    browser: Browser
     order: Union[bool, str] = True
     # if set, provided card ids will be used instead of the regular search
     card_ids: Optional[Sequence[int]] = None
@@ -181,7 +183,7 @@ class DataModel(QAbstractTableModel):
         self.cards = []
         error_message: Optional[str] = None
         try:
-            ctx = SearchContext(search=txt)
+            ctx = SearchContext(search=txt, browser=self.browser)
             gui_hooks.browser_will_search(ctx)
             if ctx.card_ids is None:
                 ctx.card_ids = self.col.find_cards(ctx.search, order=ctx.order)
@@ -1563,7 +1565,7 @@ where id in %s"""
             newRow = max(newRow, 0)
             self.model.focusedCard = self.model.cards[newRow]
         self.model.endReset()
-        self.mw.requireReset()
+        self.mw.reset()
         tooltip(
             ngettext("%d note deleted.", "%d notes deleted.", len(nids)) % len(nids)
         )
@@ -1615,7 +1617,7 @@ update cards set usn=?, mod=?, did=? where id in """
             did,
         )
         self.model.endReset()
-        self.mw.requireReset()
+        self.mw.requireReset(reason=ResetReason.BrowserSetDeck, context=self)
 
     # Tags
     ######################################################################
@@ -1641,7 +1643,7 @@ update cards set usn=?, mod=?, did=? where id in """
         self.model.beginReset()
         func(self.selectedNotes(), tags)
         self.model.endReset()
-        self.mw.requireReset()
+        self.mw.requireReset(reason=ResetReason.BrowserAddTags, context=self)
 
     def deleteTags(self, tags=None, label=None):
         if label is None:
@@ -1674,7 +1676,7 @@ update cards set usn=?, mod=?, did=? where id in """
         else:
             self.col.sched.unsuspendCards(c)
         self.model.reset()
-        self.mw.requireReset()
+        self.mw.requireReset(reason=ResetReason.BrowserSuspend, context=self)
 
     # Exporting
     ######################################################################
@@ -1762,7 +1764,7 @@ update cards set usn=?, mod=?, did=? where id in """
             shift=frm.shift.isChecked(),
         )
         self.search()
-        self.mw.requireReset()
+        self.mw.requireReset(reason=ResetReason.BrowserReposition, context=self)
         self.model.endReset()
 
     # Rescheduling
@@ -1788,7 +1790,7 @@ update cards set usn=?, mod=?, did=? where id in """
             fmax = max(fmin, fmax)
             self.col.sched.reschedCards(self.selectedCards(), fmin, fmax)
         self.search()
-        self.mw.requireReset()
+        self.mw.requireReset(reason=ResetReason.BrowserReschedule, context=self)
         self.model.endReset()
 
     # Edit: selection
@@ -1922,7 +1924,7 @@ update cards set usn=?, mod=?, did=? where id in """
 
         def on_done(fut):
             self.search()
-            self.mw.requireReset()
+            self.mw.requireReset(reason=ResetReason.BrowserFindReplace, context=self)
             self.model.endReset()
 
             total = len(nids)
@@ -2024,7 +2026,7 @@ update cards set usn=?, mod=?, did=? where id in """
         self.col.tags.bulkAdd(list(nids), _("duplicate"))
         self.mw.progress.finish()
         self.model.endReset()
-        self.mw.requireReset()
+        self.mw.requireReset(reason=ResetReason.BrowserTagDupes, context=self)
         tooltip(_("Notes tagged."))
 
     def dupeLinkClicked(self, link):

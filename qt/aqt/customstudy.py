@@ -6,7 +6,7 @@ import aqt
 from anki.consts import *
 from anki.lang import _
 from aqt.qt import *
-from aqt.utils import showInfo, showWarning
+from aqt.utils import TR, showInfo, showWarning, tr
 
 RADIO_NEW = 1
 RADIO_REV = 2
@@ -141,7 +141,7 @@ class CustomStudy(QDialog):
         cur = self.mw.col.decks.byName(_("Custom Study Session"))
         if cur:
             if not cur["dyn"]:
-                showInfo("Please rename the existing Custom Study deck first.")
+                showInfo(tr(TR.CUSTOM_STUDY_MUST_RENAME_DECK))
                 return QDialog.accept(self)
             else:
                 # safe to empty

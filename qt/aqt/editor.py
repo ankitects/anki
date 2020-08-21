@@ -26,6 +26,7 @@ from anki.lang import _
 from anki.notes import Note
 from anki.utils import checksum, isLin, isWin, namedtmp, stripHTMLMedia
 from aqt import AnkiQt, gui_hooks
+from aqt.main import ResetReason
 from aqt.qt import *
 from aqt.sound import av_player, getAudio
 from aqt.theme import theme_manager
@@ -254,7 +255,7 @@ class Editor:
         id: Optional[str] = None,
         toggleable: bool = False,
         disables: bool = True,
-    ):
+    ) -> str:
         if icon:
             if icon.startswith("qrc:/"):
                 iconstr = icon
@@ -393,7 +394,7 @@ class Editor:
 
             if not self.addMode:
                 self.note.flush()
-                self.mw.requireReset()
+                self.mw.requireReset(reason=ResetReason.EditorBridgeCmd, context=self)
             if type == "blur":
                 self.currentField = None
                 # run any filters
@@ -490,7 +491,7 @@ class Editor:
         self.web.eval("setBackgrounds(%s);" % json.dumps(cols))
 
     def showDupes(self):
-        contents = stripHTMLMedia(self.note.fields[0])
+        contents = html.escape(stripHTMLMedia(self.note.fields[0]))
         browser = aqt.dialogs.open("Browser", self.mw)
         browser.form.searchEdit.lineEdit().setText(
             '"dupe:%s,%s"' % (self.note.model()["id"], contents)
@@ -916,8 +917,13 @@ to a cloze type first, via 'Notes>Change Note Type'"""
         )
 
     def doDrop(self, html, internal):
+        def pasteIfField(ret):
+            if ret:
+                self.doPaste(html, internal)
+
+        p = self.web.mapFromGlobal(QCursor.pos())
         self.web.evalWithCallback(
-            "makeDropTargetCurrent();", lambda _: self.doPaste(html, internal)
+            f"focusIfField(document.elementFromPoint({p.x()}, {p.y()}));", pasteIfField
         )
 
     def onPaste(self):
@@ -1035,6 +1041,9 @@ class EditorWebView(AnkiWebView):
 
     def onMiddleClickPaste(self) -> None:
         self._onPaste(QClipboard.Selection)
+
+    def dragEnterEvent(self, evt):
+        evt.accept()
 
     def dropEvent(self, evt):
         mime = evt.mimeData()

@@ -538,10 +538,12 @@ table.review-log {{ {revlog_style} }}
 
     # Undo
     ##########################################################################
+    # this data structure is a mess, and will be updated soon
+    # in the review case, [1, "Review", [firstReviewedCard, secondReviewedCard, ...], wasLeech]
+    # in the checkpoint case, [2, "action name"]
+    # wasLeech should have been recorded for each card, not globally
 
     def clearUndo(self) -> None:
-        # [type, undoName, data]
-        # type 1 = review; type 2 = checkpoint
         self._undo = None
 
     def undoName(self) -> Any:
@@ -577,11 +579,14 @@ table.review-log {{ {revlog_style} }}
             c.note().flush()
         # write old data
         c.flush()
-        # and delete revlog entry
-        last = self.db.scalar(
-            "select id from revlog where cid = ? " "order by id desc limit 1", c.id
-        )
-        self.db.execute("delete from revlog where id = ?", last)
+        # and delete revlog entry if not previewing
+        conf = self.sched._cardConf(c)
+        previewing = conf["dyn"] and not conf["resched"]
+        if not previewing:
+            last = self.db.scalar(
+                "select id from revlog where cid = ? " "order by id desc limit 1", c.id
+            )
+            self.db.execute("delete from revlog where id = ?", last)
         # restore any siblings
         self.db.execute(
             "update cards set queue=type,mod=?,usn=? where queue=-2 and nid=?",
