@@ -183,7 +183,7 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: |
           set -x
-          brew install portaudio protobuf gettext ripgrep make tar
+          brew install portaudio protobuf gettext ripgrep make gnu-tar
 
       # Disable it for macos because it pyenv cache is bugged (https://github.com/ankitects/anki/pull/563)
       - name: Cache pyenv
