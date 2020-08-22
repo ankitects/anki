@@ -185,9 +185,8 @@ jobs:
           set -x
           brew install portaudio protobuf gettext ripgrep make gnu-tar
 
-      # Disable it for macos because it pyenv cache is bugged (https://github.com/ankitects/anki/pull/563)
       - name: Cache pyenv
-        if: matrix.os != 'macos-latest' && matrix.python == '3.7'
+        if: matrix.python == '3.7'
         uses: actions/cache@v2
         with:
           path: ${{ github.workspace }}${{ matrix.SEP }}pyenv
