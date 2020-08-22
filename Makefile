@@ -165,7 +165,7 @@ check: pyenv buildhash prepare
 	@echo "All checks passed!"
 
 .PHONY: fix
-fix:
+fix: develop
 	@set -eu -o pipefail ${SHELLFLAGS}; \
 	. "${ACTIVATE_SCRIPT}"; \
 	for dir in $(CHECKABLE_RS) $(CHECKABLE_PY); do \
