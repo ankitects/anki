@@ -1874,35 +1874,26 @@ class _ModelsDidInitButtonsFilter:
 
     _hooks: List[
         Callable[
-            [
-                "List[Tuple[str, Callable[[aqt.models.Models], None]]]",
-                "aqt.models.Models",
-            ],
-            List[Tuple[str, Callable[[aqt.models.Models], None]]],
+            [List[Tuple[str, Callable[[], None]]], "aqt.models.Models"],
+            List[Tuple[str, Callable[[], None]]],
         ]
     ] = []
 
     def append(
         self,
         cb: Callable[
-            [
-                "List[Tuple[str, Callable[[aqt.models.Models], None]]]",
-                "aqt.models.Models",
-            ],
-            List[Tuple[str, Callable[[aqt.models.Models], None]]],
+            [List[Tuple[str, Callable[[], None]]], "aqt.models.Models"],
+            List[Tuple[str, Callable[[], None]]],
         ],
     ) -> None:
-        """(buttons: List[Tuple[str, Callable[[aqt.models.Models], None]]], models: aqt.models.Models)"""
+        """(buttons: List[Tuple[str, Callable[[], None]]], models: aqt.models.Models)"""
         self._hooks.append(cb)
 
     def remove(
         self,
         cb: Callable[
-            [
-                "List[Tuple[str, Callable[[aqt.models.Models], None]]]",
-                "aqt.models.Models",
-            ],
-            List[Tuple[str, Callable[[aqt.models.Models], None]]],
+            [List[Tuple[str, Callable[[], None]]], "aqt.models.Models"],
+            List[Tuple[str, Callable[[], None]]],
         ],
     ) -> None:
         if cb in self._hooks:
@@ -1912,10 +1903,8 @@ class _ModelsDidInitButtonsFilter:
         return len(self._hooks)
 
     def __call__(
-        self,
-        buttons: List[Tuple[str, Callable[[aqt.models.Models], None]]],
-        models: aqt.models.Models,
-    ) -> List[Tuple[str, Callable[[aqt.models.Models], None]]]:
+        self, buttons: List[Tuple[str, Callable[[], None]]], models: aqt.models.Models
+    ) -> List[Tuple[str, Callable[[], None]]]:
         for filter in self._hooks:
             try:
                 buttons = filter(buttons, models)

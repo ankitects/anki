@@ -54,15 +54,16 @@ class Models(QDialog):
             ("Add", self.onAdd),
             ("Rename", self.onRename),
             ("Delete", self.onDelete),
+            ("Options...", self.onAdvanced),
         ]
 
         if self.fromMain:
-            default_buttons.extend([
+            from_main_buttons = [
                 ("Fields...", self.onFields),
                 ("Cards...", self.onCards),
-            ])
+            ]
 
-        default_buttons.append(("Options...", self.onAdvanced))
+            default_buttons[-1:-1] = from_main_buttons
 
         for label, func in gui_hooks.models_did_init_buttons(default_buttons, self):
             button = box.addButton(_(label), QDialogButtonBox.ActionRole)
