@@ -17,7 +17,6 @@ from anki.hooks import runFilter, runHook
 from anki.models import NoteType
 from aqt.qt import QDialog, QEvent, QMenu
 from aqt.tagedit import TagEdit
-from aqt.models import Models
 
 # New hook/filter handling
 ##############################################################################
@@ -1875,26 +1874,35 @@ class _ModelsDidInitButtonsFilter:
 
     _hooks: List[
         Callable[
-            [List[Tuple[str, Callable[[Models], None]]], Models],
-            List[Tuple[str, Callable[[Models], None]]],
+            [
+                "List[Tuple[str, Callable[[aqt.models.Models], None]]]",
+                "aqt.models.Models",
+            ],
+            List[Tuple[str, Callable[[aqt.models.Models], None]]],
         ]
     ] = []
 
     def append(
         self,
         cb: Callable[
-            [List[Tuple[str, Callable[[Models], None]]], Models],
-            List[Tuple[str, Callable[[Models], None]]],
+            [
+                "List[Tuple[str, Callable[[aqt.models.Models], None]]]",
+                "aqt.models.Models",
+            ],
+            List[Tuple[str, Callable[[aqt.models.Models], None]]],
         ],
     ) -> None:
-        """(buttons: List[Tuple[str, Callable[[Models], None]]], models: Models)"""
+        """(buttons: List[Tuple[str, Callable[[aqt.models.Models], None]]], models: aqt.models.Models)"""
         self._hooks.append(cb)
 
     def remove(
         self,
         cb: Callable[
-            [List[Tuple[str, Callable[[Models], None]]], Models],
-            List[Tuple[str, Callable[[Models], None]]],
+            [
+                "List[Tuple[str, Callable[[aqt.models.Models], None]]]",
+                "aqt.models.Models",
+            ],
+            List[Tuple[str, Callable[[aqt.models.Models], None]]],
         ],
     ) -> None:
         if cb in self._hooks:
@@ -1904,8 +1912,10 @@ class _ModelsDidInitButtonsFilter:
         return len(self._hooks)
 
     def __call__(
-        self, buttons: List[Tuple[str, Callable[[Models], None]]], models: Models
-    ) -> List[Tuple[str, Callable[[Models], None]]]:
+        self,
+        buttons: List[Tuple[str, Callable[[aqt.models.Models], None]]],
+        models: aqt.models.Models,
+    ) -> List[Tuple[str, Callable[[aqt.models.Models], None]]]:
         for filter in self._hooks:
             try:
                 buttons = filter(buttons, models)
