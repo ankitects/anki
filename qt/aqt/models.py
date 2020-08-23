@@ -72,6 +72,12 @@ class Models(QDialog):
         f.modelsList.setCurrentRow(0)
         maybeHideClose(box)
 
+    def add_button(self, label: str, func: Callable[Any, None]) -> None:
+        box = self.form.buttonBox
+
+        button = box.addButton(_(label), QDialogButtonBox.ActionRole)
+        qconnect(button.clicked, func)
+
     def onRename(self) -> None:
         nt = self.current_notetype()
         txt = getText(_("New name:"), default=nt["name"])
