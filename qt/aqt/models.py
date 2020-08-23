@@ -2,7 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from operator import itemgetter
-from typing import Any, List, Optional, Sequence
+from typing import Any, List, Tuple, Callable, Optional, Sequence
 
 import aqt.clayout
 from anki import stdmodels
@@ -49,20 +49,29 @@ class Models(QDialog):
         self.model = None
         f = self.form
         box = f.buttonBox
-        t = QDialogButtonBox.ActionRole
-        b = box.addButton(_("Add"), t)
-        qconnect(b.clicked, self.onAdd)
-        b = box.addButton(_("Rename"), t)
-        qconnect(b.clicked, self.onRename)
-        b = box.addButton(_("Delete"), t)
-        qconnect(b.clicked, self.onDelete)
+
+        default_buttons = [
+            ("Add", self.onAdd),
+            ("Rename", self.onRename),
+            ("Delete", self.onDelete),
+            ("Fields...", self.onFields),
+            ("Cards...", self.onCards),
+            ("Options...", self.onAdvanced),
+        ]
+
         if self.fromMain:
-            b = box.addButton(_("Fields..."), t)
-            qconnect(b.clicked, self.onFields)
-            b = box.addButton(_("Cards..."), t)
-            qconnect(b.clicked, self.onCards)
-        b = box.addButton(_("Options..."), t)
-        qconnect(b.clicked, self.onAdvanced)
+            default_buttons.extends([
+                ("Fields...", self.onFields),
+                ("Cards...", self.onCards),
+            ])
+
+        default_buttons.append(("Options...", self.onAdvanced))
+        gui_hooks.models_did_init_buttons(default_buttons, self)
+
+        for label, func in buttons:
+            button = box.addButton(_(label), QDialogButtonBox.ActionRole)
+            qconnect(button.clicked, func)
+
         qconnect(f.modelsList.itemDoubleClicked, self.onRename)
 
         def on_done(fut) -> None:
@@ -71,12 +80,6 @@ class Models(QDialog):
         self.mw.taskman.with_progress(self.col.models.all_use_counts, on_done, self)
         f.modelsList.setCurrentRow(0)
         maybeHideClose(box)
-
-    def add_button(self, label: str, func: Callable[Any, None]) -> None:
-        box = self.form.buttonBox
-
-        button = box.addButton(_(label), QDialogButtonBox.ActionRole)
-        qconnect(button.clicked, func)
 
     def onRename(self) -> None:
         nt = self.current_notetype()
