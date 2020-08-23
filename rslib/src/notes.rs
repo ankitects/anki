@@ -10,7 +10,7 @@ use crate::{
     err::{AnkiError, Result},
     notetype::{CardGenContext, NoteField, NoteType, NoteTypeID},
     template::field_is_empty,
-    text::{ensure_string_in_nfc, strip_html_preserving_image_filenames},
+    text::{ensure_string_in_nfc, normalize_to_nfc, strip_html_preserving_image_filenames},
     timestamp::TimestampSecs,
     types::Usn,
 };
@@ -424,7 +424,12 @@ impl Collection {
 
     pub(crate) fn note_is_duplicate_or_empty(&self, note: &Note) -> Result<DuplicateState> {
         if let Some(field1) = note.fields.get(0) {
-            let stripped = strip_html_preserving_image_filenames(field1);
+            let field1 = if self.normalize_note_text() {
+                normalize_to_nfc(field1)
+            } else {
+                field1.into()
+            };
+            let stripped = strip_html_preserving_image_filenames(&field1);
             if stripped.trim().is_empty() {
                 Ok(DuplicateState::Empty)
             } else {
