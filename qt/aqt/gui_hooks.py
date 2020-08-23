@@ -17,6 +17,7 @@ from anki.hooks import runFilter, runHook
 from anki.models import NoteType
 from aqt.qt import QDialog, QEvent, QMenu
 from aqt.tagedit import TagEdit
+from aqt.models import Models
 
 # New hook/filter handling
 ##############################################################################
@@ -1867,6 +1868,55 @@ class _ModelsAdvancedWillShowHook:
 
 
 models_advanced_will_show = _ModelsAdvancedWillShowHook()
+
+
+class _ModelsDidInitButtonsFilter:
+    """Allows adding buttons to the Model dialog"""
+
+    _hooks: List[
+        Callable[
+            [List[Tuple[str, Callable[[Models], None]]], Models],
+            List[Tuple[str, Callable[[Models], None]]],
+        ]
+    ] = []
+
+    def append(
+        self,
+        cb: Callable[
+            [List[Tuple[str, Callable[[Models], None]]], Models],
+            List[Tuple[str, Callable[[Models], None]]],
+        ],
+    ) -> None:
+        """(buttons: List[Tuple[str, Callable[[Models], None]]], models: Models)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self,
+        cb: Callable[
+            [List[Tuple[str, Callable[[Models], None]]], Models],
+            List[Tuple[str, Callable[[Models], None]]],
+        ],
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
+
+    def __call__(
+        self, buttons: List[Tuple[str, Callable[[Models], None]]], models: Models
+    ) -> List[Tuple[str, Callable[[Models], None]]]:
+        for filter in self._hooks:
+            try:
+                buttons = filter(buttons, models)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return buttons
+
+
+models_did_init_buttons = _ModelsDidInitButtonsFilter()
 
 
 class _OverviewDidRefreshHook:
