@@ -689,7 +689,7 @@ hooks = [
     Hook(
         name="models_did_init_buttons",
         args=["buttons: List[Tuple[str, Callable[[Models], None]]]", "models: Models"],
-        return_type="buttons: List[Tuple[str, Callable[[Models], None]]]",
+        return_type="List[Tuple[str, Callable[[Models], None]]]",
         doc="""Allows adding buttons to the Model dialog""",
     ),
     # Stats
