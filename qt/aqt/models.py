@@ -2,7 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from operator import itemgetter
-from typing import Any, List, Tuple, Callable, Optional, Sequence
+from typing import Any, List, Optional, Sequence
 
 import aqt.clayout
 from anki import stdmodels
