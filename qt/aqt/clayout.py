@@ -4,7 +4,7 @@
 import copy
 import json
 import re
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 import aqt
 from anki.cards import Card

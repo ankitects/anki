@@ -3,7 +3,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import platform
-from typing import Dict, Optional
+from typing import Dict
 
 from anki.utils import isMac
 from aqt import QApplication, gui_hooks, isWin

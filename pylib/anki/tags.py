@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import pprint
 import re
-from typing import Collection, List, Optional, Tuple
+from typing import Collection, List, Tuple
 
 import anki  # pylint: disable=unused-import
 from anki.utils import ids2str

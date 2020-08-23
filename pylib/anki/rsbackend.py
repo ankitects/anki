@@ -17,7 +17,7 @@ import enum
 import json
 import os
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Sequence, Union
 
 import ankirspy  # pytype: disable=import-error
 
