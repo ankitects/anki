@@ -67,7 +67,7 @@ class ExportDialog(QDialog):
         self.exporter = self.exporters[idx][1](self.col)
         self.isApkg = self.exporter.ext == ".apkg"
         self.isVerbatim = getattr(self.exporter, "verbatim", False)
-        self.isTextNote = hasattr(self.exporter, "includeTags")
+        self.isTextNote = getattr(self.exporter, "includeTags", False)
         self.frm.includeSched.setVisible(
             getattr(self.exporter, "includeSched", None) is not None
         )
