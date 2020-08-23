@@ -279,6 +279,7 @@ class Reviewer:
             (" ", self.onEnterKey),
             (Qt.Key_Return, self.onEnterKey),
             (Qt.Key_Enter, self.onEnterKey),
+            ("m", self.showContextMenu),
             ("r", self.replayAudio),
             (Qt.Key_F5, self.replayAudio),
             ("Ctrl+1", lambda: self.setFlag(1)),
