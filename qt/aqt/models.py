@@ -66,9 +66,8 @@ class Models(QDialog):
             ])
 
         default_buttons.append(("Options...", self.onAdvanced))
-        gui_hooks.models_did_init_buttons(default_buttons, self)
 
-        for label, func in buttons:
+        for label, func in gui_hooks.models_did_init_buttons(default_buttons, self):
             button = box.addButton(_(label), QDialogButtonBox.ActionRole)
             qconnect(button.clicked, func)
 
