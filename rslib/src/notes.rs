@@ -9,6 +9,7 @@ use crate::{
     define_newtype,
     err::{AnkiError, Result},
     notetype::{CardGenContext, NoteField, NoteType, NoteTypeID},
+    template::field_is_empty,
     text::{ensure_string_in_nfc, strip_html_preserving_image_filenames},
     timestamp::TimestampSecs,
     types::Usn,
@@ -125,7 +126,7 @@ impl Note {
             .iter()
             .enumerate()
             .filter_map(|(ord, s)| {
-                if s.trim().is_empty() {
+                if field_is_empty(s) {
                     None
                 } else {
                     fields.get(ord).map(|f| f.name.as_str())
