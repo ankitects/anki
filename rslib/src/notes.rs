@@ -79,11 +79,12 @@ impl Note {
     /// Prepare note for saving to the database. Does not mark it as modified.
     pub fn prepare_for_update(&mut self, nt: &NoteType, normalize_text: bool) -> Result<()> {
         assert!(nt.id == self.ntid);
-        if nt.fields.len() != self.fields.len() {
+        let notetype_field_count = nt.fields.len().max(1);
+        if notetype_field_count != self.fields.len() {
             return Err(AnkiError::invalid_input(format!(
                 "note has {} fields, expected {}",
                 self.fields.len(),
-                nt.fields.len()
+                notetype_field_count
             )));
         }
 
