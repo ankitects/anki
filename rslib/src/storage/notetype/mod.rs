@@ -351,8 +351,13 @@ and ord in ",
     pub(crate) fn upgrade_notetypes_to_schema15(&self) -> Result<()> {
         let nts = self.get_schema11_notetypes()?;
         let mut names = HashSet::new();
-        for (ntid, nt) in nts {
+        for (mut ntid, nt) in nts {
             let mut nt = NoteType::from(nt);
+            // note types with id 0 found in the wild; assign a random ID
+            if ntid.0 == 0 {
+                ntid.0 = rand::random::<u32>().max(1) as i64;
+                nt.id = ntid;
+            }
             nt.normalize_names();
             nt.ensure_names_unique();
             loop {
