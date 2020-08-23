@@ -43,7 +43,7 @@ class Collection:
     def __init__(
         self,
         path: str,
-        backend: Optional[RustBackend] = None,
+        backend: RustBackend = None,
         server: bool = False,
         log: bool = False,
     ) -> None:
@@ -186,7 +186,7 @@ class Collection:
     ls = property(_get_ls, _set_ls)
 
     # legacy
-    def setMod(self, mod: Optional[int] = None) -> None:
+    def setMod(self, mod: int = None) -> None:
         # this is now a no-op, as modifications to things like the config
         # will mark the collection modified automatically
         pass
@@ -200,7 +200,7 @@ class Collection:
         return self.db.last_begin_at <= self.mod
 
     def save(
-        self, name: Optional[str] = None, mod: Optional[int] = None, trx: bool = True
+        self, name: str = None, mod: int = None, trx: bool = True
     ) -> None:
         "Flush, commit DB, and take out another write lock if trx=True."
         # commit needed?
@@ -457,8 +457,8 @@ class Collection:
         nids: List[int],
         src: str,
         dst: str,
-        regex: Optional[bool] = None,
-        field: Optional[str] = None,
+        regex: bool = None,
+        field: str = None,
         fold: bool = True,
     ) -> int:
         return anki.find.findReplace(self, nids, src, dst, regex, field, fold)

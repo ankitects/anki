@@ -34,7 +34,7 @@ def findReplace(
     src: str,
     dst: str,
     regex: bool = False,
-    field: Optional[str] = None,
+    field: str = None,
     fold: bool = True,
 ) -> int:
     "Find and replace fields in a note. Returns changed note count."

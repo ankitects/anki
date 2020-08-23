@@ -158,7 +158,7 @@ class Scheduler:
             self.newCount = node.new_count
             self.revCount = node.review_count
 
-    def counts(self, card: Optional[Card] = None) -> Tuple[int, int, int]:
+    def counts(self, card: Card = None) -> Tuple[int, int, int]:
         counts = [self.newCount, self.lrnCount, self.revCount]
         if card:
             idx = self.countIdx(card)
@@ -358,7 +358,7 @@ order by due"""
             return None
 
     def _deckNewLimit(
-        self, did: int, fn: Optional[Callable[[Deck], int]] = None
+        self, did: int, fn: Callable[[Deck], int] = None
     ) -> int:
         if not fn:
             fn = self._deckNewLimitSingle
@@ -580,7 +580,7 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
         self._rescheduleLrnCard(card, conf, delay=delay)
 
     def _rescheduleLrnCard(
-        self, card: Card, conf: QueueConfig, delay: Optional[int] = None
+        self, card: Card, conf: QueueConfig, delay: int = None
     ) -> Any:
         # normal delay for the current step?
         if delay is None:
@@ -668,7 +668,7 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
         return tot + tod * 1000
 
     def _leftToday(
-        self, delays: List[int], left: int, now: Optional[int] = None,
+        self, delays: List[int], left: int, now: int = None,
     ) -> int:
         "The number of steps that can be completed by the day cutoff."
         if not now:
@@ -774,7 +774,7 @@ and due <= ? limit ?)""",
         return self._deckRevLimitSingle(d)
 
     def _deckRevLimitSingle(
-        self, d: Dict[str, Any], parentLimit: Optional[int] = None
+        self, d: Dict[str, Any], parentLimit: int = None
     ) -> int:
         # invalid deck selected?
         if not d:
@@ -1049,7 +1049,7 @@ else
 end)
 """
 
-    def rebuildDyn(self, did: Optional[int] = None) -> Optional[int]:
+    def rebuildDyn(self, did: int = None) -> Optional[int]:
         "Rebuild a dynamic deck."
         did = did or self.col.decks.selected()
         deck = self.col.decks.get(did)
@@ -1081,7 +1081,7 @@ end)
             total += len(ids)
         return total
 
-    def emptyDyn(self, did: Optional[int], lim: Optional[str] = None) -> None:
+    def emptyDyn(self, did: Optional[int], lim: str = None) -> None:
         if not lim:
             lim = "did = %s" % did
         self.col.log(self.col.db.list("select id from cards where %s" % lim))
@@ -1704,7 +1704,7 @@ and due >= ? and queue = {QUEUE_TYPE_NEW}"""
                 self.orderCards(did)
 
     # for post-import
-    def maybeRandomizeDeck(self, did: Optional[int] = None) -> None:
+    def maybeRandomizeDeck(self, did: int = None) -> None:
         if not did:
             did = self.col.decks.selected()
         conf = self.col.decks.confForDid(did)

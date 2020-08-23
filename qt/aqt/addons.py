@@ -268,7 +268,7 @@ class AddonManager:
         with open(path, "w", encoding="utf8") as f:
             json.dump(meta, f)
 
-    def toggleEnabled(self, dir: str, enable: Optional[bool] = None) -> None:
+    def toggleEnabled(self, dir: str, enable: bool = None) -> None:
         addon = self.addon_meta(dir)
         should_enable = enable if enable is not None else not addon.enabled
         if should_enable is True:
@@ -865,7 +865,7 @@ class AddonsDialog(QDialog):
         else:
             tooltip(_("No updates available."))
 
-    def onInstallFiles(self, paths: Optional[List[str]] = None) -> Optional[bool]:
+    def onInstallFiles(self, paths: List[str] = None) -> Optional[bool]:
         if not paths:
             key = _("Packaged Anki Add-on") + " (*{})".format(self.mgr.ext)
             paths = getFile(
@@ -1124,7 +1124,7 @@ def download_addons(
     mgr: AddonManager,
     ids: List[int],
     on_done: Callable[[List[DownloadLogEntry]], None],
-    client: Optional[HttpClient] = None,
+    client: HttpClient = None,
 ) -> None:
     if client is None:
         client = HttpClient()
@@ -1390,7 +1390,7 @@ class ConfigEditor(QDialog):
 def installAddonPackages(
     addonsManager: AddonManager,
     paths: List[str],
-    parent: Optional[QWidget] = None,
+    parent: QWidget = None,
     warn: bool = False,
     strictly_modal: bool = False,
     advise_restart: bool = False,

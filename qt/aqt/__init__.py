@@ -139,7 +139,7 @@ class DialogManager:
         return True
 
     def register_dialog(
-        self, name: str, creator: Union[Callable, type], instance: Optional[Any] = None
+        self, name: str, creator: Union[Callable, type], instance: Any = None
     ):
         """Allows add-ons to register a custom dialog to be managed by Anki's dialog
         manager, which ensures that only one copy of the window is open at once,
@@ -181,7 +181,7 @@ _qtrans: Optional[QTranslator] = None
 
 
 def setupLangAndBackend(
-    pm: ProfileManager, app: QApplication, force: Optional[str] = None
+    pm: ProfileManager, app: QApplication, force: str = None
 ) -> RustBackend:
     global _qtrans
     try:

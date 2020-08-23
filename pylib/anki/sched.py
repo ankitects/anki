@@ -90,7 +90,7 @@ class Scheduler(V2):
         card.usn = self.col.usn()
         card.flush()
 
-    def counts(self, card: Optional[Card] = None) -> Tuple[int, int, int]:
+    def counts(self, card: Card = None) -> Tuple[int, int, int]:
         counts = [self.newCount, self.lrnCount, self.revCount]
         if card:
             idx = self.countIdx(card)
@@ -397,7 +397,7 @@ limit %d"""
             time.sleep(0.01)
             log()
 
-    def removeLrn(self, ids: Optional[List[int]] = None) -> None:
+    def removeLrn(self, ids: List[int] = None) -> None:
         "Remove cards from the learning queues."
         if ids:
             extra = " and id in " + ids2str(ids)
@@ -628,7 +628,7 @@ did = ? and queue = {QUEUE_TYPE_REV} and due <= ? limit ?""",
     # Dynamic deck handling
     ##########################################################################
 
-    def rebuildDyn(self, did: Optional[int] = None) -> Optional[Sequence[int]]:  # type: ignore[override]
+    def rebuildDyn(self, did: int = None) -> Optional[Sequence[int]]:  # type: ignore[override]
         "Rebuild a dynamic deck."
         did = did or self.col.decks.selected()
         deck = self.col.decks.get(did)
@@ -658,7 +658,7 @@ did = ? and queue = {QUEUE_TYPE_REV} and due <= ? limit ?""",
         self._moveToDyn(deck["id"], ids)
         return ids
 
-    def emptyDyn(self, did: Optional[int], lim: Optional[str] = None) -> None:
+    def emptyDyn(self, did: Optional[int], lim: str = None) -> None:
         if not lim:
             lim = "did = %s" % did
         self.col.log(self.col.db.list("select id from cards where %s" % lim))

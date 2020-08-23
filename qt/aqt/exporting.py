@@ -21,8 +21,8 @@ class ExportDialog(QDialog):
     def __init__(
         self,
         mw: aqt.main.AnkiQt,
-        did: Optional[int] = None,
-        cids: Optional[List[int]] = None,
+        did: int = None,
+        cids: List[int] = None,
     ):
         QDialog.__init__(self, mw, Qt.Window)
         self.mw = mw

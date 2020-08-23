@@ -311,7 +311,7 @@ class DeckManager:
         )
 
     def add_config(
-        self, name: str, clone_from: Optional[DeckConfig] = None
+        self, name: str, clone_from: DeckConfig = None
     ) -> DeckConfig:
         if clone_from is not None:
             conf = copy.deepcopy(clone_from)
@@ -323,7 +323,7 @@ class DeckManager:
         return conf
 
     def add_config_returning_id(
-        self, name: str, clone_from: Optional[DeckConfig] = None
+        self, name: str, clone_from: DeckConfig = None
     ) -> int:
         return self.add_config(name, clone_from)["id"]
 
@@ -509,7 +509,7 @@ class DeckManager:
         return childMap
 
     def parents(
-        self, did: int, nameMap: Optional[Dict[str, Deck]] = None
+        self, did: int, nameMap: Dict[str, Deck] = None
     ) -> List[Deck]:
         "All parents of did."
         # get parent and grandparent names

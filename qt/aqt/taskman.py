@@ -40,8 +40,8 @@ class TaskManager(QObject):
     def run_in_background(
         self,
         task: Callable,
-        on_done: Optional[Callable[[Future], None]] = None,
-        args: Optional[Dict[str, Any]] = None,
+        on_done: Callable[[Future], None] = None,
+        args: Dict[str, Any] = None,
     ) -> Future:
         """Run task on a background thread.
 
@@ -64,9 +64,9 @@ class TaskManager(QObject):
     def with_progress(
         self,
         task: Callable,
-        on_done: Optional[Callable[[Future], None]] = None,
-        parent: Optional[QWidget] = None,
-        label: Optional[str] = None,
+        on_done: Callable[[Future], None] = None,
+        parent: QWidget = None,
+        label: str = None,
         immediate: bool = False,
     ):
         self.mw.progress.start(parent=parent, label=label, immediate=immediate)

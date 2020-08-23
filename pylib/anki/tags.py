@@ -40,7 +40,7 @@ class TagManager:
     #############################################################
 
     def register(
-        self, tags: Collection[str], usn: Optional[int] = None, clear=False
+        self, tags: Collection[str], usn: int = None, clear=False
     ) -> None:
         if usn is None:
             preserve_usn = False
@@ -53,7 +53,7 @@ class TagManager:
             tags=" ".join(tags), preserve_usn=preserve_usn, usn=usn_, clear_first=clear
         )
 
-    def registerNotes(self, nids: Optional[List[int]] = None) -> None:
+    def registerNotes(self, nids: List[int] = None) -> None:
         "Add any missing tags from notes to the tags list."
         # when called without an argument, the old list is cleared first.
         if nids:

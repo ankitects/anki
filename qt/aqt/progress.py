@@ -92,7 +92,7 @@ class ProgressManager:
         value=None,
         process=True,
         maybeShow=True,
-        max: Optional[int] = None,
+        max: int = None,
     ) -> None:
         # print self._min, self._counter, self._max, label, time.time() - self._lastTime
         if not self.mw.inMainThread():

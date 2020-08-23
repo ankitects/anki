@@ -139,7 +139,7 @@ class TemplateRenderContext:
         note: Note,
         browser: bool = False,
         notetype: NoteType = None,
-        template: Optional[Dict] = None,
+        template: Dict = None,
         fill_empty: bool = False,
     ) -> None:
         self._col = col.weakref()

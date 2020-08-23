@@ -400,7 +400,7 @@ close the profile or restart Anki."""
 
         self.taskman.run_in_background(downgrade, on_done)
 
-    def loadProfile(self, onsuccess: Optional[Callable] = None) -> None:
+    def loadProfile(self, onsuccess: Callable = None) -> None:
         if not self.loadCollection():
             return
 
@@ -753,7 +753,7 @@ from the profile screen."
         self,
         link: str,
         name: str,
-        key: Optional[str] = None,
+        key: str = None,
         class_: str = "",
         id: str = "",
         extra: str = "",
@@ -1552,7 +1552,7 @@ will be lost. Continue?"""
             _dummy1 = windll
             _dummy2 = wintypes
 
-    def maybeHideAccelerators(self, tgt: Optional[Any] = None) -> None:
+    def maybeHideAccelerators(self, tgt: Any = None) -> None:
         if not self.hideMenuAccels:
             return
         tgt = tgt or self

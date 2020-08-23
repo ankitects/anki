@@ -28,8 +28,8 @@ class Exporter:
     def __init__(
         self,
         col: Collection,
-        did: Optional[int] = None,
-        cids: Optional[List[int]] = None,
+        did: int = None,
+        cids: List[int] = None,
     ) -> None:
         self.col = col.weakref()
         self.did = did

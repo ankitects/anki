@@ -40,8 +40,8 @@ class Toolbar:
     def draw(
         self,
         buf: str = "",
-        web_context: Optional[Any] = None,
-        link_handler: Optional[Callable[[str], Any]] = None,
+        web_context: Any = None,
+        link_handler: Callable[[str], Any] = None,
     ) -> None:
         web_context = web_context or TopToolbar(self)
         link_handler = link_handler or self._linkHandler
@@ -67,8 +67,8 @@ class Toolbar:
         cmd: str,
         label: str,
         func: Callable,
-        tip: Optional[str] = None,
-        id: Optional[str] = None,
+        tip: str = None,
+        id: str = None,
     ) -> str:
         """Generates HTML link element and registers link handler
         
@@ -221,8 +221,8 @@ class BottomBar(Toolbar):
     def draw(
         self,
         buf: str = "",
-        web_context: Optional[Any] = None,
-        link_handler: Optional[Callable[[str], Any]] = None,
+        web_context: Any = None,
+        link_handler: Callable[[str], Any] = None,
     ) -> None:
         # note: some screens may override this
         web_context = web_context or BottomToolbar(self)

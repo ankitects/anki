@@ -54,7 +54,7 @@ class ThemeManager:
 
         return cache.setdefault(path, icon)
 
-    def body_class(self, night_mode: Optional[bool] = None) -> str:
+    def body_class(self, night_mode: bool = None) -> str:
         "Returns space-separated class list for platform/theme."
         classes = []
         if isWin:
@@ -73,7 +73,7 @@ class ThemeManager:
         return " ".join(classes)
 
     def body_classes_for_card_ord(
-        self, card_ord: int, night_mode: Optional[bool] = None
+        self, card_ord: int, night_mode: bool = None
     ) -> str:
         "Returns body classes used when showing a card."
         return f"card card{card_ord+1} {self.body_class(night_mode)}"

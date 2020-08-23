@@ -24,7 +24,7 @@ class HttpClient:
     # args are (upload_bytes_in_chunk, download_bytes_in_chunk)
     progress_hook: Optional[ProgressCallback] = None
 
-    def __init__(self, progress_hook: Optional[ProgressCallback] = None) -> None:
+    def __init__(self, progress_hook: ProgressCallback = None) -> None:
         self.progress_hook = progress_hook
         self.session = requests.Session()
 

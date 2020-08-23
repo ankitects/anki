@@ -188,7 +188,7 @@ class MediaManager:
         return output
 
     def render_all_latex(
-        self, progress_cb: Optional[Callable[[int], bool]] = None
+        self, progress_cb: Callable[[int], bool] = None
     ) -> Optional[Tuple[int, str]]:
         """Render any LaTeX that is missing.
 
@@ -244,7 +244,7 @@ class MediaManager:
 
     addFile = add_file
 
-    def writeData(self, opath: str, data: bytes, typeHint: Optional[str] = None) -> str:
+    def writeData(self, opath: str, data: bytes, typeHint: str = None) -> str:
         fname = os.path.basename(opath)
         if typeHint:
             fname = self.add_extension_based_on_mime(fname, typeHint)

@@ -258,7 +258,7 @@ and due = ?"""
         return self._lineTbl(i)
 
     def _due(
-        self, start: Optional[int] = None, end: Optional[int] = None, chunk: int = 1
+        self, start: int = None, end: int = None, chunk: int = 1
     ) -> Any:
         lim = ""
         if start is not None:
@@ -389,7 +389,7 @@ group by day order by day"""
         first: int,
         unit: str,
         convHours: bool = False,
-        total: Optional[int] = None,
+        total: int = None,
     ) -> Tuple[str, int]:
         assert totd
         tot = totd[-1][1]
@@ -950,7 +950,7 @@ from cards where did in %s"""
         self,
         id: str,
         data: Any,
-        conf: Optional[Any] = None,
+        conf: Any = None,
         type: str = "bars",
         xunit: int = 1,
         ylabel: str = _("Cards"),

@@ -43,7 +43,7 @@ class CardLayout(QDialog):
         mw: AnkiQt,
         note: Note,
         ord=0,
-        parent: Optional[QWidget] = None,
+        parent: QWidget = None,
         fill_empty: bool = False,
     ):
         QDialog.__init__(self, parent or mw, Qt.Window)

@@ -252,7 +252,7 @@ class Editor:
         cmd: str,
         tip: str = "",
         label: str = "",
-        id: Optional[str] = None,
+        id: str = None,
         toggleable: bool = False,
         disables: bool = True,
     ) -> str:

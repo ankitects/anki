@@ -34,7 +34,7 @@ class Card:
     ord: int
 
     def __init__(
-        self, col: anki.collection.Collection, id: Optional[int] = None
+        self, col: anki.collection.Collection, id: int = None
     ) -> None:
         self.col = col.weakref()
         self.timerStarted = None

@@ -194,7 +194,7 @@ class WebContent:
 
 class AnkiWebView(QWebEngineView):
     def __init__(
-        self, parent: Optional[QWidget] = None, title: str = "default"
+        self, parent: QWidget = None, title: str = "default"
     ) -> None:
         QWebEngineView.__init__(self, parent=parent)
         self.title = title  # type: ignore
@@ -362,10 +362,10 @@ class AnkiWebView(QWebEngineView):
     def stdHtml(
         self,
         body: str,
-        css: Optional[List[str]] = None,
-        js: Optional[List[str]] = None,
+        css: List[str] = None,
+        js: List[str] = None,
         head: str = "",
-        context: Optional[Any] = None,
+        context: Any = None,
     ):
 
         web_content = WebContent(
