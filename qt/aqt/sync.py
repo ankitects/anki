@@ -8,6 +8,7 @@ import os
 from typing import Callable, Tuple
 
 import aqt
+from anki.lang import without_unicode_isolation
 from anki.rsbackend import (
     TR,
     FullSyncProgress,
@@ -289,7 +290,9 @@ def get_id_and_pass_from_user(
     diag.setWindowModality(Qt.WindowModal)
     vbox = QVBoxLayout()
     info_label = QLabel(
-        tr(TR.SYNC_ACCOUNT_REQUIRED, link="https://ankiweb.net/account/login")
+        without_unicode_isolation(
+            tr(TR.SYNC_ACCOUNT_REQUIRED, link="https://ankiweb.net/account/login")
+        )
     )
     info_label.setOpenExternalLinks(True)
     info_label.setWordWrap(True)
