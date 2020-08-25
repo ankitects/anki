@@ -114,12 +114,16 @@ class ExportDialog(QDialog):
             deck_name = re.sub('[\\\\/?<>:*|"^]', "_", deck_name)
 
         filename = "{0}{1}".format(deck_name, self.exporter.ext)
+        if callable(self.exporter.key):
+            key_str = self.exporter.key()
+        else:
+            key_str = self.exporter.key
         while 1:
             file = getSaveFile(
                 self,
                 _("Export"),
                 "export",
-                self.exporter.key,
+                key_str,
                 self.exporter.ext,
                 fname=filename,
             )
