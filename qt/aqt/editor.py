@@ -922,9 +922,7 @@ to a cloze type first, via 'Notes>Change Note Type'"""
                 self.doPaste(html, internal)
 
         p = self.web.mapFromGlobal(QCursor.pos())
-        self.web.evalWithCallback(
-            f"focusIfField(document.elementFromPoint({p.x()}, {p.y()}));", pasteIfField
-        )
+        self.web.evalWithCallback(f"focusIfField({p.x()}, {p.y()});", pasteIfField)
 
     def onPaste(self):
         self.web.onPaste()
