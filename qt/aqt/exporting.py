@@ -120,12 +120,7 @@ class ExportDialog(QDialog):
             key_str = self.exporter.key
         while 1:
             file = getSaveFile(
-                self,
-                _("Export"),
-                "export",
-                key_str,
-                self.exporter.ext,
-                fname=filename,
+                self, _("Export"), "export", key_str, self.exporter.ext, fname=filename,
             )
             if not file:
                 return
