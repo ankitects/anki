@@ -168,6 +168,9 @@ fn group_inner(input: &str) -> IResult<&str, Vec<Node>> {
 
     if nodes.is_empty() {
         Err(nom::Err::Error((remaining, nom::error::ErrorKind::Many1)))
+    } else if matches!(nodes.last().unwrap(), Node::And | Node::Or) {
+        // no trailing and/or
+        Err(nom::Err::Failure(("", nom::error::ErrorKind::NoneOf)))
     } else {
         // chomp any trailing whitespace
         let (remaining, _) = whitespace0(remaining)?;
@@ -433,6 +436,11 @@ mod test {
 
         assert_eq!(parse("")?, vec![Search(SearchNode::WholeCollection)]);
         assert_eq!(parse("  ")?, vec![Search(SearchNode::WholeCollection)]);
+
+        // leading/trailing boolean operators
+        assert!(parse("foo and").is_err());
+        assert!(parse("and foo").is_err());
+        assert!(parse("and").is_err());
 
         // leading/trailing/interspersed whitespace
         assert_eq!(
