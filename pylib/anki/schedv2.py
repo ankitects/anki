@@ -1297,7 +1297,7 @@ from cards where did in {dids} and queue = {QUEUE_TYPE_LRN}
         next = next or 0
         remaining = remaining or 0
         if next and next < self.dayCutoff:
-            next -= intTime() - self.col.conf["collapseTime"]
+            next -= intTime() + self.col.conf["collapseTime"]
             return self.col.backend.congrats_learn_message(
                 next_due=abs(next), remaining=remaining
             )
