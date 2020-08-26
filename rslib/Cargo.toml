@@ -61,11 +61,15 @@ features = ["trace", "functions", "collation"]
 version = "0.23.1"
 features = ["trace", "functions", "collation", "bundled"]
 
-[target.'cfg(linux)'.dependencies]
-reqwest = { version = "0.10.6", features = ["json", "socks", "stream", "native-tls-vendored"] }
+[target.'cfg(linux)'.dependencies.reqwest]
+git = "https://github.com/ankitects/reqwest.git"
+branch = "io-timeout"
+features = ["json", "socks", "stream", "native-tls-vendored"]
 
-[target.'cfg(not(linux))'.dependencies]
-reqwest = { version = "0.10.6", features = ["json", "socks", "stream" ] }
+[target.'cfg(not(linux))'.dependencies.reqwest]
+git = "https://github.com/ankitects/reqwest.git"
+branch = "io-timeout"
+features = ["json", "socks", "stream"]
 
 [build-dependencies]
 prost-build = "0.6.1"
