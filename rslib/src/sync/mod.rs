@@ -1194,14 +1194,7 @@ mod test {
     fn open_col(ctx: &TestContext, fname: &str) -> Result<Collection> {
         let path = ctx.dir.path().join(fname);
         let i18n = I18n::new(&[""], "", log::terminal());
-        open_collection(
-            path,
-            "".into(),
-            "".into(),
-            false,
-            i18n.clone(),
-            log::terminal(),
-        )
+        open_collection(path, "".into(), "".into(), false, i18n, log::terminal())
     }
 
     async fn upload_download(ctx: &mut TestContext) -> Result<()> {

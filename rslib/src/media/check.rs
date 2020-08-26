@@ -519,7 +519,7 @@ fn extract_latex_refs(note: &Note, seen_files: &mut HashSet<String>, svg: bool) 
 
 #[cfg(test)]
 pub(crate) mod test {
-    pub(crate) const MEDIACHECK_ANKI2: &'static [u8] =
+    pub(crate) const MEDIACHECK_ANKI2: &[u8] =
         include_bytes!("../../tests/support/mediacheck.anki2");
 
     use crate::collection::{open_collection, Collection};

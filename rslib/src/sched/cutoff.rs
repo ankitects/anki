@@ -378,16 +378,16 @@ mod test {
     fn legacy_creation_stamp() {
         let offset = fixed_offset_from_minutes(AEST_MINS_WEST);
 
-        let now = TimestampSecs(offset.ymd(2020, 05, 10).and_hms(9, 30, 30).timestamp());
+        let now = TimestampSecs(offset.ymd(2020, 5, 10).and_hms(9, 30, 30).timestamp());
         assert_eq!(
             v1_creation_date_inner(now, AEST_MINS_WEST),
-            offset.ymd(2020, 05, 10).and_hms(4, 0, 0).timestamp()
+            offset.ymd(2020, 5, 10).and_hms(4, 0, 0).timestamp()
         );
 
-        let now = TimestampSecs(offset.ymd(2020, 05, 10).and_hms(1, 30, 30).timestamp());
+        let now = TimestampSecs(offset.ymd(2020, 5, 10).and_hms(1, 30, 30).timestamp());
         assert_eq!(
             v1_creation_date_inner(now, AEST_MINS_WEST),
-            offset.ymd(2020, 05, 9).and_hms(4, 0, 0).timestamp()
+            offset.ymd(2020, 5, 9).and_hms(4, 0, 0).timestamp()
         );
 
         let crt = v1_creation_date_inner(now, AEST_MINS_WEST);

@@ -1141,7 +1141,7 @@ mod test {
         if let FN::Text { ref text } = qnodes[1] {
             assert!(text.contains("card is blank"));
         } else {
-            assert!(false);
+            unreachable!();
         }
     }
 }
