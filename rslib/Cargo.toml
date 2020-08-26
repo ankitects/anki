@@ -63,12 +63,12 @@ features = ["trace", "functions", "collation", "bundled"]
 
 [target.'cfg(linux)'.dependencies.reqwest]
 git = "https://github.com/ankitects/reqwest.git"
-branch = "io-timeout"
+rev = "57665e2c2a39db85723ba860f1b570a608bb73f9"
 features = ["json", "socks", "stream", "native-tls-vendored"]
 
 [target.'cfg(not(linux))'.dependencies.reqwest]
 git = "https://github.com/ankitects/reqwest.git"
-branch = "io-timeout"
+rev = "57665e2c2a39db85723ba860f1b570a608bb73f9"
 features = ["json", "socks", "stream"]
 
 [build-dependencies]
