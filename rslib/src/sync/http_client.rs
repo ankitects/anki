@@ -80,12 +80,17 @@ pub struct Timeouts {
 
 impl Timeouts {
     pub fn new() -> Self {
+        let io_secs = if std::env::var("LONG_IO_TIMEOUT").is_ok() {
+            3600
+        } else {
+            300
+        };
         Timeouts {
             connect_secs: 30,
             /// This is smaller than the I/O limit because it is just a
             /// default - some longer-running requests override it.
             request_secs: 60,
-            io_secs: 300,
+            io_secs,
         }
     }
 }
