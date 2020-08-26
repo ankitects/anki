@@ -139,7 +139,7 @@ impl Backend {
             let out_obj = PyBytes::new(py, &out_bytes);
             out_obj.into()
         })
-        .map_err(|err_bytes| BackendError::py_err(err_bytes))
+        .map_err(BackendError::py_err)
     }
 
     /// This takes and returns JSON, due to Python's slow protobuf
@@ -149,7 +149,7 @@ impl Backend {
         let out_res = py.allow_threads(move || {
             self.backend
                 .run_db_command_bytes(in_bytes)
-                .map_err(|err_bytes| BackendError::py_err(err_bytes))
+                .map_err(BackendError::py_err)
         });
         let out_bytes = out_res?;
         let out_obj = PyBytes::new(py, &out_bytes);

@@ -297,7 +297,7 @@ mod test {
                 entry,
                 MediaEntry {
                     fname: "file.jpg".into(),
-                    sha1: Some(sha1_of_data("hello".as_bytes())),
+                    sha1: Some(sha1_of_data(b"hello")),
                     mtime: f1
                         .metadata()?
                         .modified()?
@@ -331,7 +331,7 @@ mod test {
                 ctx.get_entry("file.jpg")?.unwrap(),
                 MediaEntry {
                     fname: "file.jpg".into(),
-                    sha1: Some(sha1_of_data("hello1".as_bytes())),
+                    sha1: Some(sha1_of_data(b"hello1")),
                     mtime: f1
                         .metadata()?
                         .modified()?

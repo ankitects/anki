@@ -104,7 +104,7 @@ pub enum BackendMethod {
 "#,
     );
     for (idx, method) in service.methods.iter().enumerate() {
-        write!(buf, "    {} = {},\n", method.proto_name, idx + 1).unwrap();
+        writeln!(buf, "    {} = {},", method.proto_name, idx + 1).unwrap();
     }
     buf.push_str("}\n\n");
 }
