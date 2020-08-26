@@ -72,14 +72,33 @@ struct SanityCheckIn {
     full: bool,
 }
 
+pub struct Timeouts {
+    pub connect_secs: u64,
+    pub request_secs: u64,
+    pub io_secs: u64,
+}
+
+impl Timeouts {
+    pub fn new() -> Self {
+        Timeouts {
+            connect_secs: 30,
+            /// This is smaller than the I/O limit because it is just a
+            /// default - some longer-running requests override it.
+            request_secs: 60,
+            io_secs: 300,
+        }
+    }
+}
 #[derive(Serialize)]
 struct Empty {}
 
 impl HTTPSyncClient {
     pub fn new(hkey: Option<String>, host_number: u32) -> HTTPSyncClient {
+        let timeouts = Timeouts::new();
         let client = Client::builder()
-            .connect_timeout(Duration::from_secs(30))
-            .timeout(Duration::from_secs(60))
+            .connect_timeout(Duration::from_secs(timeouts.connect_secs))
+            .timeout(Duration::from_secs(timeouts.request_secs))
+            .io_timeout(Duration::from_secs(timeouts.io_secs))
             .build()
             .unwrap();
         let skey = guid();

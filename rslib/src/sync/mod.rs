@@ -21,6 +21,7 @@ use flate2::write::GzEncoder;
 use flate2::Compression;
 use futures::StreamExt;
 use http_client::HTTPSyncClient;
+pub use http_client::Timeouts;
 use itertools::Itertools;
 use reqwest::{multipart, Client, Response};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
