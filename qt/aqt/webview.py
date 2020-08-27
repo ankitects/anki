@@ -587,3 +587,19 @@ body {{ zoom: {zoom}; background: {background}; direction: {lang_dir}; {font} }}
         aqt.reviewer.Reviewer or aqt.deckbrowser.DeckBrowser."""
         self.onBridgeCmd = func
         self._bridge_context = context
+
+    def hide_while_preserving_layout(self):
+        "Hide but keep existing size."
+        sp = self.sizePolicy()
+        sp.setRetainSizeWhenHidden(True)
+        self.setSizePolicy(sp)
+        self.hide()
+
+    def inject_dynamic_style_and_show(self):
+        "Add dynamic styling, and reveal."
+        css = self.standard_css()
+        self.evalWithCallback(f"""
+const style = document.createElement('style');
+style.innerHTML = `{css}`;
+document.head.appendChild(style);
+""", lambda arg: self.show())

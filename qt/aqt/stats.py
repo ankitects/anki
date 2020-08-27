@@ -91,8 +91,9 @@ class NewDeckStats(QDialog):
             extra = "#night"
         else:
             extra = ""
+        self.form.web.hide_while_preserving_layout()
         self.form.web.load(QUrl(f"{self.mw.serverURL()}_anki/graphs.html" + extra))
-
+        self.form.web.inject_dynamic_style_and_show()
 
 class DeckStats(QDialog):
     """Legacy deck stats, used by some add-ons."""
