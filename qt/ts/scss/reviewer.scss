@@ -10,6 +10,8 @@ body {
     overflow-wrap: break-word;
 }
 
+// explicit nightMode definition required
+// to override default .card styling
 body.nightMode {
     background-color: var(--window-bg);
     color: var(--text-fg);
