@@ -33,24 +33,12 @@ body {
     text-decoration: underline;
 }
 
-.hitem:focus { outline: 0; }
+.hitem:focus {
+    outline: 0;
+}
 
-.nightMode {
-    .hitem {
-        color: var(--text-fg);
-    }
-
-    #header {
-        border-bottom-color: var(--faint-border);
-    }
-
-    .normal-sync {
-        color: var(--new-count);
-    }
-
-    .full-sync {
-        color: var(--learn-count);
-    }
+.nightMode #header {
+    border-bottom-color: var(--faint-border);
 }
 
 .isMac.nightMode #header {
@@ -58,8 +46,12 @@ body {
 }
 
 @keyframes spin {
-    0% {-webkit-transform: rotate(0deg);}
-    100% {-webkit-transform: rotate(360deg);}
+    0% {
+        -webkit-transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(360deg);
+    }
 }
 
 .spin {
@@ -85,5 +77,3 @@ body {
 .full-sync {
     color: var(--learn-count);
 }
-
-

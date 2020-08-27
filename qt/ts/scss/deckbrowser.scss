@@ -66,37 +66,12 @@ body {
 .gears {
     width: 1em;
     height: 1em;
-    opacity: .5;
+    opacity: 0.5;
     padding-top: 0.2em;
 }
 
 .nightMode {
-    a.deck {
-        color: var(--text-fg);
-    }
-
-    tr.deck td {
-        border-bottom-color: var(--faint-border);
-    }
-
-    tr.drag-hover td {
-        border-bottom-color: var(--border);
-    }
-
-    .current {
-        background-color: var(--faint-border);
-    }
-
-    .collapse {
-        color: var(--text-fg);
-    }
-
     .gears {
         filter: invert(180);
     }
-
-    .filtered {
-        color: var(--link) !important;
-    }
-
 }
