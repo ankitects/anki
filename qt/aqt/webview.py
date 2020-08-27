@@ -606,3 +606,15 @@ document.head.appendChild(style);
 """,
             lambda arg: self.show(),
         )
+
+    def load_ts_page(self, name: str) -> None:
+        from aqt import mw
+
+        self.set_open_links_externally(False)
+        if theme_manager.night_mode:
+            extra = "#night"
+        else:
+            extra = ""
+        self.hide_while_preserving_layout()
+        self.load(QUrl(f"{mw.serverURL()}_anki/{name}.html" + extra))
+        self.inject_dynamic_style_and_show()
