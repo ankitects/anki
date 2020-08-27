@@ -1,12 +1,10 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
-@use 'vars';
-
 #header {
     padding: 3px;
     font-weight: bold;
-    border-bottom: 1px solid vars.$day-border;
+    border-bottom: 1px solid var(--border);
 }
 
 .tdcenter {
@@ -28,7 +26,7 @@ body {
     padding-right: 12px;
     padding-left: 12px;
     text-decoration: none;
-    color: vars.$day-text-fg;
+    color: var(--text-fg);
 }
 
 .hitem:hover {
@@ -39,24 +37,24 @@ body {
 
 .nightMode {
     .hitem {
-        color: vars.$night-text-fg;
+        color: var(--text-fg);
     }
 
     #header {
-        border-bottom-color: vars.$night-faint-border;
+        border-bottom-color: var(--faint-border);
     }
 
     .normal-sync {
-        color: vars.$night-new-count;
+        color: var(--new-count);
     }
 
     .full-sync {
-        color: vars.$night-learn-count;
+        color: var(--learn-count);
     }
 }
 
 .isMac.nightMode #header {
-    border-bottom-color: vars.$night-frame-bg;
+    border-bottom-color: var(--frame-bg);
 }
 
 @keyframes spin {
@@ -81,11 +79,11 @@ body {
 }
 
 .normal-sync {
-    color: vars.$day-new-count;
+    color: var(--new-count);
 }
 
 .full-sync {
-    color: vars.$day-learn-count;
+    color: var(--learn-count);
 }
 
 

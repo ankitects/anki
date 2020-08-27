@@ -1,7 +1,6 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
-@use 'vars';
 @use 'card_counts';
 
 .smallLink {
@@ -14,7 +13,7 @@ h3 {
 
 .descfont {
     padding: 1em;
-    color: vars.$day-slightly-grey-text;
+    color: var(--slightly-grey-text);
 }
 
 .description {
@@ -37,6 +36,6 @@ h3 {
 
 .nightMode {
     .descfont {
-        color: vars.$night-slightly-grey-text;
+        color: var(--slightly-grey-text);
     }
 }

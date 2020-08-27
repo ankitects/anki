@@ -40,10 +40,49 @@ $night-flag4-bg: #3581a9;
 $night-suspended-bg: #aaaa33;
 $night-marked-bg: #77c;
 
-/* night-mode-specific colours */
-$fusion-button-gradient-start: #555555;
-$fusion-button-gradient-end: #656565;
-$fusion-button-outline: #222222;
-$fusion-button-hover-bg: #656565;
-$fusion-button-border: #646464;
-$fusion-button-base-bg: #454545;
+
+:root {
+  --text-fg: #{$day-text-fg};
+  --window-bg: #{$day-window-bg};
+  --frame-bg: #{$day-frame-bg};
+  --border: #{$day-border};
+  --faint-border: #{$day-faint-border};
+  --link: #{$day-link};
+  --review-count: #{$day-review-count};
+  --new-count: #{$day-new-count};
+  --learn-count: #{$day-learn-count};
+  --zero-count: #{$day-zero-count};
+  --slightly-grey-text: #{$day-slightly-grey-text};
+  --highlight-bg: #{$day-highlight-bg};
+  --highlight-fg: #{$day-highlight-fg};
+  --disabled: #{$day-disabled};
+  --flag1-bg: #{$day-flag1-bg};
+  --flag2-bg: #{$day-flag2-bg};
+  --flag3-bg: #{$day-flag3-bg};
+  --flag4-bg: #{$day-flag4-bg};
+  --suspended-bg: #{$day-suspended-bg};
+  --marked-bg: #{$day-marked-bg};
+}
+
+:root[class*="night-mode"] {
+  --text-fg: #{$night-text-fg};
+  --window-bg: #{$night-window-bg};
+  --frame-bg: #{$night-frame-bg};
+  --border: #{$night-border};
+  --faint-border: #{$night-faint-border};
+  --link: #{$night-link};
+  --review-count: #{$night-review-count};
+  --new-count: #{$night-new-count};
+  --learn-count: #{$night-learn-count};
+  --zero-count: #{$night-zero-count};
+  --slightly-grey-text: #{$night-slightly-grey-text};
+  --highlight-bg: #{$night-highlight-bg};
+  --highlight-fg: #{$night-highlight-fg};
+  --disabled: #{$night-disabled};
+  --flag1-bg: #{$night-flag1-bg};
+  --flag2-bg: #{$night-flag2-bg};
+  --flag3-bg: #{$night-flag3-bg};
+  --flag4-bg: #{$night-flag4-bg};
+  --suspended-bg: #{$night-suspended-bg};
+  --marked-bg: #{$night-marked-bg};
+}

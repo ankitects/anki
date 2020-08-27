@@ -1,7 +1,6 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
-@use 'vars';
 @use 'card_counts';
 
 body {
@@ -51,7 +50,7 @@ button {
 }
 
 #outer {
-    border-top: 1px solid vars.$day-border;
+    border-top: 1px solid var(--border);
 }
 
 #innertable {
@@ -60,6 +59,6 @@ button {
 
 .nightMode {
     #outer {
-        border-top-color: vars.$night-faint-border;
+        border-top-color: var(--faint-border);
     }
 }

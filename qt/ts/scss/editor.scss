@@ -1,12 +1,10 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
-@use 'vars';
-
 .field {
-    border: 1px solid vars.$day-border;
-    background: vars.$day-frame-bg;
-    color: vars.$day-text-fg;
+    border: 1px solid var(--border);
+    background: var(--frame-bg);
+    color: var(--text-fg);
     padding: 5px;
     overflow-wrap: break-word;
     overflow: auto;
@@ -75,14 +73,14 @@ button.highlighted {
 }
 
 .dupe {
-    background: vars.$day-flag1-bg;
+    background: var(--flag1-bg);
 }
 
 .nightMode {
     .field {
-        border-color: vars.$night-border;
-        background: vars.$night-frame-bg;
-        color: vars.$night-text-fg;
+        border-color: var(--border);
+        background: var(--frame-bg);
+        color: var(--text-fg);
     }
 
     button.linkb > img {
@@ -90,11 +88,11 @@ button.highlighted {
     }
 
     .dupe {
-        background: vars.$night-flag1-bg;
+        background: var(--flag1-bg);
     }
 
     #dupes a {
-        color: vars.$night-link;
+        color: var(--link);
     }
 }
 
