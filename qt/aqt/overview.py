@@ -127,10 +127,8 @@ class Overview:
             self.mw.reset()
             return
 
-        sibs = self.mw.col.sched.haveBuriedSiblings()
-        man = self.mw.col.sched.haveManuallyBuried()
-
-        if sibs and man:
+        info = self.mw.col.sched.congratulations_info()
+        if info.have_sched_buried and info.have_user_buried:
             opts = [
                 _("Manually Buried Cards"),
                 _("Buried Siblings"),
@@ -184,14 +182,7 @@ class Overview:
         )
 
     def _show_finished_screen(self):
-        self.web.set_open_links_externally(False)
-        if theme_manager.night_mode:
-            extra = "#night"
-        else:
-            extra = ""
-        self.web.hide_while_preserving_layout()
-        self.web.load(QUrl(f"{self.mw.serverURL()}_anki/congrats.html" + extra))
-        self.web.inject_dynamic_style_and_show()
+        self.web.load_ts_page("congrats")
 
     def _desc(self, deck):
         if deck["dyn"]:
