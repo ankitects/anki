@@ -135,7 +135,7 @@ export function renderCalendar(
     }
 
     const height = bounds.height / 10;
-    let emptyColour = "#eee";
+    let emptyColour = "#ddd";
     if (nightMode) {
         emptyColour = "#333";
     }

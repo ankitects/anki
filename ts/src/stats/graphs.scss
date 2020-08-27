@@ -1,31 +1,28 @@
-$day-fg: black;
-$day-bg: #f7f7f7;
-$day-tooltip-bg: #fcfcfc;
-$night-fg: white;
-$night-bg: #222;
-$night-tooltip-bg: #272727;
+/* Copyright: Ankitects Pty Ltd and contributors
+ * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
-* {
-    box-sizing: border-box;
+@use '../scss/core';
+
+:root {
+    --area-fill: #00000008;
+    --area-stroke: #00000015;
 }
 
-body {
-    font-family: Arial;
-    background: $day-bg;
-    color: $day-fg;
+:root[class*="night-mode"] {
+    --area-fill: #ffffff15;
+    --area-stroke: #00000030;
 }
 
 .graph-tooltip {
     position: absolute;
-    background-color: white;
     padding: 15px;
     border-radius: 5px;
     font-size: 15px;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s;
-    color: $day-fg;
-    background: $day-tooltip-bg;
+    color: var(--text-fg);
+    background: var(--tooltip-bg);
 }
 
 .graph-tooltip table {
@@ -84,8 +81,8 @@ body {
     z-index: 1;
     top: 0;
     width: 100%;
-    color: $day-fg;
-    background: $day-bg;
+    color: var(--text-fg);
+    background: var(--window-bg);
     padding: 0.5em;
 }
 
@@ -116,8 +113,8 @@ body {
 
 .graph .area {
     pointer-events: none;
-    fill: #00000008;
-    stroke: #00000015;
+    fill: var(--area-fill);
+    stroke: var(--area-stroke);
 }
 
 .hoverzone rect {
@@ -163,36 +160,13 @@ body {
     margin-bottom: 1em;
 }
 
-body.night-mode {
-    background: $night-bg;
-    color: $night-fg;
-}
-
 .no-data {
     text {
         text-anchor: middle;
         fill: grey;
     }
     rect {
-        fill: $day-bg;
-    }
-}
-
-.night-mode {
-    .graph-tooltip {
-        background: $night-tooltip-bg;
-        color: $night-fg;
-    }
-    .range-box {
-        background: $night-bg;
-        color: $night-fg;
-    }
-    .graph .area {
-        fill: #ffffff15;
-        stroke: #00000030;
-    }
-    .no-data rect {
-        fill: $night-bg;
+        fill: var(--window-bg);
     }
 }
 
