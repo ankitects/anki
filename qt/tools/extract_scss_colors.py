@@ -6,7 +6,7 @@ import json
 
 colors = {}
 
-for line in open("ts/scss/_vars.scss"):
+for line in open("../ts/src/scss/_vars.scss"):
     line = line.strip()
     if not line:
         continue

@@ -23,7 +23,7 @@ all: check
 PHONY: build
 build:
 	$(BIN)/tsc --build
-	$(BIN)/sass --no-source-map scss:css
+	$(BIN)/sass --no-source-map -I ../../ts/src/scss scss:css
 	rsync -a css/ ../aqt_data/web/
 
 .PHONY: check
