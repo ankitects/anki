@@ -15,11 +15,10 @@ from http import HTTPStatus
 
 import flask
 import flask_cors  # type: ignore
-from flask import request
+from flask import Response, request
 from waitress.server import create_server
 
 import aqt
-from anki.collection import Collection
 from anki.rsbackend import from_json_bytes
 from anki.utils import devMode
 from aqt.qt import *
@@ -127,24 +126,7 @@ def allroutes(pathin):
 
     try:
         if flask.request.method == "POST":
-            if not aqt.mw.col:
-                print(f"collection not open, ignore request for {path}")
-                return flask.make_response("Collection not open", HTTPStatus.NOT_FOUND)
-
-            if path == "graphData":
-                body = request.data
-                data = graph_data(aqt.mw.col, **from_json_bytes(body))
-            elif path == "i18nResources":
-                data = aqt.mw.col.backend.i18n_resources()
-            else:
-                return flask.make_response(
-                    "Post request to '%s - %s' is a security leak!" % (directory, path),
-                    HTTPStatus.FORBIDDEN,
-                )
-
-            response = flask.make_response(data)
-            response.headers["Content-Type"] = "application/binary"
-            return response
+            return handle_post(path)
 
         if fullpath.endswith(".css"):
             # some users may have invalid mime type in the Windows registry
@@ -219,5 +201,33 @@ def _redirectWebExports(path):
     return aqt.mw.col.media.dir(), path
 
 
-def graph_data(col: Collection, search: str, days: int) -> bytes:
-    return col.backend.graphs(search=search, days=days)
+def graph_data() -> bytes:
+    args = from_json_bytes(request.data)
+    return aqt.mw.col.backend.graphs(search=args["search"], days=args["days"])
+
+
+def congrats_info() -> bytes:
+    info = aqt.mw.col.backend.congrats_info()
+    return info.SerializeToString()
+
+
+post_handlers = dict(
+    graphData=graph_data,
+    # pylint: disable=unnecessary-lambda
+    i18nResources=lambda: aqt.mw.col.backend.i18n_resources(),
+    congratsInfo=congrats_info,
+)
+
+
+def handle_post(path: str) -> Response:
+    if not aqt.mw.col:
+        print(f"collection not open, ignore request for {path}")
+        return flask.make_response("Collection not open", HTTPStatus.NOT_FOUND)
+
+    if path in post_handlers:
+        data = post_handlers[path]()
+        response = flask.make_response(data)
+        response.headers["Content-Type"] = "application/binary"
+        return response
+    else:
+        return flask.make_response(f"Unhandled post to {path}", HTTPStatus.FORBIDDEN,)

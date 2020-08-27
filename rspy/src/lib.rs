@@ -84,7 +84,6 @@ fn want_release_gil(method: u32) -> bool {
             BackendMethod::FindAndReplace => true,
             BackendMethod::SetLocalMinutesWest => false,
             BackendMethod::StudiedToday => false,
-            BackendMethod::CongratsLearnMessage => false,
             BackendMethod::AddMediaFile => true,
             BackendMethod::EmptyTrash => true,
             BackendMethod::RestoreTrash => true,
@@ -120,6 +119,7 @@ fn want_release_gil(method: u32) -> bool {
             BackendMethod::CardStats => true,
             BackendMethod::Graphs => true,
             BackendMethod::I18nResources => false,
+            BackendMethod::CongratsInfo => true,
         }
     } else {
         false

@@ -3,12 +3,13 @@
 
 import { setupI18n } from "../i18n";
 import GraphsPage from "./GraphsPage.svelte";
+import { checkNightMode } from "../nightmode";
 
-export function graphs(target: HTMLDivElement, nightMode: boolean): void {
+export function graphs(target: HTMLDivElement): void {
     setupI18n().then((i18n) => {
         new GraphsPage({
             target,
-            props: { i18n, nightMode },
+            props: { i18n, nightMode: checkNightMode() },
         });
     });
 }

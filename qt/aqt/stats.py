@@ -95,6 +95,7 @@ class NewDeckStats(QDialog):
         self.form.web.load(QUrl(f"{self.mw.serverURL()}_anki/graphs.html" + extra))
         self.form.web.inject_dynamic_style_and_show()
 
+
 class DeckStats(QDialog):
     """Legacy deck stats, used by some add-ons."""
 

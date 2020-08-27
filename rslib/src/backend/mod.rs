@@ -31,7 +31,7 @@ use crate::{
         RenderCardOutput,
     },
     sched::cutoff::local_minutes_west_for_stamp,
-    sched::timespan::{answer_button_time, learning_congrats, studied_today, time_span},
+    sched::timespan::{answer_button_time, studied_today, time_span},
     search::SortMode,
     sync::{
         get_remote_sync_meta, sync_abort, sync_login, FullSyncProgress, NormalSyncProgress,
@@ -464,13 +464,6 @@ impl BackendService for Backend {
         Ok(studied_today(input.cards as usize, input.seconds as f32, &self.i18n).into())
     }
 
-    fn congrats_learn_message(
-        &mut self,
-        input: pb::CongratsLearnMessageIn,
-    ) -> BackendResult<pb::String> {
-        Ok(learning_congrats(input.remaining as usize, input.next_due, &self.i18n).into())
-    }
-
     fn update_stats(&mut self, input: pb::UpdateStatsIn) -> BackendResult<Empty> {
         self.with_col(|col| {
             col.transact(None, |col| {
@@ -503,6 +496,10 @@ impl BackendService for Backend {
         input: pb::DeckId,
     ) -> BackendResult<pb::CountsForDeckTodayOut> {
         self.with_col(|col| col.counts_for_deck_today(input.did.into()))
+    }
+
+    fn congrats_info(&mut self, _input: Empty) -> BackendResult<pb::CongratsInfoOut> {
+        self.with_col(|col| col.congrats_info())
     }
 
     // statistics

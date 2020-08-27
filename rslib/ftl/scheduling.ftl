@@ -82,4 +82,11 @@ scheduling-today-new-limit-reached =
     reached. You can increase the limit in the options, but please
     bear in mind that the more new cards you introduce, the higher
     your short-term review workload will become.
-scheduling-buried-cards-were-delayed = Some related or buried cards were delayed until a later session.
+scheduling-buried-cards-found = One or more cards were buried, and will be shown tomorrow. You can { $unburyThem } if you wish to see them immediately.
+# used in scheduling-buried-cards-found
+# "... you can unbury them if you wish to see..."
+scheduling-unbury-them = unbury them
+scheduling-how-to-custom-study = If you wish to study outside of the regular schedule, you can use the { $customStudy } feature.
+# used in scheduling-how-to-custom-study
+# "... you can use the custom study feature."
+scheduling-custom-study = custom study
