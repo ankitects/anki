@@ -10,7 +10,7 @@
     <script>
         const nightMode = window.location.hash == "#night";
         if (nightMode) {
-            document.body.className = "night-mode";
+            document.documentElement.className = "night-mode";
         }
         anki.graphs(document.getElementById("main"), nightMode);
     </script>
