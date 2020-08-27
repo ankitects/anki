@@ -10,6 +10,7 @@ from heapq import *
 from typing import Any, Callable, Dict, List, Optional, Sequence, Set, Tuple, Union
 
 import anki  # pylint: disable=unused-import
+import anki.backend_pb2 as pb
 from anki import hooks
 from anki.cards import Card
 from anki.consts import *
@@ -1281,118 +1282,26 @@ where id = ?
     # Deck finished state
     ##########################################################################
 
-    def finishedMsg(self) -> str:
-        return (
-            "<b>"
-            + _("Congratulations! You have finished this deck for now.")
-            + "</b><br><br>"
-            + self._nextDueMsg()
-        )
+    def congratulations_info(self) -> pb.CongratsInfoOut:
+        return self.col.backend.congrats_info()
 
-    def next_learn_msg(self) -> str:
-        dids = self._deckLimit()
-        (next, remaining) = self.col.db.first(
-            f"""
-select min(due), count(*)
-from cards where did in {dids} and queue = {QUEUE_TYPE_LRN}
-"""
-        )
-        next = next or 0
-        remaining = remaining or 0
-        if next and next < self.dayCutoff:
-            next -= intTime() + self.col.conf["collapseTime"]
-            return self.col.backend.congrats_learn_message(
-                next_due=abs(next), remaining=remaining
-            )
-        else:
-            return ""
+    def finishedMsg(self) -> str:
+        print("finishedMsg() is obsolete")
+        return ""
 
     def _nextDueMsg(self) -> str:
-        line = []
-
-        learn_msg = self.next_learn_msg()
-        if learn_msg:
-            line.append(learn_msg)
-
-        # the new line replacements are so we don't break translations
-        # in a point release
-        if self.revDue():
-            line.append(
-                _(
-                    """\
-Today's review limit has been reached, but there are still cards
-waiting to be reviewed. For optimum memory, consider increasing
-the daily limit in the options."""
-                ).replace("\n", " ")
-            )
-        if self.newDue():
-            line.append(
-                _(
-                    """\
-There are more new cards available, but the daily limit has been
-reached. You can increase the limit in the options, but please
-bear in mind that the more new cards you introduce, the higher
-your short-term review workload will become."""
-                ).replace("\n", " ")
-            )
-        if self.haveBuried():
-            if self.haveCustomStudy:
-                now = " " + _("To see them now, click the Unbury button below.")
-            else:
-                now = ""
-            line.append(
-                _(
-                    """\
-Some related or buried cards were delayed until a later session."""
-                )
-                + now
-            )
-        if self.haveCustomStudy and not self.col.decks.current()["dyn"]:
-            line.append(
-                _(
-                    """\
-To study outside of the normal schedule, click the Custom Study button below."""
-                )
-            )
-        return "<p>".join(line)
-
-    def revDue(self) -> Optional[int]:
-        "True if there are any rev cards due."
-        return self.col.db.scalar(
-            (
-                f"select 1 from cards where did in %s and queue = {QUEUE_TYPE_REV} "
-                "and due <= ? limit 1"
-            )
-            % self._deckLimit(),
-            self.today,
-        )
-
-    def newDue(self) -> Optional[int]:
-        "True if there are any new cards due."
-        return self.col.db.scalar(
-            (
-                f"select 1 from cards where did in %s and queue = {QUEUE_TYPE_NEW} "
-                "limit 1"
-            )
-            % self._deckLimit()
-        )
+        print("_nextDueMsg() is obsolete")
+        return ""
 
     def haveBuriedSiblings(self) -> bool:
-        cnt = self.col.db.scalar(
-            f"select 1 from cards where queue = {QUEUE_TYPE_SIBLING_BURIED} and did in %s limit 1"
-            % self._deckLimit()
-        )
-        return not not cnt
+        return self.congratulations_info().have_sched_buried
 
     def haveManuallyBuried(self) -> bool:
-        cnt = self.col.db.scalar(
-            f"select 1 from cards where queue = {QUEUE_TYPE_MANUALLY_BURIED} and did in %s limit 1"
-            % self._deckLimit()
-        )
-        return not not cnt
+        return self.congratulations_info().have_user_buried
 
     def haveBuried(self) -> bool:
-        return self.haveManuallyBuried() or self.haveBuriedSiblings()
+        info = self.congratulations_info()
+        return info.have_sched_buried or info.have_user_buried
 
     # Next time reports
     ##########################################################################

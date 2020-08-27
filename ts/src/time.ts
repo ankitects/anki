@@ -19,7 +19,7 @@ enum TimespanUnit {
     Years,
 }
 
-function unitName(unit: TimespanUnit): string {
+export function unitName(unit: TimespanUnit): string {
     switch (unit) {
         case TimespanUnit.Seconds:
             return "seconds";
@@ -36,7 +36,7 @@ function unitName(unit: TimespanUnit): string {
     }
 }
 
-function naturalUnit(secs: number): TimespanUnit {
+export function naturalUnit(secs: number): TimespanUnit {
     secs = Math.abs(secs);
     if (secs < MINUTE) {
         return TimespanUnit.Seconds;
@@ -53,7 +53,7 @@ function naturalUnit(secs: number): TimespanUnit {
     }
 }
 
-function unitAmount(unit: TimespanUnit, secs: number): number {
+export function unitAmount(unit: TimespanUnit, secs: number): number {
     switch (unit) {
         case TimespanUnit.Seconds:
             return secs;

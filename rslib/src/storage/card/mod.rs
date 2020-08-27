@@ -3,14 +3,16 @@
 
 use crate::{
     card::{Card, CardID, CardQueue, CardType},
-    decks::DeckID,
+    decks::{Deck, DeckID},
     err::Result,
     notes::NoteID,
+    sched::congrats::CongratsInfo,
     timestamp::{TimestampMillis, TimestampSecs},
     types::Usn,
 };
 use rusqlite::params;
 use rusqlite::{
+    named_params,
     types::{FromSql, FromSqlError, ValueRef},
     OptionalExtension, Row, NO_PARAMS,
 };
@@ -276,6 +278,35 @@ impl super::SqliteStorage {
         }
 
         Ok(())
+    }
+    
+    pub(crate) fn congrats_info(&self, current: &Deck, today: u32) -> Result<CongratsInfo> {
+        self.update_active_decks(current)?;
+        self.db
+            .prepare(include_str!("congrats.sql"))?
+            .query_and_then_named(
+                named_params! {
+                    ":review_queue": CardQueue::Review as i8,
+                    ":day_learn_queue": CardQueue::DayLearn as i8,
+                    ":new_queue": CardQueue::New as i8,
+                    ":user_buried_queue": CardQueue::UserBuried as i8,
+                    ":sched_buried_queue": CardQueue::SchedBuried as i8,
+                    ":learn_queue": CardQueue::Learn as i8,
+                    ":today": today,
+                },
+                |row| {
+                    Ok(CongratsInfo {
+                        review_remaining: row.get::<_, u32>(0)? > 0,
+                        new_remaining: row.get::<_, u32>(1)? > 0,
+                        have_sched_buried: row.get::<_, u32>(2)? > 0,
+                        have_user_buried: row.get::<_, u32>(3)? > 0,
+                        learn_count: row.get(4)?,
+                        next_learn_due: row.get(5)?,
+                    })
+                },
+            )?
+            .next()
+            .unwrap()
     }
 }
 

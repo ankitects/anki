@@ -6,6 +6,7 @@ var path = require("path");
 module.exports = {
     entry: {
         graphs: ["./src/stats/graphs-bootstrap.ts"],
+        congrats: ["./src/sched/congrats-bootstrap.ts"],
     },
     output: {
         library: "anki",
@@ -15,6 +16,11 @@ module.exports = {
             filename: "graphs.html",
             chunks: ["graphs"],
             template: "src/html/graphs.html",
+        }),
+        new HtmlWebpackPlugin({
+            filename: "congrats.html",
+            chunks: ["congrats"],
+            template: "src/html/congrats.html",
         }),
     ],
     externals: {

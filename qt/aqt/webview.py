@@ -54,9 +54,9 @@ class AnkiWebPage(QWebEnginePage):
         script.setSourceCode(
             jstext
             + """
-            var pycmd;
+            var pycmd, bridgeCommand;
             new QWebChannel(qt.webChannelTransport, function(channel) {
-                pycmd = function (arg, cb) {
+                bridgeCommand = pycmd = function (arg, cb) {
                     var resultCB = function (res) {
                         // pass result back to user-provided callback
                         if (cb) {
@@ -400,7 +400,7 @@ div[contenteditable="true"]:focus {
             }
 
         zoom = self.zoomFactor()
-        background =  self._getWindowColor().name()
+        background = self._getWindowColor().name()
 
         if is_rtl(anki.lang.currentLang):
             lang_dir = "rtl"
@@ -598,8 +598,11 @@ body {{ zoom: {zoom}; background: {background}; direction: {lang_dir}; {font} }}
     def inject_dynamic_style_and_show(self):
         "Add dynamic styling, and reveal."
         css = self.standard_css()
-        self.evalWithCallback(f"""
+        self.evalWithCallback(
+            f"""
 const style = document.createElement('style');
 style.innerHTML = `{css}`;
 document.head.appendChild(style);
-""", lambda arg: self.show())
+""",
+            lambda arg: self.show(),
+        )

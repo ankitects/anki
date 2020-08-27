@@ -242,6 +242,24 @@ impl SqliteStorage {
         Ok(())
     }
 
+    /// Write active decks into temporary active_decks table.
+    pub(crate) fn update_active_decks(&self, current: &Deck) -> Result<()> {
+        self.db.execute_batch(concat!(
+            "drop table if exists temp.active_decks;",
+            "create temporary table active_decks (id integer primary key not null);"
+        ))?;
+
+        let top = &current.name;
+        let prefix_start = &format!("{}\x1f", top);
+        let prefix_end = &format!("{}\x20", top);
+
+        self.db
+            .prepare_cached(include_str!("update_active.sql"))?
+            .execute(&[top, prefix_start, prefix_end])?;
+
+        Ok(())
+    }
+
     // Upgrading/downgrading/legacy
 
     pub(super) fn add_default_deck(&self, i18n: &I18n) -> Result<()> {

@@ -92,10 +92,10 @@ service BackendService {
     rpc SetLocalMinutesWest (Int32) returns (Empty);
     rpc SchedTimingToday (Empty) returns (SchedTimingTodayOut);
     rpc StudiedToday (StudiedTodayIn) returns (String);
-    rpc CongratsLearnMessage (CongratsLearnMessageIn) returns (String);
     rpc UpdateStats (UpdateStatsIn) returns (Empty);
     rpc ExtendLimits (ExtendLimitsIn) returns (Empty);
     rpc CountsForDeckToday (DeckID) returns (CountsForDeckTodayOut);
+    rpc CongratsInfo (Empty) returns (CongratsInfoOut);
 
     // stats
 
@@ -1015,4 +1015,15 @@ message RevlogEntry {
     uint32 ease_factor = 7;
     uint32 taken_millis = 8;
     ReviewKind review_kind = 9;
+}
+
+message CongratsInfoOut {
+    uint32 learn_remaining = 1;
+    uint32 secs_until_next_learn = 2;
+    bool review_remaining = 3;
+    bool new_remaining = 4;
+    bool have_sched_buried = 5;
+    bool have_user_buried = 6;
+    bool is_filtered_deck = 7;
+    bool bridge_commands_supported = 8;
 }

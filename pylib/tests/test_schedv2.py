@@ -525,27 +525,6 @@ def test_overdue_lapse():
     assert col.sched.counts() == (0, 0, 1)
 
 
-def test_finished():
-    col = getEmptyCol()
-    # nothing due
-    assert "Congratulations" in col.sched.finishedMsg()
-    assert "limit" not in col.sched.finishedMsg()
-    note = col.newNote()
-    note["Front"] = "one"
-    note["Back"] = "two"
-    col.addNote(note)
-    # have a new card
-    assert "new cards available" in col.sched.finishedMsg()
-    # turn it into a review
-    col.reset()
-    c = note.cards()[0]
-    c.startTimer()
-    col.sched.answerCard(c, 3)
-    # nothing should be due tomorrow, as it's due in a week
-    assert "Congratulations" in col.sched.finishedMsg()
-    assert "limit" not in col.sched.finishedMsg()
-
-
 def test_nextIvl():
     col = getEmptyCol()
     note = col.newNote()
