@@ -52,7 +52,7 @@ all: check
 	./scripts/copy-qt-files)
 	@touch $@
 
-TSDEPS := $(wildcard ts/src/*.ts) $(wildcard ts/scss/*.scss)
+TSDEPS := $(wildcard ts/src/*.ts) $(wildcard ts/scss/*.scss) $(wildcard ../ts/src/scss/*)
 
 .build/js: $(TSDEPS)
 	(cd ts && make build)

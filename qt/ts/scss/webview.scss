@@ -6,11 +6,8 @@
 
 body {
     margin: 2em;
-    color: vars.$day-text-fg;
-
-    // currently this is injected via webview.py to try to match the
-    // system background color
-    //    background: vars.$day-window-bg;
+    color: var(--text-fg);
+    background: var(--window-bg);
 }
 
 h1 {
@@ -18,16 +15,16 @@ h1 {
 }
 
 a {
-    color: vars.$day-link;
+    color: var(--link);
 }
 
 body.nightMode {
-    color: vars.$night-text-fg;
-    background: vars.$night-window-bg;
+    color: var(--text-fg);
+    background: var(--window-bg);
 }
 
 body.nightMode::-webkit-scrollbar {
-    background: vars.$night-window-bg;
+    background: var(--window-bg);
 }
 
 body.nightMode::-webkit-scrollbar:horizontal {
@@ -39,7 +36,7 @@ body.nightMode::-webkit-scrollbar:vertical {
 }
 
 body.nightMode::-webkit-scrollbar-thumb {
-    background: vars.$fusion-button-hover-bg;
+    background: buttons.$fusion-button-hover-bg;
     border-radius: 8px;
 }
 
@@ -53,7 +50,7 @@ body.nightMode::-webkit-scrollbar-thumb:vertical {
 
 .nightMode {
     a {
-        color: vars.$night-link;
+        color: var(--link);
     }
 }
 

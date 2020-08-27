@@ -359,45 +359,28 @@ class AnkiWebView(QWebEngineView):
             return QColor("#ececec")
         return self.style().standardPalette().color(QPalette.Window)
 
-    def stdHtml(
-        self,
-        body: str,
-        css: Optional[List[str]] = None,
-        js: Optional[List[str]] = None,
-        head: str = "",
-        context: Optional[Any] = None,
-    ):
-
-        web_content = WebContent(
-            body=body,
-            head=head,
-            js=["webview.js"] + (["jquery.js"] if js is None else js),
-            css=["webview.css"] + ([] if css is None else css),
-        )
-
-        gui_hooks.webview_will_set_content(web_content, context)
-
+    def standard_css(self) -> str:
         palette = self.style().standardPalette()
         color_hl = palette.color(QPalette.Highlight).name()
 
         if isWin:
             # T: include a font for your language on Windows, eg: "Segoe UI", "MS Mincho"
             family = _('"Segoe UI"')
-            widgetspec = "button { font-family:%s; }" % family
-            widgetspec += "\n:focus { outline: 1px solid %s; }" % color_hl
-            fontspec = "font-size:12px;font-family:%s;" % family
+            button_style = "button { font-family:%s; }" % family
+            button_style += "\n:focus { outline: 1px solid %s; }" % color_hl
+            font = "font-size:12px;font-family:%s;" % family
         elif isMac:
             family = "Helvetica"
-            fontspec = 'font-size:15px;font-family:"%s";' % family
-            widgetspec = """
+            font = 'font-size:15px;font-family:"%s";' % family
+            button_style = """
 button { -webkit-appearance: none; background: #fff; border: 1px solid #ccc;
 border-radius:5px; font-family: Helvetica }"""
         else:
             family = self.font().family()
             color_hl_txt = palette.color(QPalette.HighlightedText).name()
             color_btn = palette.color(QPalette.Button).name()
-            fontspec = 'font-size:14px;font-family:"%s";' % family
-            widgetspec = """
+            font = 'font-size:14px;font-family:"%s";' % family
+            button_style = """
 /* Buttons */
 button{ 
         background-color: %(color_btn)s;
@@ -416,45 +399,70 @@ div[contenteditable="true"]:focus {
                 "color_hl_txt": color_hl_txt,
             }
 
-        csstxt = "\n".join(self.bundledCSS(fname) for fname in web_content.css)
-        jstxt = "\n".join(self.bundledScript(fname) for fname in web_content.js)
-
-        from aqt import mw
-
-        head = mw.baseHTML() + csstxt + jstxt + web_content.head
-
-        body_class = theme_manager.body_class()
+        zoom = self.zoomFactor()
+        background =  self._getWindowColor().name()
 
         if is_rtl(anki.lang.currentLang):
             lang_dir = "rtl"
         else:
             lang_dir = "ltr"
 
-        html = """
-<!doctype html>
-<html><head>
-<title>{}</title>
+        return f"""
+body {{ zoom: {zoom}; background: {background}; direction: {lang_dir}; {font} }}
+{button_style}
+:root {{ --window-bg: {background} }}
+"""
 
-<style>
-body {{ zoom: {}; background: {}; direction: {}; {} }}
-{}
-</style>
-  
-{}
+    def stdHtml(
+        self,
+        body: str,
+        css: Optional[List[str]] = None,
+        js: Optional[List[str]] = None,
+        head: str = "",
+        context: Optional[Any] = None,
+    ):
+
+        web_content = WebContent(
+            body=body,
+            head=head,
+            js=["webview.js"] + (["jquery.js"] if js is None else js),
+            css=["webview.css"] + ([] if css is None else css),
+        )
+
+        gui_hooks.webview_will_set_content(web_content, context)
+
+        csstxt = ""
+        if "webview.css" in web_content.css:
+            # we want our dynamic styling to override the defaults in
+            # webview.css, but come before user-provided stylesheets so that
+            # they can override us if necessary
+            web_content.css.remove("webview.css")
+            csstxt = self.bundledCSS("webview.css")
+            csstxt += f"<style>{self.standard_css()}</style>"
+
+        csstxt += "\n".join(self.bundledCSS(fname) for fname in web_content.css)
+        jstxt = "\n".join(self.bundledScript(fname) for fname in web_content.js)
+
+        from aqt import mw
+
+        head = mw.baseHTML() + csstxt + jstxt + web_content.head
+        body_class = theme_manager.body_class()
+
+        if theme_manager.night_mode:
+            doc_class = "night-mode"
+        else:
+            doc_class = ""
+
+        html = f"""
+<!doctype html>
+<html class="{doc_class}">
+<head>
+    <title>{self.title}</title>
+{head}
 </head>
 
-<body class="{}">{}</body>
-</html>""".format(
-            self.title,
-            self.zoomFactor(),
-            self._getWindowColor().name(),
-            lang_dir,
-            fontspec,
-            widgetspec,
-            head,
-            body_class,
-            web_content.body,
-        )
+<body class="{body_class}">{web_content.body}</body>
+</html>"""
         # print(html)
         self.setHtml(html)
 

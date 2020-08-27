@@ -1,36 +1,34 @@
-@use 'vars';
-
 .review-count {
-  color: vars.$day-review-count;
+  color: var(--review-count);
 }
 
 .new-count {
-  color: vars.$day-new-count;
+  color: var(--new-count);
 }
 
 .learn-count {
-  color: vars.$day-learn-count;
+  color: var(--learn-count);
 }
 
 .zero-count {
-  color: vars.$day-zero-count;
+  color: var(--zero-count);
 }
 
 .nightMode {
   .review-count {
-    color: vars.$night-review-count;
+    color: var(--review-count);
   }
 
   .new-count {
-    color: vars.$night-new-count;
+    color: var(--new-count);
   }
 
   .learn-count {
-    color: vars.$night-learn-count;
+    color: var(--learn-count);
   }
 
   .zero-count {
-    color: vars.$night-zero-count;
+    color: var(--zero-count);
   }
 }
 

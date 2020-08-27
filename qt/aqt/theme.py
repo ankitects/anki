@@ -182,7 +182,7 @@ QTabWidget { background-color: %s; }
         palette.setColor(QPalette.Window, window_bg)
         palette.setColor(QPalette.AlternateBase, window_bg)
 
-        palette.setColor(QPalette.Button, QColor(colors.get("fusion-button-base-bg")))
+        palette.setColor(QPalette.Button, QColor("#454545"))
 
         frame_bg = self.qcolor("frame-bg")
         palette.setColor(QPalette.Base, frame_bg)
