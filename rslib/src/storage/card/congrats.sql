@@ -1,11 +1,14 @@
-select sum(
-        queue in (:review_queue, :day_learn_queue)
-        and due <= :today
+select coalesce(
+        sum(
+            queue in (:review_queue, :day_learn_queue)
+            and due <= :today
+        ),
+        0
     ) as review_count,
-    sum(queue = :new_queue) as new_count,
-    sum(queue = :sched_buried_queue) as sched_buried,
-    sum(queue = :user_buried_queue) as user_buried,
-    sum(queue = :learn_queue) as learn_count,
+    coalesce(sum(queue = :new_queue), 0) as new_count,
+    coalesce(sum(queue = :sched_buried_queue), 0) as sched_buried,
+    coalesce(sum(queue = :user_buried_queue), 0) as user_buried,
+    coalesce(sum(queue = :learn_queue), 0) as learn_count,
     coalesce(
         min(
             case
