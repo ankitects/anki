@@ -78,4 +78,61 @@ impl Collection {
             SchedulerVersion::V2 => self.set_v2_rollover(hour as u32),
         }
     }
+
+    pub(crate) fn unbury_if_day_rolled_over(&mut self) -> Result<()> {
+        let last_unburied = self.get_last_unburied_day();
+        let today = self.timing_today()?.days_elapsed;
+        if last_unburied < today || (today + 7) < last_unburied {
+            self.unbury_on_day_rollover()?;
+            self.set_last_unburied_day(today)?;
+        }
+
+        Ok(())
+    }
+
+    fn unbury_on_day_rollover(&mut self) -> Result<()> {
+        self.search_cards_into_table("is:buried")?;
+        self.storage.for_each_card_in_search(|mut card| {
+            card.restore_queue_after_bury_or_suspend();
+            self.storage.update_card(&card)
+        })?;
+        self.clear_searched_cards()?;
+
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use crate::{
+        card::{Card, CardQueue},
+        collection::{open_test_collection, Collection},
+        search::SortMode,
+    };
+
+    #[test]
+    fn unbury() {
+        let mut col = open_test_collection();
+        let mut card = Card::default();
+        card.queue = CardQueue::UserBuried;
+        col.add_card(&mut card).unwrap();
+        let assert_count = |col: &mut Collection, cnt| {
+            assert_eq!(
+                col.search_cards("is:buried", SortMode::NoOrder)
+                    .unwrap()
+                    .len(),
+                cnt
+            );
+        };
+        assert_count(&mut col, 1);
+        // day 0, last unburied 0, so no change
+        col.unbury_if_day_rolled_over().unwrap();
+        assert_count(&mut col, 1);
+        // move creation time back and it should succeed
+        let mut stamp = col.storage.creation_stamp().unwrap();
+        stamp.0 -= 86_400;
+        col.storage.set_creation_stamp(stamp).unwrap();
+        col.unbury_if_day_rolled_over().unwrap();
+        assert_count(&mut col, 0);
+    }
 }

@@ -319,6 +319,7 @@ where
             SyncActionRequired::FullSyncRequired { .. } => Ok(state.into()),
             SyncActionRequired::NormalSyncRequired => {
                 self.col.storage.begin_trx()?;
+                self.col.unbury_if_day_rolled_over()?;
                 match self.normal_sync_inner(state).await {
                     Ok(success) => {
                         self.col.storage.commit_trx()?;

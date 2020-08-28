@@ -260,6 +260,23 @@ impl super::SqliteStorage {
             .query_and_then(NO_PARAMS, |r| row_to_card(r).map_err(Into::into))?
             .collect()
     }
+
+    pub(crate) fn for_each_card_in_search<F>(&self, mut func: F) -> Result<()>
+    where
+        F: FnMut(Card) -> Result<()>,
+    {
+        let mut stmt = self.db.prepare_cached(concat!(
+            include_str!("get_card.sql"),
+            " where id in (select id from search_cids)"
+        ))?;
+        let mut rows = stmt.query(NO_PARAMS)?;
+        while let Some(row) = rows.next()? {
+            let card = row_to_card(row)?;
+            func(card)?
+        }
+
+        Ok(())
+    }
 }
 
 #[cfg(test)]

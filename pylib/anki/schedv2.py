@@ -1456,8 +1456,8 @@ To study outside of the normal schedule, click the Custom Study button below."""
     # other types map directly to queues
     _restoreQueueSnippet = f"""
 queue = (case when type in ({CARD_TYPE_LRN},{CARD_TYPE_RELEARNING}) then
-  (case when (case when odue then odue else due end) > 1000000000 then 1 else
-  {QUEUE_TYPE_DAY_LEARN_RELEARN} end)
+  (case when (case when odue then odue else due end) > 1000000000 then 
+  {QUEUE_TYPE_LRN} else {QUEUE_TYPE_DAY_LEARN_RELEARN} end)
 else
   type
 end)
