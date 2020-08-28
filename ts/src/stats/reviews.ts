@@ -383,7 +383,6 @@ export function renderReviews(
             .domain(x.domain() as any)(sourceData.reviewCount.entries() as any);
         const totalReviews = sum(countBins, (bin) => cumulativeBinValue(bin as any, 4));
         const totalSecs = total / 1000;
-        console.log(`total secs ${totalSecs} total reviews ${totalReviews}`);
         const avgSecs = totalSecs / totalReviews;
         const cardsPerMin = (totalReviews * 60) / totalSecs;
         averageAnswerTime = i18n.tr(i18n.TR.STATISTICS_AVERAGE_ANSWER_TIME, {
