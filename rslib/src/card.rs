@@ -149,6 +149,23 @@ impl Card {
             self.ctype = CardType::New;
         }
     }
+
+    pub(crate) fn restore_queue_after_bury_or_suspend(&mut self) {
+        self.queue = match self.ctype {
+            CardType::Learn | CardType::Relearn => {
+                let original_due = if self.odue > 0 { self.odue } else { self.due };
+                if original_due > 1_000_000_000 {
+                    // previous interval was in seconds
+                    CardQueue::Learn
+                } else {
+                    // previous interval was in days
+                    CardQueue::DayLearn
+                }
+            }
+            CardType::New => CardQueue::New,
+            CardType::Review => CardQueue::Review,
+        }
+    }
 }
 #[derive(Debug)]
 pub(crate) struct UpdateCardUndo(Card);

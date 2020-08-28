@@ -49,6 +49,7 @@ pub(crate) enum ConfigKey {
     NewReviewMix,
     AnswerTimeLimitSecs,
     ShowDayLearningCardsFirst,
+    LastUnburiedDay,
 }
 #[derive(PartialEq, Serialize_repr, Deserialize_repr, Clone, Copy)]
 #[repr(u8)]
@@ -76,6 +77,7 @@ impl From<ConfigKey> for &'static str {
             ConfigKey::NewReviewMix => "newSpread",
             ConfigKey::AnswerTimeLimitSecs => "timeLim",
             ConfigKey::ShowDayLearningCardsFirst => "dayLearnFirst",
+            ConfigKey::LastUnburiedDay => "lastUnburied",
         }
     }
 }
@@ -255,6 +257,15 @@ impl Collection {
 
     pub(crate) fn set_day_learn_first(&self, on: bool) -> Result<()> {
         self.set_config(ConfigKey::ShowDayLearningCardsFirst, &on)
+    }
+
+    pub(crate) fn get_last_unburied_day(&self) -> u32 {
+        self.get_config_optional(ConfigKey::LastUnburiedDay)
+            .unwrap_or_default()
+    }
+
+    pub(crate) fn set_last_unburied_day(&self, day: u32) -> Result<()> {
+        self.set_config(ConfigKey::LastUnburiedDay, &day)
     }
 }
 
