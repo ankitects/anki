@@ -452,6 +452,29 @@ hooks = [
         args=["webview: aqt.webview.AnkiWebView", "menu: QMenu"],
         legacy_hook="AnkiWebView.contextMenuEvent",
     ),
+    Hook(
+        name="webview_did_inject_style_into_page",
+        args=["webview: AnkiWebView"],
+        doc='''Called after standard styling is injected into an external
+html file, such as when loading the new graphs. You can use this hook to
+mutate the DOM before the page is revealed.
+
+For example:
+
+def mytest(web: AnkiWebView):
+    page = os.path.basename(web.page().url().path())
+    if page != "graphs.html":
+    	return
+    web.eval(
+        """
+    div = document.createElement("div");
+    div.innerHTML = 'hello';
+    document.body.appendChild(div);
+"""
+    )
+
+gui_hooks.webview_did_inject_style_into_page.append(mytest)
+'''),
     # Main
     ###################
     Hook(

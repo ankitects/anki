@@ -2844,6 +2844,54 @@ class _UndoStateDidChangeHook:
 undo_state_did_change = _UndoStateDidChangeHook()
 
 
+class _WebviewDidInjectStyleIntoPageHook:
+    '''Called after standard styling is injected into an external
+html file, such as when loading the new graphs. You can use this hook to
+mutate the DOM before the page is revealed.
+
+For example:
+
+def mytest(web: AnkiWebView):
+    page = os.path.basename(web.page().url().path())
+    if page != "graphs.html":
+    	return
+    web.eval(
+        """
+    div = document.createElement("div");
+    div.innerHTML = 'hello';
+    document.body.appendChild(div);
+"""
+    )
+
+gui_hooks.webview_did_inject_style_into_page.append(mytest)
+'''
+
+    _hooks: List[Callable[[AnkiWebView], None]] = []
+
+    def append(self, cb: Callable[[AnkiWebView], None]) -> None:
+        """(webview: AnkiWebView)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[AnkiWebView], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
+
+    def __call__(self, webview: AnkiWebView) -> None:
+        for hook in self._hooks:
+            try:
+                hook(webview)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+webview_did_inject_style_into_page = _WebviewDidInjectStyleIntoPageHook()
+
+
 class _WebviewDidReceiveJsMessageFilter:
     """Used to handle pycmd() messages sent from Javascript.
 
