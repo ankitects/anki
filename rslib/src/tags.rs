@@ -152,7 +152,7 @@ impl Collection {
         let matcher = regex::RegexSet::new(
             tags.iter()
                 .map(|s| regex::escape(s))
-                .map(|s| format!("(?i){}", s)),
+                .map(|s| format!("(?i)^{}$", s)),
         )
         .map_err(|_| AnkiError::invalid_input("invalid regex"))?;
 
