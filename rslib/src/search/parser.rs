@@ -105,6 +105,8 @@ pub(super) enum StateKind {
     Learning,
     Due,
     Buried,
+    UserBuried,
+    SchedBuried,
     Suspended,
 }
 
@@ -317,6 +319,8 @@ fn parse_state(s: &str) -> ParseResult<SearchNode<'static>> {
         "learn" => Learning,
         "due" => Due,
         "buried" => Buried,
+        "buried-manually" => UserBuried,
+        "buried-sibling" => SchedBuried,
         "suspended" => Suspended,
         _ => return Err(ParseError {}),
     }))

@@ -289,6 +289,10 @@ impl SqlWriter<'_> {
                 lrn = CardQueue::Learn as i8,
                 daycutoff = timing.next_day_at,
             ),
+            StateKind::UserBuried => write!(self.sql, "c.queue = {}", CardQueue::UserBuried as i8),
+            StateKind::SchedBuried => {
+                write!(self.sql, "c.queue = {}", CardQueue::SchedBuried as i8)
+            }
         }
         .unwrap();
         Ok(())
