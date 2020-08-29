@@ -6,6 +6,7 @@ import time
 from anki import hooks
 from anki.consts import *
 from anki.lang import without_unicode_isolation
+from anki.schedv2 import UnburyCurrentDeckMode
 from anki.utils import intTime
 from tests.shared import getEmptyCol as getEmptyColOrig
 
@@ -609,22 +610,18 @@ def test_bury():
     col.reset()
     assert not col.sched.getCard()
 
-    col.sched.unburyCardsForDeck(  # pylint: disable=unexpected-keyword-arg
-        type="manual"
-    )
+    col.sched.unbury_cards_in_current_deck(UnburyCurrentDeckMode.USER_ONLY)
     c.load()
     assert c.queue == QUEUE_TYPE_NEW
     c2.load()
     assert c2.queue == QUEUE_TYPE_SIBLING_BURIED
 
-    col.sched.unburyCardsForDeck(  # pylint: disable=unexpected-keyword-arg
-        type="siblings"
-    )
+    col.sched.unbury_cards_in_current_deck(UnburyCurrentDeckMode.SCHED_ONLY)
     c2.load()
     assert c2.queue == QUEUE_TYPE_NEW
 
     col.sched.buryCards([c.id, c2.id])
-    col.sched.unburyCardsForDeck(type="all")  # pylint: disable=unexpected-keyword-arg
+    col.sched.unbury_cards_in_current_deck()
 
     col.reset()
 
@@ -1214,7 +1211,7 @@ def test_moveVersions():
     assert c.queue == QUEUE_TYPE_SIBLING_BURIED
 
     # and it should be new again when unburied
-    col.sched.unburyCards()
+    col.sched.unbury_cards_in_current_deck()
     c.load()
     assert c.type == CARD_TYPE_NEW and c.queue == QUEUE_TYPE_NEW
 

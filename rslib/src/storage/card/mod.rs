@@ -279,7 +279,7 @@ impl super::SqliteStorage {
 
         Ok(())
     }
-    
+
     pub(crate) fn congrats_info(&self, current: &Deck, today: u32) -> Result<CongratsInfo> {
         self.update_active_decks(current)?;
         self.db
