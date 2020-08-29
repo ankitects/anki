@@ -598,15 +598,19 @@ body {{ zoom: {zoom}; background: {background}; direction: {lang_dir}; {font} }}
     def inject_dynamic_style_and_show(self):
         "Add dynamic styling, and reveal."
         css = self.standard_css()
+
         def after_style(arg):
             gui_hooks.webview_did_inject_style_into_page(self)
             self.show()
+
         self.evalWithCallback(
             f"""
 const style = document.createElement('style');
 style.innerHTML = `{css}`;
 document.head.appendChild(style);
-""", after_style)
+""",
+            after_style,
+        )
 
     def load_ts_page(self, name: str) -> None:
         from aqt import mw

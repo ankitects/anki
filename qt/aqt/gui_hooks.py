@@ -2866,20 +2866,20 @@ def mytest(web: AnkiWebView):
 gui_hooks.webview_did_inject_style_into_page.append(mytest)
 '''
 
-    _hooks: List[Callable[[AnkiWebView], None]] = []
+    _hooks: List[Callable[["aqt.webview.AnkiWebView"], None]] = []
 
-    def append(self, cb: Callable[[AnkiWebView], None]) -> None:
-        """(webview: AnkiWebView)"""
+    def append(self, cb: Callable[["aqt.webview.AnkiWebView"], None]) -> None:
+        """(webview: aqt.webview.AnkiWebView)"""
         self._hooks.append(cb)
 
-    def remove(self, cb: Callable[[AnkiWebView], None]) -> None:
+    def remove(self, cb: Callable[["aqt.webview.AnkiWebView"], None]) -> None:
         if cb in self._hooks:
             self._hooks.remove(cb)
 
     def count(self) -> int:
         return len(self._hooks)
 
-    def __call__(self, webview: AnkiWebView) -> None:
+    def __call__(self, webview: aqt.webview.AnkiWebView) -> None:
         for hook in self._hooks:
             try:
                 hook(webview)
