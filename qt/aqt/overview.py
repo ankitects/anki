@@ -10,9 +10,7 @@ from typing import Optional
 import aqt
 from anki.lang import _
 from aqt import gui_hooks
-from aqt.qt import QUrl
 from aqt.sound import av_player
-from aqt.theme import theme_manager
 from aqt.toolbar import BottomBar
 from aqt.utils import askUserDialog, openLink, shortcut, tooltip
 

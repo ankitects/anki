@@ -454,7 +454,7 @@ hooks = [
     ),
     Hook(
         name="webview_did_inject_style_into_page",
-        args=["webview: AnkiWebView"],
+        args=["webview: aqt.webview.AnkiWebView"],
         doc='''Called after standard styling is injected into an external
 html file, such as when loading the new graphs. You can use this hook to
 mutate the DOM before the page is revealed.
@@ -474,7 +474,8 @@ def mytest(web: AnkiWebView):
     )
 
 gui_hooks.webview_did_inject_style_into_page.append(mytest)
-'''),
+''',
+    ),
     # Main
     ###################
     Hook(
