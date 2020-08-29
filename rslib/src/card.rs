@@ -97,6 +97,11 @@ impl Default for Card {
 }
 
 impl Card {
+    pub fn set_modified(&mut self, usn: Usn) {
+        self.mtime = TimestampSecs::now();
+        self.usn = usn;
+    }
+
     pub(crate) fn return_home(&mut self, sched: SchedulerVersion) {
         if self.odid.0 == 0 {
             // this should not happen
@@ -149,34 +154,17 @@ impl Card {
             self.ctype = CardType::New;
         }
     }
-
-    pub(crate) fn restore_queue_after_bury_or_suspend(&mut self) {
-        self.queue = match self.ctype {
-            CardType::Learn | CardType::Relearn => {
-                let original_due = if self.odue > 0 { self.odue } else { self.due };
-                if original_due > 1_000_000_000 {
-                    // previous interval was in seconds
-                    CardQueue::Learn
-                } else {
-                    // previous interval was in days
-                    CardQueue::DayLearn
-                }
-            }
-            CardType::New => CardQueue::New,
-            CardType::Review => CardQueue::Review,
-        }
-    }
 }
 #[derive(Debug)]
 pub(crate) struct UpdateCardUndo(Card);
 
 impl Undoable for UpdateCardUndo {
-    fn apply(&self, col: &mut crate::collection::Collection) -> Result<()> {
+    fn apply(&self, col: &mut crate::collection::Collection, usn: Usn) -> Result<()> {
         let current = col
             .storage
             .get_card(self.0.id)?
             .ok_or_else(|| AnkiError::invalid_input("card disappeared"))?;
-        col.update_card(&mut self.0.clone(), &current)
+        col.update_card(&mut self.0.clone(), &current, usn)
     }
 }
 
@@ -202,19 +190,18 @@ impl Collection {
             .ok_or_else(|| AnkiError::invalid_input("no such card"))?;
         let mut card = orig.clone();
         func(&mut card)?;
-        self.update_card(&mut card, &orig)?;
+        self.update_card(&mut card, &orig, self.usn()?)?;
         Ok(card)
     }
 
-    pub(crate) fn update_card(&mut self, card: &mut Card, original: &Card) -> Result<()> {
+    pub(crate) fn update_card(&mut self, card: &mut Card, original: &Card, usn: Usn) -> Result<()> {
         if card.id.0 == 0 {
             return Err(AnkiError::invalid_input("card id not set"));
         }
         self.state
             .undo
             .save_undoable(Box::new(UpdateCardUndo(original.clone())));
-        card.mtime = TimestampSecs::now();
-        card.usn = self.usn()?;
+        card.set_modified(usn);
         self.storage.update_card(card)
     }
 

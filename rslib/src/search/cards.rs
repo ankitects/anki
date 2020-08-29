@@ -5,12 +5,10 @@ use super::{
     parser::Node,
     sqlwriter::{RequiredTable, SqlWriter},
 };
-use crate::card::CardID;
-use crate::card::CardType;
-use crate::collection::Collection;
-use crate::config::SortKind;
-use crate::err::Result;
-use crate::search::parser::parse;
+use crate::{
+    card::CardID, card::CardType, collection::Collection, config::SortKind, err::Result,
+    search::parser::parse,
+};
 use rusqlite::NO_PARAMS;
 
 #[derive(Debug, PartialEq, Clone)]
@@ -95,13 +93,30 @@ impl Collection {
         let writer = SqlWriter::new(self);
 
         let (sql, args) = writer.build_cards_query(&top_node, RequiredTable::Cards)?;
-        self.storage.db.execute_batch(concat!(
-            "drop table if exists search_cids;",
-            "create temporary table search_cids (id integer primary key not null);"
-        ))?;
+        self.storage
+            .db
+            .execute_batch(include_str!("search_cids_setup.sql"))?;
         let sql = format!("insert into search_cids {}", sql);
 
         self.storage.db.prepare(&sql)?.execute(&args)?;
+
+        Ok(())
+    }
+
+    /// Injects the provided card IDs into the search_cids table, for
+    /// when ids have arrived outside of a search.
+    /// Clear with clear_searched_cards().
+    pub(crate) fn set_search_table_to_card_ids(&mut self, cards: &[CardID]) -> Result<()> {
+        self.storage
+            .db
+            .execute_batch(include_str!("search_cids_setup.sql"))?;
+        let mut stmt = self
+            .storage
+            .db
+            .prepare_cached("insert into search_cids values (?)")?;
+        for cid in cards {
+            stmt.execute(&[cid])?;
+        }
 
         Ok(())
     }

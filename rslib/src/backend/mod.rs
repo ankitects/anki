@@ -235,6 +235,12 @@ impl From<pb::CardId> for CardID {
     }
 }
 
+impl pb::CardIDs {
+    fn into_native(self) -> Vec<CardID> {
+        self.cids.into_iter().map(CardID).collect()
+    }
+}
+
 impl From<pb::NoteId> for NoteID {
     fn from(nid: pb::NoteId) -> Self {
         NoteID(nid.nid)
@@ -442,8 +448,14 @@ impl BackendService for Backend {
     // scheduling
     //-----------------------------------------------
 
+    /// This behaves like _updateCutoff() in older code - it also unburies at the start of
+    /// a new day.
     fn sched_timing_today(&mut self, _input: pb::Empty) -> Result<pb::SchedTimingTodayOut> {
-        self.with_col(|col| col.timing_today().map(Into::into))
+        self.with_col(|col| {
+            let timing = col.timing_today()?;
+            col.unbury_if_day_rolled_over(timing)?;
+            Ok(timing.into())
+        })
     }
 
     fn local_minutes_west(&mut self, input: pb::Int64) -> BackendResult<pb::Int32> {
@@ -500,6 +512,23 @@ impl BackendService for Backend {
 
     fn congrats_info(&mut self, _input: Empty) -> BackendResult<pb::CongratsInfoOut> {
         self.with_col(|col| col.congrats_info())
+    }
+
+    fn restore_buried_and_suspended_cards(&mut self, input: pb::CardIDs) -> BackendResult<Empty> {
+        self.with_col(|col| {
+            col.unbury_or_unsuspend_cards(&input.into_native())
+                .map(Into::into)
+        })
+    }
+
+    fn unbury_cards_in_current_deck(
+        &mut self,
+        input: pb::UnburyCardsInCurrentDeckIn,
+    ) -> BackendResult<Empty> {
+        self.with_col(|col| {
+            col.unbury_cards_in_current_deck(input.mode())
+                .map(Into::into)
+        })
     }
 
     // statistics
@@ -695,7 +724,7 @@ impl BackendService for Backend {
                     .storage
                     .get_card(card.id)?
                     .ok_or_else(|| AnkiError::invalid_input("missing card"))?;
-                ctx.update_card(&mut card, &orig)
+                ctx.update_card(&mut card, &orig, ctx.usn()?)
             })
         })
         .map(Into::into)

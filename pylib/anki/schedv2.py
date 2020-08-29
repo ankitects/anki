@@ -7,7 +7,18 @@ import pprint
 import random
 import time
 from heapq import *
-from typing import Any, Callable, Dict, List, Optional, Sequence, Set, Tuple, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Sequence,
+    Set,
+    Tuple,
+    Union,
+)
 
 import anki  # pylint: disable=unused-import
 import anki.backend_pb2 as pb
@@ -24,6 +35,12 @@ from anki.rsbackend import (
     from_json_bytes,
 )
 from anki.utils import ids2str, intTime
+
+UnburyCurrentDeckMode = pb.UnburyCardsInCurrentDeckIn.Mode  # pylint: disable=no-member
+if TYPE_CHECKING:
+    UnburyCurrentDeckModeValue = (
+        pb.UnburyCardsInCurrentDeckIn.ModeValue  # pylint: disable=no-member
+    )
 
 # card types: 0=new, 1=lrn, 2=rev, 3=relrn
 # queue types: 0=new, 1=(re)lrn, 2=rev, 3=day (re)lrn,
@@ -1265,12 +1282,6 @@ where id = ?
         self.today = timing.days_elapsed
         self.dayCutoff = timing.next_day_at
 
-        # unbury if the day has rolled over
-        unburied = self.col.conf.get("lastUnburied", 0)
-        if unburied < self.today or self.today + 7 < unburied:
-            self.unburyCards()
-            self.col.conf["lastUnburied"] = self.today
-
     def _checkDay(self) -> None:
         # check if the day has rolled over
         if time.time() > self.dayCutoff:
@@ -1364,16 +1375,16 @@ where id = ?
     # Suspending & burying
     ##########################################################################
 
-    # learning and relearning cards may be seconds-based or day-based;
-    # other types map directly to queues
-    _restoreQueueSnippet = f"""
-queue = (case when type in ({CARD_TYPE_LRN},{CARD_TYPE_RELEARNING}) then
-  (case when (case when odue then odue else due end) > 1000000000 then 
-  {QUEUE_TYPE_LRN} else {QUEUE_TYPE_DAY_LEARN_RELEARN} end)
-else
-  type
-end)
-"""
+    def unsuspend_cards(self, ids: List[int]) -> None:
+        self.col.backend.restore_buried_and_suspended_cards(ids)
+
+    def unbury_cards(self, ids: List[int]) -> None:
+        self.col.backend.restore_buried_and_suspended_cards(ids)
+
+    def unbury_cards_in_current_deck(
+        self, mode: UnburyCurrentDeckModeValue = UnburyCurrentDeckMode.ALL,
+    ) -> None:
+        self.col.backend.unbury_cards_in_current_deck(mode)
 
     def suspendCards(self, ids: List[int]) -> None:
         "Suspend cards."
@@ -1381,18 +1392,6 @@ end)
         self.col.db.execute(
             f"update cards set queue={QUEUE_TYPE_SUSPENDED},mod=?,usn=? where id in "
             + ids2str(ids),
-            intTime(),
-            self.col.usn(),
-        )
-
-    def unsuspendCards(self, ids: List[int]) -> None:
-        "Unsuspend cards."
-        self.col.log(ids)
-        self.col.db.execute(
-            (
-                f"update cards set %s,mod=?,usn=? where queue = {QUEUE_TYPE_SUSPENDED} and id in %s"
-            )
-            % (self._restoreQueueSnippet, ids2str(ids)),
             intTime(),
             self.col.usn(),
         )
@@ -1416,42 +1415,24 @@ update cards set queue=?,mod=?,usn=? where id in """
         )
         self.buryCards(cids)
 
+    # legacy
+
     def unburyCards(self) -> None:
-        "Unbury all buried cards in all decks."
-        self.col.log(
-            self.col.db.list(
-                f"select id from cards where queue in ({QUEUE_TYPE_SIBLING_BURIED}, {QUEUE_TYPE_MANUALLY_BURIED})"
-            )
+        print(
+            "please use unbury_cards() or unbury_cards_in_current_deck instead of unburyCards()"
         )
-        self.col.db.execute(
-            f"update cards set %s where queue in ({QUEUE_TYPE_SIBLING_BURIED}, {QUEUE_TYPE_MANUALLY_BURIED})"
-            % self._restoreQueueSnippet
-        )
+        self.unbury_cards_in_current_deck()
 
     def unburyCardsForDeck(self, type: str = "all") -> None:
         if type == "all":
-            queue = (
-                f"queue in ({QUEUE_TYPE_SIBLING_BURIED}, {QUEUE_TYPE_MANUALLY_BURIED})"
-            )
+            mode = UnburyCurrentDeckMode.ALL
         elif type == "manual":
-            queue = f"queue = {QUEUE_TYPE_MANUALLY_BURIED}"
-        elif type == "siblings":
-            queue = f"queue = {QUEUE_TYPE_SIBLING_BURIED}"
-        else:
-            raise Exception("unknown type")
+            mode = UnburyCurrentDeckMode.USER_ONLY
+        else:  # elif type == "siblings":
+            mode = UnburyCurrentDeckMode.SCHED_ONLY
+        self.unbury_cards_in_current_deck(mode)
 
-        self.col.log(
-            self.col.db.list(
-                "select id from cards where %s and did in %s"
-                % (queue, self._deckLimit())
-            )
-        )
-        self.col.db.execute(
-            "update cards set mod=?,usn=?,%s where %s and did in %s"
-            % (self._restoreQueueSnippet, queue, self._deckLimit()),
-            intTime(),
-            self.col.usn(),
-        )
+    unsuspendCards = unsuspend_cards
 
     # Sibling spacing
     ##########################################################################

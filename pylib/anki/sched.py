@@ -121,32 +121,6 @@ class Scheduler(V2):
         else:
             return 3
 
-    def unburyCards(self) -> None:
-        "Unbury cards."
-        self.col.log(
-            self.col.db.list(
-                f"select id from cards where queue = {QUEUE_TYPE_SIBLING_BURIED}"
-            )
-        )
-        self.col.db.execute(
-            f"update cards set queue=type where queue = {QUEUE_TYPE_SIBLING_BURIED}"
-        )
-
-    def unburyCardsForDeck(self) -> None:  # type: ignore[override]
-        sids = self._deckLimit()
-        self.col.log(
-            self.col.db.list(
-                f"select id from cards where queue = {QUEUE_TYPE_SIBLING_BURIED} and did in %s"
-                % sids
-            )
-        )
-        self.col.db.execute(
-            f"update cards set mod=?,usn=?,queue=type where queue = {QUEUE_TYPE_SIBLING_BURIED} and did in %s"
-            % sids,
-            intTime(),
-            self.col.usn(),
-        )
-
     # Getting the next card
     ##########################################################################
 
@@ -844,16 +818,6 @@ did = ?, queue = %s, due = ?, usn = ? where id = ?"""
         self.col.db.execute(
             f"update cards set queue={QUEUE_TYPE_SUSPENDED},mod=?,usn=? where id in "
             + ids2str(ids),
-            intTime(),
-            self.col.usn(),
-        )
-
-    def unsuspendCards(self, ids: List[int]) -> None:
-        "Unsuspend cards."
-        self.col.log(ids)
-        self.col.db.execute(
-            "update cards set queue=type,mod=?,usn=? "
-            f"where queue = {QUEUE_TYPE_SUSPENDED} and id in " + ids2str(ids),
             intTime(),
             self.col.usn(),
         )

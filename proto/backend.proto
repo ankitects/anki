@@ -56,6 +56,10 @@ message CardID {
     int64 cid = 1;
 }
 
+message CardIDs {
+    repeated int64 cids = 1;
+}
+
 message DeckID {
     int64 did = 1;
 }
@@ -96,6 +100,8 @@ service BackendService {
     rpc ExtendLimits (ExtendLimitsIn) returns (Empty);
     rpc CountsForDeckToday (DeckID) returns (CountsForDeckTodayOut);
     rpc CongratsInfo (Empty) returns (CongratsInfoOut);
+    rpc RestoreBuriedAndSuspendedCards (CardIDs) returns (Empty);
+    rpc UnburyCardsInCurrentDeck (UnburyCardsInCurrentDeckIn) returns (Empty);
 
     // stats
 
@@ -1026,4 +1032,13 @@ message CongratsInfoOut {
     bool have_user_buried = 6;
     bool is_filtered_deck = 7;
     bool bridge_commands_supported = 8;
+}
+
+message UnburyCardsInCurrentDeckIn {
+    enum Mode {
+        ALL = 0;
+        SCHED_ONLY = 1;
+        USER_ONLY = 2;
+    }
+    Mode mode = 1;
 }

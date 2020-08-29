@@ -4,11 +4,13 @@
 use crate::{
     collection::{Collection, CollectionOp},
     err::Result,
+    types::Usn,
 };
 use std::fmt;
 
 pub(crate) trait Undoable: fmt::Debug + Send {
-    fn apply(&self, ctx: &mut Collection) -> Result<()>;
+    /// Undo the recorded action.
+    fn apply(&self, ctx: &mut Collection, usn: Usn) -> Result<()>;
 }
 
 #[derive(Debug)]
@@ -97,8 +99,9 @@ impl Collection {
             let changes = step.changes;
             self.state.undo.mode = UndoMode::Undoing;
             let res = self.transact(Some(step.kind), |col| {
+                let usn = col.usn()?;
                 for change in changes.iter().rev() {
-                    change.apply(col)?;
+                    change.apply(col, usn)?;
                 }
                 Ok(())
             });
@@ -113,8 +116,9 @@ impl Collection {
             let changes = step.changes;
             self.state.undo.mode = UndoMode::Redoing;
             let res = self.transact(Some(step.kind), |col| {
+                let usn = col.usn()?;
                 for change in changes.iter().rev() {
-                    change.apply(col)?;
+                    change.apply(col, usn)?;
                 }
                 Ok(())
             });

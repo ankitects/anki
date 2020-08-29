@@ -503,7 +503,7 @@ def test_misc():
     col.sched.buryNote(c.nid)
     col.reset()
     assert not col.sched.getCard()
-    col.sched.unburyCards()
+    col.sched.unbury_cards_in_current_deck()
     col.reset()
     assert col.sched.getCard()
 
