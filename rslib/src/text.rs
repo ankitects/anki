@@ -95,7 +95,7 @@ pub fn strip_html_preserving_entities(html: &str) -> Cow<str> {
 pub fn decode_entities(html: &str) -> Cow<str> {
     if html.contains('&') {
         match htmlescape::decode_html(html) {
-            Ok(text) => text.replace("\u{a0}", " "),
+            Ok(text) => text.replace('\u{a0}', " "),
             Err(e) => format!("{:?}", e),
         }
         .into()

@@ -67,6 +67,10 @@ fn disallowed_char(char: char) -> bool {
     }
 }
 
+fn nonbreaking_space(char: char) -> bool {
+    char == '\u{a0}'
+}
+
 /// Adjust filename into the format Anki expects.
 ///
 /// - The filename is normalized to NFC.
@@ -85,8 +89,14 @@ pub(crate) fn normalize_filename(fname: &str) -> Cow<str> {
 
 /// See normalize_filename(). This function expects NFC-normalized input.
 pub(crate) fn normalize_nfc_filename(mut fname: Cow<str>) -> Cow<str> {
-    if fname.chars().any(disallowed_char) {
+    if fname.contains(disallowed_char) {
         fname = fname.replace(disallowed_char, "").into()
+    }
+
+    // convert nonbreaking spaces to regular ones, as the filename extraction
+    // code treats nonbreaking spaces as regular ones
+    if fname.contains(nonbreaking_space) {
+        fname = fname.replace(nonbreaking_space, " ").into()
     }
 
     if let Cow::Owned(o) = WINDOWS_DEVICE_NAME.replace_all(fname.as_ref(), "${1}_${2}") {
