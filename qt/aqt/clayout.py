@@ -529,6 +529,7 @@ class CardLayout(QDialog):
             fill_empty=self.fill_empty_action_toggled,
         ).render()
         card.set_render_output(output)
+        card._note = self.note
         return card
 
     # Card operations
