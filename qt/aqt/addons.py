@@ -25,7 +25,7 @@ import anki
 import aqt
 import aqt.forms
 from anki.httpclient import HttpClient
-from anki.lang import _, ngettext
+from anki.lang import _, ngettext, without_unicode_isolation
 from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import (
@@ -1293,9 +1293,11 @@ class ConfigEditor(QDialog):
         restoreGeom(self, "addonconf")
         restoreSplitter(self.form.splitter, "addonconf")
         self.setWindowTitle(
-            tr(
-                TR.ADDONS_CONFIG_WINDOW_TITLE,
-                name=self.mgr.addon_meta(addon).human_name(),
+            without_unicode_isolation(
+                tr(
+                    TR.ADDONS_CONFIG_WINDOW_TITLE,
+                    name=self.mgr.addon_meta(addon).human_name(),
+                )
             )
         )
         self.show()
