@@ -26,13 +26,13 @@ impl Collection {
             .ok_or_else(|| AnkiError::invalid_input("no such card"))?;
         let note = self
             .storage
-            .get_note(card.nid)?
+            .get_note(card.note_id)?
             .ok_or_else(|| AnkiError::invalid_input("no such note"))?;
         let nt = self
-            .get_notetype(note.ntid)?
+            .get_notetype(note.notetype_id)?
             .ok_or_else(|| AnkiError::invalid_input("no such notetype"))?;
         let template = match nt.config.kind() {
-            NoteTypeKind::Normal => nt.templates.get(card.ord as usize),
+            NoteTypeKind::Normal => nt.templates.get(card.template_idx as usize),
             NoteTypeKind::Cloze => nt.templates.get(0),
         }
         .ok_or_else(|| AnkiError::invalid_input("missing template"))?;
@@ -52,7 +52,7 @@ impl Collection {
     ) -> Result<RenderCardOutput> {
         let card = self.existing_or_synthesized_card(note.id, template.ord, card_ord)?;
         let nt = self
-            .get_notetype(note.ntid)?
+            .get_notetype(note.notetype_id)?
             .ok_or_else(|| AnkiError::invalid_input("no such notetype"))?;
 
         if fill_empty {
@@ -77,7 +77,7 @@ impl Collection {
 
         // no existing card; synthesize one
         let mut card = Card::default();
-        card.ord = card_ord;
+        card.template_idx = card_ord;
         Ok(card)
     }
 
@@ -94,7 +94,7 @@ impl Collection {
         let card_num;
         self.add_special_fields(&mut field_map, note, card, &nt, template)?;
         // due to lifetime restrictions we need to add card number here
-        card_num = format!("c{}", card.ord + 1);
+        card_num = format!("c{}", card.template_idx + 1);
         field_map.entry(&card_num).or_insert_with(|| "1".into());
 
         let (qfmt, afmt) = if browser {
@@ -109,8 +109,14 @@ impl Collection {
             )
         };
 
-        let (qnodes, anodes) =
-            render_card(qfmt, afmt, &field_map, card.ord, nt.is_cloze(), &self.i18n)?;
+        let (qnodes, anodes) = render_card(
+            qfmt,
+            afmt,
+            &field_map,
+            card.template_idx,
+            nt.is_cloze(),
+            &self.i18n,
+        )?;
         Ok(RenderCardOutput { qnodes, anodes })
     }
 
@@ -127,7 +133,11 @@ impl Collection {
         map.entry("Tags").or_insert_with(|| tags.into());
         map.entry("Type").or_insert_with(|| nt.name.clone().into());
         let deck_name: Cow<str> = self
-            .get_deck(if card.odid.0 > 0 { card.odid } else { card.did })?
+            .get_deck(if card.original_deck_id.0 > 0 {
+                card.original_deck_id
+            } else {
+                card.deck_id
+            })?
             .map(|d| d.human_name().into())
             .unwrap_or_else(|| "(Deck)".into());
         let subdeck_name = deck_name.rsplit("::").next().unwrap();

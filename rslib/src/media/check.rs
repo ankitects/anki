@@ -380,7 +380,7 @@ where
             }
             let mut note = self.ctx.storage.get_note(nid)?.unwrap();
             let nt = note_types
-                .get(&note.ntid)
+                .get(&note.notetype_id)
                 .ok_or_else(|| AnkiError::DBError {
                     info: "missing note type".to_string(),
                     kind: DBErrorKind::MissingEntity,

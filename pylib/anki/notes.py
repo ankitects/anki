@@ -44,7 +44,7 @@ class Note:
     def _load_from_backend_note(self, n: BackendNote) -> None:
         self.id = n.id
         self.guid = n.guid
-        self.mid = n.ntid
+        self.mid = n.notetype_id
         self.mod = n.mtime_secs
         self.usn = n.usn
         self.tags = list(n.tags)
@@ -56,7 +56,7 @@ class Note:
         return BackendNote(
             id=self.id,
             guid=self.guid,
-            ntid=self.mid,
+            notetype_id=self.mid,
             mtime_secs=self.mod,
             usn=self.usn,
             tags=self.tags,
