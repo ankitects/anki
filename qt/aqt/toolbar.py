@@ -71,18 +71,18 @@ class Toolbar:
         id: Optional[str] = None,
     ) -> str:
         """Generates HTML link element and registers link handler
-        
+
         Arguments:
             cmd {str} -- Command name used for the JS → Python bridge
             label {str} -- Display label of the link
             func {Callable} -- Callable to be called on clicking the link
-        
+
         Keyword Arguments:
             tip {Optional[str]} -- Optional tooltip text to show on hovering
                                    over the link (default: {None})
             id: {Optional[str]} -- Optional id attribute to supply the link with
                                    (default: {None})
-        
+
         Returns:
             str -- HTML link element
         """

@@ -1,6 +1,6 @@
 wheel
 mypy
 mypy_protobuf>=1.21
-black
+black>=20.1b0
 pytest>=6.0.1
 stringcase==1.2.0

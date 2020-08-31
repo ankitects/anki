@@ -92,7 +92,10 @@ def allroutes(pathin):
     try:
         directory, path = _redirectWebExports(pathin)
     except TypeError:
-        return flask.make_response(f"Invalid path: {pathin}", HTTPStatus.FORBIDDEN,)
+        return flask.make_response(
+            f"Invalid path: {pathin}",
+            HTTPStatus.FORBIDDEN,
+        )
 
     try:
         isdir = os.path.isdir(os.path.join(directory, path))
@@ -153,7 +156,10 @@ def allroutes(pathin):
             return flask.send_file(fullpath, mimetype=mimetype, conditional=True)
         else:
             print(f"Not found: {ascii(pathin)}")
-            return flask.make_response(f"Invalid path: {pathin}", HTTPStatus.NOT_FOUND,)
+            return flask.make_response(
+                f"Invalid path: {pathin}",
+                HTTPStatus.NOT_FOUND,
+            )
 
     except Exception as error:
         if devMode:
@@ -165,7 +171,10 @@ def allroutes(pathin):
         # swallow it - user likely surfed away from
         # review screen before an image had finished
         # downloading
-        return flask.make_response(str(error), HTTPStatus.INTERNAL_SERVER_ERROR,)
+        return flask.make_response(
+            str(error),
+            HTTPStatus.INTERNAL_SERVER_ERROR,
+        )
 
 
 def _redirectWebExports(path):

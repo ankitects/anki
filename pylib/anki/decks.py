@@ -104,7 +104,12 @@ class DeckManager:
     # Deck save/load
     #############################################################
 
-    def id(self, name: str, create: bool = True, type: int = 0,) -> Optional[int]:
+    def id(
+        self,
+        name: str,
+        create: bool = True,
+        type: int = 0,
+    ) -> Optional[int]:
         "Add a deck with NAME. Reuse deck if already exists. Return id as int."
         id = self.id_for_name(name)
         if id:

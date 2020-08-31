@@ -668,7 +668,10 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
         return tot + tod * 1000
 
     def _leftToday(
-        self, delays: List[int], left: int, now: Optional[int] = None,
+        self,
+        delays: List[int],
+        left: int,
+        now: Optional[int] = None,
     ) -> int:
         "The number of steps that can be completed by the day cutoff."
         if not now:
@@ -1603,7 +1606,16 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
         mod = intTime()
         for id in ids:
             r = random.randint(imin, imax)
-            d.append((max(1, r), r + t, self.col.usn(), mod, STARTING_FACTOR, id,))
+            d.append(
+                (
+                    max(1, r),
+                    r + t,
+                    self.col.usn(),
+                    mod,
+                    STARTING_FACTOR,
+                    id,
+                )
+            )
         self.remFromDyn(ids)
         self.col.db.executemany(
             f"""

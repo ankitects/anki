@@ -120,7 +120,12 @@ class ExportDialog(QDialog):
             key_str = self.exporter.key
         while 1:
             file = getSaveFile(
-                self, _("Export"), "export", key_str, self.exporter.ext, fname=filename,
+                self,
+                _("Export"),
+                "export",
+                key_str,
+                self.exporter.ext,
+                fname=filename,
             )
             if not file:
                 return
@@ -175,14 +180,18 @@ class ExportDialog(QDialog):
             if self.isTextNote:
                 msg = (
                     ngettext(
-                        "%d note exported.", "%d notes exported.", self.exporter.count,
+                        "%d note exported.",
+                        "%d notes exported.",
+                        self.exporter.count,
                     )
                     % self.exporter.count
                 )
             else:
                 msg = (
                     ngettext(
-                        "%d card exported.", "%d cards exported.", self.exporter.count,
+                        "%d card exported.",
+                        "%d cards exported.",
+                        self.exporter.count,
                     )
                     % self.exporter.count
                 )

@@ -760,7 +760,9 @@ class AddonsDialog(QDialog):
     def should_grey(self, addon: AddonMeta) -> bool:
         return not addon.enabled or not addon.compatible()
 
-    def redrawAddons(self,) -> None:
+    def redrawAddons(
+        self,
+    ) -> None:
         addonList = self.form.addonList
         mgr = self.mgr
 
@@ -1321,7 +1323,11 @@ class ConfigEditor(QDialog):
 
     def updateText(self, conf: Dict[str, Any]) -> None:
         text = json.dumps(
-            conf, ensure_ascii=False, sort_keys=True, indent=4, separators=(",", ": "),
+            conf,
+            ensure_ascii=False,
+            sort_keys=True,
+            indent=4,
+            separators=(",", ": "),
         )
         text = gui_hooks.addon_config_editor_will_display_json(text)
         self.form.editor.setPlainText(text)

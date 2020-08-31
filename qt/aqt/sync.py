@@ -77,7 +77,8 @@ def on_normal_sync_timer(mw: aqt.main.AnkiQt) -> None:
 
     assert isinstance(progress.val, NormalSyncProgress)
     mw.progress.update(
-        label=f"{progress.val.added}\n{progress.val.removed}", process=False,
+        label=f"{progress.val.added}\n{progress.val.removed}",
+        process=False,
     )
     mw.progress.set_title(progress.val.stage)
 
