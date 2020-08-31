@@ -27,7 +27,7 @@ endif
 .SUFFIXES:
 
 BLACKARGS := -t py36 aqt tests setup.py tools/*.py --exclude='aqt/forms|buildinfo|colors'
-ISORTARGS := aqt tests setup.py
+ISORTARGS := --profile black aqt tests setup.py
 
 $(shell mkdir -p .build ../dist)
 

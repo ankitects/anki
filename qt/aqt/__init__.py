@@ -500,7 +500,7 @@ section of the manual, and ensure that location is not read-only.""",
         QApplication.setAttribute(Qt.AA_DisableWindowContextHelpButton)
 
     # proxy configured?
-    from urllib.request import proxy_bypass, getproxies
+    from urllib.request import getproxies, proxy_bypass
 
     disable_proxies = False
     try:
