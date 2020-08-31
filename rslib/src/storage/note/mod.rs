@@ -22,7 +22,7 @@ fn row_to_note(row: &Row) -> Result<Note> {
     Ok(Note {
         id: row.get(0)?,
         guid: row.get(1)?,
-        ntid: row.get(2)?,
+        notetype_id: row.get(2)?,
         mtime: row.get(3)?,
         usn: row.get(4)?,
         tags: split_tags(row.get_raw(5).as_str()?)
@@ -49,7 +49,7 @@ impl super::SqliteStorage {
         let mut stmt = self.db.prepare_cached(include_str!("update.sql"))?;
         stmt.execute(params![
             note.guid,
-            note.ntid,
+            note.notetype_id,
             note.mtime,
             note.usn,
             join_tags(&note.tags),
@@ -67,7 +67,7 @@ impl super::SqliteStorage {
         stmt.execute(params![
             TimestampMillis::now(),
             note.guid,
-            note.ntid,
+            note.notetype_id,
             note.mtime,
             note.usn,
             join_tags(&note.tags),
@@ -85,7 +85,7 @@ impl super::SqliteStorage {
         stmt.execute(params![
             note.id,
             note.guid,
-            note.ntid,
+            note.notetype_id,
             note.mtime,
             note.usn,
             join_tags(&note.tags),

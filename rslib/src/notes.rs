@@ -36,7 +36,7 @@ pub(crate) struct TransformNoteOutput {
 pub struct Note {
     pub id: NoteID,
     pub guid: String,
-    pub ntid: NoteTypeID,
+    pub notetype_id: NoteTypeID,
     pub mtime: TimestampSecs,
     pub usn: Usn,
     pub tags: Vec<String>,
@@ -50,7 +50,7 @@ impl Note {
         Note {
             id: NoteID(0),
             guid: guid(),
-            ntid: notetype.id,
+            notetype_id: notetype.id,
             mtime: TimestampSecs(0),
             usn: Usn(0),
             tags: vec![],
@@ -78,7 +78,7 @@ impl Note {
 
     /// Prepare note for saving to the database. Does not mark it as modified.
     pub fn prepare_for_update(&mut self, nt: &NoteType, normalize_text: bool) -> Result<()> {
-        assert!(nt.id == self.ntid);
+        assert!(nt.id == self.notetype_id);
         let notetype_field_count = nt.fields.len().max(1);
         if notetype_field_count != self.fields.len() {
             return Err(AnkiError::invalid_input(format!(
@@ -183,7 +183,7 @@ impl From<Note> for pb::Note {
         pb::Note {
             id: n.id.0,
             guid: n.guid,
-            ntid: n.ntid.0,
+            notetype_id: n.notetype_id.0,
             mtime_secs: n.mtime.0 as u32,
             usn: n.usn.0,
             tags: n.tags,
@@ -197,7 +197,7 @@ impl From<pb::Note> for Note {
         Note {
             id: NoteID(n.id),
             guid: n.guid,
-            ntid: NoteTypeID(n.ntid),
+            notetype_id: NoteTypeID(n.notetype_id),
             mtime: TimestampSecs(n.mtime_secs as i64),
             usn: Usn(n.usn),
             tags: n.tags,
@@ -248,7 +248,7 @@ impl Collection {
     pub fn add_note(&mut self, note: &mut Note, did: DeckID) -> Result<()> {
         self.transact(None, |col| {
             let nt = col
-                .get_notetype(note.ntid)?
+                .get_notetype(note.notetype_id)?
                 .ok_or_else(|| AnkiError::invalid_input("missing note type"))?;
             let ctx = CardGenContext::new(&nt, col.usn()?);
             let norm = col.normalize_note_text();
@@ -282,7 +282,7 @@ impl Collection {
 
         self.transact(None, |col| {
             let nt = col
-                .get_notetype(note.ntid)?
+                .get_notetype(note.notetype_id)?
                 .ok_or_else(|| AnkiError::invalid_input("missing note type"))?;
             let ctx = CardGenContext::new(&nt, col.usn()?);
             let norm = col.normalize_note_text();
@@ -434,9 +434,9 @@ impl Collection {
                 Ok(DuplicateState::Empty)
             } else {
                 let csum = field_checksum(&stripped);
-                for field in self
-                    .storage
-                    .note_fields_by_checksum(note.id, note.ntid, csum)?
+                for field in
+                    self.storage
+                        .note_fields_by_checksum(note.id, note.notetype_id, csum)?
                 {
                     if strip_html_preserving_image_filenames(&field) == stripped {
                         return Ok(DuplicateState::Duplicate);

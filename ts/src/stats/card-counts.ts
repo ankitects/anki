@@ -39,7 +39,7 @@ export function gatherData(data: pb.BackendProto.GraphsOut, i18n: I18n): GraphDa
                 newCards += 1;
                 break;
             case CardQueue.Review:
-                if (card.ivl >= 21) {
+                if (card.interval >= 21) {
                     mature += 1;
                     break;
                 }

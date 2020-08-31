@@ -52,21 +52,21 @@ pub enum CardQueue {
 #[derive(Debug, Clone, PartialEq)]
 pub struct Card {
     pub(crate) id: CardID,
-    pub(crate) nid: NoteID,
-    pub(crate) did: DeckID,
-    pub(crate) ord: u16,
+    pub(crate) note_id: NoteID,
+    pub(crate) deck_id: DeckID,
+    pub(crate) template_idx: u16,
     pub(crate) mtime: TimestampSecs,
     pub(crate) usn: Usn,
     pub(crate) ctype: CardType,
     pub(crate) queue: CardQueue,
     pub(crate) due: i32,
-    pub(crate) ivl: u32,
-    pub(crate) factor: u16,
+    pub(crate) interval: u32,
+    pub(crate) ease_factor: u16,
     pub(crate) reps: u32,
     pub(crate) lapses: u32,
-    pub(crate) left: u32,
-    pub(crate) odue: i32,
-    pub(crate) odid: DeckID,
+    pub(crate) remaining_steps: u32,
+    pub(crate) original_due: i32,
+    pub(crate) original_deck_id: DeckID,
     pub(crate) flags: u8,
     pub(crate) data: String,
 }
@@ -75,21 +75,21 @@ impl Default for Card {
     fn default() -> Self {
         Self {
             id: CardID(0),
-            nid: NoteID(0),
-            did: DeckID(0),
-            ord: 0,
+            note_id: NoteID(0),
+            deck_id: DeckID(0),
+            template_idx: 0,
             mtime: TimestampSecs(0),
             usn: Usn(0),
             ctype: CardType::New,
             queue: CardQueue::New,
             due: 0,
-            ivl: 0,
-            factor: 0,
+            interval: 0,
+            ease_factor: 0,
             reps: 0,
             lapses: 0,
-            left: 0,
-            odue: 0,
-            odid: DeckID(0),
+            remaining_steps: 0,
+            original_due: 0,
+            original_deck_id: DeckID(0),
             flags: 0,
             data: "".to_string(),
         }
@@ -103,17 +103,17 @@ impl Card {
     }
 
     pub(crate) fn return_home(&mut self, sched: SchedulerVersion) {
-        if self.odid.0 == 0 {
+        if self.original_deck_id.0 == 0 {
             // not in a filtered deck
             return;
         }
 
-        self.did = self.odid;
-        self.odid.0 = 0;
-        if self.odue > 0 {
-            self.due = self.odue;
+        self.deck_id = self.original_deck_id;
+        self.original_deck_id.0 = 0;
+        if self.original_due > 0 {
+            self.due = self.original_due;
         }
-        self.odue = 0;
+        self.original_due = 0;
 
         self.queue = match sched {
             SchedulerVersion::V1 => {
@@ -166,17 +166,17 @@ impl Card {
 
         if self.ctype == CardType::Review {
             // reviews are removed from relearning
-            self.due = self.odue;
-            self.odue = 0;
+            self.due = self.original_due;
+            self.original_due = 0;
             self.queue = CardQueue::Review;
         } else {
             // other cards are reset to new
             self.ctype = CardType::New;
             self.queue = CardQueue::New;
-            self.ivl = 0;
+            self.interval = 0;
             self.due = 0;
-            self.odue = 0;
-            self.factor = INITIAL_EASE_FACTOR;
+            self.original_due = 0;
+            self.ease_factor = INITIAL_EASE_FACTOR;
         }
     }
 }
@@ -196,9 +196,9 @@ impl Undoable for UpdateCardUndo {
 impl Card {
     pub fn new(nid: NoteID, ord: u16, deck_id: DeckID, due: i32) -> Self {
         let mut card = Card::default();
-        card.nid = nid;
-        card.ord = ord;
-        card.did = deck_id;
+        card.note_id = nid;
+        card.template_idx = ord;
+        card.deck_id = deck_id;
         card.due = due;
         card
     }
@@ -247,7 +247,7 @@ impl Collection {
         for cid in cids {
             if let Some(card) = self.storage.get_card(*cid)? {
                 // fixme: undo
-                nids.insert(card.nid);
+                nids.insert(card.note_id);
                 self.storage.remove_card(*cid)?;
                 self.storage.add_card_grave(*cid, usn)?;
             }
@@ -280,7 +280,7 @@ mod test {
         let mut col = open_test_collection();
 
         let mut card = Card::default();
-        card.ivl = 1;
+        card.interval = 1;
         col.add_card(&mut card).unwrap();
         let cid = card.id;
 
@@ -290,11 +290,11 @@ mod test {
         // outside of a transaction, no undo info recorded
         let card = col
             .get_and_update_card(cid, |card| {
-                card.ivl = 2;
+                card.interval = 2;
                 Ok(())
             })
             .unwrap();
-        assert_eq!(card.ivl, 2);
+        assert_eq!(card.interval, 2);
         assert_eq!(col.can_undo(), None);
         assert_eq!(col.can_redo(), None);
 
@@ -302,7 +302,7 @@ mod test {
         for i in 3..=4 {
             col.transact(Some(CollectionOp::UpdateCard), |col| {
                 col.get_and_update_card(cid, |card| {
-                    card.ivl = i;
+                    card.interval = i;
                     Ok(())
                 })
                 .unwrap();
@@ -311,51 +311,51 @@ mod test {
             .unwrap();
         }
 
-        assert_eq!(col.storage.get_card(cid).unwrap().unwrap().ivl, 4);
+        assert_eq!(col.storage.get_card(cid).unwrap().unwrap().interval, 4);
         assert_eq!(col.can_undo(), Some(CollectionOp::UpdateCard));
         assert_eq!(col.can_redo(), None);
 
         // undo a step
         col.undo().unwrap();
-        assert_eq!(col.storage.get_card(cid).unwrap().unwrap().ivl, 3);
+        assert_eq!(col.storage.get_card(cid).unwrap().unwrap().interval, 3);
         assert_eq!(col.can_undo(), Some(CollectionOp::UpdateCard));
         assert_eq!(col.can_redo(), Some(CollectionOp::UpdateCard));
 
         // and again
         col.undo().unwrap();
-        assert_eq!(col.storage.get_card(cid).unwrap().unwrap().ivl, 2);
+        assert_eq!(col.storage.get_card(cid).unwrap().unwrap().interval, 2);
         assert_eq!(col.can_undo(), None);
         assert_eq!(col.can_redo(), Some(CollectionOp::UpdateCard));
 
         // redo a step
         col.redo().unwrap();
-        assert_eq!(col.storage.get_card(cid).unwrap().unwrap().ivl, 3);
+        assert_eq!(col.storage.get_card(cid).unwrap().unwrap().interval, 3);
         assert_eq!(col.can_undo(), Some(CollectionOp::UpdateCard));
         assert_eq!(col.can_redo(), Some(CollectionOp::UpdateCard));
 
         // and another
         col.redo().unwrap();
-        assert_eq!(col.storage.get_card(cid).unwrap().unwrap().ivl, 4);
+        assert_eq!(col.storage.get_card(cid).unwrap().unwrap().interval, 4);
         assert_eq!(col.can_undo(), Some(CollectionOp::UpdateCard));
         assert_eq!(col.can_redo(), None);
 
         // and undo the redo
         col.undo().unwrap();
-        assert_eq!(col.storage.get_card(cid).unwrap().unwrap().ivl, 3);
+        assert_eq!(col.storage.get_card(cid).unwrap().unwrap().interval, 3);
         assert_eq!(col.can_undo(), Some(CollectionOp::UpdateCard));
         assert_eq!(col.can_redo(), Some(CollectionOp::UpdateCard));
 
         // if any action is performed, it should clear the redo queue
         col.transact(Some(CollectionOp::UpdateCard), |col| {
             col.get_and_update_card(cid, |card| {
-                card.ivl = 5;
+                card.interval = 5;
                 Ok(())
             })
             .unwrap();
             Ok(())
         })
         .unwrap();
-        assert_eq!(col.storage.get_card(cid).unwrap().unwrap().ivl, 5);
+        assert_eq!(col.storage.get_card(cid).unwrap().unwrap().interval, 5);
         assert_eq!(col.can_undo(), Some(CollectionOp::UpdateCard));
         assert_eq!(col.can_redo(), None);
 
