@@ -106,8 +106,8 @@ class Note:
     def _fieldOrd(self, key: str) -> Any:
         try:
             return self._fmap[key][0]
-        except:
-            raise KeyError(key)
+        except Exception as exc:
+            raise KeyError(key) from exc
 
     def __getitem__(self, key: str) -> str:
         return self.fields[self._fieldOrd(key)]

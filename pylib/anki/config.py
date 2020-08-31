@@ -33,8 +33,8 @@ class ConfigManager:
     def get_immutable(self, key: str) -> Any:
         try:
             return from_json_bytes(self.col.backend.get_config_json(key))
-        except NotFoundError:
-            raise KeyError
+        except NotFoundError as exc:
+            raise KeyError from exc
 
     def set(self, key: str, val: Any) -> None:
         self.col.backend.set_config_json(key=key, value_json=to_json_bytes(val))

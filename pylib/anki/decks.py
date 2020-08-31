@@ -228,8 +228,8 @@ class DeckManager:
             g["id"] = self.col.backend.add_or_update_deck_legacy(
                 deck=to_json_bytes(g), preserve_usn_and_mtime=preserve_usn
             )
-        except anki.rsbackend.DeckIsFilteredError:
-            raise DeckRenameError("deck was filtered")
+        except anki.rsbackend.DeckIsFilteredError as exc:
+            raise DeckRenameError("deck was filtered") from exc
 
     def rename(self, g: Deck, newName: str) -> None:
         "Rename deck prefix to NAME if not exists. Updates children."

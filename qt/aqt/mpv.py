@@ -25,6 +25,8 @@
 #
 # ------------------------------------------------------------------------------
 
+# pylint: disable=raise-missing-from
+
 import inspect
 import json
 import os
