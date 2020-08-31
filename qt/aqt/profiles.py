@@ -141,7 +141,7 @@ class ProfileManager:
                 shutil.move(oldBase, self.base)
 
     def _tryToMigrateFolder(self, oldBase):
-        from PyQt5 import QtWidgets, QtGui
+        from PyQt5 import QtGui, QtWidgets
 
         app = QtWidgets.QApplication([])
         icon = QtGui.QIcon()

@@ -307,7 +307,9 @@ class SupermemoXmlImporter(NoteImporter):
             return sys.stdin
 
         # try to open with urllib (if source is http, ftp, or file URL)
-        import urllib.request, urllib.parse, urllib.error
+        import urllib.error
+        import urllib.parse
+        import urllib.request
 
         try:
             return urllib.request.urlopen(source)

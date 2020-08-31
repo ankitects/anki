@@ -33,7 +33,7 @@ from anki.tags import TagManager
 from anki.utils import devMode, ids2str, intTime
 
 if TYPE_CHECKING:
-    from anki.rsbackend import TRValue, FormatTimeSpanContextValue
+    from anki.rsbackend import FormatTimeSpanContextValue, TRValue
 
 
 class Collection:

@@ -68,7 +68,10 @@ class MPVTimeoutError(MPVError):
 
 if isWin:
     # pylint: disable=import-error
-    import win32file, win32pipe, pywintypes, winerror  # pytype: disable=import-error
+    import pywintypes
+    import win32file  # pytype: disable=import-error
+    import win32pipe
+    import winerror
 
 
 class MPVBase:

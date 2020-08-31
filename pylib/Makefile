@@ -24,7 +24,7 @@ endif
 .DELETE_ON_ERROR:
 .SUFFIXES:
 BLACKARGS := -t py36 anki tests setup.py tools/*.py --exclude='_pb2|buildinfo|_gen'
-ISORTARGS := anki tests setup.py
+ISORTARGS := --profile black anki tests setup.py
 
 $(shell mkdir -p .build ../dist)
 

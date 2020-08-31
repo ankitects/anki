@@ -386,7 +386,7 @@ class TimedLog:
 
 
 def versionWithBuild() -> str:
-    from anki.buildinfo import version, buildhash
+    from anki.buildinfo import buildhash, version
 
     return "%s (%s)" % (version, buildhash)
 
