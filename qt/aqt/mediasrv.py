@@ -230,4 +230,7 @@ def handle_post(path: str) -> Response:
         response.headers["Content-Type"] = "application/binary"
         return response
     else:
-        return flask.make_response(f"Unhandled post to {path}", HTTPStatus.FORBIDDEN,)
+        return flask.make_response(
+            f"Unhandled post to {path}",
+            HTTPStatus.FORBIDDEN,
+        )

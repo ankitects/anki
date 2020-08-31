@@ -2846,25 +2846,24 @@ undo_state_did_change = _UndoStateDidChangeHook()
 
 class _WebviewDidInjectStyleIntoPageHook:
     '''Called after standard styling is injected into an external
-html file, such as when loading the new graphs. You can use this hook to
-mutate the DOM before the page is revealed.
+    html file, such as when loading the new graphs. You can use this hook to
+    mutate the DOM before the page is revealed.
 
-For example:
+    For example:
 
-def mytest(web: AnkiWebView):
-    page = os.path.basename(web.page().url().path())
-    if page != "graphs.html":
-    	return
-    web.eval(
-        """
-    div = document.createElement("div");
-    div.innerHTML = 'hello';
-    document.body.appendChild(div);
-"""
-    )
+    def mytest(web: AnkiWebView):
+        page = os.path.basename(web.page().url().path())
+        if page != "graphs.html":
+            return
+        web.eval(
+            """
+        div = document.createElement("div");
+        div.innerHTML = 'hello';
+        document.body.appendChild(div);
+    """
+        )
 
-gui_hooks.webview_did_inject_style_into_page.append(mytest)
-'''
+    gui_hooks.webview_did_inject_style_into_page.append(mytest)'''
 
     _hooks: List[Callable[["aqt.webview.AnkiWebView"], None]] = []
 
