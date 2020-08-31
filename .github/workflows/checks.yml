@@ -186,7 +186,7 @@ jobs:
           brew install portaudio protobuf gettext ripgrep make gnu-tar
 
       - name: Cache pyenv
-        if: matrix.python == '3.7'
+        if: matrix.os != 'ubuntu-latest' && matrix.python == '3.7'
         uses: actions/cache@v2
         with:
           path: ${{ github.workspace }}${{ matrix.SEP }}pyenv
