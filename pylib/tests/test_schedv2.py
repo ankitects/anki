@@ -600,10 +600,12 @@ def test_bury():
     col.addNote(note)
     c2 = note.cards()[0]
     # burying
-    col.sched.buryCards([c.id], manual=True)  # pylint: disable=unexpected-keyword-arg
+    col.sched.bury_cards([c.id], manual=True)  # pylint: disable=unexpected-keyword-arg
     c.load()
     assert c.queue == QUEUE_TYPE_MANUALLY_BURIED
-    col.sched.buryCards([c2.id], manual=False)  # pylint: disable=unexpected-keyword-arg
+    col.sched.bury_cards(
+        [c2.id], manual=False
+    )  # pylint: disable=unexpected-keyword-arg
     c2.load()
     assert c2.queue == QUEUE_TYPE_SIBLING_BURIED
 
@@ -620,7 +622,7 @@ def test_bury():
     c2.load()
     assert c2.queue == QUEUE_TYPE_NEW
 
-    col.sched.buryCards([c.id, c2.id])
+    col.sched.bury_cards([c.id, c2.id])
     col.sched.unbury_cards_in_current_deck()
 
     col.reset()
@@ -637,11 +639,11 @@ def test_suspend():
     # suspending
     col.reset()
     assert col.sched.getCard()
-    col.sched.suspendCards([c.id])
+    col.sched.suspend_cards([c.id])
     col.reset()
     assert not col.sched.getCard()
     # unsuspending
-    col.sched.unsuspendCards([c.id])
+    col.sched.unsuspend_cards([c.id])
     col.reset()
     assert col.sched.getCard()
     # should cope with rev cards being relearnt
@@ -657,8 +659,8 @@ def test_suspend():
     due = c.due
     assert c.queue == QUEUE_TYPE_LRN
     assert c.type == CARD_TYPE_RELEARNING
-    col.sched.suspendCards([c.id])
-    col.sched.unsuspendCards([c.id])
+    col.sched.suspend_cards([c.id])
+    col.sched.unsuspend_cards([c.id])
     c.load()
     assert c.queue == QUEUE_TYPE_LRN
     assert c.type == CARD_TYPE_RELEARNING
@@ -671,7 +673,7 @@ def test_suspend():
     c.load()
     assert c.due != 1
     assert c.did != 1
-    col.sched.suspendCards([c.id])
+    col.sched.suspend_cards([c.id])
     c.load()
     assert c.due != 1
     assert c.did != 1
@@ -1199,7 +1201,7 @@ def test_moveVersions():
     col.reset()
     c = col.sched.getCard()
     col.sched.answerCard(c, 1)
-    col.sched.buryCards([c.id])
+    col.sched.bury_cards([c.id])
     c.load()
     assert c.queue == QUEUE_TYPE_MANUALLY_BURIED
 

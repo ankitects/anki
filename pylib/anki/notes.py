@@ -76,12 +76,10 @@ class Note:
         return joinFields(self.fields)
 
     def cards(self) -> List[anki.cards.Card]:
-        return [
-            self.col.getCard(id)
-            for id in self.col.db.list(
-                "select id from cards where nid = ? order by ord", self.id
-            )
-        ]
+        return [self.col.getCard(id) for id in self.card_ids()]
+
+    def card_ids(self) -> Sequence[int]:
+        return self.col.card_ids_of_note(self.id)
 
     def model(self) -> Optional[NoteType]:
         return self.col.models.get(self.mid)

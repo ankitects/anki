@@ -5,6 +5,7 @@ use crate::{
     backend_proto as pb,
     card::{Card, CardID, CardQueue, CardType},
     collection::Collection,
+    config::SchedulerVersion,
     err::Result,
 };
 
@@ -91,6 +92,54 @@ impl Collection {
         self.transact(None, |col| {
             col.search_cards_into_table(&format!("deck:current {}", search))?;
             col.unsuspend_or_unbury_searched_cards()
+        })
+    }
+
+    /// Bury/suspend cards in search table, and clear it.
+    /// Marks the cards as modified.
+    fn bury_or_suspend_searched_cards(
+        &mut self,
+        mode: pb::bury_or_suspend_cards_in::Mode,
+    ) -> Result<()> {
+        use pb::bury_or_suspend_cards_in::Mode;
+        let usn = self.usn()?;
+        let sched = self.sched_ver();
+
+        for original in self.storage.all_searched_cards()? {
+            let mut card = original.clone();
+            let desired_queue = match mode {
+                Mode::Suspend => CardQueue::Suspended,
+                Mode::BurySched => CardQueue::SchedBuried,
+                Mode::BuryUser => {
+                    if sched == SchedulerVersion::V1 {
+                        // v1 scheduler only had one bury type
+                        CardQueue::SchedBuried
+                    } else {
+                        CardQueue::UserBuried
+                    }
+                }
+            };
+            if card.queue != desired_queue {
+                if sched == SchedulerVersion::V1 {
+                    card.return_home(sched);
+                    card.remove_from_learning();
+                }
+                card.queue = desired_queue;
+                self.update_card(&mut card, &original, usn)?;
+            }
+        }
+
+        self.clear_searched_cards()
+    }
+
+    pub fn bury_or_suspend_cards(
+        &mut self,
+        cids: &[CardID],
+        mode: pb::bury_or_suspend_cards_in::Mode,
+    ) -> Result<()> {
+        self.transact(None, |col| {
+            col.set_search_table_to_card_ids(cids)?;
+            col.bury_or_suspend_searched_cards(mode)
         })
     }
 }

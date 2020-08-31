@@ -356,6 +356,9 @@ class Collection:
             hooks.notes_will_be_deleted(self, nids)
         self.backend.remove_notes(note_ids=[], card_ids=card_ids)
 
+    def card_ids_of_note(self, note_id: int) -> Sequence[int]:
+        return self.backend.cards_of_note(note_id)
+
     # legacy
 
     def addNote(self, note: Note) -> int:

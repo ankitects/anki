@@ -1672,9 +1672,9 @@ update cards set usn=?, mod=?, did=? where id in """
         sus = not self.isSuspended()
         c = self.selectedCards()
         if sus:
-            self.col.sched.suspendCards(c)
+            self.col.sched.suspend_cards(c)
         else:
-            self.col.sched.unsuspendCards(c)
+            self.col.sched.unsuspend_cards(c)
         self.model.reset()
         self.mw.requireReset(reason=ResetReason.BrowserSuspend, context=self)
 

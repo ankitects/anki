@@ -6,8 +6,8 @@ use crate::define_newtype;
 use crate::err::{AnkiError, Result};
 use crate::notes::NoteID;
 use crate::{
-    collection::Collection, config::SchedulerVersion, timestamp::TimestampSecs, types::Usn,
-    undo::Undoable,
+    collection::Collection, config::SchedulerVersion, deckconf::INITIAL_EASE_FACTOR,
+    timestamp::TimestampSecs, types::Usn, undo::Undoable,
 };
 use num_enum::TryFromPrimitive;
 use serde_repr::{Deserialize_repr, Serialize_repr};
@@ -104,11 +104,10 @@ impl Card {
 
     pub(crate) fn return_home(&mut self, sched: SchedulerVersion) {
         if self.odid.0 == 0 {
-            // this should not happen
+            // not in a filtered deck
             return;
         }
 
-        // fixme: avoid bumping mtime?
         self.did = self.odid;
         self.odid.0 = 0;
         if self.odue > 0 {
@@ -152,6 +151,32 @@ impl Card {
 
         if sched == SchedulerVersion::V1 && self.ctype == CardType::Learn {
             self.ctype = CardType::New;
+        }
+    }
+
+    /// Remove the card from the (re)learning queue.
+    /// This will reset cards in learning.
+    /// Only used in the V1 scheduler.
+    /// Unlike the legacy Python code, this sets the due# to 0 instead of
+    /// one past the previous max due number.
+    pub(crate) fn remove_from_learning(&mut self) {
+        if !matches!(self.queue, CardQueue::Learn | CardQueue::DayLearn) {
+            return;
+        }
+
+        if self.ctype == CardType::Review {
+            // reviews are removed from relearning
+            self.due = self.odue;
+            self.odue = 0;
+            self.queue = CardQueue::Review;
+        } else {
+            // other cards are reset to new
+            self.ctype = CardType::New;
+            self.queue = CardQueue::New;
+            self.ivl = 0;
+            self.due = 0;
+            self.odue = 0;
+            self.factor = INITIAL_EASE_FACTOR;
         }
     }
 }
