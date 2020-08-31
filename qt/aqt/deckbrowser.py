@@ -28,7 +28,7 @@ class DeckBrowserBottomBar:
 class DeckBrowserContent:
     """Stores sections of HTML content that the deck browser will be
     populated with.
-    
+
     Attributes:
         tree {str} -- HTML of the deck tree section
         stats {str} -- HTML of the stats section
@@ -118,7 +118,8 @@ class DeckBrowser:
 
     def __renderPage(self, offset):
         content = DeckBrowserContent(
-            tree=self._renderDeckTree(self._dueTree), stats=self._renderStats(),
+            tree=self._renderDeckTree(self._dueTree),
+            stats=self._renderStats(),
         )
         gui_hooks.deck_browser_will_render_content(self, content)
         self.web.stdHtml(

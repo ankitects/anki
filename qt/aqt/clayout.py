@@ -166,13 +166,19 @@ class CardLayout(QDialog):
         self.tform.back_button.setToolTip(shortcut("Ctrl+2"))
         self.tform.style_button.setToolTip(shortcut("Ctrl+3"))
         QShortcut(  # type: ignore
-            QKeySequence("Ctrl+1"), self, activated=self.tform.front_button.click,
+            QKeySequence("Ctrl+1"),
+            self,
+            activated=self.tform.front_button.click,
         )
         QShortcut(  # type: ignore
-            QKeySequence("Ctrl+2"), self, activated=self.tform.back_button.click,
+            QKeySequence("Ctrl+2"),
+            self,
+            activated=self.tform.back_button.click,
         )
         QShortcut(  # type: ignore
-            QKeySequence("Ctrl+3"), self, activated=self.tform.style_button.click,
+            QKeySequence("Ctrl+3"),
+            self,
+            activated=self.tform.style_button.click,
         )
 
     # Main area setup
@@ -303,7 +309,10 @@ class CardLayout(QDialog):
             "reviewer.js",
         ]
         self.preview_web.stdHtml(
-            self.mw.reviewer.revHtml(), css=["reviewer.css"], js=jsinc, context=self,
+            self.mw.reviewer.revHtml(),
+            css=["reviewer.css"],
+            js=jsinc,
+            context=self,
         )
         self.preview_web.set_bridge_command(self._on_bridge_cmd, self)
 
@@ -764,7 +773,9 @@ Enter deck to place new %s cards in, or leave blank:"""
         row = form.fields.currentIndex().row()
         if row >= 0:
             self._addField(
-                fields[row], form.font.currentFont().family(), form.size.value(),
+                fields[row],
+                form.font.currentFont().family(),
+                form.size.value(),
             )
 
     def _addField(self, field, font, size):

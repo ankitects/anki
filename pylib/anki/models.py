@@ -437,7 +437,15 @@ and notes.mid = ? and cards.ord = ?""",
             for c in range(nfields):
                 flds.append(newflds.get(c, ""))
             flds = joinFields(flds)
-            d.append((flds, newModel["id"], intTime(), self.col.usn(), nid,))
+            d.append(
+                (
+                    flds,
+                    newModel["id"],
+                    intTime(),
+                    self.col.usn(),
+                    nid,
+                )
+            )
         self.col.db.executemany(
             "update notes set flds=?,mid=?,mod=?,usn=? where id = ?", d
         )

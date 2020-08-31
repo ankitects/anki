@@ -129,9 +129,11 @@ class Card:
         self, reload: bool = False, browser: bool = False
     ) -> anki.template.TemplateRenderOutput:
         if not self._render_output or reload:
-            self._render_output = anki.template.TemplateRenderContext.from_existing_card(
-                self, browser
-            ).render()
+            self._render_output = (
+                anki.template.TemplateRenderContext.from_existing_card(
+                    self, browser
+                ).render()
+            )
         return self._render_output
 
     def set_render_output(self, output: anki.template.TemplateRenderOutput) -> None:

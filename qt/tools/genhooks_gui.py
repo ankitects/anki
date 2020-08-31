@@ -412,7 +412,10 @@ hooks = [
     ),
     Hook(
         name="webview_will_set_content",
-        args=["web_content: aqt.webview.WebContent", "context: Optional[Any]",],
+        args=[
+            "web_content: aqt.webview.WebContent",
+            "context: Optional[Any]",
+        ],
         doc="""Used to modify web content before it is rendered.
 
         Web_content contains the HTML, JS, and CSS the web view will be
@@ -526,7 +529,8 @@ hooks = [
         doc="""Executed when the top toolbar is redrawn""",
     ),
     Hook(
-        name="media_sync_did_progress", args=["entry: aqt.mediasync.LogEntryWithTime"],
+        name="media_sync_did_progress",
+        args=["entry: aqt.mediasync.LogEntryWithTime"],
     ),
     Hook(name="media_sync_did_start_or_stop", args=["running: bool"]),
     Hook(
@@ -541,7 +545,10 @@ hooks = [
         args=["addcards: aqt.addcards.AddCards", "menu: QMenu"],
         legacy_hook="AddCards.onHistory",
     ),
-    Hook(name="add_cards_did_init", args=["addcards: aqt.addcards.AddCards"],),
+    Hook(
+        name="add_cards_did_init",
+        args=["addcards: aqt.addcards.AddCards"],
+    ),
     Hook(
         name="add_cards_did_add_note",
         args=["note: anki.notes.Note"],
@@ -623,7 +630,10 @@ hooks = [
         name="editor_web_view_did_init",
         args=["editor_web_view: aqt.editor.EditorWebView"],
     ),
-    Hook(name="editor_did_init", args=["editor: aqt.editor.Editor"],),
+    Hook(
+        name="editor_did_init",
+        args=["editor: aqt.editor.Editor"],
+    ),
     Hook(
         name="editor_will_load_note",
         args=["js: str", "note: anki.notes.Note", "editor: aqt.editor.Editor"],
@@ -675,7 +685,10 @@ hooks = [
     ),
     # Model
     ###################
-    Hook(name="models_advanced_will_show", args=["advanced: QDialog"],),
+    Hook(
+        name="models_advanced_will_show",
+        args=["advanced: QDialog"],
+    ),
     # Stats
     ###################
     Hook(

@@ -148,7 +148,7 @@ class WebContent:
         changes only perform the minimum requried edits to make your add-on work.
         You should avoid overwriting or interfering with existing data as much
         as possible, instead opting to append your own changes, e.g.:
-        
+
             def on_webview_will_set_content(web_content: WebContent, context):
                 web_content.body += "<my_html>"
                 web_content.head += "<my_head>"
@@ -157,28 +157,28 @@ class WebContent:
           media server. All list members without a specified subpath are assumed
           to be located under `/_anki`, which is the media server subpath used
           for all web assets shipped with Anki.
-          
+
           Add-ons may expose their own web assets by utilizing
           aqt.addons.AddonManager.setWebExports(). Web exports registered
           in this manner may then be accessed under the `/_addons` subpath.
-          
+
           E.g., to allow access to a `my-addon.js` and `my-addon.css` residing
           in a "web" subfolder in your add-on package, first register the
           corresponding web export:
-          
+
           > from aqt import mw
           > mw.addonManager.setWebExports(__name__, r"web/.*(css|js)")
-          
+
           Then append the subpaths to the corresponding web_content fields
           within a function subscribing to gui_hooks.webview_will_set_content:
-          
+
               def on_webview_will_set_content(web_content: WebContent, context):
                   addon_package = mw.addonManager.addonFromModule(__name__)
                   web_content.css.append(
                       f"/_addons/{addon_package}/web/my-addon.css")
                   web_content.js.append(
                       f"/_addons/{addon_package}/web/my-addon.js")
-          
+
           Note that '/' will also match the os specific path separator.
     """
 

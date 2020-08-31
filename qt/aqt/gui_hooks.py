@@ -84,12 +84,12 @@ add_cards_did_init = _AddCardsDidInitHook()
 
 class _AddCardsWillAddNoteFilter:
     """Decides whether the note should be added to the collection or
-        not. It is assumed to come from the addCards window.
+    not. It is assumed to come from the addCards window.
 
-        reason_to_already_reject is the first reason to reject that
-        was found, or None. If your filter wants to reject, it should
-        replace return the reason to reject. Otherwise return the
-        input."""
+    reason_to_already_reject is the first reason to reject that
+    was found, or None. If your filter wants to reject, it should
+    replace return the reason to reject. Otherwise return the
+    input."""
 
     _hooks: List[Callable[[Optional[str], "anki.notes.Note"], Optional[str]]] = []
 
@@ -183,10 +183,10 @@ addcards_will_add_history_entry = _AddcardsWillAddHistoryEntryFilter()
 
 class _AddonConfigEditorWillDisplayJsonFilter:
     """Allows changing the text of the json configuration before actually
-        displaying it to the user. For example, you can replace "\n" by
-        some actual new line. Then you can replace the new lines by "\n"
-        while reading the file and let the user uses real new line in
-        string instead of its encoding."""
+    displaying it to the user. For example, you can replace "\n" by
+    some actual new line. Then you can replace the new lines by "\n"
+    while reading the file and let the user uses real new line in
+    string instead of its encoding."""
 
     _hooks: List[Callable[[str], str]] = []
 
@@ -217,8 +217,8 @@ addon_config_editor_will_display_json = _AddonConfigEditorWillDisplayJsonFilter(
 
 class _AddonConfigEditorWillSaveJsonFilter:
     """Allows changing the text of the json configuration that was
-        received from the user before actually reading it. For
-        example, you can replace new line in strings by some "\n"."""
+    received from the user before actually reading it. For
+    example, you can replace new line in strings by some "\n"."""
 
     _hooks: List[Callable[[str], str]] = []
 
@@ -286,7 +286,7 @@ addons_dialog_did_change_selected_addon = _AddonsDialogDidChangeSelectedAddonHoo
 
 class _AddonsDialogWillShowHook:
     """Allows changing the add-on dialog before it is shown. E.g. add
-        buttons."""
+    buttons."""
 
     _hooks: List[Callable[["aqt.addons.AddonsDialog"], None]] = []
 
@@ -542,40 +542,40 @@ browser_menus_did_init = _BrowserMenusDidInitHook()
 
 class _BrowserWillBuildTreeFilter:
     """Used to add or replace items in the browser sidebar tree
-        
-        'tree' is the root SidebarItem that all other items are added to.
-        
-        'stage' is an enum describing the different construction stages of
-        the sidebar tree at which you can interject your changes.
-        The different values can be inspected by looking at
-        aqt.browser.SidebarStage.
-        
-        If you want Anki to proceed with the construction of the tree stage
-        in question after your have performed your changes or additions,
-        return the 'handled' boolean unchanged.
-        
-        On the other hand, if you want to prevent Anki from adding its own
-        items at a particular construction stage (e.g. in case your add-on
-        implements its own version of that particular stage), return 'True'.
-        
-        If you return 'True' at SidebarStage.ROOT, the sidebar will not be
-        populated by any of the other construction stages. For any other stage
-        the tree construction will just continue as usual.
-        
-        For example, if your code wishes to replace the tag tree, you could do:
-        
-            def on_browser_will_build_tree(handled, root, stage, browser):
-                if stage != SidebarStage.TAGS:
-                    # not at tag tree building stage, pass on
-                    return handled
-                
-                # your tag tree construction code
-                # root.addChild(...)
-                
-                # your code handled tag tree construction, no need for Anki
-                # or other add-ons to build the tag tree
-                return True
-        """
+
+    'tree' is the root SidebarItem that all other items are added to.
+
+    'stage' is an enum describing the different construction stages of
+    the sidebar tree at which you can interject your changes.
+    The different values can be inspected by looking at
+    aqt.browser.SidebarStage.
+
+    If you want Anki to proceed with the construction of the tree stage
+    in question after your have performed your changes or additions,
+    return the 'handled' boolean unchanged.
+
+    On the other hand, if you want to prevent Anki from adding its own
+    items at a particular construction stage (e.g. in case your add-on
+    implements its own version of that particular stage), return 'True'.
+
+    If you return 'True' at SidebarStage.ROOT, the sidebar will not be
+    populated by any of the other construction stages. For any other stage
+    the tree construction will just continue as usual.
+
+    For example, if your code wishes to replace the tag tree, you could do:
+
+        def on_browser_will_build_tree(handled, root, stage, browser):
+            if stage != SidebarStage.TAGS:
+                # not at tag tree building stage, pass on
+                return handled
+
+            # your tag tree construction code
+            # root.addChild(...)
+
+            # your code handled tag tree construction, no need for Anki
+            # or other add-ons to build the tag tree
+            return True
+    """
 
     _hooks: List[
         Callable[
@@ -644,16 +644,16 @@ browser_will_build_tree = _BrowserWillBuildTreeFilter()
 
 class _BrowserWillSearchHook:
     """Allows you to modify the search text, or perform your own search.
-         
-         You can modify context.search to change the text that is sent to the
-         searching backend.
-         
-         If you set context.card_ids to a list of ids, the regular search will
-         not be performed, and the provided ids will be used instead.
-         
-         Your add-on should check if context.card_ids is not None, and return
-         without making changes if it has been set.
-         """
+
+    You can modify context.search to change the text that is sent to the
+    searching backend.
+
+    If you set context.card_ids to a list of ids, the regular search will
+    not be performed, and the provided ids will be used instead.
+
+    Your add-on should check if context.card_ids is not None, and return
+    without making changes if it has been set.
+    """
 
     _hooks: List[Callable[["aqt.browser.SearchContext"], None]] = []
 
@@ -739,7 +739,7 @@ browser_will_show_context_menu = _BrowserWillShowContextMenuHook()
 
 class _CardLayoutWillShowHook:
     """Allow to change the display of the card layout. After most values are
-         set and before the window is actually shown."""
+    set and before the window is actually shown."""
 
     _hooks: List[Callable[["aqt.clayout.CardLayout"], None]] = []
 
@@ -859,7 +859,7 @@ current_note_type_did_change = _CurrentNoteTypeDidChangeHook()
 
 class _DebugConsoleDidEvaluatePythonFilter:
     """Allows processing the debug result. E.g. logging queries and
-        result, saving last query to display it later..."""
+    result, saving last query to display it later..."""
 
     _hooks: List[Callable[[str, str, QDialog], str]] = []
 
@@ -890,7 +890,7 @@ debug_console_did_evaluate_python = _DebugConsoleDidEvaluatePythonFilter()
 
 class _DebugConsoleWillShowHook:
     """Allows editing the debug window. E.g. setting a default code, or
-        previous code."""
+    previous code."""
 
     _hooks: List[Callable[[QDialog], None]] = []
 
@@ -949,19 +949,19 @@ deck_browser_did_render = _DeckBrowserDidRenderHook()
 
 class _DeckBrowserWillRenderContentHook:
     """Used to modify HTML content sections in the deck browser body
-        
-        'content' contains the sections of HTML content the deck browser body
-        will be updated with.
-        
-        When modifying the content of a particular section, please make sure your
-        changes only perform the minimum required edits to make your add-on work.
-        You should avoid overwriting or interfering with existing data as much
-        as possible, instead opting to append your own changes, e.g.:
-        
-            def on_deck_browser_will_render_content(deck_browser, content):
-                content.stats += "
-<div>my html</div>"
-        """
+
+            'content' contains the sections of HTML content the deck browser body
+            will be updated with.
+
+            When modifying the content of a particular section, please make sure your
+            changes only perform the minimum required edits to make your add-on work.
+            You should avoid overwriting or interfering with existing data as much
+            as possible, instead opting to append your own changes, e.g.:
+
+                def on_deck_browser_will_render_content(deck_browser, content):
+                    content.stats += "
+    <div>my html</div>"
+    """
 
     _hooks: List[
         Callable[
@@ -1039,14 +1039,14 @@ deck_browser_will_show_options_menu = _DeckBrowserWillShowOptionsMenuHook()
 class _DeckConfDidAddConfigHook:
     """Allows modification of a newly created config group
 
-        This hook is called after the config group was created, but
-        before initializing the widget state.
+    This hook is called after the config group was created, but
+    before initializing the widget state.
 
-        `deck_conf` will point to the old config group, `new_conf_id` will
-        point to the newly created config group.
+    `deck_conf` will point to the old config group, `new_conf_id` will
+    point to the newly created config group.
 
-        Config groups are created as clones of the current one.
-        """
+    Config groups are created as clones of the current one.
+    """
 
     _hooks: List[
         Callable[["aqt.deckconf.DeckConf", Deck, DeckConfig, str, int], None]
@@ -1549,7 +1549,7 @@ editor_web_view_did_init = _EditorWebViewDidInitHook()
 
 class _EditorWillLoadNoteFilter:
     """Allows changing the javascript commands to load note before
-        executing it and do change in the QT editor."""
+    executing it and do change in the QT editor."""
 
     _hooks: List[Callable[[str, "anki.notes.Note", "aqt.editor.Editor"], str]] = []
 
@@ -1704,12 +1704,12 @@ empty_cards_will_show = _EmptyCardsWillShowHook()
 
 class _MainWindowDidInitHook:
     """Executed after the main window is fully initialized
-        
-        A sample use case for this hook would be to delay actions until Anki objects
-        like the profile or collection are fully initialized. In contrast to
-        `profile_did_open`, this hook will only fire once per Anki session and
-        is thus suitable for single-shot subscribers.
-        """
+
+    A sample use case for this hook would be to delay actions until Anki objects
+    like the profile or collection are fully initialized. In contrast to
+    `profile_did_open`, this hook will only fire once per Anki session and
+    is thus suitable for single-shot subscribers.
+    """
 
     _hooks: List[Callable[[], None]] = []
 
@@ -1740,13 +1740,13 @@ main_window_did_init = _MainWindowDidInitHook()
 class _MainWindowShouldRequireResetFilter:
     """Executed before the main window will require a reset
 
-        This hook can be used to change the behavior of the main window,
-        when other dialogs, like the AddCards or Browser, require a reset
-        from the main window.
-        If you decide to use this hook, make you sure you check the reason for the reset.
-        Some reasons require more attention than others, and skipping important ones might
-        put the main window into an invalid state (e.g. display a deleted note).
-        """
+    This hook can be used to change the behavior of the main window,
+    when other dialogs, like the AddCards or Browser, require a reset
+    from the main window.
+    If you decide to use this hook, make you sure you check the reason for the reset.
+    Some reasons require more attention than others, and skipping important ones might
+    put the main window into an invalid state (e.g. display a deleted note).
+    """
 
     _hooks: List[
         Callable[[bool, "Union[aqt.main.ResetReason, str]", Optional[Any]], bool]
@@ -1871,7 +1871,7 @@ models_advanced_will_show = _ModelsAdvancedWillShowHook()
 
 class _OverviewDidRefreshHook:
     """Allow to update the overview window. E.g. add the deck name in the
-        title."""
+    title."""
 
     _hooks: List[Callable[["aqt.overview.Overview"], None]] = []
 
@@ -1902,18 +1902,18 @@ overview_did_refresh = _OverviewDidRefreshHook()
 class _OverviewWillRenderContentHook:
     """Used to modify HTML content sections in the overview body
 
-        'content' contains the sections of HTML content the overview body
-        will be updated with.
+            'content' contains the sections of HTML content the overview body
+            will be updated with.
 
-        When modifying the content of a particular section, please make sure your
-        changes only perform the minimum required edits to make your add-on work.
-        You should avoid overwriting or interfering with existing data as much
-        as possible, instead opting to append your own changes, e.g.:
+            When modifying the content of a particular section, please make sure your
+            changes only perform the minimum required edits to make your add-on work.
+            You should avoid overwriting or interfering with existing data as much
+            as possible, instead opting to append your own changes, e.g.:
 
-            def on_overview_will_render_content(overview, content):
-                content.table += "
-<div>my html</div>"
-        """
+                def on_overview_will_render_content(overview, content):
+                    content.table += "
+    <div>my html</div>"
+    """
 
     _hooks: List[
         Callable[["aqt.overview.Overview", "aqt.overview.OverviewContent"], None]
@@ -1953,11 +1953,11 @@ overview_will_render_content = _OverviewWillRenderContentHook()
 
 class _ProfileDidOpenHook:
     """Executed whenever a user profile has been opened
-        
-        Please note that this hook will also be called on profile switches, so if you
-        are looking to simply delay an add-on action in a single-shot manner,
-        `main_window_did_init` is likely the more suitable choice.
-        """
+
+    Please note that this hook will also be called on profile switches, so if you
+    are looking to simply delay an add-on action in a single-shot manner,
+    `main_window_did_init` is likely the more suitable choice.
+    """
 
     _hooks: List[Callable[[], None]] = []
 
@@ -2132,14 +2132,14 @@ reviewer_did_show_question = _ReviewerDidShowQuestionHook()
 
 class _ReviewerWillAnswerCardFilter:
     """Used to modify the ease at which a card is rated or to bypass
-        rating the card completely.
-        
-        ease_tuple is a tuple consisting of a boolean expressing whether the reviewer
-        should continue with rating the card, and an integer expressing the ease at
-        which the card should be rated.
-        
-        If your code just needs to be notified of the card rating event, you should use
-        the reviewer_did_answer_card hook instead."""
+    rating the card completely.
+
+    ease_tuple is a tuple consisting of a boolean expressing whether the reviewer
+    should continue with rating the card, and an integer expressing the ease at
+    which the card should be rated.
+
+    If your code just needs to be notified of the card rating event, you should use
+    the reviewer_did_answer_card hook instead."""
 
     _hooks: List[
         Callable[[Tuple[bool, int], "aqt.reviewer.Reviewer", Card], Tuple[bool, int]]
@@ -2216,16 +2216,16 @@ reviewer_will_end = _ReviewerWillEndHook()
 class _ReviewerWillInitAnswerButtonsFilter:
     """Used to modify list of answer buttons
 
-        buttons_tuple is a tuple of buttons, with each button represented by a 
-        tuple containing an int for the button's ease and a string for the 
-        button's label.
+    buttons_tuple is a tuple of buttons, with each button represented by a
+    tuple containing an int for the button's ease and a string for the
+    button's label.
 
-        Return a tuple of the form ((int, str), ...), e.g.:
-            ((1, "Label1"), (2, "Label2"), ...)
+    Return a tuple of the form ((int, str), ...), e.g.:
+        ((1, "Label1"), (2, "Label2"), ...)
 
-        Note: import _ from anki.lang to support translation, using, e.g.,
-            ((1, _("Label1")), ...)
-        """
+    Note: import _ from anki.lang to support translation, using, e.g.,
+        ((1, _("Label1")), ...)
+    """
 
     _hooks: List[
         Callable[
@@ -2279,15 +2279,15 @@ reviewer_will_init_answer_buttons = _ReviewerWillInitAnswerButtonsFilter()
 class _ReviewerWillPlayAnswerSoundsHook:
     """Called before showing the answer/back side.
 
-        `tags` can be used to inspect and manipulate the sounds
-        that will be played (if any).
+    `tags` can be used to inspect and manipulate the sounds
+    that will be played (if any).
 
-        This won't be called when the user manually plays sounds
-        using `Replay Audio`.
+    This won't be called when the user manually plays sounds
+    using `Replay Audio`.
 
-        Note that this hook is called even when the `Automatically play audio`
-        option is unchecked; This is so as to allow playing custom
-        sounds regardless of that option."""
+    Note that this hook is called even when the `Automatically play audio`
+    option is unchecked; This is so as to allow playing custom
+    sounds regardless of that option."""
 
     _hooks: List[Callable[[Card, "List[anki.sound.AVTag]"], None]] = []
 
@@ -2318,15 +2318,15 @@ reviewer_will_play_answer_sounds = _ReviewerWillPlayAnswerSoundsHook()
 class _ReviewerWillPlayQuestionSoundsHook:
     """Called before showing the question/front side.
 
-        `tags` can be used to inspect and manipulate the sounds
-        that will be played (if any).
+    `tags` can be used to inspect and manipulate the sounds
+    that will be played (if any).
 
-        This won't be called when the user manually plays sounds
-        using `Replay Audio`.
+    This won't be called when the user manually plays sounds
+    using `Replay Audio`.
 
-        Note that this hook is called even when the `Automatically play audio`
-        option is unchecked; This is so as to allow playing custom
-        sounds regardless of that option."""
+    Note that this hook is called even when the `Automatically play audio`
+    option is unchecked; This is so as to allow playing custom
+    sounds regardless of that option."""
 
     _hooks: List[Callable[[Card, "List[anki.sound.AVTag]"], None]] = []
 
@@ -2701,15 +2701,15 @@ tag_editor_did_process_key = _TagEditorDidProcessKeyHook()
 
 class _TopToolbarDidInitLinksHook:
     """Used to modify or add links in the top toolbar of Anki's main window
-        
-        'links' is a list of HTML link elements. Add-ons can generate their own links
-        by using aqt.toolbar.Toolbar.create_link. Links created in that way can then be
-        appended to the link list, e.g.:
 
-            def on_top_toolbar_did_init_links(links, toolbar):
-                my_link = toolbar.create_link(...)
-                links.append(my_link)
-        """
+    'links' is a list of HTML link elements. Add-ons can generate their own links
+    by using aqt.toolbar.Toolbar.create_link. Links created in that way can then be
+    appended to the link list, e.g.:
+
+        def on_top_toolbar_did_init_links(links, toolbar):
+            my_link = toolbar.create_link(...)
+            links.append(my_link)
+    """
 
     _hooks: List[Callable[[List[str], "aqt.toolbar.Toolbar"], None]] = []
 
@@ -2797,35 +2797,35 @@ undo_state_did_change = _UndoStateDidChangeHook()
 
 class _WebviewDidReceiveJsMessageFilter:
     """Used to handle pycmd() messages sent from Javascript.
-        
-        Message is the string passed to pycmd().
 
-        For messages you don't want to handle, return 'handled' unchanged.
-        
-        If you handle a message and don't want it passed to the original
-        bridge command handler, return (True, None).
-        
-        If you want to pass a value to pycmd's result callback, you can
-        return it with (True, some_value).
-                
-        Context is the instance that was passed to set_bridge_command().
-        It can be inspected to check which screen this hook is firing
-        in, and to get a reference to the screen. For example, if your
-        code wishes to function only in the review screen, you could do:
+    Message is the string passed to pycmd().
 
-            if not isinstance(context, aqt.reviewer.Reviewer):
-                # not reviewer, pass on message
-                return handled
-    
-            if message == "my-mark-action":
-                # our message, call onMark() on the reviewer instance
-                context.onMark()
-                # and don't pass message to other handlers
-                return (True, None)
-            else:
-                # some other command, pass it on
-                return handled
-        """
+    For messages you don't want to handle, return 'handled' unchanged.
+
+    If you handle a message and don't want it passed to the original
+    bridge command handler, return (True, None).
+
+    If you want to pass a value to pycmd's result callback, you can
+    return it with (True, some_value).
+
+    Context is the instance that was passed to set_bridge_command().
+    It can be inspected to check which screen this hook is firing
+    in, and to get a reference to the screen. For example, if your
+    code wishes to function only in the review screen, you could do:
+
+        if not isinstance(context, aqt.reviewer.Reviewer):
+            # not reviewer, pass on message
+            return handled
+
+        if message == "my-mark-action":
+            # our message, call onMark() on the reviewer instance
+            context.onMark()
+            # and don't pass message to other handlers
+            return (True, None)
+        else:
+            # some other command, pass it on
+            return handled
+    """
 
     _hooks: List[Callable[[Tuple[bool, Any], str, Any], Tuple[bool, Any]]] = []
 
@@ -2863,34 +2863,34 @@ webview_did_receive_js_message = _WebviewDidReceiveJsMessageFilter()
 class _WebviewWillSetContentHook:
     """Used to modify web content before it is rendered.
 
-        Web_content contains the HTML, JS, and CSS the web view will be
-        populated with.
+    Web_content contains the HTML, JS, and CSS the web view will be
+    populated with.
 
-        Context is the instance that was passed to stdHtml().
-        It can be inspected to check which screen this hook is firing
-        in, and to get a reference to the screen. For example, if your
-        code wishes to function only in the review screen, you could do:
+    Context is the instance that was passed to stdHtml().
+    It can be inspected to check which screen this hook is firing
+    in, and to get a reference to the screen. For example, if your
+    code wishes to function only in the review screen, you could do:
 
-            def on_webview_will_set_content(web_content: WebContent, context):
-                
-                if not isinstance(context, aqt.reviewer.Reviewer):
-                    # not reviewer, do not modify content
-                    return
-                
-                # reviewer, perform changes to content
-                
-                context: aqt.reviewer.Reviewer
-                
-                addon_package = mw.addonManager.addonFromModule(__name__)
-                
-                web_content.css.append(
-                    f"/_addons/{addon_package}/web/my-addon.css")
-                web_content.js.append(
-                    f"/_addons/{addon_package}/web/my-addon.js")
+        def on_webview_will_set_content(web_content: WebContent, context):
 
-                web_content.head += "<script>console.log('my-addon')</script>"
-                web_content.body += "<div id='my-addon'></div>"
-        """
+            if not isinstance(context, aqt.reviewer.Reviewer):
+                # not reviewer, do not modify content
+                return
+
+            # reviewer, perform changes to content
+
+            context: aqt.reviewer.Reviewer
+
+            addon_package = mw.addonManager.addonFromModule(__name__)
+
+            web_content.css.append(
+                f"/_addons/{addon_package}/web/my-addon.css")
+            web_content.js.append(
+                f"/_addons/{addon_package}/web/my-addon.js")
+
+            web_content.head += "<script>console.log('my-addon')</script>"
+            web_content.body += "<div id='my-addon'></div>"
+    """
 
     _hooks: List[Callable[["aqt.webview.WebContent", Optional[Any]], None]] = []
 

@@ -146,7 +146,9 @@ class ProfileManager:
         app = QtWidgets.QApplication([])
         icon = QtGui.QIcon()
         icon.addPixmap(
-            QtGui.QPixmap(":/icons/anki.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off,
+            QtGui.QPixmap(":/icons/anki.png"),
+            QtGui.QIcon.Normal,
+            QtGui.QIcon.Off,
         )
         window_title = "Data Folder Migration"
         migration_directories = f"\n\n    {oldBase}\n\nto\n\n    {self.base}"

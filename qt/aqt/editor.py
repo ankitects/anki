@@ -233,7 +233,9 @@ class Editor:
             self._links[cmd] = func
         if keys:
             QShortcut(  # type: ignore
-                QKeySequence(keys), self.widget, activated=lambda s=self: func(s),
+                QKeySequence(keys),
+                self.widget,
+                activated=lambda s=self: func(s),
             )
         btn = self._addButton(
             icon,

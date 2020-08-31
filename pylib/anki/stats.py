@@ -243,7 +243,9 @@ from revlog where id > ? """
     def _dueInfo(self, tot: int, num: int) -> str:
         i: List[str] = []
         self._line(
-            i, _("Total"), self.col.tr(TR.STATISTICS_REVIEWS, reviews=tot),
+            i,
+            _("Total"),
+            self.col.tr(TR.STATISTICS_REVIEWS, reviews=tot),
         )
         self._line(i, _("Average"), self._avgDay(tot, num, _("reviews")))
         tomorrow = self.col.db.scalar(
@@ -436,7 +438,9 @@ group by day order by day"""
         return self._lineTbl(i), int(tot)
 
     def _splitRepData(
-        self, data: List[Tuple[Any, ...]], spec: Sequence[Tuple[int, str, str]],
+        self,
+        data: List[Tuple[Any, ...]],
+        spec: Sequence[Tuple[int, str, str]],
     ) -> Tuple[List[Dict[str, Any]], List[Tuple[Any, Any]]]:
         sep: Dict[int, Any] = {}
         totcnt = {}

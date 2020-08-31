@@ -209,7 +209,9 @@ class RustBackend(RustBackendGenerated):
             langs = [anki.lang.currentLang]
 
         init_msg = pb.BackendInit(
-            locale_folder_path=ftl_folder, preferred_langs=langs, server=server,
+            locale_folder_path=ftl_folder,
+            preferred_langs=langs,
+            server=server,
         )
         self._backend = ankirspy.open_backend(init_msg.SerializeToString())
 

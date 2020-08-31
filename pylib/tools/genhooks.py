@@ -93,10 +93,14 @@ hooks = [
         doc="Obsolete, do not use.",
     ),
     Hook(
-        name="sync_stage_did_change", args=["stage: str"], doc="Obsolete, do not use.",
+        name="sync_stage_did_change",
+        args=["stage: str"],
+        doc="Obsolete, do not use.",
     ),
     Hook(
-        name="sync_progress_did_change", args=["msg: str"], doc="Obsolete, do not use.",
+        name="sync_progress_did_change",
+        args=["msg: str"],
+        doc="Obsolete, do not use.",
     ),
 ]
 
