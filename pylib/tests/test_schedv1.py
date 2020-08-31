@@ -500,7 +500,7 @@ def test_misc():
     col.addNote(note)
     c = note.cards()[0]
     # burying
-    col.sched.buryNote(c.nid)
+    col.sched.bury_note(note)
     col.reset()
     assert not col.sched.getCard()
     col.sched.unbury_cards_in_current_deck()
@@ -517,11 +517,11 @@ def test_suspend():
     # suspending
     col.reset()
     assert col.sched.getCard()
-    col.sched.suspendCards([c.id])
+    col.sched.suspend_cards([c.id])
     col.reset()
     assert not col.sched.getCard()
     # unsuspending
-    col.sched.unsuspendCards([c.id])
+    col.sched.unsuspend_cards([c.id])
     col.reset()
     assert col.sched.getCard()
     # should cope with rev cards being relearnt
@@ -536,8 +536,8 @@ def test_suspend():
     assert c.due >= time.time()
     assert c.queue == QUEUE_TYPE_LRN
     assert c.type == CARD_TYPE_REV
-    col.sched.suspendCards([c.id])
-    col.sched.unsuspendCards([c.id])
+    col.sched.suspend_cards([c.id])
+    col.sched.unsuspend_cards([c.id])
     c.load()
     assert c.queue == QUEUE_TYPE_REV
     assert c.type == CARD_TYPE_REV
@@ -550,7 +550,7 @@ def test_suspend():
     c.load()
     assert c.due != 1
     assert c.did != 1
-    col.sched.suspendCards([c.id])
+    col.sched.suspend_cards([c.id])
     c.load()
     assert c.due == 1
     assert c.did == 1

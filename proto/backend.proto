@@ -102,6 +102,7 @@ service BackendService {
     rpc CongratsInfo (Empty) returns (CongratsInfoOut);
     rpc RestoreBuriedAndSuspendedCards (CardIDs) returns (Empty);
     rpc UnburyCardsInCurrentDeck (UnburyCardsInCurrentDeckIn) returns (Empty);
+    rpc BuryOrSuspendCards (BuryOrSuspendCardsIn) returns (Empty);
 
     // stats
 
@@ -156,6 +157,7 @@ service BackendService {
     rpc AfterNoteUpdates (AfterNoteUpdatesIn) returns (Empty);
     rpc FieldNamesForNotes (FieldNamesForNotesIn) returns (FieldNamesForNotesOut);
     rpc NoteIsDuplicateOrEmpty (Note) returns (NoteIsDuplicateOrEmptyOut);
+    rpc CardsOfNote (NoteID) returns (CardIDs);
 
     // note types
 
@@ -1041,4 +1043,14 @@ message UnburyCardsInCurrentDeckIn {
         USER_ONLY = 2;
     }
     Mode mode = 1;
+}
+
+message BuryOrSuspendCardsIn {
+    enum Mode {
+        SUSPEND = 0;
+        BURY_SCHED = 1;
+        BURY_USER = 2;
+    }
+    repeated int64 card_ids = 1;
+    Mode mode = 2;
 }

@@ -794,13 +794,13 @@ time = %(time)d;
 
     def onSuspend(self) -> None:
         self.mw.checkpoint(_("Suspend"))
-        self.mw.col.sched.suspendCards([c.id for c in self.card.note().cards()])
+        self.mw.col.sched.suspend_cards([c.id for c in self.card.note().cards()])
         tooltip(_("Note suspended."))
         self.mw.reset()
 
     def onSuspendCard(self) -> None:
         self.mw.checkpoint(_("Suspend"))
-        self.mw.col.sched.suspendCards([self.card.id])
+        self.mw.col.sched.suspend_cards([self.card.id])
         tooltip(_("Card suspended."))
         self.mw.reset()
 
@@ -822,13 +822,13 @@ time = %(time)d;
 
     def onBuryCard(self) -> None:
         self.mw.checkpoint(_("Bury"))
-        self.mw.col.sched.buryCards([self.card.id])
+        self.mw.col.sched.bury_cards([self.card.id])
         self.mw.reset()
         tooltip(_("Card buried."))
 
     def onBuryNote(self) -> None:
         self.mw.checkpoint(_("Bury"))
-        self.mw.col.sched.buryNote(self.card.nid)
+        self.mw.col.sched.bury_note(self.card.note())
         self.mw.reset()
         tooltip(_("Note buried."))
 

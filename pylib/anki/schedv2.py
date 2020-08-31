@@ -27,6 +27,7 @@ from anki.cards import Card
 from anki.consts import *
 from anki.decks import Deck, DeckConfig, DeckManager, FilteredDeck, QueueConfig
 from anki.lang import _
+from anki.notes import Note
 from anki.rsbackend import (
     CountsForDeckToday,
     DeckTreeNode,
@@ -36,10 +37,14 @@ from anki.rsbackend import (
 )
 from anki.utils import ids2str, intTime
 
-UnburyCurrentDeckMode = pb.UnburyCardsInCurrentDeckIn.Mode  # pylint: disable=no-member
+UnburyCurrentDeckMode = pb.UnburyCardsInCurrentDeckIn.Mode  # pylint:disable=no-member
+BuryOrSuspendMode = pb.BuryOrSuspendCardsIn.Mode  # pylint:disable=no-member
 if TYPE_CHECKING:
     UnburyCurrentDeckModeValue = (
-        pb.UnburyCardsInCurrentDeckIn.ModeValue  # pylint: disable=no-member
+        pb.UnburyCardsInCurrentDeckIn.ModeValue  # pylint:disable=no-member
+    )
+    BuryOrSuspendModeValue = (
+        pb.BuryOrSuspendCardsIn.ModeValue  # pylint:disable=no-member
     )
 
 # card types: 0=new, 1=lrn, 2=rev, 3=relrn
@@ -1387,34 +1392,20 @@ where id = ?
     ) -> None:
         self.col.backend.unbury_cards_in_current_deck(mode)
 
-    def suspendCards(self, ids: List[int]) -> None:
-        "Suspend cards."
-        self.col.log(ids)
-        self.col.db.execute(
-            f"update cards set queue={QUEUE_TYPE_SUSPENDED},mod=?,usn=? where id in "
-            + ids2str(ids),
-            intTime(),
-            self.col.usn(),
+    def suspend_cards(self, ids: Sequence[int]) -> None:
+        self.col.backend.bury_or_suspend_cards(
+            card_ids=ids, mode=BuryOrSuspendMode.SUSPEND
         )
 
-    def buryCards(self, cids: List[int], manual: bool = True) -> None:
-        queue = manual and QUEUE_TYPE_MANUALLY_BURIED or QUEUE_TYPE_SIBLING_BURIED
-        self.col.log(cids)
-        self.col.db.execute(
-            """
-update cards set queue=?,mod=?,usn=? where id in """
-            + ids2str(cids),
-            queue,
-            intTime(),
-            self.col.usn(),
-        )
+    def bury_cards(self, ids: Sequence[int], manual: bool = True) -> None:
+        if manual:
+            mode = BuryOrSuspendMode.BURY_USER
+        else:
+            mode = BuryOrSuspendMode.BURY_SCHED
+        self.col.backend.bury_or_suspend_cards(card_ids=ids, mode=mode)
 
-    def buryNote(self, nid: int) -> None:
-        "Bury all cards for note until next session."
-        cids = self.col.db.list(
-            f"select id from cards where nid = ? and queue >= {QUEUE_TYPE_NEW}", nid
-        )
-        self.buryCards(cids)
+    def bury_note(self, note: Note):
+        self.bury_cards(note.card_ids())
 
     # legacy
 
@@ -1424,7 +1415,14 @@ update cards set queue=?,mod=?,usn=? where id in """
         )
         self.unbury_cards_in_current_deck()
 
+    def buryNote(self, nid: int) -> None:
+        note = self.col.getNote(nid)
+        self.bury_cards(note.card_ids())
+
     def unburyCardsForDeck(self, type: str = "all") -> None:
+        print(
+            "please use unbury_cards_in_current_deck() instead of unburyCardsForDeck()"
+        )
         if type == "all":
             mode = UnburyCurrentDeckMode.ALL
         elif type == "manual":
@@ -1434,6 +1432,8 @@ update cards set queue=?,mod=?,usn=? where id in """
         self.unbury_cards_in_current_deck(mode)
 
     unsuspendCards = unsuspend_cards
+    buryCards = bury_cards
+    suspendCards = suspend_cards
 
     # Sibling spacing
     ##########################################################################
@@ -1469,7 +1469,7 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
                 pass
         # then bury
         if toBury:
-            self.buryCards(toBury, manual=False)
+            self.bury_cards(toBury, manual=False)
 
     # Resetting
     ##########################################################################

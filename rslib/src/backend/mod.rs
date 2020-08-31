@@ -531,6 +531,14 @@ impl BackendService for Backend {
         })
     }
 
+    fn bury_or_suspend_cards(&mut self, input: pb::BuryOrSuspendCardsIn) -> BackendResult<Empty> {
+        self.with_col(|col| {
+            let mode = input.mode();
+            let cids: Vec<_> = input.card_ids.into_iter().map(CardID).collect();
+            col.bury_or_suspend_cards(&cids, mode).map(Into::into)
+        })
+    }
+
     // statistics
     //-----------------------------------------------
 
@@ -877,6 +885,16 @@ impl BackendService for Backend {
         self.with_col(|col| {
             col.note_is_duplicate_or_empty(&note)
                 .map(|r| pb::NoteIsDuplicateOrEmptyOut { state: r as i32 })
+        })
+    }
+
+    fn cards_of_note(&mut self, input: pb::NoteId) -> BackendResult<pb::CardIDs> {
+        self.with_col(|col| {
+            col.storage
+                .all_card_ids_of_note(NoteID(input.nid))
+                .map(|v| pb::CardIDs {
+                    cids: v.into_iter().map(Into::into).collect(),
+                })
         })
     }
 

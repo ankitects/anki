@@ -237,6 +237,13 @@ impl super::SqliteStorage {
             .collect()
     }
 
+    pub(crate) fn all_card_ids_of_note(&self, nid: NoteID) -> Result<Vec<CardID>> {
+        self.db
+            .prepare_cached("select id from cards where nid = ? order by ord")?
+            .query_and_then(&[nid], |r| Ok(CardID(r.get(0)?)))?
+            .collect()
+    }
+
     pub(crate) fn note_ids_of_cards(&self, cids: &[CardID]) -> Result<HashSet<NoteID>> {
         let mut stmt = self
             .db
