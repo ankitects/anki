@@ -65,12 +65,14 @@ impl Collection {
         let card = self.storage.get_card(cid)?.ok_or(AnkiError::NotFound)?;
         let note = self
             .storage
-            .get_note(card.nid)?
+            .get_note(card.note_id)?
             .ok_or(AnkiError::NotFound)?;
-        let nt = self.get_notetype(note.ntid)?.ok_or(AnkiError::NotFound)?;
+        let nt = self
+            .get_notetype(note.notetype_id)?
+            .ok_or(AnkiError::NotFound)?;
         let deck = self
             .storage
-            .get_deck(card.did)?
+            .get_deck(card.deck_id)?
             .ok_or(AnkiError::NotFound)?;
 
         let revlog = self.storage.get_revlog_entries_for_card(card.id)?;
@@ -104,16 +106,16 @@ impl Collection {
             first_review: revlog.first().map(|e| e.id.as_secs()),
             latest_review: revlog.last().map(|e| e.id.as_secs()),
             due,
-            interval_secs: card.ivl * 86_400,
-            ease: (card.factor as u32) / 10,
+            interval_secs: card.interval * 86_400,
+            ease: (card.ease_factor as u32) / 10,
             reviews: card.reps,
             lapses: card.lapses,
             average_secs,
             total_secs,
-            card_type: nt.get_template(card.ord)?.name.clone(),
+            card_type: nt.get_template(card.template_idx)?.name.clone(),
             note_type: nt.name.clone(),
             deck: deck.human_name(),
-            nid: card.nid,
+            nid: card.note_id,
             cid: card.id,
             revlog: revlog.into_iter().map(Into::into).collect(),
         })

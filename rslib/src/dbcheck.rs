@@ -205,8 +205,8 @@ impl Collection {
             if let Some(deck) = decks.get(&did) {
                 if !deck.is_filtered() {
                     let mut card = self.storage.get_card(cid)?.unwrap();
-                    card.odid.0 = 0;
-                    card.odue = 0;
+                    card.original_deck_id.0 = 0;
+                    card.original_due = 0;
                     self.storage.update_card(&card)?;
                     wrong += 1;
                 }
@@ -278,7 +278,7 @@ impl Collection {
                 }
 
                 // note type ID may have changed if we created a recovery notetype
-                note.ntid = nt.id;
+                note.notetype_id = nt.id;
 
                 // write note, updating tags and generating missing cards
                 let ctx = genctx.get_or_insert_with(|| CardGenContext::new(&nt, usn));
@@ -509,7 +509,7 @@ mod test {
         let cid = col.search_cards("", SortMode::NoOrder)?[0];
         let mut card = col.storage.get_card(cid)?.unwrap();
         card.id.0 += 1;
-        card.ord = 10;
+        card.template_idx = 10;
         col.storage.add_card(&mut card)?;
 
         let out = col.check_database(progress_fn)?;

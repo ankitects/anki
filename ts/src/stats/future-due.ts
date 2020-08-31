@@ -40,7 +40,7 @@ export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
                 // - testing just odue fails on day 1
                 // - testing just odid fails on lapsed cards that
                 //   have due calculated at regraduation time
-                const due = c.odid && c.odue ? c.odue : c.due;
+                const due = c.originalDeckId && c.originalDue ? c.originalDue : c.due;
                 const dueDay = due - data.daysElapsed;
                 if (dueDay < 0) {
                     haveBacklog = true;
