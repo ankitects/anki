@@ -1869,6 +1869,55 @@ class _ModelsAdvancedWillShowHook:
 models_advanced_will_show = _ModelsAdvancedWillShowHook()
 
 
+class _ModelsDidInitButtonsFilter:
+    """Allows adding buttons to the Model dialog"""
+
+    _hooks: List[
+        Callable[
+            [List[Tuple[str, Callable[[], None]]], "aqt.models.Models"],
+            List[Tuple[str, Callable[[], None]]],
+        ]
+    ] = []
+
+    def append(
+        self,
+        cb: Callable[
+            [List[Tuple[str, Callable[[], None]]], "aqt.models.Models"],
+            List[Tuple[str, Callable[[], None]]],
+        ],
+    ) -> None:
+        """(buttons: List[Tuple[str, Callable[[], None]]], models: aqt.models.Models)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self,
+        cb: Callable[
+            [List[Tuple[str, Callable[[], None]]], "aqt.models.Models"],
+            List[Tuple[str, Callable[[], None]]],
+        ],
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
+
+    def __call__(
+        self, buttons: List[Tuple[str, Callable[[], None]]], models: aqt.models.Models
+    ) -> List[Tuple[str, Callable[[], None]]]:
+        for filter in self._hooks:
+            try:
+                buttons = filter(buttons, models)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return buttons
+
+
+models_did_init_buttons = _ModelsDidInitButtonsFilter()
+
+
 class _OverviewDidRefreshHook:
     """Allow to update the overview window. E.g. add the deck name in the
     title."""

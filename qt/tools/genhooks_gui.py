@@ -689,6 +689,15 @@ hooks = [
         name="models_advanced_will_show",
         args=["advanced: QDialog"],
     ),
+    Hook(
+        name="models_did_init_buttons",
+        args=[
+            "buttons: List[Tuple[str, Callable[[], None]]]",
+            "models: aqt.models.Models",
+        ],
+        return_type="List[Tuple[str, Callable[[], None]]]",
+        doc="""Allows adding buttons to the Model dialog""",
+    ),
     # Stats
     ###################
     Hook(
