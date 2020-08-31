@@ -57,10 +57,12 @@ class Models(QDialog):
         ]
 
         if self.fromMain:
-            default_buttons.extend([
-                (_("Fields..."), self.onFields),
-                (_("Cards..."), self.onCards),
-            ])
+            default_buttons.extend(
+                [
+                    (_("Fields..."), self.onFields),
+                    (_("Cards..."), self.onCards),
+                ]
+            )
 
         default_buttons.append((_("Options..."), self.onAdvanced))
 

@@ -685,7 +685,10 @@ hooks = [
     ),
     # Model
     ###################
-    Hook(name="models_advanced_will_show", args=["advanced: QDialog"],),
+    Hook(
+        name="models_advanced_will_show",
+        args=["advanced: QDialog"],
+    ),
     Hook(
         name="models_did_init_buttons",
         args=[
