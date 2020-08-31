@@ -1382,7 +1382,8 @@ where id = ?
         self.col.backend.restore_buried_and_suspended_cards(ids)
 
     def unbury_cards_in_current_deck(
-        self, mode: UnburyCurrentDeckModeValue = UnburyCurrentDeckMode.ALL,
+        self,
+        mode: UnburyCurrentDeckModeValue = UnburyCurrentDeckMode.ALL,
     ) -> None:
         self.col.backend.unbury_cards_in_current_deck(mode)
 
