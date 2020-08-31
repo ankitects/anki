@@ -100,8 +100,8 @@ class ProfileManager:
                 sys.exit(1)
             try:
                 self.load(profile)
-            except TypeError:
-                raise Exception("Provided profile does not exist.")
+            except TypeError as exc:
+                raise Exception("Provided profile does not exist.") from exc
 
     # Base creation
     ######################################################################
