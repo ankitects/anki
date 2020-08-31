@@ -49,20 +49,27 @@ class Models(QDialog):
         self.model = None
         f = self.form
         box = f.buttonBox
-        t = QDialogButtonBox.ActionRole
-        b = box.addButton(_("Add"), t)
-        qconnect(b.clicked, self.onAdd)
-        b = box.addButton(_("Rename"), t)
-        qconnect(b.clicked, self.onRename)
-        b = box.addButton(_("Delete"), t)
-        qconnect(b.clicked, self.onDelete)
+
+        default_buttons = [
+            (_("Add"), self.onAdd),
+            (_("Rename"), self.onRename),
+            (_("Delete"), self.onDelete),
+        ]
+
         if self.fromMain:
-            b = box.addButton(_("Fields..."), t)
-            qconnect(b.clicked, self.onFields)
-            b = box.addButton(_("Cards..."), t)
-            qconnect(b.clicked, self.onCards)
-        b = box.addButton(_("Options..."), t)
-        qconnect(b.clicked, self.onAdvanced)
+            default_buttons.extend(
+                [
+                    (_("Fields..."), self.onFields),
+                    (_("Cards..."), self.onCards),
+                ]
+            )
+
+        default_buttons.append((_("Options..."), self.onAdvanced))
+
+        for label, func in gui_hooks.models_did_init_buttons(default_buttons, self):
+            button = box.addButton(label, QDialogButtonBox.ActionRole)
+            qconnect(button.clicked, func)
+
         qconnect(f.modelsList.itemDoubleClicked, self.onRename)
 
         def on_done(fut) -> None:
