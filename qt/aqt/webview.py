@@ -411,6 +411,7 @@ div[contenteditable="true"]:focus {
 body {{ zoom: {zoom}; background: {background}; direction: {lang_dir}; {font} }}
 {button_style}
 :root {{ --window-bg: {background} }}
+:root[class*=night-mode] {{ --window-bg: {background} }}
 """
 
     def stdHtml(
