@@ -105,6 +105,7 @@ service BackendService {
     rpc BuryOrSuspendCards (BuryOrSuspendCardsIn) returns (Empty);
     rpc EmptyFilteredDeck (DeckID) returns (Empty);
     rpc RebuildFilteredDeck (DeckID) returns (UInt32);
+    rpc ScheduleCardsAsReviews (ScheduleCardsAsReviewsIn) returns (Empty);
 
     // stats
 
@@ -1055,4 +1056,10 @@ message BuryOrSuspendCardsIn {
     }
     repeated int64 card_ids = 1;
     Mode mode = 2;
+}
+
+message ScheduleCardsAsReviewsIn {
+    repeated int64 card_ids = 1;
+    uint32 min_interval = 2;
+    uint32 max_interval = 3;
 }

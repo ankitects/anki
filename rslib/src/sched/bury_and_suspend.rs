@@ -126,7 +126,7 @@ impl Collection {
             };
             if card.queue != desired_queue {
                 if sched == SchedulerVersion::V1 {
-                    card.remove_from_filtered_deck(sched);
+                    card.remove_from_filtered_deck_restoring_queue(sched);
                     card.remove_from_learning();
                 }
                 card.queue = desired_queue;

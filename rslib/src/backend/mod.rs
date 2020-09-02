@@ -547,6 +547,18 @@ impl BackendService for Backend {
         self.with_col(|col| col.rebuild_filtered_deck(input.did.into()).map(Into::into))
     }
 
+    fn schedule_cards_as_reviews(
+        &mut self,
+        input: pb::ScheduleCardsAsReviewsIn,
+    ) -> BackendResult<Empty> {
+        let cids: Vec<_> = input.card_ids.into_iter().map(CardID).collect();
+        let (min, max) = (input.min_interval, input.max_interval);
+        self.with_col(|col| {
+            col.reschedule_cards_as_reviews(&cids, min, max)
+                .map(Into::into)
+        })
+    }
+
     // statistics
     //-----------------------------------------------
 
