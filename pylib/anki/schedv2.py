@@ -25,7 +25,7 @@ import anki.backend_pb2 as pb
 from anki import hooks
 from anki.cards import Card
 from anki.consts import *
-from anki.decks import Deck, DeckConfig, DeckManager, FilteredDeck, QueueConfig
+from anki.decks import Deck, DeckConfig, DeckManager, QueueConfig
 from anki.lang import _
 from anki.notes import Note
 from anki.rsbackend import (
@@ -1062,7 +1062,7 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
 
         return ivl
 
-    # Dynamic deck handling
+    # Filtered deck handling
     ##########################################################################
 
     _restoreQueueWhenEmptyingSnippet = f"""
@@ -1076,41 +1076,19 @@ end)
 """
 
     def rebuildDyn(self, did: Optional[int] = None) -> Optional[int]:
-        "Rebuild a dynamic deck."
+        "Rebuild a filtered deck."
         did = did or self.col.decks.selected()
-        deck = self.col.decks.get(did)
-        assert deck["dyn"]
-        # move any existing cards back first, then fill
-        self.emptyDyn(did)
-        cnt = self._fillDyn(deck)
-        if not cnt:
+        count = self.col.backend.rebuild_filtered_deck(did) or None
+        if not count:
             return None
         # and change to our new deck
         self.col.decks.select(did)
-        return cnt
-
-    def _fillDyn(self, deck: FilteredDeck) -> int:
-        start = -100000
-        total = 0
-        for search, limit, order in deck["terms"]:
-            orderlimit = self._dynOrder(order, limit)
-            if search.strip():
-                search = "(%s)" % search
-            search = "%s -is:suspended -is:buried -deck:filtered" % search
-            try:
-                ids = self.col.findCards(search, order=orderlimit)
-            except:
-                return total
-            # move the cards over
-            self.col.log(deck["id"], ids)
-            self._moveToDyn(deck["id"], ids, start=start + total)
-            total += len(ids)
-        return total
+        return count
 
     def emptyDyn(self, did: Optional[int], lim: Optional[str] = None) -> None:
-        if not lim:
-            lim = "did = %s" % did
-        self.col.log(self.col.db.list("select id from cards where %s" % lim))
+        if lim is None:
+            self.col.backend.empty_filtered_deck(did)
+            return
 
         self.col.db.execute(
             """
@@ -1122,57 +1100,6 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
 
     def remFromDyn(self, cids: List[int]) -> None:
         self.emptyDyn(None, "id in %s and odid" % ids2str(cids))
-
-    def _dynOrder(self, o: int, l: int) -> str:
-        if o == DYN_OLDEST:
-            t = "(select max(id) from revlog where cid=c.id)"
-        elif o == DYN_RANDOM:
-            t = "random()"
-        elif o == DYN_SMALLINT:
-            t = "ivl"
-        elif o == DYN_BIGINT:
-            t = "ivl desc"
-        elif o == DYN_LAPSES:
-            t = "lapses desc"
-        elif o == DYN_ADDED:
-            t = "n.id"
-        elif o == DYN_REVADDED:
-            t = "n.id desc"
-        elif o == DYN_DUEPRIORITY:
-            t = (
-                f"(case when queue={QUEUE_TYPE_REV} and due <= %d then (ivl / cast(%d-due+0.001 as real)) else 100000+due end)"
-                % (self.today, self.today)
-            )
-        else:  # DYN_DUE or unknown
-            t = "c.due, c.ord"
-        return t + " limit %d" % l
-
-    def _moveToDyn(self, did: int, ids: Sequence[int], start: int = -100000) -> None:
-        deck = self.col.decks.get(did)
-        data = []
-        u = self.col.usn()
-        due = start
-        for id in ids:
-            data.append((did, due, u, id))
-            due += 1
-
-        queue = ""
-        if not deck["resched"]:
-            queue = f",queue={QUEUE_TYPE_REV}"
-
-        query = (
-            """
-update cards set
-odid = did, odue = due,
-did = ?,
-due = (case when due <= 0 then due else ? end),
-usn = ?
-%s
-where id = ?
-"""
-            % queue
-        )
-        self.col.db.executemany(query, data)
 
     def _removeFromFiltered(self, card: Card) -> None:
         if card.odid:

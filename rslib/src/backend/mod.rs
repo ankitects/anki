@@ -539,6 +539,14 @@ impl BackendService for Backend {
         })
     }
 
+    fn empty_filtered_deck(&mut self, input: pb::DeckId) -> BackendResult<Empty> {
+        self.with_col(|col| col.empty_filtered_deck(input.did.into()).map(Into::into))
+    }
+
+    fn rebuild_filtered_deck(&mut self, input: pb::DeckId) -> BackendResult<pb::UInt32> {
+        self.with_col(|col| col.rebuild_filtered_deck(input.did.into()).map(Into::into))
+    }
+
     // statistics
     //-----------------------------------------------
 

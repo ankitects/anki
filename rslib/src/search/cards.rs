@@ -63,20 +63,7 @@ impl Collection {
         let writer = SqlWriter::new(self);
 
         let (mut sql, args) = writer.build_cards_query(&top_node, mode.required_table())?;
-
-        match mode {
-            SortMode::NoOrder => (),
-            SortMode::FromConfig => unreachable!(),
-            SortMode::Builtin { kind, reverse } => {
-                prepare_sort(self, kind)?;
-                sql.push_str(" order by ");
-                write_order(&mut sql, kind, reverse)?;
-            }
-            SortMode::Custom(order_clause) => {
-                sql.push_str(" order by ");
-                sql.push_str(&order_clause);
-            }
-        }
+        self.add_order(&mut sql, mode)?;
 
         let mut stmt = self.storage.db.prepare(&sql)?;
         let ids: Vec<_> = stmt
@@ -86,13 +73,32 @@ impl Collection {
         Ok(ids)
     }
 
+    fn add_order(&mut self, sql: &mut String, mode: SortMode) -> Result<()> {
+        match mode {
+            SortMode::NoOrder => (),
+            SortMode::FromConfig => unreachable!(),
+            SortMode::Builtin { kind, reverse } => {
+                prepare_sort(self, kind)?;
+                sql.push_str(" order by ");
+                write_order(sql, kind, reverse)?;
+            }
+            SortMode::Custom(order_clause) => {
+                sql.push_str(" order by ");
+                sql.push_str(&order_clause);
+            }
+        }
+        Ok(())
+    }
+
     /// Place the matched card ids into a temporary 'search_cids' table
     /// instead of returning them. Use clear_searched_cards() to remove it.
-    pub(crate) fn search_cards_into_table(&mut self, search: &str) -> Result<()> {
+    pub(crate) fn search_cards_into_table(&mut self, search: &str, mode: SortMode) -> Result<()> {
         let top_node = Node::Group(parse(search)?);
         let writer = SqlWriter::new(self);
 
-        let (sql, args) = writer.build_cards_query(&top_node, RequiredTable::Cards)?;
+        let (mut sql, args) = writer.build_cards_query(&top_node, mode.required_table())?;
+        self.add_order(&mut sql, mode)?;
+
         self.storage
             .db
             .execute_batch(include_str!("search_cids_setup.sql"))?;

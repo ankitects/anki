@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::decks::DeckID;
+use crate::decks::{DeckFilterContext, DeckID};
 use crate::define_newtype;
 use crate::err::{AnkiError, Result};
 use crate::notes::NoteID;
@@ -102,7 +102,42 @@ impl Card {
         self.usn = usn;
     }
 
-    pub(crate) fn return_home(&mut self, sched: SchedulerVersion) {
+    pub(crate) fn move_into_filtered_deck(&mut self, ctx: &DeckFilterContext, position: i32) {
+        // filtered and v1 learning cards are excluded, so odue should be guaranteed to be zero
+        if self.original_due != 0 {
+            println!("bug: odue was set");
+            return;
+        }
+
+        self.original_deck_id = self.deck_id;
+        self.deck_id = ctx.target_deck;
+
+        self.original_due = self.due;
+
+        if ctx.scheduler == SchedulerVersion::V1 {
+            if self.ctype == CardType::Review && self.due <= ctx.today as i32 {
+                // review cards that are due are left in the review queue
+            } else {
+                // new + non-due go into new queue
+                self.queue = CardQueue::New;
+            }
+            if self.due != 0 {
+                self.due = position;
+            }
+        } else {
+            // if rescheduling is disabled, all cards go in the review queue
+            if !ctx.config.reschedule {
+                self.queue = CardQueue::Review;
+            }
+            // fixme: can we unify this with v1 scheduler in the future?
+            // https://anki.tenderapp.com/discussions/ankidesktop/35978-rebuilding-filtered-deck-on-experimental-v2-empties-deck-and-reschedules-to-the-year-1745
+            if self.due > 0 {
+                self.due = position;
+            }
+        }
+    }
+
+    pub(crate) fn remove_from_filtered_deck(&mut self, sched: SchedulerVersion) {
         if self.original_deck_id.0 == 0 {
             // not in a filtered deck
             return;
@@ -110,14 +145,11 @@ impl Card {
 
         self.deck_id = self.original_deck_id;
         self.original_deck_id.0 = 0;
-        if self.original_due > 0 {
-            self.due = self.original_due;
-        }
-        self.original_due = 0;
 
-        self.queue = match sched {
+        match sched {
             SchedulerVersion::V1 => {
-                match self.ctype {
+                self.due = self.original_due;
+                self.queue = match self.ctype {
                     CardType::New => CardQueue::New,
                     CardType::Learn => CardQueue::New,
                     CardType::Review => CardQueue::Review,
@@ -126,11 +158,19 @@ impl Card {
                         println!("did not expect relearn type in v1 for card {}", self.id);
                         CardQueue::New
                     }
+                };
+                if self.ctype == CardType::Learn {
+                    self.ctype = CardType::New;
                 }
             }
             SchedulerVersion::V2 => {
+                // original_due is cleared if card answered in filtered deck
+                if self.original_due > 0 {
+                    self.due = self.original_due;
+                }
+
                 if (self.queue as i8) >= 0 {
-                    match self.ctype {
+                    self.queue = match self.ctype {
                         CardType::Learn | CardType::Relearn => {
                             if self.due > 1_000_000_000 {
                                 // unix timestamp
@@ -143,15 +183,11 @@ impl Card {
                         CardType::New => CardQueue::New,
                         CardType::Review => CardQueue::Review,
                     }
-                } else {
-                    self.queue
                 }
             }
-        };
-
-        if sched == SchedulerVersion::V1 && self.ctype == CardType::Learn {
-            self.ctype = CardType::New;
         }
+
+        self.original_due = 0;
     }
 
     /// Remove the card from the (re)learning queue.

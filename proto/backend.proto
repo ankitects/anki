@@ -103,6 +103,8 @@ service BackendService {
     rpc RestoreBuriedAndSuspendedCards (CardIDs) returns (Empty);
     rpc UnburyCardsInCurrentDeck (UnburyCardsInCurrentDeckIn) returns (Empty);
     rpc BuryOrSuspendCards (BuryOrSuspendCardsIn) returns (Empty);
+    rpc EmptyFilteredDeck (DeckID) returns (Empty);
+    rpc RebuildFilteredDeck (DeckID) returns (UInt32);
 
     // stats
 
