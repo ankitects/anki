@@ -7,6 +7,7 @@ use crate::{
     collection::Collection,
     config::SchedulerVersion,
     err::Result,
+    search::SortMode,
 };
 
 use super::cutoff::SchedTimingToday;
@@ -59,7 +60,7 @@ impl Collection {
     /// Unbury cards from the previous day.
     /// Done automatically, and does not mark the cards as modified.
     fn unbury_on_day_rollover(&mut self) -> Result<()> {
-        self.search_cards_into_table("is:buried")?;
+        self.search_cards_into_table("is:buried", SortMode::NoOrder)?;
         self.storage.for_each_card_in_search(|mut card| {
             card.restore_queue_after_bury_or_suspend();
             self.storage.update_card(&card)
@@ -94,7 +95,7 @@ impl Collection {
             UnburyDeckMode::SchedOnly => "is:buried-sibling",
         };
         self.transact(None, |col| {
-            col.search_cards_into_table(&format!("deck:current {}", search))?;
+            col.search_cards_into_table(&format!("deck:current {}", search), SortMode::NoOrder)?;
             col.unsuspend_or_unbury_searched_cards()
         })
     }
@@ -125,7 +126,7 @@ impl Collection {
             };
             if card.queue != desired_queue {
                 if sched == SchedulerVersion::V1 {
-                    card.return_home(sched);
+                    card.remove_from_filtered_deck(sched);
                     card.remove_from_learning();
                 }
                 card.queue = desired_queue;

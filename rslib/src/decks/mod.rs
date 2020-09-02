@@ -7,7 +7,6 @@ pub use crate::backend_proto::{
     DeckCommon, DeckKind as DeckKindProto, FilteredDeck, FilteredSearchTerm, NormalDeck,
 };
 use crate::{
-    card::CardID,
     collection::Collection,
     deckconf::DeckConfID,
     define_newtype,
@@ -18,9 +17,11 @@ use crate::{
     types::Usn,
 };
 mod counts;
+mod filtered;
 mod schema11;
 mod tree;
 pub(crate) use counts::DueCounts;
+pub(crate) use filtered::DeckFilterContext;
 pub use schema11::DeckSchema11;
 use std::{borrow::Cow, sync::Arc};
 
@@ -51,25 +52,6 @@ impl Deck {
         }
     }
 
-    pub fn new_filtered() -> Deck {
-        let mut filt = FilteredDeck::default();
-        filt.search_terms.push(FilteredSearchTerm {
-            search: "".into(),
-            limit: 100,
-            order: 0,
-        });
-        filt.preview_delay = 10;
-        filt.reschedule = true;
-        Deck {
-            id: DeckID(0),
-            name: "".into(),
-            mtime_secs: TimestampSecs(0),
-            usn: Usn(0),
-            common: DeckCommon::default(),
-            kind: DeckKind::Filtered(filt),
-        }
-    }
-
     fn reset_stats_if_day_changed(&mut self, today: u32) {
         let c = &mut self.common;
         if c.last_day_studied != today {
@@ -79,12 +61,6 @@ impl Deck {
             c.milliseconds_studied = 0;
             c.last_day_studied = today;
         }
-    }
-}
-
-impl Deck {
-    pub(crate) fn is_filtered(&self) -> bool {
-        matches!(self.kind, DeckKind::Filtered(_))
     }
 
     /// Returns deck config ID if deck is a normal deck.
@@ -432,23 +408,6 @@ impl Collection {
     fn delete_all_cards_in_normal_deck(&mut self, did: DeckID) -> Result<()> {
         let cids = self.storage.all_cards_in_single_deck(did)?;
         self.remove_cards_and_orphaned_notes(&cids)
-    }
-
-    fn return_all_cards_in_filtered_deck(&mut self, did: DeckID) -> Result<()> {
-        let cids = self.storage.all_cards_in_single_deck(did)?;
-        self.return_cards_to_home_deck(&cids)
-    }
-
-    fn return_cards_to_home_deck(&mut self, cids: &[CardID]) -> Result<()> {
-        let sched = self.sched_ver();
-        for cid in cids {
-            if let Some(mut card) = self.storage.get_card(*cid)? {
-                // fixme: undo
-                card.return_home(sched);
-                self.storage.update_card(&card)?;
-            }
-        }
-        Ok(())
     }
 
     pub fn get_all_deck_names(&self, skip_empty_default: bool) -> Result<Vec<(DeckID, String)>> {
