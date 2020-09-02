@@ -1419,29 +1419,9 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
 
     def reschedCards(self, ids: List[int], imin: int, imax: int) -> None:
         "Put cards in review queue with a new interval in days (min, max)."
-        d = []
-        t = self.today
-        mod = intTime()
-        for id in ids:
-            r = random.randint(imin, imax)
-            d.append(
-                (
-                    max(1, r),
-                    r + t,
-                    self.col.usn(),
-                    mod,
-                    STARTING_FACTOR,
-                    id,
-                )
-            )
-        self.remFromDyn(ids)
-        self.col.db.executemany(
-            f"""
-update cards set type={CARD_TYPE_REV},queue={QUEUE_TYPE_REV},ivl=?,due=?,odue=0,
-usn=?,mod=?,factor=? where id=?""",
-            d,
+        self.col.backend.schedule_cards_as_reviews(
+            card_ids=ids, min_interval=imin, max_interval=imax
         )
-        self.col.log(ids)
 
     def resetCards(self, ids: List[int]) -> None:
         "Completely reset cards for export."

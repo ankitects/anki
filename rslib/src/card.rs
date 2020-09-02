@@ -137,7 +137,18 @@ impl Card {
         }
     }
 
-    pub(crate) fn remove_from_filtered_deck(&mut self, sched: SchedulerVersion) {
+    /// Restores to the original deck and clears original_due.
+    /// This does not update the queue or type, so should only be used as
+    /// part of an operation that adjusts those separately.
+    pub(crate) fn remove_from_filtered_deck_before_reschedule(&mut self) {
+        if self.original_deck_id.0 != 0 {
+            self.deck_id = self.original_deck_id;
+            self.original_deck_id.0 = 0;
+            self.original_due = 0;
+        }
+    }
+
+    pub(crate) fn remove_from_filtered_deck_restoring_queue(&mut self, sched: SchedulerVersion) {
         if self.original_deck_id.0 == 0 {
             // not in a filtered deck
             return;

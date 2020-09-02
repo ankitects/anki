@@ -66,7 +66,7 @@ impl Collection {
         for cid in cids {
             if let Some(mut card) = self.storage.get_card(*cid)? {
                 let original = card.clone();
-                card.remove_from_filtered_deck(sched);
+                card.remove_from_filtered_deck_restoring_queue(sched);
                 self.update_card(&mut card, &original, usn)?;
             }
         }
