@@ -28,7 +28,7 @@ serde = "1.0.114"
 serde_json = "1.0.56"
 tokio = { version = "0.2.21", features = ["fs", "rt-threaded"] }
 serde_derive = "1.0.114"
-zip = "0.5.6"
+zip = { version = "0.5.6", default-features = false, features = ["deflate", "time"] }
 serde_tuple = "0.5.0"
 coarsetime = { git = "https://github.com/ankitects/rust-coarsetime.git", branch="old-mac-compat" }
 utime = "0.3.1"
