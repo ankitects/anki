@@ -21,3 +21,5 @@ card-stats-review-log-type-learn = Learn
 card-stats-review-log-type-review = Review
 card-stats-review-log-type-relearn = Relearn
 card-stats-review-log-type-filtered = Filtered
+card-stats-review-log-type-manual = Manual
+

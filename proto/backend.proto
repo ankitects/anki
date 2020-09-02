@@ -95,7 +95,8 @@ service BackendService {
     rpc LocalMinutesWest (Int64) returns (Int32);
     rpc SetLocalMinutesWest (Int32) returns (Empty);
     rpc SchedTimingToday (Empty) returns (SchedTimingTodayOut);
-    rpc StudiedToday (StudiedTodayIn) returns (String);
+    rpc StudiedToday (Empty) returns (String);
+    rpc StudiedTodayMessage (StudiedTodayMessageIn) returns (String);
     rpc UpdateStats (UpdateStatsIn) returns (Empty);
     rpc ExtendLimits (ExtendLimitsIn) returns (Empty);
     rpc CountsForDeckToday (DeckID) returns (CountsForDeckTodayOut);
@@ -685,7 +686,7 @@ message FormatTimespanIn {
     Context context = 2;
 }
 
-message StudiedTodayIn {
+message StudiedTodayMessageIn {
     uint32 cards = 1;
     double seconds = 2;
 }
@@ -1016,6 +1017,7 @@ message RevlogEntry {
         REVIEW = 1;
         RELEARNING = 2;
         EARLY_REVIEW = 3;
+        MANUAL = 4;
     }
     int64 id = 1;
     int64 cid = 2;

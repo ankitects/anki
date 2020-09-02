@@ -3,3 +3,6 @@
 
 mod card;
 mod graphs;
+mod today;
+
+pub use today::studied_today;

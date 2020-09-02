@@ -516,6 +516,9 @@ table.review-log {{ {revlog_style} }}
 
         return style + self.backend.card_stats(card_id)
 
+    def studied_today(self) -> str:
+        return self.backend.studied_today()
+
     # legacy
 
     def cardStats(self, card: Card) -> str:

@@ -40,6 +40,7 @@ impl Collection {
             for mut card in col.storage.all_searched_cards()? {
                 let original = card.clone();
                 let interval = distribution.sample(&mut rng);
+                col.log_manually_scheduled_review(&card, usn, interval)?;
                 card.schedule_as_review(interval, today);
                 col.update_card(&mut card, &original, usn)?;
             }

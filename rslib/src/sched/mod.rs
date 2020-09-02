@@ -8,6 +8,7 @@ use crate::{
 pub mod bury_and_suspend;
 pub(crate) mod congrats;
 pub mod cutoff;
+mod learning;
 mod reviews;
 pub mod timespan;
 

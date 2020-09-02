@@ -15,6 +15,11 @@ use rusqlite::{
 };
 use std::convert::TryFrom;
 
+pub(crate) struct StudiedToday {
+    pub cards: u32,
+    pub seconds: f64,
+}
+
 impl FromSql for RevlogReviewKind {
     fn column_result(value: ValueRef<'_>) -> std::result::Result<Self, FromSqlError> {
         if let ValueRef::Integer(i) = value {
@@ -112,5 +117,20 @@ impl SqliteStorage {
                 row_to_revlog_entry(r).map(Into::into)
             })?
             .collect()
+    }
+
+    pub(crate) fn studied_today(&self, day_cutoff: i64) -> Result<StudiedToday> {
+        let start = (day_cutoff - 86_400) * 1_000;
+        self.db
+            .prepare_cached(include_str!("studied_today.sql"))?
+            .query_map(&[start, RevlogReviewKind::Manual as i64], |row| {
+                Ok(StudiedToday {
+                    cards: row.get(0)?,
+                    seconds: row.get(1)?,
+                })
+            })?
+            .next()
+            .unwrap()
+            .map_err(Into::into)
     }
 }

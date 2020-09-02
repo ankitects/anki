@@ -229,12 +229,14 @@ fn revlog_to_text(e: RevlogEntry, i18n: &I18n, offset: FixedOffset) -> RevlogTex
         RevlogReviewKind::Review => i18n.tr(TR::CardStatsReviewLogTypeReview).into(),
         RevlogReviewKind::Relearning => i18n.tr(TR::CardStatsReviewLogTypeRelearn).into(),
         RevlogReviewKind::EarlyReview => i18n.tr(TR::CardStatsReviewLogTypeFiltered).into(),
+        RevlogReviewKind::Manual => i18n.tr(TR::CardStatsReviewLogTypeManual).into(),
     };
     let kind_class = match e.review_kind {
         RevlogReviewKind::Learning => String::from("revlog-learn"),
         RevlogReviewKind::Review => String::from("revlog-review"),
         RevlogReviewKind::Relearning => String::from("revlog-relearn"),
         RevlogReviewKind::EarlyReview => String::from("revlog-filtered"),
+        RevlogReviewKind::Manual => String::from("revlog-manual"),
     };
     let rating = e.button_chosen.to_string();
     let interval = if e.interval == 0 {
