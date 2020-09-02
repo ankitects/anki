@@ -104,7 +104,7 @@ class CollectionStats:
 <style>
 h1 { margin-bottom: 0; margin-top: 1em; }
 .pielabel { text-align:center; padding:0px; color:white; }
-body {background-image: url(data:image/png;base64,%s); }
+body:not(.night_mode) {background-image: url(data:image/png;base64,%s); }
 @media print {
     .section { page-break-inside: avoid; padding-top: 5mm; }
 }
