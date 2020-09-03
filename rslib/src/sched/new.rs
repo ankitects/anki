@@ -72,7 +72,7 @@ impl Collection {
         let usn = self.usn()?;
         let mut position = self.get_next_card_position();
         self.transact(None, |col| {
-            col.set_search_table_to_card_ids(cids)?;
+            col.storage.set_search_table_to_card_ids(cids)?;
             let cards = col.storage.all_searched_cards()?;
             for mut card in cards {
                 let original = card.clone();
@@ -113,7 +113,7 @@ impl Collection {
         if shift {
             self.shift_existing_cards(starting_from, step * cids.len() as u32, usn)?;
         }
-        self.set_search_table_to_card_ids(cids)?;
+        self.storage.set_search_table_to_card_ids(cids)?;
         let cards = self.storage.all_searched_cards()?;
         let sorter = NewCardSorter::new(&cards, starting_from, step, random);
         for mut card in cards {

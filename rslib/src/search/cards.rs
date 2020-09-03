@@ -106,22 +106,6 @@ impl Collection {
         Ok(())
     }
 
-    /// Injects the provided card IDs into the search_cids table, for
-    /// when ids have arrived outside of a search.
-    /// Clear with clear_searched_cards().
-    pub(crate) fn set_search_table_to_card_ids(&mut self, cards: &[CardID]) -> Result<()> {
-        self.storage.setup_searched_cards_table()?;
-        let mut stmt = self
-            .storage
-            .db
-            .prepare_cached("insert into search_cids values (?)")?;
-        for cid in cards {
-            stmt.execute(&[cid])?;
-        }
-
-        Ok(())
-    }
-
     /// If the sort mode is based on a config setting, look it up.
     fn resolve_config_sort(&self, mode: &mut SortMode) {
         if mode == &SortMode::FromConfig {

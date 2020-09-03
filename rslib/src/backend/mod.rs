@@ -817,6 +817,12 @@ impl BackendService for Backend {
         })
     }
 
+    fn set_deck(&mut self, input: pb::SetDeckIn) -> BackendResult<Empty> {
+        let cids: Vec<_> = input.card_ids.into_iter().map(CardID).collect();
+        let deck_id = input.deck_id.into();
+        self.with_col(|col| col.set_deck(&cids, deck_id).map(Into::into))
+    }
+
     // notes
     //-------------------------------------------------------------------
 

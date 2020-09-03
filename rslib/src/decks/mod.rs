@@ -17,11 +17,9 @@ use crate::{
     types::Usn,
 };
 mod counts;
-mod filtered;
 mod schema11;
 mod tree;
 pub(crate) use counts::DueCounts;
-pub(crate) use filtered::DeckFilterContext;
 pub use schema11::DeckSchema11;
 use std::{borrow::Cow, sync::Arc};
 

@@ -83,7 +83,7 @@ impl Collection {
 
     pub fn unbury_or_unsuspend_cards(&mut self, cids: &[CardID]) -> Result<()> {
         self.transact(None, |col| {
-            col.set_search_table_to_card_ids(cids)?;
+            col.storage.set_search_table_to_card_ids(cids)?;
             col.unsuspend_or_unbury_searched_cards()
         })
     }
@@ -143,7 +143,7 @@ impl Collection {
         mode: pb::bury_or_suspend_cards_in::Mode,
     ) -> Result<()> {
         self.transact(None, |col| {
-            col.set_search_table_to_card_ids(cids)?;
+            col.storage.set_search_table_to_card_ids(cids)?;
             col.bury_or_suspend_searched_cards(mode)
         })
     }
