@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::{
+    decks::DeckID,
     err::{AnkiError, Result},
     notetype::NoteTypeID,
 };
@@ -64,6 +65,7 @@ pub(super) enum SearchNode<'a> {
     EditedInDays(u32),
     CardTemplate(TemplateKind),
     Deck(Cow<'a, str>),
+    DeckID(DeckID),
     NoteTypeID(NoteTypeID),
     NoteType(Cow<'a, str>),
     Rated {
@@ -283,6 +285,7 @@ fn search_node_for_text_with_argument<'a>(
         "mid" => SearchNode::NoteTypeID(val.parse()?),
         "nid" => SearchNode::NoteIDs(check_id_list(val)?),
         "cid" => SearchNode::CardIDs(check_id_list(val)?),
+        "did" => SearchNode::DeckID(val.parse()?),
         "card" => parse_template(val.as_ref()),
         "is" => parse_state(val.as_ref())?,
         "flag" => parse_flag(val.as_ref())?,

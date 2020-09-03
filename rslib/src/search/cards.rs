@@ -9,7 +9,6 @@ use crate::{
     card::CardID, card::CardType, collection::Collection, config::SortKind, err::Result,
     search::parser::parse,
 };
-use rusqlite::NO_PARAMS;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum SortMode {
@@ -63,20 +62,7 @@ impl Collection {
         let writer = SqlWriter::new(self);
 
         let (mut sql, args) = writer.build_cards_query(&top_node, mode.required_table())?;
-
-        match mode {
-            SortMode::NoOrder => (),
-            SortMode::FromConfig => unreachable!(),
-            SortMode::Builtin { kind, reverse } => {
-                prepare_sort(self, kind)?;
-                sql.push_str(" order by ");
-                write_order(&mut sql, kind, reverse)?;
-            }
-            SortMode::Custom(order_clause) => {
-                sql.push_str(" order by ");
-                sql.push_str(&order_clause);
-            }
-        }
+        self.add_order(&mut sql, mode)?;
 
         let mut stmt = self.storage.db.prepare(&sql)?;
         let ids: Vec<_> = stmt
@@ -86,45 +72,37 @@ impl Collection {
         Ok(ids)
     }
 
+    fn add_order(&mut self, sql: &mut String, mode: SortMode) -> Result<()> {
+        match mode {
+            SortMode::NoOrder => (),
+            SortMode::FromConfig => unreachable!(),
+            SortMode::Builtin { kind, reverse } => {
+                prepare_sort(self, kind)?;
+                sql.push_str(" order by ");
+                write_order(sql, kind, reverse)?;
+            }
+            SortMode::Custom(order_clause) => {
+                sql.push_str(" order by ");
+                sql.push_str(&order_clause);
+            }
+        }
+        Ok(())
+    }
+
     /// Place the matched card ids into a temporary 'search_cids' table
     /// instead of returning them. Use clear_searched_cards() to remove it.
-    pub(crate) fn search_cards_into_table(&mut self, search: &str) -> Result<()> {
+    pub(crate) fn search_cards_into_table(&mut self, search: &str, mode: SortMode) -> Result<()> {
         let top_node = Node::Group(parse(search)?);
         let writer = SqlWriter::new(self);
 
-        let (sql, args) = writer.build_cards_query(&top_node, RequiredTable::Cards)?;
-        self.storage
-            .db
-            .execute_batch(include_str!("search_cids_setup.sql"))?;
+        let (mut sql, args) = writer.build_cards_query(&top_node, mode.required_table())?;
+        self.add_order(&mut sql, mode)?;
+
+        self.storage.setup_searched_cards_table()?;
         let sql = format!("insert into search_cids {}", sql);
 
         self.storage.db.prepare(&sql)?.execute(&args)?;
 
-        Ok(())
-    }
-
-    /// Injects the provided card IDs into the search_cids table, for
-    /// when ids have arrived outside of a search.
-    /// Clear with clear_searched_cards().
-    pub(crate) fn set_search_table_to_card_ids(&mut self, cards: &[CardID]) -> Result<()> {
-        self.storage
-            .db
-            .execute_batch(include_str!("search_cids_setup.sql"))?;
-        let mut stmt = self
-            .storage
-            .db
-            .prepare_cached("insert into search_cids values (?)")?;
-        for cid in cards {
-            stmt.execute(&[cid])?;
-        }
-
-        Ok(())
-    }
-
-    pub(crate) fn clear_searched_cards(&self) -> Result<()> {
-        self.storage
-            .db
-            .execute("drop table if exists search_cids", NO_PARAMS)?;
         Ok(())
     }
 

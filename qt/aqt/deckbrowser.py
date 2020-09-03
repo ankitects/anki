@@ -138,16 +138,7 @@ class DeckBrowser:
         self.web.eval("$(function() { window.scrollTo(0, %d, 'instant'); });" % offset)
 
     def _renderStats(self):
-        cards, thetime = self.mw.col.db.first(
-            """
-select count(), sum(time)/1000 from revlog
-where id > ?""",
-            (self.mw.col.sched.dayCutoff - 86400) * 1000,
-        )
-        cards = cards or 0
-        thetime = thetime or 0
-        buf = self.mw.col.backend.studied_today(cards=cards, seconds=float(thetime))
-        return buf
+        return self.mw.col.studied_today()
 
     def _renderDeckTree(self, top: DeckTreeNode) -> str:
         buf = """

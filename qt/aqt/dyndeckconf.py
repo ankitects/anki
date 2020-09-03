@@ -122,7 +122,7 @@ class DeckConf(QDialog):
     def accept(self):
         if not self.saveConf():
             return
-        if not self.mw.col.sched.rebuildDyn():
+        if not self.mw.col.sched.rebuild_filtered_deck(self.deck["id"]):
             if askUser(
                 _(
                     """\

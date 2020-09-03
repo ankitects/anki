@@ -31,8 +31,9 @@ use crate::{
         RenderCardOutput,
     },
     sched::cutoff::local_minutes_west_for_stamp,
-    sched::timespan::{answer_button_time, studied_today, time_span},
+    sched::timespan::{answer_button_time, time_span},
     search::SortMode,
+    stats::studied_today,
     sync::{
         get_remote_sync_meta, sync_abort, sync_login, FullSyncProgress, NormalSyncProgress,
         SyncActionRequired, SyncAuth, SyncMeta, SyncOutput, SyncStage,
@@ -472,8 +473,17 @@ impl BackendService for Backend {
         })
     }
 
-    fn studied_today(&mut self, input: pb::StudiedTodayIn) -> BackendResult<pb::String> {
-        Ok(studied_today(input.cards as usize, input.seconds as f32, &self.i18n).into())
+    /// Fetch data from DB and return rendered string.
+    fn studied_today(&mut self, _input: pb::Empty) -> BackendResult<pb::String> {
+        self.with_col(|col| col.studied_today().map(Into::into))
+    }
+
+    /// Message rendering only, for old graphs.
+    fn studied_today_message(
+        &mut self,
+        input: pb::StudiedTodayMessageIn,
+    ) -> BackendResult<pb::String> {
+        Ok(studied_today(input.cards, input.seconds as f32, &self.i18n).into())
     }
 
     fn update_stats(&mut self, input: pb::UpdateStatsIn) -> BackendResult<Empty> {
@@ -536,6 +546,54 @@ impl BackendService for Backend {
             let mode = input.mode();
             let cids: Vec<_> = input.card_ids.into_iter().map(CardID).collect();
             col.bury_or_suspend_cards(&cids, mode).map(Into::into)
+        })
+    }
+
+    fn empty_filtered_deck(&mut self, input: pb::DeckId) -> BackendResult<Empty> {
+        self.with_col(|col| col.empty_filtered_deck(input.did.into()).map(Into::into))
+    }
+
+    fn rebuild_filtered_deck(&mut self, input: pb::DeckId) -> BackendResult<pb::UInt32> {
+        self.with_col(|col| col.rebuild_filtered_deck(input.did.into()).map(Into::into))
+    }
+
+    fn schedule_cards_as_reviews(
+        &mut self,
+        input: pb::ScheduleCardsAsReviewsIn,
+    ) -> BackendResult<Empty> {
+        let cids: Vec<_> = input.card_ids.into_iter().map(CardID).collect();
+        let (min, max) = (input.min_interval, input.max_interval);
+        self.with_col(|col| {
+            col.reschedule_cards_as_reviews(&cids, min, max)
+                .map(Into::into)
+        })
+    }
+
+    fn schedule_cards_as_new(&mut self, input: pb::CardIDs) -> BackendResult<Empty> {
+        self.with_col(|col| {
+            col.reschedule_cards_as_new(&input.into_native())
+                .map(Into::into)
+        })
+    }
+
+    fn sort_cards(&mut self, input: pb::SortCardsIn) -> BackendResult<Empty> {
+        let cids: Vec<_> = input.card_ids.into_iter().map(CardID).collect();
+        let (start, step, random, shift) = (
+            input.starting_from,
+            input.step_size,
+            input.randomize,
+            input.shift_existing,
+        );
+        self.with_col(|col| {
+            col.sort_cards(&cids, start, step, random, shift)
+                .map(Into::into)
+        })
+    }
+
+    fn sort_deck(&mut self, input: pb::SortDeckIn) -> BackendResult<Empty> {
+        self.with_col(|col| {
+            col.sort_deck(input.deck_id.into(), input.randomize)
+                .map(Into::into)
         })
     }
 
@@ -757,6 +815,12 @@ impl BackendService for Backend {
                 Ok(().into())
             })
         })
+    }
+
+    fn set_deck(&mut self, input: pb::SetDeckIn) -> BackendResult<Empty> {
+        let cids: Vec<_> = input.card_ids.into_iter().map(CardID).collect();
+        let deck_id = input.deck_id.into();
+        self.with_col(|col| col.set_deck(&cids, deck_id).map(Into::into))
     }
 
     // notes

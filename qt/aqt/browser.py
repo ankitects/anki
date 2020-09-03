@@ -22,7 +22,7 @@ from anki.models import NoteType
 from anki.notes import Note
 from anki.rsbackend import TR, DeckTreeNode, InvalidInput
 from anki.stats import CardStats
-from anki.utils import htmlToTextLine, ids2str, intTime, isMac, isWin
+from anki.utils import htmlToTextLine, ids2str, isMac, isWin
 from aqt import AnkiQt, gui_hooks
 from aqt.editor import Editor
 from aqt.exporting import ExportDialog
@@ -1601,21 +1601,7 @@ where id in %s"""
             return
         self.model.beginReset()
         self.mw.checkpoint(_("Change Deck"))
-        mod = intTime()
-        usn = self.col.usn()
-        # normal cards
-        scids = ids2str(cids)
-        # remove any cards from filtered deck first
-        self.col.sched.remFromDyn(cids)
-        # then move into new deck
-        self.col.db.execute(
-            """
-update cards set usn=?, mod=?, did=? where id in """
-            + scids,
-            usn,
-            mod,
-            did,
-        )
+        self.col.set_deck(cids, did)
         self.model.endReset()
         self.mw.requireReset(reason=ResetReason.BrowserSetDeck, context=self)
 

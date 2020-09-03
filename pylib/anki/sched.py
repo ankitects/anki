@@ -6,7 +6,7 @@ from __future__ import annotations
 import random
 import time
 from heapq import *
-from typing import Any, List, Optional, Sequence, Tuple, Union
+from typing import Any, List, Optional, Tuple, Union
 
 import anki
 from anki import hooks
@@ -603,76 +603,8 @@ did = ? and queue = {QUEUE_TYPE_REV} and due <= ? limit ?""",
             idealIvl = self._fuzzedIvl(idealIvl)
         return idealIvl
 
-    # Dynamic deck handling
+    # Filtered deck handling
     ##########################################################################
-
-    def rebuildDyn(self, did: Optional[int] = None) -> Optional[Sequence[int]]:  # type: ignore[override]
-        "Rebuild a dynamic deck."
-        did = did or self.col.decks.selected()
-        deck = self.col.decks.get(did)
-        assert deck["dyn"]
-        # move any existing cards back first, then fill
-        self.emptyDyn(did)
-        ids = self._fillDyn(deck)
-        if not ids:
-            return None
-        # and change to our new deck
-        self.col.decks.select(did)
-        return ids
-
-    def _fillDyn(self, deck: Deck) -> Sequence[int]:  # type: ignore[override]
-        search, limit, order = deck["terms"][0]
-        orderlimit = self._dynOrder(order, limit)
-        if search.strip():
-            search = "(%s)" % search
-        search = "%s -is:suspended -is:buried -deck:filtered -is:learn" % search
-        try:
-            ids = self.col.findCards(search, order=orderlimit)
-        except:
-            ids = []
-            return ids
-        # move the cards over
-        self.col.log(deck["id"], ids)
-        self._moveToDyn(deck["id"], ids)
-        return ids
-
-    def emptyDyn(self, did: Optional[int], lim: Optional[str] = None) -> None:
-        if not lim:
-            lim = "did = %s" % did
-        self.col.log(self.col.db.list("select id from cards where %s" % lim))
-        # move out of cram queue
-        self.col.db.execute(
-            f"""
-update cards set did = odid, queue = (case when type = {CARD_TYPE_LRN} then {QUEUE_TYPE_NEW}
-else type end), type = (case when type = {CARD_TYPE_LRN} then {CARD_TYPE_NEW} else type end),
-due = odue, odue = 0, odid = 0, usn = ? where %s"""
-            % lim,
-            self.col.usn(),
-        )
-
-    def _moveToDyn(self, did: int, ids: Sequence[int]) -> None:  # type: ignore[override]
-        deck = self.col.decks.get(did)
-        data = []
-        t = intTime()
-        u = self.col.usn()
-        for c, id in enumerate(ids):
-            # start at -100000 so that reviews are all due
-            data.append((did, -100000 + c, u, id))
-        # due reviews stay in the review queue. careful: can't use
-        # "odid or did", as sqlite converts to boolean
-        queue = f"""
-(case when type={CARD_TYPE_REV} and (case when odue then odue <= %d else due <= %d end)
- then {QUEUE_TYPE_REV} else {QUEUE_TYPE_NEW} end)"""
-        queue %= (self.today, self.today)
-        self.col.db.executemany(
-            """
-update cards set
-odid = (case when odid then odid else did end),
-odue = (case when odue then odue else due end),
-did = ?, queue = %s, due = ?, usn = ? where id = ?"""
-            % queue,
-            data,
-        )
 
     def _dynIvlBoost(self, card: Card) -> int:
         assert card.odid and card.type == CARD_TYPE_REV

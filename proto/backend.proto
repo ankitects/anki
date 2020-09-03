@@ -95,7 +95,8 @@ service BackendService {
     rpc LocalMinutesWest (Int64) returns (Int32);
     rpc SetLocalMinutesWest (Int32) returns (Empty);
     rpc SchedTimingToday (Empty) returns (SchedTimingTodayOut);
-    rpc StudiedToday (StudiedTodayIn) returns (String);
+    rpc StudiedToday (Empty) returns (String);
+    rpc StudiedTodayMessage (StudiedTodayMessageIn) returns (String);
     rpc UpdateStats (UpdateStatsIn) returns (Empty);
     rpc ExtendLimits (ExtendLimitsIn) returns (Empty);
     rpc CountsForDeckToday (DeckID) returns (CountsForDeckTodayOut);
@@ -103,6 +104,12 @@ service BackendService {
     rpc RestoreBuriedAndSuspendedCards (CardIDs) returns (Empty);
     rpc UnburyCardsInCurrentDeck (UnburyCardsInCurrentDeckIn) returns (Empty);
     rpc BuryOrSuspendCards (BuryOrSuspendCardsIn) returns (Empty);
+    rpc EmptyFilteredDeck (DeckID) returns (Empty);
+    rpc RebuildFilteredDeck (DeckID) returns (UInt32);
+    rpc ScheduleCardsAsReviews (ScheduleCardsAsReviewsIn) returns (Empty);
+    rpc ScheduleCardsAsNew (CardIDs) returns (Empty);
+    rpc SortCards (SortCardsIn) returns (Empty);
+    rpc SortDeck (SortDeckIn) returns (Empty);
 
     // stats
 
@@ -143,6 +150,7 @@ service BackendService {
     rpc UpdateCard (Card) returns (Empty);
     rpc AddCard (Card) returns (CardID);
     rpc RemoveCards (RemoveCardsIn) returns (Empty);
+    rpc SetDeck (SetDeckIn) returns (Empty);
 
     // notes
 
@@ -682,7 +690,7 @@ message FormatTimespanIn {
     Context context = 2;
 }
 
-message StudiedTodayIn {
+message StudiedTodayMessageIn {
     uint32 cards = 1;
     double seconds = 2;
 }
@@ -1013,6 +1021,7 @@ message RevlogEntry {
         REVIEW = 1;
         RELEARNING = 2;
         EARLY_REVIEW = 3;
+        MANUAL = 4;
     }
     int64 id = 1;
     int64 cid = 2;
@@ -1053,4 +1062,28 @@ message BuryOrSuspendCardsIn {
     }
     repeated int64 card_ids = 1;
     Mode mode = 2;
+}
+
+message ScheduleCardsAsReviewsIn {
+    repeated int64 card_ids = 1;
+    uint32 min_interval = 2;
+    uint32 max_interval = 3;
+}
+
+message SortCardsIn {
+    repeated int64 card_ids = 1;
+    uint32 starting_from = 2;
+    uint32 step_size = 3;
+    bool randomize = 4;
+    bool shift_existing = 5;
+}
+
+message SortDeckIn {
+    int64 deck_id = 1;
+    bool randomize = 2;
+}
+
+message SetDeckIn {
+    repeated int64 card_ids = 1;
+    int64 deck_id = 2;
 }

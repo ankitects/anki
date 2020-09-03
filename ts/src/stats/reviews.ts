@@ -47,6 +47,10 @@ export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
     const empty = { mature: 0, young: 0, learn: 0, relearn: 0, early: 0 };
 
     for (const review of data.revlog as pb.BackendProto.RevlogEntry[]) {
+        if (review.reviewKind == ReviewKind.MANUAL) {
+            // don't count days with only manual scheduling
+            continue;
+        }
         const day = Math.ceil(
             ((review.id as number) / 1000 - data.nextDayAtSecs) / 86400
         );
