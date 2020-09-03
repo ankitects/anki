@@ -761,7 +761,7 @@ to a cloze type first, via 'Notes>Change Note Type'"""
             return '<img src="%s">' % name
         else:
             av_player.play_file(fname)
-            return "[sound:%s]" % fname
+            return "[sound:%s]" % html.escape(fname, quote=False)
 
     def urlToFile(self, url: str) -> Optional[str]:
         l = url.lower()
