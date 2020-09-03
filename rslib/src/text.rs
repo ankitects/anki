@@ -142,28 +142,36 @@ pub fn extract_av_tags<'a>(text: &'a str, question_side: bool) -> (Cow<'a, str>,
 pub(crate) struct MediaRef<'a> {
     pub full_ref: &'a str,
     pub fname: &'a str,
+    /// audio files may have things like &amp; that need decoding
+    pub fname_decoded: Cow<'a, str>,
 }
 
 pub(crate) fn extract_media_refs(text: &str) -> Vec<MediaRef> {
     let mut out = vec![];
 
     for caps in IMG_TAG.captures_iter(text) {
+        let fname = caps
+            .get(1)
+            .or_else(|| caps.get(2))
+            .or_else(|| caps.get(3))
+            .unwrap()
+            .as_str();
+        let fname_decoded = fname.into();
         out.push(MediaRef {
             full_ref: caps.get(0).unwrap().as_str(),
-            fname: caps
-                .get(1)
-                .or_else(|| caps.get(2))
-                .or_else(|| caps.get(3))
-                .unwrap()
-                .as_str(),
+            fname,
+            fname_decoded,
         });
     }
 
     for caps in AV_TAGS.captures_iter(text) {
         if let Some(m) = caps.get(1) {
+            let fname = m.as_str();
+            let fname_decoded = decode_entities(fname);
             out.push(MediaRef {
                 full_ref: caps.get(0).unwrap().as_str(),
-                fname: m.as_str(),
+                fname,
+                fname_decoded,
             });
         }
     }
