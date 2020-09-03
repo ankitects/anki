@@ -59,9 +59,11 @@
                 </p>
             {/if}
 
-            <p>
-                {@html customStudyMsg}
-            </p>
+            {#if !info.isFilteredDeck}
+                <p>
+                    {@html customStudyMsg}
+                </p>
+            {/if}
         {/if}
     </div>
 </div>
