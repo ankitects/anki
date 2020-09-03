@@ -335,6 +335,21 @@ impl super::SqliteStorage {
             .execute("drop table if exists search_cids", NO_PARAMS)?;
         Ok(())
     }
+
+    /// Injects the provided card IDs into the search_cids table, for
+    /// when ids have arrived outside of a search.
+    /// Clear with clear_searched_cards().
+    pub(crate) fn set_search_table_to_card_ids(&mut self, cards: &[CardID]) -> Result<()> {
+        self.setup_searched_cards_table()?;
+        let mut stmt = self
+            .db
+            .prepare_cached("insert into search_cids values (?)")?;
+        for cid in cards {
+            stmt.execute(&[cid])?;
+        }
+
+        Ok(())
+    }
 }
 
 #[cfg(test)]

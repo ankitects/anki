@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::decks::{DeckFilterContext, DeckID};
+use crate::decks::DeckID;
 use crate::define_newtype;
 use crate::err::{AnkiError, Result};
 use crate::notes::NoteID;
@@ -102,103 +102,10 @@ impl Card {
         self.usn = usn;
     }
 
-    pub(crate) fn move_into_filtered_deck(&mut self, ctx: &DeckFilterContext, position: i32) {
-        // filtered and v1 learning cards are excluded, so odue should be guaranteed to be zero
-        if self.original_due != 0 {
-            println!("bug: odue was set");
-            return;
-        }
-
-        self.original_deck_id = self.deck_id;
-        self.deck_id = ctx.target_deck;
-
-        self.original_due = self.due;
-
-        if ctx.scheduler == SchedulerVersion::V1 {
-            if self.ctype == CardType::Review && self.due <= ctx.today as i32 {
-                // review cards that are due are left in the review queue
-            } else {
-                // new + non-due go into new queue
-                self.queue = CardQueue::New;
-            }
-            if self.due != 0 {
-                self.due = position;
-            }
-        } else {
-            // if rescheduling is disabled, all cards go in the review queue
-            if !ctx.config.reschedule {
-                self.queue = CardQueue::Review;
-            }
-            // fixme: can we unify this with v1 scheduler in the future?
-            // https://anki.tenderapp.com/discussions/ankidesktop/35978-rebuilding-filtered-deck-on-experimental-v2-empties-deck-and-reschedules-to-the-year-1745
-            if self.due > 0 {
-                self.due = position;
-            }
-        }
-    }
-
-    /// Restores to the original deck and clears original_due.
-    /// This does not update the queue or type, so should only be used as
-    /// part of an operation that adjusts those separately.
-    pub(crate) fn remove_from_filtered_deck_before_reschedule(&mut self) {
-        if self.original_deck_id.0 != 0 {
-            self.deck_id = self.original_deck_id;
-            self.original_deck_id.0 = 0;
-            self.original_due = 0;
-        }
-    }
-
-    pub(crate) fn remove_from_filtered_deck_restoring_queue(&mut self, sched: SchedulerVersion) {
-        if self.original_deck_id.0 == 0 {
-            // not in a filtered deck
-            return;
-        }
-
-        self.deck_id = self.original_deck_id;
-        self.original_deck_id.0 = 0;
-
-        match sched {
-            SchedulerVersion::V1 => {
-                self.due = self.original_due;
-                self.queue = match self.ctype {
-                    CardType::New => CardQueue::New,
-                    CardType::Learn => CardQueue::New,
-                    CardType::Review => CardQueue::Review,
-                    // not applicable in v1, should not happen
-                    CardType::Relearn => {
-                        println!("did not expect relearn type in v1 for card {}", self.id);
-                        CardQueue::New
-                    }
-                };
-                if self.ctype == CardType::Learn {
-                    self.ctype = CardType::New;
-                }
-            }
-            SchedulerVersion::V2 => {
-                // original_due is cleared if card answered in filtered deck
-                if self.original_due > 0 {
-                    self.due = self.original_due;
-                }
-
-                if (self.queue as i8) >= 0 {
-                    self.queue = match self.ctype {
-                        CardType::Learn | CardType::Relearn => {
-                            if self.due > 1_000_000_000 {
-                                // unix timestamp
-                                CardQueue::Learn
-                            } else {
-                                // day number
-                                CardQueue::DayLearn
-                            }
-                        }
-                        CardType::New => CardQueue::New,
-                        CardType::Review => CardQueue::Review,
-                    }
-                }
-            }
-        }
-
-        self.original_due = 0;
+    /// Caller must ensure provided deck exists and is not filtered.
+    fn set_deck(&mut self, deck: DeckID, sched: SchedulerVersion) {
+        self.remove_from_filtered_deck_restoring_queue(sched);
+        self.deck_id = deck;
     }
 }
 #[derive(Debug)]
@@ -288,6 +195,27 @@ impl Collection {
         self.storage.add_card_grave(card.id, usn)?;
 
         Ok(())
+    }
+
+    pub fn set_deck(&mut self, cards: &[CardID], deck_id: DeckID) -> Result<()> {
+        let deck = self.get_deck(deck_id)?.ok_or(AnkiError::NotFound)?;
+        if deck.is_filtered() {
+            return Err(AnkiError::DeckIsFiltered);
+        }
+        self.storage.set_search_table_to_card_ids(cards)?;
+        let sched = self.sched_ver();
+        let usn = self.usn()?;
+        self.transact(None, |col| {
+            for mut card in col.storage.all_searched_cards()? {
+                if card.deck_id == deck_id {
+                    continue;
+                }
+                let original = card.clone();
+                card.set_deck(deck_id, sched);
+                col.update_card(&mut card, &original, usn)?;
+            }
+            Ok(())
+        })
     }
 }
 

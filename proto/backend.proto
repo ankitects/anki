@@ -150,6 +150,7 @@ service BackendService {
     rpc UpdateCard (Card) returns (Empty);
     rpc AddCard (Card) returns (CardID);
     rpc RemoveCards (RemoveCardsIn) returns (Empty);
+    rpc SetDeck (SetDeckIn) returns (Empty);
 
     // notes
 
@@ -1080,4 +1081,9 @@ message SortCardsIn {
 message SortDeckIn {
     int64 deck_id = 1;
     bool randomize = 2;
+}
+
+message SetDeckIn {
+    repeated int64 card_ids = 1;
+    int64 deck_id = 2;
 }
