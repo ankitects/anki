@@ -569,6 +569,34 @@ impl BackendService for Backend {
         })
     }
 
+    fn schedule_cards_as_new(&mut self, input: pb::CardIDs) -> BackendResult<Empty> {
+        self.with_col(|col| {
+            col.reschedule_cards_as_new(&input.into_native())
+                .map(Into::into)
+        })
+    }
+
+    fn sort_cards(&mut self, input: pb::SortCardsIn) -> BackendResult<Empty> {
+        let cids: Vec<_> = input.card_ids.into_iter().map(CardID).collect();
+        let (start, step, random, shift) = (
+            input.starting_from,
+            input.step_size,
+            input.randomize,
+            input.shift_existing,
+        );
+        self.with_col(|col| {
+            col.sort_cards(&cids, start, step, random, shift)
+                .map(Into::into)
+        })
+    }
+
+    fn sort_deck(&mut self, input: pb::SortDeckIn) -> BackendResult<Empty> {
+        self.with_col(|col| {
+            col.sort_deck(input.deck_id.into(), input.randomize)
+                .map(Into::into)
+        })
+    }
+
     // statistics
     //-----------------------------------------------
 

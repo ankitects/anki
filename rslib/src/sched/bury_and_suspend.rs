@@ -65,7 +65,7 @@ impl Collection {
             card.restore_queue_after_bury_or_suspend();
             self.storage.update_card(&card)
         })?;
-        self.clear_searched_cards()
+        self.storage.clear_searched_cards_table()
     }
 
     /// Unsuspend/unbury cards in search table, and clear it.
@@ -78,7 +78,7 @@ impl Collection {
                 self.update_card(&mut card, &original, usn)?;
             }
         }
-        self.clear_searched_cards()
+        self.storage.clear_searched_cards_table()
     }
 
     pub fn unbury_or_unsuspend_cards(&mut self, cids: &[CardID]) -> Result<()> {
@@ -134,7 +134,7 @@ impl Collection {
             }
         }
 
-        self.clear_searched_cards()
+        self.storage.clear_searched_cards_table()
     }
 
     pub fn bury_or_suspend_cards(

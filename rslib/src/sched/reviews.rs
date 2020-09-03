@@ -44,7 +44,7 @@ impl Collection {
                 card.schedule_as_review(interval, today);
                 col.update_card(&mut card, &original, usn)?;
             }
-            col.clear_searched_cards()?;
+            col.storage.clear_searched_cards_table()?;
             Ok(())
         })
     }

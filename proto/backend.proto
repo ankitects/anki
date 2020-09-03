@@ -107,6 +107,9 @@ service BackendService {
     rpc EmptyFilteredDeck (DeckID) returns (Empty);
     rpc RebuildFilteredDeck (DeckID) returns (UInt32);
     rpc ScheduleCardsAsReviews (ScheduleCardsAsReviewsIn) returns (Empty);
+    rpc ScheduleCardsAsNew (CardIDs) returns (Empty);
+    rpc SortCards (SortCardsIn) returns (Empty);
+    rpc SortDeck (SortDeckIn) returns (Empty);
 
     // stats
 
@@ -1064,4 +1067,17 @@ message ScheduleCardsAsReviewsIn {
     repeated int64 card_ids = 1;
     uint32 min_interval = 2;
     uint32 max_interval = 3;
+}
+
+message SortCardsIn {
+    repeated int64 card_ids = 1;
+    uint32 starting_from = 2;
+    uint32 step_size = 3;
+    bool randomize = 4;
+    bool shift_existing = 5;
+}
+
+message SortDeckIn {
+    int64 deck_id = 1;
+    bool randomize = 2;
 }

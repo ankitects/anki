@@ -33,7 +33,7 @@ impl Collection {
                 .get_revlog_entries_for_searched_cards(revlog_start)?
         };
 
-        self.clear_searched_cards()?;
+        self.storage.clear_searched_cards_table()?;
 
         Ok(pb::GraphsOut {
             cards: cards.into_iter().map(Into::into).collect(),
