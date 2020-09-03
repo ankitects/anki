@@ -84,7 +84,7 @@ def test_rename():
     for n in "yo", "yo::two", "yo::two::three":
         assert n in names
     # over filtered
-    filteredId = col.decks.newDyn("filtered")
+    filteredId = col.decks.new_filtered("filtered")
     filtered = col.decks.get(filteredId)
     childId = col.decks.id("child")
     child = col.decks.get(childId)

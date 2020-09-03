@@ -1159,7 +1159,7 @@ title="%s" %s>%s</button>""" % (
         while self.col.decks.id_for_name(_("Filtered Deck %d") % n):
             n += 1
         name = _("Filtered Deck %d") % n
-        did = self.col.decks.newDyn(name)
+        did = self.col.decks.new_filtered(name)
         diag = aqt.dyndeckconf.DeckConf(self, first=True, search=search)
         if not diag.ok:
             # user cancelled first config

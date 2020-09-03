@@ -150,7 +150,7 @@ class CustomStudy(QDialog):
                 dyn = cur
                 self.mw.col.decks.select(cur["id"])
         else:
-            did = self.mw.col.decks.newDyn(_("Custom Study Session"))
+            did = self.mw.col.decks.new_filtered(_("Custom Study Session"))
             dyn = self.mw.col.decks.get(did)
         # and then set various options
         if i == RADIO_FORGOT:
@@ -186,7 +186,7 @@ class CustomStudy(QDialog):
         self.mw.col.decks.save(dyn)
         # generate cards
         self.created_custom_study = True
-        if not self.mw.col.sched.rebuildDyn():
+        if not self.mw.col.sched.rebuild_filtered_deck(dyn["id"]):
             return showWarning(_("No cards matched the criteria you provided."))
         self.mw.moveToState("overview")
         QDialog.accept(self)

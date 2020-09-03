@@ -556,7 +556,7 @@ class DeckManager:
     # Dynamic decks
     ##########################################################################
 
-    def newDyn(self, name: str) -> int:
+    def new_filtered(self, name: str) -> int:
         "Return a new dynamic deck and set it as the current deck."
         did = self.id(name, type=1)
         self.select(did)
@@ -565,3 +565,7 @@ class DeckManager:
     # 1 for dyn, 0 for standard
     def isDyn(self, did: Union[int, str]) -> int:
         return self.get(did)["dyn"]
+
+    # legacy
+
+    newDyn = new_filtered
