@@ -1,6 +1,7 @@
 use std::fmt::Write;
 use std::fs;
 use std::path::Path;
+use std::process::Command;
 
 use fluent_syntax::ast::{Entry::Message, ResourceEntry};
 use fluent_syntax::parser::parse;
@@ -200,15 +201,20 @@ fn main() -> std::io::Result<()> {
     fs::write(rust_string_path, rust_string_vec(&idents))?;
 
     // output protobuf generated code
-    // we avoid default OUT_DIR for now, as it breaks code completion
-    std::env::set_var("OUT_DIR", "src");
     println!("cargo:rerun-if-changed=../proto/backend.proto");
-
     let mut config = prost_build::Config::new();
-    config.service_generator(service_generator());
     config
+        // we avoid default OUT_DIR for now, as it breaks code completion
+        .out_dir("src")
+        .service_generator(service_generator())
         .compile_protos(&["../proto/backend.proto"], &["../proto"])
         .unwrap();
+    // rustfmt the protobuf code
+    let rustfmt = Command::new("rustfmt")
+        .arg(Path::new("src/backend_proto.rs"))
+        .status()
+        .unwrap();
+    assert!(rustfmt.success(), "rustfmt backend_proto.rs failed");
 
     // write the other language ftl files
     let mut ftl_lang_dirs = vec!["./ftl/repo/core".to_string()];
