@@ -743,7 +743,6 @@ to a cloze type first, via 'Notes>Change Note Type'"""
             )
             return
         if file:
-            av_player.play_file(file)
             self.addMedia(file)
 
     # Media downloads
@@ -761,6 +760,7 @@ to a cloze type first, via 'Notes>Change Note Type'"""
             name = urllib.parse.quote(fname.encode("utf8"))
             return '<img src="%s">' % name
         else:
+            av_player.play_file(fname)
             return "[sound:%s]" % fname
 
     def urlToFile(self, url: str) -> Optional[str]:
