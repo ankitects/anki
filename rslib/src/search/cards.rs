@@ -9,7 +9,6 @@ use crate::{
     card::CardID, card::CardType, collection::Collection, config::SortKind, err::Result,
     search::parser::parse,
 };
-use rusqlite::NO_PARAMS;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum SortMode {
@@ -99,9 +98,7 @@ impl Collection {
         let (mut sql, args) = writer.build_cards_query(&top_node, mode.required_table())?;
         self.add_order(&mut sql, mode)?;
 
-        self.storage
-            .db
-            .execute_batch(include_str!("search_cids_setup.sql"))?;
+        self.storage.setup_searched_cards_table()?;
         let sql = format!("insert into search_cids {}", sql);
 
         self.storage.db.prepare(&sql)?.execute(&args)?;
@@ -113,9 +110,7 @@ impl Collection {
     /// when ids have arrived outside of a search.
     /// Clear with clear_searched_cards().
     pub(crate) fn set_search_table_to_card_ids(&mut self, cards: &[CardID]) -> Result<()> {
-        self.storage
-            .db
-            .execute_batch(include_str!("search_cids_setup.sql"))?;
+        self.storage.setup_searched_cards_table()?;
         let mut stmt = self
             .storage
             .db
@@ -124,13 +119,6 @@ impl Collection {
             stmt.execute(&[cid])?;
         }
 
-        Ok(())
-    }
-
-    pub(crate) fn clear_searched_cards(&self) -> Result<()> {
-        self.storage
-            .db
-            .execute("drop table if exists search_cids", NO_PARAMS)?;
         Ok(())
     }
 

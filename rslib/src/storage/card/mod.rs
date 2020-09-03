@@ -315,6 +315,26 @@ impl super::SqliteStorage {
             .next()
             .unwrap()
     }
+
+    pub(crate) fn search_cards_at_or_above_position(&self, start: u32) -> Result<()> {
+        self.setup_searched_cards_table()?;
+        self.db
+            .prepare(include_str!("at_or_above_position.sql"))?
+            .execute(&[start, CardType::New as u32])?;
+        Ok(())
+    }
+
+    pub(crate) fn setup_searched_cards_table(&self) -> Result<()> {
+        self.db
+            .execute_batch(include_str!("search_cids_setup.sql"))?;
+        Ok(())
+    }
+
+    pub(crate) fn clear_searched_cards_table(&self) -> Result<()> {
+        self.db
+            .execute("drop table if exists search_cids", NO_PARAMS)?;
+        Ok(())
+    }
 }
 
 #[cfg(test)]
