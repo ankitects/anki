@@ -668,8 +668,8 @@ def test_suspend():
     # should cope with cards in cram decks
     c.due = 1
     c.flush()
-    col.decks.newDyn("tmp")
-    col.sched.rebuildDyn()
+    did = col.decks.new_filtered("tmp")
+    col.sched.rebuild_filtered_deck(did)
     c.load()
     assert c.due != 1
     assert c.did != 1
@@ -698,8 +698,8 @@ def test_filt_reviewing_early_normal():
     col.reset()
     assert col.sched.counts() == (0, 0, 0)
     # create a dynamic deck and refresh it
-    did = col.decks.newDyn("Cram")
-    col.sched.rebuildDyn(did)
+    did = col.decks.new_filtered("Cram")
+    col.sched.rebuild_filtered_deck(did)
     col.reset()
     # should appear as normal in the deck list
     assert sorted(col.sched.deck_due_tree().children)[0].review_count == 1
@@ -727,7 +727,7 @@ def test_filt_reviewing_early_normal():
     c.ivl = 100
     c.due = col.sched.today + 75
     c.flush()
-    col.sched.rebuildDyn(did)
+    col.sched.rebuild_filtered_deck(did)
     col.reset()
     c = col.sched.getCard()
 
@@ -758,8 +758,8 @@ def test_filt_keep_lrn_state():
     assert c.type == CARD_TYPE_LRN and c.queue == QUEUE_TYPE_LRN
 
     # create a dynamic deck and refresh it
-    did = col.decks.newDyn("Cram")
-    col.sched.rebuildDyn(did)
+    did = col.decks.new_filtered("Cram")
+    col.sched.rebuild_filtered_deck(did)
     col.reset()
 
     # card should still be in learning state
@@ -792,11 +792,11 @@ def test_preview():
     note2["Front"] = "two"
     col.addNote(note2)
     # cram deck
-    did = col.decks.newDyn("Cram")
+    did = col.decks.new_filtered("Cram")
     cram = col.decks.get(did)
     cram["resched"] = False
     col.decks.save(cram)
-    col.sched.rebuildDyn(did)
+    col.sched.rebuild_filtered_deck(did)
     col.reset()
     # grab the first card
     c = col.sched.getCard()
@@ -1253,8 +1253,8 @@ def test_negativeDueFilter():
     c.flush()
 
     # into and out of filtered deck
-    did = col.decks.newDyn("Cram")
-    col.sched.rebuildDyn(did)
+    did = col.decks.new_filtered("Cram")
+    col.sched.rebuild_filtered_deck(did)
     col.sched.empty_filtered_deck(did)
     col.reset()
 

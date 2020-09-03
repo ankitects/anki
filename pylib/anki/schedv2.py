@@ -1070,15 +1070,6 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
     def empty_filtered_deck(self, deck_id: int) -> None:
         self.col.backend.empty_filtered_deck(deck_id)
 
-    def rebuildDyn(self, did: Optional[int] = None) -> Optional[int]:
-        did = did or self.col.decks.selected()
-        count = self.rebuild_filtered_deck(did) or None
-        if not count:
-            return None
-        # and change to our new deck
-        self.col.decks.select(did)
-        return count
-
     def _removeFromFiltered(self, card: Card) -> None:
         if card.odid:
             card.did = card.odid
@@ -1101,6 +1092,15 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
             card.queue = card.type
 
     # legacy
+
+    def rebuildDyn(self, did: Optional[int] = None) -> Optional[int]:
+        did = did or self.col.decks.selected()
+        count = self.rebuild_filtered_deck(did) or None
+        if not count:
+            return None
+        # and change to our new deck
+        self.col.decks.select(did)
+        return count
 
     def emptyDyn(self, did: Optional[int], lim: Optional[str] = None) -> None:
         if lim is None:
