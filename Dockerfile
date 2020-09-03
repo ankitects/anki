@@ -77,3 +77,5 @@ RUN python -m pip install --no-cache-dir \
 USER anki
 
 ENTRYPOINT ["/usr/local/bin/anki"]
+
+LABEL maintainer="Jakub Kaczmarzyk <jakub.kaczmarzyk@gmail.com>"
