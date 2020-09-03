@@ -40,3 +40,4 @@ errors-unable-open-collection =
     Anki was unable to open your collection file. If problems persist after restarting your computer, please use the Open Backup button in the profile manager.
     
     Debug info:
+errors-invalid-integer = Enter a whole number between {$start} and {$end}.

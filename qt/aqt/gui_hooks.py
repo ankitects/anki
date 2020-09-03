@@ -2403,6 +2403,50 @@ class _ReviewerWillPlayQuestionSoundsHook:
 reviewer_will_play_question_sounds = _ReviewerWillPlayQuestionSoundsHook()
 
 
+class _ReviewerWillRenderAnswerButtonFilter:
+    """Allows to modify or replace the HTML to show one answer button."""
+
+    _hooks: List[Callable[[str, "aqt.reviewer.Reviewer", int, int, str, int], str]] = []
+
+    def append(
+        self, cb: Callable[[str, "aqt.reviewer.Reviewer", int, int, str, int], str]
+    ) -> None:
+        """(buttonHtml: str, reviewer: aqt.reviewer.Reviewer, ease: int, defaultEase: int, label: str, numAnswerButtons: int)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self, cb: Callable[[str, "aqt.reviewer.Reviewer", int, int, str, int], str]
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
+
+    def __call__(
+        self,
+        buttonHtml: str,
+        reviewer: aqt.reviewer.Reviewer,
+        ease: int,
+        defaultEase: int,
+        label: str,
+        numAnswerButtons: int,
+    ) -> str:
+        for filter in self._hooks:
+            try:
+                buttonHtml = filter(
+                    buttonHtml, reviewer, ease, defaultEase, label, numAnswerButtons
+                )
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return buttonHtml
+
+
+reviewer_will_render_answer_button = _ReviewerWillRenderAnswerButtonFilter()
+
+
 class _ReviewerWillShowContextMenuHook:
     _hooks: List[Callable[["aqt.reviewer.Reviewer", QMenu], None]] = []
 

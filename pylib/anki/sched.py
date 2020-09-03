@@ -589,10 +589,14 @@ did = ? and queue = {QUEUE_TYPE_REV} and due <= ? limit ?""",
 
     def _updateRevIvl(self, card: Card, ease: int) -> None:
         idealIvl = self._nextRevIvl(card, ease)
-        card.ivl = min(
+        newIvl = min(
             max(self._adjRevIvl(card, idealIvl), card.ivl + 1),
             self._revConf(card)["maxIvl"],
         )
+        newIvl = hooks.scheduler_will_update_review_interval(
+            newIvl, self, card, ease, idealIvl
+        )
+        card.ivl = newIvl
 
     def _adjRevIvl(self, card: Card, idealIvl: int) -> int:
         if self._spreadRev:

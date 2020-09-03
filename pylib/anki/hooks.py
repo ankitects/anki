@@ -455,6 +455,47 @@ class _SchedulerReviewLimitForSingleDeckFilter:
 scheduler_review_limit_for_single_deck = _SchedulerReviewLimitForSingleDeckFilter()
 
 
+class _SchedulerWillUpdateReviewIntervalFilter:
+    """Allows to override the next review intervall of a card."""
+
+    _hooks: List[Callable[[int, "anki.sched.Scheduler", Card, int, int], int]] = []
+
+    def append(
+        self, cb: Callable[[int, "anki.sched.Scheduler", Card, int, int], int]
+    ) -> None:
+        """(nextIvl: int, scheduler: anki.sched.Scheduler, card: Card, ease: int, idealIvl: int)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self, cb: Callable[[int, "anki.sched.Scheduler", Card, int, int], int]
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
+
+    def __call__(
+        self,
+        nextIvl: int,
+        scheduler: anki.sched.Scheduler,
+        card: Card,
+        ease: int,
+        idealIvl: int,
+    ) -> int:
+        for filter in self._hooks:
+            try:
+                nextIvl = filter(nextIvl, scheduler, card, ease, idealIvl)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return nextIvl
+
+
+scheduler_will_update_review_interval = _SchedulerWillUpdateReviewIntervalFilter()
+
+
 class _Schedv2DidAnswerReviewCardHook:
     _hooks: List[Callable[["anki.cards.Card", int, bool], None]] = []
 

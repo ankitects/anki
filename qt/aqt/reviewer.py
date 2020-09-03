@@ -664,8 +664,13 @@ time = %(time)d;
             )
 
         buf = "<center><table cellpading=0 cellspacing=0><tr>"
-        for ease, label in self._answerButtonList():
-            buf += but(ease, label)
+        answerButtonTuples = self._answerButtonList()
+        for ease, label in answerButtonTuples:
+            buttonHtml = but(ease, label)
+            buttonHtml = gui_hooks.reviewer_will_render_answer_button(
+                buttonHtml, self, ease, default, label, len(answerButtonTuples)
+            )
+            buf += buttonHtml
         buf += "</tr></table>"
         script = """
 <script>$(function () { $("#defease").focus(); });</script>"""

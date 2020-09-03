@@ -80,6 +80,19 @@ hooks = [
         """,
     ),
     Hook(
+        name="reviewer_will_render_answer_button",
+        args=[
+            "buttonHtml: str",
+            "reviewer: aqt.reviewer.Reviewer",
+            "ease: int",
+            "defaultEase: int",
+            "label: str",
+            "numAnswerButtons: int",
+        ],
+        return_type="str",
+        doc="""Allows to modify or replace the HTML to show one answer button.""",
+    ),
+    Hook(
         name="reviewer_will_answer_card",
         args=[
             "ease_tuple: Tuple[bool, int]",

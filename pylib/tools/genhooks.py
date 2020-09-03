@@ -83,6 +83,18 @@ hooks = [
         doc="""Allows changing the number of rev card for this deck (without
         considering descendants).""",
     ),
+    Hook(
+        name="scheduler_will_update_review_interval",
+        args=[
+            "nextIvl: int",
+            "scheduler: anki.sched.Scheduler",
+            "card: Card",
+            "ease: int",
+            "idealIvl: int",
+        ],
+        return_type="int",
+        doc="""Allows to override the next review intervall of a card.""",
+    ),
     # obsolete
     Hook(
         name="deck_added", args=["deck: anki.decks.Deck"], doc="Obsolete, do not use."
