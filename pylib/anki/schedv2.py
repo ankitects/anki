@@ -1064,41 +1064,20 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
     # Filtered deck handling
     ##########################################################################
 
-    _restoreQueueWhenEmptyingSnippet = f"""
-queue = (case when queue < 0 then queue
-              when type in (1,{CARD_TYPE_RELEARNING}) then
-  (case when (case when odue then odue else due end) > 1000000000 then 1 else
-  {QUEUE_TYPE_DAY_LEARN_RELEARN} end)
-else
-  type
-end)
-"""
+    def rebuild_filtered_deck(self, deck_id: int) -> int:
+        return self.col.backend.rebuild_filtered_deck(deck_id)
+
+    def empty_filtered_deck(self, deck_id: int) -> None:
+        self.col.backend.empty_filtered_deck(deck_id)
 
     def rebuildDyn(self, did: Optional[int] = None) -> Optional[int]:
-        "Rebuild a filtered deck."
         did = did or self.col.decks.selected()
-        count = self.col.backend.rebuild_filtered_deck(did) or None
+        count = self.rebuild_filtered_deck(did) or None
         if not count:
             return None
         # and change to our new deck
         self.col.decks.select(did)
         return count
-
-    def emptyDyn(self, did: Optional[int], lim: Optional[str] = None) -> None:
-        if lim is None:
-            self.col.backend.empty_filtered_deck(did)
-            return
-
-        self.col.db.execute(
-            """
-update cards set did = odid, %s,
-due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? where %s"""
-            % (self._restoreQueueWhenEmptyingSnippet, lim),
-            self.col.usn(),
-        )
-
-    def remFromDyn(self, cids: List[int]) -> None:
-        self.emptyDyn(None, "id in %s and odid" % ids2str(cids))
 
     def _removeFromFiltered(self, card: Card) -> None:
         if card.odid:
@@ -1120,6 +1099,33 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
                 card.queue = QUEUE_TYPE_DAY_LEARN_RELEARN
         else:
             card.queue = card.type
+
+    # legacy
+
+    def emptyDyn(self, did: Optional[int], lim: Optional[str] = None) -> None:
+        if lim is None:
+            self.empty_filtered_deck(did)
+            return
+
+        queue = f"""
+queue = (case when queue < 0 then queue
+              when type in (1,{CARD_TYPE_RELEARNING}) then
+  (case when (case when odue then odue else due end) > 1000000000 then 1 else
+  {QUEUE_TYPE_DAY_LEARN_RELEARN} end)
+else
+  type
+end)
+"""
+        self.col.db.execute(
+            """
+update cards set did = odid, %s,
+due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? where %s"""
+            % (queue, lim),
+            self.col.usn(),
+        )
+
+    def remFromDyn(self, cids: List[int]) -> None:
+        self.emptyDyn(None, "id in %s and odid" % ids2str(cids))
 
     # Leeches
     ##########################################################################

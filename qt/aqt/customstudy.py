@@ -145,7 +145,7 @@ class CustomStudy(QDialog):
                 return QDialog.accept(self)
             else:
                 # safe to empty
-                self.mw.col.sched.emptyDyn(cur["id"])
+                self.mw.col.sched.empty_filtered_deck(cur["id"])
                 # reuse; don't delete as it may have children
                 dyn = cur
                 self.mw.col.decks.select(cur["id"])

@@ -682,7 +682,7 @@ def test_cram_rem():
     assert c.type == CARD_TYPE_LRN and c.queue == QUEUE_TYPE_LRN
     assert c.due != oldDue
     # if we terminate cramming prematurely it should be set back to new
-    col.sched.emptyDyn(did)
+    col.sched.empty_filtered_deck(did)
     c.load()
     assert c.type == CARD_TYPE_NEW and c.queue == QUEUE_TYPE_NEW
     assert c.due == oldDue
@@ -734,7 +734,7 @@ def test_cram_resched():
     col.reset()
     c = col.sched.getCard()
     col.sched.answerCard(c, 1)
-    col.sched.emptyDyn(did)
+    col.sched.empty_filtered_deck(did)
     c.load()
     assert c.ivl == 100
     assert c.due == col.sched.today + 25
@@ -746,7 +746,7 @@ def test_cram_resched():
     c = col.sched.getCard()
     col.sched.answerCard(c, 1)
     col.sched.answerCard(c, 3)
-    col.sched.emptyDyn(did)
+    col.sched.empty_filtered_deck(did)
     c.load()
     assert c.ivl == 100
     assert c.due == col.sched.today + 25
@@ -758,7 +758,7 @@ def test_cram_resched():
     col.reset()
     c = col.sched.getCard()
     col.sched.answerCard(c, 3)
-    col.sched.emptyDyn(did)
+    col.sched.empty_filtered_deck(did)
     c.load()
     assert c.ivl == 100
     assert c.due == -25
@@ -770,7 +770,7 @@ def test_cram_resched():
     col.reset()
     c = col.sched.getCard()
     col.sched.answerCard(c, 1)
-    col.sched.emptyDyn(did)
+    col.sched.empty_filtered_deck(did)
     c.load()
     assert c.ivl == 100
     assert c.due == -25

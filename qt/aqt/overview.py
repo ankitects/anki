@@ -79,7 +79,7 @@ class Overview:
             self.mw.col.sched.rebuildDyn()
             self.mw.reset()
         elif url == "empty":
-            self.mw.col.sched.emptyDyn(self.mw.col.decks.selected())
+            self.mw.col.sched.empty_filtered_deck(self.mw.col.decks.selected())
             self.mw.reset()
         elif url == "decks":
             self.mw.moveToState("deckBrowser")
@@ -112,7 +112,7 @@ class Overview:
 
     def onEmptyKey(self):
         if self._filteredDeck():
-            self.mw.col.sched.emptyDyn(self.mw.col.decks.selected())
+            self.mw.col.sched.empty_filtered_deck(self.mw.col.decks.selected())
             self.mw.reset()
 
     def onCustomStudyKey(self):
