@@ -116,7 +116,7 @@ fn write_method_trait(buf: &mut String, service: &prost_build::Service) {
 use prost::Message;
 pub type BackendResult<T> = std::result::Result<T, crate::err::AnkiError>;
 pub trait BackendService {
-    fn run_command_bytes2_inner(&mut self, method: u32, input: &[u8]) -> std::result::Result<Vec<u8>, crate::err::AnkiError> {
+    fn run_command_bytes2_inner(&self, method: u32, input: &[u8]) -> std::result::Result<Vec<u8>, crate::err::AnkiError> {
         match method {
 "#,
     );
@@ -146,7 +146,7 @@ pub trait BackendService {
         write!(
             buf,
             concat!(
-                "    fn {method_name}(&mut self, input: {input_type}) -> ",
+                "    fn {method_name}(&self, input: {input_type}) -> ",
                 "BackendResult<{output_type}>;\n"
             ),
             method_name = method.name,
