@@ -26,7 +26,7 @@ $ pyenv/bin/python -c 'import aqt; aqt.run()'
 Building from source
 --------------------
 
-To start, make sure you have the following installed:
+To start, make sure you have the following installed (for how, see below):
 
  - Python 3.7+
  - portaudio
@@ -48,7 +48,8 @@ The build scripts assume a UNIX-like environment, so on Windows you will
 need to use WSL or Cygwin to use them.
 
 Once you've installed the above components, execute ./run in this repo,
-which will build the subcomponents, and start Anki. Any arguments included
+which will build the subcomponents and create the vitual environment called pyenv,
+and start Anki (see environment variables below). Any arguments included
 on the command line will be passed on to Anki. The first run will take
 quite a while to download and build everything - please be patient.
 
@@ -99,7 +100,7 @@ Install Python 3.7+ if it's not installed.
 
 Install other dependencies:
 ```
-sudo apt install portaudio19-dev mpv lame npm rsync gcc gettext git curl
+sudo apt install portaudio19-dev mpv lame npm rsync gcc gettext git curl python3-dev python3-venv libxcb-xinerama0
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 source $HOME/.cargo/env
 wget https://github.com/protocolbuffers/protobuf/releases/download/v3.11.4/protoc-3.11.4-linux-x86_64.zip
@@ -150,3 +151,7 @@ and automatic backups will be disabled - so please don't use this except on a te
 
 If LOGTERM is set before starting Anki, warnings and error messages that are normally placed
 in the collection2.log file will also be printed on stdout.
+
+Do not use ~/Anki or ~/Documents/Anki or a subfolder thereof for your code or otherwise
+set ANKI_BASE before starting Anki to avoid folder migration.
+

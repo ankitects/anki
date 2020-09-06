@@ -154,4 +154,9 @@ requests instead.
 License
 -------
 
-Please add yourself to the CONTRIBUTORS file in your first pull request.
+Please add yourself to the CONTRIBUTORS file in your first pull request
+and set the git user.name and user.email before you commit your changes.
+See e.g. https://docs.github.com/en/github/using-git/setting-your-username-in-git.
+If your CONTRIBUTORS enty is First Last <github.com/githubUser> set 
+user.name to "First Last" and user.email to "githubUser@users.noreply.github.com".
+
