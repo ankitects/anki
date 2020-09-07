@@ -61,10 +61,10 @@ fn want_release_gil(method: u32) -> bool {
 
 #[pymethods]
 impl Backend {
-    fn command(&mut self, py: Python, method: u32, input: &PyBytes) -> PyResult<PyObject> {
+    fn command(&self, py: Python, method: u32, input: &PyBytes) -> PyResult<PyObject> {
         let in_bytes = input.as_bytes();
         if want_release_gil(method) {
-            py.allow_threads(move || self.backend.run_command_bytes(method, in_bytes))
+            py.allow_threads(|| self.backend.run_command_bytes(method, in_bytes))
         } else {
             self.backend.run_command_bytes(method, in_bytes)
         }
@@ -77,9 +77,9 @@ impl Backend {
 
     /// This takes and returns JSON, due to Python's slow protobuf
     /// encoding/decoding.
-    fn db_command(&mut self, py: Python, input: &PyBytes) -> PyResult<PyObject> {
+    fn db_command(&self, py: Python, input: &PyBytes) -> PyResult<PyObject> {
         let in_bytes = input.as_bytes();
-        let out_res = py.allow_threads(move || {
+        let out_res = py.allow_threads(|| {
             self.backend
                 .run_db_command_bytes(in_bytes)
                 .map_err(BackendError::py_err)
