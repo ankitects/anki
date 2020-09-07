@@ -70,7 +70,7 @@ Subcomponents
 
 The pyenv folder is created when running make for the first time.
 It is a Python virtual environment that contains Anki's libraries
-and all the required depenencies.
+and all the required dependencies.
 
 Makefile
 --------------
