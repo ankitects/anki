@@ -26,7 +26,8 @@ $ pyenv/bin/python -c 'import aqt; aqt.run()'
 Building from source
 --------------------
 
-To start, make sure you have the following installed:
+You will need the following dependencies. Some OS-specific tips on installing
+them are further down this document.
 
  - Python 3.7+
  - portaudio
@@ -44,13 +45,13 @@ To start, make sure you have the following installed:
  - git
  - curl
 
-The build scripts assume a UNIX-like environment, so on Windows you will
-need to use WSL or Cygwin to use them.
-
 Once you've installed the above components, execute ./run in this repo,
 which will build the subcomponents, and start Anki. Any arguments included
 on the command line will be passed on to Anki. The first run will take
 quite a while to download and build everything - please be patient.
+
+Don't name the Git checkout ~/Anki or ~/Documents/Anki, as those folders
+were used on old Anki versions and will be automatically moved.
 
 Before contributing code, please read README.contributing.
 
@@ -66,6 +67,10 @@ Subcomponents
 - rslib contains the parts of the code implemented in Rust.
 - proto contains the interface used to communicate between different
   languages.
+
+The pyenv folder is created when running make for the first time.
+It is a Python virtual environment that contains Anki's libraries
+and all the required depenencies.
 
 Makefile
 --------------
@@ -99,7 +104,7 @@ Install Python 3.7+ if it's not installed.
 
 Install other dependencies:
 ```
-sudo apt install portaudio19-dev mpv lame npm rsync gcc gettext git curl
+sudo apt install portaudio19-dev mpv lame npm rsync gcc gettext git curl python3-dev python3-venv libxcb-xinerama0
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 source $HOME/.cargo/env
 wget https://github.com/protocolbuffers/protobuf/releases/download/v3.11.4/protoc-3.11.4-linux-x86_64.zip
@@ -119,6 +124,9 @@ $ brew link gettext --force
 
 Windows users (using Visual Studio)
 ----------
+
+The build scripts assume a UNIX-like environment, so on Windows you will
+need to use WSL or Cygwin to use them.
 
 User-contributed instructions for building using Cygwin:
 
