@@ -6,8 +6,8 @@ use crate::define_newtype;
 use crate::err::{AnkiError, Result};
 use crate::notes::NoteID;
 use crate::{
-    collection::Collection, config::SchedulerVersion, deckconf::INITIAL_EASE_FACTOR,
-    timestamp::TimestampSecs, types::Usn, undo::Undoable,
+    collection::Collection, config::SchedulerVersion, timestamp::TimestampSecs, types::Usn,
+    undo::Undoable,
 };
 use num_enum::TryFromPrimitive;
 use serde_repr::{Deserialize_repr, Serialize_repr};
@@ -102,82 +102,10 @@ impl Card {
         self.usn = usn;
     }
 
-    pub(crate) fn return_home(&mut self, sched: SchedulerVersion) {
-        if self.original_deck_id.0 == 0 {
-            // not in a filtered deck
-            return;
-        }
-
-        self.deck_id = self.original_deck_id;
-        self.original_deck_id.0 = 0;
-        if self.original_due > 0 {
-            self.due = self.original_due;
-        }
-        self.original_due = 0;
-
-        self.queue = match sched {
-            SchedulerVersion::V1 => {
-                match self.ctype {
-                    CardType::New => CardQueue::New,
-                    CardType::Learn => CardQueue::New,
-                    CardType::Review => CardQueue::Review,
-                    // not applicable in v1, should not happen
-                    CardType::Relearn => {
-                        println!("did not expect relearn type in v1 for card {}", self.id);
-                        CardQueue::New
-                    }
-                }
-            }
-            SchedulerVersion::V2 => {
-                if (self.queue as i8) >= 0 {
-                    match self.ctype {
-                        CardType::Learn | CardType::Relearn => {
-                            if self.due > 1_000_000_000 {
-                                // unix timestamp
-                                CardQueue::Learn
-                            } else {
-                                // day number
-                                CardQueue::DayLearn
-                            }
-                        }
-                        CardType::New => CardQueue::New,
-                        CardType::Review => CardQueue::Review,
-                    }
-                } else {
-                    self.queue
-                }
-            }
-        };
-
-        if sched == SchedulerVersion::V1 && self.ctype == CardType::Learn {
-            self.ctype = CardType::New;
-        }
-    }
-
-    /// Remove the card from the (re)learning queue.
-    /// This will reset cards in learning.
-    /// Only used in the V1 scheduler.
-    /// Unlike the legacy Python code, this sets the due# to 0 instead of
-    /// one past the previous max due number.
-    pub(crate) fn remove_from_learning(&mut self) {
-        if !matches!(self.queue, CardQueue::Learn | CardQueue::DayLearn) {
-            return;
-        }
-
-        if self.ctype == CardType::Review {
-            // reviews are removed from relearning
-            self.due = self.original_due;
-            self.original_due = 0;
-            self.queue = CardQueue::Review;
-        } else {
-            // other cards are reset to new
-            self.ctype = CardType::New;
-            self.queue = CardQueue::New;
-            self.interval = 0;
-            self.due = 0;
-            self.original_due = 0;
-            self.ease_factor = INITIAL_EASE_FACTOR;
-        }
+    /// Caller must ensure provided deck exists and is not filtered.
+    fn set_deck(&mut self, deck: DeckID, sched: SchedulerVersion) {
+        self.remove_from_filtered_deck_restoring_queue(sched);
+        self.deck_id = deck;
     }
 }
 #[derive(Debug)]
@@ -267,6 +195,27 @@ impl Collection {
         self.storage.add_card_grave(card.id, usn)?;
 
         Ok(())
+    }
+
+    pub fn set_deck(&mut self, cards: &[CardID], deck_id: DeckID) -> Result<()> {
+        let deck = self.get_deck(deck_id)?.ok_or(AnkiError::NotFound)?;
+        if deck.is_filtered() {
+            return Err(AnkiError::DeckIsFiltered);
+        }
+        self.storage.set_search_table_to_card_ids(cards)?;
+        let sched = self.sched_ver();
+        let usn = self.usn()?;
+        self.transact(None, |col| {
+            for mut card in col.storage.all_searched_cards()? {
+                if card.deck_id == deck_id {
+                    continue;
+                }
+                let original = card.clone();
+                card.set_deck(deck_id, sched);
+                col.update_card(&mut card, &original, usn)?;
+            }
+            Ok(())
+        })
     }
 }
 

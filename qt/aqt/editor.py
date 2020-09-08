@@ -493,7 +493,9 @@ class Editor:
         self.web.eval("setBackgrounds(%s);" % json.dumps(cols))
 
     def showDupes(self):
-        contents = html.escape(stripHTMLMedia(self.note.fields[0]))
+        contents = html.escape(
+            stripHTMLMedia(self.note.fields[0]), quote=False
+        ).replace('"', r"\"")
         browser = aqt.dialogs.open("Browser", self.mw)
         browser.form.searchEdit.lineEdit().setText(
             '"dupe:%s,%s"' % (self.note.model()["id"], contents)
@@ -743,7 +745,6 @@ to a cloze type first, via 'Notes>Change Note Type'"""
             )
             return
         if file:
-            av_player.play_file(file)
             self.addMedia(file)
 
     # Media downloads
@@ -761,7 +762,8 @@ to a cloze type first, via 'Notes>Change Note Type'"""
             name = urllib.parse.quote(fname.encode("utf8"))
             return '<img src="%s">' % name
         else:
-            return "[sound:%s]" % fname
+            av_player.play_file(fname)
+            return "[sound:%s]" % html.escape(fname, quote=False)
 
     def urlToFile(self, url: str) -> Optional[str]:
         l = url.lower()

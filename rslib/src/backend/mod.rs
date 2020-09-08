@@ -31,8 +31,9 @@ use crate::{
         RenderCardOutput,
     },
     sched::cutoff::local_minutes_west_for_stamp,
-    sched::timespan::{answer_button_time, studied_today, time_span},
+    sched::timespan::{answer_button_time, time_span},
     search::SortMode,
+    stats::studied_today,
     sync::{
         get_remote_sync_meta, sync_abort, sync_login, FullSyncProgress, NormalSyncProgress,
         SyncActionRequired, SyncAuth, SyncMeta, SyncOutput, SyncStage,
@@ -43,11 +44,13 @@ use crate::{
     types::Usn,
 };
 use fluent::FluentValue;
-use futures::future::{AbortHandle, Abortable};
+use futures::future::{AbortHandle, AbortRegistration, Abortable};
 use log::error;
+use once_cell::sync::OnceCell;
 use pb::{sync_status_out, BackendService};
 use prost::Message;
 use serde_json::Value as JsonValue;
+use slog::warn;
 use std::collections::{HashMap, HashSet};
 use std::convert::TryFrom;
 use std::{
@@ -84,13 +87,16 @@ struct ProgressState {
     last_progress: Option<Progress>,
 }
 
+// fixme: this should support multiple abort handles.
+type AbortHandleSlot = Arc<Mutex<Option<AbortHandle>>>;
+
 pub struct Backend {
     col: Arc<Mutex<Option<Collection>>>,
     i18n: I18n,
     server: bool,
-    sync_abort: Option<AbortHandle>,
+    sync_abort: AbortHandleSlot,
     progress_state: Arc<Mutex<ProgressState>>,
-    runtime: Option<Runtime>,
+    runtime: OnceCell<Runtime>,
     state: Arc<Mutex<BackendState>>,
 }
 
@@ -266,12 +272,12 @@ impl From<pb::DeckConfigId> for DeckConfID {
 }
 
 impl BackendService for Backend {
-    fn latest_progress(&mut self, _input: Empty) -> BackendResult<pb::Progress> {
+    fn latest_progress(&self, _input: Empty) -> BackendResult<pb::Progress> {
         let progress = self.progress_state.lock().unwrap().last_progress;
         Ok(progress_to_proto(progress, &self.i18n))
     }
 
-    fn set_wants_abort(&mut self, _input: Empty) -> BackendResult<Empty> {
+    fn set_wants_abort(&self, _input: Empty) -> BackendResult<Empty> {
         self.progress_state.lock().unwrap().want_abort = true;
         Ok(().into())
     }
@@ -279,7 +285,7 @@ impl BackendService for Backend {
     // card rendering
 
     fn render_existing_card(
-        &mut self,
+        &self,
         input: pb::RenderExistingCardIn,
     ) -> BackendResult<pb::RenderCardOut> {
         self.with_col(|col| {
@@ -289,7 +295,7 @@ impl BackendService for Backend {
     }
 
     fn render_uncommitted_card(
-        &mut self,
+        &self,
         input: pb::RenderUncommittedCardIn,
     ) -> BackendResult<pb::RenderCardOut> {
         let schema11: CardTemplateSchema11 = serde_json::from_slice(&input.template)?;
@@ -306,7 +312,7 @@ impl BackendService for Backend {
         })
     }
 
-    fn get_empty_cards(&mut self, _input: pb::Empty) -> Result<pb::EmptyCardsReport> {
+    fn get_empty_cards(&self, _input: pb::Empty) -> Result<pb::EmptyCardsReport> {
         self.with_col(|col| {
             let mut empty = col.empty_cards()?;
             let report = col.empty_cards_report(&mut empty)?;
@@ -326,16 +332,13 @@ impl BackendService for Backend {
         })
     }
 
-    fn strip_av_tags(&mut self, input: pb::String) -> BackendResult<pb::String> {
+    fn strip_av_tags(&self, input: pb::String) -> BackendResult<pb::String> {
         Ok(pb::String {
             val: strip_av_tags(&input.val).into(),
         })
     }
 
-    fn extract_av_tags(
-        &mut self,
-        input: pb::ExtractAvTagsIn,
-    ) -> BackendResult<pb::ExtractAvTagsOut> {
+    fn extract_av_tags(&self, input: pb::ExtractAvTagsIn) -> BackendResult<pb::ExtractAvTagsOut> {
         let (text, tags) = extract_av_tags(&input.text, input.question_side);
         let pt_tags = tags
             .into_iter()
@@ -367,7 +370,7 @@ impl BackendService for Backend {
         })
     }
 
-    fn extract_latex(&mut self, input: pb::ExtractLatexIn) -> BackendResult<pb::ExtractLatexOut> {
+    fn extract_latex(&self, input: pb::ExtractLatexIn) -> BackendResult<pb::ExtractLatexOut> {
         let func = if input.expand_clozes {
             extract_latex_expanding_clozes
         } else {
@@ -390,7 +393,7 @@ impl BackendService for Backend {
     // searching
     //-----------------------------------------------
 
-    fn search_cards(&mut self, input: pb::SearchCardsIn) -> Result<pb::SearchCardsOut> {
+    fn search_cards(&self, input: pb::SearchCardsIn) -> Result<pb::SearchCardsOut> {
         self.with_col(|col| {
             let order = if let Some(order) = input.order {
                 use pb::sort_order::Value as V;
@@ -414,7 +417,7 @@ impl BackendService for Backend {
         })
     }
 
-    fn search_notes(&mut self, input: pb::SearchNotesIn) -> Result<pb::SearchNotesOut> {
+    fn search_notes(&self, input: pb::SearchNotesIn) -> Result<pb::SearchNotesOut> {
         self.with_col(|col| {
             let nids = col.search_notes(&input.search)?;
             Ok(pb::SearchNotesOut {
@@ -423,7 +426,7 @@ impl BackendService for Backend {
         })
     }
 
-    fn find_and_replace(&mut self, input: pb::FindAndReplaceIn) -> BackendResult<pb::UInt32> {
+    fn find_and_replace(&self, input: pb::FindAndReplaceIn) -> BackendResult<pb::UInt32> {
         let mut search = if input.regex {
             input.search
         } else {
@@ -450,7 +453,7 @@ impl BackendService for Backend {
 
     /// This behaves like _updateCutoff() in older code - it also unburies at the start of
     /// a new day.
-    fn sched_timing_today(&mut self, _input: pb::Empty) -> Result<pb::SchedTimingTodayOut> {
+    fn sched_timing_today(&self, _input: pb::Empty) -> Result<pb::SchedTimingTodayOut> {
         self.with_col(|col| {
             let timing = col.timing_today()?;
             col.unbury_if_day_rolled_over(timing)?;
@@ -458,13 +461,13 @@ impl BackendService for Backend {
         })
     }
 
-    fn local_minutes_west(&mut self, input: pb::Int64) -> BackendResult<pb::Int32> {
+    fn local_minutes_west(&self, input: pb::Int64) -> BackendResult<pb::Int32> {
         Ok(pb::Int32 {
             val: local_minutes_west_for_stamp(input.val),
         })
     }
 
-    fn set_local_minutes_west(&mut self, input: pb::Int32) -> BackendResult<Empty> {
+    fn set_local_minutes_west(&self, input: pb::Int32) -> BackendResult<Empty> {
         self.with_col(|col| {
             col.transact(None, |col| {
                 col.set_local_mins_west(input.val).map(Into::into)
@@ -472,11 +475,17 @@ impl BackendService for Backend {
         })
     }
 
-    fn studied_today(&mut self, input: pb::StudiedTodayIn) -> BackendResult<pb::String> {
-        Ok(studied_today(input.cards as usize, input.seconds as f32, &self.i18n).into())
+    /// Fetch data from DB and return rendered string.
+    fn studied_today(&self, _input: pb::Empty) -> BackendResult<pb::String> {
+        self.with_col(|col| col.studied_today().map(Into::into))
     }
 
-    fn update_stats(&mut self, input: pb::UpdateStatsIn) -> BackendResult<Empty> {
+    /// Message rendering only, for old graphs.
+    fn studied_today_message(&self, input: pb::StudiedTodayMessageIn) -> BackendResult<pb::String> {
+        Ok(studied_today(input.cards, input.seconds as f32, &self.i18n).into())
+    }
+
+    fn update_stats(&self, input: pb::UpdateStatsIn) -> BackendResult<Empty> {
         self.with_col(|col| {
             col.transact(None, |col| {
                 let today = col.current_due_day(0)?;
@@ -486,7 +495,7 @@ impl BackendService for Backend {
         })
     }
 
-    fn extend_limits(&mut self, input: pb::ExtendLimitsIn) -> BackendResult<Empty> {
+    fn extend_limits(&self, input: pb::ExtendLimitsIn) -> BackendResult<Empty> {
         self.with_col(|col| {
             col.transact(None, |col| {
                 let today = col.current_due_day(0)?;
@@ -503,18 +512,15 @@ impl BackendService for Backend {
         })
     }
 
-    fn counts_for_deck_today(
-        &mut self,
-        input: pb::DeckId,
-    ) -> BackendResult<pb::CountsForDeckTodayOut> {
+    fn counts_for_deck_today(&self, input: pb::DeckId) -> BackendResult<pb::CountsForDeckTodayOut> {
         self.with_col(|col| col.counts_for_deck_today(input.did.into()))
     }
 
-    fn congrats_info(&mut self, _input: Empty) -> BackendResult<pb::CongratsInfoOut> {
+    fn congrats_info(&self, _input: Empty) -> BackendResult<pb::CongratsInfoOut> {
         self.with_col(|col| col.congrats_info())
     }
 
-    fn restore_buried_and_suspended_cards(&mut self, input: pb::CardIDs) -> BackendResult<Empty> {
+    fn restore_buried_and_suspended_cards(&self, input: pb::CardIDs) -> BackendResult<Empty> {
         self.with_col(|col| {
             col.unbury_or_unsuspend_cards(&input.into_native())
                 .map(Into::into)
@@ -522,7 +528,7 @@ impl BackendService for Backend {
     }
 
     fn unbury_cards_in_current_deck(
-        &mut self,
+        &self,
         input: pb::UnburyCardsInCurrentDeckIn,
     ) -> BackendResult<Empty> {
         self.with_col(|col| {
@@ -531,7 +537,7 @@ impl BackendService for Backend {
         })
     }
 
-    fn bury_or_suspend_cards(&mut self, input: pb::BuryOrSuspendCardsIn) -> BackendResult<Empty> {
+    fn bury_or_suspend_cards(&self, input: pb::BuryOrSuspendCardsIn) -> BackendResult<Empty> {
         self.with_col(|col| {
             let mode = input.mode();
             let cids: Vec<_> = input.card_ids.into_iter().map(CardID).collect();
@@ -539,22 +545,70 @@ impl BackendService for Backend {
         })
     }
 
+    fn empty_filtered_deck(&self, input: pb::DeckId) -> BackendResult<Empty> {
+        self.with_col(|col| col.empty_filtered_deck(input.did.into()).map(Into::into))
+    }
+
+    fn rebuild_filtered_deck(&self, input: pb::DeckId) -> BackendResult<pb::UInt32> {
+        self.with_col(|col| col.rebuild_filtered_deck(input.did.into()).map(Into::into))
+    }
+
+    fn schedule_cards_as_reviews(
+        &self,
+        input: pb::ScheduleCardsAsReviewsIn,
+    ) -> BackendResult<Empty> {
+        let cids: Vec<_> = input.card_ids.into_iter().map(CardID).collect();
+        let (min, max) = (input.min_interval, input.max_interval);
+        self.with_col(|col| {
+            col.reschedule_cards_as_reviews(&cids, min, max)
+                .map(Into::into)
+        })
+    }
+
+    fn schedule_cards_as_new(&self, input: pb::CardIDs) -> BackendResult<Empty> {
+        self.with_col(|col| {
+            col.reschedule_cards_as_new(&input.into_native())
+                .map(Into::into)
+        })
+    }
+
+    fn sort_cards(&self, input: pb::SortCardsIn) -> BackendResult<Empty> {
+        let cids: Vec<_> = input.card_ids.into_iter().map(CardID).collect();
+        let (start, step, random, shift) = (
+            input.starting_from,
+            input.step_size,
+            input.randomize,
+            input.shift_existing,
+        );
+        self.with_col(|col| {
+            col.sort_cards(&cids, start, step, random, shift)
+                .map(Into::into)
+        })
+    }
+
+    fn sort_deck(&self, input: pb::SortDeckIn) -> BackendResult<Empty> {
+        self.with_col(|col| {
+            col.sort_deck(input.deck_id.into(), input.randomize)
+                .map(Into::into)
+        })
+    }
+
     // statistics
     //-----------------------------------------------
 
-    fn card_stats(&mut self, input: pb::CardId) -> BackendResult<pb::String> {
+    fn card_stats(&self, input: pb::CardId) -> BackendResult<pb::String> {
         self.with_col(|col| col.card_stats(input.into()))
             .map(Into::into)
     }
 
-    fn graphs(&mut self, input: pb::GraphsIn) -> BackendResult<pb::GraphsOut> {
+    fn graphs(&self, input: pb::GraphsIn) -> BackendResult<pb::GraphsOut> {
         self.with_col(|col| col.graph_data_for_search(&input.search, input.days))
     }
 
     // decks
     //-----------------------------------------------
 
-    fn deck_tree(&mut self, input: pb::DeckTreeIn) -> Result<pb::DeckTreeNode> {
+    fn deck_tree(&self, input: pb::DeckTreeIn) -> Result<pb::DeckTreeNode> {
         let lim = if input.top_deck_id > 0 {
             Some(DeckID(input.top_deck_id))
         } else {
@@ -570,7 +624,7 @@ impl BackendService for Backend {
         })
     }
 
-    fn deck_tree_legacy(&mut self, _input: pb::Empty) -> BackendResult<pb::Json> {
+    fn deck_tree_legacy(&self, _input: pb::Empty) -> BackendResult<pb::Json> {
         self.with_col(|col| {
             let tree = col.legacy_deck_tree()?;
             serde_json::to_vec(&tree)
@@ -579,7 +633,7 @@ impl BackendService for Backend {
         })
     }
 
-    fn get_deck_legacy(&mut self, input: pb::DeckId) -> Result<pb::Json> {
+    fn get_deck_legacy(&self, input: pb::DeckId) -> Result<pb::Json> {
         self.with_col(|col| {
             let deck: DeckSchema11 = col
                 .storage
@@ -592,7 +646,7 @@ impl BackendService for Backend {
         })
     }
 
-    fn get_deck_id_by_name(&mut self, input: pb::String) -> Result<pb::DeckId> {
+    fn get_deck_id_by_name(&self, input: pb::String) -> Result<pb::DeckId> {
         self.with_col(|col| {
             col.get_deck_id(&input.val).and_then(|d| {
                 d.ok_or(AnkiError::NotFound)
@@ -601,7 +655,7 @@ impl BackendService for Backend {
         })
     }
 
-    fn get_all_decks_legacy(&mut self, _input: Empty) -> BackendResult<pb::Json> {
+    fn get_all_decks_legacy(&self, _input: Empty) -> BackendResult<pb::Json> {
         self.with_col(|col| {
             let decks = col.storage.get_all_decks_as_schema11()?;
             serde_json::to_vec(&decks).map_err(Into::into)
@@ -609,7 +663,7 @@ impl BackendService for Backend {
         .map(Into::into)
     }
 
-    fn get_deck_names(&mut self, input: pb::GetDeckNamesIn) -> Result<pb::DeckNames> {
+    fn get_deck_names(&self, input: pb::GetDeckNamesIn) -> Result<pb::DeckNames> {
         self.with_col(|col| {
             let names = if input.include_filtered {
                 col.get_all_deck_names(input.skip_empty_default)?
@@ -625,10 +679,7 @@ impl BackendService for Backend {
         })
     }
 
-    fn add_or_update_deck_legacy(
-        &mut self,
-        input: pb::AddOrUpdateDeckLegacyIn,
-    ) -> Result<pb::DeckId> {
+    fn add_or_update_deck_legacy(&self, input: pb::AddOrUpdateDeckLegacyIn) -> Result<pb::DeckId> {
         self.with_col(|col| {
             let schema11: DeckSchema11 = serde_json::from_slice(&input.deck)?;
             let mut deck: Deck = schema11.into();
@@ -644,7 +695,7 @@ impl BackendService for Backend {
         })
     }
 
-    fn new_deck_legacy(&mut self, input: pb::Bool) -> BackendResult<pb::Json> {
+    fn new_deck_legacy(&self, input: pb::Bool) -> BackendResult<pb::Json> {
         let deck = if input.val {
             Deck::new_filtered()
         } else {
@@ -656,7 +707,7 @@ impl BackendService for Backend {
             .map(Into::into)
     }
 
-    fn remove_deck(&mut self, input: pb::DeckId) -> BackendResult<Empty> {
+    fn remove_deck(&self, input: pb::DeckId) -> BackendResult<Empty> {
         self.with_col(|col| col.remove_deck_and_child_decks(input.into()))
             .map(Into::into)
     }
@@ -665,7 +716,7 @@ impl BackendService for Backend {
     //----------------------------------------------------
 
     fn add_or_update_deck_config_legacy(
-        &mut self,
+        &self,
         input: AddOrUpdateDeckConfigLegacyIn,
     ) -> BackendResult<pb::DeckConfigId> {
         let conf: DeckConfSchema11 = serde_json::from_slice(&input.config)?;
@@ -679,7 +730,7 @@ impl BackendService for Backend {
         .map(Into::into)
     }
 
-    fn all_deck_config_legacy(&mut self, _input: Empty) -> BackendResult<pb::Json> {
+    fn all_deck_config_legacy(&self, _input: Empty) -> BackendResult<pb::Json> {
         self.with_col(|col| {
             let conf: Vec<DeckConfSchema11> = col
                 .storage
@@ -692,18 +743,18 @@ impl BackendService for Backend {
         .map(Into::into)
     }
 
-    fn new_deck_config_legacy(&mut self, _input: Empty) -> BackendResult<pb::Json> {
+    fn new_deck_config_legacy(&self, _input: Empty) -> BackendResult<pb::Json> {
         serde_json::to_vec(&DeckConfSchema11::default())
             .map_err(Into::into)
             .map(Into::into)
     }
 
-    fn remove_deck_config(&mut self, input: pb::DeckConfigId) -> BackendResult<Empty> {
+    fn remove_deck_config(&self, input: pb::DeckConfigId) -> BackendResult<Empty> {
         self.with_col(|col| col.transact(None, |col| col.remove_deck_config(input.into())))
             .map(Into::into)
     }
 
-    fn get_deck_config_legacy(&mut self, input: pb::DeckConfigId) -> BackendResult<pb::Json> {
+    fn get_deck_config_legacy(&self, input: pb::DeckConfigId) -> BackendResult<pb::Json> {
         self.with_col(|col| {
             let conf = col.get_deck_config(input.into(), true)?.unwrap();
             let conf: DeckConfSchema11 = conf.into();
@@ -715,7 +766,7 @@ impl BackendService for Backend {
     // cards
     //-------------------------------------------------------------------
 
-    fn get_card(&mut self, input: pb::CardId) -> BackendResult<pb::Card> {
+    fn get_card(&self, input: pb::CardId) -> BackendResult<pb::Card> {
         self.with_col(|col| {
             col.storage
                 .get_card(input.into())
@@ -724,7 +775,7 @@ impl BackendService for Backend {
         })
     }
 
-    fn update_card(&mut self, input: pb::Card) -> BackendResult<Empty> {
+    fn update_card(&self, input: pb::Card) -> BackendResult<Empty> {
         let mut card = pbcard_to_native(input)?;
         self.with_col(|col| {
             col.transact(None, |ctx| {
@@ -738,13 +789,13 @@ impl BackendService for Backend {
         .map(Into::into)
     }
 
-    fn add_card(&mut self, input: pb::Card) -> BackendResult<pb::CardId> {
+    fn add_card(&self, input: pb::Card) -> BackendResult<pb::CardId> {
         let mut card = pbcard_to_native(input)?;
         self.with_col(|col| col.transact(None, |ctx| ctx.add_card(&mut card)))?;
         Ok(pb::CardId { cid: card.id.0 })
     }
 
-    fn remove_cards(&mut self, input: pb::RemoveCardsIn) -> BackendResult<Empty> {
+    fn remove_cards(&self, input: pb::RemoveCardsIn) -> BackendResult<Empty> {
         self.with_col(|col| {
             col.transact(None, |col| {
                 col.remove_cards_and_orphaned_notes(
@@ -759,17 +810,23 @@ impl BackendService for Backend {
         })
     }
 
+    fn set_deck(&self, input: pb::SetDeckIn) -> BackendResult<Empty> {
+        let cids: Vec<_> = input.card_ids.into_iter().map(CardID).collect();
+        let deck_id = input.deck_id.into();
+        self.with_col(|col| col.set_deck(&cids, deck_id).map(Into::into))
+    }
+
     // notes
     //-------------------------------------------------------------------
 
-    fn new_note(&mut self, input: pb::NoteTypeId) -> BackendResult<pb::Note> {
+    fn new_note(&self, input: pb::NoteTypeId) -> BackendResult<pb::Note> {
         self.with_col(|col| {
             let nt = col.get_notetype(input.into())?.ok_or(AnkiError::NotFound)?;
             Ok(nt.new_note().into())
         })
     }
 
-    fn add_note(&mut self, input: pb::AddNoteIn) -> BackendResult<pb::NoteId> {
+    fn add_note(&self, input: pb::AddNoteIn) -> BackendResult<pb::NoteId> {
         self.with_col(|col| {
             let mut note: Note = input.note.ok_or(AnkiError::NotFound)?.into();
             col.add_note(&mut note, DeckID(input.deck_id))
@@ -777,7 +834,7 @@ impl BackendService for Backend {
         })
     }
 
-    fn update_note(&mut self, input: pb::Note) -> BackendResult<Empty> {
+    fn update_note(&self, input: pb::Note) -> BackendResult<Empty> {
         self.with_col(|col| {
             let mut note: Note = input.into();
             col.update_note(&mut note)
@@ -785,7 +842,7 @@ impl BackendService for Backend {
         .map(Into::into)
     }
 
-    fn get_note(&mut self, input: pb::NoteId) -> BackendResult<pb::Note> {
+    fn get_note(&self, input: pb::NoteId) -> BackendResult<pb::Note> {
         self.with_col(|col| {
             col.storage
                 .get_note(input.into())?
@@ -794,7 +851,7 @@ impl BackendService for Backend {
         })
     }
 
-    fn remove_notes(&mut self, input: pb::RemoveNotesIn) -> BackendResult<Empty> {
+    fn remove_notes(&self, input: pb::RemoveNotesIn) -> BackendResult<Empty> {
         self.with_col(|col| {
             if !input.note_ids.is_empty() {
                 col.remove_notes(
@@ -819,7 +876,7 @@ impl BackendService for Backend {
         })
     }
 
-    fn add_note_tags(&mut self, input: pb::AddNoteTagsIn) -> BackendResult<pb::UInt32> {
+    fn add_note_tags(&self, input: pb::AddNoteTagsIn) -> BackendResult<pb::UInt32> {
         self.with_col(|col| {
             col.add_tags_for_notes(&to_nids(input.nids), &input.tags)
                 .map(|n| n as u32)
@@ -827,7 +884,7 @@ impl BackendService for Backend {
         .map(Into::into)
     }
 
-    fn update_note_tags(&mut self, input: pb::UpdateNoteTagsIn) -> BackendResult<pb::UInt32> {
+    fn update_note_tags(&self, input: pb::UpdateNoteTagsIn) -> BackendResult<pb::UInt32> {
         self.with_col(|col| {
             col.replace_tags_for_notes(
                 &to_nids(input.nids),
@@ -839,10 +896,7 @@ impl BackendService for Backend {
         })
     }
 
-    fn cloze_numbers_in_note(
-        &mut self,
-        note: pb::Note,
-    ) -> BackendResult<pb::ClozeNumbersInNoteOut> {
+    fn cloze_numbers_in_note(&self, note: pb::Note) -> BackendResult<pb::ClozeNumbersInNoteOut> {
         let mut set = HashSet::with_capacity(4);
         for field in &note.fields {
             add_cloze_numbers_in_string(field, &mut set);
@@ -853,7 +907,7 @@ impl BackendService for Backend {
     }
 
     fn field_names_for_notes(
-        &mut self,
+        &self,
         input: pb::FieldNamesForNotesIn,
     ) -> BackendResult<pb::FieldNamesForNotesOut> {
         self.with_col(|col| {
@@ -864,7 +918,7 @@ impl BackendService for Backend {
         })
     }
 
-    fn after_note_updates(&mut self, input: pb::AfterNoteUpdatesIn) -> BackendResult<Empty> {
+    fn after_note_updates(&self, input: pb::AfterNoteUpdatesIn) -> BackendResult<Empty> {
         self.with_col(|col| {
             col.transact(None, |col| {
                 col.after_note_updates(
@@ -878,7 +932,7 @@ impl BackendService for Backend {
     }
 
     fn note_is_duplicate_or_empty(
-        &mut self,
+        &self,
         input: pb::Note,
     ) -> BackendResult<pb::NoteIsDuplicateOrEmptyOut> {
         let note: Note = input.into();
@@ -888,7 +942,7 @@ impl BackendService for Backend {
         })
     }
 
-    fn cards_of_note(&mut self, input: pb::NoteId) -> BackendResult<pb::CardIDs> {
+    fn cards_of_note(&self, input: pb::NoteId) -> BackendResult<pb::CardIDs> {
         self.with_col(|col| {
             col.storage
                 .all_card_ids_of_note(NoteID(input.nid))
@@ -901,10 +955,7 @@ impl BackendService for Backend {
     // notetypes
     //-------------------------------------------------------------------
 
-    fn get_stock_notetype_legacy(
-        &mut self,
-        input: pb::GetStockNotetypeIn,
-    ) -> BackendResult<pb::Json> {
+    fn get_stock_notetype_legacy(&self, input: pb::GetStockNotetypeIn) -> BackendResult<pb::Json> {
         // fixme: use individual functions instead of full vec
         let mut all = all_stock_notetypes(&self.i18n);
         let idx = (input.kind as usize).min(all.len() - 1);
@@ -915,7 +966,7 @@ impl BackendService for Backend {
             .map(Into::into)
     }
 
-    fn get_notetype_names(&mut self, _input: Empty) -> BackendResult<pb::NoteTypeNames> {
+    fn get_notetype_names(&self, _input: Empty) -> BackendResult<pb::NoteTypeNames> {
         self.with_col(|col| {
             let entries: Vec<_> = col
                 .storage
@@ -927,10 +978,7 @@ impl BackendService for Backend {
         })
     }
 
-    fn get_notetype_names_and_counts(
-        &mut self,
-        _input: Empty,
-    ) -> BackendResult<pb::NoteTypeUseCounts> {
+    fn get_notetype_names_and_counts(&self, _input: Empty) -> BackendResult<pb::NoteTypeUseCounts> {
         self.with_col(|col| {
             let entries: Vec<_> = col
                 .storage
@@ -946,7 +994,7 @@ impl BackendService for Backend {
         })
     }
 
-    fn get_notetype_legacy(&mut self, input: pb::NoteTypeId) -> BackendResult<pb::Json> {
+    fn get_notetype_legacy(&self, input: pb::NoteTypeId) -> BackendResult<pb::Json> {
         self.with_col(|col| {
             let schema11: NoteTypeSchema11 = col
                 .storage
@@ -957,7 +1005,7 @@ impl BackendService for Backend {
         })
     }
 
-    fn get_notetype_id_by_name(&mut self, input: pb::String) -> BackendResult<pb::NoteTypeId> {
+    fn get_notetype_id_by_name(&self, input: pb::String) -> BackendResult<pb::NoteTypeId> {
         self.with_col(|col| {
             col.storage
                 .get_notetype_id(&input.val)
@@ -967,7 +1015,7 @@ impl BackendService for Backend {
     }
 
     fn add_or_update_notetype(
-        &mut self,
+        &self,
         input: pb::AddOrUpdateNotetypeIn,
     ) -> BackendResult<pb::NoteTypeId> {
         self.with_col(|col| {
@@ -982,7 +1030,7 @@ impl BackendService for Backend {
         })
     }
 
-    fn remove_notetype(&mut self, input: pb::NoteTypeId) -> BackendResult<Empty> {
+    fn remove_notetype(&self, input: pb::NoteTypeId) -> BackendResult<Empty> {
         self.with_col(|col| col.remove_notetype(input.into()))
             .map(Into::into)
     }
@@ -990,7 +1038,7 @@ impl BackendService for Backend {
     // media
     //-------------------------------------------------------------------
 
-    fn add_media_file(&mut self, input: pb::AddMediaFileIn) -> BackendResult<pb::String> {
+    fn add_media_file(&self, input: pb::AddMediaFileIn) -> BackendResult<pb::String> {
         self.with_col(|col| {
             let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
             let mut ctx = mgr.dbctx();
@@ -1001,7 +1049,7 @@ impl BackendService for Backend {
         })
     }
 
-    fn empty_trash(&mut self, _input: Empty) -> BackendResult<Empty> {
+    fn empty_trash(&self, _input: Empty) -> BackendResult<Empty> {
         let mut handler = self.new_progress_handler();
         let progress_fn =
             move |progress| handler.update(Progress::MediaCheck(progress as u32), true);
@@ -1017,7 +1065,7 @@ impl BackendService for Backend {
         .map(Into::into)
     }
 
-    fn restore_trash(&mut self, _input: Empty) -> BackendResult<Empty> {
+    fn restore_trash(&self, _input: Empty) -> BackendResult<Empty> {
         let mut handler = self.new_progress_handler();
         let progress_fn =
             move |progress| handler.update(Progress::MediaCheck(progress as u32), true);
@@ -1033,7 +1081,7 @@ impl BackendService for Backend {
         .map(Into::into)
     }
 
-    fn trash_media_files(&mut self, input: pb::TrashMediaFilesIn) -> BackendResult<Empty> {
+    fn trash_media_files(&self, input: pb::TrashMediaFilesIn) -> BackendResult<Empty> {
         self.with_col(|col| {
             let mgr = MediaManager::new(&col.media_folder, &col.media_db)?;
             let mut ctx = mgr.dbctx();
@@ -1042,7 +1090,7 @@ impl BackendService for Backend {
         .map(Into::into)
     }
 
-    fn check_media(&mut self, _input: pb::Empty) -> Result<pb::CheckMediaOut> {
+    fn check_media(&self, _input: pb::Empty) -> Result<pb::CheckMediaOut> {
         let mut handler = self.new_progress_handler();
         let progress_fn =
             move |progress| handler.update(Progress::MediaCheck(progress as u32), true);
@@ -1067,7 +1115,7 @@ impl BackendService for Backend {
     // collection
     //-------------------------------------------------------------------
 
-    fn check_database(&mut self, _input: pb::Empty) -> BackendResult<pb::CheckDatabaseOut> {
+    fn check_database(&self, _input: pb::Empty) -> BackendResult<pb::CheckDatabaseOut> {
         let mut handler = self.new_progress_handler();
         let progress_fn = move |progress, throttle| {
             handler.update(Progress::DatabaseCheck(progress), throttle);
@@ -1080,7 +1128,7 @@ impl BackendService for Backend {
         })
     }
 
-    fn open_collection(&mut self, input: pb::OpenCollectionIn) -> BackendResult<Empty> {
+    fn open_collection(&self, input: pb::OpenCollectionIn) -> BackendResult<Empty> {
         let mut col = self.col.lock().unwrap();
         if col.is_some() {
             return Err(AnkiError::CollectionAlreadyOpen);
@@ -1109,7 +1157,7 @@ impl BackendService for Backend {
         Ok(().into())
     }
 
-    fn close_collection(&mut self, input: pb::CloseCollectionIn) -> BackendResult<Empty> {
+    fn close_collection(&self, input: pb::CloseCollectionIn) -> BackendResult<Empty> {
         self.abort_media_sync_and_wait();
 
         let mut col = self.col.lock().unwrap();
@@ -1131,41 +1179,41 @@ impl BackendService for Backend {
     // sync
     //-------------------------------------------------------------------
 
-    fn sync_login(&mut self, input: pb::SyncLoginIn) -> BackendResult<pb::SyncAuth> {
+    fn sync_login(&self, input: pb::SyncLoginIn) -> BackendResult<pb::SyncAuth> {
         self.sync_login_inner(input)
     }
 
-    fn sync_status(&mut self, input: pb::SyncAuth) -> BackendResult<pb::SyncStatusOut> {
+    fn sync_status(&self, input: pb::SyncAuth) -> BackendResult<pb::SyncStatusOut> {
         self.sync_status_inner(input)
     }
 
-    fn sync_collection(&mut self, input: pb::SyncAuth) -> BackendResult<pb::SyncCollectionOut> {
+    fn sync_collection(&self, input: pb::SyncAuth) -> BackendResult<pb::SyncCollectionOut> {
         self.sync_collection_inner(input)
     }
 
-    fn full_upload(&mut self, input: pb::SyncAuth) -> BackendResult<Empty> {
+    fn full_upload(&self, input: pb::SyncAuth) -> BackendResult<Empty> {
         self.full_sync_inner(input, true)?;
         Ok(().into())
     }
 
-    fn full_download(&mut self, input: pb::SyncAuth) -> BackendResult<Empty> {
+    fn full_download(&self, input: pb::SyncAuth) -> BackendResult<Empty> {
         self.full_sync_inner(input, false)?;
         Ok(().into())
     }
 
-    fn sync_media(&mut self, input: pb::SyncAuth) -> BackendResult<Empty> {
+    fn sync_media(&self, input: pb::SyncAuth) -> BackendResult<Empty> {
         self.sync_media_inner(input).map(Into::into)
     }
 
-    fn abort_sync(&mut self, _input: Empty) -> BackendResult<Empty> {
-        if let Some(handle) = self.sync_abort.take() {
+    fn abort_sync(&self, _input: Empty) -> BackendResult<Empty> {
+        if let Some(handle) = self.sync_abort.lock().unwrap().take() {
             handle.abort();
         }
         Ok(().into())
     }
 
     /// Abort the media sync. Does not wait for completion.
-    fn abort_media_sync(&mut self, _input: Empty) -> BackendResult<Empty> {
+    fn abort_media_sync(&self, _input: Empty) -> BackendResult<Empty> {
         let guard = self.state.lock().unwrap();
         if let Some(handle) = &guard.media_sync_abort {
             handle.abort();
@@ -1173,14 +1221,14 @@ impl BackendService for Backend {
         Ok(().into())
     }
 
-    fn before_upload(&mut self, _input: Empty) -> BackendResult<Empty> {
+    fn before_upload(&self, _input: Empty) -> BackendResult<Empty> {
         self.with_col(|col| col.before_upload().map(Into::into))
     }
 
     // i18n/messages
     //-------------------------------------------------------------------
 
-    fn translate_string(&mut self, input: pb::TranslateStringIn) -> BackendResult<pb::String> {
+    fn translate_string(&self, input: pb::TranslateStringIn) -> BackendResult<pb::String> {
         let key = match pb::FluentString::from_i32(input.key) {
             Some(key) => key,
             None => return Ok("invalid key".to_string().into()),
@@ -1195,7 +1243,7 @@ impl BackendService for Backend {
         Ok(self.i18n.trn(key, map).into())
     }
 
-    fn format_timespan(&mut self, input: pb::FormatTimespanIn) -> BackendResult<pb::String> {
+    fn format_timespan(&self, input: pb::FormatTimespanIn) -> BackendResult<pb::String> {
         let context = match pb::format_timespan_in::Context::from_i32(input.context) {
             Some(context) => context,
             None => return Ok("".to_string().into()),
@@ -1212,7 +1260,7 @@ impl BackendService for Backend {
         .into())
     }
 
-    fn i18n_resources(&mut self, _input: Empty) -> BackendResult<pb::Json> {
+    fn i18n_resources(&self, _input: Empty) -> BackendResult<pb::Json> {
         serde_json::to_vec(&self.i18n.resources_for_js())
             .map(Into::into)
             .map_err(Into::into)
@@ -1221,7 +1269,7 @@ impl BackendService for Backend {
     // tags
     //-------------------------------------------------------------------
 
-    fn all_tags(&mut self, _input: Empty) -> BackendResult<pb::AllTagsOut> {
+    fn all_tags(&self, _input: Empty) -> BackendResult<pb::AllTagsOut> {
         let tags = self.with_col(|col| col.storage.all_tags())?;
         let tags: Vec<_> = tags
             .into_iter()
@@ -1230,7 +1278,7 @@ impl BackendService for Backend {
         Ok(pb::AllTagsOut { tags })
     }
 
-    fn register_tags(&mut self, input: pb::RegisterTagsIn) -> BackendResult<pb::Bool> {
+    fn register_tags(&self, input: pb::RegisterTagsIn) -> BackendResult<pb::Bool> {
         self.with_col(|col| {
             col.transact(None, |col| {
                 let usn = if input.preserve_usn {
@@ -1247,7 +1295,7 @@ impl BackendService for Backend {
     // config/preferences
     //-------------------------------------------------------------------
 
-    fn get_config_json(&mut self, input: pb::String) -> BackendResult<pb::Json> {
+    fn get_config_json(&self, input: pb::String) -> BackendResult<pb::Json> {
         self.with_col(|col| {
             let val: Option<JsonValue> = col.get_config_optional(input.val.as_str());
             val.ok_or(AnkiError::NotFound)
@@ -1256,7 +1304,7 @@ impl BackendService for Backend {
         })
     }
 
-    fn set_config_json(&mut self, input: pb::SetConfigJsonIn) -> BackendResult<Empty> {
+    fn set_config_json(&self, input: pb::SetConfigJsonIn) -> BackendResult<Empty> {
         self.with_col(|col| {
             col.transact(None, |col| {
                 // ensure it's a well-formed object
@@ -1267,12 +1315,12 @@ impl BackendService for Backend {
         .map(Into::into)
     }
 
-    fn remove_config(&mut self, input: pb::String) -> BackendResult<Empty> {
+    fn remove_config(&self, input: pb::String) -> BackendResult<Empty> {
         self.with_col(|col| col.transact(None, |col| col.remove_config(input.val.as_str())))
             .map(Into::into)
     }
 
-    fn set_all_config(&mut self, input: pb::Json) -> BackendResult<Empty> {
+    fn set_all_config(&self, input: pb::Json) -> BackendResult<Empty> {
         let val: HashMap<String, JsonValue> = serde_json::from_slice(&input.json)?;
         self.with_col(|col| {
             col.transact(None, |col| {
@@ -1283,7 +1331,7 @@ impl BackendService for Backend {
         .map(Into::into)
     }
 
-    fn get_all_config(&mut self, _input: Empty) -> BackendResult<pb::Json> {
+    fn get_all_config(&self, _input: Empty) -> BackendResult<pb::Json> {
         self.with_col(|col| {
             let conf = col.storage.get_all_config()?;
             serde_json::to_vec(&conf).map_err(Into::into)
@@ -1291,11 +1339,11 @@ impl BackendService for Backend {
         .map(Into::into)
     }
 
-    fn get_preferences(&mut self, _input: Empty) -> BackendResult<pb::Preferences> {
+    fn get_preferences(&self, _input: Empty) -> BackendResult<pb::Preferences> {
         self.with_col(|col| col.get_preferences())
     }
 
-    fn set_preferences(&mut self, input: pb::Preferences) -> BackendResult<Empty> {
+    fn set_preferences(&self, input: pb::Preferences) -> BackendResult<Empty> {
         self.with_col(|col| col.transact(None, |col| col.set_preferences(input)))
             .map(Into::into)
     }
@@ -1307,12 +1355,12 @@ impl Backend {
             col: Arc::new(Mutex::new(None)),
             i18n,
             server,
-            sync_abort: None,
+            sync_abort: Arc::new(Mutex::new(None)),
             progress_state: Arc::new(Mutex::new(ProgressState {
                 want_abort: false,
                 last_progress: None,
             })),
-            runtime: None,
+            runtime: OnceCell::new(),
             state: Arc::new(Mutex::new(BackendState::default())),
         }
     }
@@ -1321,11 +1369,7 @@ impl Backend {
         &self.i18n
     }
 
-    pub fn run_command_bytes(
-        &mut self,
-        method: u32,
-        input: &[u8],
-    ) -> result::Result<Vec<u8>, Vec<u8>> {
+    pub fn run_command_bytes(&self, method: u32, input: &[u8]) -> result::Result<Vec<u8>, Vec<u8>> {
         self.run_command_bytes2_inner(method, input).map_err(|err| {
             let backend_err = anki_error_to_proto_error(err, &self.i18n);
             let mut bytes = Vec::new();
@@ -1357,26 +1401,54 @@ impl Backend {
             guard.last_progress = None;
         }
         ThrottlingProgressHandler {
-            state: self.progress_state.clone(),
+            state: Arc::clone(&self.progress_state),
             last_update: coarsetime::Instant::now(),
         }
     }
 
-    fn runtime_handle(&mut self) -> runtime::Handle {
-        if self.runtime.is_none() {
-            self.runtime = Some(
+    fn runtime_handle(&self) -> runtime::Handle {
+        self.runtime
+            .get_or_init(|| {
                 runtime::Builder::new()
                     .threaded_scheduler()
                     .core_threads(1)
                     .enable_all()
                     .build()
-                    .unwrap(),
-            )
-        }
-        self.runtime.as_ref().unwrap().handle().clone()
+                    .unwrap()
+            })
+            .handle()
+            .clone()
     }
 
-    fn sync_media_inner(&mut self, input: pb::SyncAuth) -> Result<()> {
+    fn sync_abort_handle(
+        &self,
+    ) -> BackendResult<(
+        scopeguard::ScopeGuard<AbortHandleSlot, impl FnOnce(AbortHandleSlot)>,
+        AbortRegistration,
+    )> {
+        let (abort_handle, abort_reg) = AbortHandle::new_pair();
+
+        // Register the new abort_handle.
+        let old_handle = self.sync_abort.lock().unwrap().replace(abort_handle);
+        if old_handle.is_some() {
+            // NOTE: In the future we would ideally be able to handle multiple
+            //       abort handles by just iterating over them all in
+            //       abort_sync). But for now, just log a warning if there was
+            //       already one present -- but don't abort it either.
+            let log = self.with_col(|col| Ok(col.log.clone()))?;
+            warn!(
+                log,
+                "new sync_abort handle registered, but old one was still present (old sync job might not be cancelled on abort)"
+            );
+        }
+        // Clear the abort handle after the caller is done and drops the guard.
+        let guard = scopeguard::guard(Arc::clone(&self.sync_abort), |sync_abort| {
+            sync_abort.lock().unwrap().take();
+        });
+        Ok((guard, abort_reg))
+    }
+
+    fn sync_media_inner(&self, input: pb::SyncAuth) -> Result<()> {
         // mark media sync as active
         let (abort_handle, abort_reg) = AbortHandle::new_pair();
         {
@@ -1421,7 +1493,7 @@ impl Backend {
     }
 
     /// Abort the media sync. Won't return until aborted.
-    fn abort_media_sync_and_wait(&mut self) {
+    fn abort_media_sync_and_wait(&self) {
         let guard = self.state.lock().unwrap();
         if let Some(handle) = &guard.media_sync_abort {
             handle.abort();
@@ -1436,9 +1508,8 @@ impl Backend {
         }
     }
 
-    fn sync_login_inner(&mut self, input: pb::SyncLoginIn) -> BackendResult<pb::SyncAuth> {
-        let (abort_handle, abort_reg) = AbortHandle::new_pair();
-        self.sync_abort = Some(abort_handle);
+    fn sync_login_inner(&self, input: pb::SyncLoginIn) -> BackendResult<pb::SyncAuth> {
+        let (_guard, abort_reg) = self.sync_abort_handle()?;
 
         let rt = self.runtime_handle();
         let sync_fut = sync_login(&input.username, &input.password);
@@ -1447,14 +1518,13 @@ impl Backend {
             Ok(sync_result) => sync_result,
             Err(_) => Err(AnkiError::Interrupted),
         };
-        self.sync_abort = None;
         ret.map(|a| pb::SyncAuth {
             hkey: a.hkey,
             host_number: a.host_number,
         })
     }
 
-    fn sync_status_inner(&mut self, input: pb::SyncAuth) -> BackendResult<pb::SyncStatusOut> {
+    fn sync_status_inner(&self, input: pb::SyncAuth) -> BackendResult<pb::SyncStatusOut> {
         // any local changes mean we can skip the network round-trip
         let req = self.with_col(|col| col.get_local_sync_status())?;
         if req != pb::sync_status_out::Required::NoChanges {
@@ -1483,12 +1553,8 @@ impl Backend {
         Ok(response.into())
     }
 
-    fn sync_collection_inner(
-        &mut self,
-        input: pb::SyncAuth,
-    ) -> BackendResult<pb::SyncCollectionOut> {
-        let (abort_handle, abort_reg) = AbortHandle::new_pair();
-        self.sync_abort = Some(abort_handle);
+    fn sync_collection_inner(&self, input: pb::SyncAuth) -> BackendResult<pb::SyncCollectionOut> {
+        let (_guard, abort_reg) = self.sync_abort_handle()?;
 
         let rt = self.runtime_handle();
         let input_copy = input.clone();
@@ -1516,7 +1582,6 @@ impl Backend {
                 }
             }
         });
-        self.sync_abort = None;
 
         let output: SyncOutput = ret?;
         self.state
@@ -1527,7 +1592,7 @@ impl Backend {
         Ok(output.into())
     }
 
-    fn full_sync_inner(&mut self, input: pb::SyncAuth, upload: bool) -> Result<()> {
+    fn full_sync_inner(&self, input: pb::SyncAuth, upload: bool) -> Result<()> {
         self.abort_media_sync_and_wait();
 
         let rt = self.runtime_handle();
@@ -1539,8 +1604,7 @@ impl Backend {
 
         let col_inner = col.take().unwrap();
 
-        let (abort_handle, abort_reg) = AbortHandle::new_pair();
-        self.sync_abort = Some(abort_handle);
+        let (_guard, abort_reg) = self.sync_abort_handle()?;
 
         let col_path = col_inner.col_path.clone();
         let media_folder_path = col_inner.media_folder.clone();
@@ -1561,7 +1625,6 @@ impl Backend {
             let abortable_sync = Abortable::new(sync_fut, abort_reg);
             rt.block_on(abortable_sync)
         };
-        self.sync_abort = None;
 
         // ensure re-opened regardless of outcome
         col.replace(open_collection(

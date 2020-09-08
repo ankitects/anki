@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::{backend_proto as pb, prelude::*, revlog::RevlogEntry};
+use crate::{backend_proto as pb, prelude::*, revlog::RevlogEntry, search::SortMode};
 
 impl Collection {
     pub(crate) fn graph_data_for_search(
@@ -9,7 +9,7 @@ impl Collection {
         search: &str,
         days: u32,
     ) -> Result<pb::GraphsOut> {
-        self.search_cards_into_table(search)?;
+        self.search_cards_into_table(search, SortMode::NoOrder)?;
         let all = search.trim().is_empty();
         self.graph_data(all, days)
     }
@@ -33,7 +33,7 @@ impl Collection {
                 .get_revlog_entries_for_searched_cards(revlog_start)?
         };
 
-        self.clear_searched_cards()?;
+        self.storage.clear_searched_cards_table()?;
 
         Ok(pb::GraphsOut {
             cards: cards.into_iter().map(Into::into).collect(),

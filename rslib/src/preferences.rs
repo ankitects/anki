@@ -9,6 +9,7 @@ use crate::{
     collection::Collection,
     err::Result,
     sched::cutoff::local_minutes_west_for_stamp,
+    timestamp::TimestampSecs,
 };
 
 impl Collection {
@@ -77,6 +78,10 @@ impl Collection {
             }
         } else {
             self.set_creation_mins_west(None)?;
+        }
+
+        if s.scheduler_version != 1 {
+            self.set_local_mins_west(local_minutes_west_for_stamp(TimestampSecs::now().0))?;
         }
 
         // fixme: currently scheduler change unhandled

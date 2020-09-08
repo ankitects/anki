@@ -179,6 +179,10 @@ impl Collection {
         self.set_config(ConfigKey::CurrentNoteTypeID, &id)
     }
 
+    pub(crate) fn get_next_card_position(&self) -> u32 {
+        self.get_config_default(ConfigKey::NextNewCardPosition)
+    }
+
     pub(crate) fn get_and_update_next_card_position(&self) -> Result<u32> {
         let pos: u32 = self
             .get_config_optional(ConfigKey::NextNewCardPosition)

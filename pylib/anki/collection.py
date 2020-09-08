@@ -384,6 +384,9 @@ class Collection:
         "You probably want .remove_notes_by_card() instead."
         self.backend.remove_cards(card_ids=card_ids)
 
+    def set_deck(self, card_ids: List[int], deck_id: int) -> None:
+        self.backend.set_deck(card_ids=card_ids, deck_id=deck_id)
+
     # legacy
 
     def remCards(self, ids: List[int], notes: bool = True) -> None:
@@ -515,6 +518,9 @@ table.review-log {{ {revlog_style} }}
 </style>"""
 
         return style + self.backend.card_stats(card_id)
+
+    def studied_today(self) -> str:
+        return self.backend.studied_today()
 
     # legacy
 
