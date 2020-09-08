@@ -41,21 +41,6 @@ pub fn time_span(seconds: f32, i18n: &I18n, precise: bool) -> String {
     i18n.trn(key, args)
 }
 
-// fixme: this doesn't belong here
-pub fn studied_today(cards: usize, secs: f32, i18n: &I18n) -> String {
-    let span = Timespan::from_secs(secs).natural_span();
-    let amount = span.as_unit();
-    let unit = span.unit().as_str();
-    let secs_per = if cards > 0 {
-        secs / (cards as f32)
-    } else {
-        0.0
-    };
-    let args = tr_args!["amount" => amount, "unit" => unit,
-        "cards" => cards, "secs-per-card" => secs_per];
-    i18n.trn(TR::StatisticsStudiedToday, args)
-}
-
 const SECOND: f32 = 1.0;
 const MINUTE: f32 = 60.0 * SECOND;
 const HOUR: f32 = 60.0 * MINUTE;
@@ -64,7 +49,7 @@ const MONTH: f32 = 30.0 * DAY;
 const YEAR: f32 = 12.0 * MONTH;
 
 #[derive(Clone, Copy)]
-enum TimespanUnit {
+pub(crate) enum TimespanUnit {
     Seconds,
     Minutes,
     Hours,
@@ -74,7 +59,7 @@ enum TimespanUnit {
 }
 
 impl TimespanUnit {
-    fn as_str(self) -> &'static str {
+    pub fn as_str(self) -> &'static str {
         match self {
             TimespanUnit::Seconds => "seconds",
             TimespanUnit::Minutes => "minutes",
@@ -87,13 +72,13 @@ impl TimespanUnit {
 }
 
 #[derive(Clone, Copy)]
-struct Timespan {
+pub(crate) struct Timespan {
     seconds: f32,
     unit: TimespanUnit,
 }
 
 impl Timespan {
-    fn from_secs(seconds: f32) -> Self {
+    pub fn from_secs(seconds: f32) -> Self {
         Timespan {
             seconds,
             unit: TimespanUnit::Seconds,
@@ -102,7 +87,7 @@ impl Timespan {
 
     /// Return the value as the configured unit, eg seconds=70/unit=Minutes
     /// returns 1.17
-    fn as_unit(self) -> f32 {
+    pub fn as_unit(self) -> f32 {
         let s = self.seconds;
         match self.unit {
             TimespanUnit::Seconds => s,
@@ -116,7 +101,7 @@ impl Timespan {
 
     /// Round seconds and days to integers, otherwise
     /// truncates to one decimal place.
-    fn as_rounded_unit(self) -> f32 {
+    pub fn as_rounded_unit(self) -> f32 {
         match self.unit {
             // seconds/days as integer
             TimespanUnit::Seconds | TimespanUnit::Days => self.as_unit().round(),
@@ -125,13 +110,13 @@ impl Timespan {
         }
     }
 
-    fn unit(self) -> TimespanUnit {
+    pub fn unit(self) -> TimespanUnit {
         self.unit
     }
 
     /// Return a new timespan in the most appropriate unit, eg
     /// 70 secs -> timespan in minutes
-    fn natural_span(self) -> Timespan {
+    pub fn natural_span(self) -> Timespan {
         let secs = self.seconds.abs();
         let unit = if secs < MINUTE {
             TimespanUnit::Seconds
@@ -158,7 +143,7 @@ impl Timespan {
 mod test {
     use crate::i18n::I18n;
     use crate::log;
-    use crate::sched::timespan::{answer_button_time, studied_today, time_span, MONTH};
+    use crate::sched::timespan::{answer_button_time, time_span, MONTH};
 
     #[test]
     fn answer_buttons() {
@@ -179,16 +164,5 @@ mod test {
         assert_eq!(time_span(90.0, &i18n, false), "1.5 minutes");
         assert_eq!(time_span(45.0 * 86_400.0, &i18n, false), "1.5 months");
         assert_eq!(time_span(365.0 * 86_400.0 * 1.5, &i18n, false), "1.5 years");
-    }
-
-    #[test]
-    fn combo() {
-        // temporary test of fluent term handling
-        let log = log::terminal();
-        let i18n = I18n::new(&["zz"], "", log);
-        assert_eq!(
-            &studied_today(3, 13.0, &i18n).replace("\n", " "),
-            "Studied 3 cards in 13 seconds today (4.33s/card)"
-        );
     }
 }

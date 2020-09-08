@@ -15,7 +15,6 @@ from typing import (
     List,
     Optional,
     Sequence,
-    Set,
     Tuple,
     Union,
 )
@@ -25,7 +24,7 @@ import anki.backend_pb2 as pb
 from anki import hooks
 from anki.cards import Card
 from anki.consts import *
-from anki.decks import Deck, DeckConfig, DeckManager, FilteredDeck, QueueConfig
+from anki.decks import Deck, DeckConfig, DeckManager, QueueConfig
 from anki.lang import _
 from anki.notes import Note
 from anki.rsbackend import (
@@ -1062,117 +1061,14 @@ select id from cards where did in %s and queue = {QUEUE_TYPE_REV} and due <= ? l
 
         return ivl
 
-    # Dynamic deck handling
+    # Filtered deck handling
     ##########################################################################
 
-    _restoreQueueWhenEmptyingSnippet = f"""
-queue = (case when queue < 0 then queue
-              when type in (1,{CARD_TYPE_RELEARNING}) then
-  (case when (case when odue then odue else due end) > 1000000000 then 1 else
-  {QUEUE_TYPE_DAY_LEARN_RELEARN} end)
-else
-  type
-end)
-"""
+    def rebuild_filtered_deck(self, deck_id: int) -> int:
+        return self.col.backend.rebuild_filtered_deck(deck_id)
 
-    def rebuildDyn(self, did: Optional[int] = None) -> Optional[int]:
-        "Rebuild a dynamic deck."
-        did = did or self.col.decks.selected()
-        deck = self.col.decks.get(did)
-        assert deck["dyn"]
-        # move any existing cards back first, then fill
-        self.emptyDyn(did)
-        cnt = self._fillDyn(deck)
-        if not cnt:
-            return None
-        # and change to our new deck
-        self.col.decks.select(did)
-        return cnt
-
-    def _fillDyn(self, deck: FilteredDeck) -> int:
-        start = -100000
-        total = 0
-        for search, limit, order in deck["terms"]:
-            orderlimit = self._dynOrder(order, limit)
-            if search.strip():
-                search = "(%s)" % search
-            search = "%s -is:suspended -is:buried -deck:filtered" % search
-            try:
-                ids = self.col.findCards(search, order=orderlimit)
-            except:
-                return total
-            # move the cards over
-            self.col.log(deck["id"], ids)
-            self._moveToDyn(deck["id"], ids, start=start + total)
-            total += len(ids)
-        return total
-
-    def emptyDyn(self, did: Optional[int], lim: Optional[str] = None) -> None:
-        if not lim:
-            lim = "did = %s" % did
-        self.col.log(self.col.db.list("select id from cards where %s" % lim))
-
-        self.col.db.execute(
-            """
-update cards set did = odid, %s,
-due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? where %s"""
-            % (self._restoreQueueWhenEmptyingSnippet, lim),
-            self.col.usn(),
-        )
-
-    def remFromDyn(self, cids: List[int]) -> None:
-        self.emptyDyn(None, "id in %s and odid" % ids2str(cids))
-
-    def _dynOrder(self, o: int, l: int) -> str:
-        if o == DYN_OLDEST:
-            t = "(select max(id) from revlog where cid=c.id)"
-        elif o == DYN_RANDOM:
-            t = "random()"
-        elif o == DYN_SMALLINT:
-            t = "ivl"
-        elif o == DYN_BIGINT:
-            t = "ivl desc"
-        elif o == DYN_LAPSES:
-            t = "lapses desc"
-        elif o == DYN_ADDED:
-            t = "n.id"
-        elif o == DYN_REVADDED:
-            t = "n.id desc"
-        elif o == DYN_DUEPRIORITY:
-            t = (
-                f"(case when queue={QUEUE_TYPE_REV} and due <= %d then (ivl / cast(%d-due+0.001 as real)) else 100000+due end)"
-                % (self.today, self.today)
-            )
-        else:  # DYN_DUE or unknown
-            t = "c.due, c.ord"
-        return t + " limit %d" % l
-
-    def _moveToDyn(self, did: int, ids: Sequence[int], start: int = -100000) -> None:
-        deck = self.col.decks.get(did)
-        data = []
-        u = self.col.usn()
-        due = start
-        for id in ids:
-            data.append((did, due, u, id))
-            due += 1
-
-        queue = ""
-        if not deck["resched"]:
-            queue = f",queue={QUEUE_TYPE_REV}"
-
-        query = (
-            """
-update cards set
-odid = did, odue = due,
-did = ?,
-due = (case when due <= 0 then due else ? end),
-usn = ?
-%s
-where id = ?
-"""
-            % queue
-        )
-        self.col.db.executemany(query, data)
+    def empty_filtered_deck(self, deck_id: int) -> None:
+        self.col.backend.empty_filtered_deck(deck_id)
 
     def _removeFromFiltered(self, card: Card) -> None:
         if card.odid:
@@ -1194,6 +1090,42 @@ where id = ?
                 card.queue = QUEUE_TYPE_DAY_LEARN_RELEARN
         else:
             card.queue = card.type
+
+    # legacy
+
+    def rebuildDyn(self, did: Optional[int] = None) -> Optional[int]:
+        did = did or self.col.decks.selected()
+        count = self.rebuild_filtered_deck(did) or None
+        if not count:
+            return None
+        # and change to our new deck
+        self.col.decks.select(did)
+        return count
+
+    def emptyDyn(self, did: Optional[int], lim: Optional[str] = None) -> None:
+        if lim is None:
+            self.empty_filtered_deck(did)
+            return
+
+        queue = f"""
+queue = (case when queue < 0 then queue
+              when type in (1,{CARD_TYPE_RELEARNING}) then
+  (case when (case when odue then odue else due end) > 1000000000 then 1 else
+  {QUEUE_TYPE_DAY_LEARN_RELEARN} end)
+else
+  type
+end)
+"""
+        self.col.db.execute(
+            """
+update cards set did = odid, %s,
+due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? where %s"""
+            % (queue, lim),
+            self.col.usn(),
+        )
+
+    def remFromDyn(self, cids: List[int]) -> None:
+        self.emptyDyn(None, "id in %s and odid" % ids2str(cids))
 
     # Leeches
     ##########################################################################
@@ -1474,47 +1406,17 @@ and (queue={QUEUE_TYPE_NEW} or (queue={QUEUE_TYPE_REV} and due<=?))""",
     # Resetting
     ##########################################################################
 
-    def forgetCards(self, ids: List[int]) -> None:
+    def schedule_cards_as_new(self, card_ids: List[int]) -> None:
         "Put cards at the end of the new queue."
-        self.remFromDyn(ids)
-        self.col.db.execute(
-            f"update cards set type={CARD_TYPE_NEW},queue={QUEUE_TYPE_NEW},ivl=0,due=0,odue=0,factor=?"
-            " where id in " + ids2str(ids),
-            STARTING_FACTOR,
-        )
-        pmax = (
-            self.col.db.scalar(f"select max(due) from cards where type={CARD_TYPE_NEW}")
-            or 0
-        )
-        # takes care of mod + usn
-        self.sortCards(ids, start=pmax + 1)
-        self.col.log(ids)
+        self.col.backend.schedule_cards_as_new(card_ids)
 
-    def reschedCards(self, ids: List[int], imin: int, imax: int) -> None:
-        "Put cards in review queue with a new interval in days (min, max)."
-        d = []
-        t = self.today
-        mod = intTime()
-        for id in ids:
-            r = random.randint(imin, imax)
-            d.append(
-                (
-                    max(1, r),
-                    r + t,
-                    self.col.usn(),
-                    mod,
-                    STARTING_FACTOR,
-                    id,
-                )
-            )
-        self.remFromDyn(ids)
-        self.col.db.executemany(
-            f"""
-update cards set type={CARD_TYPE_REV},queue={QUEUE_TYPE_REV},ivl=?,due=?,odue=0,
-usn=?,mod=?,factor=? where id=?""",
-            d,
+    def schedule_cards_as_reviews(
+        self, card_ids: List[int], min_interval: int, max_interval: int
+    ) -> None:
+        "Make cards review cards, with a new interval randomly selected from range."
+        self.col.backend.schedule_cards_as_reviews(
+            card_ids=card_ids, min_interval=min_interval, max_interval=max_interval
         )
-        self.col.log(ids)
 
     def resetCards(self, ids: List[int]) -> None:
         "Completely reset cards for export."
@@ -1533,6 +1435,11 @@ usn=?,mod=?,factor=? where id=?""",
         self.forgetCards(nonNew)
         self.col.log(ids)
 
+    # legacy
+
+    forgetCards = schedule_cards_as_new
+    reschedCards = schedule_cards_as_reviews
+
     # Repositioning new cards
     ##########################################################################
 
@@ -1544,60 +1451,19 @@ usn=?,mod=?,factor=? where id=?""",
         shuffle: bool = False,
         shift: bool = False,
     ) -> None:
-        scids = ids2str(cids)
-        now = intTime()
-        nids = []
-        nidsSet: Set[int] = set()
-        for id in cids:
-            nid = self.col.db.scalar("select nid from cards where id = ?", id)
-            if nid not in nidsSet:
-                nids.append(nid)
-                nidsSet.add(nid)
-        if not nids:
-            # no new cards
-            return
-        # determine nid ordering
-        due = {}
-        if shuffle:
-            random.shuffle(nids)
-        for c, nid in enumerate(nids):
-            due[nid] = start + c * step
-        # pylint: disable=undefined-loop-variable
-        high = start + c * step
-        # shift?
-        if shift:
-            low = self.col.db.scalar(
-                f"select min(due) from cards where due >= ? and type = {CARD_TYPE_NEW} "
-                "and id not in %s" % scids,
-                start,
-            )
-            if low is not None:
-                shiftby = high - low + 1
-                self.col.db.execute(
-                    f"""
-update cards set mod=?, usn=?, due=due+? where id not in %s
-and due >= ? and queue = {QUEUE_TYPE_NEW}"""
-                    % scids,
-                    now,
-                    self.col.usn(),
-                    shiftby,
-                    low,
-                )
-        # reorder cards
-        d = []
-        for id, nid in self.col.db.execute(
-            f"select id, nid from cards where type = {CARD_TYPE_NEW} and id in " + scids
-        ):
-            d.append((due[nid], now, self.col.usn(), id))
-        self.col.db.executemany("update cards set due=?,mod=?,usn=? where id = ?", d)
+        self.col.backend.sort_cards(
+            card_ids=cids,
+            starting_from=start,
+            step_size=step,
+            randomize=shuffle,
+            shift_existing=shift,
+        )
 
     def randomizeCards(self, did: int) -> None:
-        cids = self.col.db.list("select id from cards where did = ?", did)
-        self.sortCards(cids, shuffle=True)
+        self.col.backend.sort_deck(deck_id=did, randomize=True)
 
     def orderCards(self, did: int) -> None:
-        cids = self.col.db.list("select id from cards where did = ? order by nid", did)
-        self.sortCards(cids)
+        self.col.backend.sort_deck(deck_id=did, randomize=False)
 
     def resortConf(self, conf) -> None:
         for did in self.col.decks.didsForConf(conf):

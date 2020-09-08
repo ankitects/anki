@@ -42,6 +42,7 @@ pub enum RevlogReviewKind {
     Review = 1,
     Relearning = 2,
     EarlyReview = 3,
+    Manual = 4,
 }
 
 impl Default for RevlogReviewKind {
@@ -57,5 +58,42 @@ impl RevlogEntry {
         } else {
             -self.interval
         }) as u32
+    }
+}
+
+impl Card {
+    fn last_interval_for_revlog_todo(&self) -> i32 {
+        self.interval as i32
+
+        // fixme: need to pass in delays for (re)learning
+        // if let Some(delay) = self.current_learning_delay_seconds(&[]) {
+        //     -(delay as i32)
+        // } else {
+        //     self.interval as i32
+        // }
+    }
+}
+
+impl Collection {
+    pub(crate) fn log_manually_scheduled_review(
+        &mut self,
+        card: &Card,
+        usn: Usn,
+        next_interval: u32,
+    ) -> Result<()> {
+        println!("fixme: learning last_interval");
+        // let deck = self.get_deck(card.deck_id)?.ok_or(AnkiError::NotFound)?;
+        let entry = RevlogEntry {
+            id: TimestampMillis::now(),
+            cid: card.id,
+            usn,
+            button_chosen: 0,
+            interval: next_interval as i32,
+            last_interval: card.last_interval_for_revlog_todo(),
+            ease_factor: card.ease_factor as u32,
+            taken_millis: 0,
+            review_kind: RevlogReviewKind::Manual,
+        };
+        self.storage.add_revlog_entry(&entry)
     }
 }
