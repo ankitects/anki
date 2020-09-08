@@ -1,12 +1,17 @@
-FROM python:3.8 AS builder
+ARG PYTHON_VERSION="3.8"
 
-ARG DEBIAN_FRONTEND="noninteractive"
+FROM python:$PYTHON_VERSION AS dependencies
+
+# Allow non-root users to install things and modify installations in /opt.
+RUN chmod 777 /opt && chmod a+s /opt
 
 # Install rust.
 ENV CARGO_HOME="/opt/cargo" \
     RUSTUP_HOME="/opt/rustup"
 ENV PATH="$CARGO_HOME/bin:$PATH"
-RUN curl -fsSL --proto '=https' --tlsv1.2 https://sh.rustup.rs \
+RUN mkdir $CARGO_HOME $RUSTUP_HOME \
+    && chmod a+rws $CARGO_HOME $RUSTUP_HOME \
+    && curl -fsSL --proto '=https' --tlsv1.2 https://sh.rustup.rs \
     | sh -s -- -y --quiet --no-modify-path \
     && rustup update \
     && cargo install ripgrep
@@ -16,6 +21,16 @@ RUN apt-get update \
     && apt-get install --yes --no-install-recommends \
         gettext \
         lame \
+        libnss3 \
+        libxcb-icccm4 \
+        libxcb-image0 \
+        libxcb-keysyms1 \
+        libxcb-randr0 \
+        libxcb-render-util0 \
+        libxcb-xinerama0 \
+        libxcb-xkb1 \
+        libxkbcommon-x11-0 \
+        libxcomposite1 \
         mpv \
         portaudio19-dev \
         rsync \
@@ -34,14 +49,24 @@ RUN curl -fsSL --proto '=https' -O https://github.com/protocolbuffers/protobuf/r
     && rm protoc-3.11.4-linux-x86_64.zip
 ENV PATH="/opt/protoc/bin:$PATH"
 
-# Build anki.
+# Allow non-root users to install toolchains and update rust crates.
+RUN chmod 777 $RUSTUP_HOME/toolchains $RUSTUP_HOME/update-hashes $CARGO_HOME/registry \
+    && chmod -R a+rw $CARGO_HOME/registry \
+    # Necessary for TypeScript.
+    && chmod a+w /home
+
+# Build anki. Use a separate image so users can build an image with build-time
+# dependencies.
+FROM dependencies AS builder
 WORKDIR /opt/anki
 COPY . .
-RUN make develop \
-    && make build
+RUN make develop
+
+FROM builder AS pythonbuilder
+RUN make build
 
 # Build final image.
-FROM python:3.8-slim
+FROM python:${PYTHON_VERSION}-slim
 
 # Install system dependencies.
 RUN apt-get update \
@@ -64,7 +89,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Install pre-compiled Anki.
-COPY --from=builder /opt/anki/dist/ /opt/anki/
+COPY --from=pythonbuilder /opt/anki/dist/ /opt/anki/
 RUN python -m pip install --no-cache-dir \
         PyQtWebEngine \
         /opt/anki/*.whl \
