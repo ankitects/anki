@@ -394,7 +394,7 @@ class _NotesWillBeDeletedHook:
 notes_will_be_deleted = _NotesWillBeDeletedHook()
 
 
-class _SchedulerDidBurySiblingsNotesFilter:
+class _SchedulerDidBurySiblingsNotesHook:
     """Allows changing sibling buried cards of 'card'.
 
     Either by adding new cards to be buried or removing buried cards
@@ -414,17 +414,16 @@ class _SchedulerDidBurySiblingsNotesFilter:
         return len(self._hooks)
 
     def __call__(self, card: Card, toBury: List[int], scheduler: Scheduler) -> None:
-        for filter in self._hooks:
+        for hook in self._hooks:
             try:
-                card = filter(card, toBury, scheduler)
+                hook(card, toBury, scheduler)
             except:
                 # if the hook fails, remove it
-                self._hooks.remove(filter)
+                self._hooks.remove(hook)
                 raise
-        return card
 
 
-scheduler_did_bury_siblings_notes = _SchedulerDidBurySiblingsNotesFilter()
+scheduler_did_bury_siblings_notes = _SchedulerDidBurySiblingsNotesHook()
 
 
 class _SchedulerNewLimitForSingleDeckFilter:

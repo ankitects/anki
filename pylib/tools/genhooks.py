@@ -86,7 +86,6 @@ hooks = [
     Hook(
         name="scheduler_did_bury_siblings_notes",
         args=["card: Card", "toBury: List[int]", "scheduler: Scheduler"],
-        return_type="None",
         doc="""Allows changing sibling buried cards of 'card'.
 
         Either by adding new cards to be buried or removing buried cards 
