@@ -113,6 +113,9 @@ rustup update
 cargo install ripgrep
 ```
 
+Another way to build Anki on Linux is to use Docker - please see README.docker
+for more information.
+
 Mac users
 ----------
 

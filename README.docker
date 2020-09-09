@@ -1,8 +1,12 @@
 Anki in Docker
 ==============
 
-Docker provides a standard method of installing software. This is particularly helpful
-when software requires a complex set of dependencies, like Anki.
+Anki can optionally be built and run with Docker, which will automate the
+installation of Anki's build dependencies. The instructions below cover running
+Docker on Linux; to run it on other platforms you will need to run an X server
+and adapt the instructions.
+
+For information on building Anki outside of Docker, please see README.development.
 
 ## Running Anki in Docker
 
