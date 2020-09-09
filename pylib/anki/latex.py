@@ -186,4 +186,4 @@ def _errMsg(type: str, texpath: str) -> Any:
     return msg
 
 
-hooks.card_did_render.append(on_card_did_render)
+hooks.card_did_render.append(on_card_did_render)  # type: ignore
