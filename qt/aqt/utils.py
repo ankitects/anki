@@ -342,6 +342,7 @@ try:
 
 except Exception as error:
     import traceback
+
     from anki.utils import devMode
 
     Qsci = None
