@@ -8,6 +8,7 @@ import os
 from typing import Callable, Tuple
 
 import aqt
+from anki.lang import without_unicode_isolation
 from anki.rsbackend import (
     TR,
     FullSyncProgress,
@@ -76,7 +77,8 @@ def on_normal_sync_timer(mw: aqt.main.AnkiQt) -> None:
 
     assert isinstance(progress.val, NormalSyncProgress)
     mw.progress.update(
-        label=f"{progress.val.added}\n{progress.val.removed}", process=False,
+        label=f"{progress.val.added}\n{progress.val.removed}",
+        process=False,
     )
     mw.progress.set_title(progress.val.stage)
 
@@ -289,7 +291,9 @@ def get_id_and_pass_from_user(
     diag.setWindowModality(Qt.WindowModal)
     vbox = QVBoxLayout()
     info_label = QLabel(
-        tr(TR.SYNC_ACCOUNT_REQUIRED, link="https://ankiweb.net/account/login")
+        without_unicode_isolation(
+            tr(TR.SYNC_ACCOUNT_REQUIRED, link="https://ankiweb.net/account/login")
+        )
     )
     info_label.setOpenExternalLinks(True)
     info_label.setWordWrap(True)

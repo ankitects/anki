@@ -137,7 +137,7 @@ mod test {
                 "Text".into()
             ]
         );
-        let cnt = col.find_and_replace(nids.clone(), "BBB", "ccc", Some("Front".into()))?;
+        let cnt = col.find_and_replace(nids, "BBB", "ccc", Some("Front".into()))?;
         // still 2, as the caller is expected to provide only note ids that have
         // that field, and if we can't find the field we fall back on all fields
         assert_eq!(cnt, 2);

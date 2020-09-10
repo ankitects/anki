@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Optional
 
 import aqt
 from anki.lang import _
@@ -75,16 +76,16 @@ class Overview:
             deck = self.mw.col.decks.current()
             self.mw.onCram("'deck:%s'" % deck["name"])
         elif url == "refresh":
-            self.mw.col.sched.rebuildDyn()
+            self.mw.col.sched.rebuild_filtered_deck(self.mw.col.decks.selected())
             self.mw.reset()
         elif url == "empty":
-            self.mw.col.sched.emptyDyn(self.mw.col.decks.selected())
+            self.mw.col.sched.empty_filtered_deck(self.mw.col.decks.selected())
             self.mw.reset()
         elif url == "decks":
             self.mw.moveToState("deckBrowser")
         elif url == "review":
             openLink(aqt.appShared + "info/%s?v=%s" % (self.sid, self.sidVer))
-        elif url == "studymore":
+        elif url == "studymore" or url == "customStudy":
             self.onStudyMore()
         elif url == "unbury":
             self.onUnbury()
@@ -106,12 +107,12 @@ class Overview:
 
     def onRebuildKey(self):
         if self._filteredDeck():
-            self.mw.col.sched.rebuildDyn()
+            self.mw.col.sched.rebuild_filtered_deck(self.mw.col.decks.selected())
             self.mw.reset()
 
     def onEmptyKey(self):
         if self._filteredDeck():
-            self.mw.col.sched.emptyDyn(self.mw.col.decks.selected())
+            self.mw.col.sched.empty_filtered_deck(self.mw.col.decks.selected())
             self.mw.reset()
 
     def onCustomStudyKey(self):
@@ -124,10 +125,8 @@ class Overview:
             self.mw.reset()
             return
 
-        sibs = self.mw.col.sched.haveBuriedSiblings()
-        man = self.mw.col.sched.haveManuallyBuried()
-
-        if sibs and man:
+        info = self.mw.col.sched.congratulations_info()
+        if info.have_sched_buried and info.have_user_buried:
             opts = [
                 _("Manually Buried Cards"),
                 _("Buried Siblings"),
@@ -161,6 +160,11 @@ class Overview:
             shareLink = '<a class=smallLink href="review">Reviews and Updates</a>'
         else:
             shareLink = ""
+        table_text = self._table()
+        if not table_text:
+            # deck is finished
+            self._show_finished_screen()
+            return
         content = OverviewContent(
             deck=deck["name"],
             shareLink=shareLink,
@@ -174,6 +178,9 @@ class Overview:
             js=["jquery.js", "overview.js"],
             context=self,
         )
+
+    def _show_finished_screen(self):
+        self.web.load_ts_page("congrats")
 
     def _desc(self, deck):
         if deck["dyn"]:
@@ -201,14 +208,13 @@ to their original deck."""
             dyn = ""
         return '<div class="descfont descmid description %s">%s</div>' % (dyn, desc)
 
-    def _table(self):
+    def _table(self) -> Optional[str]:
+        "Return table text if deck is not finished."
         counts = list(self.mw.col.sched.counts())
         finished = not sum(counts)
         but = self.mw.button
         if finished:
-            return '<div style="white-space: pre-wrap;">%s</div>' % (
-                self.mw.col.sched.finishedMsg()
-            )
+            return None
         else:
             return """
 <table width=400 cellpadding=5>

@@ -27,7 +27,7 @@ endif
 .SUFFIXES:
 
 BLACKARGS := -t py36 aqt tests setup.py tools/*.py --exclude='aqt/forms|buildinfo|colors'
-ISORTARGS := aqt tests setup.py
+ISORTARGS := --profile black aqt tests setup.py
 
 $(shell mkdir -p .build ../dist)
 
@@ -52,7 +52,7 @@ all: check
 	./scripts/copy-qt-files)
 	@touch $@
 
-TSDEPS := $(wildcard ts/src/*.ts) $(wildcard ts/scss/*.scss)
+TSDEPS := $(wildcard ts/src/*.ts) $(wildcard ts/scss/*.scss) $(wildcard ../ts/src/scss/*)
 
 .build/js: $(TSDEPS)
 	(cd ts && make build)

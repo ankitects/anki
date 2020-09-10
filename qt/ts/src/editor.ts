@@ -216,13 +216,17 @@ function focusPrevious() {
     }
 }
 
-function focusIfField(elem) {
-    if (elem.classList.contains("field")) {
-        elem.focus();
-        // the focus event may not fire if the window is not active, so make sure
-        // the current field is set
-        currentField = elem;
-        return true;
+function focusIfField(x, y) {
+    const elements = document.elementsFromPoint(x, y);
+    for (let i = 0; i < elements.length; i++) {
+        let elem = elements[i] as HTMLElement;
+        if (elem.classList.contains("field")) {
+            elem.focus();
+            // the focus event may not fire if the window is not active, so make sure
+            // the current field is set
+            currentField = elem;
+            return true;
+        }
     }
     return false;
 }

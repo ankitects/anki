@@ -104,7 +104,7 @@ class CollectionStats:
 <style>
 h1 { margin-bottom: 0; margin-top: 1em; }
 .pielabel { text-align:center; padding:0px; color:white; }
-body {background-image: url(data:image/png;base64,%s); }
+body:not(.night_mode) {background-image: url(data:image/png;base64,%s); }
 @media print {
     .section { page-break-inside: avoid; padding-top: 5mm; }
 }
@@ -145,7 +145,9 @@ from revlog where id > ? """
             return "<b>" + str(s) + "</b>"
 
         if cards:
-            b += self.col.backend.studied_today(cards=cards, seconds=float(thetime))
+            b += self.col.backend.studied_today_message(
+                cards=cards, seconds=float(thetime)
+            )
             # again/pass count
             b += "<br>" + _("Again count: %s") % bold(failed)
             if cards:
@@ -243,7 +245,9 @@ from revlog where id > ? """
     def _dueInfo(self, tot: int, num: int) -> str:
         i: List[str] = []
         self._line(
-            i, _("Total"), self.col.tr(TR.STATISTICS_REVIEWS, reviews=tot),
+            i,
+            _("Total"),
+            self.col.tr(TR.STATISTICS_REVIEWS, reviews=tot),
         )
         self._line(i, _("Average"), self._avgDay(tot, num, _("reviews")))
         tomorrow = self.col.db.scalar(
@@ -436,7 +440,9 @@ group by day order by day"""
         return self._lineTbl(i), int(tot)
 
     def _splitRepData(
-        self, data: List[Tuple[Any, ...]], spec: Sequence[Tuple[int, str, str]],
+        self,
+        data: List[Tuple[Any, ...]],
+        spec: Sequence[Tuple[int, str, str]],
     ) -> Tuple[List[Dict[str, Any]], List[Tuple[Any, Any]]]:
         sep: Dict[int, Any] = {}
         totcnt = {}

@@ -13,6 +13,16 @@ licensed under the BSD 3 clause license. If any pull request you make contains
 code that you don't own the copyright to, you agree to make that clear when
 submitting the request.
 
+When submitting a pull request, GitHub Actions will check that the Git email you
+are submitting from matches the one you used to edit this file. A common issue
+is adding yourself to this file using the username on your computer, but then
+using GitHub to rebase or edit a pull request online. This will result in your
+Git email becoming something like user@noreply.github.com. To prevent the
+automatic check from failing, you can edit this file again using GitHub's online
+editor, making a trivial edit like adding a space after your name, and then pull
+requests will work regardless of whether you create them using your computer or
+GitHub's online interface.
+
 For users who previously confirmed the license of their contributions on the
 support site, it would be great if you could add your name below as well.
 
@@ -46,7 +56,10 @@ Matt Krump <github.com/mkrump>
 Alexander Presnyakov <flagist0@gmail.com>
 abdo <github.com/ANH25>
 aplaice <plaice.adam+github@gmail.com>
-phwoo <github.com/phwoo> 
+phwoo <github.com/phwoo>
+Soren Bjornstad <anki@sorenbjornstad.com>
+Aleksa Sarai <cyphar@cyphar.com>
+Jakub Kaczmarzyk <jakub.kaczmarzyk@gmail.com>
 
 ********************
 

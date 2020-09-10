@@ -100,8 +100,8 @@ class ProfileManager:
                 sys.exit(1)
             try:
                 self.load(profile)
-            except TypeError:
-                raise Exception("Provided profile does not exist.")
+            except TypeError as exc:
+                raise Exception("Provided profile does not exist.") from exc
 
     # Base creation
     ######################################################################
@@ -141,12 +141,14 @@ class ProfileManager:
                 shutil.move(oldBase, self.base)
 
     def _tryToMigrateFolder(self, oldBase):
-        from PyQt5 import QtWidgets, QtGui
+        from PyQt5 import QtGui, QtWidgets
 
         app = QtWidgets.QApplication([])
         icon = QtGui.QIcon()
         icon.addPixmap(
-            QtGui.QPixmap(":/icons/anki.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off,
+            QtGui.QPixmap(":/icons/anki.png"),
+            QtGui.QIcon.Normal,
+            QtGui.QIcon.Off,
         )
         window_title = "Data Folder Migration"
         migration_directories = f"\n\n    {oldBase}\n\nto\n\n    {self.base}"

@@ -81,15 +81,15 @@ class ThemeManager:
     def str_color(self, key: str) -> str:
         """Get a color defined in _vars.scss
 
-        If the colour is called '$day-frame-bg', key should be
+        If the colour is called '--frame-bg', key should be
         'frame-bg'.
 
         Returns the color as a string hex code or color name."""
-        prefix = self.night_mode and "night-" or "day-"
-        c = colors.get(prefix + key)
+        idx = 1 if self.night_mode else 0
+        c = colors.get(key)
         if c is None:
             raise Exception("no such color:", key)
-        return c
+        return c[idx]
 
     def qcolor(self, key: str) -> QColor:
         """Get a color defined in _vars.scss as a QColor."""
@@ -182,7 +182,7 @@ QTabWidget { background-color: %s; }
         palette.setColor(QPalette.Window, window_bg)
         palette.setColor(QPalette.AlternateBase, window_bg)
 
-        palette.setColor(QPalette.Button, QColor(colors.get("fusion-button-base-bg")))
+        palette.setColor(QPalette.Button, QColor("#454545"))
 
         frame_bg = self.qcolor("frame-bg")
         palette.setColor(QPalette.Base, frame_bg)

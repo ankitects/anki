@@ -3,14 +3,16 @@
 
 use crate::{
     card::{Card, CardID, CardQueue, CardType},
-    decks::DeckID,
+    decks::{Deck, DeckID},
     err::Result,
     notes::NoteID,
+    sched::congrats::CongratsInfo,
     timestamp::{TimestampMillis, TimestampSecs},
     types::Usn,
 };
 use rusqlite::params;
 use rusqlite::{
+    named_params,
     types::{FromSql, FromSqlError, ValueRef},
     OptionalExtension, Row, NO_PARAMS,
 };
@@ -39,21 +41,21 @@ impl FromSql for CardQueue {
 fn row_to_card(row: &Row) -> result::Result<Card, rusqlite::Error> {
     Ok(Card {
         id: row.get(0)?,
-        nid: row.get(1)?,
-        did: row.get(2)?,
-        ord: row.get(3)?,
+        note_id: row.get(1)?,
+        deck_id: row.get(2)?,
+        template_idx: row.get(3)?,
         mtime: row.get(4)?,
         usn: row.get(5)?,
         ctype: row.get(6)?,
         queue: row.get(7)?,
         due: row.get(8).ok().unwrap_or_default(),
-        ivl: row.get(9)?,
-        factor: row.get(10)?,
+        interval: row.get(9)?,
+        ease_factor: row.get(10)?,
         reps: row.get(11)?,
         lapses: row.get(12)?,
-        left: row.get(13)?,
-        odue: row.get(14).ok().unwrap_or_default(),
-        odid: row.get(15)?,
+        remaining_steps: row.get(13)?,
+        original_due: row.get(14).ok().unwrap_or_default(),
+        original_deck_id: row.get(15)?,
         flags: row.get(16)?,
         data: row.get(17)?,
     })
@@ -71,21 +73,21 @@ impl super::SqliteStorage {
     pub(crate) fn update_card(&self, card: &Card) -> Result<()> {
         let mut stmt = self.db.prepare_cached(include_str!("update_card.sql"))?;
         stmt.execute(params![
-            card.nid,
-            card.did,
-            card.ord,
+            card.note_id,
+            card.deck_id,
+            card.template_idx,
             card.mtime,
             card.usn,
             card.ctype as u8,
             card.queue as i8,
             card.due,
-            card.ivl,
-            card.factor,
+            card.interval,
+            card.ease_factor,
             card.reps,
             card.lapses,
-            card.left,
-            card.odue,
-            card.odid,
+            card.remaining_steps,
+            card.original_due,
+            card.original_deck_id,
             card.flags,
             card.data,
             card.id,
@@ -98,21 +100,21 @@ impl super::SqliteStorage {
         let mut stmt = self.db.prepare_cached(include_str!("add_card.sql"))?;
         stmt.execute(params![
             now,
-            card.nid,
-            card.did,
-            card.ord,
+            card.note_id,
+            card.deck_id,
+            card.template_idx,
             card.mtime,
             card.usn,
             card.ctype as u8,
             card.queue as i8,
             card.due,
-            card.ivl,
-            card.factor,
+            card.interval,
+            card.ease_factor,
             card.reps,
             card.lapses,
-            card.left,
-            card.odue,
-            card.odid,
+            card.remaining_steps,
+            card.original_due,
+            card.original_deck_id,
             card.flags,
             card.data,
         ])?;
@@ -125,21 +127,21 @@ impl super::SqliteStorage {
         let mut stmt = self.db.prepare_cached(include_str!("add_or_update.sql"))?;
         stmt.execute(params![
             card.id,
-            card.nid,
-            card.did,
-            card.ord,
+            card.note_id,
+            card.deck_id,
+            card.template_idx,
             card.mtime,
             card.usn,
             card.ctype as u8,
             card.queue as i8,
             card.due,
-            card.ivl,
-            card.factor,
+            card.interval,
+            card.ease_factor,
             card.reps,
             card.lapses,
-            card.left,
-            card.odue,
-            card.odid,
+            card.remaining_steps,
+            card.original_due,
+            card.original_deck_id,
             card.flags,
             card.data,
         ])?;
@@ -235,6 +237,13 @@ impl super::SqliteStorage {
             .collect()
     }
 
+    pub(crate) fn all_card_ids_of_note(&self, nid: NoteID) -> Result<Vec<CardID>> {
+        self.db
+            .prepare_cached("select id from cards where nid = ? order by ord")?
+            .query_and_then(&[nid], |r| Ok(CardID(r.get(0)?)))?
+            .collect()
+    }
+
     pub(crate) fn note_ids_of_cards(&self, cids: &[CardID]) -> Result<HashSet<NoteID>> {
         let mut stmt = self
             .db
@@ -259,6 +268,87 @@ impl super::SqliteStorage {
             ))?
             .query_and_then(NO_PARAMS, |r| row_to_card(r).map_err(Into::into))?
             .collect()
+    }
+
+    pub(crate) fn for_each_card_in_search<F>(&self, mut func: F) -> Result<()>
+    where
+        F: FnMut(Card) -> Result<()>,
+    {
+        let mut stmt = self.db.prepare_cached(concat!(
+            include_str!("get_card.sql"),
+            " where id in (select id from search_cids)"
+        ))?;
+        let mut rows = stmt.query(NO_PARAMS)?;
+        while let Some(row) = rows.next()? {
+            let card = row_to_card(row)?;
+            func(card)?
+        }
+
+        Ok(())
+    }
+
+    pub(crate) fn congrats_info(&self, current: &Deck, today: u32) -> Result<CongratsInfo> {
+        self.update_active_decks(current)?;
+        self.db
+            .prepare(include_str!("congrats.sql"))?
+            .query_and_then_named(
+                named_params! {
+                    ":review_queue": CardQueue::Review as i8,
+                    ":day_learn_queue": CardQueue::DayLearn as i8,
+                    ":new_queue": CardQueue::New as i8,
+                    ":user_buried_queue": CardQueue::UserBuried as i8,
+                    ":sched_buried_queue": CardQueue::SchedBuried as i8,
+                    ":learn_queue": CardQueue::Learn as i8,
+                    ":today": today,
+                },
+                |row| {
+                    Ok(CongratsInfo {
+                        review_remaining: row.get::<_, u32>(0)? > 0,
+                        new_remaining: row.get::<_, u32>(1)? > 0,
+                        have_sched_buried: row.get::<_, u32>(2)? > 0,
+                        have_user_buried: row.get::<_, u32>(3)? > 0,
+                        learn_count: row.get(4)?,
+                        next_learn_due: row.get(5)?,
+                    })
+                },
+            )?
+            .next()
+            .unwrap()
+    }
+
+    pub(crate) fn search_cards_at_or_above_position(&self, start: u32) -> Result<()> {
+        self.setup_searched_cards_table()?;
+        self.db
+            .prepare(include_str!("at_or_above_position.sql"))?
+            .execute(&[start, CardType::New as u32])?;
+        Ok(())
+    }
+
+    pub(crate) fn setup_searched_cards_table(&self) -> Result<()> {
+        self.db
+            .execute_batch(include_str!("search_cids_setup.sql"))?;
+        Ok(())
+    }
+
+    pub(crate) fn clear_searched_cards_table(&self) -> Result<()> {
+        self.db
+            .execute("drop table if exists search_cids", NO_PARAMS)?;
+        Ok(())
+    }
+
+    /// Injects the provided card IDs into the search_cids table, for
+    /// when ids have arrived outside of a search.
+    /// Clear with clear_searched_cards().
+    pub(crate) fn set_search_table_to_card_ids(&mut self, cards: &[CardID]) -> Result<()> {
+        self.setup_searched_cards_table()?;
+        let mut stmt = self
+            .db
+            .prepare_cached("insert into search_cids values (?)")?;
+        for cid in cards {
+            stmt.execute(&[cid])?;
+        }
+
+        Ok(())
     }
 }
 

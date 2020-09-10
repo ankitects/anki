@@ -33,7 +33,7 @@ from anki.tags import TagManager
 from anki.utils import devMode, ids2str, intTime
 
 if TYPE_CHECKING:
-    from anki.rsbackend import TRValue, FormatTimeSpanContextValue
+    from anki.rsbackend import FormatTimeSpanContextValue, TRValue
 
 
 class Collection:
@@ -356,6 +356,9 @@ class Collection:
             hooks.notes_will_be_deleted(self, nids)
         self.backend.remove_notes(note_ids=[], card_ids=card_ids)
 
+    def card_ids_of_note(self, note_id: int) -> Sequence[int]:
+        return self.backend.cards_of_note(note_id)
+
     # legacy
 
     def addNote(self, note: Note) -> int:
@@ -380,6 +383,9 @@ class Collection:
     def remove_cards_and_orphaned_notes(self, card_ids: Sequence[int]):
         "You probably want .remove_notes_by_card() instead."
         self.backend.remove_cards(card_ids=card_ids)
+
+    def set_deck(self, card_ids: List[int], deck_id: int) -> None:
+        self.backend.set_deck(card_ids=card_ids, deck_id=deck_id)
 
     # legacy
 
@@ -512,6 +518,9 @@ table.review-log {{ {revlog_style} }}
 </style>"""
 
         return style + self.backend.card_stats(card_id)
+
+    def studied_today(self) -> str:
+        return self.backend.studied_today()
 
     # legacy
 

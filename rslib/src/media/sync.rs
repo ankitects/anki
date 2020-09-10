@@ -8,7 +8,7 @@ use crate::media::files::{
     add_file_from_ankiweb, data_for_file, mtime_as_i64, normalize_filename, AddedFile,
 };
 use crate::media::MediaManager;
-use crate::version;
+use crate::{sync::Timeouts, version};
 use bytes::Bytes;
 use reqwest::{multipart, Client, Response};
 use serde_derive::{Deserialize, Serialize};
@@ -155,9 +155,11 @@ where
         host_number: u32,
         log: Logger,
     ) -> MediaSyncer<'_, P> {
+        let timeouts = Timeouts::new();
         let client = Client::builder()
-            .connect_timeout(Duration::from_secs(30))
-            .timeout(Duration::from_secs(60))
+            .connect_timeout(Duration::from_secs(timeouts.connect_secs))
+            .timeout(Duration::from_secs(timeouts.request_secs))
+            .io_timeout(Duration::from_secs(timeouts.io_secs))
             .build()
             .unwrap();
         let endpoint = media_sync_endpoint(host_number);

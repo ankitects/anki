@@ -47,6 +47,10 @@ export function gatherData(data: pb.BackendProto.GraphsOut): GraphData {
     const empty = { mature: 0, young: 0, learn: 0, relearn: 0, early: 0 };
 
     for (const review of data.revlog as pb.BackendProto.RevlogEntry[]) {
+        if (review.reviewKind == ReviewKind.MANUAL) {
+            // don't count days with only manual scheduling
+            continue;
+        }
         const day = Math.ceil(
             ((review.id as number) / 1000 - data.nextDayAtSecs) / 86400
         );
@@ -383,7 +387,6 @@ export function renderReviews(
             .domain(x.domain() as any)(sourceData.reviewCount.entries() as any);
         const totalReviews = sum(countBins, (bin) => cumulativeBinValue(bin as any, 4));
         const totalSecs = total / 1000;
-        console.log(`total secs ${totalSecs} total reviews ${totalReviews}`);
         const avgSecs = totalSecs / totalReviews;
         const cardsPerMin = (totalReviews * 60) / totalSecs;
         averageAnswerTime = i18n.tr(i18n.TR.STATISTICS_AVERAGE_ANSWER_TIME, {

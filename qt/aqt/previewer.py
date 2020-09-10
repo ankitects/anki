@@ -129,7 +129,10 @@ class Previewer(QDialog):
             "reviewer.js",
         ]
         self._web.stdHtml(
-            self.mw.reviewer.revHtml(), css=["reviewer.css"], js=jsinc, context=self,
+            self.mw.reviewer.revHtml(),
+            css=["reviewer.css"],
+            js=jsinc,
+            context=self,
         )
         self._web.set_bridge_command(self._on_bridge_cmd, self)
 

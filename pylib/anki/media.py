@@ -58,8 +58,8 @@ class MediaManager:
             self._oldcwd = None
         try:
             os.chdir(self._dir)
-        except OSError:
-            raise Exception("invalidTempFolder")
+        except OSError as exc:
+            raise Exception("invalidTempFolder") from exc
 
     def __repr__(self) -> str:
         d = dict(self.__dict__)

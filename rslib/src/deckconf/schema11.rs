@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::{DeckConf, DeckConfID};
+use super::{DeckConf, DeckConfID, INITIAL_EASE_FACTOR};
 use crate::backend_proto::deck_config_inner::NewCardOrder;
 use crate::backend_proto::DeckConfigInner;
 use crate::{serde::default_on_invalid, timestamp::TimestampSecs, types::Usn};
@@ -153,7 +153,7 @@ impl Default for NewConfSchema11 {
         NewConfSchema11 {
             bury: false,
             delays: vec![1.0, 10.0],
-            initial_factor: 2500,
+            initial_factor: INITIAL_EASE_FACTOR,
             ints: NewCardIntervals::default(),
             order: NewCardOrderSchema11::default(),
             per_day: 20,

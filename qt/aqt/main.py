@@ -1164,7 +1164,7 @@ title="%s" %s>%s</button>""" % (
         while self.col.decks.id_for_name(_("Filtered Deck %d") % n):
             n += 1
         name = _("Filtered Deck %d") % n
-        did = self.col.decks.newDyn(name)
+        did = self.col.decks.new_filtered(name)
         diag = aqt.dyndeckconf.DeckConf(self, first=True, search=search)
         if not diag.ok:
             # user cancelled first config
@@ -1455,7 +1455,8 @@ will be lost. Continue?"""
             sys.stdout = self._oldStdout
 
     def _card_repr(self, card: anki.cards.Card) -> None:
-        import pprint, copy
+        import copy
+        import pprint
 
         if not card:
             print("no card")
@@ -1504,7 +1505,8 @@ will be lost. Continue?"""
         self.onDebugRet(frm)
 
     def onDebugRet(self, frm):
-        import pprint, traceback
+        import pprint
+        import traceback
 
         text = frm.text.toPlainText()
         card = self._debugCard

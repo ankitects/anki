@@ -140,6 +140,9 @@ impl SqlWriter<'_> {
             SearchNode::NoteTypeID(ntid) => {
                 write!(self.sql, "n.mid = {}", ntid).unwrap();
             }
+            SearchNode::DeckID(did) => {
+                write!(self.sql, "c.did = {}", did).unwrap();
+            }
             SearchNode::NoteType(notetype) => self.write_note_type(&norm(notetype))?,
             SearchNode::Rated { days, ease } => self.write_rated(*days, *ease)?,
             SearchNode::Tag(tag) => self.write_tag(&norm(tag))?,
@@ -289,6 +292,10 @@ impl SqlWriter<'_> {
                 lrn = CardQueue::Learn as i8,
                 daycutoff = timing.next_day_at,
             ),
+            StateKind::UserBuried => write!(self.sql, "c.queue = {}", CardQueue::UserBuried as i8),
+            StateKind::SchedBuried => {
+                write!(self.sql, "c.queue = {}", CardQueue::SchedBuried as i8)
+            }
         }
         .unwrap();
         Ok(())
@@ -501,6 +508,7 @@ impl SearchNode<'_> {
         match self {
             SearchNode::AddedInDays(_) => RequiredTable::Cards,
             SearchNode::Deck(_) => RequiredTable::Cards,
+            SearchNode::DeckID(_) => RequiredTable::Cards,
             SearchNode::Rated { .. } => RequiredTable::Cards,
             SearchNode::State(_) => RequiredTable::Cards,
             SearchNode::Flag(_) => RequiredTable::Cards,

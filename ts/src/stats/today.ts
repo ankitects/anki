@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import pb from "../backend/proto";
+import pb, { BackendProto } from "../backend/proto";
 import { studiedToday } from "../time";
 import { I18n } from "../i18n";
 
@@ -27,6 +27,10 @@ export function gatherData(data: pb.BackendProto.GraphsOut, i18n: I18n): TodayDa
 
     for (const review of data.revlog as pb.BackendProto.RevlogEntry[]) {
         if (review.id < startOfTodayMillis) {
+            continue;
+        }
+
+        if (review.reviewKind == ReviewKind.MANUAL) {
             continue;
         }
 

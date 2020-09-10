@@ -104,7 +104,12 @@ class DeckManager:
     # Deck save/load
     #############################################################
 
-    def id(self, name: str, create: bool = True, type: int = 0,) -> Optional[int]:
+    def id(
+        self,
+        name: str,
+        create: bool = True,
+        type: int = 0,
+    ) -> Optional[int]:
         "Add a deck with NAME. Reuse deck if already exists. Return id as int."
         id = self.id_for_name(name)
         if id:
@@ -228,8 +233,8 @@ class DeckManager:
             g["id"] = self.col.backend.add_or_update_deck_legacy(
                 deck=to_json_bytes(g), preserve_usn_and_mtime=preserve_usn
             )
-        except anki.rsbackend.DeckIsFilteredError:
-            raise DeckRenameError("deck was filtered")
+        except anki.rsbackend.DeckIsFilteredError as exc:
+            raise DeckRenameError("deck was filtered") from exc
 
     def rename(self, g: Deck, newName: str) -> None:
         "Rename deck prefix to NAME if not exists. Updates children."
@@ -551,7 +556,7 @@ class DeckManager:
     # Dynamic decks
     ##########################################################################
 
-    def newDyn(self, name: str) -> int:
+    def new_filtered(self, name: str) -> int:
         "Return a new dynamic deck and set it as the current deck."
         did = self.id(name, type=1)
         self.select(did)
@@ -560,3 +565,7 @@ class DeckManager:
     # 1 for dyn, 0 for standard
     def isDyn(self, did: Union[int, str]) -> int:
         return self.get(did)["dyn"]
+
+    # legacy
+
+    newDyn = new_filtered

@@ -1,6 +1,7 @@
 use std::fmt::Write;
 use std::fs;
 use std::path::Path;
+use std::process::Command;
 
 use fluent_syntax::ast::{Entry::Message, ResourceEntry};
 use fluent_syntax::parser::parse;
@@ -104,7 +105,7 @@ pub enum BackendMethod {
 "#,
     );
     for (idx, method) in service.methods.iter().enumerate() {
-        write!(buf, "    {} = {},\n", method.proto_name, idx + 1).unwrap();
+        writeln!(buf, "    {} = {},", method.proto_name, idx + 1).unwrap();
     }
     buf.push_str("}\n\n");
 }
@@ -115,7 +116,7 @@ fn write_method_trait(buf: &mut String, service: &prost_build::Service) {
 use prost::Message;
 pub type BackendResult<T> = std::result::Result<T, crate::err::AnkiError>;
 pub trait BackendService {
-    fn run_command_bytes2_inner(&mut self, method: u32, input: &[u8]) -> std::result::Result<Vec<u8>, crate::err::AnkiError> {
+    fn run_command_bytes2_inner(&self, method: u32, input: &[u8]) -> std::result::Result<Vec<u8>, crate::err::AnkiError> {
         match method {
 "#,
     );
@@ -145,7 +146,7 @@ pub trait BackendService {
         write!(
             buf,
             concat!(
-                "    fn {method_name}(&mut self, input: {input_type}) -> ",
+                "    fn {method_name}(&self, input: {input_type}) -> ",
                 "BackendResult<{output_type}>;\n"
             ),
             method_name = method.name,
@@ -200,15 +201,20 @@ fn main() -> std::io::Result<()> {
     fs::write(rust_string_path, rust_string_vec(&idents))?;
 
     // output protobuf generated code
-    // we avoid default OUT_DIR for now, as it breaks code completion
-    std::env::set_var("OUT_DIR", "src");
     println!("cargo:rerun-if-changed=../proto/backend.proto");
-
     let mut config = prost_build::Config::new();
-    config.service_generator(service_generator());
     config
+        // we avoid default OUT_DIR for now, as it breaks code completion
+        .out_dir("src")
+        .service_generator(service_generator())
         .compile_protos(&["../proto/backend.proto"], &["../proto"])
         .unwrap();
+    // rustfmt the protobuf code
+    let rustfmt = Command::new("rustfmt")
+        .arg(Path::new("src/backend_proto.rs"))
+        .status()
+        .unwrap();
+    assert!(rustfmt.success(), "rustfmt backend_proto.rs failed");
 
     // write the other language ftl files
     let mut ftl_lang_dirs = vec!["./ftl/repo/core".to_string()];

@@ -30,7 +30,7 @@ export enum IntervalRange {
 export function gatherIntervalData(data: pb.BackendProto.GraphsOut): IntervalGraphData {
     const intervals = (data.cards as pb.BackendProto.Card[])
         .filter((c) => c.queue == CardQueue.Review)
-        .map((c) => c.ivl);
+        .map((c) => c.interval);
     return { intervals };
 }
 

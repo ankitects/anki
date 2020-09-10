@@ -1,0 +1,20 @@
+/* Copyright: Ankitects Pty Ltd and contributors
+ * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
+
+@use 'vars';
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Helvetica, Arial;
+    color: var(--text-fg);
+    background: var(--window-bg);
+    margin: 1em;
+}
+
+a {
+    color: var(--link);
+    text-decoration: none;
+}

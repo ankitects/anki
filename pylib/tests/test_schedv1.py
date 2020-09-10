@@ -433,27 +433,6 @@ def test_overdue_lapse():
     assert col.sched.counts() == (0, 0, 1)
 
 
-def test_finished():
-    col = getEmptyCol()
-    # nothing due
-    assert "Congratulations" in col.sched.finishedMsg()
-    assert "limit" not in col.sched.finishedMsg()
-    note = col.newNote()
-    note["Front"] = "one"
-    note["Back"] = "two"
-    col.addNote(note)
-    # have a new card
-    assert "new cards available" in col.sched.finishedMsg()
-    # turn it into a review
-    col.reset()
-    c = note.cards()[0]
-    c.startTimer()
-    col.sched.answerCard(c, 3)
-    # nothing should be due tomorrow, as it's due in a week
-    assert "Congratulations" in col.sched.finishedMsg()
-    assert "limit" not in col.sched.finishedMsg()
-
-
 def test_nextIvl():
     col = getEmptyCol()
     note = col.newNote()
@@ -521,10 +500,10 @@ def test_misc():
     col.addNote(note)
     c = note.cards()[0]
     # burying
-    col.sched.buryNote(c.nid)
+    col.sched.bury_note(note)
     col.reset()
     assert not col.sched.getCard()
-    col.sched.unburyCards()
+    col.sched.unbury_cards_in_current_deck()
     col.reset()
     assert col.sched.getCard()
 
@@ -538,11 +517,11 @@ def test_suspend():
     # suspending
     col.reset()
     assert col.sched.getCard()
-    col.sched.suspendCards([c.id])
+    col.sched.suspend_cards([c.id])
     col.reset()
     assert not col.sched.getCard()
     # unsuspending
-    col.sched.unsuspendCards([c.id])
+    col.sched.unsuspend_cards([c.id])
     col.reset()
     assert col.sched.getCard()
     # should cope with rev cards being relearnt
@@ -557,8 +536,8 @@ def test_suspend():
     assert c.due >= time.time()
     assert c.queue == QUEUE_TYPE_LRN
     assert c.type == CARD_TYPE_REV
-    col.sched.suspendCards([c.id])
-    col.sched.unsuspendCards([c.id])
+    col.sched.suspend_cards([c.id])
+    col.sched.unsuspend_cards([c.id])
     c.load()
     assert c.queue == QUEUE_TYPE_REV
     assert c.type == CARD_TYPE_REV
@@ -566,12 +545,12 @@ def test_suspend():
     # should cope with cards in cram decks
     c.due = 1
     c.flush()
-    col.decks.newDyn("tmp")
-    col.sched.rebuildDyn()
+    did = col.decks.new_filtered("tmp")
+    col.sched.rebuild_filtered_deck(did)
     c.load()
     assert c.due != 1
     assert c.did != 1
-    col.sched.suspendCards([c.id])
+    col.sched.suspend_cards([c.id])
     c.load()
     assert c.due == 1
     assert c.did == 1
@@ -596,8 +575,8 @@ def test_cram():
     assert col.sched.counts() == (0, 0, 0)
     cardcopy = copy.copy(c)
     # create a dynamic deck and refresh it
-    did = col.decks.newDyn("Cram")
-    col.sched.rebuildDyn(did)
+    did = col.decks.new_filtered("Cram")
+    col.sched.rebuild_filtered_deck(did)
     col.reset()
     # should appear as new in the deck list
     assert sorted(col.sched.deck_due_tree().children)[0].new_count == 1
@@ -637,7 +616,7 @@ def test_cram():
     # and it will have moved back to the previous deck
     assert c.did == 1
     # cram the deck again
-    col.sched.rebuildDyn(did)
+    col.sched.rebuild_filtered_deck(did)
     col.reset()
     c = col.sched.getCard()
     # check ivls again - passing should be idempotent
@@ -667,8 +646,8 @@ def test_cram():
     col.reset()
     assert col.sched.counts() == (0, 0, 1)
     # cram again
-    did = col.decks.newDyn("Cram")
-    col.sched.rebuildDyn(did)
+    did = col.decks.new_filtered("Cram")
+    col.sched.rebuild_filtered_deck(did)
     col.reset()
     assert col.sched.counts() == (0, 0, 1)
     c.load()
@@ -694,8 +673,8 @@ def test_cram_rem():
     note["Front"] = "one"
     col.addNote(note)
     oldDue = note.cards()[0].due
-    did = col.decks.newDyn("Cram")
-    col.sched.rebuildDyn(did)
+    did = col.decks.new_filtered("Cram")
+    col.sched.rebuild_filtered_deck(did)
     col.reset()
     c = col.sched.getCard()
     col.sched.answerCard(c, 2)
@@ -703,7 +682,7 @@ def test_cram_rem():
     assert c.type == CARD_TYPE_LRN and c.queue == QUEUE_TYPE_LRN
     assert c.due != oldDue
     # if we terminate cramming prematurely it should be set back to new
-    col.sched.emptyDyn(did)
+    col.sched.empty_filtered_deck(did)
     c.load()
     assert c.type == CARD_TYPE_NEW and c.queue == QUEUE_TYPE_NEW
     assert c.due == oldDue
@@ -716,11 +695,11 @@ def test_cram_resched():
     note["Front"] = "one"
     col.addNote(note)
     # cram deck
-    did = col.decks.newDyn("Cram")
+    did = col.decks.new_filtered("Cram")
     cram = col.decks.get(did)
     cram["resched"] = False
     col.decks.save(cram)
-    col.sched.rebuildDyn(did)
+    col.sched.rebuild_filtered_deck(did)
     col.reset()
     # graduate should return it to new
     c = col.sched.getCard()
@@ -739,7 +718,7 @@ def test_cram_resched():
     c.factor = STARTING_FACTOR
     c.flush()
     cardcopy = copy.copy(c)
-    col.sched.rebuildDyn(did)
+    col.sched.rebuild_filtered_deck(did)
     col.reset()
     c = col.sched.getCard()
     assert ni(c, 1) == 600
@@ -751,23 +730,23 @@ def test_cram_resched():
     # check failure too
     c = cardcopy
     c.flush()
-    col.sched.rebuildDyn(did)
+    col.sched.rebuild_filtered_deck(did)
     col.reset()
     c = col.sched.getCard()
     col.sched.answerCard(c, 1)
-    col.sched.emptyDyn(did)
+    col.sched.empty_filtered_deck(did)
     c.load()
     assert c.ivl == 100
     assert c.due == col.sched.today + 25
     # fail+grad early
     c = cardcopy
     c.flush()
-    col.sched.rebuildDyn(did)
+    col.sched.rebuild_filtered_deck(did)
     col.reset()
     c = col.sched.getCard()
     col.sched.answerCard(c, 1)
     col.sched.answerCard(c, 3)
-    col.sched.emptyDyn(did)
+    col.sched.empty_filtered_deck(did)
     c.load()
     assert c.ivl == 100
     assert c.due == col.sched.today + 25
@@ -775,11 +754,11 @@ def test_cram_resched():
     c = cardcopy
     c.due = -25
     c.flush()
-    col.sched.rebuildDyn(did)
+    col.sched.rebuild_filtered_deck(did)
     col.reset()
     c = col.sched.getCard()
     col.sched.answerCard(c, 3)
-    col.sched.emptyDyn(did)
+    col.sched.empty_filtered_deck(did)
     c.load()
     assert c.ivl == 100
     assert c.due == -25
@@ -787,11 +766,11 @@ def test_cram_resched():
     c = cardcopy
     c.due = -25
     c.flush()
-    col.sched.rebuildDyn(did)
+    col.sched.rebuild_filtered_deck(did)
     col.reset()
     c = col.sched.getCard()
     col.sched.answerCard(c, 1)
-    col.sched.emptyDyn(did)
+    col.sched.empty_filtered_deck(did)
     c.load()
     assert c.ivl == 100
     assert c.due == -25
@@ -799,7 +778,7 @@ def test_cram_resched():
     c = cardcopy
     c.due = -25
     c.flush()
-    col.sched.rebuildDyn(did)
+    col.sched.rebuild_filtered_deck(did)
     col.reset()
     c = col.sched.getCard()
     col.sched.answerCard(c, 1)
@@ -810,7 +789,7 @@ def test_cram_resched():
     # lapsed card pulled into cram
     # col.sched._cardConf(c)['lapse']['mult']=0.5
     # col.sched.answerCard(c, 1)
-    # col.sched.rebuildDyn(did)
+    # col.sched.rebuild_filtered_deck(did)
     # col.reset()
     # c = col.sched.getCard()
     # col.sched.answerCard(c, 2)

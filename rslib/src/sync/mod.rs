@@ -21,6 +21,7 @@ use flate2::write::GzEncoder;
 use flate2::Compression;
 use futures::StreamExt;
 use http_client::HTTPSyncClient;
+pub use http_client::Timeouts;
 use itertools::Itertools;
 use reqwest::{multipart, Client, Response};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
@@ -318,6 +319,8 @@ where
             SyncActionRequired::FullSyncRequired { .. } => Ok(state.into()),
             SyncActionRequired::NormalSyncRequired => {
                 self.col.storage.begin_trx()?;
+                self.col
+                    .unbury_if_day_rolled_over(self.col.timing_today()?)?;
                 match self.normal_sync_inner(state).await {
                     Ok(success) => {
                         self.col.storage.commit_trx()?;
@@ -942,7 +945,7 @@ impl Collection {
         if proceed {
             let mut note: Note = entry.into();
             let nt = self
-                .get_notetype(note.ntid)?
+                .get_notetype(note.notetype_id)?
                 .ok_or_else(|| AnkiError::invalid_input("note missing notetype"))?;
             note.prepare_for_update(&nt, false)?;
             self.storage.add_or_update_note(&note)?;
@@ -1062,21 +1065,21 @@ impl From<CardEntry> for Card {
     fn from(e: CardEntry) -> Self {
         Card {
             id: e.id,
-            nid: e.nid,
-            did: e.did,
-            ord: e.ord,
+            note_id: e.nid,
+            deck_id: e.did,
+            template_idx: e.ord,
             mtime: e.mtime,
             usn: e.usn,
             ctype: e.ctype,
             queue: e.queue,
             due: e.due,
-            ivl: e.ivl,
-            factor: e.factor,
+            interval: e.ivl,
+            ease_factor: e.factor,
             reps: e.reps,
             lapses: e.lapses,
-            left: e.left,
-            odue: e.odue,
-            odid: e.odid,
+            remaining_steps: e.left,
+            original_due: e.odue,
+            original_deck_id: e.odid,
             flags: e.flags,
             data: e.data,
         }
@@ -1087,21 +1090,21 @@ impl From<Card> for CardEntry {
     fn from(e: Card) -> Self {
         CardEntry {
             id: e.id,
-            nid: e.nid,
-            did: e.did,
-            ord: e.ord,
+            nid: e.note_id,
+            did: e.deck_id,
+            ord: e.template_idx,
             mtime: e.mtime,
             usn: e.usn,
             ctype: e.ctype,
             queue: e.queue,
             due: e.due,
-            ivl: e.ivl,
-            factor: e.factor,
+            ivl: e.interval,
+            factor: e.ease_factor,
             reps: e.reps,
             lapses: e.lapses,
-            left: e.left,
-            odue: e.odue,
-            odid: e.odid,
+            left: e.remaining_steps,
+            odue: e.original_due,
+            odid: e.original_deck_id,
             flags: e.flags,
             data: e.data,
         }
@@ -1113,7 +1116,7 @@ impl From<NoteEntry> for Note {
         Note {
             id: e.id,
             guid: e.guid,
-            ntid: e.ntid,
+            notetype_id: e.ntid,
             mtime: e.mtime,
             usn: e.usn,
             tags: split_tags(&e.tags).map(ToString::to_string).collect(),
@@ -1129,7 +1132,7 @@ impl From<Note> for NoteEntry {
         NoteEntry {
             id: e.id,
             guid: e.guid,
-            ntid: e.ntid,
+            ntid: e.notetype_id,
             mtime: e.mtime,
             usn: e.usn,
             tags: join_tags(&e.tags),
@@ -1193,14 +1196,7 @@ mod test {
     fn open_col(ctx: &TestContext, fname: &str) -> Result<Collection> {
         let path = ctx.dir.path().join(fname);
         let i18n = I18n::new(&[""], "", log::terminal());
-        open_collection(
-            path,
-            "".into(),
-            "".into(),
-            false,
-            i18n.clone(),
-            log::terminal(),
-        )
+        open_collection(path, "".into(), "".into(), false, i18n, log::terminal())
     }
 
     async fn upload_download(ctx: &mut TestContext) -> Result<()> {

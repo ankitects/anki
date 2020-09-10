@@ -1,0 +1,50 @@
+/* Copyright: Ankitects Pty Ltd and contributors
+ * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
+
+:root {
+    --text-fg: black;
+    --window-bg: #ececec;
+    --frame-bg: white;
+    --border: #aaa;
+    --faint-border: #e7e7e7;
+    --link: #00a;
+    --review-count: #0a0;
+    --new-count: #00a;
+    --learn-count: #c35617;
+    --zero-count: #ddd;
+    --slightly-grey-text: #333;
+    --highlight-bg: #77ccff;
+    --highlight-fg: black;
+    --disabled: #777;
+    --flag1-bg: #ffaaaa;
+    --flag2-bg: #ffb347;
+    --flag3-bg: #82e0aa;
+    --flag4-bg: #85c1e9;
+    --suspended-bg: #ffffb2;
+    --marked-bg: #cce;
+    --tooltip-bg: #fcfcfc;
+}
+
+:root[class*="night-mode"] {
+    --text-fg: white;
+    --window-bg: #2f2f31;
+    --frame-bg: #3a3a3a;
+    --border: #777;
+    --faint-border: #29292b;
+    --link: #77ccff;
+    --review-count: #5ccc00;
+    --new-count: #77ccff;
+    --learn-count: #ff935b;
+    --zero-count: #444;
+    --slightly-grey-text: #ccc;
+    --highlight-bg: #77ccff;
+    --highlight-fg: white;
+    --disabled: #777;
+    --flag1-bg: #aa5555;
+    --flag2-bg: #aa6337;
+    --flag3-bg: #33a055;
+    --flag4-bg: #3581a9;
+    --suspended-bg: #aaaa33;
+    --marked-bg: #77c;
+    --tooltip-bg: #272727;
+}

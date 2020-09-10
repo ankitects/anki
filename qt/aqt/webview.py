@@ -54,9 +54,9 @@ class AnkiWebPage(QWebEnginePage):
         script.setSourceCode(
             jstext
             + """
-            var pycmd;
+            var pycmd, bridgeCommand;
             new QWebChannel(qt.webChannelTransport, function(channel) {
-                pycmd = function (arg, cb) {
+                bridgeCommand = pycmd = function (arg, cb) {
                     var resultCB = function (res) {
                         // pass result back to user-provided callback
                         if (cb) {
@@ -148,7 +148,7 @@ class WebContent:
         changes only perform the minimum requried edits to make your add-on work.
         You should avoid overwriting or interfering with existing data as much
         as possible, instead opting to append your own changes, e.g.:
-        
+
             def on_webview_will_set_content(web_content: WebContent, context):
                 web_content.body += "<my_html>"
                 web_content.head += "<my_head>"
@@ -157,28 +157,28 @@ class WebContent:
           media server. All list members without a specified subpath are assumed
           to be located under `/_anki`, which is the media server subpath used
           for all web assets shipped with Anki.
-          
+
           Add-ons may expose their own web assets by utilizing
           aqt.addons.AddonManager.setWebExports(). Web exports registered
           in this manner may then be accessed under the `/_addons` subpath.
-          
+
           E.g., to allow access to a `my-addon.js` and `my-addon.css` residing
           in a "web" subfolder in your add-on package, first register the
           corresponding web export:
-          
+
           > from aqt import mw
           > mw.addonManager.setWebExports(__name__, r"web/.*(css|js)")
-          
+
           Then append the subpaths to the corresponding web_content fields
           within a function subscribing to gui_hooks.webview_will_set_content:
-          
+
               def on_webview_will_set_content(web_content: WebContent, context):
                   addon_package = mw.addonManager.addonFromModule(__name__)
                   web_content.css.append(
                       f"/_addons/{addon_package}/web/my-addon.css")
                   web_content.js.append(
                       f"/_addons/{addon_package}/web/my-addon.js")
-          
+
           Note that '/' will also match the os specific path separator.
     """
 
@@ -359,45 +359,28 @@ class AnkiWebView(QWebEngineView):
             return QColor("#ececec")
         return self.style().standardPalette().color(QPalette.Window)
 
-    def stdHtml(
-        self,
-        body: str,
-        css: Optional[List[str]] = None,
-        js: Optional[List[str]] = None,
-        head: str = "",
-        context: Optional[Any] = None,
-    ):
-
-        web_content = WebContent(
-            body=body,
-            head=head,
-            js=["webview.js"] + (["jquery.js"] if js is None else js),
-            css=["webview.css"] + ([] if css is None else css),
-        )
-
-        gui_hooks.webview_will_set_content(web_content, context)
-
+    def standard_css(self) -> str:
         palette = self.style().standardPalette()
         color_hl = palette.color(QPalette.Highlight).name()
 
         if isWin:
             # T: include a font for your language on Windows, eg: "Segoe UI", "MS Mincho"
             family = _('"Segoe UI"')
-            widgetspec = "button { font-family:%s; }" % family
-            widgetspec += "\n:focus { outline: 1px solid %s; }" % color_hl
-            fontspec = "font-size:12px;font-family:%s;" % family
+            button_style = "button { font-family:%s; }" % family
+            button_style += "\n:focus { outline: 1px solid %s; }" % color_hl
+            font = "font-size:12px;font-family:%s;" % family
         elif isMac:
             family = "Helvetica"
-            fontspec = 'font-size:15px;font-family:"%s";' % family
-            widgetspec = """
+            font = 'font-size:15px;font-family:"%s";' % family
+            button_style = """
 button { -webkit-appearance: none; background: #fff; border: 1px solid #ccc;
 border-radius:5px; font-family: Helvetica }"""
         else:
             family = self.font().family()
             color_hl_txt = palette.color(QPalette.HighlightedText).name()
             color_btn = palette.color(QPalette.Button).name()
-            fontspec = 'font-size:14px;font-family:"%s";' % family
-            widgetspec = """
+            font = 'font-size:14px;font-family:"%s";' % family
+            button_style = """
 /* Buttons */
 button{ 
         background-color: %(color_btn)s;
@@ -416,45 +399,71 @@ div[contenteditable="true"]:focus {
                 "color_hl_txt": color_hl_txt,
             }
 
-        csstxt = "\n".join(self.bundledCSS(fname) for fname in web_content.css)
-        jstxt = "\n".join(self.bundledScript(fname) for fname in web_content.js)
-
-        from aqt import mw
-
-        head = mw.baseHTML() + csstxt + jstxt + web_content.head
-
-        body_class = theme_manager.body_class()
+        zoom = self.zoomFactor()
+        background = self._getWindowColor().name()
 
         if is_rtl(anki.lang.currentLang):
             lang_dir = "rtl"
         else:
             lang_dir = "ltr"
 
-        html = """
-<!doctype html>
-<html><head>
-<title>{}</title>
+        return f"""
+body {{ zoom: {zoom}; background: {background}; direction: {lang_dir}; {font} }}
+{button_style}
+:root {{ --window-bg: {background} }}
+:root[class*=night-mode] {{ --window-bg: {background} }}
+"""
 
-<style>
-body {{ zoom: {}; background: {}; direction: {}; {} }}
-{}
-</style>
-  
-{}
+    def stdHtml(
+        self,
+        body: str,
+        css: Optional[List[str]] = None,
+        js: Optional[List[str]] = None,
+        head: str = "",
+        context: Optional[Any] = None,
+    ):
+
+        web_content = WebContent(
+            body=body,
+            head=head,
+            js=["webview.js"] + (["jquery.js"] if js is None else js),
+            css=["webview.css"] + ([] if css is None else css),
+        )
+
+        gui_hooks.webview_will_set_content(web_content, context)
+
+        csstxt = ""
+        if "webview.css" in web_content.css:
+            # we want our dynamic styling to override the defaults in
+            # webview.css, but come before user-provided stylesheets so that
+            # they can override us if necessary
+            web_content.css.remove("webview.css")
+            csstxt = self.bundledCSS("webview.css")
+            csstxt += f"<style>{self.standard_css()}</style>"
+
+        csstxt += "\n".join(self.bundledCSS(fname) for fname in web_content.css)
+        jstxt = "\n".join(self.bundledScript(fname) for fname in web_content.js)
+
+        from aqt import mw
+
+        head = mw.baseHTML() + csstxt + jstxt + web_content.head
+        body_class = theme_manager.body_class()
+
+        if theme_manager.night_mode:
+            doc_class = "night-mode"
+        else:
+            doc_class = ""
+
+        html = f"""
+<!doctype html>
+<html class="{doc_class}">
+<head>
+    <title>{self.title}</title>
+{head}
 </head>
 
-<body class="{}">{}</body>
-</html>""".format(
-            self.title,
-            self.zoomFactor(),
-            self._getWindowColor().name(),
-            lang_dir,
-            fontspec,
-            widgetspec,
-            head,
-            body_class,
-            web_content.body,
-        )
+<body class="{body_class}">{web_content.body}</body>
+</html>"""
         # print(html)
         self.setHtml(html)
 
@@ -579,3 +588,39 @@ body {{ zoom: {}; background: {}; direction: {}; {} }}
         aqt.reviewer.Reviewer or aqt.deckbrowser.DeckBrowser."""
         self.onBridgeCmd = func
         self._bridge_context = context
+
+    def hide_while_preserving_layout(self):
+        "Hide but keep existing size."
+        sp = self.sizePolicy()
+        sp.setRetainSizeWhenHidden(True)
+        self.setSizePolicy(sp)
+        self.hide()
+
+    def inject_dynamic_style_and_show(self):
+        "Add dynamic styling, and reveal."
+        css = self.standard_css()
+
+        def after_style(arg):
+            gui_hooks.webview_did_inject_style_into_page(self)
+            self.show()
+
+        self.evalWithCallback(
+            f"""
+const style = document.createElement('style');
+style.innerHTML = `{css}`;
+document.head.appendChild(style);
+""",
+            after_style,
+        )
+
+    def load_ts_page(self, name: str) -> None:
+        from aqt import mw
+
+        self.set_open_links_externally(False)
+        if theme_manager.night_mode:
+            extra = "#night"
+        else:
+            extra = ""
+        self.hide_while_preserving_layout()
+        self.load(QUrl(f"{mw.serverURL()}_anki/{name}.html" + extra))
+        self.inject_dynamic_style_and_show()

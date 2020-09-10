@@ -261,6 +261,8 @@ fn guess_reqwest_error(mut info: String) -> AnkiError {
     }
     let kind = if info.contains("unreachable") || info.contains("dns") {
         NetworkErrorKind::Offline
+    } else if info.contains("timed out") {
+        NetworkErrorKind::Timeout
     } else {
         if info.contains("invalid type") {
             info = format!(

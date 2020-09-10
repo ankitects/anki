@@ -380,7 +380,7 @@ where
             }
             let mut note = self.ctx.storage.get_note(nid)?.unwrap();
             let nt = note_types
-                .get(&note.ntid)
+                .get(&note.notetype_id)
                 .ok_or_else(|| AnkiError::DBError {
                     info: "missing note type".to_string(),
                     kind: DBErrorKind::MissingEntity,
@@ -455,7 +455,7 @@ fn normalize_and_maybe_rename_files<'a>(
         }
 
         // normalize fname into NFC
-        let mut fname = normalize_to_nfc(media_ref.fname);
+        let mut fname = normalize_to_nfc(&media_ref.fname_decoded);
         // and look it up to see if it's been renamed
         if let Some(new_name) = renamed.get(fname.as_ref()) {
             fname = new_name.to_owned().into();
@@ -486,7 +486,13 @@ fn normalize_and_maybe_rename_files<'a>(
 }
 
 fn rename_media_ref_in_field(field: &str, media_ref: &MediaRef, new_name: &str) -> String {
-    let updated_tag = media_ref.full_ref.replace(media_ref.fname, new_name);
+    let new_name = if matches!(media_ref.fname_decoded, Cow::Owned(_)) {
+        // filename had quoted characters like &amp; - need to re-encode
+        htmlescape::encode_minimal(new_name)
+    } else {
+        new_name.into()
+    };
+    let updated_tag = media_ref.full_ref.replace(media_ref.fname, &new_name);
     field.replace(media_ref.full_ref, &updated_tag)
 }
 
@@ -519,9 +525,10 @@ fn extract_latex_refs(note: &Note, seen_files: &mut HashSet<String>, svg: bool) 
 
 #[cfg(test)]
 pub(crate) mod test {
-    pub(crate) const MEDIACHECK_ANKI2: &'static [u8] =
+    pub(crate) const MEDIACHECK_ANKI2: &[u8] =
         include_bytes!("../../tests/support/mediacheck.anki2");
 
+    use super::normalize_and_maybe_rename_files;
     use crate::collection::{open_collection, Collection};
     use crate::err::Result;
     use crate::i18n::I18n;
@@ -530,7 +537,7 @@ pub(crate) mod test {
     use crate::media::files::trash_folder;
     use crate::media::MediaManager;
     use std::path::Path;
-    use std::{fs, io};
+    use std::{collections::HashMap, fs, io};
     use tempfile::{tempdir, TempDir};
 
     fn common_setup() -> Result<(TempDir, MediaManager, Collection)> {
@@ -729,5 +736,13 @@ Unused: unused.jpg
         }
 
         Ok(())
+    }
+
+    #[test]
+    fn html_encoding() {
+        let field = "[sound:a &amp; b.mp3]";
+        let mut seen = Default::default();
+        normalize_and_maybe_rename_files(field, &HashMap::new(), &mut seen, Path::new("/tmp"));
+        assert!(seen.contains("a & b.mp3"));
     }
 }

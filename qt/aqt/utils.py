@@ -915,6 +915,7 @@ def qtMenuShortcutWorkaround(qmenu):
 def supportText():
     import platform
     import time
+
     from aqt import mw
 
     if isWin:

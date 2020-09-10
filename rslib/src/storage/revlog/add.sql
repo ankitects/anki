@@ -10,5 +10,25 @@ insert
     time,
     type
   )
-values
-  (?, ?, ?, ?, ?, ?, ?, ?, ?)
+values (
+    (
+      case
+        when ?1 in (
+          select id
+          from revlog
+        ) then (
+          select max(id) + 1
+          from revlog
+        )
+        else ?1
+      end
+    ),
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?
+  )

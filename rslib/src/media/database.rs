@@ -279,7 +279,7 @@ mod test {
             assert_eq!(ctx.get_entry("test.mp3")?.unwrap(), entry);
 
             // update it
-            entry.sha1 = Some(sha1_of_data("hello".as_bytes()));
+            entry.sha1 = Some(sha1_of_data(b"hello"));
             entry.mtime = 123;
             entry.sync_required = true;
             ctx.set_entry(&entry)?;

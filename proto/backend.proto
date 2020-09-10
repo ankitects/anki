@@ -56,6 +56,10 @@ message CardID {
     int64 cid = 1;
 }
 
+message CardIDs {
+    repeated int64 cids = 1;
+}
+
 message DeckID {
     int64 did = 1;
 }
@@ -91,11 +95,21 @@ service BackendService {
     rpc LocalMinutesWest (Int64) returns (Int32);
     rpc SetLocalMinutesWest (Int32) returns (Empty);
     rpc SchedTimingToday (Empty) returns (SchedTimingTodayOut);
-    rpc StudiedToday (StudiedTodayIn) returns (String);
-    rpc CongratsLearnMessage (CongratsLearnMessageIn) returns (String);
+    rpc StudiedToday (Empty) returns (String);
+    rpc StudiedTodayMessage (StudiedTodayMessageIn) returns (String);
     rpc UpdateStats (UpdateStatsIn) returns (Empty);
     rpc ExtendLimits (ExtendLimitsIn) returns (Empty);
     rpc CountsForDeckToday (DeckID) returns (CountsForDeckTodayOut);
+    rpc CongratsInfo (Empty) returns (CongratsInfoOut);
+    rpc RestoreBuriedAndSuspendedCards (CardIDs) returns (Empty);
+    rpc UnburyCardsInCurrentDeck (UnburyCardsInCurrentDeckIn) returns (Empty);
+    rpc BuryOrSuspendCards (BuryOrSuspendCardsIn) returns (Empty);
+    rpc EmptyFilteredDeck (DeckID) returns (Empty);
+    rpc RebuildFilteredDeck (DeckID) returns (UInt32);
+    rpc ScheduleCardsAsReviews (ScheduleCardsAsReviewsIn) returns (Empty);
+    rpc ScheduleCardsAsNew (CardIDs) returns (Empty);
+    rpc SortCards (SortCardsIn) returns (Empty);
+    rpc SortDeck (SortDeckIn) returns (Empty);
 
     // stats
 
@@ -136,6 +150,7 @@ service BackendService {
     rpc UpdateCard (Card) returns (Empty);
     rpc AddCard (Card) returns (CardID);
     rpc RemoveCards (RemoveCardsIn) returns (Empty);
+    rpc SetDeck (SetDeckIn) returns (Empty);
 
     // notes
 
@@ -150,6 +165,7 @@ service BackendService {
     rpc AfterNoteUpdates (AfterNoteUpdatesIn) returns (Empty);
     rpc FieldNamesForNotes (FieldNamesForNotesIn) returns (FieldNamesForNotesOut);
     rpc NoteIsDuplicateOrEmpty (Note) returns (NoteIsDuplicateOrEmptyOut);
+    rpc CardsOfNote (NoteID) returns (CardIDs);
 
     // note types
 
@@ -400,7 +416,7 @@ message CardTemplate {
 message Note {
     int64 id = 1;
     string guid = 2;
-    int64 ntid = 3;
+    int64 notetype_id = 3;
     uint32 mtime_secs = 4;
     int32 usn = 5;
     repeated string tags = 6;
@@ -409,21 +425,21 @@ message Note {
 
 message Card {
     int64 id = 1;
-    int64 nid = 2;
-    int64 did = 3;
-    uint32 ord = 4;
-    int64 mtime = 5;
+    int64 note_id = 2;
+    int64 deck_id = 3;
+    uint32 template_idx = 4;
+    int64 mtime_secs = 5;
     sint32 usn = 6;
     uint32 ctype = 7;
     sint32 queue = 8;
     sint32 due = 9;
-    uint32 ivl = 10;
-    uint32 factor = 11;
+    uint32 interval = 10;
+    uint32 ease_factor = 11;
     uint32 reps = 12;
     uint32 lapses = 13;
-    uint32 left = 14;
-    sint32 odue = 15;
-    int64 odid = 16;
+    uint32 remaining_steps = 14;
+    sint32 original_due = 15;
+    int64 original_deck_id = 16;
     uint32 flags = 17;
     string data = 18;
 }
@@ -674,7 +690,7 @@ message FormatTimespanIn {
     Context context = 2;
 }
 
-message StudiedTodayIn {
+message StudiedTodayMessageIn {
     uint32 cards = 1;
     double seconds = 2;
 }
@@ -1005,6 +1021,7 @@ message RevlogEntry {
         REVIEW = 1;
         RELEARNING = 2;
         EARLY_REVIEW = 3;
+        MANUAL = 4;
     }
     int64 id = 1;
     int64 cid = 2;
@@ -1015,4 +1032,58 @@ message RevlogEntry {
     uint32 ease_factor = 7;
     uint32 taken_millis = 8;
     ReviewKind review_kind = 9;
+}
+
+message CongratsInfoOut {
+    uint32 learn_remaining = 1;
+    uint32 secs_until_next_learn = 2;
+    bool review_remaining = 3;
+    bool new_remaining = 4;
+    bool have_sched_buried = 5;
+    bool have_user_buried = 6;
+    bool is_filtered_deck = 7;
+    bool bridge_commands_supported = 8;
+}
+
+message UnburyCardsInCurrentDeckIn {
+    enum Mode {
+        ALL = 0;
+        SCHED_ONLY = 1;
+        USER_ONLY = 2;
+    }
+    Mode mode = 1;
+}
+
+message BuryOrSuspendCardsIn {
+    enum Mode {
+        SUSPEND = 0;
+        BURY_SCHED = 1;
+        BURY_USER = 2;
+    }
+    repeated int64 card_ids = 1;
+    Mode mode = 2;
+}
+
+message ScheduleCardsAsReviewsIn {
+    repeated int64 card_ids = 1;
+    uint32 min_interval = 2;
+    uint32 max_interval = 3;
+}
+
+message SortCardsIn {
+    repeated int64 card_ids = 1;
+    uint32 starting_from = 2;
+    uint32 step_size = 3;
+    bool randomize = 4;
+    bool shift_existing = 5;
+}
+
+message SortDeckIn {
+    int64 deck_id = 1;
+    bool randomize = 2;
+}
+
+message SetDeckIn {
+    repeated int64 card_ids = 1;
+    int64 deck_id = 2;
 }

@@ -45,28 +45,28 @@ pub enum CardQueue {
     PreviewRepeat = 4,
     /// cards are not due in these states
     Suspended = -1,
-    UserBuried = -2,
-    SchedBuried = -3,
+    SchedBuried = -2,
+    UserBuried = -3,
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Card {
     pub(crate) id: CardID,
-    pub(crate) nid: NoteID,
-    pub(crate) did: DeckID,
-    pub(crate) ord: u16,
+    pub(crate) note_id: NoteID,
+    pub(crate) deck_id: DeckID,
+    pub(crate) template_idx: u16,
     pub(crate) mtime: TimestampSecs,
     pub(crate) usn: Usn,
     pub(crate) ctype: CardType,
     pub(crate) queue: CardQueue,
     pub(crate) due: i32,
-    pub(crate) ivl: u32,
-    pub(crate) factor: u16,
+    pub(crate) interval: u32,
+    pub(crate) ease_factor: u16,
     pub(crate) reps: u32,
     pub(crate) lapses: u32,
-    pub(crate) left: u32,
-    pub(crate) odue: i32,
-    pub(crate) odid: DeckID,
+    pub(crate) remaining_steps: u32,
+    pub(crate) original_due: i32,
+    pub(crate) original_deck_id: DeckID,
     pub(crate) flags: u8,
     pub(crate) data: String,
 }
@@ -75,21 +75,21 @@ impl Default for Card {
     fn default() -> Self {
         Self {
             id: CardID(0),
-            nid: NoteID(0),
-            did: DeckID(0),
-            ord: 0,
+            note_id: NoteID(0),
+            deck_id: DeckID(0),
+            template_idx: 0,
             mtime: TimestampSecs(0),
             usn: Usn(0),
             ctype: CardType::New,
             queue: CardQueue::New,
             due: 0,
-            ivl: 0,
-            factor: 0,
+            interval: 0,
+            ease_factor: 0,
             reps: 0,
             lapses: 0,
-            left: 0,
-            odue: 0,
-            odid: DeckID(0),
+            remaining_steps: 0,
+            original_due: 0,
+            original_deck_id: DeckID(0),
             flags: 0,
             data: "".to_string(),
         }
@@ -97,78 +97,36 @@ impl Default for Card {
 }
 
 impl Card {
-    pub(crate) fn return_home(&mut self, sched: SchedulerVersion) {
-        if self.odid.0 == 0 {
-            // this should not happen
-            return;
-        }
+    pub fn set_modified(&mut self, usn: Usn) {
+        self.mtime = TimestampSecs::now();
+        self.usn = usn;
+    }
 
-        // fixme: avoid bumping mtime?
-        self.did = self.odid;
-        self.odid.0 = 0;
-        if self.odue > 0 {
-            self.due = self.odue;
-        }
-        self.odue = 0;
-
-        self.queue = match sched {
-            SchedulerVersion::V1 => {
-                match self.ctype {
-                    CardType::New => CardQueue::New,
-                    CardType::Learn => CardQueue::New,
-                    CardType::Review => CardQueue::Review,
-                    // not applicable in v1, should not happen
-                    CardType::Relearn => {
-                        println!("did not expect relearn type in v1 for card {}", self.id);
-                        CardQueue::New
-                    }
-                }
-            }
-            SchedulerVersion::V2 => {
-                if (self.queue as i8) >= 0 {
-                    match self.ctype {
-                        CardType::Learn | CardType::Relearn => {
-                            if self.due > 1_000_000_000 {
-                                // unix timestamp
-                                CardQueue::Learn
-                            } else {
-                                // day number
-                                CardQueue::DayLearn
-                            }
-                        }
-                        CardType::New => CardQueue::New,
-                        CardType::Review => CardQueue::Review,
-                    }
-                } else {
-                    self.queue
-                }
-            }
-        };
-
-        if sched == SchedulerVersion::V1 && self.ctype == CardType::Learn {
-            self.ctype = CardType::New;
-        }
+    /// Caller must ensure provided deck exists and is not filtered.
+    fn set_deck(&mut self, deck: DeckID, sched: SchedulerVersion) {
+        self.remove_from_filtered_deck_restoring_queue(sched);
+        self.deck_id = deck;
     }
 }
 #[derive(Debug)]
 pub(crate) struct UpdateCardUndo(Card);
 
 impl Undoable for UpdateCardUndo {
-    fn apply(&self, col: &mut crate::collection::Collection) -> Result<()> {
+    fn apply(&self, col: &mut crate::collection::Collection, usn: Usn) -> Result<()> {
         let current = col
             .storage
             .get_card(self.0.id)?
             .ok_or_else(|| AnkiError::invalid_input("card disappeared"))?;
-        col.update_card(&mut self.0.clone(), &current)
+        col.update_card(&mut self.0.clone(), &current, usn)
     }
 }
 
 impl Card {
     pub fn new(nid: NoteID, ord: u16, deck_id: DeckID, due: i32) -> Self {
         let mut card = Card::default();
-        card.nid = nid;
-        card.ord = ord;
-        card.did = deck_id;
+        card.note_id = nid;
+        card.template_idx = ord;
+        card.deck_id = deck_id;
         card.due = due;
         card
     }
@@ -185,19 +143,18 @@ impl Collection {
             .ok_or_else(|| AnkiError::invalid_input("no such card"))?;
         let mut card = orig.clone();
         func(&mut card)?;
-        self.update_card(&mut card, &orig)?;
+        self.update_card(&mut card, &orig, self.usn()?)?;
         Ok(card)
     }
 
-    pub(crate) fn update_card(&mut self, card: &mut Card, original: &Card) -> Result<()> {
+    pub(crate) fn update_card(&mut self, card: &mut Card, original: &Card, usn: Usn) -> Result<()> {
         if card.id.0 == 0 {
             return Err(AnkiError::invalid_input("card id not set"));
         }
         self.state
             .undo
             .save_undoable(Box::new(UpdateCardUndo(original.clone())));
-        card.mtime = TimestampSecs::now();
-        card.usn = self.usn()?;
+        card.set_modified(usn);
         self.storage.update_card(card)
     }
 
@@ -218,7 +175,7 @@ impl Collection {
         for cid in cids {
             if let Some(card) = self.storage.get_card(*cid)? {
                 // fixme: undo
-                nids.insert(card.nid);
+                nids.insert(card.note_id);
                 self.storage.remove_card(*cid)?;
                 self.storage.add_card_grave(*cid, usn)?;
             }
@@ -239,6 +196,27 @@ impl Collection {
 
         Ok(())
     }
+
+    pub fn set_deck(&mut self, cards: &[CardID], deck_id: DeckID) -> Result<()> {
+        let deck = self.get_deck(deck_id)?.ok_or(AnkiError::NotFound)?;
+        if deck.is_filtered() {
+            return Err(AnkiError::DeckIsFiltered);
+        }
+        self.storage.set_search_table_to_card_ids(cards)?;
+        let sched = self.sched_ver();
+        let usn = self.usn()?;
+        self.transact(None, |col| {
+            for mut card in col.storage.all_searched_cards()? {
+                if card.deck_id == deck_id {
+                    continue;
+                }
+                let original = card.clone();
+                card.set_deck(deck_id, sched);
+                col.update_card(&mut card, &original, usn)?;
+            }
+            Ok(())
+        })
+    }
 }
 
 #[cfg(test)]
@@ -251,7 +229,7 @@ mod test {
         let mut col = open_test_collection();
 
         let mut card = Card::default();
-        card.ivl = 1;
+        card.interval = 1;
         col.add_card(&mut card).unwrap();
         let cid = card.id;
 
@@ -261,11 +239,11 @@ mod test {
         // outside of a transaction, no undo info recorded
         let card = col
             .get_and_update_card(cid, |card| {
-                card.ivl = 2;
+                card.interval = 2;
                 Ok(())
             })
             .unwrap();
-        assert_eq!(card.ivl, 2);
+        assert_eq!(card.interval, 2);
         assert_eq!(col.can_undo(), None);
         assert_eq!(col.can_redo(), None);
 
@@ -273,7 +251,7 @@ mod test {
         for i in 3..=4 {
             col.transact(Some(CollectionOp::UpdateCard), |col| {
                 col.get_and_update_card(cid, |card| {
-                    card.ivl = i;
+                    card.interval = i;
                     Ok(())
                 })
                 .unwrap();
@@ -282,51 +260,51 @@ mod test {
             .unwrap();
         }
 
-        assert_eq!(col.storage.get_card(cid).unwrap().unwrap().ivl, 4);
+        assert_eq!(col.storage.get_card(cid).unwrap().unwrap().interval, 4);
         assert_eq!(col.can_undo(), Some(CollectionOp::UpdateCard));
         assert_eq!(col.can_redo(), None);
 
         // undo a step
         col.undo().unwrap();
-        assert_eq!(col.storage.get_card(cid).unwrap().unwrap().ivl, 3);
+        assert_eq!(col.storage.get_card(cid).unwrap().unwrap().interval, 3);
         assert_eq!(col.can_undo(), Some(CollectionOp::UpdateCard));
         assert_eq!(col.can_redo(), Some(CollectionOp::UpdateCard));
 
         // and again
         col.undo().unwrap();
-        assert_eq!(col.storage.get_card(cid).unwrap().unwrap().ivl, 2);
+        assert_eq!(col.storage.get_card(cid).unwrap().unwrap().interval, 2);
         assert_eq!(col.can_undo(), None);
         assert_eq!(col.can_redo(), Some(CollectionOp::UpdateCard));
 
         // redo a step
         col.redo().unwrap();
-        assert_eq!(col.storage.get_card(cid).unwrap().unwrap().ivl, 3);
+        assert_eq!(col.storage.get_card(cid).unwrap().unwrap().interval, 3);
         assert_eq!(col.can_undo(), Some(CollectionOp::UpdateCard));
         assert_eq!(col.can_redo(), Some(CollectionOp::UpdateCard));
 
         // and another
         col.redo().unwrap();
-        assert_eq!(col.storage.get_card(cid).unwrap().unwrap().ivl, 4);
+        assert_eq!(col.storage.get_card(cid).unwrap().unwrap().interval, 4);
         assert_eq!(col.can_undo(), Some(CollectionOp::UpdateCard));
         assert_eq!(col.can_redo(), None);
 
         // and undo the redo
         col.undo().unwrap();
-        assert_eq!(col.storage.get_card(cid).unwrap().unwrap().ivl, 3);
+        assert_eq!(col.storage.get_card(cid).unwrap().unwrap().interval, 3);
         assert_eq!(col.can_undo(), Some(CollectionOp::UpdateCard));
         assert_eq!(col.can_redo(), Some(CollectionOp::UpdateCard));
 
         // if any action is performed, it should clear the redo queue
         col.transact(Some(CollectionOp::UpdateCard), |col| {
             col.get_and_update_card(cid, |card| {
-                card.ivl = 5;
+                card.interval = 5;
                 Ok(())
             })
             .unwrap();
             Ok(())
         })
         .unwrap();
-        assert_eq!(col.storage.get_card(cid).unwrap().unwrap().ivl, 5);
+        assert_eq!(col.storage.get_card(cid).unwrap().unwrap().interval, 5);
         assert_eq!(col.can_undo(), Some(CollectionOp::UpdateCard));
         assert_eq!(col.can_redo(), None);
 

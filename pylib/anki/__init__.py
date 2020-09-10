@@ -12,8 +12,7 @@ if sys.version_info[0] < 3 or sys.version_info[1] < 7:
 # ensure unicode filenames are supported
 try:
     "テスト".encode(sys.getfilesystemencoding())
-except UnicodeEncodeError:
-    raise Exception("Anki requires a UTF-8 locale.")
-
+except UnicodeEncodeError as exc:
+    raise Exception("Anki requires a UTF-8 locale.") from exc
 
 __all__ = ["Collection"]

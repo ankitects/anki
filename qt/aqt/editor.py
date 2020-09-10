@@ -233,7 +233,9 @@ class Editor:
             self._links[cmd] = func
         if keys:
             QShortcut(  # type: ignore
-                QKeySequence(keys), self.widget, activated=lambda s=self: func(s),
+                QKeySequence(keys),
+                self.widget,
+                activated=lambda s=self: func(s),
             )
         btn = self._addButton(
             icon,
@@ -491,7 +493,9 @@ class Editor:
         self.web.eval("setBackgrounds(%s);" % json.dumps(cols))
 
     def showDupes(self):
-        contents = html.escape(stripHTMLMedia(self.note.fields[0]))
+        contents = html.escape(
+            stripHTMLMedia(self.note.fields[0]), quote=False
+        ).replace('"', r"\"")
         browser = aqt.dialogs.open("Browser", self.mw)
         browser.form.searchEdit.lineEdit().setText(
             '"dupe:%s,%s"' % (self.note.model()["id"], contents)
@@ -759,7 +763,7 @@ to a cloze type first, via 'Notes>Change Note Type'"""
             return '<img src="%s">' % name
         else:
             av_player.play_file(fname)
-            return "[sound:%s]" % fname
+            return "[sound:%s]" % html.escape(fname, quote=False)
 
     def urlToFile(self, url: str) -> Optional[str]:
         l = url.lower()
@@ -922,9 +926,7 @@ to a cloze type first, via 'Notes>Change Note Type'"""
                 self.doPaste(html, internal)
 
         p = self.web.mapFromGlobal(QCursor.pos())
-        self.web.evalWithCallback(
-            f"focusIfField(document.elementFromPoint({p.x()}, {p.y()}));", pasteIfField
-        )
+        self.web.evalWithCallback(f"focusIfField({p.x()}, {p.y()});", pasteIfField)
 
     def onPaste(self):
         self.web.onPaste()

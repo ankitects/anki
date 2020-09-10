@@ -8,31 +8,15 @@
 
 import pb from "../backend/proto";
 import { Selection } from "d3-selection";
-
-async function fetchData(search: string, days: number): Promise<Uint8Array> {
-    const resp = await fetch("/_anki/graphData", {
-        method: "POST",
-        body: JSON.stringify({
-            search,
-            days,
-        }),
-    });
-    if (!resp.ok) {
-        throw Error(`unexpected reply: ${resp.statusText}`);
-    }
-    // get returned bytes
-    const respBlob = await resp.blob();
-    const respBuf = await new Response(respBlob).arrayBuffer();
-    const bytes = new Uint8Array(respBuf);
-    return bytes;
-}
+import { postRequest } from "../postrequest";
 
 export async function getGraphData(
     search: string,
     days: number
 ): Promise<pb.BackendProto.GraphsOut> {
-    const bytes = await fetchData(search, days);
-    return pb.BackendProto.GraphsOut.decode(bytes);
+    return pb.BackendProto.GraphsOut.decode(
+        await postRequest("/_anki/graphData", JSON.stringify({ search, days }))
+    );
 }
 
 // amount of data to fetch from backend

@@ -59,6 +59,27 @@ hooks = [
         legacy_no_args=True,
     ),
     Hook(
+        name="reviewer_will_init_answer_buttons",
+        args=[
+            "buttons_tuple: Tuple[Tuple[int, str], ...]",
+            "reviewer: aqt.reviewer.Reviewer",
+            "card: Card",
+        ],
+        return_type="Tuple[Tuple[int, str], ...]",
+        doc="""Used to modify list of answer buttons
+
+        buttons_tuple is a tuple of buttons, with each button represented by a 
+        tuple containing an int for the button's ease and a string for the 
+        button's label.
+
+        Return a tuple of the form ((int, str), ...), e.g.:
+            ((1, "Label1"), (2, "Label2"), ...)
+
+        Note: import _ from anki.lang to support translation, using, e.g.,
+            ((1, _("Label1")), ...)
+        """,
+    ),
+    Hook(
         name="reviewer_will_answer_card",
         args=[
             "ease_tuple: Tuple[bool, int]",
@@ -391,7 +412,10 @@ hooks = [
     ),
     Hook(
         name="webview_will_set_content",
-        args=["web_content: aqt.webview.WebContent", "context: Optional[Any]",],
+        args=[
+            "web_content: aqt.webview.WebContent",
+            "context: Optional[Any]",
+        ],
         doc="""Used to modify web content before it is rendered.
 
         Web_content contains the HTML, JS, and CSS the web view will be
@@ -427,6 +451,30 @@ hooks = [
         name="webview_will_show_context_menu",
         args=["webview: aqt.webview.AnkiWebView", "menu: QMenu"],
         legacy_hook="AnkiWebView.contextMenuEvent",
+    ),
+    Hook(
+        name="webview_did_inject_style_into_page",
+        args=["webview: aqt.webview.AnkiWebView"],
+        doc='''Called after standard styling is injected into an external
+html file, such as when loading the new graphs. You can use this hook to
+mutate the DOM before the page is revealed.
+
+For example:
+
+def mytest(web: AnkiWebView):
+    page = os.path.basename(web.page().url().path())
+    if page != "graphs.html":
+    	return
+    web.eval(
+        """
+    div = document.createElement("div");
+    div.innerHTML = 'hello';
+    document.body.appendChild(div);
+"""
+    )
+
+gui_hooks.webview_did_inject_style_into_page.append(mytest)
+''',
     ),
     # Main
     ###################
@@ -505,7 +553,8 @@ hooks = [
         doc="""Executed when the top toolbar is redrawn""",
     ),
     Hook(
-        name="media_sync_did_progress", args=["entry: aqt.mediasync.LogEntryWithTime"],
+        name="media_sync_did_progress",
+        args=["entry: aqt.mediasync.LogEntryWithTime"],
     ),
     Hook(name="media_sync_did_start_or_stop", args=["running: bool"]),
     Hook(
@@ -520,7 +569,10 @@ hooks = [
         args=["addcards: aqt.addcards.AddCards", "menu: QMenu"],
         legacy_hook="AddCards.onHistory",
     ),
-    Hook(name="add_cards_did_init", args=["addcards: aqt.addcards.AddCards"],),
+    Hook(
+        name="add_cards_did_init",
+        args=["addcards: aqt.addcards.AddCards"],
+    ),
     Hook(
         name="add_cards_did_add_note",
         args=["note: anki.notes.Note"],
@@ -602,7 +654,10 @@ hooks = [
         name="editor_web_view_did_init",
         args=["editor_web_view: aqt.editor.EditorWebView"],
     ),
-    Hook(name="editor_did_init", args=["editor: aqt.editor.Editor"],),
+    Hook(
+        name="editor_did_init",
+        args=["editor: aqt.editor.Editor"],
+    ),
     Hook(
         name="editor_will_load_note",
         args=["js: str", "note: anki.notes.Note", "editor: aqt.editor.Editor"],
@@ -654,7 +709,19 @@ hooks = [
     ),
     # Model
     ###################
-    Hook(name="models_advanced_will_show", args=["advanced: QDialog"],),
+    Hook(
+        name="models_advanced_will_show",
+        args=["advanced: QDialog"],
+    ),
+    Hook(
+        name="models_did_init_buttons",
+        args=[
+            "buttons: List[Tuple[str, Callable[[], None]]]",
+            "models: aqt.models.Models",
+        ],
+        return_type="List[Tuple[str, Callable[[], None]]]",
+        doc="""Allows adding buttons to the Model dialog""",
+    ),
     # Stats
     ###################
     Hook(

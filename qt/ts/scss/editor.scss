@@ -1,12 +1,10 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
-@use 'vars';
-
 .field {
-    border: 1px solid vars.$day-border;
-    background: vars.$day-frame-bg;
-    color: vars.$day-text-fg;
+    border: 1px solid var(--border);
+    background: var(--frame-bg);
+    color: var(--text-fg);
     padding: 5px;
     overflow-wrap: break-word;
     overflow: auto;
@@ -47,10 +45,14 @@ body {
 }
 
 .rainbow {
-    background-image: -webkit-gradient(linear, left top, left bottom,
-    color-stop(0.00, #f77),
-    color-stop(50%, #7f7),
-    color-stop(100%, #77f));
+    background-image: -webkit-gradient(
+        linear,
+        left top,
+        left bottom,
+        color-stop(0, #f77),
+        color-stop(50%, #7f7),
+        color-stop(100%, #77f)
+    );
 }
 
 button.linkb {
@@ -75,30 +77,22 @@ button.highlighted {
 }
 
 .dupe {
-    background: vars.$day-flag1-bg;
+    background: var(--flag1-bg);
+}
+
+#dupes a {
+    color: var(--link);
 }
 
 .nightMode {
-    .field {
-        border-color: vars.$night-border;
-        background: vars.$night-frame-bg;
-        color: vars.$night-text-fg;
-    }
-
     button.linkb > img {
         filter: invert(180);
     }
-
-    .dupe {
-        background: vars.$night-flag1-bg;
-    }
-
-    #dupes a {
-        color: vars.$night-link;
-    }
 }
 
-.drawing { zoom: 50%; }
+.drawing {
+    zoom: 50%;
+}
 .nightMode img.drawing {
-    filter: unquote("invert() hue-rotate(180deg)")
+    filter: unquote("invert() hue-rotate(180deg)");
 }

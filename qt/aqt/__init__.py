@@ -144,22 +144,22 @@ class DialogManager:
         """Allows add-ons to register a custom dialog to be managed by Anki's dialog
         manager, which ensures that only one copy of the window is open at once,
         and that the dialog cleans up asynchronously when the collection closes
-        
+
         Please note that dialogs added in this manner need to define a close behavior
         by either:
-        
+
             - setting `dialog.silentlyClose = True` to have it close immediately
             - define a `dialog.closeWithCallback()` method that is called when closed
               by the dialog manager
-        
+
         TODO?: Implement more restrictive type check to ensure these requirements
         are met
-        
+
         Arguments:
             name {str} -- Name/identifier of the dialog in question
             creator {Union[Callable, type]} -- A class or function to create new
                                                dialog instances with
-        
+
         Keyword Arguments:
             instance {Optional[Any]} -- An optional existing instance of the dialog
                                         (default: {None})
@@ -503,7 +503,7 @@ section of the manual, and ensure that location is not read-only.""",
         QApplication.setAttribute(Qt.AA_DisableWindowContextHelpButton)
 
     # proxy configured?
-    from urllib.request import proxy_bypass, getproxies
+    from urllib.request import getproxies, proxy_bypass
 
     disable_proxies = False
     try:

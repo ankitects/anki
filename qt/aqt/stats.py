@@ -86,12 +86,7 @@ class NewDeckStats(QDialog):
         pass
 
     def refresh(self):
-        self.form.web.set_open_links_externally(False)
-        if theme_manager.night_mode:
-            extra = "#night"
-        else:
-            extra = ""
-        self.form.web.load(QUrl(f"{self.mw.serverURL()}_anki/graphs.html" + extra))
+        self.form.web.load_ts_page("graphs")
 
 
 class DeckStats(QDialog):

@@ -9,6 +9,9 @@ Please do not access methods on the backend directly - they may be changed
 or removed at any time. Instead, please use the methods on the collection
 instead. Eg, don't use col.backend.all_deck_config(), instead use
 col.decks.all_config()
+
+If you need to access a backend method that is not currently accessible
+via the collection, please send through a pull request that adds a method.
 """
 
 from __future__ import annotations
@@ -209,7 +212,9 @@ class RustBackend(RustBackendGenerated):
             langs = [anki.lang.currentLang]
 
         init_msg = pb.BackendInit(
-            locale_folder_path=ftl_folder, preferred_langs=langs, server=server,
+            locale_folder_path=ftl_folder,
+            preferred_langs=langs,
+            server=server,
         )
         self._backend = ankirspy.open_backend(init_msg.SerializeToString())
 

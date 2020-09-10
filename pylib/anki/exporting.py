@@ -92,7 +92,7 @@ class Exporter:
 
 class TextCardExporter(Exporter):
 
-    key = lambda: _("Cards in Plain Text")
+    key = lambda self: _("Cards in Plain Text")
     ext = ".txt"
     includeHTML = True
 
@@ -122,7 +122,7 @@ class TextCardExporter(Exporter):
 
 class TextNoteExporter(Exporter):
 
-    key = lambda: _("Notes in Plain Text")
+    key = lambda self: _("Notes in Plain Text")
     ext = ".txt"
     includeTags = True
     includeHTML = True
@@ -164,7 +164,7 @@ where cards.id in %s)"""
 
 class AnkiExporter(Exporter):
 
-    key = lambda: _("Anki 2.0 Deck")
+    key = lambda self: _("Anki 2.0 Deck")
     ext = ".anki2"
     includeSched: Union[bool, None] = False
     includeMedia = True
@@ -313,7 +313,7 @@ class AnkiExporter(Exporter):
 
 class AnkiPackageExporter(AnkiExporter):
 
-    key = lambda: _("Anki Deck Package")
+    key = lambda self: _("Anki Deck Package")
     ext = ".apkg"
 
     def __init__(self, col: Collection) -> None:
@@ -394,7 +394,7 @@ class AnkiPackageExporter(AnkiExporter):
 
 class AnkiCollectionPackageExporter(AnkiPackageExporter):
 
-    key = lambda: _("Anki Collection Package")
+    key = lambda self: _("Anki Collection Package")
     ext = ".colpkg"
     verbatim = True
     includeSched = None
@@ -427,7 +427,7 @@ class AnkiCollectionPackageExporter(AnkiPackageExporter):
 def exporters() -> List[Tuple[str, Any]]:
     def id(obj):
         if callable(obj.key):
-            key_str = obj.key()
+            key_str = obj.key(obj)
         else:
             key_str = obj.key
         return ("%s (*%s)" % (key_str, obj.ext), obj)

@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use crate::{
+    decks::DeckID,
     err::{AnkiError, Result},
     notetype::NoteTypeID,
 };
@@ -64,6 +65,7 @@ pub(super) enum SearchNode<'a> {
     EditedInDays(u32),
     CardTemplate(TemplateKind),
     Deck(Cow<'a, str>),
+    DeckID(DeckID),
     NoteTypeID(NoteTypeID),
     NoteType(Cow<'a, str>),
     Rated {
@@ -105,6 +107,8 @@ pub(super) enum StateKind {
     Learning,
     Due,
     Buried,
+    UserBuried,
+    SchedBuried,
     Suspended,
 }
 
@@ -168,6 +172,9 @@ fn group_inner(input: &str) -> IResult<&str, Vec<Node>> {
 
     if nodes.is_empty() {
         Err(nom::Err::Error((remaining, nom::error::ErrorKind::Many1)))
+    } else if matches!(nodes.last().unwrap(), Node::And | Node::Or) {
+        // no trailing and/or
+        Err(nom::Err::Failure(("", nom::error::ErrorKind::NoneOf)))
     } else {
         // chomp any trailing whitespace
         let (remaining, _) = whitespace0(remaining)?;
@@ -278,6 +285,7 @@ fn search_node_for_text_with_argument<'a>(
         "mid" => SearchNode::NoteTypeID(val.parse()?),
         "nid" => SearchNode::NoteIDs(check_id_list(val)?),
         "cid" => SearchNode::CardIDs(check_id_list(val)?),
+        "did" => SearchNode::DeckID(val.parse()?),
         "card" => parse_template(val.as_ref()),
         "is" => parse_state(val.as_ref())?,
         "flag" => parse_flag(val.as_ref())?,
@@ -314,6 +322,8 @@ fn parse_state(s: &str) -> ParseResult<SearchNode<'static>> {
         "learn" => Learning,
         "due" => Due,
         "buried" => Buried,
+        "buried-manually" => UserBuried,
+        "buried-sibling" => SchedBuried,
         "suspended" => Suspended,
         _ => return Err(ParseError {}),
     }))
@@ -433,6 +443,11 @@ mod test {
 
         assert_eq!(parse("")?, vec![Search(SearchNode::WholeCollection)]);
         assert_eq!(parse("  ")?, vec![Search(SearchNode::WholeCollection)]);
+
+        // leading/trailing boolean operators
+        assert!(parse("foo and").is_err());
+        assert!(parse("and foo").is_err());
+        assert!(parse("and").is_err());
 
         // leading/trailing/interspersed whitespace
         assert_eq!(

@@ -97,6 +97,12 @@
     const all = i18n.tr(i18n.TR.STATISTICS_RANGE_ALL_HISTORY);
 </script>
 
+<style>
+    .no-focus-outline:focus {
+        outline: 0;
+    }
+</style>
+
 <div class="range-box">
     <div class="spin {refreshing ? 'active' : ''}">◐</div>
 
@@ -136,15 +142,17 @@
 </div>
 <div class="range-box-pad" />
 
-{#if sourceData}
-    <TodayStats {sourceData} {i18n} />
-    <FutureDue {sourceData} {i18n} />
-    <CalendarGraph {sourceData} {revlogRange} {i18n} {nightMode} />
-    <ReviewsGraph {sourceData} {revlogRange} {i18n} />
-    <CardCounts {sourceData} {i18n} />
-    <IntervalsGraph {sourceData} {i18n} />
-    <EaseGraph {sourceData} {i18n} />
-    <HourGraph {sourceData} {revlogRange} {i18n} />
-    <ButtonsGraph {sourceData} {revlogRange} {i18n} />
-    <AddedGraph {sourceData} {i18n} />
-{/if}
+<div tabindex="-1" class="no-focus-outline">
+    {#if sourceData}
+        <TodayStats {sourceData} {i18n} />
+        <FutureDue {sourceData} {i18n} />
+        <CalendarGraph {sourceData} {revlogRange} {i18n} {nightMode} />
+        <ReviewsGraph {sourceData} {revlogRange} {i18n} />
+        <CardCounts {sourceData} {i18n} />
+        <IntervalsGraph {sourceData} {i18n} />
+        <EaseGraph {sourceData} {i18n} />
+        <HourGraph {sourceData} {revlogRange} {i18n} />
+        <ButtonsGraph {sourceData} {revlogRange} {i18n} />
+        <AddedGraph {sourceData} {i18n} />
+    {/if}
+</div>

@@ -6,6 +6,7 @@ import time
 from anki import hooks
 from anki.consts import *
 from anki.lang import without_unicode_isolation
+from anki.schedv2 import UnburyCurrentDeckMode
 from anki.utils import intTime
 from tests.shared import getEmptyCol as getEmptyColOrig
 
@@ -525,27 +526,6 @@ def test_overdue_lapse():
     assert col.sched.counts() == (0, 0, 1)
 
 
-def test_finished():
-    col = getEmptyCol()
-    # nothing due
-    assert "Congratulations" in col.sched.finishedMsg()
-    assert "limit" not in col.sched.finishedMsg()
-    note = col.newNote()
-    note["Front"] = "one"
-    note["Back"] = "two"
-    col.addNote(note)
-    # have a new card
-    assert "new cards available" in col.sched.finishedMsg()
-    # turn it into a review
-    col.reset()
-    c = note.cards()[0]
-    c.startTimer()
-    col.sched.answerCard(c, 3)
-    # nothing should be due tomorrow, as it's due in a week
-    assert "Congratulations" in col.sched.finishedMsg()
-    assert "limit" not in col.sched.finishedMsg()
-
-
 def test_nextIvl():
     col = getEmptyCol()
     note = col.newNote()
@@ -620,32 +600,30 @@ def test_bury():
     col.addNote(note)
     c2 = note.cards()[0]
     # burying
-    col.sched.buryCards([c.id], manual=True)  # pylint: disable=unexpected-keyword-arg
+    col.sched.bury_cards([c.id], manual=True)  # pylint: disable=unexpected-keyword-arg
     c.load()
     assert c.queue == QUEUE_TYPE_MANUALLY_BURIED
-    col.sched.buryCards([c2.id], manual=False)  # pylint: disable=unexpected-keyword-arg
+    col.sched.bury_cards(
+        [c2.id], manual=False
+    )  # pylint: disable=unexpected-keyword-arg
     c2.load()
     assert c2.queue == QUEUE_TYPE_SIBLING_BURIED
 
     col.reset()
     assert not col.sched.getCard()
 
-    col.sched.unburyCardsForDeck(  # pylint: disable=unexpected-keyword-arg
-        type="manual"
-    )
+    col.sched.unbury_cards_in_current_deck(UnburyCurrentDeckMode.USER_ONLY)
     c.load()
     assert c.queue == QUEUE_TYPE_NEW
     c2.load()
     assert c2.queue == QUEUE_TYPE_SIBLING_BURIED
 
-    col.sched.unburyCardsForDeck(  # pylint: disable=unexpected-keyword-arg
-        type="siblings"
-    )
+    col.sched.unbury_cards_in_current_deck(UnburyCurrentDeckMode.SCHED_ONLY)
     c2.load()
     assert c2.queue == QUEUE_TYPE_NEW
 
-    col.sched.buryCards([c.id, c2.id])
-    col.sched.unburyCardsForDeck(type="all")  # pylint: disable=unexpected-keyword-arg
+    col.sched.bury_cards([c.id, c2.id])
+    col.sched.unbury_cards_in_current_deck()
 
     col.reset()
 
@@ -661,11 +639,11 @@ def test_suspend():
     # suspending
     col.reset()
     assert col.sched.getCard()
-    col.sched.suspendCards([c.id])
+    col.sched.suspend_cards([c.id])
     col.reset()
     assert not col.sched.getCard()
     # unsuspending
-    col.sched.unsuspendCards([c.id])
+    col.sched.unsuspend_cards([c.id])
     col.reset()
     assert col.sched.getCard()
     # should cope with rev cards being relearnt
@@ -681,8 +659,8 @@ def test_suspend():
     due = c.due
     assert c.queue == QUEUE_TYPE_LRN
     assert c.type == CARD_TYPE_RELEARNING
-    col.sched.suspendCards([c.id])
-    col.sched.unsuspendCards([c.id])
+    col.sched.suspend_cards([c.id])
+    col.sched.unsuspend_cards([c.id])
     c.load()
     assert c.queue == QUEUE_TYPE_LRN
     assert c.type == CARD_TYPE_RELEARNING
@@ -690,12 +668,12 @@ def test_suspend():
     # should cope with cards in cram decks
     c.due = 1
     c.flush()
-    col.decks.newDyn("tmp")
-    col.sched.rebuildDyn()
+    did = col.decks.new_filtered("tmp")
+    col.sched.rebuild_filtered_deck(did)
     c.load()
     assert c.due != 1
     assert c.did != 1
-    col.sched.suspendCards([c.id])
+    col.sched.suspend_cards([c.id])
     c.load()
     assert c.due != 1
     assert c.did != 1
@@ -720,8 +698,8 @@ def test_filt_reviewing_early_normal():
     col.reset()
     assert col.sched.counts() == (0, 0, 0)
     # create a dynamic deck and refresh it
-    did = col.decks.newDyn("Cram")
-    col.sched.rebuildDyn(did)
+    did = col.decks.new_filtered("Cram")
+    col.sched.rebuild_filtered_deck(did)
     col.reset()
     # should appear as normal in the deck list
     assert sorted(col.sched.deck_due_tree().children)[0].review_count == 1
@@ -749,7 +727,7 @@ def test_filt_reviewing_early_normal():
     c.ivl = 100
     c.due = col.sched.today + 75
     c.flush()
-    col.sched.rebuildDyn(did)
+    col.sched.rebuild_filtered_deck(did)
     col.reset()
     c = col.sched.getCard()
 
@@ -780,8 +758,8 @@ def test_filt_keep_lrn_state():
     assert c.type == CARD_TYPE_LRN and c.queue == QUEUE_TYPE_LRN
 
     # create a dynamic deck and refresh it
-    did = col.decks.newDyn("Cram")
-    col.sched.rebuildDyn(did)
+    did = col.decks.new_filtered("Cram")
+    col.sched.rebuild_filtered_deck(did)
     col.reset()
 
     # card should still be in learning state
@@ -795,7 +773,7 @@ def test_filt_keep_lrn_state():
     assert c.due - intTime() > 60 * 60
 
     # emptying the deck preserves learning state
-    col.sched.emptyDyn(did)
+    col.sched.empty_filtered_deck(did)
     c.load()
     assert c.type == CARD_TYPE_LRN and c.queue == QUEUE_TYPE_LRN
     assert c.left == 1001
@@ -814,11 +792,11 @@ def test_preview():
     note2["Front"] = "two"
     col.addNote(note2)
     # cram deck
-    did = col.decks.newDyn("Cram")
+    did = col.decks.new_filtered("Cram")
     cram = col.decks.get(did)
     cram["resched"] = False
     col.decks.save(cram)
-    col.sched.rebuildDyn(did)
+    col.sched.rebuild_filtered_deck(did)
     col.reset()
     # grab the first card
     c = col.sched.getCard()
@@ -845,7 +823,7 @@ def test_preview():
     assert c.id == orig.id
 
     # emptying the filtered deck should restore card
-    col.sched.emptyDyn(did)
+    col.sched.empty_filtered_deck(did)
     c.load()
     assert c.queue == QUEUE_TYPE_NEW
     assert c.reps == 0
@@ -1223,7 +1201,7 @@ def test_moveVersions():
     col.reset()
     c = col.sched.getCard()
     col.sched.answerCard(c, 1)
-    col.sched.buryCards([c.id])
+    col.sched.bury_cards([c.id])
     c.load()
     assert c.queue == QUEUE_TYPE_MANUALLY_BURIED
 
@@ -1235,7 +1213,7 @@ def test_moveVersions():
     assert c.queue == QUEUE_TYPE_SIBLING_BURIED
 
     # and it should be new again when unburied
-    col.sched.unburyCards()
+    col.sched.unbury_cards_in_current_deck()
     c.load()
     assert c.type == CARD_TYPE_NEW and c.queue == QUEUE_TYPE_NEW
 
@@ -1275,9 +1253,9 @@ def test_negativeDueFilter():
     c.flush()
 
     # into and out of filtered deck
-    did = col.decks.newDyn("Cram")
-    col.sched.rebuildDyn(did)
-    col.sched.emptyDyn(did)
+    did = col.decks.new_filtered("Cram")
+    col.sched.rebuild_filtered_deck(did)
+    col.sched.empty_filtered_deck(did)
     col.reset()
 
     c.load()

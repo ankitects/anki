@@ -9,7 +9,7 @@ import html
 import json
 import re
 import unicodedata as ucd
-from typing import Callable, List, Optional, Sequence, Tuple, Union
+from typing import Callable, List, Optional, Tuple, Union
 
 from PyQt5.QtCore import Qt
 
@@ -287,6 +287,7 @@ class Reviewer:
             (" ", self.onEnterKey),
             (Qt.Key_Return, self.onEnterKey),
             (Qt.Key_Enter, self.onEnterKey),
+            ("m", self.showContextMenu),
             ("r", self.replayAudio),
             (Qt.Key_F5, self.replayAudio),
             ("Ctrl+1", lambda: self.setFlag(1)),
@@ -629,15 +630,26 @@ time = %(time)d;
         else:
             return 2
 
-    def _answerButtonList(self) -> Sequence[Tuple[int, str]]:
-        l = ((1, _("Again")),)
-        cnt = self.mw.col.sched.answerButtons(self.card)
-        if cnt == 2:
-            return l + ((2, _("Good")),)
-        elif cnt == 3:
-            return l + ((2, _("Good")), (3, _("Easy")))
+    def _answerButtonList(self) -> Tuple[Tuple[int, str], ...]:
+        button_count = self.mw.col.sched.answerButtons(self.card)
+        if button_count == 2:
+            buttons_tuple: Tuple[Tuple[int, str], ...] = (
+                (1, _("Again")),
+                (2, _("Good")),
+            )
+        elif button_count == 3:
+            buttons_tuple = ((1, _("Again")), (2, _("Good")), (3, _("Easy")))
         else:
-            return l + ((2, _("Hard")), (3, _("Good")), (4, _("Easy")))
+            buttons_tuple = (
+                (1, _("Again")),
+                (2, _("Hard")),
+                (3, _("Good")),
+                (4, _("Easy")),
+            )
+        buttons_tuple = gui_hooks.reviewer_will_init_answer_buttons(
+            buttons_tuple, self, self.card
+        )
+        return buttons_tuple
 
     def _answerButtons(self) -> str:
         default = self._defaultEase()
@@ -790,13 +802,13 @@ time = %(time)d;
 
     def onSuspend(self) -> None:
         self.mw.checkpoint(_("Suspend"))
-        self.mw.col.sched.suspendCards([c.id for c in self.card.note().cards()])
+        self.mw.col.sched.suspend_cards([c.id for c in self.card.note().cards()])
         tooltip(_("Note suspended."))
         self.mw.reset()
 
     def onSuspendCard(self) -> None:
         self.mw.checkpoint(_("Suspend"))
-        self.mw.col.sched.suspendCards([self.card.id])
+        self.mw.col.sched.suspend_cards([self.card.id])
         tooltip(_("Card suspended."))
         self.mw.reset()
 
@@ -818,13 +830,13 @@ time = %(time)d;
 
     def onBuryCard(self) -> None:
         self.mw.checkpoint(_("Bury"))
-        self.mw.col.sched.buryCards([self.card.id])
+        self.mw.col.sched.bury_cards([self.card.id])
         self.mw.reset()
         tooltip(_("Card buried."))
 
     def onBuryNote(self) -> None:
         self.mw.checkpoint(_("Bury"))
-        self.mw.col.sched.buryNote(self.card.nid)
+        self.mw.col.sched.bury_note(self.card.note())
         self.mw.reset()
         tooltip(_("Note buried."))
 

@@ -44,7 +44,7 @@ class Note:
     def _load_from_backend_note(self, n: BackendNote) -> None:
         self.id = n.id
         self.guid = n.guid
-        self.mid = n.ntid
+        self.mid = n.notetype_id
         self.mod = n.mtime_secs
         self.usn = n.usn
         self.tags = list(n.tags)
@@ -56,7 +56,7 @@ class Note:
         return BackendNote(
             id=self.id,
             guid=self.guid,
-            ntid=self.mid,
+            notetype_id=self.mid,
             mtime_secs=self.mod,
             usn=self.usn,
             tags=self.tags,
@@ -76,12 +76,10 @@ class Note:
         return joinFields(self.fields)
 
     def cards(self) -> List[anki.cards.Card]:
-        return [
-            self.col.getCard(id)
-            for id in self.col.db.list(
-                "select id from cards where nid = ? order by ord", self.id
-            )
-        ]
+        return [self.col.getCard(id) for id in self.card_ids()]
+
+    def card_ids(self) -> Sequence[int]:
+        return self.col.card_ids_of_note(self.id)
 
     def model(self) -> Optional[NoteType]:
         return self.col.models.get(self.mid)
@@ -106,8 +104,8 @@ class Note:
     def _fieldOrd(self, key: str) -> Any:
         try:
             return self._fmap[key][0]
-        except:
-            raise KeyError(key)
+        except Exception as exc:
+            raise KeyError(key) from exc
 
     def __getitem__(self, key: str) -> str:
         return self.fields[self._fieldOrd(key)]

@@ -34,92 +34,25 @@ fn open_backend(init_msg: &PyBytes) -> PyResult<Backend> {
 fn want_release_gil(method: u32) -> bool {
     if let Ok(method) = BackendMethod::try_from(method) {
         match method {
-            BackendMethod::ExtractAVTags => false,
-            BackendMethod::ExtractLatex => false,
-            BackendMethod::GetEmptyCards => true,
-            BackendMethod::RenderExistingCard => false,
-            BackendMethod::RenderUncommittedCard => false,
-            BackendMethod::StripAVTags => false,
-            BackendMethod::SearchCards => true,
-            BackendMethod::SearchNotes => true,
-            BackendMethod::LocalMinutesWest => false,
-            BackendMethod::SchedTimingToday => false,
-            BackendMethod::CheckMedia => true,
-            BackendMethod::SyncMedia => true,
-            BackendMethod::TrashMediaFiles => true,
-            BackendMethod::AddOrUpdateDeckLegacy => false,
-            BackendMethod::DeckTree => true,
-            BackendMethod::DeckTreeLegacy => true,
-            BackendMethod::GetAllDecksLegacy => true,
-            BackendMethod::GetDeckIDByName => true,
-            BackendMethod::GetDeckLegacy => true,
-            BackendMethod::GetDeckNames => true,
-            BackendMethod::NewDeckLegacy => false,
-            BackendMethod::RemoveDeck => true,
-            BackendMethod::AddOrUpdateDeckConfigLegacy => true,
-            BackendMethod::AllDeckConfigLegacy => true,
-            BackendMethod::GetDeckConfigLegacy => true,
-            BackendMethod::NewDeckConfigLegacy => false,
-            BackendMethod::RemoveDeckConfig => true,
-            BackendMethod::GetCard => true,
-            BackendMethod::UpdateCard => true,
-            BackendMethod::AddCard => true,
-            BackendMethod::NewNote => true,
-            BackendMethod::AddNote => true,
-            BackendMethod::UpdateNote => true,
-            BackendMethod::GetNote => true,
-            BackendMethod::AddNoteTags => true,
-            BackendMethod::UpdateNoteTags => true,
-            BackendMethod::ClozeNumbersInNote => true,
-            BackendMethod::AfterNoteUpdates => true,
-            BackendMethod::FieldNamesForNotes => true,
-            BackendMethod::AddOrUpdateNotetype => true,
-            BackendMethod::GetStockNotetypeLegacy => false,
-            BackendMethod::GetNotetypeLegacy => true,
-            BackendMethod::GetNotetypeNames => true,
-            BackendMethod::GetNotetypeNamesAndCounts => true,
-            BackendMethod::GetNotetypeIDByName => true,
-            BackendMethod::RemoveNotetype => true,
-            BackendMethod::CheckDatabase => true,
-            BackendMethod::FindAndReplace => true,
-            BackendMethod::SetLocalMinutesWest => false,
-            BackendMethod::StudiedToday => false,
-            BackendMethod::CongratsLearnMessage => false,
-            BackendMethod::AddMediaFile => true,
-            BackendMethod::EmptyTrash => true,
-            BackendMethod::RestoreTrash => true,
-            BackendMethod::OpenCollection => true,
-            BackendMethod::CloseCollection => true,
-            BackendMethod::AbortSync => true,
-            BackendMethod::AbortMediaSync => true,
-            BackendMethod::BeforeUpload => true,
-            BackendMethod::TranslateString => false,
-            BackendMethod::FormatTimespan => false,
-            BackendMethod::RegisterTags => true,
-            BackendMethod::AllTags => true,
-            BackendMethod::GetConfigJson => true,
-            BackendMethod::SetConfigJson => true,
-            BackendMethod::RemoveConfig => true,
-            BackendMethod::SetAllConfig => true,
-            BackendMethod::GetAllConfig => true,
-            BackendMethod::GetPreferences => true,
-            BackendMethod::SetPreferences => true,
-            BackendMethod::NoteIsDuplicateOrEmpty => true,
-            BackendMethod::SyncLogin => true,
-            BackendMethod::SyncCollection => true,
-            BackendMethod::LatestProgress => false,
-            BackendMethod::SetWantsAbort => false,
-            BackendMethod::SyncStatus => true,
-            BackendMethod::FullUpload => true,
-            BackendMethod::FullDownload => true,
-            BackendMethod::RemoveNotes => true,
-            BackendMethod::RemoveCards => true,
-            BackendMethod::UpdateStats => true,
-            BackendMethod::ExtendLimits => true,
-            BackendMethod::CountsForDeckToday => true,
-            BackendMethod::CardStats => true,
-            BackendMethod::Graphs => true,
-            BackendMethod::I18nResources => false,
+            BackendMethod::ExtractAVTags
+            | BackendMethod::ExtractLatex
+            | BackendMethod::RenderExistingCard
+            | BackendMethod::RenderUncommittedCard
+            | BackendMethod::StripAVTags
+            | BackendMethod::LocalMinutesWest
+            | BackendMethod::SchedTimingToday
+            | BackendMethod::AddOrUpdateDeckLegacy
+            | BackendMethod::NewDeckLegacy
+            | BackendMethod::NewDeckConfigLegacy
+            | BackendMethod::GetStockNotetypeLegacy
+            | BackendMethod::SetLocalMinutesWest
+            | BackendMethod::StudiedToday
+            | BackendMethod::TranslateString
+            | BackendMethod::FormatTimespan
+            | BackendMethod::LatestProgress
+            | BackendMethod::SetWantsAbort
+            | BackendMethod::I18nResources => false,
+            _ => true,
         }
     } else {
         false
@@ -128,10 +61,10 @@ fn want_release_gil(method: u32) -> bool {
 
 #[pymethods]
 impl Backend {
-    fn command(&mut self, py: Python, method: u32, input: &PyBytes) -> PyResult<PyObject> {
+    fn command(&self, py: Python, method: u32, input: &PyBytes) -> PyResult<PyObject> {
         let in_bytes = input.as_bytes();
         if want_release_gil(method) {
-            py.allow_threads(move || self.backend.run_command_bytes(method, in_bytes))
+            py.allow_threads(|| self.backend.run_command_bytes(method, in_bytes))
         } else {
             self.backend.run_command_bytes(method, in_bytes)
         }
@@ -139,17 +72,17 @@ impl Backend {
             let out_obj = PyBytes::new(py, &out_bytes);
             out_obj.into()
         })
-        .map_err(|err_bytes| BackendError::py_err(err_bytes))
+        .map_err(BackendError::py_err)
     }
 
     /// This takes and returns JSON, due to Python's slow protobuf
     /// encoding/decoding.
-    fn db_command(&mut self, py: Python, input: &PyBytes) -> PyResult<PyObject> {
+    fn db_command(&self, py: Python, input: &PyBytes) -> PyResult<PyObject> {
         let in_bytes = input.as_bytes();
-        let out_res = py.allow_threads(move || {
+        let out_res = py.allow_threads(|| {
             self.backend
                 .run_db_command_bytes(in_bytes)
-                .map_err(|err_bytes| BackendError::py_err(err_bytes))
+                .map_err(BackendError::py_err)
         });
         let out_bytes = out_res?;
         let out_obj = PyBytes::new(py, &out_bytes);

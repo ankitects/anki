@@ -67,7 +67,7 @@ class ExportDialog(QDialog):
         self.exporter = self.exporters[idx][1](self.col)
         self.isApkg = self.exporter.ext == ".apkg"
         self.isVerbatim = getattr(self.exporter, "verbatim", False)
-        self.isTextNote = hasattr(self.exporter, "includeTags")
+        self.isTextNote = getattr(self.exporter, "includeTags", False)
         self.frm.includeSched.setVisible(
             getattr(self.exporter, "includeSched", None) is not None
         )
@@ -114,12 +114,16 @@ class ExportDialog(QDialog):
             deck_name = re.sub('[\\\\/?<>:*|"^]', "_", deck_name)
 
         filename = "{0}{1}".format(deck_name, self.exporter.ext)
+        if callable(self.exporter.key):
+            key_str = self.exporter.key()
+        else:
+            key_str = self.exporter.key
         while 1:
             file = getSaveFile(
                 self,
                 _("Export"),
                 "export",
-                self.exporter.key,
+                key_str,
                 self.exporter.ext,
                 fname=filename,
             )
@@ -176,14 +180,18 @@ class ExportDialog(QDialog):
             if self.isTextNote:
                 msg = (
                     ngettext(
-                        "%d note exported.", "%d notes exported.", self.exporter.count,
+                        "%d note exported.",
+                        "%d notes exported.",
+                        self.exporter.count,
                     )
                     % self.exporter.count
                 )
             else:
                 msg = (
                     ngettext(
-                        "%d card exported.", "%d cards exported.", self.exporter.count,
+                        "%d card exported.",
+                        "%d cards exported.",
+                        self.exporter.count,
                     )
                     % self.exporter.count
                 )

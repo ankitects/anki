@@ -56,21 +56,21 @@ class Card:
         self._render_output = None
         self._note = None
         self.id = c.id
-        self.nid = c.nid
-        self.did = c.did
-        self.ord = c.ord
-        self.mod = c.mtime
+        self.nid = c.note_id
+        self.did = c.deck_id
+        self.ord = c.template_idx
+        self.mod = c.mtime_secs
         self.usn = c.usn
         self.type = c.ctype
         self.queue = c.queue
         self.due = c.due
-        self.ivl = c.ivl
-        self.factor = c.factor
+        self.ivl = c.interval
+        self.factor = c.ease_factor
         self.reps = c.reps
         self.lapses = c.lapses
-        self.left = c.left
-        self.odue = c.odue
-        self.odid = c.odid
+        self.left = c.remaining_steps
+        self.odue = c.original_due
+        self.odid = c.original_deck_id
         self.flags = c.flags
         self.data = c.data
 
@@ -88,19 +88,19 @@ class Card:
         # mtime & usn are set by backend
         card = BackendCard(
             id=self.id,
-            nid=self.nid,
-            did=self.did,
-            ord=self.ord,
+            note_id=self.nid,
+            deck_id=self.did,
+            template_idx=self.ord,
             ctype=self.type,
             queue=self.queue,
             due=self.due,
-            ivl=self.ivl,
-            factor=self.factor,
+            interval=self.ivl,
+            ease_factor=self.factor,
             reps=self.reps,
             lapses=self.lapses,
-            left=self.left,
-            odue=self.odue,
-            odid=self.odid,
+            remaining_steps=self.left,
+            original_due=self.odue,
+            original_deck_id=self.odid,
             flags=self.flags,
             data=self.data,
         )
@@ -129,9 +129,11 @@ class Card:
         self, reload: bool = False, browser: bool = False
     ) -> anki.template.TemplateRenderOutput:
         if not self._render_output or reload:
-            self._render_output = anki.template.TemplateRenderContext.from_existing_card(
-                self, browser
-            ).render()
+            self._render_output = (
+                anki.template.TemplateRenderContext.from_existing_card(
+                    self, browser
+                ).render()
+            )
         return self._render_output
 
     def set_render_output(self, output: anki.template.TemplateRenderOutput) -> None:

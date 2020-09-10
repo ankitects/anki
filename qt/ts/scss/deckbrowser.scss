@@ -1,11 +1,10 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
-@use 'vars';
 @use 'card_counts';
 
 a.deck {
-    color: vars.$day-text-fg;
+    color: var(--text-fg);
     text-decoration: none;
     min-width: 5em;
     display: inline-block;
@@ -16,7 +15,7 @@ a.deck:hover {
 }
 
 tr.deck td {
-    border-bottom: 1px solid vars.$day-faint-border;
+    border-bottom: 1px solid var(--faint-border);
 }
 
 tr.top-level-drag-row td {
@@ -28,7 +27,7 @@ td {
 }
 
 tr.drag-hover td {
-    border-bottom: 1px solid vars.$day-border;
+    border-bottom: 1px solid var(--border);
 }
 
 body {
@@ -37,7 +36,7 @@ body {
 }
 
 .current {
-    background-color: vars.$day-faint-border;
+    background-color: var(--faint-border);
 }
 
 .decktd {
@@ -54,50 +53,25 @@ body {
 }
 
 .collapse {
-    color: vars.$day-text-fg;
+    color: var(--text-fg);
     text-decoration: none;
     display: inline-block;
     width: 1em;
 }
 
 .filtered {
-    color: vars.$day-link !important;
+    color: var(--link) !important;
 }
 
 .gears {
     width: 1em;
     height: 1em;
-    opacity: .5;
+    opacity: 0.5;
     padding-top: 0.2em;
 }
 
 .nightMode {
-    a.deck {
-        color: vars.$night-text-fg;
-    }
-
-    tr.deck td {
-        border-bottom-color: vars.$night-faint-border;
-    }
-
-    tr.drag-hover td {
-        border-bottom-color: vars.$night-border;
-    }
-
-    .current {
-        background-color: vars.$night-faint-border;
-    }
-
-    .collapse {
-        color: vars.$night-text-fg;
-    }
-
     .gears {
         filter: invert(180);
     }
-
-    .filtered {
-        color: vars.$night-link !important;
-    }
-
 }

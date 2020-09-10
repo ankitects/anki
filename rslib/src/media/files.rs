@@ -67,6 +67,10 @@ fn disallowed_char(char: char) -> bool {
     }
 }
 
+fn nonbreaking_space(char: char) -> bool {
+    char == '\u{a0}'
+}
+
 /// Adjust filename into the format Anki expects.
 ///
 /// - The filename is normalized to NFC.
@@ -85,8 +89,14 @@ pub(crate) fn normalize_filename(fname: &str) -> Cow<str> {
 
 /// See normalize_filename(). This function expects NFC-normalized input.
 pub(crate) fn normalize_nfc_filename(mut fname: Cow<str>) -> Cow<str> {
-    if fname.chars().any(disallowed_char) {
+    if fname.contains(disallowed_char) {
         fname = fname.replace(disallowed_char, "").into()
+    }
+
+    // convert nonbreaking spaces to regular ones, as the filename extraction
+    // code treats nonbreaking spaces as regular ones
+    if fname.contains(nonbreaking_space) {
+        fname = fname.replace(nonbreaking_space, " ").into()
     }
 
     if let Cow::Owned(o) = WINDOWS_DEVICE_NAME.replace_all(fname.as_ref(), "${1}_${2}") {
@@ -442,7 +452,7 @@ mod test {
 
     #[test]
     fn add_hash_suffix() {
-        let hash = sha1_of_data("hello".as_bytes());
+        let hash = sha1_of_data(b"hello");
         assert_eq!(
             add_hash_suffix_to_file_stem("test.jpg", &hash).as_str(),
             "test-aaf4c61ddcc5e8a2dabede0f3b482cd9aea9434d.jpg"
@@ -455,22 +465,22 @@ mod test {
         let dpath = dir.path();
 
         // no existing file case
-        let h1 = sha1_of_data("hello".as_bytes());
+        let h1 = sha1_of_data(b"hello");
         assert_eq!(
-            add_data_to_folder_uniquely(dpath, "test.mp3", "hello".as_bytes(), h1).unwrap(),
+            add_data_to_folder_uniquely(dpath, "test.mp3", b"hello", h1).unwrap(),
             "test.mp3"
         );
 
         // same contents case
         assert_eq!(
-            add_data_to_folder_uniquely(dpath, "test.mp3", "hello".as_bytes(), h1).unwrap(),
+            add_data_to_folder_uniquely(dpath, "test.mp3", b"hello", h1).unwrap(),
             "test.mp3"
         );
 
         // different contents
-        let h2 = sha1_of_data("hello1".as_bytes());
+        let h2 = sha1_of_data(b"hello1");
         assert_eq!(
-            add_data_to_folder_uniquely(dpath, "test.mp3", "hello1".as_bytes(), h2).unwrap(),
+            add_data_to_folder_uniquely(dpath, "test.mp3", b"hello1", h2).unwrap(),
             "test-88fdd585121a4ccb3d1540527aee53a77c77abb8.mp3"
         );
 
