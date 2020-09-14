@@ -909,8 +909,9 @@ title="%s" %s>%s</button>""" % (
             self.col.clearUndo()
             self.col.models._clear_cache()
             self.reset()
-            after_sync()
             gui_hooks.sync_did_finish()
+
+            after_sync()
 
         gui_hooks.sync_will_start()
         sync_collection(self, on_done=on_collection_sync_finished)
