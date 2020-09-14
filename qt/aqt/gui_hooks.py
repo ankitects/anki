@@ -2722,6 +2722,10 @@ style_did_init = _StyleDidInitFilter()
 
 
 class _SyncDidFinishHook:
+    """Executes after the sync of the collection concluded.
+
+    Note that the media sync did not necessarily finish at this point."""
+
     _hooks: List[Callable[[], None]] = []
 
     def append(self, cb: Callable[[], None]) -> None:
