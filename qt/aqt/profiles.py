@@ -652,3 +652,51 @@ create table if not exists profiles
 
     def apply_profile_options(self) -> None:
         aqt.sound.av_player.interrupt_current_audio = self.interrupt_audio()
+
+
+class ProfileConfig:
+    """Can be used for profile-specific settings"""
+
+    def __init__(self, pm: ProfileManager, keyword: str, default: Any):
+        self.pm = pm
+        self.keyword = keyword
+        self.default = default
+
+    @property
+    def value(self) -> Any:
+        return self.pm.profile.get(self.keyword, self.default)
+
+    @value.setter
+    def value(self, new_value: str):
+        self.pm.profile[self.keyword] = new_value
+
+    def remove(self):
+        try:
+            del self.pm.profile[self.keyword]
+        except KeyError:
+            # same behavior as Collection.remove_config
+            pass
+
+
+class MetaConfig:
+    """Can be used for profile-agnostic settings"""
+
+    def __init__(self, pm: ProfileManager, keyword: str, default: Any):
+        self.pm = pm
+        self.keyword = keyword
+        self.default = default
+
+    @property
+    def value(self):
+        return self.pm.meta.get(self.keyword, self.default)
+
+    @value.setter
+    def value(self, new_value: str):
+        self.pm.meta[self.keyword] = new_value
+
+    def remove(self):
+        try:
+            del self.pm.meta[self.keyword]
+        except KeyError:
+            # same behavior as Collection.remove_config
+            pass

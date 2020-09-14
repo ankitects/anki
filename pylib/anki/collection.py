@@ -742,3 +742,23 @@ select id from notes where mid = ?) limit 1"""
 
 # legacy name
 _Collection = Collection
+
+
+class CollectionConfig:
+    """Can be used for collection-specific settings"""
+
+    def __init__(self, col: Collection, keyword: str, default: Any):
+        self.col = col
+        self.keyword = keyword
+        self.default = default
+
+    @property
+    def value(self):
+        return self.col.get_config(self.keyword, self.default)
+
+    @value.setter
+    def value(self, new_value: str):
+        self.col.set_config(self.keyword, new_value)
+
+    def remove(self):
+        return self.col.remove_config(self.keyword)
