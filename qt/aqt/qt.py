@@ -24,10 +24,7 @@ from anki.utils import isMac, isWin
 os.environ["LIBOVERLAY_SCROLLBAR"] = "0"
 
 
-try:
-    from PyQt5 import sip
-except ImportError:
-    import sip  # type: ignore
+import sip  # type: ignore
 
 
 def debug():
