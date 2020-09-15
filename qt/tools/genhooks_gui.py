@@ -562,6 +562,14 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         args=["diag: aqt.emptycards.EmptyCardsDialog"],
         doc="""Allows changing the list of cards to delete.""",
     ),
+    Hook(name="sync_will_start", args=[]),
+    Hook(
+        name="sync_did_finish",
+        args=[],
+        doc="""Executes after the sync of the collection concluded.
+
+        Note that the media sync did not necessarily finish at this point.""",
+    ),
     # Adding cards
     ###################
     Hook(
