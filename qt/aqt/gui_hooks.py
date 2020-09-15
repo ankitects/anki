@@ -2721,6 +2721,64 @@ class _StyleDidInitFilter:
 style_did_init = _StyleDidInitFilter()
 
 
+class _SyncDidFinishHook:
+    """Executes after the sync of the collection concluded.
+
+    Note that the media sync did not necessarily finish at this point."""
+
+    _hooks: List[Callable[[], None]] = []
+
+    def append(self, cb: Callable[[], None]) -> None:
+        """()"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
+
+    def __call__(self) -> None:
+        for hook in self._hooks:
+            try:
+                hook()
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+sync_did_finish = _SyncDidFinishHook()
+
+
+class _SyncWillStartHook:
+    _hooks: List[Callable[[], None]] = []
+
+    def append(self, cb: Callable[[], None]) -> None:
+        """()"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
+
+    def __call__(self) -> None:
+        for hook in self._hooks:
+            try:
+                hook()
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+sync_will_start = _SyncWillStartHook()
+
+
 class _TagEditorDidProcessKeyHook:
     _hooks: List[Callable[[TagEdit, QEvent], None]] = []
 
