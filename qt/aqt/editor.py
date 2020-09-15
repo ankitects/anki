@@ -923,7 +923,7 @@ to a cloze type first, via 'Notes>Change Note Type'"""
     def doDrop(self, html, internal):
         def pasteIfField(ret):
             if ret:
-                self.doPaste(html, internal)
+                self.doPaste(html, internal, self.web._wantsExtendedPaste())
 
         p = self.web.mapFromGlobal(QCursor.pos())
         self.web.evalWithCallback(f"focusIfField({p.x()}, {p.y()});", pasteIfField)
@@ -1028,10 +1028,14 @@ class EditorWebView(AnkiWebView):
     def onCopy(self):
         self.triggerPageAction(QWebEnginePage.Copy)
 
-    def _onPaste(self, mode: QClipboard.Mode) -> None:
+    def _wantsExtendedPaste(self) -> bool:
         extended = not (self.editor.mw.app.queryKeyboardModifiers() & Qt.ShiftModifier)
         if self.editor.mw.pm.profile.get("pasteInvert", False):
             extended = not extended
+        return extended
+
+    def _onPaste(self, mode: QClipboard.Mode) -> None:
+        extended = self._wantsExtendedPaste()
         mime = self.editor.mw.app.clipboard().mimeData(mode=mode)
         html, internal = self._processMime(mime)
         if not html:
