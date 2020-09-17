@@ -337,7 +337,8 @@ class MpvManager(MPV, SoundOrVideoPlayer):
     def on_init(self) -> None:
         # if mpv dies and is restarted, tell Anki the
         # current file is done
-        self.on_end_file()
+        if self._on_done:
+            self._on_done()
 
         try:
             self.command("keybind", "q", "stop")
@@ -364,8 +365,8 @@ class MpvManager(MPV, SoundOrVideoPlayer):
     def seek_relative(self, secs: int) -> None:
         self.command("seek", secs, "relative")
 
-    def on_end_file(self) -> None:
-        if self._on_done:
+    def on_property_idle_active(self, value: bool) -> None:
+        if value and self._on_done:
             self._on_done()
 
     def shutdown(self) -> None:
