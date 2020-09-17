@@ -89,11 +89,16 @@ impl Collection {
             average_secs = total_secs / (revlog.len() as f32);
         }
 
+        let due = if card.original_due != 0 {
+            card.original_due
+        } else {
+            card.due
+        };
         let due = match card.queue {
-            CardQueue::New => Due::Position(card.due),
+            CardQueue::New => Due::Position(due),
             CardQueue::Learn => Due::Time(TimestampSecs::now()),
             CardQueue::Review | CardQueue::DayLearn => Due::Time({
-                let days_remaining = card.due - (self.timing_today()?.days_elapsed as i32);
+                let days_remaining = due - (self.timing_today()?.days_elapsed as i32);
                 let mut due = TimestampSecs::now();
                 due.0 += (days_remaining as i64) * 86_400;
                 due
