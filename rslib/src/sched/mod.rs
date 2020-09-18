@@ -32,7 +32,7 @@ impl Collection {
 
         let rollover_hour = match self.sched_ver() {
             SchedulerVersion::V1 => None,
-            SchedulerVersion::V2 => self.get_v2_rollover(),
+            SchedulerVersion::V2 => self.get_v2_rollover().or(Some(4)),
         };
 
         Ok(sched_timing_today(
