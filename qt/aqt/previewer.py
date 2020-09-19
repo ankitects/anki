@@ -81,8 +81,8 @@ class Previewer(QDialog):
         qconnect(self._replay.clicked, self._on_replay_audio)
 
         answer_only_button = QCheckBox(_("Answer Side Only"))
-        answer_only_button.setShortcut(QKeySequence("B"))
-        answer_only_button.setToolTip(_("Shortcut key: %s" % "B"))
+        answer_only_button.setShortcut(QKeySequence("A"))
+        answer_only_button.setToolTip(_("Shortcut key: %s" % "A"))
         self.bbox.addButton(answer_only_button, QDialogButtonBox.ActionRole)
         self._show_only_answer = self.mw.col.conf.get("previewOnlyAnswer", False)
         answer_only_button.setChecked(self._show_only_answer)
