@@ -35,7 +35,7 @@ class Previewer(QDialog):
     _card_changed = False
     _last_render: Union[int, float] = 0
     _timer = None
-    _show_both_sides = False
+    _show_only_answer = False
 
     def __init__(self, parent: QWidget, mw: AnkiQt, on_close: Callable[[], None]):
         super().__init__(None, Qt.Window)
@@ -80,13 +80,13 @@ class Previewer(QDialog):
         self._replay.setToolTip(_("Shortcut key: %s" % "R"))
         qconnect(self._replay.clicked, self._on_replay_audio)
 
-        both_sides_button = QCheckBox(_("Show Both Sides"))
-        both_sides_button.setShortcut(QKeySequence("B"))
-        both_sides_button.setToolTip(_("Shortcut key: %s" % "B"))
-        self.bbox.addButton(both_sides_button, QDialogButtonBox.ActionRole)
-        self._show_both_sides = self.mw.col.conf.get("previewBothSides", False)
-        both_sides_button.setChecked(self._show_both_sides)
-        qconnect(both_sides_button.toggled, self._on_show_both_sides)
+        answer_only_button = QCheckBox(_("Answer Side Only"))
+        answer_only_button.setShortcut(QKeySequence("B"))
+        answer_only_button.setToolTip(_("Shortcut key: %s" % "B"))
+        self.bbox.addButton(answer_only_button, QDialogButtonBox.ActionRole)
+        self._show_only_answer = self.mw.col.conf.get("previewOnlyAnswer", False)
+        answer_only_button.setChecked(self._show_only_answer)
+        qconnect(answer_only_button.toggled, self._on_show_only_answer)
 
         self.vbox.addWidget(self.bbox)
         self.setLayout(self.vbox)
@@ -163,7 +163,7 @@ class Previewer(QDialog):
             bodyclass = ""
             self._last_state = None
         else:
-            if self._show_both_sides:
+            if self._show_only_answer:
                 self._state = "answer"
             elif self._card_changed:
                 self._state = "question"
@@ -184,7 +184,7 @@ class Previewer(QDialog):
             bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
 
             if c.autoplay():
-                if self._show_both_sides:
+                if self._show_only_answer:
                     # if we're showing both sides at once, remove any audio
                     # from the answer that's appeared on the question already
                     question_audio = c.question_av_tags()
@@ -206,9 +206,9 @@ class Previewer(QDialog):
         self._web.eval("{}({},'{}');".format(func, json.dumps(txt), bodyclass))
         self._card_changed = False
 
-    def _on_show_both_sides(self, toggle):
-        self._show_both_sides = toggle
-        self.mw.col.conf["previewBothSides"] = toggle
+    def _on_show_only_answer(self, toggle):
+        self._show_only_answer = toggle
+        self.mw.col.conf["previewOnlyAnswer"] = toggle
         self.mw.col.setMod()
         if self._state == "answer" and not toggle:
             self._state = "question"
@@ -249,7 +249,7 @@ class MultiCardPreviewer(Previewer):
         qconnect(self._next.clicked, self._on_next)
 
     def _on_prev(self):
-        if self._state == "answer" and not self._show_both_sides:
+        if self._state == "answer" and not self._show_only_answer:
             self._state = "question"
             self.render_card()
         else:
@@ -275,7 +275,7 @@ class MultiCardPreviewer(Previewer):
         self._next.setEnabled(self._should_enable_next())
 
     def _should_enable_prev(self):
-        return self._state == "answer" and not self._show_both_sides
+        return self._state == "answer" and not self._show_only_answer
 
     def _should_enable_next(self):
         return self._state == "question"
