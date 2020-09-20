@@ -621,7 +621,7 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
             else:
                 # user deleted final step; use dummy value
                 delay = 1
-        return delay * 60
+        return int(delay * 60)
 
     def _delayForRepeatingGrade(self, conf: QueueConfig, left: int) -> Any:
         # halfway between last and next
