@@ -14,7 +14,8 @@ pub use crate::backend_proto::{
     DeckConfigInner,
 };
 pub use schema11::{DeckConfSchema11, NewCardOrderSchema11};
-pub const INITIAL_EASE_FACTOR: u16 = 2500;
+/// Old deck config and cards table store 250% as 2500.
+pub const INITIAL_EASE_FACTOR_THOUSANDS: u16 = 2500;
 
 mod schema11;
 

@@ -4,7 +4,7 @@
 use crate::{
     card::{Card, CardID, CardQueue, CardType},
     collection::Collection,
-    deckconf::INITIAL_EASE_FACTOR,
+    deckconf::INITIAL_EASE_FACTOR_THOUSANDS,
     err::Result,
 };
 use rand::distributions::{Distribution, Uniform};
@@ -19,7 +19,7 @@ impl Card {
         if self.ease_factor == 0 {
             // unlike the old Python code, we leave the ease factor alone
             // if it's already set
-            self.ease_factor = INITIAL_EASE_FACTOR;
+            self.ease_factor = INITIAL_EASE_FACTOR_THOUSANDS;
         }
     }
 }
