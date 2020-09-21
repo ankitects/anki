@@ -1,6 +1,13 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+/// The minimum schema version we can open.
+pub(super) const SCHEMA_MIN_VERSION: u8 = 11;
+/// The version new files are initially created with.
+pub(super) const SCHEMA_STARTING_VERSION: u8 = 11;
+/// The maximum schema version we can open.
+pub(super) const SCHEMA_MAX_VERSION: u8 = 16;
+
 use super::SqliteStorage;
 use crate::err::Result;
 
@@ -19,6 +26,10 @@ impl SqliteStorage {
             self.upgrade_notetypes_to_schema15()?;
             self.upgrade_decks_to_schema15(server)?;
             self.upgrade_deck_conf_to_schema15()?;
+        }
+        if ver < 16 {
+            self.upgrade_deck_conf_to_schema16(server)?;
+            self.db.execute_batch("update col set ver = 16")?;
         }
 
         Ok(())
