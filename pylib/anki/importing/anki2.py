@@ -82,9 +82,6 @@ class Anki2Importer(Importer):
         ):
             self._notes[guid] = (id, mod, mid)
             existing[id] = True
-        # we may need to rewrite the guid if the model schemas don't match,
-        # so we need to keep track of the changes for the card import stage
-        self._changedGuids: Dict[str, bool] = {}
         # we ignore updates to changed schemas. we need to note the ignored
         # guids, so we avoid importing invalid cards
         self._ignoredGuids: Dict[str, bool] = {}
@@ -315,8 +312,6 @@ class Anki2Importer(Importer):
             "select f.guid, f.mid, c.* from cards c, notes f " "where c.nid = f.id"
         ):
             guid = card[0]
-            if guid in self._changedGuids:
-                guid = self._changedGuids[guid]
             if guid in self._ignoredGuids:
                 continue
             # does the card's note exist in dst col?
