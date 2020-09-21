@@ -152,7 +152,11 @@ impl Card {
     pub(crate) fn restore_queue_after_bury_or_suspend(&mut self) {
         self.queue = match self.ctype {
             CardType::Learn | CardType::Relearn => {
-                let original_due = if self.odue > 0 { self.odue } else { self.due };
+                let original_due = if self.original_due > 0 {
+                    self.original_due
+                } else {
+                    self.due
+                };
                 if original_due > 1_000_000_000 {
                     // previous interval was in seconds
                     CardQueue::Learn

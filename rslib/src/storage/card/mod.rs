@@ -4,7 +4,7 @@
 use crate::{
     card::{Card, CardID, CardQueue, CardType},
     deckconf::DeckConfID,
-    decks::{Deck, DeckID, DeckKind},
+    decks::{DeckID, DeckKind},
     err::Result,
     notes::NoteID,
     timestamp::{TimestampMillis, TimestampSecs},
@@ -281,7 +281,6 @@ impl super::SqliteStorage {
         Ok(())
     }
 
-
     /// Fix cards with low eases due to schema 15 bug.
     /// Deck configs were defaulting to 2.5% ease, which was capped to
     /// 130% when the deck options were edited for the first time.
@@ -313,7 +312,6 @@ impl super::SqliteStorage {
 
         Ok(())
     }
-
 }
 
 #[cfg(test)]
