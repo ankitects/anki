@@ -11,6 +11,7 @@ use crate::{
     notetype::NoteTypeID,
     text::{matches_wildcard, text_to_re},
     text::{normalize_to_nfc, strip_html_preserving_image_filenames, without_combining},
+    timestamp::TimestampSecs,
 };
 use std::{borrow::Cow, fmt::Write};
 
@@ -281,13 +282,13 @@ impl SqlWriter<'_> {
                 self.sql,
                 "(
     (c.queue in ({rev},{daylrn}) and c.due <= {today}) or
-    (c.queue = {lrn} and c.due <= {daycutoff})
+    (c.queue = {lrn} and c.due <= {learncutoff})
     )",
                 rev = CardQueue::Review as i8,
                 daylrn = CardQueue::DayLearn as i8,
                 today = timing.days_elapsed,
                 lrn = CardQueue::Learn as i8,
-                daycutoff = timing.next_day_at,
+                learncutoff = TimestampSecs::now().0 + (self.col.learn_ahead_secs() as i64),
             ),
             StateKind::UserBuried => write!(self.sql, "c.queue = {}", CardQueue::UserBuried as i8),
             StateKind::SchedBuried => {
