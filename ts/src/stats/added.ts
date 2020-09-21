@@ -7,7 +7,7 @@
  */
 
 import pb from "../backend/proto";
-import { extent, histogram, sum, mean } from "d3-array";
+import { extent, histogram, sum } from "d3-array";
 import { scaleLinear, scaleSequential } from "d3-scale";
 import { HistogramData } from "./histogram-graph";
 import { interpolateBlues } from "d3-scale-chromatic";
@@ -74,7 +74,8 @@ export function buildHistogram(
     ).domain([xMax!, xMin!]);
 
     const totalInPeriod = sum(bins, (bin) => bin.length);
-    const cardsPerDay = Math.round(mean(bins, (bin) => bin.length) ?? 0);
+    const periodDays = Math.abs(xMin!);
+    const cardsPerDay = Math.round(totalInPeriod / periodDays);
     const tableData = [
         {
             label: i18n.tr(i18n.TR.STATISTICS_TOTAL),
