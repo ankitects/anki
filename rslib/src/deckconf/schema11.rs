@@ -237,7 +237,7 @@ impl From<DeckConfSchema11> for DeckConf {
                 reviews_per_day: c.rev.per_day,
                 bury_new: c.new.bury,
                 bury_reviews: c.rev.bury,
-                initial_ease: (c.new.initial_factor as f32) / 10.0,
+                initial_ease: (c.new.initial_factor as f32) / 1000.0,
                 easy_multiplier: c.rev.ease4,
                 hard_multiplier: c.rev.hard_factor,
                 lapse_multiplier: c.lapse.mult,
@@ -298,7 +298,7 @@ impl From<DeckConf> for DeckConfSchema11 {
             new: NewConfSchema11 {
                 bury: i.bury_new,
                 delays: i.learn_steps,
-                initial_factor: (i.initial_ease * 10.0) as u16,
+                initial_factor: (i.initial_ease * 1000.0) as u16,
                 ints: NewCardIntervals {
                     good: i.graduating_interval_good as u16,
                     easy: i.graduating_interval_easy as u16,
