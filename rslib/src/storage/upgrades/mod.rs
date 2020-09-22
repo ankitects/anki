@@ -38,7 +38,7 @@ impl SqliteStorage {
     pub(super) fn downgrade_to_schema_11(&self) -> Result<()> {
         self.begin_trx()?;
 
-        self.downgrade_deck_conf_from_schema15()?;
+        self.downgrade_deck_conf_from_schema16()?;
         self.downgrade_decks_from_schema15()?;
         self.downgrade_notetypes_from_schema15()?;
         self.downgrade_config_from_schema14()?;
