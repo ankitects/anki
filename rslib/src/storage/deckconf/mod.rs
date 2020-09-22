@@ -190,7 +190,7 @@ impl SqliteStorage {
 
     // schema 15->11
 
-    pub(super) fn downgrade_deck_conf_from_schema15(&self) -> Result<()> {
+    pub(super) fn downgrade_deck_conf_from_schema16(&self) -> Result<()> {
         let allconf = self.all_deck_config()?;
         let confmap: HashMap<DeckConfID, DeckConfSchema11> = allconf
             .into_iter()
