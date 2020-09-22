@@ -48,9 +48,6 @@ function _updateQA(html, fadeTime, onupdate, onshown) {
         }
         _runHook(onUpdateHook);
 
-        // don't allow drags of images, which cause them to be deleted
-        $("img").attr("draggable", "false");
-
         // render mathjax
         MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
 
