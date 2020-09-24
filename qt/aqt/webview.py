@@ -266,7 +266,12 @@ class AnkiWebView(QWebEngineView):
             w = w.parent()
 
     def onCopy(self):
-        self.triggerPageAction(QWebEnginePage.Copy)
+        if not self.selectedText():
+            ctx = self._page.contextMenuData()
+            if ctx and ctx.mediaType() == QWebEngineContextMenuData.MediaTypeImage:
+                self.triggerPageAction(QWebEnginePage.CopyImageToClipboard)
+        else:
+            self.triggerPageAction(QWebEnginePage.Copy)
 
     def onCut(self):
         self.triggerPageAction(QWebEnginePage.Cut)
