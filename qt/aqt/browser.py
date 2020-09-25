@@ -877,6 +877,7 @@ QTableView {{ gridline-color: {grid} }}
         if not show:
             self.editor.setNote(None)
             self.singleCard = False
+            self._renderPreview()
         else:
             self.editor.setNote(self.card.note(reload=True), focusTo=self.focusTo)
             self.focusTo = None
