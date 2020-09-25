@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import html
+import re
 import time
 from dataclasses import dataclass
 from enum import Enum
@@ -1219,7 +1220,7 @@ QTableView {{ gridline-color: {grid} }}
                 if c % 2 == 0:
                     txt += a + ":"
                 else:
-                    txt += a
+                    txt += re.sub(r"(\*|%|_)", r"\\\1", a)
                     for chr in " 　()":
                         if chr in txt:
                             txt = '"%s"' % txt
