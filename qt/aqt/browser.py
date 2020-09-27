@@ -1679,6 +1679,9 @@ where id in %s"""
     def onSetFlag(self, n):
         if not self.card:
             return
+        self.editor.saveNow(lambda: self._on_set_flag(n))
+
+    def _on_set_flag(self, n: int):
         # flag needs toggling off?
         if n == self.card.userFlag():
             n = 0
