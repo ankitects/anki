@@ -1693,6 +1693,9 @@ update cards set usn=?, mod=?, did=? where id in """
     def onSetFlag(self, n):
         if not self.card:
             return
+        self.editor.saveNow(lambda: self._on_set_flag(n))
+
+    def _on_set_flag(self, n: int):
         # flag needs toggling off?
         if n == self.card.userFlag():
             n = 0
