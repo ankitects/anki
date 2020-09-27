@@ -300,6 +300,7 @@ class AnkiWebView(QWebEngineView):
         self._pendingActions = []
         self._domDone = True
         self._queueAction("setHtml", html)
+        self.set_open_links_externally(True)
 
     def _setHtml(self, html: str) -> None:
         app = QApplication.instance()
