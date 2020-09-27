@@ -604,7 +604,9 @@ table.review-log {{ {revlog_style} }}
             c.nid,
         )
         # and finally, update daily counts
-        n = 1 if c.queue in (3, 4) else c.queue
+        n = c.queue
+        if c.queue in (QUEUE_TYPE_DAY_LEARN_RELEARN, QUEUE_TYPE_PREVIEW):
+            n = QUEUE_TYPE_LRN
         type = ("new", "lrn", "rev")[n]
         self.sched._updateStats(c, type, -1)
         self.sched.reps -= 1
