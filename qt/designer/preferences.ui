@@ -477,7 +477,7 @@
        <item>
         <widget class="QLabel" name="label_9">
          <property name="text">
-          <string>&lt;b&gt;Backups&lt;/b&gt;&lt;br&gt;Anki will create a backup of your collection each time it is closed or synchronized.</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Backups&lt;/span&gt;&lt;br/&gt;Anki will create a backup of your collection each time it is closed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
