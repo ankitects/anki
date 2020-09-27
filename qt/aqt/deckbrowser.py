@@ -316,7 +316,7 @@ where id > ?""",
     drawLinks = [
         ["", "shared", _("Get Shared")],
         ["", "create", _("Create Deck")],
-        ["Ctrl+I", "import", _("Import File")],  # Ctrl+I works from menu
+        ["Ctrl+Shift+I", "import", _("Import File")],
     ]
 
     def _drawButtons(self):
