@@ -13,6 +13,8 @@ use crate::{
     text::{normalize_to_nfc, strip_html_preserving_image_filenames, without_combining},
     timestamp::TimestampSecs,
 };
+use lazy_static::lazy_static;
+use regex::Regex;
 use std::{borrow::Cow, fmt::Write};
 
 pub(crate) struct SqlWriter<'a> {
@@ -388,12 +390,15 @@ impl SqlWriter<'_> {
         }
 
         let cmp;
+        let cmp_trailer;
         if is_re {
             cmp = "regexp";
+            cmp_trailer = "";
             self.args.push(format!("(?i){}", val));
         } else {
             cmp = "like";
-            self.args.push(val.replace('*', "%"));
+            cmp_trailer = "escape '\\'";
+            self.args.push(convert_glob_char(val).into())
         }
 
         let arg_idx = self.args.len();
@@ -401,10 +406,11 @@ impl SqlWriter<'_> {
             .iter()
             .map(|(ntid, ord)| {
                 format!(
-                    "(n.mid = {mid} and field_at_index(n.flds, {ord}) {cmp} ?{n})",
+                    "(n.mid = {mid} and field_at_index(n.flds, {ord}) {cmp} ?{n} {cmp_trailer})",
                     mid = ntid,
                     ord = ord.unwrap_or_default(),
                     cmp = cmp,
+                    cmp_trailer = cmp_trailer,
                     n = arg_idx
                 )
             })
@@ -450,6 +456,14 @@ impl SqlWriter<'_> {
         let re = text_to_re(word);
         self.write_regex(&format!(r"\b{}\b", re))
     }
+}
+
+/// Replace * with %, leaving \* alone.
+fn convert_glob_char(val: &str) -> Cow<str> {
+    lazy_static! {
+        static ref RE: Regex = Regex::new(r"(^|[^\\])\*").unwrap();
+    }
+    RE.replace_all(val, "${1}%")
 }
 
 /// Convert a string with _, % or * characters into a regex.
@@ -592,10 +606,10 @@ mod test {
             s(ctx, "front:te*st"),
             (
                 concat!(
-                    "(((n.mid = 1581236385344 and field_at_index(n.flds, 0) like ?1) or ",
-                    "(n.mid = 1581236385345 and field_at_index(n.flds, 0) like ?1) or ",
-                    "(n.mid = 1581236385346 and field_at_index(n.flds, 0) like ?1) or ",
-                    "(n.mid = 1581236385347 and field_at_index(n.flds, 0) like ?1)))"
+                    "(((n.mid = 1581236385344 and field_at_index(n.flds, 0) like ?1 escape '\\') or ",
+                    "(n.mid = 1581236385345 and field_at_index(n.flds, 0) like ?1 escape '\\') or ",
+                    "(n.mid = 1581236385346 and field_at_index(n.flds, 0) like ?1 escape '\\') or ",
+                    "(n.mid = 1581236385347 and field_at_index(n.flds, 0) like ?1 escape '\\')))"
                 )
                 .into(),
                 vec!["te%st".into()]
@@ -783,5 +797,13 @@ mod test {
             Node::Group(parse("test nid:1").unwrap()).required_table(),
             RequiredTable::Notes
         );
+    }
+
+    #[test]
+    fn convert_glob() {
+        assert_eq!(&convert_glob_char("foo*bar"), "foo%bar");
+        assert_eq!(&convert_glob_char("*bar"), "%bar");
+        assert_eq!(&convert_glob_char("\n*bar"), "\n%bar");
+        assert_eq!(&convert_glob_char(r"\*bar"), r"\*bar");
     }
 }
