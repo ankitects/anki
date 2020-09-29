@@ -164,7 +164,7 @@ impl SqlWriter<'_> {
 
     fn write_unqualified(&mut self, text: &str) {
         // implicitly wrap in %
-        let text = format!("%{}%", text);
+        let text = format!("%{}%", convert_glob_char(text));
         self.args.push(text);
         write!(
             self.sql,
@@ -591,15 +591,16 @@ mod test {
 
         // unqualified search
         assert_eq!(
-            s(ctx, "test"),
+            s(ctx, "te*st"),
             (
                 "((n.sfld like ?1 escape '\\' or n.flds like ?1 escape '\\'))".into(),
-                vec!["%test%".into()]
+                vec!["%te%st%".into()]
             )
         );
         assert_eq!(s(ctx, "te%st").1, vec!["%te%st%".to_string()]);
         // user should be able to escape sql wildcards
         assert_eq!(s(ctx, r#"te\%s\_t"#).1, vec!["%te\\%s\\_t%".to_string()]);
+        assert_eq!(s(ctx, r#"te\*s\_t"#).1, vec!["%te\\*s\\_t%".to_string()]);
 
         // qualified search
         assert_eq!(
