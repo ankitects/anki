@@ -96,7 +96,7 @@ export function renderHours(
         });
 
     const cappedRange = scaleLinear().range([0.1, 0.8]);
-    const colour = scaleSequential((n) => interpolateBlues(cappedRange(n))).domain([
+    const colour = scaleSequential((n) => interpolateBlues(cappedRange(n)!)).domain([
         0,
         yMax,
     ]);
@@ -125,7 +125,7 @@ export function renderHours(
             .transition(trans)
             .attr("x", (d: Hour) => x(d.hour.toString())!)
             .attr("y", (d: Hour) => y(d.totalCount)!)
-            .attr("height", (d: Hour) => y(0) - y(d.totalCount))
+            .attr("height", (d: Hour) => y(0)! - y(d.totalCount)!)
             .attr("fill", (d: Hour) => colour(d.totalCount!));
     };
 
@@ -138,14 +138,14 @@ export function renderHours(
                     .append("rect")
                     .attr("rx", 1)
                     .attr("x", (d: Hour) => x(d.hour.toString())!)
-                    .attr("y", y(0))
+                    .attr("y", y(0)!)
                     .attr("height", 0)
                     // .attr("opacity", 0.7)
                     .call(updateBar),
             (update) => update.call(updateBar),
             (remove) =>
                 remove.call((remove) =>
-                    remove.transition(trans).attr("height", 0).attr("y", y(0))
+                    remove.transition(trans).attr("height", 0).attr("y", y(0)!)
                 )
         );
 
@@ -171,7 +171,7 @@ export function renderHours(
                 .y0(bounds.height - bounds.marginBottom)
                 .y1((d: Hour) => {
                     const correctRatio = d.correctCount! / d.totalCount!;
-                    return yArea(isNaN(correctRatio) ? 0 : correctRatio);
+                    return yArea(isNaN(correctRatio) ? 0 : correctRatio)!;
                 })
         );
 
@@ -196,7 +196,7 @@ export function renderHours(
         .attr("x", (d: Hour) => x(d.hour.toString())!)
         .attr("y", () => y(yMax)!)
         .attr("width", x.bandwidth())
-        .attr("height", () => y(0) - y(yMax!))
+        .attr("height", () => y(0)! - y(yMax!)!)
         .on("mousemove", function (this: any, d: Hour) {
             const [x, y] = mouse(document.body);
             showTooltip(tooltipText(d), x, y);

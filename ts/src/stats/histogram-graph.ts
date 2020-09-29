@@ -76,7 +76,7 @@ export function histogramGraph(
     // x bars
 
     function barWidth(d: any): number {
-        const width = Math.max(0, x(d.x1) - x(d.x0) - 1);
+        const width = Math.max(0, x(d.x1)! - x(d.x0)! - 1);
         return width ? width : 0;
     }
 
@@ -86,7 +86,7 @@ export function histogramGraph(
             .transition(trans)
             .attr("x", (d: any) => x(d.x0))
             .attr("y", (d: any) => y(binValue(d))!)
-            .attr("height", (d: any) => y(0) - y(binValue(d)))
+            .attr("height", (d: any) => y(0)! - y(binValue(d))!)
             .attr("fill", (d) => data.colourScale(d.x1));
     };
 
@@ -98,14 +98,14 @@ export function histogramGraph(
                 enter
                     .append("rect")
                     .attr("rx", 1)
-                    .attr("x", (d: any) => x(d.x0))
-                    .attr("y", y(0))
+                    .attr("x", (d: any) => x(d.x0)!)
+                    .attr("y", y(0)!)
                     .attr("height", 0)
                     .call(updateBar),
             (update) => update.call(updateBar),
             (remove) =>
                 remove.call((remove) =>
-                    remove.transition(trans).attr("height", 0).attr("y", y(0))
+                    remove.transition(trans).attr("height", 0).attr("y", y(0)!)
                 )
         );
 
@@ -133,13 +133,13 @@ export function histogramGraph(
                     .curve(curveBasis)
                     .x((d, idx) => {
                         if (idx === 0) {
-                            return x(data.bins[0].x0!);
+                            return x(data.bins[0].x0!)!;
                         } else {
-                            return x(data.bins[idx - 1].x1!);
+                            return x(data.bins[idx - 1].x1!)!;
                         }
                     })
                     .y0(bounds.height - bounds.marginBottom)
-                    .y1((d: any) => yAreaScale(d)) as any
+                    .y1((d: any) => yAreaScale(d)!) as any
             );
     }
 
@@ -148,10 +148,10 @@ export function histogramGraph(
         .selectAll("rect")
         .data(data.bins)
         .join("rect")
-        .attr("x", (d: any) => x(d.x0))
-        .attr("y", () => y(yMax!))
+        .attr("x", (d: any) => x(d.x0)!)
+        .attr("y", () => y(yMax!)!)
         .attr("width", barWidth)
-        .attr("height", () => y(0) - y(yMax!))
+        .attr("height", () => y(0)! - y(yMax!)!)
         .on("mousemove", function (this: any, d: any, idx) {
             const [x, y] = mouse(document.body);
             const pct = data.showArea ? (areaData[idx + 1] / data.total) * 100 : 0;

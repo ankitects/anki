@@ -204,7 +204,7 @@ export function renderButtons(
                 (d: Datum) => xGroup(d.group)! + xButton(d.buttonNum.toString())!
             )
             .attr("y", (d: Datum) => y(d.count)!)
-            .attr("height", (d: Datum) => y(0) - y(d.count))
+            .attr("height", (d: Datum) => y(0)! - y(d.count)!)
             .attr("fill", (d: Datum) => colour(d.buttonNum));
     };
 
@@ -221,13 +221,13 @@ export function renderButtons(
                         (d: Datum) =>
                             xGroup(d.group)! + xButton(d.buttonNum.toString())!
                     )
-                    .attr("y", y(0))
+                    .attr("y", y(0)!)
                     .attr("height", 0)
                     .call(updateBar),
             (update) => update.call(updateBar),
             (remove) =>
                 remove.call((remove) =>
-                    remove.transition(trans).attr("height", 0).attr("y", y(0))
+                    remove.transition(trans).attr("height", 0).attr("y", y(0)!)
                 )
         );
 
@@ -248,9 +248,9 @@ export function renderButtons(
         .data(data)
         .join("rect")
         .attr("x", (d: Datum) => xGroup(d.group)! + xButton(d.buttonNum.toString())!)
-        .attr("y", () => y(yMax!))
+        .attr("y", () => y(yMax!)!)
         .attr("width", xButton.bandwidth())
-        .attr("height", () => y(0) - y(yMax!))
+        .attr("height", () => y(0)! - y(yMax!)!)
         .on("mousemove", function (this: any, d: Datum) {
             const [x, y] = mouse(document.body);
             showTooltip(tooltipText(d), x, y);
