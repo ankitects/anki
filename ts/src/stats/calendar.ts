@@ -118,7 +118,7 @@ export function renderCalendar(
     }
     const data = Array.from(dayMap.values());
     const cappedRange = scaleLinear().range([0.2, nightMode ? 0.8 : 1]);
-    const blues = scaleSequential((n) => interpolateBlues(cappedRange(n))).domain([
+    const blues = scaleSequential((n) => interpolateBlues(cappedRange(n)!)).domain([
         0,
         maxCount,
     ]);
@@ -145,10 +145,10 @@ export function renderCalendar(
         .join("rect")
         .attr("fill", emptyColour)
         .attr("width", (d) => {
-            return x(d.weekNumber + 1) - x(d.weekNumber) - 2;
+            return x(d.weekNumber + 1)! - x(d.weekNumber)! - 2;
         })
         .attr("height", height - 2)
-        .attr("x", (d) => x(d.weekNumber))
+        .attr("x", (d) => x(d.weekNumber)!)
         .attr("y", (d) => bounds.marginTop + d.weekDay * height)
         .on("mousemove", function (this: any, d: any) {
             const [x, y] = mouse(document.body);
@@ -161,7 +161,7 @@ export function renderCalendar(
             if (d.count === 0) {
                 return emptyColour;
             } else {
-                return blues(d.count);
+                return blues(d.count)!;
             }
         });
 }
