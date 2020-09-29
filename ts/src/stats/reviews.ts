@@ -187,25 +187,25 @@ export function renderReviews(
     // x bars
 
     function barWidth(d: any): number {
-        const width = Math.max(0, x(d.x1) - x(d.x0) - 1);
+        const width = Math.max(0, x(d.x1)! - x(d.x0)! - 1);
         return width ? width : 0;
     }
 
     const cappedRange = scaleLinear().range([0.3, 0.5]);
     const shiftedRange = scaleLinear().range([0.4, 0.7]);
     const darkerGreens = scaleSequential((n) =>
-        interpolateGreens(shiftedRange(n))
+        interpolateGreens(shiftedRange(n)!)
     ).domain(x.domain() as any);
     const lighterGreens = scaleSequential((n) =>
-        interpolateGreens(cappedRange(n))
+        interpolateGreens(cappedRange(n)!)
     ).domain(x.domain() as any);
-    const blues = scaleSequential((n) => interpolateBlues(cappedRange(n))).domain(
+    const blues = scaleSequential((n) => interpolateBlues(cappedRange(n)!)).domain(
         x.domain() as any
     );
-    const reds = scaleSequential((n) => interpolateReds(cappedRange(n))).domain(
+    const reds = scaleSequential((n) => interpolateReds(cappedRange(n)!)).domain(
         x.domain() as any
     );
-    const oranges = scaleSequential((n) => interpolateOranges(cappedRange(n))).domain(
+    const oranges = scaleSequential((n) => interpolateOranges(cappedRange(n)!)).domain(
         x.domain() as any
     );
 
@@ -265,7 +265,7 @@ export function renderReviews(
             .transition(trans)
             .attr("x", (d: any) => x(d.x0))
             .attr("y", (d: any) => y(cumulativeBinValue(d, idx))!)
-            .attr("height", (d: any) => y(0) - y(cumulativeBinValue(d, idx)))
+            .attr("height", (d: any) => y(0)! - y(cumulativeBinValue(d, idx))!)
             .attr("fill", (d: any) => {
                 switch (idx) {
                     case 0:
@@ -291,14 +291,14 @@ export function renderReviews(
                     enter
                         .append("rect")
                         .attr("rx", 1)
-                        .attr("x", (d: any) => x(d.x0))
-                        .attr("y", y(0))
+                        .attr("x", (d: any) => x(d.x0)!)
+                        .attr("y", y(0)!)
                         .attr("height", 0)
                         .call((d) => updateBar(d, barNum)),
                 (update) => update.call((d) => updateBar(d, barNum)),
                 (remove) =>
                     remove.call((remove) =>
-                        remove.transition(trans).attr("height", 0).attr("y", y(0))
+                        remove.transition(trans).attr("height", 0).attr("y", y(0)!)
                     )
             );
     }
@@ -329,13 +329,13 @@ export function renderReviews(
                     .curve(curveBasis)
                     .x((d, idx) => {
                         if (idx === 0) {
-                            return x(bins[0].x0!);
+                            return x(bins[0].x0!)!;
                         } else {
-                            return x(bins[idx - 1].x1!);
+                            return x(bins[idx - 1].x1!)!;
                         }
                     })
                     .y0(bounds.height - bounds.marginBottom)
-                    .y1((d: any) => yAreaScale(d)) as any
+                    .y1((d: any) => yAreaScale(d)!) as any
             );
     }
 
@@ -344,10 +344,10 @@ export function renderReviews(
         .selectAll("rect")
         .data(bins)
         .join("rect")
-        .attr("x", (d: any) => x(d.x0))
-        .attr("y", () => y(yMax!))
+        .attr("x", (d: any) => x(d.x0)!)
+        .attr("y", () => y(yMax!)!)
         .attr("width", barWidth)
-        .attr("height", () => y(0) - y(yMax!))
+        .attr("height", () => y(0)! - y(yMax!)!)
         .on("mousemove", function (this: any, d: any, idx) {
             const [x, y] = mouse(document.body);
             showTooltip(tooltipText(d, areaData[idx + 1]), x, y);
