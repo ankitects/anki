@@ -117,8 +117,10 @@ body {
 
 .graph .area {
     pointer-events: none;
-    fill: #00000008;
-    stroke: #00000015;
+    fill: #000000;
+    stroke: #000000;
+    fill-opacity: 0.03;
+    stroke-opacity: 0.08;
 }
 
 .hoverzone rect {
@@ -189,8 +191,10 @@ body.night-mode {
         color: $night-fg;
     }
     .graph .area {
-        fill: #ffffff15;
-        stroke: #00000030;
+        fill: #ffffff;
+        stroke: #000000;
+        fill-opacity: 0.08;
+        stroke-opacity: 0.18;
     }
     .no-data rect {
         fill: $night-bg;
