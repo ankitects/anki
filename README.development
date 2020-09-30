@@ -153,6 +153,60 @@ User-contributed instructions for building using Cygwin:
     1. Do not use `bash run` because it my call for Windows Subsystem for Linux
     1. Do not use any Cygwin terminal as `mintty.exe` because the `rust lang` compiler does not work with them
 
+Windows users (using PyCharm with requirements.txt)
+----------
+
+- Python and PyCharm are a given if you are choosing this path.
+
+- install Git and Git Bash (this delivers curl too)
+
+- to default PyCharm Terminal to Git Bash:
+	- this isn't required, you can just use Git Bash externally to run Anki and the commands below, if you prefer
+    - open Anki project in PyCharm
+	- open File > Settings
+	- navigate to Tools > Terminal
+	- set Shell path to: "C:\Program Files\Git\bin\bash.exe" (or whereever you installed git and git bash)
+	- restart PyCharm with Anki project
+
+- open Terminal (Git Bash) and run these two commands:
+    - pip install -r requirements.txt
+    - pipwin install pyaudio
+
+- this isn't really required unless you want to use mpv (Anki will revert to mplayer)
+	- open an elevated Git Bash (elevated to "Run as adminstrator")
+	- choco install mpv
+
+- install nodejs (npm installs with nodejs)
+
+- use the Visual Studio Community installer to install the Individual component:
+	- C++ Clang Compiler for Windows (10.0.0)
+
+- check the protoc v3 releases site listed further up this document ("Building from source") for latest release
+	- the release at the time of writing these notes is this one (notice, it's the win64 version not python):
+		https://github.com/protocolbuffers/protobuf/releases/download/v3.13.0/protoc-3.13.0-win64.zip
+	- extract bin\protoc.exe to C:\Program Files\Git\usr\bin (or whereever you installed git and git bash above)
+
+- rustup (as in "Building from source" further up this document)
+
+- go to http://repo.msys2.org/msys/x86_64/
+	- download latest rsync-v.v.v-v-x86_64.pkg.tar.xz  where v is replaced with version numbers
+	- this is the file at the time of writing these notes:
+		http://repo.msys2.org/msys/x86_64/rsync-3.1.3-1-x86_64.pkg.tar.xz
+	- extract the tar, then extract usr\bin\rsync.ext to c:\Program Files\Git\usr\bin as for protoc.exe above
+
+- download msi and install Strawberry Perl from http://strawberryperl.com/
+    - this is the installer at the time of writing these notes:
+    	http://strawberryperl.com/download/5.32.0.1/strawberry-perl-5.32.0.1-64bit.msi
+
+- as "Building from source" tells you run:
+    - cargo install ripgrep
+
+Close PyCharm, if it's open. (this is mostly if you installed mpv while PyCharm was open)
+Open Anki project in PyCharm
+Open Terminal (it should be the Git Bash)
+type ./run
+watch the magic happen.
+
 Windows users (using PyCharm without requirements.txt)
 ----------
 
@@ -196,60 +250,6 @@ Windows users (using PyCharm without requirements.txt)
 - rustup (as in "Building from source" further up this document)
 
 - pip install python-gettext
-
-- go to http://repo.msys2.org/msys/x86_64/
-	- download latest rsync-v.v.v-v-x86_64.pkg.tar.xz  where v is replaced with version numbers
-	- this is the file at the time of writing these notes:
-		http://repo.msys2.org/msys/x86_64/rsync-3.1.3-1-x86_64.pkg.tar.xz
-	- extract the tar, then extract usr\bin\rsync.ext to c:\Program Files\Git\usr\bin as for protoc.exe above
-
-- download msi and install Strawberry Perl from http://strawberryperl.com/
-    - this is the installer at the time of writing these notes:
-    	http://strawberryperl.com/download/5.32.0.1/strawberry-perl-5.32.0.1-64bit.msi
-
-- as "Building from source" tells you run:
-    - cargo install ripgrep
-
-Close PyCharm, if it's open. (this is mostly if you installed mpv while PyCharm was open)
-Open Anki project in PyCharm
-Open Terminal (it should be the Git Bash)
-type ./run
-watch the magic happen.
-
-Windows users (using PyCharm with requirements.txt)
-----------
-
-- Python and PyCharm are a given if you are choosing this path.
-
-- install Git and Git Bash (this delivers curl too)
-
-- to default PyCharm Terminal to Git Bash:
-	- this isn't required, you can just use Git Bash externally to run Anki and the commands below, if you prefer
-    - open Anki project in PyCharm
-	- open File > Settings
-	- navigate to Tools > Terminal
-	- set Shell path to: "C:\Program Files\Git\bin\bash.exe" (or whereever you installed git and git bash)
-	- restart PyCharm with Anki project
-
-- open Terminal (Git Bash) and run these two commands:
-    - pip install -r requirements.txt
-    - pipwin install pyaudio
-
-- this isn't really required unless you want to use mpv (Anki will revert to mplayer)
-	- open an elevated Git Bash (elevated to "Run as adminstrator")
-	- choco install mpv
-
-- install nodejs (npm installs with nodejs)
-
-- use the Visual Studio Community installer to install the Individual component:
-	- C++ Clang Compiler for Windows (10.0.0)
-
-- check the protoc v3 releases site listed further up this document ("Building from source") for latest release
-	- the release at the time of writing these notes is this one (notice, it's the win64 version not python):
-		https://github.com/protocolbuffers/protobuf/releases/download/v3.13.0/protoc-3.13.0-win64.zip
-	- extract bin\protoc.exe to C:\Program Files\Git\usr\bin (or whereever you installed git and git bash above)
-
-- rustup (as in "Building from source" further up this document)
 
 - go to http://repo.msys2.org/msys/x86_64/
 	- download latest rsync-v.v.v-v-x86_64.pkg.tar.xz  where v is replaced with version numbers
