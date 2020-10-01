@@ -71,11 +71,48 @@ class Player(ABC):
         "Do any cleanup required at program termination. Optional."
 
 
+AUDIO_EXTENSIONS = {
+    "wav",
+    "mp3",
+    "ogg",
+    "flac",
+    "m4a",
+    "3gp",
+    "spx",
+    "oga",
+}
+
+
+def is_audio_file(fname: str) -> bool:
+    ext = fname.split(".")[-1].lower()
+    return ext in AUDIO_EXTENSIONS
+
+
 class SoundOrVideoPlayer(Player):  # pylint: disable=abstract-method
     default_rank = 0
 
     def rank_for_tag(self, tag: AVTag) -> Optional[int]:
         if isinstance(tag, SoundOrVideoTag):
+            return self.default_rank
+        else:
+            return None
+
+
+class SoundPlayer(Player):  # pylint: disable=abstract-method
+    default_rank = 0
+
+    def rank_for_tag(self, tag: AVTag) -> Optional[int]:
+        if isinstance(tag, SoundOrVideoTag) and is_audio_file(tag.filename):
+            return self.default_rank
+        else:
+            return None
+
+
+class VideoPlayer(Player):  # pylint: disable=abstract-method
+    default_rank = 0
+
+    def rank_for_tag(self, tag: AVTag) -> Optional[int]:
+        if isinstance(tag, SoundOrVideoTag) and not is_audio_file(tag.filename):
             return self.default_rank
         else:
             return None
@@ -247,7 +284,6 @@ class SimpleProcessPlayer(Player):  # pylint: disable=abstract-method
         self._process = subprocess.Popen(
             self.args + [tag.filename],
             env=self.env,
-            startupinfo=startup_info(),
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         )
@@ -290,7 +326,9 @@ class SimpleProcessPlayer(Player):  # pylint: disable=abstract-method
         cb()
 
 
-class SimpleMpvPlayer(SimpleProcessPlayer, SoundOrVideoPlayer):
+class SimpleMpvPlayer(SimpleProcessPlayer, VideoPlayer):
+    default_rank = 1
+
     args, env = _packagedCmd(
         [
             "mpv",
@@ -300,14 +338,13 @@ class SimpleMpvPlayer(SimpleProcessPlayer, SoundOrVideoPlayer):
             "--audio-display=no",
             "--keep-open=no",
             "--input-media-keys=no",
-            "--no-config",
+            "--autoload-files=no",
         ]
     )
 
     def __init__(self, taskman: TaskManager, base_folder: str) -> None:
         super().__init__(taskman)
-        conf_path = os.path.join(base_folder, "mpv.conf")
-        self.args += ["--include=" + conf_path]
+        self.args += ["--config-dir=" + base_folder]
 
 
 class SimpleMplayerPlayer(SimpleProcessPlayer, SoundOrVideoPlayer):
@@ -657,6 +694,10 @@ def setup_audio(taskman: TaskManager, base_folder: str) -> None:
 
     if mpvManager is not None:
         av_player.players.append(mpvManager)
+
+        if isWin:
+            mpvPlayer = SimpleMpvPlayer(taskman, base_folder)
+            av_player.players.append(mpvPlayer)
     else:
         mplayer = SimpleMplayerSlaveModePlayer(taskman)
         av_player.players.append(mplayer)
