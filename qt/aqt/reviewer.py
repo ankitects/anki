@@ -201,9 +201,7 @@ class Reviewer:
         self._drawFlag()
         self._drawMark()
         self._showAnswerButton()
-        # if we have a type answer field, focus main web
-        if self.typeCorrect:
-            self.mw.web.setFocus()
+        self.mw.web.setFocus()
         # user hook
         gui_hooks.reviewer_did_show_question(c)
 
@@ -242,6 +240,7 @@ class Reviewer:
         # render and update bottom
         self.web.eval("_showAnswer(%s);" % json.dumps(a))
         self._showEaseButtons()
+        self.mw.web.setFocus()
         # user hook
         gui_hooks.reviewer_did_show_answer(c)
 
@@ -574,8 +573,6 @@ time = %(time)d;
         )
 
     def _showAnswerButton(self) -> None:
-        if not self.typeCorrect:
-            self.bottom.web.setFocus()
         middle = """
 <span class=stattxt>%s</span><br>
 <button title="%s" id=ansbut onclick='pycmd("ans");'>%s</button>""" % (
@@ -596,7 +593,6 @@ time = %(time)d;
         self.bottom.web.adjustHeightToFit()
 
     def _showEaseButtons(self) -> None:
-        self.bottom.web.setFocus()
         middle = self._answerButtons()
         self.bottom.web.eval("showAnswer(%s);" % json.dumps(middle))
 
