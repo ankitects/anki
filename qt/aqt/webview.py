@@ -4,7 +4,6 @@
 
 import dataclasses
 import json
-import math
 import re
 import sys
 from typing import Any, Callable, List, Optional, Sequence, Tuple
@@ -580,12 +579,7 @@ body {{ zoom: {zoom}; background: {background}; direction: {lang_dir}; {font} }}
             mw.progress.timer(1000, mw.reset, False)
             return
 
-        scaleFactor = self.zoomFactor()
-        if scaleFactor == 1:
-            scaleFactor = mw.pm.uiScale()
-
-        height = math.ceil(qvar * scaleFactor)
-        self.setFixedHeight(height)
+        self.setFixedHeight(qvar)
 
     def set_bridge_command(self, func: Callable[[str], Any], context: Any) -> None:
         """Set a handler for pycmd() messages received from Javascript.
