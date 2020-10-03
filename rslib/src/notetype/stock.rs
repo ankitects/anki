@@ -34,6 +34,7 @@ pub fn all_stock_notetypes(i18n: &I18n) -> Vec<NoteType> {
         basic_optional_reverse(i18n),
         basic_typing(i18n),
         cloze(i18n),
+        basic_coding_task(i18n),
     ]
 }
 
@@ -103,6 +104,28 @@ pub(crate) fn basic_optional_reverse(i18n: &I18n) -> NoteType {
     nt.add_field(addrev.as_ref());
     let tmpl = &mut nt.templates[1].config;
     tmpl.q_format = format!("{{{{#{}}}}}{}{{{{/{}}}}}", addrev, tmpl.q_format, addrev);
+    nt.prepare_for_adding().unwrap();
+    nt
+}
+
+pub(crate) fn basic_coding_task(i18n: &I18n) -> NoteType {
+    let mut nt = NoteType::default();
+    nt.name = "Zak 2 Code".to_string();
+    let task_description = "Task";
+    let function_name = "Function Name";
+    let solution = "Solution";
+    let test_cases = "Test Cases (.tsv)";
+    nt.add_field(task_description);
+    nt.add_field(function_name);
+    nt.add_field(test_cases);
+    nt.add_field(solution);
+    let q_format = format!("{}\n\n{{{{code:{}}}}}", fieldref(task_description), solution);
+    let a_format = format!(
+        "{{{{{}}}}}\n\n<hr id=answer>\n\n{{{{code:{}}}}}",
+        solution,
+        solution
+    );
+    nt.add_template(i18n.tr(TR::NotetypesCard1Name), q_format, a_format);
     nt.prepare_for_adding().unwrap();
     nt
 }

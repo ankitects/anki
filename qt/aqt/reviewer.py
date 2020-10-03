@@ -18,6 +18,7 @@ from anki.cards import Card
 from anki.lang import _, ngettext
 from anki.utils import stripHTML
 from aqt import AnkiQt, gui_hooks
+from aqt.coderunner import CodeRunner, JavaRunner
 from aqt.qt import *
 from aqt.sound import av_player, getAudio, play_clicked_audio
 from aqt.theme import theme_manager
@@ -53,6 +54,7 @@ class Reviewer:
         self._recordedAudio: Optional[str] = None
         self.typeCorrect: str = None  # web init happens before this is set
         self.state: Optional[str] = None
+        self.codingQuestion = False
         self.bottom = BottomBar(mw, mw.bottomWeb)
         hooks.card_did_leech.append(self.onLeech)
 
@@ -238,6 +240,9 @@ class Reviewer:
             gui_hooks.reviewer_will_play_answer_sounds(c, sounds)
             av_player.play_tags(sounds)
         a = self._mungeQA(a)
+
+        #check question type is coding
+
         a = gui_hooks.card_will_show(a, c, "reviewAnswer")
         # render and update bottom
         self.web.eval("_showAnswer(%s);" % json.dumps(a))
@@ -348,12 +353,44 @@ class Reviewer:
     ##########################################################################
 
     typeAnsPat = r"\[\[type:(.+?)\]\]"
+    codeAnsPat = r"\[\[code:(.+?)\]\]"
 
     def typeAnsFilter(self, buf: str) -> str:
         if self.state == "question":
-            return self.typeAnsQuestionFilter(buf)
+            m = re.search(self.typeAnsPat, buf)
+            if m:
+                return self.typeAnsQuestionFilter(buf)
+            m = re.search(self.codeAnsPat, buf)
+            if m:
+                self.codingQuestion = True
+                return self.codingQuestionFilter(buf)
+            else:
+                return buf
         else:
             return self.typeAnsAnswerFilter(buf)
+
+    def codingQuestionFilter(self, buf: str) -> str:
+        m = re.search(self.codeAnsPat, buf)
+        fld = m.group(1)
+        testData = self.card.note()[self.card.model()["flds"][2]["name"]]
+        method = self.card.note()[self.card.model()["flds"][1]["name"]]
+        for f in self.card.model()["flds"]:
+            if f["name"] == fld:
+                self.typeCorrect = self.card.note()[f["name"]]
+                self.typeFont = f["font"]
+                self.typeSize = f["size"]
+                break
+        return re.sub(
+            self.codeAnsPat,
+            """
+<div>
+<label>Code:</label>
+<textarea id=typeans style="width: 400px; height: 400px; font-family: '%s'; font-size: %spx;">%s</textarea>
+</div>
+"""
+            % (self.typeFont, self.typeSize, JavaRunner.renderTemplate(method, testData)),
+            buf,
+            )
 
     def typeAnsQuestionFilter(self, buf: str) -> str:
         self.typeCorrect = None
@@ -418,25 +455,47 @@ Please run Tools>Empty Cards"""
         cor = cor.replace("\xa0", " ")
         cor = cor.strip()
         given = self.typedAnswer
-        # compare with typed answer
-        res = self.correct(given, cor, showBad=False)
-        # and update the type answer area
-        def repl(match):
-            # can't pass a string in directly, and can't use re.escape as it
-            # escapes too much
-            s = """
-<span style="font-family: '%s'; font-size: %spx">%s</span>""" % (
-                self.typeFont,
-                self.typeSize,
-                res,
-            )
-            if hadHR:
-                # a hack to ensure the q/a separator falls before the answer
-                # comparison when user is using {{FrontSide}}
-                s = "<hr id=answer>" + s
-            return s
+        if self.codingQuestion:
+            testData = self.card.note()[self.card.model()["flds"][2]["name"]]
+            method = self.card.note()[self.card.model()["flds"][1]["name"]]
+            res = JavaRunner.run(given, method, testData).decode("utf-8")
+            # and update the type answer area
+            def repl(match):
+                # can't pass a string in directly, and can't use re.escape as it
+                # escapes too much
+                s = """
+            <span style="font-family: '%s'; font-size: %spx">%s</span>""" % (
+                    self.typeFont,
+                    self.typeSize,
+                    res,
+                )
+                if hadHR:
+                    # a hack to ensure the q/a separator falls before the answer
+                    # comparison when user is using {{FrontSide}}
+                    s = "<hr id=answer>" + s
+                return s
 
-        return re.sub(self.typeAnsPat, repl, buf)
+            return re.sub(self.codeAnsPat, repl, buf)
+        else:
+            # compare with typed answer
+            res = self.correct(given, cor, showBad=False)
+            # and update the type answer area
+            def repl(match):
+                # can't pass a string in directly, and can't use re.escape as it
+                # escapes too much
+                s = """
+    <span style="font-family: '%s'; font-size: %spx">%s</span>""" % (
+                    self.typeFont,
+                    self.typeSize,
+                    res,
+                )
+                if hadHR:
+                    # a hack to ensure the q/a separator falls before the answer
+                    # comparison when user is using {{FrontSide}}
+                    s = "<hr id=answer>" + s
+                return s
+
+            return re.sub(self.typeAnsPat, repl, buf)
 
     def _contentForCloze(self, txt: str, idx) -> str:
         matches = re.findall(r"\{\{c%s::(.+?)\}\}" % idx, txt, re.DOTALL)
