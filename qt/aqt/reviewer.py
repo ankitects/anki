@@ -250,6 +250,7 @@ class Reviewer:
         # user hook
         gui_hooks.reviewer_did_show_answer(c)
 
+
     # Answering a card
     ############################################################
     def _answerCard(self, ease: int) -> None:
