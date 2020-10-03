@@ -252,7 +252,6 @@ class Reviewer:
 
     # Answering a card
     ############################################################
-
     def _answerCard(self, ease: int) -> None:
         "Reschedule card and show next."
         if self.mw.state != "review":
