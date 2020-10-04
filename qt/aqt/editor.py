@@ -124,16 +124,16 @@ class Editor:
                 "fields",
                 _("Customize Fields"),
                 _("Fields") + "...",
-                class_="",
                 disables=False,
+                rightside=False,
             ),
             self._addButton(
                 None,
                 "cards",
                 _("Customize Card Templates (Ctrl+L)"),
                 _("Cards") + "...",
-                class_="",
                 disables=False,
+                rightside=False,
             ),
         ]
 
@@ -227,7 +227,7 @@ class Editor:
         toggleable: bool = False,
         keys: str = None,
         disables: bool = True,
-        class_: str = "linkb",
+        rightside: bool = True,
     ):
         """Assign func to bridge cmd, register shortcut, return button"""
         if func:
@@ -246,7 +246,7 @@ class Editor:
             id=id,
             toggleable=toggleable,
             disables=disables,
-            class_=class_,
+            rightside=rightside,
         )
         return btn
 
@@ -259,7 +259,7 @@ class Editor:
         id: Optional[str] = None,
         toggleable: bool = False,
         disables: bool = True,
-        class_: str = "linkb",
+        rightside: bool = True,
     ) -> str:
         if icon:
             if icon.startswith("qrc:/"):
@@ -284,6 +284,10 @@ class Editor:
         else:
             toggleScript = ""
         tip = shortcut(tip)
+        if rightside:
+            class_ = "linkb"
+        else:
+            class_ = ""
         if not disables:
             class_ += " perm"
         return """ <button tabindex=-1
