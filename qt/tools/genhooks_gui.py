@@ -607,6 +607,10 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
     # Editing
     ###################
     Hook(
+        name="editor_did_init_left_buttons",
+        args=["buttons: List[str]", "editor: aqt.editor.Editor"],
+    ),
+    Hook(
         name="editor_did_init_buttons",
         args=["buttons: List[str]", "editor: aqt.editor.Editor"],
     ),
