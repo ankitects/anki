@@ -118,6 +118,25 @@ class Editor:
         self.web.set_bridge_command(self.onBridgeCmd, self)
         self.outerLayout.addWidget(self.web, 1)
 
+        lefttopbtns: List[str] = [
+            self._addButton(
+                None,
+                "fields",
+                _("Customize Fields"),
+                _("Fields") + "...",
+                class_="",
+                disables=False,
+            ),
+            self._addButton(
+                None,
+                "cards",
+                _("Customize Card Templates (Ctrl+L)"),
+                _("Cards") + "...",
+                class_="",
+                disables=False,
+            ),
+        ]
+
         righttopbtns: List[str] = [
             self._addButton("text_bold", "bold", _("Bold text (Ctrl+B)"), id="bold"),
             self._addButton(
@@ -131,68 +150,47 @@ class Editor:
             ),
             self._addButton("text_sub", "sub", _("Subscript (Ctrl+=)"), id="subscript"),
             self._addButton("text_clear", "clear", _("Remove formatting (Ctrl+R)")),
+            self._addButton(
+                None,
+                "colour",
+                _("Set foreground colour (F7)"),
+                """
+<div id="forecolor"
+     style="display: inline-block; background: #000; border-radius: 5px;"
+     class="topbut"
+>""",
+            ),
+            self._addButton(
+                None,
+                "changeCol",
+                _("Change colour (F8)"),
+                """
+<div style="display: inline-block; border-radius: 5px;"
+     class="topbut rainbow"
+>""",
+            ),
+            self._addButton("text_cloze", "cloze", _("Cloze deletion (Ctrl+Shift+C)")),
+            self._addButton(
+                "paperclip", "attach", _("Attach pictures/audio/video (F3)")
+            ),
+            self._addButton("media-record", "record", _("Record audio (F5)")),
+            self._addButton("more", "more"),
         ]
-        # The color selection buttons do not use an icon so the HTML must be specified manually
-        tip = _("Set foreground colour (F7)")
-        righttopbtns.append(
-            """ <button tabindex=-1
-                        class=linkb
-                        title="{}"
-                        type="button"
-                        onclick="pycmd('colour'); return false;"
-                >
-                    <div id=forecolor
-                         style="display:inline-block; background: #000;border-radius: 5px;"
-                         class=topbut
-                    >
-                    </div>
-                </button>""".format(
-                tip
-            )
-        )
-        tip = _("Change colour (F8)")
-        righttopbtns.extend(
-            [
-                """<button tabindex=-1
-                        class=linkb
-                        title="{}"
-                        type="button"
-                        onclick="pycmd('changeCol');return false;"
-                >
-                    <div style="display:inline-block; border-radius: 5px;"
-                         class="topbut rainbow"
-                    >
-                    </div>
-                </button>""".format(
-                    tip
-                ),
-                self._addButton(
-                    "text_cloze", "cloze", _("Cloze deletion (Ctrl+Shift+C)")
-                ),
-                self._addButton(
-                    "paperclip", "attach", _("Attach pictures/audio/video (F3)")
-                ),
-                self._addButton("media-record", "record", _("Record audio (F5)")),
-                self._addButton("more", "more"),
-            ]
-        )
+
         gui_hooks.editor_did_init_buttons(righttopbtns, self)
         # legacy filter
         righttopbtns = runFilter("setupEditorButtons", righttopbtns, self)
+
         topbuts = """
             <div id="topbutsleft" style="float:left;">
-                <button title='%(fldsTitle)s' onclick="pycmd('fields')">%(flds)s...</button>
-                <button title='%(cardsTitle)s' onclick="pycmd('cards')">%(cards)s...</button>
+                %(leftbts)s
             </div>
             <div id="topbutsright" style="float:right;">
                 %(rightbts)s
             </div>
         """ % dict(
-            flds=_("Fields"),
-            cards=_("Cards"),
+            leftbts="".join(lefttopbtns),
             rightbts="".join(righttopbtns),
-            fldsTitle=_("Customize Fields"),
-            cardsTitle=shortcut(_("Customize Card Templates (Ctrl+L)")),
         )
         bgcol = self.mw.app.palette().window().color().name()  # type: ignore
         # then load page
@@ -227,6 +225,7 @@ class Editor:
         toggleable: bool = False,
         keys: str = None,
         disables: bool = True,
+        class_: str = "linkb",
     ):
         """Assign func to bridge cmd, register shortcut, return button"""
         if func:
@@ -245,6 +244,7 @@ class Editor:
             id=id,
             toggleable=toggleable,
             disables=disables,
+            class_=class_,
         )
         return btn
 
@@ -257,6 +257,7 @@ class Editor:
         id: Optional[str] = None,
         toggleable: bool = False,
         disables: bool = True,
+        class_: str = "linkb",
     ) -> str:
         if icon:
             if icon.startswith("qrc:/"):
@@ -281,7 +282,7 @@ class Editor:
         else:
             toggleScript = ""
         tip = shortcut(tip)
-        theclass = "linkb"
+        theclass = class_
         if not disables:
             theclass += " perm"
         return """ <button tabindex=-1
