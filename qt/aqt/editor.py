@@ -216,7 +216,7 @@ class Editor:
 
     def addButton(
         self,
-        icon: str,
+        icon: Optional[str],
         cmd: str,
         func: Callable[["Editor"], None],
         tip: str = "",
@@ -250,7 +250,7 @@ class Editor:
 
     def _addButton(
         self,
-        icon: str,
+        icon: Optional[str],
         cmd: str,
         tip: str = "",
         label: str = "",
