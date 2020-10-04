@@ -284,12 +284,11 @@ class Editor:
         else:
             toggleScript = ""
         tip = shortcut(tip)
-        theclass = class_
         if not disables:
-            theclass += " perm"
+            class_ += " perm"
         return """ <button tabindex=-1
                         {id}
-                        class="{theclass}"
+                        class="{class_}"
                         type="button"
                         title="{tip}"
                         onclick="pycmd('{cmd}');{togglesc}return false;"
@@ -303,7 +302,7 @@ class Editor:
             labelelm=labelelm,
             id=idstr,
             togglesc=toggleScript,
-            theclass=theclass,
+            class_=class_,
         )
 
     def setupShortcuts(self) -> None:
