@@ -137,6 +137,8 @@ class Editor:
             ),
         ]
 
+        gui_hooks.editor_did_init_left_buttons(lefttopbtns, self)
+
         righttopbtns: List[str] = [
             self._addButton("text_bold", "bold", _("Bold text (Ctrl+B)"), id="bold"),
             self._addButton(
