@@ -388,7 +388,7 @@ class Editor:
                 nid = int(nid)
             except ValueError:
                 nid = 0
-            if nid != self.note.id:
+            if nid != self.note.id or ord >= len(self.note.fields):
                 print("ignored late blur")
                 return
 
