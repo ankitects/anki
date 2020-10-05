@@ -339,7 +339,7 @@ impl SqliteStorage {
     }
 
     pub(crate) fn optimize(&self) -> Result<()> {
-        self.db.execute_batch("vacuum; analyze")?;
+        self.db.execute_batch("vacuum; reindex; analyze")?;
         Ok(())
     }
 
