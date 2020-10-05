@@ -166,6 +166,7 @@ jobs:
 
           echo "::set-env name=rsyncbin::rsync-3.1.3-1-x86_64.pkg.tar.xz"
           echo "::set-env name=pyaudio::$pyaudio"
+          echo "::set-env name=WINDOWS_CI_TOOLS::https://github.com/ankitects/windows-ci-tools/raw/master"
           echo "::set-env name=PATH::$new_path"
           echo "::set-env name=RUST_BACKTRACE::full"
           echo "::set-env name=SCOOP::$env:GITHUB_WORKSPACE"
@@ -240,8 +241,8 @@ jobs:
         shell: cmd
         run: |
           echo on
-          curl --fail -LO https://github.com/ankitects/pyaudio-windows/raw/master/%pyaudio%
-          curl --fail -LO http://repo.msys2.org/msys/x86_64/%rsyncbin%
+          curl --fail -LO %WINDOWS_CI_TOOLS%/%pyaudio%
+          curl --fail -LO %WINDOWS_CI_TOOLS%/%rsyncbin%
 
           :: https://stackoverflow.com/questions/1359793/programmatically-extract-tar-gz
           7z x "%rsyncbin%" -so | 7z x -aoa -si -ttar -o"%programfiles%\Git"
