@@ -1401,6 +1401,33 @@ class _EditorDidInitButtonsHook:
 editor_did_init_buttons = _EditorDidInitButtonsHook()
 
 
+class _EditorDidInitLeftButtonsHook:
+    _hooks: List[Callable[[List[str], "aqt.editor.Editor"], None]] = []
+
+    def append(self, cb: Callable[[List[str], "aqt.editor.Editor"], None]) -> None:
+        """(buttons: List[str], editor: aqt.editor.Editor)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[List[str], "aqt.editor.Editor"], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
+
+    def __call__(self, buttons: List[str], editor: aqt.editor.Editor) -> None:
+        for hook in self._hooks:
+            try:
+                hook(buttons, editor)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+editor_did_init_left_buttons = _EditorDidInitLeftButtonsHook()
+
+
 class _EditorDidInitShortcutsHook:
     _hooks: List[Callable[[List[Tuple], "aqt.editor.Editor"], None]] = []
 
