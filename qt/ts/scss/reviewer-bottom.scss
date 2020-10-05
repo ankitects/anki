@@ -40,8 +40,12 @@ button {
 .focus {
     outline: 5px auto rgba(0, 103, 244, 0.247);
 
-    &:focus {
-        outline-color: rgba(103, 103, 244, 0.247);
+    #innertable:focus-within & {
+        outline: unset;
+
+        &:focus {
+            outline: 5px auto rgba(0, 103, 244, 0.247);
+        }
     }
 }
 
