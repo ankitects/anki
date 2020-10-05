@@ -920,10 +920,10 @@ to a cloze type first, via 'Notes>Change Note Type'"""
             "pasteHTML(%s, %s, %s);" % (json.dumps(html), json.dumps(internal), ext)
         )
 
-    def doDrop(self, html, internal):
+    def doDrop(self, html: str, internal: bool, extended: bool = False) -> None:
         def pasteIfField(ret):
             if ret:
-                self.doPaste(html, internal, self.web._wantsExtendedPaste())
+                self.doPaste(html, internal, extended)
 
         p = self.web.mapFromGlobal(QCursor.pos())
         self.web.evalWithCallback(f"focusIfField({p.x()}, {p.y()});", pasteIfField)
@@ -1037,7 +1037,7 @@ class EditorWebView(AnkiWebView):
     def _onPaste(self, mode: QClipboard.Mode) -> None:
         extended = self._wantsExtendedPaste()
         mime = self.editor.mw.app.clipboard().mimeData(mode=mode)
-        html, internal = self._processMime(mime)
+        html, internal = self._processMime(mime, extended)
         if not html:
             return
         self.editor.doPaste(html, internal, extended)
@@ -1052,21 +1052,22 @@ class EditorWebView(AnkiWebView):
         evt.accept()
 
     def dropEvent(self, evt):
+        extended = self._wantsExtendedPaste()
         mime = evt.mimeData()
 
         if evt.source() and mime.hasHtml():
             # don't filter html from other fields
             html, internal = mime.html(), True
         else:
-            html, internal = self._processMime(mime)
+            html, internal = self._processMime(mime, extended)
 
         if not html:
             return
 
-        self.editor.doDrop(html, internal)
+        self.editor.doDrop(html, internal, extended)
 
     # returns (html, isInternal)
-    def _processMime(self, mime: QMimeData) -> Tuple[str, bool]:
+    def _processMime(self, mime: QMimeData, extended: bool = False) -> Tuple[str, bool]:
         # print("html=%s image=%s urls=%s txt=%s" % (
         #     mime.hasHtml(), mime.hasImage(), mime.hasUrls(), mime.hasText()))
         # print("html", mime.html())
@@ -1085,12 +1086,12 @@ class EditorWebView(AnkiWebView):
             types = (self._processImage, self._processUrls, self._processText)
 
         for fn in types:
-            html = fn(mime)
+            html = fn(mime, extended)
             if html:
                 return html, True
         return "", False
 
-    def _processUrls(self, mime: QMimeData) -> Optional[str]:
+    def _processUrls(self, mime: QMimeData, extended: bool = False) -> Optional[str]:
         if not mime.hasUrls():
             return None
 
@@ -1103,7 +1104,7 @@ class EditorWebView(AnkiWebView):
 
         return buf
 
-    def _processText(self, mime: QMimeData) -> Optional[str]:
+    def _processText(self, mime: QMimeData, extended: bool = False) -> Optional[str]:
         if not mime.hasText():
             return None
 
@@ -1114,9 +1115,9 @@ class EditorWebView(AnkiWebView):
         for line in lines:
             for token in re.split(r"(\S+)", line):
                 # inlined data in base64?
-                if token.startswith("data:image/"):
+                if extended and token.startswith("data:image/"):
                     processed.append(self.editor.inlinedImageToLink(token))
-                elif self.editor.isURL(token):
+                elif extended and self.editor.isURL(token):
                     # if the user is pasting an image or sound link, convert it to local
                     link = self.editor.urlToLink(token)
                     if link:
@@ -1151,7 +1152,7 @@ class EditorWebView(AnkiWebView):
 
         return html, False
 
-    def _processImage(self, mime: QMimeData) -> Optional[str]:
+    def _processImage(self, mime: QMimeData, extended: bool = False) -> Optional[str]:
         if not mime.hasImage():
             return None
         im = QImage(mime.imageData())
