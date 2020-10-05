@@ -575,7 +575,7 @@ time = %(time)d;
     def _showAnswerButton(self) -> None:
         middle = """
 <span class=stattxt>%s</span><br>
-<button title="%s" id=ansbut onclick='pycmd("ans");'>%s</button>""" % (
+<button title="%s" id="ansbut" class="focus" onclick='pycmd("ans");'>%s</button>""" % (
             self._remaining(),
             _("Shortcut key: %s") % _("Space"),
             _("Show Answer"),
@@ -644,7 +644,7 @@ time = %(time)d;
 
         def but(i, label):
             if i == default:
-                extra = "id=defease"
+                extra = """id="defease" class="focus" """
             else:
                 extra = ""
             due = self._buttonTime(i)
