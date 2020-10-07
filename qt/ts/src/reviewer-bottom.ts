@@ -36,14 +36,12 @@ let updateTime = function () {
 function showQuestion(txt, maxTime_) {
     // much faster than jquery's .html()
     $("#middle")[0].innerHTML = txt;
-    $("#ansbut").focus();
     time = 0;
     maxTime = maxTime_;
 }
 
 function showAnswer(txt) {
     $("#middle")[0].innerHTML = txt;
-    $("#defease").focus();
 }
 
 function selectedAnswerButton() {
