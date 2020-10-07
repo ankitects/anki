@@ -103,7 +103,7 @@ class DeckStats(QDialog):
         self.wholeCollection = False
         self.setMinimumWidth(700)
         f = self.form
-        if theme_manager.night_mode and not theme_manager.macos_dark_mode():
+        if theme_manager.dark_mode and not theme_manager.macos_dark_mode():
             # the grouping box renders incorrectly in the fusion theme. 5.9+
             # 5.13 behave differently to 5.14, but it looks bad in either case,
             # and adjusting the top margin makes the 'save PDF' button show in

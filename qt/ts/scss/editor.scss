@@ -84,7 +84,7 @@ button.highlighted {
     color: var(--link);
 }
 
-.nightMode {
+.darkMode {
     button.linkb > img {
         filter: invert(180);
     }
@@ -93,6 +93,6 @@ button.highlighted {
 .drawing {
     zoom: 50%;
 }
-.nightMode img.drawing {
+.darkMode img.drawing {
     filter: unquote("invert() hue-rotate(180deg)");
 }

@@ -494,8 +494,8 @@ const allowedStyling = {
     "text-decoration-line": true,
 };
 
-let isNightMode = function (): boolean {
-    return document.body.classList.contains("nightMode");
+let isDarkMode = function (): boolean {
+    return document.body.classList.contains("darkMode");
 };
 
 let filterExternalSpan = function (node) {
@@ -520,8 +520,8 @@ let filterExternalSpan = function (node) {
             // google docs adds this unnecessarily
             toRemove.push(name);
         }
-        if (isNightMode()) {
-            // ignore coloured text in night mode for now
+        if (isDarkMode()) {
+            // ignore coloured text in dark mode for now
             if (name === "background-color" || name == "color") {
                 toRemove.push(name);
             }

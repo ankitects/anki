@@ -37,7 +37,7 @@ export interface GraphsContext {
     cards: pb.BackendProto.Card[];
     revlog: pb.BackendProto.RevlogEntry[];
     revlogRange: RevlogRange;
-    nightMode: boolean;
+    darkMode: boolean;
 }
 
 export interface GraphBounds {

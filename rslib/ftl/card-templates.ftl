@@ -13,7 +13,7 @@ card-templates-preview-box = Preview
 card-templates-template-box = Template
 card-templates-sample-cloze = This is a {"{{c1::"}sample{"}}"} cloze deletion.
 card-templates-fill-empty = Fill Empty Fields
-card-templates-night-mode = Night Mode
+card-templates-dark-mode = Dark Mode
 # Add "mobile" class to card preview, so the card appears like it would
 # on a mobile device.
 card-templates-add-mobile-class = Add Mobile Class

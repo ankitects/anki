@@ -18,7 +18,7 @@
     import CalendarGraph from "./CalendarGraph.svelte";
 
     export let i18n: I18n;
-    export let nightMode: boolean;
+    export let darkMode: boolean;
 
     let sourceData: pb.BackendProto.GraphsOut | null = null;
 
@@ -146,7 +146,7 @@
     {#if sourceData}
         <TodayStats {sourceData} {i18n} />
         <FutureDue {sourceData} {i18n} />
-        <CalendarGraph {sourceData} {revlogRange} {i18n} {nightMode} />
+        <CalendarGraph {sourceData} {revlogRange} {i18n} {darkMode} />
         <ReviewsGraph {sourceData} {revlogRange} {i18n} />
         <CardCounts {sourceData} {i18n} />
         <IntervalsGraph {sourceData} {i18n} />

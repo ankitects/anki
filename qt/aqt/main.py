@@ -953,7 +953,7 @@ title="%s" %s>%s</button>""" % (
         return True
 
     def setupStyle(self) -> None:
-        theme_manager.night_mode = self.pm.night_mode()
+        theme_manager.dark_mode = self.pm.dark_mode()
         theme_manager.apply_style(self.app)
 
     # Key handling

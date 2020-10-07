@@ -12,32 +12,32 @@ from aqt.qt import QColor, QIcon, QPalette, QPixmap, QStyleFactory, Qt
 
 
 class ThemeManager:
-    _night_mode_preference = False
+    _dark_mode_preference = False
     _icon_cache_light: Dict[str, QIcon] = {}
     _icon_cache_dark: Dict[str, QIcon] = {}
     _icon_size = 128
 
     def macos_dark_mode(self) -> bool:
-        "True if the user has night mode on, and has forced native widgets."
+        "True if the user has dark mode on, and has forced native widgets."
         if not isMac:
             return False
 
         from aqt import mw
 
-        return self._night_mode_preference and mw.pm.dark_mode_widgets()
+        return self._dark_mode_preference and mw.pm.dark_mode_widgets()
 
-    def get_night_mode(self) -> bool:
-        return self._night_mode_preference
+    def get_dark_mode(self) -> bool:
+        return self._dark_mode_preference
 
-    def set_night_mode(self, val: bool) -> None:
-        self._night_mode_preference = val
+    def set_dark_mode(self, val: bool) -> None:
+        self._dark_mode_preference = val
         self._update_stat_colors()
 
-    night_mode = property(get_night_mode, set_night_mode)
+    dark_mode = property(get_dark_mode, set_dark_mode)
 
     def icon_from_resources(self, path: str) -> QIcon:
-        "Fetch icon from Qt resources, and invert if in night mode."
-        if self.night_mode:
+        "Fetch icon from Qt resources, and invert if in dark mode."
+        if self.dark_mode:
             cache = self._icon_cache_light
         else:
             cache = self._icon_cache_dark
@@ -47,14 +47,14 @@ class ThemeManager:
 
         icon = QIcon(path)
 
-        if self.night_mode:
+        if self.dark_mode:
             img = icon.pixmap(self._icon_size, self._icon_size).toImage()
             img.invertPixels()
             icon = QIcon(QPixmap(img))
 
         return cache.setdefault(path, icon)
 
-    def body_class(self, night_mode: Optional[bool] = None) -> str:
+    def body_class(self, dark_mode: Optional[bool] = None) -> str:
         "Returns space-separated class list for platform/theme."
         classes = []
         if isWin:
@@ -64,19 +64,19 @@ class ThemeManager:
         else:
             classes.append("isLin")
 
-        if night_mode is None:
-            night_mode = self.night_mode
-        if night_mode:
-            classes.extend(["nightMode", "night_mode"])
+        if dark_mode is None:
+            dark_mode = self.dark_mode
+        if dark_mode:
+            classes.extend(["darkMode", "dark_mode"])
             if self.macos_dark_mode():
                 classes.append("macos-dark-mode")
         return " ".join(classes)
 
     def body_classes_for_card_ord(
-        self, card_ord: int, night_mode: Optional[bool] = None
+        self, card_ord: int, dark_mode: Optional[bool] = None
     ) -> str:
         "Returns body classes used when showing a card."
-        return f"card card{card_ord+1} {self.body_class(night_mode)}"
+        return f"card card{card_ord+1} {self.body_class(dark_mode)}"
 
     def str_color(self, key: str) -> str:
         """Get a color defined in _vars.scss
@@ -85,7 +85,7 @@ class ThemeManager:
         'frame-bg'.
 
         Returns the color as a string hex code or color name."""
-        idx = 1 if self.night_mode else 0
+        idx = 1 if self.dark_mode else 0
         c = colors.get(key)
         if c is None:
             raise Exception("no such color:", key)
@@ -102,7 +102,7 @@ class ThemeManager:
     def _apply_style(self, app: QApplication) -> None:
         buf = ""
 
-        if isWin and platform.release() == "10" and not self.night_mode:
+        if isWin and platform.release() == "10" and not self.dark_mode:
             # add missing bottom border to menubar
             buf += """
 QMenuBar {
@@ -118,7 +118,7 @@ QTreeWidget {
 }
             """
 
-        if self.night_mode:
+        if self.dark_mode:
             buf += """
 QToolTip {
   border: 0;
@@ -128,14 +128,14 @@ QToolTip {
             if not self.macos_dark_mode():
                 buf += """
 QScrollBar { background-color: %s; }
-QScrollBar::handle { background-color: %s; border-radius: 5px; } 
+QScrollBar::handle { background-color: %s; border-radius: 5px; }
 
 QScrollBar:horizontal { height: 12px; }
-QScrollBar::handle:horizontal { min-width: 50px; } 
+QScrollBar::handle:horizontal { min-width: 50px; }
 
 QScrollBar:vertical { width: 12px; }
-QScrollBar::handle:vertical { min-height: 50px; } 
-    
+QScrollBar::handle:vertical { min-height: 50px; }
+
 QScrollBar::add-line {
       border: none;
       background: none;
@@ -160,7 +160,7 @@ QTabWidget { background-color: %s; }
         app.setStyleSheet(buf)
 
     def _apply_palette(self, app: QApplication) -> None:
-        if not self.night_mode:
+        if not self.dark_mode:
             return
 
         if not self.macos_dark_mode():

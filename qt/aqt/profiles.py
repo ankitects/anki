@@ -597,11 +597,11 @@ create table if not exists profiles
     def set_last_addon_update_check(self, secs) -> None:
         self.meta["last_addon_update_check"] = secs
 
-    def night_mode(self) -> bool:
-        return self.meta.get("night_mode", False)
+    def dark_mode(self) -> bool:
+        return self.meta.get("dark_mode", False)
 
-    def set_night_mode(self, on: bool) -> None:
-        self.meta["night_mode"] = on
+    def set_dark_mode(self, on: bool) -> None:
+        self.meta["dark_mode"] = on
 
     def dark_mode_widgets(self) -> bool:
         return self.meta.get("dark_mode_widgets", False)

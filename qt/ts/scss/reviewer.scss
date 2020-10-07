@@ -10,9 +10,9 @@ body {
     overflow-wrap: break-word;
 }
 
-// explicit nightMode definition required
+// explicit darkMode definition required
 // to override default .card styling
-body.nightMode {
+body.darkMode {
     background-color: var(--window-bg);
     color: var(--text-fg);
 }
@@ -82,13 +82,13 @@ img {
     }
 }
 
-.nightMode {
+.darkMode {
     .latex {
         filter: invert(100%);
     }
 }
 
 .drawing { zoom: 50%; }
-.nightMode img.drawing {
+.darkMode img.drawing {
     filter: unquote("invert(1) hue-rotate(180deg)")
 }

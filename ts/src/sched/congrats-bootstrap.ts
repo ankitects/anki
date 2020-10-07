@@ -4,10 +4,10 @@
 import { setupI18n } from "../i18n";
 import CongratsPage from "./CongratsPage.svelte";
 import { getCongratsInfo } from "./congrats";
-import { checkNightMode } from "../nightmode";
+import { checkDarkMode } from "../darkmode";
 
 export async function congrats(target: HTMLDivElement): Promise<void> {
-    checkNightMode();
+    checkDarkMode();
     const i18n = await setupI18n();
     const info = await getCongratsInfo();
     new CongratsPage({

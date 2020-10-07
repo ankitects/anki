@@ -91,9 +91,9 @@
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="nightMode">
+        <widget class="QCheckBox" name="darkMode">
          <property name="text">
-          <string>Night mode</string>
+          <string>Dark mode</string>
          </property>
         </widget>
        </item>
@@ -594,7 +594,7 @@
   <tabstop>interrupt_audio</tabstop>
   <tabstop>pastePNG</tabstop>
   <tabstop>pasteInvert</tabstop>
-  <tabstop>nightMode</tabstop>
+  <tabstop>darkMode</tabstop>
   <tabstop>useCurrent</tabstop>
   <tabstop>uiScale</tabstop>
   <tabstop>showEstimates</tabstop>

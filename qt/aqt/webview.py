@@ -62,9 +62,9 @@ class AnkiWebPage(QWebEnginePage):
                             cb(JSON.parse(res));
                         }
                     }
-                
+
                     channel.objects.py.cmd(arg, resultCB);
-                    return false;                   
+                    return false;
                 }
                 pycmd("domDone");
             });
@@ -357,7 +357,7 @@ class AnkiWebView(QWebEngineView):
             return 3
 
     def _getWindowColor(self):
-        if theme_manager.night_mode:
+        if theme_manager.dark_mode:
             return theme_manager.qcolor("window-bg")
         if isMac:
             # standard palette does not return correct window color on macOS
@@ -387,14 +387,14 @@ border-radius:5px; font-family: Helvetica }"""
             font = 'font-size:14px;font-family:"%s";' % family
             button_style = """
 /* Buttons */
-button{ 
+button{
         background-color: %(color_btn)s;
         font-family:"%(family)s"; }
 button:focus{ border-color: %(color_hl)s }
 button:active, button:active:hover { background-color: %(color_hl)s; color: %(color_hl_txt)s;}
 /* Input field focus outline */
 textarea:focus, input:focus, input[type]:focus, .uneditable-input:focus,
-div[contenteditable="true"]:focus {   
+div[contenteditable="true"]:focus {
     outline: 0 none;
     border-color: %(color_hl)s;
 }""" % {
@@ -416,7 +416,7 @@ div[contenteditable="true"]:focus {
 body {{ zoom: {zoom}; background: {background}; direction: {lang_dir}; {font} }}
 {button_style}
 :root {{ --window-bg: {background} }}
-:root[class*=night-mode] {{ --window-bg: {background} }}
+:root[class*=dark-mode] {{ --window-bg: {background} }}
 """
 
     def stdHtml(
@@ -454,8 +454,8 @@ body {{ zoom: {zoom}; background: {background}; direction: {lang_dir}; {font} }}
         head = mw.baseHTML() + csstxt + jstxt + web_content.head
         body_class = theme_manager.body_class()
 
-        if theme_manager.night_mode:
-            doc_class = "night-mode"
+        if theme_manager.dark_mode:
+            doc_class = "dark-mode"
         else:
             doc_class = ""
 
@@ -617,8 +617,8 @@ document.head.appendChild(style);
         from aqt import mw
 
         self.set_open_links_externally(False)
-        if theme_manager.night_mode:
-            extra = "#night"
+        if theme_manager.dark_mode:
+            extra = "#dark"
         else:
             extra = ""
         self.hide_while_preserving_layout()

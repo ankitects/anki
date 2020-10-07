@@ -56,7 +56,7 @@ class CardLayout(QDialog):
         self.model = note.model()
         self.templates = self.model["tmpls"]
         self.fill_empty_action_toggled = fill_empty
-        self.night_mode_is_enabled = self.mw.pm.night_mode()
+        self.dark_mode_is_enabled = self.mw.pm.dark_mode()
         self.mobile_emulation_enabled = False
         self.have_autoplayed = False
         self.mm._remove_from_cache(self.model["id"])
@@ -331,8 +331,8 @@ class CardLayout(QDialog):
         self.fill_empty_action_toggled = not self.fill_empty_action_toggled
         self.on_preview_toggled()
 
-    def on_night_mode_action_toggled(self):
-        self.night_mode_is_enabled = not self.night_mode_is_enabled
+    def on_dark_mode_action_toggled(self):
+        self.dark_mode_is_enabled = not self.dark_mode_is_enabled
         self.on_preview_toggled()
 
     def on_mobile_class_action_toggled(self):
@@ -349,10 +349,10 @@ class CardLayout(QDialog):
         if not self.note_has_empty_field():
             a.setVisible(False)
 
-        a = m.addAction(tr(TR.CARD_TEMPLATES_NIGHT_MODE))
+        a = m.addAction(tr(TR.CARD_TEMPLATES_DARK_MODE))
         a.setCheckable(True)
-        a.setChecked(self.night_mode_is_enabled)
-        qconnect(a.triggered, self.on_night_mode_action_toggled)
+        a.setChecked(self.dark_mode_is_enabled)
+        qconnect(a.triggered, self.on_dark_mode_action_toggled)
 
         a = m.addAction(tr(TR.CARD_TEMPLATES_ADD_MOBILE_CLASS))
         a.setCheckable(True)
@@ -469,7 +469,7 @@ class CardLayout(QDialog):
         ti = self.maybeTextInput
 
         bodyclass = theme_manager.body_classes_for_card_ord(
-            c.ord, self.night_mode_is_enabled
+            c.ord, self.dark_mode_is_enabled
         )
 
         if self.pform.preview_front.isChecked():

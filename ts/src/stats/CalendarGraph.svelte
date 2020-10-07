@@ -9,7 +9,7 @@
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
     export let revlogRange: RevlogRange;
     export let i18n: I18n;
-    export let nightMode: boolean;
+    export let darkMode: boolean;
 
     let graphData: GraphData | null = null;
 
@@ -47,7 +47,7 @@
             graphData,
             targetYear,
             i18n,
-            nightMode,
+            darkMode,
             revlogRange,
         );
     }

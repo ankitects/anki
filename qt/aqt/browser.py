@@ -844,7 +844,7 @@ class Browser(QMainWindow):
             self.form.tableView.selectionModel().selectionChanged, self.onRowChanged
         )
         self.form.tableView.setWordWrap(False)
-        if not theme_manager.night_mode:
+        if not theme_manager.dark_mode:
             self.form.tableView.setStyleSheet(
                 "QTableView{ selection-background-color: rgba(150, 150, 150, 50); "
                 "selection-color: black; }"
@@ -853,7 +853,7 @@ class Browser(QMainWindow):
             grid = theme_manager.str_color("frame-bg")
             self.form.tableView.setStyleSheet(
                 f"""
-QTableView {{ gridline-color: {grid} }}           
+QTableView {{ gridline-color: {grid} }}
             """
             )
         self.singleCard = False

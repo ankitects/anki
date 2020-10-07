@@ -54,7 +54,7 @@ export function renderCalendar(
     sourceData: GraphData,
     targetYear: number,
     i18n: I18n,
-    nightMode: boolean,
+    darkMode: boolean,
     revlogRange: RevlogRange
 ): void {
     const svg = select(svgElem);
@@ -117,7 +117,7 @@ export function renderCalendar(
         }
     }
     const data = Array.from(dayMap.values());
-    const cappedRange = scaleLinear().range([0.2, nightMode ? 0.8 : 1]);
+    const cappedRange = scaleLinear().range([0.2, darkMode ? 0.8 : 1]);
     const blues = scaleSequential((n) => interpolateBlues(cappedRange(n)!)).domain([
         0,
         maxCount,
@@ -136,7 +136,7 @@ export function renderCalendar(
 
     const height = bounds.height / 10;
     let emptyColour = "#ddd";
-    if (nightMode) {
+    if (darkMode) {
         emptyColour = "#333";
     }
     svg.select(`g.days`)

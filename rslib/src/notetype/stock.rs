@@ -123,7 +123,7 @@ pub(crate) fn cloze(i18n: &I18n) -> NoteType {
  font-weight: bold;
  color: blue;
 }
-.nightMode .cloze {
+.darkMode .cloze {
  color: lightblue;
 }
 ";

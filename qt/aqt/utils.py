@@ -619,7 +619,7 @@ def tooltip(msg, period=3000, parent=None, x_offset=0, y_offset=100):
     lab.setFrameStyle(QFrame.Panel)
     lab.setLineWidth(2)
     lab.setWindowFlags(Qt.ToolTip)
-    if not theme_manager.night_mode:
+    if not theme_manager.dark_mode:
         p = QPalette()
         p.setColor(QPalette.Window, QColor("#feffc4"))
         p.setColor(QPalette.WindowText, QColor("#000000"))

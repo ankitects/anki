@@ -226,7 +226,7 @@ Not currently enabled; click the sync button in the main window to enable."""
         self.form.uiScale.setValue(self.mw.pm.uiScale() * 100)
         self.form.pasteInvert.setChecked(self.prof.get("pasteInvert", False))
         self.form.showPlayButtons.setChecked(self.prof.get("showPlayButtons", True))
-        self.form.nightMode.setChecked(self.mw.pm.night_mode())
+        self.form.darkMode.setChecked(self.mw.pm.dark_mode())
         self.form.interrupt_audio.setChecked(self.mw.pm.interrupt_audio())
 
     def updateOptions(self):
@@ -240,8 +240,8 @@ Not currently enabled; click the sync button in the main window to enable."""
             restart_required = True
         self.prof["showPlayButtons"] = self.form.showPlayButtons.isChecked()
 
-        if self.mw.pm.night_mode() != self.form.nightMode.isChecked():
-            self.mw.pm.set_night_mode(not self.mw.pm.night_mode())
+        if self.mw.pm.dark_mode() != self.form.darkMode.isChecked():
+            self.mw.pm.set_dark_mode(not self.mw.pm.dark_mode())
             restart_required = True
 
         self.mw.pm.set_interrupt_audio(self.form.interrupt_audio.isChecked())

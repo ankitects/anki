@@ -37,11 +37,11 @@ body {
     outline: 0;
 }
 
-.nightMode #header {
+.darkMode #header {
     border-bottom-color: var(--faint-border);
 }
 
-.isMac.nightMode #header {
+.isMac.darkMode #header {
     border-bottom-color: var(--frame-bg);
 }
 

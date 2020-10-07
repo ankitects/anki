@@ -1,4 +1,4 @@
-/* night-mode-specific colours */
+/* dark-mode-specific colours */
 $fusion-button-gradient-start: #555555;
 $fusion-button-gradient-end: #656565;
 $fusion-button-outline: #222222;
@@ -29,7 +29,7 @@ $fusion-button-base-bg: #454545;
   }
 }
 
-.nightMode {
+.darkMode {
   button {
     -webkit-appearance: none;
     color: var(--text-fg);
@@ -53,7 +53,7 @@ $fusion-button-base-bg: #454545;
 }
 
 /* imitate standard macOS dark mode buttons */
-.isMac.nightMode.macos-dark-mode button:not(.linkb) {
+.isMac.darkMode.macos-dark-mode button:not(.linkb) {
     background: #656565;
     box-shadow: 0 1px 2px #222222;
     border-top-color: #848484;
