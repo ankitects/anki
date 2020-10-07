@@ -1320,9 +1320,7 @@ QTableView {{ gridline-color: {grid} }}
                 fullname = parent_prefix + node.name
                 if node.children:
                     subm = parent.addMenu(escaped_name)
-                    subm.addItem(
-                        _("Filter"), lambda: self._filterFunc("deck", fullname)
-                    )
+                    subm.addItem(_("Filter"), self._filterFunc("deck", fullname))
                     subm.addSeparator()
                     addDecks(subm, node.children, fullname + "::")
                 else:
