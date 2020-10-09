@@ -40,6 +40,7 @@ impl MediaManager {
     /// appended to the name.
     ///
     /// Also notes the file in the media database.
+    #[allow(clippy::match_like_matches_macro)]
     pub fn add_file<'a>(
         &self,
         ctx: &mut MediaDatabaseContext,

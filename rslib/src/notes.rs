@@ -515,7 +515,7 @@ mod test {
         col.update_note(&mut note)?;
         let existing = col.storage.existing_cards_for_note(note.id)?;
         let mut ords = existing.iter().map(|a| a.ord).collect::<Vec<_>>();
-        ords.sort();
+        ords.sort_unstable();
         assert_eq!(ords, vec![0, 1, 2, 499]);
 
         Ok(())
