@@ -153,7 +153,109 @@ User-contributed instructions for building using Cygwin:
     1. Do not use `bash run` because it my call for Windows Subsystem for Linux
     1. Do not use any Cygwin terminal as `mintty.exe` because the `rust lang` compiler does not work with them
 
-Enviromental Variables
+Windows users (using PyCharm)
+-----------------------------
+These instructions assume Microsoft Python support is not installed; neither via VS nor VS Code nor some other way.
+    If MS Python support is already installed the process is different, and these notes may not work seamlessly for you.
+
+These notes are proscriptive, other methods will work (such as a different Bash/Shell).
+
+While some of this list is in an arbitrary order, significant steps are in a specific order, therefore it is strongly
+    recommended to follow these instructions step-by-step.
+
+- Python and PyCharm are a given if you are choosing this path and should be the first and second step respectively.
+
+- close PyCharm, if it's open.
+
+- install Node.js (npm installs with nodejs)
+
+- install Cygwin (check the Cygwin /bin folder is added to System PATH)
+
+- use the Visual Studio Community installer to install:
+	- the individual C++ Clang Compiler for Windows (10.0.0) component.
+	- the Python development Workflow
+
+- install rustup (https://rustup.rs/)
+
+- download and install Strawberry Perl msi from http://strawberryperl.com/
+    - this is the installer at the time of writing these notes:
+    	http://strawberryperl.com/download/5.32.0.1/strawberry-perl-5.32.0.1-64bit.msi
+
+- mpv isn't required unless you are developing against mpv (Anki will revert to Mplayer)
+	- open an elevated Git Bash (elevated to "Run as administrator")
+	- choco install mpv
+		- assumes you have Chocolatey installed
+
+- install Git and Git Bash (this delivers curl too)
+    - add git/usr/bin to your System PATH before cygwin/bin folder, mentioned above.
+	- run:
+		- git config --global core.autocrlf
+		- make a note of the result (referred to as [yourLineEndingsValue] later in these notes)
+	- if the [yourLineEndingsValue] is not 'input', run (to preserve Anki's Unix line endings):
+		- git config --global core.autocrlf input
+	- run:
+		- cargo install ripgrep
+
+- got to https://github.com/protocolbuffers/protobuf/releases
+    - download latest protoc-v.v.v-win64.zip where 'v' is replaced with version numbers
+	- this is the file at the time of writing these notes:
+		https://github.com/protocolbuffers/protobuf/releases/download/v3.13.0/protoc-3.13.0-win64.zip
+	- extract bin\protoc.exe to C:\Program Files\Git\usr\bin (or where ever you installed Git and Git Bash above)
+
+- go to http://repo.msys2.org/msys/x86_64/
+	- download latest rsync-v.v.v-v-x86_64.pkg.tar.xz  where 'v' is replaced with version numbers
+	- this is the file at the time of writing these notes:
+		http://repo.msys2.org/msys/x86_64/rsync-3.1.3-1-x86_64.pkg.tar.xz
+	- extract the tar, then extract usr\bin\rsync.exe to c:\Program Files\Git\usr\bin as for protoc.exe above
+
+- install remaining dependencies to Python packages
+    - pip install https://github.com/ankitects/windows-ci-tools/PyAudio-0.2.11-cp37-cp37-win_amd64.whl
+	- pip install lameenc
+	- pip install python-gettext
+
+- clone your GitHub Anki fork to a local folder
+
+- open that local Anki source folder in PyCharm
+
+- default PyCharm Terminal to Git Bash:
+	- these steps aren't required, you can just use Git Bash externally to run Anki and the commands below, if you
+	    prefer
+    - open Anki project in PyCharm
+	- open File > Settings
+	- navigate to Tools > Terminal
+	- set Shell path to: "C:\Program Files\Git\bin\bash.exe" (or where ever you installed Git and Git Bash)
+	- restart PyCharm with Anki project
+
+- open PyCharm Terminal (Git Bash)
+
+- set your local Anki project to preserve unix line endings:
+	- git config --local core.autocrlf input
+- if [yourLineEndingsValue] was not 'input', revert global line endings:
+    - git config --global core.autocrlf [yourLineEndingsValue]
+		- e.g. (most likely):
+			- git config --global core.autocrlf true
+
+- ensure your virtual environment is set up as you like it to be
+    - if you don't set the virtual environment to pyenv (Anki's virtual environment folder) don't forget to add the
+        virtual environment folder to your global (not local) .gitignore if you haven't already.
+
+- add .idea folder to your global .gitignore (not the local .gitignore in the cloned repo)
+
+- from project root run:
+    - pip install -r qt/requirements.qt
+
+- in PyCharm
+    - either:
+        - open Terminal (Git Bash)
+            - type ./run
+        - or:
+            - right click 'run' file in Anki project root and click the command to run it
+    - watch the magic happen (it takes a while and there are a couple of long pauses).
+
+please note: these instructions have been based off the general notes above and the notes for installing for Windows
+    using Visual Studio. Without those notes this section would have been very difficult, if not impossible.
+
+Environmental Variables
 -----------------------
 
 If ANKIDEV is set before starting Anki, some extra log messages will be printed on stdout,
