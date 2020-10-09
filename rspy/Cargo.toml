@@ -17,3 +17,8 @@ features = ["extension-module"]
 [lib]
 name = "ankirspy"
 crate-type = ["cdylib"]
+
+[profile.dev]
+opt-level = 2
+debug = 0
+codegen-units = 256

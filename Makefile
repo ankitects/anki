@@ -49,7 +49,7 @@ SUBMAKE := $(MAKE) --print-directory
 .SUFFIXES:
 
 BUILDFLAGS := --release --strip
-DEVFLAGS := $(BUILDFLAGS)
+DEVFLAGS :=
 RUNFLAGS :=
 CHECKABLE_PY := pylib qt
 CHECKABLE_RS := rslib rspy
