@@ -221,4 +221,4 @@ class FieldDialog(QDialog):
         self.mw.taskman.with_progress(save, on_done, self)
 
     def onHelp(self):
-        openHelp("fields")
+        openHelp("editing?id=customizing-fields")

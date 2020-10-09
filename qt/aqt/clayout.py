@@ -828,4 +828,4 @@ Enter deck to place new %s cards in, or leave blank:"""
         self.mw = None
 
     def onHelp(self):
-        openHelp("templates")
+        openHelp("templates/intro")
