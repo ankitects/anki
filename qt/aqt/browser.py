@@ -1296,6 +1296,9 @@ QTableView {{ gridline-color: {grid} }}
         )
         return subm
 
+    def _escapeMenuItem(self, label):
+        return label.replace("&", "&&")
+
     def _tagFilters(self):
         m = SubMenu(_("Tags"))
 
@@ -1304,7 +1307,7 @@ QTableView {{ gridline-color: {grid} }}
 
         tagList = MenuList()
         for t in sorted(self.col.tags.all(), key=lambda s: s.lower()):
-            tagList.addItem(t, self._filterFunc("tag", t))
+            tagList.addItem(self._escapeMenuItem(t), self._filterFunc("tag", t))
 
         m.addChild(tagList.chunked())
         return m
@@ -1312,17 +1315,16 @@ QTableView {{ gridline-color: {grid} }}
     def _deckFilters(self):
         def addDecks(parent, decks, parent_prefix):
             for node in decks:
+                escaped_name = self._escapeMenuItem(node.name)
                 # pylint: disable=cell-var-from-loop
                 fullname = parent_prefix + node.name
                 if node.children:
-                    subm = parent.addMenu(node.name)
-                    subm.addItem(
-                        _("Filter"), lambda: self._filterFunc("deck", fullname)
-                    )
+                    subm = parent.addMenu(escaped_name)
+                    subm.addItem(_("Filter"), self._filterFunc("deck", fullname))
                     subm.addSeparator()
                     addDecks(subm, node.children, fullname + "::")
                 else:
-                    parent.addItem(node.name, self._filterFunc("deck", fullname))
+                    parent.addItem(escaped_name, self._filterFunc("deck", fullname))
 
         alldecks = self.col.decks.deck_tree()
         ml = MenuList()
@@ -1341,11 +1343,12 @@ QTableView {{ gridline-color: {grid} }}
 
         noteTypes = MenuList()
         for nt in sorted(self.col.models.all(), key=lambda nt: nt["name"].lower()):
+            escaped_nt_name = self._escapeMenuItem(nt["name"])
             # no sub menu if it's a single template
             if len(nt["tmpls"]) == 1:
-                noteTypes.addItem(nt["name"], self._filterFunc("note", nt["name"]))
+                noteTypes.addItem(escaped_nt_name, self._filterFunc("note", nt["name"]))
             else:
-                subm = noteTypes.addMenu(nt["name"])
+                subm = noteTypes.addMenu(escaped_nt_name)
 
                 subm.addItem(_("All Card Types"), self._filterFunc("note", nt["name"]))
                 subm.addSeparator()
@@ -1354,7 +1357,9 @@ QTableView {{ gridline-color: {grid} }}
                 for c, tmpl in enumerate(nt["tmpls"]):
                     # T: name is a card type name. n it's order in the list of card type.
                     # T: this is shown in browser's filter, when seeing the list of card type of a note type.
-                    name = _("%(n)d: %(name)s") % dict(n=c + 1, name=tmpl["name"])
+                    name = _("%(n)d: %(name)s") % dict(
+                        n=c + 1, name=self._escapeMenuItem(tmpl["name"])
+                    )
                     subm.addItem(
                         name, self._filterFunc("note", nt["name"], "card", str(c + 1))
                     )
@@ -1384,7 +1389,7 @@ QTableView {{ gridline-color: {grid} }}
 
         ml.addSeparator()
         for name, filt in sorted(saved.items()):
-            ml.addItem(name, self._filterFunc(filt))
+            ml.addItem(self._escapeMenuItem(name), self._filterFunc(filt))
 
         return ml
 
