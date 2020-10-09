@@ -101,4 +101,4 @@ class ModelChooser(QHBoxLayout):
         self.mw.reset()
 
     def updateModels(self) -> None:
-        self.models.setText(self.deck.models.current()["name"])
+        self.models.setText(self.deck.models.current()["name"].replace("&", "&&"))
