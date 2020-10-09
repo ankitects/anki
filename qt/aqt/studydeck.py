@@ -16,7 +16,7 @@ class StudyDeck(QDialog):
         names=None,
         accept=None,
         title=None,
-        help="studydeck",
+        help="studying?id=keyboard-shortcuts",
         current=None,
         cancel=True,
         parent=None,
