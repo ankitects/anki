@@ -208,6 +208,11 @@ While some of this list is in an arbitrary order, significant steps are in a spe
 		http://repo.msys2.org/msys/x86_64/rsync-3.1.3-1-x86_64.pkg.tar.xz
 	- extract the tar, then extract usr\bin\rsync.exe to c:\Program Files\Git\usr\bin as for protoc.exe above
 
+- install remaining dependencies to Python packages
+    - pip install https://github.com/ankitects/windows-ci-tools/PyAudio-0.2.11-cp37-cp37-win_amd64.whl
+	- pip install lameenc
+	- pip install python-gettext
+
 - clone your GitHub Anki fork to a local folder
 
 - open that local Anki source folder in PyCharm
@@ -231,15 +236,13 @@ While some of this list is in an arbitrary order, significant steps are in a spe
 			- git config --global core.autocrlf true
 
 - ensure your virtual environment is set up as you like it to be
-    - don't forget to add the virtual environment & .idea folders to your global (not local) .gitignore if you haven't
-        already
+    - if you don't set the virtual environment to pyenv (Anki's virtual environment folder) don't forget to add the
+        virtual environment folder to your global (not local) .gitignore if you haven't already.
 
-- run these three commands:
+- add .idea folder to .gitignore
+
+- from project root run:
     - pip install -r qt/requirements.qt
-    - pip install -r requirements.txt
-    - pipwin install pyaudio
-	
-	- note if requirements.txt isn't available see "- to manually install requirements:" below
 
 - in PyCharm
     - either:
@@ -249,19 +252,10 @@ While some of this list is in an arbitrary order, significant steps are in a spe
             - right click 'run' file in Anki project root and click the command to run it
     - watch the magic happen (it takes a while and there are a couple of long pauses).
 
-- to manually install requirements:
-	- use Git Bash within your local root Anki folder to run these commands:
-		- for portaudio:
-			- pip install pipwin
-			- pipwin install pyaudio
-		- pip install lameenc
-		- pip install py-make
-		- pip install python-gettext
-
 please note: these instructions have been based off the general notes above and the notes for installing for Windows
     using Visual Studio. Without those notes this section would have been very difficult, if not impossible.
 
-Enviromental Variables
+Environmental Variables
 -----------------------
 
 If ANKIDEV is set before starting Anki, some extra log messages will be printed on stdout,

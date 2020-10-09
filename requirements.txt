@@ -1,4 +1,0 @@
-lameenc==1.2.2
-pipwin==0.5.0
-py-make==0.1.1
-python-gettext==4.0
