@@ -163,6 +163,10 @@ These notes are proscriptive, other methods will work (such as a different Bash/
 While some of this list is in an arbitrary order, significant steps are in a specific order, therefore it is strongly
     recommended to follow these instructions step-by-step.
 
+- if you study Anki in the same environment as you develop software:
+    - create a new Anki profile so that your decks aren't "upgraded" to the dev version
+    - make a note of that [dev profile name]
+
 - Python and PyCharm are a given if you are choosing this path and should be the first and second step respectively.
 
 - close PyCharm, if it's open.
@@ -240,6 +244,14 @@ While some of this list is in an arbitrary order, significant steps are in a spe
         virtual environment folder to your global (not local) .gitignore if you haven't already.
 
 - add .idea folder to your global .gitignore (not the local .gitignore in the cloned repo)
+
+- if you study Anki in the same environment as you develop software:
+    - right click on the "run" file in the root of the PyCharm Anki folder
+    - click "Edit 'run'..."
+    - in Script options enter:
+        - "-p [dev profile name]"
+            - without the quotes
+        - click "Ok"
 
 - from project root run:
     - pip install -r qt/requirements.qt
