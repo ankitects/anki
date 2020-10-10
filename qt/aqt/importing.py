@@ -491,7 +491,7 @@ def _replaceWithApkg(mw, filename, backup):
         with z.open(colname) as source, open(mw.pm.collectionPath(), "wb") as target:
             # ignore appears related to https://github.com/python/typeshed/issues/4349
             # see if can turn off once issue fix is merged in
-            shutil.copyfileobj(source, target)  # type: ignore
+            shutil.copyfileobj(source, target)
 
         d = os.path.join(mw.pm.profileFolder(), "collection.media")
         for n, (cStr, file) in enumerate(
