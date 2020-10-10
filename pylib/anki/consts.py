@@ -2,87 +2,115 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from typing import Any, Dict
+from enum import IntEnum
 
 from anki.lang import _
 
 # whether new cards should be mixed with reviews, or shown first or last
-NEW_CARDS_DISTRIBUTE = 0
-NEW_CARDS_LAST = 1
-NEW_CARDS_FIRST = 2
+class NewCardMixType(IntEnum):
+    NEW_CARDS_DISTRIBUTE = 0
+    NEW_CARDS_LAST = 1
+    NEW_CARDS_FIRST = 2
 
-# new card insertion order
-NEW_CARDS_RANDOM = 0
-NEW_CARDS_DUE = 1
+globals().update(NewCardMixType.__members__)
 
-# Queue types
-QUEUE_TYPE_MANUALLY_BURIED = -3
-QUEUE_TYPE_SIBLING_BURIED = -2
-QUEUE_TYPE_SUSPENDED = -1
-QUEUE_TYPE_NEW = 0
-QUEUE_TYPE_LRN = 1
-QUEUE_TYPE_REV = 2
-QUEUE_TYPE_DAY_LEARN_RELEARN = 3
-QUEUE_TYPE_PREVIEW = 4
+class NewCardInsertionOrder(IntEnum):
+    NEW_CARDS_RANDOM = 0
+    NEW_CARDS_DUE = 1
 
-# Card types
-CARD_TYPE_NEW = 0
-CARD_TYPE_LRN = 1
-CARD_TYPE_REV = 2
-CARD_TYPE_RELEARNING = 3
+globals().update(NewCardInsertionOrder.__members__)
 
-# removal types
-REM_CARD = 0
-REM_NOTE = 1
-REM_DECK = 2
+class QueueTypes(IntEnum):
+    QUEUE_TYPE_MANUALLY_BURIED = -3
+    QUEUE_TYPE_SIBLING_BURIED = -2
+    QUEUE_TYPE_SUSPENDED = -1
+    QUEUE_TYPE_NEW = 0
+    QUEUE_TYPE_LRN = 1
+    QUEUE_TYPE_REV = 2
+    QUEUE_TYPE_DAY_LEARN_RELEARN = 3
+    QUEUE_TYPE_PREVIEW = 4
 
-# count display
-COUNT_ANSWERED = 0
-COUNT_REMAINING = 1
+globals().update(QueueTypes.__members__)
 
-# media log
-MEDIA_ADD = 0
-MEDIA_REM = 1
+class CardTypes(IntEnum):
+    CARD_TYPE_NEW = 0
+    CARD_TYPE_LRN = 1
+    CARD_TYPE_REV = 2
+    CARD_TYPE_RELEARNING = 3
 
-# Kind of decks
-DECK_STD = 0
-DECK_DYN = 1
+globals().update(CardTypes.__members__)
 
-# dynamic deck order
-DYN_OLDEST = 0
-DYN_RANDOM = 1
-DYN_SMALLINT = 2
-DYN_BIGINT = 3
-DYN_LAPSES = 4
-DYN_ADDED = 5
-DYN_DUE = 6
-DYN_REVADDED = 7
-DYN_DUEPRIORITY = 8
+class RemovalTypes(IntEnum):
+    REM_CARD = 0
+    REM_NOTE = 1
+    REM_DECK = 2
+
+globals().update(RemovalTypes.__members__)
+
+class CountDisplay(IntEnum):
+    COUNT_ANSWERED = 0
+    COUNT_REMAINING = 1
+
+globals().update(CountDisplay.__members__)
+
+class MediaLog(IntEnum):
+    MEDIA_ADD = 0
+    MEDIA_REM = 1
+
+globals().update(MediaLog.__members__)
+
+class DeckKind(IntEnum):
+    DECK_STD = 0
+    DECK_DYN = 1
+
+globals().update(DeckKind.__members__)
+
+class DynamicDeckOrder(IntEnum):
+    DYN_OLDEST = 0
+    DYN_RANDOM = 1
+    DYN_SMALLINT = 2
+    DYN_BIGINT = 3
+    DYN_LAPSES = 4
+    DYN_ADDED = 5
+    DYN_DUE = 6
+    DYN_REVADDED = 7
+    DYN_DUEPRIORITY = 8
+
+globals().update(DynamicDeckOrder.__members__)
 
 DYN_MAX_SIZE = 99999
 
-# model types
-MODEL_STD = 0
-MODEL_CLOZE = 1
+class ModelTypes(IntEnum):
+    MODEL_STD = 0
+    MODEL_CLOZE = 1
+
+globals().update(ModelTypes.__members__)
 
 STARTING_FACTOR = 2500
 
 HELP_SITE = "https://apps.ankiweb.net/docs/manual.html"
 
-# Leech actions
-LEECH_SUSPEND = 0
-LEECH_TAGONLY = 1
+class LeechActions(IntEnum):
+    LEECH_SUSPEND = 0
+    LEECH_TAGONLY = 1
 
-# Buttons
-BUTTON_ONE = 1
-BUTTON_TWO = 2
-BUTTON_THREE = 3
-BUTTON_FOUR = 4
+globals().update(LeechActions.__members__)
 
-# Revlog types
-REVLOG_LRN = 0
-REVLOG_REV = 1
-REVLOG_RELRN = 2
-REVLOG_CRAM = 3
+class Buttons(IntEnum):
+    BUTTON_ONE = 1
+    BUTTON_TWO = 2
+    BUTTON_THREE = 3
+    BUTTON_FOUR = 4
+
+globals().update(Buttons.__members__)
+
+class RevlogTypes(IntEnum):
+    REVLOG_LRN = 0
+    REVLOG_REV = 1
+    REVLOG_RELRN = 2
+    REVLOG_CRAM = 3
+
+globals().update(RevlogTypes.__members__)
 
 # Labels
 ##########################################################################
