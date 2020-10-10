@@ -18,6 +18,7 @@ import aqt.forms
 from anki.cards import Card
 from anki.collection import Collection
 from anki.consts import *
+from anki.errors import DeckRenameError
 from anki.lang import _, ngettext
 from anki.models import NoteType
 from anki.notes import Note
@@ -440,6 +441,17 @@ class SidebarStage(Enum):
     TAGS = 5
 
 
+class SidebarItemType(Enum):
+    ROOT = 0
+    COLLECTION = 1
+    CURRENT_DECK = 2
+    FILTER = 3
+    DECK = 4
+    NOTETYPE = 5
+    TAG = 6
+    CUSTOM = 7
+
+
 class SidebarItem:
     def __init__(
         self,
@@ -448,9 +460,11 @@ class SidebarItem:
         onClick: Callable[[], None] = None,
         onExpanded: Callable[[bool], None] = None,
         expanded: bool = False,
+        item_type: SidebarItemType = SidebarItemType.CUSTOM,
     ) -> None:
         self.name = name
         self.icon = icon
+        self.item_type = item_type
         self.onClick = onClick
         self.onExpanded = onExpanded
         self.expanded = expanded
@@ -567,6 +581,83 @@ class SidebarModel(QAbstractItemModel):
 
         # then ourselves
         tree.setExpanded(parent, True)
+
+    # Sidebar
+    ######################################################################
+
+
+class SidebarTreeView(QTreeView):
+    def __init__(self, browser: "Browser") -> None:
+        super().__init__()
+        self.browser = browser
+        self.mw = browser.mw
+        self.col = self.mw.col
+        self.expanded.connect(self.onExpansion)  # type: ignore
+        self.collapsed.connect(self.onCollapse)  # type: ignore
+
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.onContextMenu)  # type: ignore
+        self.context_menus = {SidebarItemType.DECK: ((_("Rename"), self.rename_deck),)}
+
+    def onClickCurrent(self) -> None:
+        idx = self.currentIndex()
+        if idx.isValid():
+            item: SidebarItem = idx.internalPointer()
+            if item.onClick:
+                item.onClick()
+
+    def mouseReleaseEvent(self, event: QMouseEvent) -> None:
+        super().mouseReleaseEvent(event)
+        self.onClickCurrent()
+
+    def keyPressEvent(self, event: QKeyEvent) -> None:
+        if event.key() in (Qt.Key_Return, Qt.Key_Enter):
+            self.onClickCurrent()
+        else:
+            super().keyPressEvent(event)
+
+    def onExpansion(self, idx: QModelIndex) -> None:
+        self._onExpansionChange(idx, True)
+
+    def onCollapse(self, idx: QModelIndex) -> None:
+        self._onExpansionChange(idx, False)
+
+    def _onExpansionChange(self, idx: QModelIndex, expanded: bool) -> None:
+        item: SidebarItem = idx.internalPointer()
+        if item.expanded != expanded:
+            item.expanded = expanded
+            if item.onExpanded:
+                item.onExpanded(expanded)
+
+    def onContextMenu(self, point: QPoint) -> None:
+        idx: QModelIndex = self.indexAt(point)
+        item: SidebarItem = idx.internalPointer()
+        item_type: SidebarItemType = item.item_type
+        if item_type not in self.context_menus:
+            return
+
+        m = QMenu()
+        for action in self.context_menus[item_type]:
+            act_name = action[0]
+            act_func = action[1]
+            a = m.addAction(act_name)
+            a.triggered.connect(lambda _, func=act_func: func(item))  # type: ignore
+        m.exec_(QCursor.pos())
+
+    def rename_deck(self, item: SidebarItem) -> None:
+        self.mw.checkpoint(_("Rename Deck"))
+        old_name = item.name
+        deck = self.mw.col.decks.byName(old_name)
+        new_name = getOnlyText(_("New deck name:"), default=old_name)
+        new_name = new_name.replace('"', "")
+        if not new_name or new_name == old_name:
+            return
+        try:
+            self.mw.col.decks.rename(deck, new_name)
+            self.browser.maybeRefreshSidebar()
+        except DeckRenameError as e:
+            return showWarning(e.description)
+        self.show()
 
 
 # Browser window
@@ -1015,51 +1106,13 @@ QTableView {{ gridline-color: {grid} }}
     def onColumnMoved(self, a, b, c):
         self.setColumnSizes()
 
-    # Sidebar
-    ######################################################################
-
-    class SidebarTreeView(QTreeView):
-        def __init__(self):
-            super().__init__()
-            qconnect(self.expanded, self.onExpansion)
-            qconnect(self.collapsed, self.onCollapse)
-
-        def onClickCurrent(self) -> None:
-            idx = self.currentIndex()
-            if idx.isValid():
-                item: SidebarItem = idx.internalPointer()
-                if item.onClick:
-                    item.onClick()
-
-        def mouseReleaseEvent(self, event: QMouseEvent) -> None:
-            super().mouseReleaseEvent(event)
-            self.onClickCurrent()
-
-        def keyPressEvent(self, event: QKeyEvent) -> None:
-            if event.key() in (Qt.Key_Return, Qt.Key_Enter):
-                self.onClickCurrent()
-            else:
-                super().keyPressEvent(event)
-
-        def onExpansion(self, idx: QModelIndex) -> None:
-            self._onExpansionChange(idx, True)
-
-        def onCollapse(self, idx: QModelIndex) -> None:
-            self._onExpansionChange(idx, False)
-
-        def _onExpansionChange(self, idx: QModelIndex, expanded: bool) -> None:
-            item: SidebarItem = idx.internalPointer()
-            if item.expanded != expanded:
-                item.expanded = expanded
-                if item.onExpanded:
-                    item.onExpanded(expanded)
 
     def setupSidebar(self) -> None:
         dw = self.sidebarDockWidget = QDockWidget(_("Sidebar"), self)
         dw.setFeatures(QDockWidget.DockWidgetClosable)
         dw.setObjectName("Sidebar")
         dw.setAllowedAreas(Qt.LeftDockWidgetArea)
-        self.sidebarTree = self.SidebarTreeView()
+        self.sidebarTree = SidebarTreeView(self)
         self.sidebarTree.mw = self.mw
         self.sidebarTree.setUniformRowHeights(True)
         self.sidebarTree.setHeaderHidden(True)
@@ -1097,7 +1150,7 @@ QTableView {{ gridline-color: {grid} }}
             self.mw.progress.timer(10, deferredDisplay, False)
 
     def buildTree(self) -> SidebarItem:
-        root = SidebarItem("", "")
+        root = SidebarItem("", "", item_type=SidebarItemType.ROOT)
 
         handled = gui_hooks.browser_will_build_tree(
             False, root, SidebarStage.ROOT, self
@@ -1122,14 +1175,20 @@ QTableView {{ gridline-color: {grid} }}
         return root
 
     def _stdTree(self, root) -> None:
-        for name, filt, icon in [
-            [_("Whole Collection"), "", "collection"],
-            [_("Current Deck"), "deck:current", "deck"],
-        ]:
-            item = SidebarItem(
-                name, ":/icons/{}.svg".format(icon), self._filterFunc(filt)
-            )
-            root.addChild(item)
+        item = SidebarItem(
+            _("Whole Collection"),
+            ":/icons/collection.svg",
+            self._filterFunc(""),
+            item_type=SidebarItemType.COLLECTION,
+        )
+        root.addChild(item)
+        item = SidebarItem(
+            _("Current Deck"),
+            ":/icons/deck.svg",
+            self._filterFunc("deck:current"),
+            item_type=SidebarItemType.CURRENT_DECK,
+        )
+        root.addChild(item)
 
     def _favTree(self, root) -> None:
         assert self.col
@@ -1139,6 +1198,7 @@ QTableView {{ gridline-color: {grid} }}
                 name,
                 ":/icons/heart.svg",
                 lambda s=filt: self.setFilter(s),  # type: ignore
+                item_type=SidebarItemType.DECK,
             )
             root.addChild(item)
 
@@ -1146,7 +1206,7 @@ QTableView {{ gridline-color: {grid} }}
         assert self.col
         for t in self.col.tags.all():
             item = SidebarItem(
-                t, ":/icons/tag.svg", lambda t=t: self.setFilter("tag", t)  # type: ignore
+                t, ":/icons/tag.svg", lambda t=t: self.setFilter("tag", t), item_type=SidebarItemType.TAG  # type: ignore
             )
             root.addChild(item)
 
@@ -1170,6 +1230,7 @@ QTableView {{ gridline-color: {grid} }}
                     set_filter(),
                     toggle_expand(),
                     not node.collapsed,
+                    item_type=SidebarItemType.DECK,
                 )
                 root.addChild(item)
                 newhead = head + node.name + "::"
@@ -1184,6 +1245,7 @@ QTableView {{ gridline-color: {grid} }}
                 m.name,
                 ":/icons/notetype.svg",
                 lambda m=m: self.setFilter("note", m.name),  # type: ignore
+                item_type=SidebarItemType.NOTETYPE,
             )
             root.addChild(item)
 
