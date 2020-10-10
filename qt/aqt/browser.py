@@ -18,7 +18,6 @@ import aqt.forms
 from anki.cards import Card
 from anki.collection import Collection
 from anki.consts import *
-from anki.errors import DeckRenameError
 from anki.lang import _, ngettext
 from anki.models import NoteType
 from anki.notes import Note
@@ -32,6 +31,7 @@ from aqt.main import ResetReason
 from aqt.previewer import BrowserPreviewer as PreviewDialog
 from aqt.previewer import Previewer
 from aqt.qt import *
+from aqt.sidebar import NewSidebarTreeView, SidebarItemType, SidebarTreeViewBase
 from aqt.theme import theme_manager
 from aqt.utils import (
     MenuList,
@@ -441,17 +441,6 @@ class SidebarStage(Enum):
     TAGS = 5
 
 
-class SidebarItemType(Enum):
-    ROOT = 0
-    COLLECTION = 1
-    CURRENT_DECK = 2
-    FILTER = 3
-    DECK = 4
-    NOTETYPE = 5
-    TAG = 6
-    CUSTOM = 7
-
-
 class SidebarItem:
     def __init__(
         self,
@@ -461,15 +450,17 @@ class SidebarItem:
         onExpanded: Callable[[bool], None] = None,
         expanded: bool = False,
         item_type: SidebarItemType = SidebarItemType.CUSTOM,
+        id: int = 0,
     ) -> None:
         self.name = name
         self.icon = icon
         self.item_type = item_type
+        self.id = id
         self.onClick = onClick
         self.onExpanded = onExpanded
         self.expanded = expanded
         self.children: List["SidebarItem"] = []
-        self.parentItem: Optional[SidebarItem] = None
+        self.parentItem: Optional["SidebarItem"] = None
         self.tooltip: Optional[str] = None
 
     def addChild(self, cb: "SidebarItem") -> None:
@@ -582,83 +573,6 @@ class SidebarModel(QAbstractItemModel):
         # then ourselves
         tree.setExpanded(parent, True)
 
-    # Sidebar
-    ######################################################################
-
-
-class SidebarTreeView(QTreeView):
-    def __init__(self, browser: "Browser") -> None:
-        super().__init__()
-        self.browser = browser
-        self.mw = browser.mw
-        self.col = self.mw.col
-        self.expanded.connect(self.onExpansion)  # type: ignore
-        self.collapsed.connect(self.onCollapse)  # type: ignore
-
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.customContextMenuRequested.connect(self.onContextMenu)  # type: ignore
-        self.context_menus = {SidebarItemType.DECK: ((_("Rename"), self.rename_deck),)}
-
-    def onClickCurrent(self) -> None:
-        idx = self.currentIndex()
-        if idx.isValid():
-            item: SidebarItem = idx.internalPointer()
-            if item.onClick:
-                item.onClick()
-
-    def mouseReleaseEvent(self, event: QMouseEvent) -> None:
-        super().mouseReleaseEvent(event)
-        self.onClickCurrent()
-
-    def keyPressEvent(self, event: QKeyEvent) -> None:
-        if event.key() in (Qt.Key_Return, Qt.Key_Enter):
-            self.onClickCurrent()
-        else:
-            super().keyPressEvent(event)
-
-    def onExpansion(self, idx: QModelIndex) -> None:
-        self._onExpansionChange(idx, True)
-
-    def onCollapse(self, idx: QModelIndex) -> None:
-        self._onExpansionChange(idx, False)
-
-    def _onExpansionChange(self, idx: QModelIndex, expanded: bool) -> None:
-        item: SidebarItem = idx.internalPointer()
-        if item.expanded != expanded:
-            item.expanded = expanded
-            if item.onExpanded:
-                item.onExpanded(expanded)
-
-    def onContextMenu(self, point: QPoint) -> None:
-        idx: QModelIndex = self.indexAt(point)
-        item: SidebarItem = idx.internalPointer()
-        item_type: SidebarItemType = item.item_type
-        if item_type not in self.context_menus:
-            return
-
-        m = QMenu()
-        for action in self.context_menus[item_type]:
-            act_name = action[0]
-            act_func = action[1]
-            a = m.addAction(act_name)
-            a.triggered.connect(lambda _, func=act_func: func(item))  # type: ignore
-        m.exec_(QCursor.pos())
-
-    def rename_deck(self, item: SidebarItem) -> None:
-        self.mw.checkpoint(_("Rename Deck"))
-        old_name = item.name
-        deck = self.mw.col.decks.byName(old_name)
-        new_name = getOnlyText(_("New deck name:"), default=old_name)
-        new_name = new_name.replace('"', "")
-        if not new_name or new_name == old_name:
-            return
-        try:
-            self.mw.col.decks.rename(deck, new_name)
-            self.browser.maybeRefreshSidebar()
-        except DeckRenameError as e:
-            return showWarning(e.description)
-        self.show()
-
 
 # Browser window
 ######################################################################
@@ -672,9 +586,10 @@ class Browser(QMainWindow):
     col: Collection
     editor: Optional[Editor]
 
-    def __init__(self, mw: AnkiQt) -> None:
+    def __init__(self, mw: AnkiQt, want_old_sidebar: bool = False) -> None:
         QMainWindow.__init__(self, None, Qt.Window)
         self.mw = mw
+        self.want_old_sidebar = want_old_sidebar
         self.col = self.mw.col
         self.lastFilter = ""
         self.focusTo: Optional[int] = None
@@ -1106,13 +1021,22 @@ QTableView {{ gridline-color: {grid} }}
     def onColumnMoved(self, a, b, c):
         self.setColumnSizes()
 
+    # implementation moved to sidebar.py. this is kept for compatibility
+    class SidebarTreeView(SidebarTreeViewBase):
+        pass
 
     def setupSidebar(self) -> None:
         dw = self.sidebarDockWidget = QDockWidget(_("Sidebar"), self)
         dw.setFeatures(QDockWidget.DockWidgetClosable)
         dw.setObjectName("Sidebar")
         dw.setAllowedAreas(Qt.LeftDockWidgetArea)
-        self.sidebarTree = SidebarTreeView(self)
+
+        self.sidebarTree: SidebarTreeViewBase
+        if self.want_old_sidebar:
+            self.sidebarTree = self.SidebarTreeView()
+        else:
+            self.sidebarTree = NewSidebarTreeView(self)
+
         self.sidebarTree.mw = self.mw
         self.sidebarTree.setUniformRowHeights(True)
         self.sidebarTree.setHeaderHidden(True)
@@ -1198,7 +1122,7 @@ QTableView {{ gridline-color: {grid} }}
                 name,
                 ":/icons/heart.svg",
                 lambda s=filt: self.setFilter(s),  # type: ignore
-                item_type=SidebarItemType.DECK,
+                item_type=SidebarItemType.FILTER,
             )
             root.addChild(item)
 
@@ -1206,7 +1130,10 @@ QTableView {{ gridline-color: {grid} }}
         assert self.col
         for t in self.col.tags.all():
             item = SidebarItem(
-                t, ":/icons/tag.svg", lambda t=t: self.setFilter("tag", t), item_type=SidebarItemType.TAG  # type: ignore
+                t,
+                ":/icons/tag.svg",
+                lambda t=t: self.setFilter("tag", t),  # type: ignore
+                item_type=SidebarItemType.TAG,  # type: ignore
             )
             root.addChild(item)
 
@@ -1231,6 +1158,7 @@ QTableView {{ gridline-color: {grid} }}
                     toggle_expand(),
                     not node.collapsed,
                     item_type=SidebarItemType.DECK,
+                    id=node.deck_id,
                 )
                 root.addChild(item)
                 newhead = head + node.name + "::"
