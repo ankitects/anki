@@ -39,7 +39,7 @@ class PaukerImporter(NoteImporter):
 
         try:
             f = gzip.open(self.file)
-            tree = ET.parse(f)
+            tree = ET.parse(f)  # type: ignore
             lesson = tree.getroot()
             assert lesson.tag == "Lesson"
         finally:
