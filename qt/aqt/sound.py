@@ -72,14 +72,15 @@ class Player(ABC):
 
 
 AUDIO_EXTENSIONS = {
-    "wav",
-    "mp3",
-    "ogg",
+    "3gp",
     "flac",
     "m4a",
-    "3gp",
-    "spx",
+    "mp3",
     "oga",
+    "ogg",
+    "opus",
+    "spx",
+    "wav",
 }
 
 
