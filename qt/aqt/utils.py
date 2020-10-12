@@ -43,7 +43,7 @@ def tr(key: TRValue, **kwargs: Union[str, int, float]) -> str:
 def openHelp(section):
     link = aqt.appHelpSite
     if section:
-        link += "#%s" % section
+        link += section
     openLink(link)
 
 

@@ -1499,7 +1499,7 @@ where id in %s"""
         return sf
 
     def onHelp(self):
-        openHelp("browser")
+        openHelp("browsing")
 
     # Misc menu options
     ######################################################################
@@ -1939,7 +1939,7 @@ where id in %s"""
         self.mw.taskman.run_in_background(do_search, on_done)
 
     def onFindReplaceHelp(self):
-        openHelp("findreplace")
+        openHelp("browsing?id=find-and-replace")
 
     # Edit: finding dupes
     ######################################################################
@@ -2282,7 +2282,7 @@ Are you sure you want to continue?"""
         QDialog.accept(self)
 
     def onHelp(self):
-        openHelp("browsermisc")
+        openHelp("browsing?id=other-menu-items")
 
 
 # Card Info Dialog
