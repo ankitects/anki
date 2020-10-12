@@ -1133,7 +1133,7 @@ QTableView {{ gridline-color: {grid} }}
                 t,
                 ":/icons/tag.svg",
                 lambda t=t: self.setFilter("tag", t),  # type: ignore
-                item_type=SidebarItemType.TAG,  # type: ignore
+                item_type=SidebarItemType.TAG,
             )
             root.addChild(item)
 
