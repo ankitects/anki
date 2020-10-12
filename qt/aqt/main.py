@@ -1062,7 +1062,9 @@ title="%s" %s>%s</button>""" % (
         aqt.dialogs.open("AddCards", self)
 
     def onBrowse(self) -> None:
-        aqt.dialogs.open("Browser", self)
+        aqt.dialogs.open(
+            "Browser", self, self.app.queryKeyboardModifiers() & Qt.ShiftModifier
+        )
 
     def onEditCurrent(self):
         aqt.dialogs.open("EditCurrent", self)
