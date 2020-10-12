@@ -734,6 +734,16 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         return_type="List[Tuple[str, Callable[[], None]]]",
         doc="""Allows adding buttons to the Model dialog""",
     ),
+    # Fields
+    ###################
+    Hook(
+        name="fields_did_rename_field",
+        args=["dialog: aqt.fields.FieldDialog", "field: anki.models.Field", "old_name: str"],
+    ),
+    Hook(
+        name="fields_did_delete_field",
+        args=["dialog: aqt.fields.FieldDialog", "field: anki.models.Field"],
+    ),
     # Stats
     ###################
     Hook(

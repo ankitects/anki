@@ -1729,6 +1729,74 @@ class _EmptyCardsWillShowHook:
 empty_cards_will_show = _EmptyCardsWillShowHook()
 
 
+class _FieldsDidDeleteFieldHook:
+    _hooks: List[Callable[["aqt.fields.FieldDialog", "anki.models.Field"], None]] = []
+
+    def append(
+        self, cb: Callable[["aqt.fields.FieldDialog", "anki.models.Field"], None]
+    ) -> None:
+        """(dialog: aqt.fields.FieldDialog, field: anki.models.Field)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self, cb: Callable[["aqt.fields.FieldDialog", "anki.models.Field"], None]
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
+
+    def __call__(
+        self, dialog: aqt.fields.FieldDialog, field: anki.models.Field
+    ) -> None:
+        for hook in self._hooks:
+            try:
+                hook(dialog, field)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+fields_did_delete_field = _FieldsDidDeleteFieldHook()
+
+
+class _FieldsDidRenameFieldHook:
+    _hooks: List[
+        Callable[["aqt.fields.FieldDialog", "anki.models.Field", str], None]
+    ] = []
+
+    def append(
+        self, cb: Callable[["aqt.fields.FieldDialog", "anki.models.Field", str], None]
+    ) -> None:
+        """(dialog: aqt.fields.FieldDialog, field: anki.models.Field, old_name: str)"""
+        self._hooks.append(cb)
+
+    def remove(
+        self, cb: Callable[["aqt.fields.FieldDialog", "anki.models.Field", str], None]
+    ) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
+
+    def __call__(
+        self, dialog: aqt.fields.FieldDialog, field: anki.models.Field, old_name: str
+    ) -> None:
+        for hook in self._hooks:
+            try:
+                hook(dialog, field, old_name)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+fields_did_rename_field = _FieldsDidRenameFieldHook()
+
+
 class _MainWindowDidInitHook:
     """Executed after the main window is fully initialized
 
