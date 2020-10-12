@@ -61,7 +61,7 @@ class AddCards(QDialog):
         self.deckChooser = aqt.deckchooser.DeckChooser(self.mw, self.form.deckArea)
 
     def helpRequested(self):
-        openHelp("addingnotes")
+        openHelp("editing?id=adding-cards-and-notes")
 
     def setupButtons(self) -> None:
         bb = self.form.buttonBox

@@ -538,7 +538,7 @@ class Editor:
         form = aqt.forms.edithtml.Ui_Dialog()
         form.setupUi(d)
         restoreGeom(d, "htmlEditor")
-        qconnect(form.buttonBox.helpRequested, lambda: openHelp("editor"))
+        qconnect(form.buttonBox.helpRequested, lambda: openHelp("editing?id=features"))
         form.textEdit.setPlainText(self.note.fields[field])
         d.show()
         form.textEdit.moveCursor(QTextCursor.End)
