@@ -38,7 +38,7 @@ class DeckConf(QDialog):
         self.setupCombos()
         self.setupConfs()
         self.setWindowModality(Qt.WindowModal)
-        qconnect(self.form.buttonBox.helpRequested, lambda: openHelp("deckoptions"))
+        qconnect(self.form.buttonBox.helpRequested, lambda: openHelp("deck-options"))
         qconnect(self.form.confOpts.clicked, self.confOpts)
         qconnect(
             self.form.buttonBox.button(QDialogButtonBox.RestoreDefaults).clicked,
