@@ -1130,7 +1130,9 @@ class EditorWebView(AnkiWebView):
                         processed.append(link)
                     else:
                         # not media; add it as a normal link
-                        link = '<a href="{}">{}</a>'.format(token, html.escape(token))
+                        link = '<a href="{}">{}</a>'.format(
+                            token, html.escape(urllib.parse.unquote(token))
+                        )
                         processed.append(link)
                 else:
                     token = html.escape(token).replace("\t", " " * 4)
