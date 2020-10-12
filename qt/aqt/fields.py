@@ -6,7 +6,7 @@ from anki.consts import *
 from anki.lang import _, ngettext
 from anki.models import NoteType
 from anki.rsbackend import TemplateError
-from aqt import AnkiQt
+from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.schema_change_tracker import ChangeTracker
 from aqt.utils import askUser, getOnlyText, openHelp, showWarning, tooltip
@@ -100,6 +100,8 @@ class FieldDialog(QDialog):
 
         self.change_tracker.mark_basic()
         self.mm.rename_field(self.model, f, name)
+        gui_hooks.fields_did_rename_field(self, f, f["name"])
+
         self.saveField()
         self.fillFields()
         self.form.fieldList.setCurrentRow(idx)
@@ -127,6 +129,8 @@ class FieldDialog(QDialog):
             return
         f = self.model["flds"][self.form.fieldList.currentRow()]
         self.mm.remove_field(self.model, f)
+        gui_hooks.fields_did_delete_field(self, f)
+
         self.fillFields()
         self.form.fieldList.setCurrentRow(0)
 
