@@ -66,7 +66,7 @@ MODEL_CLOZE = 1
 
 STARTING_FACTOR = 2500
 
-HELP_SITE = "https://apps.ankiweb.net/docs/manual.html"
+HELP_SITE = "https://docs.ankiweb.net/#/"
 
 # Leech actions
 LEECH_SUSPEND = 0

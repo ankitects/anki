@@ -35,7 +35,6 @@ except AttributeError:
 
 appVersion = _version
 appWebsite = "https://apps.ankiweb.net/"
-appChanges = "https://apps.ankiweb.net/docs/changes.html"
 appDonate = "https://apps.ankiweb.net/support/"
 appShared = "https://ankiweb.net/shared/"
 appUpdate = "https://ankiweb.net/update/desktop"

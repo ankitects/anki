@@ -19,7 +19,7 @@ class Preferences(QDialog):
         self.form.setupUi(self)
         self.form.buttonBox.button(QDialogButtonBox.Help).setAutoDefault(False)
         self.form.buttonBox.button(QDialogButtonBox.Close).setAutoDefault(False)
-        qconnect(self.form.buttonBox.helpRequested, lambda: openHelp("profileprefs"))
+        qconnect(self.form.buttonBox.helpRequested, lambda: openHelp("preferences"))
         self.silentlyClose = True
         self.prefs = self.mw.col.backend.get_preferences()
         self.setupLang()
