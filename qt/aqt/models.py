@@ -36,7 +36,10 @@ class Models(QDialog):
         self.mw.checkpoint(_("Note Types"))
         self.form = aqt.forms.models.Ui_Dialog()
         self.form.setupUi(self)
-        qconnect(self.form.buttonBox.helpRequested, lambda: openHelp("editing?id=adding-a-note-type"))
+        qconnect(
+            self.form.buttonBox.helpRequested,
+            lambda: openHelp("editing?id=adding-a-note-type"),
+        )
         self.models: List[pb.NoteTypeNameIDUseCount] = []
         self.setupModels()
         restoreGeom(self, "models")
