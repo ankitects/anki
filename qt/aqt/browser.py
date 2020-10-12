@@ -586,10 +586,10 @@ class Browser(QMainWindow):
     col: Collection
     editor: Optional[Editor]
 
-    def __init__(self, mw: AnkiQt, want_old_sidebar: bool = False) -> None:
+    def __init__(self, mw: AnkiQt) -> None:
         QMainWindow.__init__(self, None, Qt.Window)
         self.mw = mw
-        self.want_old_sidebar = want_old_sidebar
+        self.want_old_sidebar = mw.app.queryKeyboardModifiers() & Qt.ShiftModifier
         self.col = self.mw.col
         self.lastFilter = ""
         self.focusTo: Optional[int] = None
