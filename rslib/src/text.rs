@@ -32,10 +32,10 @@ lazy_static! {
     ))
     .unwrap();
 
-    static ref IMG_TAG: Regex = Regex::new(
+    static ref HTML_TAGS: Regex = Regex::new(
         r#"(?xsi)
-            # the start of the image tag
-            <img[^>]+src=
+            # the start of the image, audio, or object tag
+            <\b(?:img|audio|object)\b[^>]+\b(?:src|data)\b=
             (?:
                     # 1: double-quoted filename
                     "
@@ -149,7 +149,7 @@ pub(crate) struct MediaRef<'a> {
 pub(crate) fn extract_media_refs(text: &str) -> Vec<MediaRef> {
     let mut out = vec![];
 
-    for caps in IMG_TAG.captures_iter(text) {
+    for caps in HTML_TAGS.captures_iter(text) {
         let fname = caps
             .get(1)
             .or_else(|| caps.get(2))
@@ -214,7 +214,7 @@ fn tts_tag_from_string<'a>(field_text: &'a str, args: &'a str) -> AVTag {
 }
 
 pub fn strip_html_preserving_image_filenames(html: &str) -> Cow<str> {
-    let without_fnames = IMG_TAG.replace_all(html, r" ${1}${2}${3} ");
+    let without_fnames = HTML_TAGS.replace_all(html, r" ${1}${2}${3} ");
     let without_html = HTML.replace_all(&without_fnames, "");
     // no changes?
     if let Cow::Borrowed(b) = without_html {
