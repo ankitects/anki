@@ -319,6 +319,9 @@ def parseArgs(argv):
     parser.add_argument("-p", "--profile", help="profile name to load", default="")
     parser.add_argument("-l", "--lang", help="interface language (en, de, etc)")
     parser.add_argument("-v", "--version", help="print the Anki version and exit")
+    parser.add_argument(
+        "-s", "--safemode", help="disable addons and automatic syncing"
+    )
     return parser.parse_known_args(argv[1:])
 
 
