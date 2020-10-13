@@ -97,6 +97,28 @@ system install, you will need to set up the pyenv folder yourself, making sure
 you have PyQt5, the WebEngine module and development tools (eg pyqt5-dev-tools)
 installed as well. You'll need to create the venv with --system-site-packages.
 
+Studying Anki on your Dev machine?
+----------------------------------
+It's advisable to create a new Anki dev profile for debug and testing so that your study collection doesn't become
+incompatible with your installed version:
+    - run Anki
+    - File | Switch profile > Add > provide [dev profile name] > Ok
+    - make a note of that [dev profile name]
+
+Because you now have at least two profiles the Profiles dialog will open when Anki runs to allow you to choose the
+profile to load.
+
+Alternatively you can set your Anki project to load your [dev profile name] profile automatically with the startup
+options described here: https://docs.ankiweb.net/#/files?id=startup-options
+
+To do this in PyCharm:
+    - right click on the "run" file in the root of the PyCharm Anki folder
+    - click "Edit 'run'..."
+    - in Script options enter:
+        - "-p [dev profile name]"
+            - without the quotes
+        - click "Ok"
+
 Debian/Ubuntu users
 -------------------
 
