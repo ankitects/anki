@@ -34,13 +34,17 @@ def media_paths_from_col_path(col_path: str) -> Tuple[str, str]:
 class MediaManager:
 
     soundRegexps = [r"(?i)(\[sound:(?P<fname>[^]]+)\])"]
-    imgRegexps = [
+    htmlRegexps = [
         # src element quoted case
-        r"(?i)(<img[^>]* src=(?P<str>[\"'])(?P<fname>[^>]+?)(?P=str)[^>]*>)",
+        r"(?i)(<[img|audio][^>]* src=(?P<str>[\"'])(?P<fname>[^>]+?)(?P=str)[^>]*>)",
         # unquoted case
-        r"(?i)(<img[^>]* src=(?!['\"])(?P<fname>[^ >]+)[^>]*?>)",
+        r"(?i)(<[img|audio][^>]* src=(?!['\"])(?P<fname>[^ >]+)[^>]*?>)",
+        # src element quoted case
+        r"(?i)(<object[^>]* data=(?P<str>[\"'])(?P<fname>[^>]+?)(?P=str)[^>]*>)",
+        # unquoted case
+        r"(?i)(<object[^>]* data=(?!['\"])(?P<fname>[^ >]+)[^>]*?>)",
     ]
-    regexps = soundRegexps + imgRegexps
+    regexps = soundRegexps + htmlRegexps
 
     def __init__(self, col: anki.collection.Collection, server: bool) -> None:
         self.col = col.weakref()
@@ -173,7 +177,7 @@ class MediaManager:
                 return tag
             return tag.replace(fname, fn(fname))
 
-        for reg in self.imgRegexps:
+        for reg in self.htmlRegexps:
             string = re.sub(reg, repl, string)
         return string
 
