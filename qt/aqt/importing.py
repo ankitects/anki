@@ -189,9 +189,8 @@ you can enter it here. Use \\t to represent tab."""
         self.importer.tagModified = self.frm.tagModified.text()
         self.mw.pm.profile["tagModified"] = self.importer.tagModified
         did = self.deck.selectedId()
-        if did != self.importer.model["did"]:
-            self.importer.model["did"] = did
-            self.mw.col.models.save(self.importer.model, updateReqs=False)
+        self.importer.model["did"] = did
+        self.mw.col.models.save(self.importer.model, updateReqs=False)
         self.mw.col.decks.select(did)
         self.mw.progress.start()
         self.mw.checkpoint(_("Import"))
