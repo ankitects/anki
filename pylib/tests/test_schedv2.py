@@ -137,8 +137,8 @@ def test_learn():
     note["Front"] = "one"
     note["Back"] = "two"
     col.addNote(note)
-    # set as a learn card and rebuild queues
-    col.db.execute("update cards set queue=0, type=0")
+    # set as a new card and rebuild queues
+    col.db.execute(f"update cards set queue={QUEUE_TYPE_NEW}, type={CARD_TYPE_NEW}")
     col.reset()
     # sched.getCard should return it, since it's due in the past
     c = col.sched.getCard()
@@ -252,8 +252,8 @@ def test_learn_collapsed():
     note = col.newNote()
     note["Front"] = "2"
     col.addNote(note)
-    # set as a learn card and rebuild queues
-    col.db.execute("update cards set queue=0, type=0")
+    # set as a new card and rebuild queues
+    col.db.execute(f"update cards set queue={QUEUE_TYPE_NEW}, type={CARD_TYPE_NEW}")
     col.reset()
     # should get '1' first
     c = col.sched.getCard()
