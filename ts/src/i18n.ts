@@ -4,6 +4,7 @@
 import pb from "./backend/proto";
 import "intl-pluralrules";
 import { FluentBundle, FluentResource, FluentNumber } from "@fluent/bundle/compat";
+import { timeSaturday, timeSunday, timeMonday } from "d3-time";
 
 type RecordVal = number | string | FluentNumber;
 
@@ -57,6 +58,27 @@ export class I18n {
         } else {
             return "ltr";
         }
+    }
+
+    firstWeekday(): any {
+        const firstLang = this.bundles[0].locales;
+        if (
+            firstLang.startsWith("ar") ||
+            firstLang.startsWith("he") ||
+            firstLang.startsWith("fa")
+        ) {
+            return timeSaturday;
+        }
+
+        if (
+            firstLang === 'en' ||
+            firstLang.startsWith("ja") ||
+            firstLang.startsWith("ko-KR")
+        ) {
+            return timeSunday;
+        }
+
+        return timeMonday;
     }
 
     private keyName(msg: pb.BackendProto.FluentString): string {

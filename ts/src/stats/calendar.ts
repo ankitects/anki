@@ -13,7 +13,7 @@ import { select, mouse } from "d3-selection";
 import { scaleLinear, scaleSequential } from "d3-scale";
 import { showTooltip, hideTooltip } from "./tooltip";
 import { GraphBounds, setDataAvailable, RevlogRange } from "./graphs";
-import { timeDay, timeYear, timeWeek } from "d3-time";
+import { timeDay, timeYear } from "d3-time";
 import { I18n } from "../i18n";
 
 export interface GraphData {
@@ -62,6 +62,7 @@ export function renderCalendar(
     const nowForYear = new Date();
     nowForYear.setFullYear(targetYear);
 
+    const firstWeekday = i18n.firstWeekday()
     const x = scaleLinear()
         .range([bounds.marginLeft, bounds.width - bounds.marginRight])
         .domain([0, 53]);
@@ -73,8 +74,8 @@ export function renderCalendar(
         if (date.getFullYear() != targetYear) {
             continue;
         }
-        const weekNumber = timeWeek.count(timeYear(date), date);
-        const weekDay = timeDay.count(timeWeek(date), date);
+        const weekNumber = firstWeekday.count(timeYear(date), date);
+        const weekDay = timeDay.count(firstWeekday(date), date);
         const yearDay = timeDay.count(timeYear(date), date);
         dayMap.set(yearDay, { day, count, weekNumber, weekDay, date } as DayDatum);
         if (count > maxCount) {
@@ -105,8 +106,8 @@ export function renderCalendar(
         }
         const yearDay = timeDay.count(timeYear(date), date);
         if (!dayMap.has(yearDay)) {
-            const weekNumber = timeWeek.count(timeYear(date), date);
-            const weekDay = timeDay.count(timeWeek(date), date);
+            const weekNumber = firstWeekday.count(timeYear(date), date);
+            const weekDay = timeDay.count(firstWeekday(date), date);
             dayMap.set(yearDay, {
                 day: yearDay,
                 count: 0,
