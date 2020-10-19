@@ -774,24 +774,22 @@ class Browser(QMainWindow):
         prompt = self.form.searchEdit.lineEdit().text()
 
         # convert guide text before we save history
-        if prompt == self._searchPrompt:
-            txt = "deck:current "
-        else:
-            txt = prompt
-
-        # update history
-        sh = self.mw.pm.profile["searchHistory"]
-        if txt in sh:
-            sh.remove(txt)
-        sh.insert(0, txt)
-        sh = sh[:30]
-        self.form.searchEdit.clear()
-        self.form.searchEdit.addItems(sh)
-        self.mw.pm.profile["searchHistory"] = sh
+        txt = "deck:current " if prompt == self._searchPrompt else prompt
+        self.update_history(txt)
 
         # keep track of search string so that we reuse identical search when
         # refreshing, rather than whatever is currently in the search field
         self.search_for(txt)
+
+    def update_history(self, search: str) -> None:
+        sh = self.mw.pm.profile["searchHistory"]
+        if search in sh:
+            sh.remove(search)
+        sh.insert(0, search)
+        sh = sh[:30]
+        self.form.searchEdit.clear()
+        self.form.searchEdit.addItems(sh)
+        self.mw.pm.profile["searchHistory"] = sh
 
     def search_for(self, search: str, prompt: Optional[str] = None) -> None:
         self._lastSearchTxt = search
