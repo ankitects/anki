@@ -760,7 +760,7 @@ class Browser(QMainWindow):
         self.form.searchEdit.addItems(
             [self._searchPrompt] + self.mw.pm.profile["searchHistory"]
         )
-        self.search_for("is:current")
+        self.search_for("is:current", self._searchPrompt)
         # then replace text for easily showing the deck
         self.form.searchEdit.lineEdit().selectAll()
         self.form.searchEdit.setFocus()
