@@ -794,6 +794,11 @@ class Browser(QMainWindow):
         self._lastSearchTxt = txt
         self.search()
 
+    def search_for(self, search: str, prompt: Optional[str] = None) -> None:
+        self._lastSearchTxt = search
+        self.form.searchEdit.lineEdit().setText(prompt or search)
+        self.search()
+
     # search triggered programmatically. caller must have saved note first.
     def search(self) -> None:
         if "is:current" in self._lastSearchTxt:
