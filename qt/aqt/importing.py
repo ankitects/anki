@@ -115,13 +115,6 @@ class ImportDialog(QDialog):
         self.importer.model = self.mw.col.models.current()
         self.importer.initMapping()
         self.showMapping()
-        if self.mw.col.conf.get("addToCur", True):
-            did = self.mw.col.conf["curDeck"]
-            if self.mw.col.decks.isDyn(did):
-                did = 1
-        else:
-            did = self.importer.model["did"]
-        # self.deck.setText(self.mw.col.decks.name(did))
 
     def onDelimiter(self):
         str = (
@@ -189,9 +182,8 @@ you can enter it here. Use \\t to represent tab."""
         self.importer.tagModified = self.frm.tagModified.text()
         self.mw.pm.profile["tagModified"] = self.importer.tagModified
         did = self.deck.selectedId()
-        if did != self.importer.model["did"]:
-            self.importer.model["did"] = did
-            self.mw.col.models.save(self.importer.model, updateReqs=False)
+        self.importer.model["did"] = did
+        self.mw.col.models.save(self.importer.model, updateReqs=False)
         self.mw.col.decks.select(did)
         self.mw.progress.start()
         self.mw.checkpoint(_("Import"))
