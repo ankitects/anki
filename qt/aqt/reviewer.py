@@ -76,6 +76,7 @@ class Reviewer:
 
     def cleanup(self) -> None:
         gui_hooks.reviewer_will_end()
+        self.card = None
 
     # Fetching a card
     ##########################################################################
