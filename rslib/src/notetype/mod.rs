@@ -223,8 +223,13 @@ impl NoteType {
         if self.templates.is_empty() {
             return Err(AnkiError::invalid_input("1 template required"));
         }
+        let bad_chars = |c| c == '"';
+        if self.name.contains(bad_chars) {
+            self.name = self.name.replace(bad_chars, "");
+        }
         self.normalize_names();
         self.fix_field_names();
+        self.fix_template_names();
         self.ensure_names_unique();
         self.reposition_sort_idx();
 
@@ -320,6 +325,10 @@ impl NoteType {
 
     fn fix_field_names(&mut self) {
         self.fields.iter_mut().for_each(NoteField::fix_name);
+    }
+
+    fn fix_template_names(&mut self) {
+        self.templates.iter_mut().for_each(CardTemplate::fix_name);
     }
 
     /// Find the field index of the provided field name.
