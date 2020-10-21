@@ -1211,9 +1211,9 @@ QTableView {{ gridline-color: {grid} }}
                     txt += a + ":"
                 else:
                     txt += re.sub(r"(\*|%|_)", r"\\\1", a)
-                    for chr in " 　()":
+                    for chr in ' 　()"':
                         if chr in txt:
-                            txt = '"%s"' % txt
+                            txt = '"%s"' % txt.replace('"', '\\"')
                             break
                     items.append(txt)
                     txt = ""
