@@ -766,10 +766,8 @@ class Browser(QMainWindow):
         self.form.searchEdit.addItems(
             [self._searchPrompt] + self.mw.pm.profile["searchHistory"]
         )
-        self._lastSearchTxt = "is:current"
-        self.search()
+        self.search_for("is:current", self._searchPrompt)
         # then replace text for easily showing the deck
-        self.form.searchEdit.lineEdit().setText(self._searchPrompt)
         self.form.searchEdit.lineEdit().selectAll()
         self.form.searchEdit.setFocus()
 
@@ -778,26 +776,30 @@ class Browser(QMainWindow):
         self.editor.saveNow(self._onSearchActivated)
 
     def _onSearchActivated(self):
-        # convert guide text before we save history
-        if self.form.searchEdit.lineEdit().text() == self._searchPrompt:
-            self.form.searchEdit.lineEdit().setText("deck:current ")
-
         # grab search text and normalize
-        txt = self.form.searchEdit.lineEdit().text()
+        prompt = self.form.searchEdit.lineEdit().text()
 
-        # update history
+        # convert guide text before we save history
+        txt = "deck:current " if prompt == self._searchPrompt else prompt
+        self.update_history(txt)
+
+        # keep track of search string so that we reuse identical search when
+        # refreshing, rather than whatever is currently in the search field
+        self.search_for(txt)
+
+    def update_history(self, search: str) -> None:
         sh = self.mw.pm.profile["searchHistory"]
-        if txt in sh:
-            sh.remove(txt)
-        sh.insert(0, txt)
+        if search in sh:
+            sh.remove(search)
+        sh.insert(0, search)
         sh = sh[:30]
         self.form.searchEdit.clear()
         self.form.searchEdit.addItems(sh)
         self.mw.pm.profile["searchHistory"] = sh
 
-        # keep track of search string so that we reuse identical search when
-        # refreshing, rather than whatever is currently in the search field
-        self._lastSearchTxt = txt
+    def search_for(self, search: str, prompt: Optional[str] = None) -> None:
+        self._lastSearchTxt = search
+        self.form.searchEdit.lineEdit().setText(prompt or search)
         self.search()
 
     # search triggered programmatically. caller must have saved note first.
@@ -1787,13 +1789,13 @@ where id in %s"""
 
     def _selectNotes(self):
         nids = self.selectedNotes()
-        # bypass search history
-        self._lastSearchTxt = "nid:" + ",".join([str(x) for x in nids])
-        self.form.searchEdit.lineEdit().setText(self._lastSearchTxt)
         # clear the selection so we don't waste energy preserving it
         tv = self.form.tableView
         tv.selectionModel().clear()
-        self.search()
+
+        search = "nid:" + ",".join([str(x) for x in nids])
+        self.search_for(search)
+
         tv.selectAll()
 
     def invertSelection(self):
@@ -2016,10 +2018,7 @@ where id in %s"""
         tooltip(_("Notes tagged."))
 
     def dupeLinkClicked(self, link):
-        self.form.searchEdit.lineEdit().setText(link)
-        # manually, because we've already saved
-        self._lastSearchTxt = link
-        self.search()
+        self.search_for(link)
         self.onNote()
 
     # Jumping
