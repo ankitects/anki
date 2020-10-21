@@ -56,7 +56,10 @@ class TagEdit(QLineEdit):
             if not self.completer.setCurrentRow(cur_row + 1):
                 self.completer.setCurrentRow(0)
             return
-        if evt.key() in (Qt.Key_Enter, Qt.Key_Return):
+        if (
+            evt.key() in (Qt.Key_Enter, Qt.Key_Return)
+            and self.completer.popup().isVisible()
+        ):
             # apply first completion if no suggestion selected
             selected_row = self.completer.popup().currentIndex().row()
             if selected_row == -1:
