@@ -149,7 +149,8 @@ QScrollBar::sub-line {
 QTabWidget { background-color: %s; }
 """ % (
                     self.str_color("window-bg"),
-                    colors.get("fusion-button-hover-bg"),
+                    # fushion-button-hover-bg
+                    "#656565",
                     self.str_color("window-bg"),
                 )
 

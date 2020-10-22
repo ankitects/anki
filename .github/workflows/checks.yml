@@ -166,6 +166,7 @@ jobs:
 
           echo "::set-env name=rsyncbin::rsync-3.1.3-1-x86_64.pkg.tar.xz"
           echo "::set-env name=pyaudio::$pyaudio"
+          echo "::set-env name=WINDOWS_CI_TOOLS::https://github.com/ankitects/windows-ci-tools/raw/master"
           echo "::set-env name=PATH::$new_path"
           echo "::set-env name=RUST_BACKTRACE::full"
           echo "::set-env name=SCOOP::$env:GITHUB_WORKSPACE"
@@ -190,7 +191,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ github.workspace }}${{ matrix.SEP }}pyenv
-          key: ${{ runner.os }}-pyenv-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-24-
+          key: ${{ runner.os }}-pyenv-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-25-
 
       # # Disable it in attempt to reduce the overall cache size (https://github.com/ankitects/anki/pull/528)
       # - name: Cache pip wheels
@@ -198,50 +199,50 @@ jobs:
       #   uses: actions/cache@v2
       #   with:
       #     path: ${{ matrix.PIP_WHEELS_DIR }}
-      #     key: ${{ runner.os }}-pip-wheels-${{ hashFiles('**/requirements.txt') }}-${{ hashFiles('**/setup.py') }}-24-
+      #     key: ${{ runner.os }}-pip-wheels-${{ hashFiles('**/requirements.txt') }}-${{ hashFiles('**/setup.py') }}-25-
 
       - name: Cache cargo index
         if: matrix.python == '3.7'
         uses: actions/cache@v2
         with:
           path: ${{ matrix.CARGO_INDEX_DIR }}
-          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-24-
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-25-
 
       - name: Cache cargo registry
         if: matrix.python == '3.7'
         uses: actions/cache@v2
         with:
           path: ${{ matrix.CARGO_REGISTRY_DIR }}
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-24-
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-25-
 
       - name: Cache cargo target
         if: matrix.python == '3.7'
         uses: actions/cache@v2
         with:
           path: ${{ github.workspace }}${{ matrix.SEP }}target
-          key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-${{ matrix.BUILD_TYPE }}-24-
+          key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-${{ matrix.BUILD_TYPE }}-25-
 
       - name: Cache cargo rslib
         if: matrix.python == '3.7'
         uses: actions/cache@v2
         with:
           path: ${{ github.workspace }}${{ matrix.SEP }}rslib${{ matrix.SEP }}target
-          key: ${{ runner.os }}-cargo-rslib-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-${{ matrix.BUILD_TYPE }}-24-
+          key: ${{ runner.os }}-cargo-rslib-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-${{ matrix.BUILD_TYPE }}-25-
 
       - name: Cache cargo rspy
         if: matrix.python == '3.7'
         uses: actions/cache@v2
         with:
           path: ${{ github.workspace }}${{ matrix.SEP }}rspy${{ matrix.SEP }}target
-          key: ${{ runner.os }}-cargo-rspy-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-${{ matrix.BUILD_TYPE }}-24-
+          key: ${{ runner.os }}-cargo-rspy-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-${{ matrix.BUILD_TYPE }}-25-
 
       - name: Set up curl pyaudio, rsync
         if: matrix.os == 'windows-latest'
         shell: cmd
         run: |
           echo on
-          curl --fail -LO https://github.com/ankitects/pyaudio-windows/raw/master/%pyaudio%
-          curl --fail -LO http://repo.msys2.org/msys/x86_64/%rsyncbin%
+          curl --fail -LO %WINDOWS_CI_TOOLS%/%pyaudio%
+          curl --fail -LO %WINDOWS_CI_TOOLS%/%rsyncbin%
 
           :: https://stackoverflow.com/questions/1359793/programmatically-extract-tar-gz
           7z x "%rsyncbin%" -so | 7z x -aoa -si -ttar -o"%programfiles%\Git"

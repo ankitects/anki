@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import html
+import re
 import time
 from dataclasses import dataclass
 from enum import Enum
@@ -30,6 +31,7 @@ from aqt.main import ResetReason
 from aqt.previewer import BrowserPreviewer as PreviewDialog
 from aqt.previewer import Previewer
 from aqt.qt import *
+from aqt.sidebar import NewSidebarTreeView, SidebarItemType, SidebarTreeViewBase
 from aqt.theme import theme_manager
 from aqt.utils import (
     MenuList,
@@ -447,14 +449,18 @@ class SidebarItem:
         onClick: Callable[[], None] = None,
         onExpanded: Callable[[bool], None] = None,
         expanded: bool = False,
+        item_type: SidebarItemType = SidebarItemType.CUSTOM,
+        id: int = 0,
     ) -> None:
         self.name = name
         self.icon = icon
+        self.item_type = item_type
+        self.id = id
         self.onClick = onClick
         self.onExpanded = onExpanded
         self.expanded = expanded
         self.children: List["SidebarItem"] = []
-        self.parentItem: Optional[SidebarItem] = None
+        self.parentItem: Optional["SidebarItem"] = None
         self.tooltip: Optional[str] = None
 
     def addChild(self, cb: "SidebarItem") -> None:
@@ -583,6 +589,7 @@ class Browser(QMainWindow):
     def __init__(self, mw: AnkiQt) -> None:
         QMainWindow.__init__(self, None, Qt.Window)
         self.mw = mw
+        self.want_old_sidebar = mw.app.queryKeyboardModifiers() & Qt.ShiftModifier
         self.col = self.mw.col
         self.lastFilter = ""
         self.focusTo: Optional[int] = None
@@ -759,10 +766,8 @@ class Browser(QMainWindow):
         self.form.searchEdit.addItems(
             [self._searchPrompt] + self.mw.pm.profile["searchHistory"]
         )
-        self._lastSearchTxt = "is:current"
-        self.search()
+        self.search_for("is:current", self._searchPrompt)
         # then replace text for easily showing the deck
-        self.form.searchEdit.lineEdit().setText(self._searchPrompt)
         self.form.searchEdit.lineEdit().selectAll()
         self.form.searchEdit.setFocus()
 
@@ -771,26 +776,30 @@ class Browser(QMainWindow):
         self.editor.saveNow(self._onSearchActivated)
 
     def _onSearchActivated(self):
-        # convert guide text before we save history
-        if self.form.searchEdit.lineEdit().text() == self._searchPrompt:
-            self.form.searchEdit.lineEdit().setText("deck:current ")
-
         # grab search text and normalize
-        txt = self.form.searchEdit.lineEdit().text()
+        prompt = self.form.searchEdit.lineEdit().text()
 
-        # update history
+        # convert guide text before we save history
+        txt = "deck:current " if prompt == self._searchPrompt else prompt
+        self.update_history(txt)
+
+        # keep track of search string so that we reuse identical search when
+        # refreshing, rather than whatever is currently in the search field
+        self.search_for(txt)
+
+    def update_history(self, search: str) -> None:
         sh = self.mw.pm.profile["searchHistory"]
-        if txt in sh:
-            sh.remove(txt)
-        sh.insert(0, txt)
+        if search in sh:
+            sh.remove(search)
+        sh.insert(0, search)
         sh = sh[:30]
         self.form.searchEdit.clear()
         self.form.searchEdit.addItems(sh)
         self.mw.pm.profile["searchHistory"] = sh
 
-        # keep track of search string so that we reuse identical search when
-        # refreshing, rather than whatever is currently in the search field
-        self._lastSearchTxt = txt
+    def search_for(self, search: str, prompt: Optional[str] = None) -> None:
+        self._lastSearchTxt = search
+        self.form.searchEdit.lineEdit().setText(prompt or search)
         self.search()
 
     # search triggered programmatically. caller must have saved note first.
@@ -877,6 +886,7 @@ QTableView {{ gridline-color: {grid} }}
         if not show:
             self.editor.setNote(None)
             self.singleCard = False
+            self._renderPreview()
         else:
             self.editor.setNote(self.card.note(reload=True), focusTo=self.focusTo)
             self.focusTo = None
@@ -1013,51 +1023,22 @@ QTableView {{ gridline-color: {grid} }}
     def onColumnMoved(self, a, b, c):
         self.setColumnSizes()
 
-    # Sidebar
-    ######################################################################
-
-    class SidebarTreeView(QTreeView):
-        def __init__(self):
-            super().__init__()
-            qconnect(self.expanded, self.onExpansion)
-            qconnect(self.collapsed, self.onCollapse)
-
-        def onClickCurrent(self) -> None:
-            idx = self.currentIndex()
-            if idx.isValid():
-                item: SidebarItem = idx.internalPointer()
-                if item.onClick:
-                    item.onClick()
-
-        def mouseReleaseEvent(self, event: QMouseEvent) -> None:
-            super().mouseReleaseEvent(event)
-            self.onClickCurrent()
-
-        def keyPressEvent(self, event: QKeyEvent) -> None:
-            if event.key() in (Qt.Key_Return, Qt.Key_Enter):
-                self.onClickCurrent()
-            else:
-                super().keyPressEvent(event)
-
-        def onExpansion(self, idx: QModelIndex) -> None:
-            self._onExpansionChange(idx, True)
-
-        def onCollapse(self, idx: QModelIndex) -> None:
-            self._onExpansionChange(idx, False)
-
-        def _onExpansionChange(self, idx: QModelIndex, expanded: bool) -> None:
-            item: SidebarItem = idx.internalPointer()
-            if item.expanded != expanded:
-                item.expanded = expanded
-                if item.onExpanded:
-                    item.onExpanded(expanded)
+    # implementation moved to sidebar.py. this is kept for compatibility
+    class SidebarTreeView(SidebarTreeViewBase):
+        pass
 
     def setupSidebar(self) -> None:
         dw = self.sidebarDockWidget = QDockWidget(_("Sidebar"), self)
         dw.setFeatures(QDockWidget.DockWidgetClosable)
         dw.setObjectName("Sidebar")
         dw.setAllowedAreas(Qt.LeftDockWidgetArea)
-        self.sidebarTree = self.SidebarTreeView()
+
+        self.sidebarTree: SidebarTreeViewBase
+        if self.want_old_sidebar:
+            self.sidebarTree = self.SidebarTreeView()
+        else:
+            self.sidebarTree = NewSidebarTreeView(self)
+
         self.sidebarTree.mw = self.mw
         self.sidebarTree.setUniformRowHeights(True)
         self.sidebarTree.setHeaderHidden(True)
@@ -1095,7 +1076,7 @@ QTableView {{ gridline-color: {grid} }}
             self.mw.progress.timer(10, deferredDisplay, False)
 
     def buildTree(self) -> SidebarItem:
-        root = SidebarItem("", "")
+        root = SidebarItem("", "", item_type=SidebarItemType.ROOT)
 
         handled = gui_hooks.browser_will_build_tree(
             False, root, SidebarStage.ROOT, self
@@ -1120,14 +1101,20 @@ QTableView {{ gridline-color: {grid} }}
         return root
 
     def _stdTree(self, root) -> None:
-        for name, filt, icon in [
-            [_("Whole Collection"), "", "collection"],
-            [_("Current Deck"), "deck:current", "deck"],
-        ]:
-            item = SidebarItem(
-                name, ":/icons/{}.svg".format(icon), self._filterFunc(filt)
-            )
-            root.addChild(item)
+        item = SidebarItem(
+            _("Whole Collection"),
+            ":/icons/collection.svg",
+            self._filterFunc(""),
+            item_type=SidebarItemType.COLLECTION,
+        )
+        root.addChild(item)
+        item = SidebarItem(
+            _("Current Deck"),
+            ":/icons/deck.svg",
+            self._filterFunc("deck:current"),
+            item_type=SidebarItemType.CURRENT_DECK,
+        )
+        root.addChild(item)
 
     def _favTree(self, root) -> None:
         assert self.col
@@ -1137,6 +1124,7 @@ QTableView {{ gridline-color: {grid} }}
                 name,
                 ":/icons/heart.svg",
                 lambda s=filt: self.setFilter(s),  # type: ignore
+                item_type=SidebarItemType.FILTER,
             )
             root.addChild(item)
 
@@ -1144,7 +1132,10 @@ QTableView {{ gridline-color: {grid} }}
         assert self.col
         for t in self.col.tags.all():
             item = SidebarItem(
-                t, ":/icons/tag.svg", lambda t=t: self.setFilter("tag", t)  # type: ignore
+                t,
+                ":/icons/tag.svg",
+                lambda t=t: self.setFilter("tag", t),  # type: ignore
+                item_type=SidebarItemType.TAG,
             )
             root.addChild(item)
 
@@ -1168,6 +1159,8 @@ QTableView {{ gridline-color: {grid} }}
                     set_filter(),
                     toggle_expand(),
                     not node.collapsed,
+                    item_type=SidebarItemType.DECK,
+                    id=node.deck_id,
                 )
                 root.addChild(item)
                 newhead = head + node.name + "::"
@@ -1182,6 +1175,7 @@ QTableView {{ gridline-color: {grid} }}
                 m.name,
                 ":/icons/notetype.svg",
                 lambda m=m: self.setFilter("note", m.name),  # type: ignore
+                item_type=SidebarItemType.NOTETYPE,
             )
             root.addChild(item)
 
@@ -1218,10 +1212,10 @@ QTableView {{ gridline-color: {grid} }}
                 if c % 2 == 0:
                     txt += a + ":"
                 else:
-                    txt += a
-                    for chr in " 　()":
+                    txt += re.sub(r"(\*|%|_)", r"\\\1", a)
+                    for chr in ' 　()"':
                         if chr in txt:
-                            txt = '"%s"' % txt
+                            txt = '"%s"' % txt.replace('"', '\\"')
                             break
                     items.append(txt)
                     txt = ""
@@ -1294,6 +1288,9 @@ QTableView {{ gridline-color: {grid} }}
         )
         return subm
 
+    def _escapeMenuItem(self, label):
+        return label.replace("&", "&&")
+
     def _tagFilters(self):
         m = SubMenu(_("Tags"))
 
@@ -1302,7 +1299,7 @@ QTableView {{ gridline-color: {grid} }}
 
         tagList = MenuList()
         for t in sorted(self.col.tags.all(), key=lambda s: s.lower()):
-            tagList.addItem(t, self._filterFunc("tag", t))
+            tagList.addItem(self._escapeMenuItem(t), self._filterFunc("tag", t))
 
         m.addChild(tagList.chunked())
         return m
@@ -1310,17 +1307,16 @@ QTableView {{ gridline-color: {grid} }}
     def _deckFilters(self):
         def addDecks(parent, decks, parent_prefix):
             for node in decks:
+                escaped_name = self._escapeMenuItem(node.name)
                 # pylint: disable=cell-var-from-loop
                 fullname = parent_prefix + node.name
                 if node.children:
-                    subm = parent.addMenu(node.name)
-                    subm.addItem(
-                        _("Filter"), lambda: self._filterFunc("deck", fullname)
-                    )
+                    subm = parent.addMenu(escaped_name)
+                    subm.addItem(_("Filter"), self._filterFunc("deck", fullname))
                     subm.addSeparator()
                     addDecks(subm, node.children, fullname + "::")
                 else:
-                    parent.addItem(node.name, self._filterFunc("deck", fullname))
+                    parent.addItem(escaped_name, self._filterFunc("deck", fullname))
 
         alldecks = self.col.decks.deck_tree()
         ml = MenuList()
@@ -1339,11 +1335,12 @@ QTableView {{ gridline-color: {grid} }}
 
         noteTypes = MenuList()
         for nt in sorted(self.col.models.all(), key=lambda nt: nt["name"].lower()):
+            escaped_nt_name = self._escapeMenuItem(nt["name"])
             # no sub menu if it's a single template
             if len(nt["tmpls"]) == 1:
-                noteTypes.addItem(nt["name"], self._filterFunc("note", nt["name"]))
+                noteTypes.addItem(escaped_nt_name, self._filterFunc("note", nt["name"]))
             else:
-                subm = noteTypes.addMenu(nt["name"])
+                subm = noteTypes.addMenu(escaped_nt_name)
 
                 subm.addItem(_("All Card Types"), self._filterFunc("note", nt["name"]))
                 subm.addSeparator()
@@ -1352,7 +1349,9 @@ QTableView {{ gridline-color: {grid} }}
                 for c, tmpl in enumerate(nt["tmpls"]):
                     # T: name is a card type name. n it's order in the list of card type.
                     # T: this is shown in browser's filter, when seeing the list of card type of a note type.
-                    name = _("%(n)d: %(name)s") % dict(n=c + 1, name=tmpl["name"])
+                    name = _("%(n)d: %(name)s") % dict(
+                        n=c + 1, name=self._escapeMenuItem(tmpl["name"])
+                    )
                     subm.addItem(
                         name, self._filterFunc("note", nt["name"], "card", str(c + 1))
                     )
@@ -1382,7 +1381,7 @@ QTableView {{ gridline-color: {grid} }}
 
         ml.addSeparator()
         for name, filt in sorted(saved.items()):
-            ml.addItem(name, self._filterFunc(filt))
+            ml.addItem(self._escapeMenuItem(name), self._filterFunc(filt))
 
         return ml
 
@@ -1492,7 +1491,7 @@ where id in %s"""
         return sf
 
     def onHelp(self):
-        openHelp("browser")
+        openHelp("browsing")
 
     # Misc menu options
     ######################################################################
@@ -1678,6 +1677,9 @@ where id in %s"""
     def onSetFlag(self, n):
         if not self.card:
             return
+        self.editor.saveNow(lambda: self._on_set_flag(n))
+
+    def _on_set_flag(self, n: int):
         # flag needs toggling off?
         if n == self.card.userFlag():
             n = 0
@@ -1787,13 +1789,13 @@ where id in %s"""
 
     def _selectNotes(self):
         nids = self.selectedNotes()
-        # bypass search history
-        self._lastSearchTxt = "nid:" + ",".join([str(x) for x in nids])
-        self.form.searchEdit.lineEdit().setText(self._lastSearchTxt)
         # clear the selection so we don't waste energy preserving it
         tv = self.form.tableView
         tv.selectionModel().clear()
-        self.search()
+
+        search = "nid:" + ",".join([str(x) for x in nids])
+        self.search_for(search)
+
         tv.selectAll()
 
     def invertSelection(self):
@@ -1929,7 +1931,7 @@ where id in %s"""
         self.mw.taskman.run_in_background(do_search, on_done)
 
     def onFindReplaceHelp(self):
-        openHelp("findreplace")
+        openHelp("browsing?id=find-and-replace")
 
     # Edit: finding dupes
     ######################################################################
@@ -2016,10 +2018,7 @@ where id in %s"""
         tooltip(_("Notes tagged."))
 
     def dupeLinkClicked(self, link):
-        self.form.searchEdit.lineEdit().setText(link)
-        # manually, because we've already saved
-        self._lastSearchTxt = link
-        self.search()
+        self.search_for(link)
         self.onNote()
 
     # Jumping
@@ -2272,7 +2271,7 @@ Are you sure you want to continue?"""
         QDialog.accept(self)
 
     def onHelp(self):
-        openHelp("browsermisc")
+        openHelp("browsing?id=other-menu-items")
 
 
 # Card Info Dialog

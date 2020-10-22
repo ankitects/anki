@@ -292,7 +292,7 @@ def get_id_and_pass_from_user(
     vbox = QVBoxLayout()
     info_label = QLabel(
         without_unicode_isolation(
-            tr(TR.SYNC_ACCOUNT_REQUIRED, link="https://ankiweb.net/account/login")
+            tr(TR.SYNC_ACCOUNT_REQUIRED, link="https://ankiweb.net/account/register")
         )
     )
     info_label.setOpenExternalLinks(True)

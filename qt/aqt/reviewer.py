@@ -76,6 +76,7 @@ class Reviewer:
 
     def cleanup(self) -> None:
         gui_hooks.reviewer_will_end()
+        self.card = None
 
     # Fetching a card
     ##########################################################################
@@ -201,9 +202,7 @@ class Reviewer:
         self._drawFlag()
         self._drawMark()
         self._showAnswerButton()
-        # if we have a type answer field, focus main web
-        if self.typeCorrect:
-            self.mw.web.setFocus()
+        self.mw.web.setFocus()
         # user hook
         gui_hooks.reviewer_did_show_question(c)
 
@@ -242,6 +241,7 @@ class Reviewer:
         # render and update bottom
         self.web.eval("_showAnswer(%s);" % json.dumps(a))
         self._showEaseButtons()
+        self.mw.web.setFocus()
         # user hook
         gui_hooks.reviewer_did_show_answer(c)
 
@@ -574,11 +574,9 @@ time = %(time)d;
         )
 
     def _showAnswerButton(self) -> None:
-        if not self.typeCorrect:
-            self.bottom.web.setFocus()
         middle = """
 <span class=stattxt>%s</span><br>
-<button title="%s" id=ansbut onclick='pycmd("ans");'>%s</button>""" % (
+<button title="%s" id="ansbut" class="focus" onclick='pycmd("ans");'>%s</button>""" % (
             self._remaining(),
             _("Shortcut key: %s") % _("Space"),
             _("Show Answer"),
@@ -596,7 +594,6 @@ time = %(time)d;
         self.bottom.web.adjustHeightToFit()
 
     def _showEaseButtons(self) -> None:
-        self.bottom.web.setFocus()
         middle = self._answerButtons()
         self.bottom.web.eval("showAnswer(%s);" % json.dumps(middle))
 
@@ -648,7 +645,7 @@ time = %(time)d;
 
         def but(i, label):
             if i == default:
-                extra = "id=defease"
+                extra = """id="defease" class="focus" """
             else:
                 extra = ""
             due = self._buttonTime(i)

@@ -33,7 +33,21 @@ button {
     white-space: nowrap;
 }
 
-#ansbut { margin-bottom: 1em; }
+#ansbut {
+    margin-bottom: 1em;
+}
+
+.focus {
+    outline: 5px auto rgba(0, 103, 244, 0.247);
+
+    #innertable:focus-within & {
+        outline: unset;
+
+        &:focus {
+            outline: 5px auto rgba(0, 103, 244, 0.247);
+        }
+    }
+}
 
 .nobold {
     font-weight: normal;

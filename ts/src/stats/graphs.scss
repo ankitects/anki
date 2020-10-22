@@ -4,13 +4,17 @@
 @use '../scss/core';
 
 :root {
-    --area-fill: #00000008;
-    --area-stroke: #00000015;
+    --area-fill: #000000;
+    --area-fill-opacity: 0.03;
+    --area-stroke: #000000;
+    --area-stroke-opacity: 0.08;
 }
 
 :root[class*="night-mode"] {
-    --area-fill: #ffffff15;
-    --area-stroke: #00000030;
+    --area-fill: #ffffff;
+    --area-fill-opacity: 0.08;
+    --area-stroke: #000000;
+    --area-stroke-opacity: 0.18;
 }
 
 .graph-tooltip {
@@ -108,13 +112,16 @@
 }
 
 .range-box-inner > * {
-    padding-right: 1em;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
 }
 
 .graph .area {
     pointer-events: none;
     fill: var(--area-fill);
+    fill-opacity: var(--area-fill-opacity);
     stroke: var(--area-stroke);
+    stroke-opacity: var(--area-stroke-opacity);
 }
 
 .hoverzone rect {

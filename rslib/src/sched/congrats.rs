@@ -4,6 +4,7 @@
 use crate::backend_proto as pb;
 use crate::prelude::*;
 
+#[derive(Debug)]
 pub(crate) struct CongratsInfo {
     pub learn_count: u32,
     pub next_learn_due: u32,
@@ -34,5 +35,29 @@ impl Collection {
             secs_until_next_learn,
             bridge_commands_supported: true,
         })
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use crate::collection::open_test_collection;
+
+    #[test]
+    fn empty() {
+        let mut col = open_test_collection();
+        let info = col.congrats_info().unwrap();
+        assert_eq!(
+            info,
+            crate::backend_proto::CongratsInfoOut {
+                learn_remaining: 0,
+                review_remaining: false,
+                new_remaining: false,
+                have_sched_buried: false,
+                have_user_buried: false,
+                is_filtered_deck: false,
+                secs_until_next_learn: 0,
+                bridge_commands_supported: true,
+            }
+        )
     }
 }

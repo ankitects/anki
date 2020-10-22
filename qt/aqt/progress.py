@@ -31,16 +31,33 @@ class ProgressManager:
     # (likely due to some long-running DB operation)
 
     def timer(self, ms, func, repeat, requiresCollection=True):
+        """Create and start a standard Anki timer.
+
+        If the timer fires while a progress window is shown:
+        - if it is a repeating timer, it will wait the same delay again
+        - if it is non-repeating, it will try again in 100ms
+
+        If requiresCollection is True, the timer will not fire if the
+        collection has been unloaded. Setting it to False will allow the
+        timer to fire even when there is no collection, but will still
+        only fire when there is no current progress dialog."""
+
         def handler():
-            if self._levels:
-                # retry in 100ms
-                self.timer(100, func, False, requiresCollection)
-            elif not self.mw.col and requiresCollection:
-                # ignore timer events that fire after collection has been
-                # unloaded
+            if requiresCollection and not self.mw.col:
+                # no current collection; timer is no longer valid
                 print("Ignored progress func as collection unloaded: %s" % repr(func))
-            else:
+                return
+
+            if not self._levels:
+                # no current progress; safe to fire
                 func()
+            else:
+                if repeat:
+                    # skip this time; we'll fire again
+                    pass
+                else:
+                    # retry in 100ms
+                    self.timer(100, func, False, requiresCollection)
 
         t = QTimer(self.mw)
         if not repeat:

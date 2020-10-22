@@ -581,7 +581,7 @@ class CardLayout(QDialog):
 
     def onRename(self):
         template = self.current_template()
-        name = getOnlyText(_("New name:"), default=template["name"])
+        name = getOnlyText(_("New name:"), default=template["name"]).replace('"', "")
         if not name.strip():
             return
 
@@ -828,4 +828,4 @@ Enter deck to place new %s cards in, or leave blank:"""
         self.mw = None
 
     def onHelp(self):
-        openHelp("templates")
+        openHelp("templates/intro")

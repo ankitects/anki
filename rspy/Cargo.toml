@@ -1,6 +1,6 @@
 [package]
 name = "ankirspy"
-version = "2.1.34"  # automatically updated
+version = "2.1.36"  # automatically updated
 edition = "2018"
 authors = ["Ankitects Pty Ltd and contributors <https://help.ankiweb.net>"]
 license = "AGPL-3.0-or-later"
@@ -17,3 +17,12 @@ features = ["extension-module"]
 [lib]
 name = "ankirspy"
 crate-type = ["cdylib"]
+
+[profile.dev]
+opt-level = 2
+debug = 0
+codegen-units = 256
+
+[profile.dev.package."*"]
+opt-level = 3
+codegen-units = 16

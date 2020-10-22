@@ -115,13 +115,6 @@ class ImportDialog(QDialog):
         self.importer.model = self.mw.col.models.current()
         self.importer.initMapping()
         self.showMapping()
-        if self.mw.col.conf.get("addToCur", True):
-            did = self.mw.col.conf["curDeck"]
-            if self.mw.col.decks.isDyn(did):
-                did = 1
-        else:
-            did = self.importer.model["did"]
-        # self.deck.setText(self.mw.col.decks.name(did))
 
     def onDelimiter(self):
         str = (
@@ -189,9 +182,8 @@ you can enter it here. Use \\t to represent tab."""
         self.importer.tagModified = self.frm.tagModified.text()
         self.mw.pm.profile["tagModified"] = self.importer.tagModified
         did = self.deck.selectedId()
-        if did != self.importer.model["did"]:
-            self.importer.model["did"] = did
-            self.mw.col.models.save(self.importer.model, updateReqs=False)
+        self.importer.model["did"] = did
+        self.mw.col.models.save(self.importer.model, updateReqs=False)
         self.mw.col.decks.select(did)
         self.mw.progress.start()
         self.mw.checkpoint(_("Import"))
@@ -491,7 +483,7 @@ def _replaceWithApkg(mw, filename, backup):
         with z.open(colname) as source, open(mw.pm.collectionPath(), "wb") as target:
             # ignore appears related to https://github.com/python/typeshed/issues/4349
             # see if can turn off once issue fix is merged in
-            shutil.copyfileobj(source, target)  # type: ignore
+            shutil.copyfileobj(source, target)
 
         d = os.path.join(mw.pm.profileFolder(), "collection.media")
         for n, (cStr, file) in enumerate(

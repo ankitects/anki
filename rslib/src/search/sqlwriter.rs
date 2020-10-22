@@ -11,7 +11,10 @@ use crate::{
     notetype::NoteTypeID,
     text::{matches_wildcard, text_to_re},
     text::{normalize_to_nfc, strip_html_preserving_image_filenames, without_combining},
+    timestamp::TimestampSecs,
 };
+use lazy_static::lazy_static;
+use regex::Regex;
 use std::{borrow::Cow, fmt::Write};
 
 pub(crate) struct SqlWriter<'a> {
@@ -164,7 +167,7 @@ impl SqlWriter<'_> {
 
     fn write_unqualified(&mut self, text: &str) {
         // implicitly wrap in %
-        let text = format!("%{}%", text);
+        let text = format!("%{}%", convert_glob_char(text));
         self.args.push(text);
         write!(
             self.sql,
@@ -284,13 +287,13 @@ impl SqlWriter<'_> {
                 self.sql,
                 "(
     (c.queue in ({rev},{daylrn}) and c.due <= {today}) or
-    (c.queue = {lrn} and c.due <= {daycutoff})
+    (c.queue = {lrn} and c.due <= {learncutoff})
     )",
                 rev = CardQueue::Review as i8,
                 daylrn = CardQueue::DayLearn as i8,
                 today = timing.days_elapsed,
                 lrn = CardQueue::Learn as i8,
-                daycutoff = timing.next_day_at,
+                learncutoff = TimestampSecs::now().0 + (self.col.learn_ahead_secs() as i64),
             ),
             StateKind::UserBuried => write!(self.sql, "c.queue = {}", CardQueue::UserBuried as i8),
             StateKind::SchedBuried => {
@@ -390,12 +393,15 @@ impl SqlWriter<'_> {
         }
 
         let cmp;
+        let cmp_trailer;
         if is_re {
             cmp = "regexp";
+            cmp_trailer = "";
             self.args.push(format!("(?i){}", val));
         } else {
             cmp = "like";
-            self.args.push(val.replace('*', "%"));
+            cmp_trailer = "escape '\\'";
+            self.args.push(convert_glob_char(val).into())
         }
 
         let arg_idx = self.args.len();
@@ -403,10 +409,11 @@ impl SqlWriter<'_> {
             .iter()
             .map(|(ntid, ord)| {
                 format!(
-                    "(n.mid = {mid} and field_at_index(n.flds, {ord}) {cmp} ?{n})",
+                    "(n.mid = {mid} and field_at_index(n.flds, {ord}) {cmp} ?{n} {cmp_trailer})",
                     mid = ntid,
                     ord = ord.unwrap_or_default(),
                     cmp = cmp,
+                    cmp_trailer = cmp_trailer,
                     n = arg_idx
                 )
             })
@@ -452,6 +459,14 @@ impl SqlWriter<'_> {
         let re = text_to_re(word);
         self.write_regex(&format!(r"\b{}\b", re))
     }
+}
+
+/// Replace * with %, leaving \* alone.
+fn convert_glob_char(val: &str) -> Cow<str> {
+    lazy_static! {
+        static ref RE: Regex = Regex::new(r"(^|[^\\])\*").unwrap();
+    }
+    RE.replace_all(val, "${1}%")
 }
 
 /// Convert a string with _, % or * characters into a regex.
@@ -580,25 +595,26 @@ mod test {
 
         // unqualified search
         assert_eq!(
-            s(ctx, "test"),
+            s(ctx, "te*st"),
             (
                 "((n.sfld like ?1 escape '\\' or n.flds like ?1 escape '\\'))".into(),
-                vec!["%test%".into()]
+                vec!["%te%st%".into()]
             )
         );
         assert_eq!(s(ctx, "te%st").1, vec!["%te%st%".to_string()]);
         // user should be able to escape sql wildcards
         assert_eq!(s(ctx, r#"te\%s\_t"#).1, vec!["%te\\%s\\_t%".to_string()]);
+        assert_eq!(s(ctx, r#"te\*s\_t"#).1, vec!["%te\\*s\\_t%".to_string()]);
 
         // qualified search
         assert_eq!(
             s(ctx, "front:te*st"),
             (
                 concat!(
-                    "(((n.mid = 1581236385344 and field_at_index(n.flds, 0) like ?1) or ",
-                    "(n.mid = 1581236385345 and field_at_index(n.flds, 0) like ?1) or ",
-                    "(n.mid = 1581236385346 and field_at_index(n.flds, 0) like ?1) or ",
-                    "(n.mid = 1581236385347 and field_at_index(n.flds, 0) like ?1)))"
+                    "(((n.mid = 1581236385344 and field_at_index(n.flds, 0) like ?1 escape '\\') or ",
+                    "(n.mid = 1581236385345 and field_at_index(n.flds, 0) like ?1 escape '\\') or ",
+                    "(n.mid = 1581236385346 and field_at_index(n.flds, 0) like ?1 escape '\\') or ",
+                    "(n.mid = 1581236385347 and field_at_index(n.flds, 0) like ?1 escape '\\')))"
                 )
                 .into(),
                 vec!["te%st".into()]
@@ -786,5 +802,13 @@ mod test {
             Node::Group(parse("test nid:1").unwrap()).required_table(),
             RequiredTable::Notes
         );
+    }
+
+    #[test]
+    fn convert_glob() {
+        assert_eq!(&convert_glob_char("foo*bar"), "foo%bar");
+        assert_eq!(&convert_glob_char("*bar"), "%bar");
+        assert_eq!(&convert_glob_char("\n*bar"), "\n%bar");
+        assert_eq!(&convert_glob_char(r"\*bar"), r"\*bar");
     }
 }

@@ -80,7 +80,7 @@ class Previewer(QDialog):
         self._replay.setToolTip(_("Shortcut key: %s" % "R"))
         qconnect(self._replay.clicked, self._on_replay_audio)
 
-        both_sides_button = QCheckBox(_("Show Both Sides"))
+        both_sides_button = QCheckBox(_("Back Side Only"))
         both_sides_button.setShortcut(QKeySequence("B"))
         both_sides_button.setToolTip(_("Shortcut key: %s" % "B"))
         self.bbox.addButton(both_sides_button, QDialogButtonBox.ActionRole)

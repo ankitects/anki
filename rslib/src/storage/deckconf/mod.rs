@@ -159,16 +159,38 @@ impl SqliteStorage {
 
     pub(super) fn upgrade_deck_conf_to_schema15(&self) -> Result<()> {
         for conf in self.all_deck_config_schema14()? {
-            let conf: DeckConf = conf.into();
+            let mut conf: DeckConf = conf.into();
+            // schema 15 stored starting ease of 2.5 as 250
+            conf.inner.initial_ease *= 100.0;
             self.update_deck_conf(&conf)?;
         }
 
         Ok(())
     }
 
+    // schema 15->16
+
+    pub(super) fn upgrade_deck_conf_to_schema16(&self, server: bool) -> Result<()> {
+        let mut invalid_configs = vec![];
+        for mut conf in self.all_deck_config()? {
+            // schema 16 changed starting ease of 250 to 2.5
+            conf.inner.initial_ease /= 100.0;
+            // new deck configs created with schema 15 had the wrong
+            // ease set - reset any deck configs at the minimum ease
+            // to the default 250%
+            if conf.inner.initial_ease <= 1.3 {
+                conf.inner.initial_ease = 2.5;
+                invalid_configs.push(conf.id);
+            }
+            self.update_deck_conf(&conf)?;
+        }
+
+        self.fix_low_card_eases_for_configs(&invalid_configs, server)
+    }
+
     // schema 15->11
 
-    pub(super) fn downgrade_deck_conf_from_schema15(&self) -> Result<()> {
+    pub(super) fn downgrade_deck_conf_from_schema16(&self) -> Result<()> {
         let allconf = self.all_deck_config()?;
         let confmap: HashMap<DeckConfID, DeckConfSchema11> = allconf
             .into_iter()

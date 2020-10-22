@@ -118,7 +118,7 @@ export function buildHistogram(
 
     const adjustedRange = scaleLinear().range([0.7, 0.3]);
     const colourScale = scaleSequential((n) =>
-        interpolateGreens(adjustedRange(n))
+        interpolateGreens(adjustedRange(n)!)
     ).domain([xMin!, xMax!]);
 
     const total = sum(bins as any, binValue);

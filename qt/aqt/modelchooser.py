@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+from typing import Optional
 
 from anki.lang import _
 from aqt import AnkiQt, gui_hooks
@@ -9,12 +10,25 @@ from aqt.utils import shortcut
 
 
 class ModelChooser(QHBoxLayout):
-    def __init__(self, mw: AnkiQt, widget: QWidget, label: bool = True) -> None:
+    def __init__(
+        self,
+        mw: AnkiQt,
+        widget: QWidget,
+        label: bool = True,
+        on_activated: Optional[Callable[[], None]] = None,
+    ) -> None:
+        """If provided, on_activated() will be called when the button is clicked,
+        and the caller can call .onModelChange() to pull up the dialog when they
+        are ready."""
         QHBoxLayout.__init__(self)
         self.widget = widget  # type: ignore
         self.mw = mw
         self.deck = mw.col
         self.label = label
+        if on_activated:
+            self.on_activated = on_activated
+        else:
+            self.on_activated = self.onModelChange
         self.setContentsMargins(0, 0, 0, 0)
         self.setSpacing(8)
         self.setupModels()
@@ -27,9 +41,8 @@ class ModelChooser(QHBoxLayout):
             self.addWidget(self.modelLabel)
         # models box
         self.models = QPushButton()
-        # self.models.setStyleSheet("* { text-align: left; }")
         self.models.setToolTip(shortcut(_("Change Note Type (Ctrl+N)")))
-        QShortcut(QKeySequence("Ctrl+N"), self.widget, activated=self.onModelChange)  # type: ignore
+        QShortcut(QKeySequence("Ctrl+N"), self.widget, activated=self.on_activated)  # type: ignore
         self.models.setAutoDefault(False)
         self.addWidget(self.models)
         qconnect(self.models.clicked, self.onModelChange)
@@ -88,4 +101,4 @@ class ModelChooser(QHBoxLayout):
         self.mw.reset()
 
     def updateModels(self) -> None:
-        self.models.setText(self.deck.models.current()["name"])
+        self.models.setText(self.deck.models.current()["name"].replace("&", "&&"))

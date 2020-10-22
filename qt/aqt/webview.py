@@ -4,7 +4,6 @@
 
 import dataclasses
 import json
-import math
 import re
 import sys
 from typing import Any, Callable, List, Optional, Sequence, Tuple
@@ -266,7 +265,12 @@ class AnkiWebView(QWebEngineView):
             w = w.parent()
 
     def onCopy(self):
-        self.triggerPageAction(QWebEnginePage.Copy)
+        if not self.selectedText():
+            ctx = self._page.contextMenuData()
+            if ctx and ctx.mediaType() == QWebEngineContextMenuData.MediaTypeImage:
+                self.triggerPageAction(QWebEnginePage.CopyImageToClipboard)
+        else:
+            self.triggerPageAction(QWebEnginePage.Copy)
 
     def onCut(self):
         self.triggerPageAction(QWebEnginePage.Cut)
@@ -295,6 +299,7 @@ class AnkiWebView(QWebEngineView):
         self._pendingActions = []
         self._domDone = True
         self._queueAction("setHtml", html)
+        self.set_open_links_externally(True)
 
     def _setHtml(self, html: str) -> None:
         app = QApplication.instance()
@@ -574,12 +579,7 @@ body {{ zoom: {zoom}; background: {background}; direction: {lang_dir}; {font} }}
             mw.progress.timer(1000, mw.reset, False)
             return
 
-        scaleFactor = self.zoomFactor()
-        if scaleFactor == 1:
-            scaleFactor = mw.pm.uiScale()
-
-        height = math.ceil(qvar * scaleFactor)
-        self.setFixedHeight(height)
+        self.setFixedHeight(qvar)
 
     def set_bridge_command(self, func: Callable[[str], Any], context: Any) -> None:
         """Set a handler for pycmd() messages received from Javascript.

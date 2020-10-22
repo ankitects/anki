@@ -36,7 +36,10 @@ class Models(QDialog):
         self.mw.checkpoint(_("Note Types"))
         self.form = aqt.forms.models.Ui_Dialog()
         self.form.setupUi(self)
-        qconnect(self.form.buttonBox.helpRequested, lambda: openHelp("notetypes"))
+        qconnect(
+            self.form.buttonBox.helpRequested,
+            lambda: openHelp("editing?id=adding-a-note-type"),
+        )
         self.models: List[pb.NoteTypeNameIDUseCount] = []
         self.setupModels()
         restoreGeom(self, "models")
@@ -82,8 +85,9 @@ class Models(QDialog):
     def onRename(self) -> None:
         nt = self.current_notetype()
         txt = getText(_("New name:"), default=nt["name"])
-        if txt[1] and txt[0]:
-            nt["name"] = txt[0]
+        name = txt[0].replace('"', "")
+        if txt[1] and name:
+            nt["name"] = name
             self.saveAndRefresh(nt)
 
     def saveAndRefresh(self, nt: NoteType) -> None:
@@ -116,7 +120,7 @@ class Models(QDialog):
     def onAdd(self) -> None:
         m = AddModel(self.mw, self).get()
         if m:
-            txt = getText(_("Name:"), default=m["name"])[0]
+            txt = getText(_("Name:"), default=m["name"])[0].replace('"', "")
             if txt:
                 m["name"] = txt
             self.saveAndRefresh(m)
@@ -155,7 +159,7 @@ class Models(QDialog):
         frm.latexHeader.setText(nt["latexPre"])
         frm.latexFooter.setText(nt["latexPost"])
         d.setWindowTitle(_("Options for %s") % nt["name"])
-        qconnect(frm.buttonBox.helpRequested, lambda: openHelp("latex"))
+        qconnect(frm.buttonBox.helpRequested, lambda: openHelp("math?id=latex"))
         restoreGeom(d, "modelopts")
         gui_hooks.models_advanced_will_show(d)
         d.exec_()
@@ -239,4 +243,4 @@ class AddModel(QDialog):
         QDialog.accept(self)
 
     def onHelp(self) -> None:
-        openHelp("notetypes")
+        openHelp("editing?id=adding-a-note-type")

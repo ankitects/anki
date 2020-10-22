@@ -29,7 +29,7 @@ fn is_tag_separator(c: char) -> bool {
 }
 
 fn invalid_char_for_tag(c: char) -> bool {
-    c.is_ascii_control() || is_tag_separator(c)
+    c.is_ascii_control() || is_tag_separator(c) || c == '"'
 }
 
 impl Collection {

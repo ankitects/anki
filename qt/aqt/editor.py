@@ -43,7 +43,7 @@ from aqt.utils import (
 )
 from aqt.webview import AnkiWebView
 
-pics = ("jpg", "jpeg", "png", "tif", "tiff", "gif", "svg", "webp")
+pics = ("jpg", "jpeg", "png", "tif", "tiff", "gif", "svg", "webp", "ico")
 audio = (
     "wav",
     "mp3",
@@ -118,6 +118,27 @@ class Editor:
         self.web.set_bridge_command(self.onBridgeCmd, self)
         self.outerLayout.addWidget(self.web, 1)
 
+        lefttopbtns: List[str] = [
+            self._addButton(
+                None,
+                "fields",
+                _("Customize Fields"),
+                _("Fields") + "...",
+                disables=False,
+                rightside=False,
+            ),
+            self._addButton(
+                None,
+                "cards",
+                _("Customize Card Templates (Ctrl+L)"),
+                _("Cards") + "...",
+                disables=False,
+                rightside=False,
+            ),
+        ]
+
+        gui_hooks.editor_did_init_left_buttons(lefttopbtns, self)
+
         righttopbtns: List[str] = [
             self._addButton("text_bold", "bold", _("Bold text (Ctrl+B)"), id="bold"),
             self._addButton(
@@ -131,68 +152,47 @@ class Editor:
             ),
             self._addButton("text_sub", "sub", _("Subscript (Ctrl+=)"), id="subscript"),
             self._addButton("text_clear", "clear", _("Remove formatting (Ctrl+R)")),
+            self._addButton(
+                None,
+                "colour",
+                _("Set foreground colour (F7)"),
+                """
+<div id="forecolor"
+     style="display: inline-block; background: #000; border-radius: 5px;"
+     class="topbut"
+>""",
+            ),
+            self._addButton(
+                None,
+                "changeCol",
+                _("Change colour (F8)"),
+                """
+<div style="display: inline-block; border-radius: 5px;"
+     class="topbut rainbow"
+>""",
+            ),
+            self._addButton("text_cloze", "cloze", _("Cloze deletion (Ctrl+Shift+C)")),
+            self._addButton(
+                "paperclip", "attach", _("Attach pictures/audio/video (F3)")
+            ),
+            self._addButton("media-record", "record", _("Record audio (F5)")),
+            self._addButton("more", "more"),
         ]
-        # The color selection buttons do not use an icon so the HTML must be specified manually
-        tip = _("Set foreground colour (F7)")
-        righttopbtns.append(
-            """ <button tabindex=-1
-                        class=linkb
-                        title="{}"
-                        type="button"
-                        onclick="pycmd('colour'); return false;"
-                >
-                    <div id=forecolor
-                         style="display:inline-block; background: #000;border-radius: 5px;"
-                         class=topbut
-                    >
-                    </div>
-                </button>""".format(
-                tip
-            )
-        )
-        tip = _("Change colour (F8)")
-        righttopbtns.extend(
-            [
-                """<button tabindex=-1
-                        class=linkb
-                        title="{}"
-                        type="button"
-                        onclick="pycmd('changeCol');return false;"
-                >
-                    <div style="display:inline-block; border-radius: 5px;"
-                         class="topbut rainbow"
-                    >
-                    </div>
-                </button>""".format(
-                    tip
-                ),
-                self._addButton(
-                    "text_cloze", "cloze", _("Cloze deletion (Ctrl+Shift+C)")
-                ),
-                self._addButton(
-                    "paperclip", "attach", _("Attach pictures/audio/video (F3)")
-                ),
-                self._addButton("media-record", "record", _("Record audio (F5)")),
-                self._addButton("more", "more"),
-            ]
-        )
+
         gui_hooks.editor_did_init_buttons(righttopbtns, self)
         # legacy filter
         righttopbtns = runFilter("setupEditorButtons", righttopbtns, self)
+
         topbuts = """
             <div id="topbutsleft" style="float:left;">
-                <button title='%(fldsTitle)s' onclick="pycmd('fields')">%(flds)s...</button>
-                <button title='%(cardsTitle)s' onclick="pycmd('cards')">%(cards)s...</button>
+                %(leftbts)s
             </div>
             <div id="topbutsright" style="float:right;">
                 %(rightbts)s
             </div>
         """ % dict(
-            flds=_("Fields"),
-            cards=_("Cards"),
+            leftbts="".join(lefttopbtns),
             rightbts="".join(righttopbtns),
-            fldsTitle=_("Customize Fields"),
-            cardsTitle=shortcut(_("Customize Card Templates (Ctrl+L)")),
         )
         bgcol = self.mw.app.palette().window().color().name()  # type: ignore
         # then load page
@@ -218,7 +218,7 @@ class Editor:
 
     def addButton(
         self,
-        icon: str,
+        icon: Optional[str],
         cmd: str,
         func: Callable[["Editor"], None],
         tip: str = "",
@@ -227,6 +227,7 @@ class Editor:
         toggleable: bool = False,
         keys: str = None,
         disables: bool = True,
+        rightside: bool = True,
     ):
         """Assign func to bridge cmd, register shortcut, return button"""
         if func:
@@ -245,18 +246,20 @@ class Editor:
             id=id,
             toggleable=toggleable,
             disables=disables,
+            rightside=rightside,
         )
         return btn
 
     def _addButton(
         self,
-        icon: str,
+        icon: Optional[str],
         cmd: str,
         tip: str = "",
         label: str = "",
         id: Optional[str] = None,
         toggleable: bool = False,
         disables: bool = True,
+        rightside: bool = True,
     ) -> str:
         if icon:
             if icon.startswith("qrc:/"):
@@ -281,12 +284,15 @@ class Editor:
         else:
             toggleScript = ""
         tip = shortcut(tip)
-        theclass = "linkb"
+        if rightside:
+            class_ = "linkb"
+        else:
+            class_ = ""
         if not disables:
-            theclass += " perm"
+            class_ += " perm"
         return """ <button tabindex=-1
                         {id}
-                        class="{theclass}"
+                        class="{class_}"
                         type="button"
                         title="{tip}"
                         onclick="pycmd('{cmd}');{togglesc}return false;"
@@ -300,7 +306,7 @@ class Editor:
             labelelm=labelelm,
             id=idstr,
             togglesc=toggleScript,
-            theclass=theclass,
+            class_=class_,
         )
 
     def setupShortcuts(self) -> None:
@@ -532,7 +538,7 @@ class Editor:
         form = aqt.forms.edithtml.Ui_Dialog()
         form.setupUi(d)
         restoreGeom(d, "htmlEditor")
-        qconnect(form.buttonBox.helpRequested, lambda: openHelp("editor"))
+        qconnect(form.buttonBox.helpRequested, lambda: openHelp("editing?id=features"))
         form.textEdit.setPlainText(self.note.fields[field])
         d.show()
         form.textEdit.moveCursor(QTextCursor.End)
@@ -920,10 +926,10 @@ to a cloze type first, via 'Notes>Change Note Type'"""
             "pasteHTML(%s, %s, %s);" % (json.dumps(html), json.dumps(internal), ext)
         )
 
-    def doDrop(self, html, internal):
+    def doDrop(self, html: str, internal: bool, extended: bool = False) -> None:
         def pasteIfField(ret):
             if ret:
-                self.doPaste(html, internal)
+                self.doPaste(html, internal, extended)
 
         p = self.web.mapFromGlobal(QCursor.pos())
         self.web.evalWithCallback(f"focusIfField({p.x()}, {p.y()});", pasteIfField)
@@ -1028,12 +1034,16 @@ class EditorWebView(AnkiWebView):
     def onCopy(self):
         self.triggerPageAction(QWebEnginePage.Copy)
 
-    def _onPaste(self, mode: QClipboard.Mode) -> None:
+    def _wantsExtendedPaste(self) -> bool:
         extended = not (self.editor.mw.app.queryKeyboardModifiers() & Qt.ShiftModifier)
         if self.editor.mw.pm.profile.get("pasteInvert", False):
             extended = not extended
+        return extended
+
+    def _onPaste(self, mode: QClipboard.Mode) -> None:
+        extended = self._wantsExtendedPaste()
         mime = self.editor.mw.app.clipboard().mimeData(mode=mode)
-        html, internal = self._processMime(mime)
+        html, internal = self._processMime(mime, extended)
         if not html:
             return
         self.editor.doPaste(html, internal, extended)
@@ -1048,21 +1058,22 @@ class EditorWebView(AnkiWebView):
         evt.accept()
 
     def dropEvent(self, evt):
+        extended = self._wantsExtendedPaste()
         mime = evt.mimeData()
 
         if evt.source() and mime.hasHtml():
             # don't filter html from other fields
             html, internal = mime.html(), True
         else:
-            html, internal = self._processMime(mime)
+            html, internal = self._processMime(mime, extended)
 
         if not html:
             return
 
-        self.editor.doDrop(html, internal)
+        self.editor.doDrop(html, internal, extended)
 
     # returns (html, isInternal)
-    def _processMime(self, mime: QMimeData) -> Tuple[str, bool]:
+    def _processMime(self, mime: QMimeData, extended: bool = False) -> Tuple[str, bool]:
         # print("html=%s image=%s urls=%s txt=%s" % (
         #     mime.hasHtml(), mime.hasImage(), mime.hasUrls(), mime.hasText()))
         # print("html", mime.html())
@@ -1081,12 +1092,12 @@ class EditorWebView(AnkiWebView):
             types = (self._processImage, self._processUrls, self._processText)
 
         for fn in types:
-            html = fn(mime)
+            html = fn(mime, extended)
             if html:
                 return html, True
         return "", False
 
-    def _processUrls(self, mime: QMimeData) -> Optional[str]:
+    def _processUrls(self, mime: QMimeData, extended: bool = False) -> Optional[str]:
         if not mime.hasUrls():
             return None
 
@@ -1099,7 +1110,7 @@ class EditorWebView(AnkiWebView):
 
         return buf
 
-    def _processText(self, mime: QMimeData) -> Optional[str]:
+    def _processText(self, mime: QMimeData, extended: bool = False) -> Optional[str]:
         if not mime.hasText():
             return None
 
@@ -1110,16 +1121,18 @@ class EditorWebView(AnkiWebView):
         for line in lines:
             for token in re.split(r"(\S+)", line):
                 # inlined data in base64?
-                if token.startswith("data:image/"):
+                if extended and token.startswith("data:image/"):
                     processed.append(self.editor.inlinedImageToLink(token))
-                elif self.editor.isURL(token):
+                elif extended and self.editor.isURL(token):
                     # if the user is pasting an image or sound link, convert it to local
                     link = self.editor.urlToLink(token)
                     if link:
                         processed.append(link)
                     else:
                         # not media; add it as a normal link
-                        link = '<a href="{}">{}</a>'.format(token, html.escape(token))
+                        link = '<a href="{}">{}</a>'.format(
+                            token, html.escape(urllib.parse.unquote(token))
+                        )
                         processed.append(link)
                 else:
                     token = html.escape(token).replace("\t", " " * 4)
@@ -1147,7 +1160,7 @@ class EditorWebView(AnkiWebView):
 
         return html, False
 
-    def _processImage(self, mime: QMimeData) -> Optional[str]:
+    def _processImage(self, mime: QMimeData, extended: bool = False) -> Optional[str]:
         if not mime.hasImage():
             return None
         im = QImage(mime.imageData())

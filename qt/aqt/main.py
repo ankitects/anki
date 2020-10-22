@@ -112,7 +112,9 @@ class AnkiQt(QMainWindow):
         self.app = app
         self.pm = profileManager
         # init rest of app
-        self.safeMode = self.app.queryKeyboardModifiers() & Qt.ShiftModifier
+        self.safeMode = (
+            self.app.queryKeyboardModifiers() & Qt.ShiftModifier
+        ) or self.opts.safemode
         try:
             self.setupUI()
             self.setupAddons(args)
@@ -908,9 +910,12 @@ title="%s" %s>%s</button>""" % (
         def on_collection_sync_finished():
             self.col.clearUndo()
             self.col.models._clear_cache()
+            gui_hooks.sync_did_finish()
             self.reset()
+
             after_sync()
 
+        gui_hooks.sync_will_start()
         sync_collection(self, on_done=on_collection_sync_finished)
 
     def maybe_auto_sync_on_open_close(self, after_sync: Callable[[], None]) -> None:

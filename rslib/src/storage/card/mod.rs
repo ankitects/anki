@@ -3,7 +3,8 @@
 
 use crate::{
     card::{Card, CardID, CardQueue, CardType},
-    decks::{Deck, DeckID},
+    deckconf::DeckConfID,
+    decks::{Deck, DeckID, DeckKind},
     err::Result,
     notes::NoteID,
     sched::congrats::CongratsInfo,
@@ -17,6 +18,8 @@ use rusqlite::{
     OptionalExtension, Row, NO_PARAMS,
 };
 use std::{collections::HashSet, convert::TryFrom, result};
+
+use super::ids_to_string;
 
 impl FromSql for CardType {
     fn column_result(value: ValueRef<'_>) -> std::result::Result<Self, FromSqlError> {
@@ -347,6 +350,38 @@ impl super::SqliteStorage {
         for cid in cards {
             stmt.execute(&[cid])?;
         }
+
+        Ok(())
+    }
+
+    /// Fix cards with low eases due to schema 15 bug.
+    /// Deck configs were defaulting to 2.5% ease, which was capped to
+    /// 130% when the deck options were edited for the first time.
+    pub(crate) fn fix_low_card_eases_for_configs(
+        &self,
+        configs: &[DeckConfID],
+        server: bool,
+    ) -> Result<()> {
+        let mut affected_decks = vec![];
+        for conf in configs {
+            for (deck_id, _name) in self.get_all_deck_names()? {
+                if let Some(deck) = self.get_deck(deck_id)? {
+                    if let DeckKind::Normal(normal) = &deck.kind {
+                        if normal.config_id == conf.0 {
+                            affected_decks.push(deck.id);
+                        }
+                    }
+                }
+            }
+        }
+
+        let mut ids = String::new();
+        ids_to_string(&mut ids, &affected_decks);
+        let sql = include_str!("fix_low_ease.sql").replace("DECK_IDS", &ids);
+
+        self.db
+            .prepare(&sql)?
+            .execute(params![self.usn(server)?, TimestampSecs::now()])?;
 
         Ok(())
     }

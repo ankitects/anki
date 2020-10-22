@@ -12,9 +12,7 @@ use std::cmp::Ordering;
 use std::{borrow::Cow, path::Path, sync::Arc};
 use unicase::UniCase;
 
-const SCHEMA_MIN_VERSION: u8 = 11;
-const SCHEMA_STARTING_VERSION: u8 = 11;
-const SCHEMA_MAX_VERSION: u8 = 15;
+use super::upgrades::{SCHEMA_MAX_VERSION, SCHEMA_MIN_VERSION, SCHEMA_STARTING_VERSION};
 
 fn unicase_compare(s1: &str, s2: &str) -> Ordering {
     UniCase::new(s1).cmp(&UniCase::new(s2))
@@ -341,7 +339,7 @@ impl SqliteStorage {
     }
 
     pub(crate) fn optimize(&self) -> Result<()> {
-        self.db.execute_batch("vacuum; analyze")?;
+        self.db.execute_batch("vacuum; reindex; analyze")?;
         Ok(())
     }
 

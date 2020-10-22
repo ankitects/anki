@@ -55,11 +55,13 @@ class AddCards(QDialog):
         self.editor = aqt.editor.Editor(self.mw, self.form.fieldsArea, self, True)
 
     def setupChoosers(self) -> None:
-        self.modelChooser = aqt.modelchooser.ModelChooser(self.mw, self.form.modelArea)
+        self.modelChooser = aqt.modelchooser.ModelChooser(
+            self.mw, self.form.modelArea, on_activated=self.show_notetype_selector
+        )
         self.deckChooser = aqt.deckchooser.DeckChooser(self.mw, self.form.deckArea)
 
     def helpRequested(self):
-        openHelp("addingnotes")
+        openHelp("editing?id=adding-cards-and-notes")
 
     def setupButtons(self) -> None:
         bb = self.form.buttonBox
@@ -91,6 +93,9 @@ class AddCards(QDialog):
 
     def setAndFocusNote(self, note: Note) -> None:
         self.editor.setNote(note, focusTo=0)
+
+    def show_notetype_selector(self) -> None:
+        self.editor.saveNow(self.modelChooser.onModelChange)
 
     def onModelChange(self, unused=None) -> None:
         oldNote = self.editor.note

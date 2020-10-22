@@ -223,8 +223,16 @@ impl NoteType {
         if self.templates.is_empty() {
             return Err(AnkiError::invalid_input("1 template required"));
         }
+        let bad_chars = |c| c == '"';
+        if self.name.contains(bad_chars) {
+            self.name = self.name.replace(bad_chars, "");
+        }
+        if self.name.is_empty() {
+            return Err(AnkiError::invalid_input("Empty note type name"));
+        }
         self.normalize_names();
-        self.fix_field_names();
+        self.fix_field_names()?;
+        self.fix_template_names()?;
         self.ensure_names_unique();
         self.reposition_sort_idx();
 
@@ -318,8 +326,26 @@ impl NoteType {
         DeckID(self.config.target_deck_id)
     }
 
-    fn fix_field_names(&mut self) {
-        self.fields.iter_mut().for_each(NoteField::fix_name);
+    fn fix_field_names(&mut self) -> Result<()> {
+        for mut f in &mut self.fields {
+            NoteField::fix_name(&mut f);
+            if f.name.is_empty() {
+                return Err(AnkiError::invalid_input("Empty field name"));
+            }
+        }
+
+        Ok(())
+    }
+
+    fn fix_template_names(&mut self) -> Result<()> {
+        for mut t in &mut self.templates {
+            CardTemplate::fix_name(&mut t);
+            if t.name.is_empty() {
+                return Err(AnkiError::invalid_input("Empty template name"));
+            }
+        }
+
+        Ok(())
     }
 
     /// Find the field index of the provided field name.

@@ -3,6 +3,7 @@
 
 import re
 import time
+from typing import cast
 
 from anki.db import DB
 from anki.importing.noteimp import ForeignCard, ForeignNote, NoteImporter
@@ -160,17 +161,17 @@ acq_reps+ret_reps, lapses, card_type_id from cards"""
         t = mm.newTemplate("Recognition")
         t["qfmt"] = "{{Expression}}"
         t["afmt"] = (
-            t["qfmt"]
+            cast(str, t["qfmt"])
             + """\n\n<hr id=answer>\n\n\
-{{Pronunciation}}<br>\n{{Meaning}}<br>\n{{Notes}}"""  # type: ignore
+{{Pronunciation}}<br>\n{{Meaning}}<br>\n{{Notes}}"""
         )
         mm.addTemplate(m, t)
         t = mm.newTemplate("Production")
         t["qfmt"] = "{{Meaning}}"
         t["afmt"] = (
-            t["qfmt"]
+            cast(str, t["qfmt"])
             + """\n\n<hr id=answer>\n\n\
-{{Expression}}<br>\n{{Pronunciation}}<br>\n{{Notes}}"""  # type: ignore
+{{Expression}}<br>\n{{Pronunciation}}<br>\n{{Notes}}"""
         )
         mm.addTemplate(m, t)
         mm.add(m)

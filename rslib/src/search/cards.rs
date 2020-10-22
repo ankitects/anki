@@ -160,10 +160,7 @@ fn write_order(sql: &mut String, kind: SortKind, reverse: bool) -> Result<()> {
 
 fn needs_aux_sort_table(kind: SortKind) -> bool {
     use SortKind::*;
-    match kind {
-        CardDeck | NoteType | CardTemplate => true,
-        _ => false,
-    }
+    matches!(kind, CardDeck | NoteType | CardTemplate)
 }
 
 fn prepare_sort(col: &mut Collection, kind: SortKind) -> Result<()> {
