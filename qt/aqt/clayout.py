@@ -581,7 +581,7 @@ class CardLayout(QDialog):
 
     def onRename(self):
         template = self.current_template()
-        name = getOnlyText(_("New name:"), default=template["name"]).strip('"')
+        name = getOnlyText(_("New name:"), default=template["name"]).replace('"', "")
         if not name.strip():
             return
 
