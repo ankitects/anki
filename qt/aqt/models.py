@@ -85,7 +85,7 @@ class Models(QDialog):
     def onRename(self) -> None:
         nt = self.current_notetype()
         txt = getText(_("New name:"), default=nt["name"])
-        name = txt[0].strip('"')
+        name = txt[0].replace('"', "")
         if txt[1] and name:
             nt["name"] = name
             self.saveAndRefresh(nt)
@@ -120,7 +120,7 @@ class Models(QDialog):
     def onAdd(self) -> None:
         m = AddModel(self.mw, self).get()
         if m:
-            txt = getText(_("Name:"), default=m["name"])[0].strip('"')
+            txt = getText(_("Name:"), default=m["name"])[0].replace('"', "")
             if txt:
                 m["name"] = txt
             self.saveAndRefresh(m)
