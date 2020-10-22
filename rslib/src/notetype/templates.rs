@@ -88,4 +88,11 @@ impl CardTemplate {
             },
         }
     }
+
+    pub(crate) fn fix_name(&mut self) {
+        let bad_chars = |c| c == '"';
+        if self.name.contains(bad_chars) {
+            self.name = self.name.replace(bad_chars, "");
+        }
+    }
 }
