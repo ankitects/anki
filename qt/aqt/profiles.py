@@ -606,6 +606,12 @@ create table if not exists profiles
     def set_night_mode(self, on: bool) -> None:
         self.meta["night_mode"] = on
 
+    def first_weekday(self) -> int:
+        return self.meta.get("first_weekday", 0)
+
+    def set_first_weekday(self, weekday: int) -> None:
+        self.meta["first_weekday"] = weekday
+
     def dark_mode_widgets(self) -> bool:
         return self.meta.get("dark_mode_widgets", False)
 
