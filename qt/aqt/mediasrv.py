@@ -131,6 +131,8 @@ def allroutes(pathin):
         if fullpath.endswith(".css"):
             # some users may have invalid mime type in the Windows registry
             mimetype = "text/css"
+        elif fullpath.endswith(".js"):
+            mimetype = "application/javascript"
         else:
             # autodetect
             mimetype = None
