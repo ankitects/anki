@@ -2,10 +2,10 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use anki::backend::{init_backend, Backend as RustBackend, BackendMethod};
-use pyo3::exceptions::Exception;
+use pyo3::exceptions::PyException;
 use pyo3::prelude::*;
 use pyo3::types::PyBytes;
-use pyo3::{create_exception, exceptions, wrap_pyfunction};
+use pyo3::{create_exception, wrap_pyfunction};
 use std::convert::TryFrom;
 
 // Regular backend
@@ -16,7 +16,7 @@ struct Backend {
     backend: RustBackend,
 }
 
-create_exception!(ankirspy, BackendError, Exception);
+create_exception!(ankirspy, BackendError, PyException);
 
 #[pyfunction]
 fn buildhash() -> &'static str {
@@ -27,7 +27,7 @@ fn buildhash() -> &'static str {
 fn open_backend(init_msg: &PyBytes) -> PyResult<Backend> {
     match init_backend(init_msg.as_bytes()) {
         Ok(backend) => Ok(Backend { backend }),
-        Err(e) => Err(exceptions::Exception::py_err(e)),
+        Err(e) => Err(PyException::new_err(e)),
     }
 }
 
@@ -72,7 +72,7 @@ impl Backend {
             let out_obj = PyBytes::new(py, &out_bytes);
             out_obj.into()
         })
-        .map_err(BackendError::py_err)
+        .map_err(BackendError::new_err)
     }
 
     /// This takes and returns JSON, due to Python's slow protobuf
@@ -82,7 +82,7 @@ impl Backend {
         let out_res = py.allow_threads(|| {
             self.backend
                 .run_db_command_bytes(in_bytes)
-                .map_err(BackendError::py_err)
+                .map_err(BackendError::new_err)
         });
         let out_bytes = out_res?;
         let out_obj = PyBytes::new(py, &out_bytes);
