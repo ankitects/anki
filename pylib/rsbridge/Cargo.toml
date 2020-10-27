@@ -12,7 +12,7 @@ anki = { path = "../../rslib" }
 # WARNING: if changing the version number here, the version in ../../cargo/update.py
 # needs to be updated as well
 [dependencies.pyo3]
-version = "0.11.0"
+version = "0.12.0"
 features = ["extension-module"]
 
 [lib]

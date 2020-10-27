@@ -64,13 +64,14 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.11.1",
+    version = "0.12.3",
     visibility = ["//visibility:private"],
 )
 
 # Unsupported target "bench_dict" with type "bench" omitted
 # Unsupported target "bench_list" with type "bench" omitted
 # Unsupported target "bench_pyobject" with type "bench" omitted
+# Unsupported target "bench_set" with type "bench" omitted
 # Unsupported target "bench_tuple" with type "bench" omitted
 # Unsupported target "common" with type "test" omitted
 
@@ -92,13 +93,13 @@ rust_library(
     edition = "2018",
     proc_macro_deps = [
         "@raze__ctor__0_1_16//:ctor",
-        "@raze__pyo3cls__0_11_1//:pyo3cls",
+        "@raze__pyo3cls__0_12_3//:pyo3cls",
     ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
     data = glob(["**"]),
-    version = "0.11.1",
+    version = "0.12.3",
     tags = [
         "cargo-raze",
         "manual",
@@ -127,6 +128,7 @@ rust_library(
 # Unsupported target "test_dict_iter" with type "test" omitted
 # Unsupported target "test_dunder" with type "test" omitted
 # Unsupported target "test_exceptions" with type "test" omitted
+# Unsupported target "test_frompyobject" with type "test" omitted
 # Unsupported target "test_gc" with type "test" omitted
 # Unsupported target "test_getter_setter" with type "test" omitted
 # Unsupported target "test_inheritance" with type "test" omitted
@@ -138,5 +140,6 @@ rust_library(
 # Unsupported target "test_sequence" with type "test" omitted
 # Unsupported target "test_string" with type "test" omitted
 # Unsupported target "test_text_signature" with type "test" omitted
+# Unsupported target "test_unsendable_dict" with type "test" omitted
 # Unsupported target "test_variable_arguments" with type "test" omitted
 # Unsupported target "test_various" with type "test" omitted

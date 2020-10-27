@@ -1624,32 +1624,32 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "raze__pyo3__0_11_1",
-        url = "https://crates.io/api/v1/crates/pyo3/0.11.1/download",
+        name = "raze__pyo3__0_12_3",
+        url = "https://crates.io/api/v1/crates/pyo3/0.12.3/download",
         type = "tar.gz",
-        sha256 = "9ca8710ffa8211c9a62a8a3863c4267c710dc42a82a7fd29c97de465d7ea6b7d",
-        strip_prefix = "pyo3-0.11.1",
-        build_file = Label("//cargo/remote:pyo3-0.11.1.BUILD.bazel"),
+        sha256 = "a9b90d637542bbf29b140fdd38fa308424073fd2cdf641a5680aed8020145e3c",
+        strip_prefix = "pyo3-0.12.3",
+        build_file = Label("//cargo/remote:pyo3-0.12.3.BUILD.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "raze__pyo3_derive_backend__0_11_1",
-        url = "https://crates.io/api/v1/crates/pyo3-derive-backend/0.11.1/download",
+        name = "raze__pyo3_derive_backend__0_12_3",
+        url = "https://crates.io/api/v1/crates/pyo3-derive-backend/0.12.3/download",
         type = "tar.gz",
-        sha256 = "58ad070bf6967b0d29ea74931ffcf9c6bbe8402a726e9afbeafadc0a287cc2b3",
-        strip_prefix = "pyo3-derive-backend-0.11.1",
-        build_file = Label("//cargo/remote:pyo3-derive-backend-0.11.1.BUILD.bazel"),
+        sha256 = "cee2c9fb095acb885ab7e85acc7c8e95da8c4bc7cc4b4ea64b566dfc8c91046a",
+        strip_prefix = "pyo3-derive-backend-0.12.3",
+        build_file = Label("//cargo/remote:pyo3-derive-backend-0.12.3.BUILD.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "raze__pyo3cls__0_11_1",
-        url = "https://crates.io/api/v1/crates/pyo3cls/0.11.1/download",
+        name = "raze__pyo3cls__0_12_3",
+        url = "https://crates.io/api/v1/crates/pyo3cls/0.12.3/download",
         type = "tar.gz",
-        sha256 = "c3fa17e1ea569d0bf3b7c00f2a9eea831ca05e55dd76f1794c541abba1c64baa",
-        strip_prefix = "pyo3cls-0.11.1",
-        build_file = Label("//cargo/remote:pyo3cls-0.11.1.BUILD.bazel"),
+        sha256 = "f12fdd8a2f217d003c93f9819e3db1717b2e89530171edea4c0deadd90206f50",
+        strip_prefix = "pyo3cls-0.12.3",
+        build_file = Label("//cargo/remote:pyo3cls-0.12.3.BUILD.bazel"),
     )
 
     maybe(
