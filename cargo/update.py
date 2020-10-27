@@ -6,7 +6,8 @@
 #
 
 EXTRA_DEPS = [
-    'pyo3 = { version = "0.11.0", features = ["extension-module"] }'
+    # when updating, the version number in raze.toml will need updating too
+    'pyo3 = { version = "0.12.0", features = ["extension-module"] }'
 ]
 
 import os
@@ -39,6 +40,7 @@ with open("Cargo.toml", "w") as file:
     file.write("\n".join(deps))
 
 subprocess.run(["cargo", "update"], check=True)
-shutil.rmtree("remote")
+if os.path.exists("remote"):
+    shutil.rmtree("remote")
 subprocess.run(["cargo-raze"], check=True)
 os.remove("Cargo.toml")

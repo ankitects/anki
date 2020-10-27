@@ -248,7 +248,7 @@ alias(
 
 alias(
     name = "pyo3",
-    actual = "@raze__pyo3__0_11_1//:pyo3",
+    actual = "@raze__pyo3__0_12_3//:pyo3",
     tags = [
         "cargo-raze",
         "manual",

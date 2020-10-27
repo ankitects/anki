@@ -22,7 +22,7 @@ targets = [
 genmode = "Remote"
 default_gen_buildrs = true
 
-[raze.crates.pyo3.'0.11.1']
+[raze.crates.pyo3.'0.12.3']
 data_attr = "glob([\"**\"])"
 
 [raze.crates.ring.'0.16.15']
