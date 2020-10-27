@@ -23,6 +23,7 @@ class Preferences(QDialog):
         self.silentlyClose = True
         self.prefs = self.mw.col.backend.get_preferences()
         self.setupLang()
+        self.setup_first_weekday()
         self.setupCollection()
         self.setupNetwork()
         self.setupBackup()
@@ -70,6 +71,21 @@ class Preferences(QDialog):
         code = anki.lang.langs[idx][1]
         self.mw.pm.setLang(code)
         showInfo(_("Please restart Anki to complete language change."), parent=self)
+
+    # First weekday
+    ######################################################################
+
+    def setup_first_weekday(self):
+        f = self.form
+        f.firstWeekday.setCurrentIndex(self.first_weekday_idx())
+        qconnect(f.firstWeekday.currentIndexChanged, self.on_first_weekday_idx_changed)
+
+    def first_weekday_idx(self):
+        idx = self.mw.pm.first_weekday()
+        return idx if idx <= 1 else idx - 3
+
+    def on_first_weekday_idx_changed(self, idx):
+        self.mw.pm.set_first_weekday(idx if idx <= 1 else idx + 3)
 
     # Collection options
     ######################################################################
