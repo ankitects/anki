@@ -15,7 +15,7 @@ import { showTooltip, hideTooltip } from "./tooltip";
 import { GraphBounds, setDataAvailable, RevlogRange } from "./graphs";
 import { timeDay, timeYear } from "d3-time";
 import { I18n } from "../i18n";
-import { checkFirstWeekday } from '../firstweekday'
+import { checkFirstWeekday } from "../firstweekday";
 
 export interface GraphData {
     // indexed by day, where day is relative to today
@@ -63,7 +63,7 @@ export function renderCalendar(
     const nowForYear = new Date();
     nowForYear.setFullYear(targetYear);
 
-    const firstWeekday = checkFirstWeekday()
+    const firstWeekday = checkFirstWeekday();
     const x = scaleLinear()
         .range([bounds.marginLeft, bounds.width - bounds.marginRight])
         .domain([0, 53]);
