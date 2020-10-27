@@ -617,10 +617,13 @@ document.head.appendChild(style);
         from aqt import mw
 
         self.set_open_links_externally(False)
+        search = "?firstWeekday=%s" % mw.pm.first_weekday()
+
         if theme_manager.night_mode:
-            extra = "#night"
+            hash = "#night"
         else:
-            extra = ""
+            hash = ""
+
         self.hide_while_preserving_layout()
-        self.load(QUrl(f"{mw.serverURL()}_anki/{name}.html" + extra))
+        self.load(QUrl(f"{mw.serverURL()}_anki/{name}.html" + search + hash))
         self.inject_dynamic_style_and_show()
