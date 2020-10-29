@@ -1220,16 +1220,27 @@ QTableView {{ gridline-color: {grid} }}
                     items.append(txt)
                     txt = ""
             txt = " ".join(items)
-        if self.mw.app.keyboardModifiers() & Qt.AltModifier:
-            txt = "-" + txt
-        if self.mw.app.keyboardModifiers() & Qt.ControlModifier:
+        # is there something to replace or append with?
+        if txt:
+            mods = self.mw.app.keyboardModifiers()
+            if mods & Qt.AltModifier:
+                txt = "-" + txt
+            # is there something to replace or append to?
             cur = str(self.form.searchEdit.lineEdit().text())
             if cur and cur != self._searchPrompt:
-                txt = cur + " " + txt
-        elif self.mw.app.keyboardModifiers() & Qt.ShiftModifier:
-            cur = str(self.form.searchEdit.lineEdit().text())
-            if cur:
-                txt = cur + " or " + txt
+                # update instances of 'key':'anything' in the old search
+                if mods & Qt.ControlModifier and mods & Qt.ShiftModifier:
+                    if len(args) == 2:
+                        quoted = "\"" + args[0] + r":(\\\\|\\\"|[^\"])*\""
+                        partially = args[0] + r":\"(\\\\|\\\"|[^\"])*\""
+                        unquoted = args[0] + r":[^\)\s\"]*(?=($|\)|\s))"
+                        before = r"(?<![^\s\(])(?<!\\\()-?"
+                        pattern = re.compile(f"{before}({quoted}|{partially}|{unquoted})")
+                        txt = pattern.sub(txt, cur)
+                elif mods & Qt.ControlModifier:
+                    txt = cur + " " + txt
+                elif mods & Qt.ShiftModifier:
+                    txt = cur + " or " + txt
         self.form.searchEdit.lineEdit().setText(txt)
         self.onSearchActivated()
 
