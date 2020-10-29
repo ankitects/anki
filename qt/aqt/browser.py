@@ -1061,6 +1061,9 @@ QTableView {{ gridline-color: {grid} }}
         self.maybeRefreshSidebar()
 
     def focusSidebar(self) -> None:
+        # workaround for PyQt focus bug
+        self.editor.hideCompleters()
+
         self.sidebarDockWidget.setVisible(True)
         self.sidebarTree.setFocus()
 
@@ -2072,10 +2075,16 @@ where id in %s"""
         sm.select(item, QItemSelectionModel.SelectCurrent | QItemSelectionModel.Rows)
 
     def onFind(self):
+        # workaround for PyQt focus bug
+        self.editor.hideCompleters()
+
         self.form.searchEdit.setFocus()
         self.form.searchEdit.lineEdit().selectAll()
 
     def onNote(self):
+        # workaround for PyQt focus bug
+        self.editor.hideCompleters()
+
         self.editor.web.setFocus()
         self.editor.loadNote(focusTo=0)
 
