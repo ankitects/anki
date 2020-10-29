@@ -195,6 +195,10 @@ class AddCards(QDialog):
         self.editor.saveAddModeVars()
         if not self.addNote(self.editor.note):
             return
+
+        # workaround for PyQt focus bug
+        self.editor.hideCompleters()
+
         tooltip(_("Added"), period=500)
         av_player.stop_and_clear_queue()
         self.onReset(keep=True)
