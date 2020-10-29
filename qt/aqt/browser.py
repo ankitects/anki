@@ -1231,11 +1231,13 @@ QTableView {{ gridline-color: {grid} }}
                 # update instances of 'key':'anything' in the old search
                 if mods & Qt.ControlModifier and mods & Qt.ShiftModifier:
                     if len(args) == 2:
-                        quoted = "\"" + args[0] + r":(\\\\|\\\"|[^\"])*\""
+                        quoted = '"' + args[0] + r":(\\\\|\\\"|[^\"])*\""
                         partially = args[0] + r":\"(\\\\|\\\"|[^\"])*\""
                         unquoted = args[0] + r":[^\)\s\"]*(?=($|\)|\s))"
                         before = r"(?<![^\s\(])(?<!\\\()-?"
-                        pattern = re.compile(f"{before}({quoted}|{partially}|{unquoted})")
+                        pattern = re.compile(
+                            f"{before}({quoted}|{partially}|{unquoted})"
+                        )
                         txt = pattern.sub(txt, cur)
                 elif mods & Qt.ControlModifier:
                     txt = cur + " " + txt
