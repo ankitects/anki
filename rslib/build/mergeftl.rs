@@ -88,6 +88,9 @@ fn get_ftl_data_from_provided_files(sources: String) -> FTLData {
             let path = Path::new("..").join(path);
             std::fs::read_to_string(path).unwrap()
         });
+        if !entry.ends_with("\n") {
+            panic!(".ftl file should end with a newline: {}", path);
+        }
         match (first_parent, second_parent) {
             // templates in the rslib translation repo are ignored, as their canonical
             // form is part of this source tree
