@@ -3,6 +3,16 @@ name: Checks
 on: [push, pull_request]
 
 jobs:
+  contrib:
+    name: Author in CONTRIBUTORS
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Check
+        run: |
+          set -x
+          .github/scripts/contrib.sh
+
   check_tag:
     name: Tag name
     outputs:
@@ -31,7 +41,7 @@ jobs:
               "windows-latest"
             ],
             "python": [
-              3.7
+              3.8
             ],
             "include": [
               {
@@ -67,12 +77,12 @@ jobs:
 
           parser = argparse.ArgumentParser(description="Dynamically creates a build matrix for the GitHub Actions.")
           parser.add_argument("--tagged", action="store_true", default=False,
-              help="Adds Python 3.8 builds into the matrix")
+              help="Skip checks on release build")
 
           args = parser.parse_args()
 
           if args.tagged:
-            matrix["python"].append("3.8")
+            pass
           else:
             matrix["BUILD_TYPE"].append("check")
 
@@ -87,16 +97,6 @@ jobs:
             printf '::set-output name=tagged::%s\n' ""
             printf '::set-output name=matrix::%s\n' "$(python3 buildmatrix.py)"
           fi
-
-  contrib:
-    name: Author in CONTRIBUTORS
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - name: Check
-        run: |
-          set -x
-          .github/scripts/contrib.sh
 
   tests:
     needs:
