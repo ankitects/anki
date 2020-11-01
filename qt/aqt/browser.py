@@ -1211,28 +1211,29 @@ QTableView {{ gridline-color: {grid} }}
         else:
             txt = ""
             items = []
-            for c, a in enumerate(args):
-                if c % 2 == 0:
+            for i, a in enumerate(args):
+                if i % 2 == 0:
                     txt += a + ":"
                 else:
-                    txt += re.sub(r"(\*|%|_)", r"\\\1", a)
-                    for chr in ' 　()"':
-                        if chr in txt:
-                            txt = '"%s"' % txt.replace('"', '\\"')
+                    txt += re.sub("[*%_]", r"\\\g<0>", a)
+                    for c in ' 　()"':
+                        if c in txt:
+                            txt = '"{}"'.format(txt.replace('"', '\\"'))
                             break
                     items.append(txt)
                     txt = ""
             txt = " ".join(items)
-        if self.mw.app.keyboardModifiers() & Qt.AltModifier:
-            txt = "-" + txt
-        if self.mw.app.keyboardModifiers() & Qt.ControlModifier:
+        # is there something to replace or append with?
+        if txt:
+            if self.mw.app.keyboardModifiers() & Qt.AltModifier:
+                txt = "-" + txt
+            # is there something to replace or append to?
             cur = str(self.form.searchEdit.lineEdit().text())
             if cur and cur != self._searchPrompt:
-                txt = cur + " " + txt
-        elif self.mw.app.keyboardModifiers() & Qt.ShiftModifier:
-            cur = str(self.form.searchEdit.lineEdit().text())
-            if cur:
-                txt = cur + " or " + txt
+                if self.mw.app.keyboardModifiers() & Qt.ControlModifier:
+                    txt = cur + " " + txt
+                elif self.mw.app.keyboardModifiers() & Qt.ShiftModifier:
+                    txt = cur + " or " + txt
         self.form.searchEdit.lineEdit().setText(txt)
         self.onSearchActivated()
 
