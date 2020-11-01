@@ -1,2 +1,1 @@
-*.ftl eol=lf
-*.sh eol=lf
+* text=auto eol=lf
