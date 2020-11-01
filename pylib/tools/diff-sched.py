@@ -1,10 +1,11 @@
 # a quick script to compare methods in the two schedulers
 
 import inspect
+import sys
+from difflib import SequenceMatcher, unified_diff
+
 from anki.sched import Scheduler as S1
 from anki.schedv2 import Scheduler as S2
-from difflib import SequenceMatcher, unified_diff
-import sys
 
 s1map = {}
 for k, v in S1.__dict__.items():

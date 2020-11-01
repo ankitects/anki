@@ -78,7 +78,7 @@ def test_anki2_mediadupes():
 
 def test_apkg():
     col = getEmptyCol()
-    apkg = str(os.path.join(testDir, "support/media.apkg"))
+    apkg = str(os.path.join(testDir, "support", "media.apkg"))
     imp = AnkiPackageImporter(col, apkg)
     assert os.listdir(col.media.dir()) == []
     imp.run()
@@ -149,7 +149,7 @@ def test_anki2_updates():
 
 def test_csv():
     col = getEmptyCol()
-    file = str(os.path.join(testDir, "support/text-2fields.txt"))
+    file = str(os.path.join(testDir, "support", "text-2fields.txt"))
     i = TextImporter(col, file)
     i.initMapping()
     i.run()
@@ -195,7 +195,7 @@ def test_csv2():
     n["Three"] = "3"
     col.addNote(n)
     # an update with unmapped fields should not clobber those fields
-    file = str(os.path.join(testDir, "support/text-update.txt"))
+    file = str(os.path.join(testDir, "support", "text-update.txt"))
     i = TextImporter(col, file)
     i.initMapping()
     i.run()
@@ -309,7 +309,7 @@ def test_csv_tag_only_if_modified():
 @pytest.mark.filterwarnings("ignore:Using or importing the ABCs")
 def test_supermemo_xml_01_unicode():
     col = getEmptyCol()
-    file = str(os.path.join(testDir, "support/supermemo1.xml"))
+    file = str(os.path.join(testDir, "support", "supermemo1.xml"))
     i = SupermemoXmlImporter(col, file)
     # i.META.logToStdOutput = True
     i.run()
@@ -324,7 +324,7 @@ def test_supermemo_xml_01_unicode():
 
 def test_mnemo():
     col = getEmptyCol()
-    file = str(os.path.join(testDir, "support/mnemo.db"))
+    file = str(os.path.join(testDir, "support", "mnemo.db"))
     i = MnemosyneImporter(col, file)
     i.run()
     assert col.cardCount() == 7

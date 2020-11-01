@@ -1,3 +1,15 @@
+[MASTER]
+persistent = no
+extension-pkg-whitelist=PyQt5,ankirspy
+ignore = aqt/forms
+init-hook='from PyQt5.QtWebChannel import QWebChannel; print("successful import!"); import sys; print(sys.path)'
+
+[TYPECHECK]
+ignored-modules=win32file,pywintypes,socket,win32pipe
+
+[REPORTS]
+output-format=colorized
+
 [MESSAGES CONTROL]
 disable=C,R,
   fixme,

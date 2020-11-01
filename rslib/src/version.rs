@@ -4,12 +4,23 @@
 use lazy_static::lazy_static;
 use std::env;
 
+fn buildinfo(key: &str) -> &'static str {
+    let volatile = include_str!(concat!(env!("OUT_DIR"), "/../../buildinfo.txt"));
+    for line in volatile.split('\n') {
+        let mut it = line.split(' ');
+        if it.next().unwrap() == key {
+            return it.next().unwrap();
+        }
+    }
+    unreachable!("{} not found", key);
+}
+
 pub fn version() -> &'static str {
-    include_str!("../../meta/version").trim()
+    buildinfo("STABLE_VERSION")
 }
 
 pub fn buildhash() -> &'static str {
-    include_str!("../../meta/buildhash").trim()
+    buildinfo("STABLE_BUILDHASH")
 }
 
 pub(crate) fn sync_client_version() -> &'static str {

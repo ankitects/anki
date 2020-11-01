@@ -165,6 +165,26 @@ def _redirectWebExports(path):
     # catch /_anki references and rewrite them to web export folder
     targetPath = "_anki/"
     if path.startswith(targetPath):
+        dirname = os.path.dirname(path)
+        filename = os.path.basename(path)
+        addprefix = None
+
+        # remap legacy top-level references
+        if dirname == "_anki":
+            base, ext = os.path.splitext(filename)
+            if ext == ".css":
+                addprefix = "css/"
+            elif ext == ".js":
+                if base in ("browsersel", "jquery-ui", "jquery", "plot"):
+                    addprefix = "js/js/vendor/"
+                else:
+                    addprefix = "js/"
+
+            if addprefix:
+                oldpath = path
+                path = f"{targetPath}{addprefix}{filename}"
+                print(f"legacy {oldpath} remapped to {path}")
+
         return _exportFolder, path[len(targetPath) :]
 
     # catch /_addons references and rewrite them to addons folder

@@ -1,0 +1,64 @@
+"""
+@generated
+cargo-raze crate build file.
+
+DO NOT EDIT! Replaced on runs of cargo-raze
+"""
+
+# buildifier: disable=load
+load(
+    "@io_bazel_rules_rust//rust:rust.bzl",
+    "rust_binary",
+    "rust_library",
+    "rust_test",
+)
+
+# buildifier: disable=load
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
+package(default_visibility = [
+    # Public for visibility by "@raze__crate__version//" targets.
+    #
+    # Prefer access through "//cargo", which limits external
+    # visibility to explicit Cargo.toml dependencies.
+    "//visibility:public",
+])
+
+licenses([
+    "notice",  # MIT from expression "MPL-2.0 OR (MIT OR Apache-2.0)"
+])
+
+# Generated targets
+# Unsupported target "compact" with type "example" omitted
+# Unsupported target "compact-color" with type "example" omitted
+# Unsupported target "full" with type "example" omitted
+# Unsupported target "full-color" with type "example" omitted
+# Unsupported target "full-color-oorder" with type "example" omitted
+
+# buildifier: leave-alone
+rust_library(
+    name = "slog_term",
+    crate_type = "lib",
+    deps = [
+        "@raze__atty__0_2_14//:atty",
+        "@raze__chrono__0_4_19//:chrono",
+        "@raze__slog__2_5_2//:slog",
+        "@raze__term__0_6_1//:term",
+        "@raze__thread_local__1_0_1//:thread_local",
+    ],
+    srcs = glob(["**/*.rs"]),
+    crate_root = "src/lib.rs",
+    edition = "2018",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    version = "2.6.0",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    crate_features = [
+    ],
+)
+# Unsupported target "term" with type "test" omitted
+# Unsupported target "to-file" with type "example" omitted

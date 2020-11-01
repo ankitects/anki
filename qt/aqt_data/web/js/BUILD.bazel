@@ -1,0 +1,53 @@
+load("@npm//@bazel/typescript:index.bzl", "ts_library")
+load("//ts:prettier.bzl", "prettier_test")
+
+ts_library(
+    name = "pycmd",
+    srcs = ["pycmd.d.ts"],
+)
+
+ts_library(
+    name = "aqt",
+    srcs = glob(
+        ["*.ts"],
+        exclude = ["*.d.ts"],
+    ),
+    tsconfig = "tsconfig.json",
+    deps = [
+        "pycmd",
+        "@npm//@types/jquery",
+        "@npm//@types/jqueryui",
+        "@npm//@types/mathjax",
+    ],
+)
+
+filegroup(
+    name = "aqt_es5",
+    srcs = ["aqt"],
+    output_group = "es5_sources",
+)
+
+filegroup(
+    name = "vendor",
+    srcs = glob(["vendor/**"]),
+)
+
+filegroup(
+    name = "js",
+    srcs = [
+        "aqt_es5",
+        "vendor",
+    ],
+    visibility = ["//qt:__subpackages__"],
+)
+
+prettier_test(
+    name = "format",
+    srcs = glob(["*.ts"]),
+)
+
+# source files need fixing first
+# eslint_test(
+#     name = "eslint",
+#     srcs = glob(["*.ts"]),
+# )

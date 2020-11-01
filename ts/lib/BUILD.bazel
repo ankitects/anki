@@ -1,0 +1,60 @@
+load("@npm//@bazel/typescript:index.bzl", "ts_library")
+load("//ts:prettier.bzl", "prettier_test")
+load("//ts:eslint.bzl", "eslint_test")
+
+# Protobuf
+#############
+
+load("@npm//@bazel/labs:index.bzl", "protobufjs_ts_library")
+
+protobufjs_ts_library(
+    name = "fluent_proto",
+    visibility = ["//visibility:public"],
+    deps = ["//rslib:fluent_proto_lib"],
+)
+
+protobufjs_ts_library(
+    name = "backend_proto",
+    visibility = ["//visibility:public"],
+    deps = ["//proto:backend_proto_lib"],
+)
+
+# Anki Library
+################
+
+ts_library(
+    name = "lib",
+    srcs = glob(["**/*.ts"]),
+    data = [
+        "backend_proto",
+    ],
+    tsconfig = "//:tsconfig.json",
+    visibility = ["//visibility:public"],
+    deps = [
+        "backend_proto",
+        "fluent_proto",
+        "@npm//@fluent/bundle",
+        "@npm//@types/long",
+        "@npm//intl-pluralrules",
+        "@npm//tslib",
+    ],
+)
+
+filegroup(
+    name = "es6",
+    output_group = "es6_sources",
+    visibility = ["//visibility:public"],
+)
+
+# Tests
+################
+
+prettier_test(
+    name = "format",
+    srcs = glob(["*.ts"]),
+)
+
+eslint_test(
+    name = "eslint",
+    srcs = glob(["*.ts"]),
+)

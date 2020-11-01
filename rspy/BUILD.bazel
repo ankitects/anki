@@ -1,0 +1,67 @@
+load("@io_bazel_rules_rust//rust:rust.bzl", "rust_library", "rust_test")
+load("@bazel_skylib//lib:selects.bzl", "selects")
+load("@io_bazel_rules_rust//cargo:cargo_build_script.bzl", "cargo_build_script")
+load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
+
+cargo_build_script(
+    name = "build_script",
+    srcs = ["build.rs"],
+)
+
+rust_library(
+    name = "ankirspy_lib",
+    srcs = glob([
+        "src/**/*.rs",
+    ]),
+    crate_type = "cdylib",
+    data = [
+        "//:buildinfo.txt",
+    ],
+    rustc_flags = selects.with_or({
+        (
+            "@io_bazel_rules_rust//rust/platform:x86_64-apple-darwin",
+        ): [
+            "-Clink-arg=-undefined",
+            "-Clink-arg=dynamic_lookup",
+            "-Clink-arg=-mmacosx-version-min=10.7",
+        ],
+        "//conditions:default": [],
+    }),
+    deps = [
+        ":build_script",
+        "//cargo:pyo3",
+        "//rslib:anki",
+    ],
+)
+
+# a binary target so that test //rspy/... runs clippy
+rust_test(
+    name = "rspy_test",
+    srcs = ["empty.rs"],
+    deps = [":ankirspy_lib"],
+)
+
+# rename lib file for Python
+copy_file(
+    name = "ankirspy_unix",
+    src = ":ankirspy_lib",
+    out = "ankirspy.so",
+)
+
+copy_file(
+    name = "ankirspy_win",
+    src = ":ankirspy_lib",
+    out = "ankirspy.pyd",
+)
+
+alias(
+    name = "ankirspy",
+    actual = selects.with_or({
+        (
+            "@io_bazel_rules_rust//rust/platform:x86_64-pc-windows-msvc",
+            "@io_bazel_rules_rust//rust/platform:i686-pc-windows-msvc",
+        ): ":ankirspy_win",
+        "//conditions:default": ":ankirspy_unix",
+    }),
+    visibility = ["//visibility:public"],
+)

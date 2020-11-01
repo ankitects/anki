@@ -431,19 +431,19 @@ body {{ zoom: {zoom}; background: {background}; direction: {lang_dir}; {font} }}
         web_content = WebContent(
             body=body,
             head=head,
-            js=["webview.js"] + (["jquery.js"] if js is None else js),
-            css=["webview.css"] + ([] if css is None else css),
+            js=["js/webview.js"] + (["js/vendor/jquery.js"] if js is None else js),
+            css=["css/webview.css"] + ([] if css is None else css),
         )
 
         gui_hooks.webview_will_set_content(web_content, context)
 
         csstxt = ""
-        if "webview.css" in web_content.css:
+        if "css/webview.css" in web_content.css:
             # we want our dynamic styling to override the defaults in
-            # webview.css, but come before user-provided stylesheets so that
+            # css/webview.css, but come before user-provided stylesheets so that
             # they can override us if necessary
-            web_content.css.remove("webview.css")
-            csstxt = self.bundledCSS("webview.css")
+            web_content.css.remove("css/webview.css")
+            csstxt = self.bundledCSS("css/webview.css")
             csstxt += f"<style>{self.standard_css()}</style>"
 
         csstxt += "\n".join(self.bundledCSS(fname) for fname in web_content.css)
@@ -622,5 +622,5 @@ document.head.appendChild(style);
         else:
             extra = ""
         self.hide_while_preserving_layout()
-        self.load(QUrl(f"{mw.serverURL()}_anki/{name}.html" + extra))
+        self.load(QUrl(f"{mw.serverURL()}_anki/pages/{name}.html" + extra))
         self.inject_dynamic_style_and_show()

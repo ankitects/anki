@@ -5,7 +5,7 @@ module.exports = {
         "plugin:@typescript-eslint/recommended",
     ],
     parser: "@typescript-eslint/parser",
-    plugins: ["@typescript-eslint", "svelte3"],
+    plugins: ["@typescript-eslint"],
     rules: {
         "prefer-const": "warn",
         "@typescript-eslint/ban-ts-ignore": "warn",
@@ -14,14 +14,5 @@ module.exports = {
             { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
         ],
     },
-    overrides: [
-        {
-            files: ["*.svelte"],
-            processor: "svelte3/svelte3",
-            rules: {
-                "@typescript-eslint/explicit-function-return-type": "off",
-            },
-        },
-    ],
     env: { browser: true },
 };

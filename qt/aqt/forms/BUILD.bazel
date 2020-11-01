@@ -1,0 +1,30 @@
+load("@rules_python//python:defs.bzl", "py_binary")
+load("compile.bzl", "compile_all")
+
+py_binary(
+    name = "build_ui",
+    srcs = ["build_ui.py"],
+    legacy_create_init = False,
+    deps = ["@pyqt5//:pkg"],
+)
+
+compile_all(
+    srcs = glob(["*.ui"]),
+    group = "forms",
+)
+
+py_binary(
+    name = "build_rcc",
+    srcs = ["build_rcc.py"],
+    legacy_create_init = False,
+    deps = ["@pyqt5//:pkg"],
+)
+
+genrule(
+    name = "icons",
+    srcs = ["icons.qrc"] + glob(["icons/*"]),
+    outs = ["icons_rc.py"],
+    cmd = "$(location build_rcc) $(location icons.qrc) $(location icons_rc.py)",
+    tools = ["build_rcc"],
+    visibility = ["//qt/aqt:__pkg__"],
+)

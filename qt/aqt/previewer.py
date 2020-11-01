@@ -112,15 +112,15 @@ class Previewer(QDialog):
 
     def _setup_web_view(self):
         jsinc = [
-            "jquery.js",
-            "browsersel.js",
-            "mathjax/conf.js",
-            "mathjax/MathJax.js",
-            "reviewer.js",
+            "js/vendor/jquery.js",
+            "js/vendor/browsersel.js",
+            "js/vendor/mathjax/conf.js",
+            "js/vendor/mathjax/MathJax.js",
+            "js/reviewer.js",
         ]
         self._web.stdHtml(
             self.mw.reviewer.revHtml(),
-            css=["reviewer.css"],
+            css=["css/reviewer.css"],
             js=jsinc,
             context=self,
         )

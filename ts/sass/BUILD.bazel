@@ -1,0 +1,25 @@
+load("@io_bazel_rules_sass//:defs.bzl", "sass_binary", "sass_library")
+
+sass_binary(
+    name = "core_css",
+    src = "core.scss",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":core_lib",
+    ],
+)
+
+sass_library(
+    name = "core_lib",
+    srcs = [
+        "_vars.scss",
+        "core.scss",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+# qt package extracts colours from source file
+exports_files(
+    ["_vars.scss"],
+    visibility = ["//qt:__subpackages__"],
+)

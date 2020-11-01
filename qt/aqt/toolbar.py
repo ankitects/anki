@@ -48,8 +48,8 @@ class Toolbar:
         self.web.set_bridge_command(link_handler, web_context)
         self.web.stdHtml(
             self._body % self._centerLinks(),
-            css=["toolbar.css"],
-            js=["webview.js", "jquery.js", "toolbar.js"],
+            css=["css/toolbar.css"],
+            js=["js/webview.js", "js/vendor/jquery.js", "js/toolbar.js"],
             context=web_context,
         )
         self.web.adjustHeightToFit()
@@ -230,7 +230,7 @@ class BottomBar(Toolbar):
         self.web.set_bridge_command(link_handler, web_context)
         self.web.stdHtml(
             self._centerBody % buf,
-            css=["toolbar.css", "toolbar-bottom.css"],
+            css=["css/toolbar.css", "css/toolbar-bottom.css"],
             context=web_context,
         )
         self.web.adjustHeightToFit()

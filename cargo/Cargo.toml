@@ -1,0 +1,133 @@
+[package]
+name = "anki"
+version = "2.1.36"  # automatically updated
+edition = "2018"
+authors = ["Ankitects Pty Ltd and contributors"]
+license = "AGPL-3.0-or-later"
+description = "Anki's Rust library code"
+readme = "README.md"
+
+[raze]
+# The WORKSPACE relative path to the Cargo.toml working directory.
+workspace_path = "//cargo"
+# The target to generate BUILD rules for.
+#target = "x86_64-apple-darwin"
+#target = "x86_64-pc-windows-gnu"
+targets = [
+    "i686-apple-darwin",
+    "i686-pc-windows-msvc",
+    "i686-unknown-linux-gnu",
+    "x86_64-apple-darwin",
+    "x86_64-apple-ios",
+    "x86_64-pc-windows-msvc",
+    "x86_64-unknown-linux-gnu",
+    "aarch64-apple-ios",
+]
+genmode = "Remote"
+default_gen_buildrs = true
+
+[raze.crates.pyo3.'0.11.1']
+data_attr = "glob([\"**\"])"
+
+[raze.crates.ring.'0.16.15']
+data_attr = "glob([\"src/**\"])"
+
+[raze.crates.webpki.'0.21.3']
+data_attr = "glob([\"src/**\"])"
+
+[lib]
+name = "anki"
+path = "src/lib.rs"
+
+[dependencies]
+# pinned as any changes could invalidate sqlite indexes
+unicase = "=2.6.0"
+
+nom = "5.1.2"
+failure = "0.1.8"
+prost = { git = "https://github.com/danburkert/prost.git", rev = "4ded4a98ef339da0b7babd4efee3fbe8adaf746b" }
+bytes = "0.5.5"
+chrono = "0.4.13"
+lazy_static = "1.4.0"
+regex = "1.3.9"
+hex = "0.4.2"
+htmlescape = "0.3.1"
+sha1 = "0.6.0"
+unicode-normalization = "0.1.13"
+tempfile = "3.1.0"
+serde = "1.0.114"
+serde_json = "1.0.56"
+tokio = { version = "0.2.21", features = ["fs", "rt-threaded"] }
+serde_derive = "1.0.114"
+zip = { version = "0.5.8", default-features = false, features = ["deflate", "time"] }
+serde_tuple = "0.5.0"
+coarsetime = { git = "https://github.com/ankitects/rust-coarsetime.git", branch="old-mac-compat" }
+utime = "0.3.1"
+serde-aux = "0.6.1"
+unic-langid = { version = "0.8.0", features = ["macros"] }
+fluent = { git = "https://github.com/ankitects/fluent-rs.git", branch="32bit-panic" }
+intl-memoizer = { git = "https://github.com/ankitects/fluent-rs.git", branch="32bit-panic" }
+num-format = "0.4.0"
+slog = { version = "2.5.2", features = ["max_level_trace", "release_max_level_debug"] }
+slog-term = "2.6.0"
+slog-async = "2.5.0"
+slog-envlogger = "2.2.0"
+slog-stdlog = "4.0.0"
+log = { version = "0.4.11", features = ["std"] }
+serde_repr = "0.1.6"
+num_enum = "0.5.0"
+futures = "0.3.5"
+rand = "0.7.3"
+num-integer = "0.1.43"
+itertools = "0.9.0"
+flate2 = "1.0.14"
+pin-project = "0.4.22"
+async-compression = { version = "0.3.5", features = ["stream", "gzip"] }
+askama = "0.10.1"
+hyper = "0.13.7"
+once_cell = "1.4.1"
+scopeguard = "1.1.0"
+
+blake3 = "0.3.5"
+
+[dependencies.pyo3]
+version = "0.11.0"
+features = ["extension-module"]
+
+[target.'cfg(target_vendor="apple")'.dependencies.rusqlite]
+version = "0.23.1"
+features = ["trace", "functions", "collation"]
+
+[target.'cfg(not(target_vendor="apple"))'.dependencies.rusqlite]
+version = "0.23.1"
+features = ["trace", "functions", "collation", "bundled"]
+
+#[dependencies.reqwest_linux]
+#git = "https://github.com/ankitects/reqwest.git"
+#rev = "57665e2c2a39db85723ba860f1b570a608bb73f9"
+#features = ["json", "socks", "stream", "rustls-tls"]
+#package = "reqwest"
+
+#[target.'cfg(not(linux))'.dependencies.reqwest]
+#git = "https://github.com/ankitects/reqwest.git"
+#rev = "57665e2c2a39db85723ba860f1b570a608bb73f9"
+#features = ["json", "socks", "stream"]
+
+#[dependencies.reqwest]
+#git = "https://github.com/ankitects/reqwest.git"
+#rev = "57665e2c2a39db85723ba860f1b570a608bb73f9"
+#features = ["json", "socks", "stream"]
+
+[dependencies.reqwest]
+git = "https://github.com/ankitects/reqwest.git"
+rev = "57665e2c2a39db85723ba860f1b570a608bb73f9"
+default-features = false
+features = ["json", "socks", "stream", "rustls-tls"]
+
+[build-dependencies]
+# 0.6.1 stable release depends on compile time PROTOC
+prost-build = { git = "https://github.com/danburkert/prost.git", rev = "4ded4a98ef339da0b7babd4efee3fbe8adaf746b" }
+fluent-syntax = "0.9.3"
+
+[dev-dependencies]
+env_logger = "0.7.1"

@@ -1,5 +1,6 @@
 [MASTER]
 ignore-patterns=.*_pb2.*
+persistent = no
 
 [MESSAGES CONTROL]
 disable=C,R,

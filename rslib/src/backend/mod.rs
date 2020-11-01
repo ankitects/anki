@@ -1229,7 +1229,7 @@ impl BackendService for Backend {
     //-------------------------------------------------------------------
 
     fn translate_string(&self, input: pb::TranslateStringIn) -> BackendResult<pb::String> {
-        let key = match pb::FluentString::from_i32(input.key) {
+        let key = match crate::fluent_proto::FluentString::from_i32(input.key) {
             Some(key) => key,
             None => return Ok("invalid key".to_string().into()),
         };

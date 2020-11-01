@@ -124,8 +124,8 @@ class DeckBrowser:
         gui_hooks.deck_browser_will_render_content(self, content)
         self.web.stdHtml(
             self._body % content.__dict__,
-            css=["deckbrowser.css"],
-            js=["jquery.js", "jquery-ui.js", "deckbrowser.js"],
+            css=["css/deckbrowser.css"],
+            js=["js/vendor/jquery.js", "js/vendor/jquery-ui.js", "js/deckbrowser.js"],
             context=self,
         )
         self.web.key = "deckBrowser"

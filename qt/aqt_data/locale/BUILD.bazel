@@ -1,0 +1,6 @@
+load("compile.bzl", "compile_all")
+
+compile_all(
+    name = "locale",
+    visibility = ["//qt:__subpackages__"],
+)

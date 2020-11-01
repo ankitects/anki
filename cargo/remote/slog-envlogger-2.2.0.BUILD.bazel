@@ -1,0 +1,65 @@
+"""
+@generated
+cargo-raze crate build file.
+
+DO NOT EDIT! Replaced on runs of cargo-raze
+"""
+
+# buildifier: disable=load
+load(
+    "@io_bazel_rules_rust//rust:rust.bzl",
+    "rust_binary",
+    "rust_library",
+    "rust_test",
+)
+
+# buildifier: disable=load
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
+package(default_visibility = [
+    # Public for visibility by "@raze__crate__version//" targets.
+    #
+    # Prefer access through "//cargo", which limits external
+    # visibility to explicit Cargo.toml dependencies.
+    "//visibility:public",
+])
+
+licenses([
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
+])
+
+# Generated targets
+# Unsupported target "proper" with type "example" omitted
+# Unsupported target "regexp_filter" with type "test" omitted
+# Unsupported target "scopes" with type "example" omitted
+# Unsupported target "simple" with type "example" omitted
+
+# buildifier: leave-alone
+rust_library(
+    name = "slog_envlogger",
+    crate_type = "lib",
+    deps = [
+        "@raze__log__0_4_11//:log",
+        "@raze__regex__1_4_1//:regex",
+        "@raze__slog__2_5_2//:slog",
+        "@raze__slog_async__2_5_0//:slog_async",
+        "@raze__slog_scope__4_3_0//:slog_scope",
+        "@raze__slog_stdlog__4_0_0//:slog_stdlog",
+        "@raze__slog_term__2_6_0//:slog_term",
+    ],
+    srcs = glob(["**/*.rs"]),
+    crate_root = "src/lib.rs",
+    edition = "2015",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    version = "2.2.0",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    crate_features = [
+        "default",
+        "regex",
+    ],
+)

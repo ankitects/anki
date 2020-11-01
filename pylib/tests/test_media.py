@@ -3,7 +3,7 @@
 import os
 import tempfile
 
-from .shared import getEmptyCol, testDir
+from tests.shared import getEmptyCol, testDir
 
 
 # copying files to media folder
@@ -57,7 +57,7 @@ def test_deckIntegration():
     # create a media dir
     col.media.dir()
     # put a file into it
-    file = str(os.path.join(testDir, "support/fake.png"))
+    file = str(os.path.join(testDir, "support", "fake.png"))
     col.media.addFile(file)
     # add a note which references it
     note = col.newNote()

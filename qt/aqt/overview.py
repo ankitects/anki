@@ -174,8 +174,8 @@ class Overview:
         gui_hooks.overview_will_render_content(self, content)
         self.web.stdHtml(
             self._body % content.__dict__,
-            css=["overview.css"],
-            js=["jquery.js", "overview.js"],
+            css=["css/overview.css"],
+            js=["js/vendor/jquery.js", "js/overview.js"],
             context=self,
         )
 

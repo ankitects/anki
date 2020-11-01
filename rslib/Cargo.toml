@@ -6,6 +6,11 @@ authors = ["Ankitects Pty Ltd and contributors"]
 license = "AGPL-3.0-or-later"
 description = "Anki's Rust library code"
 readme = "README.md"
+build = "build/main.rs"
+
+[lib]
+name = "anki"
+path = "src/lib.rs"
 
 [dependencies]
 # pinned as any changes could invalidate sqlite indexes
@@ -73,9 +78,10 @@ git = "https://github.com/ankitects/reqwest.git"
 rev = "57665e2c2a39db85723ba860f1b570a608bb73f9"
 features = ["json", "socks", "stream"]
 
-[build-dependencies]
-prost-build = "0.6.1"
-fluent-syntax = "0.9.3"
 
 [dev-dependencies]
 env_logger = "0.7.1"
+
+[build-dependencies]
+prost-build = "0.6.1"
+fluent-syntax = "0.9.3"

@@ -1,0 +1,136 @@
+load("@rules_python//python:defs.bzl", "py_binary", "py_test")
+load("@py_deps//:requirements.bzl", "requirement")
+
+py_binary(
+    name = "genhooks_gui",
+    srcs = [
+        "tools/genhooks_gui.py",
+    ],
+    imports = ["."],
+    visibility = [":__subpackages__"],
+    deps = [
+        "//pylib:hookslib",
+        requirement("black"),
+        requirement("stringcase"),
+    ],
+)
+
+py_binary(
+    name = "extract_sass_colors",
+    srcs = [
+        "tools/extract_sass_colors.py",
+    ],
+    imports = ["."],
+    visibility = [":__subpackages__"],
+)
+
+py_test(
+    name = "pytest",
+    srcs = glob(["tests/*.py"]),
+    data = [
+        "//qt/aqt_data",
+        "//rspy:ankirspy",
+    ],
+    main = "tests/run_pytest.py",
+    deps = [
+        "//pylib/anki",
+        "//qt/aqt",
+        requirement("pytest"),
+        requirement("mock"),
+    ],
+)
+
+py_test(
+    name = "mypy",
+    srcs = [
+        "tests/run_mypy.py",
+    ],
+    args = [
+        "aqt",
+        "$(location mypy.ini)",
+        "$(location @pyqt5//:__init__.py)",
+    ],
+    data = [
+        "mypy.ini",
+        "@pyqt5//:__init__.py",
+    ],
+    main = "tests/run_mypy.py",
+    deps = [
+        "//pylib/anki",
+        "//qt/aqt",
+        "@pyqt5//:pkg",
+        requirement("mypy"),
+    ],
+)
+
+py_test(
+    name = "pylint",
+    srcs = [
+        "tests/run_pylint.py",
+    ],
+    args = [
+        "aqt",
+        "$(location .pylintrc)",
+        "foo",  #$(location PyQt5/__init__.py)",
+    ],
+    data = [
+        ".pylintrc",
+        #        "PyQt5-stubs",
+        #"PyQt5/__init__.py",
+    ],
+    main = "tests/run_pylint.py",
+    deps = [
+        "//pylib/anki",
+        "//qt/aqt",
+        requirement("pylint"),
+        "@pyqt5//:pkg",
+    ],
+)
+
+py_test(
+    name = "format",
+    srcs = glob([
+        "**/*.py",
+    ]),
+    args = [
+        "$(location .isort.cfg)",
+    ],
+    data = [".isort.cfg"],
+    main = "tests/run_format.py",
+    deps = [
+        "//qt/aqt",
+        requirement("black"),
+        requirement("isort"),
+    ],
+)
+
+py_binary(
+    name = "format_fix",
+    srcs = [
+        "tests/run_format.py",
+    ],
+    args = [
+        "$(location .isort.cfg)",
+        "fix",
+    ],
+    data = [".isort.cfg"],
+    main = "tests/run_format.py",
+    tags = ["manual"],
+    deps = [
+        requirement("black"),
+        requirement("isort"),
+    ],
+)
+
+py_binary(
+    name = "runanki",
+    srcs = ["runanki.py"],
+    data = [
+        "//qt/aqt_data",
+    ],
+    imports = ["."],
+    deps = [
+        "//pylib/anki",
+        "//qt/aqt",
+    ],
+)
