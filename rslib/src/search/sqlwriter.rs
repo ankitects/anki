@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::parser::{Node, PropertyKind, SearchNode, StateKind, TemplateKind};
+use super::parser::{Node, PropertyKind, SearchNode, StateKind, OptionalRe, TemplateKind};
 use crate::{
     card::{CardQueue, CardType},
     collection::Collection,
@@ -9,13 +9,13 @@ use crate::{
     err::Result,
     notes::field_checksum,
     notetype::NoteTypeID,
-    text::{matches_wildcard, text_to_re},
+    text::text_to_re,
     text::{normalize_to_nfc, strip_html_preserving_image_filenames, without_combining},
     timestamp::TimestampSecs,
 };
-use lazy_static::lazy_static;
 use regex::Regex;
 use std::{borrow::Cow, fmt::Write};
+use unicase::eq as uni_eq;
 
 pub(crate) struct SqlWriter<'a> {
     col: &'a mut Collection,
@@ -119,7 +119,7 @@ impl SqlWriter<'_> {
             // note fields related
             SearchNode::UnqualifiedText(text) => self.write_unqualified(&self.norm_note(text)),
             SearchNode::SingleField { field, text, is_re } => {
-                self.write_single_field(field.as_ref(), &self.norm_note(text), *is_re)?
+                self.write_single_field(field, &self.norm_note(text), *is_re)?
             }
             SearchNode::Duplicates { note_type_id, text } => {
                 self.write_dupes(*note_type_id, &self.norm_note(text))
@@ -131,14 +131,8 @@ impl SqlWriter<'_> {
             // other
             SearchNode::AddedInDays(days) => self.write_added(*days)?,
             SearchNode::EditedInDays(days) => self.write_edited(*days)?,
-            SearchNode::CardTemplate(template) => match template {
-                TemplateKind::Ordinal(_) => {
-                    self.write_template(template)?;
-                }
-                TemplateKind::Name(name) => {
-                    self.write_template(&TemplateKind::Name(norm(name).into()))?;
-                }
-            },
+            // fixme: normalise in name case?
+            SearchNode::CardTemplate(template) => self.write_template(template)?,
             SearchNode::Deck(deck) => self.write_deck(&norm(deck))?,
             SearchNode::NoteTypeID(ntid) => {
                 write!(self.sql, "n.mid = {}", ntid).unwrap();
@@ -146,9 +140,12 @@ impl SqlWriter<'_> {
             SearchNode::DeckID(did) => {
                 write!(self.sql, "c.did = {}", did).unwrap();
             }
-            SearchNode::NoteType(notetype) => self.write_note_type(&norm(notetype))?,
+            // fixme: normalise?
+            SearchNode::NoteType(notetype) => self.write_note_type(notetype)?,
             SearchNode::Rated { days, ease } => self.write_rated(*days, *ease)?,
-            SearchNode::Tag(tag) => self.write_tag(&norm(tag))?,
+
+            // fixme: normalise?
+            SearchNode::Tag(tag) => self.write_tag(tag)?,
             SearchNode::State(state) => self.write_state(state)?,
             SearchNode::Flag(flag) => {
                 write!(self.sql, "(c.flags & 7) == {}", flag).unwrap();
@@ -167,7 +164,7 @@ impl SqlWriter<'_> {
 
     fn write_unqualified(&mut self, text: &str) {
         // implicitly wrap in %
-        let text = format!("%{}%", convert_glob_char(text));
+        let text = format!("%{}%", text);
         self.args.push(text);
         write!(
             self.sql,
@@ -191,25 +188,25 @@ impl SqlWriter<'_> {
         .unwrap();
     }
 
-    fn write_tag(&mut self, text: &str) -> Result<()> {
+    fn write_tag(&mut self, text: &OptionalRe) -> Result<()> {
         match text {
-            "none" => {
-                write!(self.sql, "n.tags = ''").unwrap();
-            }
-            "*" | "%" => {
-                write!(self.sql, "true").unwrap();
-            }
-            text => {
-                if let Some(re_glob) = glob_to_re(text) {
-                    // text contains a wildcard
-                    let re_glob = format!("(?i).* {} .*", re_glob);
-                    write!(self.sql, "n.tags regexp ?").unwrap();
-                    self.args.push(re_glob);
-                } else if let Some(tag) = self.col.storage.preferred_tag_case(&text)? {
+            OptionalRe::Text(s) => {
+                if s == "none" {
+                    write!(self.sql, "n.tags = ''").unwrap();
+                } else if let Some(tag) = self.col.storage.preferred_tag_case(s)? {
                     write!(self.sql, "n.tags like ?").unwrap();
                     self.args.push(format!("% {} %", tag));
                 } else {
                     write!(self.sql, "false").unwrap();
+                }
+            }
+            OptionalRe::Re(s) => {
+                if s == "*" {
+                    write!(self.sql, "true").unwrap();
+                } else {
+                    let re = format!("(?i).* {} .*", s);
+                    write!(self.sql, "n.tags regexp ?").unwrap();
+                    self.args.push(re);
                 }
             }
         }
@@ -340,45 +337,54 @@ impl SqlWriter<'_> {
             TemplateKind::Ordinal(n) => {
                 write!(self.sql, "c.ord = {}", n).unwrap();
             }
-            TemplateKind::Name(name) => {
-                if let Some(re) = glob_to_re(name) {
-                    let re = format!("(?i){}", re);
+            TemplateKind::Name(name) => match name {
+                OptionalRe::Re(s) => {
+                    let re = format!("(?i){}", s);
                     self.sql.push_str(
                         "(n.mid,c.ord) in (select ntid,ord from templates where name regexp ?)",
                     );
                     self.args.push(re);
-                } else {
+                }
+                OptionalRe::Text(s) => {
                     self.sql.push_str(
                         "(n.mid,c.ord) in (select ntid,ord from templates where name = ?)",
                     );
-                    self.args.push(name.to_string());
+                    self.args.push(s.to_string());
                 }
-            }
+            },
         };
         Ok(())
     }
 
-    fn write_note_type(&mut self, nt_name: &str) -> Result<()> {
-        if let Some(re) = glob_to_re(nt_name) {
-            let re = format!("(?i){}", re);
-            self.sql
-                .push_str("n.mid in (select id from notetypes where name regexp ?)");
-            self.args.push(re);
-        } else {
-            self.sql
-                .push_str("n.mid in (select id from notetypes where name = ?)");
-            self.args.push(nt_name.to_string());
+    fn write_note_type(&mut self, nt_name: &OptionalRe) -> Result<()> {
+        match nt_name {
+            OptionalRe::Re(s) => {
+                let re = format!("(?i){}", s);
+                self.sql
+                    .push_str("n.mid in (select id from notetypes where name regexp ?)");
+                self.args.push(re);
+            }
+            OptionalRe::Text(s) => {
+                self.sql
+                    .push_str("n.mid in (select id from notetypes where name = ?)");
+                self.args.push(s.to_string());
+            }
         }
         Ok(())
     }
 
-    fn write_single_field(&mut self, field_name: &str, val: &str, is_re: bool) -> Result<()> {
+    fn write_single_field(
+        &mut self,
+        field_name: &OptionalRe,
+        val: &str,
+        is_re: bool,
+    ) -> Result<()> {
         let note_types = self.col.get_all_notetypes()?;
 
         let mut field_map = vec![];
         for nt in note_types.values() {
             for field in &nt.fields {
-                if matches_wildcard(&field.name, field_name) {
+                if matches_string_variant(&field.name, field_name) {
                     field_map.push((nt.id, field.ord));
                 }
             }
@@ -401,7 +407,7 @@ impl SqlWriter<'_> {
         } else {
             cmp = "like";
             cmp_trailer = "escape '\\'";
-            self.args.push(convert_glob_char(val).into())
+            self.args.push(val.into())
         }
 
         let arg_idx = self.args.len();
@@ -455,27 +461,16 @@ impl SqlWriter<'_> {
     }
 
     fn write_word_boundary(&mut self, word: &str) {
-        // fixme: need to escape in the no-glob case as well
-        let re = text_to_re(word);
-        self.write_regex(&format!(r"\b{}\b", re))
+        self.write_regex(&format!(r"\b{}\b", word))
     }
 }
 
-/// Replace * with %, leaving \* alone.
-fn convert_glob_char(val: &str) -> Cow<str> {
-    lazy_static! {
-        static ref RE: Regex = Regex::new(r"(^|[^\\])\*").unwrap();
+/// True if the content of search is equal to text, folding case.
+fn matches_string_variant(text: &str, search: &OptionalRe) -> bool {
+    match search {
+        OptionalRe::Re(s) => Regex::new(&format!("^(?i){}$", s)).unwrap().is_match(text),
+        OptionalRe::Text(s) => uni_eq(text, s),
     }
-    RE.replace_all(val, "${1}%")
-}
-
-/// Convert a string with _, % or * characters into a regex.
-/// If string contains no globbing characters, return None.
-fn glob_to_re(glob: &str) -> Option<String> {
-    if !glob.contains(|c| c == '_' || c == '*' || c == '%') {
-        return None;
-    }
-    Some(text_to_re(glob))
 }
 
 #[derive(Debug, PartialEq, Clone, Copy)]
@@ -802,13 +797,5 @@ mod test {
             Node::Group(parse("test nid:1").unwrap()).required_table(),
             RequiredTable::Notes
         );
-    }
-
-    #[test]
-    fn convert_glob() {
-        assert_eq!(&convert_glob_char("foo*bar"), "foo%bar");
-        assert_eq!(&convert_glob_char("*bar"), "%bar");
-        assert_eq!(&convert_glob_char("\n*bar"), "\n%bar");
-        assert_eq!(&convert_glob_char(r"\*bar"), r"\*bar");
     }
 }
