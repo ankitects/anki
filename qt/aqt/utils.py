@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import os
 import re
 import subprocess
@@ -64,13 +65,13 @@ def showCritical(text, parent=None, help="", title="Anki", textFormat=None):
 
 
 def showInfo(
-    text,
-    parent=False,
-    help="",
-    type="info",
-    title="Anki",
-    textFormat=None,
-    customBtns=None,
+        text,
+        parent=False,
+        help="",
+        type="info",
+        title="Anki",
+        textFormat=None,
+        customBtns=None,
 ):
     "Show a small info window with an OK button."
     if parent is False:
@@ -109,15 +110,15 @@ def showInfo(
 
 
 def showText(
-    txt,
-    parent=None,
-    type="text",
-    run=True,
-    geomKey=None,
-    minWidth=500,
-    minHeight=400,
-    title="Anki",
-    copyBtn=False,
+        txt,
+        parent=None,
+        type="text",
+        run=True,
+        geomKey=None,
+        minWidth=500,
+        minHeight=400,
+        title="Anki",
+        copyBtn=False,
 ):
     if not parent:
         parent = aqt.mw.app.activeWindow() or aqt.mw
@@ -135,7 +136,6 @@ def showText(
     box = QDialogButtonBox(QDialogButtonBox.Close)
     layout.addWidget(box)
     if copyBtn:
-
         def onCopy():
             QApplication.clipboard().setText(text.toPlainText())
 
@@ -230,14 +230,14 @@ def askUserDialog(text, buttons, parent=None, help="", title="Anki"):
 
 class GetTextDialog(QDialog):
     def __init__(
-        self,
-        parent,
-        question,
-        help=None,
-        edit=None,
-        default="",
-        title="Anki",
-        minWidth=400,
+            self,
+            parent,
+            question,
+            help=None,
+            edit=None,
+            default="",
+            title="Anki",
+            minWidth=400,
     ):
         QDialog.__init__(self, parent)
         self.setWindowTitle(title)
@@ -276,14 +276,14 @@ class GetTextDialog(QDialog):
 
 
 def getText(
-    prompt,
-    parent=None,
-    help=None,
-    edit=None,
-    default="",
-    title="Anki",
-    geomKey=None,
-    **kwargs,
+        prompt,
+        parent=None,
+        help=None,
+        edit=None,
+        default="",
+        title="Anki",
+        geomKey=None,
+        **kwargs,
 ):
     if not parent:
         parent = aqt.mw.app.activeWindow() or aqt.mw
@@ -403,7 +403,7 @@ def getSaveFile(parent, title, dir_description, key, ext, fname=None):
         # check if it exists
         if os.path.exists(file):
             if not askUser(
-                _("This file exists. Are you sure you want to overwrite it?"), parent
+                    _("This file exists. Are you sure you want to overwrite it?"), parent
             ):
                 return None
     return file
@@ -847,3 +847,12 @@ def startup_info() -> Any:
     si = subprocess.STARTUPINFO()  # pytype: disable=module-attr
     si.dwFlags |= subprocess.STARTF_USESHOWWINDOW  # pytype: disable=module-attr
     return si
+
+
+def run_async(f):
+    "Execute function asynchronously"
+
+    def wrapped(*args, **kwargs):
+        return asyncio.get_event_loop().run_in_executor(None, f, *args, *kwargs)
+
+    return wrapped

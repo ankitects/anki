@@ -4,11 +4,14 @@
 
 from __future__ import annotations
 
+import asyncio
 import difflib
 import html
 import json
 import re
+import threading
 import unicodedata as ucd
+from time import sleep
 from typing import Callable, List, Optional, Tuple, Union
 
 from PyQt5.QtCore import Qt
@@ -23,7 +26,10 @@ from aqt.qt import *
 from aqt.sound import av_player, getAudio, play_clicked_audio
 from aqt.theme import theme_manager
 from aqt.toolbar import BottomBar
-from aqt.utils import askUserDialog, downArrow, qtMenuShortcutWorkaround, tooltip
+from aqt.utils import askUserDialog, downArrow, qtMenuShortcutWorkaround, tooltip, run_async
+# from testing.framework.test_runner import run_tests, generate_solution_template
+from testing.framework.anki_testing_api import get_solution_template, test_solution
+from testing.framework.runners.console_logger import ConsoleLogger
 
 
 class ReviewerBottomBar:
@@ -54,8 +60,12 @@ class Reviewer:
         self._recordedAudio: Optional[str] = None
         self.typeCorrect: str = None  # web init happens before this is set
         self.state: Optional[str] = None
-        self.codingQuestion = False
         self.bottom = BottomBar(mw, mw.bottomWeb)
+        #todo:
+        self.codingQuestion = False #todo: remove this var
+        self.synchronizer = threading.Event()
+        self.codingBuffer = {}
+        self.activeLanguage = None
         hooks.card_did_leech.append(self.onLeech)
 
     def show(self) -> None:
@@ -255,6 +265,7 @@ class Reviewer:
     ############################################################
     def _answerCard(self, ease: int) -> None:
         "Reschedule card and show next."
+        self.synchronizer.set()
         if self.mw.state != "review":
             # showing resetRequired screen; ignore key
             return
@@ -269,6 +280,7 @@ class Reviewer:
             return
         self.mw.col.sched.answerCard(self.card, ease)
         gui_hooks.reviewer_did_answer_card(self, self.card, ease)
+        #here cancel the async
         self._answeredIds.append(self.card.id)
         self.mw.autosave()
         self.nextCard()
@@ -344,8 +356,13 @@ class Reviewer:
             self.mw.onEditCurrent()
         elif url == "more":
             self.showContextMenu()
+        elif url == "test":
+            self.web.evalWithCallback("typeans ? typeans.value : null", self._runTests)
         elif url.startswith("play:"):
             play_clicked_audio(url, self.card)
+        elif url.startswith("lang:"):
+            lang = url.split(':')[1]
+            self.web.evalWithCallback("typeans ? typeans.value : null", lambda src: self._switchLang(lang, src))
         else:
             print("unrecognized anki link:", url)
 
@@ -372,25 +389,57 @@ class Reviewer:
     def codingQuestionFilter(self, buf: str) -> str:
         m = re.search(self.codeAnsPat, buf)
         fld = m.group(1)
-        testData = self.card.note()[self.card.model()["flds"][2]["name"]]
-        method = self.card.note()[self.card.model()["flds"][1]["name"]]
         for f in self.card.model()["flds"]:
             if f["name"] == fld:
                 self.typeCorrect = self.card.note()[f["name"]]
                 self.typeFont = f["font"]
                 self.typeSize = f["size"]
                 break
+
+        #todo
+        self.activeLanguage = 'java'
         return re.sub(
             self.codeAnsPat,
-            """
-<div>
-<label>Code:</label>
-<textarea id=typeans style="width: 400px; height: 400px; font-family: '%s'; font-size: %spx;">%s</textarea>
-</div>
-"""
-            % (self.typeFont, self.typeSize, JavaRunner.renderTemplate(method, testData)),
-            buf,
-            )
+            """<br><br>
+            <div style="width:80%%;margin: 0 auto;">
+                <select id=lang style="display:inline-block;float:right;font-size:18px;margin-bottom:10px;"
+                    onChange="pycmd('lang:' + this.value);">
+                    <option selected value="java">Java</option>
+                    <option value="python">Python</option>
+                </select>
+                <button id=runcode onclick="pycmd('test')"
+                    style="display:inline-block;background-color:green;color:white;
+                           float:right;font-size:16px;margin-right:10px;">Run</button>
+                <textarea id=typeans style="width:100%%;height:60vh;font-family:'%s';font-size:%spx;">%s</textarea>
+                <div id=console style="height:20vh;background-color:#3c3f41;color:white;
+                            border:solid 1px #aaa;margin-top:10px;
+                            padding:10px;text-align:left;font-size:14px;">
+                </div>
+            </div>"""
+            % (self.typeFont, self.typeSize, get_solution_template(self.card, self.activeLanguage)), buf)
+
+    def _runTests(self, src):
+        self._cleanConsole()
+        logger = ConsoleLogger(lambda txt: self.web.eval("_showConsoleLog(%s);" % json.dumps(txt + '<br/>')))
+        test_solution(self.card, src, self.activeLanguage, logger)
+        pass
+
+    def _cleanConsole(self):
+        self.web.eval('_cleanConsoleLog();')
+
+    def _switchLang(self, lang, src):
+        self.codingBuffer[self.activeLanguage] = src
+        self.activeLanguage = lang
+        self._loadCodingBuffer()
+        pass
+
+    def _loadCodingBuffer(self):
+        src = None
+        if self.activeLanguage in self.codingBuffer:
+            src = self.codingBuffer[self.activeLanguage]
+        if src is None:
+            src = get_solution_template(self.card, self.activeLanguage)
+        self.web.eval("_reloadCode(%s);" % json.dumps(src))
 
     def typeAnsQuestionFilter(self, buf: str) -> str:
         self.typeCorrect = None
@@ -439,6 +488,17 @@ Please run Tools>Empty Cards"""
             buf,
         )
 
+    def log(self, text):
+        self.web.eval("_showConsoleLog(%s);" % json.dumps(text + '<br/>'))
+
+    def testCard(self, src):
+        model = self.card.model()['flds']
+        note = self.card.note()
+        funcName = note[model[1]['name']]
+        csvData = note[model[2]['name']]
+        self.synchronizer.clear()
+        run_tests(src, funcName, csvData, 'java', self.log, self.synchronizer)
+
     def typeAnsAnswerFilter(self, buf: str) -> str:
         if not self.typeCorrect:
             return re.sub(self.typeAnsPat, "", buf)
@@ -456,25 +516,22 @@ Please run Tools>Empty Cards"""
         cor = cor.strip()
         given = self.typedAnswer
         if self.codingQuestion:
-            testData = self.card.note()[self.card.model()["flds"][2]["name"]]
-            method = self.card.note()[self.card.model()["flds"][1]["name"]]
-            res = JavaRunner.run(given, method, testData).decode("utf-8")
             # and update the type answer area
             def repl(match):
                 # can't pass a string in directly, and can't use re.escape as it
                 # escapes too much
-                s = """
-            <span style="font-family: '%s'; font-size: %spx">%s</span>""" % (
-                    self.typeFont,
-                    self.typeSize,
-                    res,
-                )
-                if hadHR:
-                    # a hack to ensure the q/a separator falls before the answer
-                    # comparison when user is using {{FrontSide}}
-                    s = "<hr id=answer>" + s
-                return s
-
+                return '<hr id=answer>'
+            #     s = """
+            # <span id="coding-answer" style="font-family: '%s'; font-size: %spx">%s</span>""" % (
+            #         self.typeFont,
+            #         self.typeSize,
+            #         '',
+            #     )
+            #     if hadHR:
+            #         # a hack to ensure the q/a separator falls before the answer
+            #         # comparison when user is using {{FrontSide}}
+            #         s = "<hr id=answer>" + s
+            #     return s
             return re.sub(self.codeAnsPat, repl, buf)
         else:
             # compare with typed answer

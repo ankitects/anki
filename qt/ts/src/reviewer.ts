@@ -17,7 +17,6 @@ function _runHook(arr) {
     }
 }
 
-//reviewr!
 function _updateQA(html, fadeTime, onupdate, onshown) {
     // if a request to update q/a comes in before the previous content
     // has been loaded, wait a while and try again
@@ -102,6 +101,19 @@ function _showAnswer(a, bodyclass) {
     );
 }
 
+function _reloadCode(src) {
+    $("#typeans").val(src);
+}
+
+function _cleanConsoleLog() {
+    $('#console').empty()
+}
+
+function _showConsoleLog(html) {
+    //todo: highlighting
+    $('#console').append(html);
+}
+
 const _flagColours = {
     1: "#ff6666",
     2: "#ff9900",
@@ -129,6 +141,7 @@ function _drawMark(mark) {
 }
 
 function _typeAnsPress() {
+    alert('type ans press')
     if ((window.event as KeyboardEvent).keyCode === 13) {
         pycmd("ans");
     }
