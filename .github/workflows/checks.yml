@@ -22,7 +22,7 @@ jobs:
   ################################
 
   check_tag:
-    name: Tag name
+    name: Matrix Generation
     outputs:
       tagged: ${{ steps.check_tagged.outputs.tagged }}
       matrix: ${{ steps.check_tagged.outputs.matrix }}
@@ -56,25 +56,21 @@ jobs:
                 "os": "ubuntu-latest",
                 "name": "Ubuntu",
                 "SEP": "/",
-                "PIP_WHEELS_DIR": "~/.cache/pip",
-                "CARGO_INDEX_DIR": "~/.cargo/git",
-                "CARGO_REGISTRY_DIR": "~/.cargo/registry",
+                "BAZEL_ROOT": "~/.cache/bazelroot",
                 "ANKI_PYTHON_WHEELS": "anki_linux_python"
               },
               {
                 "os": "macos-latest",
                 "name": "Mac OS",
                 "SEP": "/",
-                "PIP_WHEELS_DIR": "~/Library/Caches/pip",
-                "CARGO_INDEX_DIR": "~/.cargo/git",
-                "CARGO_REGISTRY_DIR": "~/.cargo/registry",
+                "BAZEL_ROOT": "~/Library/Caches/bazelroot",
                 "ANKI_PYTHON_WHEELS": "anki_macos_python"
               },
               {
                 "os": "windows-latest",
                 "name": "Windows",
                 "SEP": "\\",
-                "PIP_WHEELS_DIR": "~\\AppData\\Local\\pip\\Cache",
+                "BAZEL_ROOT": "~\\AppData\\Local\\bazelroot",
                 "CARGO_INDEX_DIR": "C:\\Rust\\.cargo\\git",
                 "CARGO_REGISTRY_DIR": "C:\\Rust\\.cargo\\registry",
                 "ANKI_PYTHON_WHEELS": "anki_windows_python"
@@ -123,9 +119,15 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Set up python
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python }}
+
+      - name: Cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ matrix.BAZEL_ROOT }}
+          key: ${{ runner.os }}-bazout-1
 
       ################################
       # Linux
@@ -143,10 +145,11 @@ jobs:
           # fix cache permissions
           # sudo chown -R $(whoami):$(id -ng) ~/.cargo/
 
-          args="--isatty=0 --color=yes"
-          ./bazel test ... $args
-          ./bazel build qt:runanki $args
-          ANKI_IMPORT_ONLY=1 ./bazel run qt:runanki
+          BAZEL="./bazel --output_user_root=${{ matrix.BAZEL_ROOT }}"
+          ARGS="--isatty=0 --color=yes"
+          $BAZEL test ... $ARGS
+          $BAZEL build qt:runanki $ARGS
+          ANKI_IMPORT_ONLY=1 $BAZEL run qt:runanki
 
       ################################
       # Mac
@@ -160,10 +163,13 @@ jobs:
           # gnu tar for cache issue
           echo "::add-path::/usr/local/opt/gnu-tar/libexec/gnubin"
 
-          args="--isatty=0 --color=yes"
-          bazel test ... $args
-          bazel build qt:runanki $args
-          ANKI_IMPORT_ONLY=1 ./run
+          BAZEL="bazel --output_user_root=${{ matrix.BAZEL_ROOT }}"
+          ARGS="--isatty=0 --color=yes"
+          $BAZEL test ... $ARGS
+          $BAZEL build qt:runanki $ARGS
+          # the rsync workaround is not required in CI, as it's working
+          # around a webengine issue
+          ANKI_IMPORT_ONLY=1 $BAZEL run qt:runanki
 
       ################################
       # Windows
@@ -192,18 +198,24 @@ jobs:
           # echo "::set-env name=SCOOP_GLOBAL::$env:GITHUB_WORKSPACE"
           # echo "::set-env name=ANKI_EXTRA_PIP::python -m pip install $pyaudio"
 
-          \msys64\usr\bin\pacman -S gettext
+          Set-PSDebug -Trace 1
 
-          # let's see if we can do this on GitHub actions
-          mkdir \bazel
-          cd \bazel
-          curl --fail -L https://github.com/bazelbuild/bazelisk/releases/download/v1.7.4/bazelisk-windows-amd64.exe -o bazel.exe
+          $env:PATH = "$env:PATH;c:\msys64\usr\bin"
+
+          $env:ANKI_IMPORT_ONLY = "1"
+          $PYTHON = Get-Command python | Select-Object -ExpandProperty Definition
+          $BAZEL = ".\bazel.exe --output_user_root=..\bazout"
+          $ARGS = "--action_env=\`"PYTHON_SYS_EXECUTABLE=$PYTHON\`""
+
+          curl --fail -L https://github.com/bazelbuild/bazelisk/releases/download/v1.7.4/bazelisk-windows-amd64.exe -o .\bazel.exe
 
           # try build a few times to compensate for rollup flakiness
-          .\bazel build qt:runanki -k || .\bazel build qt:runanki -k || .\bazel build qt:runanki -k
-          .\bazel test ...
-          set ANKI_IMPORT_ONLY="1"
-          call .\run
+
+          echo "Currently broken"
+          # for ($i=1; $i -le 4; $i++) { Invoke-Expression "$BAZEL build qt:runanki -k $ARGS" -ErrorAction "continue" }
+          # Invoke-Expression "$BAZEL build qt:runanki -k $ARGS"          
+          # Invoke-Expression "$BAZEL test ... $ARGS"
+          # Invoke-Expression "$BAZEL run qt:runanki $ARGS"
 
       # - name: Cache pyenv
       #   if: matrix.os != 'ubuntu-latest' && matrix.python == '3.8'
