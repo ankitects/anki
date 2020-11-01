@@ -3,6 +3,10 @@ name: Checks
 on: [push, pull_request]
 
 jobs:
+  ################################
+  # Contributor check
+  ################################
+
   contrib:
     name: Author in CONTRIBUTORS
     runs-on: ubuntu-latest
@@ -12,6 +16,10 @@ jobs:
         run: |
           set -x
           .github/scripts/contrib.sh
+
+  ################################
+  # Matrix generation
+  ################################
 
   check_tag:
     name: Tag name
@@ -33,7 +41,7 @@ jobs:
           matrix = json.loads(r"""
           {
             "BUILD_TYPE": [
-              "build"
+              "check"
             ],
             "os": [
               "ubuntu-latest",
@@ -81,10 +89,10 @@ jobs:
 
           args = parser.parse_args()
 
-          if args.tagged:
-            pass
-          else:
-            matrix["BUILD_TYPE"].append("check")
+          # if args.tagged:
+          #   pass
+          # else:
+          #   matrix["BUILD_TYPE"].append("check")
 
           print(json.dumps(matrix))
           ' > buildmatrix.py;
@@ -98,250 +106,229 @@ jobs:
             printf '::set-output name=matrix::%s\n' "$(python3 buildmatrix.py)"
           fi
 
+  ################################
+  # Tests
+  ################################
+
   tests:
     needs:
       - check_tag
     name: ${{ matrix.name }} ${{ needs.check_tag.outputs.tagged }} ${{ matrix.BUILD_TYPE }} ${{ matrix.python }}
     runs-on: ${{ matrix.os }}
     strategy:
-      # https://github.com/ankitects/anki/pull/598
       matrix: ${{ fromJson( needs.check_tag.outputs.matrix ) }}
-
-      # Keep all systems running if something fails
       fail-fast: false
 
     steps:
       - uses: actions/checkout@v2
-
-      - name: Configure Linux environment variables
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          # echo "::set-env name=SHELLFLAGS::-x"
-          echo "::set-env name=BUILDFLAGS::"
-          echo "::set-env name=RSPY_TARGET_DIR::${GITHUB_WORKSPACE}/target"
-          echo "::set-env name=CARGO_TARGET_DIR::${GITHUB_WORKSPACE}/target"
-
-      - name: Configure Mac OS environment variables
-        if: matrix.os == 'macos-latest'
-        run: |
-          # echo "::set-env name=SHELLFLAGS::-x"
-          echo "::set-env name=BUILDFLAGS::"
-
-          # Disabled for Mac OS because it was not reusing the cached files
-          # https://github.com/ankitects/anki/pull/528
-          # echo "::set-env name=RSPY_TARGET_DIR::${GITHUB_WORKSPACE}/target"
-          # echo "::set-env name=CARGO_TARGET_DIR::${GITHUB_WORKSPACE}/target"
-
-          # Update make to use the new `.SHELLFLAGS` feature
-          # https://stackoverflow.com/questions/43175529/updating-make-version-4-1-on-mac
-          echo "::set-env name=PATH::/usr/local/opt/make/libexec/gnubin:$PATH"
-
-          # https://stackoverflow.com/questions/59644349/msgmerge-on-macos-catalina
-          echo "::set-env name=PATH::/usr/local/opt/gettext/bin:$PATH"
-
-          # gnu tar for cache issue
-          echo "::add-path::/usr/local/opt/gnu-tar/libexec/gnubin"
-
-      - name: Configure Windows environment variables
-        if: matrix.os == 'windows-latest'
-        run: |
-          # echo "::set-env name=SHELLFLAGS::-x"
-          echo "::set-env name=BUILDFLAGS::"
-          echo "::set-env name=RSPY_TARGET_DIR::$env:GITHUB_WORKSPACE\target"
-          echo "::set-env name=CARGO_TARGET_DIR::$env:GITHUB_WORKSPACE\target"
-
-          # https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio
-          if( "3.7".equals( "${{ matrix.python }}" ) ) {
-            $pyaudio=("PyAudio-0.2.11-cp37-cp37m-win_amd64.whl")
-          }
-          else {
-            $pyaudio=("PyAudio-0.2.11-cp38-cp38-win_amd64.whl")
-          }
-
-          $new_path=("$env:GITHUB_WORKSPACE;$env:PATH")
-          $new_path=("$env:GITHUB_WORKSPACE\shims;$new_path")
-
-          echo "::set-env name=rsyncbin::rsync-3.1.3-1-x86_64.pkg.tar.xz"
-          echo "::set-env name=pyaudio::$pyaudio"
-          echo "::set-env name=WINDOWS_CI_TOOLS::https://github.com/ankitects/windows-ci-tools/raw/master"
-          echo "::set-env name=PATH::$new_path"
-          echo "::set-env name=RUST_BACKTRACE::full"
-          echo "::set-env name=SCOOP::$env:GITHUB_WORKSPACE"
-          echo "::set-env name=SCOOP_GLOBAL::$env:GITHUB_WORKSPACE"
-          echo "::set-env name=ANKI_EXTRA_PIP::python -m pip install $pyaudio"
-
-      # Necessary for now for the cargo cache:
-      # https://github.com/actions/cache/issues/133#issuecomment-599102035
-      - name: Fix ~/.cache permissions
-        if: matrix.os == 'ubuntu-latest' && matrix.python == '3.7'
-        run: |
-          sudo chown -R $(whoami):$(id -ng) ~/.cargo/
-
-      - name: Set up brew ripgrep, pyaudio, gettext, etc
-        if: matrix.os == 'macos-latest'
-        run: |
-          set -x
-          brew install portaudio protobuf gettext ripgrep make gnu-tar
-
-      - name: Cache pyenv
-        if: matrix.os != 'ubuntu-latest' && matrix.python == '3.7'
-        uses: actions/cache@v2
-        with:
-          path: ${{ github.workspace }}${{ matrix.SEP }}pyenv
-          key: ${{ runner.os }}-pyenv-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-25-
-
-      # # Disable it in attempt to reduce the overall cache size (https://github.com/ankitects/anki/pull/528)
-      # - name: Cache pip wheels
-      #   if: matrix.BUILD_TYPE == 'build' && matrix.python == '3.7'
-      #   uses: actions/cache@v2
-      #   with:
-      #     path: ${{ matrix.PIP_WHEELS_DIR }}
-      #     key: ${{ runner.os }}-pip-wheels-${{ hashFiles('**/requirements.txt') }}-${{ hashFiles('**/setup.py') }}-25-
-
-      - name: Cache cargo index
-        if: matrix.python == '3.7'
-        uses: actions/cache@v2
-        with:
-          path: ${{ matrix.CARGO_INDEX_DIR }}
-          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-25-
-
-      - name: Cache cargo registry
-        if: matrix.python == '3.7'
-        uses: actions/cache@v2
-        with:
-          path: ${{ matrix.CARGO_REGISTRY_DIR }}
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-25-
-
-      - name: Cache cargo target
-        if: matrix.python == '3.7'
-        uses: actions/cache@v2
-        with:
-          path: ${{ github.workspace }}${{ matrix.SEP }}target
-          key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-${{ matrix.BUILD_TYPE }}-25-
-
-      - name: Cache cargo rslib
-        if: matrix.python == '3.7'
-        uses: actions/cache@v2
-        with:
-          path: ${{ github.workspace }}${{ matrix.SEP }}rslib${{ matrix.SEP }}target
-          key: ${{ runner.os }}-cargo-rslib-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-${{ matrix.BUILD_TYPE }}-25-
-
-      - name: Cache cargo rspy
-        if: matrix.python == '3.7'
-        uses: actions/cache@v2
-        with:
-          path: ${{ github.workspace }}${{ matrix.SEP }}rspy${{ matrix.SEP }}target
-          key: ${{ runner.os }}-cargo-rspy-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-${{ matrix.BUILD_TYPE }}-25-
-
-      - name: Set up curl pyaudio, rsync
-        if: matrix.os == 'windows-latest'
-        shell: cmd
-        run: |
-          echo on
-          curl --fail -LO %WINDOWS_CI_TOOLS%/%pyaudio%
-          curl --fail -LO %WINDOWS_CI_TOOLS%/%rsyncbin%
-
-          :: https://stackoverflow.com/questions/1359793/programmatically-extract-tar-gz
-          7z x "%rsyncbin%" -so | 7z x -aoa -si -ttar -o"%programfiles%\Git"
-
-      - name: Set up Windows scoop, gettext, ripgrep
-        if: matrix.os == 'windows-latest'
-        shell: cmd
-        run: |
-          echo on
-          powershell -executionpolicy bypass "& Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')"
-          scoop install -g gettext ripgrep
-
-      - name: Set up Ubuntu ripgrep, pyaudio, gettext
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          set -x
-          sudo apt update
-          sudo apt install portaudio19-dev gettext
-          # https://github.com/BurntSushi/ripgrep/issues/1232
-          # sudo apt-get install ripgrep
-          curl --fail -LO https://github.com/BurntSushi/ripgrep/releases/download/11.0.2/ripgrep_11.0.2_amd64.deb
-          sudo dpkg -i ripgrep_11.0.2_amd64.deb
 
       - name: Set up python
         uses: actions/setup-python@v1
         with:
           python-version: ${{ matrix.python }}
 
-      - name: Set up protoc
-        uses: ankitects/setup-protoc@master
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      ################################
+      # Linux
+      ################################
 
-      - name: Set up node
-        uses: actions/setup-node@v1
-        with:
-          node-version: 12
-
-      - run: make develop
-        if: matrix.BUILD_TYPE == 'build'
-
-      - run: make build
-        if: matrix.BUILD_TYPE == 'build'
-
-      - name: Check Windows wheels
-        if: matrix.BUILD_TYPE == 'build' && matrix.os == 'windows-latest'
-        shell: cmd
-        run: |
-          echo on
-          copy %pyaudio% dist
-          cd dist
-          setlocal EnableDelayedExpansion
-          cmd /C set "wheels=" && for /f "delims=" %%i in ('dir /b *.*') DO set "wheels="%%i" !wheels!"
-
-          python -m pip install pyqtwebengine %wheels%
-          python -c "import aqt; # aqt.run()"
-
-      - name: Check Linux/Mac OS wheels
-        if: matrix.BUILD_TYPE == 'build' && ( matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest' )
+      - name: Linux
+        if: matrix.os == 'ubuntu-latest'
         run: |
           set -x
-          cd dist
-          python -m pip install pyqtwebengine pyaudio *.*
-          python -c "import aqt; # aqt.run()"
+          sudo apt update
+          sudo apt install portaudio19-dev gettext
+          curl -L https://github.com/bazelbuild/bazelisk/releases/download/v1.7.4/bazelisk-linux-amd64 -o ./bazel && \
+            chmod +x ./bazel
 
-      - run: make check
-        if: matrix.BUILD_TYPE == 'check'
+          # fix cache permissions
+          # sudo chown -R $(whoami):$(id -ng) ~/.cargo/
 
-      - name: Upload python wheels
-        if: matrix.BUILD_TYPE == 'build'
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ matrix.ANKI_PYTHON_WHEELS }}${{ matrix.python }}
-          path: dist
+          args="--isatty=0 --color=yes"
+          ./bazel test ... $args
+          ./bazel build qt:runanki $args
+          ANKI_IMPORT_ONLY=1 ./bazel run qt:runanki
 
-      - name: Upload to PyPi Windows
-        if: matrix.BUILD_TYPE == 'build' && startsWith(github.ref, 'refs/tags/') && matrix.os == 'windows-latest'
-        shell: cmd
-        env:
-          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
-          TWINE_USERNAME: __token__
-        run: |
-          echo on
-          cd dist
-          rm -f "%pyaudio%"
-          setlocal EnableDelayedExpansion
-          cmd /C set "wheels=" && for /f "delims=" %%i in ('dir /b *.*') DO set "wheels="%%i" !wheels!"
+      ################################
+      # Mac
+      ################################
 
-          :: https://github.com/ankitects/anki/pull/535
-          perl ../scripts/rename -f "s@\+[\w\d]+-@-@g" %wheels%
-          python -m pip install twine
-          python -m twine upload --non-interactive --skip-existing --verbose ./*
-
-      - name: Upload to PyPi Linux/Mac OS
-        if: matrix.BUILD_TYPE == 'build' && startsWith(github.ref, 'refs/tags/') && ( matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest' )
-        env:
-          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
-          TWINE_USERNAME: __token__
+      - name: Mac
+        if: matrix.os == 'macos-latest'
         run: |
           set -x
-          python -m pip install twine
+          brew install portaudio gettext bazelisk gnu-tar
+          # gnu tar for cache issue
+          echo "::add-path::/usr/local/opt/gnu-tar/libexec/gnubin"
 
-          # https://github.com/ankitects/anki/pull/535
-          perl scripts/rename -f "s@\+[\w\d]+-@-@g" dist/*
-          python -m twine upload --non-interactive --skip-existing --verbose dist/*
+          args="--isatty=0 --color=yes"
+          bazel test ... $args
+          bazel build qt:runanki $args
+          ANKI_IMPORT_ONLY=1 ./run
+
+      ################################
+      # Windows
+      ################################
+
+      - name: Windows
+        if: matrix.os == 'windows-latest'
+        run: |
+          # # https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio
+          # if( "3.8".equals( "${{ matrix.python }}" ) ) {
+          #   $pyaudio=("PyAudio-0.2.11-cp37-cp37m-win_amd64.whl")
+          # }
+          # else {
+          #   $pyaudio=("PyAudio-0.2.11-cp38-cp38-win_amd64.whl")
+          # }
+
+          # $new_path=("$env:GITHUB_WORKSPACE;$env:PATH")
+          # $new_path=("$env:GITHUB_WORKSPACE\shims;$new_path")
+
+          # echo "::set-env name=rsyncbin::rsync-3.1.3-1-x86_64.pkg.tar.xz"
+          # echo "::set-env name=pyaudio::$pyaudio"
+          # echo "::set-env name=WINDOWS_CI_TOOLS::https://github.com/ankitects/windows-ci-tools/raw/master"
+          # echo "::set-env name=PATH::$new_path"
+          # echo "::set-env name=RUST_BACKTRACE::full"
+          # echo "::set-env name=SCOOP::$env:GITHUB_WORKSPACE"
+          # echo "::set-env name=SCOOP_GLOBAL::$env:GITHUB_WORKSPACE"
+          # echo "::set-env name=ANKI_EXTRA_PIP::python -m pip install $pyaudio"
+
+          \msys64\usr\bin\pacman -S gettext
+
+          # let's see if we can do this on GitHub actions
+          mkdir \bazel
+          cd \bazel
+          curl --fail -L https://github.com/bazelbuild/bazelisk/releases/download/v1.7.4/bazelisk-windows-amd64.exe -o bazel.exe
+
+          # try build a few times to compensate for rollup flakiness
+          .\bazel build qt:runanki -k || .\bazel build qt:runanki -k || .\bazel build qt:runanki -k
+          .\bazel test ...
+          set ANKI_IMPORT_ONLY="1"
+          call .\run
+
+      # - name: Cache pyenv
+      #   if: matrix.os != 'ubuntu-latest' && matrix.python == '3.8'
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: ${{ github.workspace }}${{ matrix.SEP }}pyenv
+      #     key: ${{ runner.os }}-pyenv-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-25-
+
+      # # Disable it in attempt to reduce the overall cache size (https://github.com/ankitects/anki/pull/528)
+      # - name: Cache pip wheels
+      #   if: matrix.BUILD_TYPE == 'build' && matrix.python == '3.8'
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: ${{ matrix.PIP_WHEELS_DIR }}
+      #     key: ${{ runner.os }}-pip-wheels-${{ hashFiles('**/requirements.txt') }}-${{ hashFiles('**/setup.py') }}-25-
+
+      # - name: Cache cargo index
+      #   if: matrix.python == '3.8'
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: ${{ matrix.CARGO_INDEX_DIR }}
+      #     key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-25-
+
+      # - name: Cache cargo registry
+      #   if: matrix.python == '3.8'
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: ${{ matrix.CARGO_REGISTRY_DIR }}
+      #     key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-25-
+
+      # - name: Cache cargo target
+      #   if: matrix.python == '3.8'
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: ${{ github.workspace }}${{ matrix.SEP }}target
+      #     key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-${{ matrix.BUILD_TYPE }}-25-
+
+      # - name: Cache cargo rslib
+      #   if: matrix.python == '3.8'
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: ${{ github.workspace }}${{ matrix.SEP }}rslib${{ matrix.SEP }}target
+      #     key: ${{ runner.os }}-cargo-rslib-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-${{ matrix.BUILD_TYPE }}-25-
+
+      # - name: Cache cargo rspy
+      #   if: matrix.python == '3.8'
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: ${{ github.workspace }}${{ matrix.SEP }}rspy${{ matrix.SEP }}target
+      #     key: ${{ runner.os }}-cargo-rspy-${{ hashFiles('**/requirements.*') }}-${{ hashFiles('**/setup.py') }}-${{ hashFiles('**/Makefile') }}-${{ hashFiles('**/Cargo.toml') }}-${{ matrix.BUILD_TYPE }}-25-
+
+      # - name: Set up curl pyaudio, rsync
+      #   if: matrix.os == 'windows-latest'
+      #   shell: cmd
+      #   run: |
+      #     echo on
+      #     curl --fail -LO %WINDOWS_CI_TOOLS%/%pyaudio%
+      #     curl --fail -LO %WINDOWS_CI_TOOLS%/%rsyncbin%
+
+      #     :: https://stackoverflow.com/questions/1359793/programmatically-extract-tar-gz
+      #     7z x "%rsyncbin%" -so | 7z x -aoa -si -ttar -o"%programfiles%\Git"
+
+      # - name: Set up Windows scoop, gettext, ripgrep
+      #   if: matrix.os == 'windows-latest'
+      #   shell: cmd
+      #   run: |
+      #     echo on
+      #     powershell -executionpolicy bypass "& Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')"
+      #     scoop install -g gettext ripgrep
+
+      # - name: Check Windows wheels
+      #   if: matrix.BUILD_TYPE == 'build' && matrix.os == 'windows-latest'
+      #   shell: cmd
+      #   run: |
+      #     echo on
+      #     copy %pyaudio% dist
+      #     cd dist
+      #     setlocal EnableDelayedExpansion
+      #     cmd /C set "wheels=" && for /f "delims=" %%i in ('dir /b *.*') DO set "wheels="%%i" !wheels!"
+
+      #     python -m pip install pyqtwebengine %wheels%
+      #     python -c "import aqt; # aqt.run()"
+
+      # - name: Check Linux/Mac OS wheels
+      #   if: matrix.BUILD_TYPE == 'build' && ( matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest' )
+      #   run: |
+      #     set -x
+      #     cd dist
+      #     python -m pip install pyqtwebengine pyaudio *.*
+      #     python -c "import aqt; # aqt.run()"
+
+      # - name: Upload python wheels
+      #   if: matrix.BUILD_TYPE == 'build'
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: ${{ matrix.ANKI_PYTHON_WHEELS }}${{ matrix.python }}
+      #     path: dist
+
+      # - name: Upload to PyPi Windows
+      #   if: matrix.BUILD_TYPE == 'build' && startsWith(github.ref, 'refs/tags/') && matrix.os == 'windows-latest'
+      #   shell: cmd
+      #   env:
+      #     TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+      #     TWINE_USERNAME: __token__
+      #   run: |
+      #     echo on
+      #     cd dist
+      #     rm -f "%pyaudio%"
+      #     setlocal EnableDelayedExpansion
+      #     cmd /C set "wheels=" && for /f "delims=" %%i in ('dir /b *.*') DO set "wheels="%%i" !wheels!"
+
+      #     :: https://github.com/ankitects/anki/pull/535
+      #     perl ../scripts/rename -f "s@\+[\w\d]+-@-@g" %wheels%
+      #     python -m pip install twine
+      #     python -m twine upload --non-interactive --skip-existing --verbose ./*
+
+      # - name: Upload to PyPi Linux/Mac OS
+      #   if: matrix.BUILD_TYPE == 'build' && startsWith(github.ref, 'refs/tags/') && ( matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest' )
+      #   env:
+      #     TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+      #     TWINE_USERNAME: __token__
+      #   run: |
+      #     set -x
+      #     python -m pip install twine
+
+      #     # https://github.com/ankitects/anki/pull/535
+      #     perl scripts/rename -f "s@\+[\w\d]+-@-@g" dist/*
+      #     python -m twine upload --non-interactive --skip-existing --verbose dist/*
