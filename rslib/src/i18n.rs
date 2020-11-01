@@ -79,8 +79,7 @@ macro_rules! ftl_path {
     };
 }
 
-/// Get the template/English resource text for the given group.
-/// These are embedded in the binary.
+/// Get the template/English resource text.
 fn ftl_template_text() -> &'static str {
     ftl_path!("template.ftl")
 }
