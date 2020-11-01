@@ -1,0 +1,60 @@
+"""
+@generated
+cargo-raze crate build file.
+
+DO NOT EDIT! Replaced on runs of cargo-raze
+"""
+
+# buildifier: disable=load
+load(
+    "@io_bazel_rules_rust//rust:rust.bzl",
+    "rust_binary",
+    "rust_library",
+    "rust_test",
+)
+
+# buildifier: disable=load
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
+package(default_visibility = [
+    # Public for visibility by "@raze__crate__version//" targets.
+    #
+    # Prefer access through "//cargo", which limits external
+    # visibility to explicit Cargo.toml dependencies.
+    "//visibility:public",
+])
+
+licenses([
+    "notice",  # MIT from expression "MIT"
+])
+
+# Generated targets
+
+# buildifier: leave-alone
+rust_library(
+    name = "serde_aux",
+    crate_type = "lib",
+    deps = [
+        "@raze__chrono__0_4_19//:chrono",
+        "@raze__serde__1_0_117//:serde",
+        "@raze__serde_json__1_0_59//:serde_json",
+    ],
+    srcs = glob(["**/*.rs"]),
+    crate_root = "src/lib.rs",
+    edition = "2015",
+    proc_macro_deps = [
+        "@raze__serde_derive__1_0_117//:serde_derive",
+    ],
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    version = "0.6.1",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    crate_features = [
+        "chrono",
+        "default",
+    ],
+)

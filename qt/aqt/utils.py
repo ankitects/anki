@@ -8,6 +8,7 @@ import os
 import re
 import subprocess
 import sys
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, List, Optional, Union
 
 import anki
@@ -23,12 +24,16 @@ if TYPE_CHECKING:
 
 
 def aqt_data_folder() -> str:
+    # running in place?
+    dir = Path(os.path.dirname(__file__))
+    dir = dir.parent.joinpath("aqt_data")
+    if os.path.exists(dir):
+        return dir
     # wheel install?
     dir = os.path.join(sys.prefix, "aqt_data")
-    if not os.path.exists(dir) or not os.listdir(dir):
-        # running in place?
-        dir = os.path.join(os.path.dirname(__file__), "..", "aqt_data")
-    return dir
+    if os.path.exists(dir):
+        return dir
+    raise Exception("data folder not found")
 
 
 def locale_dir() -> str:

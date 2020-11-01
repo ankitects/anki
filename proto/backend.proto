@@ -1,7 +1,5 @@
 syntax = "proto3";
 
-import "fluent.proto";
-
 package BackendProto;
 
 // Generic containers
@@ -668,7 +666,7 @@ message TrashMediaFilesIn {
 }
 
 message TranslateStringIn {
-    FluentString key = 2;
+    int32 key = 2;
     map<string,TranslateArgValue> args = 3;
 }
 

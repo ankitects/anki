@@ -2,10 +2,12 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 """
-Code for generating parts of hooks.py
+Code for generating hooks.
 """
 
 import re
+import subprocess
+import sys
 from dataclasses import dataclass
 from operator import attrgetter
 from typing import List, Optional
@@ -123,7 +125,7 @@ class {self.classname()}:
         if self.legacy_hook:
             out += f"""\
         # legacy support
-        runHook({self.legacy_args()})
+        anki.hooks.runHook({self.legacy_args()})
 """
         return out + "\n\n"
 
@@ -143,7 +145,7 @@ class {self.classname()}:
         if self.legacy_hook:
             out += f"""\
         # legacy support
-        {arg_names[0]} = runFilter({self.legacy_args()})
+        {arg_names[0]} = anki.hooks.runFilter({self.legacy_args()})
 """
 
         out += f"""\
@@ -152,20 +154,14 @@ class {self.classname()}:
         return out + "\n\n"
 
 
-def update_file(path: str, hooks: List[Hook]):
+def write_file(path: str, hooks: List[Hook], prefix: str, suffix: str):
     hooks.sort(key=attrgetter("name"))
-    code = ""
+    code = prefix + "\n"
     for hook in hooks:
         code += hook.code()
 
-    with open(path) as file:
-        orig = file.read()
-
-    new = re.sub(
-        "(?s)# @@AUTOGEN@@.*?# @@AUTOGEN@@\n",
-        f"# @@AUTOGEN@@\n\n{code}# @@AUTOGEN@@\n",
-        orig,
-    )
+    code += "\n" + suffix
 
     with open(path, "wb") as file:
-        file.write(new.encode("utf8"))
+        file.write(code.encode("utf8"))
+    subprocess.run([sys.executable, "-m", "black", "-q", path], check=True)

@@ -1,0 +1,10 @@
+filegroup(
+    name = "web",
+    srcs = [
+        "//qt/aqt_data/web/css",
+        "//qt/aqt_data/web/imgs",
+        "//qt/aqt_data/web/js",
+        "//qt/aqt_data/web/pages",
+    ],
+    visibility = ["//qt:__subpackages__"],
+)

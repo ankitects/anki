@@ -1,5 +1,21 @@
 #!/bin/bash
 
-set -eu -o pipefail ${SHELLFLAGS}
+run_linux() {
+    bazel run //qt:runanki -- $*
+}
 
-make -C $(dirname $0) run RUNFLAGS="$*"
+run_mac() {
+    # QtWebEngineProcess is unable to locate icudtl.dat from a symlinked tree,
+    # so we need to copy the files into a working folder before running on a Mac.
+    workspace=$(dirname $0)
+    bazel build //qt:runanki && \
+        rsync -avPL --exclude=anki/external --exclude=__pycache__ --delete \
+            $workspace/bazel-bin/qt/runanki* $workspace/bazel-copy/ && \
+        $workspace/bazel-copy/runanki $*
+}
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    run_mac
+else
+    run_linux
+fi

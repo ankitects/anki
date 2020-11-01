@@ -20,7 +20,7 @@ create_exception!(ankirspy, BackendError, Exception);
 
 #[pyfunction]
 fn buildhash() -> &'static str {
-    include_str!("../../meta/buildhash").trim()
+    anki::version::buildhash()
 }
 
 #[pyfunction]
@@ -33,7 +33,7 @@ fn open_backend(init_msg: &PyBytes) -> PyResult<Backend> {
 
 fn want_release_gil(method: u32) -> bool {
     if let Ok(method) = BackendMethod::try_from(method) {
-        match method {
+        !matches!(method,
             BackendMethod::ExtractAVTags
             | BackendMethod::ExtractLatex
             | BackendMethod::RenderExistingCard
@@ -51,9 +51,7 @@ fn want_release_gil(method: u32) -> bool {
             | BackendMethod::FormatTimespan
             | BackendMethod::LatestProgress
             | BackendMethod::SetWantsAbort
-            | BackendMethod::I18nResources => false,
-            _ => true,
-        }
+            | BackendMethod::I18nResources)
     } else {
         false
     }

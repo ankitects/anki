@@ -1,0 +1,184 @@
+load("@rules_proto//proto:defs.bzl", "proto_library")
+load("@io_bazel_rules_rust//rust:rust.bzl", "rust_binary", "rust_library", "rust_test")
+load("@io_bazel_rules_rust//cargo:cargo_build_script.bzl", "cargo_build_script")
+load(":rustfmt.bzl", "rustfmt_fix", "rustfmt_test")
+
+# FTL file gathering
+#######################
+
+all_ftl_files = [
+    "@rslib_ftl//:files",
+    "@extra_ftl//:files",
+] + glob(["ftl/*.ftl"])
+
+genrule(
+    name = "ftl_files",
+    srcs = all_ftl_files,
+    outs = ["ftl_files.list"],
+    cmd = "echo $(SRCS) > $@",
+)
+
+# Build script
+#######################
+
+cargo_build_script(
+    name = "build_script",
+    srcs = glob(["build/*.rs"]),
+    build_script_env = {
+        "BACKEND_PROTO": "$(execpath //proto:backend.proto)",
+        "PROTOC": "$(execpath @com_google_protobuf//:protoc)",
+        "FTL_FILES": "$(execpath ftl_files.list)",
+        "BUILDINFO": "$(execpath //:buildinfo.txt)",
+    },
+    crate_root = "build/main.rs",
+    data = all_ftl_files + [
+        "ftl_files.list",
+        "//proto:backend.proto",
+        "//:buildinfo.txt",
+        "@com_google_protobuf//:protoc",
+    ],
+    deps = [
+        "//cargo:fluent_syntax",
+        "//cargo:prost_build",
+    ],
+)
+
+# Library
+#######################
+
+_anki_deps = glob([
+    "src/**/*.sql",
+    "src/**/*.html",
+    "src/**/*.css",
+    "src/**/*.tex",
+]) + [
+    "Cargo.toml",  # prevents a warning about num_enum
+    "//:buildinfo.txt",
+    "templates/.empty",  # required for askama,
+    # ":mergeftl",
+    # ":protobuf_gen",
+]
+
+_anki_features = [
+    "translations",
+]
+
+rust_library(
+    name = "anki",
+    srcs = glob([
+        "src/**/*.rs",
+    ]),
+    crate_features = _anki_features,
+    data = _anki_deps,
+    proc_macro_deps = [
+        "//cargo:serde_derive",
+        "//cargo:serde_repr",
+    ],
+    tags = ["manual"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":build_script",
+        "//cargo:askama",
+        "//cargo:async_compression",
+        "//cargo:blake3",
+        "//cargo:bytes",
+        "//cargo:chrono",
+        "//cargo:coarsetime",
+        "//cargo:failure",
+        "//cargo:flate2",
+        "//cargo:fluent",
+        "//cargo:futures",
+        "//cargo:hex",
+        "//cargo:htmlescape",
+        "//cargo:hyper",
+        "//cargo:intl_memoizer",
+        "//cargo:itertools",
+        "//cargo:lazy_static",
+        "//cargo:nom",
+        "//cargo:num_enum",
+        "//cargo:num_format",
+        "//cargo:num_integer",
+        "//cargo:once_cell",
+        "//cargo:pin_project",
+        "//cargo:prost",
+        "//cargo:rand",
+        "//cargo:regex",
+        "//cargo:reqwest",
+        "//cargo:rusqlite",
+        "//cargo:scopeguard",
+        "//cargo:serde",
+        "//cargo:serde_aux",
+        "//cargo:serde_json",
+        "//cargo:serde_tuple",
+        "//cargo:sha1",
+        "//cargo:slog",
+        "//cargo:slog_async",
+        "//cargo:slog_envlogger",
+        "//cargo:slog_term",
+        "//cargo:tempfile",
+        "//cargo:tokio",
+        "//cargo:unic_langid",
+        "//cargo:unicase",
+        "//cargo:unicode_normalization",
+        "//cargo:utime",
+        "//cargo:zip",
+    ],
+)
+
+# Tests
+#######################
+
+rust_test(
+    name = "unit_tests",
+    crate = ":anki",
+    crate_features = _anki_features,
+    data = _anki_deps + glob([
+        "tests/support/**",
+    ]),
+    deps = ["//cargo:env_logger"],
+)
+
+rustfmt_test(
+    name = "format",
+    srcs = glob([
+        "src/**/*.rs",
+    ]),
+)
+
+rustfmt_fix(
+    name = "format_fix",
+    srcs = glob([
+        "src/**/*.rs",
+    ]),
+)
+
+# fluent.proto generation
+###########################
+# This separate step is required to make the file available to downstream consumers.
+
+rust_binary(
+    name = "write_fluent_proto",
+    srcs = [
+        "build/mergeftl.rs",
+        "build/write_fluent_proto.rs",
+    ],
+    deps = ["//cargo:fluent_syntax"],
+)
+
+genrule(
+    name = "fluent_proto",
+    srcs = all_ftl_files + [
+        "ftl_files.list",
+        ":write_fluent_proto",
+        "//cargo:fluent_syntax",
+    ],
+    outs = ["fluent.proto"],
+    cmd = "$(location :write_fluent_proto) $(location fluent.proto) $(location ftl_files.list)",
+    visibility = ["//visibility:public"],
+)
+
+proto_library(
+    name = "fluent_proto_lib",
+    srcs = ["fluent.proto"],
+    visibility = ["//visibility:public"],
+)

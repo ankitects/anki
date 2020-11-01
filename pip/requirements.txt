@@ -1,0 +1,22 @@
+black
+protobuf
+stringcase
+decorator
+mypy-protobuf
+mypy
+pytest
+beautifulsoup4
+requests[socks]
+pylint
+black
+isort
+mock
+flask
+flask-cors
+waitress
+send2trash
+markdown
+jsonschema
+pyaudio
+psutil; sys.platform == "win32"
+pywin32; sys.platform == "win32"

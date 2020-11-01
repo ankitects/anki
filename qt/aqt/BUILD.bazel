@@ -1,0 +1,95 @@
+load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
+load("@rules_python//python:defs.bzl", "py_library")
+load("@py_deps//:requirements.bzl", "requirement")
+
+copy_file(
+    name = "buildinfo",
+    src = "//:buildinfo.txt",
+    out = "buildinfo.txt",
+)
+
+genrule(
+    name = "hooks_gen",
+    outs = ["hooks_gen.py"],
+    cmd = "$(location //qt:genhooks_gui) $@",
+    tools = ["//qt:genhooks_gui"],
+)
+
+genrule(
+    name = "extract_sass_colors",
+    srcs = [
+        "//ts/sass:_vars.scss",
+    ],
+    outs = ["colors.py"],
+    cmd = "$(location //qt:extract_sass_colors) $< $@",
+    tools = [
+        "//qt:extract_sass_colors",
+    ],
+)
+
+py_library(
+    name = "aqt",
+    srcs = glob([
+        "**/*.py",
+    ]) + [
+        "//qt/aqt/forms:forms",
+        "//qt/aqt/forms:icons",
+    ],
+    data = [
+        "buildinfo.txt",
+        "colors.py",
+        "py.typed",
+        ":hooks_gen",
+    ],
+    imports = [
+        # "..",
+        "../../rspy",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        requirement("protobuf"),
+        requirement("decorator"),
+        requirement("requests"),
+        requirement("beautifulsoup4"),
+        requirement("flask"),
+        requirement("flask-cors"),
+        requirement("waitress"),
+        requirement("send2trash"),
+        requirement("markdown"),
+        requirement("jsonschema"),
+        "@pyqt5//:pkg",
+    ] + select({
+        "@bazel_tools//src/conditions:host_windows": [
+            requirement("psutil"),
+            requirement("pywin32"),
+        ],
+        "//conditions:default": [],
+    }),
+    #        requirement("pyaudio"),
+    # ... this is making pytest very slow..
+    #        requirement("pyqt5"),
+)
+
+# py_package(
+#     name = "anki_pkg",
+#     # Only include these Python packages.
+#     #    packages = ["anki"],
+#     deps = [":anki"],
+# )
+
+# py_wheel(
+#     name = "anki_whl",
+#     # Package data. We're building "example_minimal_package-0.0.1-py3-none-any.whl"
+#     distribution = "anki",
+#     python_tag = "py3",
+#     requires = [
+#         "ankirspy (==2.1.35)",
+#         "distro ; sys_platform != \"darwin\" and sys_platform != \"win32\"",
+#     ],
+#     strip_path_prefixes = [
+#         "pylib",
+#         #        "foo3",
+#     ],
+#     version = "0.0.1",
+#     deps = [":anki_pkg"],
+# )

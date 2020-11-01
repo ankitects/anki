@@ -1,10 +1,17 @@
 #!/usr/bin/env python3
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+import os
 import re
+import sys
 
-from anki import backend_pb2 as pb
 import stringcase
+
+try:
+    import anki.backend_pb2 as pb
+except:
+    # windows
+    import anki.pylib.anki.backend_pb2 as pb
 
 TYPE_DOUBLE = 1
 TYPE_FLOAT = 2
@@ -145,12 +152,10 @@ for idx, method in enumerate(pb._BACKENDSERVICE.methods):
 
 out = "\n".join(out)
 
-path = "anki/rsbackend_gen.py"
 
-with open(path, "wb") as file:
-    file.write(
-        (
-            '''# Copyright: Ankitects Pty Ltd and contributors
+sys.stdout.buffer.write(
+    (
+        '''# Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 # pylint: skip-file
 
@@ -174,6 +179,6 @@ class RustBackendGenerated:
         raise Exception("not implemented")
     
 '''
-            + out
-        ).encode("utf8")
-    )
+        + out
+    ).encode("utf8")
+)

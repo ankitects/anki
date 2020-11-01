@@ -1,0 +1,26 @@
+load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
+load("compile_sass.bzl", "compile_sass")
+
+compile_sass(
+    srcs = glob(
+        ["*.scss"],
+        exclude = ["_*.scss"],
+    ),
+    group = "css_local",
+    visibility = ["//visibility:private"],
+)
+
+copy_file(
+    name = "core_css",
+    src = "//ts/sass:core.css",
+    out = "core.css",
+)
+
+filegroup(
+    name = "css",
+    srcs = [
+        "core.css",
+        "css_local",
+    ],
+    visibility = ["//qt:__subpackages__"],
+)

@@ -1,0 +1,28 @@
+common --enable_platform_specific_config
+common --experimental_repository_cache_hardlinks
+#common --symlink_prefix=.bazel/
+#common --experimental_no_product_name_out_symlink
+
+# specify python path on Windows for pyo3 compile
+build:windows --action_env="PYTHON_SYS_EXECUTABLE=c:\\python\\python.exe"
+
+# runfiles are off by default on Windows, and we need them
+build --enable_runfiles
+
+# skip the slow zip step on Windows, as we have symlinks
+build:windows --build_python_zip=false
+
+# record version/build hash
+build --workspace_status_command='bash ./scripts/status.sh'
+
+# run clippy when compiling rust in test mode
+test --aspects=@io_bazel_rules_rust//rust:rust.bzl%rust_clippy_aspect --output_groups=clippy_checks
+
+# print output when test fails
+test --test_output=errors
+
+# don't add empty __init__.py files
+build --incompatible_default_to_explicit_init_py
+
+# faster for .ui file generation, but may sacrifice correctness
+#--genrule_strategy=standalone

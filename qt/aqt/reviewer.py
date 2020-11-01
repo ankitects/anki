@@ -150,13 +150,13 @@ class Reviewer:
         # main window
         self.web.stdHtml(
             self.revHtml(),
-            css=["reviewer.css"],
+            css=["css/reviewer.css"],
             js=[
-                "jquery.js",
-                "browsersel.js",
-                "mathjax/conf.js",
-                "mathjax/MathJax.js",
-                "reviewer.js",
+                "js/vendor/jquery.js",
+                "js/vendor/browsersel.js",
+                "js/vendor/mathjax/conf.js",
+                "js/vendor/mathjax/MathJax.js",
+                "js/reviewer.js",
             ],
             context=self,
         )
@@ -164,8 +164,8 @@ class Reviewer:
         self.bottom.web.show()
         self.bottom.web.stdHtml(
             self._bottomHTML(),
-            css=["toolbar-bottom.css", "reviewer-bottom.css"],
-            js=["jquery.js", "reviewer-bottom.js"],
+            css=["css/toolbar-bottom.css", "css/reviewer-bottom.css"],
+            js=["js/vendor/jquery.js", "js/reviewer-bottom.js"],
             context=ReviewerBottomBar(self),
         )
 

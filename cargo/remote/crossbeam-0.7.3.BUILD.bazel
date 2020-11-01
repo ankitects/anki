@@ -1,0 +1,64 @@
+"""
+@generated
+cargo-raze crate build file.
+
+DO NOT EDIT! Replaced on runs of cargo-raze
+"""
+
+# buildifier: disable=load
+load(
+    "@io_bazel_rules_rust//rust:rust.bzl",
+    "rust_binary",
+    "rust_library",
+    "rust_test",
+)
+
+# buildifier: disable=load
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
+package(default_visibility = [
+    # Public for visibility by "@raze__crate__version//" targets.
+    #
+    # Prefer access through "//cargo", which limits external
+    # visibility to explicit Cargo.toml dependencies.
+    "//visibility:public",
+])
+
+licenses([
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
+])
+
+# Generated targets
+
+# buildifier: leave-alone
+rust_library(
+    name = "crossbeam",
+    crate_type = "lib",
+    deps = [
+        "@raze__cfg_if__0_1_10//:cfg_if",
+        "@raze__crossbeam_channel__0_4_4//:crossbeam_channel",
+        "@raze__crossbeam_deque__0_7_3//:crossbeam_deque",
+        "@raze__crossbeam_epoch__0_8_2//:crossbeam_epoch",
+        "@raze__crossbeam_queue__0_2_3//:crossbeam_queue",
+        "@raze__crossbeam_utils__0_7_2//:crossbeam_utils",
+    ],
+    srcs = glob(["**/*.rs"]),
+    crate_root = "src/lib.rs",
+    edition = "2015",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    version = "0.7.3",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    crate_features = [
+        "crossbeam-channel",
+        "crossbeam-deque",
+        "crossbeam-queue",
+        "default",
+        "std",
+    ],
+)
+# Unsupported target "subcrates" with type "test" omitted

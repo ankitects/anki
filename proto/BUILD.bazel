@@ -1,0 +1,32 @@
+load("@rules_python//python:defs.bzl", "py_binary")
+load("@rules_proto//proto:defs.bzl", "proto_library")
+load("@py_deps//:requirements.bzl", "requirement")
+
+py_binary(
+    name = "mypy_protobuf",
+    srcs = [requirement("mypy-protobuf").replace(":pkg", ":mypy_protobuf.py")],
+    visibility = [
+        "//visibility:public",
+    ],
+    deps = [requirement("mypy-protobuf")],
+)
+
+py_binary(
+    name = "protoc_wrapper",
+    srcs = ["protoc_wrapper.py"],
+    visibility = [
+        "//visibility:public",
+    ],
+    deps = [
+        ":mypy_protobuf",
+        "@rules_python//python/runfiles",
+    ],
+)
+
+proto_library(
+    name = "backend_proto_lib",
+    srcs = ["backend.proto"],
+    visibility = ["//visibility:public"],
+)
+
+exports_files(["backend.proto"])

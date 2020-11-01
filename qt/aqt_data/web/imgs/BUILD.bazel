@@ -1,0 +1,8 @@
+filegroup(
+    name = "imgs",
+    srcs = glob([
+        "**/*.png",
+        "**/*.svg",
+    ]),
+    visibility = ["//qt:__subpackages__"],
+)

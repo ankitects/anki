@@ -1,0 +1,29 @@
+load("defs.bzl", "copy_page")
+
+copy_page(
+    name = "graphs_page",
+    srcs = [
+        "graphs.css",
+        "graphs.html",
+        "graphs.js",
+    ],
+    package = "//ts/graphs",
+)
+
+copy_page(
+    name = "congrats_page",
+    srcs = [
+        "congrats.html",
+        "congrats.js",
+    ],
+    package = "//ts/congrats",
+)
+
+filegroup(
+    name = "pages",
+    srcs = [
+        "congrats_page",
+        "graphs_page",
+    ],
+    visibility = ["//qt:__subpackages__"],
+)

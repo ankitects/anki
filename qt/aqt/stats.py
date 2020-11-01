@@ -173,7 +173,7 @@ class DeckStats(QDialog):
         self.form.web.title = "deck stats"
         self.form.web.stdHtml(
             "<html><body>" + self.report + "</body></html>",
-            js=["jquery.js", "plot.js"],
+            js=["js/vendor/jquery.js", "js/vendor/plot.js"],
             context=self,
         )
         self.mw.progress.finish()

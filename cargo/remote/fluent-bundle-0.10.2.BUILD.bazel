@@ -1,0 +1,72 @@
+"""
+@generated
+cargo-raze crate build file.
+
+DO NOT EDIT! Replaced on runs of cargo-raze
+"""
+
+# buildifier: disable=load
+load(
+    "@io_bazel_rules_rust//rust:rust.bzl",
+    "rust_binary",
+    "rust_library",
+    "rust_test",
+)
+
+# buildifier: disable=load
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
+package(default_visibility = [
+    # Public for visibility by "@raze__crate__version//" targets.
+    #
+    # Prefer access through "//cargo", which limits external
+    # visibility to explicit Cargo.toml dependencies.
+    "//visibility:public",
+])
+
+licenses([
+    "notice",  # Apache-2.0 from expression "Apache-2.0 OR MIT"
+])
+
+# Generated targets
+# Unsupported target "bundle" with type "test" omitted
+# Unsupported target "custom_formatter" with type "example" omitted
+# Unsupported target "custom_type" with type "example" omitted
+# Unsupported target "custom_types" with type "test" omitted
+# Unsupported target "external_arguments" with type "example" omitted
+
+# buildifier: leave-alone
+rust_library(
+    name = "fluent_bundle",
+    crate_type = "lib",
+    deps = [
+        "@raze__fluent_langneg__0_12_1//:fluent_langneg",
+        "@raze__fluent_syntax__0_9_3//:fluent_syntax",
+        "@raze__intl_memoizer__0_3_0//:intl_memoizer",
+        "@raze__intl_pluralrules__6_0_0//:intl_pluralrules",
+        "@raze__rental__0_5_5//:rental",
+        "@raze__smallvec__1_4_2//:smallvec",
+        "@raze__unic_langid__0_8_0//:unic_langid",
+    ],
+    srcs = glob(["**/*.rs"]),
+    crate_root = "fluent-bundle/src/lib.rs",
+    edition = "2018",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    version = "0.10.2",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    crate_features = [
+    ],
+)
+# Unsupported target "functions" with type "example" omitted
+# Unsupported target "hello" with type "example" omitted
+# Unsupported target "message_reference" with type "example" omitted
+# Unsupported target "resolver" with type "bench" omitted
+# Unsupported target "resolver_fixtures" with type "test" omitted
+# Unsupported target "selector" with type "example" omitted
+# Unsupported target "simple-app" with type "example" omitted
+# Unsupported target "types_test" with type "test" omitted

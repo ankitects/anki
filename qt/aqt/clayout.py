@@ -302,15 +302,15 @@ class CardLayout(QDialog):
         qconnect(pform.preview_settings.clicked, self.on_preview_settings)
 
         jsinc = [
-            "jquery.js",
-            "browsersel.js",
-            "mathjax/conf.js",
-            "mathjax/MathJax.js",
-            "reviewer.js",
+            "js/vendor/jquery.js",
+            "js/vendor/browsersel.js",
+            "js/vendor/mathjax/conf.js",
+            "js/vendor/mathjax/MathJax.js",
+            "js/reviewer.js",
         ]
         self.preview_web.stdHtml(
             self.mw.reviewer.revHtml(),
-            css=["reviewer.css"],
+            css=["css/reviewer.css"],
             js=jsinc,
             context=self,
         )
