@@ -185,11 +185,6 @@ recommended to follow these instructions step-by-step.
 
   - add git/usr/bin to your System PATH before cygwin/bin folder, mentioned above.
   - run:
-    - git config --global core.autocrlf
-    - make a note of the result (referred to as [yourLineEndingsValue] later in these notes)
-  - if the [yourLineEndingsValue] is not 'input', run (to preserve Anki's Unix line endings):
-    - git config --global core.autocrlf input
-  - run:
     - cargo install ripgrep
 
 - got to https://github.com/protocolbuffers/protobuf/releases
@@ -227,14 +222,6 @@ recommended to follow these instructions step-by-step.
   - restart PyCharm with Anki project
 
 - open PyCharm Terminal (Git Bash)
-
-- set your local Anki project to preserve unix line endings:
-  - git config --local core.autocrlf input
-- if [yourLineEndingsValue] was not 'input', revert global line endings:
-
-  - git config --global core.autocrlf [yourLineEndingsValue]
-    - e.g. (most likely):
-      - git config --global core.autocrlf true
 
 - ensure your virtual environment is set up as you like it to be
 
