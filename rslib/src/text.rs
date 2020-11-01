@@ -5,7 +5,6 @@ use lazy_static::lazy_static;
 use regex::{Captures, Regex};
 use std::borrow::Cow;
 use std::ptr;
-use unicase::eq as uni_eq;
 use unicode_normalization::{
     char::is_combining_mark, is_nfc, is_nfkd_quick, IsNormalized, UnicodeNormalization,
 };
@@ -240,17 +239,6 @@ pub(crate) fn ensure_string_in_nfc(s: &mut String) {
     }
 }
 
-/// True if search is equal to text, folding case.
-/// Supports '*' to match 0 or more characters.
-pub(crate) fn matches_wildcard(text: &str, search: &str) -> bool {
-    if search.contains('*') {
-        let search = format!("^(?i){}$", regex::escape(search).replace(r"\*", ".*"));
-        Regex::new(&search).unwrap().is_match(text)
-    } else {
-        uni_eq(text, search)
-    }
-}
-
 /// Convert provided string to NFKD form and strip combining characters.
 pub(crate) fn without_combining(s: &str) -> Cow<str> {
     // if the string is already normalized
@@ -303,7 +291,6 @@ pub(crate) fn text_to_re(glob: &str) -> String {
 
 #[cfg(test)]
 mod test {
-    use super::matches_wildcard;
     use crate::text::without_combining;
     use crate::text::{
         extract_av_tags, strip_av_tags, strip_html, strip_html_preserving_image_filenames, AVTag,
@@ -349,15 +336,6 @@ mod test {
                 },
             ]
         );
-    }
-
-    #[test]
-    fn wildcard() {
-        assert_eq!(matches_wildcard("foo", "bar"), false);
-        assert_eq!(matches_wildcard("foo", "Foo"), true);
-        assert_eq!(matches_wildcard("foo", "F*"), true);
-        assert_eq!(matches_wildcard("foo", "F*oo"), true);
-        assert_eq!(matches_wildcard("foo", "b*"), false);
     }
 
     #[test]
