@@ -26,6 +26,7 @@ from anki.dbproxy import DBProxy
 
 _tmpdir: Optional[str]
 
+
 # Time handling
 ##############################################################################
 
@@ -395,3 +396,5 @@ def pointVersion() -> int:
     from anki.buildinfo import version
 
     return int(version.split(".")[-1])
+
+

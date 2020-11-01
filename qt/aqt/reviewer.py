@@ -21,7 +21,6 @@ from anki.cards import Card
 from anki.lang import _, ngettext
 from anki.utils import stripHTML
 from aqt import AnkiQt, gui_hooks
-from aqt.coderunner import CodeRunner, JavaRunner
 from aqt.qt import *
 from aqt.sound import av_player, getAudio, play_clicked_audio
 from aqt.theme import theme_manager
