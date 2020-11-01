@@ -28,11 +28,11 @@ def aqt_data_folder() -> str:
     dir = Path(os.path.dirname(__file__))
     dir = dir.parent.joinpath("aqt_data")
     if os.path.exists(dir):
-        return dir
+        return str(dir)
     # wheel install?
-    dir = os.path.join(sys.prefix, "aqt_data")
-    if os.path.exists(dir):
-        return dir
+    dir2 = os.path.join(sys.prefix, "aqt_data")
+    if os.path.exists(dir2):
+        return dir2
     raise Exception("data folder not found")
 
 
