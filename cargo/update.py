@@ -12,6 +12,7 @@ EXTRA_DEPS = [
 import os
 import sys
 import subprocess
+import shutil
 
 if os.getcwd() != os.path.abspath(os.path.dirname(__file__)):
     print("Run this from the cargo/ folder")
@@ -38,5 +39,6 @@ with open("Cargo.toml", "w") as file:
     file.write("\n".join(deps))
 
 subprocess.run(["cargo", "update"], check=True)
+shutil.rmtree("remote")
 subprocess.run(["cargo-raze"], check=True)
 os.remove("Cargo.toml")
