@@ -41,7 +41,7 @@ rust_library(
     crate_type = "lib",
     deps = [
         "@raze__atty__0_2_14//:atty",
-        "@raze__humantime__1_3_0//:humantime",
+        "@raze__humantime__2_0_1//:humantime",
         "@raze__log__0_4_11//:log",
         "@raze__regex__1_4_2//:regex",
         "@raze__termcolor__1_1_0//:termcolor",
@@ -52,7 +52,7 @@ rust_library(
     rustc_flags = [
         "--cap-lints=allow",
     ],
-    version = "0.7.1",
+    version = "0.8.1",
     tags = [
         "cargo-raze",
         "manual",
@@ -66,7 +66,9 @@ rust_library(
     ],
 )
 # Unsupported target "filters_from_code" with type "example" omitted
+# Unsupported target "in_tests" with type "example" omitted
 # Unsupported target "init-twice-retains-filter" with type "test" omitted
 # Unsupported target "log-in-log" with type "test" omitted
 # Unsupported target "log_tls_dtors" with type "test" omitted
 # Unsupported target "regexp_filter" with type "test" omitted
+# Unsupported target "syslog_friendly_format" with type "example" omitted

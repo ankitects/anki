@@ -45,7 +45,7 @@ rust_library(
     crate_type = "lib",
     deps = [
         "@raze__base64__0_12_3//:base64",
-        "@raze__blake2b_simd__0_5_10//:blake2b_simd",
+        "@raze__blake2b_simd__0_5_11//:blake2b_simd",
         "@raze__constant_time_eq__0_1_5//:constant_time_eq",
         "@raze__crossbeam_utils__0_7_2//:crossbeam_utils",
     ],

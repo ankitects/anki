@@ -35,7 +35,7 @@ rust_library(
     name = "rand_chacha",
     crate_type = "lib",
     deps = [
-        "@raze__ppv_lite86__0_2_9//:ppv_lite86",
+        "@raze__ppv_lite86__0_2_10//:ppv_lite86",
         "@raze__rand_core__0_5_1//:rand_core",
     ],
     srcs = glob(["**/*.rs"]),

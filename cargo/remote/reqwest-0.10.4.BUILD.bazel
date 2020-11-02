@@ -67,7 +67,7 @@ rust_library(
             "@io_bazel_rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): [
             "@raze__base64__0_12_3//:base64",
-            "@raze__encoding_rs__0_8_25//:encoding_rs",
+            "@raze__encoding_rs__0_8_26//:encoding_rs",
             "@raze__futures_core__0_3_7//:futures_core",
             "@raze__futures_util__0_3_7//:futures_util",
             "@raze__http_body__0_3_1//:http_body",
