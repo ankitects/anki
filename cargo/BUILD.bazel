@@ -221,7 +221,7 @@ alias(
 
 alias(
     name = "pin_project",
-    actual = "@raze__pin_project__0_4_27//:pin_project",
+    actual = "@raze__pin_project__1_0_1//:pin_project",
     tags = [
         "cargo-raze",
         "manual",
@@ -284,7 +284,7 @@ alias(
 
 alias(
     name = "rusqlite",
-    actual = "@raze__rusqlite__0_23_1//:rusqlite",
+    actual = "@raze__rusqlite__0_24_1//:rusqlite",
     tags = [
         "cargo-raze",
         "manual",

@@ -29,21 +29,21 @@ licenses([
 ])
 
 # Generated targets
-# Unsupported target "heapsize" with type "test" omitted
 
 # buildifier: leave-alone
 rust_library(
-    name = "linked_hash_map",
+    name = "hashlink",
     crate_type = "lib",
     deps = [
+        "@raze__hashbrown__0_9_1//:hashbrown",
     ],
     srcs = glob(["**/*.rs"]),
     crate_root = "src/lib.rs",
-    edition = "2015",
+    edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
     ],
-    version = "0.5.3",
+    version = "0.6.0",
     tags = [
         "cargo-raze",
         "manual",
@@ -51,5 +51,7 @@ rust_library(
     crate_features = [
     ],
 )
+# Unsupported target "linked_hash_map" with type "test" omitted
+# Unsupported target "linked_hash_set" with type "test" omitted
+# Unsupported target "lru_cache" with type "test" omitted
 # Unsupported target "serde" with type "test" omitted
-# Unsupported target "test" with type "test" omitted

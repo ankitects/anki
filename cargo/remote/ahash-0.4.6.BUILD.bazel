@@ -25,56 +25,25 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # Apache-2.0 from expression "Apache-2.0 OR MIT"
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
 ])
 
 # Generated targets
-# buildifier: disable=load-on-top
-load(
-    "@io_bazel_rules_rust//cargo:cargo_build_script.bzl",
-    "cargo_build_script",
-)
-
-# buildifier: leave-alone
-cargo_build_script(
-    name = "encoding_rs_build_script",
-    srcs = glob(["**/*.rs"]),
-    crate_root = "build.rs",
-    edition = "2015",
-    deps = [
-    ],
-    rustc_flags = [
-        "--cap-lints=allow",
-    ],
-    crate_features = [
-    ],
-    build_script_env = {
-    },
-    data = glob(["**"]),
-    tags = [
-        "cargo-raze",
-        "manual",
-    ],
-    version = "0.8.24",
-    visibility = ["//visibility:private"],
-)
-
+# Unsupported target "ahash" with type "bench" omitted
 
 # buildifier: leave-alone
 rust_library(
-    name = "encoding_rs",
+    name = "ahash",
     crate_type = "lib",
     deps = [
-        ":encoding_rs_build_script",
-        "@raze__cfg_if__0_1_10//:cfg_if",
     ],
     srcs = glob(["**/*.rs"]),
     crate_root = "src/lib.rs",
-    edition = "2015",
+    edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
     ],
-    version = "0.8.24",
+    version = "0.4.6",
     tags = [
         "cargo-raze",
         "manual",
@@ -82,3 +51,7 @@ rust_library(
     crate_features = [
     ],
 )
+# Unsupported target "bench" with type "test" omitted
+# Unsupported target "map" with type "bench" omitted
+# Unsupported target "map_tests" with type "test" omitted
+# Unsupported target "nopanic" with type "test" omitted
