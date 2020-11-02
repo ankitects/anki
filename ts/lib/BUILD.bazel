@@ -16,7 +16,7 @@ protobufjs_ts_library(
 protobufjs_ts_library(
     name = "backend_proto",
     visibility = ["//visibility:public"],
-    deps = ["//proto:backend_proto_lib"],
+    deps = ["//rslib:backend_proto_lib"],
 )
 
 # Anki Library

@@ -1,44 +1,6 @@
 load("@rules_python//python:defs.bzl", "py_binary", "py_library", "py_test")
 load("@py_deps//:requirements.bzl", "requirement")
 
-py_binary(
-    name = "genbackend",
-    srcs = [
-        "tools/genbackend.py",
-        "//pylib/anki:backend_pb2",
-    ],
-    imports = [
-        ".",
-    ],
-    visibility = [":__subpackages__"],
-    deps = [
-        requirement("black"),
-        requirement("stringcase"),
-        requirement("protobuf"),
-    ],
-)
-
-py_library(
-    name = "hookslib",
-    srcs = ["tools/hookslib.py"],
-    imports = ["tools"],
-    visibility = ["//qt:__pkg__"],
-)
-
-py_binary(
-    name = "genhooks",
-    srcs = [
-        "tools/genhooks.py",
-        "tools/hookslib.py",
-    ],
-    imports = ["."],
-    visibility = [":__subpackages__"],
-    deps = [
-        requirement("black"),
-        requirement("stringcase"),
-    ],
-)
-
 py_test(
     name = "pytest",
     srcs = glob(["tests/*.py"]),
@@ -86,10 +48,11 @@ py_test(
 
 py_test(
     name = "format",
-    srcs = glob([
-        "anki/**/*.py",
+    srcs = [
+        "//pylib/tools:py_files",
+        "//pylib/anki:py_files",
+    ] + glob([
         "tests/**/*.py",
-        "tools/*.py",
     ]),
     args = [
         "$(location .isort.cfg)",
@@ -97,7 +60,6 @@ py_test(
     data = [".isort.cfg"],
     main = "tests/run_format.py",
     deps = [
-        "//pylib/anki",
         requirement("black"),
         requirement("isort"),
     ],

@@ -25,15 +25,15 @@ cargo_build_script(
     name = "build_script",
     srcs = glob(["build/*.rs"]),
     build_script_env = {
-        "BACKEND_PROTO": "$(execpath //proto:backend.proto)",
-        "PROTOC": "$(execpath @com_google_protobuf//:protoc)",
-        "FTL_FILES": "$(execpath ftl_files.list)",
-        "BUILDINFO": "$(execpath //:buildinfo.txt)",
+        "BACKEND_PROTO": "$(location backend.proto)",
+        "PROTOC": "$(location @com_google_protobuf//:protoc)",
+        "FTL_FILES": "$(location ftl_files.list)",
+        "BUILDINFO": "$(location //:buildinfo.txt)",
     },
     crate_root = "build/main.rs",
     data = all_ftl_files + [
         "ftl_files.list",
-        "//proto:backend.proto",
+        "backend.proto",
         "//:buildinfo.txt",
         "@com_google_protobuf//:protoc",
     ],
@@ -182,3 +182,11 @@ proto_library(
     srcs = ["fluent.proto"],
     visibility = ["//visibility:public"],
 )
+
+proto_library(
+    name = "backend_proto_lib",
+    srcs = ["backend.proto"],
+    visibility = ["//visibility:public"],
+)
+
+exports_files(["backend.proto"])

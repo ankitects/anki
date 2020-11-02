@@ -9,7 +9,7 @@ py_binary(
     imports = ["."],
     visibility = [":__subpackages__"],
     deps = [
-        "//pylib:hookslib",
+        "//pylib/tools:hookslib",
         requirement("black"),
         requirement("stringcase"),
     ],
