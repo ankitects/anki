@@ -1,13 +1,9 @@
 #!/usr/bin/env python3
 #
-# Fetches dependencies from ../rslib/Cargo.toml, adds pyo3
-# for rsbridge, runs cargo update, then outputs the dependencies
-# as Bazel targets.
-#
+# See README.md
 
 EXTRA_DEPS = [
-    # when updating, the version number in raze.toml will need updating too
-    'pyo3 = { version = "0.12.0", features = ["extension-module"] }'
+    'pyo3 = { version = "0.12.3", features = ["extension-module"] }'
 ]
 
 import os

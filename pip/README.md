@@ -5,8 +5,6 @@ it will miss packages that are required on Windows and vice versa.
 
 So we're stuck manually merging dependencies for now. To update deps:
 
-- comment out the pyaudio line starting with https:// in requirements.txt,
-  as pip-tools can't handle it
 - run 'bazel run update' to update requirements.txt for the current
   platform
 - consult the git diff, and manually merge the changes, undoing the removal
