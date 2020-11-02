@@ -43,7 +43,7 @@ rust_library(
         "@raze__atty__0_2_14//:atty",
         "@raze__humantime__1_3_0//:humantime",
         "@raze__log__0_4_11//:log",
-        "@raze__regex__1_4_1//:regex",
+        "@raze__regex__1_4_2//:regex",
         "@raze__termcolor__1_1_0//:termcolor",
     ],
     srcs = glob(["**/*.rs"]),

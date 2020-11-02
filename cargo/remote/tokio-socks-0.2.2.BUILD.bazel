@@ -40,7 +40,7 @@ rust_library(
     deps = [
         "@raze__bytes__0_4_12//:bytes",
         "@raze__either__1_6_1//:either",
-        "@raze__futures__0_3_6//:futures",
+        "@raze__futures__0_3_7//:futures",
         "@raze__thiserror__1_0_21//:thiserror",
         "@raze__tokio__0_2_22//:tokio",
     ],

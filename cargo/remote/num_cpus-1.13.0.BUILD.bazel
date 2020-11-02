@@ -35,7 +35,7 @@ rust_library(
     name = "num_cpus",
     crate_type = "lib",
     deps = [
-        "@raze__libc__0_2_79//:libc",
+        "@raze__libc__0_2_80//:libc",
     ],
     srcs = glob(["**/*.rs"]),
     crate_root = "src/lib.rs",

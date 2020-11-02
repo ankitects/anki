@@ -1,5 +1,5 @@
 [package]
-name = "rsbackend"
+name = "rsbridge"
 version = "0.0.0"
 edition = "2018"
 authors = ["Ankitects Pty Ltd and contributors <https://help.ankiweb.net>"]
@@ -9,12 +9,14 @@ description = "Anki's Rust library code Python bindings"
 [dependencies]
 anki = { path = "../../rslib" }
 
+# WARNING: if changing the version number here, the version in ../../cargo/update.py
+# needs to be updated as well
 [dependencies.pyo3]
 version = "0.11.0"
 features = ["extension-module"]
 
 [lib]
-name = "ankirspy"
+name = "rsbridge"
 crate-type = ["cdylib"]
 path = "lib.rs"
 

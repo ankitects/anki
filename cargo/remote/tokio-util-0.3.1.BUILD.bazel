@@ -41,8 +41,8 @@ rust_library(
     crate_type = "lib",
     deps = [
         "@raze__bytes__0_5_6//:bytes",
-        "@raze__futures_core__0_3_6//:futures_core",
-        "@raze__futures_sink__0_3_6//:futures_sink",
+        "@raze__futures_core__0_3_7//:futures_core",
+        "@raze__futures_sink__0_3_7//:futures_sink",
         "@raze__log__0_4_11//:log",
         "@raze__pin_project_lite__0_1_11//:pin_project_lite",
         "@raze__tokio__0_2_22//:tokio",

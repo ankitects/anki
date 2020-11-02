@@ -36,7 +36,7 @@ rust_library(
     crate_type = "proc-macro",
     deps = [
         "@raze__quote__1_0_7//:quote",
-        "@raze__syn__1_0_45//:syn",
+        "@raze__syn__1_0_48//:syn",
     ],
     srcs = glob(["**/*.rs"]),
     crate_root = "src/lib.rs",

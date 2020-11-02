@@ -86,7 +86,7 @@ alias(
 
 alias(
     name = "flate2",
-    actual = "@raze__flate2__1_0_14//:flate2",
+    actual = "@raze__flate2__1_0_18//:flate2",
     tags = [
         "cargo-raze",
         "manual",
@@ -113,7 +113,7 @@ alias(
 
 alias(
     name = "futures",
-    actual = "@raze__futures__0_3_6//:futures",
+    actual = "@raze__futures__0_3_7//:futures",
     tags = [
         "cargo-raze",
         "manual",
@@ -175,15 +175,6 @@ alias(
 )
 
 alias(
-    name = "log",
-    actual = "@raze__log__0_4_11//:log",
-    tags = [
-        "cargo-raze",
-        "manual",
-    ],
-)
-
-alias(
     name = "nom",
     actual = "@raze__nom__5_1_2//:nom",
     tags = [
@@ -203,7 +194,7 @@ alias(
 
 alias(
     name = "num_integer",
-    actual = "@raze__num_integer__0_1_43//:num_integer",
+    actual = "@raze__num_integer__0_1_44//:num_integer",
     tags = [
         "cargo-raze",
         "manual",
@@ -275,7 +266,7 @@ alias(
 
 alias(
     name = "regex",
-    actual = "@raze__regex__1_4_1//:regex",
+    actual = "@raze__regex__1_4_2//:regex",
     tags = [
         "cargo-raze",
         "manual",
@@ -400,15 +391,6 @@ alias(
 )
 
 alias(
-    name = "slog_stdlog",
-    actual = "@raze__slog_stdlog__4_0_0//:slog_stdlog",
-    tags = [
-        "cargo-raze",
-        "manual",
-    ],
-)
-
-alias(
     name = "slog_term",
     actual = "@raze__slog_term__2_6_0//:slog_term",
     tags = [
@@ -473,7 +455,7 @@ alias(
 
 alias(
     name = "zip",
-    actual = "@raze__zip__0_5_8//:zip",
+    actual = "@raze__zip__0_5_6//:zip",
     tags = [
         "cargo-raze",
         "manual",

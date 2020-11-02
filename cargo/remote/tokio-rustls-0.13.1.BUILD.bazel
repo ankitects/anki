@@ -38,7 +38,7 @@ rust_library(
     name = "tokio_rustls",
     crate_type = "lib",
     deps = [
-        "@raze__futures_core__0_3_6//:futures_core",
+        "@raze__futures_core__0_3_7//:futures_core",
         "@raze__rustls__0_17_0//:rustls",
         "@raze__tokio__0_2_22//:tokio",
         "@raze__webpki__0_21_3//:webpki",

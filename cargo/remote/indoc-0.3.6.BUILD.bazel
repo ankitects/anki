@@ -42,7 +42,7 @@ rust_library(
     edition = "2018",
     proc_macro_deps = [
         "@raze__indoc_impl__0_3_6//:indoc_impl",
-        "@raze__proc_macro_hack__0_5_18//:proc_macro_hack",
+        "@raze__proc_macro_hack__0_5_19//:proc_macro_hack",
     ],
     rustc_flags = [
         "--cap-lints=allow",

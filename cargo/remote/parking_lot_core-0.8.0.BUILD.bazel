@@ -36,7 +36,7 @@ rust_library(
     crate_type = "lib",
     deps = [
         "@raze__cfg_if__0_1_10//:cfg_if",
-        "@raze__instant__0_1_7//:instant",
+        "@raze__instant__0_1_8//:instant",
         "@raze__smallvec__1_4_2//:smallvec",
     ] + selects.with_or({
         # cfg(unix)
@@ -48,7 +48,7 @@ rust_library(
             "@io_bazel_rules_rust//rust/platform:x86_64-apple-ios",
             "@io_bazel_rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): [
-            "@raze__libc__0_2_79//:libc",
+            "@raze__libc__0_2_80//:libc",
         ],
         "//conditions:default": [],
     }) + selects.with_or({

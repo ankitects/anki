@@ -73,7 +73,7 @@ rust_library(
     crate_type = "lib",
     deps = [
         ":lexical_core_build_script",
-        "@raze__arrayvec__0_5_1//:arrayvec",
+        "@raze__arrayvec__0_5_2//:arrayvec",
         "@raze__bitflags__1_2_1//:bitflags",
         "@raze__cfg_if__0_1_10//:cfg_if",
         "@raze__ryu__1_0_5//:ryu",
