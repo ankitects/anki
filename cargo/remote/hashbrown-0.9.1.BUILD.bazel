@@ -36,6 +36,7 @@ rust_library(
     name = "hashbrown",
     crate_type = "lib",
     deps = [
+        "@raze__ahash__0_4_6//:ahash",
     ],
     srcs = glob(["**/*.rs"]),
     crate_root = "src/lib.rs",
@@ -49,6 +50,9 @@ rust_library(
         "manual",
     ],
     crate_features = [
+        "ahash",
+        "default",
+        "inline-more",
         "raw",
     ],
 )
