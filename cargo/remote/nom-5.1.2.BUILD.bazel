@@ -95,7 +95,7 @@ rust_library(
     deps = [
         ":nom_build_script",
         "@raze__lexical_core__0_7_4//:lexical_core",
-        "@raze__memchr__2_3_3//:memchr",
+        "@raze__memchr__2_3_4//:memchr",
     ],
     srcs = glob(["**/*.rs"]),
     crate_root = "src/lib.rs",

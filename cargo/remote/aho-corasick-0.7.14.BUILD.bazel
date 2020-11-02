@@ -35,7 +35,7 @@ rust_library(
     name = "aho_corasick",
     crate_type = "lib",
     deps = [
-        "@raze__memchr__2_3_3//:memchr",
+        "@raze__memchr__2_3_4//:memchr",
     ],
     srcs = glob(["**/*.rs"]),
     crate_root = "src/lib.rs",

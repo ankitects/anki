@@ -37,7 +37,7 @@ rust_library(
     deps = [
         "@raze__pyo3_derive_backend__0_11_1//:pyo3_derive_backend",
         "@raze__quote__1_0_7//:quote",
-        "@raze__syn__1_0_45//:syn",
+        "@raze__syn__1_0_48//:syn",
     ],
     srcs = glob(["**/*.rs"]),
     crate_root = "src/lib.rs",

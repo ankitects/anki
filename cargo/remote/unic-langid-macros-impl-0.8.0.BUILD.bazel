@@ -36,14 +36,14 @@ rust_library(
     crate_type = "proc-macro",
     deps = [
         "@raze__quote__1_0_7//:quote",
-        "@raze__syn__1_0_45//:syn",
+        "@raze__syn__1_0_48//:syn",
         "@raze__unic_langid_impl__0_8_0//:unic_langid_impl",
     ],
     srcs = glob(["**/*.rs"]),
     crate_root = "src/lib.rs",
     edition = "2018",
     proc_macro_deps = [
-        "@raze__proc_macro_hack__0_5_18//:proc_macro_hack",
+        "@raze__proc_macro_hack__0_5_19//:proc_macro_hack",
     ],
     rustc_flags = [
         "--cap-lints=allow",

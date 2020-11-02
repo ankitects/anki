@@ -82,7 +82,7 @@ rust_library(
         ":pyo3_build_script",
         "@raze__indoc__0_3_6//:indoc",
         "@raze__inventory__0_1_9//:inventory",
-        "@raze__libc__0_2_79//:libc",
+        "@raze__libc__0_2_80//:libc",
         "@raze__parking_lot__0_11_0//:parking_lot",
         "@raze__paste__0_1_18//:paste",
         "@raze__unindent__0_1_7//:unindent",

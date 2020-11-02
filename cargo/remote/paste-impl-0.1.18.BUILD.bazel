@@ -40,7 +40,7 @@ rust_library(
     crate_root = "src/lib.rs",
     edition = "2018",
     proc_macro_deps = [
-        "@raze__proc_macro_hack__0_5_18//:proc_macro_hack",
+        "@raze__proc_macro_hack__0_5_19//:proc_macro_hack",
     ],
     rustc_flags = [
         "--cap-lints=allow",

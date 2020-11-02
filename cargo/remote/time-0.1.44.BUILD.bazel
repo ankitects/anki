@@ -35,7 +35,7 @@ rust_library(
     name = "time",
     crate_type = "lib",
     deps = [
-        "@raze__libc__0_2_79//:libc",
+        "@raze__libc__0_2_80//:libc",
     ] + selects.with_or({
         # cfg(windows)
         (

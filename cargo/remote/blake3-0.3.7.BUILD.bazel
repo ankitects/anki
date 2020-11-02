@@ -71,7 +71,7 @@ rust_library(
     deps = [
         ":blake3_build_script",
         "@raze__arrayref__0_3_6//:arrayref",
-        "@raze__arrayvec__0_5_1//:arrayvec",
+        "@raze__arrayvec__0_5_2//:arrayvec",
         "@raze__cfg_if__0_1_10//:cfg_if",
         "@raze__constant_time_eq__0_1_5//:constant_time_eq",
         "@raze__crypto_mac__0_8_0//:crypto_mac",

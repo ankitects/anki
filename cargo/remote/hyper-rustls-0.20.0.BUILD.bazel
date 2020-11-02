@@ -38,7 +38,7 @@ rust_library(
     deps = [
         "@raze__bytes__0_5_6//:bytes",
         "@raze__ct_logs__0_6_0//:ct_logs",
-        "@raze__futures_util__0_3_6//:futures_util",
+        "@raze__futures_util__0_3_7//:futures_util",
         "@raze__hyper__0_13_8//:hyper",
         "@raze__log__0_4_11//:log",
         "@raze__rustls__0_17_0//:rustls",
