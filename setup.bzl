@@ -9,7 +9,7 @@ load("@io_bazel_rules_sass//:defs.bzl", "sass_repositories")
 load("@build_bazel_rules_svelte//:defs.bzl", "rules_svelte_dependencies")
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 load("@com_github_ali5h_rules_pip//:defs.bzl", "pip_import")
-load("//pyqt5:defs.bzl", "install_pyqt5")
+load("//pip/pyqt5:defs.bzl", "install_pyqt5")
 
 def setup_deps():
     bazel_skylib_workspace()

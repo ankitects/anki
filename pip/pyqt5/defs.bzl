@@ -35,7 +35,7 @@ If the label is specified it will overwrite the python_interpreter attribute.
 """),
         "_script": attr.label(
             executable = True,
-            default = Label("//pyqt5:install_pyqt5.py"),
+            default = Label("//pip/pyqt5:install_pyqt5.py"),
             cfg = "host",
         ),
         "quiet": attr.bool(
