@@ -12,6 +12,7 @@ if __name__ == "__main__":
         args = []
     else:
         folder = os.path.join(os.path.dirname(__file__), "..")
+        print(folder)
         os.chdir(folder)
         args = ["--diff", "--check"]
 

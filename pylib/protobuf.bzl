@@ -33,7 +33,7 @@ py_proto_library_typed = rule(
         "protoc_wrapper": attr.label(
             executable = True,
             cfg = "exec",
-            default = Label("//proto:protoc_wrapper"),
+            default = Label("//pylib/tools:protoc_wrapper"),
         ),
         "protoc": attr.label(
             executable = True,
@@ -44,7 +44,7 @@ py_proto_library_typed = rule(
         "mypy_protobuf": attr.label(
             executable = True,
             cfg = "exec",
-            default = Label("//proto:mypy_protobuf"),
+            default = Label("//pylib/tools:mypy_protobuf"),
         ),
     },
 )
