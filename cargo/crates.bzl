@@ -213,12 +213,12 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "raze__blake2b_simd__0_5_10",
-        url = "https://crates.io/api/v1/crates/blake2b_simd/0.5.10/download",
+        name = "raze__blake2b_simd__0_5_11",
+        url = "https://crates.io/api/v1/crates/blake2b_simd/0.5.11/download",
         type = "tar.gz",
-        sha256 = "d8fb2d74254a3a0b5cac33ac9f8ed0e44aa50378d9dbb2e5d83bd21ed1dc2c8a",
-        strip_prefix = "blake2b_simd-0.5.10",
-        build_file = Label("//cargo/remote:blake2b_simd-0.5.10.BUILD.bazel"),
+        sha256 = "afa748e348ad3be8263be728124b24a24f268266f6f5d58af9d75f6a40b5c587",
+        strip_prefix = "blake2b_simd-0.5.11",
+        build_file = Label("//cargo/remote:blake2b_simd-0.5.11.BUILD.bazel"),
     )
 
     maybe(
@@ -462,22 +462,22 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "raze__encoding_rs__0_8_25",
-        url = "https://crates.io/api/v1/crates/encoding_rs/0.8.25/download",
+        name = "raze__encoding_rs__0_8_26",
+        url = "https://crates.io/api/v1/crates/encoding_rs/0.8.26/download",
         type = "tar.gz",
-        sha256 = "f62bc5e388624f1a13da83b479275dbec9663a876e414df80decf7d2cdab6670",
-        strip_prefix = "encoding_rs-0.8.25",
-        build_file = Label("//cargo/remote:encoding_rs-0.8.25.BUILD.bazel"),
+        sha256 = "801bbab217d7f79c0062f4f7205b5d4427c6d1a7bd7aafdd1475f7c59d62b283",
+        strip_prefix = "encoding_rs-0.8.26",
+        build_file = Label("//cargo/remote:encoding_rs-0.8.26.BUILD.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "raze__env_logger__0_7_1",
-        url = "https://crates.io/api/v1/crates/env_logger/0.7.1/download",
+        name = "raze__env_logger__0_8_1",
+        url = "https://crates.io/api/v1/crates/env_logger/0.8.1/download",
         type = "tar.gz",
-        sha256 = "44533bbbb3bb3c1fa17d9f2e4e38bbbaf8396ba82193c4cb1b6445d711445d36",
-        strip_prefix = "env_logger-0.7.1",
-        build_file = Label("//cargo/remote:env_logger-0.7.1.BUILD.bazel"),
+        sha256 = "54532e3223c5af90a6a757c90b5c5521564b07e5e7a958681bcd2afad421cdcd",
+        strip_prefix = "env_logger-0.8.1",
+        build_file = Label("//cargo/remote:env_logger-0.8.1.BUILD.bazel"),
     )
 
     maybe(
@@ -532,12 +532,12 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "raze__flate2__1_0_18",
-        url = "https://crates.io/api/v1/crates/flate2/1.0.18/download",
+        name = "raze__flate2__1_0_19",
+        url = "https://crates.io/api/v1/crates/flate2/1.0.19/download",
         type = "tar.gz",
-        sha256 = "da80be589a72651dcda34d8b35bcdc9b7254ad06325611074d9cc0fbb19f60ee",
-        strip_prefix = "flate2-1.0.18",
-        build_file = Label("//cargo/remote:flate2-1.0.18.BUILD.bazel"),
+        sha256 = "7411863d55df97a419aa64cb4d2f167103ea9d767e2c54a1868b7ac3f6b47129",
+        strip_prefix = "flate2-1.0.19",
+        build_file = Label("//cargo/remote:flate2-1.0.19.BUILD.bazel"),
     )
 
     maybe(
@@ -870,12 +870,12 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "raze__humantime__1_3_0",
-        url = "https://crates.io/api/v1/crates/humantime/1.3.0/download",
+        name = "raze__humantime__2_0_1",
+        url = "https://crates.io/api/v1/crates/humantime/2.0.1/download",
         type = "tar.gz",
-        sha256 = "df004cfca50ef23c36850aaaa59ad52cc70d0e90243c3c7737a4dd32dc7a3c4f",
-        strip_prefix = "humantime-1.3.0",
-        build_file = Label("//cargo/remote:humantime-1.3.0.BUILD.bazel"),
+        sha256 = "3c1ad908cc71012b7bea4d0c53ba96a8cba9962f048fa68d143376143d863b7a",
+        strip_prefix = "humantime-2.0.1",
+        build_file = Label("//cargo/remote:humantime-2.0.1.BUILD.bazel"),
     )
 
     maybe(
@@ -1448,12 +1448,12 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "raze__ppv_lite86__0_2_9",
-        url = "https://crates.io/api/v1/crates/ppv-lite86/0.2.9/download",
+        name = "raze__ppv_lite86__0_2_10",
+        url = "https://crates.io/api/v1/crates/ppv-lite86/0.2.10/download",
         type = "tar.gz",
-        sha256 = "c36fa947111f5c62a733b652544dd0016a43ce89619538a8ef92724a6f501a20",
-        strip_prefix = "ppv-lite86-0.2.9",
-        build_file = Label("//cargo/remote:ppv-lite86-0.2.9.BUILD.bazel"),
+        sha256 = "ac74c624d6b2d21f425f752262f42188365d7b8ff1aff74c82e45136510a4857",
+        strip_prefix = "ppv-lite86-0.2.10",
+        build_file = Label("//cargo/remote:ppv-lite86-0.2.10.BUILD.bazel"),
     )
 
     maybe(
@@ -1560,16 +1560,6 @@ def raze_fetch_remote_crates():
         sha256 = "f12fdd8a2f217d003c93f9819e3db1717b2e89530171edea4c0deadd90206f50",
         strip_prefix = "pyo3cls-0.12.3",
         build_file = Label("//cargo/remote:pyo3cls-0.12.3.BUILD.bazel"),
-    )
-
-    maybe(
-        http_archive,
-        name = "raze__quick_error__1_2_3",
-        url = "https://crates.io/api/v1/crates/quick-error/1.2.3/download",
-        type = "tar.gz",
-        sha256 = "a1d01941d82fa2ab50be1e79e6714289dd7cde78eba4c074bc5a4374f650dfe0",
-        strip_prefix = "quick-error-1.2.3",
-        build_file = Label("//cargo/remote:quick-error-1.2.3.BUILD.bazel"),
     )
 
     maybe(

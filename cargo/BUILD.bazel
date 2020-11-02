@@ -68,7 +68,7 @@ alias(
 
 alias(
     name = "env_logger",
-    actual = "@raze__env_logger__0_7_1//:env_logger",
+    actual = "@raze__env_logger__0_8_1//:env_logger",
     tags = [
         "cargo-raze",
         "manual",
@@ -86,7 +86,7 @@ alias(
 
 alias(
     name = "flate2",
-    actual = "@raze__flate2__1_0_18//:flate2",
+    actual = "@raze__flate2__1_0_19//:flate2",
     tags = [
         "cargo-raze",
         "manual",

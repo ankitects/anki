@@ -29,21 +29,22 @@ licenses([
 ])
 
 # Generated targets
-# Unsupported target "context" with type "example" omitted
+# Unsupported target "datetime_format" with type "bench" omitted
+# Unsupported target "datetime_parse" with type "bench" omitted
 
 # buildifier: leave-alone
 rust_library(
-    name = "quick_error",
+    name = "humantime",
     crate_type = "lib",
     deps = [
     ],
     srcs = glob(["**/*.rs"]),
     crate_root = "src/lib.rs",
-    edition = "2015",
+    edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
     ],
-    version = "1.2.3",
+    version = "2.0.1",
     tags = [
         "cargo-raze",
         "manual",

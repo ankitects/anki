@@ -45,7 +45,7 @@ rust_library(
     crate_type = "lib",
     deps = [
         "@raze__crc32fast__1_2_1//:crc32fast",
-        "@raze__flate2__1_0_18//:flate2",
+        "@raze__flate2__1_0_19//:flate2",
         "@raze__podio__0_1_7//:podio",
         "@raze__time__0_1_44//:time",
     ],
