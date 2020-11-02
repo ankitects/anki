@@ -1,14 +1,13 @@
 [package]
-name = "ankirspy"
-version = "2.1.36"  # automatically updated
+name = "rsbackend"
+version = "0.0.0"
 edition = "2018"
 authors = ["Ankitects Pty Ltd and contributors <https://help.ankiweb.net>"]
 license = "AGPL-3.0-or-later"
 description = "Anki's Rust library code Python bindings"
-readme = "README.md"
 
 [dependencies]
-anki = { path = "../rslib" }
+anki = { path = "../../rslib" }
 
 [dependencies.pyo3]
 version = "0.11.0"
@@ -17,12 +16,13 @@ features = ["extension-module"]
 [lib]
 name = "ankirspy"
 crate-type = ["cdylib"]
+path = "lib.rs"
 
-[profile.dev]
-opt-level = 2
-debug = 0
-codegen-units = 256
+#[profile.dev]
+#opt-level = 2
+#debug = 0
+#codegen-units = 256
 
-[profile.dev.package."*"]
-opt-level = 3
-codegen-units = 16
+#[profile.dev.package."*"]
+#opt-level = 3
+#codegen-units = 16

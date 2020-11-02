@@ -41,10 +41,6 @@ py_library(
         "py.typed",
         ":hooks_gen",
     ],
-    imports = [
-        # "..",
-        "../../rspy",
-    ],
     visibility = ["//visibility:public"],
     deps = [
         requirement("protobuf"),

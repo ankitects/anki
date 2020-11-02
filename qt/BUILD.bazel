@@ -29,7 +29,6 @@ py_test(
     srcs = glob(["tests/*.py"]),
     data = [
         "//qt/aqt_data",
-        "//rspy:ankirspy",
     ],
     main = "tests/run_pytest.py",
     deps = [
