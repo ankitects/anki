@@ -26,10 +26,11 @@ py_binary(
 
 py_test(
     name = "pytest",
-    srcs = glob(["tests/*.py"]),
+    srcs = glob(["tests/*.py"]) + ["bazelfixes.py"],
     data = [
         "//qt/aqt_data",
     ],
+    imports = ["."],
     main = "tests/run_pytest.py",
     deps = [
         "//pylib/anki",
@@ -123,7 +124,10 @@ py_binary(
 
 py_binary(
     name = "runanki",
-    srcs = ["runanki.py"],
+    srcs = [
+        "bazelfixes.py",
+        "runanki.py",
+    ],
     data = [
         "//qt/aqt_data",
     ],
