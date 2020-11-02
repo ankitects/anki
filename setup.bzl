@@ -40,7 +40,6 @@ def setup_deps():
         name = "py_deps",
         requirements = "@anki//pip:requirements.txt",
         python_runtime = "@python//:python",
-        compile = True,
     )
 
     install_pyqt5(

@@ -1,0 +1,27 @@
+beautifulsoup4
+black
+decorator
+flask
+flask-cors
+isort
+jsonschema
+markdown
+mock
+mypy
+mypy-protobuf
+pip-tools
+protobuf
+pylint
+pytest
+requests[socks]
+send2trash
+stringcase
+waitress
+
+# windows only
+psutil; sys.platform == "win32"
+pywin32; sys.platform == "win32"
+
+# transitive windows dependencies
+atomicwrites; sys.platform == "win32" # via pytest
+colorama; sys.platform == "win32" # via pylint, pytest
