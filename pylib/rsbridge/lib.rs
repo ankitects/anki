@@ -16,7 +16,7 @@ struct Backend {
     backend: RustBackend,
 }
 
-create_exception!(ankirspy, BackendError, Exception);
+create_exception!(_rsbridge, BackendError, Exception);
 
 #[pyfunction]
 fn buildhash() -> &'static str {
@@ -33,25 +33,27 @@ fn open_backend(init_msg: &PyBytes) -> PyResult<Backend> {
 
 fn want_release_gil(method: u32) -> bool {
     if let Ok(method) = BackendMethod::try_from(method) {
-        !matches!(method,
+        !matches!(
+            method,
             BackendMethod::ExtractAVTags
-            | BackendMethod::ExtractLatex
-            | BackendMethod::RenderExistingCard
-            | BackendMethod::RenderUncommittedCard
-            | BackendMethod::StripAVTags
-            | BackendMethod::LocalMinutesWest
-            | BackendMethod::SchedTimingToday
-            | BackendMethod::AddOrUpdateDeckLegacy
-            | BackendMethod::NewDeckLegacy
-            | BackendMethod::NewDeckConfigLegacy
-            | BackendMethod::GetStockNotetypeLegacy
-            | BackendMethod::SetLocalMinutesWest
-            | BackendMethod::StudiedToday
-            | BackendMethod::TranslateString
-            | BackendMethod::FormatTimespan
-            | BackendMethod::LatestProgress
-            | BackendMethod::SetWantsAbort
-            | BackendMethod::I18nResources)
+                | BackendMethod::ExtractLatex
+                | BackendMethod::RenderExistingCard
+                | BackendMethod::RenderUncommittedCard
+                | BackendMethod::StripAVTags
+                | BackendMethod::LocalMinutesWest
+                | BackendMethod::SchedTimingToday
+                | BackendMethod::AddOrUpdateDeckLegacy
+                | BackendMethod::NewDeckLegacy
+                | BackendMethod::NewDeckConfigLegacy
+                | BackendMethod::GetStockNotetypeLegacy
+                | BackendMethod::SetLocalMinutesWest
+                | BackendMethod::StudiedToday
+                | BackendMethod::TranslateString
+                | BackendMethod::FormatTimespan
+                | BackendMethod::LatestProgress
+                | BackendMethod::SetWantsAbort
+                | BackendMethod::I18nResources
+        )
     } else {
         false
     }
@@ -92,7 +94,7 @@ impl Backend {
 //////////////////////////////////
 
 #[pymodule]
-fn ankirspy(_py: Python, m: &PyModule) -> PyResult<()> {
+fn _rsbridge(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<Backend>()?;
     m.add_wrapped(wrap_pyfunction!(buildhash)).unwrap();
     m.add_wrapped(wrap_pyfunction!(open_backend)).unwrap();

@@ -1,0 +1,50 @@
+load("@io_bazel_rules_rust//rust:rust.bzl", "rust_library", "rust_test")
+load("@io_bazel_rules_rust//cargo:cargo_build_script.bzl", "cargo_build_script")
+load("@bazel_skylib//lib:selects.bzl", "selects")
+load("//rslib:rustfmt.bzl", "rustfmt_fix", "rustfmt_test")
+
+cargo_build_script(
+    name = "build_script",
+    srcs = ["build.rs"],
+)
+
+rust_library(
+    name = "rsbridge",
+    srcs = ["lib.rs"],
+    crate_type = "cdylib",
+    data = [
+        "//:buildinfo.txt",
+    ],
+    rustc_flags = selects.with_or({
+        (
+            "@io_bazel_rules_rust//rust/platform:x86_64-apple-darwin",
+        ): [
+            "-Clink-arg=-undefined",
+            "-Clink-arg=dynamic_lookup",
+            "-Clink-arg=-mmacosx-version-min=10.7",
+        ],
+        "//conditions:default": [],
+    }),
+    visibility = [
+        "//pylib:__subpackages__",
+    ],
+    deps = [
+        ":build_script",
+        "//cargo:pyo3",
+        "//rslib:anki",
+    ],
+)
+
+rustfmt_test(
+    name = "format",
+    srcs = glob([
+        "*.rs",
+    ]),
+)
+
+rustfmt_fix(
+    name = "format_fix",
+    srcs = glob([
+        "*.rs",
+    ]),
+)

@@ -1,8 +1,0 @@
-wheel
-mypy
-mypy_protobuf>=1.21
-black>=20.1b0
-pytest>=6.0.1
-pylint>=2.6.0
-isort>=5.4.2
-stringcase==1.2.0

@@ -22,8 +22,7 @@ import os
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence, Union
 
-import ankirspy  # pytype: disable=import-error
-
+import anki._rsbridge
 import anki.backend_pb2 as pb
 import anki.buildinfo
 from anki import hooks
@@ -45,7 +44,7 @@ if TYPE_CHECKING:
 
     FormatTimeSpanContextValue = pb.FormatTimespanIn.ContextValue
 
-assert ankirspy.buildhash() == anki.buildinfo.buildhash
+assert anki._rsbridge.buildhash() == anki.buildinfo.buildhash
 
 SchedTimingToday = pb.SchedTimingTodayOut
 BuiltinSortKind = pb.BuiltinSearchOrder.BuiltinSortKind
@@ -216,7 +215,7 @@ class RustBackend(RustBackendGenerated):
             preferred_langs=langs,
             server=server,
         )
-        self._backend = ankirspy.open_backend(init_msg.SerializeToString())
+        self._backend = anki._rsbridge.open_backend(init_msg.SerializeToString())
 
     def db_query(
         self, sql: str, args: Sequence[ValueForDB], first_row_only: bool

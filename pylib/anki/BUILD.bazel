@@ -3,6 +3,8 @@ load("@rules_python//python:defs.bzl", "py_library")
 load("@py_deps//:requirements.bzl", "requirement")
 load("//proto:defs.bzl", "py_proto_library_typed")
 load("@rules_python//experimental/python:wheel.bzl", "py_package", "py_wheel")
+load("@bazel_skylib//lib:selects.bzl", "selects")
+load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
 
 copy_file(
     name = "buildinfo",
@@ -40,6 +42,30 @@ py_proto_library_typed(
     ],
 )
 
+copy_file(
+    name = "rsbridge_unix",
+    src = "//pylib/rsbridge",
+    out = "_rsbridge.so",
+)
+
+copy_file(
+    name = "rsbridge_win",
+    src = "//pylib/rsbridge",
+    out = "_rsbridge.pyd",
+)
+
+alias(
+    name = "rsbridge",
+    actual = selects.with_or({
+        (
+            "@io_bazel_rules_rust//rust/platform:x86_64-pc-windows-msvc",
+            "@io_bazel_rules_rust//rust/platform:i686-pc-windows-msvc",
+        ): ":rsbridge_win",
+        "//conditions:default": ":rsbridge_unix",
+    }),
+    visibility = ["//visibility:public"],
+)
+
 py_library(
     name = "anki",
     srcs = glob([
@@ -52,11 +78,10 @@ py_library(
         ":fluent_pb2",
         ":hooks_gen",
         ":rsbackend_gen",
-        "//rspy:ankirspy",
+        ":rsbridge",
     ],
     imports = [
         "..",
-        "../../rspy",
     ],
     visibility = ["//visibility:public"],
     deps = [
@@ -80,7 +105,6 @@ py_wheel(
     distribution = "anki",
     python_tag = "py3",
     requires = [
-        "ankirspy (==2.1.35)",
         "distro ; sys_platform != \"darwin\" and sys_platform != \"win32\"",
     ],
     strip_path_prefixes = [
