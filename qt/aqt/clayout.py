@@ -305,7 +305,7 @@ class CardLayout(QDialog):
             "js/vendor/jquery.js",
             "js/vendor/browsersel.js",
             "js/vendor/mathjax/conf.js",
-            "js/vendor/mathjax/MathJax.js",
+            "js/vendor/mathjax/tex-chtml.js",
             "js/reviewer.js",
         ]
         self.preview_web.stdHtml(
