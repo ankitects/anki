@@ -27,14 +27,11 @@ py_binary(
 py_test(
     name = "pytest",
     srcs = glob(["tests/*.py"]) + ["bazelfixes.py"],
-    data = [
-        "//qt/aqt_data",
-    ],
     imports = ["."],
     main = "tests/run_pytest.py",
     deps = [
         "//pylib/anki",
-        "//qt/aqt",
+        "//qt/aqt:aqt_without_data",
         requirement("pytest"),
         requirement("mock"),
     ],
@@ -57,7 +54,7 @@ py_test(
     main = "tests/run_mypy.py",
     deps = [
         "//pylib/anki",
-        "//qt/aqt",
+        "//qt/aqt:aqt_without_data",
         "@pyqt5//:pkg",
         requirement("mypy"),
     ],
@@ -71,17 +68,14 @@ py_test(
     args = [
         "aqt",
         "$(location .pylintrc)",
-        "foo",  #$(location PyQt5/__init__.py)",
     ],
     data = [
         ".pylintrc",
-        #        "PyQt5-stubs",
-        #"PyQt5/__init__.py",
     ],
     main = "tests/run_pylint.py",
     deps = [
         "//pylib/anki",
-        "//qt/aqt",
+        "//qt/aqt:aqt_without_data",
         requirement("pylint"),
         "@pyqt5//:pkg",
     ],
@@ -98,7 +92,7 @@ py_test(
     data = [".isort.cfg"],
     main = "tests/run_format.py",
     deps = [
-        "//qt/aqt",
+        "//qt/aqt:aqt_without_data",
         requirement("black"),
         requirement("isort"),
     ],
@@ -128,12 +122,9 @@ py_binary(
         "bazelfixes.py",
         "runanki.py",
     ],
-    data = [
-        "//qt/aqt_data",
-    ],
     imports = ["."],
     deps = [
         "//pylib/anki",
-        "//qt/aqt",
+        "//qt/aqt:aqt_with_data",
     ],
 )

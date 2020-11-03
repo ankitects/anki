@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 run_linux() {
     bazel run //qt:runanki -- $*
 }
@@ -15,7 +17,7 @@ run_mac() {
 }
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    run_mac
+    run_mac $*
 else
-    run_linux
+    run_linux $*
 fi
