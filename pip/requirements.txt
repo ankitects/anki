@@ -11,6 +11,7 @@ chardet==3.0.4            # via requests
 click==7.1.2              # via black, flask, pip-tools
 colorama==0.4.4 ; sys_platform == "win32"  # via -r requirements.in, pylint, pytest
 decorator==4.4.2          # via -r requirements.in
+distro==1.5.0             # via -r requirements.in
 flask-cors==3.0.9         # via -r requirements.in
 flask==1.1.2              # via -r requirements.in, flask-cors
 idna==2.10                # via requests

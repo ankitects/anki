@@ -1,6 +1,8 @@
 load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
 load("@rules_python//python:defs.bzl", "py_library")
 load("@py_deps//:requirements.bzl", "requirement")
+load("@rules_python//experimental/python:wheel.bzl", "py_package", "py_wheel")
+load("//:defs.bzl", "anki_version")
 
 copy_file(
     name = "buildinfo",
@@ -27,65 +29,96 @@ genrule(
     ],
 )
 
+aqt_srcs = glob([
+    "**/*.py",
+]) + [
+    "//qt/aqt/forms:forms",
+    "//qt/aqt/forms:icons",
+]
+
+aqt_core_data = [
+    "buildinfo.txt",
+    "colors.py",
+    "py.typed",
+    ":hooks_gen",
+]
+
+aqt_deps = [
+    requirement("protobuf"),
+    requirement("decorator"),
+    requirement("requests"),
+    requirement("beautifulsoup4"),
+    requirement("flask"),
+    requirement("flask-cors"),
+    requirement("waitress"),
+    requirement("send2trash"),
+    requirement("markdown"),
+    requirement("jsonschema"),
+    "@pyqt5//:pkg",
+] + select({
+    "@bazel_tools//src/conditions:host_windows": [
+        requirement("psutil"),
+        requirement("pywin32"),
+    ],
+    "//conditions:default": [],
+})
+
+# library without web/i18n data; faster for testing
 py_library(
-    name = "aqt",
-    srcs = glob([
-        "**/*.py",
-    ]) + [
-        "//qt/aqt/forms:forms",
-        "//qt/aqt/forms:icons",
-    ],
-    data = [
-        "buildinfo.txt",
-        "colors.py",
-        "py.typed",
-        ":hooks_gen",
-    ],
+    name = "aqt_without_data",
+    srcs = aqt_srcs,
+    data = aqt_core_data,
     visibility = ["//visibility:public"],
-    deps = [
-        requirement("protobuf"),
-        requirement("decorator"),
-        requirement("requests"),
-        requirement("beautifulsoup4"),
-        requirement("flask"),
-        requirement("flask-cors"),
-        requirement("waitress"),
-        requirement("send2trash"),
-        requirement("markdown"),
-        requirement("jsonschema"),
-        "@pyqt5//:pkg",
-    ] + select({
-        "@bazel_tools//src/conditions:host_windows": [
-            requirement("psutil"),
-            requirement("pywin32"),
-        ],
-        "//conditions:default": [],
-    }),
-    #        requirement("pyaudio"),
-    # ... this is making pytest very slow..
-    #        requirement("pyqt5"),
+    deps = aqt_deps,
 )
 
-# py_package(
-#     name = "anki_pkg",
-#     # Only include these Python packages.
-#     #    packages = ["anki"],
-#     deps = [":anki"],
-# )
+py_library(
+    name = "aqt_with_data",
+    srcs = aqt_srcs,
+    data = aqt_core_data + ["//qt/aqt/data"],
+    visibility = ["//visibility:public"],
+    deps = aqt_deps,
+)
 
-# py_wheel(
-#     name = "anki_whl",
-#     # Package data. We're building "example_minimal_package-0.0.1-py3-none-any.whl"
-#     distribution = "anki",
-#     python_tag = "py3",
-#     requires = [
-#         "ankirspy (==2.1.35)",
-#         "distro ; sys_platform != \"darwin\" and sys_platform != \"win32\"",
-#     ],
-#     strip_path_prefixes = [
-#         "pylib",
-#         #        "foo3",
-#     ],
-#     version = "0.0.1",
-#     deps = [":anki_pkg"],
-# )
+py_package(
+    name = "aqt_pkg",
+    packages = [
+        "qt.aqt",
+    ],
+    deps = [
+        ":aqt_with_data",
+    ],
+)
+
+py_wheel(
+    name = "wheel",
+    description_file = "wheel_description.txt",
+    distribution = "aqt",
+    homepage = "https://apps.ankiweb.net",
+    license = "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+    python_tag = "cp38",
+    python_version = ">=3.8",
+    requires = [
+        # "pyaudio", # currently off as a pain to install on Windows for code completion
+        # "pyqtwebengine", # depending on this limits installable qt5 versions
+        "beautifulsoup4",
+        "requests",
+        "send2trash",
+        "markdown",
+        "jsonschema",
+        "flask",
+        "flask_cors",
+        "waitress",
+        "pyqt5>=5.9",
+        'psutil; sys.platform == "win32"',
+        'pywin32; sys.platform == "win32"',
+        "anki==0.0.1",
+    ],
+    strip_path_prefixes = [
+        "qt",
+    ],
+    version = anki_version,
+    deps = [
+        ":aqt_pkg",
+    ],
+)

@@ -52,14 +52,14 @@ def register_deps():
 
     git_repository(
         name = "rules_python",
-        commit = "5c948dcfd4ca79c2ed3a87636c46abba9f5836e9",
-        remote = "https://github.com/bazelbuild/rules_python",
-        shallow_since = "1602856996 -0700",
+        commit = "3927c9bce90f629eb5ab08bbc99a3d3bda1d95c0",
+        remote = "https://github.com/ankitects/rules_python",
+        shallow_since = "1604408056 +1000",
     )
 
-    # local_repository(
+    # native.local_repository(
     #     name = "rules_python",
-    #     path = "./rules_python",
+    #     path = "../rules_python",
     # )
 
     git_repository(

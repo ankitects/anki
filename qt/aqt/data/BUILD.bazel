@@ -1,0 +1,8 @@
+filegroup(
+    name = "data",
+    srcs = [
+        "//qt/aqt/data/locale",
+        "//qt/aqt/data/web",
+    ],
+    visibility = ["//qt:__subpackages__"],
+)

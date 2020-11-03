@@ -1,3 +1,7 @@
+# Warning:
+# This file needs updating to work with Anki's updated build system.
+#
+
 ARG PYTHON_VERSION="3.8"
 
 FROM python:$PYTHON_VERSION AS dependencies
@@ -19,21 +23,21 @@ RUN mkdir $CARGO_HOME $RUSTUP_HOME \
 # Install system dependencies.
 RUN apt-get update \
     && apt-get install --yes --no-install-recommends \
-        gettext \
-        lame \
-        libnss3 \
-        libxcb-icccm4 \
-        libxcb-image0 \
-        libxcb-keysyms1 \
-        libxcb-randr0 \
-        libxcb-render-util0 \
-        libxcb-xinerama0 \
-        libxcb-xkb1 \
-        libxkbcommon-x11-0 \
-        libxcomposite1 \
-        mpv \
-        portaudio19-dev \
-        rsync \
+    gettext \
+    lame \
+    libnss3 \
+    libxcb-icccm4 \
+    libxcb-image0 \
+    libxcb-keysyms1 \
+    libxcb-randr0 \
+    libxcb-render-util0 \
+    libxcb-xinerama0 \
+    libxcb-xkb1 \
+    libxkbcommon-x11-0 \
+    libxcomposite1 \
+    mpv \
+    portaudio19-dev \
+    rsync \
     && rm -rf /var/lib/apt/lists/*
 
 # Install node and npm.
@@ -71,28 +75,28 @@ FROM python:${PYTHON_VERSION}-slim
 # Install system dependencies.
 RUN apt-get update \
     && apt-get install --yes --no-install-recommends \
-        gettext \
-        lame \
-        libnss3 \
-        libxcb-icccm4 \
-        libxcb-image0 \
-        libxcb-keysyms1 \
-        libxcb-randr0 \
-        libxcb-render-util0 \
-        libxcb-xinerama0 \
-        libxcb-xkb1 \
-        libxkbcommon-x11-0 \
-        libxcomposite1 \
-        mpv \
-        portaudio19-dev \
-        rsync \
+    gettext \
+    lame \
+    libnss3 \
+    libxcb-icccm4 \
+    libxcb-image0 \
+    libxcb-keysyms1 \
+    libxcb-randr0 \
+    libxcb-render-util0 \
+    libxcb-xinerama0 \
+    libxcb-xkb1 \
+    libxkbcommon-x11-0 \
+    libxcomposite1 \
+    mpv \
+    portaudio19-dev \
+    rsync \
     && rm -rf /var/lib/apt/lists/*
 
 # Install pre-compiled Anki.
 COPY --from=pythonbuilder /opt/anki/dist/ /opt/anki/
 RUN python -m pip install --no-cache-dir \
-        PyQtWebEngine \
-        /opt/anki/*.whl \
+    PyQtWebEngine \
+    /opt/anki/*.whl \
     # Create an anki executable.
     && printf "#!/usr/bin/env python\nimport aqt\naqt.run()\n" > /usr/local/bin/anki \
     && chmod +x /usr/local/bin/anki \

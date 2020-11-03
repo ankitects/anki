@@ -1,6 +1,7 @@
 beautifulsoup4
 black
 decorator
+distro
 flask
 flask-cors
 isort

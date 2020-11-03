@@ -172,8 +172,8 @@ def ngettext(single: str, plural: str, n: int) -> str:
 
 def set_lang(lang: str, locale_dir: str) -> None:
     global currentLang, current_catalog, current_i18n, locale_folder
-    gettext_dir = os.path.join(locale_dir, "gettext")
-    ftl_dir = os.path.join(locale_dir, "fluent")
+    gettext_dir = locale_dir
+    ftl_dir = locale_dir
 
     currentLang = lang
     current_catalog = gettext.translation(

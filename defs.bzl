@@ -3,13 +3,14 @@ load("@io_bazel_rules_rust//rust:repositories.bzl", "rust_repositories")
 load("@io_bazel_rules_rust//:workspace.bzl", "bazel_version")
 load("@anki//cargo:crates.bzl", "raze_fetch_remote_crates")
 load(":python.bzl", "setup_local_python")
-load("@rules_python//python:repositories.bzl", "py_repositories")
 load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "yarn_install")
 load("@io_bazel_rules_sass//:defs.bzl", "sass_repositories")
 load("@build_bazel_rules_svelte//:defs.bzl", "rules_svelte_dependencies")
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 load("@com_github_ali5h_rules_pip//:defs.bzl", "pip_import")
 load("//pip/pyqt5:defs.bzl", "install_pyqt5")
+
+anki_version = "2.1.36"
 
 def setup_deps():
     bazel_skylib_workspace()
@@ -27,8 +28,6 @@ def setup_deps():
     setup_local_python(name = "python")
 
     native.register_toolchains("@python//:python3_toolchain")
-
-    py_repositories()
 
     # pip_install(
     #     name = "py_deps",

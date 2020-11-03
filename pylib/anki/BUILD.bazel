@@ -4,6 +4,7 @@ load("@py_deps//:requirements.bzl", "requirement")
 load("//pylib:protobuf.bzl", "py_proto_library_typed")
 load("@rules_python//experimental/python:wheel.bzl", "py_package", "py_wheel")
 load("@bazel_skylib//lib:selects.bzl", "selects")
+load("//:defs.bzl", "anki_version")
 
 copy_file(
     name = "buildinfo",
@@ -86,6 +87,7 @@ py_library(
     deps = [
         requirement("protobuf"),
         requirement("decorator"),
+        requirement("distro"),
         requirement("requests"),
         requirement("beautifulsoup4"),
     ],
@@ -93,24 +95,37 @@ py_library(
 
 py_package(
     name = "anki_pkg",
-    # Only include these Python packages.
-    #    packages = ["anki"],
+    packages = ["pylib.anki"],
     deps = [":anki"],
 )
 
 py_wheel(
-    name = "anki_whl",
-    # Package data. We're building "example_minimal_package-0.0.1-py3-none-any.whl"
+    name = "wheel",
+    abi = "abi3",
+    description_file = "wheel_description.txt",
     distribution = "anki",
-    python_tag = "py3",
+    platform = select({
+        "//platforms:windows_x86_64": "win_amd64",
+        "//platforms:windows_x86_32": "win32",
+        "//platforms:macos_x86_64": "macosx_10_7_x86_64",
+        "//platforms:linux_x86_64": "manylinux2014_x86_64",
+        "//platforms:linux_x86_32": "manylinux2014_i686",
+    }),
+    python_tag = "cp38",
+    python_version = ">=3.8",
     requires = [
-        "distro ; sys_platform != \"darwin\" and sys_platform != \"win32\"",
+        "beautifulsoup4",
+        "requests[socks]",
+        "decorator",
+        "protobuf",
+        'orjson; platform_machine == "x86_64"',
+        'psutil; sys_platform == "win32"',
+        'distro; sys_platform != "darwin" and sys_platform != "win32"',
     ],
     strip_path_prefixes = [
         "pylib",
-        #        "foo3",
     ],
-    version = "0.0.1",
+    version = anki_version,
     deps = [":anki_pkg"],
 )
 
