@@ -25,29 +25,30 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "notice",  # MIT from expression "MIT"
 ])
 
 # Generated targets
-# Unsupported target "client" with type "example" omitted
+# Unsupported target "basic_usage" with type "example" omitted
+# Unsupported target "enum" with type "example" omitted
+# Unsupported target "installed_apps" with type "example" omitted
+# Unsupported target "serialization" with type "example" omitted
+# Unsupported target "transactions" with type "example" omitted
 
 # buildifier: leave-alone
 rust_library(
-    name = "hyper_timeout",
+    name = "winreg",
     crate_type = "lib",
     deps = [
-        "@raze__bytes__0_5_6//:bytes",
-        "@raze__hyper__0_13_9//:hyper",
-        "@raze__tokio__0_2_22//:tokio",
-        "@raze__tokio_io_timeout__0_4_0//:tokio_io_timeout",
+        "@raze__winapi__0_3_9//:winapi",
     ],
     srcs = glob(["**/*.rs"]),
     crate_root = "src/lib.rs",
-    edition = "2018",
+    edition = "2015",
     rustc_flags = [
         "--cap-lints=allow",
     ],
-    version = "0.3.1",
+    version = "0.7.0",
     tags = [
         "cargo-raze",
         "manual",

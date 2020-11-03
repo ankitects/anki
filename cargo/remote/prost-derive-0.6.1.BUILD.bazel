@@ -35,7 +35,7 @@ rust_library(
     name = "prost_derive",
     crate_type = "proc-macro",
     deps = [
-        "@raze__anyhow__1_0_33//:anyhow",
+        "@raze__anyhow__1_0_34//:anyhow",
         "@raze__itertools__0_9_0//:itertools",
         "@raze__proc_macro2__1_0_24//:proc_macro2",
         "@raze__quote__1_0_7//:quote",

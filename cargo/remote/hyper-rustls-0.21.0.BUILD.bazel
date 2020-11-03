@@ -25,41 +25,24 @@ package(default_visibility = [
 ])
 
 licenses([
-    "reciprocal",  # MPL-2.0 from expression "MPL-2.0"
+    "notice",  # Apache-2.0 from expression "Apache-2.0 OR (ISC OR MIT)"
 ])
 
 # Generated targets
-
-# buildifier: leave-alone
-rust_binary(
-    # Prefix bin name to disambiguate from (probable) collision with lib name
-    # N.B.: The exact form of this is subject to change.
-    name = "cargo_bin_process_cert",
-    deps = [
-        # Binaries get an implicit dependency on their crate's lib
-        ":webpki_roots",
-        "@raze__webpki__0_21_3//:webpki",
-    ],
-    srcs = glob(["**/*.rs"]),
-    crate_root = "src/bin/process_cert.rs",
-    edition = "2018",
-    rustc_flags = [
-        "--cap-lints=allow",
-    ],
-    version = "0.18.0",
-    tags = [
-        "cargo-raze",
-        "manual",
-    ],
-    crate_features = [
-    ],
-)
+# Unsupported target "client" with type "example" omitted
 
 # buildifier: leave-alone
 rust_library(
-    name = "webpki_roots",
+    name = "hyper_rustls",
     crate_type = "lib",
     deps = [
+        "@raze__bytes__0_5_6//:bytes",
+        "@raze__futures_util__0_3_7//:futures_util",
+        "@raze__hyper__0_13_9//:hyper",
+        "@raze__log__0_4_11//:log",
+        "@raze__rustls__0_18_1//:rustls",
+        "@raze__tokio__0_2_22//:tokio",
+        "@raze__tokio_rustls__0_14_1//:tokio_rustls",
         "@raze__webpki__0_21_3//:webpki",
     ],
     srcs = glob(["**/*.rs"]),
@@ -68,7 +51,7 @@ rust_library(
     rustc_flags = [
         "--cap-lints=allow",
     ],
-    version = "0.18.0",
+    version = "0.21.0",
     tags = [
         "cargo-raze",
         "manual",
@@ -76,3 +59,5 @@ rust_library(
     crate_features = [
     ],
 )
+# Unsupported target "server" with type "example" omitted
+# Unsupported target "tests" with type "test" omitted

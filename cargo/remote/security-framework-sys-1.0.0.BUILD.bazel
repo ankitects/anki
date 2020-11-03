@@ -25,26 +25,18 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # Apache-2.0 from expression "Apache-2.0 OR (ISC OR MIT)"
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
 ])
 
 # Generated targets
-# Unsupported target "api" with type "test" omitted
-# Unsupported target "bench" with type "example" omitted
-# Unsupported target "benchmarks" with type "bench" omitted
-# Unsupported target "benchmarks" with type "test" omitted
-# Unsupported target "bogo_shim" with type "example" omitted
 
 # buildifier: leave-alone
 rust_library(
-    name = "rustls",
+    name = "security_framework_sys",
     crate_type = "lib",
     deps = [
-        "@raze__base64__0_11_0//:base64",
-        "@raze__log__0_4_11//:log",
-        "@raze__ring__0_16_15//:ring",
-        "@raze__sct__0_6_0//:sct",
-        "@raze__webpki__0_21_3//:webpki",
+        "@raze__core_foundation_sys__0_7_0//:core_foundation_sys",
+        "@raze__libc__0_2_80//:libc",
     ],
     srcs = glob(["**/*.rs"]),
     crate_root = "src/lib.rs",
@@ -52,16 +44,12 @@ rust_library(
     rustc_flags = [
         "--cap-lints=allow",
     ],
-    version = "0.17.0",
+    version = "1.0.0",
     tags = [
         "cargo-raze",
         "manual",
     ],
     crate_features = [
-        "dangerous_configuration",
-        "default",
-        "log",
-        "logging",
+        "OSX_10_9",
     ],
 )
-# Unsupported target "trytls_shim" with type "example" omitted

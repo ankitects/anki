@@ -29,25 +29,51 @@ licenses([
 ])
 
 # Generated targets
-# Unsupported target "client" with type "example" omitted
+# buildifier: disable=load-on-top
+load(
+    "@io_bazel_rules_rust//cargo:cargo_build_script.bzl",
+    "cargo_build_script",
+)
 
 # buildifier: leave-alone
-rust_library(
-    name = "hyper_timeout",
-    crate_type = "lib",
-    deps = [
-        "@raze__bytes__0_5_6//:bytes",
-        "@raze__hyper__0_13_9//:hyper",
-        "@raze__tokio__0_2_22//:tokio",
-        "@raze__tokio_io_timeout__0_4_0//:tokio_io_timeout",
-    ],
+cargo_build_script(
+    name = "core_foundation_sys_build_script",
     srcs = glob(["**/*.rs"]),
-    crate_root = "src/lib.rs",
-    edition = "2018",
+    crate_root = "build.rs",
+    edition = "2015",
+    deps = [
+    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
-    version = "0.3.1",
+    crate_features = [
+    ],
+    build_script_env = {
+    },
+    data = glob(["**"]),
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    version = "0.7.0",
+    visibility = ["//visibility:private"],
+)
+
+
+# buildifier: leave-alone
+rust_library(
+    name = "core_foundation_sys",
+    crate_type = "lib",
+    deps = [
+        ":core_foundation_sys_build_script",
+    ],
+    srcs = glob(["**/*.rs"]),
+    crate_root = "src/lib.rs",
+    edition = "2015",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    version = "0.7.0",
     tags = [
         "cargo-raze",
         "manual",

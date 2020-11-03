@@ -32,29 +32,21 @@ licenses([
 
 # buildifier: leave-alone
 rust_library(
-    name = "base64",
+    name = "ipnet",
     crate_type = "lib",
     deps = [
     ],
     srcs = glob(["**/*.rs"]),
     crate_root = "src/lib.rs",
-    edition = "2018",
+    edition = "2015",
     rustc_flags = [
         "--cap-lints=allow",
     ],
-    version = "0.11.0",
+    version = "2.3.0",
     tags = [
         "cargo-raze",
         "manual",
     ],
     crate_features = [
-        "default",
-        "std",
     ],
 )
-# Unsupported target "benchmarks" with type "bench" omitted
-# Unsupported target "decode" with type "test" omitted
-# Unsupported target "encode" with type "test" omitted
-# Unsupported target "helpers" with type "test" omitted
-# Unsupported target "make_tables" with type "example" omitted
-# Unsupported target "tests" with type "test" omitted

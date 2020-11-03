@@ -25,42 +25,23 @@ package(default_visibility = [
 ])
 
 licenses([
-    "reciprocal",  # MPL-2.0 from expression "MPL-2.0"
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
 ])
 
 # Generated targets
-
-# buildifier: leave-alone
-rust_binary(
-    # Prefix bin name to disambiguate from (probable) collision with lib name
-    # N.B.: The exact form of this is subject to change.
-    name = "cargo_bin_process_cert",
-    deps = [
-        # Binaries get an implicit dependency on their crate's lib
-        ":webpki_roots",
-        "@raze__webpki__0_21_3//:webpki",
-    ],
-    srcs = glob(["**/*.rs"]),
-    crate_root = "src/bin/process_cert.rs",
-    edition = "2018",
-    rustc_flags = [
-        "--cap-lints=allow",
-    ],
-    version = "0.19.0",
-    tags = [
-        "cargo-raze",
-        "manual",
-    ],
-    crate_features = [
-    ],
-)
+# Unsupported target "client" with type "example" omitted
+# Unsupported target "find_internet_password" with type "example" omitted
 
 # buildifier: leave-alone
 rust_library(
-    name = "webpki_roots",
+    name = "security_framework",
     crate_type = "lib",
     deps = [
-        "@raze__webpki__0_21_3//:webpki",
+        "@raze__bitflags__1_2_1//:bitflags",
+        "@raze__core_foundation__0_7_0//:core_foundation",
+        "@raze__core_foundation_sys__0_7_0//:core_foundation_sys",
+        "@raze__libc__0_2_80//:libc",
+        "@raze__security_framework_sys__1_0_0//:security_framework_sys",
     ],
     srcs = glob(["**/*.rs"]),
     crate_root = "src/lib.rs",
@@ -68,11 +49,14 @@ rust_library(
     rustc_flags = [
         "--cap-lints=allow",
     ],
-    version = "0.19.0",
+    version = "1.0.0",
     tags = [
         "cargo-raze",
         "manual",
     ],
     crate_features = [
+        "OSX_10_9",
+        "default",
     ],
 )
+# Unsupported target "set_internet_password" with type "example" omitted

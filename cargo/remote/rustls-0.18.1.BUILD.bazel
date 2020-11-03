@@ -25,22 +25,26 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "notice",  # Apache-2.0 from expression "Apache-2.0 OR (ISC OR MIT)"
 ])
 
 # Generated targets
-# Unsupported target "badssl" with type "test" omitted
-# Unsupported target "early-data" with type "test" omitted
-# Unsupported target "test" with type "test" omitted
+# Unsupported target "api" with type "test" omitted
+# Unsupported target "bench" with type "example" omitted
+# Unsupported target "benchmarks" with type "bench" omitted
+# Unsupported target "benchmarks" with type "test" omitted
+# Unsupported target "bogo_shim" with type "example" omitted
+# Unsupported target "limitedclient" with type "example" omitted
 
 # buildifier: leave-alone
 rust_library(
-    name = "tokio_rustls",
+    name = "rustls",
     crate_type = "lib",
     deps = [
-        "@raze__futures_core__0_3_7//:futures_core",
-        "@raze__rustls__0_17_0//:rustls",
-        "@raze__tokio__0_2_22//:tokio",
+        "@raze__base64__0_12_3//:base64",
+        "@raze__log__0_4_11//:log",
+        "@raze__ring__0_16_15//:ring",
+        "@raze__sct__0_6_0//:sct",
         "@raze__webpki__0_21_3//:webpki",
     ],
     srcs = glob(["**/*.rs"]),
@@ -49,11 +53,18 @@ rust_library(
     rustc_flags = [
         "--cap-lints=allow",
     ],
-    version = "0.13.1",
+    version = "0.18.1",
     tags = [
         "cargo-raze",
         "manual",
     ],
     crate_features = [
+        "dangerous_configuration",
+        "default",
+        "log",
+        "logging",
     ],
 )
+# Unsupported target "simple_0rtt_client" with type "example" omitted
+# Unsupported target "simpleclient" with type "example" omitted
+# Unsupported target "trytls_shim" with type "example" omitted
