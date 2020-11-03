@@ -32,7 +32,7 @@ async-compression = { version = "0.3.5", features = ["stream", "gzip"] }
 blake3 = "0.3.5"
 bytes = "0.5.5"
 chrono = "0.4.13"
-coarsetime = { git = "https://github.com/ankitects/rust-coarsetime.git", branch="old-mac-compat" }
+coarsetime = { git = "https://github.com/ankitects/rust-coarsetime.git", tag="anki-2020-11-03" }
 failure = "0.1.8"
 flate2 = "1.0.16"
 fluent = { git = "https://github.com/ankitects/fluent-rs.git", branch="32bit-panic" }
