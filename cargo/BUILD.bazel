@@ -139,15 +139,6 @@ alias(
 )
 
 alias(
-    name = "hyper",
-    actual = "@raze__hyper__0_13_8//:hyper",
-    tags = [
-        "cargo-raze",
-        "manual",
-    ],
-)
-
-alias(
     name = "intl_memoizer",
     actual = "@raze__intl_memoizer__0_3_0//:intl_memoizer",
     tags = [
@@ -275,7 +266,7 @@ alias(
 
 alias(
     name = "reqwest",
-    actual = "@raze__reqwest__0_10_4//:reqwest",
+    actual = "@raze__reqwest__0_10_8//:reqwest",
     tags = [
         "cargo-raze",
         "manual",

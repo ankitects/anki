@@ -32,6 +32,7 @@ licenses([
 # Unsupported target "common" with type "test" omitted
 # Unsupported target "long_username_password_auth" with type "test" omitted
 # Unsupported target "no_auth" with type "test" omitted
+# Unsupported target "socket" with type "example" omitted
 
 # buildifier: leave-alone
 rust_library(
@@ -50,7 +51,7 @@ rust_library(
     rustc_flags = [
         "--cap-lints=allow",
     ],
-    version = "0.2.2",
+    version = "0.3.0",
     tags = [
         "cargo-raze",
         "manual",

@@ -25,34 +25,37 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT"
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
 ])
 
 # Generated targets
-# Unsupported target "basic_usage" with type "example" omitted
-# Unsupported target "enum" with type "example" omitted
-# Unsupported target "installed_apps" with type "example" omitted
-# Unsupported target "serialization" with type "example" omitted
-# Unsupported target "transactions" with type "example" omitted
+# Unsupported target "base64" with type "example" omitted
 
 # buildifier: leave-alone
 rust_library(
-    name = "winreg",
+    name = "base64",
     crate_type = "lib",
     deps = [
-        "@raze__winapi__0_3_9//:winapi",
     ],
     srcs = glob(["**/*.rs"]),
     crate_root = "src/lib.rs",
-    edition = "2015",
+    edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
     ],
-    version = "0.6.2",
+    version = "0.13.0",
     tags = [
         "cargo-raze",
         "manual",
     ],
     crate_features = [
+        "default",
+        "std",
     ],
 )
+# Unsupported target "benchmarks" with type "bench" omitted
+# Unsupported target "decode" with type "test" omitted
+# Unsupported target "encode" with type "test" omitted
+# Unsupported target "helpers" with type "test" omitted
+# Unsupported target "make_tables" with type "example" omitted
+# Unsupported target "tests" with type "test" omitted

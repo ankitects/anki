@@ -29,17 +29,19 @@ licenses([
 ])
 
 # Generated targets
-# Unsupported target "client" with type "example" omitted
+# Unsupported target "badssl" with type "test" omitted
+# Unsupported target "early-data" with type "test" omitted
+# Unsupported target "test" with type "test" omitted
 
 # buildifier: leave-alone
 rust_library(
-    name = "hyper_timeout",
+    name = "tokio_rustls",
     crate_type = "lib",
     deps = [
-        "@raze__bytes__0_5_6//:bytes",
-        "@raze__hyper__0_13_9//:hyper",
+        "@raze__futures_core__0_3_7//:futures_core",
+        "@raze__rustls__0_18_1//:rustls",
         "@raze__tokio__0_2_22//:tokio",
-        "@raze__tokio_io_timeout__0_4_0//:tokio_io_timeout",
+        "@raze__webpki__0_21_3//:webpki",
     ],
     srcs = glob(["**/*.rs"]),
     crate_root = "src/lib.rs",
@@ -47,7 +49,7 @@ rust_library(
     rustc_flags = [
         "--cap-lints=allow",
     ],
-    version = "0.3.1",
+    version = "0.14.1",
     tags = [
         "cargo-raze",
         "manual",

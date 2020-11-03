@@ -51,9 +51,12 @@ rust_library(
         "manual",
     ],
     crate_features = [
+        "Blob",
+        "BlobPropertyBag",
         "Crypto",
         "Event",
         "EventTarget",
+        "FormData",
         "Headers",
         "MessageEvent",
         "Request",

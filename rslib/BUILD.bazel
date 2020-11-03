@@ -90,7 +90,6 @@ rust_library(
         "//cargo:futures",
         "//cargo:hex",
         "//cargo:htmlescape",
-        "//cargo:hyper",
         "//cargo:intl_memoizer",
         "//cargo:itertools",
         "//cargo:lazy_static",
