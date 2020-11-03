@@ -570,6 +570,8 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
 
         Note that the media sync did not necessarily finish at this point.""",
     ),
+    Hook(name="media_check_will_start", args=[]),
+
     # Adding cards
     ###################
     Hook(
@@ -774,6 +776,12 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
         name="deck_browser_will_show_options_menu",
         args=["menu: QMenu", "deck_id: int"],
         legacy_hook="showDeckOptions",
+    ),
+    Hook(
+        name="will_load_media_file",
+        args=["txt: str"],
+        return_type="str",
+        doc="""Allows manipulating the path that media will be loaded from""",
     ),
 ]
 

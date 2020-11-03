@@ -21,6 +21,7 @@ from waitress.server import create_server
 import aqt
 from anki.rsbackend import from_json_bytes
 from anki.utils import devMode
+from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import aqt_data_folder
 
@@ -136,6 +137,9 @@ def allroutes(pathin):
         else:
             # autodetect
             mimetype = None
+
+        fullpath = gui_hooks.will_load_media_file(fullpath)
+
         if os.path.exists(fullpath):
             return flask.send_file(fullpath, mimetype=mimetype, conditional=True)
         else:

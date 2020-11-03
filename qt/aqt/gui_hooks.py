@@ -1883,6 +1883,33 @@ class _MainWindowShouldRequireResetFilter:
 main_window_should_require_reset = _MainWindowShouldRequireResetFilter()
 
 
+class _MediaCheckWillStartHook:
+    _hooks: List[Callable[[], None]] = []
+
+    def append(self, cb: Callable[[], None]) -> None:
+        """()"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[], None]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
+
+    def __call__(self) -> None:
+        for hook in self._hooks:
+            try:
+                hook()
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(hook)
+                raise
+
+
+media_check_will_start = _MediaCheckWillStartHook()
+
+
 class _MediaSyncDidProgressHook:
     _hooks: List[Callable[["aqt.mediasync.LogEntryWithTime"], None]] = []
 
@@ -3200,4 +3227,34 @@ class _WebviewWillShowContextMenuHook:
 
 
 webview_will_show_context_menu = _WebviewWillShowContextMenuHook()
+
+
+class _WillLoadMediaFileFilter:
+    """Allows manipulating the path that media will be loaded from"""
+
+    _hooks: List[Callable[[str], str]] = []
+
+    def append(self, cb: Callable[[str], str]) -> None:
+        """(txt: str)"""
+        self._hooks.append(cb)
+
+    def remove(self, cb: Callable[[str], str]) -> None:
+        if cb in self._hooks:
+            self._hooks.remove(cb)
+
+    def count(self) -> int:
+        return len(self._hooks)
+
+    def __call__(self, txt: str) -> str:
+        for filter in self._hooks:
+            try:
+                txt = filter(txt)
+            except:
+                # if the hook fails, remove it
+                self._hooks.remove(filter)
+                raise
+        return txt
+
+
+will_load_media_file = _WillLoadMediaFileFilter()
 # @@AUTOGEN@@

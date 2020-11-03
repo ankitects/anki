@@ -391,6 +391,8 @@ class MpvManager(MPV, SoundOrVideoPlayer):
         assert isinstance(tag, SoundOrVideoTag)
         self._on_done = on_done
         path = os.path.join(os.getcwd(), tag.filename)
+        path = gui_hooks.will_load_media_file(path)
+
         self.command("loadfile", path, "append-play")
         gui_hooks.av_player_did_begin_playing(self, tag)
 
@@ -434,8 +436,12 @@ class SimpleMplayerSlaveModePlayer(SimpleMplayerPlayer):
 
     def _play(self, tag: AVTag) -> None:
         assert isinstance(tag, SoundOrVideoTag)
+
+        path = os.path.join(os.getcwd(), tag.filename)
+        path = gui_hooks.will_load_media_file(path)
+
         self._process = subprocess.Popen(
-            self.args + [tag.filename],
+            self.args + [path],
             env=self.env,
             stdin=subprocess.PIPE,
             stdout=subprocess.DEVNULL,

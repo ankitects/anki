@@ -1374,6 +1374,7 @@ will be lost. Continue?"""
         check_db(self)
 
     def on_check_media_db(self) -> None:
+        gui_hooks.media_check_will_start()
         check_media_db(self)
 
     def onStudyDeck(self):
@@ -1383,6 +1384,7 @@ will be lost. Continue?"""
         if ret.name:
             self.col.decks.select(self.col.decks.id(ret.name))
             self.moveToState("overview")
+
 
     def onEmptyCards(self) -> None:
         show_empty_cards(self)
