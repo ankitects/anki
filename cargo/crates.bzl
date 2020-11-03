@@ -552,41 +552,43 @@ def raze_fetch_remote_crates():
     )
 
     maybe(
-        new_git_repository,
-        name = "raze__fluent__0_10_2",
-        remote = "https://github.com/ankitects/fluent-rs.git",
-        commit = "f61c5e10a53161ef5261f3c87b62047f12e4aa74",
-        build_file = Label("//cargo/remote:fluent-0.10.2.BUILD.bazel"),
-        init_submodules = True,
-    )
-
-    maybe(
-        new_git_repository,
-        name = "raze__fluent_bundle__0_10_2",
-        remote = "https://github.com/ankitects/fluent-rs.git",
-        commit = "f61c5e10a53161ef5261f3c87b62047f12e4aa74",
-        build_file = Label("//cargo/remote:fluent-bundle-0.10.2.BUILD.bazel"),
-        init_submodules = True,
+        http_archive,
+        name = "raze__fluent__0_13_1",
+        url = "https://crates.io/api/v1/crates/fluent/0.13.1/download",
+        type = "tar.gz",
+        sha256 = "ef9e54ec7b674ae3477d948ae790e90ae24d54fb31c2e7173252978d9b09bdfa",
+        strip_prefix = "fluent-0.13.1",
+        build_file = Label("//cargo/remote:fluent-0.13.1.BUILD.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "raze__fluent_langneg__0_12_1",
-        url = "https://crates.io/api/v1/crates/fluent-langneg/0.12.1/download",
+        name = "raze__fluent_bundle__0_13_1",
+        url = "https://crates.io/api/v1/crates/fluent-bundle/0.13.1/download",
         type = "tar.gz",
-        sha256 = "fe5815efd5542e40841cd34ef9003822352b04c67a70c595c6758597c72e1f56",
-        strip_prefix = "fluent-langneg-0.12.1",
-        build_file = Label("//cargo/remote:fluent-langneg-0.12.1.BUILD.bazel"),
+        sha256 = "a79916560098f0a57215a489e37b7fc83088949eab7f7977dcc329b254d50c17",
+        strip_prefix = "fluent-bundle-0.13.1",
+        build_file = Label("//cargo/remote:fluent-bundle-0.13.1.BUILD.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "raze__fluent_syntax__0_9_3",
-        url = "https://crates.io/api/v1/crates/fluent-syntax/0.9.3/download",
+        name = "raze__fluent_langneg__0_13_0",
+        url = "https://crates.io/api/v1/crates/fluent-langneg/0.13.0/download",
         type = "tar.gz",
-        sha256 = "ac0f7e83d14cccbf26e165d8881dcac5891af0d85a88543c09dd72ebd31d91ba",
-        strip_prefix = "fluent-syntax-0.9.3",
-        build_file = Label("//cargo/remote:fluent-syntax-0.9.3.BUILD.bazel"),
+        sha256 = "2c4ad0989667548f06ccd0e306ed56b61bd4d35458d54df5ec7587c0e8ed5e94",
+        strip_prefix = "fluent-langneg-0.13.0",
+        build_file = Label("//cargo/remote:fluent-langneg-0.13.0.BUILD.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "raze__fluent_syntax__0_10_0",
+        url = "https://crates.io/api/v1/crates/fluent-syntax/0.10.0/download",
+        type = "tar.gz",
+        sha256 = "9389354f858e38f37d9a249133611a1fcaec469f44773b04ddbd82f4f08d49eb",
+        strip_prefix = "fluent-syntax-0.10.0",
+        build_file = Label("//cargo/remote:fluent-syntax-0.10.0.BUILD.bazel"),
     )
 
     maybe(
@@ -970,22 +972,23 @@ def raze_fetch_remote_crates():
     )
 
     maybe(
-        new_git_repository,
-        name = "raze__intl_memoizer__0_3_0",
-        remote = "https://github.com/ankitects/fluent-rs.git",
-        commit = "f61c5e10a53161ef5261f3c87b62047f12e4aa74",
-        build_file = Label("//cargo/remote:intl-memoizer-0.3.0.BUILD.bazel"),
-        init_submodules = True,
+        http_archive,
+        name = "raze__intl_memoizer__0_5_0",
+        url = "https://crates.io/api/v1/crates/intl-memoizer/0.5.0/download",
+        type = "tar.gz",
+        sha256 = "8a0ed58ba6089d49f8a9a7d5e16fc9b9e2019cdf40ef270f3d465fa244d9630b",
+        strip_prefix = "intl-memoizer-0.5.0",
+        build_file = Label("//cargo/remote:intl-memoizer-0.5.0.BUILD.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "raze__intl_pluralrules__6_0_0",
-        url = "https://crates.io/api/v1/crates/intl_pluralrules/6.0.0/download",
+        name = "raze__intl_pluralrules__7_0_0",
+        url = "https://crates.io/api/v1/crates/intl_pluralrules/7.0.0/download",
         type = "tar.gz",
-        sha256 = "d82c14d8eece42c03353e0ce86a4d3f97b1f1cef401e4d962dca6c6214a85002",
-        strip_prefix = "intl_pluralrules-6.0.0",
-        build_file = Label("//cargo/remote:intl_pluralrules-6.0.0.BUILD.bazel"),
+        sha256 = "6c271cdb1f12a9feb3a017619c3ee681f971f270f6757341d6abe1f9f7a98bc3",
+        strip_prefix = "intl_pluralrules-7.0.0",
+        build_file = Label("//cargo/remote:intl_pluralrules-7.0.0.BUILD.bazel"),
     )
 
     maybe(
@@ -2320,42 +2323,42 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "raze__unic_langid__0_8_0",
-        url = "https://crates.io/api/v1/crates/unic-langid/0.8.0/download",
+        name = "raze__unic_langid__0_9_0",
+        url = "https://crates.io/api/v1/crates/unic-langid/0.9.0/download",
         type = "tar.gz",
-        sha256 = "24d81136159f779c35b10655f45210c71cd5ca5a45aadfe9840a61c7071735ed",
-        strip_prefix = "unic-langid-0.8.0",
-        build_file = Label("//cargo/remote:unic-langid-0.8.0.BUILD.bazel"),
+        sha256 = "73328fcd730a030bdb19ddf23e192187a6b01cd98be6d3140622a89129459ce5",
+        strip_prefix = "unic-langid-0.9.0",
+        build_file = Label("//cargo/remote:unic-langid-0.9.0.BUILD.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "raze__unic_langid_impl__0_8_0",
-        url = "https://crates.io/api/v1/crates/unic-langid-impl/0.8.0/download",
+        name = "raze__unic_langid_impl__0_9_0",
+        url = "https://crates.io/api/v1/crates/unic-langid-impl/0.9.0/download",
         type = "tar.gz",
-        sha256 = "c43c61e94492eb67f20facc7b025778a904de83d953d8fcb60dd9adfd6e2d0ea",
-        strip_prefix = "unic-langid-impl-0.8.0",
-        build_file = Label("//cargo/remote:unic-langid-impl-0.8.0.BUILD.bazel"),
+        sha256 = "1a4a8eeaf0494862c1404c95ec2f4c33a2acff5076f64314b465e3ddae1b934d",
+        strip_prefix = "unic-langid-impl-0.9.0",
+        build_file = Label("//cargo/remote:unic-langid-impl-0.9.0.BUILD.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "raze__unic_langid_macros__0_8_0",
-        url = "https://crates.io/api/v1/crates/unic-langid-macros/0.8.0/download",
+        name = "raze__unic_langid_macros__0_9_0",
+        url = "https://crates.io/api/v1/crates/unic-langid-macros/0.9.0/download",
         type = "tar.gz",
-        sha256 = "49bd90791278634d57e3ed4a4073108e3f79bfb87ab6a7b8664ba097425703df",
-        strip_prefix = "unic-langid-macros-0.8.0",
-        build_file = Label("//cargo/remote:unic-langid-macros-0.8.0.BUILD.bazel"),
+        sha256 = "18f980d6d87e8805f2836d64b4138cc95aa7986fa63b1f51f67d5fbff64dd6e5",
+        strip_prefix = "unic-langid-macros-0.9.0",
+        build_file = Label("//cargo/remote:unic-langid-macros-0.9.0.BUILD.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "raze__unic_langid_macros_impl__0_8_0",
-        url = "https://crates.io/api/v1/crates/unic-langid-macros-impl/0.8.0/download",
+        name = "raze__unic_langid_macros_impl__0_9_0",
+        url = "https://crates.io/api/v1/crates/unic-langid-macros-impl/0.9.0/download",
         type = "tar.gz",
-        sha256 = "e0098f77bd754f8fb7850cdf4ab143aa821898c4ac6dc16bcb2aa3e62ce858d1",
-        strip_prefix = "unic-langid-macros-impl-0.8.0",
-        build_file = Label("//cargo/remote:unic-langid-macros-impl-0.8.0.BUILD.bazel"),
+        sha256 = "29396ffd97e27574c3e01368b1a64267d3064969e4848e2e130ff668be9daa9f",
+        strip_prefix = "unic-langid-macros-impl-0.9.0",
+        build_file = Label("//cargo/remote:unic-langid-macros-impl-0.9.0.BUILD.bazel"),
     )
 
     maybe(

@@ -25,26 +25,30 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # Apache-2.0 from expression "Apache-2.0 OR MIT"
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
 ])
 
 # Generated targets
 
 # buildifier: leave-alone
 rust_library(
-    name = "intl_pluralrules",
-    crate_type = "lib",
+    name = "unic_langid_macros_impl",
+    crate_type = "proc-macro",
     deps = [
-        "@raze__tinystr__0_3_4//:tinystr",
-        "@raze__unic_langid__0_8_0//:unic_langid",
+        "@raze__quote__1_0_7//:quote",
+        "@raze__syn__1_0_48//:syn",
+        "@raze__unic_langid_impl__0_9_0//:unic_langid_impl",
     ],
     srcs = glob(["**/*.rs"]),
     crate_root = "src/lib.rs",
     edition = "2018",
+    proc_macro_deps = [
+        "@raze__proc_macro_hack__0_5_19//:proc_macro_hack",
+    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
-    version = "6.0.0",
+    version = "0.9.0",
     tags = [
         "cargo-raze",
         "manual",
@@ -52,5 +56,3 @@ rust_library(
     crate_features = [
     ],
 )
-# Unsupported target "operands" with type "test" omitted
-# Unsupported target "pluralrules" with type "bench" omitted

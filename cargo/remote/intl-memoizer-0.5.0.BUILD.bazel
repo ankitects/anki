@@ -32,19 +32,19 @@ licenses([
 
 # buildifier: leave-alone
 rust_library(
-    name = "fluent",
+    name = "intl_memoizer",
     crate_type = "lib",
     deps = [
-        "@raze__fluent_bundle__0_10_2//:fluent_bundle",
-        "@raze__unic_langid__0_8_0//:unic_langid",
+        "@raze__type_map__0_3_0//:type_map",
+        "@raze__unic_langid__0_9_0//:unic_langid",
     ],
     srcs = glob(["**/*.rs"]),
-    crate_root = "fluent/src/lib.rs",
+    crate_root = "src/lib.rs",
     edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
     ],
-    version = "0.10.2",
+    version = "0.5.0",
     tags = [
         "cargo-raze",
         "manual",
@@ -52,5 +52,3 @@ rust_library(
     crate_features = [
     ],
 )
-# Unsupported target "macro" with type "test" omitted
-# Unsupported target "pseudo" with type "test" omitted

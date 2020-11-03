@@ -3,8 +3,7 @@
 
 use crate::err::Result;
 use crate::log::{error, Logger};
-use fluent::{FluentArgs, FluentBundle, FluentResource, FluentValue};
-use intl_memoizer::IntlLangMemoizer;
+use fluent::{concurrent::FluentBundle, FluentArgs, FluentResource, FluentValue};
 use num_format::Locale;
 use serde::Serialize;
 use std::borrow::Cow;
@@ -25,7 +24,7 @@ macro_rules! tr_strs {
         {
             let mut args: fluent::FluentArgs = fluent::FluentArgs::new();
             $(
-                args.insert($key, $value.to_string().into());
+                args.add($key, $value.to_string().into());
             )*
             args
         }
@@ -39,13 +38,13 @@ pub use tr_strs;
 /// If neither folder exists, return None.
 fn lang_folder(lang: Option<&LanguageIdentifier>, ftl_folder: &Path) -> Option<PathBuf> {
     if let Some(lang) = lang {
-        if let Some(region) = lang.region() {
-            let path = ftl_folder.join(format!("{}_{}", lang.language(), region));
+        if let Some(region) = lang.region {
+            let path = ftl_folder.join(format!("{}_{}", lang.language, region));
             if fs::metadata(&path).is_ok() {
                 return Some(path);
             }
         }
-        let path = ftl_folder.join(lang.language());
+        let path = ftl_folder.join(lang.language.to_string());
         if fs::metadata(&path).is_ok() {
             Some(path)
         } else {
@@ -85,20 +84,24 @@ fn ftl_template_text() -> &'static str {
 }
 
 fn ftl_localized_text(lang: &LanguageIdentifier) -> Option<&'static str> {
-    Some(match lang.language() {
+    let region = match &lang.region {
+        Some(region) => Some(region.as_str()),
+        None => None,
+    };
+    Some(match lang.language.as_str() {
         "en" => {
-            match lang.region() {
+            match region {
                 Some("GB") | Some("AU") => ftl_path!("en-GB.ftl"),
                 // use fallback language instead
                 _ => return None,
             }
         }
-        "zh" => match lang.region() {
+        "zh" => match region {
             Some("TW") | Some("HK") => ftl_path!("zh-TW.ftl"),
             _ => ftl_path!("zh-CN.ftl"),
         },
         "pt" => {
-            if let Some("PT") = lang.region() {
+            if let Some("PT") = region {
                 ftl_path!("pt-PT.ftl")
             } else {
                 ftl_path!("pt-BR.ftl")
@@ -259,7 +262,7 @@ fn get_bundle_with_extra(
             None => {
                 extra_text += test_en_text();
             }
-            Some(lang) if lang.language() == "ja" => {
+            Some(lang) if lang.language == "ja" => {
                 extra_text += test_jp_text();
             }
             _ => {}
@@ -290,7 +293,7 @@ impl I18n {
             let code = code.as_ref();
             if let Ok(lang) = code.parse::<LanguageIdentifier>() {
                 langs.push(lang.clone());
-                if lang.language() == "en" {
+                if lang.language == "en" {
                     // if English was listed, any further preferences are skipped,
                     // as the template has 100% coverage, and we need to ensure
                     // it is tried prior to any other langs.
@@ -310,7 +313,7 @@ impl I18n {
                     resource_text.push(text);
                     bundles.push(bundle);
                 } else {
-                    error!(log, "Failed to create bundle for {:?}", lang.language())
+                    error!(log, "Failed to create bundle for {:?}", lang.language)
                 }
             }
         }
@@ -389,17 +392,13 @@ struct I18nInner {
     resource_text: Vec<&'static str>,
 }
 
+// Simple number formatting implementation
+
 fn set_bundle_formatter_for_langs<T>(bundle: &mut FluentBundle<T>, langs: &[LanguageIdentifier]) {
-    let num_formatter = NumberFormatter::new(langs);
-    let formatter = move |val: &FluentValue, _intls: &Mutex<IntlLangMemoizer>| -> Option<String> {
-        match val {
-            FluentValue::Number(n) => {
-                let mut num = n.clone();
-                num.options.maximum_fraction_digits = Some(2);
-                Some(num_formatter.format(num.as_string().to_string()))
-            }
-            _ => None,
-        }
+    let formatter = if want_comma_as_decimal_separator(langs) {
+        format_decimal_with_comma
+    } else {
+        format_decimal_with_period
     };
 
     bundle.set_formatter(Some(formatter));
@@ -417,41 +416,78 @@ fn first_available_num_format_locale(langs: &[LanguageIdentifier]) -> Option<Loc
 // try to locate a num_format locale for a given language identifier
 fn num_format_locale(lang: &LanguageIdentifier) -> Option<Locale> {
     // region provided?
-    if let Some(region) = lang.region() {
-        let code = format!("{}_{}", lang.language(), region);
+    if let Some(region) = lang.region {
+        let code = format!("{}_{}", lang.language, region);
         if let Ok(locale) = Locale::from_name(code) {
             return Some(locale);
         }
     }
     // try the language alone
-    Locale::from_name(lang.language()).ok()
+    Locale::from_name(lang.language.as_str()).ok()
 }
 
-struct NumberFormatter {
-    decimal_separator: &'static str,
+fn want_comma_as_decimal_separator(langs: &[LanguageIdentifier]) -> bool {
+    let separator = if let Some(locale) = first_available_num_format_locale(langs) {
+        locale.decimal()
+    } else {
+        "."
+    };
+
+    separator == ","
 }
 
-impl NumberFormatter {
-    fn new(langs: &[LanguageIdentifier]) -> Self {
-        if let Some(locale) = first_available_num_format_locale(langs) {
-            Self {
-                decimal_separator: locale.decimal(),
-            }
-        } else {
-            // fallback on English defaults
-            Self {
-                decimal_separator: ".",
-            }
-        }
-    }
+fn format_decimal_with_comma(
+    val: &fluent::FluentValue,
+    _intl: &intl_memoizer::concurrent::IntlLangMemoizer,
+) -> Option<String> {
+    format_number_values(val, Some(","))
+}
 
-    /// Given a pre-formatted number, change the decimal separator as appropriate.
-    fn format(&self, num: String) -> String {
-        if self.decimal_separator != "." {
-            num.replace(".", self.decimal_separator)
-        } else {
-            num
+fn format_decimal_with_period(
+    val: &fluent::FluentValue,
+    _intl: &intl_memoizer::concurrent::IntlLangMemoizer,
+) -> Option<String> {
+    format_number_values(val, None)
+}
+
+#[inline]
+fn format_number_values(
+    val: &fluent::FluentValue,
+    alt_separator: Option<&'static str>,
+) -> Option<String> {
+    match val {
+        FluentValue::Number(num) => {
+            // create a string with desired maximum digits
+            let max_frac_digits = 2;
+            let with_max_precision = format!(
+                "{number:.precision$}",
+                number = num.value,
+                precision = max_frac_digits
+            );
+
+            // remove any excess trailing zeros
+            let mut val: Cow<str> = with_max_precision.trim_end_matches('0').into();
+
+            // adding back any required to meet minimum_fraction_digits
+            if let Some(minfd) = num.options.minimum_fraction_digits {
+                let pos = val.find('.').expect("expected . in formatted string");
+                let frac_num = val.len() - pos - 1;
+                let zeros_needed = minfd - frac_num;
+                if zeros_needed > 0 {
+                    val = format!("{}{}", val, "0".repeat(zeros_needed)).into();
+                }
+            }
+
+            // lop off any trailing '.'
+            let result = val.trim_end_matches('.');
+
+            if let Some(sep) = alt_separator {
+                Some(result.replace('.', sep))
+            } else {
+                Some(result.to_string())
+            }
         }
+        _ => None,
     }
 }
 
@@ -463,16 +499,15 @@ pub struct ResourcesForJavascript {
 
 #[cfg(test)]
 mod test {
-    use crate::i18n::NumberFormatter;
-    use crate::i18n::{tr_args, I18n};
+    use super::*;
     use crate::log;
     use std::path::PathBuf;
     use unic_langid::langid;
 
     #[test]
     fn numbers() {
-        let fmter = NumberFormatter::new(&[langid!("pl-PL")]);
-        assert_eq!(&fmter.format("1.007".to_string()), "1,007");
+        assert_eq!(want_comma_as_decimal_separator(&[langid!("en-US")]), false);
+        assert_eq!(want_comma_as_decimal_separator(&[langid!("pl-PL")]), true);
     }
 
     #[test]

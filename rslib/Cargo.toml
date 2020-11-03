@@ -17,7 +17,7 @@ path = "src/lib.rs"
 ######################
 
 [build-dependencies]
-fluent-syntax = "0.9.3"
+fluent-syntax = "0.10"
 prost-build = { git = "https://github.com/danburkert/prost.git", rev = "4ded4a98ef339da0b7babd4efee3fbe8adaf746b" }
 
 [dev-dependencies]
@@ -35,11 +35,13 @@ chrono = "0.4.13"
 coarsetime = { git = "https://github.com/ankitects/rust-coarsetime.git", tag="anki-2020-11-03" }
 failure = "0.1.8"
 flate2 = "1.0.16"
-fluent = { git = "https://github.com/ankitects/fluent-rs.git", branch="32bit-panic" }
+fluent = "0.13.1"
+#fluent = { git = "https://github.com/ankitects/fluent-rs.git", branch="32bit-panic" }
 futures = "0.3.5"
 hex = "0.4.2"
 htmlescape = "0.3.1"
-intl-memoizer = { git = "https://github.com/ankitects/fluent-rs.git", branch="32bit-panic" }
+intl-memoizer = "0.5"
+#intl-memoizer = { git = "https://github.com/ankitects/fluent-rs.git", branch="32bit-panic" }
 itertools = "0.9.0"
 lazy_static = "1.4.0"
 nom = "5.1.2"
@@ -67,7 +69,7 @@ slog-envlogger = "2.2.0"
 slog-term = "2.6.0"
 tempfile = "3.1.0"
 tokio = { version = "0.2.21", features = ["fs", "rt-threaded"] }
-unic-langid = { version = "0.8.0", features = ["macros"] }
+unic-langid = { version = "0.9", features = ["macros"] }
 unicode-normalization = "0.1.13"
 utime = "0.3.1"
 zip = { version = "0.5.6", default-features = false, features = ["deflate", "time"] }

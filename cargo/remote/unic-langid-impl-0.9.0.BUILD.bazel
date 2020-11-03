@@ -30,8 +30,6 @@ licenses([
 
 # Generated targets
 # Unsupported target "canonicalize" with type "bench" omitted
-# Unsupported target "canonicalize_test" with type "test" omitted
-# Unsupported target "fixtures" with type "test" omitted
 
 # buildifier: leave-alone
 rust_binary(
@@ -49,7 +47,7 @@ rust_binary(
     rustc_flags = [
         "--cap-lints=allow",
     ],
-    version = "0.8.0",
+    version = "0.9.0",
     tags = [
         "cargo-raze",
         "manual",
@@ -74,7 +72,7 @@ rust_binary(
     rustc_flags = [
         "--cap-lints=allow",
     ],
-    version = "0.8.0",
+    version = "0.9.0",
     tags = [
         "cargo-raze",
         "manual",
@@ -83,7 +81,6 @@ rust_binary(
     ],
 )
 # Unsupported target "langid" with type "bench" omitted
-# Unsupported target "language_identifier_test" with type "test" omitted
 # Unsupported target "likely_subtags" with type "bench" omitted
 # Unsupported target "likelysubtags" with type "test" omitted
 # Unsupported target "parser" with type "bench" omitted
@@ -101,7 +98,7 @@ rust_library(
     rustc_flags = [
         "--cap-lints=allow",
     ],
-    version = "0.8.0",
+    version = "0.9.0",
     tags = [
         "cargo-raze",
         "manual",

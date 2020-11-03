@@ -60,6 +60,7 @@ with open("Cargo.toml", "w") as file:
 
 # update Cargo.lock
 subprocess.run(["cargo", "update"], check=True)
+input("hit enter to proceed")
 
 # generate cargo-raze files
 if os.path.exists("remote"):

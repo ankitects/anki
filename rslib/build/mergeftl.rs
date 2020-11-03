@@ -1,15 +1,15 @@
-use fluent_syntax::ast::{Entry::Message, ResourceEntry};
-use fluent_syntax::parser::parse;
+use fluent_syntax::ast::Entry;
+use fluent_syntax::parser::Parser;
 use std::collections::HashMap;
 use std::path::Path;
 use std::{fs, path::PathBuf};
 
 fn get_identifiers(ftl_text: &str) -> Vec<String> {
-    let res = parse(ftl_text).unwrap();
+    let res = Parser::new(ftl_text).parse().unwrap();
     let mut idents = vec![];
 
     for entry in res.body {
-        if let ResourceEntry::Entry(Message(m)) = entry {
+        if let Entry::Message(m) = entry {
             idents.push(m.id.name.to_string());
         }
     }

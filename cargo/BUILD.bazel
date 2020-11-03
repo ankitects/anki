@@ -95,7 +95,7 @@ alias(
 
 alias(
     name = "fluent",
-    actual = "@raze__fluent__0_10_2//:fluent",
+    actual = "@raze__fluent__0_13_1//:fluent",
     tags = [
         "cargo-raze",
         "manual",
@@ -104,7 +104,7 @@ alias(
 
 alias(
     name = "fluent_syntax",
-    actual = "@raze__fluent_syntax__0_9_3//:fluent_syntax",
+    actual = "@raze__fluent_syntax__0_10_0//:fluent_syntax",
     tags = [
         "cargo-raze",
         "manual",
@@ -140,7 +140,7 @@ alias(
 
 alias(
     name = "intl_memoizer",
-    actual = "@raze__intl_memoizer__0_3_0//:intl_memoizer",
+    actual = "@raze__intl_memoizer__0_5_0//:intl_memoizer",
     tags = [
         "cargo-raze",
         "manual",
@@ -410,7 +410,7 @@ alias(
 
 alias(
     name = "unic_langid",
-    actual = "@raze__unic_langid__0_8_0//:unic_langid",
+    actual = "@raze__unic_langid__0_9_0//:unic_langid",
     tags = [
         "cargo-raze",
         "manual",
