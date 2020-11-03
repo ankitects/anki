@@ -1743,6 +1743,7 @@ where id in %s"""
         txt = _("Queue top: %d") % pmin
         txt += "\n" + _("Queue bottom: %d") % pmax
         frm.label.setText(txt)
+        frm.start.selectAll()
         if not d.exec_():
             return
         self.model.beginReset()
