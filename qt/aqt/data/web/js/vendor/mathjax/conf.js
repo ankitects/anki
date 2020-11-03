@@ -1,20 +1,22 @@
 window.MathJax = {
-    jax: ["input/TeX", "output/CommonHTML"],
-    extensions: ["tex2jax.js"],
-    TeX: {
-        extensions: ["AMSmath.js", "AMSsymbols.js", "noErrors.js", "noUndefined.js", "mhchem.js"]
+  tex: {
+    displayMath: [["\\[", "\\]"]],
+    processRefs: false,
+    processEnvironments: false,
+    packages: ['base', 'ams', 'noerrors', 'noundefined', 'mhchem']
+  },
+  startup: {
+    typeset: false
+  },
+  options: {
+    renderActions: {
+      addMenu: [],
+      checkLoading: []
     },
-    tex2jax: {
-        displayMath: [["\\[", "\\]"]],
-        processRefs: false,
-        processEnvironments: false,
-    },
-    messageStyle: "none",
-    skipStartupTypeset: true,
-    showMathMenu: false,
-    AuthorInit: function () {
-        MathJax.Hub.processSectionDelay = 0;
-        MathJax.Hub.processUpdateTime = 0;
-        MathJax.Hub.processUpdateDelay = 0;
-    }
+    ignoreHtmlClass: 'tex2jax_ignore',
+    processHtmlClass: 'tex2jax_process'
+  },
+  loader: {
+    load: ['[tex]/noerrors', '[tex]/mhchem']
+  }
 };
