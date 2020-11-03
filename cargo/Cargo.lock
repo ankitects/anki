@@ -269,7 +269,7 @@ dependencies = [
 [[package]]
 name = "coarsetime"
 version = "0.1.14"
-source = "git+https://github.com/ankitects/rust-coarsetime.git?branch=old-mac-compat#f9e2c86216f0f4803bc75404828318fc206dab29"
+source = "git+https://github.com/ankitects/rust-coarsetime.git?tag=anki-2020-11-03#f9e2c86216f0f4803bc75404828318fc206dab29"
 dependencies = [
  "lazy_static",
  "libc",
