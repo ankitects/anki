@@ -40,7 +40,7 @@ rust_library(
         "@raze__syn__1_0_48//:syn",
     ],
     srcs = glob(["**/*.rs"]),
-    crate_root = "src/lib.rs",
+    crate_root = "pyo3cls/src/lib.rs",
     edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",

@@ -3,7 +3,7 @@
 # See README.md
 
 EXTRA_DEPS = [
-    'pyo3 = { version = "0.12.3", features = ["extension-module"] }'
+    'pyo3 = { git = "https://github.com/PyO3/pyo3.git", rev = "3b3ba4e3abd57bc3b8f86444b3f61e6e2f4c5fc1", features = ["extension-module", "abi3"] }'
 ]
 
 # If you get a message like the following during a build:
@@ -25,6 +25,8 @@ COMMITS_SHALLOW_SINCE = {
     "4ded4a98ef339da0b7babd4efee3fbe8adaf746b": "1598739849 -0700",
     # coarsetime
     "f9e2c86216f0f4803bc75404828318fc206dab29": "1594611111 +1000",
+    # pyo3
+    "3b3ba4e3abd57bc3b8f86444b3f61e6e2f4c5fc1": "1603809036 +0900",
 }
 
 import os

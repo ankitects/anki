@@ -11,7 +11,7 @@ use std::convert::TryFrom;
 // Regular backend
 //////////////////////////////////
 
-#[pyclass]
+#[pyclass(module = "_rsbridge")]
 struct Backend {
     backend: RustBackend,
 }

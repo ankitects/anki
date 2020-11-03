@@ -1572,33 +1572,33 @@ def raze_fetch_remote_crates():
     )
 
     maybe(
-        http_archive,
+        new_git_repository,
         name = "raze__pyo3__0_12_3",
-        url = "https://crates.io/api/v1/crates/pyo3/0.12.3/download",
-        type = "tar.gz",
-        sha256 = "a9b90d637542bbf29b140fdd38fa308424073fd2cdf641a5680aed8020145e3c",
-        strip_prefix = "pyo3-0.12.3",
+        remote = "https://github.com/PyO3/pyo3.git",
+        shallow_since = "1603809036 +0900",
+        commit = "3b3ba4e3abd57bc3b8f86444b3f61e6e2f4c5fc1",
         build_file = Label("//cargo/remote:pyo3-0.12.3.BUILD.bazel"),
+        init_submodules = True,
     )
 
     maybe(
-        http_archive,
+        new_git_repository,
         name = "raze__pyo3_derive_backend__0_12_3",
-        url = "https://crates.io/api/v1/crates/pyo3-derive-backend/0.12.3/download",
-        type = "tar.gz",
-        sha256 = "cee2c9fb095acb885ab7e85acc7c8e95da8c4bc7cc4b4ea64b566dfc8c91046a",
-        strip_prefix = "pyo3-derive-backend-0.12.3",
+        remote = "https://github.com/PyO3/pyo3.git",
+        shallow_since = "1603809036 +0900",
+        commit = "3b3ba4e3abd57bc3b8f86444b3f61e6e2f4c5fc1",
         build_file = Label("//cargo/remote:pyo3-derive-backend-0.12.3.BUILD.bazel"),
+        init_submodules = True,
     )
 
     maybe(
-        http_archive,
+        new_git_repository,
         name = "raze__pyo3cls__0_12_3",
-        url = "https://crates.io/api/v1/crates/pyo3cls/0.12.3/download",
-        type = "tar.gz",
-        sha256 = "f12fdd8a2f217d003c93f9819e3db1717b2e89530171edea4c0deadd90206f50",
-        strip_prefix = "pyo3cls-0.12.3",
+        remote = "https://github.com/PyO3/pyo3.git",
+        shallow_since = "1603809036 +0900",
+        commit = "3b3ba4e3abd57bc3b8f86444b3f61e6e2f4c5fc1",
         build_file = Label("//cargo/remote:pyo3cls-0.12.3.BUILD.bazel"),
+        init_submodules = True,
     )
 
     maybe(
