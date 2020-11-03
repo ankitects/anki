@@ -25,33 +25,34 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # Apache-2.0 from expression "Apache-2.0"
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
 ])
 
 # Generated targets
 
 # buildifier: leave-alone
 rust_library(
-    name = "fluent_langneg",
+    name = "unic_langid_macros",
     crate_type = "lib",
     deps = [
-        "@raze__unic_langid__0_8_0//:unic_langid",
+        "@raze__tinystr__0_3_4//:tinystr",
+        "@raze__unic_langid_impl__0_9_0//:unic_langid_impl",
     ],
     srcs = glob(["**/*.rs"]),
     crate_root = "src/lib.rs",
     edition = "2018",
+    proc_macro_deps = [
+        "@raze__proc_macro_hack__0_5_19//:proc_macro_hack",
+        "@raze__unic_langid_macros_impl__0_9_0//:unic_langid_macros_impl",
+    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
-    version = "0.12.1",
+    version = "0.9.0",
     tags = [
         "cargo-raze",
         "manual",
     ],
     crate_features = [
-        "default",
     ],
 )
-# Unsupported target "lib" with type "test" omitted
-# Unsupported target "negotiate" with type "bench" omitted
-# Unsupported target "negotiate" with type "example" omitted

@@ -32,19 +32,24 @@ licenses([
 
 # buildifier: leave-alone
 rust_library(
-    name = "intl_memoizer",
+    name = "fluent_bundle",
     crate_type = "lib",
     deps = [
-        "@raze__type_map__0_3_0//:type_map",
-        "@raze__unic_langid__0_8_0//:unic_langid",
+        "@raze__fluent_langneg__0_13_0//:fluent_langneg",
+        "@raze__fluent_syntax__0_10_0//:fluent_syntax",
+        "@raze__intl_memoizer__0_5_0//:intl_memoizer",
+        "@raze__intl_pluralrules__7_0_0//:intl_pluralrules",
+        "@raze__rental__0_5_5//:rental",
+        "@raze__smallvec__1_4_2//:smallvec",
+        "@raze__unic_langid__0_9_0//:unic_langid",
     ],
     srcs = glob(["**/*.rs"]),
-    crate_root = "intl-memoizer/src/lib.rs",
+    crate_root = "src/lib.rs",
     edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
     ],
-    version = "0.3.0",
+    version = "0.13.1",
     tags = [
         "cargo-raze",
         "manual",
@@ -52,5 +57,4 @@ rust_library(
     crate_features = [
     ],
 )
-# Unsupported target "numberformat" with type "example" omitted
-# Unsupported target "pluralrules" with type "example" omitted
+# Unsupported target "resolver" with type "bench" omitted
