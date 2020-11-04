@@ -12,3 +12,4 @@ pyenv
 __pycache__
 anki.prof
 /bazel-*
+user.bazelrc
