@@ -34,7 +34,11 @@ def _getExportFolder():
         dir = os.path.dirname(os.path.abspath(__file__))
         return os.path.abspath(dir + "/../../Resources/web")
     else:
-        raise Exception("couldn't find web folder")
+        if os.environ.get("TEST_TARGET"):
+            # running tests in bazel; we have no data
+            return "."
+        else:
+            raise Exception("couldn't find web folder")
 
 
 _exportFolder = _getExportFolder()
