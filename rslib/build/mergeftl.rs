@@ -1,7 +1,7 @@
 use fluent_syntax::ast::Entry;
 use fluent_syntax::parser::Parser;
-use std::collections::HashMap;
 use std::path::Path;
+use std::{collections::HashMap, env};
 use std::{fs, path::PathBuf};
 
 fn get_identifiers(ftl_text: &str) -> Vec<String> {
@@ -61,62 +61,94 @@ struct FTLData {
     translations: HashMap<String, Vec<String>>,
 }
 
-fn get_ftl_data(ftl_list_path: Option<String>) -> FTLData {
-    if let Some(path) = ftl_list_path {
-        let sources = fs::read_to_string(&path).expect("missing ftl list");
-        get_ftl_data_from_provided_files(sources)
-    } else {
-        get_ftl_data_from_source_tree()
-    }
-}
-
-/// Extract string of provided files, and read their data.
-fn get_ftl_data_from_provided_files(sources: String) -> FTLData {
-    let mut templates: Vec<String> = vec![];
-    let mut translations: HashMap<String, Vec<String>> = HashMap::new();
-
-    for path in sources.split(' ') {
-        let path = path.trim();
-        let mut elems = path.rsplit('/');
-        let (_fname, first_parent, second_parent) = (
-            elems.next().unwrap(),
-            elems.next().unwrap(),
-            elems.next().unwrap(),
-        );
-        let entry = std::fs::read_to_string(path).unwrap_or_else(|_| {
-            // try parent folder, for cases when we're running from build script
-            let path = Path::new("..").join(path);
-            std::fs::read_to_string(path).unwrap()
-        });
-        if !entry.ends_with('\n') {
-            panic!(".ftl file should end with a newline: {}", path);
-        }
-        match (first_parent, second_parent) {
-            // templates in the rslib translation repo are ignored, as their canonical
-            // form is part of this source tree
-            ("templates", "core") => (),
-            // templates from this source tree and extra_ftl get merged together
-            ("ftl", _) => templates.push(entry),
-            ("templates", _) => templates.push(entry),
-            // and translations for a given language get merged together
-            (lang, _) => translations
-                .entry(lang.to_string())
-                .or_default()
-                .push(entry),
+impl FTLData {
+    fn add_language_folder(&mut self, folder: &Path) {
+        let lang = folder.file_name().unwrap().to_str().unwrap();
+        let list = self.translations.entry(lang.to_string()).or_default();
+        for entry in fs::read_dir(&folder).unwrap() {
+            let entry = entry.unwrap();
+            let text = fs::read_to_string(&entry.path()).unwrap();
+            assert!(
+                text.ends_with('\n'),
+                "file was missing final newline: {:?}",
+                entry
+            );
+            list.push(text);
         }
     }
 
-    FTLData {
-        templates,
-        translations,
+    fn add_template_folder(&mut self, folder: &Path) {
+        for entry in fs::read_dir(&folder).unwrap() {
+            let entry = entry.unwrap();
+            let text = fs::read_to_string(&entry.path()).unwrap();
+            assert!(
+                text.ends_with('\n'),
+                "file was missing final newline: {:?}",
+                entry
+            );
+            self.templates.push(text);
+        }
     }
 }
 
-/// Called when no srcs.list file is available; we include the built-in
-/// English templates, and no translations.
+fn get_ftl_data() -> FTLData {
+    let mut data = get_ftl_data_from_source_tree();
+
+    let rslib_l10n = std::env::var("RSLIB_FTL_ROOT").ok();
+    let extra_l10n = std::env::var("EXTRA_FTL_ROOT").ok();
+
+    // core translations provided?
+    if let Some(path) = rslib_l10n {
+        let path = Path::new(&path);
+        let core_folder = path.with_file_name("core");
+        for entry in fs::read_dir(&core_folder).unwrap() {
+            let entry = entry.unwrap();
+            if entry.file_name().to_str().unwrap() == "templates" {
+                // ignore source ftl files, as we've already extracted them from the source tree
+                continue;
+            }
+            data.add_language_folder(&entry.path());
+        }
+    }
+
+    // extra templates/translations provided?
+    if let Some(path) = extra_l10n {
+        let mut path = PathBuf::from(path);
+        // drop l10n.toml filename to get folder
+        path.pop();
+        // look for subfolders
+        for outer_entry in fs::read_dir(&path).unwrap() {
+            let outer_entry = outer_entry.unwrap();
+            if outer_entry.file_type().unwrap().is_dir() {
+                // process folder
+                for entry in fs::read_dir(&outer_entry.path()).unwrap() {
+                    let entry = entry.unwrap();
+                    if entry.file_name().to_str().unwrap() == "templates" {
+                        data.add_template_folder(&entry.path());
+                    } else {
+                        data.add_language_folder(&entry.path());
+                    }
+                }
+            }
+        }
+    }
+
+    data
+}
+
+/// Extracts English text from ftl folder in source tree.
 fn get_ftl_data_from_source_tree() -> FTLData {
     let mut templates: Vec<String> = vec![];
-    for entry in fs::read_dir("ftl").unwrap() {
+
+    let dir = if let Ok(srcfile) = env::var("FTL_SRC") {
+        let mut path = PathBuf::from(srcfile);
+        path.pop();
+        path
+    } else {
+        PathBuf::from("ftl")
+    };
+
+    for entry in fs::read_dir(dir).unwrap() {
         let entry = entry.unwrap();
         let fname = entry.file_name().into_string().unwrap();
         if fname.ends_with(".ftl") {
@@ -161,8 +193,8 @@ fn write_fluent_proto_inner(path: &Path, idents: &[String]) {
 /// Write fluent.proto into the provided dir.
 /// Can be called separately to provide a proto
 /// to downstream code.
-pub fn write_fluent_proto(out_path: &str, ftl_list: String) {
-    let merged_ftl = merge_ftl_data(get_ftl_data(Some(ftl_list)));
+pub fn write_fluent_proto(out_path: &str) {
+    let merged_ftl = merge_ftl_data(get_ftl_data());
     let idents = get_identifiers(merged_ftl.get("template").unwrap());
     write_fluent_proto_inner(Path::new(out_path), &idents);
 }
@@ -170,8 +202,7 @@ pub fn write_fluent_proto(out_path: &str, ftl_list: String) {
 /// Write all ftl-related files into OUT_DIR.
 pub fn write_ftl_files_and_fluent_rs() {
     let dir = PathBuf::from(std::env::var("OUT_DIR").unwrap());
-    let ftl_list = std::env::var("FTL_FILES").ok();
-    let merged_ftl = merge_ftl_data(get_ftl_data(ftl_list));
+    let merged_ftl = merge_ftl_data(get_ftl_data());
     write_merged_ftl_files(&dir, &merged_ftl);
 
     let idents = get_identifiers(merged_ftl.get("template").unwrap());
