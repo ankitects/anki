@@ -1,8 +1,22 @@
+config_setting(
+    name = "release",
+    values = {
+        "compilation_mode": "opt",
+    },
+)
+
 genrule(
-    name = "buildinfo_gen",
+    name = "buildinfo",
+    srcs = ["//:defs.bzl"],
     outs = ["buildinfo.txt"],
-    cmd = "grep STABLE_ bazel-out/stable-status.txt > $@",
+    cmd = select({
+        "release": "$(location //scripts:buildinfo) $(location //:defs.bzl) bazel-out/stable-status.txt release > $@",
+        "//conditions:default": "$(location //scripts:buildinfo) $(location //:defs.bzl) bazel-out/stable-status.txt devel > $@",
+    }),
     stamp = 1,
+    tools = [
+        "//scripts:buildinfo",
+    ],
     visibility = ["//visibility:public"],
 )
 
@@ -11,3 +25,6 @@ alias(
     actual = "//ts:tsconfig.json",
     visibility = ["//visibility:public"],
 )
+
+# for version info
+exports_files(["defs.bzl"])
