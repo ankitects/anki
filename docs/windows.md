@@ -57,8 +57,7 @@ stored in c:\anki.
 
 The Javascript bundling on Windows is currently a bit flaky, so the initial
 build will likely fail with an error about a missing rollup module. If you
-get an error when running the commands below, try repeating them a few times -
-they should pick up where they left off.
+get an error when running the commands below, try repeating them once or twice.
 
 ## Running Anki during development
 
@@ -78,14 +77,11 @@ To play audio, mpv.exe or mplayer.exe must be on the path. At the time
 of writing, recording is not yet supported, as currently pyaudio is
 not being installed.
 
-## Running tests
+## More
 
-From inside the top level of the source folder:
+For info on running tests, building wheels and so on, please see [Development](./development.md).
 
-```
-.\bazel test //...
-```
-
-Note that we call bazel.bat inside the Anki source folder, instead of
-calling Bazel directly. This takes care of setting up the path and
-output folder correctly, which avoids issues with long path names.
+Note that where the instructions on that page say "bazel", please use ".\bazel"
+instead. This runs bazel.bat inside the Anki source folder, instead of
+calling Bazel directly. This takes care of setting up the path and output folder
+correctly, which avoids issues with long path names.

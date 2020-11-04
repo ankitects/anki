@@ -58,10 +58,6 @@ dependencies. When the build is complete, Anki will automatically start.
 To play audio, install mpv. At the time of writing, recording is
 not yet supported, as currently pyaudio is not being installed.
 
-## Running tests
+## More
 
-From inside the source folder:
-
-```
-bazel test //...
-```
+For info on running tests, building wheels and so on, please see [Development](./development.md).

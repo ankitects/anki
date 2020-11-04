@@ -1,7 +1,3 @@
-# Needs updating
-
-Some of the below references the old build system, and needs updating.
-
 # Contributing Code
 
 For info on contributing things other than code, such as translations, decks
@@ -53,9 +49,9 @@ and lists, and they can be difficult to fully type. Don't worry too much about
 getting the types perfect - even a partial type like Dict[str, Any] or
 List[Tuple] is an improvement over no types at all.
 
-Anki bundles Qt stubs, but they are not perfect, so you'll find when doing
-things like connecting signals, you may have to add the following to the end
-of a line to silence the spurious errors.
+Qt's stubs are not perfect, so you'll find when doing things like connecting
+signals, you may have to add the following to the end of a line to silence the
+spurious errors.
 
 ```
  # type: ignore
@@ -108,8 +104,7 @@ In most cases, hooks are better added in the GUI code than in pylib.
 
 The hook code is automatically generated using the definitions in
 pylib/tools/genhooks.py and qt/tools/genhooks_gui.py. Adding a new definition
-in one of those files and running 'make develop' will update pylib/anki/hooks
-.py or qt/aqt/gui_hooks.py.
+in one of those files will update the generated files.
 
 ## Translations
 
@@ -122,16 +117,12 @@ https://ankitects.github.io/translating/#/anki/developers
 
 ## Tests Must Pass
 
-Please make sure 'make check' completes successfully before submitting code.
+Please make sure 'bazel test //...' completes successfully before submitting code.
 You can do this automatically by adding the following into
 .git/hooks/pre-commit or .git/hooks/pre-push and making it executable.
 
 #!/bin/bash
-set -eu -o pipefail \${SHELLFLAGS}
-make check
-
-You may need to adjust the PATH variable so that things like a local install
-of cargo can be found.
+bazel test //...
 
 If your change is to anki/ and not covered by the existing unit tests, please
 consider adding a unit test at the same time.
@@ -143,8 +134,6 @@ introduced code, but please avoid renaming existing functions and global
 variables that use camelCaps. Variables local to a function are safer to
 rename, but please do so only when a function needs to be changed for other
 reasons as well.
-
-Code formatting is automatically done when you use "make fix".
 
 ## Do One Thing
 
