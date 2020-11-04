@@ -6,7 +6,6 @@
 from __future__ import annotations
 
 import gettext
-import os
 import re
 from typing import Optional, Union
 
