@@ -1,7 +1,5 @@
 common --enable_platform_specific_config
 common --experimental_repository_cache_hardlinks
-#common --symlink_prefix=.bazel/
-#common --experimental_no_product_name_out_symlink
 
 # specify python path on Windows for pyo3 compile
 build:windows --action_env="PYTHON_SYS_EXECUTABLE=c:\\python\\python.exe"
