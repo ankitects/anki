@@ -11,13 +11,6 @@ all_ftl_files = [
     "@extra_ftl//:files",
 ] + glob(["ftl/*.ftl"])
 
-genrule(
-    name = "ftl_files",
-    srcs = all_ftl_files,
-    outs = ["ftl_files.list"],
-    cmd = "echo $(SRCS) > $@",
-)
-
 # Build script
 #######################
 
@@ -27,15 +20,18 @@ cargo_build_script(
     build_script_env = {
         "BACKEND_PROTO": "$(location backend.proto)",
         "PROTOC": "$(location @com_google_protobuf//:protoc)",
-        "FTL_FILES": "$(location ftl_files.list)",
+        "RSLIB_FTL_ROOT": "$(location @rslib_ftl//:l10n.toml)",
+        "EXTRA_FTL_ROOT": "$(location @extra_ftl//:l10n.toml)",
         "BUILDINFO": "$(location //:buildinfo.txt)",
     },
     crate_root = "build/main.rs",
     data = all_ftl_files + [
-        "ftl_files.list",
         "backend.proto",
         "//:buildinfo.txt",
         "@com_google_protobuf//:protoc",
+        # bazel requires us to list these out separately
+        "@rslib_ftl//:l10n.toml",
+        "@extra_ftl//:l10n.toml",
     ],
     deps = [
         "//cargo:fluent_syntax",
@@ -167,12 +163,19 @@ rust_binary(
 genrule(
     name = "fluent_proto",
     srcs = all_ftl_files + [
-        "ftl_files.list",
-        ":write_fluent_proto",
         "//cargo:fluent_syntax",
+        "@rslib_ftl//:l10n.toml",
+        "@extra_ftl//:l10n.toml",
     ],
     outs = ["fluent.proto"],
-    cmd = "$(location :write_fluent_proto) $(location fluent.proto) $(location ftl_files.list)",
+    cmd = """\
+RSLIB_FTL_ROOT="$(location @rslib_ftl//:l10n.toml)" \
+EXTRA_FTL_ROOT="$(location @extra_ftl//:l10n.toml)" \
+FTL_SRC="$(location ftl/database-check.ftl)" \
+$(location :write_fluent_proto) $(location fluent.proto)""",
+    tools = [
+        ":write_fluent_proto",
+    ],
     visibility = ["//visibility:public"],
 )
 

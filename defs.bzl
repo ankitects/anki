@@ -46,13 +46,13 @@ def setup_deps():
         python_runtime = "@python//:python",
     )
 
-    node_repositories(package_json = ["//ts:package.json"])
+    node_repositories(package_json = ["@anki//ts:package.json"])
 
     yarn_install(
         name = "npm",
-        package_json = "//ts:package.json",
+        package_json = "@anki//ts:package.json",
         # strict_visibility = True,
-        yarn_lock = "//ts:yarn.lock",
+        yarn_lock = "@anki//ts:yarn.lock",
     )
 
     sass_repositories()

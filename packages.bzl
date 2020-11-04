@@ -136,7 +136,9 @@ filegroup(
     name = "files",
     srcs = glob(["**/*.ftl"]),
     visibility = ["//visibility:public"],
-)    
+)
+
+exports_files(["l10n.toml"])
     """,
         commit = core_i18n_commit,
         shallow_since = core_i18n_shallow_since,
@@ -151,7 +153,9 @@ filegroup(
     name = "files",
     srcs = glob(["**/*.ftl"]),
     visibility = ["//visibility:public"],
-)    
+)
+
+exports_files(["l10n.toml"])
 """,
             commit = desktop_i18n_commit,
             shallow_since = desktop_i18n_shallow_since,
