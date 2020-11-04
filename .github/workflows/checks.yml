@@ -127,7 +127,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ matrix.BAZEL_ROOT }}
-          key: ${{ runner.os }}-bazout-1
+          key: ${{ runner.os }}-bazout-1-${{ hashFiles('ts/yarn.lock') }}-${{ hashFiles('pip/requirements.txt') }}-${{ hashFiles('cargo/Cargo.lock') }}
 
       ################################
       # Linux
