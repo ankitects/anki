@@ -5,9 +5,9 @@ workspace(
     ]},
 )
 
-load(":packages.bzl", "register_deps")
+load(":repos.bzl", "register_repos")
 
-register_deps()
+register_repos()
 
 load(":defs.bzl", "setup_deps")
 

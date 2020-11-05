@@ -5,8 +5,8 @@ Dependencies required to build Anki.
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository", "new_git_repository")
 
-def register_deps():
-    "Register required dependencies."
+def register_repos():
+    "Register required dependency repos."
 
     # bazel
     ##########
@@ -37,9 +37,9 @@ def register_deps():
 
     git_repository(
         name = "io_bazel_rules_rust",
-        commit = "5dac98e97b903e72514152bbdcc5965d4ca268b9",
+        commit = "a364ded42d9788144cd26b6e98d6b4038753bfa9",
         remote = "https://github.com/ankitects/rules_rust",
-        shallow_since = "1603677585 +1000",
+        shallow_since = "1604550071 +1000",
     )
 
     # local_repository(
