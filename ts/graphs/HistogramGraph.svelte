@@ -4,7 +4,7 @@
     import AxisTicks from "./AxisTicks.svelte";
     import { defaultGraphBounds } from "./graph-helpers";
     import NoDataOverlay from "./NoDataOverlay.svelte";
-    import type { I18n } from "anki/ts/lib/i18n";
+    import type { I18n } from "anki/i18n";
 
     export let data: HistogramData | null = null;
     export let i18n: I18n;

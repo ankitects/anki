@@ -2,8 +2,8 @@
     import { defaultGraphBounds, GraphRange, RevlogRange } from "./graph-helpers";
     import AxisTicks from "./AxisTicks.svelte";
     import { renderButtons } from "./buttons";
-    import type pb from "anki/ts/lib/backend_proto";
-    import type { I18n } from "anki/ts/lib/i18n";
+    import type pb from "anki/backend_proto";
+    import type { I18n } from "anki/i18n";
     import NoDataOverlay from "./NoDataOverlay.svelte";
     import GraphRangeRadios from "./GraphRangeRadios.svelte";
 

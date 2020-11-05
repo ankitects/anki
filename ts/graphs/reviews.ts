@@ -6,7 +6,7 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import pb from "anki/ts/lib/backend_proto";
+import pb from "anki/backend_proto";
 import {
     interpolateBlues,
     interpolateGreens,
@@ -22,8 +22,8 @@ import { GraphBounds, setDataAvailable, GraphRange } from "./graph-helpers";
 import type { TableDatum } from "./graph-helpers";
 import { area, curveBasis } from "d3-shape";
 import { min, histogram, sum, max, Bin, cumsum } from "d3-array";
-import { timeSpan, dayLabel } from "anki/ts/lib/time";
-import type { I18n } from "anki/ts/lib/i18n";
+import { timeSpan, dayLabel } from "anki/time";
+import type { I18n } from "anki/i18n";
 
 interface Reviews {
     mature: number;

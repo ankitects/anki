@@ -6,7 +6,7 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import type pb from "anki/ts/lib/backend_proto";
+import type pb from "anki/backend_proto";
 import { interpolateBlues } from "d3-scale-chromatic";
 import "d3-transition";
 import { select, mouse } from "d3-selection";
@@ -14,7 +14,7 @@ import { scaleLinear, scaleSequential } from "d3-scale";
 import { showTooltip, hideTooltip } from "./tooltip";
 import { GraphBounds, setDataAvailable, RevlogRange } from "./graph-helpers";
 import { timeDay, timeYear, timeWeek } from "d3-time";
-import type { I18n } from "anki/ts/lib/i18n";
+import type { I18n } from "anki/i18n";
 
 export interface GraphData {
     // indexed by day, where day is relative to today

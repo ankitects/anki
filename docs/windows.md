@@ -79,9 +79,18 @@ not being installed.
 
 ## More
 
-For info on running tests, building wheels and so on, please see [Development](./development.md).
+For info on running tests, building wheels and so on, please see
+[Development](./development.md).
 
 Note that where the instructions on that page say "bazel", please use ".\bazel"
 instead. This runs bazel.bat inside the Anki source folder, instead of
 calling Bazel directly. This takes care of setting up the path and output folder
 correctly, which avoids issues with long path names.
+
+## Cleaning notes
+
+Unlike the old Make system, a "clean build" should almost never be required
+unless you are debugging issues with the build system. But if you need to run
+"bazel clean --expunge", make sure you remove the ts/node_modules folder
+afterwards, or it will cause a "no such file or directory node_modules/anki"
+error on the subsequent build on Windows.

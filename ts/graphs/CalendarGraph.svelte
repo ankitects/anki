@@ -4,8 +4,8 @@
     import { defaultGraphBounds, RevlogRange } from "./graph-helpers";
     import { gatherData, renderCalendar } from "./calendar";
     import type { GraphData } from "./calendar";
-    import type pb from "anki/ts/lib/backend_proto";
-    import type { I18n } from "anki/ts/lib/i18n";
+    import type pb from "anki/backend_proto";
+    import type { I18n } from "anki/i18n";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
     export let revlogRange: RevlogRange;

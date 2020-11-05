@@ -1,8 +1,8 @@
 <script lang="typescript">
     import { gatherData } from "./today";
     import type { TodayData } from "./today";
-    import type pb from "anki/ts/lib/backend_proto";
-    import type { I18n } from "anki/ts/lib/i18n";
+    import type pb from "anki/backend_proto";
+    import type { I18n } from "anki/i18n";
 
     export let sourceData: pb.BackendProto.GraphsOut | null = null;
     export let i18n: I18n;

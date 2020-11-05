@@ -1,11 +1,11 @@
 <script lang="typescript">
-    import type { I18n } from "anki/ts/lib/i18n";
+    import type { I18n } from "anki/i18n";
     import type { HistogramData } from "./histogram-graph";
     import { GraphRange, RevlogRange } from "./graph-helpers";
     import type { TableDatum } from "./graph-helpers";
     import { gatherData, buildHistogram } from "./future-due";
     import type { GraphData } from "./future-due";
-    import type pb from "anki/ts/lib/backend_proto";
+    import type pb from "anki/backend_proto";
     import HistogramGraph from "./HistogramGraph.svelte";
     import GraphRangeRadios from "./GraphRangeRadios.svelte";
     import TableData from "./TableData.svelte";

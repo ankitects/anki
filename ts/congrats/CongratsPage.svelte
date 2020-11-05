@@ -1,8 +1,8 @@
 <script lang="ts">
-    import { I18n } from "anki/ts/lib/i18n";
-    import pb from "anki/ts/lib/backend_proto";
+    import { I18n } from "anki/i18n";
+    import pb from "anki/backend_proto";
     import { buildNextLearnMsg } from "./lib";
-    import { bridgeLink } from "anki/ts/lib/bridgecommand";
+    import { bridgeLink } from "anki/bridgecommand";
 
     export let info: pb.BackendProto.CongratsInfoOut;
     export let i18n: I18n;

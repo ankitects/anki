@@ -6,8 +6,8 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import { CardQueue } from "anki/ts/lib/cards";
-import type pb from "anki/ts/lib/backend_proto";
+import { CardQueue } from "anki/cards";
+import type pb from "anki/backend_proto";
 import { schemeGreens, schemeBlues } from "d3-scale-chromatic";
 import "d3-transition";
 import { select } from "d3-selection";
@@ -16,7 +16,7 @@ import { pie, arc } from "d3-shape";
 import { interpolate } from "d3-interpolate";
 import type { GraphBounds } from "./graph-helpers";
 import { cumsum } from "d3-array";
-import type { I18n } from "anki/ts/lib/i18n";
+import type { I18n } from "anki/i18n";
 
 type Count = [string, number];
 export interface GraphData {

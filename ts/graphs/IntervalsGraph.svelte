@@ -1,6 +1,6 @@
 <script lang="typescript">
-    import { timeSpan, MONTH } from "anki/ts/lib/time";
-    import type { I18n } from "anki/ts/lib/i18n";
+    import { timeSpan, MONTH } from "anki/time";
+    import type { I18n } from "anki/i18n";
     import type { HistogramData } from "./histogram-graph";
     import {
         gatherIntervalData,
@@ -8,7 +8,7 @@
         prepareIntervalData,
     } from "./intervals";
     import type { IntervalGraphData } from "./intervals";
-    import type pb from "anki/ts/lib/backend_proto";
+    import type pb from "anki/backend_proto";
     import HistogramGraph from "./HistogramGraph.svelte";
     import type { TableDatum } from "./graph-helpers";
     import TableData from "./TableData.svelte";

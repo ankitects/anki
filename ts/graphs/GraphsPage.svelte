@@ -3,8 +3,8 @@
 </script>
 
 <script lang="typescript">
-    import type { I18n } from "anki/ts/lib/i18n";
-    import type pb from "anki/ts/lib/backend_proto";
+    import type { I18n } from "anki/i18n";
+    import type pb from "anki/backend_proto";
     import { getGraphData, RevlogRange } from "./graph-helpers";
     import IntervalsGraph from "./IntervalsGraph.svelte";
     import EaseGraph from "./EaseGraph.svelte";

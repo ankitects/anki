@@ -6,7 +6,7 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import pb from "anki/ts/lib/backend_proto";
+import pb from "anki/backend_proto";
 import { interpolateBlues } from "d3-scale-chromatic";
 import "d3-transition";
 import { select, mouse } from "d3-selection";
@@ -20,7 +20,7 @@ import {
     millisecondCutoffForRange,
 } from "./graph-helpers";
 import { area, curveBasis } from "d3-shape";
-import type { I18n } from "anki/ts/lib/i18n";
+import type { I18n } from "anki/i18n";
 
 type ButtonCounts = [number, number, number, number];
 

@@ -1,9 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import pb from "anki/ts/lib/backend_proto";
-import { studiedToday } from "anki/ts/lib/time";
-import type { I18n } from "anki/ts/lib/i18n";
+import pb from "anki/backend_proto";
+import { studiedToday } from "anki/time";
+import type { I18n } from "anki/i18n";
 
 export interface TodayData {
     title: string;
