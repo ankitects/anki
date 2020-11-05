@@ -144,6 +144,9 @@ jobs:
       - name: Linux
         if: matrix.os == 'ubuntu-latest'
         run: |
+          # disable command workflow processing
+          echo "::stop-commands::`echo -n ${{ github.token }} | sha256sum | head -c 64`"
+
           set -x
           sudo apt update
           sudo apt install portaudio19-dev gettext
@@ -163,10 +166,13 @@ jobs:
       - name: Mac
         if: matrix.os == 'macos-latest'
         run: |
+          # disable command workflow processing
+          echo "::stop-commands::`echo -n ${{ github.token }} | sha256sum | head -c 64`"
+
           set -x
           brew install portaudio gnu-tar
           # gnu tar for cache issue
-          echo "::add-path::/usr/local/opt/gnu-tar/libexec/gnubin"
+          echo "/usr/local/opt/gnu-tar/libexec/gnubin" >> $GITHUB_PATH
 
           BAZEL="bazel"
           ARGS="--show_timestamps --isatty=0 --color=yes --disk_cache=${{ matrix.BAZEL_DISK }} --repository_cache=${{ matrix.BAZEL_REPO }}"
