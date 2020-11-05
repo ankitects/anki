@@ -151,7 +151,7 @@ jobs:
             chmod +x ./bazel
 
           BAZEL="./bazel"
-          ARGS="--isatty=0 --color=yes --disk_cache=${{ matrix.BAZEL_DISK }} --repository_cache=${{ matrix.BAZEL_REPO }}"
+          ARGS="--show_timestamps --isatty=0 --color=yes --disk_cache=${{ matrix.BAZEL_DISK }} --repository_cache=${{ matrix.BAZEL_REPO }}"
           $BAZEL test ... $ARGS
           $BAZEL build qt:runanki $ARGS
           ANKI_IMPORT_ONLY=1 $BAZEL run qt:runanki
@@ -169,7 +169,7 @@ jobs:
           echo "::add-path::/usr/local/opt/gnu-tar/libexec/gnubin"
 
           BAZEL="bazel"
-          ARGS="--isatty=0 --color=yes --disk_cache=${{ matrix.BAZEL_DISK }} --repository_cache=${{ matrix.BAZEL_REPO }}"
+          ARGS="--show_timestamps --isatty=0 --color=yes --disk_cache=${{ matrix.BAZEL_DISK }} --repository_cache=${{ matrix.BAZEL_REPO }}"
           $BAZEL test ... $ARGS
           $BAZEL build qt:runanki $ARGS
           # the rsync workaround is not required in CI, as it's working
