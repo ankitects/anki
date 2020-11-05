@@ -12,6 +12,7 @@ msgmerge -q $(location {po_file}) $(location {pot_file}) | msgfmt - --output-fil
             pot_file = pot_file,
             mo_file = mo_file,
         ),
+        message = "Building translation",
     )
 
 _langs = [
