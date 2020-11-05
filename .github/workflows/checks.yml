@@ -56,14 +56,16 @@ jobs:
                 "os": "ubuntu-latest",
                 "name": "Ubuntu",
                 "SEP": "/",
-                "BAZEL_ROOT": "~/.cache/bazelroot",
+                "BAZEL_REPO": "~/.cache/bazelrepo",
+                "BAZEL_DISK": "~/.cache/bazeldisk",
                 "ANKI_PYTHON_WHEELS": "anki_linux_python"
               },
               {
                 "os": "macos-latest",
                 "name": "Mac OS",
                 "SEP": "/",
-                "BAZEL_ROOT": "~/Library/Caches/bazelroot",
+                "BAZEL_REPO": "~/Library/Caches/bazelrepo",
+                "BAZEL_DISK": "~/Library/Caches/bazeldisk",
                 "ANKI_PYTHON_WHEELS": "anki_macos_python"
               },
               {
@@ -123,11 +125,17 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
 
-      - name: Cache
+      - name: Cache disk
         uses: actions/cache@v2
         with:
-          path: ${{ matrix.BAZEL_ROOT }}
-          key: ${{ runner.os }}-bazout-1-${{ hashFiles('ts/yarn.lock') }}-${{ hashFiles('pip/requirements.txt') }}-${{ hashFiles('cargo/Cargo.lock') }}
+          path: ${{ matrix.BAZEL_DISK }}
+          key: ${{ runner.os }}-disk-1-${{ hashFiles('ts/yarn.lock') }}-${{ hashFiles('pip/requirements.txt') }}-${{ hashFiles('cargo/Cargo.lock') }}-${{ hashFiles('**/BUILD.bazel') }}-${{ hashFiles('**/*.bzl') }}
+
+      - name: Cache repo
+        uses: actions/cache@v2
+        with:
+          path: ${{ matrix.BAZEL_REPO }}
+          key: ${{ runner.os }}-repo-1-${{ hashFiles('ts/yarn.lock') }}-${{ hashFiles('pip/requirements.txt') }}-${{ hashFiles('cargo/Cargo.lock') }}-${{ hashFiles('**/BUILD.bazel') }}-${{ hashFiles('**/*.bzl') }}
 
       ################################
       # Linux
@@ -142,11 +150,8 @@ jobs:
           curl -L https://github.com/bazelbuild/bazelisk/releases/download/v1.7.4/bazelisk-linux-amd64 -o ./bazel && \
             chmod +x ./bazel
 
-          # fix cache permissions
-          # sudo chown -R $(whoami):$(id -ng) ~/.cargo/
-
-          BAZEL="./bazel --output_user_root=${{ matrix.BAZEL_ROOT }}"
-          ARGS="--isatty=0 --color=yes"
+          BAZEL="./bazel"
+          ARGS="--isatty=0 --color=yes --disk_cache=${{ matrix.BAZEL_DISK }} --repository_cache=${{ matrix.BAZEL_REPO }}"
           $BAZEL test ... $ARGS
           $BAZEL build qt:runanki $ARGS
           ANKI_IMPORT_ONLY=1 $BAZEL run qt:runanki
@@ -163,8 +168,8 @@ jobs:
           # gnu tar for cache issue
           echo "::add-path::/usr/local/opt/gnu-tar/libexec/gnubin"
 
-          BAZEL="bazel --output_user_root=${{ matrix.BAZEL_ROOT }}"
-          ARGS="--isatty=0 --color=yes"
+          BAZEL="bazel"
+          ARGS="--isatty=0 --color=yes --disk_cache=${{ matrix.BAZEL_DISK }} --repository_cache=${{ matrix.BAZEL_REPO }}"
           $BAZEL test ... $ARGS
           $BAZEL build qt:runanki $ARGS
           # the rsync workaround is not required in CI, as it's working
