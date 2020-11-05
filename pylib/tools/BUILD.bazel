@@ -29,7 +29,7 @@ py_binary(
         "//pylib/anki:backend_pb2",
     ],
     imports = [
-        ".",
+        "../anki",
     ],
     visibility = ["//pylib:__subpackages__"],
     deps = [
