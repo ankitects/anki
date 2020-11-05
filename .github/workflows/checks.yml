@@ -141,6 +141,16 @@ jobs:
       # Linux
       ################################
 
+      # they forgot to pay the bill, breaking the build, and we don't need it
+      - name: remove git-lfs
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          cat /etc/apt/sources.list
+          ls /etc/apt/sources.list.d
+          sudo rm /etc/apt/sources.list.d/github_git-lfs.list
+          sudo rm /etc/apt/sources.list.d/github_git-lfs.list.save
+
       - name: Linux
         if: matrix.os == 'ubuntu-latest'
         run: |
