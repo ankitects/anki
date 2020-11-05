@@ -96,7 +96,7 @@ py_wheel(
     distribution = "aqt",
     homepage = "https://apps.ankiweb.net",
     license = "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
-    python_tag = "cp38",
+    python_tag = "py3",
     python_version = ">=3.8",
     requires = [
         # "pyaudio", # currently off as a pain to install on Windows for code completion
@@ -112,7 +112,7 @@ py_wheel(
         "pyqt5>=5.9",
         'psutil; sys.platform == "win32"',
         'pywin32; sys.platform == "win32"',
-        "anki==0.0.1",
+        "anki==" + anki_version,
     ],
     strip_path_prefixes = [
         "qt",
