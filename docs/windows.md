@@ -10,8 +10,10 @@ The build system requires [Developer Mode](https://docs.microsoft.com/en-us/wind
 
 **Visual Studio**:
 
-Either the normal Visual Studio or just the [build tools](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019) should work. Make sure the C++ compiler and Windows 10 SDK are selected - they should be on
-by default.
+Isntall the [Visual Studio build tools](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019).
+
+Make sure the "C++ build tools" box is selected, and leave the default optional
+components enabled on the right.
 
 **Python 3.8**:
 
@@ -20,14 +22,15 @@ customize the installation. Select "install for all users", and choose
 the install path as c:\python. Currently the build scripts require
 Python to be installed in that location.
 
+When the install is done, click on the "remove the path limit" button.
+
 **MSYS**:
 
-Install [msys](https://www.msys2.org/) into the default folder location.
+Install [msys2](https://www.msys2.org/) into the default folder location.
 
-After installation completes, run msys, and run the following commands:
+After installation completes, run msys2, and run the following command:
 
 ```
-$ pacman -Syu
 $ pacman -S git gettext
 ```
 
