@@ -1,9 +1,9 @@
 <script lang="typescript">
     import type { HistogramData } from "./histogram-graph";
     import { gatherData, prepareData } from "./ease";
-    import type pb from "anki/ts/lib/backend_proto";
+    import type pb from "anki/backend_proto";
     import HistogramGraph from "./HistogramGraph.svelte";
-    import type { I18n } from "anki/ts/lib/i18n";
+    import type { I18n } from "anki/i18n";
     import type { TableDatum } from "./graph-helpers";
     import TableData from "./TableData.svelte";
 

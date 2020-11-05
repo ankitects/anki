@@ -6,15 +6,15 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import type pb from "anki/ts/lib/backend_proto";
+import type pb from "anki/backend_proto";
 import { extent, histogram, quantile, sum, mean } from "d3-array";
 import { scaleLinear, scaleSequential } from "d3-scale";
-import { CardQueue } from "anki/ts/lib/cards";
+import { CardQueue } from "anki/cards";
 import type { HistogramData } from "./histogram-graph";
 import { interpolateBlues } from "d3-scale-chromatic";
-import type { I18n } from "anki/ts/lib/i18n";
+import type { I18n } from "anki/i18n";
 import type { TableDatum } from "./graph-helpers";
-import { timeSpan } from "anki/ts/lib/time";
+import { timeSpan } from "anki/time";
 
 export interface IntervalGraphData {
     intervals: number[];

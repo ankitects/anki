@@ -1,7 +1,7 @@
 <script lang="typescript">
-    import type { I18n } from "anki/ts/lib/i18n";
+    import type { I18n } from "anki/i18n";
     import { RevlogRange, GraphRange } from "./graph-helpers";
-    import { timeSpan, MONTH, YEAR } from "anki/ts/lib/time";
+    import { timeSpan, MONTH, YEAR } from "anki/time";
 
     export let i18n: I18n;
     export let revlogRange: RevlogRange;

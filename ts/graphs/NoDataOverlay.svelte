@@ -1,5 +1,5 @@
 <script lang="typescript">
-    import type { I18n } from "anki/ts/lib/i18n";
+    import type { I18n } from "anki/i18n";
     import type { GraphBounds } from "./graph-helpers";
     export let bounds: GraphBounds;
     export let i18n: I18n;

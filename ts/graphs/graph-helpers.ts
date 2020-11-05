@@ -6,9 +6,9 @@
 @typescript-eslint/no-explicit-any: "off",
 @typescript-eslint/ban-ts-ignore: "off" */
 
-import pb from "anki/ts/lib/backend_proto";
+import pb from "anki/backend_proto";
 import type { Selection } from "d3-selection";
-import { postRequest } from "anki/ts/lib/postrequest";
+import { postRequest } from "anki/postrequest";
 
 export async function getGraphData(
     search: string,
