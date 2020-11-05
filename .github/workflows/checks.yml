@@ -164,7 +164,7 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: |
           set -x
-          brew install portaudio gettext bazelisk gnu-tar
+          brew install portaudio gnu-tar
           # gnu tar for cache issue
           echo "::add-path::/usr/local/opt/gnu-tar/libexec/gnubin"
 
