@@ -12,9 +12,6 @@ rust_library(
     name = "rsbridge",
     srcs = ["lib.rs"],
     crate_type = "cdylib",
-    data = [
-        "//:buildinfo.txt",
-    ],
     rustc_flags = selects.with_or({
         (
             "@io_bazel_rules_rust//rust/platform:x86_64-apple-darwin",
