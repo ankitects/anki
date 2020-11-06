@@ -507,8 +507,9 @@ class PyAudioThreadedRecorder(threading.Thread):
         self.finish = False
         if isMac and qtminor > 12:
             # trigger permission prompt
-            # pylint: disable=undefined-variable
-            QAudioDeviceInfo.defaultInputDevice()  # type: ignore
+            from PyQt5.QtMultimedia import QAudioDeviceInfo
+
+            QAudioDeviceInfo.defaultInputDevice()
 
     def run(self) -> None:
         chunk = 1024
