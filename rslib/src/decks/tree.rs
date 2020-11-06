@@ -175,9 +175,12 @@ fn hide_default_deck(node: &mut DeckTreeNode) {
 }
 
 fn get_subnode(top: DeckTreeNode, target: DeckID) -> Option<DeckTreeNode> {
+    if top.deck_id == target.0 {
+        return Some(top);
+    }
     for child in top.children {
-        if child.deck_id == target.0 {
-            return Some(child);
+        if let Some(node) = get_subnode(child, target) {
+            return Some(node);
         }
     }
 
