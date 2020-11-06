@@ -26,13 +26,18 @@ import socks
 # legacy compat
 import anki.storage
 import anki.sync
-from anki.utils import isLin, isWin
+from anki.utils import isLin, isMac, isWin
 
-# external module access in Windows
 if isWin:
+    # external module access
     import pythoncom
     import pywintypes
     import win32com
 
 if isLin:
+    # file locking
     import fcntl
+
+if isMac:
+    # recording
+    import PyQt5.QtMultimedia
