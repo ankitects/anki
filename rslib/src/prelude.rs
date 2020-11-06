@@ -8,7 +8,7 @@ pub use crate::{
     decks::DeckID,
     err::{AnkiError, Result},
     i18n::{tr_args, tr_strs, TR},
-    notes::NoteID,
+    notes::{Note, NoteID},
     notetype::NoteTypeID,
     revlog::RevlogID,
     timestamp::{TimestampMillis, TimestampSecs},

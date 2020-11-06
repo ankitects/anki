@@ -9,6 +9,7 @@ use crate::{
         all_stock_notetypes, AlreadyGeneratedCardInfo, CardGenContext, NoteType, NoteTypeID,
         NoteTypeKind,
     },
+    prelude::*,
     timestamp::{TimestampMillis, TimestampSecs},
 };
 use itertools::Itertools;
@@ -29,6 +30,7 @@ pub struct CheckDatabaseOutput {
     card_ords_duplicated: usize,
     field_count_mismatch: usize,
     notetypes_recovered: usize,
+    invalid_utf8: usize,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -97,6 +99,12 @@ impl CheckDatabaseOutput {
             probs.push(i18n.trn(
                 TR::DatabaseCheckRevlogProperties,
                 tr_args!["count"=>self.revlog_properties_invalid],
+            ));
+        }
+        if self.invalid_utf8 > 0 {
+            probs.push(i18n.trn(
+                TR::DatabaseCheckNotesWithInvalidUtf8,
+                tr_args!["count"=>self.invalid_utf8],
             ));
         }
 
@@ -263,7 +271,7 @@ impl Collection {
                 );
                 checked_notes += 1;
 
-                let mut note = self.storage.get_note(nid)?.unwrap();
+                let mut note = self.get_note_fixing_invalid_utf8(nid, out)?;
 
                 let cards = self.storage.existing_cards_for_note(nid)?;
 
@@ -302,6 +310,29 @@ impl Collection {
         }
 
         Ok(())
+    }
+
+    fn get_note_fixing_invalid_utf8(
+        &self,
+        nid: NoteID,
+        out: &mut CheckDatabaseOutput,
+    ) -> Result<Note> {
+        match self.storage.get_note(nid) {
+            Ok(note) => Ok(note.unwrap()),
+            Err(err) => match err {
+                AnkiError::DBError {
+                    kind: DBErrorKind::Utf8,
+                    ..
+                } => {
+                    // fix note then fetch again
+                    self.storage.fix_invalid_utf8_in_note(nid)?;
+                    out.invalid_utf8 += 1;
+                    Ok(self.storage.get_note(nid)?.unwrap())
+                }
+                // other errors are unhandled
+                _ => return Err(err),
+            },
+        }
     }
 
     fn remove_duplicate_card_ordinals(

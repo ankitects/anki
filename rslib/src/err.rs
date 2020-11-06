@@ -4,7 +4,7 @@
 use crate::i18n::{tr_args, tr_strs, I18n, TR};
 pub use failure::{Error, Fail};
 use reqwest::StatusCode;
-use std::io;
+use std::{io, str::Utf8Error};
 
 pub type Result<T> = std::result::Result<T, AnkiError>;
 
@@ -175,6 +175,14 @@ impl From<rusqlite::Error> for AnkiError {
 
 impl From<rusqlite::types::FromSqlError> for AnkiError {
     fn from(err: rusqlite::types::FromSqlError) -> Self {
+        if let rusqlite::types::FromSqlError::Other(ref err) = err {
+            if let Some(_err) = err.downcast_ref::<Utf8Error>() {
+                return AnkiError::DBError {
+                    info: "".to_string(),
+                    kind: DBErrorKind::Utf8,
+                };
+            }
+        }
         AnkiError::DBError {
             info: format!("{:?}", err),
             kind: DBErrorKind::Other,
@@ -316,5 +324,6 @@ pub enum DBErrorKind {
     MissingEntity,
     Corrupt,
     Locked,
+    Utf8,
     Other,
 }

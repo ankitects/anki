@@ -40,6 +40,11 @@ database-check-revlog-properties =
         [one] Fixed { $count } review entry with invalid properties.
        *[other] Fixed { $count } review entries with invalid properties.
     }
+database-check-notes-with-invalid-utf8 =
+    { $count ->
+        [one] Fixed { $count } note with invalid utf8 characters.
+       *[other] Fixed { $count } notes with invalid utf8 characters.
+    }
 # "db-check" is always in English
 database-check-notetypes-recovered = One or more notetypes were missing. The notes that used them have been given new notetypes starting with "db-check", but field names and card design have been lost, so you may be better off restoring from an automatic backup.
 

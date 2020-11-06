@@ -117,6 +117,24 @@ impl super::SqliteStorage {
         Ok(())
     }
 
+    pub(crate) fn fix_invalid_utf8_in_note(&self, nid: NoteID) -> Result<()> {
+        self.db
+            .query_row(
+                "select cast(flds as blob) from notes where id=?",
+                &[nid],
+                |row| {
+                    let fixed_flds: Vec<u8> = row.get(0)?;
+                    let fixed_str = String::from_utf8_lossy(&fixed_flds);
+                    self.db.execute(
+                        "update notes set flds = ? where id = ?",
+                        params![fixed_str, nid],
+                    )
+                },
+            )
+            .map_err(Into::into)
+            .map(|_| ())
+    }
+
     /// Returns the first field of other notes with the same checksum.
     /// The field of the provided note ID is not returned.
     pub(crate) fn note_fields_by_checksum(
