@@ -19,6 +19,7 @@ from flask import Response, request
 from waitress.server import create_server
 
 import aqt
+from anki import hooks
 from anki.rsbackend import from_json_bytes
 from anki.utils import devMode
 from aqt.qt import *
@@ -223,6 +224,8 @@ def _redirectWebExports(path):
     if not aqt.mw.col:
         print(f"collection not open, ignore request for {path}")
         return None
+
+    path = hooks.media_file_filter(path)
 
     return aqt.mw.col.media.dir(), path
 

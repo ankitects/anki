@@ -33,6 +33,12 @@ hooks = [
         legacy_hook="exportersList",
     ),
     Hook(
+        name="media_file_filter",
+        args=["txt: str"],
+        return_type="str",
+        doc="""Allows manipulating the file path that media will be read from""",
+    ),
+    Hook(
         name="field_filter",
         args=[
             "field_text: str",
