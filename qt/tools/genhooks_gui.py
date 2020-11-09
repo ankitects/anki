@@ -584,6 +584,7 @@ gui_hooks.webview_did_inject_style_into_page.append(mytest)
 
         Note that the media sync did not necessarily finish at this point.""",
     ),
+    Hook(name="media_check_will_start", args=[]),
     # Adding cards
     ###################
     Hook(
