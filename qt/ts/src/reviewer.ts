@@ -1,8 +1,15 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
+declare var CodeJar: any;
+declare var withLineNumbers: any;
+declare var Prism: any;
+declare var hljs: any;
+
 var ankiPlatform = "desktop";
 var typeans;
+var codeans;
+var codejar;
 var _updatingQA = false;
 
 var qFade = 100;
@@ -38,6 +45,8 @@ function _updateQA(html, fadeTime, onupdate, onshown) {
         // update text
         try {
             qa.html(html);
+            //todo: check if coding question
+            _initalizeCodeEditor();
         } catch (err) {
             qa.html(
                 (
@@ -81,6 +90,44 @@ function _showQuestion(q, bodyclass) {
     );
 }
 
+function _initalizeCodeEditor() {
+    codeans = document.getElementById("codeans");
+
+    const highlight = (editor: HTMLElement) => {
+        // highlight.js does not trims old tags,
+        // let's do it by this hack.
+        editor.textContent = editor.textContent;
+        hljs.highlightBlock(editor);
+
+        // const code = editor.textContent
+        // // Do something with code and set html.
+        // const html = Prism.highlight(code, Prism.languages.javascript, 'javascript')
+        // editor.innerHTML = html
+    };
+
+    let options = {
+        tab: " ".repeat(4), // default is '\t'
+        indentOn: /[(\[]$/, // default is /{$/
+    };
+    codejar = CodeJar(codeans, withLineNumbers(highlight), options);
+}
+
+function _switchSkin(name) {
+    $("head link[rel=stylesheet]").each(function () {
+        const $this = $(this);
+        let $toEnable = null;
+        if ($this.attr("href").indexOf("highlight/") > 0) {
+            if ($this.attr("href").endsWith(name + ".css")) {
+                $toEnable = $this;
+            }
+            $this.attr("disabled", "disabled");
+        }
+        if ($toEnable != null) {
+            $toEnable.removeAttr("disabled");
+        }
+    });
+}
+
 function _showAnswer(a, bodyclass) {
     _updateQA(
         a,
@@ -101,17 +148,22 @@ function _showAnswer(a, bodyclass) {
     );
 }
 
-function _reloadCode(src) {
-    $("#typeans").val(src);
+function _reloadCode(src, lang) {
+    var $codeans = $(codeans);
+    $codeans.removeClass(function (index, className) {
+        return (className.match(/\blanguage-\S+/g) || []).join(" ");
+    });
+    $codeans.addClass("language-" + lang);
+    codejar.updateCode(src);
 }
 
 function _cleanConsoleLog() {
-    $('#console').empty()
+    $("#console").empty();
 }
 
 function _showConsoleLog(html) {
     //todo: highlighting
-    $('#console').append(html);
+    $("#console").append(html);
 }
 
 const _flagColours = {
@@ -141,7 +193,7 @@ function _drawMark(mark) {
 }
 
 function _typeAnsPress() {
-    alert('type ans press')
+    alert("type ans press");
     if ((window.event as KeyboardEvent).keyCode === 13) {
         pycmd("ans");
     }

@@ -542,6 +542,18 @@ create table if not exists profiles
         self.db.commit()
         anki.lang.set_lang(code, locale_dir())
 
+    def setCodeLang(self, codelang):
+        self.meta["defaultCodeLang"] = codelang
+        sql = "update profiles set data = ? where name = ?"
+        self.db.execute(sql, self._pickle(self.meta), "_global")
+        self.db.commit()
+
+    def setCodeTheme(self, codetheme):
+        self.meta["defaultCodeTheme"] = codetheme
+        sql = "update profiles set data = ? where name = ?"
+        self.db.execute(sql, self._pickle(self.meta), "_global")
+        self.db.commit()
+
     # OpenGL
     ######################################################################
 

@@ -149,6 +149,7 @@ User-contributed instructions for building using Cygwin:
         After building and installing portaudio, you need to define the following environment
         variable before running Anki:
         `set "ANKI_EXTRA_PIP=python -m pip install git+https://github.com/evandroforks/pyaudio"`
+                <!--
 1. Open a `cmd.exe` (command prompt) on the Anki repository and run the command `sh run`
     1. Do not use `bash run` because it my call for Windows Subsystem for Linux
     1. Do not use any Cygwin terminal as `mintty.exe` because the `rust lang` compiler does not work with them

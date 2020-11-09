@@ -55,8 +55,8 @@ function onKey(evt: KeyboardEvent) {
         return;
     }
     if (evt.which === 13) {
-        document.execCommand('insertHTML',false,'<br><br>');
-        evt.preventDefault()
+        document.execCommand("insertHTML", false, "<br><br>");
+        evt.preventDefault();
         return;
     }
     // shift+tab goes to previous field

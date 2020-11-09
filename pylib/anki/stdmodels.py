@@ -45,8 +45,10 @@ def addForwardOptionalReverse(col: Collection) -> NoteType:
 def addClozeModel(col: Collection) -> NoteType:
     return add_stock_notetype(col, StockNoteType.STOCK_NOTE_TYPE_CLOZE)
 
+
 def addCodeTypingModel(col: Collection) -> NoteType:
     return add_stock_notetype(col, StockNoteType.STOCK_NOTE_TYPE_CODING_TASK)
+
 
 def get_stock_notetypes(
     col: Collection,

@@ -119,11 +119,14 @@ pub(crate) fn basic_coding_task(i18n: &I18n) -> NoteType {
     nt.add_field(function_name);
     nt.add_field(test_cases);
     nt.add_field(solution);
-    let q_format = format!("{}\n\n{{{{code:{}}}}}", fieldref(task_description), solution);
+    let q_format = format!(
+        "{}\n\n{{{{code:{}}}}}",
+        fieldref(task_description),
+        solution
+    );
     let a_format = format!(
         "{{{{{}}}}}\n\n<hr id=answer>\n\n{{{{code:{}}}}}",
-        solution,
-        solution
+        solution, solution
     );
     nt.add_template(i18n.tr(TR::NotetypesCard1Name), q_format, a_format);
     nt.prepare_for_adding().unwrap();

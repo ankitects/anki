@@ -16,6 +16,10 @@ from typing import Callable, List, Optional, Tuple, Union
 
 from PyQt5.QtCore import Qt
 
+# from testing.framework.test_runner import run_tests, generate_solution_template
+from testing.framework.anki_testing_api import get_solution_template, test_solution
+from testing.framework.runners.console_logger import ConsoleLogger
+
 from anki import hooks
 from anki.cards import Card
 from anki.lang import _, ngettext
@@ -25,15 +29,38 @@ from aqt.qt import *
 from aqt.sound import av_player, getAudio, play_clicked_audio
 from aqt.theme import theme_manager
 from aqt.toolbar import BottomBar
-from aqt.utils import askUserDialog, downArrow, qtMenuShortcutWorkaround, tooltip, run_async
-# from testing.framework.test_runner import run_tests, generate_solution_template
-from testing.framework.anki_testing_api import get_solution_template, test_solution
-from testing.framework.runners.console_logger import ConsoleLogger
+from aqt.utils import (
+    askUserDialog,
+    downArrow,
+    qtMenuShortcutWorkaround,
+    run_async,
+    tooltip,
+)
 
 
 class ReviewerBottomBar:
     def __init__(self, reviewer: Reviewer) -> None:
         self.reviewer = reviewer
+
+
+THEMES = [
+    "dracula",
+    "github",
+    "solarized-dark",
+    "solarized-light",
+    "railscasts",
+    "monokai-sublime",
+    "mono-blue",
+    # "tomorrow",
+    # "color-brewer",
+    "zenburn",
+    # "agate",
+    "androidstudio",
+    "atom-one-light",
+    "rainbow",
+    "vs",
+    "atom-one-dark",
+]
 
 
 def replay_audio(card: Card, question_side: bool) -> None:
@@ -60,8 +87,8 @@ class Reviewer:
         self.typeCorrect: str = None  # web init happens before this is set
         self.state: Optional[str] = None
         self.bottom = BottomBar(mw, mw.bottomWeb)
-        #todo:
-        self.codingQuestion = False #todo: remove this var
+        # todo:
+        self.codingQuestion = False  # todo: remove this var
         self.synchronizer = threading.Event()
         self.codingBuffer = {}
         self.activeLanguage = None
@@ -158,14 +185,21 @@ class Reviewer:
     def _initWeb(self) -> None:
         self._reps = 0
         # main window
+        theme = self.mw.pm.meta["defaultCodeTheme"]
+        if theme is None:
+            theme = THEMES[0]
         self.web.stdHtml(
             self.revHtml(),
-            css=["reviewer.css"],
+            css=["reviewer.css", "highlight/" + theme + ".css"],
+            inactive_css=["highlight/" + t + ".css" for t in THEMES if t != theme],
             js=[
                 "jquery.js",
                 "browsersel.js",
                 "mathjax/conf.js",
                 "mathjax/MathJax.js",
+                "prism.js",
+                "highlight.js",
+                "codejar.js",
                 "reviewer.js",
             ],
             context=self,
@@ -250,7 +284,7 @@ class Reviewer:
             av_player.play_tags(sounds)
         a = self._mungeQA(a)
 
-        #check question type is coding
+        # check question type is coding
 
         a = gui_hooks.card_will_show(a, c, "reviewAnswer")
         # render and update bottom
@@ -258,7 +292,6 @@ class Reviewer:
         self._showEaseButtons()
         # user hook
         gui_hooks.reviewer_did_show_answer(c)
-
 
     # Answering a card
     ############################################################
@@ -279,7 +312,7 @@ class Reviewer:
             return
         self.mw.col.sched.answerCard(self.card, ease)
         gui_hooks.reviewer_did_answer_card(self, self.card, ease)
-        #here cancel the async
+        # here cancel the async
         self._answeredIds.append(self.card.id)
         self.mw.autosave()
         self.nextCard()
@@ -353,15 +386,21 @@ class Reviewer:
             self._answerCard(int(url[4:]))
         elif url == "edit":
             self.mw.onEditCurrent()
+        elif url == "selectlang":
+            self.showSelectLangContextMenu()
+        elif url == "selecttheme":
+            self.showSelectSkinContextMenu()
         elif url == "more":
             self.showContextMenu()
         elif url == "test":
-            self.web.evalWithCallback("typeans ? typeans.value : null", self._runTests)
+            self.web.evalWithCallback(
+                "codejar ? codejar.toString() : null", self._runTests
+            )
         elif url.startswith("play:"):
             play_clicked_audio(url, self.card)
         elif url.startswith("lang:"):
-            lang = url.split(':')[1]
-            self.web.evalWithCallback("typeans ? typeans.value : null", lambda src: self._switchLang(lang, src))
+            lang = url.split(":")[1]
+            self.onCodeLangSelected(lang)
         else:
             print("unrecognized anki link:", url)
 
@@ -395,50 +434,66 @@ class Reviewer:
                 self.typeSize = f["size"]
                 break
 
-        #todo
-        self.activeLanguage = 'java'
+        # todo
+        # self.activeLanguage = 'java'
         return re.sub(
             self.codeAnsPat,
+            # """
+            #                 <select id=lang style="display:inline-block;float:right;font-size:18px;margin-bottom:10px;"
+            #         onChange="pycmd('lang:' + this.value);">
+            #         <option selected value="java">Java</option>
+            #         <option value="python">Python</option>
+            #     </select>
+            # """
             """<br><br>
-            <div style="width:80%%;margin: 0 auto;">
-                <select id=lang style="display:inline-block;float:right;font-size:18px;margin-bottom:10px;"
-                    onChange="pycmd('lang:' + this.value);">
-                    <option selected value="java">Java</option>
-                    <option value="python">Python</option>
-                </select>
-                <button id=runcode onclick="pycmd('test')"
-                    style="display:inline-block;background-color:green;color:white;
-                           float:right;font-size:16px;margin-right:10px;">Run</button>
-                <textarea id=typeans style="width:100%%;height:60vh;font-family:'%s';font-size:%spx;">%s</textarea>
-                <div id=console style="height:20vh;background-color:#3c3f41;color:white;
-                            border:solid 1px #aaa;margin-top:10px;
-                            padding:10px;text-align:left;font-size:14px;">
+            <div style="width:90%%; margin: 0 auto;">
+                <div class="test-toolbar">
+                    <button onclick="pycmd('selectlang');">%(selLanguageLabel)s %(downArrow)s</button>
+                    <button onclick="pycmd('selecttheme');">%(selSkinLabel)s %(downArrow)s</button>
+                    <button onclick="pycmd('test')">Run</button>
                 </div>
-            </div>"""
-            % (self.typeFont, self.typeSize, get_solution_template(self.card, self.activeLanguage)), buf)
+                <div style="position: relative">
+                    <div id="codeans" style="width:100%%;height:60vh;text-align:left;" class="editor language-%(language)s" data-gramm="false">%(template)s</div>
+                </div>
+                <!--
+                <div id=console></div>
+                -->
+            </div>
+            </div>
+            """
+            % dict(
+                typeFont=self.typeFont,
+                typeSize=self.typeSize,
+                selSkinLabel="Skin",
+                selLanguageLabel="Language",
+                language=self._getCurrentLang(),
+                downArrow=downArrow(),
+                template=get_solution_template(self.card, self._getCurrentLang()),
+            ),
+            buf,
+        )
 
     def _runTests(self, src):
         self._cleanConsole()
-        logger = ConsoleLogger(lambda txt: self.web.eval("_showConsoleLog(%s);" % json.dumps(txt + '<br/>')))
+        logger = ConsoleLogger(
+            lambda txt: self.web.eval(
+                "_showConsoleLog(%s);" % json.dumps(txt + "<br/>")
+            )
+        )
         test_solution(self.card, src, self.activeLanguage, logger)
         pass
 
     def _cleanConsole(self):
-        self.web.eval('_cleanConsoleLog();')
+        self.web.eval("_cleanConsoleLog();")
 
     def _switchLang(self, lang, src):
-        self.codingBuffer[self.activeLanguage] = src
-        self.activeLanguage = lang
-        self._loadCodingBuffer()
-        pass
-
-    def _loadCodingBuffer(self):
-        src = None
-        if self.activeLanguage in self.codingBuffer:
-            src = self.codingBuffer[self.activeLanguage]
-        if src is None:
-            src = get_solution_template(self.card, self.activeLanguage)
-        self.web.eval("_reloadCode(%s);" % json.dumps(src))
+        self.codingBuffer[self._getCurrentLang()] = src
+        self.mw.pm.setCodeLang(lang)
+        if lang in self.codingBuffer:
+            src = self.codingBuffer[lang]
+        else:
+            src = get_solution_template(self.card, lang)
+        self.web.eval("_reloadCode(%s, %s);" % (json.dumps(src), json.dumps(lang)))
 
     def typeAnsQuestionFilter(self, buf: str) -> str:
         self.typeCorrect = None
@@ -488,15 +543,16 @@ Please run Tools>Empty Cards"""
         )
 
     def log(self, text):
-        self.web.eval("_showConsoleLog(%s);" % json.dumps(text + '<br/>'))
+        self.web.eval("_showConsoleLog(%s);" % json.dumps(text + "<br/>"))
 
     def testCard(self, src):
-        model = self.card.model()['flds']
-        note = self.card.note()
-        funcName = note[model[1]['name']]
-        csvData = note[model[2]['name']]
-        self.synchronizer.clear()
-        run_tests(src, funcName, csvData, 'java', self.log, self.synchronizer)
+        pass
+        # model = self.card.model()['flds']
+        # note = self.card.note()
+        # funcName = note[model[1]['name']]
+        # csvData = note[model[2]['name']]
+        # self.synchronizer.clear()
+        # run_tests(src, funcName, csvData, 'java', self.log, self.synchronizer)
 
     def typeAnsAnswerFilter(self, buf: str) -> str:
         if not self.typeCorrect:
@@ -519,7 +575,8 @@ Please run Tools>Empty Cards"""
             def repl(match):
                 # can't pass a string in directly, and can't use re.escape as it
                 # escapes too much
-                return '<hr id=answer>'
+                return "<hr id=answer>"
+
             #     s = """
             # <span id="coding-answer" style="font-family: '%s'; font-size: %spx">%s</span>""" % (
             #         self.typeFont,
@@ -535,6 +592,7 @@ Please run Tools>Empty Cards"""
         else:
             # compare with typed answer
             res = self.correct(given, cor, showBad=False)
+
             # and update the type answer area
             def repl(match):
                 # can't pass a string in directly, and can't use re.escape as it
@@ -805,6 +863,110 @@ time = %(time)d;
     # Context menu
     ##########################################################################
 
+    def _skinContextMenu(self):
+        theme = self.mw.pm.meta["defaultCodeTheme"] or "dracula"
+        return [
+            [
+                "dracula",
+                "",
+                lambda: self.onThemeSelected("dracula"),
+                dict(checked=theme == "dracula"),
+            ],
+            [
+                "github",
+                "",
+                lambda: self.onThemeSelected("github"),
+                dict(checked=theme == "github"),
+            ],
+            [
+                "solarized-dark",
+                "",
+                lambda: self.onThemeSelected("solarized-dark"),
+                dict(checked=theme == "solarized-dark"),
+            ],
+            [
+                "solarized-light",
+                "",
+                lambda: self.onThemeSelected("solarized-light"),
+                dict(checked=theme == "solarized-light"),
+            ],
+            [
+                "railscasts",
+                "",
+                lambda: self.onThemeSelected("railcasts"),
+                dict(checked=theme == "monokai-sublime"),
+            ],
+            [
+                "monokai-sublime",
+                "",
+                lambda: self.onThemeSelected("monokai-sublime"),
+                dict(checked=theme == "mono-blue"),
+            ],
+            [
+                "mono-blue",
+                "",
+                lambda: self.onThemeSelected("mono-blue"),
+                dict(checked=theme == "dracula"),
+            ],
+            # ["tomorrow", "", lambda: self.onThemeSelected('tomorrow')],
+            # ["color-brewer", "", lambda: self.onThemeSelected('color-brewer')],
+            [
+                "zenburn",
+                "",
+                lambda: self.onThemeSelected("zenburn"),
+                dict(checked=theme == "zenburn"),
+            ],
+            # ["agate", "", lambda: self.onThemeSelected('agate')],
+            [
+                "androidstudio",
+                "",
+                lambda: self.onThemeSelected("androidstudio"),
+                dict(checked=theme == "androidstudio"),
+            ],
+            [
+                "atom-one-light",
+                "",
+                lambda: self.onThemeSelected("atom-one-light"),
+                dict(checked=theme == "atom-one-light"),
+            ],
+            [
+                "rainbow",
+                "",
+                lambda: self.onThemeSelected("rainbow"),
+                dict(checked=theme == "rainbow"),
+            ],
+            ["vs", "", lambda: self.onThemeSelected("vs"), dict(checked=theme == "vs")],
+            [
+                "atom-one-dark",
+                "",
+                lambda: self.onThemeSelected("atom-one-dark"),
+                dict(checked=theme == "atom-one-dark"),
+            ],
+        ]
+
+    def _langContextMenu(self):
+        lang = self._getCurrentLang()
+        return [
+            [
+                "Java",
+                "j",
+                lambda: self.onCodeLangSelected("java"),
+                dict(checked=lang == "java"),
+            ],
+            [
+                "Python",
+                "p",
+                lambda: self.onCodeLangSelected("python"),
+                dict(checked=lang == "python"),
+            ],
+        ]
+
+    def _getCurrentLang(self):
+        lang = self.mw.pm.meta["defaultCodeLang"]
+        if lang is None:
+            lang = "java"
+        return lang
+
     # note the shortcuts listed here also need to be defined above
     def _contextMenu(self):
         currentFlag = self.card and self.card.userFlag()
@@ -855,6 +1017,24 @@ time = %(time)d;
         ]
         return opts
 
+    def showSelectSkinContextMenu(self) -> None:
+        opts = self._skinContextMenu()
+        m = QMenu(self.mw)
+        self._addMenuItems(m, opts)
+
+        gui_hooks.reviewer_will_show_context_menu(self, m)
+        qtMenuShortcutWorkaround(m)
+        m.exec_(QCursor.pos())
+
+    def showSelectLangContextMenu(self) -> None:
+        opts = self._langContextMenu()
+        m = QMenu(self.mw)
+        self._addMenuItems(m, opts)
+
+        gui_hooks.reviewer_will_show_context_menu(self, m)
+        qtMenuShortcutWorkaround(m)
+        m.exec_(QCursor.pos())
+
     def showContextMenu(self) -> None:
         opts = self._contextMenu()
         m = QMenu(self.mw)
@@ -897,6 +1077,16 @@ time = %(time)d;
         self.card.setUserFlag(flag)
         self.card.flush()
         self._drawFlag()
+
+    def onThemeSelected(self, theme) -> None:
+        self.mw.pm.setCodeTheme(theme)
+        self.web.eval("_switchSkin('%s');" % theme)
+
+    def onCodeLangSelected(self, lang) -> None:
+        self.web.evalWithCallback(
+            "codejar ? codejar.toString() : null",
+            lambda src: self._switchLang(lang, src),
+        )
 
     def onMark(self) -> None:
         f = self.card.note()
