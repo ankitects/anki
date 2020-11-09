@@ -25,4 +25,6 @@ build --incompatible_default_to_explicit_init_py
 # faster for .ui file generation, but may sacrifice correctness
 #--genrule_strategy=standalone
 
+build:ci --show_timestamps --isatty=0 --color=yes --show_progress_rate_limit=5
+
 try-import %workspace%/user.bazelrc
