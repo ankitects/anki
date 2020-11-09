@@ -355,6 +355,7 @@ class AnkiPackageExporter(AnkiExporter):
         media = {}
         for c, file in enumerate(files):
             cStr = str(c)
+            file = hooks.media_file_filter(file)
             mpath = os.path.join(fdir, file)
             if os.path.isdir(mpath):
                 continue

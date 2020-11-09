@@ -14,6 +14,7 @@ from operator import itemgetter
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import aqt
+from anki import hooks
 from anki.cards import Card
 from anki.lang import _
 from anki.sound import AV_REF_RE, AVTag, SoundOrVideoTag
@@ -390,7 +391,9 @@ class MpvManager(MPV, SoundOrVideoPlayer):
     def play(self, tag: AVTag, on_done: OnDoneCallback) -> None:
         assert isinstance(tag, SoundOrVideoTag)
         self._on_done = on_done
-        path = os.path.join(os.getcwd(), tag.filename)
+        filename = hooks.media_file_filter(tag.filename)
+        path = os.path.join(os.getcwd(), filename)
+
         self.command("loadfile", path, "append-play")
         gui_hooks.av_player_did_begin_playing(self, tag)
 
@@ -434,8 +437,11 @@ class SimpleMplayerSlaveModePlayer(SimpleMplayerPlayer):
 
     def _play(self, tag: AVTag) -> None:
         assert isinstance(tag, SoundOrVideoTag)
+
+        filename = hooks.media_file_filter(tag.filename)
+
         self._process = subprocess.Popen(
-            self.args + [tag.filename],
+            self.args + [filename],
             env=self.env,
             stdin=subprocess.PIPE,
             stdout=subprocess.DEVNULL,
