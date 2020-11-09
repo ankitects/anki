@@ -1,6 +1,6 @@
 """
 @generated
-cargo-raze workspace build file.
+cargo-raze generated Bazel file.
 
 DO NOT EDIT! Replaced on runs of cargo-raze
 """
@@ -23,7 +23,7 @@ alias(
 
 alias(
     name = "async_compression",
-    actual = "@raze__async_compression__0_3_5//:async_compression",
+    actual = "@raze__async_compression__0_3_6//:async_compression",
     tags = [
         "cargo-raze",
         "manual",
@@ -113,7 +113,7 @@ alias(
 
 alias(
     name = "futures",
-    actual = "@raze__futures__0_3_7//:futures",
+    actual = "@raze__futures__0_3_8//:futures",
     tags = [
         "cargo-raze",
         "manual",
