@@ -483,7 +483,7 @@ close the profile or restart Anki."""
             return anki.sound.strip_av_refs(text)
 
     def prepare_card_text_for_display(self, text: str) -> str:
-        text = self.col.media.escapeImages(text)
+        text = self.col.media.escape_media_filenames(text)
         text = self._add_play_buttons(text)
         return text
 

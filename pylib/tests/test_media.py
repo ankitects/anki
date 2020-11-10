@@ -46,7 +46,7 @@ def test_strings():
     assert sp("aoeu") == "aoeu"
     assert sp("aoeu[sound:foo.mp3]aoeu") == "aoeuaoeu"
     assert sp("a<img src=yo>oeu") == "aoeu"
-    es = col.media.escapeImages
+    es = col.media.escape_media_filenames
     assert es("aoeu") == "aoeu"
     assert es("<img src='http://foo.com'>") == "<img src='http://foo.com'>"
     assert es('<img src="foo bar.jpg">') == '<img src="foo%20bar.jpg">'

@@ -450,7 +450,8 @@ class Editor:
             return
 
         data = [
-            (fld, self.mw.col.media.escapeImages(val)) for fld, val in self.note.items()
+            (fld, self.mw.col.media.escape_media_filenames(val))
+            for fld, val in self.note.items()
         ]
         self.widget.show()
         self.updateTags()
@@ -547,11 +548,13 @@ class Editor:
         if html.find(">") > -1:
             # filter html through beautifulsoup so we can strip out things like a
             # leading </div>
-            html_escaped = self.mw.col.media.escapeImages(html)
+            html_escaped = self.mw.col.media.escape_media_filenames(html)
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore", UserWarning)
                 html_escaped = str(BeautifulSoup(html_escaped, "html.parser"))
-                html = self.mw.col.media.escapeImages(html_escaped, unescape=True)
+                html = self.mw.col.media.escape_media_filenames(
+                    html_escaped, unescape=True
+                )
         self.note.fields[field] = html
         if not self.addMode:
             self.note.flush()
@@ -1231,7 +1234,7 @@ def remove_null_bytes(txt, editor):
 
 def reverse_url_quoting(txt, editor):
     # reverse the url quoting we added to get images to display
-    return editor.mw.col.media.escapeImages(txt, unescape=True)
+    return editor.mw.col.media.escape_media_filenames(txt, unescape=True)
 
 
 gui_hooks.editor_will_use_font_for_field.append(fontMungeHack)

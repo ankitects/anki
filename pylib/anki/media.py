@@ -33,8 +33,8 @@ def media_paths_from_col_path(col_path: str) -> Tuple[str, str]:
 
 class MediaManager:
 
-    soundRegexps = [r"(?i)(\[sound:(?P<fname>[^]]+)\])"]
-    htmlRegexps = [
+    sound_regexps = [r"(?i)(\[sound:(?P<fname>[^]]+)\])"]
+    html_media_regexps = [
         # src element quoted case
         r"(?i)(<[img|audio][^>]* src=(?P<str>[\"'])(?P<fname>[^>]+?)(?P=str)[^>]*>)",
         # unquoted case
@@ -44,7 +44,7 @@ class MediaManager:
         # unquoted case
         r"(?i)(<object[^>]* data=(?!['\"])(?P<fname>[^ >]+)[^>]*?>)",
     ]
-    regexps = soundRegexps + htmlRegexps
+    regexps = sound_regexps + html_media_regexps
 
     def __init__(self, col: anki.collection.Collection, server: bool) -> None:
         self.col = col.weakref()
@@ -163,7 +163,11 @@ class MediaManager:
         return txt
 
     def escapeImages(self, string: str, unescape: bool = False) -> str:
-        "Apply or remove percent encoding to image filenames."
+        "escape_media_filenames alias for compatibility with add-ons."
+        return self.escape_media_filenames(string, unescape)
+
+    def escape_media_filenames(self, string: str, unescape: bool = False) -> str:
+        "Apply or remove percent encoding to filenames in html tags (audio, image, object)."
         fn: Callable
         if unescape:
             fn = urllib.parse.unquote
@@ -177,7 +181,7 @@ class MediaManager:
                 return tag
             return tag.replace(fname, fn(fname))
 
-        for reg in self.htmlRegexps:
+        for reg in self.html_media_regexps:
             string = re.sub(reg, repl, string)
         return string
 
