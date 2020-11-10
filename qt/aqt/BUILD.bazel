@@ -4,12 +4,6 @@ load("@py_deps//:requirements.bzl", "requirement")
 load("@rules_python//experimental/python:wheel.bzl", "py_package", "py_wheel")
 load("//:defs.bzl", "anki_version")
 
-copy_file(
-    name = "buildinfo",
-    src = "//:buildinfo.txt",
-    out = "buildinfo.txt",
-)
-
 genrule(
     name = "hooks_gen",
     outs = ["hooks_gen.py"],
@@ -37,7 +31,6 @@ aqt_srcs = glob([
 ]
 
 aqt_core_data = [
-    "buildinfo.txt",
     "colors.py",
     "py.typed",
     ":hooks_gen",
