@@ -1,4 +1,5 @@
 load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
+load("@bazel_skylib//lib:versions.bzl", "versions")
 load("@io_bazel_rules_rust//rust:repositories.bzl", "rust_repositories")
 load("@io_bazel_rules_rust//:workspace.bzl", "bazel_version")
 load("@net_ankiweb_anki//cargo:crates.bzl", "raze_fetch_remote_crates")
@@ -14,6 +15,8 @@ anki_version = "2.1.36"
 
 def setup_deps():
     bazel_skylib_workspace()
+
+    versions.check(minimum_bazel_version = "3.7.0")
 
     rust_repositories(
         edition = "2018",
