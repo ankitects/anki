@@ -12,17 +12,13 @@ import tempfile
 import traceback
 from typing import Any, Callable, Dict, Optional, Union
 
-import anki.buildinfo
 import anki.lang
-import aqt.buildinfo
 from anki import version as _version
 from anki.consts import HELP_SITE
 from anki.rsbackend import RustBackend
 from anki.utils import checksum, isLin, isMac
 from aqt.qt import *
 from aqt.utils import locale_dir
-
-assert anki.buildinfo.buildhash == aqt.buildinfo.buildhash
 
 # we want to be able to print unicode debug info to console without
 # fear of a traceback on systems with the console set to ASCII
