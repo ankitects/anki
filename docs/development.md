@@ -31,7 +31,7 @@ From Anki 2.1.36 onwards:
 
 ```
 $ python -m venv pyenv
-$ pyenv/bin/pip install aqt anki pyqtwebengine
+$ pyenv/bin/pip install aqt
 $ pyenv/bin/python -c 'import aqt; aqt.run()'
 ```
 
