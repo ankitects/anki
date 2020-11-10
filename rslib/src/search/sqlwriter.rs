@@ -10,7 +10,7 @@ use crate::{
     notes::field_checksum,
     notetype::NoteTypeID,
     text::{matches_wildcard, text_to_re},
-    text::{normalize_to_nfc, strip_html_preserving_image_filenames, without_combining},
+    text::{normalize_to_nfc, strip_html_preserving_media_filenames, without_combining},
     timestamp::TimestampSecs,
 };
 use lazy_static::lazy_static;
@@ -424,7 +424,7 @@ impl SqlWriter<'_> {
     }
 
     fn write_dupes(&mut self, ntid: NoteTypeID, text: &str) {
-        let text_nohtml = strip_html_preserving_image_filenames(text);
+        let text_nohtml = strip_html_preserving_media_filenames(text);
         let csum = field_checksum(text_nohtml.as_ref());
         write!(
             self.sql,

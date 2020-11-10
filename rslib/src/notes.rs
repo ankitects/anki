@@ -10,7 +10,7 @@ use crate::{
     err::{AnkiError, Result},
     notetype::{CardGenContext, NoteField, NoteType, NoteTypeID},
     template::field_is_empty,
-    text::{ensure_string_in_nfc, normalize_to_nfc, strip_html_preserving_image_filenames},
+    text::{ensure_string_in_nfc, normalize_to_nfc, strip_html_preserving_media_filenames},
     timestamp::TimestampSecs,
     types::Usn,
 };
@@ -100,12 +100,12 @@ impl Note {
             }
         }
 
-        let field1_nohtml = strip_html_preserving_image_filenames(&self.fields()[0]);
+        let field1_nohtml = strip_html_preserving_media_filenames(&self.fields()[0]);
         let checksum = field_checksum(field1_nohtml.as_ref());
         let sort_field = if nt.config.sort_field_idx == 0 {
             field1_nohtml
         } else {
-            strip_html_preserving_image_filenames(
+            strip_html_preserving_media_filenames(
                 self.fields
                     .get(nt.config.sort_field_idx as usize)
                     .map(AsRef::as_ref)
@@ -208,7 +208,7 @@ impl From<pb::Note> for Note {
     }
 }
 
-/// Text must be passed to strip_html_preserving_image_filenames() by
+/// Text must be passed to strip_html_preserving_media_filenames() by
 /// caller prior to passing in here.
 pub(crate) fn field_checksum(text: &str) -> u32 {
     let digest = sha1::Sha1::from(text).digest().bytes();
@@ -429,7 +429,7 @@ impl Collection {
             } else {
                 field1.into()
             };
-            let stripped = strip_html_preserving_image_filenames(&field1);
+            let stripped = strip_html_preserving_media_filenames(&field1);
             if stripped.trim().is_empty() {
                 Ok(DuplicateState::Empty)
             } else {
@@ -438,7 +438,7 @@ impl Collection {
                     self.storage
                         .note_fields_by_checksum(note.id, note.notetype_id, csum)?
                 {
-                    if strip_html_preserving_image_filenames(&field) == stripped {
+                    if strip_html_preserving_media_filenames(&field) == stripped {
                         return Ok(DuplicateState::Duplicate);
                     }
                 }
