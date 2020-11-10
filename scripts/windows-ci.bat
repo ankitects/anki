@@ -24,7 +24,7 @@ call venv\scripts\activate
 for %%i in (bazel-bin/pylib/anki/*.whl) do set "pylib=%%~i"
 for %%i in (bazel-bin/qt/aqt/*.whl) do set "qt=%%~i"
 echo Installing wheels...
-venv\scripts\pip install bazel-bin/pylib/anki/%pylib% bazel-bin/qt/aqt/%qt% pyqtwebengine
+venv\scripts\pip install bazel-bin/pylib/anki/%pylib% bazel-bin/qt/aqt/%qt%
 IF %ERRORLEVEL% NEQ 0 exit /B 1
 
 echo Importing...
