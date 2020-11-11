@@ -65,7 +65,7 @@ def update_po(name, po_file_in, po_file_out, pot_file, visibility):
         srcs = [po_file_in, pot_file],
         outs = [po_file_out],
         cmd = _pathfix + """\
-msgmerge -q --no-wrap $(location {po_file_in}) $(location {pot_file}) > $(location {po_file_out})
+msgmerge -q -F --no-wrap $(location {po_file_in}) $(location {pot_file}) > $(location {po_file_out})
 """.format(
             po_file_in = po_file_in,
             po_file_out = po_file_out,
@@ -81,7 +81,6 @@ def compile_po(name, po_file, mo_file):
         name = name,
         srcs = [po_file],
         outs = [mo_file],
-        # homebrew gettext is not on path by default
         cmd = _pathfix + """\
 cat $(location {po_file}) | msgfmt - --output-file=$(location {mo_file})
 """.format(
