@@ -10,7 +10,7 @@ The build system requires [Developer Mode](https://docs.microsoft.com/en-us/wind
 
 **Visual Studio**:
 
-Isntall the [Visual Studio build tools](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019).
+Install the [Visual Studio build tools](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019).
 
 Make sure the "C++ build tools" box is selected, and leave the default optional
 components enabled on the right.
