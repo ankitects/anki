@@ -115,3 +115,11 @@ py_wheel(
         ":aqt_pkg",
     ],
 )
+
+filegroup(
+    name = "py_source_files",
+    srcs = glob(["**/*.py"]),
+    visibility = [
+        "//qt/po:__pkg__",
+    ],
+)

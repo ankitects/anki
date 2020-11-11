@@ -11,6 +11,10 @@ py_binary(
 compile_all(
     srcs = glob(["*.ui"]),
     group = "forms",
+    visibility = [
+        "//qt/aqt:__pkg__",
+        "//qt/po:__pkg__",
+    ],
 )
 
 py_binary(
