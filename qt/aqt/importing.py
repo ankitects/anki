@@ -401,7 +401,7 @@ def importFile(mw, file):
                 if "invalidFile" in err:
                     msg = _(
                         """\
-    Invalid file. Please restore from backup."""
+Invalid file. Please restore from backup."""
                     )
                     showWarning(msg)
                 elif "invalidTempFolder" in err:
@@ -410,7 +410,7 @@ def importFile(mw, file):
                     showWarning(
                         _(
                             """\
-    Unable to import from a read-only file."""
+Unable to import from a read-only file."""
                         )
                     )
                 else:
