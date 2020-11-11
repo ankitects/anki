@@ -7,6 +7,7 @@ import subprocess
 from dataclasses import dataclass
 import re
 import os
+import sys
 from typing import Optional, Tuple
 
 repos_bzl = "repos.bzl"
@@ -146,13 +147,16 @@ def update_po_templates():
     commit_if_changed(module.folder())
 
 
-def push_changes():
+def push_i18n_changes():
     for module in modules:
         subprocess.run(["git", "push"], cwd=module.folder(), check=True)
 
 
 update_git_repos()
-update_repos_bzl()
 update_ftl_templates()
-update_po_templates()
-push_changes()
+if len(sys.argv) > 1 and sys.argv[1] == "all":
+    update_po_templates()
+else:
+    print("skipping po updates")
+push_i18n_changes()
+update_repos_bzl()
