@@ -1249,7 +1249,7 @@ def handle_update_info(
 
     updated_ids = mgr.updates_required(update_info)
 
-    if not updated_ids:
+    if not [id for id in updated_ids if mgr.addon_meta(str(updated_ids)).enabled]:
         on_done([])
         return
 
