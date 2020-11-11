@@ -82,7 +82,7 @@ def module_git_info(module: Module) -> GitInfo:
     return GitInfo(sha1=sha.decode("utf8"), shallow_since=shallow.decode("utf8"))
 
 
-def update_repos_bzl():
+def update_repos_bzl(commit: bool):
     # gather changes
     entries = {}
     for module in modules:
@@ -105,7 +105,8 @@ def update_repos_bzl():
             out.append(line)
     open(path, "w").writelines(out)
 
-    commit_if_changed(".")
+    if commit:
+        commit_if_changed(".")
 
 
 def commit_if_changed(folder: str):
@@ -153,10 +154,14 @@ def push_i18n_changes():
 
 
 update_git_repos()
+update_repos_bzl(commit=False)
 update_ftl_templates()
 if len(sys.argv) > 1 and sys.argv[1] == "all":
     update_po_templates()
 else:
     print("skipping po updates")
 push_i18n_changes()
-update_repos_bzl()
+# we need to run this again - the first time ensures we merge
+# the latest changes into the po files, and the second time ensures
+# we're up to date after we made changes to the repos
+update_repos_bzl(commit=True)
