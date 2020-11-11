@@ -50,11 +50,13 @@ Then grab Bazelisk:
 PS> \msys64\usr\bin\curl -L https://github.com/bazelbuild/bazelisk/releases/download/v1.7.4/bazelisk-windows-amd64.exe -o bazel.exe
 ```
 
+NOTE: At the time of writing, Windows Defender is claiming this file has a virus. If it disappears
+the first time you run Bazel, restoring it from the Defender settings should allow you to proceed.
+
 **Source folder**:
 
-Anki's source files should not need to be in a specific location, but
-the path should be kept as short as possible, and we test with the source
-stored in c:\anki.
+Anki's source files do not need to be in a specific location, but it's best
+to avoid long paths, as they can cause problems.
 
 ## Build failures
 
