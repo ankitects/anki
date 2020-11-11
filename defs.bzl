@@ -8,7 +8,7 @@ load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "yarn_install
 load("@io_bazel_rules_sass//:defs.bzl", "sass_repositories")
 load("@build_bazel_rules_svelte//:defs.bzl", "rules_svelte_dependencies")
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
-load("@com_github_ali5h_rules_pip//:defs.bzl", "pip_import")
+load("@rules_python//python:pip.bzl", "pip_install")
 load("//pip/pyqt5:defs.bzl", "install_pyqt5")
 
 anki_version = "2.1.36"
@@ -32,11 +32,12 @@ def setup_deps():
 
     native.register_toolchains("@python//:python3_toolchain")
 
-    pip_import(
-        name = "py_deps",
+    pip_install(  # replace  pip3_import
+	name = "py_deps",
         requirements = "@net_ankiweb_anki//pip:requirements.txt",
-        python_runtime = "@python//:python",
-    )
+        python_interpreter_target = "@python//:python",
+        timeout = 600
+     )
 
     install_pyqt5(
         name = "pyqt5",
