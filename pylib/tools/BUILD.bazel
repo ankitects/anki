@@ -64,7 +64,7 @@ py_binary(
 )
 
 filegroup(
-    name = "py_files",
+    name = "py_source_files",
     srcs = glob(["*.py"]),
     visibility = ["//pylib:__subpackages__"],
 )

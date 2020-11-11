@@ -130,7 +130,10 @@ py_wheel(
 )
 
 filegroup(
-    name = "py_files",
+    name = "py_source_files",
     srcs = glob(["**/*.py"]),
-    visibility = ["//pylib:__subpackages__"],
+    visibility = [
+        "//pylib:__subpackages__",
+        "//qt/po:__pkg__",
+    ],
 )

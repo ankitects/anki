@@ -1,0 +1,17 @@
+load(":gettext.bzl", "build_template", "update_all_po_files")
+
+build_template(
+    name = "pot",
+    srcs = [
+        "//pylib/anki:py_source_files",
+        "//qt/aqt:py_source_files",
+        "//qt/aqt/forms",
+    ],
+    pot_file = "anki.pot",
+)
+
+update_all_po_files(
+    name = "po_files",
+    pot_file = "anki.pot",
+    visibility = ["//qt/aqt:__subpackages__"],
+)

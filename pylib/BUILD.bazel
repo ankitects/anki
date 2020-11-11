@@ -49,8 +49,8 @@ py_test(
 py_test(
     name = "format",
     srcs = [
-        "//pylib/tools:py_files",
-        "//pylib/anki:py_files",
+        "//pylib/tools:py_source_files",
+        "//pylib/anki:py_source_files",
     ] + glob([
         "tests/**/*.py",
     ]),
