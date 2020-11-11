@@ -123,11 +123,11 @@ def register_repos():
     core_i18n_commit = "b9fdeadef0b92a6d9acadbce01e43cba53739df6"
     core_i18n_shallow_since = "1602372775 +0000"
 
-    desktop_i18n_commit = "51320cdc51fbfb3d60791467879069ea3a8188a6"
-    desktop_i18n_shallow_since = "1600900614 +0000"
+    qtftl_i18n_commit = "51320cdc51fbfb3d60791467879069ea3a8188a6"
+    qtftl_i18n_shallow_since = "1600900614 +0000"
 
-    desktop_i18n_po_commit = "710be3864b356ddf90253034c6acfcb420dffeff"
-    desktop_i18n_po_shallow_since = "1603966644 +0000"
+    qtpo_i18n_commit = "710be3864b356ddf90253034c6acfcb420dffeff"
+    qtpo_i18n_shallow_since = "1603966644 +0000"
 
     new_git_repository(
         name = "rslib_ftl",
@@ -157,8 +157,8 @@ filegroup(
 
 exports_files(["l10n.toml"])
 """,
-            commit = desktop_i18n_commit,
-            shallow_since = desktop_i18n_shallow_since,
+            commit = qtftl_i18n_commit,
+            shallow_since = qtftl_i18n_shallow_since,
             remote = "https://github.com/ankitects/anki-desktop-ftl",
         )
 
@@ -169,7 +169,7 @@ exports_files(glob(["**/*.pot", "**/*.po"]),
     visibility = ["//visibility:public"],
 )    
     """,
-        commit = desktop_i18n_po_commit,
-        shallow_since = desktop_i18n_po_shallow_since,
+        commit = qtpo_i18n_commit,
+        shallow_since = qtpo_i18n_shallow_since,
         remote = "https://github.com/ankitects/anki-desktop-i18n",
     )
