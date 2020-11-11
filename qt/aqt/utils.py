@@ -554,7 +554,7 @@ def restore_combo_history(comboBox: QComboBox, name: str):
 
 def mungeQA(col, txt):
     print("mungeQA() deprecated; use mw.prepare_card_text_for_display()")
-    txt = col.media.escapeImages(txt)
+    txt = col.media.escape_media_filenames(txt)
     return txt
 
 
