@@ -87,6 +87,21 @@ bazel build -c opt //qt/aqt:wheel
 The generated wheel paths will be printed as the build completes. To install
 them, see earlier in this document.
 
+## Audio
+
+Audio playing requires `mpv` or `mplayer` to be in your system path.
+
+Currently pyaudio is not included as part of the build or the generated wheel
+requirements, so audio recording will not work when running in place. When installing
+the wheels, you can optionally install pyaudio as well.
+
+On Linux/Mac, install the portaudio libs: (`apt install portaudio19-dev` / `brew install portaudio`), then `pip install pyaudio`.
+
+On Windows, install the Python 3.8 wheel from
+https://github.com/ankitects/windows-ci-tools.
+
+Recording also requires `lame` to be in your system path.
+
 ## Tracing build problems
 
 You can run bazel with '-s' to print the commands that are being executed.
@@ -110,7 +125,7 @@ in the collection2.log file will also be printed on stdout.
 ## Cleaning
 
 Unlike the old Make system, a "clean build" should almost never be required
-unless you are debugging issues with the build system. But if need to get
+unless you are debugging issues with the build system. But if you need to get
 things to a fresh state, you can run `bazel clean --expunge`. Afte doing so,
 make sure you remove the ts/node_modules folder, or subsequent build commands
 will fail with a "no such file or directory node_modules/anki" message.
@@ -127,14 +142,3 @@ If you're using PyCharm:
 - click "Edit 'run'..." - in Script options and enter:
   "-p [dev profile name]" without the quotes
 - click "Ok"
-
-# Instructions need updating:
-
-optional deps:
-pyaudio
-dpkg: portaudio19-dev
-
-mpv
-lame
-
-1. Download and install the pyaudio wheel from: https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio
