@@ -85,11 +85,12 @@ py_library(
     ],
     visibility = ["//visibility:public"],
     deps = [
-        requirement("protobuf"),
+        requirement("beautifulsoup4"),
         requirement("decorator"),
         requirement("distro"),
+        requirement("orjson"),
+        requirement("protobuf"),
         requirement("requests"),
-        requirement("beautifulsoup4"),
     ],
 )
 
@@ -106,7 +107,6 @@ py_wheel(
     distribution = "anki",
     platform = select({
         "//platforms:windows_x86_64": "win_amd64",
-        "//platforms:windows_x86_32": "win32",
         "//platforms:macos_x86_64": "macosx_10_7_x86_64",
         "//platforms:linux_x86_64": "manylinux2014_x86_64",
         "//platforms:linux_x86_32": "manylinux2014_i686",
@@ -118,7 +118,7 @@ py_wheel(
         "requests[socks]",
         "decorator",
         "protobuf",
-        'orjson; platform_machine == "x86_64"',
+        "orjson",
         'psutil; sys_platform == "win32"',
         'distro; sys_platform != "darwin" and sys_platform != "win32"',
     ],
