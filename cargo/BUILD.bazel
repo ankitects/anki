@@ -452,3 +452,5 @@ alias(
         "manual",
     ],
 )
+
+exports_files(["licenses.json"])
