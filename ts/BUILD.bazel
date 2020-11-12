@@ -7,4 +7,5 @@ exports_files([
     ".prettierrc",
     "rollup.config.js",
     ".eslintrc.js",
+    "licenses.json",
 ])
