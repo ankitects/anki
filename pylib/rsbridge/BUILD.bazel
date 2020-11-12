@@ -33,14 +33,14 @@ rust_library(
 )
 
 rustfmt_test(
-    name = "format",
+    name = "format_check",
     srcs = glob([
         "*.rs",
     ]),
 )
 
 rustfmt_fix(
-    name = "format_fix",
+    name = "format",
     srcs = glob([
         "*.rs",
     ]),

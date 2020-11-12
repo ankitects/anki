@@ -82,7 +82,7 @@ py_test(
 )
 
 py_test(
-    name = "format",
+    name = "format_check",
     srcs = glob([
         "**/*.py",
     ]),
@@ -99,7 +99,7 @@ py_test(
 )
 
 py_binary(
-    name = "format_fix",
+    name = "format",
     srcs = [
         "tests/run_format.py",
     ],

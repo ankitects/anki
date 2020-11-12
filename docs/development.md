@@ -60,14 +60,20 @@ bazel test //...
 
 ## Fixing formatting
 
-If the format tests fail, most can be fixed by running format_fix
-in the relevant folder:
+If the format tests fail, most can be fixed by running `format`
+in the relevant package:
 
 ```
-bazel run //rslib:format_fix
-bazel run //pylib:format_fix
-bazel run //pylib/rsbridge:format_fix
-bazel run //qt:format_fix
+bazel run //rslib:format
+bazel run //pylib:format
+bazel run //pylib/rsbridge:format
+bazel run //qt:format
+```
+
+If you're in one of those folders, you can use the short form:
+
+```
+bazel run format
 ```
 
 Currently the typescript code needs to be formatted differently:

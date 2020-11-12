@@ -57,7 +57,7 @@ exports_files(["congrats.html"])
 ################
 
 prettier_test(
-    name = "format",
+    name = "format_check",
     srcs = glob([
         "*.ts",
         "*.svelte",
@@ -72,7 +72,7 @@ eslint_test(
 )
 
 svelte_check(
-    name = "svelte-check",
+    name = "svelte_check",
     srcs = glob([
         "*.ts",
         "*.svelte",
