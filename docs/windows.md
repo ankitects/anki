@@ -55,8 +55,9 @@ the first time you run Bazel, restoring it from the Defender settings should all
 
 **Source folder**:
 
-Anki's source files do not need to be in a specific location, but it's best
-to avoid long paths, as they can cause problems.
+Anki's source files do not need to be in a specific location other than on the
+same drive as `\bazel`, but it's best to avoid long paths, as they can cause
+problems.
 
 ## Build failures
 
@@ -91,11 +92,3 @@ Note that where the instructions on that page say "bazel", please use ".\bazel"
 instead. This runs bazel.bat inside the Anki source folder, instead of
 calling Bazel directly. This takes care of setting up the path and output folder
 correctly, which avoids issues with long path names.
-
-## Cleaning notes
-
-Unlike the old Make system, a "clean build" should almost never be required
-unless you are debugging issues with the build system. But if you need to run
-"bazel clean --expunge", make sure you remove the ts/node_modules folder
-afterwards, or it will cause a "no such file or directory node_modules/anki"
-error on the subsequent build on Windows.
