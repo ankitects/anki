@@ -33,7 +33,7 @@
         "@typescript-eslint/parser": "^2.11.0",
         "cross-env": "^7.0.2",
         "eslint": "^6.7.2",
-        "license-checker": "^25.0.1",
+        "license-checker-rseidelsohn": "=1.1.2",
         "patch-package": "^6.2.2",
         "prettier": "^2.1.2",
         "prettier-plugin-svelte": "^1.4.0",
