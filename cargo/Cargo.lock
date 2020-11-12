@@ -268,8 +268,9 @@ dependencies = [
 
 [[package]]
 name = "coarsetime"
-version = "0.1.14"
-source = "git+https://github.com/ankitects/rust-coarsetime.git?tag=anki-2020-11-03#f9e2c86216f0f4803bc75404828318fc206dab29"
+version = "0.1.16"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0cbaaa2e4f75bd7eff165a3d24345a374efddbe0e90be326e62048937e56f65a"
 dependencies = [
  "lazy_static",
  "libc",

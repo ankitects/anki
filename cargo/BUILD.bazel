@@ -59,7 +59,7 @@ alias(
 
 alias(
     name = "coarsetime",
-    actual = "@raze__coarsetime__0_1_14//:coarsetime",
+    actual = "@raze__coarsetime__0_1_16//:coarsetime",
     tags = [
         "cargo-raze",
         "manual",

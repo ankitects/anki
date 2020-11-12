@@ -322,13 +322,13 @@ def raze_fetch_remote_crates():
     )
 
     maybe(
-        new_git_repository,
-        name = "raze__coarsetime__0_1_14",
-        remote = "https://github.com/ankitects/rust-coarsetime.git",
-        shallow_since = "1594611111 +1000",
-        commit = "f9e2c86216f0f4803bc75404828318fc206dab29",
-        build_file = Label("//cargo/remote:BUILD.coarsetime-0.1.14.bazel"),
-        init_submodules = True,
+        http_archive,
+        name = "raze__coarsetime__0_1_16",
+        url = "https://crates.io/api/v1/crates/coarsetime/0.1.16/download",
+        type = "tar.gz",
+        sha256 = "0cbaaa2e4f75bd7eff165a3d24345a374efddbe0e90be326e62048937e56f65a",
+        strip_prefix = "coarsetime-0.1.16",
+        build_file = Label("//cargo/remote:BUILD.coarsetime-0.1.16.bazel"),
     )
 
     maybe(
