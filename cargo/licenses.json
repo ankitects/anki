@@ -280,7 +280,7 @@
   },
   {
     "name": "coarsetime",
-    "version": "0.1.14",
+    "version": "0.1.16",
     "authors": "Frank Denis <github@pureftpd.org>",
     "repository": "https://github.com/jedisct1/rust-coarsetime",
     "license": "ISC",
