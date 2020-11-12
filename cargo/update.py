@@ -68,8 +68,23 @@ input("hit enter to proceed")
 if os.path.exists("remote"):
     shutil.rmtree("remote")
 subprocess.run(["cargo-raze"], check=True)
+
+# dump licenses
+result = subprocess.check_output(["cargo", "license", "-j"])
+with open("licenses.json", "wb") as file:
+    file.write(result)
+
 os.remove("Cargo.toml")
 
+# export license file
+with open("BUILD.bazel", "a", encoding="utf8") as file:
+    file.write(
+        """
+exports_files(["licenses.json"])
+"""
+    )
+
+# update shallow-since references for git crates
 output_lines = []
 commit_re = re.compile('\s+commit = "([0-9a-f]+)",')
 with open("crates.bzl") as file:
