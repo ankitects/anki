@@ -25,19 +25,20 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "notice",  # Zlib from expression "Zlib OR (Apache-2.0 OR MIT)"
 ])
 
 # Generated Targets
 
-# Unsupported target "bench" with type "bench" omitted
+# Unsupported target "macros" with type "bench" omitted
 
 rust_library(
-    name = "unicode_normalization",
+    name = "tinyvec",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "alloc",
         "default",
-        "std",
+        "tinyvec_macros",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
@@ -49,9 +50,13 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.1.13",
+    version = "1.0.1",
     # buildifier: leave-alone
     deps = [
-        "@raze__tinyvec__0_3_4//:tinyvec",
+        "@raze__tinyvec_macros__0_1_0//:tinyvec_macros",
     ],
 )
+
+# Unsupported target "arrayvec" with type "test" omitted
+
+# Unsupported target "tinyvec" with type "test" omitted

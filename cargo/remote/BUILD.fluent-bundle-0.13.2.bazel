@@ -25,19 +25,17 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # Zlib from expression "Zlib OR (Apache-2.0 OR MIT)"
+    "notice",  # Apache-2.0 from expression "Apache-2.0 OR MIT"
 ])
 
 # Generated Targets
 
-# Unsupported target "macros" with type "bench" omitted
+# Unsupported target "resolver" with type "bench" omitted
 
 rust_library(
-    name = "tinyvec",
+    name = "fluent_bundle",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "alloc",
-        "default",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
@@ -49,12 +47,15 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.3.4",
+    version = "0.13.2",
     # buildifier: leave-alone
     deps = [
+        "@raze__fluent_langneg__0_13_0//:fluent_langneg",
+        "@raze__fluent_syntax__0_10_0//:fluent_syntax",
+        "@raze__intl_memoizer__0_5_0//:intl_memoizer",
+        "@raze__intl_pluralrules__7_0_0//:intl_pluralrules",
+        "@raze__rental__0_5_5//:rental",
+        "@raze__smallvec__1_4_2//:smallvec",
+        "@raze__unic_langid__0_9_0//:unic_langid",
     ],
 )
-
-# Unsupported target "arrayvec" with type "test" omitted
-
-# Unsupported target "tinyvec" with type "test" omitted
