@@ -37,7 +37,7 @@ $ pacman -S git gettext
 **Bazelisk**:
 
 Use Start>Run to open PowerShell. Create a folder to store Bazelisk
-and its working data. Anki's build scripts expect to find it in c:\bazel
+and its working data. Anki's build scripts expect to find it in \bazel on the same drive as the source folder.
 
 ```
 PS> mkdir \bazel
