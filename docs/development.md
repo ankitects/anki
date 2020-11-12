@@ -107,6 +107,14 @@ and automatic backups will be disabled - so please don't use this except on a te
 If LOGTERM is set before starting Anki, warnings and error messages that are normally placed
 in the collection2.log file will also be printed on stdout.
 
+## Cleaning
+
+Unlike the old Make system, a "clean build" should almost never be required
+unless you are debugging issues with the build system. But if need to get
+things to a fresh state, you can run `bazel clean --expunge`. Afte doing so,
+make sure you remove the ts/node_modules folder, or subsequent build commands
+will fail with a "no such file or directory node_modules/anki" message.
+
 ## Mixing development and study
 
 You may wish to create a separate profile with File>Switch Profile for use
