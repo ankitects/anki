@@ -158,7 +158,7 @@ rust_library(
             "@io_bazel_rules_rust//rust/platform:i686-unknown-linux-gnu",
             "@io_bazel_rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): [
-            "@raze__once_cell__1_4_1//:once_cell",
+            "@raze__once_cell__1_5_1//:once_cell",
         ],
         "//conditions:default": [],
     }) + selects.with_or({

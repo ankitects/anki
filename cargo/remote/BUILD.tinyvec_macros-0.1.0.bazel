@@ -25,18 +25,15 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "notice",  # MIT from expression "MIT OR (Apache-2.0 OR Zlib)"
 ])
 
 # Generated Targets
 
 rust_library(
-    name = "futures_task",
+    name = "tinyvec_macros",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "alloc",
-        "once_cell",
-        "std",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
@@ -48,9 +45,8 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.3.8",
+    version = "0.1.0",
     # buildifier: leave-alone
     deps = [
-        "@raze__once_cell__1_5_1//:once_cell",
     ],
 )

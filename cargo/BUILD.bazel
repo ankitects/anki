@@ -203,7 +203,7 @@ alias(
 
 alias(
     name = "once_cell",
-    actual = "@raze__once_cell__1_4_1//:once_cell",
+    actual = "@raze__once_cell__1_5_1//:once_cell",
     tags = [
         "cargo-raze",
         "manual",
@@ -428,7 +428,7 @@ alias(
 
 alias(
     name = "unicode_normalization",
-    actual = "@raze__unicode_normalization__0_1_13//:unicode_normalization",
+    actual = "@raze__unicode_normalization__0_1_14//:unicode_normalization",
     tags = [
         "cargo-raze",
         "manual",
