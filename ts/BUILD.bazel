@@ -1,3 +1,7 @@
+load("//ts:prettier.bzl", "prettier")
+
+prettier()
+
 # Exported files
 #################
 

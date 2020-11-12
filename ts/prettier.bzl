@@ -3,7 +3,7 @@ load(
     _prettier_test = "prettier_test",
 )
 
-def prettier_test(name = "format", srcs = [], **kwargs):
+def prettier_test(name = "format_check", srcs = [], **kwargs):
     _prettier_test(
         name = name,
         args = [
@@ -16,4 +16,10 @@ def prettier_test(name = "format", srcs = [], **kwargs):
             "@npm//prettier-plugin-svelte",
         ] + srcs,
         **kwargs
+    )
+
+def prettier(name = "format", **kwargs):
+    native.sh_binary(
+        name = name,
+        srcs = ["format.sh"],
     )
