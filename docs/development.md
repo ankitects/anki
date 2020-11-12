@@ -66,21 +66,15 @@ in the relevant package:
 ```
 bazel run //rslib:format
 bazel run //pylib:format
-bazel run //pylib/rsbridge:format
 bazel run //qt:format
+bazel run //ts:format
+bazel run //pylib/rsbridge:format
 ```
 
 If you're in one of those folders, you can use the short form:
 
 ```
 bazel run format
-```
-
-Currently the typescript code needs to be formatted differently:
-
-```
-cd ts
-./node_modules/.bin/prettier --write .
 ```
 
 ## Building redistributable wheels
