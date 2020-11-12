@@ -21,8 +21,8 @@ import json
 import os
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence, Union
-import orjson
 
+import orjson
 
 import anki._rsbridge
 import anki.backend_pb2 as pb
