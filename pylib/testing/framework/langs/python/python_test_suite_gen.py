@@ -14,11 +14,9 @@ import datetime
     def inject_test_suite_invocation(self,
                                      solution_src: str,
                                      test_cases_src: List[str],
-                                     test_suite: TestSuite,
-                                     test_summary_msg: str) -> str:
+                                     test_suite: TestSuite) -> str:
         return '''{}
-{}
-print("{}")'''.format(solution_src, '\n'.join(test_cases_src), test_summary_msg)
+{}'''.format(solution_src, '\n'.join(test_cases_src))
 
     def generate_test_case_invocations(self,
                                        test_suite: TestSuite,

@@ -15,6 +15,7 @@ def parse_card(card: Card):
         .replace('<br>', '\n')\
         .replace('&lt;', '<') \
         .replace('&gt;', '>')\
+        .strip()\
         .split('\n')
     return name, rows
 
@@ -49,6 +50,11 @@ def test_solution(card: Card, src: str, lang: str, logger: ConsoleLogger):
         ts.test_cases.append(test_case_gen.get_test_case(tree, row_data))
     test_suite_gen = factory.get_test_suite_generator()
     src = test_suite_gen.inject_imports(src, ts)
-    test_cases_src = test_suite_gen.generate_test_case_invocations(ts, 'passed', 'failed')
-    src = test_suite_gen.inject_test_suite_invocation(src, test_cases_src, ts, 'summary msg')
+    test_cases_src = test_suite_gen.generate_test_case_invocations(ts,
+       '''Test <span class='passed'>PASSED</span> ($index/$total) - $duration ms''',
+       '''Test <span class='failed'>FAILED</span> ($index/$total)\\n" +
+           "expected: $expected\\n" + 
+           "result: $result''')
+
+    src = test_suite_gen.inject_test_suite_invocation(src, test_cases_src, ts)
     factory.get_code_runner().run(src, logger)

@@ -87,8 +87,7 @@ class Reviewer:
         self.typeCorrect: str = None  # web init happens before this is set
         self.state: Optional[str] = None
         self.bottom = BottomBar(mw, mw.bottomWeb)
-        # todo:
-        self.codingQuestion = False  # todo: remove this var
+        self._isCodeQuestion = False
         self.synchronizer = threading.Event()
         self.codingBuffer = {}
         self.activeLanguage = None
@@ -185,9 +184,9 @@ class Reviewer:
     def _initWeb(self) -> None:
         self._reps = 0
         # main window
-        theme = self.mw.pm.meta["defaultCodeTheme"]
-        if theme is None:
-            theme = THEMES[0]
+        theme = THEMES[0]
+        if 'defaultCodeTheme' in self.mw.pm.meta:
+            theme = self.mw.pm.meta['defaultCodeTheme']
         self.web.stdHtml(
             self.revHtml(),
             css=["reviewer.css", "highlight/" + theme + ".css"],
@@ -288,7 +287,7 @@ class Reviewer:
 
         a = gui_hooks.card_will_show(a, c, "reviewAnswer")
         # render and update bottom
-        self.web.eval("_showAnswer(%s);" % json.dumps(a))
+        self.web.eval("_showAnswer(%s, '', %s);" % (json.dumps(a), json.dumps(self._isCodeQuestion).lower()))
         self._showEaseButtons()
         # user hook
         gui_hooks.reviewer_did_show_answer(c)
@@ -394,7 +393,7 @@ class Reviewer:
             self.showContextMenu()
         elif url == "test":
             self.web.evalWithCallback(
-                "codejar ? codejar.toString() : null", self._runTests
+                "codeansJar ? codeansJar.toString() : null", self._runTests
             )
         elif url.startswith("play:"):
             play_clicked_audio(url, self.card)
@@ -417,14 +416,14 @@ class Reviewer:
                 return self.typeAnsQuestionFilter(buf)
             m = re.search(self.codeAnsPat, buf)
             if m:
-                self.codingQuestion = True
-                return self.codingQuestionFilter(buf)
+                self._isCodeQuestion = True
+                return self.codeQuestionFilter(buf)
             else:
                 return buf
         else:
             return self.typeAnsAnswerFilter(buf)
 
-    def codingQuestionFilter(self, buf: str) -> str:
+    def codeQuestionFilter(self, buf: str) -> str:
         m = re.search(self.codeAnsPat, buf)
         fld = m.group(1)
         for f in self.card.model()["flds"]:
@@ -434,31 +433,17 @@ class Reviewer:
                 self.typeSize = f["size"]
                 break
 
-        # todo
-        # self.activeLanguage = 'java'
         return re.sub(
             self.codeAnsPat,
-            # """
-            #                 <select id=lang style="display:inline-block;float:right;font-size:18px;margin-bottom:10px;"
-            #         onChange="pycmd('lang:' + this.value);">
-            #         <option selected value="java">Java</option>
-            #         <option value="python">Python</option>
-            #     </select>
-            # """
-            """<br><br>
-            <div style="width:90%%; margin: 0 auto;">
+            """<br>
+            <div style="margin: 0 auto;box-sizing:border-box;">
                 <div class="test-toolbar">
                     <button onclick="pycmd('selectlang');">%(selLanguageLabel)s %(downArrow)s</button>
                     <button onclick="pycmd('selecttheme');">%(selSkinLabel)s %(downArrow)s</button>
                     <button onclick="pycmd('test')">Run</button>
                 </div>
-                <div style="position: relative">
-                    <div id="codeans" style="width:100%%;height:60vh;text-align:left;" class="editor language-%(language)s" data-gramm="false">%(template)s</div>
-                </div>
-                <!--
-                <div id=console></div>
-                -->
-            </div>
+                <div id="codeans" style="height:60vh;text-align:left;" class="editor language-%(language)s" data-gramm="false">%(template)s</div>
+                <div id="log" style="height:20vh; margin-top: 10px;" class="editor hljs"></div>
             </div>
             """
             % dict(
@@ -480,7 +465,7 @@ class Reviewer:
                 "_showConsoleLog(%s);" % json.dumps(txt + "<br/>")
             )
         )
-        test_solution(self.card, src, self.activeLanguage, logger)
+        test_solution(self.card, src, self._getCurrentLang(), logger)
         pass
 
     def _cleanConsole(self):
@@ -545,15 +530,6 @@ Please run Tools>Empty Cards"""
     def log(self, text):
         self.web.eval("_showConsoleLog(%s);" % json.dumps(text + "<br/>"))
 
-    def testCard(self, src):
-        pass
-        # model = self.card.model()['flds']
-        # note = self.card.note()
-        # funcName = note[model[1]['name']]
-        # csvData = note[model[2]['name']]
-        # self.synchronizer.clear()
-        # run_tests(src, funcName, csvData, 'java', self.log, self.synchronizer)
-
     def typeAnsAnswerFilter(self, buf: str) -> str:
         if not self.typeCorrect:
             return re.sub(self.typeAnsPat, "", buf)
@@ -570,7 +546,7 @@ Please run Tools>Empty Cards"""
         cor = cor.replace("\xa0", " ")
         cor = cor.strip()
         given = self.typedAnswer
-        if self.codingQuestion:
+        if self._isCodeQuestion:
             # and update the type answer area
             def repl(match):
                 # can't pass a string in directly, and can't use re.escape as it
@@ -864,7 +840,9 @@ time = %(time)d;
     ##########################################################################
 
     def _skinContextMenu(self):
-        theme = self.mw.pm.meta["defaultCodeTheme"] or "dracula"
+        theme = 'dracule'
+        if 'defaultCodeTheme' in self.mw.pm.meta:
+            theme = self.mw.pm.meta['defaultCodeTheme']
         return [
             [
                 "dracula",
@@ -962,9 +940,9 @@ time = %(time)d;
         ]
 
     def _getCurrentLang(self):
-        lang = self.mw.pm.meta["defaultCodeLang"]
-        if lang is None:
-            lang = "java"
+        lang = 'java'
+        if 'defaultCodeLang' in self.mw.pm.meta:
+            lang = self.mw.pm.meta['defaultCodeLang']
         return lang
 
     # note the shortcuts listed here also need to be defined above
@@ -1084,7 +1062,7 @@ time = %(time)d;
 
     def onCodeLangSelected(self, lang) -> None:
         self.web.evalWithCallback(
-            "codejar ? codejar.toString() : null",
+            "codeansJar ? codeansJar.toString() : null",
             lambda src: self._switchLang(lang, src),
         )
 

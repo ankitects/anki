@@ -411,7 +411,7 @@ close the profile or restart Anki."""
             restoreGeom(self, "mainWindow")
             restoreState(self, "mainWindow")
         # titlebar
-        self.setWindowTitle(self.pm.name + " - Anki")
+        self.setWindowTitle(self.pm.name + " - Bobs")
         # show and raise window for osx
         self.show()
         self.activateWindow()
@@ -496,7 +496,7 @@ close the profile or restart Anki."""
         except Exception as e:
             if "FileTooNew" in str(e):
                 showWarning(
-                    "This profile requires a newer version of Anki to open. Did you forget to use the Downgrade button prior to switching Anki versions?"
+                    "This profile requires a newer version of Bobs to open. Did you forget to use the Downgrade button prior to switching Anki versions?"
                 )
             else:
                 showWarning(
@@ -1195,7 +1195,7 @@ title="%s" %s>%s</button>""" % (
         qconnect(m.actionNoteTypes.triggered, self.onNoteTypes)
 
     def updateTitleBar(self) -> None:
-        self.setWindowTitle("Anki")
+        self.setWindowTitle("Bobs")
 
     # Auto update
     ##########################################################################

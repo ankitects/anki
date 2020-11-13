@@ -15,17 +15,17 @@ import java.util.concurrent.TimeUnit;
     def inject_test_suite_invocation(self,
                                      solution_src: str,
                                      test_cases_src: List[str],
-                                     test_suite: TestSuite,
-                                     test_summary_msg: str) -> str:
+                                     test_suite: TestSuite) -> str:
         i = solution_src.rindex('}')
         main_function_src = '''   public static void main(String[] args) {{
       Solution solution = new Solution();
       long start, end;
+      long duration;
       String msg;
-      boolean result;
+      Object result;
+      boolean ok;
 {}
-      System.out.println("{}");
-   }}'''.format('\n'.join([' ' * 6 + x for x in test_cases_src]), test_summary_msg)
+   }}'''.format('\n'.join([' ' * 6 + x for x in test_cases_src]))
         return solution_src[:i] + '\n' + main_function_src + '\n' + solution_src[i:]
 
     def generate_test_case_invocations(self,
@@ -34,21 +34,34 @@ import java.util.concurrent.TimeUnit;
                                        test_failed_msg: str) -> List[str]:
         src = []
         total_count = len(test_suite.test_cases)
-        for index, tc in enumerate(test_suite.test_cases):
-            src.append('''// case {}
-                start = System.nanoTime();
-                result = verify(solution.{}({}), {});
-                end = System.nanoTime();
-                msg = "{}/{} " + TimeUnit.MILLISECONDS.convert(end - start, TimeUnit.NANOSECONDS) + " ms - ";
-                if (result) {{
-                    msg += "{}";
-                    System.out.println(msg);
-                }} else {{
-                    msg += "{}";
-                    System.out.println(msg);
-                    return;
-                }}'''.format(index + 1, test_suite.func_name, ','.join(tc.args),
-                             tc.result, index + 1, total_count, test_passed_msg,
-                             test_failed_msg))
-        return src
 
+        for index, tc in enumerate(test_suite.test_cases):
+            pass_msg = test_passed_msg
+            pass_msg = pass_msg.replace('$index', str(index + 1))
+            pass_msg = pass_msg.replace('$total', str(total_count))
+            pass_msg = pass_msg.replace('$duration', '" + duration + "')
+
+            fail_msg = test_failed_msg
+            fail_msg = fail_msg.replace('$index', str(index + 1))
+            fail_msg = fail_msg.replace('$total', str(total_count))
+            fail_msg = fail_msg.replace('$expected', tc.result)
+            fail_msg = fail_msg.replace('$result', '" + result + "')
+
+            src.append('''
+      start = System.nanoTime();
+      result = solution.{}({});
+      end = System.nanoTime();
+      duration = TimeUnit.MILLISECONDS.convert(end - start, TimeUnit.NANOSECONDS);
+      ok = verify(result, {});
+      if (ok) {{
+         System.out.println("{}");
+      }} else {{
+         System.out.println("{}");
+         return;
+      }}
+      '''.format(test_suite.func_name,
+                 ','.join(tc.args),
+                 tc.result,
+                 pass_msg,
+                 fail_msg))
+        return src

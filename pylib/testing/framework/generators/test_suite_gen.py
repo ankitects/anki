@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-from testing.framework.dto.test_case import TestCase
 from testing.framework.dto.test_suite import TestSuite
 
 
@@ -15,8 +14,7 @@ class TestSuiteGenerator(ABC):
     def inject_test_suite_invocation(self,
                                      solution_src: str,
                                      test_cases_src: List[str],
-                                     test_suite: TestSuite,
-                                     test_summary_msg: str) -> str:
+                                     test_suite: TestSuite) -> str:
         pass
 
     @abstractmethod

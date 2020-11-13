@@ -110,7 +110,7 @@ pub(crate) fn basic_optional_reverse(i18n: &I18n) -> NoteType {
 
 pub(crate) fn basic_coding_task(i18n: &I18n) -> NoteType {
     let mut nt = NoteType::default();
-    nt.name = "Zak 2 Code".to_string();
+    nt.name = "Coding Challenge".to_string();
     let task_description = "Task";
     let function_name = "Function Name";
     let solution = "Solution";

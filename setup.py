@@ -1,18 +1,15 @@
-
 from setuptools import setup
 APP = ['qt/runanki']
 DATA_FILES = [('images/pig.icns')]
+RESOURCES = ['qt/aqt_data', 'testing/libs']
 OPTIONS = {
-    'argv_emulation': True,
+    'argv_emulation': False,
     'site_packages': True,
     'packages': [],
+    'resources': RESOURCES,
     'iconfile': 'images/pig.icns',
     'plist': {
         'CFBundleName': 'Bobs',
-        # 'PyRuntimeLocations': [
-        #     '@executable_path/ /opt/miniconda3/envs/anki_37/lib/libpython3.7.dylib',
-        #     '/opt/miniconda3/lib/libpython3.7m.dylib'
-        #    ]
     }
 }
 setup(

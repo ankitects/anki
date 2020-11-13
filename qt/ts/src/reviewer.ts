@@ -9,7 +9,8 @@ declare var hljs: any;
 var ankiPlatform = "desktop";
 var typeans;
 var codeans;
-var codejar;
+var log;
+var codeansJar;
 var _updatingQA = false;
 
 var qFade = 100;
@@ -45,7 +46,6 @@ function _updateQA(html, fadeTime, onupdate, onshown) {
         // update text
         try {
             qa.html(html);
-            //todo: check if coding question
             _initalizeCodeEditor();
         } catch (err) {
             qa.html(
@@ -92,6 +92,10 @@ function _showQuestion(q, bodyclass) {
 
 function _initalizeCodeEditor() {
     codeans = document.getElementById("codeans");
+    if (!codeans) {
+        return;
+    }
+    log = document.getElementById("log");
 
     const highlight = (editor: HTMLElement) => {
         // highlight.js does not trims old tags,
@@ -109,7 +113,7 @@ function _initalizeCodeEditor() {
         tab: " ".repeat(4), // default is '\t'
         indentOn: /[(\[]$/, // default is /{$/
     };
-    codejar = CodeJar(codeans, withLineNumbers(highlight), options);
+    codeansJar = CodeJar(codeans, withLineNumbers(highlight), options);
 }
 
 function _switchSkin(name) {
@@ -128,7 +132,7 @@ function _switchSkin(name) {
     });
 }
 
-function _showAnswer(a, bodyclass) {
+function _showAnswer(a, bodyclass, isCodingQuestion) {
     _updateQA(
         a,
         aFade,
@@ -143,8 +147,11 @@ function _showAnswer(a, bodyclass) {
             if (e[0]) {
                 e[0].scrollIntoView();
             }
+            if (isCodingQuestion) {
+                _initializeCodeAnswers();
+            }
         },
-        function () {}
+        function () { }
     );
 }
 
@@ -154,16 +161,25 @@ function _reloadCode(src, lang) {
         return (className.match(/\blanguage-\S+/g) || []).join(" ");
     });
     $codeans.addClass("language-" + lang);
-    codejar.updateCode(src);
+    codeansJar.updateCode(src);
 }
 
 function _cleanConsoleLog() {
-    $("#console").empty();
+    $("#log").empty();
 }
 
 function _showConsoleLog(html) {
-    //todo: highlighting
-    $("#console").append(html);
+    $("#log").append(html);
+}
+
+function _initializeCodeAnswers() {
+    var $qa = $('#qa')
+    var html = $qa.html()
+    $qa.html(html.replace(/\`\`\`(\w+)([^`]+)\`\`\`/g, '<code class="language-$1 editor" language="$1">$2</code>'));
+    $qa.find('code').each(function() {
+      $(this).before($('<h4>').text($(this).attr('language')))
+      hljs.highlightBlock(this);
+    });
 }
 
 const _flagColours = {
