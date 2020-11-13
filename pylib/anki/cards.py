@@ -181,7 +181,10 @@ class Card:
 
     def timeTaken(self) -> int:
         "Time taken to answer card, in integer MS."
-        total = int((time.time() - self.timerStarted) * 1000)
+        if self.timerStarted is not None:
+            total = int((time.time() - self.timerStarted) * 1000)
+        else:
+            total = 0
         return min(total, self.timeLimit())
 
     # legacy
