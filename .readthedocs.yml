@@ -3,7 +3,7 @@
 # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
 
 # Required
-version: 2
+version: 1
 
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
