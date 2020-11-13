@@ -1,1 +1,1 @@
-pip install sphinx-comments
+sphinx-comments
