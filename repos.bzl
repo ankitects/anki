@@ -37,12 +37,12 @@ def register_repos():
 
     git_repository(
         name = "io_bazel_rules_rust",
-        commit = "a364ded42d9788144cd26b6e98d6b4038753bfa9",
+        commit = "212cc4d6cb7f23d0aa29d2f09e3860c49aaf9144",
         remote = "https://github.com/ankitects/rules_rust",
-        shallow_since = "1604550071 +1000",
+        shallow_since = "1605354106 +1000",
     )
 
-    # local_repository(
+    # native.local_repository(
     #     name = "io_bazel_rules_rust",
     #     path = "../rules_rust",
     # )
