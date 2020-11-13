@@ -1,0 +1,438 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>aqt.models &mdash; Anki  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+        <script async="async" kind="hypothesis" src="https://hypothes.is/embed.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Anki
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.html">anki package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.importing.html">anki.importing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aqt.html">aqt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../genhooks_gui.html">genhooks_gui module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tools.html">tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Anki</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../aqt.html">aqt</a> &raquo;</li>
+        
+      <li>aqt.models</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for aqt.models</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright: Ankitects Pty Ltd and contributors</span>
+<span class="c1"># License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html</span>
+
+<span class="kn">from</span> <span class="nn">operator</span> <span class="kn">import</span> <span class="n">itemgetter</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span> <span class="nn">aqt.clayout</span>
+<span class="kn">from</span> <span class="nn">anki</span> <span class="kn">import</span> <span class="n">stdmodels</span>
+<span class="kn">from</span> <span class="nn">anki.backend_pb2</span> <span class="kn">import</span> <span class="n">NoteTypeNameIDUseCount</span>
+<span class="kn">from</span> <span class="nn">anki.lang</span> <span class="kn">import</span> <span class="n">_</span><span class="p">,</span> <span class="n">ngettext</span>
+<span class="kn">from</span> <span class="nn">anki.models</span> <span class="kn">import</span> <span class="n">NoteType</span>
+<span class="kn">from</span> <span class="nn">anki.notes</span> <span class="kn">import</span> <span class="n">Note</span>
+<span class="kn">from</span> <span class="nn">anki.rsbackend</span> <span class="kn">import</span> <span class="n">pb</span>
+<span class="kn">from</span> <span class="nn">aqt</span> <span class="kn">import</span> <span class="n">AnkiQt</span><span class="p">,</span> <span class="n">gui_hooks</span>
+<span class="kn">from</span> <span class="nn">aqt.qt</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">aqt.utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">askUser</span><span class="p">,</span>
+    <span class="n">getText</span><span class="p">,</span>
+    <span class="n">maybeHideClose</span><span class="p">,</span>
+    <span class="n">openHelp</span><span class="p">,</span>
+    <span class="n">restoreGeom</span><span class="p">,</span>
+    <span class="n">saveGeom</span><span class="p">,</span>
+    <span class="n">showInfo</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="Models"><a class="viewcode-back" href="../../aqt.html#aqt.models.Models">[docs]</a><span class="k">class</span> <span class="nc">Models</span><span class="p">(</span><span class="n">QDialog</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mw</span><span class="p">:</span> <span class="n">AnkiQt</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fromMain</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span> <span class="o">=</span> <span class="n">mw</span>
+        <span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span> <span class="ow">or</span> <span class="n">mw</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fromMain</span> <span class="o">=</span> <span class="n">fromMain</span>
+        <span class="n">QDialog</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">Qt</span><span class="o">.</span><span class="n">Window</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span> <span class="o">=</span> <span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">weakref</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">models</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">checkpoint</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Note Types&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">form</span> <span class="o">=</span> <span class="n">aqt</span><span class="o">.</span><span class="n">forms</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Ui_Dialog</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">setupUi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">buttonBox</span><span class="o">.</span><span class="n">helpRequested</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">openHelp</span><span class="p">(</span><span class="s2">&quot;notetypes&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">pb</span><span class="o">.</span><span class="n">NoteTypeNameIDUseCount</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setupModels</span><span class="p">()</span>
+        <span class="n">restoreGeom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;models&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
+
+    <span class="c1"># Models</span>
+    <span class="c1">##########################################################################</span>
+
+<div class="viewcode-block" id="Models.setupModels"><a class="viewcode-back" href="../../aqt.html#aqt.models.Models.setupModels">[docs]</a>    <span class="k">def</span> <span class="nf">setupModels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">form</span>
+        <span class="n">box</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">buttonBox</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">ActionRole</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">box</span><span class="o">.</span><span class="n">addButton</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Add&quot;</span><span class="p">),</span> <span class="n">t</span><span class="p">)</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">clicked</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onAdd</span><span class="p">)</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">box</span><span class="o">.</span><span class="n">addButton</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Rename&quot;</span><span class="p">),</span> <span class="n">t</span><span class="p">)</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">clicked</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onRename</span><span class="p">)</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">box</span><span class="o">.</span><span class="n">addButton</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Delete&quot;</span><span class="p">),</span> <span class="n">t</span><span class="p">)</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">clicked</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onDelete</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fromMain</span><span class="p">:</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">box</span><span class="o">.</span><span class="n">addButton</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Fields...&quot;</span><span class="p">),</span> <span class="n">t</span><span class="p">)</span>
+            <span class="n">qconnect</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">clicked</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onFields</span><span class="p">)</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">box</span><span class="o">.</span><span class="n">addButton</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Cards...&quot;</span><span class="p">),</span> <span class="n">t</span><span class="p">)</span>
+            <span class="n">qconnect</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">clicked</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onCards</span><span class="p">)</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">box</span><span class="o">.</span><span class="n">addButton</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Options...&quot;</span><span class="p">),</span> <span class="n">t</span><span class="p">)</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">clicked</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onAdvanced</span><span class="p">)</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">modelsList</span><span class="o">.</span><span class="n">itemDoubleClicked</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onRename</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">on_done</span><span class="p">(</span><span class="n">fut</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">updateModelsList</span><span class="p">(</span><span class="n">fut</span><span class="o">.</span><span class="n">result</span><span class="p">())</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">taskman</span><span class="o">.</span><span class="n">with_progress</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">all_use_counts</span><span class="p">,</span> <span class="n">on_done</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">modelsList</span><span class="o">.</span><span class="n">setCurrentRow</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">maybeHideClose</span><span class="p">(</span><span class="n">box</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Models.onRename"><a class="viewcode-back" href="../../aqt.html#aqt.models.Models.onRename">[docs]</a>    <span class="k">def</span> <span class="nf">onRename</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">nt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_notetype</span><span class="p">()</span>
+        <span class="n">txt</span> <span class="o">=</span> <span class="n">getText</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;New name:&quot;</span><span class="p">),</span> <span class="n">default</span><span class="o">=</span><span class="n">nt</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">txt</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">and</span> <span class="n">txt</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">nt</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">txt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">saveAndRefresh</span><span class="p">(</span><span class="n">nt</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Models.saveAndRefresh"><a class="viewcode-back" href="../../aqt.html#aqt.models.Models.saveAndRefresh">[docs]</a>    <span class="k">def</span> <span class="nf">saveAndRefresh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nt</span><span class="p">:</span> <span class="n">NoteType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">def</span> <span class="nf">save</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mm</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">nt</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">all_use_counts</span><span class="p">()</span>
+
+        <span class="k">def</span> <span class="nf">on_done</span><span class="p">(</span><span class="n">fut</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">updateModelsList</span><span class="p">(</span><span class="n">fut</span><span class="o">.</span><span class="n">result</span><span class="p">())</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">taskman</span><span class="o">.</span><span class="n">with_progress</span><span class="p">(</span><span class="n">save</span><span class="p">,</span> <span class="n">on_done</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Models.updateModelsList"><a class="viewcode-back" href="../../aqt.html#aqt.models.Models.updateModelsList">[docs]</a>    <span class="k">def</span> <span class="nf">updateModelsList</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">notetypes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">NoteTypeNameIDUseCount</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">modelsList</span><span class="o">.</span><span class="n">currentRow</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">row</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">modelsList</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">models</span> <span class="o">=</span> <span class="n">notetypes</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">:</span>
+            <span class="n">mUse</span> <span class="o">=</span> <span class="n">ngettext</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> note&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> notes&quot;</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">use_count</span><span class="p">)</span> <span class="o">%</span> <span class="n">m</span><span class="o">.</span><span class="n">use_count</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="n">QListWidgetItem</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> [</span><span class="si">%s</span><span class="s2">]&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">mUse</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">modelsList</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">modelsList</span><span class="o">.</span><span class="n">setCurrentRow</span><span class="p">(</span><span class="n">row</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Models.current_notetype"><a class="viewcode-back" href="../../aqt.html#aqt.models.Models.current_notetype">[docs]</a>    <span class="k">def</span> <span class="nf">current_notetype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoteType</span><span class="p">:</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">modelsList</span><span class="o">.</span><span class="n">currentRow</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">row</span><span class="p">]</span><span class="o">.</span><span class="n">id</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Models.onAdd"><a class="viewcode-back" href="../../aqt.html#aqt.models.Models.onAdd">[docs]</a>    <span class="k">def</span> <span class="nf">onAdd</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">AddModel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+            <span class="n">txt</span> <span class="o">=</span> <span class="n">getText</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Name:&quot;</span><span class="p">),</span> <span class="n">default</span><span class="o">=</span><span class="n">m</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">txt</span><span class="p">:</span>
+                <span class="n">m</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">txt</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">saveAndRefresh</span><span class="p">(</span><span class="n">m</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Models.onDelete"><a class="viewcode-back" href="../../aqt.html#aqt.models.Models.onDelete">[docs]</a>    <span class="k">def</span> <span class="nf">onDelete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">showInfo</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Please add another note type first.&quot;</span><span class="p">),</span> <span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">modelsList</span><span class="o">.</span><span class="n">currentRow</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">use_count</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Delete this note type and all its cards?&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Delete this unused note type?&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">askUser</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">modSchema</span><span class="p">(</span><span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">nt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_notetype</span><span class="p">()</span>
+
+        <span class="k">def</span> <span class="nf">save</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mm</span><span class="o">.</span><span class="n">rem</span><span class="p">(</span><span class="n">nt</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">all_use_counts</span><span class="p">()</span>
+
+        <span class="k">def</span> <span class="nf">on_done</span><span class="p">(</span><span class="n">fut</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">updateModelsList</span><span class="p">(</span><span class="n">fut</span><span class="o">.</span><span class="n">result</span><span class="p">())</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">taskman</span><span class="o">.</span><span class="n">with_progress</span><span class="p">(</span><span class="n">save</span><span class="p">,</span> <span class="n">on_done</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Models.onAdvanced"><a class="viewcode-back" href="../../aqt.html#aqt.models.Models.onAdvanced">[docs]</a>    <span class="k">def</span> <span class="nf">onAdvanced</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">nt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_notetype</span><span class="p">()</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">QDialog</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">frm</span> <span class="o">=</span> <span class="n">aqt</span><span class="o">.</span><span class="n">forms</span><span class="o">.</span><span class="n">modelopts</span><span class="o">.</span><span class="n">Ui_Dialog</span><span class="p">()</span>
+        <span class="n">frm</span><span class="o">.</span><span class="n">setupUi</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="n">frm</span><span class="o">.</span><span class="n">latexsvg</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="n">nt</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;latexsvg&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
+        <span class="n">frm</span><span class="o">.</span><span class="n">latexHeader</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">nt</span><span class="p">[</span><span class="s2">&quot;latexPre&quot;</span><span class="p">])</span>
+        <span class="n">frm</span><span class="o">.</span><span class="n">latexFooter</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">nt</span><span class="p">[</span><span class="s2">&quot;latexPost&quot;</span><span class="p">])</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Options for </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">nt</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="n">frm</span><span class="o">.</span><span class="n">buttonBox</span><span class="o">.</span><span class="n">helpRequested</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">openHelp</span><span class="p">(</span><span class="s2">&quot;latex&quot;</span><span class="p">))</span>
+        <span class="n">restoreGeom</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="s2">&quot;modelopts&quot;</span><span class="p">)</span>
+        <span class="n">gui_hooks</span><span class="o">.</span><span class="n">models_advanced_will_show</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
+        <span class="n">saveGeom</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="s2">&quot;modelopts&quot;</span><span class="p">)</span>
+        <span class="n">nt</span><span class="p">[</span><span class="s2">&quot;latexsvg&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">frm</span><span class="o">.</span><span class="n">latexsvg</span><span class="o">.</span><span class="n">isChecked</span><span class="p">()</span>
+        <span class="n">nt</span><span class="p">[</span><span class="s2">&quot;latexPre&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">frm</span><span class="o">.</span><span class="n">latexHeader</span><span class="o">.</span><span class="n">toPlainText</span><span class="p">())</span>
+        <span class="n">nt</span><span class="p">[</span><span class="s2">&quot;latexPost&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">frm</span><span class="o">.</span><span class="n">latexFooter</span><span class="o">.</span><span class="n">toPlainText</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">saveAndRefresh</span><span class="p">(</span><span class="n">nt</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_tmpNote</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">nt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_notetype</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">Note</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="p">,</span> <span class="n">nt</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Models.onFields"><a class="viewcode-back" href="../../aqt.html#aqt.models.Models.onFields">[docs]</a>    <span class="k">def</span> <span class="nf">onFields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">aqt.fields</span> <span class="kn">import</span> <span class="n">FieldDialog</span>
+
+        <span class="n">FieldDialog</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_notetype</span><span class="p">(),</span> <span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Models.onCards"><a class="viewcode-back" href="../../aqt.html#aqt.models.Models.onCards">[docs]</a>    <span class="k">def</span> <span class="nf">onCards</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">aqt.clayout</span> <span class="kn">import</span> <span class="n">CardLayout</span>
+
+        <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tmpNote</span><span class="p">()</span>
+        <span class="n">CardLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="nb">ord</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">fill_empty</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+    <span class="c1"># Cleanup</span>
+    <span class="c1">##########################################################################</span>
+
+    <span class="c1"># need to flush model on change or reject</span>
+
+<div class="viewcode-block" id="Models.reject"><a class="viewcode-back" href="../../aqt.html#aqt.models.Models.reject">[docs]</a>    <span class="k">def</span> <span class="nf">reject</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="n">saveGeom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;models&quot;</span><span class="p">)</span>
+        <span class="n">QDialog</span><span class="o">.</span><span class="n">reject</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="AddModel"><a class="viewcode-back" href="../../aqt.html#aqt.models.AddModel">[docs]</a><span class="k">class</span> <span class="nc">AddModel</span><span class="p">(</span><span class="n">QDialog</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mw</span><span class="p">:</span> <span class="n">AnkiQt</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">QWidget</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent_</span> <span class="o">=</span> <span class="n">parent</span> <span class="ow">or</span> <span class="n">mw</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span> <span class="o">=</span> <span class="n">mw</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span> <span class="o">=</span> <span class="n">mw</span><span class="o">.</span><span class="n">col</span>
+        <span class="n">QDialog</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent_</span><span class="p">,</span> <span class="n">Qt</span><span class="o">.</span><span class="n">Window</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dialog</span> <span class="o">=</span> <span class="n">aqt</span><span class="o">.</span><span class="n">forms</span><span class="o">.</span><span class="n">addmodel</span><span class="o">.</span><span class="n">Ui_Dialog</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dialog</span><span class="o">.</span><span class="n">setupUi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="c1"># standard models</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">models</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span> <span class="ow">in</span> <span class="n">stdmodels</span><span class="o">.</span><span class="n">get_stock_notetypes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="p">):</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="n">QListWidgetItem</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Add: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dialog</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="kc">True</span><span class="p">,</span> <span class="n">func</span><span class="p">))</span>
+        <span class="c1"># add copies</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="n">itemgetter</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)):</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="n">QListWidgetItem</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Clone: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">m</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dialog</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="kc">False</span><span class="p">,</span> <span class="n">m</span><span class="p">))</span>  <span class="c1"># type: ignore</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dialog</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">setCurrentRow</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="c1"># the list widget will swallow the enter key</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">QShortcut</span><span class="p">(</span><span class="n">QKeySequence</span><span class="p">(</span><span class="s2">&quot;Return&quot;</span><span class="p">),</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">activated</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">accept</span><span class="p">)</span>
+        <span class="c1"># help</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dialog</span><span class="o">.</span><span class="n">buttonBox</span><span class="o">.</span><span class="n">helpRequested</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onHelp</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AddModel.get"><a class="viewcode-back" href="../../aqt.html#aqt.models.AddModel.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span></div>
+
+<div class="viewcode-block" id="AddModel.reject"><a class="viewcode-back" href="../../aqt.html#aqt.models.AddModel.reject">[docs]</a>    <span class="k">def</span> <span class="nf">reject</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">QDialog</span><span class="o">.</span><span class="n">reject</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AddModel.accept"><a class="viewcode-back" href="../../aqt.html#aqt.models.AddModel.accept">[docs]</a>    <span class="k">def</span> <span class="nf">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="p">(</span><span class="n">isStd</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">dialog</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">currentRow</span><span class="p">()]</span>
+        <span class="k">if</span> <span class="n">isStd</span><span class="p">:</span>
+            <span class="c1"># create</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># add copy to deck</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">setCurrent</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+        <span class="n">QDialog</span><span class="o">.</span><span class="n">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AddModel.onHelp"><a class="viewcode-back" href="../../aqt.html#aqt.models.AddModel.onHelp">[docs]</a>    <span class="k">def</span> <span class="nf">onHelp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">openHelp</span><span class="p">(</span><span class="s2">&quot;notetypes&quot;</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Abdelrahman Hamdy
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

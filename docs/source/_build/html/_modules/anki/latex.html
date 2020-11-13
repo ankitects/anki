@@ -1,0 +1,390 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>anki.latex &mdash; Anki  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Anki
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.html">anki package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aqt.html">aqt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../genhooks_gui.html">genhooks_gui module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tools.html">tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Anki</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>anki.latex</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for anki.latex</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright: Ankitects Pty Ltd and contributors</span>
+<span class="c1"># License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span> <span class="nn">html</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span> <span class="nn">anki</span>
+<span class="kn">from</span> <span class="nn">anki</span> <span class="kn">import</span> <span class="n">hooks</span>
+<span class="kn">from</span> <span class="nn">anki.lang</span> <span class="kn">import</span> <span class="n">_</span>
+<span class="kn">from</span> <span class="nn">anki.models</span> <span class="kn">import</span> <span class="n">NoteType</span>
+<span class="kn">from</span> <span class="nn">anki.rsbackend</span> <span class="kn">import</span> <span class="n">pb</span>
+<span class="kn">from</span> <span class="nn">anki.template</span> <span class="kn">import</span> <span class="n">TemplateRenderContext</span><span class="p">,</span> <span class="n">TemplateRenderOutput</span>
+<span class="kn">from</span> <span class="nn">anki.utils</span> <span class="kn">import</span> <span class="n">call</span><span class="p">,</span> <span class="n">isMac</span><span class="p">,</span> <span class="n">namedtmp</span><span class="p">,</span> <span class="n">tmpdir</span>
+
+<span class="n">pngCommands</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[</span><span class="s2">&quot;latex&quot;</span><span class="p">,</span> <span class="s2">&quot;-interaction=nonstopmode&quot;</span><span class="p">,</span> <span class="s2">&quot;tmp.tex&quot;</span><span class="p">],</span>
+    <span class="p">[</span><span class="s2">&quot;dvipng&quot;</span><span class="p">,</span> <span class="s2">&quot;-D&quot;</span><span class="p">,</span> <span class="s2">&quot;200&quot;</span><span class="p">,</span> <span class="s2">&quot;-T&quot;</span><span class="p">,</span> <span class="s2">&quot;tight&quot;</span><span class="p">,</span> <span class="s2">&quot;tmp.dvi&quot;</span><span class="p">,</span> <span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="s2">&quot;tmp.png&quot;</span><span class="p">],</span>
+<span class="p">]</span>
+
+<span class="n">svgCommands</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[</span><span class="s2">&quot;latex&quot;</span><span class="p">,</span> <span class="s2">&quot;-interaction=nonstopmode&quot;</span><span class="p">,</span> <span class="s2">&quot;tmp.tex&quot;</span><span class="p">],</span>
+    <span class="p">[</span><span class="s2">&quot;dvisvgm&quot;</span><span class="p">,</span> <span class="s2">&quot;--no-fonts&quot;</span><span class="p">,</span> <span class="s2">&quot;--exact&quot;</span><span class="p">,</span> <span class="s2">&quot;-Z&quot;</span><span class="p">,</span> <span class="s2">&quot;2&quot;</span><span class="p">,</span> <span class="s2">&quot;tmp.dvi&quot;</span><span class="p">,</span> <span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="s2">&quot;tmp.svg&quot;</span><span class="p">],</span>
+<span class="p">]</span>
+
+<span class="n">build</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># if off, use existing media but don&#39;t create new</span>
+
+<span class="c1"># add standard tex install location to osx</span>
+<span class="k">if</span> <span class="n">isMac</span><span class="p">:</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="s2">&quot;:/usr/texbin:/Library/TeX/texbin&quot;</span>
+
+
+<div class="viewcode-block" id="ExtractedLatex"><a class="viewcode-back" href="../../anki.html#anki.latex.ExtractedLatex">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">ExtractedLatex</span><span class="p">:</span>
+    <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">latex_body</span><span class="p">:</span> <span class="nb">str</span></div>
+
+
+<div class="viewcode-block" id="ExtractedLatexOutput"><a class="viewcode-back" href="../../anki.html#anki.latex.ExtractedLatexOutput">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">ExtractedLatexOutput</span><span class="p">:</span>
+    <span class="n">html</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">latex</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ExtractedLatex</span><span class="p">]</span>
+
+<div class="viewcode-block" id="ExtractedLatexOutput.from_proto"><a class="viewcode-back" href="../../anki.html#anki.latex.ExtractedLatexOutput.from_proto">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_proto</span><span class="p">(</span><span class="n">proto</span><span class="p">:</span> <span class="n">pb</span><span class="o">.</span><span class="n">ExtractLatexOut</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExtractedLatexOutput</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ExtractedLatexOutput</span><span class="p">(</span>
+            <span class="n">html</span><span class="o">=</span><span class="n">proto</span><span class="o">.</span><span class="n">text</span><span class="p">,</span>
+            <span class="n">latex</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">ExtractedLatex</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">l</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="n">latex_body</span><span class="o">=</span><span class="n">l</span><span class="o">.</span><span class="n">latex_body</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">proto</span><span class="o">.</span><span class="n">latex</span>
+            <span class="p">],</span>
+        <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="on_card_did_render"><a class="viewcode-back" href="../../anki.html#anki.latex.on_card_did_render">[docs]</a><span class="k">def</span> <span class="nf">on_card_did_render</span><span class="p">(</span>
+    <span class="n">output</span><span class="p">:</span> <span class="n">TemplateRenderOutput</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">TemplateRenderContext</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">output</span><span class="o">.</span><span class="n">question_text</span> <span class="o">=</span> <span class="n">render_latex</span><span class="p">(</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">question_text</span><span class="p">,</span> <span class="n">ctx</span><span class="o">.</span><span class="n">note_type</span><span class="p">(),</span> <span class="n">ctx</span><span class="o">.</span><span class="n">col</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="n">output</span><span class="o">.</span><span class="n">answer_text</span> <span class="o">=</span> <span class="n">render_latex</span><span class="p">(</span><span class="n">output</span><span class="o">.</span><span class="n">answer_text</span><span class="p">,</span> <span class="n">ctx</span><span class="o">.</span><span class="n">note_type</span><span class="p">(),</span> <span class="n">ctx</span><span class="o">.</span><span class="n">col</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="render_latex"><a class="viewcode-back" href="../../anki.html#anki.latex.render_latex">[docs]</a><span class="k">def</span> <span class="nf">render_latex</span><span class="p">(</span><span class="n">html</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">NoteType</span><span class="p">,</span> <span class="n">col</span><span class="p">:</span> <span class="n">anki</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">Collection</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="s2">&quot;Convert embedded latex tags in text to image links.&quot;</span>
+    <span class="n">html</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">render_latex_returning_errors</span><span class="p">(</span><span class="n">html</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">err</span><span class="p">:</span>
+        <span class="n">html</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">html</span></div>
+
+
+<div class="viewcode-block" id="render_latex_returning_errors"><a class="viewcode-back" href="../../anki.html#anki.latex.render_latex_returning_errors">[docs]</a><span class="k">def</span> <span class="nf">render_latex_returning_errors</span><span class="p">(</span>
+    <span class="n">html</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">model</span><span class="p">:</span> <span class="n">NoteType</span><span class="p">,</span>
+    <span class="n">col</span><span class="p">:</span> <span class="n">anki</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">Collection</span><span class="p">,</span>
+    <span class="n">expand_clozes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+    <span class="sd">&quot;&quot;&quot;Returns (text, errors).</span>
+
+<span class="sd">    errors will be non-empty if LaTeX failed to render.&quot;&quot;&quot;</span>
+    <span class="n">svg</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;latexsvg&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">header</span> <span class="o">=</span> <span class="n">model</span><span class="p">[</span><span class="s2">&quot;latexPre&quot;</span><span class="p">]</span>
+    <span class="n">footer</span> <span class="o">=</span> <span class="n">model</span><span class="p">[</span><span class="s2">&quot;latexPost&quot;</span><span class="p">]</span>
+
+    <span class="n">proto</span> <span class="o">=</span> <span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">extract_latex</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">html</span><span class="p">,</span> <span class="n">svg</span><span class="o">=</span><span class="n">svg</span><span class="p">,</span> <span class="n">expand_clozes</span><span class="o">=</span><span class="n">expand_clozes</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">ExtractedLatexOutput</span><span class="o">.</span><span class="n">from_proto</span><span class="p">(</span><span class="n">proto</span><span class="p">)</span>
+    <span class="n">errors</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">html</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">html</span>
+
+    <span class="k">for</span> <span class="n">latex</span> <span class="ow">in</span> <span class="n">out</span><span class="o">.</span><span class="n">latex</span><span class="p">:</span>
+        <span class="c1"># don&#39;t need to render?</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">build</span> <span class="ow">or</span> <span class="n">col</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">have</span><span class="p">(</span><span class="n">latex</span><span class="o">.</span><span class="n">filename</span><span class="p">):</span>
+            <span class="k">continue</span>
+
+        <span class="n">err</span> <span class="o">=</span> <span class="n">_save_latex_image</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">latex</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="n">footer</span><span class="p">,</span> <span class="n">svg</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">err</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">html</span><span class="p">,</span> <span class="n">errors</span></div>
+
+
+<span class="k">def</span> <span class="nf">_save_latex_image</span><span class="p">(</span>
+    <span class="n">col</span><span class="p">:</span> <span class="n">anki</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">Collection</span><span class="p">,</span>
+    <span class="n">extracted</span><span class="p">:</span> <span class="n">ExtractedLatex</span><span class="p">,</span>
+    <span class="n">header</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">footer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">svg</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="c1"># add header/footer</span>
+    <span class="n">latex</span> <span class="o">=</span> <span class="n">header</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">extracted</span><span class="o">.</span><span class="n">latex_body</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">footer</span>
+    <span class="c1"># it&#39;s only really secure if run in a jail, but these are the most common</span>
+    <span class="n">tmplatex</span> <span class="o">=</span> <span class="n">latex</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">includegraphics&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">bad</span> <span class="ow">in</span> <span class="p">(</span>
+        <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">write18&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">readline&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">input&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">include&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">catcode&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">openout&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">write&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">loop&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">def&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">shipout&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="c1"># don&#39;t mind if the sequence is only part of a command</span>
+        <span class="n">bad_re</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">bad</span> <span class="o">+</span> <span class="s2">&quot;[^a-zA-Z]&quot;</span>
+        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">bad_re</span><span class="p">,</span> <span class="n">tmplatex</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="n">_</span><span class="p">(</span>
+                    <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">For security reasons, &#39;%s&#39; is not allowed on cards. You can still use \</span>
+<span class="sd">it by placing the command in a different package, and importing that \</span>
+<span class="sd">package in the LaTeX header instead.&quot;&quot;&quot;</span>
+                <span class="p">)</span>
+                <span class="o">%</span> <span class="n">bad</span>
+            <span class="p">)</span>
+
+    <span class="c1"># commands to use</span>
+    <span class="k">if</span> <span class="n">svg</span><span class="p">:</span>
+        <span class="n">latexCmds</span> <span class="o">=</span> <span class="n">svgCommands</span>
+        <span class="n">ext</span> <span class="o">=</span> <span class="s2">&quot;svg&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">latexCmds</span> <span class="o">=</span> <span class="n">pngCommands</span>
+        <span class="n">ext</span> <span class="o">=</span> <span class="s2">&quot;png&quot;</span>
+
+    <span class="c1"># write into a temp file</span>
+    <span class="n">log</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">namedtmp</span><span class="p">(</span><span class="s2">&quot;latex_log.txt&quot;</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+    <span class="n">texpath</span> <span class="o">=</span> <span class="n">namedtmp</span><span class="p">(</span><span class="s2">&quot;tmp.tex&quot;</span><span class="p">)</span>
+    <span class="n">texfile</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">texpath</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf8&quot;</span><span class="p">)</span>
+    <span class="n">texfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">latex</span><span class="p">)</span>
+    <span class="n">texfile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">oldcwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+    <span class="n">png_or_svg</span> <span class="o">=</span> <span class="n">namedtmp</span><span class="p">(</span><span class="s2">&quot;tmp.</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ext</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># generate png/svg</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">latexCmd</span> <span class="ow">in</span> <span class="n">latexCmds</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">call</span><span class="p">(</span><span class="n">latexCmd</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">log</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">log</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">_errMsg</span><span class="p">(</span><span class="n">latexCmd</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">texpath</span><span class="p">)</span>
+        <span class="c1"># add to media</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">png_or_svg</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="n">col</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">write_data</span><span class="p">(</span><span class="n">extracted</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">png_or_svg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">oldcwd</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">_errMsg</span><span class="p">(</span><span class="nb">type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">texpath</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Error executing </span><span class="si">%s</span><span class="s2">.&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="nb">type</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&lt;br&gt;&quot;</span>
+    <span class="n">msg</span> <span class="o">+=</span> <span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Generated file: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">texpath</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&lt;br&gt;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">namedtmp</span><span class="p">(</span><span class="s2">&quot;latex_log.txt&quot;</span><span class="p">,</span> <span class="n">rm</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">log</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">log</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">()</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;&lt;small&gt;&lt;pre&gt;&quot;</span> <span class="o">+</span> <span class="n">html</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">log</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&lt;/pre&gt;&lt;/small&gt;&quot;</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Have you installed latex and dvipng/dvisvgm?&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">msg</span>
+
+
+<span class="n">hooks</span><span class="o">.</span><span class="n">card_did_render</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">on_card_did_render</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Abdelrahman Hamdy
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

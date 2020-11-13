@@ -1,0 +1,479 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>aqt.overview &mdash; Anki  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+        <script async="async" kind="hypothesis" src="https://hypothes.is/embed.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Anki
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.html">anki package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.importing.html">anki.importing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aqt.html">aqt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../genhooks_gui.html">genhooks_gui module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tools.html">tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Anki</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../aqt.html">aqt</a> &raquo;</li>
+        
+      <li>aqt.overview</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for aqt.overview</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># Copyright: Ankitects Pty Ltd and contributors</span>
+<span class="c1"># License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+
+<span class="kn">import</span> <span class="nn">aqt</span>
+<span class="kn">from</span> <span class="nn">anki.lang</span> <span class="kn">import</span> <span class="n">_</span>
+<span class="kn">from</span> <span class="nn">aqt</span> <span class="kn">import</span> <span class="n">gui_hooks</span>
+<span class="kn">from</span> <span class="nn">aqt.sound</span> <span class="kn">import</span> <span class="n">av_player</span>
+<span class="kn">from</span> <span class="nn">aqt.toolbar</span> <span class="kn">import</span> <span class="n">BottomBar</span>
+<span class="kn">from</span> <span class="nn">aqt.utils</span> <span class="kn">import</span> <span class="n">askUserDialog</span><span class="p">,</span> <span class="n">openLink</span><span class="p">,</span> <span class="n">shortcut</span><span class="p">,</span> <span class="n">tooltip</span>
+
+
+<div class="viewcode-block" id="OverviewBottomBar"><a class="viewcode-back" href="../../aqt.html#aqt.overview.OverviewBottomBar">[docs]</a><span class="k">class</span> <span class="nc">OverviewBottomBar</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">overview</span><span class="p">:</span> <span class="n">Overview</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">overview</span> <span class="o">=</span> <span class="n">overview</span></div>
+
+
+<div class="viewcode-block" id="OverviewContent"><a class="viewcode-back" href="../../aqt.html#aqt.overview.OverviewContent">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">OverviewContent</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Stores sections of HTML content that the overview will be</span>
+<span class="sd">    populated with.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        deck {str} -- Plain text deck name</span>
+<span class="sd">        shareLink {str} -- HTML of the share link section</span>
+<span class="sd">        desc {str} -- HTML of the deck description section</span>
+<span class="sd">        table {str} -- HTML of the deck stats table section</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">deck</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">shareLink</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">desc</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">table</span><span class="p">:</span> <span class="nb">str</span></div>
+
+
+<div class="viewcode-block" id="Overview"><a class="viewcode-back" href="../../aqt.html#aqt.overview.Overview">[docs]</a><span class="k">class</span> <span class="nc">Overview</span><span class="p">:</span>
+    <span class="s2">&quot;Deck overview.&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mw</span><span class="p">:</span> <span class="n">aqt</span><span class="o">.</span><span class="n">AnkiQt</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span> <span class="o">=</span> <span class="n">mw</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">web</span> <span class="o">=</span> <span class="n">mw</span><span class="o">.</span><span class="n">web</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bottom</span> <span class="o">=</span> <span class="n">BottomBar</span><span class="p">(</span><span class="n">mw</span><span class="p">,</span> <span class="n">mw</span><span class="o">.</span><span class="n">bottomWeb</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Overview.show"><a class="viewcode-back" href="../../aqt.html#aqt.overview.Overview.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">av_player</span><span class="o">.</span><span class="n">stop_and_clear_queue</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">set_bridge_command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_linkHandler</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">setStateShortcuts</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_shortcutKeys</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refresh</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Overview.refresh"><a class="viewcode-back" href="../../aqt.html#aqt.overview.Overview.refresh">[docs]</a>    <span class="k">def</span> <span class="nf">refresh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_renderPage</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_renderBottom</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">setFocus</span><span class="p">()</span>
+        <span class="n">gui_hooks</span><span class="o">.</span><span class="n">overview_did_refresh</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+    <span class="c1"># Handlers</span>
+    <span class="c1">############################################################</span>
+
+    <span class="k">def</span> <span class="nf">_linkHandler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">url</span> <span class="o">==</span> <span class="s2">&quot;study&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">startTimebox</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">moveToState</span><span class="p">(</span><span class="s2">&quot;review&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="s2">&quot;overview&quot;</span><span class="p">:</span>
+                <span class="n">tooltip</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;No cards are due yet.&quot;</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">url</span> <span class="o">==</span> <span class="s2">&quot;anki&quot;</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;anki menu&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">url</span> <span class="o">==</span> <span class="s2">&quot;opts&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">onDeckConf</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">url</span> <span class="o">==</span> <span class="s2">&quot;cram&quot;</span><span class="p">:</span>
+            <span class="n">deck</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">current</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">onCram</span><span class="p">(</span><span class="s2">&quot;&#39;deck:</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">deck</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">url</span> <span class="o">==</span> <span class="s2">&quot;refresh&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">rebuildDyn</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">url</span> <span class="o">==</span> <span class="s2">&quot;empty&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">emptyDyn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">selected</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">url</span> <span class="o">==</span> <span class="s2">&quot;decks&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">moveToState</span><span class="p">(</span><span class="s2">&quot;deckBrowser&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">url</span> <span class="o">==</span> <span class="s2">&quot;review&quot;</span><span class="p">:</span>
+            <span class="n">openLink</span><span class="p">(</span><span class="n">aqt</span><span class="o">.</span><span class="n">appShared</span> <span class="o">+</span> <span class="s2">&quot;info/</span><span class="si">%s</span><span class="s2">?v=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sidVer</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">url</span> <span class="o">==</span> <span class="s2">&quot;studymore&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">onStudyMore</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">url</span> <span class="o">==</span> <span class="s2">&quot;unbury&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">onUnbury</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">url</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;http&quot;</span><span class="p">):</span>
+            <span class="n">openLink</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">_shortcutKeys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="p">(</span><span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">onDeckConf</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onRebuildKey</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;e&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onEmptyKey</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onCustomStudyKey</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;u&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onUnbury</span><span class="p">),</span>
+        <span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_filteredDeck</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">current</span><span class="p">()[</span><span class="s2">&quot;dyn&quot;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="Overview.onRebuildKey"><a class="viewcode-back" href="../../aqt.html#aqt.overview.Overview.onRebuildKey">[docs]</a>    <span class="k">def</span> <span class="nf">onRebuildKey</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filteredDeck</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">rebuildDyn</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Overview.onEmptyKey"><a class="viewcode-back" href="../../aqt.html#aqt.overview.Overview.onEmptyKey">[docs]</a>    <span class="k">def</span> <span class="nf">onEmptyKey</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filteredDeck</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">emptyDyn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">selected</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Overview.onCustomStudyKey"><a class="viewcode-back" href="../../aqt.html#aqt.overview.Overview.onCustomStudyKey">[docs]</a>    <span class="k">def</span> <span class="nf">onCustomStudyKey</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filteredDeck</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">onStudyMore</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Overview.onUnbury"><a class="viewcode-back" href="../../aqt.html#aqt.overview.Overview.onUnbury">[docs]</a>    <span class="k">def</span> <span class="nf">onUnbury</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">schedVer</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">unburyCardsForDeck</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+            <span class="k">return</span>
+
+        <span class="n">sibs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">haveBuriedSiblings</span><span class="p">()</span>
+        <span class="n">man</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">haveManuallyBuried</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">sibs</span> <span class="ow">and</span> <span class="n">man</span><span class="p">:</span>
+            <span class="n">opts</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Manually Buried Cards&quot;</span><span class="p">),</span>
+                <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Buried Siblings&quot;</span><span class="p">),</span>
+                <span class="n">_</span><span class="p">(</span><span class="s2">&quot;All Buried Cards&quot;</span><span class="p">),</span>
+                <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Cancel&quot;</span><span class="p">),</span>
+            <span class="p">]</span>
+
+            <span class="n">diag</span> <span class="o">=</span> <span class="n">askUserDialog</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;What would you like to unbury?&quot;</span><span class="p">),</span> <span class="n">opts</span><span class="p">)</span>
+            <span class="n">diag</span><span class="o">.</span><span class="n">setDefault</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="n">diag</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">ret</span> <span class="o">==</span> <span class="n">opts</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">unburyCardsForDeck</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s2">&quot;manual&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">ret</span> <span class="o">==</span> <span class="n">opts</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">unburyCardsForDeck</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s2">&quot;siblings&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">ret</span> <span class="o">==</span> <span class="n">opts</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">unburyCardsForDeck</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">unburyCardsForDeck</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span></div>
+
+    <span class="c1"># HTML</span>
+    <span class="c1">############################################################</span>
+
+    <span class="k">def</span> <span class="nf">_renderPage</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">but</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">button</span>
+        <span class="n">deck</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">current</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sid</span> <span class="o">=</span> <span class="n">deck</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sharedFrom&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sid</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sidVer</span> <span class="o">=</span> <span class="n">deck</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ver&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">shareLink</span> <span class="o">=</span> <span class="s1">&#39;&lt;a class=smallLink href=&quot;review&quot;&gt;Reviews and Updates&lt;/a&gt;&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">shareLink</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="n">OverviewContent</span><span class="p">(</span>
+            <span class="n">deck</span><span class="o">=</span><span class="n">deck</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
+            <span class="n">shareLink</span><span class="o">=</span><span class="n">shareLink</span><span class="p">,</span>
+            <span class="n">desc</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_desc</span><span class="p">(</span><span class="n">deck</span><span class="p">),</span>
+            <span class="n">table</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_table</span><span class="p">(),</span>
+        <span class="p">)</span>
+        <span class="n">gui_hooks</span><span class="o">.</span><span class="n">overview_will_render_content</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">stdHtml</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_body</span> <span class="o">%</span> <span class="n">content</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">,</span>
+            <span class="n">css</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;overview.css&quot;</span><span class="p">],</span>
+            <span class="n">js</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;jquery.js&quot;</span><span class="p">,</span> <span class="s2">&quot;overview.js&quot;</span><span class="p">],</span>
+            <span class="n">context</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_desc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deck</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">deck</span><span class="p">[</span><span class="s2">&quot;dyn&quot;</span><span class="p">]:</span>
+            <span class="n">desc</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span>
+                <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">This is a special deck for studying outside of the normal schedule.&quot;&quot;&quot;</span>
+            <span class="p">)</span>
+            <span class="n">desc</span> <span class="o">+=</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">_</span><span class="p">(</span>
+                <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">Cards will be automatically returned to their original decks after you review \</span>
+<span class="sd">them.&quot;&quot;&quot;</span>
+            <span class="p">)</span>
+            <span class="n">desc</span> <span class="o">+=</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">_</span><span class="p">(</span>
+                <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">Deleting this deck from the deck list will return all remaining cards \</span>
+<span class="sd">to their original deck.&quot;&quot;&quot;</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">desc</span> <span class="o">=</span> <span class="n">deck</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;desc&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">desc</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;&lt;p&gt;&quot;</span>
+        <span class="k">if</span> <span class="n">deck</span><span class="p">[</span><span class="s2">&quot;dyn&quot;</span><span class="p">]:</span>
+            <span class="n">dyn</span> <span class="o">=</span> <span class="s2">&quot;dyn&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dyn</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">return</span> <span class="s1">&#39;&lt;div class=&quot;descfont descmid description </span><span class="si">%s</span><span class="s1">&quot;&gt;</span><span class="si">%s</span><span class="s1">&lt;/div&gt;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">dyn</span><span class="p">,</span> <span class="n">desc</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_table</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">counts</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">counts</span><span class="p">())</span>
+        <span class="n">finished</span> <span class="o">=</span> <span class="ow">not</span> <span class="nb">sum</span><span class="p">(</span><span class="n">counts</span><span class="p">)</span>
+        <span class="n">but</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">button</span>
+        <span class="k">if</span> <span class="n">finished</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;&lt;div style=&quot;white-space: pre-wrap;&quot;&gt;</span><span class="si">%s</span><span class="s1">&lt;/div&gt;&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">finishedMsg</span><span class="p">()</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">&lt;table width=400 cellpadding=5&gt;</span>
+<span class="s2">&lt;tr&gt;&lt;td align=center valign=top&gt;</span>
+<span class="s2">&lt;table cellspacing=5&gt;</span>
+<span class="s2">&lt;tr&gt;&lt;td&gt;</span><span class="si">%s</span><span class="s2">:&lt;/td&gt;&lt;td&gt;&lt;b&gt;&lt;span class=new-count&gt;</span><span class="si">%s</span><span class="s2">&lt;/span&gt;&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="s2">&lt;tr&gt;&lt;td&gt;</span><span class="si">%s</span><span class="s2">:&lt;/td&gt;&lt;td&gt;&lt;b&gt;&lt;span class=learn-count&gt;</span><span class="si">%s</span><span class="s2">&lt;/span&gt;&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="s2">&lt;tr&gt;&lt;td&gt;</span><span class="si">%s</span><span class="s2">:&lt;/td&gt;&lt;td&gt;&lt;b&gt;&lt;span class=review-count&gt;</span><span class="si">%s</span><span class="s2">&lt;/span&gt;&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="s2">&lt;/table&gt;</span>
+<span class="s2">&lt;/td&gt;&lt;td align=center&gt;</span>
+<span class="si">%s</span><span class="s2">&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&quot;&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="n">_</span><span class="p">(</span><span class="s2">&quot;New&quot;</span><span class="p">),</span>
+                <span class="n">counts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Learning&quot;</span><span class="p">),</span>
+                <span class="n">counts</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="n">_</span><span class="p">(</span><span class="s2">&quot;To Review&quot;</span><span class="p">),</span>
+                <span class="n">counts</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                <span class="n">but</span><span class="p">(</span><span class="s2">&quot;study&quot;</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Study Now&quot;</span><span class="p">),</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;study&quot;</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="s2">&quot; autofocus&quot;</span><span class="p">),</span>
+            <span class="p">)</span>
+
+    <span class="n">_body</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">&lt;center&gt;</span>
+<span class="s2">&lt;h3&gt;</span><span class="si">%(deck)s</span><span class="s2">&lt;/h3&gt;</span>
+<span class="si">%(shareLink)s</span><span class="s2"></span>
+<span class="si">%(desc)s</span><span class="s2"></span>
+<span class="si">%(table)s</span><span class="s2"></span>
+<span class="s2">&lt;/center&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="c1"># Bottom area</span>
+    <span class="c1">######################################################################</span>
+
+    <span class="k">def</span> <span class="nf">_renderBottom</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">links</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">[</span><span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="s2">&quot;opts&quot;</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Options&quot;</span><span class="p">)],</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">current</span><span class="p">()[</span><span class="s2">&quot;dyn&quot;</span><span class="p">]:</span>
+            <span class="n">links</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="s2">&quot;refresh&quot;</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Rebuild&quot;</span><span class="p">)])</span>
+            <span class="n">links</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;E&quot;</span><span class="p">,</span> <span class="s2">&quot;empty&quot;</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Empty&quot;</span><span class="p">)])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">links</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;studymore&quot;</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Custom Study&quot;</span><span class="p">)])</span>
+            <span class="c1"># links.append([&quot;F&quot;, &quot;cram&quot;, _(&quot;Filter/Cram&quot;)])</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">haveBuried</span><span class="p">():</span>
+            <span class="n">links</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s2">&quot;U&quot;</span><span class="p">,</span> <span class="s2">&quot;unbury&quot;</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Unbury&quot;</span><span class="p">)])</span>
+        <span class="n">buf</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">links</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Shortcut key: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">shortcut</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">buf</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">&lt;button title=&quot;</span><span class="si">%s</span><span class="s2">&quot; onclick=&#39;pycmd(&quot;</span><span class="si">%s</span><span class="s2">&quot;)&#39;&gt;</span><span class="si">%s</span><span class="s2">&lt;/button&gt;&quot;&quot;&quot;</span> <span class="o">%</span> <span class="nb">tuple</span><span class="p">(</span>
+                <span class="n">b</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bottom</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span>
+            <span class="n">buf</span><span class="o">=</span><span class="n">buf</span><span class="p">,</span> <span class="n">link_handler</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_linkHandler</span><span class="p">,</span> <span class="n">web_context</span><span class="o">=</span><span class="n">OverviewBottomBar</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Studying more</span>
+    <span class="c1">######################################################################</span>
+
+<div class="viewcode-block" id="Overview.onStudyMore"><a class="viewcode-back" href="../../aqt.html#aqt.overview.Overview.onStudyMore">[docs]</a>    <span class="k">def</span> <span class="nf">onStudyMore</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="kn">import</span> <span class="nn">aqt.customstudy</span>
+
+        <span class="n">aqt</span><span class="o">.</span><span class="n">customstudy</span><span class="o">.</span><span class="n">CustomStudy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Abdelrahman Hamdy
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

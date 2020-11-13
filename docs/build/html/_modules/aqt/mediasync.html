@@ -1,0 +1,429 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>aqt.mediasync &mdash; Anki  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+        <script async="async" kind="hypothesis" src="https://hypothes.is/embed.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Anki
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.html">anki package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.importing.html">anki.importing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aqt.html">aqt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../genhooks_gui.html">genhooks_gui module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tools.html">tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Anki</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../aqt.html">aqt</a> &raquo;</li>
+        
+      <li>aqt.mediasync</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for aqt.mediasync</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright: Ankitects Pty Ltd and contributors</span>
+<span class="c1"># License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">concurrent.futures</span> <span class="kn">import</span> <span class="n">Future</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">aqt</span>
+<span class="kn">from</span> <span class="nn">anki.rsbackend</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">TR</span><span class="p">,</span>
+    <span class="n">Interrupted</span><span class="p">,</span>
+    <span class="n">MediaSyncProgress</span><span class="p">,</span>
+    <span class="n">NetworkError</span><span class="p">,</span>
+    <span class="n">ProgressKind</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">anki.types</span> <span class="kn">import</span> <span class="n">assert_impossible</span>
+<span class="kn">from</span> <span class="nn">anki.utils</span> <span class="kn">import</span> <span class="n">intTime</span>
+<span class="kn">from</span> <span class="nn">aqt</span> <span class="kn">import</span> <span class="n">gui_hooks</span>
+<span class="kn">from</span> <span class="nn">aqt.qt</span> <span class="kn">import</span> <span class="n">QDialog</span><span class="p">,</span> <span class="n">QDialogButtonBox</span><span class="p">,</span> <span class="n">QPushButton</span><span class="p">,</span> <span class="n">QTextCursor</span><span class="p">,</span> <span class="n">QTimer</span><span class="p">,</span> <span class="n">qconnect</span>
+<span class="kn">from</span> <span class="nn">aqt.utils</span> <span class="kn">import</span> <span class="n">showWarning</span><span class="p">,</span> <span class="n">tr</span>
+
+<span class="n">LogEntry</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">MediaSyncProgress</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="LogEntryWithTime"><a class="viewcode-back" href="../../aqt.html#aqt.mediasync.LogEntryWithTime">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">LogEntryWithTime</span><span class="p">:</span>
+    <span class="n">time</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">entry</span><span class="p">:</span> <span class="n">LogEntry</span></div>
+
+
+<div class="viewcode-block" id="MediaSyncer"><a class="viewcode-back" href="../../aqt.html#aqt.mediasync.MediaSyncer">[docs]</a><span class="k">class</span> <span class="nc">MediaSyncer</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mw</span><span class="p">:</span> <span class="n">aqt</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">AnkiQt</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span> <span class="o">=</span> <span class="n">mw</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_syncing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">LogEntryWithTime</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_progress_timer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">QTimer</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">gui_hooks</span><span class="o">.</span><span class="n">media_sync_did_start_or_stop</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_start_stop</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_on_progress</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">progress</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">latest_progress</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">progress</span><span class="o">.</span><span class="n">kind</span> <span class="o">!=</span> <span class="n">ProgressKind</span><span class="o">.</span><span class="n">MediaSync</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">progress</span><span class="o">.</span><span class="n">val</span><span class="p">,</span> <span class="n">MediaSyncProgress</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_and_notify</span><span class="p">(</span><span class="n">progress</span><span class="o">.</span><span class="n">val</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MediaSyncer.start"><a class="viewcode-back" href="../../aqt.html#aqt.mediasync.MediaSyncer.start">[docs]</a>    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Start media syncing in the background, if it&#39;s not already running.&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_syncing</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">media_syncing_enabled</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_and_notify</span><span class="p">(</span><span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">SYNC_MEDIA_DISABLED</span><span class="p">))</span>
+            <span class="k">return</span>
+
+        <span class="n">auth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">sync_auth</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">auth</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_and_notify</span><span class="p">(</span><span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">SYNC_MEDIA_STARTING</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_syncing</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_progress_timer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">timer</span><span class="p">(</span>
+            <span class="mi">1000</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_progress</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="n">gui_hooks</span><span class="o">.</span><span class="n">media_sync_did_start_or_stop</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">run</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">sync_media</span><span class="p">(</span><span class="n">auth</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">taskman</span><span class="o">.</span><span class="n">run_in_background</span><span class="p">(</span><span class="n">run</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_finished</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_log_and_notify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">:</span> <span class="n">LogEntry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">entry_with_time</span> <span class="o">=</span> <span class="n">LogEntryWithTime</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">intTime</span><span class="p">(),</span> <span class="n">entry</span><span class="o">=</span><span class="n">entry</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry_with_time</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">taskman</span><span class="o">.</span><span class="n">run_on_main</span><span class="p">(</span>
+            <span class="k">lambda</span><span class="p">:</span> <span class="n">gui_hooks</span><span class="o">.</span><span class="n">media_sync_did_progress</span><span class="p">(</span><span class="n">entry_with_time</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_on_finished</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">future</span><span class="p">:</span> <span class="n">Future</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_syncing</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_progress_timer</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_progress_timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_progress_timer</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">gui_hooks</span><span class="o">.</span><span class="n">media_sync_did_start_or_stop</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">exc</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="n">exception</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">exc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_handle_sync_error</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_and_notify</span><span class="p">(</span><span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">SYNC_MEDIA_COMPLETE</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_handle_sync_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc</span><span class="p">:</span> <span class="ne">BaseException</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">Interrupted</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_and_notify</span><span class="p">(</span><span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">SYNC_MEDIA_ABORTED</span><span class="p">))</span>
+            <span class="k">return</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">NetworkError</span><span class="p">):</span>
+            <span class="c1"># avoid popups for network errors</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_and_notify</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_and_notify</span><span class="p">(</span><span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">SYNC_MEDIA_FAILED</span><span class="p">))</span>
+        <span class="n">showWarning</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
+
+<div class="viewcode-block" id="MediaSyncer.entries"><a class="viewcode-back" href="../../aqt.html#aqt.mediasync.MediaSyncer.entries">[docs]</a>    <span class="k">def</span> <span class="nf">entries</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">LogEntryWithTime</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log</span></div>
+
+<div class="viewcode-block" id="MediaSyncer.abort"><a class="viewcode-back" href="../../aqt.html#aqt.mediasync.MediaSyncer.abort">[docs]</a>    <span class="k">def</span> <span class="nf">abort</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_syncing</span><span class="p">():</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_and_notify</span><span class="p">(</span><span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">SYNC_MEDIA_ABORTING</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">set_wants_abort</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">abort_media_sync</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="MediaSyncer.is_syncing"><a class="viewcode-back" href="../../aqt.html#aqt.mediasync.MediaSyncer.is_syncing">[docs]</a>    <span class="k">def</span> <span class="nf">is_syncing</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_syncing</span></div>
+
+    <span class="k">def</span> <span class="nf">_on_start_stop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">running</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">toolbar</span><span class="o">.</span><span class="n">set_sync_active</span><span class="p">(</span><span class="n">running</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MediaSyncer.show_sync_log"><a class="viewcode-back" href="../../aqt.html#aqt.mediasync.MediaSyncer.show_sync_log">[docs]</a>    <span class="k">def</span> <span class="nf">show_sync_log</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">aqt</span><span class="o">.</span><span class="n">dialogs</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;sync_log&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MediaSyncer.show_diag_until_finished"><a class="viewcode-back" href="../../aqt.html#aqt.mediasync.MediaSyncer.show_diag_until_finished">[docs]</a>    <span class="k">def</span> <span class="nf">show_diag_until_finished</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">on_finished</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]):</span>
+        <span class="c1"># nothing to do if not syncing</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_syncing</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">on_finished</span><span class="p">()</span>
+
+        <span class="n">diag</span><span class="p">:</span> <span class="n">MediaSyncDialog</span> <span class="o">=</span> <span class="n">aqt</span><span class="o">.</span><span class="n">dialogs</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;sync_log&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">diag</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+        <span class="n">timer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">QTimer</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">def</span> <span class="nf">check_finished</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_syncing</span><span class="p">():</span>
+                <span class="n">timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+                <span class="n">on_finished</span><span class="p">()</span>
+
+        <span class="n">timer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">timer</span><span class="p">(</span><span class="mi">150</span><span class="p">,</span> <span class="n">check_finished</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MediaSyncer.seconds_since_last_sync"><a class="viewcode-back" href="../../aqt.html#aqt.mediasync.MediaSyncer.seconds_since_last_sync">[docs]</a>    <span class="k">def</span> <span class="nf">seconds_since_last_sync</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_syncing</span><span class="p">():</span>
+            <span class="k">return</span> <span class="mi">0</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="p">:</span>
+            <span class="n">last</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">time</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">last</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="n">intTime</span><span class="p">()</span> <span class="o">-</span> <span class="n">last</span></div></div>
+
+
+<div class="viewcode-block" id="MediaSyncDialog"><a class="viewcode-back" href="../../aqt.html#aqt.mediasync.MediaSyncDialog">[docs]</a><span class="k">class</span> <span class="nc">MediaSyncDialog</span><span class="p">(</span><span class="n">QDialog</span><span class="p">):</span>
+    <span class="n">silentlyClose</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">mw</span><span class="p">:</span> <span class="n">aqt</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">AnkiQt</span><span class="p">,</span> <span class="n">syncer</span><span class="p">:</span> <span class="n">MediaSyncer</span><span class="p">,</span> <span class="n">close_when_done</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">mw</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span> <span class="o">=</span> <span class="n">mw</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_syncer</span> <span class="o">=</span> <span class="n">syncer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_close_when_done</span> <span class="o">=</span> <span class="n">close_when_done</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">form</span> <span class="o">=</span> <span class="n">aqt</span><span class="o">.</span><span class="n">forms</span><span class="o">.</span><span class="n">synclog</span><span class="o">.</span><span class="n">Ui_Dialog</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">setupUi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">SYNC_MEDIA_LOG_TITLE</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">abort_button</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">SYNC_ABORT_BUTTON</span><span class="p">))</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">abort_button</span><span class="o">.</span><span class="n">clicked</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_abort</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">abort_button</span><span class="o">.</span><span class="n">setAutoDefault</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">buttonBox</span><span class="o">.</span><span class="n">addButton</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">abort_button</span><span class="p">,</span> <span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">ActionRole</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">abort_button</span><span class="o">.</span><span class="n">setHidden</span><span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_syncer</span><span class="o">.</span><span class="n">is_syncing</span><span class="p">())</span>
+
+        <span class="n">gui_hooks</span><span class="o">.</span><span class="n">media_sync_did_progress</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_log_entry</span><span class="p">)</span>
+        <span class="n">gui_hooks</span><span class="o">.</span><span class="n">media_sync_did_start_or_stop</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_start_stop</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">setPlainText</span><span class="p">(</span>
+            <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_entry_to_text</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">syncer</span><span class="o">.</span><span class="n">entries</span><span class="p">())</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">moveCursor</span><span class="p">(</span><span class="n">QTextCursor</span><span class="o">.</span><span class="n">End</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<div class="viewcode-block" id="MediaSyncDialog.reject"><a class="viewcode-back" href="../../aqt.html#aqt.mediasync.MediaSyncDialog.reject">[docs]</a>    <span class="k">def</span> <span class="nf">reject</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_close_when_done</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_syncer</span><span class="o">.</span><span class="n">is_syncing</span><span class="p">():</span>
+            <span class="c1"># closing while syncing on close starts an abort</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_on_abort</span><span class="p">()</span>
+            <span class="k">return</span>
+
+        <span class="n">aqt</span><span class="o">.</span><span class="n">dialogs</span><span class="o">.</span><span class="n">markClosed</span><span class="p">(</span><span class="s2">&quot;sync_log&quot;</span><span class="p">)</span>
+        <span class="n">QDialog</span><span class="o">.</span><span class="n">reject</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MediaSyncDialog.reopen"><a class="viewcode-back" href="../../aqt.html#aqt.mediasync.MediaSyncDialog.reopen">[docs]</a>    <span class="k">def</span> <span class="nf">reopen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mw</span><span class="p">,</span> <span class="n">syncer</span><span class="p">,</span> <span class="n">close_when_done</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_close_when_done</span> <span class="o">=</span> <span class="n">close_when_done</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">_on_abort</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_syncer</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">abort_button</span><span class="o">.</span><span class="n">setHidden</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_time_and_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stamp</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">asctime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">asctime</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">(</span><span class="n">stamp</span><span class="p">))</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{asctime}</span><span class="s2">: </span><span class="si">{text}</span><span class="s2">&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_entry_to_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">:</span> <span class="n">LogEntryWithTime</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">entry</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">txt</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">entry</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">entry</span><span class="p">,</span> <span class="n">MediaSyncProgress</span><span class="p">):</span>
+            <span class="n">txt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logentry_to_text</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">entry</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">assert_impossible</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">entry</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_time_and_text</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="n">txt</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_logentry_to_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span> <span class="n">MediaSyncProgress</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{e.added}</span><span class="s2">, </span><span class="si">{e.removed}</span><span class="s2">, </span><span class="si">{e.checked}</span><span class="s2">&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_on_log_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">:</span> <span class="n">LogEntryWithTime</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">plainTextEdit</span><span class="o">.</span><span class="n">appendPlainText</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_entry_to_text</span><span class="p">(</span><span class="n">entry</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_syncer</span><span class="o">.</span><span class="n">is_syncing</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">abort_button</span><span class="o">.</span><span class="n">setHidden</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_on_start_stop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">running</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">running</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_close_when_done</span><span class="p">:</span>
+            <span class="n">aqt</span><span class="o">.</span><span class="n">dialogs</span><span class="o">.</span><span class="n">markClosed</span><span class="p">(</span><span class="s2">&quot;sync_log&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_close_when_done</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Abdelrahman Hamdy
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

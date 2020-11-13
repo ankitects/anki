@@ -1,0 +1,437 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>aqt.addcards &mdash; Anki  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Anki
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.html">anki package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aqt.html">aqt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../genhooks_gui.html">genhooks_gui module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tools.html">tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Anki</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../aqt.html">aqt</a> &raquo;</li>
+        
+      <li>aqt.addcards</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for aqt.addcards</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright: Ankitects Pty Ltd and contributors</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span> <span class="nn">aqt.deckchooser</span>
+<span class="kn">import</span> <span class="nn">aqt.editor</span>
+<span class="kn">import</span> <span class="nn">aqt.forms</span>
+<span class="kn">import</span> <span class="nn">aqt.modelchooser</span>
+<span class="kn">from</span> <span class="nn">anki.consts</span> <span class="kn">import</span> <span class="n">MODEL_CLOZE</span>
+<span class="kn">from</span> <span class="nn">anki.lang</span> <span class="kn">import</span> <span class="n">_</span>
+<span class="kn">from</span> <span class="nn">anki.notes</span> <span class="kn">import</span> <span class="n">Note</span>
+<span class="kn">from</span> <span class="nn">anki.utils</span> <span class="kn">import</span> <span class="n">htmlToTextLine</span><span class="p">,</span> <span class="n">isMac</span>
+<span class="kn">from</span> <span class="nn">aqt</span> <span class="kn">import</span> <span class="n">AnkiQt</span><span class="p">,</span> <span class="n">gui_hooks</span>
+<span class="kn">from</span> <span class="nn">aqt.qt</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">aqt.sound</span> <span class="kn">import</span> <span class="n">av_player</span>
+<span class="kn">from</span> <span class="nn">aqt.utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">addCloseShortcut</span><span class="p">,</span>
+    <span class="n">askUser</span><span class="p">,</span>
+    <span class="n">downArrow</span><span class="p">,</span>
+    <span class="n">openHelp</span><span class="p">,</span>
+    <span class="n">restoreGeom</span><span class="p">,</span>
+    <span class="n">saveGeom</span><span class="p">,</span>
+    <span class="n">shortcut</span><span class="p">,</span>
+    <span class="n">showWarning</span><span class="p">,</span>
+    <span class="n">tooltip</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="AddCards"><a class="viewcode-back" href="../../aqt.html#aqt.addcards.AddCards">[docs]</a><span class="k">class</span> <span class="nc">AddCards</span><span class="p">(</span><span class="n">QDialog</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mw</span><span class="p">:</span> <span class="n">AnkiQt</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">QDialog</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Qt</span><span class="o">.</span><span class="n">Window</span><span class="p">)</span>
+        <span class="n">mw</span><span class="o">.</span><span class="n">setupDialogGC</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span> <span class="o">=</span> <span class="n">mw</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">form</span> <span class="o">=</span> <span class="n">aqt</span><span class="o">.</span><span class="n">forms</span><span class="o">.</span><span class="n">addcards</span><span class="o">.</span><span class="n">Ui_Dialog</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">setupUi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Add&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setMinimumHeight</span><span class="p">(</span><span class="mi">300</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setMinimumWidth</span><span class="p">(</span><span class="mi">400</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setupChoosers</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setupEditor</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setupButtons</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">onReset</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">previousNote</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">restoreGeom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;add&quot;</span><span class="p">)</span>
+        <span class="n">gui_hooks</span><span class="o">.</span><span class="n">state_did_reset</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">onReset</span><span class="p">)</span>
+        <span class="n">gui_hooks</span><span class="o">.</span><span class="n">current_note_type_did_change</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">onModelChange</span><span class="p">)</span>
+        <span class="n">addCloseShortcut</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">gui_hooks</span><span class="o">.</span><span class="n">add_cards_did_init</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<div class="viewcode-block" id="AddCards.setupEditor"><a class="viewcode-back" href="../../aqt.html#aqt.addcards.AddCards.setupEditor">[docs]</a>    <span class="k">def</span> <span class="nf">setupEditor</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">editor</span> <span class="o">=</span> <span class="n">aqt</span><span class="o">.</span><span class="n">editor</span><span class="o">.</span><span class="n">Editor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">fieldsArea</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AddCards.setupChoosers"><a class="viewcode-back" href="../../aqt.html#aqt.addcards.AddCards.setupChoosers">[docs]</a>    <span class="k">def</span> <span class="nf">setupChoosers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modelChooser</span> <span class="o">=</span> <span class="n">aqt</span><span class="o">.</span><span class="n">modelchooser</span><span class="o">.</span><span class="n">ModelChooser</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">modelArea</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deckChooser</span> <span class="o">=</span> <span class="n">aqt</span><span class="o">.</span><span class="n">deckchooser</span><span class="o">.</span><span class="n">DeckChooser</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">deckArea</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AddCards.helpRequested"><a class="viewcode-back" href="../../aqt.html#aqt.addcards.AddCards.helpRequested">[docs]</a>    <span class="k">def</span> <span class="nf">helpRequested</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">openHelp</span><span class="p">(</span><span class="s2">&quot;addingnotes&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AddCards.setupButtons"><a class="viewcode-back" href="../../aqt.html#aqt.addcards.AddCards.setupButtons">[docs]</a>    <span class="k">def</span> <span class="nf">setupButtons</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">bb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">buttonBox</span>
+        <span class="n">ar</span> <span class="o">=</span> <span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">ActionRole</span>
+        <span class="c1"># add</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addButton</span> <span class="o">=</span> <span class="n">bb</span><span class="o">.</span><span class="n">addButton</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Add&quot;</span><span class="p">),</span> <span class="n">ar</span><span class="p">)</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">addButton</span><span class="o">.</span><span class="n">clicked</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">addCards</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addButton</span><span class="o">.</span><span class="n">setShortcut</span><span class="p">(</span><span class="n">QKeySequence</span><span class="p">(</span><span class="s2">&quot;Ctrl+Return&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addButton</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="n">shortcut</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Add (shortcut: ctrl+enter)&quot;</span><span class="p">)))</span>
+        <span class="c1"># close</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">closeButton</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Close&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">closeButton</span><span class="o">.</span><span class="n">setAutoDefault</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">bb</span><span class="o">.</span><span class="n">addButton</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">closeButton</span><span class="p">,</span> <span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">RejectRole</span><span class="p">)</span>
+        <span class="c1"># help</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">helpButton</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Help&quot;</span><span class="p">),</span> <span class="n">clicked</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">helpRequested</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">helpButton</span><span class="o">.</span><span class="n">setAutoDefault</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">bb</span><span class="o">.</span><span class="n">addButton</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">helpButton</span><span class="p">,</span> <span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">HelpRole</span><span class="p">)</span>
+        <span class="c1"># history</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">bb</span><span class="o">.</span><span class="n">addButton</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;History&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">downArrow</span><span class="p">(),</span> <span class="n">ar</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">isMac</span><span class="p">:</span>
+            <span class="n">sc</span> <span class="o">=</span> <span class="s2">&quot;Ctrl+Shift+H&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sc</span> <span class="o">=</span> <span class="s2">&quot;Ctrl+H&quot;</span>
+        <span class="n">b</span><span class="o">.</span><span class="n">setShortcut</span><span class="p">(</span><span class="n">QKeySequence</span><span class="p">(</span><span class="n">sc</span><span class="p">))</span>
+        <span class="n">b</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Shortcut: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">shortcut</span><span class="p">(</span><span class="n">sc</span><span class="p">))</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">clicked</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onHistory</span><span class="p">)</span>
+        <span class="n">b</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">historyButton</span> <span class="o">=</span> <span class="n">b</span></div>
+
+<div class="viewcode-block" id="AddCards.setAndFocusNote"><a class="viewcode-back" href="../../aqt.html#aqt.addcards.AddCards.setAndFocusNote">[docs]</a>    <span class="k">def</span> <span class="nf">setAndFocusNote</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">note</span><span class="p">:</span> <span class="n">Note</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">editor</span><span class="o">.</span><span class="n">setNote</span><span class="p">(</span><span class="n">note</span><span class="p">,</span> <span class="n">focusTo</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AddCards.onModelChange"><a class="viewcode-back" href="../../aqt.html#aqt.addcards.AddCards.onModelChange">[docs]</a>    <span class="k">def</span> <span class="nf">onModelChange</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unused</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">oldNote</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">editor</span><span class="o">.</span><span class="n">note</span>
+        <span class="n">note</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">newNote</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">previousNote</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">oldNote</span><span class="p">:</span>
+            <span class="n">oldFields</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">oldNote</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="n">newFields</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">note</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">note</span><span class="o">.</span><span class="n">model</span><span class="p">()[</span><span class="s2">&quot;flds&quot;</span><span class="p">]):</span>
+                <span class="n">fieldName</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+                <span class="c1"># copy identical fields</span>
+                <span class="k">if</span> <span class="n">fieldName</span> <span class="ow">in</span> <span class="n">oldFields</span><span class="p">:</span>
+                    <span class="n">note</span><span class="p">[</span><span class="n">fieldName</span><span class="p">]</span> <span class="o">=</span> <span class="n">oldNote</span><span class="p">[</span><span class="n">fieldName</span><span class="p">]</span>
+                <span class="k">elif</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">oldNote</span><span class="o">.</span><span class="n">model</span><span class="p">()[</span><span class="s2">&quot;flds&quot;</span><span class="p">]):</span>
+                    <span class="c1"># set non-identical fields by field index</span>
+                    <span class="n">oldFieldName</span> <span class="o">=</span> <span class="n">oldNote</span><span class="o">.</span><span class="n">model</span><span class="p">()[</span><span class="s2">&quot;flds&quot;</span><span class="p">][</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">oldFieldName</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">newFields</span><span class="p">:</span>
+                        <span class="n">note</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">oldNote</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">editor</span><span class="o">.</span><span class="n">note</span> <span class="o">=</span> <span class="n">note</span></div>
+        <span class="c1"># When on model change is called, reset is necessarily called.</span>
+        <span class="c1"># Reset load note, so it is not required to load it here.</span>
+
+<div class="viewcode-block" id="AddCards.onReset"><a class="viewcode-back" href="../../aqt.html#aqt.addcards.AddCards.onReset">[docs]</a>    <span class="k">def</span> <span class="nf">onReset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">keep</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">oldNote</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">editor</span><span class="o">.</span><span class="n">note</span>
+        <span class="n">note</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">newNote</span><span class="p">()</span>
+        <span class="n">flds</span> <span class="o">=</span> <span class="n">note</span><span class="o">.</span><span class="n">model</span><span class="p">()[</span><span class="s2">&quot;flds&quot;</span><span class="p">]</span>
+        <span class="c1"># copy fields from old note</span>
+        <span class="k">if</span> <span class="n">oldNote</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">note</span><span class="o">.</span><span class="n">fields</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">oldNote</span><span class="o">.</span><span class="n">fields</span><span class="p">))):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">keep</span> <span class="ow">or</span> <span class="n">flds</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;sticky&quot;</span><span class="p">]:</span>
+                    <span class="n">note</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">oldNote</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setAndFocusNote</span><span class="p">(</span><span class="n">note</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AddCards.removeTempNote"><a class="viewcode-back" href="../../aqt.html#aqt.addcards.AddCards.removeTempNote">[docs]</a>    <span class="k">def</span> <span class="nf">removeTempNote</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">note</span><span class="p">:</span> <span class="n">Note</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;removeTempNote() will go away&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AddCards.addHistory"><a class="viewcode-back" href="../../aqt.html#aqt.addcards.AddCards.addHistory">[docs]</a>    <span class="k">def</span> <span class="nf">addHistory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">note</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">note</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">history</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[:</span><span class="mi">15</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">historyButton</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AddCards.onHistory"><a class="viewcode-back" href="../../aqt.html#aqt.addcards.AddCards.onHistory">[docs]</a>    <span class="k">def</span> <span class="nf">onHistory</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">QMenu</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">nid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">findNotes</span><span class="p">(</span><span class="s2">&quot;nid:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">nid</span><span class="p">):</span>
+                <span class="n">note</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">getNote</span><span class="p">(</span><span class="n">nid</span><span class="p">)</span>
+                <span class="n">fields</span> <span class="o">=</span> <span class="n">note</span><span class="o">.</span><span class="n">fields</span>
+                <span class="n">txt</span> <span class="o">=</span> <span class="n">htmlToTextLine</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fields</span><span class="p">))</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">30</span><span class="p">:</span>
+                    <span class="n">txt</span> <span class="o">=</span> <span class="n">txt</span><span class="p">[:</span><span class="mi">30</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;...&quot;</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s1">&#39;Edit &quot;</span><span class="si">%s</span><span class="s1">&quot;&#39;</span><span class="p">)</span> <span class="o">%</span> <span class="n">txt</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="n">gui_hooks</span><span class="o">.</span><span class="n">addcards_will_add_history_entry</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">note</span><span class="p">)</span>
+                <span class="n">a</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                <span class="n">qconnect</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">triggered</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">b</span><span class="p">,</span> <span class="n">nid</span><span class="o">=</span><span class="n">nid</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">editHistory</span><span class="p">(</span><span class="n">nid</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">a</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;(Note deleted)&quot;</span><span class="p">))</span>
+                <span class="n">a</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">gui_hooks</span><span class="o">.</span><span class="n">add_cards_will_show_history_menu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">exec_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">historyButton</span><span class="o">.</span><span class="n">mapToGlobal</span><span class="p">(</span><span class="n">QPoint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)))</span></div>
+
+<div class="viewcode-block" id="AddCards.editHistory"><a class="viewcode-back" href="../../aqt.html#aqt.addcards.AddCards.editHistory">[docs]</a>    <span class="k">def</span> <span class="nf">editHistory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nid</span><span class="p">):</span>
+        <span class="n">browser</span> <span class="o">=</span> <span class="n">aqt</span><span class="o">.</span><span class="n">dialogs</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;Browser&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="p">)</span>
+        <span class="n">browser</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">searchEdit</span><span class="o">.</span><span class="n">lineEdit</span><span class="p">()</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;nid:</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">nid</span><span class="p">)</span>
+        <span class="n">browser</span><span class="o">.</span><span class="n">onSearchActivated</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="AddCards.addNote"><a class="viewcode-back" href="../../aqt.html#aqt.addcards.AddCards.addNote">[docs]</a>    <span class="k">def</span> <span class="nf">addNote</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">note</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Note</span><span class="p">]:</span>
+        <span class="n">note</span><span class="o">.</span><span class="n">model</span><span class="p">()[</span><span class="s2">&quot;did&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">deckChooser</span><span class="o">.</span><span class="n">selectedId</span><span class="p">()</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">note</span><span class="o">.</span><span class="n">dupeOrEmpty</span><span class="p">()</span>
+        <span class="n">problem</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">ret</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">problem</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;The first field is empty.&quot;</span><span class="p">)</span>
+        <span class="n">problem</span> <span class="o">=</span> <span class="n">gui_hooks</span><span class="o">.</span><span class="n">add_cards_will_add_note</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">note</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">problem</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">showWarning</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;AddItems#AddError&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">note</span><span class="o">.</span><span class="n">model</span><span class="p">()[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">MODEL_CLOZE</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">note</span><span class="o">.</span><span class="n">cloze_numbers_in_fields</span><span class="p">():</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">askUser</span><span class="p">(</span>
+                    <span class="n">_</span><span class="p">(</span>
+                        <span class="s2">&quot;You have a cloze deletion note type &quot;</span>
+                        <span class="s2">&quot;but have not made any cloze deletions. Proceed?&quot;</span>
+                    <span class="p">)</span>
+                <span class="p">):</span>
+                    <span class="k">return</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">add_note</span><span class="p">(</span><span class="n">note</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">deckChooser</span><span class="o">.</span><span class="n">selectedId</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">clearUndo</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addHistory</span><span class="p">(</span><span class="n">note</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">requireReset</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">previousNote</span> <span class="o">=</span> <span class="n">note</span>
+        <span class="n">gui_hooks</span><span class="o">.</span><span class="n">add_cards_did_add_note</span><span class="p">(</span><span class="n">note</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">note</span></div>
+
+<div class="viewcode-block" id="AddCards.addCards"><a class="viewcode-back" href="../../aqt.html#aqt.addcards.AddCards.addCards">[docs]</a>    <span class="k">def</span> <span class="nf">addCards</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">editor</span><span class="o">.</span><span class="n">saveNow</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_addCards</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_addCards</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">editor</span><span class="o">.</span><span class="n">saveAddModeVars</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">addNote</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">editor</span><span class="o">.</span><span class="n">note</span><span class="p">):</span>
+            <span class="k">return</span>
+        <span class="n">tooltip</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Added&quot;</span><span class="p">),</span> <span class="n">period</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+        <span class="n">av_player</span><span class="o">.</span><span class="n">stop_and_clear_queue</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">onReset</span><span class="p">(</span><span class="n">keep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">autosave</span><span class="p">()</span>
+
+<div class="viewcode-block" id="AddCards.keyPressEvent"><a class="viewcode-back" href="../../aqt.html#aqt.addcards.AddCards.keyPressEvent">[docs]</a>    <span class="k">def</span> <span class="nf">keyPressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evt</span><span class="p">):</span>
+        <span class="s2">&quot;Show answer on RET or register answer.&quot;</span>
+        <span class="k">if</span> <span class="n">evt</span><span class="o">.</span><span class="n">key</span><span class="p">()</span> <span class="ow">in</span> <span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">Key_Enter</span><span class="p">,</span> <span class="n">Qt</span><span class="o">.</span><span class="n">Key_Return</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">editor</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">hasFocus</span><span class="p">():</span>
+            <span class="n">evt</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
+            <span class="k">return</span>
+        <span class="k">return</span> <span class="n">QDialog</span><span class="o">.</span><span class="n">keyPressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evt</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AddCards.reject"><a class="viewcode-back" href="../../aqt.html#aqt.addcards.AddCards.reject">[docs]</a>    <span class="k">def</span> <span class="nf">reject</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ifCanClose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_reject</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_reject</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">gui_hooks</span><span class="o">.</span><span class="n">state_did_reset</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">onReset</span><span class="p">)</span>
+        <span class="n">gui_hooks</span><span class="o">.</span><span class="n">current_note_type_did_change</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">onModelChange</span><span class="p">)</span>
+        <span class="n">av_player</span><span class="o">.</span><span class="n">stop_and_clear_queue</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">editor</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modelChooser</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deckChooser</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">maybeReset</span><span class="p">()</span>
+        <span class="n">saveGeom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;add&quot;</span><span class="p">)</span>
+        <span class="n">aqt</span><span class="o">.</span><span class="n">dialogs</span><span class="o">.</span><span class="n">markClosed</span><span class="p">(</span><span class="s2">&quot;AddCards&quot;</span><span class="p">)</span>
+        <span class="n">QDialog</span><span class="o">.</span><span class="n">reject</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AddCards.ifCanClose"><a class="viewcode-back" href="../../aqt.html#aqt.addcards.AddCards.ifCanClose">[docs]</a>    <span class="k">def</span> <span class="nf">ifCanClose</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">onOk</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">def</span> <span class="nf">afterSave</span><span class="p">():</span>
+            <span class="n">ok</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">editor</span><span class="o">.</span><span class="n">fieldsAreBlank</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">previousNote</span><span class="p">)</span> <span class="ow">or</span> <span class="n">askUser</span><span class="p">(</span>
+                <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Close and lose current input?&quot;</span><span class="p">),</span> <span class="n">defaultno</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">ok</span><span class="p">:</span>
+                <span class="n">onOk</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">editor</span><span class="o">.</span><span class="n">saveNow</span><span class="p">(</span><span class="n">afterSave</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AddCards.closeWithCallback"><a class="viewcode-back" href="../../aqt.html#aqt.addcards.AddCards.closeWithCallback">[docs]</a>    <span class="k">def</span> <span class="nf">closeWithCallback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cb</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">doClose</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_reject</span><span class="p">()</span>
+            <span class="n">cb</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ifCanClose</span><span class="p">(</span><span class="n">doClose</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Abdelrahman Hamdy
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

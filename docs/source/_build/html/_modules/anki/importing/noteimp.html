@@ -1,0 +1,523 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>anki.importing.noteimp &mdash; Anki  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home" alt="Documentation Home"> Anki
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../anki.html">anki package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../aqt.html">aqt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../genhooks_gui.html">genhooks_gui module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tools.html">tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Anki</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>anki.importing.noteimp</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for anki.importing.noteimp</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright: Ankitects Pty Ltd and contributors</span>
+<span class="c1"># License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html</span>
+
+<span class="kn">import</span> <span class="nn">html</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">from</span> <span class="nn">anki.collection</span> <span class="kn">import</span> <span class="n">Collection</span>
+<span class="kn">from</span> <span class="nn">anki.consts</span> <span class="kn">import</span> <span class="n">NEW_CARDS_RANDOM</span><span class="p">,</span> <span class="n">STARTING_FACTOR</span>
+<span class="kn">from</span> <span class="nn">anki.importing.base</span> <span class="kn">import</span> <span class="n">Importer</span>
+<span class="kn">from</span> <span class="nn">anki.lang</span> <span class="kn">import</span> <span class="n">_</span><span class="p">,</span> <span class="n">ngettext</span>
+<span class="kn">from</span> <span class="nn">anki.utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">fieldChecksum</span><span class="p">,</span>
+    <span class="n">guid64</span><span class="p">,</span>
+    <span class="n">intTime</span><span class="p">,</span>
+    <span class="n">joinFields</span><span class="p">,</span>
+    <span class="n">splitFields</span><span class="p">,</span>
+    <span class="n">timestampID</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Stores a list of fields, tags and deck</span>
+<span class="c1">######################################################################</span>
+
+
+<div class="viewcode-block" id="ForeignNote"><a class="viewcode-back" href="../../../anki.importing.html#anki.importing.noteimp.ForeignNote">[docs]</a><span class="k">class</span> <span class="nc">ForeignNote</span><span class="p">:</span>
+    <span class="s2">&quot;An temporary object storing fields and attributes.&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tags</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deck</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cards</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">ForeignCard</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># map of ord -&gt; card</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fieldsStr</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="ForeignCard"><a class="viewcode-back" href="../../../anki.importing.html#anki.importing.noteimp.ForeignCard">[docs]</a><span class="k">class</span> <span class="nc">ForeignCard</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">due</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ivl</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">factor</span> <span class="o">=</span> <span class="n">STARTING_FACTOR</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reps</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lapses</span> <span class="o">=</span> <span class="mi">0</span></div>
+
+
+<span class="c1"># Base class for CSV and similar text-based imports</span>
+<span class="c1">######################################################################</span>
+
+<span class="c1"># The mapping is list of input fields, like:</span>
+<span class="c1"># [&#39;Expression&#39;, &#39;Reading&#39;, &#39;_tags&#39;, None]</span>
+<span class="c1"># - None means that the input should be discarded</span>
+<span class="c1"># - _tags maps to note tags</span>
+<span class="c1"># If the first field of the model is not in the map, the map is invalid.</span>
+
+<span class="c1"># The import mode is one of:</span>
+<span class="c1"># UPDATE_MODE: update if first field matches existing note</span>
+<span class="c1"># IGNORE_MODE: ignore if first field matches existing note</span>
+<span class="c1"># ADD_MODE: import even if first field matches existing note</span>
+<span class="n">UPDATE_MODE</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">IGNORE_MODE</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">ADD_MODE</span> <span class="o">=</span> <span class="mi">2</span>
+
+
+<div class="viewcode-block" id="NoteImporter"><a class="viewcode-back" href="../../../anki.importing.html#anki.importing.noteimp.NoteImporter">[docs]</a><span class="k">class</span> <span class="nc">NoteImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
+
+    <span class="n">needMapper</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">needDelimiter</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">allowHTML</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">importMode</span> <span class="o">=</span> <span class="n">UPDATE_MODE</span>
+    <span class="n">mapping</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
+    <span class="n">tagModified</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">:</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">Importer</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">col</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">current</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tagModified</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tagsMapped</span> <span class="o">=</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="NoteImporter.run"><a class="viewcode-back" href="../../../anki.importing.html#anki.importing.noteimp.NoteImporter.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Import.&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">foreignNotes</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">importNotes</span><span class="p">(</span><span class="n">c</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="NoteImporter.fields"><a class="viewcode-back" href="../../../anki.importing.html#anki.importing.noteimp.NoteImporter.fields">[docs]</a>    <span class="k">def</span> <span class="nf">fields</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="s2">&quot;The number of fields.&quot;</span>
+        <span class="k">return</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="NoteImporter.initMapping"><a class="viewcode-back" href="../../../anki.importing.html#anki.importing.noteimp.NoteImporter.initMapping">[docs]</a>    <span class="k">def</span> <span class="nf">initMapping</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">flds</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">[</span><span class="s2">&quot;flds&quot;</span><span class="p">]]</span>
+        <span class="c1"># truncate to provided count</span>
+        <span class="n">flds</span> <span class="o">=</span> <span class="n">flds</span><span class="p">[</span><span class="mi">0</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">()]</span>
+        <span class="c1"># if there&#39;s room left, add tags</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">()</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">flds</span><span class="p">):</span>
+            <span class="n">flds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;_tags&quot;</span><span class="p">)</span>
+        <span class="c1"># and if there&#39;s still room left, pad</span>
+        <span class="n">flds</span> <span class="o">=</span> <span class="n">flds</span> <span class="o">+</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">()</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">flds</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span> <span class="o">=</span> <span class="n">flds</span></div>
+
+<div class="viewcode-block" id="NoteImporter.mappingOk"><a class="viewcode-back" href="../../../anki.importing.html#anki.importing.noteimp.NoteImporter.mappingOk">[docs]</a>    <span class="k">def</span> <span class="nf">mappingOk</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">[</span><span class="s2">&quot;flds&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span></div>
+
+<div class="viewcode-block" id="NoteImporter.foreignNotes"><a class="viewcode-back" href="../../../anki.importing.html#anki.importing.noteimp.NoteImporter.foreignNotes">[docs]</a>    <span class="k">def</span> <span class="nf">foreignNotes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
+        <span class="s2">&quot;Return a list of foreign notes for importing.&quot;</span>
+        <span class="k">return</span> <span class="p">[]</span></div>
+
+<div class="viewcode-block" id="NoteImporter.open"><a class="viewcode-back" href="../../../anki.importing.html#anki.importing.noteimp.NoteImporter.open">[docs]</a>    <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Open file and ensure it&#39;s in the right format.&quot;</span>
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="NoteImporter.close"><a class="viewcode-back" href="../../../anki.importing.html#anki.importing.noteimp.NoteImporter.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Closes the open file.&quot;</span>
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="NoteImporter.importNotes"><a class="viewcode-back" href="../../../anki.importing.html#anki.importing.noteimp.NoteImporter.importNotes">[docs]</a>    <span class="k">def</span> <span class="nf">importNotes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">notes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ForeignNote</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Convert each card into a note, apply attributes and add to col.&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">mappingOk</span><span class="p">()</span>
+        <span class="c1"># note whether tags are mapped</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tagsMapped</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">f</span> <span class="o">==</span> <span class="s2">&quot;_tags&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_tagsMapped</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="c1"># gather checks for duplicate comparison</span>
+        <span class="n">csums</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">csum</span><span class="p">,</span> <span class="nb">id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="s2">&quot;select csum, id from notes where mid = ?&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+        <span class="p">):</span>
+            <span class="k">if</span> <span class="n">csum</span> <span class="ow">in</span> <span class="n">csums</span><span class="p">:</span>
+                <span class="n">csums</span><span class="p">[</span><span class="n">csum</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">csums</span><span class="p">[</span><span class="n">csum</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">id</span><span class="p">]</span>
+        <span class="n">firsts</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">fld0idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">[</span><span class="s2">&quot;flds&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fmap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">fieldMap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nextID</span> <span class="o">=</span> <span class="n">timestampID</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="p">,</span> <span class="s2">&quot;notes&quot;</span><span class="p">)</span>
+        <span class="c1"># loop through the notes</span>
+        <span class="n">updates</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">updateLog</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">updateLogTxt</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;First field matched: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">dupeLogTxt</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Added duplicate with first field: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">new</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cards</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">dupeCount</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">dupes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">notes</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">fields</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">allowHTML</span><span class="p">:</span>
+                    <span class="n">n</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="n">c</span><span class="p">],</span> <span class="n">quote</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">n</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">n</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">allowHTML</span><span class="p">:</span>
+                    <span class="n">n</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">n</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;br&gt;&quot;</span><span class="p">)</span>
+            <span class="n">fld0</span> <span class="o">=</span> <span class="n">n</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="n">fld0idx</span><span class="p">]</span>
+            <span class="n">csum</span> <span class="o">=</span> <span class="n">fieldChecksum</span><span class="p">(</span><span class="n">fld0</span><span class="p">)</span>
+            <span class="c1"># first field must exist</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">fld0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Empty first field: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">fields</span><span class="p">))</span>
+                <span class="k">continue</span>
+            <span class="c1"># earlier in import?</span>
+            <span class="k">if</span> <span class="n">fld0</span> <span class="ow">in</span> <span class="n">firsts</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">importMode</span> <span class="o">!=</span> <span class="n">ADD_MODE</span><span class="p">:</span>
+                <span class="c1"># duplicates in source file; log and ignore</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Appeared twice in file: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">fld0</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="n">firsts</span><span class="p">[</span><span class="n">fld0</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="c1"># already exists?</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="n">csum</span> <span class="ow">in</span> <span class="n">csums</span><span class="p">:</span>
+                <span class="c1"># csum is not a guarantee; have to check</span>
+                <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">csums</span><span class="p">[</span><span class="n">csum</span><span class="p">]:</span>
+                    <span class="n">flds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="s2">&quot;select flds from notes where id = ?&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="p">)</span>
+                    <span class="n">sflds</span> <span class="o">=</span> <span class="n">splitFields</span><span class="p">(</span><span class="n">flds</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">fld0</span> <span class="o">==</span> <span class="n">sflds</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                        <span class="c1"># duplicate</span>
+                        <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">importMode</span> <span class="o">==</span> <span class="n">UPDATE_MODE</span><span class="p">:</span>
+                            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">updateData</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">sflds</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">data</span><span class="p">:</span>
+                                <span class="n">updates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+                                <span class="n">updateLog</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">updateLogTxt</span> <span class="o">%</span> <span class="n">fld0</span><span class="p">)</span>
+                                <span class="n">dupeCount</span> <span class="o">+=</span> <span class="mi">1</span>
+                                <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">importMode</span> <span class="o">==</span> <span class="n">IGNORE_MODE</span><span class="p">:</span>
+                            <span class="n">dupeCount</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">importMode</span> <span class="o">==</span> <span class="n">ADD_MODE</span><span class="p">:</span>
+                            <span class="c1"># allow duplicates in this case</span>
+                            <span class="k">if</span> <span class="n">fld0</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dupes</span><span class="p">:</span>
+                                <span class="c1"># only show message once, no matter how many</span>
+                                <span class="c1"># duplicates are in the collection already</span>
+                                <span class="n">updateLog</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dupeLogTxt</span> <span class="o">%</span> <span class="n">fld0</span><span class="p">)</span>
+                                <span class="n">dupes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fld0</span><span class="p">)</span>
+                            <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="c1"># newly add</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">newData</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">data</span><span class="p">:</span>
+                    <span class="n">new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+                    <span class="c1"># note that we&#39;ve seen this note once already</span>
+                    <span class="n">firsts</span><span class="p">[</span><span class="n">fld0</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addNew</span><span class="p">(</span><span class="n">new</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addUpdates</span><span class="p">(</span><span class="n">updates</span><span class="p">)</span>
+        <span class="c1"># generate cards + update field cache</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">after_note_updates</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ids</span><span class="p">,</span> <span class="n">mark_modified</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="c1"># apply scheduling updates</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">updateCards</span><span class="p">()</span>
+        <span class="c1"># we randomize or order here, to ensure that siblings</span>
+        <span class="c1"># have the same due#</span>
+        <span class="n">did</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">selected</span><span class="p">()</span>
+        <span class="n">conf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">confForDid</span><span class="p">(</span><span class="n">did</span><span class="p">)</span>
+        <span class="c1"># in order due?</span>
+        <span class="k">if</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;new&quot;</span><span class="p">][</span><span class="s2">&quot;order&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">NEW_CARDS_RANDOM</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">randomizeCards</span><span class="p">(</span><span class="n">did</span><span class="p">)</span>
+
+        <span class="n">part1</span> <span class="o">=</span> <span class="n">ngettext</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> note added&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> notes added&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">new</span><span class="p">))</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">new</span><span class="p">)</span>
+        <span class="n">part2</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">ngettext</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> note updated&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> notes updated&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">updateCount</span><span class="p">)</span>
+            <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">updateCount</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">importMode</span> <span class="o">==</span> <span class="n">UPDATE_MODE</span><span class="p">:</span>
+            <span class="n">unchanged</span> <span class="o">=</span> <span class="n">dupeCount</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">updateCount</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">importMode</span> <span class="o">==</span> <span class="n">IGNORE_MODE</span><span class="p">:</span>
+            <span class="n">unchanged</span> <span class="o">=</span> <span class="n">dupeCount</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">unchanged</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">part3</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">ngettext</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> note unchanged&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> notes unchanged&quot;</span><span class="p">,</span> <span class="n">unchanged</span><span class="p">)</span> <span class="o">%</span> <span class="n">unchanged</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">part1</span><span class="p">,</span> <span class="n">part2</span><span class="p">,</span> <span class="n">part3</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">updateLog</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ids</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="NoteImporter.newData"><a class="viewcode-back" href="../../../anki.importing.html#anki.importing.noteimp.NoteImporter.newData">[docs]</a>    <span class="k">def</span> <span class="nf">newData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="n">ForeignNote</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]:</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nextID</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nextID</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processFields</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="c1"># note id for card updates later</span>
+        <span class="k">for</span> <span class="nb">ord</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">cards</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cards</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="nb">id</span><span class="p">,</span> <span class="nb">ord</span><span class="p">,</span> <span class="n">c</span><span class="p">))</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="nb">id</span><span class="p">,</span>
+            <span class="n">guid64</span><span class="p">(),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span>
+            <span class="n">intTime</span><span class="p">(),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">usn</span><span class="p">(),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">tags</span><span class="p">),</span>
+            <span class="n">n</span><span class="o">.</span><span class="n">fieldsStr</span><span class="p">,</span>
+            <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="p">]</span></div>
+
+<div class="viewcode-block" id="NoteImporter.addNew"><a class="viewcode-back" href="../../../anki.importing.html#anki.importing.noteimp.NoteImporter.addNew">[docs]</a>    <span class="k">def</span> <span class="nf">addNew</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rows</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span>
+            <span class="s2">&quot;insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)&quot;</span><span class="p">,</span> <span class="n">rows</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="NoteImporter.updateData"><a class="viewcode-back" href="../../../anki.importing.html#anki.importing.noteimp.NoteImporter.updateData">[docs]</a>    <span class="k">def</span> <span class="nf">updateData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="n">ForeignNote</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">sflds</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">processFields</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">sflds</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tagsMapped</span><span class="p">:</span>
+            <span class="n">tags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">tags</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">intTime</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">usn</span><span class="p">(),</span> <span class="n">n</span><span class="o">.</span><span class="n">fieldsStr</span><span class="p">,</span> <span class="n">tags</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">n</span><span class="o">.</span><span class="n">fieldsStr</span><span class="p">,</span> <span class="n">tags</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">tagModified</span><span class="p">:</span>
+            <span class="n">tags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="s2">&quot;select tags from notes where id = ?&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="p">)</span>
+            <span class="n">tagList</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">tags</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tagModified</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="n">tags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tagList</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">intTime</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">usn</span><span class="p">(),</span> <span class="n">n</span><span class="o">.</span><span class="n">fieldsStr</span><span class="p">,</span> <span class="n">tags</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">n</span><span class="o">.</span><span class="n">fieldsStr</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">intTime</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">usn</span><span class="p">(),</span> <span class="n">n</span><span class="o">.</span><span class="n">fieldsStr</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">n</span><span class="o">.</span><span class="n">fieldsStr</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="NoteImporter.addUpdates"><a class="viewcode-back" href="../../../anki.importing.html#anki.importing.noteimp.NoteImporter.addUpdates">[docs]</a>    <span class="k">def</span> <span class="nf">addUpdates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rows</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">changes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="s2">&quot;select total_changes()&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tagsMapped</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span>
+                <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">update notes set mod = ?, usn = ?, flds = ?, tags = ?</span>
+<span class="sd">where id = ? and (flds != ? or tags != ?)&quot;&quot;&quot;</span><span class="p">,</span>
+                <span class="n">rows</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">tagModified</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span>
+                <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">update notes set mod = ?, usn = ?, flds = ?, tags = ?</span>
+<span class="sd">where id = ? and flds != ?&quot;&quot;&quot;</span><span class="p">,</span>
+                <span class="n">rows</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span>
+                <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">update notes set mod = ?, usn = ?, flds = ?</span>
+<span class="sd">where id = ? and flds != ?&quot;&quot;&quot;</span><span class="p">,</span>
+                <span class="n">rows</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="n">changes2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="s2">&quot;select total_changes()&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">updateCount</span> <span class="o">=</span> <span class="n">changes2</span> <span class="o">-</span> <span class="n">changes</span></div>
+
+<div class="viewcode-block" id="NoteImporter.processFields"><a class="viewcode-back" href="../../../anki.importing.html#anki.importing.noteimp.NoteImporter.processFields">[docs]</a>    <span class="k">def</span> <span class="nf">processFields</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">note</span><span class="p">:</span> <span class="n">ForeignNote</span><span class="p">,</span> <span class="n">fields</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">fields</span><span class="p">:</span>
+            <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">[</span><span class="s2">&quot;flds&quot;</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">elif</span> <span class="n">f</span> <span class="o">==</span> <span class="s2">&quot;_tags&quot;</span><span class="p">:</span>
+                <span class="n">note</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">note</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="n">c</span><span class="p">]))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">sidx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fmap</span><span class="p">[</span><span class="n">f</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">fields</span><span class="p">[</span><span class="n">sidx</span><span class="p">]</span> <span class="o">=</span> <span class="n">note</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="n">c</span><span class="p">]</span>
+        <span class="n">note</span><span class="o">.</span><span class="n">fieldsStr</span> <span class="o">=</span> <span class="n">joinFields</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="NoteImporter.updateCards"><a class="viewcode-back" href="../../../anki.importing.html#anki.importing.noteimp.NoteImporter.updateCards">[docs]</a>    <span class="k">def</span> <span class="nf">updateCards</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">nid</span><span class="p">,</span> <span class="nb">ord</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cards</span><span class="p">:</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">c</span><span class="o">.</span><span class="n">ivl</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">due</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">factor</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">reps</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">lapses</span><span class="p">,</span> <span class="n">nid</span><span class="p">,</span> <span class="nb">ord</span><span class="p">))</span>
+        <span class="c1"># we assume any updated cards are reviews</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">update cards set type = 2, queue = 2, ivl = ?, due = ?,</span>
+<span class="sd">factor = ?, reps = ?, lapses = ? where nid = ? and ord = ?&quot;&quot;&quot;</span><span class="p">,</span>
+            <span class="n">data</span><span class="p">,</span>
+        <span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Abdelrahman Hamdy
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

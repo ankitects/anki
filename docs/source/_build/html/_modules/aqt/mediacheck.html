@@ -1,0 +1,411 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>aqt.mediacheck &mdash; Anki  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Anki
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.html">anki package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aqt.html">aqt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../genhooks_gui.html">genhooks_gui module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tools.html">tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Anki</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../aqt.html">aqt</a> &raquo;</li>
+        
+      <li>aqt.mediacheck</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for aqt.mediacheck</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright: Ankitects Pty Ltd and contributors</span>
+<span class="c1"># License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">concurrent.futures</span> <span class="kn">import</span> <span class="n">Future</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">TypeVar</span>
+
+<span class="kn">import</span> <span class="nn">aqt</span>
+<span class="kn">from</span> <span class="nn">anki.rsbackend</span> <span class="kn">import</span> <span class="n">TR</span><span class="p">,</span> <span class="n">Interrupted</span><span class="p">,</span> <span class="n">ProgressKind</span><span class="p">,</span> <span class="n">pb</span>
+<span class="kn">from</span> <span class="nn">aqt.qt</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">aqt.utils</span> <span class="kn">import</span> <span class="n">askUser</span><span class="p">,</span> <span class="n">restoreGeom</span><span class="p">,</span> <span class="n">saveGeom</span><span class="p">,</span> <span class="n">showText</span><span class="p">,</span> <span class="n">tooltip</span><span class="p">,</span> <span class="n">tr</span>
+
+<span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;T&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="chunked_list"><a class="viewcode-back" href="../../aqt.html#aqt.mediacheck.chunked_list">[docs]</a><span class="k">def</span> <span class="nf">chunked_list</span><span class="p">(</span><span class="n">l</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">T</span><span class="p">],</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">T</span><span class="p">]]:</span>
+    <span class="n">l</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">islice</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">res</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">yield</span> <span class="n">res</span></div>
+
+
+<div class="viewcode-block" id="check_media_db"><a class="viewcode-back" href="../../aqt.html#aqt.mediacheck.check_media_db">[docs]</a><span class="k">def</span> <span class="nf">check_media_db</span><span class="p">(</span><span class="n">mw</span><span class="p">:</span> <span class="n">aqt</span><span class="o">.</span><span class="n">AnkiQt</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">MediaChecker</span><span class="p">(</span><span class="n">mw</span><span class="p">)</span>
+    <span class="n">c</span><span class="o">.</span><span class="n">check</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="MediaChecker"><a class="viewcode-back" href="../../aqt.html#aqt.mediacheck.MediaChecker">[docs]</a><span class="k">class</span> <span class="nc">MediaChecker</span><span class="p">:</span>
+    <span class="n">progress_dialog</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">aqt</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">ProgressDialog</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mw</span><span class="p">:</span> <span class="n">aqt</span><span class="o">.</span><span class="n">AnkiQt</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span> <span class="o">=</span> <span class="n">mw</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_progress_timer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">QTimer</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="MediaChecker.check"><a class="viewcode-back" href="../../aqt.html#aqt.mediacheck.MediaChecker.check">[docs]</a>    <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">progress_dialog</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_progress_enabled</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">taskman</span><span class="o">.</span><span class="n">run_in_background</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_check</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_finished</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_set_progress_enabled</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">enabled</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_progress_timer</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_progress_timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_progress_timer</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">enabled</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_progress_timer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">timer</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_progress</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_on_progress</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">progress</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">latest_progress</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">progress</span><span class="o">.</span><span class="n">kind</span> <span class="o">!=</span> <span class="n">ProgressKind</span><span class="o">.</span><span class="n">MediaCheck</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">progress</span><span class="o">.</span><span class="n">val</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">progress_dialog</span><span class="o">.</span><span class="n">wantCancel</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">set_wants_abort</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="c1"># dialog may not be active</span>
+            <span class="k">pass</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">taskman</span><span class="o">.</span><span class="n">run_on_main</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">progress</span><span class="o">.</span><span class="n">val</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_check</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pb</span><span class="o">.</span><span class="n">CheckMediaOut</span><span class="p">:</span>
+        <span class="s2">&quot;Run the check on a background thread.&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_on_finished</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">future</span><span class="p">:</span> <span class="n">Future</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_progress_enabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">finish</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">progress_dialog</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">exc</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="n">exception</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">Interrupted</span><span class="p">):</span>
+            <span class="k">return</span>
+
+        <span class="n">output</span><span class="p">:</span> <span class="n">pb</span><span class="o">.</span><span class="n">CheckMediaOut</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+        <span class="n">report</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">report</span>
+
+        <span class="c1"># show report and offer to delete</span>
+        <span class="n">diag</span> <span class="o">=</span> <span class="n">QDialog</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="p">)</span>
+        <span class="n">diag</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">MEDIA_CHECK_WINDOW_TITLE</span><span class="p">))</span>
+        <span class="n">layout</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">(</span><span class="n">diag</span><span class="p">)</span>
+        <span class="n">diag</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">layout</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">QTextEdit</span><span class="p">()</span>
+        <span class="n">text</span><span class="o">.</span><span class="n">setReadOnly</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">text</span><span class="o">.</span><span class="n">setPlainText</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">box</span> <span class="o">=</span> <span class="n">QDialogButtonBox</span><span class="p">(</span><span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">Close</span><span class="p">)</span>
+        <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">box</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">output</span><span class="o">.</span><span class="n">unused</span><span class="p">:</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">MEDIA_CHECK_DELETE_UNUSED</span><span class="p">))</span>
+            <span class="n">b</span><span class="o">.</span><span class="n">setAutoDefault</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">box</span><span class="o">.</span><span class="n">addButton</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">RejectRole</span><span class="p">)</span>
+            <span class="n">qconnect</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">clicked</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_trash_files</span><span class="p">(</span><span class="n">output</span><span class="o">.</span><span class="n">unused</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">output</span><span class="o">.</span><span class="n">missing</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;latex-&quot;</span><span class="p">),</span> <span class="n">output</span><span class="o">.</span><span class="n">missing</span><span class="p">)):</span>
+                <span class="n">b</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">MEDIA_CHECK_RENDER_LATEX</span><span class="p">))</span>
+                <span class="n">b</span><span class="o">.</span><span class="n">setAutoDefault</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">box</span><span class="o">.</span><span class="n">addButton</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">RejectRole</span><span class="p">)</span>
+                <span class="n">qconnect</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">clicked</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_render_latex</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">output</span><span class="o">.</span><span class="n">have_trash</span><span class="p">:</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">MEDIA_CHECK_EMPTY_TRASH</span><span class="p">))</span>
+            <span class="n">b</span><span class="o">.</span><span class="n">setAutoDefault</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">box</span><span class="o">.</span><span class="n">addButton</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">RejectRole</span><span class="p">)</span>
+            <span class="n">qconnect</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">clicked</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_empty_trash</span><span class="p">())</span>
+
+            <span class="n">b</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">MEDIA_CHECK_RESTORE_TRASH</span><span class="p">))</span>
+            <span class="n">b</span><span class="o">.</span><span class="n">setAutoDefault</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">box</span><span class="o">.</span><span class="n">addButton</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">RejectRole</span><span class="p">)</span>
+            <span class="n">qconnect</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">clicked</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_restore_trash</span><span class="p">())</span>
+
+        <span class="n">qconnect</span><span class="p">(</span><span class="n">box</span><span class="o">.</span><span class="n">rejected</span><span class="p">,</span> <span class="n">diag</span><span class="o">.</span><span class="n">reject</span><span class="p">)</span>
+        <span class="n">diag</span><span class="o">.</span><span class="n">setMinimumHeight</span><span class="p">(</span><span class="mi">400</span><span class="p">)</span>
+        <span class="n">diag</span><span class="o">.</span><span class="n">setMinimumWidth</span><span class="p">(</span><span class="mi">500</span><span class="p">)</span>
+        <span class="n">restoreGeom</span><span class="p">(</span><span class="n">diag</span><span class="p">,</span> <span class="s2">&quot;checkmediadb&quot;</span><span class="p">)</span>
+        <span class="n">diag</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
+        <span class="n">saveGeom</span><span class="p">(</span><span class="n">diag</span><span class="p">,</span> <span class="s2">&quot;checkmediadb&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_on_render_latex</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">progress_dialog</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">render_all_latex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_render_latex_progress</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">progress_dialog</span><span class="o">.</span><span class="n">wantCancel</span><span class="p">:</span>
+                <span class="k">return</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">finish</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">progress_dialog</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">out</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">nid</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">out</span>
+            <span class="n">browser</span> <span class="o">=</span> <span class="n">aqt</span><span class="o">.</span><span class="n">dialogs</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;Browser&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="p">)</span>
+            <span class="n">browser</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">searchEdit</span><span class="o">.</span><span class="n">lineEdit</span><span class="p">()</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;nid:</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">nid</span><span class="p">)</span>
+            <span class="n">browser</span><span class="o">.</span><span class="n">onSearchActivated</span><span class="p">()</span>
+            <span class="n">showText</span><span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;html&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">tooltip</span><span class="p">(</span><span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">MEDIA_CHECK_ALL_LATEX_RENDERED</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_on_render_latex_progress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">count</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">progress_dialog</span><span class="o">.</span><span class="n">wantCancel</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">MEDIA_CHECK_CHECKED</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="n">count</span><span class="p">))</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">_on_trash_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fnames</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">askUser</span><span class="p">(</span><span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">MEDIA_CHECK_DELETE_UNUSED_CONFIRM</span><span class="p">)):</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">progress_dialog</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+        <span class="n">last_progress</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">remaining</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">fnames</span><span class="p">)</span>
+        <span class="n">total</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">fnames</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">chunked_list</span><span class="p">(</span><span class="n">fnames</span><span class="p">,</span> <span class="mi">25</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">trash_files</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+                <span class="n">remaining</span> <span class="o">-=</span> <span class="nb">len</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">last_progress</span> <span class="o">&gt;=</span> <span class="mf">0.3</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                        <span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">MEDIA_CHECK_FILES_REMAINING</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="n">remaining</span><span class="p">)</span>
+                    <span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">finish</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">progress_dialog</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">tooltip</span><span class="p">(</span><span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">MEDIA_CHECK_DELETE_UNUSED_COMPLETE</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="n">total</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_on_empty_trash</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">progress_dialog</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_progress_enabled</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">empty_trash</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">empty_trash</span><span class="p">()</span>
+
+        <span class="k">def</span> <span class="nf">on_done</span><span class="p">(</span><span class="n">fut</span><span class="p">:</span> <span class="n">Future</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">finish</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_progress_enabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="c1"># check for errors</span>
+            <span class="n">fut</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+
+            <span class="n">tooltip</span><span class="p">(</span><span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">MEDIA_CHECK_TRASH_EMPTIED</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">taskman</span><span class="o">.</span><span class="n">run_in_background</span><span class="p">(</span><span class="n">empty_trash</span><span class="p">,</span> <span class="n">on_done</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_on_restore_trash</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">progress_dialog</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_progress_enabled</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">restore_trash</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">restore_trash</span><span class="p">()</span>
+
+        <span class="k">def</span> <span class="nf">on_done</span><span class="p">(</span><span class="n">fut</span><span class="p">:</span> <span class="n">Future</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">finish</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_progress_enabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="c1"># check for errors</span>
+            <span class="n">fut</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+
+            <span class="n">tooltip</span><span class="p">(</span><span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">MEDIA_CHECK_TRASH_RESTORED</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">taskman</span><span class="o">.</span><span class="n">run_in_background</span><span class="p">(</span><span class="n">restore_trash</span><span class="p">,</span> <span class="n">on_done</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Abdelrahman Hamdy
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

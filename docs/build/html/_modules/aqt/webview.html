@@ -1,0 +1,783 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>aqt.webview &mdash; Anki  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+        <script async="async" kind="hypothesis" src="https://hypothes.is/embed.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Anki
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.html">anki package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.importing.html">anki.importing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aqt.html">aqt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../genhooks_gui.html">genhooks_gui module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tools.html">tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Anki</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../aqt.html">aqt</a> &raquo;</li>
+        
+      <li>aqt.webview</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for aqt.webview</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright: Ankitects Pty Ltd and contributors</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html</span>
+
+<span class="kn">import</span> <span class="nn">dataclasses</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span> <span class="nn">anki</span>
+<span class="kn">from</span> <span class="nn">anki.lang</span> <span class="kn">import</span> <span class="n">_</span><span class="p">,</span> <span class="n">is_rtl</span>
+<span class="kn">from</span> <span class="nn">anki.utils</span> <span class="kn">import</span> <span class="n">isLin</span><span class="p">,</span> <span class="n">isMac</span><span class="p">,</span> <span class="n">isWin</span>
+<span class="kn">from</span> <span class="nn">aqt</span> <span class="kn">import</span> <span class="n">gui_hooks</span>
+<span class="kn">from</span> <span class="nn">aqt.qt</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">aqt.theme</span> <span class="kn">import</span> <span class="n">theme_manager</span>
+<span class="kn">from</span> <span class="nn">aqt.utils</span> <span class="kn">import</span> <span class="n">openLink</span>
+
+<span class="n">serverbaseurl</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^.+:\/\/[^\/]+&quot;</span><span class="p">)</span>
+
+<span class="c1"># Page for debug messages</span>
+<span class="c1">##########################################################################</span>
+
+
+<div class="viewcode-block" id="AnkiWebPage"><a class="viewcode-back" href="../../aqt.html#aqt.webview.AnkiWebPage">[docs]</a><span class="k">class</span> <span class="nc">AnkiWebPage</span><span class="p">(</span><span class="n">QWebEnginePage</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">onBridgeCmd</span><span class="p">):</span>
+        <span class="n">QWebEnginePage</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_onBridgeCmd</span> <span class="o">=</span> <span class="n">onBridgeCmd</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setupBridge</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">open_links_externally</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">_setupBridge</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">class</span> <span class="nc">Bridge</span><span class="p">(</span><span class="n">QObject</span><span class="p">):</span>
+            <span class="nd">@pyqtSlot</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">result</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
+            <span class="k">def</span> <span class="nf">cmd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">onCmd</span><span class="p">(</span><span class="nb">str</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bridge</span> <span class="o">=</span> <span class="n">Bridge</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bridge</span><span class="o">.</span><span class="n">onCmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_onCmd</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_channel</span> <span class="o">=</span> <span class="n">QWebChannel</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_channel</span><span class="o">.</span><span class="n">registerObject</span><span class="p">(</span><span class="s2">&quot;py&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bridge</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWebChannel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_channel</span><span class="p">)</span>
+
+        <span class="n">qwebchannel</span> <span class="o">=</span> <span class="s2">&quot;:/qtwebchannel/qwebchannel.js&quot;</span>
+        <span class="n">jsfile</span> <span class="o">=</span> <span class="n">QFile</span><span class="p">(</span><span class="n">qwebchannel</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">jsfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">QIODevice</span><span class="o">.</span><span class="n">ReadOnly</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error opening &#39;</span><span class="si">{qwebchannel}</span><span class="s2">&#39;: {jsfile.error()}&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="n">jstext</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">jsfile</span><span class="o">.</span><span class="n">readAll</span><span class="p">())</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="n">jsfile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="n">script</span> <span class="o">=</span> <span class="n">QWebEngineScript</span><span class="p">()</span>
+        <span class="n">script</span><span class="o">.</span><span class="n">setSourceCode</span><span class="p">(</span>
+            <span class="n">jstext</span>
+            <span class="o">+</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            var pycmd;</span>
+<span class="s2">            new QWebChannel(qt.webChannelTransport, function(channel) {</span>
+<span class="s2">                pycmd = function (arg, cb) {</span>
+<span class="s2">                    var resultCB = function (res) {</span>
+<span class="s2">                        // pass result back to user-provided callback</span>
+<span class="s2">                        if (cb) {</span>
+<span class="s2">                            cb(JSON.parse(res));</span>
+<span class="s2">                        }</span>
+<span class="s2">                    }</span>
+<span class="s2">                </span>
+<span class="s2">                    channel.objects.py.cmd(arg, resultCB);</span>
+<span class="s2">                    return false;                   </span>
+<span class="s2">                }</span>
+<span class="s2">                pycmd(&quot;domDone&quot;);</span>
+<span class="s2">            });</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        <span class="p">)</span>
+        <span class="n">script</span><span class="o">.</span><span class="n">setWorldId</span><span class="p">(</span><span class="n">QWebEngineScript</span><span class="o">.</span><span class="n">MainWorld</span><span class="p">)</span>
+        <span class="n">script</span><span class="o">.</span><span class="n">setInjectionPoint</span><span class="p">(</span><span class="n">QWebEngineScript</span><span class="o">.</span><span class="n">DocumentReady</span><span class="p">)</span>
+        <span class="n">script</span><span class="o">.</span><span class="n">setRunsOnSubFrames</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">()</span><span class="o">.</span><span class="n">scripts</span><span class="p">()</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">script</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AnkiWebPage.javaScriptConsoleMessage"><a class="viewcode-back" href="../../aqt.html#aqt.webview.AnkiWebPage.javaScriptConsoleMessage">[docs]</a>    <span class="k">def</span> <span class="nf">javaScriptConsoleMessage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">srcID</span><span class="p">):</span>
+        <span class="c1"># not translated because console usually not visible,</span>
+        <span class="c1"># and may only accept ascii text</span>
+        <span class="k">if</span> <span class="n">srcID</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">):</span>
+            <span class="n">srcID</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">srcID</span> <span class="o">=</span> <span class="n">serverbaseurl</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">srcID</span><span class="p">[:</span><span class="mi">80</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">level</span> <span class="o">==</span> <span class="n">QWebEnginePage</span><span class="o">.</span><span class="n">InfoMessageLevel</span><span class="p">:</span>
+            <span class="n">level</span> <span class="o">=</span> <span class="s2">&quot;info&quot;</span>
+        <span class="k">elif</span> <span class="n">level</span> <span class="o">==</span> <span class="n">QWebEnginePage</span><span class="o">.</span><span class="n">WarningMessageLevel</span><span class="p">:</span>
+            <span class="n">level</span> <span class="o">=</span> <span class="s2">&quot;warning&quot;</span>
+        <span class="k">elif</span> <span class="n">level</span> <span class="o">==</span> <span class="n">QWebEnginePage</span><span class="o">.</span><span class="n">ErrorMessageLevel</span><span class="p">:</span>
+            <span class="n">level</span> <span class="o">=</span> <span class="s2">&quot;error&quot;</span>
+        <span class="n">buf</span> <span class="o">=</span> <span class="s2">&quot;JS </span><span class="si">%(t)s</span><span class="s2"> </span><span class="si">%(f)s</span><span class="s2">:</span><span class="si">%(a)d</span><span class="s2"> </span><span class="si">%(b)s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">t</span><span class="o">=</span><span class="n">level</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="n">line</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="n">srcID</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="n">msg</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="c1"># ensure we don&#39;t try to write characters the terminal can&#39;t handle</span>
+        <span class="n">buf</span> <span class="o">=</span> <span class="n">buf</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">encoding</span><span class="p">,</span> <span class="s2">&quot;backslashreplace&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">encoding</span>
+        <span class="p">)</span>
+        <span class="c1"># output to stdout because it may raise error messages on the anki GUI</span>
+        <span class="c1"># https://github.com/ankitects/anki/pull/560</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AnkiWebPage.acceptNavigationRequest"><a class="viewcode-back" href="../../aqt.html#aqt.webview.AnkiWebPage.acceptNavigationRequest">[docs]</a>    <span class="k">def</span> <span class="nf">acceptNavigationRequest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">navType</span><span class="p">,</span> <span class="n">isMainFrame</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_links_externally</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">acceptNavigationRequest</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">navType</span><span class="p">,</span> <span class="n">isMainFrame</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">isMainFrame</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="c1"># data: links generated by setHtml()</span>
+        <span class="k">if</span> <span class="n">url</span><span class="o">.</span><span class="n">scheme</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;data&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="c1"># catch buggy &lt;a href=&#39;#&#39; onclick=&#39;func()&#39;&gt; links</span>
+        <span class="kn">from</span> <span class="nn">aqt</span> <span class="kn">import</span> <span class="n">mw</span>
+
+        <span class="k">if</span> <span class="n">url</span><span class="o">.</span><span class="n">matches</span><span class="p">(</span><span class="n">QUrl</span><span class="p">(</span><span class="n">mw</span><span class="o">.</span><span class="n">serverURL</span><span class="p">()),</span> <span class="n">QUrl</span><span class="o">.</span><span class="n">RemoveFragment</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;onclick handler needs to return false&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="c1"># load all other links in browser</span>
+        <span class="n">openLink</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+    <span class="k">def</span> <span class="nf">_onCmd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_onBridgeCmd</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span></div>
+
+
+<span class="c1"># Add-ons</span>
+<span class="c1">##########################################################################</span>
+
+
+<div class="viewcode-block" id="WebContent"><a class="viewcode-back" href="../../aqt.html#aqt.webview.WebContent">[docs]</a><span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span>
+<span class="k">class</span> <span class="nc">WebContent</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Stores all dynamically modified content that a particular web view</span>
+<span class="sd">    will be populated with.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        body {str} -- HTML body</span>
+<span class="sd">        head {str} -- HTML head</span>
+<span class="sd">        css {List[str]} -- List of media server subpaths,</span>
+<span class="sd">                           each pointing to a CSS file</span>
+<span class="sd">        js {List[str]} -- List of media server subpaths,</span>
+<span class="sd">                          each pointing to a JS file</span>
+
+<span class="sd">    Important Notes:</span>
+<span class="sd">        - When modifying the attributes specified above, please make sure your</span>
+<span class="sd">        changes only perform the minimum requried edits to make your add-on work.</span>
+<span class="sd">        You should avoid overwriting or interfering with existing data as much</span>
+<span class="sd">        as possible, instead opting to append your own changes, e.g.:</span>
+<span class="sd">        </span>
+<span class="sd">            def on_webview_will_set_content(web_content: WebContent, context):</span>
+<span class="sd">                web_content.body += &quot;&lt;my_html&gt;&quot;</span>
+<span class="sd">                web_content.head += &quot;&lt;my_head&gt;&quot;</span>
+
+<span class="sd">        - The paths specified in `css` and `js` need to be accessible by Anki&#39;s</span>
+<span class="sd">          media server. All list members without a specified subpath are assumed</span>
+<span class="sd">          to be located under `/_anki`, which is the media server subpath used</span>
+<span class="sd">          for all web assets shipped with Anki.</span>
+<span class="sd">          </span>
+<span class="sd">          Add-ons may expose their own web assets by utilizing</span>
+<span class="sd">          aqt.addons.AddonManager.setWebExports(). Web exports registered</span>
+<span class="sd">          in this manner may then be accessed under the `/_addons` subpath.</span>
+<span class="sd">          </span>
+<span class="sd">          E.g., to allow access to a `my-addon.js` and `my-addon.css` residing</span>
+<span class="sd">          in a &quot;web&quot; subfolder in your add-on package, first register the</span>
+<span class="sd">          corresponding web export:</span>
+<span class="sd">          </span>
+<span class="sd">          &gt; from aqt import mw</span>
+<span class="sd">          &gt; mw.addonManager.setWebExports(__name__, r&quot;web/.*(css|js)&quot;)</span>
+<span class="sd">          </span>
+<span class="sd">          Then append the subpaths to the corresponding web_content fields</span>
+<span class="sd">          within a function subscribing to gui_hooks.webview_will_set_content:</span>
+<span class="sd">          </span>
+<span class="sd">              def on_webview_will_set_content(web_content: WebContent, context):</span>
+<span class="sd">                  addon_package = mw.addonManager.addonFromModule(__name__)</span>
+<span class="sd">                  web_content.css.append(</span>
+<span class="sd">                      f&quot;/_addons/{addon_package}/web/my-addon.css&quot;)</span>
+<span class="sd">                  web_content.js.append(</span>
+<span class="sd">                      f&quot;/_addons/{addon_package}/web/my-addon.js&quot;)</span>
+<span class="sd">          </span>
+<span class="sd">          Note that &#39;/&#39; will also match the os specific path separator.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">body</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">head</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">css</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">[])</span>
+    <span class="n">js</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">[])</span></div>
+
+
+<span class="c1"># Main web view</span>
+<span class="c1">##########################################################################</span>
+
+
+<div class="viewcode-block" id="AnkiWebView"><a class="viewcode-back" href="../../aqt.html#aqt.webview.AnkiWebView">[docs]</a><span class="k">class</span> <span class="nc">AnkiWebView</span><span class="p">(</span><span class="n">QWebEngineView</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">QWidget</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">QWebEngineView</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">title</span>  <span class="c1"># type: ignore</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_page</span> <span class="o">=</span> <span class="n">AnkiWebPage</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_onBridgeCmd</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_page</span><span class="o">.</span><span class="n">setBackgroundColor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_getWindowColor</span><span class="p">())</span>  <span class="c1"># reduce flicker</span>
+
+        <span class="c1"># in new code, use .set_bridge_command() instead of setting this directly</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">onBridgeCmd</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">defaultOnBridgeCmd</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_domDone</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pendingActions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">requiresCol</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setPage</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_page</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_page</span><span class="o">.</span><span class="n">profile</span><span class="p">()</span><span class="o">.</span><span class="n">setHttpCacheType</span><span class="p">(</span><span class="n">QWebEngineProfile</span><span class="o">.</span><span class="n">NoCache</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resetHandlers</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">allowDrops</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_filterSet</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">QShortcut</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
+            <span class="n">QKeySequence</span><span class="p">(</span><span class="s2">&quot;Esc&quot;</span><span class="p">),</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">context</span><span class="o">=</span><span class="n">Qt</span><span class="o">.</span><span class="n">WidgetWithChildrenShortcut</span><span class="p">,</span>
+            <span class="n">activated</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">onEsc</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">isMac</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">fn</span> <span class="ow">in</span> <span class="p">[</span>
+                <span class="p">(</span><span class="n">QKeySequence</span><span class="o">.</span><span class="n">Copy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onCopy</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">QKeySequence</span><span class="o">.</span><span class="n">Paste</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onPaste</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">QKeySequence</span><span class="o">.</span><span class="n">Cut</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onCut</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">QKeySequence</span><span class="o">.</span><span class="n">SelectAll</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onSelectAll</span><span class="p">),</span>
+            <span class="p">]:</span>
+                <span class="n">QShortcut</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
+                    <span class="n">key</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">Qt</span><span class="o">.</span><span class="n">WidgetWithChildrenShortcut</span><span class="p">,</span> <span class="n">activated</span><span class="o">=</span><span class="n">fn</span>
+                <span class="p">)</span>
+            <span class="n">QShortcut</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
+                <span class="n">QKeySequence</span><span class="p">(</span><span class="s2">&quot;ctrl+shift+v&quot;</span><span class="p">),</span>
+                <span class="bp">self</span><span class="p">,</span>
+                <span class="n">context</span><span class="o">=</span><span class="n">Qt</span><span class="o">.</span><span class="n">WidgetWithChildrenShortcut</span><span class="p">,</span>
+                <span class="n">activated</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">onPaste</span><span class="p">,</span>
+            <span class="p">)</span>
+
+<div class="viewcode-block" id="AnkiWebView.eventFilter"><a class="viewcode-back" href="../../aqt.html#aqt.webview.AnkiWebView.eventFilter">[docs]</a>    <span class="k">def</span> <span class="nf">eventFilter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">QObject</span><span class="p">,</span> <span class="n">evt</span><span class="p">:</span> <span class="n">QEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="c1"># disable pinch to zoom gesture</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">evt</span><span class="p">,</span> <span class="n">QNativeGestureEvent</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">evt</span><span class="o">.</span><span class="n">type</span><span class="p">()</span> <span class="o">==</span> <span class="n">QEvent</span><span class="o">.</span><span class="n">MouseButtonRelease</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">evt</span><span class="o">.</span><span class="n">button</span><span class="p">()</span> <span class="o">==</span> <span class="n">Qt</span><span class="o">.</span><span class="n">MidButton</span> <span class="ow">and</span> <span class="n">isLin</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">onMiddleClickPaste</span><span class="p">()</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="AnkiWebView.set_open_links_externally"><a class="viewcode-back" href="../../aqt.html#aqt.webview.AnkiWebView.set_open_links_externally">[docs]</a>    <span class="k">def</span> <span class="nf">set_open_links_externally</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">enable</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_page</span><span class="o">.</span><span class="n">open_links_externally</span> <span class="o">=</span> <span class="n">enable</span></div>
+
+<div class="viewcode-block" id="AnkiWebView.onEsc"><a class="viewcode-back" href="../../aqt.html#aqt.webview.AnkiWebView.onEsc">[docs]</a>    <span class="k">def</span> <span class="nf">onEsc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span>
+        <span class="k">while</span> <span class="n">w</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">QDialog</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">QMainWindow</span><span class="p">):</span>
+                <span class="kn">from</span> <span class="nn">aqt</span> <span class="kn">import</span> <span class="n">mw</span>
+
+                <span class="c1"># esc in a child window closes the window</span>
+                <span class="k">if</span> <span class="n">w</span> <span class="o">!=</span> <span class="n">mw</span><span class="p">:</span>
+                    <span class="n">w</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># in the main window, removes focus from type in area</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">setFocus</span><span class="p">()</span>
+                <span class="k">break</span>
+            <span class="n">w</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="AnkiWebView.onCopy"><a class="viewcode-back" href="../../aqt.html#aqt.webview.AnkiWebView.onCopy">[docs]</a>    <span class="k">def</span> <span class="nf">onCopy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">triggerPageAction</span><span class="p">(</span><span class="n">QWebEnginePage</span><span class="o">.</span><span class="n">Copy</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AnkiWebView.onCut"><a class="viewcode-back" href="../../aqt.html#aqt.webview.AnkiWebView.onCut">[docs]</a>    <span class="k">def</span> <span class="nf">onCut</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">triggerPageAction</span><span class="p">(</span><span class="n">QWebEnginePage</span><span class="o">.</span><span class="n">Cut</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AnkiWebView.onPaste"><a class="viewcode-back" href="../../aqt.html#aqt.webview.AnkiWebView.onPaste">[docs]</a>    <span class="k">def</span> <span class="nf">onPaste</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">triggerPageAction</span><span class="p">(</span><span class="n">QWebEnginePage</span><span class="o">.</span><span class="n">Paste</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AnkiWebView.onMiddleClickPaste"><a class="viewcode-back" href="../../aqt.html#aqt.webview.AnkiWebView.onMiddleClickPaste">[docs]</a>    <span class="k">def</span> <span class="nf">onMiddleClickPaste</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">triggerPageAction</span><span class="p">(</span><span class="n">QWebEnginePage</span><span class="o">.</span><span class="n">Paste</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AnkiWebView.onSelectAll"><a class="viewcode-back" href="../../aqt.html#aqt.webview.AnkiWebView.onSelectAll">[docs]</a>    <span class="k">def</span> <span class="nf">onSelectAll</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">triggerPageAction</span><span class="p">(</span><span class="n">QWebEnginePage</span><span class="o">.</span><span class="n">SelectAll</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AnkiWebView.contextMenuEvent"><a class="viewcode-back" href="../../aqt.html#aqt.webview.AnkiWebView.contextMenuEvent">[docs]</a>    <span class="k">def</span> <span class="nf">contextMenuEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evt</span><span class="p">:</span> <span class="n">QContextMenuEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">QMenu</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Copy&quot;</span><span class="p">))</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">triggered</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onCopy</span><span class="p">)</span>
+        <span class="n">gui_hooks</span><span class="o">.</span><span class="n">webview_will_show_context_menu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">popup</span><span class="p">(</span><span class="n">QCursor</span><span class="o">.</span><span class="n">pos</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="AnkiWebView.dropEvent"><a class="viewcode-back" href="../../aqt.html#aqt.webview.AnkiWebView.dropEvent">[docs]</a>    <span class="k">def</span> <span class="nf">dropEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evt</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="AnkiWebView.setHtml"><a class="viewcode-back" href="../../aqt.html#aqt.webview.AnkiWebView.setHtml">[docs]</a>    <span class="k">def</span> <span class="nf">setHtml</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">html</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1">#  type: ignore</span>
+        <span class="c1"># discard any previous pending actions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pendingActions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_domDone</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_queueAction</span><span class="p">(</span><span class="s2">&quot;setHtml&quot;</span><span class="p">,</span> <span class="n">html</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_setHtml</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">html</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">app</span> <span class="o">=</span> <span class="n">QApplication</span><span class="o">.</span><span class="n">instance</span><span class="p">()</span>
+        <span class="n">oldFocus</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">focusWidget</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_domDone</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_page</span><span class="o">.</span><span class="n">setHtml</span><span class="p">(</span><span class="n">html</span><span class="p">)</span>
+        <span class="c1"># work around webengine stealing focus on setHtml()</span>
+        <span class="k">if</span> <span class="n">oldFocus</span><span class="p">:</span>
+            <span class="n">oldFocus</span><span class="o">.</span><span class="n">setFocus</span><span class="p">()</span>
+
+<div class="viewcode-block" id="AnkiWebView.load"><a class="viewcode-back" href="../../aqt.html#aqt.webview.AnkiWebView.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="n">QUrl</span><span class="p">):</span>
+        <span class="c1"># allow queuing actions when loading url directly</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_domDone</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">url</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AnkiWebView.zoomFactor"><a class="viewcode-back" href="../../aqt.html#aqt.webview.AnkiWebView.zoomFactor">[docs]</a>    <span class="k">def</span> <span class="nf">zoomFactor</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="c1"># overridden scale factor?</span>
+        <span class="n">webscale</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ANKI_WEBSCALE&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">webscale</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">webscale</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">isMac</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">1</span>
+        <span class="n">screen</span> <span class="o">=</span> <span class="n">QApplication</span><span class="o">.</span><span class="n">desktop</span><span class="p">()</span><span class="o">.</span><span class="n">screen</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">screen</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">1</span>
+
+        <span class="n">dpi</span> <span class="o">=</span> <span class="n">screen</span><span class="o">.</span><span class="n">logicalDpiX</span><span class="p">()</span>
+        <span class="n">factor</span> <span class="o">=</span> <span class="n">dpi</span> <span class="o">/</span> <span class="mf">96.0</span>
+        <span class="k">if</span> <span class="n">isLin</span><span class="p">:</span>
+            <span class="n">factor</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">factor</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">factor</span>
+        <span class="c1"># compensate for qt&#39;s integer scaling on windows?</span>
+        <span class="k">if</span> <span class="n">qtminor</span> <span class="o">&gt;=</span> <span class="mi">14</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">1</span>
+        <span class="n">qtIntScale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getQtIntScale</span><span class="p">(</span><span class="n">screen</span><span class="p">)</span>
+        <span class="n">desiredScale</span> <span class="o">=</span> <span class="n">factor</span> <span class="o">*</span> <span class="n">qtIntScale</span>
+        <span class="n">newFactor</span> <span class="o">=</span> <span class="n">desiredScale</span> <span class="o">/</span> <span class="n">qtIntScale</span>
+        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">newFactor</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_getQtIntScale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">screen</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="c1"># try to detect if Qt has scaled the screen</span>
+        <span class="c1"># - qt will round the scale factor to a whole number, so a dpi of 125% = 1x,</span>
+        <span class="c1">#   and a dpi of 150% = 2x</span>
+        <span class="c1"># - a screen with a normal physical dpi of 72 will have a dpi of 32</span>
+        <span class="c1">#   if the scale factor has been rounded to 2x</span>
+        <span class="c1"># - different screens have different physical DPIs (eg 72, 93, 102)</span>
+        <span class="c1"># - until a better solution presents itself, assume a physical DPI at</span>
+        <span class="c1">#   or above 70 is unscaled</span>
+        <span class="k">if</span> <span class="n">screen</span><span class="o">.</span><span class="n">physicalDpiX</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">70</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">screen</span><span class="o">.</span><span class="n">physicalDpiX</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">35</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">2</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">3</span>
+
+    <span class="k">def</span> <span class="nf">_getWindowColor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">theme_manager</span><span class="o">.</span><span class="n">night_mode</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">theme_manager</span><span class="o">.</span><span class="n">qcolor</span><span class="p">(</span><span class="s2">&quot;window-bg&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">isMac</span><span class="p">:</span>
+            <span class="c1"># standard palette does not return correct window color on macOS</span>
+            <span class="k">return</span> <span class="n">QColor</span><span class="p">(</span><span class="s2">&quot;#ececec&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="p">()</span><span class="o">.</span><span class="n">standardPalette</span><span class="p">()</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">QPalette</span><span class="o">.</span><span class="n">Window</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AnkiWebView.stdHtml"><a class="viewcode-back" href="../../aqt.html#aqt.webview.AnkiWebView.stdHtml">[docs]</a>    <span class="k">def</span> <span class="nf">stdHtml</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">body</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">css</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">js</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">head</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">context</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+
+        <span class="n">web_content</span> <span class="o">=</span> <span class="n">WebContent</span><span class="p">(</span>
+            <span class="n">body</span><span class="o">=</span><span class="n">body</span><span class="p">,</span>
+            <span class="n">head</span><span class="o">=</span><span class="n">head</span><span class="p">,</span>
+            <span class="n">js</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;webview.js&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="p">([</span><span class="s2">&quot;jquery.js&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">js</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">js</span><span class="p">),</span>
+            <span class="n">css</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;webview.css&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="p">([]</span> <span class="k">if</span> <span class="n">css</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">css</span><span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="n">gui_hooks</span><span class="o">.</span><span class="n">webview_will_set_content</span><span class="p">(</span><span class="n">web_content</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+
+        <span class="n">palette</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="p">()</span><span class="o">.</span><span class="n">standardPalette</span><span class="p">()</span>
+        <span class="n">color_hl</span> <span class="o">=</span> <span class="n">palette</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">QPalette</span><span class="o">.</span><span class="n">Highlight</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">isWin</span><span class="p">:</span>
+            <span class="c1"># T: include a font for your language on Windows, eg: &quot;Segoe UI&quot;, &quot;MS Mincho&quot;</span>
+            <span class="n">family</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s1">&#39;&quot;Segoe UI&quot;&#39;</span><span class="p">)</span>
+            <span class="n">widgetspec</span> <span class="o">=</span> <span class="s2">&quot;button { font-family:</span><span class="si">%s</span><span class="s2">; }&quot;</span> <span class="o">%</span> <span class="n">family</span>
+            <span class="n">widgetspec</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">:focus { outline: 1px solid </span><span class="si">%s</span><span class="s2">; }&quot;</span> <span class="o">%</span> <span class="n">color_hl</span>
+            <span class="n">fontspec</span> <span class="o">=</span> <span class="s2">&quot;font-size:12px;font-family:</span><span class="si">%s</span><span class="s2">;&quot;</span> <span class="o">%</span> <span class="n">family</span>
+        <span class="k">elif</span> <span class="n">isMac</span><span class="p">:</span>
+            <span class="n">family</span> <span class="o">=</span> <span class="s2">&quot;Helvetica&quot;</span>
+            <span class="n">fontspec</span> <span class="o">=</span> <span class="s1">&#39;font-size:15px;font-family:&quot;</span><span class="si">%s</span><span class="s1">&quot;;&#39;</span> <span class="o">%</span> <span class="n">family</span>
+            <span class="n">widgetspec</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">button { -webkit-appearance: none; background: #fff; border: 1px solid #ccc;</span>
+<span class="s2">border-radius:5px; font-family: Helvetica }&quot;&quot;&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">family</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">font</span><span class="p">()</span><span class="o">.</span><span class="n">family</span><span class="p">()</span>
+            <span class="n">color_hl_txt</span> <span class="o">=</span> <span class="n">palette</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">QPalette</span><span class="o">.</span><span class="n">HighlightedText</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="p">()</span>
+            <span class="n">color_btn</span> <span class="o">=</span> <span class="n">palette</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">QPalette</span><span class="o">.</span><span class="n">Button</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="p">()</span>
+            <span class="n">fontspec</span> <span class="o">=</span> <span class="s1">&#39;font-size:14px;font-family:&quot;</span><span class="si">%s</span><span class="s1">&quot;;&#39;</span> <span class="o">%</span> <span class="n">family</span>
+            <span class="n">widgetspec</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">/* Buttons */</span>
+<span class="s2">button{ </span>
+<span class="s2">        background-color: </span><span class="si">%(color_btn)s</span><span class="s2">;</span>
+<span class="s2">        font-family:&quot;</span><span class="si">%(family)s</span><span class="s2">&quot;; }</span>
+<span class="s2">button:focus{ border-color: </span><span class="si">%(color_hl)s</span><span class="s2"> }</span>
+<span class="s2">button:active, button:active:hover { background-color: </span><span class="si">%(color_hl)s</span><span class="s2">; color: </span><span class="si">%(color_hl_txt)s</span><span class="s2">;}</span>
+<span class="s2">/* Input field focus outline */</span>
+<span class="s2">textarea:focus, input:focus, input[type]:focus, .uneditable-input:focus,</span>
+<span class="s2">div[contenteditable=&quot;true&quot;]:focus {   </span>
+<span class="s2">    outline: 0 none;</span>
+<span class="s2">    border-color: </span><span class="si">%(color_hl)s</span><span class="s2">;</span>
+<span class="s2">}&quot;&quot;&quot;</span> <span class="o">%</span> <span class="p">{</span>
+                <span class="s2">&quot;family&quot;</span><span class="p">:</span> <span class="n">family</span><span class="p">,</span>
+                <span class="s2">&quot;color_btn&quot;</span><span class="p">:</span> <span class="n">color_btn</span><span class="p">,</span>
+                <span class="s2">&quot;color_hl&quot;</span><span class="p">:</span> <span class="n">color_hl</span><span class="p">,</span>
+                <span class="s2">&quot;color_hl_txt&quot;</span><span class="p">:</span> <span class="n">color_hl_txt</span><span class="p">,</span>
+            <span class="p">}</span>
+
+        <span class="n">csstxt</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bundledCSS</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span> <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">web_content</span><span class="o">.</span><span class="n">css</span><span class="p">)</span>
+        <span class="n">jstxt</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bundledScript</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span> <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">web_content</span><span class="o">.</span><span class="n">js</span><span class="p">)</span>
+
+        <span class="kn">from</span> <span class="nn">aqt</span> <span class="kn">import</span> <span class="n">mw</span>
+
+        <span class="n">head</span> <span class="o">=</span> <span class="n">mw</span><span class="o">.</span><span class="n">baseHTML</span><span class="p">()</span> <span class="o">+</span> <span class="n">csstxt</span> <span class="o">+</span> <span class="n">jstxt</span> <span class="o">+</span> <span class="n">web_content</span><span class="o">.</span><span class="n">head</span>
+
+        <span class="n">body_class</span> <span class="o">=</span> <span class="n">theme_manager</span><span class="o">.</span><span class="n">body_class</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">is_rtl</span><span class="p">(</span><span class="n">anki</span><span class="o">.</span><span class="n">lang</span><span class="o">.</span><span class="n">currentLang</span><span class="p">):</span>
+            <span class="n">lang_dir</span> <span class="o">=</span> <span class="s2">&quot;rtl&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">lang_dir</span> <span class="o">=</span> <span class="s2">&quot;ltr&quot;</span>
+
+        <span class="n">html</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">&lt;!doctype html&gt;</span>
+<span class="s2">&lt;html&gt;&lt;head&gt;</span>
+<span class="s2">&lt;title&gt;</span><span class="si">{}</span><span class="s2">&lt;/title&gt;</span>
+
+<span class="s2">&lt;style&gt;</span>
+<span class="s2">body {{ zoom: </span><span class="si">{}</span><span class="s2">; background: </span><span class="si">{}</span><span class="s2">; direction: </span><span class="si">{}</span><span class="s2">; </span><span class="si">{}</span><span class="s2"> }}</span>
+<span class="si">{}</span><span class="s2"></span>
+<span class="s2">&lt;/style&gt;</span>
+<span class="s2">  </span>
+<span class="si">{}</span><span class="s2"></span>
+<span class="s2">&lt;/head&gt;</span>
+
+<span class="s2">&lt;body class=&quot;</span><span class="si">{}</span><span class="s2">&quot;&gt;</span><span class="si">{}</span><span class="s2">&lt;/body&gt;</span>
+<span class="s2">&lt;/html&gt;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">zoomFactor</span><span class="p">(),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_getWindowColor</span><span class="p">()</span><span class="o">.</span><span class="n">name</span><span class="p">(),</span>
+            <span class="n">lang_dir</span><span class="p">,</span>
+            <span class="n">fontspec</span><span class="p">,</span>
+            <span class="n">widgetspec</span><span class="p">,</span>
+            <span class="n">head</span><span class="p">,</span>
+            <span class="n">body_class</span><span class="p">,</span>
+            <span class="n">web_content</span><span class="o">.</span><span class="n">body</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># print(html)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setHtml</span><span class="p">(</span><span class="n">html</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AnkiWebView.webBundlePath"><a class="viewcode-back" href="../../aqt.html#aqt.webview.AnkiWebView.webBundlePath">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">webBundlePath</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">aqt</span> <span class="kn">import</span> <span class="n">mw</span>
+
+        <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">):</span>
+            <span class="n">subpath</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">subpath</span> <span class="o">=</span> <span class="s2">&quot;/_anki/&quot;</span>
+
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;http://127.0.0.1:{mw.mediaServer.getPort()}</span><span class="si">{subpath}{path}</span><span class="s2">&quot;</span></div>
+
+<div class="viewcode-block" id="AnkiWebView.bundledScript"><a class="viewcode-back" href="../../aqt.html#aqt.webview.AnkiWebView.bundledScript">[docs]</a>    <span class="k">def</span> <span class="nf">bundledScript</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;&lt;script src=&quot;</span><span class="si">%s</span><span class="s1">&quot;&gt;&lt;/script&gt;&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">webBundlePath</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AnkiWebView.bundledCSS"><a class="viewcode-back" href="../../aqt.html#aqt.webview.AnkiWebView.bundledCSS">[docs]</a>    <span class="k">def</span> <span class="nf">bundledCSS</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;&lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;</span><span class="si">%s</span><span class="s1">&quot;&gt;&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">webBundlePath</span><span class="p">(</span>
+            <span class="n">fname</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="AnkiWebView.eval"><a class="viewcode-back" href="../../aqt.html#aqt.webview.AnkiWebView.eval">[docs]</a>    <span class="k">def</span> <span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">js</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">evalWithCallback</span><span class="p">(</span><span class="n">js</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AnkiWebView.evalWithCallback"><a class="viewcode-back" href="../../aqt.html#aqt.webview.AnkiWebView.evalWithCallback">[docs]</a>    <span class="k">def</span> <span class="nf">evalWithCallback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">js</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cb</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_queueAction</span><span class="p">(</span><span class="s2">&quot;eval&quot;</span><span class="p">,</span> <span class="n">js</span><span class="p">,</span> <span class="n">cb</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_evalWithCallback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">js</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cb</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">cb</span><span class="p">:</span>
+
+            <span class="k">def</span> <span class="nf">handler</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shouldIgnoreWebEvent</span><span class="p">():</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ignored late js callback&quot;</span><span class="p">,</span> <span class="n">cb</span><span class="p">)</span>
+                    <span class="k">return</span>
+                <span class="n">cb</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">page</span><span class="p">()</span><span class="o">.</span><span class="n">runJavaScript</span><span class="p">(</span><span class="n">js</span><span class="p">,</span> <span class="n">handler</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">page</span><span class="p">()</span><span class="o">.</span><span class="n">runJavaScript</span><span class="p">(</span><span class="n">js</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_queueAction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pendingActions</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_maybeRunActions</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_maybeRunActions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pendingActions</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_domDone</span><span class="p">:</span>
+            <span class="n">name</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pendingActions</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;eval&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_evalWithCallback</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;setHtml&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_setHtml</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;unknown action: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_openLinksExternally</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">openLink</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_shouldIgnoreWebEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="c1"># async web events may be received after the profile has been closed</span>
+        <span class="c1"># or the underlying webview has been deleted</span>
+        <span class="kn">from</span> <span class="nn">aqt</span> <span class="kn">import</span> <span class="n">mw</span>
+
+        <span class="k">if</span> <span class="n">sip</span><span class="o">.</span><span class="n">isdeleted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">mw</span><span class="o">.</span><span class="n">col</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">requiresCol</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">_onBridgeCmd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shouldIgnoreWebEvent</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ignored late bridge cmd&quot;</span><span class="p">,</span> <span class="n">cmd</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filterSet</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">focusProxy</span><span class="p">()</span><span class="o">.</span><span class="n">installEventFilter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_filterSet</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="n">cmd</span> <span class="o">==</span> <span class="s2">&quot;domDone&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_domDone</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_maybeRunActions</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">handled</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="n">gui_hooks</span><span class="o">.</span><span class="n">webview_did_receive_js_message</span><span class="p">(</span>
+                <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="n">cmd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bridge_context</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">handled</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">result</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">onBridgeCmd</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AnkiWebView.defaultOnBridgeCmd"><a class="viewcode-back" href="../../aqt.html#aqt.webview.AnkiWebView.defaultOnBridgeCmd">[docs]</a>    <span class="k">def</span> <span class="nf">defaultOnBridgeCmd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;unhandled bridge cmd:&quot;</span><span class="p">,</span> <span class="n">cmd</span><span class="p">)</span></div>
+
+    <span class="c1"># legacy</span>
+<div class="viewcode-block" id="AnkiWebView.resetHandlers"><a class="viewcode-back" href="../../aqt.html#aqt.webview.AnkiWebView.resetHandlers">[docs]</a>    <span class="k">def</span> <span class="nf">resetHandlers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">onBridgeCmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">defaultOnBridgeCmd</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bridge_context</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="AnkiWebView.adjustHeightToFit"><a class="viewcode-back" href="../../aqt.html#aqt.webview.AnkiWebView.adjustHeightToFit">[docs]</a>    <span class="k">def</span> <span class="nf">adjustHeightToFit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">evalWithCallback</span><span class="p">(</span><span class="s2">&quot;$(document.body).height()&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_onHeight</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_onHeight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qvar</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">aqt</span> <span class="kn">import</span> <span class="n">mw</span>
+
+        <span class="k">if</span> <span class="n">qvar</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+
+            <span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">timer</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="n">mw</span><span class="o">.</span><span class="n">reset</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">scaleFactor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zoomFactor</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">scaleFactor</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">scaleFactor</span> <span class="o">=</span> <span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">uiScale</span><span class="p">()</span>
+
+        <span class="n">height</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">qvar</span> <span class="o">*</span> <span class="n">scaleFactor</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setFixedHeight</span><span class="p">(</span><span class="n">height</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AnkiWebView.set_bridge_command"><a class="viewcode-back" href="../../aqt.html#aqt.webview.AnkiWebView.set_bridge_command">[docs]</a>    <span class="k">def</span> <span class="nf">set_bridge_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Any</span><span class="p">],</span> <span class="n">context</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set a handler for pycmd() messages received from Javascript.</span>
+
+<span class="sd">        Context is the object calling this routine, eg an instance of</span>
+<span class="sd">        aqt.reviewer.Reviewer or aqt.deckbrowser.DeckBrowser.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">onBridgeCmd</span> <span class="o">=</span> <span class="n">func</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bridge_context</span> <span class="o">=</span> <span class="n">context</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Abdelrahman Hamdy
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

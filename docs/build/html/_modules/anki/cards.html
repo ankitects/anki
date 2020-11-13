@@ -1,0 +1,406 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>anki.cards &mdash; Anki  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+        <script async="async" kind="hypothesis" src="https://hypothes.is/embed.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Anki
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.html">anki package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.importing.html">anki.importing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aqt.html">aqt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../genhooks_gui.html">genhooks_gui module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tools.html">tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Anki</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>anki.cards</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for anki.cards</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright: Ankitects Pty Ltd and contributors</span>
+<span class="c1"># License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span> <span class="nn">pprint</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span> <span class="nn">anki</span>  <span class="c1"># pylint: disable=unused-import</span>
+<span class="kn">from</span> <span class="nn">anki</span> <span class="kn">import</span> <span class="n">hooks</span>
+<span class="kn">from</span> <span class="nn">anki.consts</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">anki.models</span> <span class="kn">import</span> <span class="n">NoteType</span><span class="p">,</span> <span class="n">Template</span>
+<span class="kn">from</span> <span class="nn">anki.notes</span> <span class="kn">import</span> <span class="n">Note</span>
+<span class="kn">from</span> <span class="nn">anki.rsbackend</span> <span class="kn">import</span> <span class="n">BackendCard</span>
+<span class="kn">from</span> <span class="nn">anki.sound</span> <span class="kn">import</span> <span class="n">AVTag</span>
+
+<span class="c1"># Cards</span>
+<span class="c1">##########################################################################</span>
+
+<span class="c1"># Type: 0=new, 1=learning, 2=due</span>
+<span class="c1"># Queue: same as above, and:</span>
+<span class="c1">#        -1=suspended, -2=user buried, -3=sched buried</span>
+<span class="c1"># Due is used differently for different queues.</span>
+<span class="c1"># - new queue: note id or random int</span>
+<span class="c1"># - rev queue: integer day</span>
+<span class="c1"># - lrn queue: integer timestamp</span>
+
+
+<div class="viewcode-block" id="Card"><a class="viewcode-back" href="../../anki.html#anki.cards.Card">[docs]</a><span class="k">class</span> <span class="nc">Card</span><span class="p">:</span>
+    <span class="n">_note</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Note</span><span class="p">]</span>
+    <span class="n">timerStarted</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
+    <span class="n">lastIvl</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="nb">ord</span><span class="p">:</span> <span class="nb">int</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">:</span> <span class="n">anki</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">Collection</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span> <span class="o">=</span> <span class="n">col</span><span class="o">.</span><span class="n">weakref</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timerStarted</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_render_output</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">anki</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">TemplateRenderOutput</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">id</span><span class="p">:</span>
+            <span class="c1"># existing card</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="nb">id</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># new card with defaults</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_load_from_backend_card</span><span class="p">(</span><span class="n">BackendCard</span><span class="p">())</span>
+
+<div class="viewcode-block" id="Card.load"><a class="viewcode-back" href="../../anki.html#anki.cards.Card.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">get_card</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">c</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_load_from_backend_card</span><span class="p">(</span><span class="n">c</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_load_from_backend_card</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="n">BackendCard</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_render_output</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_note</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nid</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">nid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">did</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">did</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ord</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">ord</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mod</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">mtime</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">usn</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">usn</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">ctype</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">queue</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">queue</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">due</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">due</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ivl</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">ivl</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">factor</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">factor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reps</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">reps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lapses</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">lapses</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">left</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">left</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">odue</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">odue</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">odid</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">odid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flags</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">flags</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">data</span>
+
+    <span class="k">def</span> <span class="nf">_bugcheck</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">queue</span> <span class="o">==</span> <span class="n">QUEUE_TYPE_REV</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">odue</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">isDyn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">did</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="n">hooks</span><span class="o">.</span><span class="n">card_odue_was_invalid</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Card.flush"><a class="viewcode-back" href="../../anki.html#anki.cards.Card.flush">[docs]</a>    <span class="k">def</span> <span class="nf">flush</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bugcheck</span><span class="p">()</span>
+        <span class="n">hooks</span><span class="o">.</span><span class="n">card_will_flush</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="c1"># mtime &amp; usn are set by backend</span>
+        <span class="n">card</span> <span class="o">=</span> <span class="n">BackendCard</span><span class="p">(</span>
+            <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="n">nid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nid</span><span class="p">,</span>
+            <span class="n">did</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">did</span><span class="p">,</span>
+            <span class="nb">ord</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ord</span><span class="p">,</span>
+            <span class="n">ctype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">,</span>
+            <span class="n">queue</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="p">,</span>
+            <span class="n">due</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">due</span><span class="p">,</span>
+            <span class="n">ivl</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ivl</span><span class="p">,</span>
+            <span class="n">factor</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">factor</span><span class="p">,</span>
+            <span class="n">reps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">reps</span><span class="p">,</span>
+            <span class="n">lapses</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lapses</span><span class="p">,</span>
+            <span class="n">left</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">,</span>
+            <span class="n">odue</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">odue</span><span class="p">,</span>
+            <span class="n">odid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">odid</span><span class="p">,</span>
+            <span class="n">flags</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">flags</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">update_card</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">add_card</span><span class="p">(</span><span class="n">card</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Card.question"><a class="viewcode-back" href="../../anki.html#anki.cards.Card.question">[docs]</a>    <span class="k">def</span> <span class="nf">question</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reload</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">browser</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_output</span><span class="p">(</span><span class="n">reload</span><span class="p">,</span> <span class="n">browser</span><span class="p">)</span><span class="o">.</span><span class="n">question_and_style</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Card.answer"><a class="viewcode-back" href="../../anki.html#anki.cards.Card.answer">[docs]</a>    <span class="k">def</span> <span class="nf">answer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_output</span><span class="p">()</span><span class="o">.</span><span class="n">answer_and_style</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Card.question_av_tags"><a class="viewcode-back" href="../../anki.html#anki.cards.Card.question_av_tags">[docs]</a>    <span class="k">def</span> <span class="nf">question_av_tags</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">AVTag</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_output</span><span class="p">()</span><span class="o">.</span><span class="n">question_av_tags</span></div>
+
+<div class="viewcode-block" id="Card.answer_av_tags"><a class="viewcode-back" href="../../anki.html#anki.cards.Card.answer_av_tags">[docs]</a>    <span class="k">def</span> <span class="nf">answer_av_tags</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">AVTag</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_output</span><span class="p">()</span><span class="o">.</span><span class="n">answer_av_tags</span></div>
+
+    <span class="c1"># legacy</span>
+<div class="viewcode-block" id="Card.css"><a class="viewcode-back" href="../../anki.html#anki.cards.Card.css">[docs]</a>    <span class="k">def</span> <span class="nf">css</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;&lt;style&gt;</span><span class="si">%s</span><span class="s2">&lt;/style&gt;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_output</span><span class="p">()</span><span class="o">.</span><span class="n">css</span></div>
+
+<div class="viewcode-block" id="Card.render_output"><a class="viewcode-back" href="../../anki.html#anki.cards.Card.render_output">[docs]</a>    <span class="k">def</span> <span class="nf">render_output</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">reload</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">browser</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">anki</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">TemplateRenderOutput</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_output</span> <span class="ow">or</span> <span class="n">reload</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_render_output</span> <span class="o">=</span> <span class="n">anki</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">TemplateRenderContext</span><span class="o">.</span><span class="n">from_existing_card</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span> <span class="n">browser</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">render</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_output</span></div>
+
+<div class="viewcode-block" id="Card.set_render_output"><a class="viewcode-back" href="../../anki.html#anki.cards.Card.set_render_output">[docs]</a>    <span class="k">def</span> <span class="nf">set_render_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="n">anki</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">TemplateRenderOutput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_render_output</span> <span class="o">=</span> <span class="n">output</span></div>
+
+<div class="viewcode-block" id="Card.note"><a class="viewcode-back" href="../../anki.html#anki.cards.Card.note">[docs]</a>    <span class="k">def</span> <span class="nf">note</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reload</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Note</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_note</span> <span class="ow">or</span> <span class="n">reload</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_note</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">getNote</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nid</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_note</span></div>
+
+<div class="viewcode-block" id="Card.note_type"><a class="viewcode-back" href="../../anki.html#anki.cards.Card.note_type">[docs]</a>    <span class="k">def</span> <span class="nf">note_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoteType</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">note</span><span class="p">()</span><span class="o">.</span><span class="n">mid</span><span class="p">)</span></div>
+
+    <span class="c1"># legacy aliases</span>
+    <span class="n">flushSched</span> <span class="o">=</span> <span class="n">flush</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">question</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">answer</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">note_type</span>
+
+<div class="viewcode-block" id="Card.template"><a class="viewcode-back" href="../../anki.html#anki.cards.Card.template">[docs]</a>    <span class="k">def</span> <span class="nf">template</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Template</span><span class="p">:</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">m</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">MODEL_STD</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">()[</span><span class="s2">&quot;tmpls&quot;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">ord</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">()[</span><span class="s2">&quot;tmpls&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Card.startTimer"><a class="viewcode-back" href="../../anki.html#anki.cards.Card.startTimer">[docs]</a>    <span class="k">def</span> <span class="nf">startTimer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timerStarted</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Card.timeLimit"><a class="viewcode-back" href="../../anki.html#anki.cards.Card.timeLimit">[docs]</a>    <span class="k">def</span> <span class="nf">timeLimit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="s2">&quot;Time limit for answering in milliseconds.&quot;</span>
+        <span class="n">conf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">confForDid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">odid</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">did</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;maxTaken&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">1000</span></div>
+
+<div class="viewcode-block" id="Card.shouldShowTimer"><a class="viewcode-back" href="../../anki.html#anki.cards.Card.shouldShowTimer">[docs]</a>    <span class="k">def</span> <span class="nf">shouldShowTimer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="n">conf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">confForDid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">odid</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">did</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;timer&quot;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Card.replay_question_audio_on_answer_side"><a class="viewcode-back" href="../../anki.html#anki.cards.Card.replay_question_audio_on_answer_side">[docs]</a>    <span class="k">def</span> <span class="nf">replay_question_audio_on_answer_side</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="n">conf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">confForDid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">odid</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">did</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;replayq&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Card.autoplay"><a class="viewcode-back" href="../../anki.html#anki.cards.Card.autoplay">[docs]</a>    <span class="k">def</span> <span class="nf">autoplay</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">confForDid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">odid</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">did</span><span class="p">)[</span><span class="s2">&quot;autoplay&quot;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Card.timeTaken"><a class="viewcode-back" href="../../anki.html#anki.cards.Card.timeTaken">[docs]</a>    <span class="k">def</span> <span class="nf">timeTaken</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="s2">&quot;Time taken to answer card, in integer MS.&quot;</span>
+        <span class="n">total</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">timerStarted</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">total</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeLimit</span><span class="p">())</span></div>
+
+    <span class="c1"># legacy</span>
+<div class="viewcode-block" id="Card.isEmpty"><a class="viewcode-back" href="../../anki.html#anki.cards.Card.isEmpty">[docs]</a>    <span class="k">def</span> <span class="nf">isEmpty</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+        <span class="c1"># remove non-useful elements</span>
+        <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;_note&quot;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;_render_output&quot;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;col&quot;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;timerStarted&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;{super().__repr__()} {pprint.pformat(d, width=300)}&quot;</span>
+
+<div class="viewcode-block" id="Card.userFlag"><a class="viewcode-back" href="../../anki.html#anki.cards.Card.userFlag">[docs]</a>    <span class="k">def</span> <span class="nf">userFlag</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="mb">0b111</span></div>
+
+<div class="viewcode-block" id="Card.setUserFlag"><a class="viewcode-back" href="../../anki.html#anki.cards.Card.setUserFlag">[docs]</a>    <span class="k">def</span> <span class="nf">setUserFlag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">flag</span> <span class="o">&lt;=</span> <span class="mi">7</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flags</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="o">~</span><span class="mb">0b111</span><span class="p">)</span> <span class="o">|</span> <span class="n">flag</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Abdelrahman Hamdy
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

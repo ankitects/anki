@@ -1,0 +1,931 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>anki.collection &mdash; Anki  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Anki
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.html">anki package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aqt.html">aqt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../genhooks_gui.html">genhooks_gui module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tools.html">tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Anki</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>anki.collection</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for anki.collection</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright: Ankitects Pty Ltd and contributors</span>
+<span class="c1"># License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pprint</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
+<span class="kn">import</span> <span class="nn">weakref</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">anki.find</span>
+<span class="kn">import</span> <span class="nn">anki.latex</span>  <span class="c1"># sets up hook</span>
+<span class="kn">import</span> <span class="nn">anki.template</span>
+<span class="kn">from</span> <span class="nn">anki</span> <span class="kn">import</span> <span class="n">hooks</span>
+<span class="kn">from</span> <span class="nn">anki.cards</span> <span class="kn">import</span> <span class="n">Card</span>
+<span class="kn">from</span> <span class="nn">anki.config</span> <span class="kn">import</span> <span class="n">ConfigManager</span>
+<span class="kn">from</span> <span class="nn">anki.consts</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">anki.dbproxy</span> <span class="kn">import</span> <span class="n">DBProxy</span>
+<span class="kn">from</span> <span class="nn">anki.decks</span> <span class="kn">import</span> <span class="n">DeckManager</span>
+<span class="kn">from</span> <span class="nn">anki.errors</span> <span class="kn">import</span> <span class="n">AnkiError</span>
+<span class="kn">from</span> <span class="nn">anki.lang</span> <span class="kn">import</span> <span class="n">_</span>
+<span class="kn">from</span> <span class="nn">anki.media</span> <span class="kn">import</span> <span class="n">MediaManager</span><span class="p">,</span> <span class="n">media_paths_from_col_path</span>
+<span class="kn">from</span> <span class="nn">anki.models</span> <span class="kn">import</span> <span class="n">ModelManager</span>
+<span class="kn">from</span> <span class="nn">anki.notes</span> <span class="kn">import</span> <span class="n">Note</span>
+<span class="kn">from</span> <span class="nn">anki.rsbackend</span> <span class="kn">import</span> <span class="n">TR</span><span class="p">,</span> <span class="n">DBError</span><span class="p">,</span> <span class="n">FormatTimeSpanContext</span><span class="p">,</span> <span class="n">Progress</span><span class="p">,</span> <span class="n">RustBackend</span><span class="p">,</span> <span class="n">pb</span>
+<span class="kn">from</span> <span class="nn">anki.sched</span> <span class="kn">import</span> <span class="n">Scheduler</span> <span class="k">as</span> <span class="n">V1Scheduler</span>
+<span class="kn">from</span> <span class="nn">anki.schedv2</span> <span class="kn">import</span> <span class="n">Scheduler</span> <span class="k">as</span> <span class="n">V2Scheduler</span>
+<span class="kn">from</span> <span class="nn">anki.tags</span> <span class="kn">import</span> <span class="n">TagManager</span>
+<span class="kn">from</span> <span class="nn">anki.utils</span> <span class="kn">import</span> <span class="n">devMode</span><span class="p">,</span> <span class="n">ids2str</span><span class="p">,</span> <span class="n">intTime</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">anki.rsbackend</span> <span class="kn">import</span> <span class="n">TRValue</span><span class="p">,</span> <span class="n">FormatTimeSpanContextValue</span>
+
+
+<div class="viewcode-block" id="Collection"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection">[docs]</a><span class="k">class</span> <span class="nc">Collection</span><span class="p">:</span>
+    <span class="n">sched</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">V1Scheduler</span><span class="p">,</span> <span class="n">V2Scheduler</span><span class="p">]</span>
+    <span class="n">_undo</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">backend</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">RustBackend</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">server</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">log</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="o">=</span> <span class="n">backend</span> <span class="ow">or</span> <span class="n">RustBackend</span><span class="p">(</span><span class="n">server</span><span class="o">=</span><span class="n">server</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DBProxy</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_should_log</span> <span class="o">=</span> <span class="n">log</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">server</span> <span class="o">=</span> <span class="n">server</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reopen</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">anki</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lastSave</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clearUndo</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">media</span> <span class="o">=</span> <span class="n">MediaManager</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">server</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">models</span> <span class="o">=</span> <span class="n">ModelManager</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decks</span> <span class="o">=</span> <span class="n">DeckManager</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tags</span> <span class="o">=</span> <span class="n">TagManager</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conf</span> <span class="o">=</span> <span class="n">ConfigManager</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_loadScheduler</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+        <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;models&quot;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;backend&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;{super().__repr__()} {pprint.pformat(d, width=300)}&quot;</span>
+
+<div class="viewcode-block" id="Collection.name"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.name">[docs]</a>    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Collection.weakref"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.weakref">[docs]</a>    <span class="k">def</span> <span class="nf">weakref</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Collection</span><span class="p">:</span>
+        <span class="s2">&quot;Shortcut to create a weak reference that doesn&#39;t break code completion.&quot;</span>
+        <span class="k">return</span> <span class="n">weakref</span><span class="o">.</span><span class="n">proxy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+    <span class="c1"># I18n/messages</span>
+    <span class="c1">##########################################################################</span>
+
+<div class="viewcode-block" id="Collection.tr"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.tr">[docs]</a>    <span class="k">def</span> <span class="nf">tr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="n">TRValue</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Collection.format_timespan"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.format_timespan">[docs]</a>    <span class="k">def</span> <span class="nf">format_timespan</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">seconds</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">context</span><span class="p">:</span> <span class="n">FormatTimeSpanContextValue</span> <span class="o">=</span> <span class="n">FormatTimeSpanContext</span><span class="o">.</span><span class="n">INTERVALS</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">format_timespan</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">seconds</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span></div>
+
+    <span class="c1"># Progress</span>
+    <span class="c1">##########################################################################</span>
+
+<div class="viewcode-block" id="Collection.latest_progress"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.latest_progress">[docs]</a>    <span class="k">def</span> <span class="nf">latest_progress</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Progress</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Progress</span><span class="o">.</span><span class="n">from_proto</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">latest_progress</span><span class="p">())</span></div>
+
+    <span class="c1"># Scheduler</span>
+    <span class="c1">##########################################################################</span>
+
+    <span class="n">supportedSchedulerVersions</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Collection.schedVer"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.schedVer">[docs]</a>    <span class="k">def</span> <span class="nf">schedVer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="n">ver</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;schedVer&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ver</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">supportedSchedulerVersions</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ver</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Unsupported scheduler version&quot;</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_loadScheduler</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ver</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">schedVer</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">ver</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sched</span> <span class="o">=</span> <span class="n">V1Scheduler</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">ver</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sched</span> <span class="o">=</span> <span class="n">V2Scheduler</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Collection.changeSchedulerVer"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.changeSchedulerVer">[docs]</a>    <span class="k">def</span> <span class="nf">changeSchedulerVer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ver</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">ver</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">schedVer</span><span class="p">():</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">ver</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">supportedSchedulerVersions</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Unsupported scheduler version&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">modSchema</span><span class="p">(</span><span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clearUndo</span><span class="p">()</span>
+
+        <span class="n">v2Sched</span> <span class="o">=</span> <span class="n">V2Scheduler</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">ver</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">v2Sched</span><span class="o">.</span><span class="n">moveToV1</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">v2Sched</span><span class="o">.</span><span class="n">moveToV2</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="p">[</span><span class="s2">&quot;schedVer&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ver</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setMod</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_loadScheduler</span><span class="p">()</span></div>
+
+    <span class="c1"># the sync code uses this to send the local timezone to AnkiWeb</span>
+<div class="viewcode-block" id="Collection.localOffset"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.localOffset">[docs]</a>    <span class="k">def</span> <span class="nf">localOffset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+        <span class="s2">&quot;Minutes west of UTC. Only applies to V2 scheduler.&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sched</span><span class="p">,</span> <span class="n">V1Scheduler</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">local_minutes_west</span><span class="p">(</span><span class="n">intTime</span><span class="p">())</span></div>
+
+    <span class="c1"># DB-related</span>
+    <span class="c1">##########################################################################</span>
+
+    <span class="c1"># legacy properties; these will likely go away in the future</span>
+
+    <span class="k">def</span> <span class="nf">_get_crt</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="s2">&quot;select crt from col&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_set_crt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;update col set crt=?&quot;</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_scm</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="s2">&quot;select scm from col&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_set_scm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;update col set scm=?&quot;</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_usn</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="s2">&quot;select usn from col&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_set_usn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;update col set usn=?&quot;</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_mod</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="s2">&quot;select mod from col&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_set_mod</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;update col set mod=?&quot;</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_ls</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="s2">&quot;select ls from col&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_set_ls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;update col set ls=?&quot;</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+
+    <span class="n">crt</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">_get_crt</span><span class="p">,</span> <span class="n">_set_crt</span><span class="p">)</span>
+    <span class="n">mod</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">_get_mod</span><span class="p">,</span> <span class="n">_set_mod</span><span class="p">)</span>
+    <span class="n">_usn</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">_get_usn</span><span class="p">,</span> <span class="n">_set_usn</span><span class="p">)</span>
+    <span class="n">scm</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">_get_scm</span><span class="p">,</span> <span class="n">_set_scm</span><span class="p">)</span>
+    <span class="n">ls</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">_get_ls</span><span class="p">,</span> <span class="n">_set_ls</span><span class="p">)</span>
+
+    <span class="c1"># legacy</span>
+<div class="viewcode-block" id="Collection.setMod"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.setMod">[docs]</a>    <span class="k">def</span> <span class="nf">setMod</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mod</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># this is now a no-op, as modifications to things like the config</span>
+        <span class="c1"># will mark the collection modified automatically</span>
+        <span class="k">pass</span></div>
+
+    <span class="n">flush</span> <span class="o">=</span> <span class="n">setMod</span>
+
+<div class="viewcode-block" id="Collection.modified_after_begin"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.modified_after_begin">[docs]</a>    <span class="k">def</span> <span class="nf">modified_after_begin</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="c1"># Until we can move away from long-running transactions, the Python</span>
+        <span class="c1"># code needs to know if transaction should be committed, so we need</span>
+        <span class="c1"># to check if the backend updated the modification time.</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">last_begin_at</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mod</span></div>
+
+<div class="viewcode-block" id="Collection.save"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">mod</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">trx</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Flush, commit DB, and take out another write lock if trx=True.&quot;</span>
+        <span class="c1"># commit needed?</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">mod</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">modified_after_begin</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mod</span> <span class="o">=</span> <span class="n">intTime</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span> <span class="k">if</span> <span class="n">mod</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">mod</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">mod</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="n">trx</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">trx</span><span class="p">:</span>
+            <span class="c1"># if no changes were pending but calling code expects to be</span>
+            <span class="c1"># outside of a transaction, we need to roll back</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_markOp</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lastSave</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Collection.autosave"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.autosave">[docs]</a>    <span class="k">def</span> <span class="nf">autosave</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]:</span>
+        <span class="s2">&quot;Save if 5 minutes has passed since last save. True if saved.&quot;</span>
+        <span class="k">if</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lastSave</span> <span class="o">&gt;</span> <span class="mi">300</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="Collection.close"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">downgrade</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Disconnect from DB.&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">save</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">trx</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">_clear_cache</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">close_collection</span><span class="p">(</span><span class="n">downgrade_to_schema11</span><span class="o">=</span><span class="n">downgrade</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_closeLog</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Collection.close_for_full_sync"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.close_for_full_sync">[docs]</a>    <span class="k">def</span> <span class="nf">close_for_full_sync</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># save and cleanup, but backend will take care of collection close</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">trx</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">_clear_cache</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_closeLog</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Collection.rollback"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.rollback">[docs]</a>    <span class="k">def</span> <span class="nf">rollback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Collection.reopen"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.reopen">[docs]</a>    <span class="k">def</span> <span class="nf">reopen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">after_full_sync</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.anki2&quot;</span><span class="p">)</span>
+
+        <span class="p">(</span><span class="n">media_dir</span><span class="p">,</span> <span class="n">media_db</span><span class="p">)</span> <span class="o">=</span> <span class="n">media_paths_from_col_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="n">log_path</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">should_log</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">server</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_log</span>
+        <span class="k">if</span> <span class="n">should_log</span><span class="p">:</span>
+            <span class="n">log_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.anki2&quot;</span><span class="p">,</span> <span class="s2">&quot;2.log&quot;</span><span class="p">)</span>
+
+        <span class="c1"># connect</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">after_full_sync</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">open_collection</span><span class="p">(</span>
+                <span class="n">collection_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
+                <span class="n">media_folder_path</span><span class="o">=</span><span class="n">media_dir</span><span class="p">,</span>
+                <span class="n">media_db_path</span><span class="o">=</span><span class="n">media_db</span><span class="p">,</span>
+                <span class="n">log_path</span><span class="o">=</span><span class="n">log_path</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="o">=</span> <span class="n">DBProxy</span><span class="p">(</span><span class="n">weakref</span><span class="o">.</span><span class="n">proxy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_openLog</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Collection.modSchema"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.modSchema">[docs]</a>    <span class="k">def</span> <span class="nf">modSchema</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Mark schema modified. Call this first so user can abort if necessary.&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">schemaChanged</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">check</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">hooks</span><span class="o">.</span><span class="n">schema_will_change</span><span class="p">(</span><span class="n">proceed</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">AnkiError</span><span class="p">(</span><span class="s2">&quot;abortSchemaMod&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scm</span> <span class="o">=</span> <span class="n">intTime</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setMod</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Collection.schemaChanged"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.schemaChanged">[docs]</a>    <span class="k">def</span> <span class="nf">schemaChanged</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="s2">&quot;True if schema changed since last sync.&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">scm</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">ls</span></div>
+
+<div class="viewcode-block" id="Collection.usn"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.usn">[docs]</a>    <span class="k">def</span> <span class="nf">usn</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_usn</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">server</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span></div>
+
+<div class="viewcode-block" id="Collection.beforeUpload"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.beforeUpload">[docs]</a>    <span class="k">def</span> <span class="nf">beforeUpload</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Called before a full upload.&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">trx</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">before_upload</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">save</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">downgrade</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+    <span class="c1"># Object creation helpers</span>
+    <span class="c1">##########################################################################</span>
+
+<div class="viewcode-block" id="Collection.getCard"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.getCard">[docs]</a>    <span class="k">def</span> <span class="nf">getCard</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Card</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Card</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Collection.getNote"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.getNote">[docs]</a>    <span class="k">def</span> <span class="nf">getNote</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Note</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Note</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">)</span></div>
+
+    <span class="c1"># Utils</span>
+    <span class="c1">##########################################################################</span>
+
+<div class="viewcode-block" id="Collection.nextID"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.nextID">[docs]</a>    <span class="k">def</span> <span class="nf">nextID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">inc</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;next&quot;</span> <span class="o">+</span> <span class="nb">type</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">inc</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="p">[</span><span class="nb">type</span><span class="p">]</span> <span class="o">=</span> <span class="nb">id</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="nb">id</span></div>
+
+<div class="viewcode-block" id="Collection.reset"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Rebuild the queue and reload data after DB modified.&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span></div>
+
+    <span class="c1"># Deletion logging</span>
+    <span class="c1">##########################################################################</span>
+
+    <span class="k">def</span> <span class="nf">_logRem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="nb">type</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span>
+            <span class="s2">&quot;insert into graves values (</span><span class="si">%d</span><span class="s2">, ?, </span><span class="si">%d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">usn</span><span class="p">(),</span> <span class="nb">type</span><span class="p">),</span>
+            <span class="p">([</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ids</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Notes</span>
+    <span class="c1">##########################################################################</span>
+
+<div class="viewcode-block" id="Collection.noteCount"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.noteCount">[docs]</a>    <span class="k">def</span> <span class="nf">noteCount</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="s2">&quot;select count() from notes&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Collection.newNote"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.newNote">[docs]</a>    <span class="k">def</span> <span class="nf">newNote</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">forDeck</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Note</span><span class="p">:</span>
+        <span class="s2">&quot;Return a new note with the current model.&quot;</span>
+        <span class="k">return</span> <span class="n">Note</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">current</span><span class="p">(</span><span class="n">forDeck</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Collection.add_note"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.add_note">[docs]</a>    <span class="k">def</span> <span class="nf">add_note</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">note</span><span class="p">:</span> <span class="n">Note</span><span class="p">,</span> <span class="n">deck_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">note</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">add_note</span><span class="p">(</span><span class="n">note</span><span class="o">=</span><span class="n">note</span><span class="o">.</span><span class="n">to_backend_note</span><span class="p">(),</span> <span class="n">deck_id</span><span class="o">=</span><span class="n">deck_id</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Collection.remove_notes"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.remove_notes">[docs]</a>    <span class="k">def</span> <span class="nf">remove_notes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">note_ids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">hooks</span><span class="o">.</span><span class="n">notes_will_be_deleted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">note_ids</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">remove_notes</span><span class="p">(</span><span class="n">note_ids</span><span class="o">=</span><span class="n">note_ids</span><span class="p">,</span> <span class="n">card_ids</span><span class="o">=</span><span class="p">[])</span></div>
+
+<div class="viewcode-block" id="Collection.remove_notes_by_card"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.remove_notes_by_card">[docs]</a>    <span class="k">def</span> <span class="nf">remove_notes_by_card</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">card_ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">hooks</span><span class="o">.</span><span class="n">notes_will_be_deleted</span><span class="o">.</span><span class="n">count</span><span class="p">():</span>
+            <span class="n">nids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">list</span><span class="p">(</span>
+                <span class="s2">&quot;select nid from cards where id in &quot;</span> <span class="o">+</span> <span class="n">ids2str</span><span class="p">(</span><span class="n">card_ids</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">hooks</span><span class="o">.</span><span class="n">notes_will_be_deleted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nids</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">remove_notes</span><span class="p">(</span><span class="n">note_ids</span><span class="o">=</span><span class="p">[],</span> <span class="n">card_ids</span><span class="o">=</span><span class="n">card_ids</span><span class="p">)</span></div>
+
+    <span class="c1"># legacy</span>
+
+<div class="viewcode-block" id="Collection.addNote"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.addNote">[docs]</a>    <span class="k">def</span> <span class="nf">addNote</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">note</span><span class="p">:</span> <span class="n">Note</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_note</span><span class="p">(</span><span class="n">note</span><span class="p">,</span> <span class="n">note</span><span class="o">.</span><span class="n">model</span><span class="p">()[</span><span class="s2">&quot;did&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">note</span><span class="o">.</span><span class="n">cards</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="Collection.remNotes"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.remNotes">[docs]</a>    <span class="k">def</span> <span class="nf">remNotes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remove_notes</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_remNotes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="c1"># Cards</span>
+    <span class="c1">##########################################################################</span>
+
+<div class="viewcode-block" id="Collection.isEmpty"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.isEmpty">[docs]</a>    <span class="k">def</span> <span class="nf">isEmpty</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="s2">&quot;select 1 from cards limit 1&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Collection.cardCount"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.cardCount">[docs]</a>    <span class="k">def</span> <span class="nf">cardCount</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="s2">&quot;select count() from cards&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Collection.remove_cards_and_orphaned_notes"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.remove_cards_and_orphaned_notes">[docs]</a>    <span class="k">def</span> <span class="nf">remove_cards_and_orphaned_notes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">card_ids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span>
+        <span class="s2">&quot;You probably want .remove_notes_by_card() instead.&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">remove_cards</span><span class="p">(</span><span class="n">card_ids</span><span class="o">=</span><span class="n">card_ids</span><span class="p">)</span></div>
+
+    <span class="c1"># legacy</span>
+
+<div class="viewcode-block" id="Collection.remCards"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.remCards">[docs]</a>    <span class="k">def</span> <span class="nf">remCards</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">notes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remove_cards_and_orphaned_notes</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Collection.emptyCids"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.emptyCids">[docs]</a>    <span class="k">def</span> <span class="nf">emptyCids</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;emptyCids() will go away&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[]</span></div>
+
+    <span class="c1"># Card generation &amp; field checksums/sort fields</span>
+    <span class="c1">##########################################################################</span>
+
+<div class="viewcode-block" id="Collection.after_note_updates"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.after_note_updates">[docs]</a>    <span class="k">def</span> <span class="nf">after_note_updates</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">nids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">mark_modified</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">generate_cards</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">after_note_updates</span><span class="p">(</span>
+            <span class="n">nids</span><span class="o">=</span><span class="n">nids</span><span class="p">,</span> <span class="n">generate_cards</span><span class="o">=</span><span class="n">generate_cards</span><span class="p">,</span> <span class="n">mark_notes_modified</span><span class="o">=</span><span class="n">mark_modified</span>
+        <span class="p">)</span></div>
+
+    <span class="c1"># legacy</span>
+
+<div class="viewcode-block" id="Collection.updateFieldCache"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.updateFieldCache">[docs]</a>    <span class="k">def</span> <span class="nf">updateFieldCache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">after_note_updates</span><span class="p">(</span><span class="n">nids</span><span class="p">,</span> <span class="n">mark_modified</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">generate_cards</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+    <span class="c1"># this also updates field cache</span>
+<div class="viewcode-block" id="Collection.genCards"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.genCards">[docs]</a>    <span class="k">def</span> <span class="nf">genCards</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">after_note_updates</span><span class="p">(</span><span class="n">nids</span><span class="p">,</span> <span class="n">mark_modified</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">generate_cards</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># previously returned empty cards, no longer does</span>
+        <span class="k">return</span> <span class="p">[]</span></div>
+
+    <span class="c1"># Finding cards</span>
+    <span class="c1">##########################################################################</span>
+
+    <span class="c1"># if order=True, use the sort order stored in the collection config</span>
+    <span class="c1"># if order=False, do no ordering</span>
+    <span class="c1">#</span>
+    <span class="c1"># if order is a string, that text is added after &#39;order by&#39; in the sql statement.</span>
+    <span class="c1"># you must add &#39; asc&#39; or &#39; desc&#39; to the order, as Anki will replace asc with</span>
+    <span class="c1"># desc and vice versa when reverse is set in the collection config, eg</span>
+    <span class="c1"># order=&quot;c.ivl asc, c.due desc&quot;</span>
+    <span class="c1">#</span>
+    <span class="c1"># if order is an int enum, sort using that builtin sort, eg</span>
+    <span class="c1"># col.find_cards(&quot;&quot;, order=BuiltinSortKind.CARD_DUE)</span>
+    <span class="c1"># the reverse argument only applies when a BuiltinSortKind is provided;</span>
+    <span class="c1"># otherwise the collection config defines whether reverse is set or not</span>
+<div class="viewcode-block" id="Collection.find_cards"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.find_cards">[docs]</a>    <span class="k">def</span> <span class="nf">find_cards</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">order</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span>
+            <span class="nb">bool</span><span class="p">,</span>
+            <span class="nb">str</span><span class="p">,</span>
+            <span class="n">pb</span><span class="o">.</span><span class="n">BuiltinSearchOrder</span><span class="o">.</span><span class="n">BuiltinSortKindValue</span><span class="p">,</span>  <span class="c1"># pylint: disable=no-member</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">reverse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">SortOrder</span><span class="p">(</span><span class="n">custom</span><span class="o">=</span><span class="n">order</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">order</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="n">mode</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">SortOrder</span><span class="p">(</span><span class="n">from_config</span><span class="o">=</span><span class="n">pb</span><span class="o">.</span><span class="n">Empty</span><span class="p">())</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">mode</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">SortOrder</span><span class="p">(</span><span class="n">none</span><span class="o">=</span><span class="n">pb</span><span class="o">.</span><span class="n">Empty</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">SortOrder</span><span class="p">(</span>
+                <span class="n">builtin</span><span class="o">=</span><span class="n">pb</span><span class="o">.</span><span class="n">BuiltinSearchOrder</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="n">order</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">search_cards</span><span class="p">(</span><span class="n">search</span><span class="o">=</span><span class="n">query</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Collection.find_notes"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.find_notes">[docs]</a>    <span class="k">def</span> <span class="nf">find_notes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">search_notes</span><span class="p">(</span><span class="n">query</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Collection.find_and_replace"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.find_and_replace">[docs]</a>    <span class="k">def</span> <span class="nf">find_and_replace</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">nids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+        <span class="n">src</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">dst</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">regex</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">field</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fold</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">anki</span><span class="o">.</span><span class="n">find</span><span class="o">.</span><span class="n">findReplace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nids</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">,</span> <span class="n">regex</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">fold</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Collection.findDupes"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.findDupes">[docs]</a>    <span class="k">def</span> <span class="nf">findDupes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fieldName</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">search</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="nb">list</span><span class="p">]]:</span>
+        <span class="k">return</span> <span class="n">anki</span><span class="o">.</span><span class="n">find</span><span class="o">.</span><span class="n">findDupes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fieldName</span><span class="p">,</span> <span class="n">search</span><span class="p">)</span></div>
+
+    <span class="n">findCards</span> <span class="o">=</span> <span class="n">find_cards</span>
+    <span class="n">findNotes</span> <span class="o">=</span> <span class="n">find_notes</span>
+    <span class="n">findReplace</span> <span class="o">=</span> <span class="n">find_and_replace</span>
+
+    <span class="c1"># Config</span>
+    <span class="c1">##########################################################################</span>
+
+<div class="viewcode-block" id="Collection.get_config"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.get_config">[docs]</a>    <span class="k">def</span> <span class="nf">get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">get_immutable</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">default</span></div>
+
+<div class="viewcode-block" id="Collection.set_config"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.set_config">[docs]</a>    <span class="k">def</span> <span class="nf">set_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setMod</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Collection.remove_config"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.remove_config">[docs]</a>    <span class="k">def</span> <span class="nf">remove_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setMod</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">key</span><span class="p">)</span></div>
+
+    <span class="c1"># Stats</span>
+    <span class="c1">##########################################################################</span>
+
+<div class="viewcode-block" id="Collection.stats"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.stats">[docs]</a>    <span class="k">def</span> <span class="nf">stats</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;anki.stats.CollectionStats&quot;</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">anki.stats</span> <span class="kn">import</span> <span class="n">CollectionStats</span>
+
+        <span class="k">return</span> <span class="n">CollectionStats</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Collection.card_stats"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.card_stats">[docs]</a>    <span class="k">def</span> <span class="nf">card_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">card_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">include_revlog</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">anki.stats</span> <span class="k">as</span> <span class="nn">st</span>
+
+        <span class="k">if</span> <span class="n">include_revlog</span><span class="p">:</span>
+            <span class="n">revlog_style</span> <span class="o">=</span> <span class="s2">&quot;margin-top: 2em;&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">revlog_style</span> <span class="o">=</span> <span class="s2">&quot;display: none;&quot;</span>
+
+        <span class="n">style</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;&lt;style&gt;</span>
+<span class="s2">.revlog-learn {{ color: </span><span class="si">{st.colLearn}</span><span class="s2"> }}</span>
+<span class="s2">.revlog-review {{ color: </span><span class="si">{st.colMature}</span><span class="s2"> }}</span>
+<span class="s2">.revlog-relearn {{ color: </span><span class="si">{st.colRelearn}</span><span class="s2"> }}</span>
+<span class="s2">.revlog-ease1 {{ color: </span><span class="si">{st.colRelearn}</span><span class="s2"> }}</span>
+<span class="s2">table.review-log {{ </span><span class="si">{revlog_style}</span><span class="s2"> }}</span>
+<span class="s2">&lt;/style&gt;&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">style</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">card_stats</span><span class="p">(</span><span class="n">card_id</span><span class="p">)</span></div>
+
+    <span class="c1"># legacy</span>
+
+<div class="viewcode-block" id="Collection.cardStats"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.cardStats">[docs]</a>    <span class="k">def</span> <span class="nf">cardStats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">card</span><span class="p">:</span> <span class="n">Card</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">card_stats</span><span class="p">(</span><span class="n">card</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">include_revlog</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+    <span class="c1"># Timeboxing</span>
+    <span class="c1">##########################################################################</span>
+
+<div class="viewcode-block" id="Collection.startTimebox"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.startTimebox">[docs]</a>    <span class="k">def</span> <span class="nf">startTimebox</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_startTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_startReps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">reps</span></div>
+
+    <span class="c1"># FIXME: Use Literal[False] when on Python 3.8</span>
+<div class="viewcode-block" id="Collection.timeboxReached"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.timeboxReached">[docs]</a>    <span class="k">def</span> <span class="nf">timeboxReached</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
+        <span class="s2">&quot;Return (elapsedTime, reps) if timebox reached, or False.&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="p">[</span><span class="s2">&quot;timeLim&quot;</span><span class="p">]:</span>
+            <span class="c1"># timeboxing disabled</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="n">elapsed</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_startTime</span>
+        <span class="k">if</span> <span class="n">elapsed</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="p">[</span><span class="s2">&quot;timeLim&quot;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="p">[</span><span class="s2">&quot;timeLim&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">reps</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_startReps</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+    <span class="c1"># Undo</span>
+    <span class="c1">##########################################################################</span>
+
+<div class="viewcode-block" id="Collection.clearUndo"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.clearUndo">[docs]</a>    <span class="k">def</span> <span class="nf">clearUndo</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># [type, undoName, data]</span>
+        <span class="c1"># type 1 = review; type 2 = checkpoint</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_undo</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="Collection.undoName"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.undoName">[docs]</a>    <span class="k">def</span> <span class="nf">undoName</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="s2">&quot;Undo menu item name, or None if undo unavailable.&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_undo</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_undo</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Collection.undo"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.undo">[docs]</a>    <span class="k">def</span> <span class="nf">undo</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_undo</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_undoReview</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_undoOp</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Collection.markReview"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.markReview">[docs]</a>    <span class="k">def</span> <span class="nf">markReview</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">card</span><span class="p">:</span> <span class="n">Card</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">old</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_undo</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_undo</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">old</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_undo</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clearUndo</span><span class="p">()</span>
+        <span class="n">wasLeech</span> <span class="o">=</span> <span class="n">card</span><span class="o">.</span><span class="n">note</span><span class="p">()</span><span class="o">.</span><span class="n">hasTag</span><span class="p">(</span><span class="s2">&quot;leech&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_undo</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Review&quot;</span><span class="p">),</span> <span class="n">old</span> <span class="o">+</span> <span class="p">[</span><span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">card</span><span class="p">)],</span> <span class="n">wasLeech</span><span class="p">]</span></div>
+
+    <span class="k">def</span> <span class="nf">_undoReview</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_undo</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">wasLeech</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_undo</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>  <span class="c1"># pytype: disable=attribute-error</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clearUndo</span><span class="p">()</span>
+        <span class="c1"># remove leech tag if it didn&#39;t have it before</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">wasLeech</span> <span class="ow">and</span> <span class="n">c</span><span class="o">.</span><span class="n">note</span><span class="p">()</span><span class="o">.</span><span class="n">hasTag</span><span class="p">(</span><span class="s2">&quot;leech&quot;</span><span class="p">):</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">note</span><span class="p">()</span><span class="o">.</span><span class="n">delTag</span><span class="p">(</span><span class="s2">&quot;leech&quot;</span><span class="p">)</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">note</span><span class="p">()</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="c1"># write old data</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="c1"># and delete revlog entry</span>
+        <span class="n">last</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
+            <span class="s2">&quot;select id from revlog where cid = ? &quot;</span> <span class="s2">&quot;order by id desc limit 1&quot;</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">id</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;delete from revlog where id = ?&quot;</span><span class="p">,</span> <span class="n">last</span><span class="p">)</span>
+        <span class="c1"># restore any siblings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="s2">&quot;update cards set queue=type,mod=?,usn=? where queue=-2 and nid=?&quot;</span><span class="p">,</span>
+            <span class="n">intTime</span><span class="p">(),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">usn</span><span class="p">(),</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">nid</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># and finally, update daily counts</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">queue</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span> <span class="k">else</span> <span class="n">c</span><span class="o">.</span><span class="n">queue</span>
+        <span class="nb">type</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;new&quot;</span><span class="p">,</span> <span class="s2">&quot;lrn&quot;</span><span class="p">,</span> <span class="s2">&quot;rev&quot;</span><span class="p">)[</span><span class="n">n</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">_updateStats</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">reps</span> <span class="o">-=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">id</span>
+
+    <span class="k">def</span> <span class="nf">_markOp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Call via .save()&quot;</span>
+        <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_undo</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="n">name</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># saving disables old checkpoint, but not review undo</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_undo</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_undo</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">clearUndo</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_undoOp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clearUndo</span><span class="p">()</span>
+
+    <span class="c1"># DB maintenance</span>
+    <span class="c1">##########################################################################</span>
+
+<div class="viewcode-block" id="Collection.basicCheck"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.basicCheck">[docs]</a>    <span class="k">def</span> <span class="nf">basicCheck</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="s2">&quot;Basic integrity check for syncing. True if ok.&quot;</span>
+        <span class="c1"># cards without notes</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">select 1 from cards where nid not in (select id from notes) limit 1&quot;&quot;&quot;</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="c1"># notes without cards or models</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">select 1 from notes where id not in (select distinct nid from cards)</span>
+<span class="sd">or mid not in %s limit 1&quot;&quot;&quot;</span>
+            <span class="o">%</span> <span class="n">ids2str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">ids</span><span class="p">())</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="c1"># invalid ords</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="c1"># ignore clozes</span>
+            <span class="k">if</span> <span class="n">m</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">MODEL_STD</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
+                <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">select 1 from cards where ord not in %s and nid in (</span>
+<span class="sd">select id from notes where mid = ?) limit 1&quot;&quot;&quot;</span>
+                <span class="o">%</span> <span class="n">ids2str</span><span class="p">([</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;ord&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">m</span><span class="p">[</span><span class="s2">&quot;tmpls&quot;</span><span class="p">]]),</span>
+                <span class="n">m</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span>
+            <span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Collection.fixIntegrity"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.fixIntegrity">[docs]</a>    <span class="k">def</span> <span class="nf">fixIntegrity</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Fix possible problems and rebuild caches.</span>
+
+<span class="sd">        Returns tuple of (error: str, ok: bool). &#39;ok&#39; will be true if no</span>
+<span class="sd">        problems were found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">trx</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">problems</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">check_database</span><span class="p">())</span>
+            <span class="n">ok</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">problems</span>
+            <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">DATABASE_CHECK_REBUILT</span><span class="p">))</span>
+        <span class="k">except</span> <span class="n">DBError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">problems</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span>
+            <span class="n">ok</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="c1"># may fail if the DB is very corrupt</span>
+                <span class="k">pass</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">problems</span><span class="p">),</span> <span class="n">ok</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Collection.optimize"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.optimize">[docs]</a>    <span class="k">def</span> <span class="nf">optimize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">trx</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;vacuum&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;analyze&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span></div>
+
+    <span class="c1"># Logging</span>
+    <span class="c1">##########################################################################</span>
+
+<div class="viewcode-block" id="Collection.log"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.log">[docs]</a>    <span class="k">def</span> <span class="nf">log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_log</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">def</span> <span class="nf">customRepr</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">x</span>
+            <span class="k">return</span> <span class="n">pprint</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="n">path</span><span class="p">,</span> <span class="n">num</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">traceback</span><span class="o">.</span><span class="n">extract_stack</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">2</span> <span class="o">+</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;stack&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">buf</span> <span class="o">=</span> <span class="s2">&quot;[</span><span class="si">%s</span><span class="s2">] </span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">(): </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="n">intTime</span><span class="p">(),</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">),</span>
+            <span class="n">fn</span><span class="p">,</span>
+            <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">customRepr</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">args</span><span class="p">]),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logHnd</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">buf</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">devMode</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_openLog</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_log</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">lpath</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\.anki2$&quot;</span><span class="p">,</span> <span class="s2">&quot;.log&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">lpath</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">lpath</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">10</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">:</span>
+            <span class="n">lpath2</span> <span class="o">=</span> <span class="n">lpath</span> <span class="o">+</span> <span class="s2">&quot;.old&quot;</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">lpath2</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">lpath2</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">lpath</span><span class="p">,</span> <span class="n">lpath2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logHnd</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">lpath</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf8&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_closeLog</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_log</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logHnd</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logHnd</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># Card Flags</span>
+    <span class="c1">##########################################################################</span>
+
+<div class="viewcode-block" id="Collection.setUserFlag"><a class="viewcode-back" href="../../anki.html#anki.collection.Collection.setUserFlag">[docs]</a>    <span class="k">def</span> <span class="nf">setUserFlag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">cids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">flag</span> <span class="o">&lt;=</span> <span class="mi">7</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="s2">&quot;update cards set flags = (flags &amp; ~?) | ?, usn=?, mod=? where id in </span><span class="si">%s</span><span class="s2">&quot;</span>
+            <span class="o">%</span> <span class="n">ids2str</span><span class="p">(</span><span class="n">cids</span><span class="p">),</span>
+            <span class="mb">0b111</span><span class="p">,</span>
+            <span class="n">flag</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">usn</span><span class="p">(),</span>
+            <span class="n">intTime</span><span class="p">(),</span>
+        <span class="p">)</span></div></div>
+
+
+<span class="c1"># legacy name</span>
+<span class="n">_Collection</span> <span class="o">=</span> <span class="n">Collection</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Abdelrahman Hamdy
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,1028 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>aqt.reviewer &mdash; Anki  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+        <script async="async" kind="hypothesis" src="https://hypothes.is/embed.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Anki
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.html">anki package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.importing.html">anki.importing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aqt.html">aqt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../genhooks_gui.html">genhooks_gui module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tools.html">tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Anki</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../aqt.html">aqt</a> &raquo;</li>
+        
+      <li>aqt.reviewer</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for aqt.reviewer</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># Copyright: Ankitects Pty Ltd and contributors</span>
+<span class="c1"># License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span> <span class="nn">difflib</span>
+<span class="kn">import</span> <span class="nn">html</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">unicodedata</span> <span class="k">as</span> <span class="nn">ucd</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">from</span> <span class="nn">PyQt5.QtCore</span> <span class="kn">import</span> <span class="n">Qt</span>
+
+<span class="kn">from</span> <span class="nn">anki</span> <span class="kn">import</span> <span class="n">hooks</span>
+<span class="kn">from</span> <span class="nn">anki.cards</span> <span class="kn">import</span> <span class="n">Card</span>
+<span class="kn">from</span> <span class="nn">anki.lang</span> <span class="kn">import</span> <span class="n">_</span><span class="p">,</span> <span class="n">ngettext</span>
+<span class="kn">from</span> <span class="nn">anki.utils</span> <span class="kn">import</span> <span class="n">stripHTML</span>
+<span class="kn">from</span> <span class="nn">aqt</span> <span class="kn">import</span> <span class="n">AnkiQt</span><span class="p">,</span> <span class="n">gui_hooks</span>
+<span class="kn">from</span> <span class="nn">aqt.qt</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">aqt.sound</span> <span class="kn">import</span> <span class="n">av_player</span><span class="p">,</span> <span class="n">getAudio</span><span class="p">,</span> <span class="n">play_clicked_audio</span>
+<span class="kn">from</span> <span class="nn">aqt.theme</span> <span class="kn">import</span> <span class="n">theme_manager</span>
+<span class="kn">from</span> <span class="nn">aqt.toolbar</span> <span class="kn">import</span> <span class="n">BottomBar</span>
+<span class="kn">from</span> <span class="nn">aqt.utils</span> <span class="kn">import</span> <span class="n">askUserDialog</span><span class="p">,</span> <span class="n">downArrow</span><span class="p">,</span> <span class="n">qtMenuShortcutWorkaround</span><span class="p">,</span> <span class="n">tooltip</span>
+
+
+<div class="viewcode-block" id="ReviewerBottomBar"><a class="viewcode-back" href="../../aqt.html#aqt.reviewer.ReviewerBottomBar">[docs]</a><span class="k">class</span> <span class="nc">ReviewerBottomBar</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reviewer</span><span class="p">:</span> <span class="n">Reviewer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reviewer</span> <span class="o">=</span> <span class="n">reviewer</span></div>
+
+
+<div class="viewcode-block" id="replay_audio"><a class="viewcode-back" href="../../aqt.html#aqt.reviewer.replay_audio">[docs]</a><span class="k">def</span> <span class="nf">replay_audio</span><span class="p">(</span><span class="n">card</span><span class="p">:</span> <span class="n">Card</span><span class="p">,</span> <span class="n">question_side</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">question_side</span><span class="p">:</span>
+        <span class="n">av_player</span><span class="o">.</span><span class="n">play_tags</span><span class="p">(</span><span class="n">card</span><span class="o">.</span><span class="n">question_av_tags</span><span class="p">())</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">tags</span> <span class="o">=</span> <span class="n">card</span><span class="o">.</span><span class="n">answer_av_tags</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">card</span><span class="o">.</span><span class="n">replay_question_audio_on_answer_side</span><span class="p">():</span>
+            <span class="n">tags</span> <span class="o">=</span> <span class="n">card</span><span class="o">.</span><span class="n">question_av_tags</span><span class="p">()</span> <span class="o">+</span> <span class="n">tags</span>
+        <span class="n">av_player</span><span class="o">.</span><span class="n">play_tags</span><span class="p">(</span><span class="n">tags</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Reviewer"><a class="viewcode-back" href="../../aqt.html#aqt.reviewer.Reviewer">[docs]</a><span class="k">class</span> <span class="nc">Reviewer</span><span class="p">:</span>
+    <span class="s2">&quot;Manage reviews.  Maintains a separate state.&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mw</span><span class="p">:</span> <span class="n">AnkiQt</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span> <span class="o">=</span> <span class="n">mw</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">web</span> <span class="o">=</span> <span class="n">mw</span><span class="o">.</span><span class="n">web</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Card</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cardQueue</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Card</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hadCardQueue</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_answeredIds</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_recordedAudio</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">typeCorrect</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># web init happens before this is set</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bottom</span> <span class="o">=</span> <span class="n">BottomBar</span><span class="p">(</span><span class="n">mw</span><span class="p">,</span> <span class="n">mw</span><span class="o">.</span><span class="n">bottomWeb</span><span class="p">)</span>
+        <span class="n">hooks</span><span class="o">.</span><span class="n">card_did_leech</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">onLeech</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Reviewer.show"><a class="viewcode-back" href="../../aqt.html#aqt.reviewer.Reviewer.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">setStateShortcuts</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_shortcutKeys</span><span class="p">())</span>  <span class="c1"># type: ignore</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">set_bridge_command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_linkHandler</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bottom</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">set_bridge_command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_linkHandler</span><span class="p">,</span> <span class="n">ReviewerBottomBar</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nextCard</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Reviewer.lastCard"><a class="viewcode-back" href="../../aqt.html#aqt.reviewer.Reviewer.lastCard">[docs]</a>    <span class="k">def</span> <span class="nf">lastCard</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Card</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_answeredIds</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">card</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_answeredIds</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="o">.</span><span class="n">id</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">getCard</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_answeredIds</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                    <span class="c1"># id was deleted</span>
+                    <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="Reviewer.cleanup"><a class="viewcode-back" href="../../aqt.html#aqt.reviewer.Reviewer.cleanup">[docs]</a>    <span class="k">def</span> <span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">gui_hooks</span><span class="o">.</span><span class="n">reviewer_will_end</span><span class="p">()</span></div>
+
+    <span class="c1"># Fetching a card</span>
+    <span class="c1">##########################################################################</span>
+
+<div class="viewcode-block" id="Reviewer.nextCard"><a class="viewcode-back" href="../../aqt.html#aqt.reviewer.Reviewer.nextCard">[docs]</a>    <span class="k">def</span> <span class="nf">nextCard</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">elapsed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">timeboxReached</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">elapsed</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">elapsed</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+            <span class="n">part1</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">ngettext</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> card studied in&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> cards studied in&quot;</span><span class="p">,</span> <span class="n">elapsed</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="o">%</span> <span class="n">elapsed</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">mins</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">elapsed</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">60</span><span class="p">))</span>
+            <span class="n">part2</span> <span class="o">=</span> <span class="n">ngettext</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> minute.&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> minutes.&quot;</span><span class="p">,</span> <span class="n">mins</span><span class="p">)</span> <span class="o">%</span> <span class="n">mins</span>
+            <span class="n">fin</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Finish&quot;</span><span class="p">)</span>
+            <span class="n">diag</span> <span class="o">=</span> <span class="n">askUserDialog</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">part1</span><span class="p">,</span> <span class="n">part2</span><span class="p">),</span> <span class="p">[</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Continue&quot;</span><span class="p">),</span> <span class="n">fin</span><span class="p">])</span>
+            <span class="n">diag</span><span class="o">.</span><span class="n">setIcon</span><span class="p">(</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">Information</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">diag</span><span class="o">.</span><span class="n">run</span><span class="p">()</span> <span class="o">==</span> <span class="n">fin</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">moveToState</span><span class="p">(</span><span class="s2">&quot;deckBrowser&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">startTimebox</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cardQueue</span><span class="p">:</span>
+            <span class="c1"># undone/edited cards to show</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cardQueue</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">startTimer</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">hadCardQueue</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadCardQueue</span><span class="p">:</span>
+                <span class="c1"># the undone/edited cards may be sitting in the regular queue;</span>
+                <span class="c1"># need to reset</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">hadCardQueue</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">getCard</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">card</span> <span class="o">=</span> <span class="n">c</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">c</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">moveToState</span><span class="p">(</span><span class="s2">&quot;overview&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reps</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reps</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># we recycle the webview periodically so webkit can free memory</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_initWeb</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_showQuestion</span><span class="p">()</span></div>
+
+    <span class="c1"># Audio</span>
+    <span class="c1">##########################################################################</span>
+
+<div class="viewcode-block" id="Reviewer.replayAudio"><a class="viewcode-back" href="../../aqt.html#aqt.reviewer.Reviewer.replayAudio">[docs]</a>    <span class="k">def</span> <span class="nf">replayAudio</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="s2">&quot;question&quot;</span><span class="p">:</span>
+            <span class="n">replay_audio</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="s2">&quot;answer&quot;</span><span class="p">:</span>
+            <span class="n">replay_audio</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span></div>
+
+    <span class="c1"># Initializing the webview</span>
+    <span class="c1">##########################################################################</span>
+
+<div class="viewcode-block" id="Reviewer.revHtml"><a class="viewcode-back" href="../../aqt.html#aqt.reviewer.Reviewer.revHtml">[docs]</a>    <span class="k">def</span> <span class="nf">revHtml</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">extra</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reviewExtra&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">fade</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">glMode</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;software&quot;</span><span class="p">:</span>
+            <span class="n">fade</span> <span class="o">=</span> <span class="s2">&quot;&lt;script&gt;qFade=0;&lt;/script&gt;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">&lt;div id=_mark&gt;&amp;#x2605;&lt;/div&gt;</span>
+<span class="s2">&lt;div id=_flag&gt;&amp;#x2691;&lt;/div&gt;</span>
+<span class="si">{}</span><span class="s2"></span>
+<span class="s2">&lt;div id=qa&gt;&lt;/div&gt;</span>
+<span class="si">{}</span><span class="s2"></span>
+<span class="s2">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">fade</span><span class="p">,</span> <span class="n">extra</span>
+        <span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_initWeb</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reps</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># main window</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">stdHtml</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">revHtml</span><span class="p">(),</span>
+            <span class="n">css</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;reviewer.css&quot;</span><span class="p">],</span>
+            <span class="n">js</span><span class="o">=</span><span class="p">[</span>
+                <span class="s2">&quot;jquery.js&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;browsersel.js&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;mathjax/conf.js&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;mathjax/MathJax.js&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;reviewer.js&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="n">context</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># show answer / ease buttons</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bottom</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bottom</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">stdHtml</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_bottomHTML</span><span class="p">(),</span>
+            <span class="n">css</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;toolbar-bottom.css&quot;</span><span class="p">,</span> <span class="s2">&quot;reviewer-bottom.css&quot;</span><span class="p">],</span>
+            <span class="n">js</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;jquery.js&quot;</span><span class="p">,</span> <span class="s2">&quot;reviewer-bottom.js&quot;</span><span class="p">],</span>
+            <span class="n">context</span><span class="o">=</span><span class="n">ReviewerBottomBar</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Showing the question</span>
+    <span class="c1">##########################################################################</span>
+
+    <span class="k">def</span> <span class="nf">_mungeQA</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">buf</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">typeAnsFilter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">prepare_card_text_for_display</span><span class="p">(</span><span class="n">buf</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_showQuestion</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reps</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="s2">&quot;question&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">typedAnswer</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">card</span>
+        <span class="c1"># grab the question and play audio</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">q</span><span class="p">()</span>
+        <span class="c1"># play audio?</span>
+        <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">autoplay</span><span class="p">():</span>
+            <span class="n">av_player</span><span class="o">.</span><span class="n">play_tags</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">question_av_tags</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">av_player</span><span class="o">.</span><span class="n">clear_queue_and_maybe_interrupt</span><span class="p">()</span>
+
+        <span class="c1"># render &amp; update bottom</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mungeQA</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">gui_hooks</span><span class="o">.</span><span class="n">card_will_show</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="s2">&quot;reviewQuestion&quot;</span><span class="p">)</span>
+
+        <span class="n">bodyclass</span> <span class="o">=</span> <span class="n">theme_manager</span><span class="o">.</span><span class="n">body_classes_for_card_ord</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">ord</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="s2">&quot;_showQuestion(</span><span class="si">%s</span><span class="s2">,&#39;</span><span class="si">%s</span><span class="s2">&#39;);&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">q</span><span class="p">),</span> <span class="n">bodyclass</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_drawFlag</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_drawMark</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_showAnswerButton</span><span class="p">()</span>
+        <span class="c1"># if we have a type answer field, focus main web</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">typeCorrect</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">setFocus</span><span class="p">()</span>
+        <span class="c1"># user hook</span>
+        <span class="n">gui_hooks</span><span class="o">.</span><span class="n">reviewer_did_show_question</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Reviewer.autoplay"><a class="viewcode-back" href="../../aqt.html#aqt.reviewer.Reviewer.autoplay">[docs]</a>    <span class="k">def</span> <span class="nf">autoplay</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">card</span><span class="p">:</span> <span class="n">Card</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;use card.autoplay() instead of reviewer.autoplay(card)&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">card</span><span class="o">.</span><span class="n">autoplay</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">_drawFlag</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="s2">&quot;_drawFlag(</span><span class="si">%s</span><span class="s2">);&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="o">.</span><span class="n">userFlag</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">_drawMark</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="s2">&quot;_drawMark(</span><span class="si">%s</span><span class="s2">);&quot;</span> <span class="o">%</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="o">.</span><span class="n">note</span><span class="p">()</span><span class="o">.</span><span class="n">hasTag</span><span class="p">(</span><span class="s2">&quot;marked&quot;</span><span class="p">)))</span>
+
+    <span class="c1"># Showing the answer</span>
+    <span class="c1">##########################################################################</span>
+
+    <span class="k">def</span> <span class="nf">_showAnswer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">state</span> <span class="o">!=</span> <span class="s2">&quot;review&quot;</span><span class="p">:</span>
+            <span class="c1"># showing resetRequired screen; ignore space</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="s2">&quot;answer&quot;</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">card</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">a</span><span class="p">()</span>
+        <span class="c1"># play audio?</span>
+        <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">autoplay</span><span class="p">():</span>
+            <span class="n">av_player</span><span class="o">.</span><span class="n">play_tags</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">answer_av_tags</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">av_player</span><span class="o">.</span><span class="n">clear_queue_and_maybe_interrupt</span><span class="p">()</span>
+
+        <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mungeQA</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">gui_hooks</span><span class="o">.</span><span class="n">card_will_show</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="s2">&quot;reviewAnswer&quot;</span><span class="p">)</span>
+        <span class="c1"># render and update bottom</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="s2">&quot;_showAnswer(</span><span class="si">%s</span><span class="s2">);&quot;</span> <span class="o">%</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">a</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_showEaseButtons</span><span class="p">()</span>
+        <span class="c1"># user hook</span>
+        <span class="n">gui_hooks</span><span class="o">.</span><span class="n">reviewer_did_show_answer</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+
+    <span class="c1"># Answering a card</span>
+    <span class="c1">############################################################</span>
+
+    <span class="k">def</span> <span class="nf">_answerCard</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ease</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Reschedule card and show next.&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">state</span> <span class="o">!=</span> <span class="s2">&quot;review&quot;</span><span class="p">:</span>
+            <span class="c1"># showing resetRequired screen; ignore key</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">!=</span> <span class="s2">&quot;answer&quot;</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">answerButtons</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">ease</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">proceed</span><span class="p">,</span> <span class="n">ease</span> <span class="o">=</span> <span class="n">gui_hooks</span><span class="o">.</span><span class="n">reviewer_will_answer_card</span><span class="p">(</span>
+            <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">ease</span><span class="p">),</span> <span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">card</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">proceed</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">answerCard</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="p">,</span> <span class="n">ease</span><span class="p">)</span>
+        <span class="n">gui_hooks</span><span class="o">.</span><span class="n">reviewer_did_answer_card</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="p">,</span> <span class="n">ease</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_answeredIds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">autosave</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nextCard</span><span class="p">()</span>
+
+    <span class="c1"># Handlers</span>
+    <span class="c1">############################################################</span>
+
+    <span class="k">def</span> <span class="nf">_shortcutKeys</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">],</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Qt</span><span class="o">.</span><span class="n">Key</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]]]:</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="p">(</span><span class="s2">&quot;e&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">onEditCurrent</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onEnterKey</span><span class="p">),</span>
+            <span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">Key_Return</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onEnterKey</span><span class="p">),</span>
+            <span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">Key_Enter</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onEnterKey</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">replayAudio</span><span class="p">),</span>
+            <span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">Key_F5</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">replayAudio</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;Ctrl+1&quot;</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">setFlag</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span>
+            <span class="p">(</span><span class="s2">&quot;Ctrl+2&quot;</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">setFlag</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span>
+            <span class="p">(</span><span class="s2">&quot;Ctrl+3&quot;</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">setFlag</span><span class="p">(</span><span class="mi">3</span><span class="p">)),</span>
+            <span class="p">(</span><span class="s2">&quot;Ctrl+4&quot;</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">setFlag</span><span class="p">(</span><span class="mi">4</span><span class="p">)),</span>
+            <span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onMark</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onBuryNote</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onBuryCard</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;!&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onSuspend</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;@&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onSuspendCard</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;Ctrl+Delete&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onDelete</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;v&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onReplayRecorded</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;Shift+v&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onRecordVoice</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onOptions</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_answerCard</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span>
+            <span class="p">(</span><span class="s2">&quot;2&quot;</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_answerCard</span><span class="p">(</span><span class="mi">2</span><span class="p">)),</span>
+            <span class="p">(</span><span class="s2">&quot;3&quot;</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_answerCard</span><span class="p">(</span><span class="mi">3</span><span class="p">)),</span>
+            <span class="p">(</span><span class="s2">&quot;4&quot;</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_answerCard</span><span class="p">(</span><span class="mi">4</span><span class="p">)),</span>
+            <span class="p">(</span><span class="s2">&quot;5&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_pause_audio</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;6&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_seek_backward</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;7&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_seek_forward</span><span class="p">),</span>
+        <span class="p">]</span>
+
+<div class="viewcode-block" id="Reviewer.on_pause_audio"><a class="viewcode-back" href="../../aqt.html#aqt.reviewer.Reviewer.on_pause_audio">[docs]</a>    <span class="k">def</span> <span class="nf">on_pause_audio</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">av_player</span><span class="o">.</span><span class="n">toggle_pause</span><span class="p">()</span></div>
+
+    <span class="n">seek_secs</span> <span class="o">=</span> <span class="mi">5</span>
+
+<div class="viewcode-block" id="Reviewer.on_seek_backward"><a class="viewcode-back" href="../../aqt.html#aqt.reviewer.Reviewer.on_seek_backward">[docs]</a>    <span class="k">def</span> <span class="nf">on_seek_backward</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">av_player</span><span class="o">.</span><span class="n">seek_relative</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">seek_secs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Reviewer.on_seek_forward"><a class="viewcode-back" href="../../aqt.html#aqt.reviewer.Reviewer.on_seek_forward">[docs]</a>    <span class="k">def</span> <span class="nf">on_seek_forward</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">av_player</span><span class="o">.</span><span class="n">seek_relative</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seek_secs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Reviewer.onEnterKey"><a class="viewcode-back" href="../../aqt.html#aqt.reviewer.Reviewer.onEnterKey">[docs]</a>    <span class="k">def</span> <span class="nf">onEnterKey</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="s2">&quot;question&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_getTypedAnswer</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="s2">&quot;answer&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bottom</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">evalWithCallback</span><span class="p">(</span>
+                <span class="s2">&quot;selectedAnswerButton()&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_onAnswerButton</span>
+            <span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_onAnswerButton</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># button selected?</span>
+        <span class="k">if</span> <span class="n">val</span> <span class="ow">and</span> <span class="n">val</span> <span class="ow">in</span> <span class="s2">&quot;1234&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_answerCard</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">val</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_answerCard</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_defaultEase</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">_linkHandler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">url</span> <span class="o">==</span> <span class="s2">&quot;ans&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_getTypedAnswer</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">url</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;ease&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_answerCard</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">url</span><span class="p">[</span><span class="mi">4</span><span class="p">:]))</span>
+        <span class="k">elif</span> <span class="n">url</span> <span class="o">==</span> <span class="s2">&quot;edit&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">onEditCurrent</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">url</span> <span class="o">==</span> <span class="s2">&quot;more&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">showContextMenu</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">url</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;play:&quot;</span><span class="p">):</span>
+            <span class="n">play_clicked_audio</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;unrecognized anki link:&quot;</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
+
+    <span class="c1"># Type in the answer</span>
+    <span class="c1">##########################################################################</span>
+
+    <span class="n">typeAnsPat</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\[\[type:(.+?)\]\]&quot;</span>
+
+<div class="viewcode-block" id="Reviewer.typeAnsFilter"><a class="viewcode-back" href="../../aqt.html#aqt.reviewer.Reviewer.typeAnsFilter">[docs]</a>    <span class="k">def</span> <span class="nf">typeAnsFilter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">buf</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="s2">&quot;question&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">typeAnsQuestionFilter</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">typeAnsAnswerFilter</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Reviewer.typeAnsQuestionFilter"><a class="viewcode-back" href="../../aqt.html#aqt.reviewer.Reviewer.typeAnsQuestionFilter">[docs]</a>    <span class="k">def</span> <span class="nf">typeAnsQuestionFilter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">buf</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">typeCorrect</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">clozeIdx</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">typeAnsPat</span><span class="p">,</span> <span class="n">buf</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">m</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">buf</span>
+        <span class="n">fld</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># if it&#39;s a cloze, extract data</span>
+        <span class="k">if</span> <span class="n">fld</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;cloze:&quot;</span><span class="p">):</span>
+            <span class="c1"># get field and cloze position</span>
+            <span class="n">clozeIdx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="o">.</span><span class="n">ord</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">fld</span> <span class="o">=</span> <span class="n">fld</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="c1"># loop through fields for a match</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="o">.</span><span class="n">model</span><span class="p">()[</span><span class="s2">&quot;flds&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">fld</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">typeCorrect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="o">.</span><span class="n">note</span><span class="p">()[</span><span class="n">f</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]]</span>
+                <span class="k">if</span> <span class="n">clozeIdx</span><span class="p">:</span>
+                    <span class="c1"># narrow to cloze</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">typeCorrect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_contentForCloze</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">typeCorrect</span><span class="p">,</span> <span class="n">clozeIdx</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">typeFont</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s2">&quot;font&quot;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">typeSize</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s2">&quot;size&quot;</span><span class="p">]</span>
+                <span class="k">break</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">typeCorrect</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">typeCorrect</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">clozeIdx</span><span class="p">:</span>
+                    <span class="n">warn</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span>
+                        <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">Please run Tools&gt;Empty Cards&quot;&quot;&quot;</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">warn</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Type answer: unknown field </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">fld</span>
+                <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">typeAnsPat</span><span class="p">,</span> <span class="n">warn</span><span class="p">,</span> <span class="n">buf</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># empty field, remove type answer pattern</span>
+                <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">typeAnsPat</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">buf</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">typeAnsPat</span><span class="p">,</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&lt;center&gt;</span>
+<span class="sd">&lt;input type=text id=typeans onkeypress=&quot;_typeAnsPress();&quot;</span>
+<span class="sd">   style=&quot;font-family: &#39;%s&#39;; font-size: %spx;&quot;&gt;</span>
+<span class="sd">&lt;/center&gt;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+            <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">typeFont</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">typeSize</span><span class="p">),</span>
+            <span class="n">buf</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="Reviewer.typeAnsAnswerFilter"><a class="viewcode-back" href="../../aqt.html#aqt.reviewer.Reviewer.typeAnsAnswerFilter">[docs]</a>    <span class="k">def</span> <span class="nf">typeAnsAnswerFilter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">buf</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">typeCorrect</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">typeAnsPat</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">buf</span><span class="p">)</span>
+        <span class="n">origSize</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span>
+        <span class="n">buf</span> <span class="o">=</span> <span class="n">buf</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&lt;hr id=answer&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">hadHR</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span> <span class="o">!=</span> <span class="n">origSize</span>
+        <span class="c1"># munge correct value</span>
+        <span class="n">cor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">typeCorrect</span><span class="p">)</span>
+        <span class="n">cor</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;(</span><span class="se">\n</span><span class="s2">|&lt;br ?/?&gt;|&lt;/?div&gt;)+&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">cor</span><span class="p">)</span>
+        <span class="n">cor</span> <span class="o">=</span> <span class="n">stripHTML</span><span class="p">(</span><span class="n">cor</span><span class="p">)</span>
+        <span class="c1"># ensure we don&#39;t chomp multiple whitespace</span>
+        <span class="n">cor</span> <span class="o">=</span> <span class="n">cor</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&amp;nbsp;&quot;</span><span class="p">)</span>
+        <span class="n">cor</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">unescape</span><span class="p">(</span><span class="n">cor</span><span class="p">)</span>
+        <span class="n">cor</span> <span class="o">=</span> <span class="n">cor</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\xa0</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
+        <span class="n">cor</span> <span class="o">=</span> <span class="n">cor</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">given</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">typedAnswer</span>
+        <span class="c1"># compare with typed answer</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">correct</span><span class="p">(</span><span class="n">given</span><span class="p">,</span> <span class="n">cor</span><span class="p">,</span> <span class="n">showBad</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="c1"># and update the type answer area</span>
+        <span class="k">def</span> <span class="nf">repl</span><span class="p">(</span><span class="n">match</span><span class="p">):</span>
+            <span class="c1"># can&#39;t pass a string in directly, and can&#39;t use re.escape as it</span>
+            <span class="c1"># escapes too much</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">&lt;span style=&quot;font-family: &#39;</span><span class="si">%s</span><span class="s2">&#39;; font-size: </span><span class="si">%s</span><span class="s2">px&quot;&gt;</span><span class="si">%s</span><span class="s2">&lt;/span&gt;&quot;&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">typeFont</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">typeSize</span><span class="p">,</span>
+                <span class="n">res</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">hadHR</span><span class="p">:</span>
+                <span class="c1"># a hack to ensure the q/a separator falls before the answer</span>
+                <span class="c1"># comparison when user is using {{FrontSide}}</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;&lt;hr id=answer&gt;&quot;</span> <span class="o">+</span> <span class="n">s</span>
+            <span class="k">return</span> <span class="n">s</span>
+
+        <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">typeAnsPat</span><span class="p">,</span> <span class="n">repl</span><span class="p">,</span> <span class="n">buf</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_contentForCloze</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">txt</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">matches</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\{\{c</span><span class="si">%s</span><span class="s2">::(.+?)\}\}&quot;</span> <span class="o">%</span> <span class="n">idx</span><span class="p">,</span> <span class="n">txt</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">matches</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">def</span> <span class="nf">noHint</span><span class="p">(</span><span class="n">txt</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s2">&quot;::&quot;</span> <span class="ow">in</span> <span class="n">txt</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">txt</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;::&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">txt</span>
+
+        <span class="n">matches</span> <span class="o">=</span> <span class="p">[</span><span class="n">noHint</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span> <span class="k">for</span> <span class="n">txt</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">]</span>
+        <span class="n">uniqMatches</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">uniqMatches</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">txt</span> <span class="o">=</span> <span class="n">matches</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">txt</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">txt</span>
+
+<div class="viewcode-block" id="Reviewer.tokenizeComparison"><a class="viewcode-back" href="../../aqt.html#aqt.reviewer.Reviewer.tokenizeComparison">[docs]</a>    <span class="k">def</span> <span class="nf">tokenizeComparison</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">given</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">correct</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]],</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]:</span>
+        <span class="c1"># compare in NFC form so accents appear correct</span>
+        <span class="n">given</span> <span class="o">=</span> <span class="n">ucd</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="s2">&quot;NFC&quot;</span><span class="p">,</span> <span class="n">given</span><span class="p">)</span>
+        <span class="n">correct</span> <span class="o">=</span> <span class="n">ucd</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="s2">&quot;NFC&quot;</span><span class="p">,</span> <span class="n">correct</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">difflib</span><span class="o">.</span><span class="n">SequenceMatcher</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">given</span><span class="p">,</span> <span class="n">correct</span><span class="p">,</span> <span class="n">autojunk</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">givenElems</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">correctElems</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">givenPoint</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">correctPoint</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">offby</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">def</span> <span class="nf">logBad</span><span class="p">(</span><span class="n">old</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">new</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">array</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">old</span> <span class="o">!=</span> <span class="n">new</span><span class="p">:</span>
+                <span class="n">array</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="kc">False</span><span class="p">,</span> <span class="n">s</span><span class="p">[</span><span class="n">old</span><span class="p">:</span><span class="n">new</span><span class="p">]))</span>
+
+        <span class="k">def</span> <span class="nf">logGood</span><span class="p">(</span>
+            <span class="n">start</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">cnt</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">array</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">cnt</span><span class="p">:</span>
+                <span class="n">array</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="kc">True</span><span class="p">,</span> <span class="n">s</span><span class="p">[</span><span class="n">start</span> <span class="p">:</span> <span class="n">start</span> <span class="o">+</span> <span class="n">cnt</span><span class="p">]))</span>
+
+        <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cnt</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">get_matching_blocks</span><span class="p">():</span>
+            <span class="c1"># if anything was missed in correct, pad given</span>
+            <span class="k">if</span> <span class="n">cnt</span> <span class="ow">and</span> <span class="n">y</span> <span class="o">-</span> <span class="n">offby</span> <span class="o">&gt;</span> <span class="n">x</span><span class="p">:</span>
+                <span class="n">givenElems</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">x</span> <span class="o">-</span> <span class="n">offby</span><span class="p">)))</span>
+                <span class="n">offby</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-</span> <span class="n">x</span>
+            <span class="c1"># log any proceeding bad elems</span>
+            <span class="n">logBad</span><span class="p">(</span><span class="n">givenPoint</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">given</span><span class="p">,</span> <span class="n">givenElems</span><span class="p">)</span>
+            <span class="n">logBad</span><span class="p">(</span><span class="n">correctPoint</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">correct</span><span class="p">,</span> <span class="n">correctElems</span><span class="p">)</span>
+            <span class="n">givenPoint</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">cnt</span>
+            <span class="n">correctPoint</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="n">cnt</span>
+            <span class="c1"># log the match</span>
+            <span class="n">logGood</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">cnt</span><span class="p">,</span> <span class="n">given</span><span class="p">,</span> <span class="n">givenElems</span><span class="p">)</span>
+            <span class="n">logGood</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">cnt</span><span class="p">,</span> <span class="n">correct</span><span class="p">,</span> <span class="n">correctElems</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">givenElems</span><span class="p">,</span> <span class="n">correctElems</span></div>
+
+<div class="viewcode-block" id="Reviewer.correct"><a class="viewcode-back" href="../../aqt.html#aqt.reviewer.Reviewer.correct">[docs]</a>    <span class="k">def</span> <span class="nf">correct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">given</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">correct</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">showBad</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="s2">&quot;Diff-corrects the typed-in answer.&quot;</span>
+        <span class="n">givenElems</span><span class="p">,</span> <span class="n">correctElems</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizeComparison</span><span class="p">(</span><span class="n">given</span><span class="p">,</span> <span class="n">correct</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">good</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;&lt;span class=typeGood&gt;&quot;</span> <span class="o">+</span> <span class="n">html</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&lt;/span&gt;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">bad</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;&lt;span class=typeBad&gt;&quot;</span> <span class="o">+</span> <span class="n">html</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&lt;/span&gt;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">missed</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;&lt;span class=typeMissed&gt;&quot;</span> <span class="o">+</span> <span class="n">html</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&lt;/span&gt;&quot;</span>
+
+        <span class="k">if</span> <span class="n">given</span> <span class="o">==</span> <span class="n">correct</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">good</span><span class="p">(</span><span class="n">given</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">for</span> <span class="n">ok</span><span class="p">,</span> <span class="n">txt</span> <span class="ow">in</span> <span class="n">givenElems</span><span class="p">:</span>
+                <span class="n">txt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_noLoneMarks</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">ok</span><span class="p">:</span>
+                    <span class="n">res</span> <span class="o">+=</span> <span class="n">good</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">res</span> <span class="o">+=</span> <span class="n">bad</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
+            <span class="n">res</span> <span class="o">+=</span> <span class="s2">&quot;&lt;br&gt;&lt;span id=typearrow&gt;&amp;darr;&lt;/span&gt;&lt;br&gt;&quot;</span>
+            <span class="k">for</span> <span class="n">ok</span><span class="p">,</span> <span class="n">txt</span> <span class="ow">in</span> <span class="n">correctElems</span><span class="p">:</span>
+                <span class="n">txt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_noLoneMarks</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">ok</span><span class="p">:</span>
+                    <span class="n">res</span> <span class="o">+=</span> <span class="n">good</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">res</span> <span class="o">+=</span> <span class="n">missed</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="s2">&quot;&lt;div&gt;&lt;code id=typeans&gt;&quot;</span> <span class="o">+</span> <span class="n">res</span> <span class="o">+</span> <span class="s2">&quot;&lt;/code&gt;&lt;/div&gt;&quot;</span>
+        <span class="k">return</span> <span class="n">res</span></div>
+
+    <span class="k">def</span> <span class="nf">_noLoneMarks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="c1"># ensure a combining character at the start does not join to</span>
+        <span class="c1"># previous text</span>
+        <span class="k">if</span> <span class="n">s</span> <span class="ow">and</span> <span class="n">ucd</span><span class="o">.</span><span class="n">category</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;M&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\xa0</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">s</span>
+        <span class="k">return</span> <span class="n">s</span>
+
+    <span class="k">def</span> <span class="nf">_getTypedAnswer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">evalWithCallback</span><span class="p">(</span><span class="s2">&quot;typeans ? typeans.value : null&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_onTypedAnswer</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_onTypedAnswer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">typedAnswer</span> <span class="o">=</span> <span class="n">val</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_showAnswer</span><span class="p">()</span>
+
+    <span class="c1"># Bottom bar</span>
+    <span class="c1">##########################################################################</span>
+
+    <span class="k">def</span> <span class="nf">_bottomHTML</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">&lt;center id=outer&gt;</span>
+<span class="s2">&lt;table id=innertable width=100</span><span class="si">%%</span><span class="s2"> cellspacing=0 cellpadding=0&gt;</span>
+<span class="s2">&lt;tr&gt;</span>
+<span class="s2">&lt;td align=left width=50 valign=top class=stat&gt;</span>
+<span class="s2">&lt;br&gt;</span>
+<span class="s2">&lt;button title=&quot;</span><span class="si">%(editkey)s</span><span class="s2">&quot; onclick=&quot;pycmd(&#39;edit&#39;);&quot;&gt;</span><span class="si">%(edit)s</span><span class="s2">&lt;/button&gt;&lt;/td&gt;</span>
+<span class="s2">&lt;td align=center valign=top id=middle&gt;</span>
+<span class="s2">&lt;/td&gt;</span>
+<span class="s2">&lt;td width=50 align=right valign=top class=stat&gt;&lt;span id=time class=stattxt&gt;</span>
+<span class="s2">&lt;/span&gt;&lt;br&gt;</span>
+<span class="s2">&lt;button onclick=&quot;pycmd(&#39;more&#39;);&quot;&gt;</span><span class="si">%(more)s</span><span class="s2"> </span><span class="si">%(downArrow)s</span><span class="s2">&lt;/button&gt;</span>
+<span class="s2">&lt;/td&gt;</span>
+<span class="s2">&lt;/tr&gt;</span>
+<span class="s2">&lt;/table&gt;</span>
+<span class="s2">&lt;/center&gt;</span>
+<span class="s2">&lt;script&gt;</span>
+<span class="s2">time = </span><span class="si">%(time)d</span><span class="s2">;</span>
+<span class="s2">&lt;/script&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span> <span class="o">%</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">rem</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_remaining</span><span class="p">(),</span>
+            <span class="n">edit</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Edit&quot;</span><span class="p">),</span>
+            <span class="n">editkey</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Shortcut key: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="s2">&quot;E&quot;</span><span class="p">,</span>
+            <span class="n">more</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;More&quot;</span><span class="p">),</span>
+            <span class="n">downArrow</span><span class="o">=</span><span class="n">downArrow</span><span class="p">(),</span>
+            <span class="n">time</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="o">.</span><span class="n">timeTaken</span><span class="p">()</span> <span class="o">//</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_showAnswerButton</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">typeCorrect</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bottom</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">setFocus</span><span class="p">()</span>
+        <span class="n">middle</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">&lt;span class=stattxt&gt;</span><span class="si">%s</span><span class="s2">&lt;/span&gt;&lt;br&gt;</span>
+<span class="s2">&lt;button title=&quot;</span><span class="si">%s</span><span class="s2">&quot; id=ansbut onclick=&#39;pycmd(&quot;ans&quot;);&#39;&gt;</span><span class="si">%s</span><span class="s2">&lt;/button&gt;&quot;&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_remaining</span><span class="p">(),</span>
+            <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Shortcut key: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Space&quot;</span><span class="p">),</span>
+            <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Show Answer&quot;</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="c1"># wrap it in a table so it has the same top margin as the ease buttons</span>
+        <span class="n">middle</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;&lt;table cellpadding=0&gt;&lt;tr&gt;&lt;td class=stat2 align=center&gt;</span><span class="si">%s</span><span class="s2">&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&quot;</span>
+            <span class="o">%</span> <span class="n">middle</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="o">.</span><span class="n">shouldShowTimer</span><span class="p">():</span>
+            <span class="n">maxTime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="o">.</span><span class="n">timeLimit</span><span class="p">()</span> <span class="o">/</span> <span class="mi">1000</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">maxTime</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bottom</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="s2">&quot;showQuestion(</span><span class="si">%s</span><span class="s2">,</span><span class="si">%d</span><span class="s2">);&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">middle</span><span class="p">),</span> <span class="n">maxTime</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bottom</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">adjustHeightToFit</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_showEaseButtons</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bottom</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">setFocus</span><span class="p">()</span>
+        <span class="n">middle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_answerButtons</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bottom</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="s2">&quot;showAnswer(</span><span class="si">%s</span><span class="s2">);&quot;</span> <span class="o">%</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">middle</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_remaining</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">conf</span><span class="p">[</span><span class="s2">&quot;dueCounts&quot;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hadCardQueue</span><span class="p">:</span>
+            <span class="c1"># if it&#39;s come from the undo queue, don&#39;t count it separately</span>
+            <span class="n">counts</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">counts</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">counts</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">counts</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="p">))</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">countIdx</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="p">)</span>
+        <span class="n">counts</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&lt;u&gt;</span><span class="si">%s</span><span class="s2">&lt;/u&gt;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">counts</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+        <span class="n">space</span> <span class="o">=</span> <span class="s2">&quot; + &quot;</span>
+        <span class="n">ctxt</span> <span class="o">=</span> <span class="s2">&quot;&lt;span class=new-count&gt;</span><span class="si">%s</span><span class="s2">&lt;/span&gt;&quot;</span> <span class="o">%</span> <span class="n">counts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">ctxt</span> <span class="o">+=</span> <span class="n">space</span> <span class="o">+</span> <span class="s2">&quot;&lt;span class=learn-count&gt;</span><span class="si">%s</span><span class="s2">&lt;/span&gt;&quot;</span> <span class="o">%</span> <span class="n">counts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">ctxt</span> <span class="o">+=</span> <span class="n">space</span> <span class="o">+</span> <span class="s2">&quot;&lt;span class=review-count&gt;</span><span class="si">%s</span><span class="s2">&lt;/span&gt;&quot;</span> <span class="o">%</span> <span class="n">counts</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">ctxt</span>
+
+    <span class="k">def</span> <span class="nf">_defaultEase</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">answerButtons</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">3</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">2</span>
+
+    <span class="k">def</span> <span class="nf">_answerButtonList</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Again&quot;</span><span class="p">)),)</span>
+        <span class="n">cnt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">answerButtons</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cnt</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">l</span> <span class="o">+</span> <span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Good&quot;</span><span class="p">)),)</span>
+        <span class="k">elif</span> <span class="n">cnt</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">l</span> <span class="o">+</span> <span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Good&quot;</span><span class="p">)),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Easy&quot;</span><span class="p">)))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">l</span> <span class="o">+</span> <span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Hard&quot;</span><span class="p">)),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Good&quot;</span><span class="p">)),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Easy&quot;</span><span class="p">)))</span>
+
+    <span class="k">def</span> <span class="nf">_answerButtons</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">default</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defaultEase</span><span class="p">()</span>
+
+        <span class="k">def</span> <span class="nf">but</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">label</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">default</span><span class="p">:</span>
+                <span class="n">extra</span> <span class="o">=</span> <span class="s2">&quot;id=defease&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">extra</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="n">due</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buttonTime</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">&lt;td align=center&gt;</span><span class="si">%s</span><span class="s2">&lt;button </span><span class="si">%s</span><span class="s2"> title=&quot;</span><span class="si">%s</span><span class="s2">&quot; data-ease=&quot;</span><span class="si">%s</span><span class="s2">&quot; onclick=&#39;pycmd(&quot;ease</span><span class="si">%d</span><span class="s2">&quot;);&#39;&gt;</span><span class="se">\</span>
+<span class="si">%s</span><span class="s2">&lt;/button&gt;&lt;/td&gt;&quot;&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="n">due</span><span class="p">,</span>
+                <span class="n">extra</span><span class="p">,</span>
+                <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Shortcut key: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">i</span><span class="p">,</span>
+                <span class="n">i</span><span class="p">,</span>
+                <span class="n">i</span><span class="p">,</span>
+                <span class="n">label</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="n">buf</span> <span class="o">=</span> <span class="s2">&quot;&lt;center&gt;&lt;table cellpading=0 cellspacing=0&gt;&lt;tr&gt;&quot;</span>
+        <span class="k">for</span> <span class="n">ease</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_answerButtonList</span><span class="p">():</span>
+            <span class="n">buf</span> <span class="o">+=</span> <span class="n">but</span><span class="p">(</span><span class="n">ease</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
+        <span class="n">buf</span> <span class="o">+=</span> <span class="s2">&quot;&lt;/tr&gt;&lt;/table&gt;&quot;</span>
+        <span class="n">script</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">&lt;script&gt;$(function () { $(&quot;#defease&quot;).focus(); });&lt;/script&gt;&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">buf</span> <span class="o">+</span> <span class="n">script</span>
+
+    <span class="k">def</span> <span class="nf">_buttonTime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">conf</span><span class="p">[</span><span class="s2">&quot;estTimes&quot;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="s2">&quot;&lt;div class=spacer&gt;&lt;/div&gt;&quot;</span>
+        <span class="n">txt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">nextIvlStr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&amp;nbsp;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;&lt;span class=nobold&gt;</span><span class="si">%s</span><span class="s2">&lt;/span&gt;&lt;br&gt;&quot;</span> <span class="o">%</span> <span class="n">txt</span>
+
+    <span class="c1"># Leeches</span>
+    <span class="c1">##########################################################################</span>
+
+<div class="viewcode-block" id="Reviewer.onLeech"><a class="viewcode-back" href="../../aqt.html#aqt.reviewer.Reviewer.onLeech">[docs]</a>    <span class="k">def</span> <span class="nf">onLeech</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">card</span><span class="p">:</span> <span class="n">Card</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># for now</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Card was a leech.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">card</span><span class="o">.</span><span class="n">queue</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;It has been suspended.&quot;</span><span class="p">)</span>
+        <span class="n">tooltip</span><span class="p">(</span><span class="n">s</span><span class="p">)</span></div>
+
+    <span class="c1"># Context menu</span>
+    <span class="c1">##########################################################################</span>
+
+    <span class="c1"># note the shortcuts listed here also need to be defined above</span>
+    <span class="k">def</span> <span class="nf">_contextMenu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">currentFlag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">card</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="o">.</span><span class="n">userFlag</span><span class="p">()</span>
+        <span class="n">opts</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">[</span>
+                <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Flag Card&quot;</span><span class="p">),</span>
+                <span class="p">[</span>
+                    <span class="p">[</span>
+                        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Red Flag&quot;</span><span class="p">),</span>
+                        <span class="s2">&quot;Ctrl+1&quot;</span><span class="p">,</span>
+                        <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">setFlag</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+                        <span class="nb">dict</span><span class="p">(</span><span class="n">checked</span><span class="o">=</span><span class="n">currentFlag</span> <span class="o">==</span> <span class="mi">1</span><span class="p">),</span>
+                    <span class="p">],</span>
+                    <span class="p">[</span>
+                        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Orange Flag&quot;</span><span class="p">),</span>
+                        <span class="s2">&quot;Ctrl+2&quot;</span><span class="p">,</span>
+                        <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">setFlag</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span>
+                        <span class="nb">dict</span><span class="p">(</span><span class="n">checked</span><span class="o">=</span><span class="n">currentFlag</span> <span class="o">==</span> <span class="mi">2</span><span class="p">),</span>
+                    <span class="p">],</span>
+                    <span class="p">[</span>
+                        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Green Flag&quot;</span><span class="p">),</span>
+                        <span class="s2">&quot;Ctrl+3&quot;</span><span class="p">,</span>
+                        <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">setFlag</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
+                        <span class="nb">dict</span><span class="p">(</span><span class="n">checked</span><span class="o">=</span><span class="n">currentFlag</span> <span class="o">==</span> <span class="mi">3</span><span class="p">),</span>
+                    <span class="p">],</span>
+                    <span class="p">[</span>
+                        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Blue Flag&quot;</span><span class="p">),</span>
+                        <span class="s2">&quot;Ctrl+4&quot;</span><span class="p">,</span>
+                        <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">setFlag</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span>
+                        <span class="nb">dict</span><span class="p">(</span><span class="n">checked</span><span class="o">=</span><span class="n">currentFlag</span> <span class="o">==</span> <span class="mi">4</span><span class="p">),</span>
+                    <span class="p">],</span>
+                <span class="p">],</span>
+            <span class="p">],</span>
+            <span class="p">[</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Mark Note&quot;</span><span class="p">),</span> <span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onMark</span><span class="p">],</span>
+            <span class="p">[</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Bury Card&quot;</span><span class="p">),</span> <span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onBuryCard</span><span class="p">],</span>
+            <span class="p">[</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Bury Note&quot;</span><span class="p">),</span> <span class="s2">&quot;=&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onBuryNote</span><span class="p">],</span>
+            <span class="p">[</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Suspend Card&quot;</span><span class="p">),</span> <span class="s2">&quot;@&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onSuspendCard</span><span class="p">],</span>
+            <span class="p">[</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Suspend Note&quot;</span><span class="p">),</span> <span class="s2">&quot;!&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onSuspend</span><span class="p">],</span>
+            <span class="p">[</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Delete Note&quot;</span><span class="p">),</span> <span class="s2">&quot;Ctrl+Delete&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onDelete</span><span class="p">],</span>
+            <span class="p">[</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Options&quot;</span><span class="p">),</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onOptions</span><span class="p">],</span>
+            <span class="kc">None</span><span class="p">,</span>
+            <span class="p">[</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Replay Audio&quot;</span><span class="p">),</span> <span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">replayAudio</span><span class="p">],</span>
+            <span class="p">[</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Pause Audio&quot;</span><span class="p">),</span> <span class="s2">&quot;5&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_pause_audio</span><span class="p">],</span>
+            <span class="p">[</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Audio -5s&quot;</span><span class="p">),</span> <span class="s2">&quot;6&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_seek_backward</span><span class="p">],</span>
+            <span class="p">[</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Audio +5s&quot;</span><span class="p">),</span> <span class="s2">&quot;7&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_seek_forward</span><span class="p">],</span>
+            <span class="p">[</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Record Own Voice&quot;</span><span class="p">),</span> <span class="s2">&quot;Shift+V&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onRecordVoice</span><span class="p">],</span>
+            <span class="p">[</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Replay Own Voice&quot;</span><span class="p">),</span> <span class="s2">&quot;V&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onReplayRecorded</span><span class="p">],</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">opts</span>
+
+<div class="viewcode-block" id="Reviewer.showContextMenu"><a class="viewcode-back" href="../../aqt.html#aqt.reviewer.Reviewer.showContextMenu">[docs]</a>    <span class="k">def</span> <span class="nf">showContextMenu</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">opts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_contextMenu</span><span class="p">()</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">QMenu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_addMenuItems</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">opts</span><span class="p">)</span>
+
+        <span class="n">gui_hooks</span><span class="o">.</span><span class="n">reviewer_will_show_context_menu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
+        <span class="n">qtMenuShortcutWorkaround</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">exec_</span><span class="p">(</span><span class="n">QCursor</span><span class="o">.</span><span class="n">pos</span><span class="p">())</span></div>
+
+    <span class="k">def</span> <span class="nf">_addMenuItems</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">rows</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">row</span><span class="p">:</span>
+                <span class="n">m</span><span class="o">.</span><span class="n">addSeparator</span><span class="p">()</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">subm</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">addMenu</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_addMenuItems</span><span class="p">(</span><span class="n">subm</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">qtMenuShortcutWorkaround</span><span class="p">(</span><span class="n">subm</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                <span class="n">label</span><span class="p">,</span> <span class="n">scut</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">opts</span> <span class="o">=</span> <span class="n">row</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">label</span><span class="p">,</span> <span class="n">scut</span><span class="p">,</span> <span class="n">func</span> <span class="o">=</span> <span class="n">row</span>
+                <span class="n">opts</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">scut</span><span class="p">:</span>
+                <span class="n">a</span><span class="o">.</span><span class="n">setShortcut</span><span class="p">(</span><span class="n">QKeySequence</span><span class="p">(</span><span class="n">scut</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">opts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;checked&quot;</span><span class="p">):</span>
+                <span class="n">a</span><span class="o">.</span><span class="n">setCheckable</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">a</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">qconnect</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">triggered</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Reviewer.onOptions"><a class="viewcode-back" href="../../aqt.html#aqt.reviewer.Reviewer.onOptions">[docs]</a>    <span class="k">def</span> <span class="nf">onOptions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">onDeckConf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="o">.</span><span class="n">odid</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="o">.</span><span class="n">did</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Reviewer.setFlag"><a class="viewcode-back" href="../../aqt.html#aqt.reviewer.Reviewer.setFlag">[docs]</a>    <span class="k">def</span> <span class="nf">setFlag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># need to toggle off?</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="o">.</span><span class="n">userFlag</span><span class="p">()</span> <span class="o">==</span> <span class="n">flag</span><span class="p">:</span>
+            <span class="n">flag</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="o">.</span><span class="n">setUserFlag</span><span class="p">(</span><span class="n">flag</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_drawFlag</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Reviewer.onMark"><a class="viewcode-back" href="../../aqt.html#aqt.reviewer.Reviewer.onMark">[docs]</a>    <span class="k">def</span> <span class="nf">onMark</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="o">.</span><span class="n">note</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">hasTag</span><span class="p">(</span><span class="s2">&quot;marked&quot;</span><span class="p">):</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">delTag</span><span class="p">(</span><span class="s2">&quot;marked&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">addTag</span><span class="p">(</span><span class="s2">&quot;marked&quot;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_drawMark</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Reviewer.onSuspend"><a class="viewcode-back" href="../../aqt.html#aqt.reviewer.Reviewer.onSuspend">[docs]</a>    <span class="k">def</span> <span class="nf">onSuspend</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">checkpoint</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Suspend&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">suspendCards</span><span class="p">([</span><span class="n">c</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="o">.</span><span class="n">note</span><span class="p">()</span><span class="o">.</span><span class="n">cards</span><span class="p">()])</span>
+        <span class="n">tooltip</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Note suspended.&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Reviewer.onSuspendCard"><a class="viewcode-back" href="../../aqt.html#aqt.reviewer.Reviewer.onSuspendCard">[docs]</a>    <span class="k">def</span> <span class="nf">onSuspendCard</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">checkpoint</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Suspend&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">suspendCards</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="o">.</span><span class="n">id</span><span class="p">])</span>
+        <span class="n">tooltip</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Card suspended.&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Reviewer.onDelete"><a class="viewcode-back" href="../../aqt.html#aqt.reviewer.Reviewer.onDelete">[docs]</a>    <span class="k">def</span> <span class="nf">onDelete</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># need to check state because the shortcut is global to the main</span>
+        <span class="c1"># window</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">state</span> <span class="o">!=</span> <span class="s2">&quot;review&quot;</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">checkpoint</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Delete&quot;</span><span class="p">))</span>
+        <span class="n">cnt</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="o">.</span><span class="n">note</span><span class="p">()</span><span class="o">.</span><span class="n">cards</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">remove_notes</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="o">.</span><span class="n">note</span><span class="p">()</span><span class="o">.</span><span class="n">id</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="n">tooltip</span><span class="p">(</span>
+            <span class="n">ngettext</span><span class="p">(</span>
+                <span class="s2">&quot;Note and its </span><span class="si">%d</span><span class="s2"> card deleted.&quot;</span><span class="p">,</span> <span class="s2">&quot;Note and its </span><span class="si">%d</span><span class="s2"> cards deleted.&quot;</span><span class="p">,</span> <span class="n">cnt</span>
+            <span class="p">)</span>
+            <span class="o">%</span> <span class="n">cnt</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="Reviewer.onBuryCard"><a class="viewcode-back" href="../../aqt.html#aqt.reviewer.Reviewer.onBuryCard">[docs]</a>    <span class="k">def</span> <span class="nf">onBuryCard</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">checkpoint</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Bury&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">buryCards</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="o">.</span><span class="n">id</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="n">tooltip</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Card buried.&quot;</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Reviewer.onBuryNote"><a class="viewcode-back" href="../../aqt.html#aqt.reviewer.Reviewer.onBuryNote">[docs]</a>    <span class="k">def</span> <span class="nf">onBuryNote</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">checkpoint</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Bury&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">buryNote</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="o">.</span><span class="n">nid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="n">tooltip</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Note buried.&quot;</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Reviewer.onRecordVoice"><a class="viewcode-back" href="../../aqt.html#aqt.reviewer.Reviewer.onRecordVoice">[docs]</a>    <span class="k">def</span> <span class="nf">onRecordVoice</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_recordedAudio</span> <span class="o">=</span> <span class="n">getAudio</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="p">,</span> <span class="n">encode</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">onReplayRecorded</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Reviewer.onReplayRecorded"><a class="viewcode-back" href="../../aqt.html#aqt.reviewer.Reviewer.onReplayRecorded">[docs]</a>    <span class="k">def</span> <span class="nf">onReplayRecorded</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_recordedAudio</span><span class="p">:</span>
+            <span class="n">tooltip</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;You haven&#39;t recorded your voice yet.&quot;</span><span class="p">))</span>
+            <span class="k">return</span>
+        <span class="n">av_player</span><span class="o">.</span><span class="n">play_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_recordedAudio</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Abdelrahman Hamdy
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

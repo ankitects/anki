@@ -1,0 +1,396 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>anki.lang &mdash; Anki  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Anki
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.html">anki package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aqt.html">aqt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../genhooks_gui.html">genhooks_gui module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tools.html">tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Anki</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>anki.lang</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for anki.lang</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># Copyright: Ankitects Pty Ltd and contributors</span>
+<span class="c1"># License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html</span>
+<span class="c1"># Please leave the coding line in this file to prevent xgettext complaining.</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span> <span class="nn">gettext</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">anki</span>
+
+<span class="n">langs</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;Afrikaans&quot;</span><span class="p">,</span> <span class="s2">&quot;af_ZA&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Bahasa Melayu&quot;</span><span class="p">,</span> <span class="s2">&quot;ms_MY&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Català&quot;</span><span class="p">,</span> <span class="s2">&quot;ca_ES&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Dansk&quot;</span><span class="p">,</span> <span class="s2">&quot;da_DK&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Deutsch&quot;</span><span class="p">,</span> <span class="s2">&quot;de_DE&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Eesti&quot;</span><span class="p">,</span> <span class="s2">&quot;et_EE&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;English (United States)&quot;</span><span class="p">,</span> <span class="s2">&quot;en_US&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;English (United Kingdom)&quot;</span><span class="p">,</span> <span class="s2">&quot;en_GB&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Español&quot;</span><span class="p">,</span> <span class="s2">&quot;es_ES&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Esperanto&quot;</span><span class="p">,</span> <span class="s2">&quot;eo_UY&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Euskara&quot;</span><span class="p">,</span> <span class="s2">&quot;eu_ES&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Français&quot;</span><span class="p">,</span> <span class="s2">&quot;fr_FR&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Galego&quot;</span><span class="p">,</span> <span class="s2">&quot;gl_ES&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Hrvatski&quot;</span><span class="p">,</span> <span class="s2">&quot;hr_HR&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Italiano&quot;</span><span class="p">,</span> <span class="s2">&quot;it_IT&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;lo jbobau&quot;</span><span class="p">,</span> <span class="s2">&quot;jbo_EN&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Lenga d&#39;òc&quot;</span><span class="p">,</span> <span class="s2">&quot;oc_FR&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Magyar&quot;</span><span class="p">,</span> <span class="s2">&quot;hu_HU&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Nederlands&quot;</span><span class="p">,</span> <span class="s2">&quot;nl_NL&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Norsk&quot;</span><span class="p">,</span> <span class="s2">&quot;nb_NO&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Polski&quot;</span><span class="p">,</span> <span class="s2">&quot;pl_PL&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Português Brasileiro&quot;</span><span class="p">,</span> <span class="s2">&quot;pt_BR&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Português&quot;</span><span class="p">,</span> <span class="s2">&quot;pt_PT&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Română&quot;</span><span class="p">,</span> <span class="s2">&quot;ro_RO&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Slovenčina&quot;</span><span class="p">,</span> <span class="s2">&quot;sk_SK&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Slovenščina&quot;</span><span class="p">,</span> <span class="s2">&quot;sl_SI&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Suomi&quot;</span><span class="p">,</span> <span class="s2">&quot;fi_FI&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Svenska&quot;</span><span class="p">,</span> <span class="s2">&quot;sv_SE&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Tiếng Việt&quot;</span><span class="p">,</span> <span class="s2">&quot;vi_VN&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Türkçe&quot;</span><span class="p">,</span> <span class="s2">&quot;tr_TR&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;简体中文&quot;</span><span class="p">,</span> <span class="s2">&quot;zh_CN&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;日本語&quot;</span><span class="p">,</span> <span class="s2">&quot;ja_JP&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;繁體中文&quot;</span><span class="p">,</span> <span class="s2">&quot;zh_TW&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;한국어&quot;</span><span class="p">,</span> <span class="s2">&quot;ko_KR&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Čeština&quot;</span><span class="p">,</span> <span class="s2">&quot;cs_CZ&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Ελληνικά&quot;</span><span class="p">,</span> <span class="s2">&quot;el_GR&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Български&quot;</span><span class="p">,</span> <span class="s2">&quot;bg_BG&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Монгол хэл&quot;</span><span class="p">,</span> <span class="s2">&quot;mn_MN&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;русский язык&quot;</span><span class="p">,</span> <span class="s2">&quot;ru_RU&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Српски&quot;</span><span class="p">,</span> <span class="s2">&quot;sr_SP&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;українська мова&quot;</span><span class="p">,</span> <span class="s2">&quot;uk_UA&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Հայերեն&quot;</span><span class="p">,</span> <span class="s2">&quot;hy_AM&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;עִבְרִית&quot;</span><span class="p">,</span> <span class="s2">&quot;he_IL&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;العربية&quot;</span><span class="p">,</span> <span class="s2">&quot;ar_SA&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;فارسی&quot;</span><span class="p">,</span> <span class="s2">&quot;fa_IR&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;ภาษาไทย&quot;</span><span class="p">,</span> <span class="s2">&quot;th_TH&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;Latin&quot;</span><span class="p">,</span> <span class="s2">&quot;la_LA&quot;</span><span class="p">),</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+
+<span class="c1"># compatibility with old versions</span>
+<span class="n">compatMap</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;af&quot;</span><span class="p">:</span> <span class="s2">&quot;af_ZA&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ar&quot;</span><span class="p">:</span> <span class="s2">&quot;ar_SA&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bg&quot;</span><span class="p">:</span> <span class="s2">&quot;bg_BG&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ca&quot;</span><span class="p">:</span> <span class="s2">&quot;ca_ES&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cs&quot;</span><span class="p">:</span> <span class="s2">&quot;cs_CZ&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;da&quot;</span><span class="p">:</span> <span class="s2">&quot;da_DK&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;de&quot;</span><span class="p">:</span> <span class="s2">&quot;de_DE&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;el&quot;</span><span class="p">:</span> <span class="s2">&quot;el_GR&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;en&quot;</span><span class="p">:</span> <span class="s2">&quot;en_US&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;eo&quot;</span><span class="p">:</span> <span class="s2">&quot;eo_UY&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;es&quot;</span><span class="p">:</span> <span class="s2">&quot;es_ES&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;et&quot;</span><span class="p">:</span> <span class="s2">&quot;et_EE&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;eu&quot;</span><span class="p">:</span> <span class="s2">&quot;eu_ES&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;fa&quot;</span><span class="p">:</span> <span class="s2">&quot;fa_IR&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;fi&quot;</span><span class="p">:</span> <span class="s2">&quot;fi_FI&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;fr&quot;</span><span class="p">:</span> <span class="s2">&quot;fr_FR&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;gl&quot;</span><span class="p">:</span> <span class="s2">&quot;gl_ES&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;he&quot;</span><span class="p">:</span> <span class="s2">&quot;he_IL&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;hr&quot;</span><span class="p">:</span> <span class="s2">&quot;hr_HR&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;hu&quot;</span><span class="p">:</span> <span class="s2">&quot;hu_HU&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;hy&quot;</span><span class="p">:</span> <span class="s2">&quot;hy_AM&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;it&quot;</span><span class="p">:</span> <span class="s2">&quot;it_IT&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ja&quot;</span><span class="p">:</span> <span class="s2">&quot;ja_JP&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ko&quot;</span><span class="p">:</span> <span class="s2">&quot;ko_KR&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;mn&quot;</span><span class="p">:</span> <span class="s2">&quot;mn_MN&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ms&quot;</span><span class="p">:</span> <span class="s2">&quot;ms_MY&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;nl&quot;</span><span class="p">:</span> <span class="s2">&quot;nl_NL&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;nb&quot;</span><span class="p">:</span> <span class="s2">&quot;nb_NL&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;no&quot;</span><span class="p">:</span> <span class="s2">&quot;nb_NL&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;oc&quot;</span><span class="p">:</span> <span class="s2">&quot;oc_FR&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pl&quot;</span><span class="p">:</span> <span class="s2">&quot;pl_PL&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pt&quot;</span><span class="p">:</span> <span class="s2">&quot;pt_PT&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ro&quot;</span><span class="p">:</span> <span class="s2">&quot;ro_RO&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ru&quot;</span><span class="p">:</span> <span class="s2">&quot;ru_RU&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sk&quot;</span><span class="p">:</span> <span class="s2">&quot;sk_SK&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sl&quot;</span><span class="p">:</span> <span class="s2">&quot;sl_SI&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sr&quot;</span><span class="p">:</span> <span class="s2">&quot;sr_SP&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sv&quot;</span><span class="p">:</span> <span class="s2">&quot;sv_SE&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;th&quot;</span><span class="p">:</span> <span class="s2">&quot;th_TH&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tr&quot;</span><span class="p">:</span> <span class="s2">&quot;tr_TR&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;uk&quot;</span><span class="p">:</span> <span class="s2">&quot;uk_UA&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;vi&quot;</span><span class="p">:</span> <span class="s2">&quot;vi_VN&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="lang_to_disk_lang"><a class="viewcode-back" href="../../anki.html#anki.lang.lang_to_disk_lang">[docs]</a><span class="k">def</span> <span class="nf">lang_to_disk_lang</span><span class="p">(</span><span class="n">lang</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Normalize lang, then convert it to name used on disk.&quot;&quot;&quot;</span>
+    <span class="c1"># convert it into our canonical representation first</span>
+    <span class="n">lang</span> <span class="o">=</span> <span class="n">lang</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">lang</span> <span class="ow">in</span> <span class="n">compatMap</span><span class="p">:</span>
+        <span class="n">lang</span> <span class="o">=</span> <span class="n">compatMap</span><span class="p">[</span><span class="n">lang</span><span class="p">]</span>
+
+    <span class="c1"># these language/region combinations are fully qualified, but with a hyphen</span>
+    <span class="k">if</span> <span class="n">lang</span> <span class="ow">in</span> <span class="p">(</span>
+        <span class="s2">&quot;en_GB&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ga_IE&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;hy_AM&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nb_NO&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nn_NO&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;pt_BR&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;pt_PT&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sv_SE&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;zh_CN&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;zh_TW&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">return</span> <span class="n">lang</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
+    <span class="c1"># other languages have the region portion stripped</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;(.*)_&quot;</span><span class="p">,</span> <span class="n">lang</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">lang</span></div>
+
+
+<span class="c1"># the currently set interface language</span>
+<span class="n">currentLang</span> <span class="o">=</span> <span class="s2">&quot;en&quot;</span>
+
+<span class="c1"># the current gettext translation catalog</span>
+<span class="n">current_catalog</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span>
+    <span class="n">Union</span><span class="p">[</span><span class="n">gettext</span><span class="o">.</span><span class="n">NullTranslations</span><span class="p">,</span> <span class="n">gettext</span><span class="o">.</span><span class="n">GNUTranslations</span><span class="p">]</span>
+<span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="c1"># the current Fluent translation instance</span>
+<span class="n">current_i18n</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">anki</span><span class="o">.</span><span class="n">rsbackend</span><span class="o">.</span><span class="n">RustBackend</span><span class="p">]</span>
+
+<span class="c1"># path to locale folder</span>
+<span class="n">locale_folder</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+
+<span class="k">def</span> <span class="nf">_</span><span class="p">(</span><span class="nb">str</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">current_catalog</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">current_catalog</span><span class="o">.</span><span class="n">gettext</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">str</span>
+
+
+<div class="viewcode-block" id="ngettext"><a class="viewcode-back" href="../../anki.html#anki.lang.ngettext">[docs]</a><span class="k">def</span> <span class="nf">ngettext</span><span class="p">(</span><span class="n">single</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">plural</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">current_catalog</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">current_catalog</span><span class="o">.</span><span class="n">ngettext</span><span class="p">(</span><span class="n">single</span><span class="p">,</span> <span class="n">plural</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">single</span>
+    <span class="k">return</span> <span class="n">plural</span></div>
+
+
+<div class="viewcode-block" id="set_lang"><a class="viewcode-back" href="../../anki.html#anki.lang.set_lang">[docs]</a><span class="k">def</span> <span class="nf">set_lang</span><span class="p">(</span><span class="n">lang</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">locale_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">global</span> <span class="n">currentLang</span><span class="p">,</span> <span class="n">current_catalog</span><span class="p">,</span> <span class="n">current_i18n</span><span class="p">,</span> <span class="n">locale_folder</span>
+    <span class="n">gettext_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">locale_dir</span><span class="p">,</span> <span class="s2">&quot;gettext&quot;</span><span class="p">)</span>
+    <span class="n">ftl_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">locale_dir</span><span class="p">,</span> <span class="s2">&quot;fluent&quot;</span><span class="p">)</span>
+
+    <span class="n">currentLang</span> <span class="o">=</span> <span class="n">lang</span>
+    <span class="n">current_catalog</span> <span class="o">=</span> <span class="n">gettext</span><span class="o">.</span><span class="n">translation</span><span class="p">(</span>
+        <span class="s2">&quot;anki&quot;</span><span class="p">,</span> <span class="n">gettext_dir</span><span class="p">,</span> <span class="n">languages</span><span class="o">=</span><span class="p">[</span><span class="n">lang</span><span class="p">],</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+
+    <span class="n">current_i18n</span> <span class="o">=</span> <span class="n">anki</span><span class="o">.</span><span class="n">rsbackend</span><span class="o">.</span><span class="n">RustBackend</span><span class="p">(</span><span class="n">ftl_folder</span><span class="o">=</span><span class="n">ftl_dir</span><span class="p">,</span> <span class="n">langs</span><span class="o">=</span><span class="p">[</span><span class="n">lang</span><span class="p">])</span>
+
+    <span class="n">locale_folder</span> <span class="o">=</span> <span class="n">locale_dir</span></div>
+
+
+<div class="viewcode-block" id="is_rtl"><a class="viewcode-back" href="../../anki.html#anki.lang.is_rtl">[docs]</a><span class="k">def</span> <span class="nf">is_rtl</span><span class="p">(</span><span class="n">lang</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">lang</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;he&quot;</span><span class="p">,</span> <span class="s2">&quot;ar&quot;</span><span class="p">,</span> <span class="s2">&quot;fa&quot;</span><span class="p">)</span></div>
+
+
+<span class="c1"># strip off unicode isolation markers from a translated string</span>
+<span class="c1"># for testing purposes</span>
+<div class="viewcode-block" id="without_unicode_isolation"><a class="viewcode-back" href="../../anki.html#anki.lang.without_unicode_isolation">[docs]</a><span class="k">def</span> <span class="nf">without_unicode_isolation</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\u2068</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\u2069</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Abdelrahman Hamdy
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

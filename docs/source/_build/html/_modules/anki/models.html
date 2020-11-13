@@ -1,0 +1,690 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>anki.models &mdash; Anki  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Anki
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.html">anki package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aqt.html">aqt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../genhooks_gui.html">genhooks_gui module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tools.html">tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Anki</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>anki.models</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for anki.models</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright: Ankitects Pty Ltd and contributors</span>
+<span class="c1"># License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">pprint</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">anki</span>  <span class="c1"># pylint: disable=unused-import</span>
+<span class="kn">import</span> <span class="nn">anki.backend_pb2</span> <span class="k">as</span> <span class="nn">pb</span>
+<span class="kn">from</span> <span class="nn">anki.consts</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">anki.lang</span> <span class="kn">import</span> <span class="n">_</span>
+<span class="kn">from</span> <span class="nn">anki.rsbackend</span> <span class="kn">import</span> <span class="n">NotFoundError</span><span class="p">,</span> <span class="n">StockNoteType</span><span class="p">,</span> <span class="n">from_json_bytes</span><span class="p">,</span> <span class="n">to_json_bytes</span>
+<span class="kn">from</span> <span class="nn">anki.utils</span> <span class="kn">import</span> <span class="n">checksum</span><span class="p">,</span> <span class="n">ids2str</span><span class="p">,</span> <span class="n">intTime</span><span class="p">,</span> <span class="n">joinFields</span><span class="p">,</span> <span class="n">splitFields</span>
+
+<span class="c1"># types</span>
+<span class="n">NoteType</span> <span class="o">=</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+<span class="n">Field</span> <span class="o">=</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+<span class="n">Template</span> <span class="o">=</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]</span>
+
+
+<div class="viewcode-block" id="ModelsDictProxy"><a class="viewcode-back" href="../../anki.html#anki.models.ModelsDictProxy">[docs]</a><span class="k">class</span> <span class="nc">ModelsDictProxy</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">:</span> <span class="n">anki</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">Collection</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_col</span> <span class="o">=</span> <span class="n">col</span><span class="o">.</span><span class="n">weakref</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_warn</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;add-on should use methods on col.models, not col.models.models dict&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_warn</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_col</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">item</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_warn</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_col</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_warn</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_col</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">all_names_and_ids</span><span class="p">())</span>
+
+<div class="viewcode-block" id="ModelsDictProxy.keys"><a class="viewcode-back" href="../../anki.html#anki.models.ModelsDictProxy.keys">[docs]</a>    <span class="k">def</span> <span class="nf">keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_warn</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">nt</span><span class="o">.</span><span class="n">id</span><span class="p">)</span> <span class="k">for</span> <span class="n">nt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_col</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">all_names_and_ids</span><span class="p">()]</span></div>
+
+<div class="viewcode-block" id="ModelsDictProxy.values"><a class="viewcode-back" href="../../anki.html#anki.models.ModelsDictProxy.values">[docs]</a>    <span class="k">def</span> <span class="nf">values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_warn</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_col</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">all</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ModelsDictProxy.items"><a class="viewcode-back" href="../../anki.html#anki.models.ModelsDictProxy.items">[docs]</a>    <span class="k">def</span> <span class="nf">items</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_warn</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">[(</span><span class="nb">str</span><span class="p">(</span><span class="n">nt</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]),</span> <span class="n">nt</span><span class="p">)</span> <span class="k">for</span> <span class="n">nt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_col</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">all</span><span class="p">()]</span></div>
+
+    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_warn</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_col</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">have</span><span class="p">(</span><span class="n">item</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ModelManager"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager">[docs]</a><span class="k">class</span> <span class="nc">ModelManager</span><span class="p">:</span>
+    <span class="c1"># Saving/loading registry</span>
+    <span class="c1">#############################################################</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">:</span> <span class="n">anki</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">Collection</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span> <span class="o">=</span> <span class="n">col</span><span class="o">.</span><span class="n">weakref</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">models</span> <span class="o">=</span> <span class="n">ModelsDictProxy</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+        <span class="c1"># do not access this directly!</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+        <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;col&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;{super().__repr__()} {pprint.pformat(d, width=300)}&quot;</span>
+
+<div class="viewcode-block" id="ModelManager.save"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">m</span><span class="p">:</span> <span class="n">NoteType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="c1"># no longer used</span>
+        <span class="n">templates</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">updateReqs</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Save changes made to provided note type.&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">m</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;col.models.save() should be passed the changed notetype&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">preserve_usn</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+    <span class="c1"># legacy</span>
+<div class="viewcode-block" id="ModelManager.flush"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.flush">[docs]</a>    <span class="k">def</span> <span class="nf">flush</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">pass</span></div>
+
+    <span class="c1"># Caching</span>
+    <span class="c1">#############################################################</span>
+    <span class="c1"># A lot of existing code expects to be able to quickly and</span>
+    <span class="c1"># frequently obtain access to an entire notetype, so we currently</span>
+    <span class="c1"># need to cache responses from the backend. Please do not</span>
+    <span class="c1"># access the cache directly!</span>
+
+    <span class="n">_cache</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">NoteType</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="nf">_update_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nt</span><span class="p">:</span> <span class="n">NoteType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">nt</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">nt</span>
+
+    <span class="k">def</span> <span class="nf">_remove_from_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ntid</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">ntid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">ntid</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_get_cached</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ntid</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">NoteType</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ntid</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_clear_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># Listing note types</span>
+    <span class="c1">#############################################################</span>
+
+<div class="viewcode-block" id="ModelManager.all_names_and_ids"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.all_names_and_ids">[docs]</a>    <span class="k">def</span> <span class="nf">all_names_and_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">pb</span><span class="o">.</span><span class="n">NoteTypeNameID</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">get_notetype_names</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ModelManager.all_use_counts"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.all_use_counts">[docs]</a>    <span class="k">def</span> <span class="nf">all_use_counts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">pb</span><span class="o">.</span><span class="n">NoteTypeNameIDUseCount</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">get_notetype_names_and_counts</span><span class="p">()</span></div>
+
+    <span class="c1"># legacy</span>
+
+<div class="viewcode-block" id="ModelManager.allNames"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.allNames">[docs]</a>    <span class="k">def</span> <span class="nf">allNames</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_names_and_ids</span><span class="p">()]</span></div>
+
+<div class="viewcode-block" id="ModelManager.ids"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.ids">[docs]</a>    <span class="k">def</span> <span class="nf">ids</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_names_and_ids</span><span class="p">()]</span></div>
+
+    <span class="c1"># only used by importing code</span>
+<div class="viewcode-block" id="ModelManager.have"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.have">[docs]</a>    <span class="k">def</span> <span class="nf">have</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="nb">id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="kc">True</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_names_and_ids</span><span class="p">()</span> <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="nb">id</span><span class="p">)</span></div>
+
+    <span class="c1"># Current note type</span>
+    <span class="c1">#############################################################</span>
+
+<div class="viewcode-block" id="ModelManager.current"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.current">[docs]</a>    <span class="k">def</span> <span class="nf">current</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">forDeck</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="s2">&quot;Get current model.&quot;</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">current</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mid&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">forDeck</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">m</span><span class="p">:</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">conf</span><span class="p">[</span><span class="s2">&quot;curModel&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">m</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_names_and_ids</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">id</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ModelManager.setCurrent"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.setCurrent">[docs]</a>    <span class="k">def</span> <span class="nf">setCurrent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">NoteType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">conf</span><span class="p">[</span><span class="s2">&quot;curModel&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">setMod</span><span class="p">()</span></div>
+
+    <span class="c1"># Retrieving and creating models</span>
+    <span class="c1">#############################################################</span>
+
+<div class="viewcode-block" id="ModelManager.id_for_name"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.id_for_name">[docs]</a>    <span class="k">def</span> <span class="nf">id_for_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">get_notetype_id_by_name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">NotFoundError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="ModelManager.get"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">NoteType</span><span class="p">]:</span>
+        <span class="s2">&quot;Get model with ID, or None.&quot;</span>
+        <span class="c1"># deal with various legacy input types</span>
+        <span class="k">if</span> <span class="nb">id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="nb">id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+
+        <span class="n">nt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_cached</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">nt</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">nt</span> <span class="o">=</span> <span class="n">from_json_bytes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">get_notetype_legacy</span><span class="p">(</span><span class="nb">id</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_update_cache</span><span class="p">(</span><span class="n">nt</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">NotFoundError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">nt</span></div>
+
+<div class="viewcode-block" id="ModelManager.all"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.all">[docs]</a>    <span class="k">def</span> <span class="nf">all</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">NoteType</span><span class="p">]:</span>
+        <span class="s2">&quot;Get all models.&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">nt</span><span class="o">.</span><span class="n">id</span><span class="p">)</span> <span class="k">for</span> <span class="n">nt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_names_and_ids</span><span class="p">()]</span></div>
+
+<div class="viewcode-block" id="ModelManager.byName"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.byName">[docs]</a>    <span class="k">def</span> <span class="nf">byName</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">NoteType</span><span class="p">]:</span>
+        <span class="s2">&quot;Get model with NAME.&quot;</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_for_name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">id</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="ModelManager.new"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.new">[docs]</a>    <span class="k">def</span> <span class="nf">new</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoteType</span><span class="p">:</span>
+        <span class="s2">&quot;Create a new model, and return it.&quot;</span>
+        <span class="c1"># caller should call save() after modifying</span>
+        <span class="n">nt</span> <span class="o">=</span> <span class="n">from_json_bytes</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">get_stock_notetype_legacy</span><span class="p">(</span>
+                <span class="n">StockNoteType</span><span class="o">.</span><span class="n">STOCK_NOTE_TYPE_BASIC</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">nt</span><span class="p">[</span><span class="s2">&quot;flds&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">nt</span><span class="p">[</span><span class="s2">&quot;tmpls&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">nt</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="k">return</span> <span class="n">nt</span></div>
+
+<div class="viewcode-block" id="ModelManager.rem"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.rem">[docs]</a>    <span class="k">def</span> <span class="nf">rem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">NoteType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Delete model, and all its cards/notes.&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="ModelManager.remove_all_notetypes"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.remove_all_notetypes">[docs]</a>    <span class="k">def</span> <span class="nf">remove_all_notetypes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">nt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_names_and_ids</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_remove_from_cache</span><span class="p">(</span><span class="n">nt</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">remove_notetype</span><span class="p">(</span><span class="n">nt</span><span class="o">.</span><span class="n">id</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ModelManager.remove"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.remove">[docs]</a>    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Modifies schema.&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_remove_from_cache</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">remove_notetype</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ModelManager.add"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">NoteType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">m</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ModelManager.ensureNameUnique"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.ensureNameUnique">[docs]</a>    <span class="k">def</span> <span class="nf">ensureNameUnique</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">NoteType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">existing_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_for_name</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">existing_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">existing_id</span> <span class="o">!=</span> <span class="n">m</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]:</span>
+            <span class="n">m</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="s2">&quot;-&quot;</span> <span class="o">+</span> <span class="n">checksum</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()))[:</span><span class="mi">5</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="ModelManager.update"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">NoteType</span><span class="p">,</span> <span class="n">preserve_usn</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Add or update an existing model. Use .save() instead.&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_remove_from_cache</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ensureNameUnique</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+        <span class="n">m</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">add_or_update_notetype</span><span class="p">(</span>
+            <span class="n">json</span><span class="o">=</span><span class="n">to_json_bytes</span><span class="p">(</span><span class="n">m</span><span class="p">),</span> <span class="n">preserve_usn_and_mtime</span><span class="o">=</span><span class="n">preserve_usn</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setCurrent</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mutate_after_write</span><span class="p">(</span><span class="n">m</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_mutate_after_write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nt</span><span class="p">:</span> <span class="n">NoteType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># existing code expects the note type to be mutated to reflect</span>
+        <span class="c1"># the changes made when adding, such as ordinal assignment :-(</span>
+        <span class="n">updated</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">nt</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+        <span class="n">nt</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">updated</span><span class="p">)</span>
+
+    <span class="c1"># Tools</span>
+    <span class="c1">##################################################</span>
+
+<div class="viewcode-block" id="ModelManager.nids"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.nids">[docs]</a>    <span class="k">def</span> <span class="nf">nids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ntid</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="s2">&quot;Note ids for M.&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ntid</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="c1"># legacy callers passed in note type</span>
+            <span class="n">ntid</span> <span class="o">=</span> <span class="n">ntid</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="s2">&quot;select id from notes where mid = ?&quot;</span><span class="p">,</span> <span class="n">ntid</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ModelManager.useCount"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.useCount">[docs]</a>    <span class="k">def</span> <span class="nf">useCount</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">NoteType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="s2">&quot;Number of note using M.&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="s2">&quot;select count() from notes where mid = ?&quot;</span><span class="p">,</span> <span class="n">m</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span></div>
+
+    <span class="c1"># Copying</span>
+    <span class="c1">##################################################</span>
+
+<div class="viewcode-block" id="ModelManager.copy"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">NoteType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="s2">&quot;Copy, save and return.&quot;</span>
+        <span class="n">m2</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+        <span class="n">m2</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> copy&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">m2</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+        <span class="n">m2</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">m2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">m2</span></div>
+
+    <span class="c1"># Fields</span>
+    <span class="c1">##################################################</span>
+
+<div class="viewcode-block" id="ModelManager.fieldMap"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.fieldMap">[docs]</a>    <span class="k">def</span> <span class="nf">fieldMap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">NoteType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Field</span><span class="p">]]:</span>
+        <span class="s2">&quot;Mapping of field name -&gt; (ord, field).&quot;</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">((</span><span class="n">f</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="s2">&quot;ord&quot;</span><span class="p">],</span> <span class="n">f</span><span class="p">))</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">m</span><span class="p">[</span><span class="s2">&quot;flds&quot;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="ModelManager.fieldNames"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.fieldNames">[docs]</a>    <span class="k">def</span> <span class="nf">fieldNames</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">NoteType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">f</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">m</span><span class="p">[</span><span class="s2">&quot;flds&quot;</span><span class="p">]]</span></div>
+
+<div class="viewcode-block" id="ModelManager.sortIdx"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.sortIdx">[docs]</a>    <span class="k">def</span> <span class="nf">sortIdx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">NoteType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">m</span><span class="p">[</span><span class="s2">&quot;sortf&quot;</span><span class="p">]</span></div>
+
+    <span class="c1"># Adding &amp; changing fields</span>
+    <span class="c1">##################################################</span>
+
+<div class="viewcode-block" id="ModelManager.new_field"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.new_field">[docs]</a>    <span class="k">def</span> <span class="nf">new_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Field</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+        <span class="n">nt</span> <span class="o">=</span> <span class="n">from_json_bytes</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">get_stock_notetype_legacy</span><span class="p">(</span>
+                <span class="n">StockNoteType</span><span class="o">.</span><span class="n">STOCK_NOTE_TYPE_BASIC</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">field</span> <span class="o">=</span> <span class="n">nt</span><span class="p">[</span><span class="s2">&quot;flds&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">field</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="n">field</span><span class="p">[</span><span class="s2">&quot;ord&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">field</span></div>
+
+<div class="viewcode-block" id="ModelManager.add_field"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.add_field">[docs]</a>    <span class="k">def</span> <span class="nf">add_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">NoteType</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="n">Field</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Modifies schema.&quot;</span>
+        <span class="n">m</span><span class="p">[</span><span class="s2">&quot;flds&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">field</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ModelManager.remove_field"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.remove_field">[docs]</a>    <span class="k">def</span> <span class="nf">remove_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">NoteType</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="n">Field</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Modifies schema.&quot;</span>
+        <span class="n">m</span><span class="p">[</span><span class="s2">&quot;flds&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">field</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ModelManager.reposition_field"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.reposition_field">[docs]</a>    <span class="k">def</span> <span class="nf">reposition_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">NoteType</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="n">Field</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Modifies schema.&quot;</span>
+        <span class="n">oldidx</span> <span class="o">=</span> <span class="n">m</span><span class="p">[</span><span class="s2">&quot;flds&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">oldidx</span> <span class="o">==</span> <span class="n">idx</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">m</span><span class="p">[</span><span class="s2">&quot;flds&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
+        <span class="n">m</span><span class="p">[</span><span class="s2">&quot;flds&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ModelManager.rename_field"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.rename_field">[docs]</a>    <span class="k">def</span> <span class="nf">rename_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">NoteType</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="n">Field</span><span class="p">,</span> <span class="n">new_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">m</span><span class="p">[</span><span class="s2">&quot;flds&quot;</span><span class="p">]</span>
+        <span class="n">field</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_name</span></div>
+
+<div class="viewcode-block" id="ModelManager.set_sort_index"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.set_sort_index">[docs]</a>    <span class="k">def</span> <span class="nf">set_sort_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nt</span><span class="p">:</span> <span class="n">NoteType</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Modifies schema.&quot;</span>
+        <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">nt</span><span class="p">[</span><span class="s2">&quot;flds&quot;</span><span class="p">])</span>
+        <span class="n">nt</span><span class="p">[</span><span class="s2">&quot;sortf&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">idx</span></div>
+
+    <span class="c1"># legacy</span>
+
+    <span class="n">newField</span> <span class="o">=</span> <span class="n">new_field</span>
+
+<div class="viewcode-block" id="ModelManager.addField"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.addField">[docs]</a>    <span class="k">def</span> <span class="nf">addField</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">NoteType</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="n">Field</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_field</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">m</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">m</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ModelManager.remField"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.remField">[docs]</a>    <span class="k">def</span> <span class="nf">remField</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">NoteType</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="n">Field</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remove_field</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">m</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ModelManager.moveField"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.moveField">[docs]</a>    <span class="k">def</span> <span class="nf">moveField</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">NoteType</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="n">Field</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reposition_field</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">m</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ModelManager.renameField"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.renameField">[docs]</a>    <span class="k">def</span> <span class="nf">renameField</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">NoteType</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="n">Field</span><span class="p">,</span> <span class="n">newName</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rename_field</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">newName</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">m</span><span class="p">)</span></div>
+
+    <span class="c1"># Adding &amp; changing templates</span>
+    <span class="c1">##################################################</span>
+
+<div class="viewcode-block" id="ModelManager.new_template"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.new_template">[docs]</a>    <span class="k">def</span> <span class="nf">new_template</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Template</span><span class="p">:</span>
+        <span class="n">nt</span> <span class="o">=</span> <span class="n">from_json_bytes</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">get_stock_notetype_legacy</span><span class="p">(</span>
+                <span class="n">StockNoteType</span><span class="o">.</span><span class="n">STOCK_NOTE_TYPE_BASIC</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="n">nt</span><span class="p">[</span><span class="s2">&quot;tmpls&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">template</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="n">template</span><span class="p">[</span><span class="s2">&quot;qfmt&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">template</span><span class="p">[</span><span class="s2">&quot;afmt&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">template</span><span class="p">[</span><span class="s2">&quot;ord&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">template</span></div>
+
+<div class="viewcode-block" id="ModelManager.add_template"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.add_template">[docs]</a>    <span class="k">def</span> <span class="nf">add_template</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">NoteType</span><span class="p">,</span> <span class="n">template</span><span class="p">:</span> <span class="n">Template</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Modifies schema.&quot;</span>
+        <span class="n">m</span><span class="p">[</span><span class="s2">&quot;tmpls&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">template</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ModelManager.remove_template"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.remove_template">[docs]</a>    <span class="k">def</span> <span class="nf">remove_template</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">NoteType</span><span class="p">,</span> <span class="n">template</span><span class="p">:</span> <span class="n">Template</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Modifies schema.&quot;</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="s2">&quot;tmpls&quot;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span>
+        <span class="n">m</span><span class="p">[</span><span class="s2">&quot;tmpls&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">template</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ModelManager.reposition_template"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.reposition_template">[docs]</a>    <span class="k">def</span> <span class="nf">reposition_template</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">NoteType</span><span class="p">,</span> <span class="n">template</span><span class="p">:</span> <span class="n">Template</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Modifies schema.&quot;</span>
+        <span class="n">oldidx</span> <span class="o">=</span> <span class="n">m</span><span class="p">[</span><span class="s2">&quot;tmpls&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">template</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">oldidx</span> <span class="o">==</span> <span class="n">idx</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">m</span><span class="p">[</span><span class="s2">&quot;tmpls&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">template</span><span class="p">)</span>
+        <span class="n">m</span><span class="p">[</span><span class="s2">&quot;tmpls&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">template</span><span class="p">)</span></div>
+
+    <span class="c1"># legacy</span>
+
+    <span class="n">newTemplate</span> <span class="o">=</span> <span class="n">new_template</span>
+
+<div class="viewcode-block" id="ModelManager.addTemplate"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.addTemplate">[docs]</a>    <span class="k">def</span> <span class="nf">addTemplate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">NoteType</span><span class="p">,</span> <span class="n">template</span><span class="p">:</span> <span class="n">Template</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_template</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">template</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">m</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">m</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ModelManager.remTemplate"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.remTemplate">[docs]</a>    <span class="k">def</span> <span class="nf">remTemplate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">NoteType</span><span class="p">,</span> <span class="n">template</span><span class="p">:</span> <span class="n">Template</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remove_template</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">template</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">m</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ModelManager.moveTemplate"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.moveTemplate">[docs]</a>    <span class="k">def</span> <span class="nf">moveTemplate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">NoteType</span><span class="p">,</span> <span class="n">template</span><span class="p">:</span> <span class="n">Template</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reposition_template</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">template</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">m</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ModelManager.template_use_count"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.template_use_count">[docs]</a>    <span class="k">def</span> <span class="nf">template_use_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ntid</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">ord</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">select count() from cards, notes where cards.nid = notes.id</span>
+<span class="sd">and notes.mid = ? and cards.ord = ?&quot;&quot;&quot;</span><span class="p">,</span>
+            <span class="n">ntid</span><span class="p">,</span>
+            <span class="nb">ord</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+    <span class="c1"># Model changing</span>
+    <span class="c1">##########################################################################</span>
+    <span class="c1"># - maps are ord-&gt;ord, and there should not be duplicate targets</span>
+    <span class="c1"># - newModel should be self if model is not changing</span>
+
+<div class="viewcode-block" id="ModelManager.change"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.change">[docs]</a>    <span class="k">def</span> <span class="nf">change</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">NoteType</span><span class="p">,</span> <span class="n">nids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">newModel</span><span class="p">:</span> <span class="n">NoteType</span><span class="p">,</span> <span class="n">fmap</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">cmap</span><span class="p">:</span> <span class="n">Any</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">modSchema</span><span class="p">(</span><span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">newModel</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">m</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="p">(</span><span class="n">fmap</span> <span class="ow">and</span> <span class="n">cmap</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fmap</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_changeNotes</span><span class="p">(</span><span class="n">nids</span><span class="p">,</span> <span class="n">newModel</span><span class="p">,</span> <span class="n">fmap</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cmap</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_changeCards</span><span class="p">(</span><span class="n">nids</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">newModel</span><span class="p">,</span> <span class="n">cmap</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">after_note_updates</span><span class="p">(</span><span class="n">nids</span><span class="p">,</span> <span class="n">mark_modified</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_changeNotes</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">nids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">newModel</span><span class="p">:</span> <span class="n">NoteType</span><span class="p">,</span> <span class="nb">map</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">nfields</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">newModel</span><span class="p">[</span><span class="s2">&quot;flds&quot;</span><span class="p">])</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">nid</span><span class="p">,</span> <span class="n">flds</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="s2">&quot;select id, flds from notes where id in &quot;</span> <span class="o">+</span> <span class="n">ids2str</span><span class="p">(</span><span class="n">nids</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="n">newflds</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">flds</span> <span class="o">=</span> <span class="n">splitFields</span><span class="p">(</span><span class="n">flds</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">old</span><span class="p">,</span> <span class="n">new</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+                <span class="n">newflds</span><span class="p">[</span><span class="n">new</span><span class="p">]</span> <span class="o">=</span> <span class="n">flds</span><span class="p">[</span><span class="n">old</span><span class="p">]</span>
+            <span class="n">flds</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nfields</span><span class="p">):</span>
+                <span class="n">flds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">newflds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+            <span class="n">flds</span> <span class="o">=</span> <span class="n">joinFields</span><span class="p">(</span><span class="n">flds</span><span class="p">)</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">flds</span><span class="p">,</span> <span class="n">newModel</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span> <span class="n">intTime</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">usn</span><span class="p">(),</span> <span class="n">nid</span><span class="p">,))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span>
+            <span class="s2">&quot;update notes set flds=?,mid=?,mod=?,usn=? where id = ?&quot;</span><span class="p">,</span> <span class="n">d</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_changeCards</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">nids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+        <span class="n">oldModel</span><span class="p">:</span> <span class="n">NoteType</span><span class="p">,</span>
+        <span class="n">newModel</span><span class="p">:</span> <span class="n">NoteType</span><span class="p">,</span>
+        <span class="nb">map</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">deleted</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">cid</span><span class="p">,</span> <span class="nb">ord</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="s2">&quot;select id, ord from cards where nid in &quot;</span> <span class="o">+</span> <span class="n">ids2str</span><span class="p">(</span><span class="n">nids</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="c1"># if the src model is a cloze, we ignore the map, as the gui</span>
+            <span class="c1"># doesn&#39;t currently support mapping them</span>
+            <span class="k">if</span> <span class="n">oldModel</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">MODEL_CLOZE</span><span class="p">:</span>
+                <span class="n">new</span> <span class="o">=</span> <span class="nb">ord</span>
+                <span class="k">if</span> <span class="n">newModel</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">MODEL_CLOZE</span><span class="p">:</span>
+                    <span class="c1"># if we&#39;re mapping to a regular note, we need to check if</span>
+                    <span class="c1"># the destination ord is valid</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">newModel</span><span class="p">[</span><span class="s2">&quot;tmpls&quot;</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="nb">ord</span><span class="p">:</span>
+                        <span class="n">new</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># mapping from a regular note, so the map should be valid</span>
+                <span class="n">new</span> <span class="o">=</span> <span class="nb">map</span><span class="p">[</span><span class="nb">ord</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">new</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">d</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">new</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">usn</span><span class="p">(),</span> <span class="n">intTime</span><span class="p">(),</span> <span class="n">cid</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">deleted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span><span class="s2">&quot;update cards set ord=?,usn=?,mod=? where id=?&quot;</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">remove_cards_and_orphaned_notes</span><span class="p">(</span><span class="n">deleted</span><span class="p">)</span>
+
+    <span class="c1"># Schema hash</span>
+    <span class="c1">##########################################################################</span>
+
+<div class="viewcode-block" id="ModelManager.scmhash"><a class="viewcode-back" href="../../anki.html#anki.models.ModelManager.scmhash">[docs]</a>    <span class="k">def</span> <span class="nf">scmhash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">NoteType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="s2">&quot;Return a hash of the schema, to see if models are compatible.&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">m</span><span class="p">[</span><span class="s2">&quot;flds&quot;</span><span class="p">]:</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="n">f</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">m</span><span class="p">[</span><span class="s2">&quot;tmpls&quot;</span><span class="p">]:</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">checksum</span><span class="p">(</span><span class="n">s</span><span class="p">)</span></div>
+
+    <span class="c1"># Cloze</span>
+    <span class="c1">##########################################################################</span>
+
+    <span class="k">def</span> <span class="nf">_availClozeOrds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="n">NoteType</span><span class="p">,</span> <span class="n">flds</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">allowEmpty</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;_availClozeOrds() is deprecated; use note.cloze_numbers_in_fields()&quot;</span><span class="p">)</span>
+        <span class="n">note</span> <span class="o">=</span> <span class="n">anki</span><span class="o">.</span><span class="n">rsbackend</span><span class="o">.</span><span class="n">BackendNote</span><span class="p">(</span><span class="n">fields</span><span class="o">=</span><span class="p">[</span><span class="n">flds</span><span class="p">])</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">cloze_numbers_in_note</span><span class="p">(</span><span class="n">note</span><span class="p">))</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Abdelrahman Hamdy
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,694 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>anki.importing.supermemo_xml &mdash; Anki  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+        <script async="async" kind="hypothesis" src="https://hypothes.is/embed.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home" alt="Documentation Home"> Anki
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../anki.html">anki package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../anki.importing.html">anki.importing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../aqt.html">aqt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../genhooks_gui.html">genhooks_gui module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tools.html">tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Anki</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>anki.importing.supermemo_xml</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for anki.importing.supermemo_xml</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright: petr.michalec@gmail.com</span>
+<span class="c1"># License: GNU GPL, version 3 or later; http://www.gnu.org/licenses/agpl.html</span>
+<span class="c1"># pytype: disable=attribute-error</span>
+<span class="c1"># type: ignore</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">unicodedata</span>
+<span class="kn">from</span> <span class="nn">string</span> <span class="kn">import</span> <span class="n">capwords</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">xml.dom</span> <span class="kn">import</span> <span class="n">minidom</span>
+<span class="kn">from</span> <span class="nn">xml.dom.minidom</span> <span class="kn">import</span> <span class="n">Element</span><span class="p">,</span> <span class="n">Text</span>
+
+<span class="kn">from</span> <span class="nn">anki.collection</span> <span class="kn">import</span> <span class="n">Collection</span>
+<span class="kn">from</span> <span class="nn">anki.importing.noteimp</span> <span class="kn">import</span> <span class="n">ForeignCard</span><span class="p">,</span> <span class="n">ForeignNote</span><span class="p">,</span> <span class="n">NoteImporter</span>
+<span class="kn">from</span> <span class="nn">anki.lang</span> <span class="kn">import</span> <span class="n">_</span><span class="p">,</span> <span class="n">ngettext</span>
+<span class="kn">from</span> <span class="nn">anki.stdmodels</span> <span class="kn">import</span> <span class="n">addBasicModel</span>
+
+
+<div class="viewcode-block" id="SmartDict"><a class="viewcode-back" href="../../../anki.importing.html#anki.importing.supermemo_xml.SmartDict">[docs]</a><span class="k">class</span> <span class="nc">SmartDict</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    See http://www.peterbe.com/plog/SmartDict</span>
+<span class="sd">    Copyright 2005, Peter Bengtsson, peter@fry-it.com</span>
+
+<span class="sd">    A smart dict can be instanciated either from a pythonic dict</span>
+<span class="sd">    or an instance object (eg. SQL recordsets) but it ensures that you can</span>
+<span class="sd">    do all the convenient lookups such as x.first_name, x[&#39;first_name&#39;] or</span>
+<span class="sd">    x.get(&#39;first_name&#39;).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">a</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">kw</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">object</span><span class="p">):</span>
+                <span class="n">kw</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;__class__&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;SmartDict&quot;</span><span class="p">:</span>
+                <span class="n">kw</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+
+        <span class="nb">dict</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span> <span class="o">=</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="SuperMemoElement"><a class="viewcode-back" href="../../../anki.importing.html#anki.importing.supermemo_xml.SuperMemoElement">[docs]</a><span class="k">class</span> <span class="nc">SuperMemoElement</span><span class="p">(</span><span class="n">SmartDict</span><span class="p">):</span>
+    <span class="s2">&quot;SmartDict wrapper to store SM Element data&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">SmartDict</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+        <span class="c1"># default content</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;lTitle&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;Title&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;Question&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;Answer&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;Count&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;Type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;Interval&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;Lapses&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;Repetitions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;LastRepetiton&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;AFactor&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;UFactor&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+<span class="c1"># This is an AnkiImporter</span>
+<div class="viewcode-block" id="SupermemoXmlImporter"><a class="viewcode-back" href="../../../anki.importing.html#anki.importing.supermemo_xml.SupermemoXmlImporter">[docs]</a><span class="k">class</span> <span class="nc">SupermemoXmlImporter</span><span class="p">(</span><span class="n">NoteImporter</span><span class="p">):</span>
+
+    <span class="n">needMapper</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">allowHTML</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Supermemo XML export&#39;s to Anki parser.</span>
+<span class="sd">    Goes through a SM collection and fetch all elements.</span>
+
+<span class="sd">    My SM collection was a big mess where topics and items were mixed.</span>
+<span class="sd">    I was unable to parse my content in a regular way like for loop on</span>
+<span class="sd">    minidom.getElementsByTagName() etc. My collection had also an</span>
+<span class="sd">    limitation, topics were splited into branches with max 100 items</span>
+<span class="sd">    on each. Learning themes were in deep structure. I wanted to have</span>
+<span class="sd">    full title on each element to be stored in tags.</span>
+
+<span class="sd">    Code should be upgrade to support importing of SM2006 exports.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">:</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Initialize internal varables.</span>
+<span class="sd">        Pameters to be exposed to GUI are stored in self.META&quot;&quot;&quot;</span>
+        <span class="n">NoteImporter</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">addBasicModel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="p">)</span>
+        <span class="n">m</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Supermemo&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initMapping</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lines</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">numFields</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="c1"># SmXmlParse VARIABLES</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xmldoc</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pieces</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cntBuf</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># to store last parsed data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cntElm</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># to store SM Elements data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cntCol</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># to store SM Colections data</span>
+
+        <span class="c1"># store some meta info related to parse algorithm</span>
+        <span class="c1"># SmartDict works like dict / class wrapper</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cntMeta</span> <span class="o">=</span> <span class="n">SmartDict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cntMeta</span><span class="o">.</span><span class="n">popTitles</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cntMeta</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># META stores controls of import scritp, should be</span>
+        <span class="c1"># exposed to import dialog. These are default values.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">META</span> <span class="o">=</span> <span class="n">SmartDict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">META</span><span class="o">.</span><span class="n">resetLearningData</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># implemented</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">META</span><span class="o">.</span><span class="n">onlyMemorizedItems</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># implemented</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">META</span><span class="o">.</span><span class="n">loggerLevel</span> <span class="o">=</span> <span class="mi">2</span>  <span class="c1"># implemented 0no,1info,2error,3debug</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">META</span><span class="o">.</span><span class="n">tagAllTopics</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">META</span><span class="o">.</span><span class="n">pathsToBeTagged</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;English for begginers&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Advanced English 97&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Phrasal Verbs&quot;</span><span class="p">,</span>
+        <span class="p">]</span>  <span class="c1"># path patterns to be tagged - in gui entered like &#39;Advanced English 97|My Vocablary&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">META</span><span class="o">.</span><span class="n">tagMemorizedItems</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># implemented</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">META</span><span class="o">.</span><span class="n">logToStdOutput</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># implemented</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">notes</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1">## TOOLS</span>
+
+    <span class="k">def</span> <span class="nf">_fudgeText</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="s2">&quot;Replace sm syntax to Anki syntax&quot;</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;br&gt;&quot;</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;br&gt;&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">text</span>
+
+    <span class="k">def</span> <span class="nf">_unicode2ascii</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">str</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="s2">&quot;Remove diacritic punctuation from strings (titles)&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">c</span>
+                <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">unicodedata</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="s2">&quot;NFKD&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">unicodedata</span><span class="o">.</span><span class="n">combining</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_decode_htmlescapes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">html</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Unescape HTML code.&quot;&quot;&quot;</span>
+        <span class="c1"># In case of bad formated html you can import MinimalSoup etc.. see BeautifulSoup source code</span>
+        <span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
+
+        <span class="c1"># my sm2004 also ecaped &amp; char in escaped sequences.</span>
+        <span class="n">html</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;&amp;amp;&quot;</span><span class="p">,</span> <span class="s2">&quot;&amp;&quot;</span><span class="p">,</span> <span class="n">html</span><span class="p">)</span>
+
+        <span class="c1"># https://anki.tenderapp.com/discussions/ankidesktop/39543-anki-is-replacing-the-character-by-when-i-exit-the-html-edit-mode-ctrlshiftx</span>
+        <span class="k">if</span> <span class="n">html</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;&gt;&quot;</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">html</span>
+
+        <span class="c1"># unescaped solitary chars &lt; or &gt; that were ok for minidom confuse btfl soup</span>
+        <span class="c1"># html = re.sub(u&#39;&gt;&#39;,u&#39;&amp;gt;&#39;,html)</span>
+        <span class="c1"># html = re.sub(u&#39;&lt;&#39;,u&#39;&amp;lt;&#39;,html)</span>
+
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">html</span><span class="p">,</span> <span class="s2">&quot;html.parser&quot;</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_afactor2efactor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">af</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="c1"># Adapted from &lt;http://www.supermemo.com/beta/xml/xml-core.htm&gt;</span>
+
+        <span class="c1"># Ranges for A-factors and E-factors</span>
+        <span class="n">af_min</span> <span class="o">=</span> <span class="mf">1.2</span>
+        <span class="n">af_max</span> <span class="o">=</span> <span class="mf">6.9</span>
+        <span class="n">ef_min</span> <span class="o">=</span> <span class="mf">1.3</span>
+        <span class="n">ef_max</span> <span class="o">=</span> <span class="mf">3.3</span>
+
+        <span class="c1"># Sanity checks for the A-factor</span>
+        <span class="k">if</span> <span class="n">af</span> <span class="o">&lt;</span> <span class="n">af_min</span><span class="p">:</span>
+            <span class="n">af</span> <span class="o">=</span> <span class="n">af_min</span>
+        <span class="k">elif</span> <span class="n">af</span> <span class="o">&gt;</span> <span class="n">af_max</span><span class="p">:</span>
+            <span class="n">af</span> <span class="o">=</span> <span class="n">af_max</span>
+
+        <span class="c1"># Scale af to the range 0..1</span>
+        <span class="n">af_scaled</span> <span class="o">=</span> <span class="p">(</span><span class="n">af</span> <span class="o">-</span> <span class="n">af_min</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">af_max</span> <span class="o">-</span> <span class="n">af_min</span><span class="p">)</span>
+        <span class="c1"># Rescale to the interval ef_min..ef_max</span>
+        <span class="n">ef</span> <span class="o">=</span> <span class="n">ef_min</span> <span class="o">+</span> <span class="n">af_scaled</span> <span class="o">*</span> <span class="p">(</span><span class="n">ef_max</span> <span class="o">-</span> <span class="n">ef_min</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ef</span>
+
+    <span class="c1">## DEFAULT IMPORTER METHODS</span>
+
+<div class="viewcode-block" id="SupermemoXmlImporter.foreignNotes"><a class="viewcode-back" href="../../../anki.importing.html#anki.importing.supermemo_xml.SupermemoXmlImporter.foreignNotes">[docs]</a>    <span class="k">def</span> <span class="nf">foreignNotes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ForeignNote</span><span class="p">]:</span>
+
+        <span class="c1"># Load file and parse it by minidom</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loadSource</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="p">)</span>
+
+        <span class="c1"># Migrating content / time consuming part</span>
+        <span class="c1"># addItemToCards is called for each sm element</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">(</span><span class="s2">&quot;Parsing started.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">(</span><span class="s2">&quot;Parsing done.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Return imported cards</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">notes</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">ngettext</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> card imported.&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> cards imported.&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">total</span><span class="p">)</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">total</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">notes</span></div>
+
+<div class="viewcode-block" id="SupermemoXmlImporter.fields"><a class="viewcode-back" href="../../../anki.importing.html#anki.importing.supermemo_xml.SupermemoXmlImporter.fields">[docs]</a>    <span class="k">def</span> <span class="nf">fields</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">2</span></div>
+
+    <span class="c1">## PARSER METHODS</span>
+
+<div class="viewcode-block" id="SupermemoXmlImporter.addItemToCards"><a class="viewcode-back" href="../../../anki.importing.html#anki.importing.supermemo_xml.SupermemoXmlImporter.addItemToCards">[docs]</a>    <span class="k">def</span> <span class="nf">addItemToCards</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="n">SuperMemoElement</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;This method actually do conversion&quot;</span>
+
+        <span class="c1"># new anki card</span>
+        <span class="n">note</span> <span class="o">=</span> <span class="n">ForeignNote</span><span class="p">()</span>
+
+        <span class="c1"># clean Q and A</span>
+        <span class="n">note</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fudgeText</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_decode_htmlescapes</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">Question</span><span class="p">)))</span>
+        <span class="n">note</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fudgeText</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_decode_htmlescapes</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">Answer</span><span class="p">)))</span>
+        <span class="n">note</span><span class="o">.</span><span class="n">tags</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># pre-process scheduling data</span>
+        <span class="c1"># convert learning data</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">META</span><span class="o">.</span><span class="n">resetLearningData</span>
+            <span class="ow">and</span> <span class="nb">int</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">Interval</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span>
+            <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="s2">&quot;LastRepetition&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="c1"># migration of LearningData algorithm</span>
+            <span class="n">tLastrep</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">mktime</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">LastRepetition</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">.%m.%Y&quot;</span><span class="p">))</span>
+            <span class="n">tToday</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="n">card</span> <span class="o">=</span> <span class="n">ForeignCard</span><span class="p">()</span>
+            <span class="n">card</span><span class="o">.</span><span class="n">ivl</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">Interval</span><span class="p">)</span>
+            <span class="n">card</span><span class="o">.</span><span class="n">lapses</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">Lapses</span><span class="p">)</span>
+            <span class="n">card</span><span class="o">.</span><span class="n">reps</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">Repetitions</span><span class="p">)</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">Lapses</span><span class="p">)</span>
+            <span class="n">nextDue</span> <span class="o">=</span> <span class="n">tLastrep</span> <span class="o">+</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">Interval</span><span class="p">)</span> <span class="o">*</span> <span class="mf">86400.0</span><span class="p">)</span>
+            <span class="n">remDays</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">nextDue</span> <span class="o">-</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span> <span class="o">/</span> <span class="mi">86400</span><span class="p">)</span>
+            <span class="n">card</span><span class="o">.</span><span class="n">due</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">today</span> <span class="o">+</span> <span class="n">remDays</span>
+            <span class="n">card</span><span class="o">.</span><span class="n">factor</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_afactor2efactor</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">AFactor</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span><span class="p">)))</span> <span class="o">*</span> <span class="mi">1000</span>
+            <span class="p">)</span>
+            <span class="n">note</span><span class="o">.</span><span class="n">cards</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">card</span>
+
+        <span class="c1"># categories &amp; tags</span>
+        <span class="c1"># it&#39;s worth to have every theme (tree structure of sm collection) stored in tags, but sometimes not</span>
+        <span class="c1"># you can deceide if you are going to tag all toppics or just that containing some pattern</span>
+        <span class="n">tTaggTitle</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">META</span><span class="o">.</span><span class="n">pathsToBeTagged</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">item</span><span class="o">.</span><span class="n">lTitle</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="ow">and</span> <span class="n">pattern</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">lTitle</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="p">):</span>
+                <span class="n">tTaggTitle</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">break</span>
+        <span class="k">if</span> <span class="n">tTaggTitle</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">META</span><span class="o">.</span><span class="n">tagAllTopics</span><span class="p">:</span>
+            <span class="c1"># normalize - remove diacritic punctuation from unicode chars to ascii</span>
+            <span class="n">item</span><span class="o">.</span><span class="n">lTitle</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_unicode2ascii</span><span class="p">(</span><span class="n">topic</span><span class="p">)</span> <span class="k">for</span> <span class="n">topic</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">lTitle</span><span class="p">]</span>
+
+            <span class="c1"># Transfrom xyz / aaa / bbb / ccc on Title path to Tag  xyzAaaBbbCcc</span>
+            <span class="c1">#  clean things like [999] or [111-2222] from title path, example: xyz / [1000-1200] zyx / xyz</span>
+            <span class="c1">#  clean whitespaces</span>
+            <span class="c1">#  set Capital letters for first char of the word</span>
+            <span class="n">tmp</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+                <span class="nb">set</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(\[[0-9]+\])&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">lTitle</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">tmp</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(\W)&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">tmp</span><span class="p">]))</span>
+            <span class="n">tmp</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;^[0-9 ]+$&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">tmp</span><span class="p">]))</span>
+            <span class="n">tmp</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">capwords</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">tmp</span><span class="p">]))</span>
+            <span class="n">tags</span> <span class="o">=</span> <span class="p">[</span><span class="n">j</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">+</span> <span class="n">j</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">tmp</span> <span class="k">if</span> <span class="n">j</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">]</span>
+
+            <span class="n">note</span><span class="o">.</span><span class="n">tags</span> <span class="o">+=</span> <span class="n">tags</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">META</span><span class="o">.</span><span class="n">tagMemorizedItems</span> <span class="ow">and</span> <span class="nb">int</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">Interval</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">note</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Memorized&quot;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">(</span><span class="s2">&quot;Element tags</span><span class="se">\t</span><span class="s2">- &quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">note</span><span class="o">.</span><span class="n">tags</span><span class="p">),</span> <span class="n">level</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">notes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">note</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SupermemoXmlImporter.logger"><a class="viewcode-back" href="../../../anki.importing.html#anki.importing.supermemo_xml.SupermemoXmlImporter.logger">[docs]</a>    <span class="k">def</span> <span class="nf">logger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Wrapper for Anki logger&quot;</span>
+
+        <span class="n">dLevels</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;Info&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;Verbose&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="s2">&quot;Debug&quot;</span><span class="p">}</span>
+        <span class="k">if</span> <span class="n">level</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">META</span><span class="o">.</span><span class="n">loggerLevel</span><span class="p">:</span>
+            <span class="c1"># self.deck.updateProgress(_(text))</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">META</span><span class="o">.</span><span class="n">logToStdOutput</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+                    <span class="o">+</span> <span class="s2">&quot; - &quot;</span>
+                    <span class="o">+</span> <span class="n">dLevels</span><span class="p">[</span><span class="n">level</span><span class="p">]</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span>
+                    <span class="o">+</span> <span class="s2">&quot; -</span><span class="se">\t</span><span class="s2">&quot;</span>
+                    <span class="o">+</span> <span class="n">_</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+                <span class="p">)</span></div>
+
+    <span class="c1"># OPEN AND LOAD</span>
+<div class="viewcode-block" id="SupermemoXmlImporter.openAnything"><a class="viewcode-back" href="../../../anki.importing.html#anki.importing.supermemo_xml.SupermemoXmlImporter.openAnything">[docs]</a>    <span class="k">def</span> <span class="nf">openAnything</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Open any source / actually only opening of files is used</span>
+<span class="sd">        @return an open handle which must be closed after use, i.e., handle.close()&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">source</span> <span class="o">==</span> <span class="s2">&quot;-&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdin</span>
+
+        <span class="c1"># try to open with urllib (if source is http, ftp, or file URL)</span>
+        <span class="kn">import</span> <span class="nn">urllib.request</span><span class="o">,</span> <span class="nn">urllib.parse</span><span class="o">,</span> <span class="nn">urllib.error</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">IOError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">):</span>
+            <span class="k">pass</span>
+
+        <span class="c1"># try to open with native open function (if source is pathname)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">open</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">IOError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">):</span>
+            <span class="k">pass</span>
+
+        <span class="c1"># treat source as string</span>
+        <span class="kn">import</span> <span class="nn">io</span>
+
+        <span class="k">return</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">source</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="SupermemoXmlImporter.loadSource"><a class="viewcode-back" href="../../../anki.importing.html#anki.importing.supermemo_xml.SupermemoXmlImporter.loadSource">[docs]</a>    <span class="k">def</span> <span class="nf">loadSource</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Load source file and parse with xml.dom.minidom&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="n">source</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">(</span><span class="s2">&quot;Load started...&quot;</span><span class="p">)</span>
+        <span class="n">sock</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xmldoc</span> <span class="o">=</span> <span class="n">minidom</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">sock</span><span class="p">)</span><span class="o">.</span><span class="n">documentElement</span>
+        <span class="n">sock</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">(</span><span class="s2">&quot;Load done.&quot;</span><span class="p">)</span></div>
+
+    <span class="c1"># PARSE</span>
+<div class="viewcode-block" id="SupermemoXmlImporter.parse"><a class="viewcode-back" href="../../../anki.importing.html#anki.importing.supermemo_xml.SupermemoXmlImporter.parse">[docs]</a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Text</span><span class="p">,</span> <span class="n">Element</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Parse method - parses document elements&quot;</span>
+
+        <span class="k">if</span> <span class="n">node</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmldoc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmldoc</span>
+
+        <span class="n">_method</span> <span class="o">=</span> <span class="s2">&quot;parse_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">node</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_method</span><span class="p">):</span>
+            <span class="n">parseMethod</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_method</span><span class="p">)</span>
+            <span class="n">parseMethod</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">(</span><span class="s2">&quot;No handler for method </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">_method</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SupermemoXmlImporter.parse_Document"><a class="viewcode-back" href="../../../anki.importing.html#anki.importing.supermemo_xml.SupermemoXmlImporter.parse_Document">[docs]</a>    <span class="k">def</span> <span class="nf">parse_Document</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="s2">&quot;Parse XML document&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">documentElement</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SupermemoXmlImporter.parse_Element"><a class="viewcode-back" href="../../../anki.importing.html#anki.importing.supermemo_xml.SupermemoXmlImporter.parse_Element">[docs]</a>    <span class="k">def</span> <span class="nf">parse_Element</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Parse XML element&quot;</span>
+
+        <span class="n">_method</span> <span class="o">=</span> <span class="s2">&quot;do_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">node</span><span class="o">.</span><span class="n">tagName</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_method</span><span class="p">):</span>
+            <span class="n">handlerMethod</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_method</span><span class="p">)</span>
+            <span class="n">handlerMethod</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">(</span><span class="s2">&quot;No handler for method </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">_method</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span></div>
+            <span class="c1"># print traceback.print_exc()</span>
+
+<div class="viewcode-block" id="SupermemoXmlImporter.parse_Text"><a class="viewcode-back" href="../../../anki.importing.html#anki.importing.supermemo_xml.SupermemoXmlImporter.parse_Text">[docs]</a>    <span class="k">def</span> <span class="nf">parse_Text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Text</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Parse text inside elements. Text is stored into local buffer.&quot;</span>
+
+        <span class="n">text</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cntBuf</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">text</span><span class="p">)</span></div>
+
+    <span class="c1"># def parse_Comment(self, node):</span>
+    <span class="c1">#    &quot;&quot;&quot;</span>
+    <span class="c1">#    Source can contain XML comments, but we ignore them</span>
+    <span class="c1">#    &quot;&quot;&quot;</span>
+    <span class="c1">#    pass</span>
+
+    <span class="c1"># DO</span>
+<div class="viewcode-block" id="SupermemoXmlImporter.do_SuperMemoCollection"><a class="viewcode-back" href="../../../anki.importing.html#anki.importing.supermemo_xml.SupermemoXmlImporter.do_SuperMemoCollection">[docs]</a>    <span class="k">def</span> <span class="nf">do_SuperMemoCollection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Process SM Collection&quot;</span>
+
+        <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">childNodes</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">child</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SupermemoXmlImporter.do_SuperMemoElement"><a class="viewcode-back" href="../../../anki.importing.html#anki.importing.supermemo_xml.SupermemoXmlImporter.do_SuperMemoElement">[docs]</a>    <span class="k">def</span> <span class="nf">do_SuperMemoElement</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Process SM Element (Type - Title,Topics)&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">45</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cntElm</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">SuperMemoElement</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cntElm</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;lTitle&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cntMeta</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span>
+
+        <span class="c1"># parse all child elements</span>
+        <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">childNodes</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+
+        <span class="c1"># strip all saved strings, just for sure</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cntElm</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cntElm</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">key</span><span class="p">],</span> <span class="s2">&quot;strip&quot;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cntElm</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cntElm</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+        <span class="c1"># pop current element</span>
+        <span class="n">smel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cntElm</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+
+        <span class="c1"># Process cntElm if is valid Item (and not an Topic etc..)</span>
+        <span class="c1"># if smel.Lapses != None and smel.Interval != None and smel.Question != None and smel.Answer != None:</span>
+        <span class="k">if</span> <span class="n">smel</span><span class="o">.</span><span class="n">Title</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">smel</span><span class="o">.</span><span class="n">Question</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">smel</span><span class="o">.</span><span class="n">Answer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">smel</span><span class="o">.</span><span class="n">Answer</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span> <span class="ow">and</span> <span class="n">smel</span><span class="o">.</span><span class="n">Question</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+
+                <span class="c1"># migrate only memorized otherway skip/continue</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">META</span><span class="o">.</span><span class="n">onlyMemorizedItems</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">smel</span><span class="o">.</span><span class="n">Interval</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">(</span><span class="s2">&quot;Element skiped  </span><span class="se">\t</span><span class="s2">- not memorized ...&quot;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># import sm element data to Anki</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">addItemToCards</span><span class="p">(</span><span class="n">smel</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">(</span><span class="s2">&quot;Import element </span><span class="se">\t</span><span class="s2">- &quot;</span> <span class="o">+</span> <span class="n">smel</span><span class="p">[</span><span class="s2">&quot;Question&quot;</span><span class="p">],</span> <span class="n">level</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+                    <span class="c1"># print element</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">45</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">smel</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">(</span>
+                            <span class="s2">&quot;</span><span class="se">\t</span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">((</span><span class="n">key</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">15</span><span class="p">),</span> <span class="n">smel</span><span class="p">[</span><span class="n">key</span><span class="p">]),</span> <span class="n">level</span><span class="o">=</span><span class="mi">3</span>
+                        <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">(</span><span class="s2">&quot;Element skiped  </span><span class="se">\t</span><span class="s2">- no valid Q and A ...&quot;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># now we know that item was topic</span>
+            <span class="c1"># parseing of whole node is now finished</span>
+
+            <span class="c1"># test if it&#39;s really topic</span>
+            <span class="k">if</span> <span class="n">smel</span><span class="o">.</span><span class="n">Title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># remove topic from title list</span>
+                <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cntMeta</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">(</span><span class="s2">&quot;End of topic </span><span class="se">\t</span><span class="s2">- </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="n">level</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SupermemoXmlImporter.do_Content"><a class="viewcode-back" href="../../../anki.importing.html#anki.importing.supermemo_xml.SupermemoXmlImporter.do_Content">[docs]</a>    <span class="k">def</span> <span class="nf">do_Content</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Process SM element Content&quot;</span>
+
+        <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">childNodes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="s2">&quot;tagName&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">child</span><span class="o">.</span><span class="n">firstChild</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cntElm</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">child</span><span class="o">.</span><span class="n">tagName</span><span class="p">]</span> <span class="o">=</span> <span class="n">child</span><span class="o">.</span><span class="n">firstChild</span><span class="o">.</span><span class="n">data</span></div>
+
+<div class="viewcode-block" id="SupermemoXmlImporter.do_LearningData"><a class="viewcode-back" href="../../../anki.importing.html#anki.importing.supermemo_xml.SupermemoXmlImporter.do_LearningData">[docs]</a>    <span class="k">def</span> <span class="nf">do_LearningData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Process SM element LearningData&quot;</span>
+
+        <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">childNodes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="s2">&quot;tagName&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">child</span><span class="o">.</span><span class="n">firstChild</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cntElm</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">child</span><span class="o">.</span><span class="n">tagName</span><span class="p">]</span> <span class="o">=</span> <span class="n">child</span><span class="o">.</span><span class="n">firstChild</span><span class="o">.</span><span class="n">data</span></div>
+
+    <span class="c1"># It&#39;s being processed in do_Content now</span>
+    <span class="c1"># def do_Question(self, node):</span>
+    <span class="c1">#    for child in node.childNodes: self.parse(child)</span>
+    <span class="c1">#    self.cntElm[-1][node.tagName]=self.cntBuf.pop()</span>
+
+    <span class="c1"># It&#39;s being processed in do_Content now</span>
+    <span class="c1"># def do_Answer(self, node):</span>
+    <span class="c1">#    for child in node.childNodes: self.parse(child)</span>
+    <span class="c1">#    self.cntElm[-1][node.tagName]=self.cntBuf.pop()</span>
+
+<div class="viewcode-block" id="SupermemoXmlImporter.do_Title"><a class="viewcode-back" href="../../../anki.importing.html#anki.importing.supermemo_xml.SupermemoXmlImporter.do_Title">[docs]</a>    <span class="k">def</span> <span class="nf">do_Title</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Process SM element Title&quot;</span>
+
+        <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decode_htmlescapes</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">firstChild</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cntElm</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">node</span><span class="o">.</span><span class="n">tagName</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cntMeta</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cntElm</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;lTitle&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cntMeta</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">(</span><span class="s2">&quot;Start of topic </span><span class="se">\t</span><span class="s2">- &quot;</span> <span class="o">+</span> <span class="s2">&quot; / &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cntMeta</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]),</span> <span class="n">level</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SupermemoXmlImporter.do_Type"><a class="viewcode-back" href="../../../anki.importing.html#anki.importing.supermemo_xml.SupermemoXmlImporter.do_Type">[docs]</a>    <span class="k">def</span> <span class="nf">do_Type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Process SM element Type&quot;</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cntBuf</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cntElm</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">node</span><span class="o">.</span><span class="n">tagName</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cntBuf</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span></div></div>
+
+
+<span class="c1"># if __name__ == &#39;__main__&#39;:</span>
+
+<span class="c1"># for testing you can start it standalone</span>
+
+<span class="c1"># file = u&#39;/home/epcim/hg2g/dev/python/sm2anki/ADVENG2EXP.xxe.esc.zaloha_FINAL.xml&#39;</span>
+<span class="c1"># file = u&#39;/home/epcim/hg2g/dev/python/anki/libanki/tests/importing/supermemo/original_ENGLISHFORBEGGINERS_noOEM.xml&#39;</span>
+<span class="c1"># file = u&#39;/home/epcim/hg2g/dev/python/anki/libanki/tests/importing/supermemo/original_ENGLISHFORBEGGINERS_oem_1250.xml&#39;</span>
+<span class="c1"># file = str(sys.argv[1])</span>
+<span class="c1"># impo = SupermemoXmlImporter(Deck(),file)</span>
+<span class="c1"># impo.foreignCards()</span>
+
+<span class="c1"># sys.exit(1)</span>
+
+<span class="c1"># vim: ts=4 sts=2 ft=python</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Abdelrahman Hamdy
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,783 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>anki.importing package &mdash; Anki  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" kind="hypothesis" src="https://hypothes.is/embed.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="aqt package" href="aqt.html" />
+    <link rel="prev" title="anki package" href="anki.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> Anki
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="anki.html">anki package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">anki.importing package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-anki.importing.anki2">anki.importing.anki2 module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-anki.importing.apkg">anki.importing.apkg module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-anki.importing.base">anki.importing.base module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-anki.importing.csvfile">anki.importing.csvfile module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-anki.importing.mnemo">anki.importing.mnemo module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-anki.importing.noteimp">anki.importing.noteimp module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-anki.importing.pauker">anki.importing.pauker module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-anki.importing.supermemo_xml">anki.importing.supermemo_xml module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-anki.importing">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="aqt.html">aqt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="genhooks_gui.html">genhooks_gui module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tools.html">tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Anki</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>anki.importing package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/anki.importing.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="anki-importing-package">
+<h1>anki.importing package<a class="headerlink" href="#anki-importing-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-anki.importing.anki2">
+<span id="anki-importing-anki2-module"></span><h2>anki.importing.anki2 module<a class="headerlink" href="#module-anki.importing.anki2" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="anki.importing.anki2.Anki2Importer">
+<em class="property">class </em><code class="sig-prename descclassname">anki.importing.anki2.</code><code class="sig-name descname">Anki2Importer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">col</span><span class="p">:</span> <span class="n"><a class="reference internal" href="anki.html#anki.collection.Collection" title="anki.collection.Collection">anki.collection.Collection</a></span></em>, <em class="sig-param"><span class="n">file</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/anki/importing/anki2.html#Anki2Importer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.anki2.Anki2Importer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#anki.importing.base.Importer" title="anki.importing.base.Importer"><code class="xref py py-class docutils literal notranslate"><span class="pre">anki.importing.base.Importer</span></code></a></p>
+<dl class="py attribute">
+<dt id="anki.importing.anki2.Anki2Importer.allowUpdate">
+<code class="sig-name descname">allowUpdate</code><em class="property"> = True</em><a class="headerlink" href="#anki.importing.anki2.Anki2Importer.allowUpdate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="anki.importing.anki2.Anki2Importer.deckPrefix">
+<code class="sig-name descname">deckPrefix</code><em class="property">: Optional<span class="p">[</span>str<span class="p">]</span></em><em class="property"> = None</em><a class="headerlink" href="#anki.importing.anki2.Anki2Importer.deckPrefix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="anki.importing.anki2.Anki2Importer.dst">
+<code class="sig-name descname">dst</code><em class="property">: <a class="reference internal" href="anki.html#anki.collection.Collection" title="anki.collection.Collection">anki.collection.Collection</a></em><a class="headerlink" href="#anki.importing.anki2.Anki2Importer.dst" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="anki.importing.anki2.Anki2Importer.needMapper">
+<code class="sig-name descname">needMapper</code><em class="property"> = False</em><a class="headerlink" href="#anki.importing.anki2.Anki2Importer.needMapper" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.anki2.Anki2Importer.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">media</span><span class="p">:</span> <span class="n">None</span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/anki/importing/anki2.html#Anki2Importer.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.anki2.Anki2Importer.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="anki.importing.anki2.Anki2Importer.src">
+<code class="sig-name descname">src</code><em class="property">: <a class="reference internal" href="anki.html#anki.collection.Collection" title="anki.collection.Collection">anki.collection.Collection</a></em><a class="headerlink" href="#anki.importing.anki2.Anki2Importer.src" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-anki.importing.apkg">
+<span id="anki-importing-apkg-module"></span><h2>anki.importing.apkg module<a class="headerlink" href="#module-anki.importing.apkg" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="anki.importing.apkg.AnkiPackageImporter">
+<em class="property">class </em><code class="sig-prename descclassname">anki.importing.apkg.</code><code class="sig-name descname">AnkiPackageImporter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">col</span><span class="p">:</span> <span class="n"><a class="reference internal" href="anki.html#anki.collection.Collection" title="anki.collection.Collection">anki.collection.Collection</a></span></em>, <em class="sig-param"><span class="n">file</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/anki/importing/apkg.html#AnkiPackageImporter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.apkg.AnkiPackageImporter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#anki.importing.anki2.Anki2Importer" title="anki.importing.anki2.Anki2Importer"><code class="xref py py-class docutils literal notranslate"><span class="pre">anki.importing.anki2.Anki2Importer</span></code></a></p>
+<dl class="py attribute">
+<dt id="anki.importing.apkg.AnkiPackageImporter.nameToNum">
+<code class="sig-name descname">nameToNum</code><em class="property">: Dict<span class="p">[</span>str<span class="p">, </span>str<span class="p">]</span></em><a class="headerlink" href="#anki.importing.apkg.AnkiPackageImporter.nameToNum" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.apkg.AnkiPackageImporter.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/anki/importing/apkg.html#AnkiPackageImporter.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.apkg.AnkiPackageImporter.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="anki.importing.apkg.AnkiPackageImporter.zip">
+<code class="sig-name descname">zip</code><em class="property">: Optional<span class="p">[</span>zipfile.ZipFile<span class="p">]</span></em><a class="headerlink" href="#anki.importing.apkg.AnkiPackageImporter.zip" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-anki.importing.base">
+<span id="anki-importing-base-module"></span><h2>anki.importing.base module<a class="headerlink" href="#module-anki.importing.base" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="anki.importing.base.Importer">
+<em class="property">class </em><code class="sig-prename descclassname">anki.importing.base.</code><code class="sig-name descname">Importer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">col</span><span class="p">:</span> <span class="n"><a class="reference internal" href="anki.html#anki.collection.Collection" title="anki.collection.Collection">anki.collection.Collection</a></span></em>, <em class="sig-param"><span class="n">file</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/anki/importing/base.html#Importer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.base.Importer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt id="anki.importing.base.Importer.dst">
+<code class="sig-name descname">dst</code><em class="property">: Optional<span class="p">[</span><a class="reference internal" href="anki.html#anki.collection.Collection" title="anki.collection.Collection">anki.collection.Collection</a><span class="p">]</span></em><a class="headerlink" href="#anki.importing.base.Importer.dst" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="anki.importing.base.Importer.needDelimiter">
+<code class="sig-name descname">needDelimiter</code><em class="property"> = False</em><a class="headerlink" href="#anki.importing.base.Importer.needDelimiter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="anki.importing.base.Importer.needMapper">
+<code class="sig-name descname">needMapper</code><em class="property"> = False</em><a class="headerlink" href="#anki.importing.base.Importer.needMapper" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.base.Importer.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/anki/importing/base.html#Importer.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.base.Importer.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.base.Importer.ts">
+<code class="sig-name descname">ts</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Any<a class="reference internal" href="_modules/anki/importing/base.html#Importer.ts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.base.Importer.ts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-anki.importing.csvfile">
+<span id="anki-importing-csvfile-module"></span><h2>anki.importing.csvfile module<a class="headerlink" href="#module-anki.importing.csvfile" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="anki.importing.csvfile.TextImporter">
+<em class="property">class </em><code class="sig-prename descclassname">anki.importing.csvfile.</code><code class="sig-name descname">TextImporter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">col</span><span class="p">:</span> <span class="n"><a class="reference internal" href="anki.html#anki.collection.Collection" title="anki.collection.Collection">anki.collection.Collection</a></span></em>, <em class="sig-param"><span class="n">file</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/anki/importing/csvfile.html#TextImporter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.csvfile.TextImporter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#anki.importing.noteimp.NoteImporter" title="anki.importing.noteimp.NoteImporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">anki.importing.noteimp.NoteImporter</span></code></a></p>
+<dl class="py method">
+<dt id="anki.importing.csvfile.TextImporter.cacheFile">
+<code class="sig-name descname">cacheFile</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/anki/importing/csvfile.html#TextImporter.cacheFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.csvfile.TextImporter.cacheFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read file into self.lines if not already there.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.csvfile.TextImporter.close">
+<code class="sig-name descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/anki/importing/csvfile.html#TextImporter.close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.csvfile.TextImporter.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Closes the open file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.csvfile.TextImporter.fields">
+<code class="sig-name descname">fields</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; int<a class="reference internal" href="_modules/anki/importing/csvfile.html#TextImporter.fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.csvfile.TextImporter.fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of fields.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.csvfile.TextImporter.foreignNotes">
+<code class="sig-name descname">foreignNotes</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span><a class="reference internal" href="#anki.importing.noteimp.ForeignNote" title="anki.importing.noteimp.ForeignNote">anki.importing.noteimp.ForeignNote</a><span class="p">]</span><a class="reference internal" href="_modules/anki/importing/csvfile.html#TextImporter.foreignNotes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.csvfile.TextImporter.foreignNotes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of foreign notes for importing.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="anki.importing.csvfile.TextImporter.mapping">
+<code class="sig-name descname">mapping</code><em class="property">: Optional<span class="p">[</span>List<span class="p">[</span>str<span class="p">]</span><span class="p">]</span></em><a class="headerlink" href="#anki.importing.csvfile.TextImporter.mapping" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="anki.importing.csvfile.TextImporter.needDelimiter">
+<code class="sig-name descname">needDelimiter</code><em class="property"> = True</em><a class="headerlink" href="#anki.importing.csvfile.TextImporter.needDelimiter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.csvfile.TextImporter.noteFromFields">
+<code class="sig-name descname">noteFromFields</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fields</span><span class="p">:</span> <span class="n">List<span class="p">[</span>str<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#anki.importing.noteimp.ForeignNote" title="anki.importing.noteimp.ForeignNote">anki.importing.noteimp.ForeignNote</a><a class="reference internal" href="_modules/anki/importing/csvfile.html#TextImporter.noteFromFields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.csvfile.TextImporter.noteFromFields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.csvfile.TextImporter.open">
+<code class="sig-name descname">open</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/anki/importing/csvfile.html#TextImporter.open"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.csvfile.TextImporter.open" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the top line and determine the pattern and number of fields.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.csvfile.TextImporter.openFile">
+<code class="sig-name descname">openFile</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/anki/importing/csvfile.html#TextImporter.openFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.csvfile.TextImporter.openFile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="anki.importing.csvfile.TextImporter.patterns">
+<code class="sig-name descname">patterns</code><em class="property"> = '\t|,;:'</em><a class="headerlink" href="#anki.importing.csvfile.TextImporter.patterns" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="anki.importing.csvfile.TextImporter.tagModified">
+<code class="sig-name descname">tagModified</code><em class="property">: Optional<span class="p">[</span>str<span class="p">]</span></em><a class="headerlink" href="#anki.importing.csvfile.TextImporter.tagModified" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.csvfile.TextImporter.updateDelimiter">
+<code class="sig-name descname">updateDelimiter</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/anki/importing/csvfile.html#TextImporter.updateDelimiter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.csvfile.TextImporter.updateDelimiter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-anki.importing.mnemo">
+<span id="anki-importing-mnemo-module"></span><h2>anki.importing.mnemo module<a class="headerlink" href="#module-anki.importing.mnemo" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="anki.importing.mnemo.MnemosyneImporter">
+<em class="property">class </em><code class="sig-prename descclassname">anki.importing.mnemo.</code><code class="sig-name descname">MnemosyneImporter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">col</span><span class="p">:</span> <span class="n"><a class="reference internal" href="anki.html#anki.collection.Collection" title="anki.collection.Collection">anki.collection.Collection</a></span></em>, <em class="sig-param"><span class="n">file</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/anki/importing/mnemo.html#MnemosyneImporter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.mnemo.MnemosyneImporter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#anki.importing.noteimp.NoteImporter" title="anki.importing.noteimp.NoteImporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">anki.importing.noteimp.NoteImporter</span></code></a></p>
+<dl class="py attribute">
+<dt id="anki.importing.mnemo.MnemosyneImporter.allowHTML">
+<code class="sig-name descname">allowHTML</code><em class="property"> = True</em><a class="headerlink" href="#anki.importing.mnemo.MnemosyneImporter.allowHTML" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.mnemo.MnemosyneImporter.fields">
+<code class="sig-name descname">fields</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/anki/importing/mnemo.html#MnemosyneImporter.fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.mnemo.MnemosyneImporter.fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of fields.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="anki.importing.mnemo.MnemosyneImporter.mapping">
+<code class="sig-name descname">mapping</code><em class="property">: Optional<span class="p">[</span>List<span class="p">[</span>str<span class="p">]</span><span class="p">]</span></em><a class="headerlink" href="#anki.importing.mnemo.MnemosyneImporter.mapping" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="anki.importing.mnemo.MnemosyneImporter.needMapper">
+<code class="sig-name descname">needMapper</code><em class="property"> = False</em><a class="headerlink" href="#anki.importing.mnemo.MnemosyneImporter.needMapper" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.mnemo.MnemosyneImporter.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/anki/importing/mnemo.html#MnemosyneImporter.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.mnemo.MnemosyneImporter.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Import.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="anki.importing.mnemo.MnemosyneImporter.tagModified">
+<code class="sig-name descname">tagModified</code><em class="property">: Optional<span class="p">[</span>str<span class="p">]</span></em><a class="headerlink" href="#anki.importing.mnemo.MnemosyneImporter.tagModified" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="anki.importing.mnemo.MnemosyneImporter.update">
+<code class="sig-name descname">update</code><em class="property"> = False</em><a class="headerlink" href="#anki.importing.mnemo.MnemosyneImporter.update" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-anki.importing.noteimp">
+<span id="anki-importing-noteimp-module"></span><h2>anki.importing.noteimp module<a class="headerlink" href="#module-anki.importing.noteimp" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="anki.importing.noteimp.ForeignCard">
+<em class="property">class </em><code class="sig-prename descclassname">anki.importing.noteimp.</code><code class="sig-name descname">ForeignCard</code><a class="reference internal" href="_modules/anki/importing/noteimp.html#ForeignCard"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.noteimp.ForeignCard" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="anki.importing.noteimp.ForeignNote">
+<em class="property">class </em><code class="sig-prename descclassname">anki.importing.noteimp.</code><code class="sig-name descname">ForeignNote</code><a class="reference internal" href="_modules/anki/importing/noteimp.html#ForeignNote"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.noteimp.ForeignNote" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>An temporary object storing fields and attributes.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="anki.importing.noteimp.NoteImporter">
+<em class="property">class </em><code class="sig-prename descclassname">anki.importing.noteimp.</code><code class="sig-name descname">NoteImporter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">col</span><span class="p">:</span> <span class="n"><a class="reference internal" href="anki.html#anki.collection.Collection" title="anki.collection.Collection">anki.collection.Collection</a></span></em>, <em class="sig-param"><span class="n">file</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/anki/importing/noteimp.html#NoteImporter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.noteimp.NoteImporter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#anki.importing.base.Importer" title="anki.importing.base.Importer"><code class="xref py py-class docutils literal notranslate"><span class="pre">anki.importing.base.Importer</span></code></a></p>
+<dl class="py method">
+<dt id="anki.importing.noteimp.NoteImporter.addNew">
+<code class="sig-name descname">addNew</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rows</span><span class="p">:</span> <span class="n">List<span class="p">[</span>List<span class="p">[</span>Union<span class="p">[</span>int<span class="p">, </span>str<span class="p">]</span><span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/anki/importing/noteimp.html#NoteImporter.addNew"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.noteimp.NoteImporter.addNew" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.noteimp.NoteImporter.addUpdates">
+<code class="sig-name descname">addUpdates</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rows</span><span class="p">:</span> <span class="n">List<span class="p">[</span>List<span class="p">[</span>Union<span class="p">[</span>int<span class="p">, </span>str<span class="p">]</span><span class="p">]</span><span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/anki/importing/noteimp.html#NoteImporter.addUpdates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.noteimp.NoteImporter.addUpdates" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="anki.importing.noteimp.NoteImporter.allowHTML">
+<code class="sig-name descname">allowHTML</code><em class="property"> = False</em><a class="headerlink" href="#anki.importing.noteimp.NoteImporter.allowHTML" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.noteimp.NoteImporter.close">
+<code class="sig-name descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/anki/importing/noteimp.html#NoteImporter.close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.noteimp.NoteImporter.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Closes the open file.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.noteimp.NoteImporter.fields">
+<code class="sig-name descname">fields</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; int<a class="reference internal" href="_modules/anki/importing/noteimp.html#NoteImporter.fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.noteimp.NoteImporter.fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of fields.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.noteimp.NoteImporter.foreignNotes">
+<code class="sig-name descname">foreignNotes</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List<a class="reference internal" href="_modules/anki/importing/noteimp.html#NoteImporter.foreignNotes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.noteimp.NoteImporter.foreignNotes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of foreign notes for importing.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="anki.importing.noteimp.NoteImporter.importMode">
+<code class="sig-name descname">importMode</code><em class="property"> = 0</em><a class="headerlink" href="#anki.importing.noteimp.NoteImporter.importMode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.noteimp.NoteImporter.importNotes">
+<code class="sig-name descname">importNotes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">notes</span><span class="p">:</span> <span class="n">List<span class="p">[</span><a class="reference internal" href="#anki.importing.noteimp.ForeignNote" title="anki.importing.noteimp.ForeignNote">anki.importing.noteimp.ForeignNote</a><span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/anki/importing/noteimp.html#NoteImporter.importNotes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.noteimp.NoteImporter.importNotes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert each card into a note, apply attributes and add to col.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.noteimp.NoteImporter.initMapping">
+<code class="sig-name descname">initMapping</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/anki/importing/noteimp.html#NoteImporter.initMapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.noteimp.NoteImporter.initMapping" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="anki.importing.noteimp.NoteImporter.mapping">
+<code class="sig-name descname">mapping</code><em class="property">: Optional<span class="p">[</span>List<span class="p">[</span>str<span class="p">]</span><span class="p">]</span></em><a class="headerlink" href="#anki.importing.noteimp.NoteImporter.mapping" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.noteimp.NoteImporter.mappingOk">
+<code class="sig-name descname">mappingOk</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; bool<a class="reference internal" href="_modules/anki/importing/noteimp.html#NoteImporter.mappingOk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.noteimp.NoteImporter.mappingOk" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="anki.importing.noteimp.NoteImporter.needDelimiter">
+<code class="sig-name descname">needDelimiter</code><em class="property"> = False</em><a class="headerlink" href="#anki.importing.noteimp.NoteImporter.needDelimiter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="anki.importing.noteimp.NoteImporter.needMapper">
+<code class="sig-name descname">needMapper</code><em class="property"> = True</em><a class="headerlink" href="#anki.importing.noteimp.NoteImporter.needMapper" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.noteimp.NoteImporter.newData">
+<code class="sig-name descname">newData</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#anki.importing.noteimp.ForeignNote" title="anki.importing.noteimp.ForeignNote">anki.importing.noteimp.ForeignNote</a></span></em><span class="sig-paren">)</span> &#x2192; Optional<span class="p">[</span>list<span class="p">]</span><a class="reference internal" href="_modules/anki/importing/noteimp.html#NoteImporter.newData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.noteimp.NoteImporter.newData" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.noteimp.NoteImporter.open">
+<code class="sig-name descname">open</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/anki/importing/noteimp.html#NoteImporter.open"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.noteimp.NoteImporter.open" title="Permalink to this definition">¶</a></dt>
+<dd><p>Open file and ensure it’s in the right format.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.noteimp.NoteImporter.processFields">
+<code class="sig-name descname">processFields</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">note</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#anki.importing.noteimp.ForeignNote" title="anki.importing.noteimp.ForeignNote">anki.importing.noteimp.ForeignNote</a></span></em>, <em class="sig-param"><span class="n">fields</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>List<span class="p">[</span>str<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/anki/importing/noteimp.html#NoteImporter.processFields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.noteimp.NoteImporter.processFields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.noteimp.NoteImporter.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/anki/importing/noteimp.html#NoteImporter.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.noteimp.NoteImporter.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Import.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="anki.importing.noteimp.NoteImporter.tagModified">
+<code class="sig-name descname">tagModified</code><em class="property">: Optional<span class="p">[</span>str<span class="p">]</span></em><a class="headerlink" href="#anki.importing.noteimp.NoteImporter.tagModified" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.noteimp.NoteImporter.updateCards">
+<code class="sig-name descname">updateCards</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/anki/importing/noteimp.html#NoteImporter.updateCards"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.noteimp.NoteImporter.updateCards" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.noteimp.NoteImporter.updateData">
+<code class="sig-name descname">updateData</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#anki.importing.noteimp.ForeignNote" title="anki.importing.noteimp.ForeignNote">anki.importing.noteimp.ForeignNote</a></span></em>, <em class="sig-param"><span class="n">id</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">sflds</span><span class="p">:</span> <span class="n">List<span class="p">[</span>str<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; Optional<span class="p">[</span>list<span class="p">]</span><a class="reference internal" href="_modules/anki/importing/noteimp.html#NoteImporter.updateData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.noteimp.NoteImporter.updateData" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-anki.importing.pauker">
+<span id="anki-importing-pauker-module"></span><h2>anki.importing.pauker module<a class="headerlink" href="#module-anki.importing.pauker" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="anki.importing.pauker.PaukerImporter">
+<em class="property">class </em><code class="sig-prename descclassname">anki.importing.pauker.</code><code class="sig-name descname">PaukerImporter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">col</span><span class="p">:</span> <span class="n"><a class="reference internal" href="anki.html#anki.collection.Collection" title="anki.collection.Collection">anki.collection.Collection</a></span></em>, <em class="sig-param"><span class="n">file</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/anki/importing/pauker.html#PaukerImporter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.pauker.PaukerImporter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#anki.importing.noteimp.NoteImporter" title="anki.importing.noteimp.NoteImporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">anki.importing.noteimp.NoteImporter</span></code></a></p>
+<p>Import Pauker 1.8 Lesson (<a href="#id1"><span class="problematic" id="id2">*</span></a>.pau.gz)</p>
+<dl class="py attribute">
+<dt id="anki.importing.pauker.PaukerImporter.allowHTML">
+<code class="sig-name descname">allowHTML</code><em class="property"> = True</em><a class="headerlink" href="#anki.importing.pauker.PaukerImporter.allowHTML" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.pauker.PaukerImporter.fields">
+<code class="sig-name descname">fields</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/anki/importing/pauker.html#PaukerImporter.fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.pauker.PaukerImporter.fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pauker is Front/Back</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.pauker.PaukerImporter.foreignNotes">
+<code class="sig-name descname">foreignNotes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/anki/importing/pauker.html#PaukerImporter.foreignNotes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.pauker.PaukerImporter.foreignNotes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build and return a list of notes.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="anki.importing.pauker.PaukerImporter.mapping">
+<code class="sig-name descname">mapping</code><em class="property">: Optional<span class="p">[</span>List<span class="p">[</span>str<span class="p">]</span><span class="p">]</span></em><a class="headerlink" href="#anki.importing.pauker.PaukerImporter.mapping" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="anki.importing.pauker.PaukerImporter.needMapper">
+<code class="sig-name descname">needMapper</code><em class="property"> = False</em><a class="headerlink" href="#anki.importing.pauker.PaukerImporter.needMapper" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.pauker.PaukerImporter.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/anki/importing/pauker.html#PaukerImporter.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.pauker.PaukerImporter.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Import.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="anki.importing.pauker.PaukerImporter.tagModified">
+<code class="sig-name descname">tagModified</code><em class="property">: Optional<span class="p">[</span>str<span class="p">]</span></em><a class="headerlink" href="#anki.importing.pauker.PaukerImporter.tagModified" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-anki.importing.supermemo_xml">
+<span id="anki-importing-supermemo-xml-module"></span><h2>anki.importing.supermemo_xml module<a class="headerlink" href="#module-anki.importing.supermemo_xml" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="anki.importing.supermemo_xml.SmartDict">
+<em class="property">class </em><code class="sig-prename descclassname">anki.importing.supermemo_xml.</code><code class="sig-name descname">SmartDict</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">a</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kw</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/anki/importing/supermemo_xml.html#SmartDict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.supermemo_xml.SmartDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+<p>See <a class="reference external" href="http://www.peterbe.com/plog/SmartDict">http://www.peterbe.com/plog/SmartDict</a>
+Copyright 2005, Peter Bengtsson, <a class="reference external" href="mailto:peter&#37;&#52;&#48;fry-it&#46;com">peter<span>&#64;</span>fry-it<span>&#46;</span>com</a></p>
+<p>A smart dict can be instanciated either from a pythonic dict
+or an instance object (eg. SQL recordsets) but it ensures that you can
+do all the convenient lookups such as x.first_name, x[‘first_name’] or
+x.get(‘first_name’).</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="anki.importing.supermemo_xml.SuperMemoElement">
+<em class="property">class </em><code class="sig-prename descclassname">anki.importing.supermemo_xml.</code><code class="sig-name descname">SuperMemoElement</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">a</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kw</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/anki/importing/supermemo_xml.html#SuperMemoElement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.supermemo_xml.SuperMemoElement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#anki.importing.supermemo_xml.SmartDict" title="anki.importing.supermemo_xml.SmartDict"><code class="xref py py-class docutils literal notranslate"><span class="pre">anki.importing.supermemo_xml.SmartDict</span></code></a></p>
+<p>SmartDict wrapper to store SM Element data</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="anki.importing.supermemo_xml.SupermemoXmlImporter">
+<em class="property">class </em><code class="sig-prename descclassname">anki.importing.supermemo_xml.</code><code class="sig-name descname">SupermemoXmlImporter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">col</span><span class="p">:</span> <span class="n"><a class="reference internal" href="anki.html#anki.collection.Collection" title="anki.collection.Collection">anki.collection.Collection</a></span></em>, <em class="sig-param"><span class="n">file</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/anki/importing/supermemo_xml.html#SupermemoXmlImporter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.supermemo_xml.SupermemoXmlImporter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#anki.importing.noteimp.NoteImporter" title="anki.importing.noteimp.NoteImporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">anki.importing.noteimp.NoteImporter</span></code></a></p>
+<dl class="py method">
+<dt id="anki.importing.supermemo_xml.SupermemoXmlImporter.addItemToCards">
+<code class="sig-name descname">addItemToCards</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">item</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#anki.importing.supermemo_xml.SuperMemoElement" title="anki.importing.supermemo_xml.SuperMemoElement">anki.importing.supermemo_xml.SuperMemoElement</a></span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/anki/importing/supermemo_xml.html#SupermemoXmlImporter.addItemToCards"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.supermemo_xml.SupermemoXmlImporter.addItemToCards" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method actually do conversion</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="anki.importing.supermemo_xml.SupermemoXmlImporter.allowHTML">
+<code class="sig-name descname">allowHTML</code><em class="property"> = True</em><a class="headerlink" href="#anki.importing.supermemo_xml.SupermemoXmlImporter.allowHTML" title="Permalink to this definition">¶</a></dt>
+<dd><p>Supermemo XML export’s to Anki parser.
+Goes through a SM collection and fetch all elements.</p>
+<p>My SM collection was a big mess where topics and items were mixed.
+I was unable to parse my content in a regular way like for loop on
+minidom.getElementsByTagName() etc. My collection had also an
+limitation, topics were splited into branches with max 100 items
+on each. Learning themes were in deep structure. I wanted to have
+full title on each element to be stored in tags.</p>
+<p>Code should be upgrade to support importing of SM2006 exports.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.supermemo_xml.SupermemoXmlImporter.do_Content">
+<code class="sig-name descname">do_Content</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span><span class="p">:</span> <span class="n">xml.dom.minidom.Element</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/anki/importing/supermemo_xml.html#SupermemoXmlImporter.do_Content"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.supermemo_xml.SupermemoXmlImporter.do_Content" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process SM element Content</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.supermemo_xml.SupermemoXmlImporter.do_LearningData">
+<code class="sig-name descname">do_LearningData</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span><span class="p">:</span> <span class="n">xml.dom.minidom.Element</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/anki/importing/supermemo_xml.html#SupermemoXmlImporter.do_LearningData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.supermemo_xml.SupermemoXmlImporter.do_LearningData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process SM element LearningData</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.supermemo_xml.SupermemoXmlImporter.do_SuperMemoCollection">
+<code class="sig-name descname">do_SuperMemoCollection</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span><span class="p">:</span> <span class="n">xml.dom.minidom.Element</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/anki/importing/supermemo_xml.html#SupermemoXmlImporter.do_SuperMemoCollection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.supermemo_xml.SupermemoXmlImporter.do_SuperMemoCollection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process SM Collection</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.supermemo_xml.SupermemoXmlImporter.do_SuperMemoElement">
+<code class="sig-name descname">do_SuperMemoElement</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span><span class="p">:</span> <span class="n">xml.dom.minidom.Element</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/anki/importing/supermemo_xml.html#SupermemoXmlImporter.do_SuperMemoElement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.supermemo_xml.SupermemoXmlImporter.do_SuperMemoElement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process SM Element (Type - Title,Topics)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.supermemo_xml.SupermemoXmlImporter.do_Title">
+<code class="sig-name descname">do_Title</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span><span class="p">:</span> <span class="n">xml.dom.minidom.Element</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/anki/importing/supermemo_xml.html#SupermemoXmlImporter.do_Title"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.supermemo_xml.SupermemoXmlImporter.do_Title" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process SM element Title</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.supermemo_xml.SupermemoXmlImporter.do_Type">
+<code class="sig-name descname">do_Type</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span><span class="p">:</span> <span class="n">xml.dom.minidom.Element</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/anki/importing/supermemo_xml.html#SupermemoXmlImporter.do_Type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.supermemo_xml.SupermemoXmlImporter.do_Type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process SM element Type</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.supermemo_xml.SupermemoXmlImporter.fields">
+<code class="sig-name descname">fields</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; int<a class="reference internal" href="_modules/anki/importing/supermemo_xml.html#SupermemoXmlImporter.fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.supermemo_xml.SupermemoXmlImporter.fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of fields.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.supermemo_xml.SupermemoXmlImporter.foreignNotes">
+<code class="sig-name descname">foreignNotes</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span><a class="reference internal" href="#anki.importing.noteimp.ForeignNote" title="anki.importing.noteimp.ForeignNote">anki.importing.noteimp.ForeignNote</a><span class="p">]</span><a class="reference internal" href="_modules/anki/importing/supermemo_xml.html#SupermemoXmlImporter.foreignNotes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.supermemo_xml.SupermemoXmlImporter.foreignNotes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of foreign notes for importing.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.supermemo_xml.SupermemoXmlImporter.loadSource">
+<code class="sig-name descname">loadSource</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">source</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/anki/importing/supermemo_xml.html#SupermemoXmlImporter.loadSource"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.supermemo_xml.SupermemoXmlImporter.loadSource" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load source file and parse with xml.dom.minidom</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.supermemo_xml.SupermemoXmlImporter.logger">
+<code class="sig-name descname">logger</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">level</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">1</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/anki/importing/supermemo_xml.html#SupermemoXmlImporter.logger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.supermemo_xml.SupermemoXmlImporter.logger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper for Anki logger</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="anki.importing.supermemo_xml.SupermemoXmlImporter.mapping">
+<code class="sig-name descname">mapping</code><em class="property">: Optional<span class="p">[</span>List<span class="p">[</span>str<span class="p">]</span><span class="p">]</span></em><a class="headerlink" href="#anki.importing.supermemo_xml.SupermemoXmlImporter.mapping" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="anki.importing.supermemo_xml.SupermemoXmlImporter.needMapper">
+<code class="sig-name descname">needMapper</code><em class="property"> = False</em><a class="headerlink" href="#anki.importing.supermemo_xml.SupermemoXmlImporter.needMapper" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.supermemo_xml.SupermemoXmlImporter.openAnything">
+<code class="sig-name descname">openAnything</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">source</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/anki/importing/supermemo_xml.html#SupermemoXmlImporter.openAnything"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.supermemo_xml.SupermemoXmlImporter.openAnything" title="Permalink to this definition">¶</a></dt>
+<dd><p>Open any source / actually only opening of files is used
+&#64;return an open handle which must be closed after use, i.e., handle.close()</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.supermemo_xml.SupermemoXmlImporter.parse">
+<code class="sig-name descname">parse</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>xml.dom.minidom.Text<span class="p">, </span>xml.dom.minidom.Element<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/anki/importing/supermemo_xml.html#SupermemoXmlImporter.parse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.supermemo_xml.SupermemoXmlImporter.parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse method - parses document elements</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.supermemo_xml.SupermemoXmlImporter.parse_Document">
+<code class="sig-name descname">parse_Document</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/anki/importing/supermemo_xml.html#SupermemoXmlImporter.parse_Document"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.supermemo_xml.SupermemoXmlImporter.parse_Document" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse XML document</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.supermemo_xml.SupermemoXmlImporter.parse_Element">
+<code class="sig-name descname">parse_Element</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span><span class="p">:</span> <span class="n">xml.dom.minidom.Element</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/anki/importing/supermemo_xml.html#SupermemoXmlImporter.parse_Element"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.supermemo_xml.SupermemoXmlImporter.parse_Element" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse XML element</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="anki.importing.supermemo_xml.SupermemoXmlImporter.parse_Text">
+<code class="sig-name descname">parse_Text</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span><span class="p">:</span> <span class="n">xml.dom.minidom.Text</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/anki/importing/supermemo_xml.html#SupermemoXmlImporter.parse_Text"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#anki.importing.supermemo_xml.SupermemoXmlImporter.parse_Text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse text inside elements. Text is stored into local buffer.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="anki.importing.supermemo_xml.SupermemoXmlImporter.tagModified">
+<code class="sig-name descname">tagModified</code><em class="property">: Optional<span class="p">[</span>str<span class="p">]</span></em><a class="headerlink" href="#anki.importing.supermemo_xml.SupermemoXmlImporter.tagModified" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-anki.importing">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-anki.importing" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="aqt.html" class="btn btn-neutral float-right" title="aqt package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="anki.html" class="btn btn-neutral float-left" title="anki package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Abdelrahman Hamdy
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

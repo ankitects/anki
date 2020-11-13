@@ -1,0 +1,487 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>anki.rsbackend &mdash; Anki  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+        <script async="async" kind="hypothesis" src="https://hypothes.is/embed.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Anki
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.html">anki package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.importing.html">anki.importing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aqt.html">aqt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../genhooks_gui.html">genhooks_gui module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tools.html">tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Anki</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>anki.rsbackend</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for anki.rsbackend</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright: Ankitects Pty Ltd and contributors</span>
+<span class="c1"># License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html</span>
+<span class="c1"># pylint: skip-file</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Python bindings for Anki&#39;s Rust libraries.</span>
+
+<span class="sd">Please do not access methods on the backend directly - they may be changed</span>
+<span class="sd">or removed at any time. Instead, please use the methods on the collection</span>
+<span class="sd">instead. Eg, don&#39;t use col.backend.all_deck_config(), instead use</span>
+<span class="sd">col.decks.all_config()</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span> <span class="nn">enum</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">ankirspy</span>  <span class="c1"># pytype: disable=import-error</span>
+
+<span class="kn">import</span> <span class="nn">anki.backend_pb2</span> <span class="k">as</span> <span class="nn">pb</span>
+<span class="kn">import</span> <span class="nn">anki.buildinfo</span>
+<span class="kn">from</span> <span class="nn">anki</span> <span class="kn">import</span> <span class="n">hooks</span>
+<span class="kn">from</span> <span class="nn">anki.dbproxy</span> <span class="kn">import</span> <span class="n">Row</span> <span class="k">as</span> <span class="n">DBRow</span>
+<span class="kn">from</span> <span class="nn">anki.dbproxy</span> <span class="kn">import</span> <span class="n">ValueForDB</span>
+<span class="kn">from</span> <span class="nn">anki.fluent_pb2</span> <span class="kn">import</span> <span class="n">FluentString</span> <span class="k">as</span> <span class="n">TR</span>
+<span class="kn">from</span> <span class="nn">anki.types</span> <span class="kn">import</span> <span class="n">assert_impossible_literal</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">anki.rsbackend_gen</span> <span class="kn">import</span> <span class="n">RustBackendGenerated</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="c1"># will fail during initial setup</span>
+    <span class="k">class</span> <span class="nc">RustBackendGenerated</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
+        <span class="k">pass</span>
+
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">anki.fluent_pb2</span> <span class="kn">import</span> <span class="n">FluentStringValue</span> <span class="k">as</span> <span class="n">TRValue</span>
+
+    <span class="n">FormatTimeSpanContextValue</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">FormatTimespanIn</span><span class="o">.</span><span class="n">ContextValue</span>
+
+<span class="k">assert</span> <span class="n">ankirspy</span><span class="o">.</span><span class="n">buildhash</span><span class="p">()</span> <span class="o">==</span> <span class="n">anki</span><span class="o">.</span><span class="n">buildinfo</span><span class="o">.</span><span class="n">buildhash</span>
+
+<span class="n">SchedTimingToday</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">SchedTimingTodayOut</span>
+<span class="n">BuiltinSortKind</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">BuiltinSearchOrder</span><span class="o">.</span><span class="n">BuiltinSortKind</span>
+<span class="n">BackendCard</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">Card</span>
+<span class="n">BackendNote</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">Note</span>
+<span class="n">TagUsnTuple</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">TagUsnTuple</span>
+<span class="n">NoteType</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">NoteType</span>
+<span class="n">DeckTreeNode</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">DeckTreeNode</span>
+<span class="n">StockNoteType</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">StockNoteType</span>
+<span class="n">SyncAuth</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">SyncAuth</span>
+<span class="n">SyncOutput</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">SyncCollectionOut</span>
+<span class="n">SyncStatus</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">SyncStatusOut</span>
+<span class="n">CountsForDeckToday</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">CountsForDeckTodayOut</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">orjson</span>
+
+    <span class="n">to_json_bytes</span> <span class="o">=</span> <span class="n">orjson</span><span class="o">.</span><span class="n">dumps</span>
+    <span class="n">from_json_bytes</span> <span class="o">=</span> <span class="n">orjson</span><span class="o">.</span><span class="n">loads</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="c1"># add compat layer for 32 bit builds that can&#39;t use orjson</span>
+    <span class="n">to_json_bytes</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">obj</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf8&quot;</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+    <span class="n">from_json_bytes</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span>
+
+
+<div class="viewcode-block" id="Interrupted"><a class="viewcode-back" href="../../anki.html#anki.rsbackend.Interrupted">[docs]</a><span class="k">class</span> <span class="nc">Interrupted</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="StringError"><a class="viewcode-back" href="../../anki.html#anki.rsbackend.StringError">[docs]</a><span class="k">class</span> <span class="nc">StringError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># pylint: disable=unsubscriptable-object</span></div>
+
+
+<span class="n">NetworkErrorKind</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">NetworkError</span><span class="o">.</span><span class="n">NetworkErrorKind</span>
+<span class="n">SyncErrorKind</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">SyncError</span><span class="o">.</span><span class="n">SyncErrorKind</span>
+
+
+<div class="viewcode-block" id="NetworkError"><a class="viewcode-back" href="../../anki.html#anki.rsbackend.NetworkError">[docs]</a><span class="k">class</span> <span class="nc">NetworkError</span><span class="p">(</span><span class="n">StringError</span><span class="p">):</span>
+<div class="viewcode-block" id="NetworkError.kind"><a class="viewcode-back" href="../../anki.html#anki.rsbackend.NetworkError.kind">[docs]</a>    <span class="k">def</span> <span class="nf">kind</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pb</span><span class="o">.</span><span class="n">NetworkError</span><span class="o">.</span><span class="n">NetworkErrorKindValue</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span></div></div>
+
+
+<div class="viewcode-block" id="SyncError"><a class="viewcode-back" href="../../anki.html#anki.rsbackend.SyncError">[docs]</a><span class="k">class</span> <span class="nc">SyncError</span><span class="p">(</span><span class="n">StringError</span><span class="p">):</span>
+<div class="viewcode-block" id="SyncError.kind"><a class="viewcode-back" href="../../anki.html#anki.rsbackend.SyncError.kind">[docs]</a>    <span class="k">def</span> <span class="nf">kind</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pb</span><span class="o">.</span><span class="n">SyncError</span><span class="o">.</span><span class="n">SyncErrorKindValue</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span></div></div>
+
+
+<div class="viewcode-block" id="IOError"><a class="viewcode-back" href="../../anki.html#anki.rsbackend.IOError">[docs]</a><span class="k">class</span> <span class="nc">IOError</span><span class="p">(</span><span class="n">StringError</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="DBError"><a class="viewcode-back" href="../../anki.html#anki.rsbackend.DBError">[docs]</a><span class="k">class</span> <span class="nc">DBError</span><span class="p">(</span><span class="n">StringError</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="TemplateError"><a class="viewcode-back" href="../../anki.html#anki.rsbackend.TemplateError">[docs]</a><span class="k">class</span> <span class="nc">TemplateError</span><span class="p">(</span><span class="n">StringError</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="NotFoundError"><a class="viewcode-back" href="../../anki.html#anki.rsbackend.NotFoundError">[docs]</a><span class="k">class</span> <span class="nc">NotFoundError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="ExistsError"><a class="viewcode-back" href="../../anki.html#anki.rsbackend.ExistsError">[docs]</a><span class="k">class</span> <span class="nc">ExistsError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="DeckIsFilteredError"><a class="viewcode-back" href="../../anki.html#anki.rsbackend.DeckIsFilteredError">[docs]</a><span class="k">class</span> <span class="nc">DeckIsFilteredError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="InvalidInput"><a class="viewcode-back" href="../../anki.html#anki.rsbackend.InvalidInput">[docs]</a><span class="k">class</span> <span class="nc">InvalidInput</span><span class="p">(</span><span class="n">StringError</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="proto_exception_to_native"><a class="viewcode-back" href="../../anki.html#anki.rsbackend.proto_exception_to_native">[docs]</a><span class="k">def</span> <span class="nf">proto_exception_to_native</span><span class="p">(</span><span class="n">err</span><span class="p">:</span> <span class="n">pb</span><span class="o">.</span><span class="n">BackendError</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="ne">Exception</span><span class="p">:</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="n">err</span><span class="o">.</span><span class="n">WhichOneof</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">val</span> <span class="o">==</span> <span class="s2">&quot;interrupted&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Interrupted</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">val</span> <span class="o">==</span> <span class="s2">&quot;network_error&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">NetworkError</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">localized</span><span class="p">,</span> <span class="n">err</span><span class="o">.</span><span class="n">network_error</span><span class="o">.</span><span class="n">kind</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">val</span> <span class="o">==</span> <span class="s2">&quot;sync_error&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">SyncError</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">localized</span><span class="p">,</span> <span class="n">err</span><span class="o">.</span><span class="n">sync_error</span><span class="o">.</span><span class="n">kind</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">val</span> <span class="o">==</span> <span class="s2">&quot;io_error&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="ne">IOError</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">localized</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">val</span> <span class="o">==</span> <span class="s2">&quot;db_error&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">DBError</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">localized</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">val</span> <span class="o">==</span> <span class="s2">&quot;template_parse&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">TemplateError</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">localized</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">val</span> <span class="o">==</span> <span class="s2">&quot;invalid_input&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">InvalidInput</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">localized</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">val</span> <span class="o">==</span> <span class="s2">&quot;json_error&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">StringError</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">localized</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">val</span> <span class="o">==</span> <span class="s2">&quot;not_found_error&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">NotFoundError</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">val</span> <span class="o">==</span> <span class="s2">&quot;exists&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ExistsError</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">val</span> <span class="o">==</span> <span class="s2">&quot;deck_is_filtered&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">DeckIsFilteredError</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">val</span> <span class="o">==</span> <span class="s2">&quot;proto_error&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">StringError</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">localized</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;unhandled error type:&quot;</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">StringError</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">localized</span><span class="p">)</span></div>
+
+
+<span class="n">MediaSyncProgress</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">MediaSyncProgress</span>
+<span class="n">FullSyncProgress</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">FullSyncProgress</span>
+<span class="n">NormalSyncProgress</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">NormalSyncProgress</span>
+<span class="n">DatabaseCheckProgress</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">DatabaseCheckProgress</span>
+
+<span class="n">FormatTimeSpanContext</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">FormatTimespanIn</span><span class="o">.</span><span class="n">Context</span>
+
+
+<div class="viewcode-block" id="ProgressKind"><a class="viewcode-back" href="../../anki.html#anki.rsbackend.ProgressKind">[docs]</a><span class="k">class</span> <span class="nc">ProgressKind</span><span class="p">(</span><span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">NoProgress</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">MediaSync</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">MediaCheck</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">FullSync</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">NormalSync</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">DatabaseCheck</span> <span class="o">=</span> <span class="mi">5</span></div>
+
+
+<div class="viewcode-block" id="Progress"><a class="viewcode-back" href="../../anki.html#anki.rsbackend.Progress">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">Progress</span><span class="p">:</span>
+    <span class="n">kind</span><span class="p">:</span> <span class="n">ProgressKind</span>
+    <span class="n">val</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span>
+        <span class="n">MediaSyncProgress</span><span class="p">,</span>
+        <span class="n">pb</span><span class="o">.</span><span class="n">FullSyncProgress</span><span class="p">,</span>
+        <span class="n">NormalSyncProgress</span><span class="p">,</span>
+        <span class="n">DatabaseCheckProgress</span><span class="p">,</span>
+        <span class="nb">str</span><span class="p">,</span>
+    <span class="p">]</span>
+
+<div class="viewcode-block" id="Progress.from_proto"><a class="viewcode-back" href="../../anki.html#anki.rsbackend.Progress.from_proto">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_proto</span><span class="p">(</span><span class="n">proto</span><span class="p">:</span> <span class="n">pb</span><span class="o">.</span><span class="n">Progress</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Progress</span><span class="p">:</span>
+        <span class="n">kind</span> <span class="o">=</span> <span class="n">proto</span><span class="o">.</span><span class="n">WhichOneof</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;media_sync&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Progress</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="n">ProgressKind</span><span class="o">.</span><span class="n">MediaSync</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="n">proto</span><span class="o">.</span><span class="n">media_sync</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;media_check&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Progress</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="n">ProgressKind</span><span class="o">.</span><span class="n">MediaCheck</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="n">proto</span><span class="o">.</span><span class="n">media_check</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;full_sync&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Progress</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="n">ProgressKind</span><span class="o">.</span><span class="n">FullSync</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="n">proto</span><span class="o">.</span><span class="n">full_sync</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;normal_sync&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Progress</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="n">ProgressKind</span><span class="o">.</span><span class="n">NormalSync</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="n">proto</span><span class="o">.</span><span class="n">normal_sync</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;database_check&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Progress</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="n">ProgressKind</span><span class="o">.</span><span class="n">DatabaseCheck</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="n">proto</span><span class="o">.</span><span class="n">database_check</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Progress</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="n">ProgressKind</span><span class="o">.</span><span class="n">NoProgress</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="RustBackend"><a class="viewcode-back" href="../../anki.html#anki.rsbackend.RustBackend">[docs]</a><span class="k">class</span> <span class="nc">RustBackend</span><span class="p">(</span><span class="n">RustBackendGenerated</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">ftl_folder</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">langs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">server</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># pick up global defaults if not provided</span>
+        <span class="k">if</span> <span class="n">ftl_folder</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ftl_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">anki</span><span class="o">.</span><span class="n">lang</span><span class="o">.</span><span class="n">locale_folder</span><span class="p">,</span> <span class="s2">&quot;fluent&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">langs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">langs</span> <span class="o">=</span> <span class="p">[</span><span class="n">anki</span><span class="o">.</span><span class="n">lang</span><span class="o">.</span><span class="n">currentLang</span><span class="p">]</span>
+
+        <span class="n">init_msg</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">BackendInit</span><span class="p">(</span>
+            <span class="n">locale_folder_path</span><span class="o">=</span><span class="n">ftl_folder</span><span class="p">,</span> <span class="n">preferred_langs</span><span class="o">=</span><span class="n">langs</span><span class="p">,</span> <span class="n">server</span><span class="o">=</span><span class="n">server</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_backend</span> <span class="o">=</span> <span class="n">ankirspy</span><span class="o">.</span><span class="n">open_backend</span><span class="p">(</span><span class="n">init_msg</span><span class="o">.</span><span class="n">SerializeToString</span><span class="p">())</span>
+
+<div class="viewcode-block" id="RustBackend.db_query"><a class="viewcode-back" href="../../anki.html#anki.rsbackend.RustBackend.db_query">[docs]</a>    <span class="k">def</span> <span class="nf">db_query</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">sql</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">ValueForDB</span><span class="p">],</span> <span class="n">first_row_only</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">DBRow</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_command</span><span class="p">(</span>
+            <span class="nb">dict</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s2">&quot;query&quot;</span><span class="p">,</span> <span class="n">sql</span><span class="o">=</span><span class="n">sql</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span> <span class="n">first_row_only</span><span class="o">=</span><span class="n">first_row_only</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="RustBackend.db_execute_many"><a class="viewcode-back" href="../../anki.html#anki.rsbackend.RustBackend.db_execute_many">[docs]</a>    <span class="k">def</span> <span class="nf">db_execute_many</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sql</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">ValueForDB</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">DBRow</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_command</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s2">&quot;executemany&quot;</span><span class="p">,</span> <span class="n">sql</span><span class="o">=</span><span class="n">sql</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="RustBackend.db_begin"><a class="viewcode-back" href="../../anki.html#anki.rsbackend.RustBackend.db_begin">[docs]</a>    <span class="k">def</span> <span class="nf">db_begin</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_command</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s2">&quot;begin&quot;</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="RustBackend.db_commit"><a class="viewcode-back" href="../../anki.html#anki.rsbackend.RustBackend.db_commit">[docs]</a>    <span class="k">def</span> <span class="nf">db_commit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_command</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s2">&quot;commit&quot;</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="RustBackend.db_rollback"><a class="viewcode-back" href="../../anki.html#anki.rsbackend.RustBackend.db_rollback">[docs]</a>    <span class="k">def</span> <span class="nf">db_rollback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_command</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s2">&quot;rollback&quot;</span><span class="p">))</span></div>
+
+    <span class="k">def</span> <span class="nf">_db_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">from_json_bytes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="o">.</span><span class="n">db_command</span><span class="p">(</span><span class="n">to_json_bytes</span><span class="p">(</span><span class="nb">input</span><span class="p">)))</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">err_bytes</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">err</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">BackendError</span><span class="p">()</span>
+        <span class="n">err</span><span class="o">.</span><span class="n">ParseFromString</span><span class="p">(</span><span class="n">err_bytes</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">proto_exception_to_native</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+
+<div class="viewcode-block" id="RustBackend.translate"><a class="viewcode-back" href="../../anki.html#anki.rsbackend.RustBackend.translate">[docs]</a>    <span class="k">def</span> <span class="nf">translate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="n">TRValue</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">translate_string</span><span class="p">(</span><span class="n">translate_string_in</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="RustBackend.format_time_span"><a class="viewcode-back" href="../../anki.html#anki.rsbackend.RustBackend.format_time_span">[docs]</a>    <span class="k">def</span> <span class="nf">format_time_span</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">seconds</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">context</span><span class="p">:</span> <span class="n">FormatTimeSpanContextValue</span> <span class="o">=</span> <span class="n">FormatTimeSpanContext</span><span class="o">.</span><span class="n">INTERVALS</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s2">&quot;please use col.format_timespan() instead of col.backend.format_time_span()&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_timespan</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">seconds</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_run_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+        <span class="n">input_bytes</span> <span class="o">=</span> <span class="nb">input</span><span class="o">.</span><span class="n">SerializeToString</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">input_bytes</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">err_bytes</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">err</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">BackendError</span><span class="p">()</span>
+        <span class="n">err</span><span class="o">.</span><span class="n">ParseFromString</span><span class="p">(</span><span class="n">err_bytes</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">proto_exception_to_native</span><span class="p">(</span><span class="n">err</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="translate_string_in"><a class="viewcode-back" href="../../anki.html#anki.rsbackend.translate_string_in">[docs]</a><span class="k">def</span> <span class="nf">translate_string_in</span><span class="p">(</span>
+    <span class="n">key</span><span class="p">:</span> <span class="n">TRValue</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pb</span><span class="o">.</span><span class="n">TranslateStringIn</span><span class="p">:</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">args</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">TranslateArgValue</span><span class="p">(</span><span class="nb">str</span><span class="o">=</span><span class="n">v</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">args</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">TranslateArgValue</span><span class="p">(</span><span class="n">number</span><span class="o">=</span><span class="n">v</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pb</span><span class="o">.</span><span class="n">TranslateStringIn</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">)</span></div>
+
+
+<span class="c1"># temporarily force logging of media handling</span>
+<span class="k">if</span> <span class="s2">&quot;RUST_LOG&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span>
+        <span class="s2">&quot;RUST_LOG&quot;</span>
+    <span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;warn,anki::media=debug,anki::sync=debug,anki::dbcheck=debug&quot;</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Abdelrahman Hamdy
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

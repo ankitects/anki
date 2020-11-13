@@ -1,0 +1,1312 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>anki.stats &mdash; Anki  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+        <script async="async" kind="hypothesis" src="https://hypothes.is/embed.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Anki
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.html">anki package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.importing.html">anki.importing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aqt.html">aqt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../genhooks_gui.html">genhooks_gui module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tools.html">tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Anki</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>anki.stats</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for anki.stats</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright: Ankitects Pty Ltd and contributors</span>
+<span class="c1"># License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">anki</span>
+<span class="kn">from</span> <span class="nn">anki.consts</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">anki.lang</span> <span class="kn">import</span> <span class="n">_</span><span class="p">,</span> <span class="n">ngettext</span>
+<span class="kn">from</span> <span class="nn">anki.rsbackend</span> <span class="kn">import</span> <span class="n">TR</span><span class="p">,</span> <span class="n">FormatTimeSpanContext</span>
+<span class="kn">from</span> <span class="nn">anki.utils</span> <span class="kn">import</span> <span class="n">ids2str</span>
+
+<span class="c1"># Card stats</span>
+<span class="c1">##########################################################################</span>
+
+
+<div class="viewcode-block" id="CardStats"><a class="viewcode-back" href="../../anki.html#anki.stats.CardStats">[docs]</a><span class="k">class</span> <span class="nc">CardStats</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    New code should just call collection.card_stats() directly - this class</span>
+<span class="sd">    is only left around for backwards compatibility.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">:</span> <span class="n">anki</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">Collection</span><span class="p">,</span> <span class="n">card</span><span class="p">:</span> <span class="n">anki</span><span class="o">.</span><span class="n">cards</span><span class="o">.</span><span class="n">Card</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">col</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">col</span> <span class="o">=</span> <span class="n">col</span><span class="o">.</span><span class="n">weakref</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">card</span> <span class="o">=</span> <span class="n">card</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">txt</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+<div class="viewcode-block" id="CardStats.report"><a class="viewcode-back" href="../../anki.html#anki.stats.CardStats.report">[docs]</a>    <span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_revlog</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">card_stats</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">include_revlog</span><span class="o">=</span><span class="n">include_revlog</span><span class="p">)</span></div>
+
+    <span class="c1"># legacy</span>
+
+<div class="viewcode-block" id="CardStats.addLine"><a class="viewcode-back" href="../../anki.html#anki.stats.CardStats.addLine">[docs]</a>    <span class="k">def</span> <span class="nf">addLine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">txt</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">makeLine</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CardStats.makeLine"><a class="viewcode-back" href="../../anki.html#anki.stats.CardStats.makeLine">[docs]</a>    <span class="k">def</span> <span class="nf">makeLine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">txt</span> <span class="o">=</span> <span class="s2">&quot;&lt;tr&gt;&lt;td align=left style=&#39;padding-right: 3px;&#39;&gt;&quot;</span>
+        <span class="n">txt</span> <span class="o">+=</span> <span class="s2">&quot;&lt;b&gt;</span><span class="si">%s</span><span class="s2">&lt;/b&gt;&lt;/td&gt;&lt;td&gt;</span><span class="si">%s</span><span class="s2">&lt;/td&gt;&lt;/tr&gt;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">txt</span></div>
+
+<div class="viewcode-block" id="CardStats.date"><a class="viewcode-back" href="../../anki.html#anki.stats.CardStats.date">[docs]</a>    <span class="k">def</span> <span class="nf">date</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tm</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">(</span><span class="n">tm</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="CardStats.time"><a class="viewcode-back" href="../../anki.html#anki.stats.CardStats.time">[docs]</a>    <span class="k">def</span> <span class="nf">time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tm</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">format_timespan</span><span class="p">(</span><span class="n">tm</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="n">FormatTimeSpanContext</span><span class="o">.</span><span class="n">PRECISE</span><span class="p">)</span></div></div>
+
+
+<span class="c1"># Collection stats</span>
+<span class="c1">##########################################################################</span>
+
+<span class="n">PERIOD_MONTH</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">PERIOD_YEAR</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">PERIOD_LIFE</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="n">colYoung</span> <span class="o">=</span> <span class="s2">&quot;#7c7&quot;</span>
+<span class="n">colMature</span> <span class="o">=</span> <span class="s2">&quot;#070&quot;</span>
+<span class="n">colCum</span> <span class="o">=</span> <span class="s2">&quot;rgba(0,0,0,0.9)&quot;</span>
+<span class="n">colLearn</span> <span class="o">=</span> <span class="s2">&quot;#00F&quot;</span>
+<span class="n">colRelearn</span> <span class="o">=</span> <span class="s2">&quot;#c00&quot;</span>
+<span class="n">colCram</span> <span class="o">=</span> <span class="s2">&quot;#ff0&quot;</span>
+<span class="n">colIvl</span> <span class="o">=</span> <span class="s2">&quot;#077&quot;</span>
+<span class="n">colHour</span> <span class="o">=</span> <span class="s2">&quot;#ccc&quot;</span>
+<span class="n">colTime</span> <span class="o">=</span> <span class="s2">&quot;#770&quot;</span>
+<span class="n">colUnseen</span> <span class="o">=</span> <span class="s2">&quot;#000&quot;</span>
+<span class="n">colSusp</span> <span class="o">=</span> <span class="s2">&quot;#ff0&quot;</span>
+
+
+<div class="viewcode-block" id="CollectionStats"><a class="viewcode-back" href="../../anki.html#anki.stats.CollectionStats">[docs]</a><span class="k">class</span> <span class="nc">CollectionStats</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">:</span> <span class="n">anki</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">Collection</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span> <span class="o">=</span> <span class="n">col</span><span class="o">.</span><span class="n">weakref</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stats</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">PERIOD_MONTH</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="mi">600</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="mi">200</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wholeCollection</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="c1"># assumes jquery &amp; plot are available in document</span>
+<div class="viewcode-block" id="CollectionStats.report"><a class="viewcode-back" href="../../anki.html#anki.stats.CollectionStats.report">[docs]</a>    <span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">PERIOD_MONTH</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="c1"># 0=month, 1=year, 2=deck life</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="nb">type</span>
+        <span class="kn">from</span> <span class="nn">.statsbg</span> <span class="kn">import</span> <span class="n">bg</span>
+
+        <span class="n">txt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">css</span> <span class="o">%</span> <span class="n">bg</span>
+        <span class="n">txt</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_section</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">todayStats</span><span class="p">())</span>
+        <span class="n">txt</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_section</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dueGraph</span><span class="p">())</span>
+        <span class="n">txt</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">repsGraphs</span><span class="p">()</span>
+        <span class="n">txt</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_section</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">introductionGraph</span><span class="p">())</span>
+        <span class="n">txt</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_section</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ivlGraph</span><span class="p">())</span>
+        <span class="n">txt</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_section</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hourGraph</span><span class="p">())</span>
+        <span class="n">txt</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_section</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">easeGraph</span><span class="p">())</span>
+        <span class="n">txt</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_section</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cardGraph</span><span class="p">())</span>
+        <span class="n">txt</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_section</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">footer</span><span class="p">())</span>
+        <span class="k">return</span> <span class="s2">&quot;&lt;center&gt;</span><span class="si">%s</span><span class="s2">&lt;/center&gt;&quot;</span> <span class="o">%</span> <span class="n">txt</span></div>
+
+    <span class="k">def</span> <span class="nf">_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">txt</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;&lt;div class=section&gt;</span><span class="si">%s</span><span class="s2">&lt;/div&gt;&quot;</span> <span class="o">%</span> <span class="n">txt</span>
+
+    <span class="n">css</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">&lt;style&gt;</span>
+<span class="s2">h1 { margin-bottom: 0; margin-top: 1em; }</span>
+<span class="s2">.pielabel { text-align:center; padding:0px; color:white; }</span>
+<span class="s2">body {background-image: url(data:image/png;base64,</span><span class="si">%s</span><span class="s2">); }</span>
+<span class="s2">@media print {</span>
+<span class="s2">    .section { page-break-inside: avoid; padding-top: 5mm; }</span>
+<span class="s2">}</span>
+<span class="s2">body { direction: ltr !important; }</span>
+<span class="s2">&lt;/style&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="c1"># Today stats</span>
+    <span class="c1">######################################################################</span>
+
+<div class="viewcode-block" id="CollectionStats.todayStats"><a class="viewcode-back" href="../../anki.html#anki.stats.CollectionStats.todayStats">[docs]</a>    <span class="k">def</span> <span class="nf">todayStats</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_title</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Today&quot;</span><span class="p">))</span>
+        <span class="c1"># studied today</span>
+        <span class="n">lim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_revlogLimit</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">lim</span><span class="p">:</span>
+            <span class="n">lim</span> <span class="o">=</span> <span class="s2">&quot; and &quot;</span> <span class="o">+</span> <span class="n">lim</span>
+        <span class="n">cards</span><span class="p">,</span> <span class="n">thetime</span><span class="p">,</span> <span class="n">failed</span><span class="p">,</span> <span class="n">lrn</span><span class="p">,</span> <span class="n">rev</span><span class="p">,</span> <span class="n">relrn</span><span class="p">,</span> <span class="n">filt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">first</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">select count(), sum(time)/1000,</span>
+<span class="s2">sum(case when ease = 1 then 1 else 0 end), /* failed */</span>
+<span class="s2">sum(case when type = </span><span class="si">{REVLOG_LRN}</span><span class="s2"> then 1 else 0 end), /* learning */</span>
+<span class="s2">sum(case when type = </span><span class="si">{REVLOG_REV}</span><span class="s2"> then 1 else 0 end), /* review */</span>
+<span class="s2">sum(case when type = </span><span class="si">{REVLOG_RELRN}</span><span class="s2"> then 1 else 0 end), /* relearn */</span>
+<span class="s2">sum(case when type = </span><span class="si">{REVLOG_CRAM}</span><span class="s2"> then 1 else 0 end) /* filter */</span>
+<span class="s2">from revlog where id &gt; ? &quot;&quot;&quot;</span>
+            <span class="o">+</span> <span class="n">lim</span><span class="p">,</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">dayCutoff</span> <span class="o">-</span> <span class="mi">86400</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">cards</span> <span class="o">=</span> <span class="n">cards</span> <span class="ow">or</span> <span class="mi">0</span>
+        <span class="n">thetime</span> <span class="o">=</span> <span class="n">thetime</span> <span class="ow">or</span> <span class="mi">0</span>
+        <span class="n">failed</span> <span class="o">=</span> <span class="n">failed</span> <span class="ow">or</span> <span class="mi">0</span>
+        <span class="n">lrn</span> <span class="o">=</span> <span class="n">lrn</span> <span class="ow">or</span> <span class="mi">0</span>
+        <span class="n">rev</span> <span class="o">=</span> <span class="n">rev</span> <span class="ow">or</span> <span class="mi">0</span>
+        <span class="n">relrn</span> <span class="o">=</span> <span class="n">relrn</span> <span class="ow">or</span> <span class="mi">0</span>
+        <span class="n">filt</span> <span class="o">=</span> <span class="n">filt</span> <span class="ow">or</span> <span class="mi">0</span>
+        <span class="c1"># studied</span>
+        <span class="k">def</span> <span class="nf">bold</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s2">&quot;&lt;b&gt;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&lt;/b&gt;&quot;</span>
+
+        <span class="k">if</span> <span class="n">cards</span><span class="p">:</span>
+            <span class="n">b</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">studied_today</span><span class="p">(</span><span class="n">cards</span><span class="o">=</span><span class="n">cards</span><span class="p">,</span> <span class="n">seconds</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">thetime</span><span class="p">))</span>
+            <span class="c1"># again/pass count</span>
+            <span class="n">b</span> <span class="o">+=</span> <span class="s2">&quot;&lt;br&gt;&quot;</span> <span class="o">+</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Again count: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">bold</span><span class="p">(</span><span class="n">failed</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">cards</span><span class="p">:</span>
+                <span class="n">b</span> <span class="o">+=</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;(</span><span class="si">%s</span><span class="s2"> correct)&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">bold</span><span class="p">(</span>
+                    <span class="s2">&quot;</span><span class="si">%0.1f%%</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">failed</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">cards</span><span class="p">))</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="c1"># type breakdown</span>
+            <span class="n">b</span> <span class="o">+=</span> <span class="s2">&quot;&lt;br&gt;&quot;</span>
+            <span class="n">b</span> <span class="o">+=</span> <span class="n">_</span><span class="p">(</span>
+                <span class="s2">&quot;Learn: </span><span class="si">%(a)s</span><span class="s2">, Review: </span><span class="si">%(b)s</span><span class="s2">, Relearn: </span><span class="si">%(c)s</span><span class="s2">, Filtered: </span><span class="si">%(d)s</span><span class="s2">&quot;</span>
+            <span class="p">)</span> <span class="o">%</span> <span class="nb">dict</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="n">bold</span><span class="p">(</span><span class="n">lrn</span><span class="p">),</span> <span class="n">b</span><span class="o">=</span><span class="n">bold</span><span class="p">(</span><span class="n">rev</span><span class="p">),</span> <span class="n">c</span><span class="o">=</span><span class="n">bold</span><span class="p">(</span><span class="n">relrn</span><span class="p">),</span> <span class="n">d</span><span class="o">=</span><span class="n">bold</span><span class="p">(</span><span class="n">filt</span><span class="p">))</span>
+            <span class="c1"># mature today</span>
+            <span class="n">mcnt</span><span class="p">,</span> <span class="n">msum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">first</span><span class="p">(</span>
+                <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    select count(), sum(case when ease = 1 then 0 else 1 end) from revlog</span>
+<span class="sd">    where lastIvl &gt;= 21 and id &gt; ?&quot;&quot;&quot;</span>
+                <span class="o">+</span> <span class="n">lim</span><span class="p">,</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">dayCutoff</span> <span class="o">-</span> <span class="mi">86400</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">b</span> <span class="o">+=</span> <span class="s2">&quot;&lt;br&gt;&quot;</span>
+            <span class="k">if</span> <span class="n">mcnt</span><span class="p">:</span>
+                <span class="n">b</span> <span class="o">+=</span> <span class="n">_</span><span class="p">(</span>
+                    <span class="s2">&quot;Correct answers on mature cards: </span><span class="si">%(a)d</span><span class="s2">/</span><span class="si">%(b)d</span><span class="s2"> (</span><span class="si">%(c).1f%%</span><span class="s2">)&quot;</span>
+                <span class="p">)</span> <span class="o">%</span> <span class="nb">dict</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="n">msum</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="n">mcnt</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="p">(</span><span class="n">msum</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">mcnt</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">b</span> <span class="o">+=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;No mature cards were studied today.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">b</span> <span class="o">+=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;No cards have been studied today.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">b</span></div>
+
+    <span class="c1"># Due and cumulative due</span>
+    <span class="c1">######################################################################</span>
+
+<div class="viewcode-block" id="CollectionStats.get_start_end_chunk"><a class="viewcode-back" href="../../anki.html#anki.stats.CollectionStats.get_start_end_chunk">[docs]</a>    <span class="k">def</span> <span class="nf">get_start_end_chunk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;review&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="nb">int</span><span class="p">]:</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">PERIOD_MONTH</span><span class="p">:</span>
+            <span class="n">end</span><span class="p">,</span> <span class="n">chunk</span> <span class="o">=</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">PERIOD_YEAR</span><span class="p">:</span>
+            <span class="n">end</span><span class="p">,</span> <span class="n">chunk</span> <span class="o">=</span> <span class="mi">52</span><span class="p">,</span> <span class="mi">7</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1">#  self.type == 2:</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_deckAge</span><span class="p">(</span><span class="n">by</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">100</span><span class="p">:</span>
+                <span class="n">chunk</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_deckAge</span><span class="p">(</span><span class="n">by</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">700</span><span class="p">:</span>
+                <span class="n">chunk</span> <span class="o">=</span> <span class="mi">7</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">chunk</span> <span class="o">=</span> <span class="mi">31</span>
+        <span class="k">return</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">chunk</span></div>
+
+<div class="viewcode-block" id="CollectionStats.dueGraph"><a class="viewcode-back" href="../../anki.html#anki.stats.CollectionStats.dueGraph">[docs]</a>    <span class="k">def</span> <span class="nf">dueGraph</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">chunk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_start_end_chunk</span><span class="p">()</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_due</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">chunk</span><span class="p">)</span>
+        <span class="n">yng</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">mtr</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">tot</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">totd</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">day</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
+            <span class="n">yng</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">day</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">day</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="n">mtr</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">day</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">day</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+            <span class="n">tot</span> <span class="o">+=</span> <span class="n">day</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">day</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">totd</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">day</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">tot</span><span class="p">))</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="nb">dict</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">mtr</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colMature</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Mature&quot;</span><span class="p">)),</span>
+            <span class="nb">dict</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">yng</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colYoung</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Young&quot;</span><span class="p">)),</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">totd</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="nb">dict</span><span class="p">(</span>
+                    <span class="n">data</span><span class="o">=</span><span class="n">totd</span><span class="p">,</span>
+                    <span class="n">color</span><span class="o">=</span><span class="n">colCum</span><span class="p">,</span>
+                    <span class="n">label</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Cumulative&quot;</span><span class="p">),</span>
+                    <span class="n">yaxis</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                    <span class="n">bars</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;show&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+                    <span class="n">lines</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+                    <span class="n">stack</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="n">txt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_title</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Forecast&quot;</span><span class="p">),</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;The number of reviews due in the future.&quot;</span><span class="p">))</span>
+        <span class="n">xaxis</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">tickDecimals</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">min</span><span class="o">=-</span><span class="mf">0.5</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">end</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">xaxis</span><span class="p">[</span><span class="s2">&quot;max&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">end</span> <span class="o">-</span> <span class="mf">0.5</span>
+        <span class="n">txt</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="p">(</span>
+            <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;due&quot;</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+            <span class="n">xunit</span><span class="o">=</span><span class="n">chunk</span><span class="p">,</span>
+            <span class="n">ylabel2</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Cumulative Cards&quot;</span><span class="p">),</span>
+            <span class="n">conf</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">xaxis</span><span class="o">=</span><span class="n">xaxis</span><span class="p">,</span>
+                <span class="n">yaxes</span><span class="o">=</span><span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">tickDecimals</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">)],</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">txt</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dueInfo</span><span class="p">(</span><span class="n">tot</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">totd</span><span class="p">)</span> <span class="o">*</span> <span class="n">chunk</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">txt</span></div>
+
+    <span class="k">def</span> <span class="nf">_dueInfo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tot</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">num</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">i</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_line</span><span class="p">(</span>
+            <span class="n">i</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Total&quot;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">STATISTICS_REVIEWS</span><span class="p">,</span> <span class="n">reviews</span><span class="o">=</span><span class="n">tot</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_line</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Average&quot;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_avgDay</span><span class="p">(</span><span class="n">tot</span><span class="p">,</span> <span class="n">num</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;reviews&quot;</span><span class="p">)))</span>
+        <span class="n">tomorrow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">select count() from cards where did in </span><span class="si">%s</span><span class="s2"> and queue in (</span><span class="si">{QUEUE_TYPE_REV}</span><span class="s2">,</span><span class="si">{QUEUE_TYPE_DAY_LEARN_RELEARN}</span><span class="s2">)</span>
+<span class="s2">and due = ?&quot;&quot;&quot;</span>
+            <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_limit</span><span class="p">(),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">today</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">tomorrow</span> <span class="o">=</span> <span class="n">ngettext</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> card&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> cards&quot;</span><span class="p">,</span> <span class="n">tomorrow</span><span class="p">)</span> <span class="o">%</span> <span class="n">tomorrow</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_line</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Due tomorrow&quot;</span><span class="p">),</span> <span class="n">tomorrow</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lineTbl</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_due</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">chunk</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="n">lim</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">start</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">lim</span> <span class="o">+=</span> <span class="s2">&quot; and due-</span><span class="si">%d</span><span class="s2"> &gt;= </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">today</span><span class="p">,</span> <span class="n">start</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">end</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">lim</span> <span class="o">+=</span> <span class="s2">&quot; and day &lt; </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">end</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">all</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">select (due-?)/? as day,</span>
+<span class="s2">sum(case when ivl &lt; 21 then 1 else 0 end), -- yng</span>
+<span class="s2">sum(case when ivl &gt;= 21 then 1 else 0 end) -- mtr</span>
+<span class="s2">from cards</span>
+<span class="s2">where did in </span><span class="si">%s</span><span class="s2"> and queue in (</span><span class="si">{QUEUE_TYPE_REV}</span><span class="s2">,</span><span class="si">{QUEUE_TYPE_DAY_LEARN_RELEARN}</span><span class="s2">)</span>
+<span class="si">%s</span><span class="s2"></span>
+<span class="s2">group by day order by day&quot;&quot;&quot;</span>
+            <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_limit</span><span class="p">(),</span> <span class="n">lim</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">today</span><span class="p">,</span>
+            <span class="n">chunk</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Added, reps and time spent</span>
+    <span class="c1">######################################################################</span>
+
+<div class="viewcode-block" id="CollectionStats.introductionGraph"><a class="viewcode-back" href="../../anki.html#anki.stats.CollectionStats.introductionGraph">[docs]</a>    <span class="k">def</span> <span class="nf">introductionGraph</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">start</span><span class="p">,</span> <span class="n">days</span><span class="p">,</span> <span class="n">chunk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_start_end_chunk</span><span class="p">()</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_added</span><span class="p">(</span><span class="n">days</span><span class="p">,</span> <span class="n">chunk</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">conf</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">xaxis</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">tickDecimals</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mf">0.5</span><span class="p">),</span>
+            <span class="n">yaxes</span><span class="o">=</span><span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="nb">dict</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">)],</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">days</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># pylint: disable=invalid-unary-operand-type</span>
+            <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;xaxis&quot;</span><span class="p">][</span><span class="s2">&quot;min&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">days</span> <span class="o">+</span> <span class="mf">0.5</span>
+
+        <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">ylabel</span><span class="p">,</span> <span class="n">ylabel2</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="p">(</span>
+                <span class="nb">id</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">conf</span><span class="o">=</span><span class="n">conf</span><span class="p">,</span> <span class="n">xunit</span><span class="o">=</span><span class="n">chunk</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="n">ylabel</span><span class="p">,</span> <span class="n">ylabel2</span><span class="o">=</span><span class="n">ylabel2</span>
+            <span class="p">)</span>
+
+        <span class="c1"># graph</span>
+        <span class="n">repdata</span><span class="p">,</span> <span class="n">repsum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_splitRepData</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">colLearn</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),))</span>
+        <span class="n">txt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_title</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Added&quot;</span><span class="p">),</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;The number of new cards you have added.&quot;</span><span class="p">))</span>
+        <span class="n">txt</span> <span class="o">+=</span> <span class="n">plot</span><span class="p">(</span><span class="s2">&quot;intro&quot;</span><span class="p">,</span> <span class="n">repdata</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Cards&quot;</span><span class="p">),</span> <span class="n">ylabel2</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Cumulative Cards&quot;</span><span class="p">))</span>
+        <span class="c1"># total and per day average</span>
+        <span class="n">tot</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">data</span><span class="p">])</span>
+        <span class="n">period</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_periodDays</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">period</span><span class="p">:</span>
+            <span class="c1"># base off date of earliest added card</span>
+            <span class="n">period</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_deckAge</span><span class="p">(</span><span class="s2">&quot;add&quot;</span><span class="p">)</span>
+        <span class="n">i</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_line</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Total&quot;</span><span class="p">),</span> <span class="n">ngettext</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> card&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> cards&quot;</span><span class="p">,</span> <span class="n">tot</span><span class="p">)</span> <span class="o">%</span> <span class="n">tot</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_line</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Average&quot;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_avgDay</span><span class="p">(</span><span class="n">tot</span><span class="p">,</span> <span class="n">period</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;cards&quot;</span><span class="p">)))</span>
+        <span class="n">txt</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lineTbl</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">txt</span></div>
+
+<div class="viewcode-block" id="CollectionStats.repsGraphs"><a class="viewcode-back" href="../../anki.html#anki.stats.CollectionStats.repsGraphs">[docs]</a>    <span class="k">def</span> <span class="nf">repsGraphs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">start</span><span class="p">,</span> <span class="n">days</span><span class="p">,</span> <span class="n">chunk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_start_end_chunk</span><span class="p">()</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_done</span><span class="p">(</span><span class="n">days</span><span class="p">,</span> <span class="n">chunk</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">conf</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">xaxis</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">tickDecimals</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mf">0.5</span><span class="p">),</span>
+            <span class="n">yaxes</span><span class="o">=</span><span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="nb">dict</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">)],</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">days</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># pylint: disable=invalid-unary-operand-type</span>
+            <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;xaxis&quot;</span><span class="p">][</span><span class="s2">&quot;min&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">days</span> <span class="o">+</span> <span class="mf">0.5</span>
+
+        <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">ylabel</span><span class="p">,</span> <span class="n">ylabel2</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="p">(</span>
+                <span class="nb">id</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">conf</span><span class="o">=</span><span class="n">conf</span><span class="p">,</span> <span class="n">xunit</span><span class="o">=</span><span class="n">chunk</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="n">ylabel</span><span class="p">,</span> <span class="n">ylabel2</span><span class="o">=</span><span class="n">ylabel2</span>
+            <span class="p">)</span>
+
+        <span class="c1"># reps</span>
+        <span class="p">(</span><span class="n">repdata</span><span class="p">,</span> <span class="n">repsum</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_splitRepData</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">,</span>
+            <span class="p">(</span>
+                <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">colMature</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Mature&quot;</span><span class="p">)),</span>
+                <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">colYoung</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Young&quot;</span><span class="p">)),</span>
+                <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">colRelearn</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Relearn&quot;</span><span class="p">)),</span>
+                <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">colLearn</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Learn&quot;</span><span class="p">)),</span>
+                <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">colCram</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Cram&quot;</span><span class="p">)),</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">txt1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_title</span><span class="p">(</span>
+            <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Review Count&quot;</span><span class="p">),</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;The number of questions you have answered.&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">txt1</span> <span class="o">+=</span> <span class="n">plot</span><span class="p">(</span>
+            <span class="s2">&quot;reps&quot;</span><span class="p">,</span> <span class="n">repdata</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Answers&quot;</span><span class="p">),</span> <span class="n">ylabel2</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Cumulative Answers&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="p">(</span><span class="n">daysStud</span><span class="p">,</span> <span class="n">fstDay</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_daysStudied</span><span class="p">()</span>
+        <span class="n">rep</span><span class="p">,</span> <span class="n">tot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ansInfo</span><span class="p">(</span><span class="n">repsum</span><span class="p">,</span> <span class="n">daysStud</span><span class="p">,</span> <span class="n">fstDay</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;reviews&quot;</span><span class="p">))</span>
+        <span class="n">txt1</span> <span class="o">+=</span> <span class="n">rep</span>
+        <span class="c1"># time</span>
+        <span class="p">(</span><span class="n">timdata</span><span class="p">,</span> <span class="n">timsum</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_splitRepData</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">,</span>
+            <span class="p">(</span>
+                <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="n">colMature</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Mature&quot;</span><span class="p">)),</span>
+                <span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="n">colYoung</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Young&quot;</span><span class="p">)),</span>
+                <span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="n">colRelearn</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Relearn&quot;</span><span class="p">)),</span>
+                <span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="n">colLearn</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Learn&quot;</span><span class="p">)),</span>
+                <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">colCram</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Cram&quot;</span><span class="p">)),</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">PERIOD_MONTH</span><span class="p">:</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Minutes&quot;</span><span class="p">)</span>
+            <span class="n">convHours</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Hours&quot;</span><span class="p">)</span>
+            <span class="n">convHours</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">txt2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_title</span><span class="p">(</span>
+            <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Review Time&quot;</span><span class="p">),</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;The time taken to answer the questions.&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">txt2</span> <span class="o">+=</span> <span class="n">plot</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">timdata</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="n">t</span><span class="p">,</span> <span class="n">ylabel2</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Cumulative </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">t</span><span class="p">)</span>
+        <span class="n">rep</span><span class="p">,</span> <span class="n">tot2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ansInfo</span><span class="p">(</span>
+            <span class="n">timsum</span><span class="p">,</span> <span class="n">daysStud</span><span class="p">,</span> <span class="n">fstDay</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;minutes&quot;</span><span class="p">),</span> <span class="n">convHours</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="n">tot</span>
+        <span class="p">)</span>
+        <span class="n">txt2</span> <span class="o">+=</span> <span class="n">rep</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_section</span><span class="p">(</span><span class="n">txt1</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_section</span><span class="p">(</span><span class="n">txt2</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_ansInfo</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">totd</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]],</span>
+        <span class="n">studied</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">first</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">unit</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">convHours</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">total</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+        <span class="k">assert</span> <span class="n">totd</span>
+        <span class="n">tot</span> <span class="o">=</span> <span class="n">totd</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">period</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_periodDays</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">period</span><span class="p">:</span>
+            <span class="c1"># base off earliest repetition date</span>
+            <span class="n">period</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_deckAge</span><span class="p">(</span><span class="s2">&quot;review&quot;</span><span class="p">)</span>
+        <span class="n">i</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_line</span><span class="p">(</span>
+            <span class="n">i</span><span class="p">,</span>
+            <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Days studied&quot;</span><span class="p">),</span>
+            <span class="n">_</span><span class="p">(</span><span class="s2">&quot;&lt;b&gt;</span><span class="si">%(pct)d%%</span><span class="s2">&lt;/b&gt; (</span><span class="si">%(x)s</span><span class="s2"> of </span><span class="si">%(y)s</span><span class="s2">)&quot;</span><span class="p">)</span>
+            <span class="o">%</span> <span class="nb">dict</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">studied</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">period</span><span class="p">,</span> <span class="n">pct</span><span class="o">=</span><span class="n">studied</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">period</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">),</span>
+            <span class="n">bold</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">convHours</span><span class="p">:</span>
+            <span class="n">tunit</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;hours&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">tunit</span> <span class="o">=</span> <span class="n">unit</span>
+        <span class="c1"># T: unit: can be hours, minutes, reviews... tot: the number of unit.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_line</span><span class="p">(</span>
+            <span class="n">i</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Total&quot;</span><span class="p">),</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%(tot)s</span><span class="s2"> </span><span class="si">%(unit)s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="nb">dict</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="n">tunit</span><span class="p">,</span> <span class="n">tot</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">tot</span><span class="p">))</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">convHours</span><span class="p">:</span>
+            <span class="c1"># convert to minutes</span>
+            <span class="n">tot</span> <span class="o">*=</span> <span class="mi">60</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_line</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Average for days studied&quot;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_avgDay</span><span class="p">(</span><span class="n">tot</span><span class="p">,</span> <span class="n">studied</span><span class="p">,</span> <span class="n">unit</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">studied</span> <span class="o">!=</span> <span class="n">period</span><span class="p">:</span>
+            <span class="c1"># don&#39;t display if you did study every day</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_line</span><span class="p">(</span>
+                <span class="n">i</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;If you studied every day&quot;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_avgDay</span><span class="p">(</span><span class="n">tot</span><span class="p">,</span> <span class="n">period</span><span class="p">,</span> <span class="n">unit</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">total</span> <span class="ow">and</span> <span class="n">tot</span><span class="p">:</span>
+            <span class="n">perMin</span> <span class="o">=</span> <span class="n">total</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">tot</span><span class="p">)</span>
+            <span class="n">average_secs</span> <span class="o">=</span> <span class="p">(</span><span class="n">tot</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span> <span class="o">/</span> <span class="n">total</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_line</span><span class="p">(</span>
+                <span class="n">i</span><span class="p">,</span>
+                <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Average answer time&quot;</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">tr</span><span class="p">(</span>
+                    <span class="n">TR</span><span class="o">.</span><span class="n">STATISTICS_AVERAGE_ANSWER_TIME</span><span class="p">,</span>
+                    <span class="o">**</span><span class="p">{</span><span class="s2">&quot;cards-per-minute&quot;</span><span class="p">:</span> <span class="n">perMin</span><span class="p">,</span> <span class="s2">&quot;average-seconds&quot;</span><span class="p">:</span> <span class="n">average_secs</span><span class="p">},</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lineTbl</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">tot</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_splitRepData</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">]],</span> <span class="n">spec</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]:</span>
+        <span class="n">sep</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">totcnt</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">totd</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">alltot</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">allcnt</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">lab</span><span class="p">)</span> <span class="ow">in</span> <span class="n">spec</span><span class="p">:</span>
+            <span class="n">totcnt</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="n">totd</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">lab</span><span class="p">)</span> <span class="ow">in</span> <span class="n">spec</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">n</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sep</span><span class="p">:</span>
+                    <span class="n">sep</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">sep</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="n">n</span><span class="p">]))</span>
+                <span class="n">totcnt</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">+=</span> <span class="n">row</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+                <span class="n">allcnt</span> <span class="o">+=</span> <span class="n">row</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+                <span class="n">totd</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">totcnt</span><span class="p">[</span><span class="n">n</span><span class="p">]))</span>
+            <span class="n">alltot</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">allcnt</span><span class="p">))</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">lab</span><span class="p">)</span> <span class="ow">in</span> <span class="n">spec</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">totd</span><span class="p">[</span><span class="n">n</span><span class="p">])</span> <span class="ow">and</span> <span class="n">totcnt</span><span class="p">[</span><span class="n">n</span><span class="p">]:</span>
+                <span class="c1"># bars</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">sep</span><span class="p">[</span><span class="n">n</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">col</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">lab</span><span class="p">))</span>
+                <span class="c1"># lines</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="nb">dict</span><span class="p">(</span>
+                        <span class="n">data</span><span class="o">=</span><span class="n">totd</span><span class="p">[</span><span class="n">n</span><span class="p">],</span>
+                        <span class="n">color</span><span class="o">=</span><span class="n">col</span><span class="p">,</span>
+                        <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                        <span class="n">yaxis</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                        <span class="n">bars</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;show&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+                        <span class="n">lines</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+                        <span class="n">stack</span><span class="o">=-</span><span class="n">n</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="n">alltot</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_added</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">7</span><span class="p">,</span> <span class="n">chunk</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="n">lims</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">num</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">lims</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="s2">&quot;id &gt; </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">dayCutoff</span> <span class="o">-</span> <span class="p">(</span><span class="n">num</span> <span class="o">*</span> <span class="n">chunk</span> <span class="o">*</span> <span class="mi">86400</span><span class="p">))</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="n">lims</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;did in </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_limit</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">lims</span><span class="p">:</span>
+            <span class="n">lim</span> <span class="o">=</span> <span class="s2">&quot;where &quot;</span> <span class="o">+</span> <span class="s2">&quot; and &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lims</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">lim</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">PERIOD_MONTH</span><span class="p">:</span>
+            <span class="n">tf</span> <span class="o">=</span> <span class="mf">60.0</span>  <span class="c1"># minutes</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">tf</span> <span class="o">=</span> <span class="mf">3600.0</span>  <span class="c1"># hours</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">all</span><span class="p">(</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">select</span>
+<span class="sd">(cast((id/1000.0 - ?) / 86400.0 as int))/? as day,</span>
+<span class="sd">count(id)</span>
+<span class="sd">from cards %s</span>
+<span class="sd">group by day order by day&quot;&quot;&quot;</span>
+            <span class="o">%</span> <span class="n">lim</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">dayCutoff</span><span class="p">,</span>
+            <span class="n">chunk</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_done</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">7</span><span class="p">,</span> <span class="n">chunk</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="n">lims</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">num</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">lims</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="s2">&quot;id &gt; </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">dayCutoff</span> <span class="o">-</span> <span class="p">(</span><span class="n">num</span> <span class="o">*</span> <span class="n">chunk</span> <span class="o">*</span> <span class="mi">86400</span><span class="p">))</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="n">lim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_revlogLimit</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">lim</span><span class="p">:</span>
+            <span class="n">lims</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lim</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">lims</span><span class="p">:</span>
+            <span class="n">lim</span> <span class="o">=</span> <span class="s2">&quot;where &quot;</span> <span class="o">+</span> <span class="s2">&quot; and &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lims</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">lim</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">PERIOD_MONTH</span><span class="p">:</span>
+            <span class="n">tf</span> <span class="o">=</span> <span class="mf">60.0</span>  <span class="c1"># minutes</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">tf</span> <span class="o">=</span> <span class="mf">3600.0</span>  <span class="c1"># hours</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">all</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">select</span>
+<span class="s2">(cast((id/1000.0 - ?) / 86400.0 as int))/? as day,</span>
+<span class="s2">sum(case when type = </span><span class="si">{REVLOG_LRN}</span><span class="s2"> then 1 else 0 end), -- lrn count</span>
+<span class="s2">sum(case when type = </span><span class="si">{REVLOG_REV}</span><span class="s2"> and lastIvl &lt; 21 then 1 else 0 end), -- yng count</span>
+<span class="s2">sum(case when type = </span><span class="si">{REVLOG_REV}</span><span class="s2"> and lastIvl &gt;= 21 then 1 else 0 end), -- mtr count</span>
+<span class="s2">sum(case when type = </span><span class="si">{REVLOG_RELRN}</span><span class="s2"> then 1 else 0 end), -- lapse count</span>
+<span class="s2">sum(case when type = </span><span class="si">{REVLOG_CRAM}</span><span class="s2"> then 1 else 0 end), -- cram count</span>
+<span class="s2">sum(case when type = </span><span class="si">{REVLOG_LRN}</span><span class="s2"> then time/1000.0 else 0 end)/?, -- lrn time</span>
+<span class="s2">-- yng + mtr time</span>
+<span class="s2">sum(case when type = </span><span class="si">{REVLOG_REV}</span><span class="s2"> and lastIvl &lt; 21 then time/1000.0 else 0 end)/?,</span>
+<span class="s2">sum(case when type = </span><span class="si">{REVLOG_REV}</span><span class="s2"> and lastIvl &gt;= 21 then time/1000.0 else 0 end)/?,</span>
+<span class="s2">sum(case when type = </span><span class="si">{REVLOG_RELRN}</span><span class="s2"> then time/1000.0 else 0 end)/?, -- lapse time</span>
+<span class="s2">sum(case when type = </span><span class="si">{REVLOG_CRAM}</span><span class="s2"> then time/1000.0 else 0 end)/? -- cram time</span>
+<span class="s2">from revlog </span><span class="si">%s</span><span class="s2"></span>
+<span class="s2">group by day order by day&quot;&quot;&quot;</span>
+            <span class="o">%</span> <span class="n">lim</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">dayCutoff</span><span class="p">,</span>
+            <span class="n">chunk</span><span class="p">,</span>
+            <span class="n">tf</span><span class="p">,</span>
+            <span class="n">tf</span><span class="p">,</span>
+            <span class="n">tf</span><span class="p">,</span>
+            <span class="n">tf</span><span class="p">,</span>
+            <span class="n">tf</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_daysStudied</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="n">lims</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">num</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_periodDays</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">num</span><span class="p">:</span>
+            <span class="n">lims</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;id &gt; </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">dayCutoff</span> <span class="o">-</span> <span class="p">(</span><span class="n">num</span> <span class="o">*</span> <span class="mi">86400</span><span class="p">))</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">))</span>
+        <span class="n">rlim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_revlogLimit</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">rlim</span><span class="p">:</span>
+            <span class="n">lims</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rlim</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">lims</span><span class="p">:</span>
+            <span class="n">lim</span> <span class="o">=</span> <span class="s2">&quot;where &quot;</span> <span class="o">+</span> <span class="s2">&quot; and &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lims</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">lim</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">first</span><span class="p">(</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">select count(), abs(min(day)) from (select</span>
+<span class="sd">(cast((id/1000 - ?) / 86400.0 as int)+1) as day</span>
+<span class="sd">from revlog %s</span>
+<span class="sd">group by day order by day)&quot;&quot;&quot;</span>
+            <span class="o">%</span> <span class="n">lim</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">dayCutoff</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="n">ret</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
+    <span class="c1"># Intervals</span>
+    <span class="c1">######################################################################</span>
+
+<div class="viewcode-block" id="CollectionStats.ivlGraph"><a class="viewcode-back" href="../../anki.html#anki.stats.CollectionStats.ivlGraph">[docs]</a>    <span class="k">def</span> <span class="nf">ivlGraph</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="p">(</span><span class="n">ivls</span><span class="p">,</span> <span class="nb">all</span><span class="p">,</span> <span class="n">avg</span><span class="p">,</span> <span class="n">max_</span><span class="p">),</span> <span class="n">chunk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ivls</span><span class="p">()</span>
+        <span class="n">tot</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">totd</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ivls</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">grp</span><span class="p">,</span> <span class="n">cnt</span><span class="p">)</span> <span class="ow">in</span> <span class="n">ivls</span><span class="p">:</span>
+            <span class="n">tot</span> <span class="o">+=</span> <span class="n">cnt</span>
+            <span class="n">totd</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">grp</span><span class="p">,</span> <span class="n">tot</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="nb">all</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">PERIOD_MONTH</span><span class="p">:</span>
+            <span class="n">ivlmax</span> <span class="o">=</span> <span class="mi">31</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">PERIOD_YEAR</span><span class="p">:</span>
+            <span class="n">ivlmax</span> <span class="o">=</span> <span class="mi">52</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ivlmax</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">ivls</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">txt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_title</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Intervals&quot;</span><span class="p">),</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Delays until reviews are shown again.&quot;</span><span class="p">))</span>
+        <span class="n">txt</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="p">(</span>
+            <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;ivl&quot;</span><span class="p">,</span>
+            <span class="n">ylabel2</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Percentage&quot;</span><span class="p">),</span>
+            <span class="n">xunit</span><span class="o">=</span><span class="n">chunk</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">=</span><span class="p">[</span>
+                <span class="nb">dict</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">ivls</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colIvl</span><span class="p">),</span>
+                <span class="nb">dict</span><span class="p">(</span>
+                    <span class="n">data</span><span class="o">=</span><span class="n">totd</span><span class="p">,</span>
+                    <span class="n">color</span><span class="o">=</span><span class="n">colCum</span><span class="p">,</span>
+                    <span class="n">yaxis</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                    <span class="n">bars</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;show&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+                    <span class="n">lines</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+                    <span class="n">stack</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">],</span>
+            <span class="n">conf</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">xaxis</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="nb">min</span><span class="o">=-</span><span class="mf">0.5</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="n">ivlmax</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">),</span>
+                <span class="n">yaxes</span><span class="o">=</span><span class="p">[</span><span class="nb">dict</span><span class="p">(),</span> <span class="nb">dict</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mi">105</span><span class="p">)],</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">i</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_line</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Average interval&quot;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">format_timespan</span><span class="p">(</span><span class="n">avg</span> <span class="o">*</span> <span class="mi">86400</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_line</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Longest interval&quot;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">format_timespan</span><span class="p">(</span><span class="n">max_</span> <span class="o">*</span> <span class="mi">86400</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">txt</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lineTbl</span><span class="p">(</span><span class="n">i</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_ivls</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span> <span class="nb">int</span><span class="p">]:</span>
+        <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">chunk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_start_end_chunk</span><span class="p">()</span>
+        <span class="n">lim</span> <span class="o">=</span> <span class="s2">&quot;and grp &lt;= </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">end</span> <span class="k">if</span> <span class="n">end</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">all</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">select ivl / ? as grp, count() from cards</span>
+<span class="s2">where did in </span><span class="si">%s</span><span class="s2"> and queue = </span><span class="si">{QUEUE_TYPE_REV}</span><span class="s2"> </span><span class="si">%s</span><span class="s2"></span>
+<span class="s2">group by grp</span>
+<span class="s2">order by grp&quot;&quot;&quot;</span>
+                <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_limit</span><span class="p">(),</span> <span class="n">lim</span><span class="p">),</span>
+                <span class="n">chunk</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">data</span>
+            <span class="o">+</span> <span class="nb">list</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">first</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">select count(), avg(ivl), max(ivl) from cards where did in </span><span class="si">%s</span><span class="s2"> and queue = </span><span class="si">{QUEUE_TYPE_REV}</span><span class="s2">&quot;&quot;&quot;</span>
+                    <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_limit</span><span class="p">()</span>
+                <span class="p">)</span>
+            <span class="p">),</span>
+            <span class="n">chunk</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Eases</span>
+    <span class="c1">######################################################################</span>
+
+<div class="viewcode-block" id="CollectionStats.easeGraph"><a class="viewcode-back" href="../../anki.html#anki.stats.CollectionStats.easeGraph">[docs]</a>    <span class="k">def</span> <span class="nf">easeGraph</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="c1"># 3 + 4 + 4 + spaces on sides and middle = 15</span>
+        <span class="c1"># yng starts at 1+3+1 = 5</span>
+        <span class="c1"># mtr starts at 5+4+1 = 10</span>
+        <span class="n">d</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;lrn&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;yng&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;mtr&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+        <span class="n">types</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;lrn&quot;</span><span class="p">,</span> <span class="s2">&quot;yng&quot;</span><span class="p">,</span> <span class="s2">&quot;mtr&quot;</span><span class="p">)</span>
+        <span class="n">eases</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eases</span><span class="p">()</span>
+        <span class="k">for</span> <span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">ease</span><span class="p">,</span> <span class="n">cnt</span><span class="p">)</span> <span class="ow">in</span> <span class="n">eases</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">type</span> <span class="o">==</span> <span class="n">CARD_TYPE_LRN</span><span class="p">:</span>
+                <span class="n">ease</span> <span class="o">+=</span> <span class="mi">5</span>
+            <span class="k">elif</span> <span class="nb">type</span> <span class="o">==</span> <span class="n">CARD_TYPE_REV</span><span class="p">:</span>
+                <span class="n">ease</span> <span class="o">+=</span> <span class="mi">10</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="n">types</span><span class="p">[</span><span class="nb">type</span><span class="p">]</span>
+            <span class="n">d</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">ease</span><span class="p">,</span> <span class="n">cnt</span><span class="p">))</span>
+        <span class="n">ticks</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>  <span class="c1"># [4,4]</span>
+            <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">9</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">11</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">13</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">14</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">schedVer</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">ticks</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">])</span>
+        <span class="n">txt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_title</span><span class="p">(</span>
+            <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Answer Buttons&quot;</span><span class="p">),</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;The number of times you have pressed each button.&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">txt</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="p">(</span>
+            <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;ease&quot;</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">=</span><span class="p">[</span>
+                <span class="nb">dict</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;lrn&quot;</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">colLearn</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Learning&quot;</span><span class="p">)),</span>
+                <span class="nb">dict</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;yng&quot;</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">colYoung</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Young&quot;</span><span class="p">)),</span>
+                <span class="nb">dict</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;mtr&quot;</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">colMature</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Mature&quot;</span><span class="p">)),</span>
+            <span class="p">],</span>
+            <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;bars&quot;</span><span class="p">,</span>
+            <span class="n">conf</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">xaxis</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">ticks</span><span class="o">=</span><span class="n">ticks</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mi">15</span><span class="p">)),</span>
+            <span class="n">ylabel</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Answers&quot;</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">txt</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_easeInfo</span><span class="p">(</span><span class="n">eases</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">txt</span></div>
+
+    <span class="k">def</span> <span class="nf">_easeInfo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eases</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">types</span> <span class="o">=</span> <span class="p">{</span><span class="n">PERIOD_MONTH</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">PERIOD_YEAR</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">PERIOD_LIFE</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]}</span>
+        <span class="k">for</span> <span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">ease</span><span class="p">,</span> <span class="n">cnt</span><span class="p">)</span> <span class="ow">in</span> <span class="n">eases</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ease</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">types</span><span class="p">[</span><span class="nb">type</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">cnt</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">types</span><span class="p">[</span><span class="nb">type</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">cnt</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="nb">type</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+            <span class="p">(</span><span class="n">bad</span><span class="p">,</span> <span class="n">good</span><span class="p">)</span> <span class="o">=</span> <span class="n">types</span><span class="p">[</span><span class="nb">type</span><span class="p">]</span>
+            <span class="n">tot</span> <span class="o">=</span> <span class="n">bad</span> <span class="o">+</span> <span class="n">good</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">pct</span> <span class="o">=</span> <span class="n">good</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">tot</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">pct</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">i</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Correct: &lt;b&gt;</span><span class="si">%(pct)0.2f%%</span><span class="s2">&lt;/b&gt;&lt;br&gt;(</span><span class="si">%(good)d</span><span class="s2"> of </span><span class="si">%(tot)d</span><span class="s2">)&quot;</span><span class="p">)</span>
+                <span class="o">%</span> <span class="nb">dict</span><span class="p">(</span><span class="n">pct</span><span class="o">=</span><span class="n">pct</span><span class="p">,</span> <span class="n">good</span><span class="o">=</span><span class="n">good</span><span class="p">,</span> <span class="n">tot</span><span class="o">=</span><span class="n">tot</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&lt;center&gt;&lt;table width=%dpx&gt;&lt;tr&gt;&lt;td width=50&gt;&lt;/td&gt;&lt;td align=center&gt;&quot;&quot;&quot;</span>
+            <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span>
+            <span class="o">+</span> <span class="s2">&quot;&lt;/td&gt;&lt;td align=center&gt;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="o">+</span> <span class="s2">&quot;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/center&gt;&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_eases</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="n">lims</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">lim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_revlogLimit</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">lim</span><span class="p">:</span>
+            <span class="n">lims</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lim</span><span class="p">)</span>
+        <span class="n">days</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_periodDays</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">days</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">lims</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="s2">&quot;id &gt; </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">dayCutoff</span> <span class="o">-</span> <span class="p">(</span><span class="n">days</span> <span class="o">*</span> <span class="mi">86400</span><span class="p">))</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">lims</span><span class="p">:</span>
+            <span class="n">lim</span> <span class="o">=</span> <span class="s2">&quot;where &quot;</span> <span class="o">+</span> <span class="s2">&quot; and &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lims</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">lim</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">schedVer</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">ease4repl</span> <span class="o">=</span> <span class="s2">&quot;3&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ease4repl</span> <span class="o">=</span> <span class="s2">&quot;ease&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">all</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">select (case</span>
+<span class="s2">when type in (</span><span class="si">{REVLOG_LRN}</span><span class="s2">,</span><span class="si">{REVLOG_RELRN}</span><span class="s2">) then 0</span>
+<span class="s2">when lastIvl &lt; 21 then 1</span>
+<span class="s2">else 2 end) as thetype,</span>
+<span class="s2">(case when type in (</span><span class="si">{REVLOG_LRN}</span><span class="s2">,</span><span class="si">{REVLOG_RELRN}</span><span class="s2">) and ease = 4 then </span><span class="si">%s</span><span class="s2"> else ease end), count() from revlog </span><span class="si">%s</span><span class="s2"></span>
+<span class="s2">group by thetype, ease</span>
+<span class="s2">order by thetype, ease&quot;&quot;&quot;</span>
+            <span class="o">%</span> <span class="p">(</span><span class="n">ease4repl</span><span class="p">,</span> <span class="n">lim</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Hourly retention</span>
+    <span class="c1">######################################################################</span>
+
+<div class="viewcode-block" id="CollectionStats.hourGraph"><a class="viewcode-back" href="../../anki.html#anki.stats.CollectionStats.hourGraph">[docs]</a>    <span class="k">def</span> <span class="nf">hourGraph</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hourRet</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">shifted</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">counts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">mcount</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">trend</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">peak</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">hour</span> <span class="o">=</span> <span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">4</span><span class="p">)</span> <span class="o">%</span> <span class="mi">24</span>
+            <span class="n">pct</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">pct</span> <span class="o">&gt;</span> <span class="n">peak</span><span class="p">:</span>
+                <span class="n">peak</span> <span class="o">=</span> <span class="n">pct</span>
+            <span class="n">shifted</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">hour</span><span class="p">,</span> <span class="n">pct</span><span class="p">))</span>
+            <span class="n">counts</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">hour</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+            <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">mcount</span><span class="p">:</span>
+                <span class="n">mcount</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">shifted</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="n">counts</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">counts</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">shifted</span><span class="p">:</span>
+            <span class="n">hour</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">pct</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">trend</span><span class="p">:</span>
+                <span class="n">trend</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">hour</span><span class="p">,</span> <span class="n">pct</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">prev</span> <span class="o">=</span> <span class="n">trend</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">diff</span> <span class="o">=</span> <span class="n">pct</span> <span class="o">-</span> <span class="n">prev</span>
+                <span class="n">diff</span> <span class="o">/=</span> <span class="mf">3.0</span>
+                <span class="n">diff</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">diff</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">trend</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">hour</span><span class="p">,</span> <span class="n">prev</span> <span class="o">+</span> <span class="n">diff</span><span class="p">))</span>
+        <span class="n">txt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_title</span><span class="p">(</span>
+            <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Hourly Breakdown&quot;</span><span class="p">),</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Review success rate for each hour of the day.&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">txt</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="p">(</span>
+            <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;hour&quot;</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">=</span><span class="p">[</span>
+                <span class="nb">dict</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">shifted</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colCum</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;% Correct&quot;</span><span class="p">)),</span>
+                <span class="nb">dict</span><span class="p">(</span>
+                    <span class="n">data</span><span class="o">=</span><span class="n">counts</span><span class="p">,</span>
+                    <span class="n">color</span><span class="o">=</span><span class="n">colHour</span><span class="p">,</span>
+                    <span class="n">label</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Answers&quot;</span><span class="p">),</span>
+                    <span class="n">yaxis</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                    <span class="n">bars</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">barWidth</span><span class="o">=</span><span class="mf">0.2</span><span class="p">),</span>
+                    <span class="n">stack</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">],</span>
+            <span class="n">conf</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">xaxis</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                    <span class="n">ticks</span><span class="o">=</span><span class="p">[</span>
+                        <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;4AM&quot;</span><span class="p">)],</span>
+                        <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;10AM&quot;</span><span class="p">)],</span>
+                        <span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;4PM&quot;</span><span class="p">)],</span>
+                        <span class="p">[</span><span class="mi">18</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;10PM&quot;</span><span class="p">)],</span>
+                        <span class="p">[</span><span class="mi">23</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;3AM&quot;</span><span class="p">)],</span>
+                    <span class="p">]</span>
+                <span class="p">),</span>
+                <span class="n">yaxes</span><span class="o">=</span><span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="nb">max</span><span class="o">=</span><span class="n">peak</span><span class="p">),</span> <span class="nb">dict</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="n">mcount</span><span class="p">)],</span>
+            <span class="p">),</span>
+            <span class="n">ylabel</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;% Correct&quot;</span><span class="p">),</span>
+            <span class="n">ylabel2</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Reviews&quot;</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">txt</span> <span class="o">+=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Hours with less than 30 reviews are not shown.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">txt</span></div>
+
+    <span class="k">def</span> <span class="nf">_hourRet</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="n">lim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_revlogLimit</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">lim</span><span class="p">:</span>
+            <span class="n">lim</span> <span class="o">=</span> <span class="s2">&quot; and &quot;</span> <span class="o">+</span> <span class="n">lim</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">schedVer</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">sd</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">crt</span><span class="p">)</span>
+            <span class="n">rolloverHour</span> <span class="o">=</span> <span class="n">sd</span><span class="o">.</span><span class="n">hour</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rolloverHour</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;rollover&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="n">pd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_periodDays</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">pd</span><span class="p">:</span>
+            <span class="n">lim</span> <span class="o">+=</span> <span class="s2">&quot; and id &gt; </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">dayCutoff</span> <span class="o">-</span> <span class="p">(</span><span class="mi">86400</span> <span class="o">*</span> <span class="n">pd</span><span class="p">))</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">all</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">select</span>
+<span class="s2">23 - ((cast((? - id/1000) / 3600.0 as int)) </span><span class="si">%%</span><span class="s2"> 24) as hour,</span>
+<span class="s2">sum(case when ease = 1 then 0 else 1 end) /</span>
+<span class="s2">cast(count() as float) * 100,</span>
+<span class="s2">count()</span>
+<span class="s2">from revlog where type in (</span><span class="si">{REVLOG_LRN}</span><span class="s2">,</span><span class="si">{REVLOG_REV}</span><span class="s2">,</span><span class="si">{REVLOG_RELRN}</span><span class="s2">) </span><span class="si">%s</span><span class="s2"></span>
+<span class="s2">group by hour having count() &gt; 30 order by hour&quot;&quot;&quot;</span>
+            <span class="o">%</span> <span class="n">lim</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">dayCutoff</span> <span class="o">-</span> <span class="p">(</span><span class="n">rolloverHour</span> <span class="o">*</span> <span class="mi">3600</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Cards</span>
+    <span class="c1">######################################################################</span>
+
+<div class="viewcode-block" id="CollectionStats.cardGraph"><a class="viewcode-back" href="../../anki.html#anki.stats.CollectionStats.cardGraph">[docs]</a>    <span class="k">def</span> <span class="nf">cardGraph</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="c1"># graph data</span>
+        <span class="n">div</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cards</span><span class="p">()</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
+            <span class="p">(</span>
+                <span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Mature&quot;</span><span class="p">),</span> <span class="n">colMature</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Young+Learn&quot;</span><span class="p">),</span> <span class="n">colYoung</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Unseen&quot;</span><span class="p">),</span> <span class="n">colUnseen</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Suspended+Buried&quot;</span><span class="p">),</span> <span class="n">colSusp</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">):</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">div</span><span class="p">[</span><span class="n">c</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">div</span><span class="p">[</span><span class="n">c</span><span class="p">]),</span> <span class="n">color</span><span class="o">=</span><span class="n">col</span><span class="p">))</span>
+        <span class="c1"># text data</span>
+        <span class="n">i</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">first</span><span class="p">(</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">select count(id), count(distinct nid) from cards</span>
+<span class="sd">where did in %s &quot;&quot;&quot;</span>
+            <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_limit</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_line</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Total cards&quot;</span><span class="p">),</span> <span class="n">c</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_line</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Total notes&quot;</span><span class="p">),</span> <span class="n">f</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">avg</span><span class="p">,</span> <span class="n">high</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_factors</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">low</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_line</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Lowest ease&quot;</span><span class="p">),</span> <span class="s2">&quot;</span><span class="si">%d%%</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">low</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_line</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Average ease&quot;</span><span class="p">),</span> <span class="s2">&quot;</span><span class="si">%d%%</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">avg</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_line</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Highest ease&quot;</span><span class="p">),</span> <span class="s2">&quot;</span><span class="si">%d%%</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">high</span><span class="p">)</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="s2">&quot;&lt;table width=100%&gt;&quot;</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&lt;/table&gt;&lt;p&gt;&quot;</span>
+        <span class="n">info</span> <span class="o">+=</span> <span class="n">_</span><span class="p">(</span>
+            <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">A card&#39;s &lt;i&gt;ease&lt;/i&gt; is the size of the next interval \</span>
+<span class="sd">when you answer &quot;good&quot; on a review.&quot;&quot;&quot;</span>
+        <span class="p">)</span>
+        <span class="n">txt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_title</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Card Types&quot;</span><span class="p">),</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;The division of cards in your deck(s).&quot;</span><span class="p">))</span>
+        <span class="n">txt</span> <span class="o">+=</span> <span class="s2">&quot;&lt;table width=</span><span class="si">%d</span><span class="s2">&gt;&lt;tr&gt;&lt;td&gt;</span><span class="si">%s</span><span class="s2">&lt;/td&gt;&lt;td&gt;</span><span class="si">%s</span><span class="s2">&lt;/td&gt;&lt;/table&gt;&quot;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;cards&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">d</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;pie&quot;</span><span class="p">),</span>
+            <span class="n">info</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">txt</span></div>
+
+    <span class="k">def</span> <span class="nf">_line</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">a</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">bold</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># T: Symbols separating first and second column in a statistics table. Eg in &quot;Total:    3 reviews&quot;.</span>
+        <span class="n">colon</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">bold</span><span class="p">:</span>
+            <span class="n">i</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">(</span><span class="s2">&quot;&lt;tr&gt;&lt;td width=200 align=right&gt;</span><span class="si">%s%s</span><span class="s2">&lt;/td&gt;&lt;td&gt;&lt;b&gt;</span><span class="si">%s</span><span class="s2">&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&quot;</span><span class="p">)</span>
+                <span class="o">%</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">colon</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">i</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">(</span><span class="s2">&quot;&lt;tr&gt;&lt;td width=200 align=right&gt;</span><span class="si">%s%s</span><span class="s2">&lt;/td&gt;&lt;td&gt;</span><span class="si">%s</span><span class="s2">&lt;/td&gt;&lt;/tr&gt;&quot;</span><span class="p">)</span>
+                <span class="o">%</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">colon</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_lineTbl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;&lt;table width=400&gt;&quot;</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&lt;/table&gt;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_factors</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">first</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">select</span>
+<span class="s2">min(factor) / 10.0,</span>
+<span class="s2">avg(factor) / 10.0,</span>
+<span class="s2">max(factor) / 10.0</span>
+<span class="s2">from cards where did in </span><span class="si">%s</span><span class="s2"> and queue = </span><span class="si">{QUEUE_TYPE_REV}</span><span class="s2">&quot;&quot;&quot;</span>
+            <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_limit</span><span class="p">()</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_cards</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">first</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">select</span>
+<span class="s2">sum(case when queue=</span><span class="si">{QUEUE_TYPE_REV}</span><span class="s2"> and ivl &gt;= 21 then 1 else 0 end), -- mtr</span>
+<span class="s2">sum(case when queue in (</span><span class="si">{QUEUE_TYPE_LRN}</span><span class="s2">,</span><span class="si">{QUEUE_TYPE_DAY_LEARN_RELEARN}</span><span class="s2">) or (queue=</span><span class="si">{QUEUE_TYPE_REV}</span><span class="s2"> and ivl &lt; 21) then 1 else 0 end), -- yng/lrn</span>
+<span class="s2">sum(case when queue=</span><span class="si">{QUEUE_TYPE_NEW}</span><span class="s2"> then 1 else 0 end), -- new</span>
+<span class="s2">sum(case when queue&lt;</span><span class="si">{QUEUE_TYPE_NEW}</span><span class="s2"> then 1 else 0 end) -- susp</span>
+<span class="s2">from cards where did in </span><span class="si">%s</span><span class="s2">&quot;&quot;&quot;</span>
+            <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_limit</span><span class="p">()</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Footer</span>
+    <span class="c1">######################################################################</span>
+
+<div class="viewcode-block" id="CollectionStats.footer"><a class="viewcode-back" href="../../anki.html#anki.stats.CollectionStats.footer">[docs]</a>    <span class="k">def</span> <span class="nf">footer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="s2">&quot;&lt;br&gt;&lt;br&gt;&lt;font size=1&gt;&quot;</span>
+        <span class="n">b</span> <span class="o">+=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Generated on </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">time</span><span class="o">.</span><span class="n">asctime</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()))</span>
+        <span class="n">b</span> <span class="o">+=</span> <span class="s2">&quot;&lt;br&gt;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">wholeCollection</span><span class="p">:</span>
+            <span class="n">deck</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;whole collection&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">deck</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">current</span><span class="p">()[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+        <span class="n">b</span> <span class="o">+=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Scope: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">deck</span>
+        <span class="n">b</span> <span class="o">+=</span> <span class="s2">&quot;&lt;br&gt;&quot;</span>
+        <span class="n">b</span> <span class="o">+=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Period: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="p">[</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;1 month&quot;</span><span class="p">),</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;1 year&quot;</span><span class="p">),</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;deck life&quot;</span><span class="p">)][</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">b</span></div>
+
+    <span class="c1"># Tools</span>
+    <span class="c1">######################################################################</span>
+
+    <span class="k">def</span> <span class="nf">_graph</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+        <span class="n">conf</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;bars&quot;</span><span class="p">,</span>
+        <span class="n">xunit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">ylabel</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Cards&quot;</span><span class="p">),</span>
+        <span class="n">ylabel2</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">conf</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">conf</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># display settings</span>
+        <span class="k">if</span> <span class="nb">type</span> <span class="o">==</span> <span class="s2">&quot;pie&quot;</span><span class="p">:</span>
+            <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;legend&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;container&quot;</span><span class="p">:</span> <span class="s2">&quot;#</span><span class="si">%s</span><span class="s2">Legend&quot;</span> <span class="o">%</span> <span class="nb">id</span><span class="p">,</span> <span class="s2">&quot;noColumns&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;legend&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;container&quot;</span><span class="p">:</span> <span class="s2">&quot;#</span><span class="si">%s</span><span class="s2">Legend&quot;</span> <span class="o">%</span> <span class="nb">id</span><span class="p">,</span> <span class="s2">&quot;noColumns&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">}</span>
+        <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;series&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">stack</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="s2">&quot;yaxis&quot;</span> <span class="ow">in</span> <span class="n">conf</span><span class="p">:</span>
+            <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;yaxis&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;yaxis&quot;</span><span class="p">][</span><span class="s2">&quot;labelWidth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">40</span>
+        <span class="k">if</span> <span class="s2">&quot;xaxis&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">conf</span><span class="p">:</span>
+            <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;xaxis&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">xunit</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;timeTicks&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># T: abbreviation of day</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;d&quot;</span><span class="p">)</span>
+            <span class="c1"># T: abbreviation of week</span>
+            <span class="n">w</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">)</span>
+            <span class="c1"># T: abbreviation of month</span>
+            <span class="n">mo</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;mo&quot;</span><span class="p">)</span>
+            <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;timeTicks&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="n">d</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span> <span class="n">w</span><span class="p">,</span> <span class="mi">31</span><span class="p">:</span> <span class="n">mo</span><span class="p">}[</span><span class="n">xunit</span><span class="p">]</span>
+        <span class="c1"># types</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span>
+        <span class="n">height</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span>
+        <span class="k">if</span> <span class="nb">type</span> <span class="o">==</span> <span class="s2">&quot;bars&quot;</span><span class="p">:</span>
+            <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;series&quot;</span><span class="p">][</span><span class="s2">&quot;bars&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+                <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">barWidth</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">lineWidth</span><span class="o">=</span><span class="mi">0</span>
+            <span class="p">)</span>  <span class="c1"># pytype: disable=unsupported-operands</span>
+        <span class="k">elif</span> <span class="nb">type</span> <span class="o">==</span> <span class="s2">&quot;barsLine&quot;</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;deprecated - use &#39;bars&#39; instead&quot;</span><span class="p">)</span>
+            <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;series&quot;</span><span class="p">][</span><span class="s2">&quot;bars&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+                <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">barWidth</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">lineWidth</span><span class="o">=</span><span class="mi">3</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">type</span> <span class="o">==</span> <span class="s2">&quot;fill&quot;</span><span class="p">:</span>
+            <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;series&quot;</span><span class="p">][</span><span class="s2">&quot;lines&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">type</span> <span class="o">==</span> <span class="s2">&quot;pie&quot;</span><span class="p">:</span>
+            <span class="n">width</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">width</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.3</span><span class="p">)</span>
+            <span class="n">height</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">height</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.5</span><span class="p">)</span>
+            <span class="n">ylabel</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;series&quot;</span><span class="p">][</span><span class="s2">&quot;pie&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+                <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">radius</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="n">stroke</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;#fff&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">5</span><span class="p">),</span>
+                <span class="n">label</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                    <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">radius</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+                    <span class="n">threshold</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+                    <span class="n">background</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">opacity</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#000&quot;</span><span class="p">),</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">&lt;table cellpadding=0 cellspacing=10&gt;</span>
+<span class="s2">&lt;tr&gt;</span>
+
+<span class="s2">&lt;td&gt;&lt;div style=&quot;width: 150px; text-align: center; position:absolute;</span>
+<span class="s2"> -webkit-transform: rotate(-90deg) translateY(-85px);</span>
+<span class="s2">font-weight: bold;</span>
+<span class="s2">&quot;&gt;</span><span class="si">%(ylab)s</span><span class="s2">&lt;/div&gt;&lt;/td&gt;</span>
+
+<span class="s2">&lt;td&gt;</span>
+<span class="s2">&lt;center&gt;&lt;div id=</span><span class="si">%(id)s</span><span class="s2">Legend&gt;&lt;/div&gt;&lt;/center&gt;</span>
+<span class="s2">&lt;div id=&quot;</span><span class="si">%(id)s</span><span class="s2">&quot; style=&quot;width:</span><span class="si">%(w)s</span><span class="s2">px; height:</span><span class="si">%(h)s</span><span class="s2">px;&quot;&gt;&lt;/div&gt;</span>
+<span class="s2">&lt;/td&gt;</span>
+
+<span class="s2">&lt;td&gt;&lt;div style=&quot;width: 150px; text-align: center; position:absolute;</span>
+<span class="s2"> -webkit-transform: rotate(90deg) translateY(65px);</span>
+<span class="s2">font-weight: bold;</span>
+<span class="s2">&quot;&gt;</span><span class="si">%(ylab2)s</span><span class="s2">&lt;/div&gt;&lt;/td&gt;</span>
+
+<span class="s2">&lt;/tr&gt;&lt;/table&gt;</span>
+<span class="s2">&lt;script&gt;</span>
+<span class="s2">$(function () {</span>
+<span class="s2">    var conf = </span><span class="si">%(conf)s</span><span class="s2">;</span>
+<span class="s2">    if (conf.timeTicks) {</span>
+<span class="s2">        conf.xaxis.tickFormatter = function (val, axis) {</span>
+<span class="s2">            return val.toFixed(0)+conf.timeTicks;</span>
+<span class="s2">        }</span>
+<span class="s2">    }</span>
+<span class="s2">    conf.yaxis.minTickSize = 1;</span>
+<span class="s2">    // prevent ticks from having decimals (use whole numbers instead)</span>
+<span class="s2">    conf.yaxis.tickDecimals = 0;</span>
+<span class="s2">    conf.yaxis.tickFormatter = function (val, axis) {</span>
+<span class="s2">            // Just in case we get ticks with decimals, render to one decimal position.  If it&#39;s</span>
+<span class="s2">            // a whole number then render without any decimal (i.e. without the trailing .0).</span>
+<span class="s2">            return val === Math.round(val) ? val.toFixed(0) : val.toFixed(1);</span>
+<span class="s2">    }</span>
+<span class="s2">    if (conf.series.pie) {</span>
+<span class="s2">        conf.series.pie.label.formatter = function(label, series){</span>
+<span class="s2">            return &#39;&lt;div class=pielabel&gt;&#39;+Math.round(series.percent)+&#39;</span><span class="si">%%</span><span class="s2">&lt;/div&gt;&#39;;</span>
+<span class="s2">        };</span>
+<span class="s2">    }</span>
+<span class="s2">    $.plot($(&quot;#</span><span class="si">%(id)s</span><span class="s2">&quot;), </span><span class="si">%(data)s</span><span class="s2">, conf);</span>
+<span class="s2">});</span>
+<span class="s2">&lt;/script&gt;&quot;&quot;&quot;</span> <span class="o">%</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span>
+            <span class="n">w</span><span class="o">=</span><span class="n">width</span><span class="p">,</span>
+            <span class="n">h</span><span class="o">=</span><span class="n">height</span><span class="p">,</span>
+            <span class="n">ylab</span><span class="o">=</span><span class="n">ylabel</span><span class="p">,</span>
+            <span class="n">ylab2</span><span class="o">=</span><span class="n">ylabel2</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+            <span class="n">conf</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">conf</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_limit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">wholeCollection</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ids2str</span><span class="p">([</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">all</span><span class="p">()])</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">_deckLimit</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_revlogLimit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">wholeCollection</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;cid in (select id from cards where did in </span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="n">ids2str</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">active</span><span class="p">()</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_title</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">subtitle</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;&lt;h1&gt;</span><span class="si">%s</span><span class="s2">&lt;/h1&gt;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">subtitle</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_deckAge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">by</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="n">lim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_revlogLimit</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">lim</span><span class="p">:</span>
+            <span class="n">lim</span> <span class="o">=</span> <span class="s2">&quot; where &quot;</span> <span class="o">+</span> <span class="n">lim</span>
+        <span class="k">if</span> <span class="n">by</span> <span class="o">==</span> <span class="s2">&quot;review&quot;</span><span class="p">:</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="s2">&quot;select id from revlog </span><span class="si">%s</span><span class="s2"> order by id limit 1&quot;</span> <span class="o">%</span> <span class="n">lim</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">by</span> <span class="o">==</span> <span class="s2">&quot;add&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">wholeCollection</span><span class="p">:</span>
+                <span class="n">lim</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">lim</span> <span class="o">=</span> <span class="s2">&quot;where did in </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ids2str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">active</span><span class="p">())</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="s2">&quot;select id from cards </span><span class="si">%s</span><span class="s2"> order by id limit 1&quot;</span> <span class="o">%</span> <span class="n">lim</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">t</span><span class="p">:</span>
+            <span class="n">period</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">period</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">dayCutoff</span> <span class="o">-</span> <span class="p">(</span><span class="n">t</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">))</span> <span class="o">/</span> <span class="mi">86400</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">period</span>
+
+    <span class="k">def</span> <span class="nf">_periodDays</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+        <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">chunk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_start_end_chunk</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">end</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">end</span> <span class="o">*</span> <span class="n">chunk</span>
+
+    <span class="k">def</span> <span class="nf">_avgDay</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tot</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">num</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">unit</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">vals</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%(a)0.1f</span><span class="s2"> </span><span class="si">%(b)s</span><span class="s2">/day&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="nb">dict</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="n">tot</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">num</span><span class="p">),</span> <span class="n">b</span><span class="o">=</span><span class="n">unit</span><span class="p">))</span>
+            <span class="k">return</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ZeroDivisionError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Abdelrahman Hamdy
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

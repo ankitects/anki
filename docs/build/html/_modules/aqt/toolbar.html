@@ -1,0 +1,441 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>aqt.toolbar &mdash; Anki  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+        <script async="async" kind="hypothesis" src="https://hypothes.is/embed.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Anki
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.html">anki package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.importing.html">anki.importing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aqt.html">aqt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../genhooks_gui.html">genhooks_gui module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tools.html">tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Anki</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../aqt.html">aqt</a> &raquo;</li>
+        
+      <li>aqt.toolbar</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for aqt.toolbar</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright: Ankitects Pty Ltd and contributors</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span> <span class="nn">aqt</span>
+<span class="kn">from</span> <span class="nn">anki.lang</span> <span class="kn">import</span> <span class="n">_</span>
+<span class="kn">from</span> <span class="nn">anki.rsbackend</span> <span class="kn">import</span> <span class="n">SyncStatus</span>
+<span class="kn">from</span> <span class="nn">aqt</span> <span class="kn">import</span> <span class="n">gui_hooks</span>
+<span class="kn">from</span> <span class="nn">aqt.qt</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">aqt.sync</span> <span class="kn">import</span> <span class="n">get_sync_status</span>
+<span class="kn">from</span> <span class="nn">aqt.webview</span> <span class="kn">import</span> <span class="n">AnkiWebView</span>
+
+
+<span class="c1"># wrapper class for set_bridge_command()</span>
+<div class="viewcode-block" id="TopToolbar"><a class="viewcode-back" href="../../aqt.html#aqt.toolbar.TopToolbar">[docs]</a><span class="k">class</span> <span class="nc">TopToolbar</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">toolbar</span><span class="p">:</span> <span class="n">Toolbar</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">toolbar</span> <span class="o">=</span> <span class="n">toolbar</span></div>
+
+
+<span class="c1"># wrapper class for set_bridge_command()</span>
+<div class="viewcode-block" id="BottomToolbar"><a class="viewcode-back" href="../../aqt.html#aqt.toolbar.BottomToolbar">[docs]</a><span class="k">class</span> <span class="nc">BottomToolbar</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">toolbar</span><span class="p">:</span> <span class="n">Toolbar</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">toolbar</span> <span class="o">=</span> <span class="n">toolbar</span></div>
+
+
+<div class="viewcode-block" id="Toolbar"><a class="viewcode-back" href="../../aqt.html#aqt.toolbar.Toolbar">[docs]</a><span class="k">class</span> <span class="nc">Toolbar</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mw</span><span class="p">:</span> <span class="n">aqt</span><span class="o">.</span><span class="n">AnkiQt</span><span class="p">,</span> <span class="n">web</span><span class="p">:</span> <span class="n">AnkiWebView</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span> <span class="o">=</span> <span class="n">mw</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">web</span> <span class="o">=</span> <span class="n">web</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">link_handlers</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;study&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_studyLinkHandler</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">setFixedHeight</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">requiresCol</span> <span class="o">=</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="Toolbar.draw"><a class="viewcode-back" href="../../aqt.html#aqt.toolbar.Toolbar.draw">[docs]</a>    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">buf</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">web_context</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">link_handler</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">web_context</span> <span class="o">=</span> <span class="n">web_context</span> <span class="ow">or</span> <span class="n">TopToolbar</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">link_handler</span> <span class="o">=</span> <span class="n">link_handler</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_linkHandler</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">set_bridge_command</span><span class="p">(</span><span class="n">link_handler</span><span class="p">,</span> <span class="n">web_context</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">stdHtml</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_body</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_centerLinks</span><span class="p">(),</span>
+            <span class="n">css</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;toolbar.css&quot;</span><span class="p">],</span>
+            <span class="n">js</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;webview.js&quot;</span><span class="p">,</span> <span class="s2">&quot;jquery.js&quot;</span><span class="p">,</span> <span class="s2">&quot;toolbar.js&quot;</span><span class="p">],</span>
+            <span class="n">context</span><span class="o">=</span><span class="n">web_context</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">adjustHeightToFit</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Toolbar.redraw"><a class="viewcode-back" href="../../aqt.html#aqt.toolbar.Toolbar.redraw">[docs]</a>    <span class="k">def</span> <span class="nf">redraw</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_sync_active</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">media_syncer</span><span class="o">.</span><span class="n">is_syncing</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_sync_status</span><span class="p">()</span>
+        <span class="n">gui_hooks</span><span class="o">.</span><span class="n">top_toolbar_did_redraw</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+    <span class="c1"># Available links</span>
+    <span class="c1">######################################################################</span>
+
+<div class="viewcode-block" id="Toolbar.create_link"><a class="viewcode-back" href="../../aqt.html#aqt.toolbar.Toolbar.create_link">[docs]</a>    <span class="k">def</span> <span class="nf">create_link</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">cmd</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">label</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
+        <span class="n">tip</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="nb">id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Generates HTML link element and registers link handler</span>
+<span class="sd">        </span>
+<span class="sd">        Arguments:</span>
+<span class="sd">            cmd {str} -- Command name used for the JS → Python bridge</span>
+<span class="sd">            label {str} -- Display label of the link</span>
+<span class="sd">            func {Callable} -- Callable to be called on clicking the link</span>
+<span class="sd">        </span>
+<span class="sd">        Keyword Arguments:</span>
+<span class="sd">            tip {Optional[str]} -- Optional tooltip text to show on hovering</span>
+<span class="sd">                                   over the link (default: {None})</span>
+<span class="sd">            id: {Optional[str]} -- Optional id attribute to supply the link with</span>
+<span class="sd">                                   (default: {None})</span>
+<span class="sd">        </span>
+<span class="sd">        Returns:</span>
+<span class="sd">            str -- HTML link element</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">link_handlers</span><span class="p">[</span><span class="n">cmd</span><span class="p">]</span> <span class="o">=</span> <span class="n">func</span>
+
+        <span class="n">title_attr</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;title=&quot;</span><span class="si">{tip}</span><span class="s1">&quot;&#39;</span> <span class="k">if</span> <span class="n">tip</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">id_attr</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;id=&quot;</span><span class="si">{id}</span><span class="s1">&quot;&#39;</span> <span class="k">if</span> <span class="nb">id</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;&quot;&quot;&lt;a class=hitem tabindex=&quot;-1&quot; aria-label=&quot;</span><span class="si">{label}</span><span class="s2">&quot; &quot;&quot;&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span><span class="si">{title_attr}</span><span class="s2"> </span><span class="si">{id_attr}</span><span class="s2"> href=# onclick=&quot;return pycmd(&#39;</span><span class="si">{cmd}</span><span class="s2">&#39;)&quot;&gt;&quot;&quot;&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span><span class="si">{label}</span><span class="s2">&lt;/a&gt;&quot;&quot;&quot;</span>
+        <span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_centerLinks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">links</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">create_link</span><span class="p">(</span>
+                <span class="s2">&quot;decks&quot;</span><span class="p">,</span>
+                <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Decks&quot;</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_deckLinkHandler</span><span class="p">,</span>
+                <span class="n">tip</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Shortcut key: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="s2">&quot;D&quot;</span><span class="p">,</span>
+                <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;decks&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">create_link</span><span class="p">(</span>
+                <span class="s2">&quot;add&quot;</span><span class="p">,</span>
+                <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Add&quot;</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_addLinkHandler</span><span class="p">,</span>
+                <span class="n">tip</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Shortcut key: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="s2">&quot;A&quot;</span><span class="p">,</span>
+                <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;add&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">create_link</span><span class="p">(</span>
+                <span class="s2">&quot;browse&quot;</span><span class="p">,</span>
+                <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Browse&quot;</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_browseLinkHandler</span><span class="p">,</span>
+                <span class="n">tip</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Shortcut key: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="s2">&quot;B&quot;</span><span class="p">,</span>
+                <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;browse&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">create_link</span><span class="p">(</span>
+                <span class="s2">&quot;stats&quot;</span><span class="p">,</span>
+                <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Stats&quot;</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_statsLinkHandler</span><span class="p">,</span>
+                <span class="n">tip</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Shortcut key: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="s2">&quot;T&quot;</span><span class="p">,</span>
+                <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;stats&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">]</span>
+
+        <span class="n">links</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_create_sync_link</span><span class="p">())</span>
+
+        <span class="n">gui_hooks</span><span class="o">.</span><span class="n">top_toolbar_did_init_links</span><span class="p">(</span><span class="n">links</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">links</span><span class="p">)</span>
+
+    <span class="c1"># Sync</span>
+    <span class="c1">######################################################################</span>
+
+    <span class="k">def</span> <span class="nf">_create_sync_link</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Sync&quot;</span><span class="p">)</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Shortcut key: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="s2">&quot;Y&quot;</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;sync&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">link_handlers</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_syncLinkHandler</span>
+
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">&lt;a class=hitem tabindex=&quot;-1&quot; aria-label=&quot;</span><span class="si">{name}</span><span class="s2">&quot; title=&quot;</span><span class="si">{title}</span><span class="s2">&quot; id=&quot;</span><span class="si">{label}</span><span class="s2">&quot; href=# onclick=&quot;return pycmd(&#39;</span><span class="si">{label}</span><span class="s2">&#39;)&quot;&gt;</span><span class="si">{name}</span><span class="s2"></span>
+<span class="s2">&lt;img id=sync-spinner src=&#39;/_anki/imgs/refresh.svg&#39;&gt;        </span>
+<span class="s2">&lt;/a&gt;&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Toolbar.set_sync_active"><a class="viewcode-back" href="../../aqt.html#aqt.toolbar.Toolbar.set_sync_active">[docs]</a>    <span class="k">def</span> <span class="nf">set_sync_active</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">active</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">active</span><span class="p">:</span>
+            <span class="n">meth</span> <span class="o">=</span> <span class="s2">&quot;addClass&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">meth</span> <span class="o">=</span> <span class="s2">&quot;removeClass&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;$(&#39;#sync-spinner&#39;).</span><span class="si">{meth}</span><span class="s2">(&#39;spin&#39;)&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Toolbar.set_sync_status"><a class="viewcode-back" href="../../aqt.html#aqt.toolbar.Toolbar.set_sync_status">[docs]</a>    <span class="k">def</span> <span class="nf">set_sync_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="n">SyncStatus</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;updateSyncColor(</span><span class="si">{status.required}</span><span class="s2">)&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Toolbar.update_sync_status"><a class="viewcode-back" href="../../aqt.html#aqt.toolbar.Toolbar.update_sync_status">[docs]</a>    <span class="k">def</span> <span class="nf">update_sync_status</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">get_sync_status</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">toolbar</span><span class="o">.</span><span class="n">set_sync_status</span><span class="p">)</span></div>
+
+    <span class="c1"># Link handling</span>
+    <span class="c1">######################################################################</span>
+
+    <span class="k">def</span> <span class="nf">_linkHandler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">link</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">link</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">link_handlers</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">link_handlers</span><span class="p">[</span><span class="n">link</span><span class="p">]()</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">_deckLinkHandler</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">moveToState</span><span class="p">(</span><span class="s2">&quot;deckBrowser&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_studyLinkHandler</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># if overview already shown, switch to review</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="s2">&quot;overview&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">startTimebox</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">moveToState</span><span class="p">(</span><span class="s2">&quot;review&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">onOverview</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_addLinkHandler</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">onAddCard</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_browseLinkHandler</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">onBrowse</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_statsLinkHandler</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">onStats</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_syncLinkHandler</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">on_sync_button_clicked</span><span class="p">()</span>
+
+    <span class="c1"># HTML &amp; CSS</span>
+    <span class="c1">######################################################################</span>
+
+    <span class="n">_body</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">&lt;center id=outer&gt;</span>
+<span class="s2">&lt;table id=header width=100</span><span class="si">%%</span><span class="s2">&gt;</span>
+<span class="s2">&lt;tr&gt;</span>
+<span class="s2">&lt;td class=tdcenter align=center&gt;</span><span class="si">%s</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">&lt;/tr&gt;&lt;/table&gt;</span>
+<span class="s2">&lt;/center&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span></div>
+
+
+<span class="c1"># Bottom bar</span>
+<span class="c1">######################################################################</span>
+
+
+<div class="viewcode-block" id="BottomBar"><a class="viewcode-back" href="../../aqt.html#aqt.toolbar.BottomBar">[docs]</a><span class="k">class</span> <span class="nc">BottomBar</span><span class="p">(</span><span class="n">Toolbar</span><span class="p">):</span>
+
+    <span class="n">_centerBody</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">&lt;center id=outer&gt;&lt;table width=100</span><span class="si">%%</span><span class="s2"> id=header&gt;&lt;tr&gt;&lt;td align=center&gt;</span>
+<span class="si">%s</span><span class="s2">&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/center&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="BottomBar.draw"><a class="viewcode-back" href="../../aqt.html#aqt.toolbar.BottomBar.draw">[docs]</a>    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">buf</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">web_context</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">link_handler</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># note: some screens may override this</span>
+        <span class="n">web_context</span> <span class="o">=</span> <span class="n">web_context</span> <span class="ow">or</span> <span class="n">BottomToolbar</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">link_handler</span> <span class="o">=</span> <span class="n">link_handler</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_linkHandler</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">set_bridge_command</span><span class="p">(</span><span class="n">link_handler</span><span class="p">,</span> <span class="n">web_context</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">stdHtml</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_centerBody</span> <span class="o">%</span> <span class="n">buf</span><span class="p">,</span>
+            <span class="n">css</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;toolbar.css&quot;</span><span class="p">,</span> <span class="s2">&quot;toolbar-bottom.css&quot;</span><span class="p">],</span>
+            <span class="n">context</span><span class="o">=</span><span class="n">web_context</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">web</span><span class="o">.</span><span class="n">adjustHeightToFit</span><span class="p">()</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Abdelrahman Hamdy
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

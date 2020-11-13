@@ -1,0 +1,1073 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>anki.sched &mdash; Anki  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Anki
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.html">anki package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aqt.html">aqt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../genhooks_gui.html">genhooks_gui module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tools.html">tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Anki</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>anki.sched</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for anki.sched</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright: Ankitects Pty Ltd and contributors</span>
+<span class="c1"># License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">heapq</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">anki</span>
+<span class="kn">from</span> <span class="nn">anki</span> <span class="kn">import</span> <span class="n">hooks</span>
+<span class="kn">from</span> <span class="nn">anki.cards</span> <span class="kn">import</span> <span class="n">Card</span>
+<span class="kn">from</span> <span class="nn">anki.consts</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">anki.schedv2</span> <span class="kn">import</span> <span class="n">Scheduler</span> <span class="k">as</span> <span class="n">V2</span>
+<span class="kn">from</span> <span class="nn">anki.utils</span> <span class="kn">import</span> <span class="n">ids2str</span><span class="p">,</span> <span class="n">intTime</span>
+
+<span class="c1"># queue types: 0=new/cram, 1=lrn, 2=rev, 3=day lrn, -1=suspended, -2=buried</span>
+<span class="c1"># revlog types: 0=lrn, 1=rev, 2=relrn, 3=cram</span>
+<span class="c1"># positive revlog intervals are in days (rev), negative in seconds (lrn)</span>
+
+
+<div class="viewcode-block" id="Scheduler"><a class="viewcode-back" href="../../anki.html#anki.sched.Scheduler">[docs]</a><span class="k">class</span> <span class="nc">Scheduler</span><span class="p">(</span><span class="n">V2</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;std&quot;</span>
+    <span class="n">haveCustomStudy</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">_spreadRev</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">_burySiblingsOnAnswer</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>  <span class="c1"># pylint: disable=super-init-not-called</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">:</span> <span class="n">anki</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">Collection</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span> <span class="o">=</span> <span class="n">col</span><span class="o">.</span><span class="n">weakref</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">queueLimit</span> <span class="o">=</span> <span class="mi">50</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reportLimit</span> <span class="o">=</span> <span class="mi">1000</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dynReportLimit</span> <span class="o">=</span> <span class="mi">99999</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reps</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lrnCount</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">revCount</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">newCount</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_haveQueues</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_updateCutoff</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Scheduler.answerCard"><a class="viewcode-back" href="../../anki.html#anki.sched.Scheduler.answerCard">[docs]</a>    <span class="k">def</span> <span class="nf">answerCard</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">card</span><span class="p">:</span> <span class="n">Card</span><span class="p">,</span> <span class="n">ease</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">log</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">ease</span> <span class="o">&lt;=</span> <span class="mi">4</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">markReview</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_burySiblingsOnAnswer</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_burySiblings</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
+        <span class="n">card</span><span class="o">.</span><span class="n">reps</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="c1"># former is for logging new cards, latter also covers filt. decks</span>
+        <span class="n">card</span><span class="o">.</span><span class="n">wasNew</span> <span class="o">=</span> <span class="n">card</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">CARD_TYPE_NEW</span>  <span class="c1"># type: ignore</span>
+        <span class="n">wasNewQ</span> <span class="o">=</span> <span class="n">card</span><span class="o">.</span><span class="n">queue</span> <span class="o">==</span> <span class="n">QUEUE_TYPE_NEW</span>
+
+        <span class="n">new_delta</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">review_delta</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">if</span> <span class="n">wasNewQ</span><span class="p">:</span>
+            <span class="c1"># came from the new queue, move to learning</span>
+            <span class="n">card</span><span class="o">.</span><span class="n">queue</span> <span class="o">=</span> <span class="n">QUEUE_TYPE_LRN</span>
+            <span class="c1"># if it was a new card, it&#39;s now a learning card</span>
+            <span class="k">if</span> <span class="n">card</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">CARD_TYPE_NEW</span><span class="p">:</span>
+                <span class="n">card</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">CARD_TYPE_LRN</span>
+            <span class="c1"># init reps to graduation</span>
+            <span class="n">card</span><span class="o">.</span><span class="n">left</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_startingLeft</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
+            <span class="c1"># dynamic?</span>
+            <span class="k">if</span> <span class="n">card</span><span class="o">.</span><span class="n">odid</span> <span class="ow">and</span> <span class="n">card</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">CARD_TYPE_REV</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resched</span><span class="p">(</span><span class="n">card</span><span class="p">):</span>
+                    <span class="c1"># reviews get their ivl boosted on first sight</span>
+                    <span class="n">card</span><span class="o">.</span><span class="n">ivl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dynIvlBoost</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
+                    <span class="n">card</span><span class="o">.</span><span class="n">odue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">today</span> <span class="o">+</span> <span class="n">card</span><span class="o">.</span><span class="n">ivl</span>
+            <span class="n">new_delta</span> <span class="o">=</span> <span class="o">+</span><span class="mi">1</span>
+        <span class="k">if</span> <span class="n">card</span><span class="o">.</span><span class="n">queue</span> <span class="ow">in</span> <span class="p">(</span><span class="n">QUEUE_TYPE_LRN</span><span class="p">,</span> <span class="n">QUEUE_TYPE_DAY_LEARN_RELEARN</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_answerLrnCard</span><span class="p">(</span><span class="n">card</span><span class="p">,</span> <span class="n">ease</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">card</span><span class="o">.</span><span class="n">queue</span> <span class="o">==</span> <span class="n">QUEUE_TYPE_REV</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_answerRevCard</span><span class="p">(</span><span class="n">card</span><span class="p">,</span> <span class="n">ease</span><span class="p">)</span>
+            <span class="n">review_delta</span> <span class="o">=</span> <span class="o">+</span><span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Invalid queue &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">card</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_stats</span><span class="p">(</span>
+            <span class="n">card</span><span class="o">.</span><span class="n">did</span><span class="p">,</span>
+            <span class="n">new_delta</span><span class="o">=</span><span class="n">new_delta</span><span class="p">,</span>
+            <span class="n">review_delta</span><span class="o">=</span><span class="n">review_delta</span><span class="p">,</span>
+            <span class="n">milliseconds_delta</span><span class="o">=+</span><span class="n">card</span><span class="o">.</span><span class="n">timeTaken</span><span class="p">(),</span>
+        <span class="p">)</span>
+
+        <span class="n">card</span><span class="o">.</span><span class="n">mod</span> <span class="o">=</span> <span class="n">intTime</span><span class="p">()</span>
+        <span class="n">card</span><span class="o">.</span><span class="n">usn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">usn</span><span class="p">()</span>
+        <span class="n">card</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Scheduler.counts"><a class="viewcode-back" href="../../anki.html#anki.sched.Scheduler.counts">[docs]</a>    <span class="k">def</span> <span class="nf">counts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">card</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Card</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+        <span class="n">counts</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">newCount</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lrnCount</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">revCount</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">card</span><span class="p">:</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">countIdx</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">idx</span> <span class="o">==</span> <span class="n">QUEUE_TYPE_LRN</span><span class="p">:</span>
+                <span class="n">counts</span><span class="p">[</span><span class="n">QUEUE_TYPE_LRN</span><span class="p">]</span> <span class="o">+=</span> <span class="n">card</span><span class="o">.</span><span class="n">left</span> <span class="o">//</span> <span class="mi">1000</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">counts</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">new</span><span class="p">,</span> <span class="n">lrn</span><span class="p">,</span> <span class="n">rev</span> <span class="o">=</span> <span class="n">counts</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">new</span><span class="p">,</span> <span class="n">lrn</span><span class="p">,</span> <span class="n">rev</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Scheduler.countIdx"><a class="viewcode-back" href="../../anki.html#anki.sched.Scheduler.countIdx">[docs]</a>    <span class="k">def</span> <span class="nf">countIdx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">card</span><span class="p">:</span> <span class="n">Card</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">card</span><span class="o">.</span><span class="n">queue</span> <span class="o">==</span> <span class="n">QUEUE_TYPE_DAY_LEARN_RELEARN</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">QUEUE_TYPE_LRN</span>
+        <span class="k">return</span> <span class="n">card</span><span class="o">.</span><span class="n">queue</span></div>
+
+<div class="viewcode-block" id="Scheduler.answerButtons"><a class="viewcode-back" href="../../anki.html#anki.sched.Scheduler.answerButtons">[docs]</a>    <span class="k">def</span> <span class="nf">answerButtons</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">card</span><span class="p">:</span> <span class="n">Card</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">card</span><span class="o">.</span><span class="n">odue</span><span class="p">:</span>
+            <span class="c1"># normal review in dyn deck?</span>
+            <span class="k">if</span> <span class="n">card</span><span class="o">.</span><span class="n">odid</span> <span class="ow">and</span> <span class="n">card</span><span class="o">.</span><span class="n">queue</span> <span class="o">==</span> <span class="n">QUEUE_TYPE_REV</span><span class="p">:</span>
+                <span class="k">return</span> <span class="mi">4</span>
+            <span class="n">conf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lrnConf</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">card</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">(</span><span class="n">CARD_TYPE_NEW</span><span class="p">,</span> <span class="n">CARD_TYPE_LRN</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">conf</span><span class="p">[</span><span class="s2">&quot;delays&quot;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="mi">3</span>
+            <span class="k">return</span> <span class="mi">2</span>
+        <span class="k">elif</span> <span class="n">card</span><span class="o">.</span><span class="n">queue</span> <span class="o">==</span> <span class="n">QUEUE_TYPE_REV</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">4</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">3</span></div>
+
+<div class="viewcode-block" id="Scheduler.unburyCards"><a class="viewcode-back" href="../../anki.html#anki.sched.Scheduler.unburyCards">[docs]</a>    <span class="k">def</span> <span class="nf">unburyCards</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Unbury cards.&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">list</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;select id from cards where queue = </span><span class="si">{QUEUE_TYPE_SIBLING_BURIED}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;update cards set queue=type where queue = </span><span class="si">{QUEUE_TYPE_SIBLING_BURIED}</span><span class="s2">&quot;</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="Scheduler.unburyCardsForDeck"><a class="viewcode-back" href="../../anki.html#anki.sched.Scheduler.unburyCardsForDeck">[docs]</a>    <span class="k">def</span> <span class="nf">unburyCardsForDeck</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># type: ignore[override]</span>
+        <span class="n">sids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_deckLimit</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">list</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;select id from cards where queue = </span><span class="si">{QUEUE_TYPE_SIBLING_BURIED}</span><span class="s2"> and did in </span><span class="si">%s</span><span class="s2">&quot;</span>
+                <span class="o">%</span> <span class="n">sids</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;update cards set mod=?,usn=?,queue=type where queue = </span><span class="si">{QUEUE_TYPE_SIBLING_BURIED}</span><span class="s2"> and did in </span><span class="si">%s</span><span class="s2">&quot;</span>
+            <span class="o">%</span> <span class="n">sids</span><span class="p">,</span>
+            <span class="n">intTime</span><span class="p">(),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">usn</span><span class="p">(),</span>
+        <span class="p">)</span></div>
+
+    <span class="c1"># Getting the next card</span>
+    <span class="c1">##########################################################################</span>
+
+    <span class="k">def</span> <span class="nf">_getCard</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Card</span><span class="p">]:</span>
+        <span class="s2">&quot;Return the next due card id, or None.&quot;</span>
+        <span class="c1"># learning card due?</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getLrnCard</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">c</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">c</span>
+        <span class="c1"># new first, or time for one?</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_timeForNewCard</span><span class="p">():</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getNewCard</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">c</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">c</span>
+        <span class="c1"># card due for review?</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getRevCard</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">c</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">c</span>
+        <span class="c1"># day learning card due?</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getLrnDayCard</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">c</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">c</span>
+        <span class="c1"># new cards left?</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getNewCard</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">c</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">c</span>
+        <span class="c1"># collapse or finish</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getLrnCard</span><span class="p">(</span><span class="n">collapse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Learning queues</span>
+    <span class="c1">##########################################################################</span>
+
+    <span class="k">def</span> <span class="nf">_resetLrnCount</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># sub-day</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lrnCount</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">select sum(left/1000) from (select left from cards where</span>
+<span class="s2">did in </span><span class="si">%s</span><span class="s2"> and queue = </span><span class="si">{QUEUE_TYPE_LRN}</span><span class="s2"> and due &lt; ? limit </span><span class="si">%d</span><span class="s2">)&quot;&quot;&quot;</span>
+                <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_deckLimit</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">reportLimit</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dayCutoff</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="ow">or</span> <span class="mi">0</span>
+        <span class="p">)</span>
+        <span class="c1"># day</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lrnCount</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">select count() from cards where did in </span><span class="si">%s</span><span class="s2"> and queue = </span><span class="si">{QUEUE_TYPE_DAY_LEARN_RELEARN}</span><span class="s2"></span>
+<span class="s2">and due &lt;= ? limit </span><span class="si">%d</span><span class="s2">&quot;&quot;&quot;</span>
+            <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_deckLimit</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">reportLimit</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_resetLrn</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_resetLrnCount</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lrnQueue</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lrnDayQueue</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lrnDids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">active</span><span class="p">()[:]</span>
+
+    <span class="c1"># sub-day learning</span>
+    <span class="k">def</span> <span class="nf">_fillLrn</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]]:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">lrnCount</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lrnQueue</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lrnQueue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">all</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">select due, id from cards where</span>
+<span class="s2">did in </span><span class="si">%s</span><span class="s2"> and queue = </span><span class="si">{QUEUE_TYPE_LRN}</span><span class="s2"> and due &lt; ?</span>
+<span class="s2">limit </span><span class="si">%d</span><span class="s2">&quot;&quot;&quot;</span>
+            <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_deckLimit</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">reportLimit</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dayCutoff</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lrnQueue</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_lrnQueue</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lrnQueue</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lrnQueue</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+        <span class="c1"># as it arrives sorted by did first, we need to sort it</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lrnQueue</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lrnQueue</span>
+
+    <span class="k">def</span> <span class="nf">_getLrnCard</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collapse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Card</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fillLrn</span><span class="p">():</span>
+            <span class="n">cutoff</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">collapse</span><span class="p">:</span>
+                <span class="n">cutoff</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">conf</span><span class="p">[</span><span class="s2">&quot;collapseTime&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lrnQueue</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">cutoff</span><span class="p">:</span>
+                <span class="nb">id</span> <span class="o">=</span> <span class="n">heappop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lrnQueue</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">card</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">getCard</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lrnCount</span> <span class="o">-=</span> <span class="n">card</span><span class="o">.</span><span class="n">left</span> <span class="o">//</span> <span class="mi">1000</span>
+                <span class="k">return</span> <span class="n">card</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_answerLrnCard</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">card</span><span class="p">:</span> <span class="n">Card</span><span class="p">,</span> <span class="n">ease</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># ease 1=no, 2=yes, 3=remove</span>
+        <span class="n">conf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lrnConf</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">card</span><span class="o">.</span><span class="n">odid</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">card</span><span class="o">.</span><span class="n">wasNew</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
+            <span class="nb">type</span> <span class="o">=</span> <span class="n">REVLOG_CRAM</span>
+        <span class="k">elif</span> <span class="n">card</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">CARD_TYPE_REV</span><span class="p">:</span>
+            <span class="nb">type</span> <span class="o">=</span> <span class="n">REVLOG_RELRN</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">type</span> <span class="o">=</span> <span class="n">REVLOG_LRN</span>
+        <span class="n">leaving</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="c1"># lrnCount was decremented once when card was fetched</span>
+        <span class="n">lastLeft</span> <span class="o">=</span> <span class="n">card</span><span class="o">.</span><span class="n">left</span>
+        <span class="c1"># immediate graduate?</span>
+        <span class="k">if</span> <span class="n">ease</span> <span class="o">==</span> <span class="n">BUTTON_THREE</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_rescheduleAsRev</span><span class="p">(</span><span class="n">card</span><span class="p">,</span> <span class="n">conf</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="n">leaving</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="c1"># graduation time?</span>
+        <span class="k">elif</span> <span class="n">ease</span> <span class="o">==</span> <span class="n">BUTTON_TWO</span> <span class="ow">and</span> <span class="p">(</span><span class="n">card</span><span class="o">.</span><span class="n">left</span> <span class="o">%</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_rescheduleAsRev</span><span class="p">(</span><span class="n">card</span><span class="p">,</span> <span class="n">conf</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="n">leaving</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># one step towards graduation</span>
+            <span class="k">if</span> <span class="n">ease</span> <span class="o">==</span> <span class="n">BUTTON_TWO</span><span class="p">:</span>
+                <span class="c1"># decrement real left count and recalculate left today</span>
+                <span class="n">left</span> <span class="o">=</span> <span class="p">(</span><span class="n">card</span><span class="o">.</span><span class="n">left</span> <span class="o">%</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+                <span class="n">card</span><span class="o">.</span><span class="n">left</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_leftToday</span><span class="p">(</span><span class="n">conf</span><span class="p">[</span><span class="s2">&quot;delays&quot;</span><span class="p">],</span> <span class="n">left</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1000</span> <span class="o">+</span> <span class="n">left</span>
+            <span class="c1"># failed</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">card</span><span class="o">.</span><span class="n">left</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_startingLeft</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
+                <span class="n">resched</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resched</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
+                <span class="k">if</span> <span class="s2">&quot;mult&quot;</span> <span class="ow">in</span> <span class="n">conf</span> <span class="ow">and</span> <span class="n">resched</span><span class="p">:</span>
+                    <span class="c1"># review that&#39;s lapsed</span>
+                    <span class="n">card</span><span class="o">.</span><span class="n">ivl</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;minInt&quot;</span><span class="p">],</span> <span class="nb">int</span><span class="p">(</span><span class="n">card</span><span class="o">.</span><span class="n">ivl</span> <span class="o">*</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;mult&quot;</span><span class="p">]))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># new card; no ivl adjustment</span>
+                    <span class="k">pass</span>
+                <span class="k">if</span> <span class="n">resched</span> <span class="ow">and</span> <span class="n">card</span><span class="o">.</span><span class="n">odid</span><span class="p">:</span>
+                    <span class="n">card</span><span class="o">.</span><span class="n">odue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">today</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">delay</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_delayForGrade</span><span class="p">(</span><span class="n">conf</span><span class="p">,</span> <span class="n">card</span><span class="o">.</span><span class="n">left</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">card</span><span class="o">.</span><span class="n">due</span> <span class="o">&lt;</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">():</span>
+                <span class="c1"># not collapsed; add some randomness</span>
+                <span class="n">delay</span> <span class="o">*=</span> <span class="nb">int</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1.25</span><span class="p">))</span>
+            <span class="n">card</span><span class="o">.</span><span class="n">due</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">+</span> <span class="n">delay</span><span class="p">)</span>
+            <span class="c1"># due today?</span>
+            <span class="k">if</span> <span class="n">card</span><span class="o">.</span><span class="n">due</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">dayCutoff</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lrnCount</span> <span class="o">+=</span> <span class="n">card</span><span class="o">.</span><span class="n">left</span> <span class="o">//</span> <span class="mi">1000</span>
+                <span class="c1"># if the queue is not empty and there&#39;s nothing else to do, make</span>
+                <span class="c1"># sure we don&#39;t put it at the head of the queue and end up showing</span>
+                <span class="c1"># it twice in a row</span>
+                <span class="n">card</span><span class="o">.</span><span class="n">queue</span> <span class="o">=</span> <span class="n">QUEUE_TYPE_LRN</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lrnQueue</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">revCount</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">newCount</span><span class="p">:</span>
+                    <span class="n">smallestDue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lrnQueue</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">card</span><span class="o">.</span><span class="n">due</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">card</span><span class="o">.</span><span class="n">due</span><span class="p">,</span> <span class="n">smallestDue</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">heappush</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lrnQueue</span><span class="p">,</span> <span class="p">(</span><span class="n">card</span><span class="o">.</span><span class="n">due</span><span class="p">,</span> <span class="n">card</span><span class="o">.</span><span class="n">id</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># the card is due in one or more days, so we need to use the</span>
+                <span class="c1"># day learn queue</span>
+                <span class="n">ahead</span> <span class="o">=</span> <span class="p">((</span><span class="n">card</span><span class="o">.</span><span class="n">due</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">dayCutoff</span><span class="p">)</span> <span class="o">//</span> <span class="mi">86400</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">card</span><span class="o">.</span><span class="n">due</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">today</span> <span class="o">+</span> <span class="n">ahead</span>
+                <span class="n">card</span><span class="o">.</span><span class="n">queue</span> <span class="o">=</span> <span class="n">QUEUE_TYPE_DAY_LEARN_RELEARN</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logLrn</span><span class="p">(</span><span class="n">card</span><span class="p">,</span> <span class="n">ease</span><span class="p">,</span> <span class="n">conf</span><span class="p">,</span> <span class="n">leaving</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">lastLeft</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_lrnConf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">card</span><span class="p">:</span> <span class="n">Card</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">card</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">CARD_TYPE_REV</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lapseConf</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_newConf</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_rescheduleAsRev</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">card</span><span class="p">:</span> <span class="n">Card</span><span class="p">,</span> <span class="n">conf</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">early</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">lapse</span> <span class="o">=</span> <span class="n">card</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">CARD_TYPE_REV</span>
+        <span class="k">if</span> <span class="n">lapse</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resched</span><span class="p">(</span><span class="n">card</span><span class="p">):</span>
+                <span class="n">card</span><span class="o">.</span><span class="n">due</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">today</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">card</span><span class="o">.</span><span class="n">odue</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">card</span><span class="o">.</span><span class="n">due</span> <span class="o">=</span> <span class="n">card</span><span class="o">.</span><span class="n">odue</span>
+            <span class="n">card</span><span class="o">.</span><span class="n">odue</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_rescheduleNew</span><span class="p">(</span><span class="n">card</span><span class="p">,</span> <span class="n">conf</span><span class="p">,</span> <span class="n">early</span><span class="p">)</span>
+        <span class="n">card</span><span class="o">.</span><span class="n">queue</span> <span class="o">=</span> <span class="n">QUEUE_TYPE_REV</span>
+        <span class="n">card</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">CARD_TYPE_REV</span>
+        <span class="c1"># if we were dynamic, graduating means moving back to the old deck</span>
+        <span class="n">resched</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resched</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">card</span><span class="o">.</span><span class="n">odid</span><span class="p">:</span>
+            <span class="n">card</span><span class="o">.</span><span class="n">did</span> <span class="o">=</span> <span class="n">card</span><span class="o">.</span><span class="n">odid</span>
+            <span class="n">card</span><span class="o">.</span><span class="n">odue</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">card</span><span class="o">.</span><span class="n">odid</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="c1"># if rescheduling is off, it needs to be set back to a new card</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">resched</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">lapse</span><span class="p">:</span>
+                <span class="n">card</span><span class="o">.</span><span class="n">queue</span> <span class="o">=</span> <span class="n">card</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">CARD_TYPE_NEW</span>
+                <span class="n">card</span><span class="o">.</span><span class="n">due</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">nextID</span><span class="p">(</span><span class="s2">&quot;pos&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_startingLeft</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">card</span><span class="p">:</span> <span class="n">Card</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">card</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">CARD_TYPE_REV</span><span class="p">:</span>
+            <span class="n">conf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lapseConf</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">conf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lrnConf</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
+        <span class="n">tot</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">conf</span><span class="p">[</span><span class="s2">&quot;delays&quot;</span><span class="p">])</span>
+        <span class="n">tod</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_leftToday</span><span class="p">(</span><span class="n">conf</span><span class="p">[</span><span class="s2">&quot;delays&quot;</span><span class="p">],</span> <span class="n">tot</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tot</span> <span class="o">+</span> <span class="n">tod</span> <span class="o">*</span> <span class="mi">1000</span>
+
+    <span class="k">def</span> <span class="nf">_graduatingIvl</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">card</span><span class="p">:</span> <span class="n">Card</span><span class="p">,</span> <span class="n">conf</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">early</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">adj</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">card</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">CARD_TYPE_REV</span><span class="p">:</span>
+            <span class="c1"># lapsed card being relearnt</span>
+            <span class="k">if</span> <span class="n">card</span><span class="o">.</span><span class="n">odid</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;resched&quot;</span><span class="p">]:</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dynIvlBoost</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">card</span><span class="o">.</span><span class="n">ivl</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">early</span><span class="p">:</span>
+            <span class="c1"># graduate</span>
+            <span class="n">ideal</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;ints&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># early remove</span>
+            <span class="n">ideal</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;ints&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">adj</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_adjRevIvl</span><span class="p">(</span><span class="n">card</span><span class="p">,</span> <span class="n">ideal</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ideal</span>
+
+    <span class="k">def</span> <span class="nf">_rescheduleNew</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">card</span><span class="p">:</span> <span class="n">Card</span><span class="p">,</span> <span class="n">conf</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">early</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Reschedule a new card that&#39;s graduated for the first time.&quot;</span>
+        <span class="n">card</span><span class="o">.</span><span class="n">ivl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_graduatingIvl</span><span class="p">(</span><span class="n">card</span><span class="p">,</span> <span class="n">conf</span><span class="p">,</span> <span class="n">early</span><span class="p">)</span>
+        <span class="n">card</span><span class="o">.</span><span class="n">due</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">today</span> <span class="o">+</span> <span class="n">card</span><span class="o">.</span><span class="n">ivl</span>
+        <span class="n">card</span><span class="o">.</span><span class="n">factor</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;initialFactor&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_logLrn</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">card</span><span class="p">:</span> <span class="n">Card</span><span class="p">,</span>
+        <span class="n">ease</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">conf</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+        <span class="n">leaving</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+        <span class="nb">type</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">lastLeft</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">lastIvl</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_delayForGrade</span><span class="p">(</span><span class="n">conf</span><span class="p">,</span> <span class="n">lastLeft</span><span class="p">))</span>
+        <span class="n">ivl</span> <span class="o">=</span> <span class="n">card</span><span class="o">.</span><span class="n">ivl</span> <span class="k">if</span> <span class="n">leaving</span> <span class="k">else</span> <span class="o">-</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_delayForGrade</span><span class="p">(</span><span class="n">conf</span><span class="p">,</span> <span class="n">card</span><span class="o">.</span><span class="n">left</span><span class="p">))</span>
+
+        <span class="k">def</span> <span class="nf">log</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                <span class="s2">&quot;insert into revlog values (?,?,?,?,?,?,?,?,?)&quot;</span><span class="p">,</span>
+                <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">),</span>
+                <span class="n">card</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">usn</span><span class="p">(),</span>
+                <span class="n">ease</span><span class="p">,</span>
+                <span class="n">ivl</span><span class="p">,</span>
+                <span class="n">lastIvl</span><span class="p">,</span>
+                <span class="n">card</span><span class="o">.</span><span class="n">factor</span><span class="p">,</span>
+                <span class="n">card</span><span class="o">.</span><span class="n">timeTaken</span><span class="p">(),</span>
+                <span class="nb">type</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">log</span><span class="p">()</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="c1"># duplicate pk; retry in 10ms</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.01</span><span class="p">)</span>
+            <span class="n">log</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Scheduler.removeLrn"><a class="viewcode-back" href="../../anki.html#anki.sched.Scheduler.removeLrn">[docs]</a>    <span class="k">def</span> <span class="nf">removeLrn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ids</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Remove cards from the learning queues.&quot;</span>
+        <span class="k">if</span> <span class="n">ids</span><span class="p">:</span>
+            <span class="n">extra</span> <span class="o">=</span> <span class="s2">&quot; and id in &quot;</span> <span class="o">+</span> <span class="n">ids2str</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># benchmarks indicate it&#39;s about 10x faster to search all decks</span>
+            <span class="c1"># with the index than scan the table</span>
+            <span class="n">extra</span> <span class="o">=</span> <span class="s2">&quot; and did in &quot;</span> <span class="o">+</span> <span class="n">ids2str</span><span class="p">(</span>
+                <span class="n">d</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">all_names_and_ids</span><span class="p">()</span>
+            <span class="p">)</span>
+        <span class="c1"># review cards in relearning</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">update cards set</span>
+<span class="s2">due = odue, queue = </span><span class="si">{QUEUE_TYPE_REV}</span><span class="s2">, mod = </span><span class="si">%d</span><span class="s2">, usn = </span><span class="si">%d</span><span class="s2">, odue = 0</span>
+<span class="s2">where queue in (</span><span class="si">{QUEUE_TYPE_LRN}</span><span class="s2">,</span><span class="si">{QUEUE_TYPE_DAY_LEARN_RELEARN}</span><span class="s2">) and type = </span><span class="si">{CARD_TYPE_REV}</span><span class="s2"></span>
+<span class="si">%s</span><span class="s2"></span>
+<span class="s2">&quot;&quot;&quot;</span>
+            <span class="o">%</span> <span class="p">(</span><span class="n">intTime</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">usn</span><span class="p">(),</span> <span class="n">extra</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="c1"># new cards in learning</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">forgetCards</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">list</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;select id from cards where queue in (</span><span class="si">{QUEUE_TYPE_LRN}</span><span class="s2">,</span><span class="si">{QUEUE_TYPE_DAY_LEARN_RELEARN}</span><span class="s2">) </span><span class="si">%s</span><span class="s2">&quot;</span>
+                <span class="o">%</span> <span class="n">extra</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_lrnForDeck</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">did</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="n">cnt</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">select sum(left/1000) from</span>
+<span class="s2">(select left from cards where did = ? and queue = </span><span class="si">{QUEUE_TYPE_LRN}</span><span class="s2"> and due &lt; ? limit ?)&quot;&quot;&quot;</span><span class="p">,</span>
+                <span class="n">did</span><span class="p">,</span>
+                <span class="n">intTime</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">conf</span><span class="p">[</span><span class="s2">&quot;collapseTime&quot;</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">reportLimit</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="ow">or</span> <span class="mi">0</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">cnt</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">select count() from</span>
+<span class="s2">(select 1 from cards where did = ? and queue = </span><span class="si">{QUEUE_TYPE_DAY_LEARN_RELEARN}</span><span class="s2"></span>
+<span class="s2">and due &lt;= ? limit ?)&quot;&quot;&quot;</span><span class="p">,</span>
+            <span class="n">did</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reportLimit</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Reviews</span>
+    <span class="c1">##########################################################################</span>
+
+    <span class="k">def</span> <span class="nf">_deckRevLimit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">did</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_deckNewLimit</span><span class="p">(</span><span class="n">did</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_deckRevLimitSingle</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_deckRevLimitSingle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>  <span class="c1"># type: ignore[override]</span>
+        <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;dyn&quot;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">reportLimit</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">confForDid</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+        <span class="n">limit</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;rev&quot;</span><span class="p">][</span><span class="s2">&quot;perDay&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">counts_for_deck_today</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">review</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">hooks</span><span class="o">.</span><span class="n">scheduler_review_limit_for_single_deck</span><span class="p">(</span><span class="n">limit</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_revForDeck</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">did</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">lim</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>  <span class="c1"># type: ignore[override]</span>
+        <span class="n">lim</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">lim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">reportLimit</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">select count() from</span>
+<span class="s2">(select 1 from cards where did = ? and queue = </span><span class="si">{QUEUE_TYPE_REV}</span><span class="s2"></span>
+<span class="s2">and due &lt;= ? limit ?)&quot;&quot;&quot;</span><span class="p">,</span>
+            <span class="n">did</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">,</span>
+            <span class="n">lim</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_resetRev</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_revQueue</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_revDids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">active</span><span class="p">()[:]</span>
+
+    <span class="k">def</span> <span class="nf">_fillRev</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">recursing</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="s2">&quot;True if a review card can be fetched.&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_revQueue</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">revCount</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">_revDids</span><span class="p">:</span>
+            <span class="n">did</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_revDids</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">lim</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">queueLimit</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_deckRevLimit</span><span class="p">(</span><span class="n">did</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">lim</span><span class="p">:</span>
+                <span class="c1"># fill the queue with the current did</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_revQueue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">list</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">select id from cards where</span>
+<span class="s2">did = ? and queue = </span><span class="si">{QUEUE_TYPE_REV}</span><span class="s2"> and due &lt;= ? limit ?&quot;&quot;&quot;</span><span class="p">,</span>
+                    <span class="n">did</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">,</span>
+                    <span class="n">lim</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_revQueue</span><span class="p">:</span>
+                    <span class="c1"># ordering</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">did</span><span class="p">)[</span><span class="s2">&quot;dyn&quot;</span><span class="p">]:</span>
+                        <span class="c1"># dynamic decks need due order preserved</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_revQueue</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># random order for regular reviews</span>
+                        <span class="n">r</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">Random</span><span class="p">()</span>
+                        <span class="n">r</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">)</span>
+                        <span class="n">r</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_revQueue</span><span class="p">)</span>
+                    <span class="c1"># is the current did empty?</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_revQueue</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">lim</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_revDids</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+            <span class="c1"># nothing left in the deck; move to next</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_revDids</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># if we didn&#39;t get a card but the count is non-zero,</span>
+        <span class="c1"># we need to check again for any cards that were</span>
+        <span class="c1"># removed from the queue but not buried</span>
+        <span class="k">if</span> <span class="n">recursing</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;bug: fillRev()&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_resetRev</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fillRev</span><span class="p">(</span><span class="n">recursing</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Answering a review card</span>
+    <span class="c1">##########################################################################</span>
+
+    <span class="k">def</span> <span class="nf">_answerRevCard</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">card</span><span class="p">:</span> <span class="n">Card</span><span class="p">,</span> <span class="n">ease</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">delay</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">ease</span> <span class="o">==</span> <span class="n">BUTTON_ONE</span><span class="p">:</span>
+            <span class="n">delay</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rescheduleLapse</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_rescheduleRev</span><span class="p">(</span><span class="n">card</span><span class="p">,</span> <span class="n">ease</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logRev</span><span class="p">(</span><span class="n">card</span><span class="p">,</span> <span class="n">ease</span><span class="p">,</span> <span class="n">delay</span><span class="p">,</span> <span class="n">REVLOG_REV</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_rescheduleLapse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">card</span><span class="p">:</span> <span class="n">Card</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="n">conf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lapseConf</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
+        <span class="n">card</span><span class="o">.</span><span class="n">lastIvl</span> <span class="o">=</span> <span class="n">card</span><span class="o">.</span><span class="n">ivl</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resched</span><span class="p">(</span><span class="n">card</span><span class="p">):</span>
+            <span class="n">card</span><span class="o">.</span><span class="n">lapses</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">card</span><span class="o">.</span><span class="n">ivl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nextLapseIvl</span><span class="p">(</span><span class="n">card</span><span class="p">,</span> <span class="n">conf</span><span class="p">)</span>
+            <span class="n">card</span><span class="o">.</span><span class="n">factor</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1300</span><span class="p">,</span> <span class="n">card</span><span class="o">.</span><span class="n">factor</span> <span class="o">-</span> <span class="mi">200</span><span class="p">)</span>
+            <span class="n">card</span><span class="o">.</span><span class="n">due</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">today</span> <span class="o">+</span> <span class="n">card</span><span class="o">.</span><span class="n">ivl</span>
+            <span class="c1"># if it&#39;s a filtered deck, update odue as well</span>
+            <span class="k">if</span> <span class="n">card</span><span class="o">.</span><span class="n">odid</span><span class="p">:</span>
+                <span class="n">card</span><span class="o">.</span><span class="n">odue</span> <span class="o">=</span> <span class="n">card</span><span class="o">.</span><span class="n">due</span>
+        <span class="c1"># if suspended as a leech, nothing to do</span>
+        <span class="n">delay</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_checkLeech</span><span class="p">(</span><span class="n">card</span><span class="p">,</span> <span class="n">conf</span><span class="p">)</span> <span class="ow">and</span> <span class="n">card</span><span class="o">.</span><span class="n">queue</span> <span class="o">==</span> <span class="n">QUEUE_TYPE_SUSPENDED</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">delay</span>
+        <span class="c1"># if no relearning steps, nothing to do</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;delays&quot;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="n">delay</span>
+        <span class="c1"># record rev due date for later</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">card</span><span class="o">.</span><span class="n">odue</span><span class="p">:</span>
+            <span class="n">card</span><span class="o">.</span><span class="n">odue</span> <span class="o">=</span> <span class="n">card</span><span class="o">.</span><span class="n">due</span>
+        <span class="n">delay</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_delayForGrade</span><span class="p">(</span><span class="n">conf</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">card</span><span class="o">.</span><span class="n">due</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">delay</span> <span class="o">+</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span>
+        <span class="n">card</span><span class="o">.</span><span class="n">left</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_startingLeft</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
+        <span class="c1"># queue 1</span>
+        <span class="k">if</span> <span class="n">card</span><span class="o">.</span><span class="n">due</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">dayCutoff</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lrnCount</span> <span class="o">+=</span> <span class="n">card</span><span class="o">.</span><span class="n">left</span> <span class="o">//</span> <span class="mi">1000</span>
+            <span class="n">card</span><span class="o">.</span><span class="n">queue</span> <span class="o">=</span> <span class="n">QUEUE_TYPE_LRN</span>
+            <span class="n">heappush</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lrnQueue</span><span class="p">,</span> <span class="p">(</span><span class="n">card</span><span class="o">.</span><span class="n">due</span><span class="p">,</span> <span class="n">card</span><span class="o">.</span><span class="n">id</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># day learn queue</span>
+            <span class="n">ahead</span> <span class="o">=</span> <span class="p">((</span><span class="n">card</span><span class="o">.</span><span class="n">due</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">dayCutoff</span><span class="p">)</span> <span class="o">//</span> <span class="mi">86400</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">card</span><span class="o">.</span><span class="n">due</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">today</span> <span class="o">+</span> <span class="n">ahead</span>
+            <span class="n">card</span><span class="o">.</span><span class="n">queue</span> <span class="o">=</span> <span class="n">QUEUE_TYPE_DAY_LEARN_RELEARN</span>
+        <span class="k">return</span> <span class="n">delay</span>
+
+    <span class="k">def</span> <span class="nf">_nextLapseIvl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">card</span><span class="p">:</span> <span class="n">Card</span><span class="p">,</span> <span class="n">conf</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">conf</span><span class="p">[</span><span class="s2">&quot;minInt&quot;</span><span class="p">],</span> <span class="nb">int</span><span class="p">(</span><span class="n">card</span><span class="o">.</span><span class="n">ivl</span> <span class="o">*</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;mult&quot;</span><span class="p">]))</span>
+
+    <span class="k">def</span> <span class="nf">_rescheduleRev</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">card</span><span class="p">:</span> <span class="n">Card</span><span class="p">,</span> <span class="n">ease</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># type: ignore[override]</span>
+        <span class="c1"># update interval</span>
+        <span class="n">card</span><span class="o">.</span><span class="n">lastIvl</span> <span class="o">=</span> <span class="n">card</span><span class="o">.</span><span class="n">ivl</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resched</span><span class="p">(</span><span class="n">card</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_updateRevIvl</span><span class="p">(</span><span class="n">card</span><span class="p">,</span> <span class="n">ease</span><span class="p">)</span>
+            <span class="c1"># then the rest</span>
+            <span class="n">card</span><span class="o">.</span><span class="n">factor</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1300</span><span class="p">,</span> <span class="n">card</span><span class="o">.</span><span class="n">factor</span> <span class="o">+</span> <span class="p">[</span><span class="o">-</span><span class="mi">150</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">150</span><span class="p">][</span><span class="n">ease</span> <span class="o">-</span> <span class="mi">2</span><span class="p">])</span>
+            <span class="n">card</span><span class="o">.</span><span class="n">due</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">today</span> <span class="o">+</span> <span class="n">card</span><span class="o">.</span><span class="n">ivl</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">card</span><span class="o">.</span><span class="n">due</span> <span class="o">=</span> <span class="n">card</span><span class="o">.</span><span class="n">odue</span>
+        <span class="k">if</span> <span class="n">card</span><span class="o">.</span><span class="n">odid</span><span class="p">:</span>
+            <span class="n">card</span><span class="o">.</span><span class="n">did</span> <span class="o">=</span> <span class="n">card</span><span class="o">.</span><span class="n">odid</span>
+            <span class="n">card</span><span class="o">.</span><span class="n">odid</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">card</span><span class="o">.</span><span class="n">odue</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># Interval management</span>
+    <span class="c1">##########################################################################</span>
+
+    <span class="k">def</span> <span class="nf">_nextRevIvl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">card</span><span class="p">:</span> <span class="n">Card</span><span class="p">,</span> <span class="n">ease</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>  <span class="c1"># type: ignore[override]</span>
+        <span class="s2">&quot;Ideal next interval for CARD, given EASE.&quot;</span>
+        <span class="n">delay</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_daysLate</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
+        <span class="n">conf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_revConf</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
+        <span class="n">fct</span> <span class="o">=</span> <span class="n">card</span><span class="o">.</span><span class="n">factor</span> <span class="o">/</span> <span class="mi">1000</span>
+        <span class="n">ivl2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_constrainedIvl</span><span class="p">((</span><span class="n">card</span><span class="o">.</span><span class="n">ivl</span> <span class="o">+</span> <span class="n">delay</span> <span class="o">//</span> <span class="mi">4</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.2</span><span class="p">,</span> <span class="n">conf</span><span class="p">,</span> <span class="n">card</span><span class="o">.</span><span class="n">ivl</span><span class="p">)</span>
+        <span class="n">ivl3</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_constrainedIvl</span><span class="p">((</span><span class="n">card</span><span class="o">.</span><span class="n">ivl</span> <span class="o">+</span> <span class="n">delay</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">fct</span><span class="p">,</span> <span class="n">conf</span><span class="p">,</span> <span class="n">ivl2</span><span class="p">)</span>
+        <span class="n">ivl4</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_constrainedIvl</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">card</span><span class="o">.</span><span class="n">ivl</span> <span class="o">+</span> <span class="n">delay</span><span class="p">)</span> <span class="o">*</span> <span class="n">fct</span> <span class="o">*</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;ease4&quot;</span><span class="p">],</span> <span class="n">conf</span><span class="p">,</span> <span class="n">ivl3</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">ease</span> <span class="o">==</span> <span class="n">BUTTON_TWO</span><span class="p">:</span>
+            <span class="n">interval</span> <span class="o">=</span> <span class="n">ivl2</span>
+        <span class="k">elif</span> <span class="n">ease</span> <span class="o">==</span> <span class="n">BUTTON_THREE</span><span class="p">:</span>
+            <span class="n">interval</span> <span class="o">=</span> <span class="n">ivl3</span>
+        <span class="k">elif</span> <span class="n">ease</span> <span class="o">==</span> <span class="n">BUTTON_FOUR</span><span class="p">:</span>
+            <span class="n">interval</span> <span class="o">=</span> <span class="n">ivl4</span>
+        <span class="c1"># interval capped?</span>
+        <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">interval</span><span class="p">,</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;maxIvl&quot;</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">_constrainedIvl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ivl</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">conf</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">prev</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>  <span class="c1"># type: ignore[override]</span>
+        <span class="s2">&quot;Integer interval after interval factor and prev+1 constraints applied.&quot;</span>
+        <span class="n">new</span> <span class="o">=</span> <span class="n">ivl</span> <span class="o">*</span> <span class="n">conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ivlFct&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">new</span><span class="p">,</span> <span class="n">prev</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_updateRevIvl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">card</span><span class="p">:</span> <span class="n">Card</span><span class="p">,</span> <span class="n">ease</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">idealIvl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nextRevIvl</span><span class="p">(</span><span class="n">card</span><span class="p">,</span> <span class="n">ease</span><span class="p">)</span>
+        <span class="n">card</span><span class="o">.</span><span class="n">ivl</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
+            <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_adjRevIvl</span><span class="p">(</span><span class="n">card</span><span class="p">,</span> <span class="n">idealIvl</span><span class="p">),</span> <span class="n">card</span><span class="o">.</span><span class="n">ivl</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_revConf</span><span class="p">(</span><span class="n">card</span><span class="p">)[</span><span class="s2">&quot;maxIvl&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_adjRevIvl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">card</span><span class="p">:</span> <span class="n">Card</span><span class="p">,</span> <span class="n">idealIvl</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_spreadRev</span><span class="p">:</span>
+            <span class="n">idealIvl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fuzzedIvl</span><span class="p">(</span><span class="n">idealIvl</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">idealIvl</span>
+
+    <span class="c1"># Dynamic deck handling</span>
+    <span class="c1">##########################################################################</span>
+
+<div class="viewcode-block" id="Scheduler.rebuildDyn"><a class="viewcode-back" href="../../anki.html#anki.sched.Scheduler.rebuildDyn">[docs]</a>    <span class="k">def</span> <span class="nf">rebuildDyn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">did</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>  <span class="c1"># type: ignore[override]</span>
+        <span class="s2">&quot;Rebuild a dynamic deck.&quot;</span>
+        <span class="n">did</span> <span class="o">=</span> <span class="n">did</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">selected</span><span class="p">()</span>
+        <span class="n">deck</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">did</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">deck</span><span class="p">[</span><span class="s2">&quot;dyn&quot;</span><span class="p">]</span>
+        <span class="c1"># move any existing cards back first, then fill</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">emptyDyn</span><span class="p">(</span><span class="n">did</span><span class="p">)</span>
+        <span class="n">ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fillDyn</span><span class="p">(</span><span class="n">deck</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ids</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="c1"># and change to our new deck</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">did</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ids</span></div>
+
+    <span class="k">def</span> <span class="nf">_fillDyn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deck</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>  <span class="c1"># type: ignore[override]</span>
+        <span class="n">search</span><span class="p">,</span> <span class="n">limit</span><span class="p">,</span> <span class="n">order</span> <span class="o">=</span> <span class="n">deck</span><span class="p">[</span><span class="s2">&quot;terms&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">orderlimit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dynOrder</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="n">limit</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">search</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+            <span class="n">search</span> <span class="o">=</span> <span class="s2">&quot;(</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="n">search</span>
+        <span class="n">search</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> -is:suspended -is:buried -deck:filtered -is:learn&quot;</span> <span class="o">%</span> <span class="n">search</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">findCards</span><span class="p">(</span><span class="n">search</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="n">orderlimit</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">ids</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">return</span> <span class="n">ids</span>
+        <span class="c1"># move the cards over</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">deck</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span> <span class="n">ids</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_moveToDyn</span><span class="p">(</span><span class="n">deck</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span> <span class="n">ids</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ids</span>
+
+<div class="viewcode-block" id="Scheduler.emptyDyn"><a class="viewcode-back" href="../../anki.html#anki.sched.Scheduler.emptyDyn">[docs]</a>    <span class="k">def</span> <span class="nf">emptyDyn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">did</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">lim</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">lim</span><span class="p">:</span>
+            <span class="n">lim</span> <span class="o">=</span> <span class="s2">&quot;did = </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">did</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="s2">&quot;select id from cards where </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">lim</span><span class="p">))</span>
+        <span class="c1"># move out of cram queue</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">update cards set did = odid, queue = (case when type = </span><span class="si">{CARD_TYPE_LRN}</span><span class="s2"> then </span><span class="si">{QUEUE_TYPE_NEW}</span><span class="s2"></span>
+<span class="s2">else type end), type = (case when type = </span><span class="si">{CARD_TYPE_LRN}</span><span class="s2"> then </span><span class="si">{CARD_TYPE_NEW}</span><span class="s2"> else type end),</span>
+<span class="s2">due = odue, odue = 0, odid = 0, usn = ? where </span><span class="si">%s</span><span class="s2">&quot;&quot;&quot;</span>
+            <span class="o">%</span> <span class="n">lim</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">usn</span><span class="p">(),</span>
+        <span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_moveToDyn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">did</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">ids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># type: ignore[override]</span>
+        <span class="n">deck</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">did</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">intTime</span><span class="p">()</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">usn</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="nb">id</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ids</span><span class="p">):</span>
+            <span class="c1"># start at -100000 so that reviews are all due</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">did</span><span class="p">,</span> <span class="o">-</span><span class="mi">100000</span> <span class="o">+</span> <span class="n">c</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="nb">id</span><span class="p">))</span>
+        <span class="c1"># due reviews stay in the review queue. careful: can&#39;t use</span>
+        <span class="c1"># &quot;odid or did&quot;, as sqlite converts to boolean</span>
+        <span class="n">queue</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">(case when type=</span><span class="si">{CARD_TYPE_REV}</span><span class="s2"> and (case when odue then odue &lt;= </span><span class="si">%d</span><span class="s2"> else due &lt;= </span><span class="si">%d</span><span class="s2"> end)</span>
+<span class="s2"> then </span><span class="si">{QUEUE_TYPE_REV}</span><span class="s2"> else </span><span class="si">{QUEUE_TYPE_NEW}</span><span class="s2"> end)&quot;&quot;&quot;</span>
+        <span class="n">queue</span> <span class="o">%=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">update cards set</span>
+<span class="sd">odid = (case when odid then odid else did end),</span>
+<span class="sd">odue = (case when odue then odue else due end),</span>
+<span class="sd">did = ?, queue = %s, due = ?, usn = ? where id = ?&quot;&quot;&quot;</span>
+            <span class="o">%</span> <span class="n">queue</span><span class="p">,</span>
+            <span class="n">data</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_dynIvlBoost</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">card</span><span class="p">:</span> <span class="n">Card</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">card</span><span class="o">.</span><span class="n">odid</span> <span class="ow">and</span> <span class="n">card</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">CARD_TYPE_REV</span>
+        <span class="k">assert</span> <span class="n">card</span><span class="o">.</span><span class="n">factor</span>
+        <span class="n">elapsed</span> <span class="o">=</span> <span class="n">card</span><span class="o">.</span><span class="n">ivl</span> <span class="o">-</span> <span class="p">(</span><span class="n">card</span><span class="o">.</span><span class="n">odue</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">today</span><span class="p">)</span>
+        <span class="n">factor</span> <span class="o">=</span> <span class="p">((</span><span class="n">card</span><span class="o">.</span><span class="n">factor</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1.2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">ivl</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">card</span><span class="o">.</span><span class="n">ivl</span><span class="p">,</span> <span class="n">elapsed</span> <span class="o">*</span> <span class="n">factor</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">conf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_revConf</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">conf</span><span class="p">[</span><span class="s2">&quot;maxIvl&quot;</span><span class="p">],</span> <span class="n">ivl</span><span class="p">)</span>
+
+    <span class="c1"># Leeches</span>
+    <span class="c1">##########################################################################</span>
+
+    <span class="k">def</span> <span class="nf">_checkLeech</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">card</span><span class="p">:</span> <span class="n">Card</span><span class="p">,</span> <span class="n">conf</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="s2">&quot;Leech handler. True if card was a leech.&quot;</span>
+        <span class="n">lf</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;leechFails&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">lf</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="c1"># if over threshold or every half threshold reps after that</span>
+        <span class="k">if</span> <span class="n">card</span><span class="o">.</span><span class="n">lapses</span> <span class="o">&gt;=</span> <span class="n">lf</span> <span class="ow">and</span> <span class="p">(</span><span class="n">card</span><span class="o">.</span><span class="n">lapses</span> <span class="o">-</span> <span class="n">lf</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">lf</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># add a leech tag</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="n">card</span><span class="o">.</span><span class="n">note</span><span class="p">()</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">addTag</span><span class="p">(</span><span class="s2">&quot;leech&quot;</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+            <span class="c1"># handle</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;leechAction&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">a</span> <span class="o">==</span> <span class="n">LEECH_SUSPEND</span><span class="p">:</span>
+                <span class="c1"># if it has an old due, remove it from cram/relearning</span>
+                <span class="k">if</span> <span class="n">card</span><span class="o">.</span><span class="n">odue</span><span class="p">:</span>
+                    <span class="n">card</span><span class="o">.</span><span class="n">due</span> <span class="o">=</span> <span class="n">card</span><span class="o">.</span><span class="n">odue</span>
+                <span class="k">if</span> <span class="n">card</span><span class="o">.</span><span class="n">odid</span><span class="p">:</span>
+                    <span class="n">card</span><span class="o">.</span><span class="n">did</span> <span class="o">=</span> <span class="n">card</span><span class="o">.</span><span class="n">odid</span>
+                <span class="n">card</span><span class="o">.</span><span class="n">odue</span> <span class="o">=</span> <span class="n">card</span><span class="o">.</span><span class="n">odid</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">card</span><span class="o">.</span><span class="n">queue</span> <span class="o">=</span> <span class="n">QUEUE_TYPE_SUSPENDED</span>
+            <span class="c1"># notify UI</span>
+            <span class="n">hooks</span><span class="o">.</span><span class="n">card_did_leech</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="c1"># Tools</span>
+    <span class="c1">##########################################################################</span>
+
+    <span class="k">def</span> <span class="nf">_newConf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">card</span><span class="p">:</span> <span class="n">Card</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="n">conf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cardConf</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
+        <span class="c1"># normal deck</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">card</span><span class="o">.</span><span class="n">odid</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;new&quot;</span><span class="p">]</span>
+        <span class="c1"># dynamic deck; override some attributes, use original deck for others</span>
+        <span class="n">oconf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">confForDid</span><span class="p">(</span><span class="n">card</span><span class="o">.</span><span class="n">odid</span><span class="p">)</span>
+        <span class="n">delays</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;delays&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">oconf</span><span class="p">[</span><span class="s2">&quot;new&quot;</span><span class="p">][</span><span class="s2">&quot;delays&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="c1"># original deck</span>
+            <span class="n">ints</span><span class="o">=</span><span class="n">oconf</span><span class="p">[</span><span class="s2">&quot;new&quot;</span><span class="p">][</span><span class="s2">&quot;ints&quot;</span><span class="p">],</span>
+            <span class="n">initialFactor</span><span class="o">=</span><span class="n">oconf</span><span class="p">[</span><span class="s2">&quot;new&quot;</span><span class="p">][</span><span class="s2">&quot;initialFactor&quot;</span><span class="p">],</span>
+            <span class="n">bury</span><span class="o">=</span><span class="n">oconf</span><span class="p">[</span><span class="s2">&quot;new&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;bury&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+            <span class="c1"># overrides</span>
+            <span class="n">delays</span><span class="o">=</span><span class="n">delays</span><span class="p">,</span>
+            <span class="n">order</span><span class="o">=</span><span class="n">NEW_CARDS_DUE</span><span class="p">,</span>
+            <span class="n">perDay</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">reportLimit</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_lapseConf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">card</span><span class="p">:</span> <span class="n">Card</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="n">conf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cardConf</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
+        <span class="c1"># normal deck</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">card</span><span class="o">.</span><span class="n">odid</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;lapse&quot;</span><span class="p">]</span>
+        <span class="c1"># dynamic deck; override some attributes, use original deck for others</span>
+        <span class="n">oconf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">confForDid</span><span class="p">(</span><span class="n">card</span><span class="o">.</span><span class="n">odid</span><span class="p">)</span>
+        <span class="n">delays</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;delays&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">oconf</span><span class="p">[</span><span class="s2">&quot;lapse&quot;</span><span class="p">][</span><span class="s2">&quot;delays&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="c1"># original deck</span>
+            <span class="n">minInt</span><span class="o">=</span><span class="n">oconf</span><span class="p">[</span><span class="s2">&quot;lapse&quot;</span><span class="p">][</span><span class="s2">&quot;minInt&quot;</span><span class="p">],</span>
+            <span class="n">leechFails</span><span class="o">=</span><span class="n">oconf</span><span class="p">[</span><span class="s2">&quot;lapse&quot;</span><span class="p">][</span><span class="s2">&quot;leechFails&quot;</span><span class="p">],</span>
+            <span class="n">leechAction</span><span class="o">=</span><span class="n">oconf</span><span class="p">[</span><span class="s2">&quot;lapse&quot;</span><span class="p">][</span><span class="s2">&quot;leechAction&quot;</span><span class="p">],</span>
+            <span class="n">mult</span><span class="o">=</span><span class="n">oconf</span><span class="p">[</span><span class="s2">&quot;lapse&quot;</span><span class="p">][</span><span class="s2">&quot;mult&quot;</span><span class="p">],</span>
+            <span class="c1"># overrides</span>
+            <span class="n">delays</span><span class="o">=</span><span class="n">delays</span><span class="p">,</span>
+            <span class="n">resched</span><span class="o">=</span><span class="n">conf</span><span class="p">[</span><span class="s2">&quot;resched&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_resched</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">card</span><span class="p">:</span> <span class="n">Card</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="n">conf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cardConf</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;dyn&quot;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;resched&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Deck finished state</span>
+    <span class="c1">##########################################################################</span>
+
+<div class="viewcode-block" id="Scheduler.haveBuried"><a class="viewcode-back" href="../../anki.html#anki.sched.Scheduler.haveBuried">[docs]</a>    <span class="k">def</span> <span class="nf">haveBuried</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="n">sdids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_deckLimit</span><span class="p">()</span>
+        <span class="n">cnt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;select 1 from cards where queue = </span><span class="si">{QUEUE_TYPE_SIBLING_BURIED}</span><span class="s2"> and did in </span><span class="si">%s</span><span class="s2"> limit 1&quot;</span>
+            <span class="o">%</span> <span class="n">sdids</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="ow">not</span> <span class="n">cnt</span></div>
+
+    <span class="c1"># Next time reports</span>
+    <span class="c1">##########################################################################</span>
+
+<div class="viewcode-block" id="Scheduler.nextIvl"><a class="viewcode-back" href="../../anki.html#anki.sched.Scheduler.nextIvl">[docs]</a>    <span class="k">def</span> <span class="nf">nextIvl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">card</span><span class="p">:</span> <span class="n">Card</span><span class="p">,</span> <span class="n">ease</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="s2">&quot;Return the next interval for CARD, in seconds.&quot;</span>
+        <span class="k">if</span> <span class="n">card</span><span class="o">.</span><span class="n">queue</span> <span class="ow">in</span> <span class="p">(</span><span class="n">QUEUE_TYPE_NEW</span><span class="p">,</span> <span class="n">QUEUE_TYPE_LRN</span><span class="p">,</span> <span class="n">QUEUE_TYPE_DAY_LEARN_RELEARN</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nextLrnIvl</span><span class="p">(</span><span class="n">card</span><span class="p">,</span> <span class="n">ease</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">ease</span> <span class="o">==</span> <span class="n">BUTTON_ONE</span><span class="p">:</span>
+            <span class="c1"># lapsed</span>
+            <span class="n">conf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lapseConf</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;delays&quot;</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;delays&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">60</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nextLapseIvl</span><span class="p">(</span><span class="n">card</span><span class="p">,</span> <span class="n">conf</span><span class="p">)</span> <span class="o">*</span> <span class="mi">86400</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># review</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nextRevIvl</span><span class="p">(</span><span class="n">card</span><span class="p">,</span> <span class="n">ease</span><span class="p">)</span> <span class="o">*</span> <span class="mi">86400</span></div>
+
+    <span class="c1"># this isn&#39;t easily extracted from the learn code</span>
+    <span class="k">def</span> <span class="nf">_nextLrnIvl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">card</span><span class="p">:</span> <span class="n">Card</span><span class="p">,</span> <span class="n">ease</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">card</span><span class="o">.</span><span class="n">queue</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">card</span><span class="o">.</span><span class="n">left</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_startingLeft</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
+        <span class="n">conf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lrnConf</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ease</span> <span class="o">==</span> <span class="n">BUTTON_ONE</span><span class="p">:</span>
+            <span class="c1"># fail</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_delayForGrade</span><span class="p">(</span><span class="n">conf</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">conf</span><span class="p">[</span><span class="s2">&quot;delays&quot;</span><span class="p">]))</span>
+        <span class="k">elif</span> <span class="n">ease</span> <span class="o">==</span> <span class="n">BUTTON_THREE</span><span class="p">:</span>
+            <span class="c1"># early removal</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resched</span><span class="p">(</span><span class="n">card</span><span class="p">):</span>
+                <span class="k">return</span> <span class="mi">0</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_graduatingIvl</span><span class="p">(</span><span class="n">card</span><span class="p">,</span> <span class="n">conf</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">adj</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">*</span> <span class="mi">86400</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">left</span> <span class="o">=</span> <span class="n">card</span><span class="o">.</span><span class="n">left</span> <span class="o">%</span> <span class="mi">1000</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">left</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># graduate</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resched</span><span class="p">(</span><span class="n">card</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="mi">0</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_graduatingIvl</span><span class="p">(</span><span class="n">card</span><span class="p">,</span> <span class="n">conf</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">adj</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">*</span> <span class="mi">86400</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_delayForGrade</span><span class="p">(</span><span class="n">conf</span><span class="p">,</span> <span class="n">left</span><span class="p">)</span>
+
+    <span class="c1"># Suspending</span>
+    <span class="c1">##########################################################################</span>
+
+<div class="viewcode-block" id="Scheduler.suspendCards"><a class="viewcode-back" href="../../anki.html#anki.sched.Scheduler.suspendCards">[docs]</a>    <span class="k">def</span> <span class="nf">suspendCards</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Suspend cards.&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remFromDyn</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">removeLrn</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;update cards set queue=</span><span class="si">{QUEUE_TYPE_SUSPENDED}</span><span class="s2">,mod=?,usn=? where id in &quot;</span>
+            <span class="o">+</span> <span class="n">ids2str</span><span class="p">(</span><span class="n">ids</span><span class="p">),</span>
+            <span class="n">intTime</span><span class="p">(),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">usn</span><span class="p">(),</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="Scheduler.unsuspendCards"><a class="viewcode-back" href="../../anki.html#anki.sched.Scheduler.unsuspendCards">[docs]</a>    <span class="k">def</span> <span class="nf">unsuspendCards</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Unsuspend cards.&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="s2">&quot;update cards set queue=type,mod=?,usn=? &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;where queue = </span><span class="si">{QUEUE_TYPE_SUSPENDED}</span><span class="s2"> and id in &quot;</span> <span class="o">+</span> <span class="n">ids2str</span><span class="p">(</span><span class="n">ids</span><span class="p">),</span>
+            <span class="n">intTime</span><span class="p">(),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">usn</span><span class="p">(),</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="Scheduler.buryCards"><a class="viewcode-back" href="../../anki.html#anki.sched.Scheduler.buryCards">[docs]</a>    <span class="k">def</span> <span class="nf">buryCards</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">manual</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># v1 only supported automatic burying</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="n">manual</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">cids</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remFromDyn</span><span class="p">(</span><span class="n">cids</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">removeLrn</span><span class="p">(</span><span class="n">cids</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">update cards set queue=</span><span class="si">{QUEUE_TYPE_SIBLING_BURIED}</span><span class="s2">,mod=?,usn=? where id in &quot;&quot;&quot;</span>
+            <span class="o">+</span> <span class="n">ids2str</span><span class="p">(</span><span class="n">cids</span><span class="p">),</span>
+            <span class="n">intTime</span><span class="p">(),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">usn</span><span class="p">(),</span>
+        <span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Abdelrahman Hamdy
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

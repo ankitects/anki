@@ -1,0 +1,309 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>anki.find &mdash; Anki  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+        <script async="async" kind="hypothesis" src="https://hypothes.is/embed.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Anki
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.html">anki package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.importing.html">anki.importing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aqt.html">aqt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../genhooks_gui.html">genhooks_gui module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tools.html">tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Anki</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>anki.find</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for anki.find</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright: Ankitects Pty Ltd and contributors</span>
+<span class="c1"># License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Set</span>
+
+<span class="kn">from</span> <span class="nn">anki.hooks</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">anki.utils</span> <span class="kn">import</span> <span class="n">ids2str</span><span class="p">,</span> <span class="n">splitFields</span><span class="p">,</span> <span class="n">stripHTMLMedia</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">anki.collection</span> <span class="kn">import</span> <span class="n">Collection</span>
+
+
+<div class="viewcode-block" id="Finder"><a class="viewcode-back" href="../../anki.html#anki.find.Finder">[docs]</a><span class="k">class</span> <span class="nc">Finder</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Collection</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span> <span class="o">=</span> <span class="n">col</span><span class="o">.</span><span class="n">weakref</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Finder() is deprecated, please use col.find_cards() or .find_notes()&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Finder.findCards"><a class="viewcode-back" href="../../anki.html#anki.find.Finder.findCards">[docs]</a>    <span class="k">def</span> <span class="nf">findCards</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">order</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">find_cards</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">order</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Finder.findNotes"><a class="viewcode-back" href="../../anki.html#anki.find.Finder.findNotes">[docs]</a>    <span class="k">def</span> <span class="nf">findNotes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">find_notes</span><span class="p">(</span><span class="n">query</span><span class="p">)</span></div></div>
+
+
+<span class="c1"># Find and replace</span>
+<span class="c1">##########################################################################</span>
+
+
+<div class="viewcode-block" id="findReplace"><a class="viewcode-back" href="../../anki.html#anki.find.findReplace">[docs]</a><span class="k">def</span> <span class="nf">findReplace</span><span class="p">(</span>
+    <span class="n">col</span><span class="p">:</span> <span class="n">Collection</span><span class="p">,</span>
+    <span class="n">nids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="n">src</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">dst</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">regex</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">field</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fold</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="s2">&quot;Find and replace fields in a note. Returns changed note count.&quot;</span>
+    <span class="k">return</span> <span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">find_and_replace</span><span class="p">(</span>
+        <span class="n">nids</span><span class="o">=</span><span class="n">nids</span><span class="p">,</span>
+        <span class="n">search</span><span class="o">=</span><span class="n">src</span><span class="p">,</span>
+        <span class="n">replacement</span><span class="o">=</span><span class="n">dst</span><span class="p">,</span>
+        <span class="n">regex</span><span class="o">=</span><span class="n">regex</span><span class="p">,</span>
+        <span class="n">match_case</span><span class="o">=</span><span class="ow">not</span> <span class="n">fold</span><span class="p">,</span>
+        <span class="n">field_name</span><span class="o">=</span><span class="n">field</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="fieldNamesForNotes"><a class="viewcode-back" href="../../anki.html#anki.find.fieldNamesForNotes">[docs]</a><span class="k">def</span> <span class="nf">fieldNamesForNotes</span><span class="p">(</span><span class="n">col</span><span class="p">:</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">nids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">field_names_for_notes</span><span class="p">(</span><span class="n">nids</span><span class="p">))</span></div>
+
+
+<span class="c1"># Find duplicates</span>
+<span class="c1">##########################################################################</span>
+
+
+<div class="viewcode-block" id="fieldNames"><a class="viewcode-back" href="../../anki.html#anki.find.fieldNames">[docs]</a><span class="k">def</span> <span class="nf">fieldNames</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">downcase</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
+    <span class="n">fields</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">col</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">m</span><span class="p">[</span><span class="s2">&quot;flds&quot;</span><span class="p">]:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">if</span> <span class="n">downcase</span> <span class="k">else</span> <span class="n">f</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">:</span>  <span class="c1"># slower w/o</span>
+                <span class="n">fields</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span></div>
+
+
+<span class="c1"># returns array of (&quot;dupestr&quot;, [nids])</span>
+<div class="viewcode-block" id="findDupes"><a class="viewcode-back" href="../../anki.html#anki.find.findDupes">[docs]</a><span class="k">def</span> <span class="nf">findDupes</span><span class="p">(</span>
+    <span class="n">col</span><span class="p">:</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">fieldName</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">search</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">]]:</span>
+    <span class="c1"># limit search to notes with applicable field name</span>
+    <span class="k">if</span> <span class="n">search</span><span class="p">:</span>
+        <span class="n">search</span> <span class="o">=</span> <span class="s2">&quot;(&quot;</span> <span class="o">+</span> <span class="n">search</span> <span class="o">+</span> <span class="s2">&quot;) &quot;</span>
+    <span class="n">search</span> <span class="o">+=</span> <span class="s1">&#39;&quot;</span><span class="si">%s</span><span class="s1">:*&quot;&#39;</span> <span class="o">%</span> <span class="n">fieldName</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;&quot;&#39;</span><span class="p">)</span>
+    <span class="c1"># go through notes</span>
+    <span class="n">vals</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">dupes</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">fields</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="nf">ordForMid</span><span class="p">(</span><span class="n">mid</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">mid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">:</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">col</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">mid</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">model</span><span class="p">[</span><span class="s2">&quot;flds&quot;</span><span class="p">]):</span>
+                <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="n">fieldName</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                    <span class="n">fields</span><span class="p">[</span><span class="n">mid</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span>
+                    <span class="k">break</span>
+        <span class="k">return</span> <span class="n">fields</span><span class="p">[</span><span class="n">mid</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">nid</span><span class="p">,</span> <span class="n">mid</span><span class="p">,</span> <span class="n">flds</span> <span class="ow">in</span> <span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">all</span><span class="p">(</span>
+        <span class="s2">&quot;select id, mid, flds from notes where id in &quot;</span> <span class="o">+</span> <span class="n">ids2str</span><span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">findNotes</span><span class="p">(</span><span class="n">search</span><span class="p">))</span>
+    <span class="p">):</span>
+        <span class="n">flds</span> <span class="o">=</span> <span class="n">splitFields</span><span class="p">(</span><span class="n">flds</span><span class="p">)</span>
+        <span class="nb">ord</span> <span class="o">=</span> <span class="n">ordForMid</span><span class="p">(</span><span class="n">mid</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">ord</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="n">flds</span><span class="p">[</span><span class="nb">ord</span><span class="p">]</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="n">stripHTMLMedia</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+        <span class="c1"># empty does not count as duplicate</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">val</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">vals</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nid</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vals</span><span class="p">[</span><span class="n">val</span><span class="p">])</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">dupes</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">val</span><span class="p">,</span> <span class="n">vals</span><span class="p">[</span><span class="n">val</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="n">dupes</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Abdelrahman Hamdy
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

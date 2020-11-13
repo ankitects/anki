@@ -1,0 +1,331 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>aqt.errors &mdash; Anki  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Anki
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.html">anki package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aqt.html">aqt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../genhooks_gui.html">genhooks_gui module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tools.html">tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Anki</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../aqt.html">aqt</a> &raquo;</li>
+        
+      <li>aqt.errors</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for aqt.errors</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright: Ankitects Pty Ltd and contributors</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html</span>
+<span class="kn">import</span> <span class="nn">html</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
+
+<span class="kn">from</span> <span class="nn">markdown</span> <span class="kn">import</span> <span class="n">markdown</span>
+
+<span class="kn">from</span> <span class="nn">anki.lang</span> <span class="kn">import</span> <span class="n">_</span>
+<span class="kn">from</span> <span class="nn">aqt</span> <span class="kn">import</span> <span class="n">mw</span>
+<span class="kn">from</span> <span class="nn">aqt.qt</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">aqt.utils</span> <span class="kn">import</span> <span class="n">TR</span><span class="p">,</span> <span class="n">showText</span><span class="p">,</span> <span class="n">showWarning</span><span class="p">,</span> <span class="n">supportText</span><span class="p">,</span> <span class="n">tr</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">):</span>
+
+<div class="viewcode-block" id="excepthook"><a class="viewcode-back" href="../../aqt.html#aqt.errors.excepthook">[docs]</a>    <span class="k">def</span> <span class="nf">excepthook</span><span class="p">(</span><span class="n">etype</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">tb</span><span class="p">):</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+            <span class="s2">&quot;Caught exception:</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="o">%</span> <span class="p">(</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exception</span><span class="p">(</span><span class="n">etype</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">tb</span><span class="p">)))</span>
+        <span class="p">)</span></div>
+
+    <span class="n">sys</span><span class="o">.</span><span class="n">excepthook</span> <span class="o">=</span> <span class="n">excepthook</span>
+
+
+<div class="viewcode-block" id="ErrorHandler"><a class="viewcode-back" href="../../aqt.html#aqt.errors.ErrorHandler">[docs]</a><span class="k">class</span> <span class="nc">ErrorHandler</span><span class="p">(</span><span class="n">QObject</span><span class="p">):</span>
+    <span class="s2">&quot;Catch stderr and write into buffer.&quot;</span>
+    <span class="n">ivl</span> <span class="o">=</span> <span class="mi">100</span>
+
+    <span class="n">errorTimer</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mw</span><span class="p">):</span>
+        <span class="n">QObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mw</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span> <span class="o">=</span> <span class="n">mw</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">errorTimer</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_setTimer</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pool</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_oldstderr</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="bp">self</span>
+
+<div class="viewcode-block" id="ErrorHandler.unload"><a class="viewcode-back" href="../../aqt.html#aqt.errors.ErrorHandler.unload">[docs]</a>    <span class="k">def</span> <span class="nf">unload</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oldstderr</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">excepthook</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="ErrorHandler.write"><a class="viewcode-back" href="../../aqt.html#aqt.errors.ErrorHandler.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="c1"># dump to stdout</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="c1"># save in buffer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pool</span> <span class="o">+=</span> <span class="n">data</span>
+        <span class="c1"># and update timer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setTimer</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ErrorHandler.setTimer"><a class="viewcode-back" href="../../aqt.html#aqt.errors.ErrorHandler.setTimer">[docs]</a>    <span class="k">def</span> <span class="nf">setTimer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># we can&#39;t create a timer from a different thread, so we post a</span>
+        <span class="c1"># message to the object on the main thread</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">errorTimer</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span>  <span class="c1"># type: ignore</span></div>
+
+    <span class="k">def</span> <span class="nf">_setTimer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">timer</span> <span class="o">=</span> <span class="n">QTimer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="p">)</span>
+            <span class="n">qconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">timeout</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onTimeout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">setInterval</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ivl</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">setSingleShot</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+<div class="viewcode-block" id="ErrorHandler.tempFolderMsg"><a class="viewcode-back" href="../../aqt.html#aqt.errors.ErrorHandler.tempFolderMsg">[docs]</a>    <span class="k">def</span> <span class="nf">tempFolderMsg</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_</span><span class="p">(</span>
+            <span class="sd">&quot;&quot;&quot;Unable to access Anki media folder. The permissions on \</span>
+<span class="sd">your system&#39;s temporary folder may be incorrect.&quot;&quot;&quot;</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="ErrorHandler.onTimeout"><a class="viewcode-back" href="../../aqt.html#aqt.errors.ErrorHandler.onTimeout">[docs]</a>    <span class="k">def</span> <span class="nf">onTimeout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pool</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s2">&quot;abortSchemaMod&quot;</span> <span class="ow">in</span> <span class="n">error</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="s2">&quot;10013&quot;</span> <span class="ow">in</span> <span class="n">error</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">showWarning</span><span class="p">(</span>
+                <span class="n">_</span><span class="p">(</span>
+                    <span class="s2">&quot;Your firewall or antivirus program is preventing Anki from creating a connection to itself. Please add an exception for Anki.&quot;</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;no default input&quot;</span> <span class="ow">in</span> <span class="n">error</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">showWarning</span><span class="p">(</span>
+                <span class="n">_</span><span class="p">(</span>
+                    <span class="s2">&quot;Please connect a microphone, and ensure &quot;</span>
+                    <span class="s2">&quot;other programs are not using the audio device.&quot;</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;invalidTempFolder&quot;</span> <span class="ow">in</span> <span class="n">error</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">showWarning</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tempFolderMsg</span><span class="p">())</span>
+        <span class="k">if</span> <span class="s2">&quot;Beautiful Soup is not an HTTP client&quot;</span> <span class="ow">in</span> <span class="n">error</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="s2">&quot;database or disk is full&quot;</span> <span class="ow">in</span> <span class="n">error</span> <span class="ow">or</span> <span class="s2">&quot;Errno 28&quot;</span> <span class="ow">in</span> <span class="n">error</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">showWarning</span><span class="p">(</span>
+                <span class="n">_</span><span class="p">(</span>
+                    <span class="s2">&quot;Your computer&#39;s storage may be full. Please delete some unneeded files, then try again.&quot;</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;disk I/O error&quot;</span> <span class="ow">in</span> <span class="n">error</span><span class="p">:</span>
+            <span class="n">showWarning</span><span class="p">(</span><span class="n">markdown</span><span class="p">(</span><span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">ERRORS_ACCESSING_DB</span><span class="p">)))</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">addonManager</span><span class="o">.</span><span class="n">dirty</span><span class="p">:</span>
+            <span class="n">txt</span> <span class="o">=</span> <span class="n">markdown</span><span class="p">(</span><span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">ERRORS_ADDONS_ACTIVE_POPUP</span><span class="p">))</span>
+            <span class="n">error</span> <span class="o">=</span> <span class="n">supportText</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_addonText</span><span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">error</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">txt</span> <span class="o">=</span> <span class="n">markdown</span><span class="p">(</span><span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">ERRORS_STANDARD_POPUP</span><span class="p">))</span>
+            <span class="n">error</span> <span class="o">=</span> <span class="n">supportText</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">error</span>
+
+        <span class="c1"># show dialog</span>
+        <span class="n">txt</span> <span class="o">=</span> <span class="n">txt</span> <span class="o">+</span> <span class="s2">&quot;&lt;div style=&#39;white-space: pre-wrap&#39;&gt;&quot;</span> <span class="o">+</span> <span class="n">error</span> <span class="o">+</span> <span class="s2">&quot;&lt;/div&gt;&quot;</span>
+        <span class="n">showText</span><span class="p">(</span><span class="n">txt</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;html&quot;</span><span class="p">,</span> <span class="n">copyBtn</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_addonText</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">error</span><span class="p">):</span>
+        <span class="n">matches</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;addons21/(.*?)/&quot;</span><span class="p">,</span> <span class="n">error</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">matches</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+        <span class="c1"># reverse to list most likely suspect first, dict to deduplicate:</span>
+        <span class="n">addons</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">mw</span><span class="o">.</span><span class="n">addonManager</span><span class="o">.</span><span class="n">addonName</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">matches</span><span class="p">))</span>
+        <span class="p">]</span>
+        <span class="c1"># highlight importance of first add-on:</span>
+        <span class="n">addons</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&lt;b&gt;</span><span class="si">{}</span><span class="s2">&lt;/b&gt;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">addons</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">addons_str</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">addons</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">ADDONS_POSSIBLY_INVOLVED</span><span class="p">,</span> <span class="n">addons</span><span class="o">=</span><span class="n">addons_str</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Abdelrahman Hamdy
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

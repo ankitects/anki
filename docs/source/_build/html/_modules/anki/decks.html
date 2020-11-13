@@ -1,0 +1,738 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>anki.decks &mdash; Anki  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Anki
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.html">anki package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aqt.html">aqt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../genhooks_gui.html">genhooks_gui module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tools.html">tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Anki</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>anki.decks</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for anki.decks</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright: Ankitects Pty Ltd and contributors</span>
+<span class="c1"># License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">pprint</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">anki</span>  <span class="c1"># pylint: disable=unused-import</span>
+<span class="kn">import</span> <span class="nn">anki.backend_pb2</span> <span class="k">as</span> <span class="nn">pb</span>
+<span class="kn">from</span> <span class="nn">anki.consts</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">anki.errors</span> <span class="kn">import</span> <span class="n">DeckRenameError</span>
+<span class="kn">from</span> <span class="nn">anki.lang</span> <span class="kn">import</span> <span class="n">_</span>
+<span class="kn">from</span> <span class="nn">anki.rsbackend</span> <span class="kn">import</span> <span class="n">DeckTreeNode</span><span class="p">,</span> <span class="n">NotFoundError</span><span class="p">,</span> <span class="n">from_json_bytes</span><span class="p">,</span> <span class="n">to_json_bytes</span>
+<span class="kn">from</span> <span class="nn">anki.utils</span> <span class="kn">import</span> <span class="n">ids2str</span><span class="p">,</span> <span class="n">intTime</span>
+
+<span class="c1"># legacy code may pass this in as the type argument to .id()</span>
+<span class="n">defaultDeck</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">defaultDynamicDeck</span> <span class="o">=</span> <span class="mi">1</span>
+
+
+<div class="viewcode-block" id="DecksDictProxy"><a class="viewcode-back" href="../../anki.html#anki.decks.DecksDictProxy">[docs]</a><span class="k">class</span> <span class="nc">DecksDictProxy</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">:</span> <span class="n">anki</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">Collection</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_col</span> <span class="o">=</span> <span class="n">col</span><span class="o">.</span><span class="n">weakref</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_warn</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;add-on should use methods on col.decks, not col.decks.decks dict&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_warn</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">item</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_warn</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_warn</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">all_names_and_ids</span><span class="p">())</span>
+
+<div class="viewcode-block" id="DecksDictProxy.keys"><a class="viewcode-back" href="../../anki.html#anki.decks.DecksDictProxy.keys">[docs]</a>    <span class="k">def</span> <span class="nf">keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_warn</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">nt</span><span class="o">.</span><span class="n">id</span><span class="p">)</span> <span class="k">for</span> <span class="n">nt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">all_names_and_ids</span><span class="p">()]</span></div>
+
+<div class="viewcode-block" id="DecksDictProxy.values"><a class="viewcode-back" href="../../anki.html#anki.decks.DecksDictProxy.values">[docs]</a>    <span class="k">def</span> <span class="nf">values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_warn</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">all</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="DecksDictProxy.items"><a class="viewcode-back" href="../../anki.html#anki.decks.DecksDictProxy.items">[docs]</a>    <span class="k">def</span> <span class="nf">items</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_warn</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">[(</span><span class="nb">str</span><span class="p">(</span><span class="n">nt</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]),</span> <span class="n">nt</span><span class="p">)</span> <span class="k">for</span> <span class="n">nt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">all</span><span class="p">()]</span></div>
+
+    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_warn</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">have</span><span class="p">(</span><span class="n">item</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DeckManager"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager">[docs]</a><span class="k">class</span> <span class="nc">DeckManager</span><span class="p">:</span>
+    <span class="c1"># Registry save/load</span>
+    <span class="c1">#############################################################</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">:</span> <span class="n">anki</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">Collection</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span> <span class="o">=</span> <span class="n">col</span><span class="o">.</span><span class="n">weakref</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decks</span> <span class="o">=</span> <span class="n">DecksDictProxy</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DeckManager.save"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">g</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Can be called with either a deck or a deck configuration.&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">g</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;col.decks.save() should be passed the changed deck&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># deck conf?</span>
+        <span class="k">if</span> <span class="s2">&quot;maxTaken&quot;</span> <span class="ow">in</span> <span class="n">g</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_config</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">preserve_usn</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+    <span class="c1"># legacy</span>
+<div class="viewcode-block" id="DeckManager.flush"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.flush">[docs]</a>    <span class="k">def</span> <span class="nf">flush</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+        <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;col&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;{super().__repr__()} {pprint.pformat(d, width=300)}&quot;</span>
+
+    <span class="c1"># Deck save/load</span>
+    <span class="c1">#############################################################</span>
+
+<div class="viewcode-block" id="DeckManager.id"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.id">[docs]</a>    <span class="k">def</span> <span class="nf">id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">create</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+        <span class="s2">&quot;Add a deck with NAME. Reuse deck if already exists. Return id as int.&quot;</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_for_name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">id</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">id</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">create</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">deck</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_deck_legacy</span><span class="p">(</span><span class="nb">bool</span><span class="p">(</span><span class="nb">type</span><span class="p">))</span>
+        <span class="n">deck</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">deck</span><span class="p">,</span> <span class="n">preserve_usn</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">deck</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="DeckManager.rem"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.rem">[docs]</a>    <span class="k">def</span> <span class="nf">rem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">did</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">cardsToo</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">childrenToo</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Remove the deck. If cardsToo, delete any cards inside.&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">did</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">did</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">did</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">cardsToo</span> <span class="ow">and</span> <span class="n">childrenToo</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">remove_deck</span><span class="p">(</span><span class="n">did</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DeckManager.all_names_and_ids"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.all_names_and_ids">[docs]</a>    <span class="k">def</span> <span class="nf">all_names_and_ids</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">skip_empty_default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">include_filtered</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">pb</span><span class="o">.</span><span class="n">DeckNameID</span><span class="p">]:</span>
+        <span class="s2">&quot;A sorted sequence of deck names and IDs.&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">get_deck_names</span><span class="p">(</span>
+            <span class="n">skip_empty_default</span><span class="o">=</span><span class="n">skip_empty_default</span><span class="p">,</span> <span class="n">include_filtered</span><span class="o">=</span><span class="n">include_filtered</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="DeckManager.id_for_name"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.id_for_name">[docs]</a>    <span class="k">def</span> <span class="nf">id_for_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">get_deck_id_by_name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">NotFoundError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="DeckManager.get_legacy"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.get_legacy">[docs]</a>    <span class="k">def</span> <span class="nf">get_legacy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">did</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">from_json_bytes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">get_deck_legacy</span><span class="p">(</span><span class="n">did</span><span class="p">))</span>
+        <span class="k">except</span> <span class="n">NotFoundError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="DeckManager.have"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.have">[docs]</a>    <span class="k">def</span> <span class="nf">have</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_legacy</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">id</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="DeckManager.get_all_legacy"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.get_all_legacy">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_legacy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">from_json_bytes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">get_all_decks_legacy</span><span class="p">())</span><span class="o">.</span><span class="n">values</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="DeckManager.new_deck_legacy"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.new_deck_legacy">[docs]</a>    <span class="k">def</span> <span class="nf">new_deck_legacy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filtered</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">from_json_bytes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">new_deck_legacy</span><span class="p">(</span><span class="n">filtered</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="DeckManager.deck_tree"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.deck_tree">[docs]</a>    <span class="k">def</span> <span class="nf">deck_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pb</span><span class="o">.</span><span class="n">DeckTreeNode</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">deck_tree</span><span class="p">(</span><span class="n">top_deck_id</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">now</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DeckManager.find_deck_in_tree"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.find_deck_in_tree">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">find_deck_in_tree</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">DeckTreeNode</span><span class="p">,</span> <span class="n">deck_id</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DeckTreeNode</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">deck_id</span> <span class="o">==</span> <span class="n">deck_id</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">node</span>
+        <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+            <span class="n">match</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">find_deck_in_tree</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="n">deck_id</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">match</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="DeckManager.all"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.all">[docs]</a>    <span class="k">def</span> <span class="nf">all</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
+        <span class="s2">&quot;All decks. Expensive; prefer all_names_and_ids()&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_all_legacy</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="DeckManager.allIds"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.allIds">[docs]</a>    <span class="k">def</span> <span class="nf">allIds</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;decks.allIds() is deprecated, use .all_names_and_ids()&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">id</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_names_and_ids</span><span class="p">()]</span></div>
+
+<div class="viewcode-block" id="DeckManager.allNames"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.allNames">[docs]</a>    <span class="k">def</span> <span class="nf">allNames</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dyn</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">force_default</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;decks.allNames() is deprecated, use .all_names_and_ids()&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">x</span><span class="o">.</span><span class="n">name</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_names_and_ids</span><span class="p">(</span>
+                <span class="n">skip_empty_default</span><span class="o">=</span><span class="ow">not</span> <span class="n">force_default</span><span class="p">,</span> <span class="n">include_filtered</span><span class="o">=</span><span class="n">dyn</span>
+            <span class="p">)</span>
+        <span class="p">]</span></div>
+
+<div class="viewcode-block" id="DeckManager.collapse"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.collapse">[docs]</a>    <span class="k">def</span> <span class="nf">collapse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">did</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">deck</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">did</span><span class="p">)</span>
+        <span class="n">deck</span><span class="p">[</span><span class="s2">&quot;collapsed&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">deck</span><span class="p">[</span><span class="s2">&quot;collapsed&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">deck</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DeckManager.collapseBrowser"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.collapseBrowser">[docs]</a>    <span class="k">def</span> <span class="nf">collapseBrowser</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">did</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">deck</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">did</span><span class="p">)</span>
+        <span class="n">collapsed</span> <span class="o">=</span> <span class="n">deck</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;browserCollapsed&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">deck</span><span class="p">[</span><span class="s2">&quot;browserCollapsed&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">collapsed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">deck</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DeckManager.count"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.count">[docs]</a>    <span class="k">def</span> <span class="nf">count</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_names_and_ids</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="DeckManager.get"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">did</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">default</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">did</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">default</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_legacy</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">did</span><span class="p">)</span>
+        <span class="n">deck</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_legacy</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">deck</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">deck</span>
+        <span class="k">elif</span> <span class="n">default</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_legacy</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="DeckManager.byName"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.byName">[docs]</a>    <span class="k">def</span> <span class="nf">byName</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Get deck with NAME, ignoring case.&quot;&quot;&quot;</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id_for_name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">id</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_legacy</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="DeckManager.update"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">g</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">preserve_usn</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Add or update an existing deck. Used for syncing and merging.&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">g</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">add_or_update_deck_legacy</span><span class="p">(</span>
+                <span class="n">deck</span><span class="o">=</span><span class="n">to_json_bytes</span><span class="p">(</span><span class="n">g</span><span class="p">),</span> <span class="n">preserve_usn_and_mtime</span><span class="o">=</span><span class="n">preserve_usn</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="n">anki</span><span class="o">.</span><span class="n">rsbackend</span><span class="o">.</span><span class="n">DeckIsFilteredError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">DeckRenameError</span><span class="p">(</span><span class="s2">&quot;deck was filtered&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DeckManager.rename"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.rename">[docs]</a>    <span class="k">def</span> <span class="nf">rename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">g</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">newName</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Rename deck prefix to NAME if not exists. Updates children.&quot;</span>
+        <span class="n">g</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">newName</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">preserve_usn</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">return</span></div>
+
+    <span class="c1"># Drag/drop</span>
+    <span class="c1">#############################################################</span>
+
+<div class="viewcode-block" id="DeckManager.renameForDragAndDrop"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.renameForDragAndDrop">[docs]</a>    <span class="k">def</span> <span class="nf">renameForDragAndDrop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">draggedDeckDid</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">ontoDeckDid</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">draggedDeck</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">draggedDeckDid</span><span class="p">)</span>
+        <span class="n">draggedDeckName</span> <span class="o">=</span> <span class="n">draggedDeck</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+        <span class="n">ontoDeckName</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ontoDeckDid</span><span class="p">)[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">ontoDeckDid</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">ontoDeckDid</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">draggedDeckName</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">draggedDeck</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">draggedDeckName</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_canDragAndDrop</span><span class="p">(</span><span class="n">draggedDeckName</span><span class="p">,</span> <span class="n">ontoDeckName</span><span class="p">):</span>
+            <span class="n">draggedDeck</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">draggedDeckDid</span><span class="p">)</span>
+            <span class="n">draggedDeckName</span> <span class="o">=</span> <span class="n">draggedDeck</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+            <span class="n">ontoDeckName</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ontoDeckDid</span><span class="p">)[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+            <span class="k">assert</span> <span class="n">ontoDeckName</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+                <span class="n">draggedDeck</span><span class="p">,</span> <span class="n">ontoDeckName</span> <span class="o">+</span> <span class="s2">&quot;::&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">draggedDeckName</span><span class="p">)</span>
+            <span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_canDragAndDrop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">draggedDeckName</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ontoDeckName</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">draggedDeckName</span> <span class="o">==</span> <span class="n">ontoDeckName</span>
+            <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_isParent</span><span class="p">(</span><span class="n">ontoDeckName</span><span class="p">,</span> <span class="n">draggedDeckName</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_isAncestor</span><span class="p">(</span><span class="n">draggedDeckName</span><span class="p">,</span> <span class="n">ontoDeckName</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">_isParent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parentDeckName</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">childDeckName</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">childDeckName</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">parentDeckName</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">childDeckName</span><span class="p">)</span>
+        <span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_isAncestor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ancestorDeckName</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">descendantDeckName</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="n">ancestorPath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">ancestorDeckName</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ancestorPath</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">descendantDeckName</span><span class="p">)[</span><span class="mi">0</span> <span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">ancestorPath</span><span class="p">)]</span>
+
+    <span class="c1"># Deck configurations</span>
+    <span class="c1">#############################################################</span>
+
+<div class="viewcode-block" id="DeckManager.all_config"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.all_config">[docs]</a>    <span class="k">def</span> <span class="nf">all_config</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
+        <span class="s2">&quot;A list of all deck config.&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">from_json_bytes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">all_deck_config_legacy</span><span class="p">()))</span></div>
+
+<div class="viewcode-block" id="DeckManager.confForDid"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.confForDid">[docs]</a>    <span class="k">def</span> <span class="nf">confForDid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">did</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="n">deck</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">did</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">deck</span>
+        <span class="k">if</span> <span class="s2">&quot;conf&quot;</span> <span class="ow">in</span> <span class="n">deck</span><span class="p">:</span>
+            <span class="n">dcid</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">deck</span><span class="p">[</span><span class="s2">&quot;conf&quot;</span><span class="p">])</span>  <span class="c1"># may be a string</span>
+            <span class="n">conf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="n">dcid</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">conf</span><span class="p">:</span>
+                <span class="c1"># fall back on default</span>
+                <span class="n">conf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;dyn&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">return</span> <span class="n">conf</span>
+        <span class="c1"># dynamic decks have embedded conf</span>
+        <span class="k">return</span> <span class="n">deck</span></div>
+
+<div class="viewcode-block" id="DeckManager.get_config"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.get_config">[docs]</a>    <span class="k">def</span> <span class="nf">get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conf_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">from_json_bytes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">get_deck_config_legacy</span><span class="p">(</span><span class="n">conf_id</span><span class="p">))</span>
+        <span class="k">except</span> <span class="n">NotFoundError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="DeckManager.update_config"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.update_config">[docs]</a>    <span class="k">def</span> <span class="nf">update_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conf</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">preserve_usn</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">add_or_update_deck_config_legacy</span><span class="p">(</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">to_json_bytes</span><span class="p">(</span><span class="n">conf</span><span class="p">),</span> <span class="n">preserve_usn_and_mtime</span><span class="o">=</span><span class="n">preserve_usn</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="DeckManager.add_config"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.add_config">[docs]</a>    <span class="k">def</span> <span class="nf">add_config</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">clone_from</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">clone_from</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">conf</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">clone_from</span><span class="p">)</span>
+            <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">conf</span> <span class="o">=</span> <span class="n">from_json_bytes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">new_deck_config_legacy</span><span class="p">())</span>
+        <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_config</span><span class="p">(</span><span class="n">conf</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">conf</span></div>
+
+<div class="viewcode-block" id="DeckManager.add_config_returning_id"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.add_config_returning_id">[docs]</a>    <span class="k">def</span> <span class="nf">add_config_returning_id</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">clone_from</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_config</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">clone_from</span><span class="p">)[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="DeckManager.remove_config"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.remove_config">[docs]</a>    <span class="k">def</span> <span class="nf">remove_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Remove a configuration and update all decks using it.&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">modSchema</span><span class="p">(</span><span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="c1"># ignore cram decks</span>
+            <span class="k">if</span> <span class="s2">&quot;conf&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">g</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="s2">&quot;conf&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="nb">id</span><span class="p">):</span>
+                <span class="n">g</span><span class="p">[</span><span class="s2">&quot;conf&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">remove_deck_config</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DeckManager.setConf"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.setConf">[docs]</a>    <span class="k">def</span> <span class="nf">setConf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grp</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">grp</span><span class="p">[</span><span class="s2">&quot;conf&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">grp</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DeckManager.didsForConf"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.didsForConf">[docs]</a>    <span class="k">def</span> <span class="nf">didsForConf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conf</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
+        <span class="n">dids</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">deck</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="k">if</span> <span class="s2">&quot;conf&quot;</span> <span class="ow">in</span> <span class="n">deck</span> <span class="ow">and</span> <span class="n">deck</span><span class="p">[</span><span class="s2">&quot;conf&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]:</span>
+                <span class="n">dids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">deck</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">dids</span></div>
+
+<div class="viewcode-block" id="DeckManager.restoreToDefault"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.restoreToDefault">[docs]</a>    <span class="k">def</span> <span class="nf">restoreToDefault</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conf</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">oldOrder</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;new&quot;</span><span class="p">][</span><span class="s2">&quot;order&quot;</span><span class="p">]</span>
+        <span class="n">new</span> <span class="o">=</span> <span class="n">from_json_bytes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">new_deck_config_legacy</span><span class="p">())</span>
+        <span class="n">new</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+        <span class="n">new</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_config</span><span class="p">(</span><span class="n">new</span><span class="p">)</span>
+        <span class="c1"># if it was previously randomized, re-sort</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">oldOrder</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">resortConf</span><span class="p">(</span><span class="n">new</span><span class="p">)</span></div>
+
+    <span class="c1"># legacy</span>
+    <span class="n">allConf</span> <span class="o">=</span> <span class="n">all_config</span>
+    <span class="n">getConf</span> <span class="o">=</span> <span class="n">get_config</span>
+    <span class="n">updateConf</span> <span class="o">=</span> <span class="n">update_config</span>
+    <span class="n">remConf</span> <span class="o">=</span> <span class="n">remove_config</span>
+    <span class="n">confId</span> <span class="o">=</span> <span class="n">add_config_returning_id</span>
+
+    <span class="c1"># Deck utils</span>
+    <span class="c1">#############################################################</span>
+
+<div class="viewcode-block" id="DeckManager.name"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.name">[docs]</a>    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">did</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="n">deck</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">did</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">deck</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">deck</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;[no deck]&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DeckManager.nameOrNone"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.nameOrNone">[docs]</a>    <span class="k">def</span> <span class="nf">nameOrNone</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">did</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="n">deck</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">did</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">deck</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">deck</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="DeckManager.setDeck"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.setDeck">[docs]</a>    <span class="k">def</span> <span class="nf">setDeck</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cids</span><span class="p">,</span> <span class="n">did</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="s2">&quot;update cards set did=?,usn=?,mod=? where id in &quot;</span> <span class="o">+</span> <span class="n">ids2str</span><span class="p">(</span><span class="n">cids</span><span class="p">),</span>
+            <span class="n">did</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">usn</span><span class="p">(),</span>
+            <span class="n">intTime</span><span class="p">(),</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="DeckManager.cids"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.cids">[docs]</a>    <span class="k">def</span> <span class="nf">cids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">did</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">children</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">children</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="s2">&quot;select id from cards where did=?&quot;</span><span class="p">,</span> <span class="n">did</span><span class="p">)</span>
+        <span class="n">dids</span> <span class="o">=</span> <span class="p">[</span><span class="n">did</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="nb">id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">children</span><span class="p">(</span><span class="n">did</span><span class="p">):</span>
+            <span class="n">dids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="s2">&quot;select id from cards where did in &quot;</span> <span class="o">+</span> <span class="n">ids2str</span><span class="p">(</span><span class="n">dids</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="DeckManager.for_card_ids"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.for_card_ids">[docs]</a>    <span class="k">def</span> <span class="nf">for_card_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;select did from cards where id in {ids2str(cids)}&quot;</span><span class="p">)</span></div>
+
+    <span class="c1"># Deck selection</span>
+    <span class="c1">#############################################################</span>
+
+<div class="viewcode-block" id="DeckManager.active"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.active">[docs]</a>    <span class="k">def</span> <span class="nf">active</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="s2">&quot;The currrently active dids.&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;activeDecks&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="DeckManager.selected"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.selected">[docs]</a>    <span class="k">def</span> <span class="nf">selected</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="s2">&quot;The currently selected did.&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">conf</span><span class="p">[</span><span class="s2">&quot;curDeck&quot;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="DeckManager.current"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.current">[docs]</a>    <span class="k">def</span> <span class="nf">current</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">selected</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="DeckManager.select"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.select">[docs]</a>    <span class="k">def</span> <span class="nf">select</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">did</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Select a new branch.&quot;</span>
+        <span class="c1"># make sure arg is an int</span>
+        <span class="n">did</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">did</span><span class="p">)</span>
+        <span class="n">current</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">selected</span><span class="p">()</span>
+        <span class="n">active</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">deck_and_child_ids</span><span class="p">(</span><span class="n">did</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">current</span> <span class="o">!=</span> <span class="n">did</span> <span class="ow">or</span> <span class="n">active</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">active</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">conf</span><span class="p">[</span><span class="s2">&quot;curDeck&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">did</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">conf</span><span class="p">[</span><span class="s2">&quot;activeDecks&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">active</span></div>
+
+    <span class="c1"># don&#39;t use this, it will likely go away</span>
+<div class="viewcode-block" id="DeckManager.update_active"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.update_active">[docs]</a>    <span class="k">def</span> <span class="nf">update_active</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current</span><span class="p">()[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span></div>
+
+    <span class="c1"># Parents/children</span>
+    <span class="c1">#############################################################</span>
+
+<div class="viewcode-block" id="DeckManager.path"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.path">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;::&quot;</span><span class="p">)</span></div>
+
+    <span class="n">_path</span> <span class="o">=</span> <span class="n">path</span>
+
+<div class="viewcode-block" id="DeckManager.basename"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.basename">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">basename</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">name</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
+
+    <span class="n">_basename</span> <span class="o">=</span> <span class="n">basename</span>
+
+<div class="viewcode-block" id="DeckManager.immediate_parent_path"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.immediate_parent_path">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">immediate_parent_path</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_path</span><span class="p">(</span><span class="n">name</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="DeckManager.immediate_parent"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.immediate_parent">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">immediate_parent</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="n">pp</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">immediate_parent_path</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pp</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;::&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pp</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DeckManager.key"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.key">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">key</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">deck</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">deck</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="DeckManager.children"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.children">[docs]</a>    <span class="k">def</span> <span class="nf">children</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">did</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+        <span class="s2">&quot;All children of did, as (name, id).&quot;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">did</span><span class="p">)[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+        <span class="n">actv</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_names_and_ids</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">g</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;::&quot;</span><span class="p">):</span>
+                <span class="n">actv</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">g</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">id</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">actv</span></div>
+
+<div class="viewcode-block" id="DeckManager.child_ids"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.child_ids">[docs]</a>    <span class="k">def</span> <span class="nf">child_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="n">parent_name</span> <span class="o">+</span> <span class="s2">&quot;::&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_names_and_ids</span><span class="p">()</span> <span class="k">if</span> <span class="n">d</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="DeckManager.deck_and_child_ids"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.deck_and_child_ids">[docs]</a>    <span class="k">def</span> <span class="nf">deck_and_child_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deck_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+        <span class="n">parent_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_legacy</span><span class="p">(</span><span class="n">deck_id</span><span class="p">)[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">[</span><span class="n">deck_id</span><span class="p">]</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">child_ids</span><span class="p">(</span><span class="n">parent_name</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">out</span></div>
+
+<div class="viewcode-block" id="DeckManager.childDids"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.childDids">[docs]</a>    <span class="k">def</span> <span class="nf">childDids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">did</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">childMap</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
+        <span class="k">def</span> <span class="nf">gather</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">arr</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">did</span><span class="p">,</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">arr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">did</span><span class="p">)</span>
+                <span class="n">gather</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="n">arr</span><span class="p">)</span>
+
+        <span class="n">arr</span><span class="p">:</span> <span class="n">List</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">gather</span><span class="p">(</span><span class="n">childMap</span><span class="p">[</span><span class="n">did</span><span class="p">],</span> <span class="n">arr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">arr</span></div>
+
+<div class="viewcode-block" id="DeckManager.childMap"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.childMap">[docs]</a>    <span class="k">def</span> <span class="nf">childMap</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]]:</span>
+        <span class="n">nameMap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nameMap</span><span class="p">()</span>
+        <span class="n">childMap</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># go through all decks, sorted by name</span>
+        <span class="k">for</span> <span class="n">deck</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">):</span>
+            <span class="n">node</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">childMap</span><span class="p">[</span><span class="n">deck</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">node</span>
+
+            <span class="c1"># add note to immediate parent</span>
+            <span class="n">immediateParent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">immediate_parent</span><span class="p">(</span><span class="n">deck</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">immediateParent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">pid</span> <span class="o">=</span> <span class="n">nameMap</span><span class="p">[</span><span class="n">immediateParent</span><span class="p">][</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+                <span class="n">childMap</span><span class="p">[</span><span class="n">pid</span><span class="p">][</span><span class="n">deck</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">node</span>
+
+        <span class="k">return</span> <span class="n">childMap</span></div>
+
+<div class="viewcode-block" id="DeckManager.parents"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.parents">[docs]</a>    <span class="k">def</span> <span class="nf">parents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">did</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nameMap</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
+        <span class="s2">&quot;All parents of did.&quot;</span>
+        <span class="c1"># get parent and grandparent names</span>
+        <span class="n">parents</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">immediate_parent_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">did</span><span class="p">)[</span><span class="s2">&quot;name&quot;</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">parents</span><span class="p">:</span>
+                <span class="n">parents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">part</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">parents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">parents</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;::&quot;</span> <span class="o">+</span> <span class="n">part</span><span class="p">)</span>
+        <span class="c1"># convert to objects</span>
+        <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">parents</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">nameMap</span><span class="p">:</span>
+                <span class="n">deck</span> <span class="o">=</span> <span class="n">nameMap</span><span class="p">[</span><span class="n">p</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">deck</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
+            <span class="n">parents</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">deck</span>
+        <span class="k">return</span> <span class="n">parents</span></div>
+
+<div class="viewcode-block" id="DeckManager.parentsByName"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.parentsByName">[docs]</a>    <span class="k">def</span> <span class="nf">parentsByName</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
+        <span class="s2">&quot;All existing parents of name&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;::&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">name</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">immediate_parent_path</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">head</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">parents</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">while</span> <span class="n">names</span><span class="p">:</span>
+            <span class="n">head</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">names</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+            <span class="n">deck</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">byName</span><span class="p">(</span><span class="s2">&quot;::&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">head</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">deck</span><span class="p">:</span>
+                <span class="n">parents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">deck</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">parents</span></div>
+
+<div class="viewcode-block" id="DeckManager.nameMap"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.nameMap">[docs]</a>    <span class="k">def</span> <span class="nf">nameMap</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">((</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all</span><span class="p">())</span></div>
+
+    <span class="c1"># Dynamic decks</span>
+    <span class="c1">##########################################################################</span>
+
+<div class="viewcode-block" id="DeckManager.newDyn"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.newDyn">[docs]</a>    <span class="k">def</span> <span class="nf">newDyn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="s2">&quot;Return a new dynamic deck and set it as the current deck.&quot;</span>
+        <span class="n">did</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">did</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">did</span></div>
+
+<div class="viewcode-block" id="DeckManager.isDyn"><a class="viewcode-back" href="../../anki.html#anki.decks.DeckManager.isDyn">[docs]</a>    <span class="k">def</span> <span class="nf">isDyn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">did</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">did</span><span class="p">)[</span><span class="s2">&quot;dyn&quot;</span><span class="p">]</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Abdelrahman Hamdy
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,875 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>aqt.sound &mdash; Anki  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+        <script async="async" kind="hypothesis" src="https://hypothes.is/embed.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Anki
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.html">anki package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.importing.html">anki.importing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aqt.html">aqt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../genhooks_gui.html">genhooks_gui module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tools.html">tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Anki</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../aqt.html">aqt</a> &raquo;</li>
+        
+      <li>aqt.sound</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for aqt.sound</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright: Ankitects Pty Ltd and contributors</span>
+<span class="c1"># License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html</span>
+<span class="kn">import</span> <span class="nn">atexit</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">threading</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">wave</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">concurrent.futures</span> <span class="kn">import</span> <span class="n">Future</span>
+<span class="kn">from</span> <span class="nn">operator</span> <span class="kn">import</span> <span class="n">itemgetter</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span> <span class="nn">aqt</span>
+<span class="kn">from</span> <span class="nn">anki.cards</span> <span class="kn">import</span> <span class="n">Card</span>
+<span class="kn">from</span> <span class="nn">anki.lang</span> <span class="kn">import</span> <span class="n">_</span>
+<span class="kn">from</span> <span class="nn">anki.sound</span> <span class="kn">import</span> <span class="n">AV_REF_RE</span><span class="p">,</span> <span class="n">AVTag</span><span class="p">,</span> <span class="n">SoundOrVideoTag</span>
+<span class="kn">from</span> <span class="nn">anki.utils</span> <span class="kn">import</span> <span class="n">isLin</span><span class="p">,</span> <span class="n">isMac</span><span class="p">,</span> <span class="n">isWin</span>
+<span class="kn">from</span> <span class="nn">aqt</span> <span class="kn">import</span> <span class="n">gui_hooks</span>
+<span class="kn">from</span> <span class="nn">aqt.mpv</span> <span class="kn">import</span> <span class="n">MPV</span><span class="p">,</span> <span class="n">MPVBase</span><span class="p">,</span> <span class="n">MPVCommandError</span>
+<span class="kn">from</span> <span class="nn">aqt.qt</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">aqt.taskman</span> <span class="kn">import</span> <span class="n">TaskManager</span>
+<span class="kn">from</span> <span class="nn">aqt.utils</span> <span class="kn">import</span> <span class="n">restoreGeom</span><span class="p">,</span> <span class="n">saveGeom</span><span class="p">,</span> <span class="n">showWarning</span><span class="p">,</span> <span class="n">startup_info</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">pyaudio</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="n">pyaudio</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<span class="c1"># AV player protocol</span>
+<span class="c1">##########################################################################</span>
+
+<span class="n">OnDoneCallback</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="Player"><a class="viewcode-back" href="../../aqt.html#aqt.sound.Player">[docs]</a><span class="k">class</span> <span class="nc">Player</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<div class="viewcode-block" id="Player.play"><a class="viewcode-back" href="../../aqt.html#aqt.sound.Player.play">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">play</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">:</span> <span class="n">AVTag</span><span class="p">,</span> <span class="n">on_done</span><span class="p">:</span> <span class="n">OnDoneCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Play a file.</span>
+
+<span class="sd">        When reimplementing, make sure to call</span>
+<span class="sd">        gui_hooks.av_player_did_begin_playing(self, tag)</span>
+<span class="sd">        on the main thread after playback begins.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="Player.rank_for_tag"><a class="viewcode-back" href="../../aqt.html#aqt.sound.Player.rank_for_tag">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">rank_for_tag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">:</span> <span class="n">AVTag</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;How suited this player is to playing tag.</span>
+
+<span class="sd">        AVPlayer will choose the player that returns the highest rank</span>
+<span class="sd">        for a given tag.</span>
+
+<span class="sd">        If None, this player can not play the tag.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="Player.stop"><a class="viewcode-back" href="../../aqt.html#aqt.sound.Player.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Optional.</span>
+
+<span class="sd">        If implemented, the player must not call on_done() when the audio is stopped.&quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="Player.seek_relative"><a class="viewcode-back" href="../../aqt.html#aqt.sound.Player.seek_relative">[docs]</a>    <span class="k">def</span> <span class="nf">seek_relative</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">secs</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Jump forward or back by secs. Optional.&quot;</span></div>
+
+<div class="viewcode-block" id="Player.toggle_pause"><a class="viewcode-back" href="../../aqt.html#aqt.sound.Player.toggle_pause">[docs]</a>    <span class="k">def</span> <span class="nf">toggle_pause</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Optional.&quot;</span></div>
+
+<div class="viewcode-block" id="Player.shutdown"><a class="viewcode-back" href="../../aqt.html#aqt.sound.Player.shutdown">[docs]</a>    <span class="k">def</span> <span class="nf">shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Do any cleanup required at program termination. Optional.&quot;</span></div></div>
+
+
+<div class="viewcode-block" id="SoundOrVideoPlayer"><a class="viewcode-back" href="../../aqt.html#aqt.sound.SoundOrVideoPlayer">[docs]</a><span class="k">class</span> <span class="nc">SoundOrVideoPlayer</span><span class="p">(</span><span class="n">Player</span><span class="p">):</span>  <span class="c1"># pylint: disable=abstract-method</span>
+    <span class="n">default_rank</span> <span class="o">=</span> <span class="mi">0</span>
+
+<div class="viewcode-block" id="SoundOrVideoPlayer.rank_for_tag"><a class="viewcode-back" href="../../aqt.html#aqt.sound.SoundOrVideoPlayer.rank_for_tag">[docs]</a>    <span class="k">def</span> <span class="nf">rank_for_tag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">:</span> <span class="n">AVTag</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="n">SoundOrVideoTag</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_rank</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div></div>
+
+
+<span class="c1"># Main playing interface</span>
+<span class="c1">##########################################################################</span>
+
+
+<div class="viewcode-block" id="AVPlayer"><a class="viewcode-back" href="../../aqt.html#aqt.sound.AVPlayer">[docs]</a><span class="k">class</span> <span class="nc">AVPlayer</span><span class="p">:</span>
+    <span class="n">players</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Player</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># when a new batch of audio is played, shoud the currently playing</span>
+    <span class="c1"># audio be stopped?</span>
+    <span class="n">interrupt_current_audio</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_enqueued</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">AVTag</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_player</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Player</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="AVPlayer.play_tags"><a class="viewcode-back" href="../../aqt.html#aqt.sound.AVPlayer.play_tags">[docs]</a>    <span class="k">def</span> <span class="nf">play_tags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tags</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">AVTag</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Clear the existing queue, then start playing provided tags.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clear_queue_and_maybe_interrupt</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_enqueued</span> <span class="o">=</span> <span class="n">tags</span><span class="p">[:]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_play_next_if_idle</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="AVPlayer.stop_and_clear_queue"><a class="viewcode-back" href="../../aqt.html#aqt.sound.AVPlayer.stop_and_clear_queue">[docs]</a>    <span class="k">def</span> <span class="nf">stop_and_clear_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_enqueued</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stop_if_playing</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="AVPlayer.clear_queue_and_maybe_interrupt"><a class="viewcode-back" href="../../aqt.html#aqt.sound.AVPlayer.clear_queue_and_maybe_interrupt">[docs]</a>    <span class="k">def</span> <span class="nf">clear_queue_and_maybe_interrupt</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_enqueued</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">interrupt_current_audio</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_stop_if_playing</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="AVPlayer.play_file"><a class="viewcode-back" href="../../aqt.html#aqt.sound.AVPlayer.play_file">[docs]</a>    <span class="k">def</span> <span class="nf">play_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">play_tags</span><span class="p">([</span><span class="n">SoundOrVideoTag</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">)])</span></div>
+
+<div class="viewcode-block" id="AVPlayer.insert_file"><a class="viewcode-back" href="../../aqt.html#aqt.sound.AVPlayer.insert_file">[docs]</a>    <span class="k">def</span> <span class="nf">insert_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_enqueued</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">SoundOrVideoTag</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_play_next_if_idle</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="AVPlayer.toggle_pause"><a class="viewcode-back" href="../../aqt.html#aqt.sound.AVPlayer.toggle_pause">[docs]</a>    <span class="k">def</span> <span class="nf">toggle_pause</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_player</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_player</span><span class="o">.</span><span class="n">toggle_pause</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="AVPlayer.seek_relative"><a class="viewcode-back" href="../../aqt.html#aqt.sound.AVPlayer.seek_relative">[docs]</a>    <span class="k">def</span> <span class="nf">seek_relative</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">secs</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_player</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_player</span><span class="o">.</span><span class="n">seek_relative</span><span class="p">(</span><span class="n">secs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AVPlayer.shutdown"><a class="viewcode-back" href="../../aqt.html#aqt.sound.AVPlayer.shutdown">[docs]</a>    <span class="k">def</span> <span class="nf">shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stop_and_clear_queue</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">player</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">players</span><span class="p">:</span>
+            <span class="n">player</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">_stop_if_playing</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_player</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_player</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_pop_next</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AVTag</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enqueued</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enqueued</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_on_play_finished</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">gui_hooks</span><span class="o">.</span><span class="n">av_player_did_end_playing</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_player</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_player</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_play_next_if_idle</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_play_next_if_idle</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_player</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="nb">next</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pop_next</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">next</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_play</span><span class="p">(</span><span class="nb">next</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_play</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">:</span> <span class="n">AVTag</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">best_player</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_best_player_for_tag</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">best_player</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_player</span> <span class="o">=</span> <span class="n">best_player</span>
+            <span class="n">gui_hooks</span><span class="o">.</span><span class="n">av_player_will_play</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_player</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_play_finished</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;no players found for&quot;</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_best_player_for_tag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">:</span> <span class="n">AVTag</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Player</span><span class="p">]:</span>
+        <span class="n">ranked</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">players</span><span class="p">:</span>
+            <span class="n">rank</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">rank_for_tag</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">rank</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ranked</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">rank</span><span class="p">,</span> <span class="n">p</span><span class="p">))</span>
+
+        <span class="n">ranked</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">itemgetter</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">ranked</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ranked</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<span class="n">av_player</span> <span class="o">=</span> <span class="n">AVPlayer</span><span class="p">()</span>
+
+<span class="c1"># Packaged commands</span>
+<span class="c1">##########################################################################</span>
+
+<span class="c1"># return modified command array that points to bundled command, and return</span>
+<span class="c1"># required environment</span>
+<span class="k">def</span> <span class="nf">_packagedCmd</span><span class="p">(</span><span class="n">cmd</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+    <span class="n">cmd</span> <span class="o">=</span> <span class="n">cmd</span><span class="p">[:]</span>
+    <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="s2">&quot;LD_LIBRARY_PATH&quot;</span> <span class="ow">in</span> <span class="n">env</span><span class="p">:</span>
+        <span class="k">del</span> <span class="n">env</span><span class="p">[</span><span class="s2">&quot;LD_LIBRARY_PATH&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">isMac</span><span class="p">:</span>
+        <span class="nb">dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+        <span class="n">exeDir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="nb">dir</span> <span class="o">+</span> <span class="s2">&quot;/../../Resources/audio&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">exeDir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="n">isWin</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">cmd</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.exe&quot;</span><span class="p">):</span>
+            <span class="n">cmd</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="s2">&quot;.exe&quot;</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">exeDir</span><span class="p">,</span> <span class="n">cmd</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">cmd</span><span class="p">,</span> <span class="n">env</span>
+    <span class="n">cmd</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">path</span>
+    <span class="k">return</span> <span class="n">cmd</span><span class="p">,</span> <span class="n">env</span>
+
+
+<span class="c1"># Platform hacks</span>
+<span class="c1">##########################################################################</span>
+
+<span class="c1"># legacy global for add-ons</span>
+<span class="n">si</span> <span class="o">=</span> <span class="n">startup_info</span><span class="p">()</span>
+
+<span class="c1"># osx throws interrupted system call errors frequently</span>
+<div class="viewcode-block" id="retryWait"><a class="viewcode-back" href="../../aqt.html#aqt.sound.retryWait">[docs]</a><span class="k">def</span> <span class="nf">retryWait</span><span class="p">(</span><span class="n">proc</span><span class="p">:</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">while</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">proc</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+            <span class="k">continue</span></div>
+
+
+<span class="c1"># Simple player implementations</span>
+<span class="c1">##########################################################################</span>
+
+
+<div class="viewcode-block" id="SimpleProcessPlayer"><a class="viewcode-back" href="../../aqt.html#aqt.sound.SimpleProcessPlayer">[docs]</a><span class="k">class</span> <span class="nc">SimpleProcessPlayer</span><span class="p">(</span><span class="n">Player</span><span class="p">):</span>  <span class="c1"># pylint: disable=abstract-method</span>
+    <span class="s2">&quot;A player that invokes a new process for each tag to play.&quot;</span>
+
+    <span class="n">args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">env</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">taskman</span><span class="p">:</span> <span class="n">TaskManager</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_taskman</span> <span class="o">=</span> <span class="n">taskman</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_terminate_flag</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="SimpleProcessPlayer.play"><a class="viewcode-back" href="../../aqt.html#aqt.sound.SimpleProcessPlayer.play">[docs]</a>    <span class="k">def</span> <span class="nf">play</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">:</span> <span class="n">AVTag</span><span class="p">,</span> <span class="n">on_done</span><span class="p">:</span> <span class="n">OnDoneCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_terminate_flag</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_taskman</span><span class="o">.</span><span class="n">run_in_background</span><span class="p">(</span>
+            <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_play</span><span class="p">(</span><span class="n">tag</span><span class="p">),</span> <span class="k">lambda</span> <span class="n">res</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_done</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">on_done</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="SimpleProcessPlayer.stop"><a class="viewcode-back" href="../../aqt.html#aqt.sound.SimpleProcessPlayer.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_terminate_flag</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+    <span class="c1"># note: mplayer implementation overrides this</span>
+    <span class="k">def</span> <span class="nf">_play</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">:</span> <span class="n">AVTag</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="n">SoundOrVideoTag</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">+</span> <span class="p">[</span><span class="n">tag</span><span class="o">.</span><span class="n">filename</span><span class="p">],</span>
+            <span class="n">env</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">,</span>
+            <span class="n">startupinfo</span><span class="o">=</span><span class="n">startup_info</span><span class="p">(),</span>
+            <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">DEVNULL</span><span class="p">,</span>
+            <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">DEVNULL</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_wait_for_termination</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_wait_for_termination</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">:</span> <span class="n">AVTag</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_taskman</span><span class="o">.</span><span class="n">run_on_main</span><span class="p">(</span>
+            <span class="k">lambda</span><span class="p">:</span> <span class="n">gui_hooks</span><span class="o">.</span><span class="n">av_player_did_begin_playing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="c1"># should we abort playing?</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_terminate_flag</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_process</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">return</span>
+
+            <span class="c1"># wait for completion</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;player got return code: </span><span class="si">{self._process.returncode}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_process</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">return</span>
+            <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">TimeoutExpired</span><span class="p">:</span>
+                <span class="c1"># process still running, repeat loop</span>
+                <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">_on_done</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ret</span><span class="p">:</span> <span class="n">Future</span><span class="p">,</span> <span class="n">cb</span><span class="p">:</span> <span class="n">OnDoneCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">ret</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+            <span class="n">showWarning</span><span class="p">(</span>
+                <span class="n">_</span><span class="p">(</span>
+                    <span class="s2">&quot;Sound and video on cards will not function until mpv or mplayer is installed.&quot;</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="c1"># must call cb() here, as we don&#39;t currently have another way</span>
+            <span class="c1"># to flag to av_player that we&#39;ve stopped</span>
+        <span class="n">cb</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="SimpleMpvPlayer"><a class="viewcode-back" href="../../aqt.html#aqt.sound.SimpleMpvPlayer">[docs]</a><span class="k">class</span> <span class="nc">SimpleMpvPlayer</span><span class="p">(</span><span class="n">SimpleProcessPlayer</span><span class="p">,</span> <span class="n">SoundOrVideoPlayer</span><span class="p">):</span>
+    <span class="n">args</span><span class="p">,</span> <span class="n">env</span> <span class="o">=</span> <span class="n">_packagedCmd</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;mpv&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--no-terminal&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--force-window=no&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--ontop&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--audio-display=no&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--keep-open=no&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--input-media-keys=no&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--no-config&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">taskman</span><span class="p">:</span> <span class="n">TaskManager</span><span class="p">,</span> <span class="n">base_folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">taskman</span><span class="p">)</span>
+        <span class="n">conf_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_folder</span><span class="p">,</span> <span class="s2">&quot;mpv.conf&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;--include=&quot;</span> <span class="o">+</span> <span class="n">conf_path</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="SimpleMplayerPlayer"><a class="viewcode-back" href="../../aqt.html#aqt.sound.SimpleMplayerPlayer">[docs]</a><span class="k">class</span> <span class="nc">SimpleMplayerPlayer</span><span class="p">(</span><span class="n">SimpleProcessPlayer</span><span class="p">,</span> <span class="n">SoundOrVideoPlayer</span><span class="p">):</span>
+    <span class="n">args</span><span class="p">,</span> <span class="n">env</span> <span class="o">=</span> <span class="n">_packagedCmd</span><span class="p">([</span><span class="s2">&quot;mplayer&quot;</span><span class="p">,</span> <span class="s2">&quot;-really-quiet&quot;</span><span class="p">,</span> <span class="s2">&quot;-noautosub&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">isWin</span><span class="p">:</span>
+        <span class="n">args</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;-ao&quot;</span><span class="p">,</span> <span class="s2">&quot;win32&quot;</span><span class="p">]</span></div>
+
+
+<span class="c1"># MPV</span>
+<span class="c1">##########################################################################</span>
+
+
+<div class="viewcode-block" id="MpvManager"><a class="viewcode-back" href="../../aqt.html#aqt.sound.MpvManager">[docs]</a><span class="k">class</span> <span class="nc">MpvManager</span><span class="p">(</span><span class="n">MPV</span><span class="p">,</span> <span class="n">SoundOrVideoPlayer</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">isLin</span><span class="p">:</span>
+        <span class="n">default_argv</span> <span class="o">=</span> <span class="n">MPVBase</span><span class="o">.</span><span class="n">default_argv</span> <span class="o">+</span> <span class="p">[</span>
+            <span class="s2">&quot;--input-media-keys=no&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mpvPath</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">popenEnv</span> <span class="o">=</span> <span class="n">_packagedCmd</span><span class="p">([</span><span class="s2">&quot;mpv&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">executable</span> <span class="o">=</span> <span class="n">mpvPath</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_on_done</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">OnDoneCallback</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_argv</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;--config-dir=&quot;</span> <span class="o">+</span> <span class="n">base_path</span><span class="p">]</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">window_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MpvManager.on_init"><a class="viewcode-back" href="../../aqt.html#aqt.sound.MpvManager.on_init">[docs]</a>    <span class="k">def</span> <span class="nf">on_init</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;keybind&quot;</span><span class="p">,</span> <span class="s2">&quot;q&quot;</span><span class="p">,</span> <span class="s2">&quot;stop&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;keybind&quot;</span><span class="p">,</span> <span class="s2">&quot;Q&quot;</span><span class="p">,</span> <span class="s2">&quot;stop&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;keybind&quot;</span><span class="p">,</span> <span class="s2">&quot;CLOSE_WIN&quot;</span><span class="p">,</span> <span class="s2">&quot;stop&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;keybind&quot;</span><span class="p">,</span> <span class="s2">&quot;ctrl+w&quot;</span><span class="p">,</span> <span class="s2">&quot;stop&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;keybind&quot;</span><span class="p">,</span> <span class="s2">&quot;ctrl+c&quot;</span><span class="p">,</span> <span class="s2">&quot;stop&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">MPVCommandError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;mpv too old for key rebinding&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MpvManager.play"><a class="viewcode-back" href="../../aqt.html#aqt.sound.MpvManager.play">[docs]</a>    <span class="k">def</span> <span class="nf">play</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">:</span> <span class="n">AVTag</span><span class="p">,</span> <span class="n">on_done</span><span class="p">:</span> <span class="n">OnDoneCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="n">SoundOrVideoTag</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_on_done</span> <span class="o">=</span> <span class="n">on_done</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="n">tag</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;loadfile&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="s2">&quot;append-play&quot;</span><span class="p">)</span>
+        <span class="n">gui_hooks</span><span class="o">.</span><span class="n">av_player_did_begin_playing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MpvManager.stop"><a class="viewcode-back" href="../../aqt.html#aqt.sound.MpvManager.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;stop&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MpvManager.toggle_pause"><a class="viewcode-back" href="../../aqt.html#aqt.sound.MpvManager.toggle_pause">[docs]</a>    <span class="k">def</span> <span class="nf">toggle_pause</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="s2">&quot;pause&quot;</span><span class="p">,</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_property</span><span class="p">(</span><span class="s2">&quot;pause&quot;</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="MpvManager.seek_relative"><a class="viewcode-back" href="../../aqt.html#aqt.sound.MpvManager.seek_relative">[docs]</a>    <span class="k">def</span> <span class="nf">seek_relative</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">secs</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;seek&quot;</span><span class="p">,</span> <span class="n">secs</span><span class="p">,</span> <span class="s2">&quot;relative&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MpvManager.on_end_file"><a class="viewcode-back" href="../../aqt.html#aqt.sound.MpvManager.on_end_file">[docs]</a>    <span class="k">def</span> <span class="nf">on_end_file</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_done</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_on_done</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="MpvManager.shutdown"><a class="viewcode-back" href="../../aqt.html#aqt.sound.MpvManager.shutdown">[docs]</a>    <span class="k">def</span> <span class="nf">shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+    <span class="c1"># Legacy, not used</span>
+    <span class="c1">##################################################</span>
+
+    <span class="n">togglePause</span> <span class="o">=</span> <span class="n">toggle_pause</span>
+    <span class="n">seekRelative</span> <span class="o">=</span> <span class="n">seek_relative</span>
+
+<div class="viewcode-block" id="MpvManager.queueFile"><a class="viewcode-back" href="../../aqt.html#aqt.sound.MpvManager.queueFile">[docs]</a>    <span class="k">def</span> <span class="nf">queueFile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span></div>
+
+<div class="viewcode-block" id="MpvManager.clearQueue"><a class="viewcode-back" href="../../aqt.html#aqt.sound.MpvManager.clearQueue">[docs]</a>    <span class="k">def</span> <span class="nf">clearQueue</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span></div></div>
+
+
+<span class="c1"># Mplayer in slave mode</span>
+<span class="c1">##########################################################################</span>
+
+
+<div class="viewcode-block" id="SimpleMplayerSlaveModePlayer"><a class="viewcode-back" href="../../aqt.html#aqt.sound.SimpleMplayerSlaveModePlayer">[docs]</a><span class="k">class</span> <span class="nc">SimpleMplayerSlaveModePlayer</span><span class="p">(</span><span class="n">SimpleMplayerPlayer</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">taskman</span><span class="p">:</span> <span class="n">TaskManager</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">taskman</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;-slave&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_play</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">:</span> <span class="n">AVTag</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="n">SoundOrVideoTag</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">+</span> <span class="p">[</span><span class="n">tag</span><span class="o">.</span><span class="n">filename</span><span class="p">],</span>
+            <span class="n">env</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">,</span>
+            <span class="n">stdin</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+            <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">DEVNULL</span><span class="p">,</span>
+            <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">DEVNULL</span><span class="p">,</span>
+            <span class="n">startupinfo</span><span class="o">=</span><span class="n">startup_info</span><span class="p">(),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_wait_for_termination</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SimpleMplayerSlaveModePlayer.command"><a class="viewcode-back" href="../../aqt.html#aqt.sound.SimpleMplayerSlaveModePlayer.command">[docs]</a>    <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Send a command over the slave interface.</span>
+
+<span class="sd">        The trailing newline is automatically added.&quot;&quot;&quot;</span>
+        <span class="n">str_args</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">args</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="o">.</span><span class="n">stdin</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">str_args</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf8&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="o">.</span><span class="n">stdin</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="SimpleMplayerSlaveModePlayer.seek_relative"><a class="viewcode-back" href="../../aqt.html#aqt.sound.SimpleMplayerSlaveModePlayer.seek_relative">[docs]</a>    <span class="k">def</span> <span class="nf">seek_relative</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">secs</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;seek&quot;</span><span class="p">,</span> <span class="n">secs</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SimpleMplayerSlaveModePlayer.toggle_pause"><a class="viewcode-back" href="../../aqt.html#aqt.sound.SimpleMplayerSlaveModePlayer.toggle_pause">[docs]</a>    <span class="k">def</span> <span class="nf">toggle_pause</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;pause&quot;</span><span class="p">)</span></div></div>
+
+
+<span class="c1"># PyAudio recording</span>
+<span class="c1">##########################################################################</span>
+
+
+<span class="n">PYAU_CHANNELS</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">PYAU_INPUT_INDEX</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="n">processingSrc</span> <span class="o">=</span> <span class="s2">&quot;rec.wav&quot;</span>
+<span class="n">processingDst</span> <span class="o">=</span> <span class="s2">&quot;rec.mp3&quot;</span>
+<span class="n">recFiles</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="n">processingChain</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[</span><span class="s2">&quot;lame&quot;</span><span class="p">,</span> <span class="n">processingSrc</span><span class="p">,</span> <span class="n">processingDst</span><span class="p">,</span> <span class="s2">&quot;--noreplaygain&quot;</span><span class="p">,</span> <span class="s2">&quot;--quiet&quot;</span><span class="p">],</span>
+<span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">_Recorder</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">postprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">encode</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">encode</span> <span class="o">=</span> <span class="n">encode</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">processingChain</span><span class="p">:</span>
+            <span class="c1"># print c</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">encode</span> <span class="ow">and</span> <span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;lame&quot;</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">cmd</span><span class="p">,</span> <span class="n">env</span> <span class="o">=</span> <span class="n">_packagedCmd</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+                <span class="n">ret</span> <span class="o">=</span> <span class="n">retryWait</span><span class="p">(</span>
+                    <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">startupinfo</span><span class="o">=</span><span class="n">startup_info</span><span class="p">(),</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">ret</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">ret</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Error running </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmd</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">processingSrc</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">processingSrc</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="PyAudioThreadedRecorder"><a class="viewcode-back" href="../../aqt.html#aqt.sound.PyAudioThreadedRecorder">[docs]</a><span class="k">class</span> <span class="nc">PyAudioThreadedRecorder</span><span class="p">(</span><span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">startupDelay</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">startupDelay</span> <span class="o">=</span> <span class="n">startupDelay</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">finish</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">isMac</span> <span class="ow">and</span> <span class="n">qtminor</span> <span class="o">&gt;</span> <span class="mi">12</span><span class="p">:</span>
+            <span class="c1"># trigger permission prompt</span>
+            <span class="c1"># pylint: disable=undefined-variable</span>
+            <span class="n">QAudioDeviceInfo</span><span class="o">.</span><span class="n">defaultInputDevice</span><span class="p">()</span>  <span class="c1"># type: ignore</span>
+
+<div class="viewcode-block" id="PyAudioThreadedRecorder.run"><a class="viewcode-back" href="../../aqt.html#aqt.sound.PyAudioThreadedRecorder.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">chunk</span> <span class="o">=</span> <span class="mi">1024</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">pyaudio</span><span class="o">.</span><span class="n">PyAudio</span><span class="p">()</span>
+
+        <span class="n">rate</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">get_default_input_device_info</span><span class="p">()[</span><span class="s2">&quot;defaultSampleRate&quot;</span><span class="p">])</span>
+        <span class="n">wait</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">rate</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">startupDelay</span><span class="p">)</span>
+        <span class="n">PYAU_FORMAT</span> <span class="o">=</span> <span class="n">pyaudio</span><span class="o">.</span><span class="n">paInt16</span>
+
+        <span class="n">stream</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">open</span><span class="p">(</span>
+            <span class="nb">format</span><span class="o">=</span><span class="n">PYAU_FORMAT</span><span class="p">,</span>
+            <span class="n">channels</span><span class="o">=</span><span class="n">PYAU_CHANNELS</span><span class="p">,</span>
+            <span class="n">rate</span><span class="o">=</span><span class="n">rate</span><span class="p">,</span>
+            <span class="nb">input</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">input_device_index</span><span class="o">=</span><span class="n">PYAU_INPUT_INDEX</span><span class="p">,</span>
+            <span class="n">frames_per_buffer</span><span class="o">=</span><span class="n">chunk</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">wait</span><span class="p">,</span> <span class="n">exception_on_overflow</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;&quot;</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">finish</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">+=</span> <span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">chunk</span><span class="p">,</span> <span class="n">exception_on_overflow</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">stream</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+        <span class="n">wf</span> <span class="o">=</span> <span class="n">wave</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">processingSrc</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span>
+        <span class="n">wf</span><span class="o">.</span><span class="n">setnchannels</span><span class="p">(</span><span class="n">PYAU_CHANNELS</span><span class="p">)</span>
+        <span class="n">wf</span><span class="o">.</span><span class="n">setsampwidth</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">get_sample_size</span><span class="p">(</span><span class="n">PYAU_FORMAT</span><span class="p">))</span>
+        <span class="n">wf</span><span class="o">.</span><span class="n">setframerate</span><span class="p">(</span><span class="n">rate</span><span class="p">)</span>
+        <span class="n">wf</span><span class="o">.</span><span class="n">writeframes</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">wf</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="PyAudioRecorder"><a class="viewcode-back" href="../../aqt.html#aqt.sound.PyAudioRecorder">[docs]</a><span class="k">class</span> <span class="nc">PyAudioRecorder</span><span class="p">(</span><span class="n">_Recorder</span><span class="p">):</span>
+
+    <span class="c1"># discard first 250ms which may have pops/cracks</span>
+    <span class="n">startupDelay</span> <span class="o">=</span> <span class="mf">0.25</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">recFiles</span> <span class="o">+</span> <span class="p">[</span><span class="n">processingSrc</span><span class="p">,</span> <span class="n">processingDst</span><span class="p">]:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">encode</span> <span class="o">=</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="PyAudioRecorder.start"><a class="viewcode-back" href="../../aqt.html#aqt.sound.PyAudioRecorder.start">[docs]</a>    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">thread</span> <span class="o">=</span> <span class="n">PyAudioThreadedRecorder</span><span class="p">(</span><span class="n">startupDelay</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">startupDelay</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="PyAudioRecorder.stop"><a class="viewcode-back" href="../../aqt.html#aqt.sound.PyAudioRecorder.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">thread</span><span class="o">.</span><span class="n">finish</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">thread</span><span class="o">.</span><span class="n">join</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="PyAudioRecorder.file"><a class="viewcode-back" href="../../aqt.html#aqt.sound.PyAudioRecorder.file">[docs]</a>    <span class="k">def</span> <span class="nf">file</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">encode</span><span class="p">:</span>
+            <span class="n">tgt</span> <span class="o">=</span> <span class="s2">&quot;rec</span><span class="si">%d</span><span class="s2">.mp3&quot;</span> <span class="o">%</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">processingDst</span><span class="p">,</span> <span class="n">tgt</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">tgt</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">processingSrc</span></div></div>
+
+
+<span class="n">Recorder</span> <span class="o">=</span> <span class="n">PyAudioRecorder</span>
+
+<span class="c1"># Recording dialog</span>
+<span class="c1">##########################################################################</span>
+
+
+<div class="viewcode-block" id="getAudio"><a class="viewcode-back" href="../../aqt.html#aqt.sound.getAudio">[docs]</a><span class="k">def</span> <span class="nf">getAudio</span><span class="p">(</span><span class="n">parent</span><span class="p">:</span> <span class="n">QWidget</span><span class="p">,</span> <span class="n">encode</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="s2">&quot;Record and return filename&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">pyaudio</span><span class="p">:</span>
+        <span class="n">showWarning</span><span class="p">(</span><span class="s2">&quot;Please install pyaudio.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="c1"># record first</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">Recorder</span><span class="p">()</span>
+    <span class="n">mb</span> <span class="o">=</span> <span class="n">QMessageBox</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+    <span class="n">restoreGeom</span><span class="p">(</span><span class="n">mb</span><span class="p">,</span> <span class="s2">&quot;audioRecorder&quot;</span><span class="p">)</span>
+    <span class="n">mb</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s2">&quot;Anki&quot;</span><span class="p">)</span>
+    <span class="n">mb</span><span class="o">.</span><span class="n">setIconPixmap</span><span class="p">(</span><span class="n">QPixmap</span><span class="p">(</span><span class="s2">&quot;:/icons/media-record.png&quot;</span><span class="p">))</span>
+    <span class="n">but</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Save&quot;</span><span class="p">))</span>
+    <span class="n">mb</span><span class="o">.</span><span class="n">addButton</span><span class="p">(</span><span class="n">but</span><span class="p">,</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">AcceptRole</span><span class="p">)</span>
+    <span class="n">but</span><span class="o">.</span><span class="n">setDefault</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">but</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Cancel&quot;</span><span class="p">))</span>
+    <span class="n">mb</span><span class="o">.</span><span class="n">addButton</span><span class="p">(</span><span class="n">but</span><span class="p">,</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">RejectRole</span><span class="p">)</span>
+    <span class="n">mb</span><span class="o">.</span><span class="n">setEscapeButton</span><span class="p">(</span><span class="n">but</span><span class="p">)</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">r</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">startupDelay</span><span class="p">)</span>
+    <span class="n">QApplication</span><span class="o">.</span><span class="n">instance</span><span class="p">()</span><span class="o">.</span><span class="n">processEvents</span><span class="p">()</span>  <span class="c1"># type: ignore</span>
+    <span class="k">while</span> <span class="ow">not</span> <span class="n">mb</span><span class="o">.</span><span class="n">clickedButton</span><span class="p">():</span>
+        <span class="n">txt</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Recording...&lt;br&gt;Time: </span><span class="si">%0.1f</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">mb</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">txt</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t</span><span class="p">))</span>
+        <span class="n">mb</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="n">QApplication</span><span class="o">.</span><span class="n">instance</span><span class="p">()</span><span class="o">.</span><span class="n">processEvents</span><span class="p">()</span>  <span class="c1"># type: ignore</span>
+    <span class="k">if</span> <span class="n">mb</span><span class="o">.</span><span class="n">clickedButton</span><span class="p">()</span> <span class="o">==</span> <span class="n">mb</span><span class="o">.</span><span class="n">escapeButton</span><span class="p">():</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">saveGeom</span><span class="p">(</span><span class="n">mb</span><span class="p">,</span> <span class="s2">&quot;audioRecorder&quot;</span><span class="p">)</span>
+    <span class="c1"># ensure at least a second captured</span>
+    <span class="k">while</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+    <span class="n">r</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+    <span class="c1"># process</span>
+    <span class="n">r</span><span class="o">.</span><span class="n">postprocess</span><span class="p">(</span><span class="n">encode</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">r</span><span class="o">.</span><span class="n">file</span><span class="p">()</span></div>
+
+
+<span class="c1"># Legacy audio interface</span>
+<span class="c1">##########################################################################</span>
+<span class="c1"># these will be removed in the future</span>
+
+
+<div class="viewcode-block" id="clearAudioQueue"><a class="viewcode-back" href="../../aqt.html#aqt.sound.clearAudioQueue">[docs]</a><span class="k">def</span> <span class="nf">clearAudioQueue</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">av_player</span><span class="o">.</span><span class="n">stop_and_clear_queue</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="play"><a class="viewcode-back" href="../../aqt.html#aqt.sound.play">[docs]</a><span class="k">def</span> <span class="nf">play</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">av_player</span><span class="o">.</span><span class="n">play_file</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="playFromText"><a class="viewcode-back" href="../../aqt.html#aqt.sound.playFromText">[docs]</a><span class="k">def</span> <span class="nf">playFromText</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;playFromText() deprecated&quot;</span><span class="p">)</span></div>
+
+
+<span class="c1"># legacy globals</span>
+<span class="n">_player</span> <span class="o">=</span> <span class="n">play</span>
+<span class="n">_queueEraser</span> <span class="o">=</span> <span class="n">clearAudioQueue</span>
+<span class="n">mpvManager</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;MpvManager&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="c1"># add everything from this module into anki.sound for backwards compat</span>
+<span class="n">_exports</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;__&quot;</span><span class="p">)]</span>
+<span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">_exports</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s2">&quot;anki.sound&quot;</span><span class="p">]</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+
+<span class="c1"># Tag handling</span>
+<span class="c1">##########################################################################</span>
+
+
+<div class="viewcode-block" id="av_refs_to_play_icons"><a class="viewcode-back" href="../../aqt.html#aqt.sound.av_refs_to_play_icons">[docs]</a><span class="k">def</span> <span class="nf">av_refs_to_play_icons</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Add play icons into the HTML.</span>
+
+<span class="sd">    When clicked, the icon will call eg pycmd(&#39;play:q:1&#39;).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">repl</span><span class="p">(</span><span class="n">match</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">Match</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">&lt;a class=&quot;replay-button soundLink&quot; href=# onclick=&quot;pycmd(&#39;{match.group(1)}&#39;); return false;&quot;&gt;</span>
+<span class="s2">    &lt;svg class=&quot;playImage&quot; viewBox=&quot;0 0 64 64&quot; version=&quot;1.1&quot;&gt;</span>
+<span class="s2">        &lt;circle cx=&quot;32&quot; cy=&quot;32&quot; r=&quot;29&quot; /&gt;</span>
+<span class="s2">        &lt;path d=&quot;M56.502,32.301l-37.502,20.101l0.329,-40.804l37.173,20.703Z&quot; /&gt;</span>
+<span class="s2">    &lt;/svg&gt;</span>
+<span class="s2">&lt;/a&gt;&quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">AV_REF_RE</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">repl</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="play_clicked_audio"><a class="viewcode-back" href="../../aqt.html#aqt.sound.play_clicked_audio">[docs]</a><span class="k">def</span> <span class="nf">play_clicked_audio</span><span class="p">(</span><span class="n">pycmd</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">card</span><span class="p">:</span> <span class="n">Card</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;eg. if pycmd is &#39;play:q:0&#39;, play the first audio on the question side.&quot;&quot;&quot;</span>
+    <span class="n">play</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">str_idx</span> <span class="o">=</span> <span class="n">pycmd</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">str_idx</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">context</span> <span class="o">==</span> <span class="s2">&quot;q&quot;</span><span class="p">:</span>
+        <span class="n">tags</span> <span class="o">=</span> <span class="n">card</span><span class="o">.</span><span class="n">question_av_tags</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">tags</span> <span class="o">=</span> <span class="n">card</span><span class="o">.</span><span class="n">answer_av_tags</span><span class="p">()</span>
+    <span class="n">av_player</span><span class="o">.</span><span class="n">play_tags</span><span class="p">([</span><span class="n">tags</span><span class="p">[</span><span class="n">idx</span><span class="p">]])</span></div>
+
+
+<span class="c1"># Init defaults</span>
+<span class="c1">##########################################################################</span>
+
+
+<div class="viewcode-block" id="setup_audio"><a class="viewcode-back" href="../../aqt.html#aqt.sound.setup_audio">[docs]</a><span class="k">def</span> <span class="nf">setup_audio</span><span class="p">(</span><span class="n">taskman</span><span class="p">:</span> <span class="n">TaskManager</span><span class="p">,</span> <span class="n">base_folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># legacy global var</span>
+    <span class="k">global</span> <span class="n">mpvManager</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">mpvManager</span> <span class="o">=</span> <span class="n">MpvManager</span><span class="p">(</span><span class="n">base_folder</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;mpv not found, reverting to mplayer&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">aqt</span><span class="o">.</span><span class="n">mpv</span><span class="o">.</span><span class="n">MPVProcessError</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;mpv too old, reverting to mplayer&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">mpvManager</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">av_player</span><span class="o">.</span><span class="n">players</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mpvManager</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">mplayer</span> <span class="o">=</span> <span class="n">SimpleMplayerSlaveModePlayer</span><span class="p">(</span><span class="n">taskman</span><span class="p">)</span>
+        <span class="n">av_player</span><span class="o">.</span><span class="n">players</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mplayer</span><span class="p">)</span>
+
+    <span class="c1"># tts support</span>
+    <span class="k">if</span> <span class="n">isMac</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">aqt.tts</span> <span class="kn">import</span> <span class="n">MacTTSPlayer</span>
+
+        <span class="n">av_player</span><span class="o">.</span><span class="n">players</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">MacTTSPlayer</span><span class="p">(</span><span class="n">taskman</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">isWin</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">aqt.tts</span> <span class="kn">import</span> <span class="n">WindowsTTSPlayer</span>
+
+        <span class="n">av_player</span><span class="o">.</span><span class="n">players</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">WindowsTTSPlayer</span><span class="p">(</span><span class="n">taskman</span><span class="p">))</span>
+
+    <span class="c1"># cleanup at shutdown</span>
+    <span class="n">atexit</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">av_player</span><span class="o">.</span><span class="n">shutdown</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Abdelrahman Hamdy
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,634 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>anki.exporting &mdash; Anki  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Anki
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.html">anki package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aqt.html">aqt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../genhooks_gui.html">genhooks_gui module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tools.html">tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Anki</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>anki.exporting</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for anki.exporting</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright: Ankitects Pty Ltd and contributors</span>
+<span class="c1"># License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">unicodedata</span>
+<span class="kn">import</span> <span class="nn">zipfile</span>
+<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">BufferedWriter</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">zipfile</span> <span class="kn">import</span> <span class="n">ZipFile</span>
+
+<span class="kn">from</span> <span class="nn">anki</span> <span class="kn">import</span> <span class="n">hooks</span>
+<span class="kn">from</span> <span class="nn">anki.collection</span> <span class="kn">import</span> <span class="n">Collection</span>
+<span class="kn">from</span> <span class="nn">anki.lang</span> <span class="kn">import</span> <span class="n">_</span>
+<span class="kn">from</span> <span class="nn">anki.utils</span> <span class="kn">import</span> <span class="n">ids2str</span><span class="p">,</span> <span class="n">namedtmp</span><span class="p">,</span> <span class="n">splitFields</span><span class="p">,</span> <span class="n">stripHTML</span>
+
+
+<div class="viewcode-block" id="Exporter"><a class="viewcode-back" href="../../anki.html#anki.exporting.Exporter">[docs]</a><span class="k">class</span> <span class="nc">Exporter</span><span class="p">:</span>
+    <span class="n">includeHTML</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">col</span><span class="p">:</span> <span class="n">Collection</span><span class="p">,</span>
+        <span class="n">did</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">cids</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span> <span class="o">=</span> <span class="n">col</span><span class="o">.</span><span class="n">weakref</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">did</span> <span class="o">=</span> <span class="n">did</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cids</span> <span class="o">=</span> <span class="n">cids</span>
+
+<div class="viewcode-block" id="Exporter.doExport"><a class="viewcode-back" href="../../anki.html#anki.exporting.Exporter.doExport">[docs]</a>    <span class="k">def</span> <span class="nf">doExport</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;not implemented&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Exporter.exportInto"><a class="viewcode-back" href="../../anki.html#anki.exporting.Exporter.exportInto">[docs]</a>    <span class="k">def</span> <span class="nf">exportInto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_escapeCount</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">doExport</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+        <span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Exporter.processText"><a class="viewcode-back" href="../../anki.html#anki.exporting.Exporter.processText">[docs]</a>    <span class="k">def</span> <span class="nf">processText</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">includeHTML</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stripHTML</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+
+        <span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">escapeText</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">text</span></div>
+
+<div class="viewcode-block" id="Exporter.escapeText"><a class="viewcode-back" href="../../anki.html#anki.exporting.Exporter.escapeText">[docs]</a>    <span class="k">def</span> <span class="nf">escapeText</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="s2">&quot;Escape newlines, tabs, CSS and quotechar.&quot;</span>
+        <span class="c1"># fixme: we should probably quote fields with newlines</span>
+        <span class="c1"># instead of converting them to spaces</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="mi">8</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;(?i)&lt;style&gt;.*?&lt;/style&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\[\[type:[^]]+\]\]&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;&quot;&#39;</span> <span class="ow">in</span> <span class="n">text</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="s1">&#39;&quot;&#39;</span> <span class="o">+</span> <span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;&quot;&quot;&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;&quot;&#39;</span>
+        <span class="k">return</span> <span class="n">text</span></div>
+
+<div class="viewcode-block" id="Exporter.stripHTML"><a class="viewcode-back" href="../../anki.html#anki.exporting.Exporter.stripHTML">[docs]</a>    <span class="k">def</span> <span class="nf">stripHTML</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="c1"># very basic conversion to text</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">text</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(?i)&lt;(br ?/?|div|p)&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\[sound:[^]]+\]&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">stripHTML</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[ \n\t]+&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">s</span></div>
+
+<div class="viewcode-block" id="Exporter.cardIds"><a class="viewcode-back" href="../../anki.html#anki.exporting.Exporter.cardIds">[docs]</a>    <span class="k">def</span> <span class="nf">cardIds</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cids</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">did</span><span class="p">:</span>
+            <span class="n">cids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="s2">&quot;select id from cards&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">cids</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">did</span><span class="p">,</span> <span class="n">children</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">cids</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cids</span></div></div>
+
+
+<span class="c1"># Cards as TSV</span>
+<span class="c1">######################################################################</span>
+
+
+<div class="viewcode-block" id="TextCardExporter"><a class="viewcode-back" href="../../anki.html#anki.exporting.TextCardExporter">[docs]</a><span class="k">class</span> <span class="nc">TextCardExporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>
+
+    <span class="n">key</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Cards in Plain Text&quot;</span><span class="p">)</span>
+    <span class="n">ext</span> <span class="o">=</span> <span class="s2">&quot;.txt&quot;</span>
+    <span class="n">includeHTML</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">Exporter</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TextCardExporter.doExport"><a class="viewcode-back" href="../../anki.html#anki.exporting.TextCardExporter.doExport">[docs]</a>    <span class="k">def</span> <span class="nf">doExport</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ids</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cardIds</span><span class="p">())</span>
+        <span class="n">strids</span> <span class="o">=</span> <span class="n">ids2str</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">esc</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+            <span class="c1"># strip off the repeated question in answer if exists</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;(?si)^.*&lt;hr id=answer&gt;</span><span class="se">\n</span><span class="s2">*&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">processText</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+        <span class="n">out</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">cid</span> <span class="ow">in</span> <span class="n">ids</span><span class="p">:</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">getCard</span><span class="p">(</span><span class="n">cid</span><span class="p">)</span>
+            <span class="n">out</span> <span class="o">+=</span> <span class="n">esc</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">q</span><span class="p">())</span>
+            <span class="n">out</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">esc</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">a</span><span class="p">())</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span></div></div>
+
+
+<span class="c1"># Notes as TSV</span>
+<span class="c1">######################################################################</span>
+
+
+<div class="viewcode-block" id="TextNoteExporter"><a class="viewcode-back" href="../../anki.html#anki.exporting.TextNoteExporter">[docs]</a><span class="k">class</span> <span class="nc">TextNoteExporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>
+
+    <span class="n">key</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Notes in Plain Text&quot;</span><span class="p">)</span>
+    <span class="n">ext</span> <span class="o">=</span> <span class="s2">&quot;.txt&quot;</span>
+    <span class="n">includeTags</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">includeHTML</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">:</span> <span class="n">Collection</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">Exporter</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">includeID</span> <span class="o">=</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="TextNoteExporter.doExport"><a class="viewcode-back" href="../../anki.html#anki.exporting.TextNoteExporter.doExport">[docs]</a>    <span class="k">def</span> <span class="nf">doExport</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="n">BufferedWriter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">cardIds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cardIds</span><span class="p">()</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="nb">id</span><span class="p">,</span> <span class="n">flds</span><span class="p">,</span> <span class="n">tags</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">select guid, flds, tags from notes</span>
+<span class="sd">where id in</span>
+<span class="sd">(select nid from cards</span>
+<span class="sd">where cards.id in %s)&quot;&quot;&quot;</span>
+            <span class="o">%</span> <span class="n">ids2str</span><span class="p">(</span><span class="n">cardIds</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="c1"># note id</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">includeID</span><span class="p">:</span>
+                <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="nb">id</span><span class="p">))</span>
+            <span class="c1"># fields</span>
+            <span class="n">row</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">processText</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">splitFields</span><span class="p">(</span><span class="n">flds</span><span class="p">)])</span>
+            <span class="c1"># tags</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">includeTags</span><span class="p">:</span>
+                <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tags</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">row</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span></div></div>
+
+
+<span class="c1"># Anki decks</span>
+<span class="c1">######################################################################</span>
+<span class="c1"># media files are stored in self.mediaFiles, but not exported.</span>
+
+
+<div class="viewcode-block" id="AnkiExporter"><a class="viewcode-back" href="../../anki.html#anki.exporting.AnkiExporter">[docs]</a><span class="k">class</span> <span class="nc">AnkiExporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>
+
+    <span class="n">key</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Anki 2.0 Deck&quot;</span><span class="p">)</span>
+    <span class="n">ext</span> <span class="o">=</span> <span class="s2">&quot;.anki2&quot;</span>
+    <span class="n">includeSched</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">includeMedia</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">:</span> <span class="n">Collection</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">Exporter</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AnkiExporter.deckIds"><a class="viewcode-back" href="../../anki.html#anki.exporting.AnkiExporter.deckIds">[docs]</a>    <span class="k">def</span> <span class="nf">deckIds</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cids</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">for_card_ids</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cids</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">did</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">src</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">deck_and_child_ids</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">did</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span></div>
+
+<div class="viewcode-block" id="AnkiExporter.exportInto"><a class="viewcode-back" href="../../anki.html#anki.exporting.AnkiExporter.exportInto">[docs]</a>    <span class="k">def</span> <span class="nf">exportInto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># sched info+v2 scheduler not compatible w/ older clients</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_v2sched</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">schedVer</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">includeSched</span>
+
+        <span class="c1"># create a new collection at the target</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">IOError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">):</span>
+            <span class="k">pass</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dst</span> <span class="o">=</span> <span class="n">Collection</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">src</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span>
+        <span class="c1"># find cards</span>
+        <span class="n">cids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cardIds</span><span class="p">()</span>
+        <span class="c1"># copy cards, noting used nids</span>
+        <span class="n">nids</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">src</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="s2">&quot;select * from cards where id in &quot;</span> <span class="o">+</span> <span class="n">ids2str</span><span class="p">(</span><span class="n">cids</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="n">nids</span><span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+            <span class="c1"># clear flags</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+            <span class="n">row</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span>
+            <span class="s2">&quot;insert into cards values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)&quot;</span><span class="p">,</span> <span class="n">data</span>
+        <span class="p">)</span>
+        <span class="c1"># notes</span>
+        <span class="n">strnids</span> <span class="o">=</span> <span class="n">ids2str</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">nids</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+        <span class="n">notedata</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">src</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="s2">&quot;select * from notes where id in &quot;</span> <span class="o">+</span> <span class="n">strnids</span><span class="p">):</span>
+            <span class="c1"># remove system tags if not exporting scheduling info</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">includeSched</span><span class="p">:</span>
+                <span class="n">row</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+                <span class="n">row</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">removeSystemTags</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
+            <span class="n">notedata</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span>
+            <span class="s2">&quot;insert into notes values (?,?,?,?,?,?,?,?,?,?,?)&quot;</span><span class="p">,</span> <span class="n">notedata</span>
+        <span class="p">)</span>
+        <span class="c1"># models used by the notes</span>
+        <span class="n">mids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="s2">&quot;select distinct mid from notes where id in &quot;</span> <span class="o">+</span> <span class="n">strnids</span><span class="p">)</span>
+        <span class="c1"># card history and revlog</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">includeSched</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">src</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="s2">&quot;select * from revlog where cid in &quot;</span> <span class="o">+</span> <span class="n">ids2str</span><span class="p">(</span><span class="n">cids</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span>
+                <span class="s2">&quot;insert into revlog values (?,?,?,?,?,?,?,?,?)&quot;</span><span class="p">,</span> <span class="n">data</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># need to reset card state</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">resetCards</span><span class="p">(</span><span class="n">cids</span><span class="p">)</span>
+        <span class="c1"># models - start with zero</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">modSchema</span><span class="p">(</span><span class="n">check</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">remove_all_notetypes</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">src</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span> <span class="ow">in</span> <span class="n">mids</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+        <span class="c1"># decks</span>
+        <span class="n">dids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">deckIds</span><span class="p">()</span>
+        <span class="n">dconfs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">src</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="s2">&quot;1&quot;</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">dids</span> <span class="ow">and</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dids</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;dyn&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;conf&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">includeSched</span><span class="p">:</span>
+                    <span class="n">dconfs</span><span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;conf&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">includeSched</span><span class="p">:</span>
+                <span class="c1"># scheduling not included, so reset deck settings to default</span>
+                <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+                <span class="n">d</span><span class="p">[</span><span class="s2">&quot;conf&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="c1"># copy used deck confs</span>
+        <span class="k">for</span> <span class="n">dc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">src</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">allConf</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">dc</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">dconfs</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">update_config</span><span class="p">(</span><span class="n">dc</span><span class="p">)</span>
+        <span class="c1"># find used media</span>
+        <span class="n">media</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mediaDir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">src</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">dir</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">includeMedia</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">notedata</span><span class="p">:</span>
+                <span class="n">flds</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span>
+                <span class="n">mid</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">src</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">filesInStr</span><span class="p">(</span><span class="n">mid</span><span class="p">,</span> <span class="n">flds</span><span class="p">):</span>
+                    <span class="c1"># skip files in subdirs</span>
+                    <span class="k">if</span> <span class="n">file</span> <span class="o">!=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">file</span><span class="p">):</span>
+                        <span class="k">continue</span>
+                    <span class="n">media</span><span class="p">[</span><span class="n">file</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mediaDir</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mediaDir</span><span class="p">):</span>
+                    <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mediaDir</span><span class="p">,</span> <span class="n">fname</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+                        <span class="k">continue</span>
+                    <span class="k">if</span> <span class="n">fname</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">):</span>
+                        <span class="c1"># Scan all models in mids for reference to fname</span>
+                        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">src</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+                            <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span> <span class="ow">in</span> <span class="n">mids</span><span class="p">:</span>
+                                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modelHasMedia</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
+                                    <span class="n">media</span><span class="p">[</span><span class="n">fname</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                                    <span class="k">break</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mediaFiles</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">media</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">crt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">src</span><span class="o">.</span><span class="n">crt</span>
+        <span class="c1"># todo: tags?</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">cardCount</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">setMod</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">postExport</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">downgrade</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AnkiExporter.postExport"><a class="viewcode-back" href="../../anki.html#anki.exporting.AnkiExporter.postExport">[docs]</a>    <span class="k">def</span> <span class="nf">postExport</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># overwrite to apply customizations to the deck before it&#39;s closed,</span>
+        <span class="c1"># such as update the deck description</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="AnkiExporter.removeSystemTags"><a class="viewcode-back" href="../../anki.html#anki.exporting.AnkiExporter.removeSystemTags">[docs]</a>    <span class="k">def</span> <span class="nf">removeSystemTags</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tags</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">src</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">remFromStr</span><span class="p">(</span><span class="s2">&quot;marked leech&quot;</span><span class="p">,</span> <span class="n">tags</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_modelHasMedia</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">fname</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="c1"># First check the styling</span>
+        <span class="k">if</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">model</span><span class="p">[</span><span class="s2">&quot;css&quot;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="c1"># If no reference to fname then check the templates as well</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">model</span><span class="p">[</span><span class="s2">&quot;tmpls&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;qfmt&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">t</span><span class="p">[</span><span class="s2">&quot;afmt&quot;</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<span class="c1"># Packaged Anki decks</span>
+<span class="c1">######################################################################</span>
+
+
+<div class="viewcode-block" id="AnkiPackageExporter"><a class="viewcode-back" href="../../anki.html#anki.exporting.AnkiPackageExporter">[docs]</a><span class="k">class</span> <span class="nc">AnkiPackageExporter</span><span class="p">(</span><span class="n">AnkiExporter</span><span class="p">):</span>
+
+    <span class="n">key</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Anki Deck Package&quot;</span><span class="p">)</span>
+    <span class="n">ext</span> <span class="o">=</span> <span class="s2">&quot;.apkg&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">:</span> <span class="n">Collection</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">AnkiExporter</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AnkiPackageExporter.exportInto"><a class="viewcode-back" href="../../anki.html#anki.exporting.AnkiPackageExporter.exportInto">[docs]</a>    <span class="k">def</span> <span class="nf">exportInto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># open a zip file</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZIP_DEFLATED</span><span class="p">,</span> <span class="n">allowZip64</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">media</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">doExport</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+        <span class="c1"># media map</span>
+        <span class="n">z</span><span class="o">.</span><span class="n">writestr</span><span class="p">(</span><span class="s2">&quot;media&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">media</span><span class="p">))</span>
+        <span class="n">z</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="AnkiPackageExporter.doExport"><a class="viewcode-back" href="../../anki.html#anki.exporting.AnkiPackageExporter.doExport">[docs]</a>    <span class="k">def</span> <span class="nf">doExport</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">:</span> <span class="n">ZipFile</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>  <span class="c1"># type: ignore</span>
+        <span class="c1"># export into the anki2 file</span>
+        <span class="n">colfile</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.apkg&quot;</span><span class="p">,</span> <span class="s2">&quot;.anki2&quot;</span><span class="p">)</span>
+        <span class="n">AnkiExporter</span><span class="o">.</span><span class="n">exportInto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colfile</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_v2sched</span><span class="p">:</span>
+            <span class="n">z</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">colfile</span><span class="p">,</span> <span class="s2">&quot;collection.anki2&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># prevent older clients from accessing</span>
+            <span class="c1"># pylint: disable=unreachable</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_addDummyCollection</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+            <span class="n">z</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">colfile</span><span class="p">,</span> <span class="s2">&quot;collection.anki21&quot;</span><span class="p">)</span>
+
+        <span class="c1"># and media</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prepareMedia</span><span class="p">()</span>
+        <span class="n">media</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exportMedia</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mediaFiles</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mediaDir</span><span class="p">)</span>
+        <span class="c1"># tidy up intermediate files</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">colfile</span><span class="p">)</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.apkg&quot;</span><span class="p">,</span> <span class="s2">&quot;.media.db2&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mediaDir</span><span class="p">)</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.apkg&quot;</span><span class="p">,</span> <span class="s2">&quot;.media&quot;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">media</span></div>
+
+    <span class="k">def</span> <span class="nf">_exportMedia</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">:</span> <span class="n">ZipFile</span><span class="p">,</span> <span class="n">files</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">fdir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+        <span class="n">media</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">file</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">files</span><span class="p">):</span>
+            <span class="n">cStr</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+            <span class="n">mpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fdir</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">mpath</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">mpath</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\.svg$&quot;</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">):</span>
+                    <span class="n">z</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">mpath</span><span class="p">,</span> <span class="n">cStr</span><span class="p">,</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZIP_DEFLATED</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">z</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">mpath</span><span class="p">,</span> <span class="n">cStr</span><span class="p">,</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZIP_STORED</span><span class="p">)</span>
+                <span class="n">media</span><span class="p">[</span><span class="n">cStr</span><span class="p">]</span> <span class="o">=</span> <span class="n">unicodedata</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="s2">&quot;NFC&quot;</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+                <span class="n">hooks</span><span class="o">.</span><span class="n">media_files_did_export</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">media</span>
+
+<div class="viewcode-block" id="AnkiPackageExporter.prepareMedia"><a class="viewcode-back" href="../../anki.html#anki.exporting.AnkiPackageExporter.prepareMedia">[docs]</a>    <span class="k">def</span> <span class="nf">prepareMedia</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># chance to move each file in self.mediaFiles into place before media</span>
+        <span class="c1"># is zipped up</span>
+        <span class="k">pass</span></div>
+
+    <span class="c1"># create a dummy collection to ensure older clients don&#39;t try to read</span>
+    <span class="c1"># data they don&#39;t understand</span>
+    <span class="k">def</span> <span class="nf">_addDummyCollection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">zip</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">namedtmp</span><span class="p">(</span><span class="s2">&quot;dummy.anki2&quot;</span><span class="p">)</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">Collection</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">newNote</span><span class="p">()</span>
+        <span class="n">n</span><span class="p">[</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Front&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="s2">&quot;This file requires a newer version of Anki.&quot;</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">addNote</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">downgrade</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="nb">zip</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;collection.anki2&quot;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+
+
+<span class="c1"># Collection package</span>
+<span class="c1">######################################################################</span>
+
+
+<div class="viewcode-block" id="AnkiCollectionPackageExporter"><a class="viewcode-back" href="../../anki.html#anki.exporting.AnkiCollectionPackageExporter">[docs]</a><span class="k">class</span> <span class="nc">AnkiCollectionPackageExporter</span><span class="p">(</span><span class="n">AnkiPackageExporter</span><span class="p">):</span>
+
+    <span class="n">key</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Anki Collection Package&quot;</span><span class="p">)</span>
+    <span class="n">ext</span> <span class="o">=</span> <span class="s2">&quot;.colpkg&quot;</span>
+    <span class="n">verbatim</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">includeSched</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">):</span>
+        <span class="n">AnkiPackageExporter</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AnkiCollectionPackageExporter.doExport"><a class="viewcode-back" href="../../anki.html#anki.exporting.AnkiCollectionPackageExporter.doExport">[docs]</a>    <span class="k">def</span> <span class="nf">doExport</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="s2">&quot;Export collection. Caller must re-open afterwards.&quot;</span>
+        <span class="c1"># close our deck &amp; write it into the zip file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">cardCount</span><span class="p">()</span>
+        <span class="n">v2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">schedVer</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">1</span>
+        <span class="n">mdir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">dir</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">downgrade</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">v2</span><span class="p">:</span>
+            <span class="n">z</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;collection.anki2&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_addDummyCollection</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+            <span class="n">z</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;collection.anki21&quot;</span><span class="p">)</span>
+        <span class="c1"># copy all media</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">includeMedia</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{}</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exportMedia</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">mdir</span><span class="p">),</span> <span class="n">mdir</span><span class="p">)</span></div></div>
+
+
+<span class="c1"># Export modules</span>
+<span class="c1">##########################################################################</span>
+
+
+<div class="viewcode-block" id="exporters"><a class="viewcode-back" href="../../anki.html#anki.exporting.exporters">[docs]</a><span class="k">def</span> <span class="nf">exporters</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+    <span class="k">def</span> <span class="nf">id</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> (*</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">ext</span><span class="p">),</span> <span class="n">obj</span><span class="p">)</span>
+
+    <span class="n">exps</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="nb">id</span><span class="p">(</span><span class="n">AnkiCollectionPackageExporter</span><span class="p">),</span>
+        <span class="nb">id</span><span class="p">(</span><span class="n">AnkiPackageExporter</span><span class="p">),</span>
+        <span class="nb">id</span><span class="p">(</span><span class="n">TextNoteExporter</span><span class="p">),</span>
+        <span class="nb">id</span><span class="p">(</span><span class="n">TextCardExporter</span><span class="p">),</span>
+    <span class="p">]</span>
+    <span class="n">hooks</span><span class="o">.</span><span class="n">exporters_list_created</span><span class="p">(</span><span class="n">exps</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">exps</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Abdelrahman Hamdy
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

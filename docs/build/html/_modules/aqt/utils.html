@@ -1,0 +1,1053 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>aqt.utils &mdash; Anki  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+        <script async="async" kind="hypothesis" src="https://hypothes.is/embed.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Anki
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.html">anki package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.importing.html">anki.importing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aqt.html">aqt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../genhooks_gui.html">genhooks_gui module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tools.html">tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Anki</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../aqt.html">aqt</a> &raquo;</li>
+        
+      <li>aqt.utils</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for aqt.utils</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright: Ankitects Pty Ltd and contributors</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">anki</span>
+<span class="kn">import</span> <span class="nn">aqt</span>
+<span class="kn">from</span> <span class="nn">anki.lang</span> <span class="kn">import</span> <span class="n">_</span>
+<span class="kn">from</span> <span class="nn">anki.rsbackend</span> <span class="kn">import</span> <span class="n">TR</span>  <span class="c1"># pylint: disable=unused-import</span>
+<span class="kn">from</span> <span class="nn">anki.utils</span> <span class="kn">import</span> <span class="n">invalidFilename</span><span class="p">,</span> <span class="n">isMac</span><span class="p">,</span> <span class="n">isWin</span><span class="p">,</span> <span class="n">noBundledLibs</span><span class="p">,</span> <span class="n">versionWithBuild</span>
+<span class="kn">from</span> <span class="nn">aqt.qt</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">aqt.theme</span> <span class="kn">import</span> <span class="n">theme_manager</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">anki.rsbackend</span> <span class="kn">import</span> <span class="n">TRValue</span>
+
+
+<div class="viewcode-block" id="aqt_data_folder"><a class="viewcode-back" href="../../aqt.html#aqt.utils.aqt_data_folder">[docs]</a><span class="k">def</span> <span class="nf">aqt_data_folder</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="c1"># wheel install?</span>
+    <span class="nb">dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">prefix</span><span class="p">,</span> <span class="s2">&quot;aqt_data&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="nb">dir</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="nb">dir</span><span class="p">):</span>
+        <span class="c1"># running in place?</span>
+        <span class="nb">dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;aqt_data&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">dir</span></div>
+
+
+<div class="viewcode-block" id="locale_dir"><a class="viewcode-back" href="../../aqt.html#aqt.utils.locale_dir">[docs]</a><span class="k">def</span> <span class="nf">locale_dir</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">aqt_data_folder</span><span class="p">(),</span> <span class="s2">&quot;locale&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="tr"><a class="viewcode-back" href="../../aqt.html#aqt.utils.tr">[docs]</a><span class="k">def</span> <span class="nf">tr</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="n">TRValue</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="s2">&quot;Shortcut to access Fluent translations.&quot;</span>
+    <span class="k">return</span> <span class="n">anki</span><span class="o">.</span><span class="n">lang</span><span class="o">.</span><span class="n">current_i18n</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="openHelp"><a class="viewcode-back" href="../../aqt.html#aqt.utils.openHelp">[docs]</a><span class="k">def</span> <span class="nf">openHelp</span><span class="p">(</span><span class="n">section</span><span class="p">):</span>
+    <span class="n">link</span> <span class="o">=</span> <span class="n">aqt</span><span class="o">.</span><span class="n">appHelpSite</span>
+    <span class="k">if</span> <span class="n">section</span><span class="p">:</span>
+        <span class="n">link</span> <span class="o">+=</span> <span class="s2">&quot;#</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">section</span>
+    <span class="n">openLink</span><span class="p">(</span><span class="n">link</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="openLink"><a class="viewcode-back" href="../../aqt.html#aqt.utils.openLink">[docs]</a><span class="k">def</span> <span class="nf">openLink</span><span class="p">(</span><span class="n">link</span><span class="p">):</span>
+    <span class="n">tooltip</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Loading...&quot;</span><span class="p">),</span> <span class="n">period</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">noBundledLibs</span><span class="p">():</span>
+        <span class="n">QDesktopServices</span><span class="o">.</span><span class="n">openUrl</span><span class="p">(</span><span class="n">QUrl</span><span class="p">(</span><span class="n">link</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="showWarning"><a class="viewcode-back" href="../../aqt.html#aqt.utils.showWarning">[docs]</a><span class="k">def</span> <span class="nf">showWarning</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Anki&quot;</span><span class="p">,</span> <span class="n">textFormat</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="s2">&quot;Show a small warning with an OK button.&quot;</span>
+    <span class="k">return</span> <span class="n">showInfo</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">help</span><span class="p">,</span> <span class="s2">&quot;warning&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">textFormat</span><span class="o">=</span><span class="n">textFormat</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="showCritical"><a class="viewcode-back" href="../../aqt.html#aqt.utils.showCritical">[docs]</a><span class="k">def</span> <span class="nf">showCritical</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Anki&quot;</span><span class="p">,</span> <span class="n">textFormat</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="s2">&quot;Show a small critical error with an OK button.&quot;</span>
+    <span class="k">return</span> <span class="n">showInfo</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">help</span><span class="p">,</span> <span class="s2">&quot;critical&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">textFormat</span><span class="o">=</span><span class="n">textFormat</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="showInfo"><a class="viewcode-back" href="../../aqt.html#aqt.utils.showInfo">[docs]</a><span class="k">def</span> <span class="nf">showInfo</span><span class="p">(</span>
+    <span class="n">text</span><span class="p">,</span>
+    <span class="n">parent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;info&quot;</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Anki&quot;</span><span class="p">,</span>
+    <span class="n">textFormat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">customBtns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="s2">&quot;Show a small info window with an OK button.&quot;</span>
+    <span class="k">if</span> <span class="n">parent</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="n">parent</span> <span class="o">=</span> <span class="n">aqt</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">activeWindow</span><span class="p">()</span> <span class="ow">or</span> <span class="n">aqt</span><span class="o">.</span><span class="n">mw</span>
+    <span class="k">if</span> <span class="nb">type</span> <span class="o">==</span> <span class="s2">&quot;warning&quot;</span><span class="p">:</span>
+        <span class="n">icon</span> <span class="o">=</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Warning</span>
+    <span class="k">elif</span> <span class="nb">type</span> <span class="o">==</span> <span class="s2">&quot;critical&quot;</span><span class="p">:</span>
+        <span class="n">icon</span> <span class="o">=</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Critical</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">icon</span> <span class="o">=</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Information</span>
+    <span class="n">mb</span> <span class="o">=</span> <span class="n">QMessageBox</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">textFormat</span> <span class="o">==</span> <span class="s2">&quot;plain&quot;</span><span class="p">:</span>
+        <span class="n">mb</span><span class="o">.</span><span class="n">setTextFormat</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">PlainText</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">textFormat</span> <span class="o">==</span> <span class="s2">&quot;rich&quot;</span><span class="p">:</span>
+        <span class="n">mb</span><span class="o">.</span><span class="n">setTextFormat</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">RichText</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">textFormat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;unexpected textFormat type&quot;</span><span class="p">)</span>
+    <span class="n">mb</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="n">mb</span><span class="o">.</span><span class="n">setIcon</span><span class="p">(</span><span class="n">icon</span><span class="p">)</span>
+    <span class="n">mb</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">customBtns</span><span class="p">:</span>
+        <span class="n">default</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">btn</span> <span class="ow">in</span> <span class="n">customBtns</span><span class="p">:</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">mb</span><span class="o">.</span><span class="n">addButton</span><span class="p">(</span><span class="n">btn</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">default</span><span class="p">:</span>
+                <span class="n">default</span> <span class="o">=</span> <span class="n">b</span>
+        <span class="n">mb</span><span class="o">.</span><span class="n">setDefaultButton</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">mb</span><span class="o">.</span><span class="n">addButton</span><span class="p">(</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">Ok</span><span class="p">)</span>
+        <span class="n">b</span><span class="o">.</span><span class="n">setDefault</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">help</span><span class="p">:</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">mb</span><span class="o">.</span><span class="n">addButton</span><span class="p">(</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">Help</span><span class="p">)</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">clicked</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">openHelp</span><span class="p">(</span><span class="n">help</span><span class="p">))</span>
+        <span class="n">b</span><span class="o">.</span><span class="n">setAutoDefault</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">mb</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="showText"><a class="viewcode-back" href="../../aqt.html#aqt.utils.showText">[docs]</a><span class="k">def</span> <span class="nf">showText</span><span class="p">(</span>
+    <span class="n">txt</span><span class="p">,</span>
+    <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;text&quot;</span><span class="p">,</span>
+    <span class="n">run</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">geomKey</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">minWidth</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+    <span class="n">minHeight</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Anki&quot;</span><span class="p">,</span>
+    <span class="n">copyBtn</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">parent</span><span class="p">:</span>
+        <span class="n">parent</span> <span class="o">=</span> <span class="n">aqt</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">activeWindow</span><span class="p">()</span> <span class="ow">or</span> <span class="n">aqt</span><span class="o">.</span><span class="n">mw</span>
+    <span class="n">diag</span> <span class="o">=</span> <span class="n">QDialog</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+    <span class="n">diag</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+    <span class="n">layout</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">(</span><span class="n">diag</span><span class="p">)</span>
+    <span class="n">diag</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">layout</span><span class="p">)</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">QTextBrowser</span><span class="p">()</span>
+    <span class="n">text</span><span class="o">.</span><span class="n">setOpenExternalLinks</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">type</span> <span class="o">==</span> <span class="s2">&quot;text&quot;</span><span class="p">:</span>
+        <span class="n">text</span><span class="o">.</span><span class="n">setPlainText</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">text</span><span class="o">.</span><span class="n">setHtml</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
+    <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="n">box</span> <span class="o">=</span> <span class="n">QDialogButtonBox</span><span class="p">(</span><span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">Close</span><span class="p">)</span>
+    <span class="n">layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">box</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">copyBtn</span><span class="p">:</span>
+
+        <span class="k">def</span> <span class="nf">onCopy</span><span class="p">():</span>
+            <span class="n">QApplication</span><span class="o">.</span><span class="n">clipboard</span><span class="p">()</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">toPlainText</span><span class="p">())</span>
+
+        <span class="n">btn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Copy to Clipboard&quot;</span><span class="p">))</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="n">btn</span><span class="o">.</span><span class="n">clicked</span><span class="p">,</span> <span class="n">onCopy</span><span class="p">)</span>
+        <span class="n">box</span><span class="o">.</span><span class="n">addButton</span><span class="p">(</span><span class="n">btn</span><span class="p">,</span> <span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">ActionRole</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">onReject</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">geomKey</span><span class="p">:</span>
+            <span class="n">saveGeom</span><span class="p">(</span><span class="n">diag</span><span class="p">,</span> <span class="n">geomKey</span><span class="p">)</span>
+        <span class="n">QDialog</span><span class="o">.</span><span class="n">reject</span><span class="p">(</span><span class="n">diag</span><span class="p">)</span>
+
+    <span class="n">qconnect</span><span class="p">(</span><span class="n">box</span><span class="o">.</span><span class="n">rejected</span><span class="p">,</span> <span class="n">onReject</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">onFinish</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">geomKey</span><span class="p">:</span>
+            <span class="n">saveGeom</span><span class="p">(</span><span class="n">diag</span><span class="p">,</span> <span class="n">geomKey</span><span class="p">)</span>
+
+    <span class="n">qconnect</span><span class="p">(</span><span class="n">box</span><span class="o">.</span><span class="n">accepted</span><span class="p">,</span> <span class="n">onFinish</span><span class="p">)</span>
+    <span class="n">diag</span><span class="o">.</span><span class="n">setMinimumHeight</span><span class="p">(</span><span class="n">minHeight</span><span class="p">)</span>
+    <span class="n">diag</span><span class="o">.</span><span class="n">setMinimumWidth</span><span class="p">(</span><span class="n">minWidth</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">geomKey</span><span class="p">:</span>
+        <span class="n">restoreGeom</span><span class="p">(</span><span class="n">diag</span><span class="p">,</span> <span class="n">geomKey</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">run</span><span class="p">:</span>
+        <span class="n">diag</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">diag</span><span class="p">,</span> <span class="n">box</span></div>
+
+
+<div class="viewcode-block" id="askUser"><a class="viewcode-back" href="../../aqt.html#aqt.utils.askUser">[docs]</a><span class="k">def</span> <span class="nf">askUser</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">defaultno</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">msgfunc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Anki&quot;</span><span class="p">):</span>
+    <span class="s2">&quot;Show a yes/no question. Return true if yes.&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">parent</span><span class="p">:</span>
+        <span class="n">parent</span> <span class="o">=</span> <span class="n">aqt</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">activeWindow</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">msgfunc</span><span class="p">:</span>
+        <span class="n">msgfunc</span> <span class="o">=</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">question</span>
+    <span class="n">sb</span> <span class="o">=</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Yes</span> <span class="o">|</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">No</span>
+    <span class="k">if</span> <span class="n">help</span><span class="p">:</span>
+        <span class="n">sb</span> <span class="o">|=</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Help</span>
+    <span class="k">while</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">defaultno</span><span class="p">:</span>
+            <span class="n">default</span> <span class="o">=</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">No</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">default</span> <span class="o">=</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Yes</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">msgfunc</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">sb</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">r</span> <span class="o">==</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Help</span><span class="p">:</span>
+
+            <span class="n">openHelp</span><span class="p">(</span><span class="n">help</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">break</span>
+    <span class="k">return</span> <span class="n">r</span> <span class="o">==</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Yes</span></div>
+
+
+<div class="viewcode-block" id="ButtonedDialog"><a class="viewcode-back" href="../../aqt.html#aqt.utils.ButtonedDialog">[docs]</a><span class="k">class</span> <span class="nc">ButtonedDialog</span><span class="p">(</span><span class="n">QMessageBox</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">buttons</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Anki&quot;</span><span class="p">):</span>
+        <span class="n">QMessageBox</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buttons</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">help</span> <span class="o">=</span> <span class="n">help</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setIcon</span><span class="p">(</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">Warning</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="c1"># v = QVBoxLayout()</span>
+        <span class="c1"># v.addWidget(QLabel(text))</span>
+        <span class="c1"># box = QDialogButtonBox()</span>
+        <span class="c1"># v.addWidget(box)</span>
+        <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">buttons</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buttons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">addButton</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">AcceptRole</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">help</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">addButton</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Help&quot;</span><span class="p">),</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">HelpRole</span><span class="p">)</span>
+            <span class="n">buttons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Help&quot;</span><span class="p">))</span>
+        <span class="c1"># self.setLayout(v)</span>
+
+<div class="viewcode-block" id="ButtonedDialog.run"><a class="viewcode-back" href="../../aqt.html#aqt.utils.ButtonedDialog.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
+        <span class="n">but</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clickedButton</span><span class="p">()</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">but</span> <span class="o">==</span> <span class="s2">&quot;Help&quot;</span><span class="p">:</span>
+            <span class="c1"># FIXME stop dialog closing?</span>
+            <span class="n">openHelp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">help</span><span class="p">)</span>
+        <span class="n">txt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clickedButton</span><span class="p">()</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+        <span class="c1"># work around KDE &#39;helpfully&#39; adding accelerators to button text of Qt apps</span>
+        <span class="k">return</span> <span class="n">txt</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&amp;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ButtonedDialog.setDefault"><a class="viewcode-back" href="../../aqt.html#aqt.utils.ButtonedDialog.setDefault">[docs]</a>    <span class="k">def</span> <span class="nf">setDefault</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setDefaultButton</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buttons</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span></div></div>
+
+
+<div class="viewcode-block" id="askUserDialog"><a class="viewcode-back" href="../../aqt.html#aqt.utils.askUserDialog">[docs]</a><span class="k">def</span> <span class="nf">askUserDialog</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">buttons</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Anki&quot;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">parent</span><span class="p">:</span>
+        <span class="n">parent</span> <span class="o">=</span> <span class="n">aqt</span><span class="o">.</span><span class="n">mw</span>
+    <span class="n">diag</span> <span class="o">=</span> <span class="n">ButtonedDialog</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">buttons</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">help</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">diag</span></div>
+
+
+<div class="viewcode-block" id="GetTextDialog"><a class="viewcode-back" href="../../aqt.html#aqt.utils.GetTextDialog">[docs]</a><span class="k">class</span> <span class="nc">GetTextDialog</span><span class="p">(</span><span class="n">QDialog</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">parent</span><span class="p">,</span>
+        <span class="n">question</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">edit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Anki&quot;</span><span class="p">,</span>
+        <span class="n">minWidth</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">QDialog</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">question</span> <span class="o">=</span> <span class="n">question</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">help</span> <span class="o">=</span> <span class="n">help</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qlabel</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="n">question</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setMinimumWidth</span><span class="p">(</span><span class="n">minWidth</span><span class="p">)</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">()</span>
+        <span class="n">v</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">qlabel</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">edit</span><span class="p">:</span>
+            <span class="n">edit</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">l</span> <span class="o">=</span> <span class="n">edit</span>
+        <span class="k">if</span> <span class="n">default</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">l</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">l</span><span class="o">.</span><span class="n">selectAll</span><span class="p">()</span>
+        <span class="n">v</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">l</span><span class="p">)</span>
+        <span class="n">buts</span> <span class="o">=</span> <span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">Ok</span> <span class="o">|</span> <span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">Cancel</span>
+        <span class="k">if</span> <span class="n">help</span><span class="p">:</span>
+            <span class="n">buts</span> <span class="o">|=</span> <span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">Help</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">QDialogButtonBox</span><span class="p">(</span><span class="n">buts</span><span class="p">)</span>
+        <span class="n">v</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">Ok</span><span class="p">)</span><span class="o">.</span><span class="n">clicked</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">accept</span><span class="p">)</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">Cancel</span><span class="p">)</span><span class="o">.</span><span class="n">clicked</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">reject</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">help</span><span class="p">:</span>
+            <span class="n">qconnect</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">Help</span><span class="p">)</span><span class="o">.</span><span class="n">clicked</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">helpRequested</span><span class="p">)</span>
+
+<div class="viewcode-block" id="GetTextDialog.accept"><a class="viewcode-back" href="../../aqt.html#aqt.utils.GetTextDialog.accept">[docs]</a>    <span class="k">def</span> <span class="nf">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">QDialog</span><span class="o">.</span><span class="n">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GetTextDialog.reject"><a class="viewcode-back" href="../../aqt.html#aqt.utils.GetTextDialog.reject">[docs]</a>    <span class="k">def</span> <span class="nf">reject</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">QDialog</span><span class="o">.</span><span class="n">reject</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GetTextDialog.helpRequested"><a class="viewcode-back" href="../../aqt.html#aqt.utils.GetTextDialog.helpRequested">[docs]</a>    <span class="k">def</span> <span class="nf">helpRequested</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">openHelp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">help</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="getText"><a class="viewcode-back" href="../../aqt.html#aqt.utils.getText">[docs]</a><span class="k">def</span> <span class="nf">getText</span><span class="p">(</span>
+    <span class="n">prompt</span><span class="p">,</span>
+    <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">help</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">edit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Anki&quot;</span><span class="p">,</span>
+    <span class="n">geomKey</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">parent</span><span class="p">:</span>
+        <span class="n">parent</span> <span class="o">=</span> <span class="n">aqt</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">activeWindow</span><span class="p">()</span> <span class="ow">or</span> <span class="n">aqt</span><span class="o">.</span><span class="n">mw</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">GetTextDialog</span><span class="p">(</span>
+        <span class="n">parent</span><span class="p">,</span> <span class="n">prompt</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="n">help</span><span class="p">,</span> <span class="n">edit</span><span class="o">=</span><span class="n">edit</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span>
+    <span class="n">d</span><span class="o">.</span><span class="n">setWindowModality</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">WindowModal</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">geomKey</span><span class="p">:</span>
+        <span class="n">restoreGeom</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">geomKey</span><span class="p">)</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">geomKey</span> <span class="ow">and</span> <span class="n">ret</span><span class="p">:</span>
+        <span class="n">saveGeom</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">geomKey</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">l</span><span class="o">.</span><span class="n">text</span><span class="p">()),</span> <span class="n">ret</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="getOnlyText"><a class="viewcode-back" href="../../aqt.html#aqt.utils.getOnlyText">[docs]</a><span class="k">def</span> <span class="nf">getOnlyText</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span> <span class="o">=</span> <span class="n">getText</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">r</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">s</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span></div>
+
+
+<span class="c1"># fixme: these utilities could be combined into a single base class</span>
+<div class="viewcode-block" id="chooseList"><a class="viewcode-back" href="../../aqt.html#aqt.utils.chooseList">[docs]</a><span class="k">def</span> <span class="nf">chooseList</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="n">choices</span><span class="p">,</span> <span class="n">startrow</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">parent</span><span class="p">:</span>
+        <span class="n">parent</span> <span class="o">=</span> <span class="n">aqt</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">activeWindow</span><span class="p">()</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">QDialog</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+    <span class="n">d</span><span class="o">.</span><span class="n">setWindowModality</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">WindowModal</span><span class="p">)</span>
+    <span class="n">l</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">()</span>
+    <span class="n">d</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+    <span class="n">l</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">QListWidget</span><span class="p">()</span>
+    <span class="n">c</span><span class="o">.</span><span class="n">addItems</span><span class="p">(</span><span class="n">choices</span><span class="p">)</span>
+    <span class="n">c</span><span class="o">.</span><span class="n">setCurrentRow</span><span class="p">(</span><span class="n">startrow</span><span class="p">)</span>
+    <span class="n">l</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+    <span class="n">bb</span> <span class="o">=</span> <span class="n">QDialogButtonBox</span><span class="p">(</span><span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">Ok</span><span class="p">)</span>
+    <span class="n">qconnect</span><span class="p">(</span><span class="n">bb</span><span class="o">.</span><span class="n">accepted</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">accept</span><span class="p">)</span>
+    <span class="n">l</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">bb</span><span class="p">)</span>
+    <span class="n">d</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">currentRow</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="getTag"><a class="viewcode-back" href="../../aqt.html#aqt.utils.getTag">[docs]</a><span class="k">def</span> <span class="nf">getTag</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">deck</span><span class="p">,</span> <span class="n">question</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">aqt.tagedit</span> <span class="kn">import</span> <span class="n">TagEdit</span>
+
+    <span class="n">te</span> <span class="o">=</span> <span class="n">TagEdit</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+    <span class="n">te</span><span class="o">.</span><span class="n">setCol</span><span class="p">(</span><span class="n">deck</span><span class="p">)</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="n">getText</span><span class="p">(</span><span class="n">question</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">edit</span><span class="o">=</span><span class="n">te</span><span class="p">,</span> <span class="n">geomKey</span><span class="o">=</span><span class="s2">&quot;getTag&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">te</span><span class="o">.</span><span class="n">hideCompleter</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">ret</span></div>
+
+
+<span class="c1"># File handling</span>
+<span class="c1">######################################################################</span>
+
+
+<div class="viewcode-block" id="getFile"><a class="viewcode-back" href="../../aqt.html#aqt.utils.getFile">[docs]</a><span class="k">def</span> <span class="nf">getFile</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">cb</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="s2">&quot;*.*&quot;</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="s2">&quot;Ask the user for a file.&quot;</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="nb">dir</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">key</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">dir</span><span class="p">:</span>
+        <span class="n">dirkey</span> <span class="o">=</span> <span class="n">key</span> <span class="o">+</span> <span class="s2">&quot;Directory&quot;</span>
+        <span class="nb">dir</span> <span class="o">=</span> <span class="n">aqt</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">dirkey</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">dirkey</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">QFileDialog</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+    <span class="n">mode</span> <span class="o">=</span> <span class="n">QFileDialog</span><span class="o">.</span><span class="n">ExistingFiles</span> <span class="k">if</span> <span class="n">multi</span> <span class="k">else</span> <span class="n">QFileDialog</span><span class="o">.</span><span class="n">ExistingFile</span>
+    <span class="n">d</span><span class="o">.</span><span class="n">setFileMode</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="nb">dir</span><span class="p">):</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">setDirectory</span><span class="p">(</span><span class="nb">dir</span><span class="p">)</span>
+    <span class="n">d</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+    <span class="n">d</span><span class="o">.</span><span class="n">setNameFilter</span><span class="p">(</span><span class="nb">filter</span><span class="p">)</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">accept</span><span class="p">():</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">selectedFiles</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">dirkey</span><span class="p">:</span>
+            <span class="nb">dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">aqt</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">profile</span><span class="p">[</span><span class="n">dirkey</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dir</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">files</span> <span class="k">if</span> <span class="n">multi</span> <span class="k">else</span> <span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">cb</span><span class="p">:</span>
+            <span class="n">cb</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+    <span class="n">qconnect</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">accepted</span><span class="p">,</span> <span class="n">accept</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">key</span><span class="p">:</span>
+        <span class="n">restoreState</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+    <span class="n">d</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">key</span><span class="p">:</span>
+        <span class="n">saveState</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ret</span> <span class="ow">and</span> <span class="n">ret</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="getSaveFile"><a class="viewcode-back" href="../../aqt.html#aqt.utils.getSaveFile">[docs]</a><span class="k">def</span> <span class="nf">getSaveFile</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">dir_description</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">ext</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Ask the user for a file to save. Use DIR_DESCRIPTION as config</span>
+<span class="sd">    variable. The file dialog will default to open with FNAME.&quot;&quot;&quot;</span>
+    <span class="n">config_key</span> <span class="o">=</span> <span class="n">dir_description</span> <span class="o">+</span> <span class="s2">&quot;Directory&quot;</span>
+
+    <span class="n">defaultPath</span> <span class="o">=</span> <span class="n">QStandardPaths</span><span class="o">.</span><span class="n">writableLocation</span><span class="p">(</span><span class="n">QStandardPaths</span><span class="o">.</span><span class="n">DocumentsLocation</span><span class="p">)</span>
+    <span class="n">base</span> <span class="o">=</span> <span class="n">aqt</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">config_key</span><span class="p">,</span> <span class="n">defaultPath</span><span class="p">)</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">fname</span><span class="p">)</span>
+    <span class="n">file</span> <span class="o">=</span> <span class="n">QFileDialog</span><span class="o">.</span><span class="n">getSaveFileName</span><span class="p">(</span>
+        <span class="n">parent</span><span class="p">,</span>
+        <span class="n">title</span><span class="p">,</span>
+        <span class="n">path</span><span class="p">,</span>
+        <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2"> (*</span><span class="si">{1}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">ext</span><span class="p">),</span>
+        <span class="n">options</span><span class="o">=</span><span class="n">QFileDialog</span><span class="o">.</span><span class="n">DontConfirmOverwrite</span><span class="p">,</span>
+    <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">file</span><span class="p">:</span>
+        <span class="c1"># add extension</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">file</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">ext</span><span class="p">):</span>
+            <span class="n">file</span> <span class="o">+=</span> <span class="n">ext</span>
+        <span class="c1"># save new default</span>
+        <span class="nb">dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+        <span class="n">aqt</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">profile</span><span class="p">[</span><span class="n">config_key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dir</span>
+        <span class="c1"># check if it exists</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">file</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">askUser</span><span class="p">(</span>
+                <span class="n">_</span><span class="p">(</span><span class="s2">&quot;This file exists. Are you sure you want to overwrite it?&quot;</span><span class="p">),</span> <span class="n">parent</span>
+            <span class="p">):</span>
+                <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">file</span></div>
+
+
+<div class="viewcode-block" id="saveGeom"><a class="viewcode-back" href="../../aqt.html#aqt.utils.saveGeom">[docs]</a><span class="k">def</span> <span class="nf">saveGeom</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="n">key</span> <span class="o">+=</span> <span class="s2">&quot;Geom&quot;</span>
+    <span class="k">if</span> <span class="n">isMac</span> <span class="ow">and</span> <span class="n">widget</span><span class="o">.</span><span class="n">windowState</span><span class="p">()</span> <span class="o">&amp;</span> <span class="n">Qt</span><span class="o">.</span><span class="n">WindowFullScreen</span><span class="p">:</span>
+        <span class="n">geom</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">geom</span> <span class="o">=</span> <span class="n">widget</span><span class="o">.</span><span class="n">saveGeometry</span><span class="p">()</span>
+    <span class="n">aqt</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">profile</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">geom</span></div>
+
+
+<div class="viewcode-block" id="restoreGeom"><a class="viewcode-back" href="../../aqt.html#aqt.utils.restoreGeom">[docs]</a><span class="k">def</span> <span class="nf">restoreGeom</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">adjustSize</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">key</span> <span class="o">+=</span> <span class="s2">&quot;Geom&quot;</span>
+    <span class="k">if</span> <span class="n">aqt</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+        <span class="n">widget</span><span class="o">.</span><span class="n">restoreGeometry</span><span class="p">(</span><span class="n">aqt</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">profile</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">isMac</span> <span class="ow">and</span> <span class="n">offset</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">qtminor</span> <span class="o">&gt;</span> <span class="mi">6</span><span class="p">:</span>
+                <span class="c1"># bug in osx toolkit</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="n">widget</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
+                <span class="n">widget</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">width</span><span class="p">(),</span> <span class="n">s</span><span class="o">.</span><span class="n">height</span><span class="p">()</span> <span class="o">+</span> <span class="n">offset</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">ensureWidgetInScreenBoundaries</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">adjustSize</span><span class="p">:</span>
+            <span class="n">widget</span><span class="o">.</span><span class="n">adjustSize</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="ensureWidgetInScreenBoundaries"><a class="viewcode-back" href="../../aqt.html#aqt.utils.ensureWidgetInScreenBoundaries">[docs]</a><span class="k">def</span> <span class="nf">ensureWidgetInScreenBoundaries</span><span class="p">(</span><span class="n">widget</span><span class="p">):</span>
+    <span class="n">handle</span> <span class="o">=</span> <span class="n">widget</span><span class="o">.</span><span class="n">window</span><span class="p">()</span><span class="o">.</span><span class="n">windowHandle</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">handle</span><span class="p">:</span>
+        <span class="c1"># window has not yet been shown, retry later</span>
+        <span class="n">aqt</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">timer</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">ensureWidgetInScreenBoundaries</span><span class="p">(</span><span class="n">widget</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="c1"># ensure widget is smaller than screen bounds</span>
+    <span class="n">geom</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">screen</span><span class="p">()</span><span class="o">.</span><span class="n">availableGeometry</span><span class="p">()</span>
+    <span class="n">wsize</span> <span class="o">=</span> <span class="n">widget</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
+    <span class="n">cappedWidth</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">geom</span><span class="o">.</span><span class="n">width</span><span class="p">(),</span> <span class="n">wsize</span><span class="o">.</span><span class="n">width</span><span class="p">())</span>
+    <span class="n">cappedHeight</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">geom</span><span class="o">.</span><span class="n">height</span><span class="p">(),</span> <span class="n">wsize</span><span class="o">.</span><span class="n">height</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">cappedWidth</span> <span class="o">&gt;</span> <span class="n">wsize</span><span class="o">.</span><span class="n">width</span><span class="p">()</span> <span class="ow">or</span> <span class="n">cappedHeight</span> <span class="o">&gt;</span> <span class="n">wsize</span><span class="o">.</span><span class="n">height</span><span class="p">():</span>
+        <span class="n">widget</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">QSize</span><span class="p">(</span><span class="n">cappedWidth</span><span class="p">,</span> <span class="n">cappedHeight</span><span class="p">))</span>
+
+    <span class="c1"># ensure widget is inside top left</span>
+    <span class="n">wpos</span> <span class="o">=</span> <span class="n">widget</span><span class="o">.</span><span class="n">pos</span><span class="p">()</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">geom</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span> <span class="n">wpos</span><span class="o">.</span><span class="n">x</span><span class="p">())</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">geom</span><span class="o">.</span><span class="n">y</span><span class="p">(),</span> <span class="n">wpos</span><span class="o">.</span><span class="n">y</span><span class="p">())</span>
+    <span class="c1"># and bottom right</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">geom</span><span class="o">.</span><span class="n">width</span><span class="p">()</span> <span class="o">+</span> <span class="n">geom</span><span class="o">.</span><span class="n">x</span><span class="p">()</span> <span class="o">-</span> <span class="n">cappedWidth</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">geom</span><span class="o">.</span><span class="n">height</span><span class="p">()</span> <span class="o">+</span> <span class="n">geom</span><span class="o">.</span><span class="n">y</span><span class="p">()</span> <span class="o">-</span> <span class="n">cappedHeight</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="n">wpos</span><span class="o">.</span><span class="n">x</span><span class="p">()</span> <span class="ow">or</span> <span class="n">y</span> <span class="o">!=</span> <span class="n">wpos</span><span class="o">.</span><span class="n">y</span><span class="p">():</span>
+        <span class="n">widget</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="saveState"><a class="viewcode-back" href="../../aqt.html#aqt.utils.saveState">[docs]</a><span class="k">def</span> <span class="nf">saveState</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="n">key</span> <span class="o">+=</span> <span class="s2">&quot;State&quot;</span>
+    <span class="n">aqt</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">profile</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">widget</span><span class="o">.</span><span class="n">saveState</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="restoreState"><a class="viewcode-back" href="../../aqt.html#aqt.utils.restoreState">[docs]</a><span class="k">def</span> <span class="nf">restoreState</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="n">key</span> <span class="o">+=</span> <span class="s2">&quot;State&quot;</span>
+    <span class="k">if</span> <span class="n">aqt</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+        <span class="n">widget</span><span class="o">.</span><span class="n">restoreState</span><span class="p">(</span><span class="n">aqt</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">profile</span><span class="p">[</span><span class="n">key</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="saveSplitter"><a class="viewcode-back" href="../../aqt.html#aqt.utils.saveSplitter">[docs]</a><span class="k">def</span> <span class="nf">saveSplitter</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+    <span class="n">key</span> <span class="o">+=</span> <span class="s2">&quot;Splitter&quot;</span>
+    <span class="n">aqt</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">profile</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">widget</span><span class="o">.</span><span class="n">saveState</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="restoreSplitter"><a class="viewcode-back" href="../../aqt.html#aqt.utils.restoreSplitter">[docs]</a><span class="k">def</span> <span class="nf">restoreSplitter</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+    <span class="n">key</span> <span class="o">+=</span> <span class="s2">&quot;Splitter&quot;</span>
+    <span class="k">if</span> <span class="n">aqt</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+        <span class="n">widget</span><span class="o">.</span><span class="n">restoreState</span><span class="p">(</span><span class="n">aqt</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">profile</span><span class="p">[</span><span class="n">key</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="saveHeader"><a class="viewcode-back" href="../../aqt.html#aqt.utils.saveHeader">[docs]</a><span class="k">def</span> <span class="nf">saveHeader</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+    <span class="n">key</span> <span class="o">+=</span> <span class="s2">&quot;Header&quot;</span>
+    <span class="n">aqt</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">profile</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">widget</span><span class="o">.</span><span class="n">saveState</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="restoreHeader"><a class="viewcode-back" href="../../aqt.html#aqt.utils.restoreHeader">[docs]</a><span class="k">def</span> <span class="nf">restoreHeader</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+    <span class="n">key</span> <span class="o">+=</span> <span class="s2">&quot;Header&quot;</span>
+    <span class="k">if</span> <span class="n">aqt</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+        <span class="n">widget</span><span class="o">.</span><span class="n">restoreState</span><span class="p">(</span><span class="n">aqt</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">profile</span><span class="p">[</span><span class="n">key</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="save_is_checked"><a class="viewcode-back" href="../../aqt.html#aqt.utils.save_is_checked">[docs]</a><span class="k">def</span> <span class="nf">save_is_checked</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="n">key</span> <span class="o">+=</span> <span class="s2">&quot;IsChecked&quot;</span>
+    <span class="n">aqt</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">profile</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">widget</span><span class="o">.</span><span class="n">isChecked</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="restore_is_checked"><a class="viewcode-back" href="../../aqt.html#aqt.utils.restore_is_checked">[docs]</a><span class="k">def</span> <span class="nf">restore_is_checked</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="n">key</span> <span class="o">+=</span> <span class="s2">&quot;IsChecked&quot;</span>
+    <span class="k">if</span> <span class="n">aqt</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">widget</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="n">aqt</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">profile</span><span class="p">[</span><span class="n">key</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="save_combo_index_for_session"><a class="viewcode-back" href="../../aqt.html#aqt.utils.save_combo_index_for_session">[docs]</a><span class="k">def</span> <span class="nf">save_combo_index_for_session</span><span class="p">(</span><span class="n">widget</span><span class="p">:</span> <span class="n">QComboBox</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="n">textKey</span> <span class="o">=</span> <span class="n">key</span> <span class="o">+</span> <span class="s2">&quot;ComboActiveText&quot;</span>
+    <span class="n">indexKey</span> <span class="o">=</span> <span class="n">key</span> <span class="o">+</span> <span class="s2">&quot;ComboActiveIndex&quot;</span>
+    <span class="n">aqt</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="n">textKey</span><span class="p">]</span> <span class="o">=</span> <span class="n">widget</span><span class="o">.</span><span class="n">currentText</span><span class="p">()</span>
+    <span class="n">aqt</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="n">indexKey</span><span class="p">]</span> <span class="o">=</span> <span class="n">widget</span><span class="o">.</span><span class="n">currentIndex</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="restore_combo_index_for_session"><a class="viewcode-back" href="../../aqt.html#aqt.utils.restore_combo_index_for_session">[docs]</a><span class="k">def</span> <span class="nf">restore_combo_index_for_session</span><span class="p">(</span><span class="n">widget</span><span class="p">:</span> <span class="n">QComboBox</span><span class="p">,</span> <span class="n">history</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="n">textKey</span> <span class="o">=</span> <span class="n">key</span> <span class="o">+</span> <span class="s2">&quot;ComboActiveText&quot;</span>
+    <span class="n">indexKey</span> <span class="o">=</span> <span class="n">key</span> <span class="o">+</span> <span class="s2">&quot;ComboActiveIndex&quot;</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">aqt</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">textKey</span><span class="p">)</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="n">aqt</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">indexKey</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">text</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">history</span><span class="p">)</span> <span class="ow">and</span> <span class="n">history</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">==</span> <span class="n">text</span><span class="p">:</span>
+            <span class="n">widget</span><span class="o">.</span><span class="n">setCurrentIndex</span><span class="p">(</span><span class="n">index</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="save_combo_history"><a class="viewcode-back" href="../../aqt.html#aqt.utils.save_combo_history">[docs]</a><span class="k">def</span> <span class="nf">save_combo_history</span><span class="p">(</span><span class="n">comboBox</span><span class="p">:</span> <span class="n">QComboBox</span><span class="p">,</span> <span class="n">history</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">+=</span> <span class="s2">&quot;BoxHistory&quot;</span>
+    <span class="n">text_input</span> <span class="o">=</span> <span class="n">comboBox</span><span class="o">.</span><span class="n">lineEdit</span><span class="p">()</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">text_input</span> <span class="ow">in</span> <span class="n">history</span><span class="p">:</span>
+        <span class="n">history</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">text_input</span><span class="p">)</span>
+    <span class="n">history</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">text_input</span><span class="p">)</span>
+    <span class="n">history</span> <span class="o">=</span> <span class="n">history</span><span class="p">[:</span><span class="mi">50</span><span class="p">]</span>
+    <span class="n">comboBox</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+    <span class="n">comboBox</span><span class="o">.</span><span class="n">addItems</span><span class="p">(</span><span class="n">history</span><span class="p">)</span>
+    <span class="n">aqt</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">session</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">text_input</span>
+    <span class="n">aqt</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">profile</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">history</span>
+    <span class="k">return</span> <span class="n">text_input</span></div>
+
+
+<div class="viewcode-block" id="restore_combo_history"><a class="viewcode-back" href="../../aqt.html#aqt.utils.restore_combo_history">[docs]</a><span class="k">def</span> <span class="nf">restore_combo_history</span><span class="p">(</span><span class="n">comboBox</span><span class="p">:</span> <span class="n">QComboBox</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">+=</span> <span class="s2">&quot;BoxHistory&quot;</span>
+    <span class="n">history</span> <span class="o">=</span> <span class="n">aqt</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="n">comboBox</span><span class="o">.</span><span class="n">addItems</span><span class="p">([</span><span class="s2">&quot;&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">history</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">history</span><span class="p">:</span>
+        <span class="n">session_input</span> <span class="o">=</span> <span class="n">aqt</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">session_input</span> <span class="ow">and</span> <span class="n">session_input</span> <span class="o">==</span> <span class="n">history</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">comboBox</span><span class="o">.</span><span class="n">lineEdit</span><span class="p">()</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">session_input</span><span class="p">)</span>
+            <span class="n">comboBox</span><span class="o">.</span><span class="n">lineEdit</span><span class="p">()</span><span class="o">.</span><span class="n">selectAll</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">history</span></div>
+
+
+<div class="viewcode-block" id="mungeQA"><a class="viewcode-back" href="../../aqt.html#aqt.utils.mungeQA">[docs]</a><span class="k">def</span> <span class="nf">mungeQA</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">txt</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;mungeQA() deprecated; use mw.prepare_card_text_for_display()&quot;</span><span class="p">)</span>
+    <span class="n">txt</span> <span class="o">=</span> <span class="n">col</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">escapeImages</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">txt</span></div>
+
+
+<div class="viewcode-block" id="openFolder"><a class="viewcode-back" href="../../aqt.html#aqt.utils.openFolder">[docs]</a><span class="k">def</span> <span class="nf">openFolder</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">isWin</span><span class="p">:</span>
+        <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="s2">&quot;explorer&quot;</span><span class="p">,</span> <span class="s2">&quot;file://&quot;</span> <span class="o">+</span> <span class="n">path</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">noBundledLibs</span><span class="p">():</span>
+            <span class="n">QDesktopServices</span><span class="o">.</span><span class="n">openUrl</span><span class="p">(</span><span class="n">QUrl</span><span class="p">(</span><span class="s2">&quot;file://&quot;</span> <span class="o">+</span> <span class="n">path</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="shortcut"><a class="viewcode-back" href="../../aqt.html#aqt.utils.shortcut">[docs]</a><span class="k">def</span> <span class="nf">shortcut</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">isMac</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;(?i)ctrl&quot;</span><span class="p">,</span> <span class="s2">&quot;Command&quot;</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">key</span></div>
+
+
+<div class="viewcode-block" id="maybeHideClose"><a class="viewcode-back" href="../../aqt.html#aqt.utils.maybeHideClose">[docs]</a><span class="k">def</span> <span class="nf">maybeHideClose</span><span class="p">(</span><span class="n">bbox</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">isMac</span><span class="p">:</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">bbox</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">Close</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">b</span><span class="p">:</span>
+            <span class="n">bbox</span><span class="o">.</span><span class="n">removeButton</span><span class="p">(</span><span class="n">b</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="addCloseShortcut"><a class="viewcode-back" href="../../aqt.html#aqt.utils.addCloseShortcut">[docs]</a><span class="k">def</span> <span class="nf">addCloseShortcut</span><span class="p">(</span><span class="n">widg</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">isMac</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">widg</span><span class="o">.</span><span class="n">_closeShortcut</span> <span class="o">=</span> <span class="n">QShortcut</span><span class="p">(</span><span class="n">QKeySequence</span><span class="p">(</span><span class="s2">&quot;Ctrl+W&quot;</span><span class="p">),</span> <span class="n">widg</span><span class="p">)</span>
+    <span class="n">qconnect</span><span class="p">(</span><span class="n">widg</span><span class="o">.</span><span class="n">_closeShortcut</span><span class="o">.</span><span class="n">activated</span><span class="p">,</span> <span class="n">widg</span><span class="o">.</span><span class="n">reject</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="downArrow"><a class="viewcode-back" href="../../aqt.html#aqt.utils.downArrow">[docs]</a><span class="k">def</span> <span class="nf">downArrow</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">isWin</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;▼&quot;</span>
+    <span class="c1"># windows 10 is lacking the smaller arrow on English installs</span>
+    <span class="k">return</span> <span class="s2">&quot;▾&quot;</span></div>
+
+
+<span class="c1"># Tooltips</span>
+<span class="c1">######################################################################</span>
+
+<span class="n">_tooltipTimer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">QTimer</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">_tooltipLabel</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">QLabel</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="tooltip"><a class="viewcode-back" href="../../aqt.html#aqt.utils.tooltip">[docs]</a><span class="k">def</span> <span class="nf">tooltip</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="mi">3000</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x_offset</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">y_offset</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+    <span class="k">global</span> <span class="n">_tooltipTimer</span><span class="p">,</span> <span class="n">_tooltipLabel</span>
+
+    <span class="k">class</span> <span class="nc">CustomLabel</span><span class="p">(</span><span class="n">QLabel</span><span class="p">):</span>
+        <span class="n">silentlyClose</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">def</span> <span class="nf">mousePressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evt</span><span class="p">):</span>
+            <span class="n">evt</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">hide</span><span class="p">()</span>
+
+    <span class="n">closeTooltip</span><span class="p">()</span>
+    <span class="n">aw</span> <span class="o">=</span> <span class="n">parent</span> <span class="ow">or</span> <span class="n">aqt</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">activeWindow</span><span class="p">()</span> <span class="ow">or</span> <span class="n">aqt</span><span class="o">.</span><span class="n">mw</span>
+    <span class="n">lab</span> <span class="o">=</span> <span class="n">CustomLabel</span><span class="p">(</span>
+        <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">&lt;table cellpadding=10&gt;</span>
+<span class="sd">&lt;tr&gt;</span>
+<span class="sd">&lt;td&gt;%s&lt;/td&gt;</span>
+<span class="sd">&lt;/tr&gt;</span>
+<span class="sd">&lt;/table&gt;&quot;&quot;&quot;</span>
+        <span class="o">%</span> <span class="n">msg</span><span class="p">,</span>
+        <span class="n">aw</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">lab</span><span class="o">.</span><span class="n">setFrameStyle</span><span class="p">(</span><span class="n">QFrame</span><span class="o">.</span><span class="n">Panel</span><span class="p">)</span>
+    <span class="n">lab</span><span class="o">.</span><span class="n">setLineWidth</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">lab</span><span class="o">.</span><span class="n">setWindowFlags</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">ToolTip</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">theme_manager</span><span class="o">.</span><span class="n">night_mode</span><span class="p">:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">QPalette</span><span class="p">()</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">setColor</span><span class="p">(</span><span class="n">QPalette</span><span class="o">.</span><span class="n">Window</span><span class="p">,</span> <span class="n">QColor</span><span class="p">(</span><span class="s2">&quot;#feffc4&quot;</span><span class="p">))</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">setColor</span><span class="p">(</span><span class="n">QPalette</span><span class="o">.</span><span class="n">WindowText</span><span class="p">,</span> <span class="n">QColor</span><span class="p">(</span><span class="s2">&quot;#000000&quot;</span><span class="p">))</span>
+        <span class="n">lab</span><span class="o">.</span><span class="n">setPalette</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+    <span class="n">lab</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">aw</span><span class="o">.</span><span class="n">mapToGlobal</span><span class="p">(</span><span class="n">QPoint</span><span class="p">(</span><span class="mi">0</span> <span class="o">+</span> <span class="n">x_offset</span><span class="p">,</span> <span class="n">aw</span><span class="o">.</span><span class="n">height</span><span class="p">()</span> <span class="o">-</span> <span class="n">y_offset</span><span class="p">)))</span>
+    <span class="n">lab</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="n">_tooltipTimer</span> <span class="o">=</span> <span class="n">aqt</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">timer</span><span class="p">(</span>
+        <span class="n">period</span><span class="p">,</span> <span class="n">closeTooltip</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">requiresCollection</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+    <span class="n">_tooltipLabel</span> <span class="o">=</span> <span class="n">lab</span></div>
+
+
+<div class="viewcode-block" id="closeTooltip"><a class="viewcode-back" href="../../aqt.html#aqt.utils.closeTooltip">[docs]</a><span class="k">def</span> <span class="nf">closeTooltip</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">_tooltipLabel</span><span class="p">,</span> <span class="n">_tooltipTimer</span>
+    <span class="k">if</span> <span class="n">_tooltipLabel</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">_tooltipLabel</span><span class="o">.</span><span class="n">deleteLater</span><span class="p">()</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="c1"># already deleted as parent window closed</span>
+            <span class="k">pass</span>
+        <span class="n">_tooltipLabel</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">_tooltipTimer</span><span class="p">:</span>
+        <span class="n">_tooltipTimer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+        <span class="n">_tooltipTimer</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+<span class="c1"># true if invalid; print warning</span>
+<div class="viewcode-block" id="checkInvalidFilename"><a class="viewcode-back" href="../../aqt.html#aqt.utils.checkInvalidFilename">[docs]</a><span class="k">def</span> <span class="nf">checkInvalidFilename</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">dirsep</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="n">bad</span> <span class="o">=</span> <span class="n">invalidFilename</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">dirsep</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">bad</span><span class="p">:</span>
+        <span class="n">showWarning</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;The following character can not be used: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">bad</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<span class="c1"># Menus</span>
+<span class="c1">######################################################################</span>
+
+
+<div class="viewcode-block" id="MenuList"><a class="viewcode-back" href="../../aqt.html#aqt.utils.MenuList">[docs]</a><span class="k">class</span> <span class="nc">MenuList</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="MenuList.addItem"><a class="viewcode-back" href="../../aqt.html#aqt.utils.MenuList.addItem">[docs]</a>    <span class="k">def</span> <span class="nf">addItem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="n">MenuItem</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">children</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">item</span></div>
+
+<div class="viewcode-block" id="MenuList.addSeparator"><a class="viewcode-back" href="../../aqt.html#aqt.utils.MenuList.addSeparator">[docs]</a>    <span class="k">def</span> <span class="nf">addSeparator</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">children</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MenuList.addMenu"><a class="viewcode-back" href="../../aqt.html#aqt.utils.MenuList.addMenu">[docs]</a>    <span class="k">def</span> <span class="nf">addMenu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">):</span>
+        <span class="n">submenu</span> <span class="o">=</span> <span class="n">SubMenu</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">children</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">submenu</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">submenu</span></div>
+
+<div class="viewcode-block" id="MenuList.addChild"><a class="viewcode-back" href="../../aqt.html#aqt.utils.MenuList.addChild">[docs]</a>    <span class="k">def</span> <span class="nf">addChild</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">child</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">children</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">child</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MenuList.renderTo"><a class="viewcode-back" href="../../aqt.html#aqt.utils.MenuList.renderTo">[docs]</a>    <span class="k">def</span> <span class="nf">renderTo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qmenu</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">child</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">qmenu</span><span class="o">.</span><span class="n">addSeparator</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="n">QAction</span><span class="p">):</span>
+                <span class="n">qmenu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">child</span><span class="o">.</span><span class="n">renderTo</span><span class="p">(</span><span class="n">qmenu</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MenuList.popupOver"><a class="viewcode-back" href="../../aqt.html#aqt.utils.MenuList.popupOver">[docs]</a>    <span class="k">def</span> <span class="nf">popupOver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">):</span>
+        <span class="n">qmenu</span> <span class="o">=</span> <span class="n">QMenu</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">renderTo</span><span class="p">(</span><span class="n">qmenu</span><span class="p">)</span>
+        <span class="n">qmenu</span><span class="o">.</span><span class="n">exec_</span><span class="p">(</span><span class="n">widget</span><span class="o">.</span><span class="n">mapToGlobal</span><span class="p">(</span><span class="n">QPoint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)))</span></div>
+
+    <span class="c1"># Chunking</span>
+    <span class="c1">######################################################################</span>
+
+    <span class="n">chunkSize</span> <span class="o">=</span> <span class="mi">30</span>
+
+<div class="viewcode-block" id="MenuList.chunked"><a class="viewcode-back" href="../../aqt.html#aqt.utils.MenuList.chunked">[docs]</a>    <span class="k">def</span> <span class="nf">chunked</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">children</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">chunkSize</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+
+        <span class="n">newList</span> <span class="o">=</span> <span class="n">MenuList</span><span class="p">()</span>
+        <span class="n">oldItems</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">children</span><span class="p">[:]</span>
+        <span class="k">while</span> <span class="n">oldItems</span><span class="p">:</span>
+            <span class="n">chunk</span> <span class="o">=</span> <span class="n">oldItems</span><span class="p">[:</span> <span class="bp">self</span><span class="o">.</span><span class="n">chunkSize</span><span class="p">]</span>
+            <span class="k">del</span> <span class="n">oldItems</span><span class="p">[:</span> <span class="bp">self</span><span class="o">.</span><span class="n">chunkSize</span><span class="p">]</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_chunkLabel</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+            <span class="n">menu</span> <span class="o">=</span> <span class="n">newList</span><span class="o">.</span><span class="n">addMenu</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+            <span class="n">menu</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="n">chunk</span>
+        <span class="k">return</span> <span class="n">newList</span></div>
+
+    <span class="k">def</span> <span class="nf">_chunkLabel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">items</span><span class="p">):</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">title</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">items</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">title</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">commonprefix</span><span class="p">([</span><span class="n">start</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span> <span class="n">end</span><span class="o">.</span><span class="n">upper</span><span class="p">()])</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">start</span><span class="p">[:</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span> <span class="n">end</span><span class="p">[:</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="SubMenu"><a class="viewcode-back" href="../../aqt.html#aqt.utils.SubMenu">[docs]</a><span class="k">class</span> <span class="nc">SubMenu</span><span class="p">(</span><span class="n">MenuList</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">title</span>
+
+<div class="viewcode-block" id="SubMenu.renderTo"><a class="viewcode-back" href="../../aqt.html#aqt.utils.SubMenu.renderTo">[docs]</a>    <span class="k">def</span> <span class="nf">renderTo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">menu</span><span class="p">):</span>
+        <span class="n">submenu</span> <span class="o">=</span> <span class="n">menu</span><span class="o">.</span><span class="n">addMenu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">renderTo</span><span class="p">(</span><span class="n">submenu</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="MenuItem"><a class="viewcode-back" href="../../aqt.html#aqt.utils.MenuItem">[docs]</a><span class="k">class</span> <span class="nc">MenuItem</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">title</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">func</span>
+
+<div class="viewcode-block" id="MenuItem.renderTo"><a class="viewcode-back" href="../../aqt.html#aqt.utils.MenuItem.renderTo">[docs]</a>    <span class="k">def</span> <span class="nf">renderTo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qmenu</span><span class="p">):</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">qmenu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">)</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">triggered</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="qtMenuShortcutWorkaround"><a class="viewcode-back" href="../../aqt.html#aqt.utils.qtMenuShortcutWorkaround">[docs]</a><span class="k">def</span> <span class="nf">qtMenuShortcutWorkaround</span><span class="p">(</span><span class="n">qmenu</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">qtminor</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="k">for</span> <span class="n">act</span> <span class="ow">in</span> <span class="n">qmenu</span><span class="o">.</span><span class="n">actions</span><span class="p">():</span>
+        <span class="n">act</span><span class="o">.</span><span class="n">setShortcutVisibleInContextMenu</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<span class="c1">######################################################################</span>
+
+
+<div class="viewcode-block" id="supportText"><a class="viewcode-back" href="../../aqt.html#aqt.utils.supportText">[docs]</a><span class="k">def</span> <span class="nf">supportText</span><span class="p">():</span>
+    <span class="kn">import</span> <span class="nn">platform</span>
+    <span class="kn">import</span> <span class="nn">time</span>
+    <span class="kn">from</span> <span class="nn">aqt</span> <span class="kn">import</span> <span class="n">mw</span>
+
+    <span class="k">if</span> <span class="n">isWin</span><span class="p">:</span>
+        <span class="n">platname</span> <span class="o">=</span> <span class="s2">&quot;Windows &quot;</span> <span class="o">+</span> <span class="n">platform</span><span class="o">.</span><span class="n">win32_ver</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">isMac</span><span class="p">:</span>
+        <span class="n">platname</span> <span class="o">=</span> <span class="s2">&quot;Mac &quot;</span> <span class="o">+</span> <span class="n">platform</span><span class="o">.</span><span class="n">mac_ver</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">platname</span> <span class="o">=</span> <span class="s2">&quot;Linux&quot;</span>
+
+    <span class="k">def</span> <span class="nf">schedVer</span><span class="p">():</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">schedVer</span><span class="p">()</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;?&quot;</span>
+
+    <span class="n">lc</span> <span class="o">=</span> <span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">last_addon_update_check</span><span class="p">()</span>
+    <span class="n">lcfmt</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">(</span><span class="n">lc</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">Anki </span><span class="si">{}</span><span class="s2"> Python </span><span class="si">{}</span><span class="s2"> Qt </span><span class="si">{}</span><span class="s2"> PyQt </span><span class="si">{}</span><span class="s2"></span>
+<span class="s2">Platform: </span><span class="si">{}</span><span class="s2"></span>
+<span class="s2">Flags: frz=</span><span class="si">{}</span><span class="s2"> ao=</span><span class="si">{}</span><span class="s2"> sv=</span><span class="si">{}</span><span class="s2"></span>
+<span class="s2">Add-ons, last update check: </span><span class="si">{}</span><span class="s2"></span>
+<span class="s2">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">versionWithBuild</span><span class="p">(),</span>
+        <span class="n">platform</span><span class="o">.</span><span class="n">python_version</span><span class="p">(),</span>
+        <span class="n">QT_VERSION_STR</span><span class="p">,</span>
+        <span class="n">PYQT_VERSION_STR</span><span class="p">,</span>
+        <span class="n">platname</span><span class="p">,</span>
+        <span class="nb">getattr</span><span class="p">(</span><span class="n">sys</span><span class="p">,</span> <span class="s2">&quot;frozen&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+        <span class="n">mw</span><span class="o">.</span><span class="n">addonManager</span><span class="o">.</span><span class="n">dirty</span><span class="p">,</span>
+        <span class="n">schedVer</span><span class="p">(),</span>
+        <span class="n">lcfmt</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+<span class="c1">######################################################################</span>
+
+<span class="c1"># adapted from version detection in qutebrowser</span>
+<div class="viewcode-block" id="opengl_vendor"><a class="viewcode-back" href="../../aqt.html#aqt.utils.opengl_vendor">[docs]</a><span class="k">def</span> <span class="nf">opengl_vendor</span><span class="p">():</span>
+    <span class="n">old_context</span> <span class="o">=</span> <span class="n">QOpenGLContext</span><span class="o">.</span><span class="n">currentContext</span><span class="p">()</span>
+    <span class="n">old_surface</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">old_context</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">old_context</span><span class="o">.</span><span class="n">surface</span><span class="p">()</span>
+
+    <span class="n">surface</span> <span class="o">=</span> <span class="n">QOffscreenSurface</span><span class="p">()</span>
+    <span class="n">surface</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+
+    <span class="n">ctx</span> <span class="o">=</span> <span class="n">QOpenGLContext</span><span class="p">()</span>
+    <span class="n">ok</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">ok</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">ok</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">makeCurrent</span><span class="p">(</span><span class="n">surface</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">ok</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">isOpenGLES</span><span class="p">():</span>
+            <span class="c1"># Can&#39;t use versionFunctions there</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">vp</span> <span class="o">=</span> <span class="n">QOpenGLVersionProfile</span><span class="p">()</span>
+        <span class="n">vp</span><span class="o">.</span><span class="n">setVersion</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">vf</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">versionFunctions</span><span class="p">(</span><span class="n">vp</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">vf</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">vf</span><span class="o">.</span><span class="n">glGetString</span><span class="p">(</span><span class="n">vf</span><span class="o">.</span><span class="n">GL_VENDOR</span><span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">doneCurrent</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">old_context</span> <span class="ow">and</span> <span class="n">old_surface</span><span class="p">:</span>
+            <span class="n">old_context</span><span class="o">.</span><span class="n">makeCurrent</span><span class="p">(</span><span class="n">old_surface</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="gfxDriverIsBroken"><a class="viewcode-back" href="../../aqt.html#aqt.utils.gfxDriverIsBroken">[docs]</a><span class="k">def</span> <span class="nf">gfxDriverIsBroken</span><span class="p">():</span>
+    <span class="n">driver</span> <span class="o">=</span> <span class="n">opengl_vendor</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">driver</span> <span class="o">==</span> <span class="s2">&quot;nouveau&quot;</span></div>
+
+
+<span class="c1">######################################################################</span>
+
+
+<div class="viewcode-block" id="startup_info"><a class="viewcode-back" href="../../aqt.html#aqt.utils.startup_info">[docs]</a><span class="k">def</span> <span class="nf">startup_info</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="s2">&quot;Use subprocess.Popen(startupinfo=...) to avoid opening a console window.&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;win32&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">si</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">STARTUPINFO</span><span class="p">()</span>  <span class="c1"># pytype: disable=module-attr</span>
+    <span class="n">si</span><span class="o">.</span><span class="n">dwFlags</span> <span class="o">|=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">STARTF_USESHOWWINDOW</span>  <span class="c1"># pytype: disable=module-attr</span>
+    <span class="k">return</span> <span class="n">si</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Abdelrahman Hamdy
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,432 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>aqt.about &mdash; Anki  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Anki
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.html">anki package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aqt.html">aqt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../genhooks_gui.html">genhooks_gui module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tools.html">tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Anki</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../aqt.html">aqt</a> &raquo;</li>
+        
+      <li>aqt.about</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for aqt.about</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright: Ankitects Pty Ltd and contributors</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html</span>
+<span class="kn">import</span> <span class="nn">platform</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">aqt.forms</span>
+<span class="kn">from</span> <span class="nn">anki.lang</span> <span class="kn">import</span> <span class="n">_</span>
+<span class="kn">from</span> <span class="nn">anki.utils</span> <span class="kn">import</span> <span class="n">versionWithBuild</span>
+<span class="kn">from</span> <span class="nn">aqt.addons</span> <span class="kn">import</span> <span class="n">AddonManager</span><span class="p">,</span> <span class="n">AddonMeta</span>
+<span class="kn">from</span> <span class="nn">aqt.qt</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">aqt.utils</span> <span class="kn">import</span> <span class="n">supportText</span><span class="p">,</span> <span class="n">tooltip</span>
+
+
+<div class="viewcode-block" id="ClosableQDialog"><a class="viewcode-back" href="../../aqt.html#aqt.about.ClosableQDialog">[docs]</a><span class="k">class</span> <span class="nc">ClosableQDialog</span><span class="p">(</span><span class="n">QDialog</span><span class="p">):</span>
+<div class="viewcode-block" id="ClosableQDialog.reject"><a class="viewcode-back" href="../../aqt.html#aqt.about.ClosableQDialog.reject">[docs]</a>    <span class="k">def</span> <span class="nf">reject</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">aqt</span><span class="o">.</span><span class="n">dialogs</span><span class="o">.</span><span class="n">markClosed</span><span class="p">(</span><span class="s2">&quot;About&quot;</span><span class="p">)</span>
+        <span class="n">QDialog</span><span class="o">.</span><span class="n">reject</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ClosableQDialog.accept"><a class="viewcode-back" href="../../aqt.html#aqt.about.ClosableQDialog.accept">[docs]</a>    <span class="k">def</span> <span class="nf">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">aqt</span><span class="o">.</span><span class="n">dialogs</span><span class="o">.</span><span class="n">markClosed</span><span class="p">(</span><span class="s2">&quot;About&quot;</span><span class="p">)</span>
+        <span class="n">QDialog</span><span class="o">.</span><span class="n">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ClosableQDialog.closeWithCallback"><a class="viewcode-back" href="../../aqt.html#aqt.about.ClosableQDialog.closeWithCallback">[docs]</a>    <span class="k">def</span> <span class="nf">closeWithCallback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reject</span><span class="p">()</span>
+        <span class="n">callback</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="show"><a class="viewcode-back" href="../../aqt.html#aqt.about.show">[docs]</a><span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="n">mw</span><span class="p">):</span>
+    <span class="n">dialog</span> <span class="o">=</span> <span class="n">ClosableQDialog</span><span class="p">(</span><span class="n">mw</span><span class="p">)</span>
+    <span class="n">mw</span><span class="o">.</span><span class="n">setupDialogGC</span><span class="p">(</span><span class="n">dialog</span><span class="p">)</span>
+    <span class="n">abt</span> <span class="o">=</span> <span class="n">aqt</span><span class="o">.</span><span class="n">forms</span><span class="o">.</span><span class="n">about</span><span class="o">.</span><span class="n">Ui_About</span><span class="p">()</span>
+    <span class="n">abt</span><span class="o">.</span><span class="n">setupUi</span><span class="p">(</span><span class="n">dialog</span><span class="p">)</span>
+
+    <span class="c1"># Copy debug info</span>
+    <span class="c1">######################################################################</span>
+
+    <span class="k">def</span> <span class="nf">addon_fmt</span><span class="p">(</span><span class="n">addmgr</span><span class="p">:</span> <span class="n">AddonManager</span><span class="p">,</span> <span class="n">addon</span><span class="p">:</span> <span class="n">AddonMeta</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">addon</span><span class="o">.</span><span class="n">installed_at</span><span class="p">:</span>
+            <span class="n">installed</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span>
+                <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%M&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">(</span><span class="n">addon</span><span class="o">.</span><span class="n">installed_at</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">installed</span> <span class="o">=</span> <span class="s2">&quot;0&quot;</span>
+        <span class="k">if</span> <span class="n">addon</span><span class="o">.</span><span class="n">provided_name</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">addon</span><span class="o">.</span><span class="n">provided_name</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;&#39;&#39;&quot;</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="n">addmgr</span><span class="o">.</span><span class="n">getConfig</span><span class="p">(</span><span class="n">addon</span><span class="o">.</span><span class="n">dir_name</span><span class="p">)</span>
+        <span class="n">default</span> <span class="o">=</span> <span class="n">addmgr</span><span class="o">.</span><span class="n">addonConfigDefaults</span><span class="p">(</span><span class="n">addon</span><span class="o">.</span><span class="n">dir_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">user</span> <span class="o">==</span> <span class="n">default</span><span class="p">:</span>
+            <span class="n">modified</span> <span class="o">=</span> <span class="s2">&quot;&#39;&#39;&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">modified</span> <span class="o">=</span> <span class="s2">&quot;mod&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{name}</span><span class="s2"> [&#39;</span><span class="si">{addon.dir_name}</span><span class="s2">&#39;, </span><span class="si">{installed}</span><span class="s2">, &#39;</span><span class="si">{addon.human_version}</span><span class="s2">&#39;, </span><span class="si">{modified}</span><span class="s2">]&quot;</span>
+
+    <span class="k">def</span> <span class="nf">onCopy</span><span class="p">():</span>
+        <span class="n">addmgr</span> <span class="o">=</span> <span class="n">mw</span><span class="o">.</span><span class="n">addonManager</span>
+        <span class="n">active</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">activeids</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">inactive</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">addon</span> <span class="ow">in</span> <span class="n">addmgr</span><span class="o">.</span><span class="n">all_addon_meta</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">addon</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
+                <span class="n">active</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">addon_fmt</span><span class="p">(</span><span class="n">addmgr</span><span class="p">,</span> <span class="n">addon</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">addon</span><span class="o">.</span><span class="n">ankiweb_id</span><span class="p">():</span>
+                    <span class="n">activeids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">addon</span><span class="o">.</span><span class="n">dir_name</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">inactive</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">addon_fmt</span><span class="p">(</span><span class="n">addmgr</span><span class="p">,</span> <span class="n">addon</span><span class="p">))</span>
+        <span class="n">newline</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">{supportText()}</span>
+
+<span class="s2">===Add-ons (active)===</span>
+<span class="s2">(add-on provided name [Add-on folder, installed at, version, is config changed])</span>
+<span class="s2">{newline.join(sorted(active))}</span>
+
+<span class="s2">===IDs of active AnkiWeb add-ons===</span>
+<span class="s2">{&quot; &quot;.join(activeids)}</span>
+
+<span class="s2">===Add-ons (inactive)===</span>
+<span class="s2">(add-on provided name [Add-on folder, installed at, version, is config changed])</span>
+<span class="s2">{newline.join(sorted(inactive))}</span>
+<span class="s2">&quot;&quot;&quot;</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="s2">&quot;    &quot;</span> <span class="o">+</span> <span class="s2">&quot;    &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">splitlines</span><span class="p">(</span><span class="kc">True</span><span class="p">))</span>
+        <span class="n">QApplication</span><span class="o">.</span><span class="n">clipboard</span><span class="p">()</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
+        <span class="n">tooltip</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Copied to clipboard&quot;</span><span class="p">),</span> <span class="n">parent</span><span class="o">=</span><span class="n">dialog</span><span class="p">)</span>
+
+    <span class="n">btn</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Copy Debug Info&quot;</span><span class="p">))</span>
+    <span class="n">qconnect</span><span class="p">(</span><span class="n">btn</span><span class="o">.</span><span class="n">clicked</span><span class="p">,</span> <span class="n">onCopy</span><span class="p">)</span>
+    <span class="n">abt</span><span class="o">.</span><span class="n">buttonBox</span><span class="o">.</span><span class="n">addButton</span><span class="p">(</span><span class="n">btn</span><span class="p">,</span> <span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">ActionRole</span><span class="p">)</span>
+    <span class="n">abt</span><span class="o">.</span><span class="n">buttonBox</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">Ok</span><span class="p">)</span><span class="o">.</span><span class="n">setFocus</span><span class="p">()</span>
+
+    <span class="c1"># WebView contents</span>
+    <span class="c1">######################################################################</span>
+    <span class="n">abouttext</span> <span class="o">=</span> <span class="s2">&quot;&lt;center&gt;&lt;img src=&#39;/_anki/imgs/anki-logo-thin.png&#39;&gt;&lt;/center&gt;&quot;</span>
+    <span class="n">abouttext</span> <span class="o">+=</span> <span class="s2">&quot;&lt;p&gt;&quot;</span> <span class="o">+</span> <span class="n">_</span><span class="p">(</span>
+        <span class="s2">&quot;Anki is a friendly, intelligent spaced learning </span><span class="se">\</span>
+<span class="s2">system. It&#39;s free and open source.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">abouttext</span> <span class="o">+=</span> <span class="s2">&quot;&lt;p&gt;&quot;</span> <span class="o">+</span> <span class="n">_</span><span class="p">(</span>
+        <span class="s2">&quot;Anki is licensed under the AGPL3 license. Please see &quot;</span>
+        <span class="s2">&quot;the license file in the source distribution for more information.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">abouttext</span> <span class="o">+=</span> <span class="s2">&quot;&lt;p&gt;&quot;</span> <span class="o">+</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Version </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">versionWithBuild</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;&lt;br&gt;&quot;</span>
+    <span class="n">abouttext</span> <span class="o">+=</span> <span class="p">(</span><span class="s2">&quot;Python </span><span class="si">%s</span><span class="s2"> Qt </span><span class="si">%s</span><span class="s2"> PyQt </span><span class="si">%s</span><span class="s2">&lt;br&gt;&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span>
+        <span class="n">platform</span><span class="o">.</span><span class="n">python_version</span><span class="p">(),</span>
+        <span class="n">QT_VERSION_STR</span><span class="p">,</span>
+        <span class="n">PYQT_VERSION_STR</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">abouttext</span> <span class="o">+=</span> <span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;&lt;a href=&#39;</span><span class="si">%s</span><span class="s2">&#39;&gt;Visit website&lt;/a&gt;&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">aqt</span><span class="o">.</span><span class="n">appWebsite</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&lt;/span&gt;&quot;</span>
+
+    <span class="c1"># automatically sorted; add new lines at the end</span>
+    <span class="n">allusers</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+        <span class="p">(</span>
+            <span class="s2">&quot;Aaron Harsh&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Alex Fraser&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Andreas Klauer&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Andrew Wright&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Aristotelis P.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Bernhard Ibertsberger&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;C. van Rooyen&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Charlene Barina&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Christian Krause&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Christian Rusche&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Dave Druelinger&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;David Smith&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Dmitry Mikheev&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Dotan Cohen&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Emilio Wuerges&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Emmanuel Jarri&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Frank Harper&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Gregor Skumavc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Guillem Palau Salvà&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;H. Mijail&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Henrik Enggaard Hansen&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Houssam Salem&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Ian Lewis&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Immanuel Asmus&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Iroiro&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Jarvik7&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Jin Eun-Deok&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Jo Nakashima&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Johanna Lindh&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Joseph Lorimer&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Julien Baley&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Jussi Määttä&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Kieran Clancy&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;LaC&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Laurent Steffan&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Luca Ban&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Luciano Esposito&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Marco Giancotti&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Marcus Rubeus&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Mari Egami&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Mark Wilbur&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Matthew Duggan&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Matthew Holtz&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Meelis Vasser&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Michael Jürges&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Michael Keppler&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Michael Montague&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Michael Penkov&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Michal Čadil&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Morteza Salehi&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Nathanael Law&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Nguyễn Hào Khôi&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Nick Cook&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Niklas Laxström&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Norbert Nagold&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Ole Guldberg&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Pcsl88&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Petr Michalec&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Piotr Kubowicz&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Richard Colley&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Roland Sieker&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Samson Melamed&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Silja Ijas&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Snezana Lukic&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Soren Bjornstad&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Stefaan De Pooter&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Susanna Björverud&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Sylvain Durand&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Tacutu&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Timm Preetz&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Timo Paulssen&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Ursus&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Victor Suba&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Volker Jansen&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Volodymyr Goncharenko&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Xtru&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Ádám Szegi&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;赵金鹏&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;黃文龍&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;David Bailey&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Arman High&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Arthur Milchior&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Rai (Michael Pokorny)&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;AMBOSS MD Inc.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Erez Volk&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Tobias Predel&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Thomas Kahn&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;zjosua&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Ijgnd&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Evandro Coan&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Alan Du&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">abouttext</span> <span class="o">+=</span> <span class="p">(</span>
+        <span class="s2">&quot;&lt;p&gt;&quot;</span>
+        <span class="o">+</span> <span class="n">_</span><span class="p">(</span>
+            <span class="s2">&quot;Written by Damien Elmes, with patches, translation,</span><span class="se">\</span>
+<span class="s2">    testing and design from:&lt;p&gt;</span><span class="si">%(cont)s</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="o">%</span> <span class="p">{</span><span class="s2">&quot;cont&quot;</span><span class="p">:</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">allusers</span><span class="p">)}</span>
+    <span class="p">)</span>
+    <span class="n">abouttext</span> <span class="o">+=</span> <span class="s2">&quot;&lt;p&gt;&quot;</span> <span class="o">+</span> <span class="n">_</span><span class="p">(</span>
+        <span class="s2">&quot;If you have contributed and are not on this list, </span><span class="se">\</span>
+<span class="s2">please get in touch.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">abouttext</span> <span class="o">+=</span> <span class="s2">&quot;&lt;p&gt;&quot;</span> <span class="o">+</span> <span class="n">_</span><span class="p">(</span>
+        <span class="s2">&quot;A big thanks to all the people who have provided </span><span class="se">\</span>
+<span class="s2">suggestions, bug reports and donations.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">abt</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">setMinimumWidth</span><span class="p">(</span><span class="mi">800</span><span class="p">)</span>
+    <span class="n">abt</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">setMinimumHeight</span><span class="p">(</span><span class="mi">600</span><span class="p">)</span>
+    <span class="n">dialog</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="n">abt</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">stdHtml</span><span class="p">(</span><span class="n">abouttext</span><span class="p">,</span> <span class="n">js</span><span class="o">=</span><span class="p">[])</span>
+    <span class="k">return</span> <span class="n">dialog</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Abdelrahman Hamdy
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

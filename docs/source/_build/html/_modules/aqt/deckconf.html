@@ -1,0 +1,536 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>aqt.deckconf &mdash; Anki  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Anki
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.html">anki package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aqt.html">aqt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../genhooks_gui.html">genhooks_gui module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tools.html">tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Anki</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../aqt.html">aqt</a> &raquo;</li>
+        
+      <li>aqt.deckconf</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for aqt.deckconf</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright: Ankitects Pty Ltd and contributors</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html</span>
+
+<span class="kn">from</span> <span class="nn">operator</span> <span class="kn">import</span> <span class="n">itemgetter</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span>
+
+<span class="kn">from</span> <span class="nn">PyQt5.QtWidgets</span> <span class="kn">import</span> <span class="n">QLineEdit</span>
+
+<span class="kn">import</span> <span class="nn">aqt</span>
+<span class="kn">from</span> <span class="nn">anki.consts</span> <span class="kn">import</span> <span class="n">NEW_CARDS_RANDOM</span>
+<span class="kn">from</span> <span class="nn">anki.lang</span> <span class="kn">import</span> <span class="n">_</span><span class="p">,</span> <span class="n">ngettext</span>
+<span class="kn">from</span> <span class="nn">aqt</span> <span class="kn">import</span> <span class="n">gui_hooks</span>
+<span class="kn">from</span> <span class="nn">aqt.qt</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">aqt.utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">askUser</span><span class="p">,</span>
+    <span class="n">getOnlyText</span><span class="p">,</span>
+    <span class="n">openHelp</span><span class="p">,</span>
+    <span class="n">restoreGeom</span><span class="p">,</span>
+    <span class="n">saveGeom</span><span class="p">,</span>
+    <span class="n">showInfo</span><span class="p">,</span>
+    <span class="n">showWarning</span><span class="p">,</span>
+    <span class="n">tooltip</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="DeckConf"><a class="viewcode-back" href="../../aqt.html#aqt.deckconf.DeckConf">[docs]</a><span class="k">class</span> <span class="nc">DeckConf</span><span class="p">(</span><span class="n">QDialog</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mw</span><span class="p">:</span> <span class="n">aqt</span><span class="o">.</span><span class="n">AnkiQt</span><span class="p">,</span> <span class="n">deck</span><span class="p">:</span> <span class="n">Dict</span><span class="p">):</span>
+        <span class="n">QDialog</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mw</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span> <span class="o">=</span> <span class="n">mw</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deck</span> <span class="o">=</span> <span class="n">deck</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">childDids</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">children</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deck</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_origNewOrder</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">form</span> <span class="o">=</span> <span class="n">aqt</span><span class="o">.</span><span class="n">forms</span><span class="o">.</span><span class="n">dconf</span><span class="o">.</span><span class="n">Ui_Dialog</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">setupUi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">gui_hooks</span><span class="o">.</span><span class="n">deck_conf_did_setup_ui_form</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">checkpoint</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Options&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setupCombos</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setupConfs</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWindowModality</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">WindowModal</span><span class="p">)</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">buttonBox</span><span class="o">.</span><span class="n">helpRequested</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">openHelp</span><span class="p">(</span><span class="s2">&quot;deckoptions&quot;</span><span class="p">))</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">confOpts</span><span class="o">.</span><span class="n">clicked</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">confOpts</span><span class="p">)</span>
+        <span class="n">qconnect</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">buttonBox</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">RestoreDefaults</span><span class="p">)</span><span class="o">.</span><span class="n">clicked</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">onRestore</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Options for </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">deck</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
+        <span class="c1"># qt doesn&#39;t size properly with altered fonts otherwise</span>
+        <span class="n">restoreGeom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;deckconf&quot;</span><span class="p">,</span> <span class="n">adjustSize</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">gui_hooks</span><span class="o">.</span><span class="n">deck_conf_will_show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
+        <span class="n">saveGeom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;deckconf&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DeckConf.setupCombos"><a class="viewcode-back" href="../../aqt.html#aqt.deckconf.DeckConf.setupCombos">[docs]</a>    <span class="k">def</span> <span class="nf">setupCombos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="kn">import</span> <span class="nn">anki.consts</span> <span class="k">as</span> <span class="nn">cs</span>
+
+        <span class="n">f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">form</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">newOrder</span><span class="o">.</span><span class="n">addItems</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">newCardOrderLabels</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">newOrder</span><span class="o">.</span><span class="n">currentIndexChanged</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onNewOrderChanged</span><span class="p">)</span></div>
+
+    <span class="c1"># Conf list</span>
+    <span class="c1">######################################################################</span>
+
+<div class="viewcode-block" id="DeckConf.setupConfs"><a class="viewcode-back" href="../../aqt.html#aqt.deckconf.DeckConf.setupConfs">[docs]</a>    <span class="k">def</span> <span class="nf">setupConfs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">dconf</span><span class="o">.</span><span class="n">currentIndexChanged</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onConfChange</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conf</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loadConfs</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="DeckConf.loadConfs"><a class="viewcode-back" href="../../aqt.html#aqt.deckconf.DeckConf.loadConfs">[docs]</a>    <span class="k">def</span> <span class="nf">loadConfs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">current</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">deck</span><span class="p">[</span><span class="s2">&quot;conf&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">confList</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">allConf</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">confList</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">itemgetter</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">))</span>
+        <span class="n">startOn</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ignoreConfChange</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">dconf</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">conf</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">confList</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">dconf</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">conf</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">conf</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="n">current</span><span class="p">):</span>
+                <span class="n">startOn</span> <span class="o">=</span> <span class="n">idx</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ignoreConfChange</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">dconf</span><span class="o">.</span><span class="n">setCurrentIndex</span><span class="p">(</span><span class="n">startOn</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_origNewOrder</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_origNewOrder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">confList</span><span class="p">[</span><span class="n">startOn</span><span class="p">][</span><span class="s2">&quot;new&quot;</span><span class="p">][</span><span class="s2">&quot;order&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">onConfChange</span><span class="p">(</span><span class="n">startOn</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DeckConf.confOpts"><a class="viewcode-back" href="../../aqt.html#aqt.deckconf.DeckConf.confOpts">[docs]</a>    <span class="k">def</span> <span class="nf">confOpts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">QMenu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="p">)</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Add&quot;</span><span class="p">))</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">triggered</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">addGroup</span><span class="p">)</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Delete&quot;</span><span class="p">))</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">triggered</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">remGroup</span><span class="p">)</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Rename&quot;</span><span class="p">))</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">triggered</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">renameGroup</span><span class="p">)</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Set for all subdecks&quot;</span><span class="p">))</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">triggered</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">setChildren</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">childDids</span><span class="p">:</span>
+            <span class="n">a</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">m</span><span class="o">.</span><span class="n">exec_</span><span class="p">(</span><span class="n">QCursor</span><span class="o">.</span><span class="n">pos</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="DeckConf.onConfChange"><a class="viewcode-back" href="../../aqt.html#aqt.deckconf.DeckConf.onConfChange">[docs]</a>    <span class="k">def</span> <span class="nf">onConfChange</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignoreConfChange</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">saveConf</span><span class="p">()</span>
+        <span class="n">conf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">confList</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deck</span><span class="p">[</span><span class="s2">&quot;conf&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deck</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loadConf</span><span class="p">()</span>
+        <span class="n">cnt</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">didsForConf</span><span class="p">(</span><span class="n">conf</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">cnt</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">txt</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span>
+                <span class="s2">&quot;Your changes will affect multiple decks. If you wish to &quot;</span>
+                <span class="s2">&quot;change only the current deck, please add a new options group first.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">txt</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">count</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DeckConf.addGroup"><a class="viewcode-back" href="../../aqt.html#aqt.deckconf.DeckConf.addGroup">[docs]</a>    <span class="k">def</span> <span class="nf">addGroup</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">getOnlyText</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;New options group name:&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="c1"># first, save currently entered data to current conf</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">saveConf</span><span class="p">()</span>
+        <span class="c1"># then clone the conf</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">add_config_returning_id</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">clone_from</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="p">)</span>
+        <span class="n">gui_hooks</span><span class="o">.</span><span class="n">deck_conf_did_add_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">deck</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="nb">id</span><span class="p">)</span>
+        <span class="c1"># set the deck to the new conf</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deck</span><span class="p">[</span><span class="s2">&quot;conf&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">id</span>
+        <span class="c1"># then reload the conf list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loadConfs</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="DeckConf.remGroup"><a class="viewcode-back" href="../../aqt.html#aqt.deckconf.DeckConf.remGroup">[docs]</a>    <span class="k">def</span> <span class="nf">remGroup</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">showInfo</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;The default configuration can&#39;t be removed.&quot;</span><span class="p">),</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">gui_hooks</span><span class="o">.</span><span class="n">deck_conf_will_remove_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">deck</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">modSchema</span><span class="p">(</span><span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">remove_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">conf</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">deck</span><span class="p">[</span><span class="s2">&quot;conf&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">loadConfs</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="DeckConf.renameGroup"><a class="viewcode-back" href="../../aqt.html#aqt.deckconf.DeckConf.renameGroup">[docs]</a>    <span class="k">def</span> <span class="nf">renameGroup</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">old</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">getOnlyText</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;New name:&quot;</span><span class="p">),</span> <span class="n">default</span><span class="o">=</span><span class="n">old</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span> <span class="ow">or</span> <span class="n">name</span> <span class="o">==</span> <span class="n">old</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">gui_hooks</span><span class="o">.</span><span class="n">deck_conf_will_rename_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">deck</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">saveConf</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loadConfs</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="DeckConf.setChildren"><a class="viewcode-back" href="../../aqt.html#aqt.deckconf.DeckConf.setChildren">[docs]</a>    <span class="k">def</span> <span class="nf">setChildren</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">askUser</span><span class="p">(</span>
+            <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Set all decks below </span><span class="si">%s</span><span class="s2"> to this option group?&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">deck</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+        <span class="p">):</span>
+            <span class="k">return</span>
+        <span class="k">for</span> <span class="n">did</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">childDids</span><span class="p">:</span>
+            <span class="n">deck</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">did</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">deck</span><span class="p">[</span><span class="s2">&quot;dyn&quot;</span><span class="p">]:</span>
+                <span class="k">continue</span>
+            <span class="n">deck</span><span class="p">[</span><span class="s2">&quot;conf&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">deck</span><span class="p">[</span><span class="s2">&quot;conf&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">deck</span><span class="p">)</span>
+        <span class="n">tooltip</span><span class="p">(</span>
+            <span class="n">ngettext</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> deck updated.&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> decks updated.&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">childDids</span><span class="p">))</span>
+            <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">childDids</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+    <span class="c1"># Loading</span>
+    <span class="c1">##################################################</span>
+
+<div class="viewcode-block" id="DeckConf.listToUser"><a class="viewcode-back" href="../../aqt.html#aqt.deckconf.DeckConf.listToUser">[docs]</a>    <span class="k">def</span> <span class="nf">listToUser</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">l</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">num_to_user</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="nb">round</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+                <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">num_to_user</span><span class="p">,</span> <span class="n">l</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="DeckConf.parentLimText"><a class="viewcode-back" href="../../aqt.html#aqt.deckconf.DeckConf.parentLimText">[docs]</a>    <span class="k">def</span> <span class="nf">parentLimText</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;new&quot;</span><span class="p">):</span>
+        <span class="c1"># top level?</span>
+        <span class="k">if</span> <span class="s2">&quot;::&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">deck</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">lim</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">parents</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deck</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]):</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">confForDid</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="nb">type</span><span class="p">][</span><span class="s2">&quot;perDay&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">lim</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">lim</span> <span class="o">=</span> <span class="n">x</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">lim</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lim</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;(parent limit: </span><span class="si">%d</span><span class="s2">)&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">lim</span></div>
+
+<div class="viewcode-block" id="DeckConf.loadConf"><a class="viewcode-back" href="../../aqt.html#aqt.deckconf.DeckConf.loadConf">[docs]</a>    <span class="k">def</span> <span class="nf">loadConf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">confForDid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deck</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+        <span class="c1"># new</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="p">[</span><span class="s2">&quot;new&quot;</span><span class="p">]</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">form</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">lrnSteps</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">listToUser</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;delays&quot;</span><span class="p">]))</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">lrnGradInt</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;ints&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">lrnEasyInt</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;ints&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">lrnFactor</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;initialFactor&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mf">10.0</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">newOrder</span><span class="o">.</span><span class="n">setCurrentIndex</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;order&quot;</span><span class="p">])</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">newPerDay</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;perDay&quot;</span><span class="p">])</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">bury</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;bury&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">newplim</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parentLimText</span><span class="p">(</span><span class="s2">&quot;new&quot;</span><span class="p">))</span>
+        <span class="c1"># rev</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="p">[</span><span class="s2">&quot;rev&quot;</span><span class="p">]</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">revPerDay</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;perDay&quot;</span><span class="p">])</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">easyBonus</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;ease4&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">fi1</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;ivlFct&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">maxIvl</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;maxIvl&quot;</span><span class="p">])</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">revplim</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parentLimText</span><span class="p">(</span><span class="s2">&quot;rev&quot;</span><span class="p">))</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">buryRev</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;bury&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">hardFactor</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;hardFactor&quot;</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">schedVer</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">hardFactor</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">hardFactorLabel</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="c1"># lapse</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="p">[</span><span class="s2">&quot;lapse&quot;</span><span class="p">]</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">lapSteps</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">listToUser</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;delays&quot;</span><span class="p">]))</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">lapMult</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;mult&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">lapMinInt</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;minInt&quot;</span><span class="p">])</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">leechThreshold</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;leechFails&quot;</span><span class="p">])</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">leechAction</span><span class="o">.</span><span class="n">setCurrentIndex</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;leechAction&quot;</span><span class="p">])</span>
+        <span class="c1"># general</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">maxTaken</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;maxTaken&quot;</span><span class="p">])</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">showTimer</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;timer&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">autoplaySounds</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;autoplay&quot;</span><span class="p">])</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">replayQuestion</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;replayq&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
+        <span class="c1"># description</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">desc</span><span class="o">.</span><span class="n">setPlainText</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deck</span><span class="p">[</span><span class="s2">&quot;desc&quot;</span><span class="p">])</span>
+        <span class="n">gui_hooks</span><span class="o">.</span><span class="n">deck_conf_did_load_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">deck</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DeckConf.onRestore"><a class="viewcode-back" href="../../aqt.html#aqt.deckconf.DeckConf.onRestore">[docs]</a>    <span class="k">def</span> <span class="nf">onRestore</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">restoreToDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">finish</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loadConf</span><span class="p">()</span></div>
+
+    <span class="c1"># New order</span>
+    <span class="c1">##################################################</span>
+
+<div class="viewcode-block" id="DeckConf.onNewOrderChanged"><a class="viewcode-back" href="../../aqt.html#aqt.deckconf.DeckConf.onNewOrderChanged">[docs]</a>    <span class="k">def</span> <span class="nf">onNewOrderChanged</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new</span><span class="p">):</span>
+        <span class="n">old</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="p">[</span><span class="s2">&quot;new&quot;</span><span class="p">][</span><span class="s2">&quot;order&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">old</span> <span class="o">==</span> <span class="n">new</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="p">[</span><span class="s2">&quot;new&quot;</span><span class="p">][</span><span class="s2">&quot;order&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">resortConf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">finish</span><span class="p">()</span></div>
+
+    <span class="c1"># Saving</span>
+    <span class="c1">##################################################</span>
+
+<div class="viewcode-block" id="DeckConf.updateList"><a class="viewcode-back" href="../../aqt.html#aqt.deckconf.DeckConf.updateList">[docs]</a>    <span class="k">def</span> <span class="nf">updateList</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conf</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">w</span><span class="p">:</span> <span class="n">QLineEdit</span><span class="p">,</span> <span class="n">minSize</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">text</span><span class="p">())</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">item</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                <span class="k">assert</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+                    <span class="n">i</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="c1"># invalid, don&#39;t update</span>
+                <span class="n">showWarning</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Steps must be numbers.&quot;</span><span class="p">))</span>
+                <span class="k">return</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">minSize</span><span class="p">:</span>
+            <span class="n">showWarning</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;At least one step is required.&quot;</span><span class="p">))</span>
+            <span class="k">return</span>
+        <span class="n">conf</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">ret</span></div>
+
+<div class="viewcode-block" id="DeckConf.saveConf"><a class="viewcode-back" href="../../aqt.html#aqt.deckconf.DeckConf.saveConf">[docs]</a>    <span class="k">def</span> <span class="nf">saveConf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># new</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="p">[</span><span class="s2">&quot;new&quot;</span><span class="p">]</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">form</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">updateList</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="s2">&quot;delays&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">lrnSteps</span><span class="p">)</span>
+        <span class="n">c</span><span class="p">[</span><span class="s2">&quot;ints&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">lrnGradInt</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+        <span class="n">c</span><span class="p">[</span><span class="s2">&quot;ints&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">lrnEasyInt</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+        <span class="n">c</span><span class="p">[</span><span class="s2">&quot;initialFactor&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">lrnFactor</span><span class="o">.</span><span class="n">value</span><span class="p">()</span> <span class="o">*</span> <span class="mi">10</span>
+        <span class="n">c</span><span class="p">[</span><span class="s2">&quot;order&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">newOrder</span><span class="o">.</span><span class="n">currentIndex</span><span class="p">()</span>
+        <span class="n">c</span><span class="p">[</span><span class="s2">&quot;perDay&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">newPerDay</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+        <span class="n">c</span><span class="p">[</span><span class="s2">&quot;bury&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">bury</span><span class="o">.</span><span class="n">isChecked</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_origNewOrder</span> <span class="o">!=</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;order&quot;</span><span class="p">]:</span>
+            <span class="c1"># order of current deck has changed, so have to resort</span>
+            <span class="k">if</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;order&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">NEW_CARDS_RANDOM</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">randomizeCards</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deck</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">orderCards</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deck</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+        <span class="c1"># rev</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="p">[</span><span class="s2">&quot;rev&quot;</span><span class="p">]</span>
+        <span class="n">c</span><span class="p">[</span><span class="s2">&quot;perDay&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">revPerDay</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+        <span class="n">c</span><span class="p">[</span><span class="s2">&quot;ease4&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">easyBonus</span><span class="o">.</span><span class="n">value</span><span class="p">()</span> <span class="o">/</span> <span class="mf">100.0</span>
+        <span class="n">c</span><span class="p">[</span><span class="s2">&quot;ivlFct&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">fi1</span><span class="o">.</span><span class="n">value</span><span class="p">()</span> <span class="o">/</span> <span class="mf">100.0</span>
+        <span class="n">c</span><span class="p">[</span><span class="s2">&quot;maxIvl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">maxIvl</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+        <span class="n">c</span><span class="p">[</span><span class="s2">&quot;bury&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">buryRev</span><span class="o">.</span><span class="n">isChecked</span><span class="p">()</span>
+        <span class="n">c</span><span class="p">[</span><span class="s2">&quot;hardFactor&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">hardFactor</span><span class="o">.</span><span class="n">value</span><span class="p">()</span> <span class="o">/</span> <span class="mf">100.0</span>
+        <span class="c1"># lapse</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="p">[</span><span class="s2">&quot;lapse&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">updateList</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="s2">&quot;delays&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">lapSteps</span><span class="p">,</span> <span class="n">minSize</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">c</span><span class="p">[</span><span class="s2">&quot;mult&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">lapMult</span><span class="o">.</span><span class="n">value</span><span class="p">()</span> <span class="o">/</span> <span class="mf">100.0</span>
+        <span class="n">c</span><span class="p">[</span><span class="s2">&quot;minInt&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">lapMinInt</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+        <span class="n">c</span><span class="p">[</span><span class="s2">&quot;leechFails&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">leechThreshold</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+        <span class="n">c</span><span class="p">[</span><span class="s2">&quot;leechAction&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">leechAction</span><span class="o">.</span><span class="n">currentIndex</span><span class="p">()</span>
+        <span class="c1"># general</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf</span>
+        <span class="n">c</span><span class="p">[</span><span class="s2">&quot;maxTaken&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">maxTaken</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+        <span class="n">c</span><span class="p">[</span><span class="s2">&quot;timer&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">showTimer</span><span class="o">.</span><span class="n">isChecked</span><span class="p">()</span> <span class="ow">and</span> <span class="mi">1</span> <span class="ow">or</span> <span class="mi">0</span>
+        <span class="n">c</span><span class="p">[</span><span class="s2">&quot;autoplay&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">autoplaySounds</span><span class="o">.</span><span class="n">isChecked</span><span class="p">()</span>
+        <span class="n">c</span><span class="p">[</span><span class="s2">&quot;replayq&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">replayQuestion</span><span class="o">.</span><span class="n">isChecked</span><span class="p">()</span>
+        <span class="c1"># description</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deck</span><span class="p">[</span><span class="s2">&quot;desc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">desc</span><span class="o">.</span><span class="n">toPlainText</span><span class="p">()</span>
+        <span class="n">gui_hooks</span><span class="o">.</span><span class="n">deck_conf_will_save_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">deck</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deck</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DeckConf.reject"><a class="viewcode-back" href="../../aqt.html#aqt.deckconf.DeckConf.reject">[docs]</a>    <span class="k">def</span> <span class="nf">reject</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="DeckConf.accept"><a class="viewcode-back" href="../../aqt.html#aqt.deckconf.DeckConf.accept">[docs]</a>    <span class="k">def</span> <span class="nf">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">saveConf</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="n">QDialog</span><span class="o">.</span><span class="n">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Abdelrahman Hamdy
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

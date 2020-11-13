@@ -1,0 +1,598 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>anki.utils &mdash; Anki  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Anki
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.html">anki package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aqt.html">aqt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../genhooks_gui.html">genhooks_gui module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tools.html">tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Anki</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>anki.utils</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for anki.utils</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright: Ankitects Pty Ltd and contributors</span>
+<span class="c1"># License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="c1"># some add-ons expect json to be in the utils module</span>
+<span class="kn">import</span> <span class="nn">json</span>  <span class="c1"># pylint: disable=unused-import</span>
+<span class="kn">import</span> <span class="nn">locale</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">platform</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">string</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">contextmanager</span>
+<span class="kn">from</span> <span class="nn">hashlib</span> <span class="kn">import</span> <span class="n">sha1</span>
+<span class="kn">from</span> <span class="nn">html.entities</span> <span class="kn">import</span> <span class="n">name2codepoint</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">from</span> <span class="nn">anki.dbproxy</span> <span class="kn">import</span> <span class="n">DBProxy</span>
+
+<span class="n">_tmpdir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+
+<span class="c1"># Time handling</span>
+<span class="c1">##############################################################################</span>
+
+
+<div class="viewcode-block" id="intTime"><a class="viewcode-back" href="../../anki.html#anki.utils.intTime">[docs]</a><span class="k">def</span> <span class="nf">intTime</span><span class="p">(</span><span class="n">scale</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="s2">&quot;The time in integer seconds. Pass scale=1000 to get milliseconds.&quot;</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">*</span> <span class="n">scale</span><span class="p">)</span></div>
+
+
+<span class="c1"># Locale</span>
+<span class="c1">##############################################################################</span>
+
+
+<div class="viewcode-block" id="fmtPercentage"><a class="viewcode-back" href="../../anki.html#anki.utils.fmtPercentage">[docs]</a><span class="k">def</span> <span class="nf">fmtPercentage</span><span class="p">(</span><span class="n">float_value</span><span class="p">,</span> <span class="n">point</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="s2">&quot;Return float with percentage sign&quot;</span>
+    <span class="n">fmt</span> <span class="o">=</span> <span class="s2">&quot;%&quot;</span> <span class="o">+</span> <span class="s2">&quot;0.</span><span class="si">%(b)d</span><span class="s2">f&quot;</span> <span class="o">%</span> <span class="p">{</span><span class="s2">&quot;b&quot;</span><span class="p">:</span> <span class="n">point</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">locale</span><span class="o">.</span><span class="n">format_string</span><span class="p">(</span><span class="n">fmt</span><span class="p">,</span> <span class="n">float_value</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;%&quot;</span></div>
+
+
+<div class="viewcode-block" id="fmtFloat"><a class="viewcode-back" href="../../anki.html#anki.utils.fmtFloat">[docs]</a><span class="k">def</span> <span class="nf">fmtFloat</span><span class="p">(</span><span class="n">float_value</span><span class="p">,</span> <span class="n">point</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="s2">&quot;Return a string with decimal separator according to current locale&quot;</span>
+    <span class="n">fmt</span> <span class="o">=</span> <span class="s2">&quot;%&quot;</span> <span class="o">+</span> <span class="s2">&quot;0.</span><span class="si">%(b)d</span><span class="s2">f&quot;</span> <span class="o">%</span> <span class="p">{</span><span class="s2">&quot;b&quot;</span><span class="p">:</span> <span class="n">point</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">locale</span><span class="o">.</span><span class="n">format_string</span><span class="p">(</span><span class="n">fmt</span><span class="p">,</span> <span class="n">float_value</span><span class="p">)</span></div>
+
+
+<span class="c1"># HTML</span>
+<span class="c1">##############################################################################</span>
+<span class="n">reComment</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;(?s)&lt;!--.*?--&gt;&quot;</span><span class="p">)</span>
+<span class="n">reStyle</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;(?si)&lt;style.*?&gt;.*?&lt;/style&gt;&quot;</span><span class="p">)</span>
+<span class="n">reScript</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;(?si)&lt;script.*?&gt;.*?&lt;/script&gt;&quot;</span><span class="p">)</span>
+<span class="n">reTag</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;(?s)&lt;.*?&gt;&quot;</span><span class="p">)</span>
+<span class="n">reEnts</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&amp;#?\w+;&quot;</span><span class="p">)</span>
+<span class="n">reMedia</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;(?i)&lt;img[^&gt;]+src=[</span><span class="se">\&quot;</span><span class="s2">&#39;]?([^</span><span class="se">\&quot;</span><span class="s2">&#39;&gt;]+)[</span><span class="se">\&quot;</span><span class="s2">&#39;]?[^&gt;]*&gt;&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="stripHTML"><a class="viewcode-back" href="../../anki.html#anki.utils.stripHTML">[docs]</a><span class="k">def</span> <span class="nf">stripHTML</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">reComment</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">reStyle</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">reScript</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">reTag</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">entsToTxt</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">s</span></div>
+
+
+<div class="viewcode-block" id="stripHTMLMedia"><a class="viewcode-back" href="../../anki.html#anki.utils.stripHTMLMedia">[docs]</a><span class="k">def</span> <span class="nf">stripHTMLMedia</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="s2">&quot;Strip HTML but keep media filenames&quot;</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">reMedia</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot; </span><span class="se">\\</span><span class="s2">1 &quot;</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">stripHTML</span><span class="p">(</span><span class="n">s</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="minimizeHTML"><a class="viewcode-back" href="../../anki.html#anki.utils.minimizeHTML">[docs]</a><span class="k">def</span> <span class="nf">minimizeHTML</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="s2">&quot;Correct Qt&#39;s verbose bold/underline/etc.&quot;</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;&lt;span style=&quot;font-weight:600;&quot;&gt;(.*?)&lt;/span&gt;&#39;</span><span class="p">,</span> <span class="s2">&quot;&lt;b&gt;</span><span class="se">\\</span><span class="s2">1&lt;/b&gt;&quot;</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;&lt;span style=&quot;font-style:italic;&quot;&gt;(.*?)&lt;/span&gt;&#39;</span><span class="p">,</span> <span class="s2">&quot;&lt;i&gt;</span><span class="se">\\</span><span class="s2">1&lt;/i&gt;&quot;</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
+        <span class="s1">&#39;&lt;span style=&quot;text-decoration: underline;&quot;&gt;(.*?)&lt;/span&gt;&#39;</span><span class="p">,</span> <span class="s2">&quot;&lt;u&gt;</span><span class="se">\\</span><span class="s2">1&lt;/u&gt;&quot;</span><span class="p">,</span> <span class="n">s</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">s</span></div>
+
+
+<div class="viewcode-block" id="htmlToTextLine"><a class="viewcode-back" href="../../anki.html#anki.utils.htmlToTextLine">[docs]</a><span class="k">def</span> <span class="nf">htmlToTextLine</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&lt;br&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&lt;br /&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&lt;div&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\[sound:[^]]+\]&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\[\[type:[^]]+\]\]&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">stripHTMLMedia</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">s</span></div>
+
+
+<div class="viewcode-block" id="entsToTxt"><a class="viewcode-back" href="../../anki.html#anki.utils.entsToTxt">[docs]</a><span class="k">def</span> <span class="nf">entsToTxt</span><span class="p">(</span><span class="n">html</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="c1"># entitydefs defines nbsp as \xa0 instead of a standard space, so we</span>
+    <span class="c1"># replace it first</span>
+    <span class="n">html</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&amp;nbsp;&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">fixup</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">text</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;&amp;#&quot;</span><span class="p">:</span>
+            <span class="c1"># character reference</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">text</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;&amp;#x&quot;</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="nb">chr</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">text</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">16</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="nb">chr</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">text</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># named entity</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">text</span> <span class="o">=</span> <span class="nb">chr</span><span class="p">(</span><span class="n">name2codepoint</span><span class="p">[</span><span class="n">text</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="k">return</span> <span class="n">text</span>  <span class="c1"># leave as is</span>
+
+    <span class="k">return</span> <span class="n">reEnts</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">fixup</span><span class="p">,</span> <span class="n">html</span><span class="p">)</span></div>
+
+
+<span class="c1"># IDs</span>
+<span class="c1">##############################################################################</span>
+
+
+<div class="viewcode-block" id="hexifyID"><a class="viewcode-back" href="../../anki.html#anki.utils.hexifyID">[docs]</a><span class="k">def</span> <span class="nf">hexifyID</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%x</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">int</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="dehexifyID"><a class="viewcode-back" href="../../anki.html#anki.utils.dehexifyID">[docs]</a><span class="k">def</span> <span class="nf">dehexifyID</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ids2str"><a class="viewcode-back" href="../../anki.html#anki.utils.ids2str">[docs]</a><span class="k">def</span> <span class="nf">ids2str</span><span class="p">(</span><span class="n">ids</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Given a list of integers, return a string &#39;(int1,int2,...)&#39;.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="s2">&quot;(</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">ids</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="timestampID"><a class="viewcode-back" href="../../anki.html#anki.utils.timestampID">[docs]</a><span class="k">def</span> <span class="nf">timestampID</span><span class="p">(</span><span class="n">db</span><span class="p">:</span> <span class="n">DBProxy</span><span class="p">,</span> <span class="n">table</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="s2">&quot;Return a non-conflicting timestamp for table.&quot;</span>
+    <span class="c1"># be careful not to create multiple objects without flushing them, or they</span>
+    <span class="c1"># may share an ID.</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">intTime</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+    <span class="k">while</span> <span class="n">db</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="s2">&quot;select id from </span><span class="si">%s</span><span class="s2"> where id = ?&quot;</span> <span class="o">%</span> <span class="n">table</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+        <span class="n">t</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">t</span></div>
+
+
+<div class="viewcode-block" id="maxID"><a class="viewcode-back" href="../../anki.html#anki.utils.maxID">[docs]</a><span class="k">def</span> <span class="nf">maxID</span><span class="p">(</span><span class="n">db</span><span class="p">:</span> <span class="n">DBProxy</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="s2">&quot;Return the first safe ID to use.&quot;</span>
+    <span class="n">now</span> <span class="o">=</span> <span class="n">intTime</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">tbl</span> <span class="ow">in</span> <span class="s2">&quot;cards&quot;</span><span class="p">,</span> <span class="s2">&quot;notes&quot;</span><span class="p">:</span>
+        <span class="n">now</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">now</span><span class="p">,</span> <span class="n">db</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="s2">&quot;select max(id) from </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">tbl</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">now</span> <span class="o">+</span> <span class="mi">1</span></div>
+
+
+<span class="c1"># used in ankiweb</span>
+<div class="viewcode-block" id="base62"><a class="viewcode-back" href="../../anki.html#anki.utils.base62">[docs]</a><span class="k">def</span> <span class="nf">base62</span><span class="p">(</span><span class="n">num</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">extra</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">string</span>
+    <span class="n">table</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">ascii_letters</span> <span class="o">+</span> <span class="n">s</span><span class="o">.</span><span class="n">digits</span> <span class="o">+</span> <span class="n">extra</span>
+    <span class="n">buf</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">while</span> <span class="n">num</span><span class="p">:</span>
+        <span class="n">num</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">table</span><span class="p">))</span>
+        <span class="n">buf</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">buf</span>
+    <span class="k">return</span> <span class="n">buf</span></div>
+
+
+<span class="n">_base91_extra_chars</span> <span class="o">=</span> <span class="s2">&quot;!#$%&amp;()*+,-./:;&lt;=&gt;?@[]^_`{|}~&quot;</span>
+
+
+<div class="viewcode-block" id="base91"><a class="viewcode-back" href="../../anki.html#anki.utils.base91">[docs]</a><span class="k">def</span> <span class="nf">base91</span><span class="p">(</span><span class="n">num</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="c1"># all printable characters minus quotes, backslash and separators</span>
+    <span class="k">return</span> <span class="n">base62</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="n">_base91_extra_chars</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="guid64"><a class="viewcode-back" href="../../anki.html#anki.utils.guid64">[docs]</a><span class="k">def</span> <span class="nf">guid64</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="s2">&quot;Return a base91-encoded 64bit random number.&quot;</span>
+    <span class="k">return</span> <span class="n">base91</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span> <span class="o">**</span> <span class="mi">64</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span></div>
+
+
+<span class="c1"># increment a guid by one, for note type conflicts</span>
+<div class="viewcode-block" id="incGuid"><a class="viewcode-back" href="../../anki.html#anki.utils.incGuid">[docs]</a><span class="k">def</span> <span class="nf">incGuid</span><span class="p">(</span><span class="n">guid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">_incGuid</span><span class="p">(</span><span class="n">guid</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
+
+
+<span class="k">def</span> <span class="nf">_incGuid</span><span class="p">(</span><span class="n">guid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">string</span>
+    <span class="n">table</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">ascii_letters</span> <span class="o">+</span> <span class="n">s</span><span class="o">.</span><span class="n">digits</span> <span class="o">+</span> <span class="n">_base91_extra_chars</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">guid</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">table</span><span class="p">):</span>
+        <span class="c1"># overflow</span>
+        <span class="n">guid</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">_incGuid</span><span class="p">(</span><span class="n">guid</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">guid</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">guid</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="k">return</span> <span class="n">guid</span>
+
+
+<span class="c1"># Fields</span>
+<span class="c1">##############################################################################</span>
+
+
+<div class="viewcode-block" id="joinFields"><a class="viewcode-back" href="../../anki.html#anki.utils.joinFields">[docs]</a><span class="k">def</span> <span class="nf">joinFields</span><span class="p">(</span><span class="nb">list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\x1f</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="splitFields"><a class="viewcode-back" href="../../anki.html#anki.utils.splitFields">[docs]</a><span class="k">def</span> <span class="nf">splitFields</span><span class="p">(</span><span class="n">string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">return</span> <span class="n">string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\x1f</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<span class="c1"># Checksums</span>
+<span class="c1">##############################################################################</span>
+
+
+<div class="viewcode-block" id="checksum"><a class="viewcode-back" href="../../anki.html#anki.utils.checksum">[docs]</a><span class="k">def</span> <span class="nf">checksum</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sha1</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="fieldChecksum"><a class="viewcode-back" href="../../anki.html#anki.utils.fieldChecksum">[docs]</a><span class="k">def</span> <span class="nf">fieldChecksum</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="c1"># 32 bit unsigned number from first 8 digits of sha1 hash</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">checksum</span><span class="p">(</span><span class="n">stripHTMLMedia</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))[:</span><span class="mi">8</span><span class="p">],</span> <span class="mi">16</span><span class="p">)</span></div>
+
+
+<span class="c1"># Temp files</span>
+<span class="c1">##############################################################################</span>
+
+<span class="n">_tmpdir</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="tmpdir"><a class="viewcode-back" href="../../anki.html#anki.utils.tmpdir">[docs]</a><span class="k">def</span> <span class="nf">tmpdir</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="s2">&quot;A reusable temp folder which we clean out on each program invocation.&quot;</span>
+    <span class="k">global</span> <span class="n">_tmpdir</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_tmpdir</span><span class="p">:</span>
+
+        <span class="k">def</span> <span class="nf">cleanup</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">_tmpdir</span><span class="p">):</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">_tmpdir</span><span class="p">)</span>
+
+        <span class="kn">import</span> <span class="nn">atexit</span>
+
+        <span class="n">atexit</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">cleanup</span><span class="p">)</span>
+        <span class="n">_tmpdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">(),</span> <span class="s2">&quot;anki_temp&quot;</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">_tmpdir</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">FileExistsError</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">return</span> <span class="n">_tmpdir</span></div>
+
+
+<div class="viewcode-block" id="tmpfile"><a class="viewcode-back" href="../../anki.html#anki.utils.tmpfile">[docs]</a><span class="k">def</span> <span class="nf">tmpfile</span><span class="p">(</span><span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">suffix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkstemp</span><span class="p">(</span><span class="nb">dir</span><span class="o">=</span><span class="n">tmpdir</span><span class="p">(),</span> <span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="n">suffix</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fd</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">name</span></div>
+
+
+<div class="viewcode-block" id="namedtmp"><a class="viewcode-back" href="../../anki.html#anki.utils.namedtmp">[docs]</a><span class="k">def</span> <span class="nf">namedtmp</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">rm</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="s2">&quot;Return tmpdir+name. Deletes any existing file.&quot;</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">(),</span> <span class="n">name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">rm</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">IOError</span><span class="p">):</span>
+            <span class="k">pass</span>
+    <span class="k">return</span> <span class="n">path</span></div>
+
+
+<span class="c1"># Cmd invocation</span>
+<span class="c1">##############################################################################</span>
+
+
+<div class="viewcode-block" id="noBundledLibs"><a class="viewcode-back" href="../../anki.html#anki.utils.noBundledLibs">[docs]</a><span class="nd">@contextmanager</span>
+<span class="k">def</span> <span class="nf">noBundledLibs</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="kc">None</span><span class="p">]:</span>
+    <span class="n">oldlpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;LD_LIBRARY_PATH&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">yield</span>
+    <span class="k">if</span> <span class="n">oldlpath</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;LD_LIBRARY_PATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">oldlpath</span></div>
+
+
+<div class="viewcode-block" id="call"><a class="viewcode-back" href="../../anki.html#anki.utils.call">[docs]</a><span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="n">argv</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="s2">&quot;Execute a command. If WAIT, return exit code.&quot;</span>
+    <span class="c1"># ensure we don&#39;t open a separate window for forking process on windows</span>
+    <span class="k">if</span> <span class="n">isWin</span><span class="p">:</span>
+        <span class="n">si</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">STARTUPINFO</span><span class="p">()</span>  <span class="c1"># type: ignore</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">si</span><span class="o">.</span><span class="n">dwFlags</span> <span class="o">|=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">STARTF_USESHOWWINDOW</span>  <span class="c1"># type: ignore</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="c1"># pylint: disable=no-member</span>
+            <span class="n">si</span><span class="o">.</span><span class="n">dwFlags</span> <span class="o">|=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">_subprocess</span><span class="o">.</span><span class="n">STARTF_USESHOWWINDOW</span>  <span class="c1"># type: ignore</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">si</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1"># run</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">noBundledLibs</span><span class="p">():</span>
+            <span class="n">o</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">argv</span><span class="p">,</span> <span class="n">startupinfo</span><span class="o">=</span><span class="n">si</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+        <span class="c1"># command not found</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="c1"># wait for command to finish</span>
+    <span class="k">if</span> <span class="n">wait</span><span class="p">:</span>
+        <span class="k">while</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">ret</span> <span class="o">=</span> <span class="n">o</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+                <span class="c1"># interrupted system call</span>
+                <span class="k">continue</span>
+            <span class="k">break</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="n">ret</span></div>
+
+
+<span class="c1"># OS helpers</span>
+<span class="c1">##############################################################################</span>
+
+<span class="n">isMac</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;darwin&quot;</span><span class="p">)</span>
+<span class="n">isWin</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;win32&quot;</span><span class="p">)</span>
+<span class="n">isLin</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">isMac</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">isWin</span>
+<span class="n">devMode</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;ANKIDEV&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+<span class="n">invalidFilenameChars</span> <span class="o">=</span> <span class="s1">&#39;:*?&quot;&lt;&gt;|&#39;</span>
+
+
+<div class="viewcode-block" id="invalidFilename"><a class="viewcode-back" href="../../anki.html#anki.utils.invalidFilename">[docs]</a><span class="k">def</span> <span class="nf">invalidFilename</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">dirsep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">invalidFilenameChars</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">c</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">dirsep</span> <span class="ow">or</span> <span class="n">isWin</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;/&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;/&quot;</span>
+    <span class="k">elif</span> <span class="p">(</span><span class="n">dirsep</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">isWin</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span>
+    <span class="k">elif</span> <span class="nb">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;.&quot;</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="platDesc"><a class="viewcode-back" href="../../anki.html#anki.utils.platDesc">[docs]</a><span class="k">def</span> <span class="nf">platDesc</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="c1"># we may get an interrupted system call, so try this in a loop</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">theos</span> <span class="o">=</span> <span class="s2">&quot;unknown&quot;</span>
+    <span class="k">while</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">100</span><span class="p">:</span>
+        <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">system</span> <span class="o">=</span> <span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">isMac</span><span class="p">:</span>
+                <span class="n">theos</span> <span class="o">=</span> <span class="s2">&quot;mac:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">platform</span><span class="o">.</span><span class="n">mac_ver</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">isWin</span><span class="p">:</span>
+                <span class="n">theos</span> <span class="o">=</span> <span class="s2">&quot;win:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">platform</span><span class="o">.</span><span class="n">win32_ver</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">system</span> <span class="o">==</span> <span class="s2">&quot;Linux&quot;</span><span class="p">:</span>
+                <span class="kn">import</span> <span class="nn">distro</span>  <span class="c1"># pytype: disable=import-error # pylint: disable=import-error</span>
+
+                <span class="n">r</span> <span class="o">=</span> <span class="n">distro</span><span class="o">.</span><span class="n">linux_distribution</span><span class="p">(</span><span class="n">full_distribution_name</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">theos</span> <span class="o">=</span> <span class="s2">&quot;lin:</span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">theos</span> <span class="o">=</span> <span class="n">system</span>
+            <span class="k">break</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">continue</span>
+    <span class="k">return</span> <span class="n">theos</span></div>
+
+
+<span class="c1"># Debugging</span>
+<span class="c1">##############################################################################</span>
+
+
+<div class="viewcode-block" id="TimedLog"><a class="viewcode-back" href="../../anki.html#anki.utils.TimedLog">[docs]</a><span class="k">class</span> <span class="nc">TimedLog</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+<div class="viewcode-block" id="TimedLog.log"><a class="viewcode-back" href="../../anki.html#anki.utils.TimedLog.log">[docs]</a>    <span class="k">def</span> <span class="nf">log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">path</span><span class="p">,</span> <span class="n">num</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">traceback</span><span class="o">.</span><span class="n">extract_stack</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+            <span class="s2">&quot;</span><span class="si">%5d</span><span class="s2">ms: </span><span class="si">%s</span><span class="s2">(): </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">((</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span></div></div>
+
+
+<span class="c1"># Version</span>
+<span class="c1">##############################################################################</span>
+
+
+<div class="viewcode-block" id="versionWithBuild"><a class="viewcode-back" href="../../anki.html#anki.utils.versionWithBuild">[docs]</a><span class="k">def</span> <span class="nf">versionWithBuild</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">anki.buildinfo</span> <span class="kn">import</span> <span class="n">version</span><span class="p">,</span> <span class="n">buildhash</span>
+
+    <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">version</span><span class="p">,</span> <span class="n">buildhash</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="pointVersion"><a class="viewcode-back" href="../../anki.html#anki.utils.pointVersion">[docs]</a><span class="k">def</span> <span class="nf">pointVersion</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">anki.buildinfo</span> <span class="kn">import</span> <span class="n">version</span>
+
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">version</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Abdelrahman Hamdy
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

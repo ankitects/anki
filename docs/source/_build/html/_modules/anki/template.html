@@ -1,0 +1,517 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>anki.template &mdash; Anki  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Anki
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.html">anki package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aqt.html">aqt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../genhooks_gui.html">genhooks_gui module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tools.html">tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Anki</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>anki.template</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for anki.template</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright: Ankitects Pty Ltd and contributors</span>
+<span class="c1"># License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This file contains the Python portion of the template rendering code.</span>
+
+<span class="sd">Templates can have filters applied to field replacements. The Rust template</span>
+<span class="sd">rendering code will apply any built in filters, and stop at the first</span>
+<span class="sd">unrecognized filter. The remaining filters are returned to Python,</span>
+<span class="sd">and applied using the hook system. For example,</span>
+<span class="sd">{{myfilter:hint:text:Field}} will apply the built in text and hint filters,</span>
+<span class="sd">and then attempt to apply myfilter. If no add-ons have provided the filter,</span>
+<span class="sd">the filter is skipped.</span>
+
+<span class="sd">Add-ons can register a filter with the following code:</span>
+
+<span class="sd">from anki import hooks</span>
+<span class="sd">hooks.field_filter.append(myfunc)</span>
+
+<span class="sd">This will call myfunc, passing the field text in as the first argument.</span>
+<span class="sd">Your function should decide if it wants to modify the text by checking</span>
+<span class="sd">the filter_name argument, and then return the text whether it has been</span>
+<span class="sd">modified or not.</span>
+
+<span class="sd">A Python implementation of the standard filters is currently available in the</span>
+<span class="sd">template_legacy.py file, using the legacy addHook() system.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">anki</span>
+<span class="kn">from</span> <span class="nn">anki</span> <span class="kn">import</span> <span class="n">hooks</span>
+<span class="kn">from</span> <span class="nn">anki.cards</span> <span class="kn">import</span> <span class="n">Card</span>
+<span class="kn">from</span> <span class="nn">anki.decks</span> <span class="kn">import</span> <span class="n">DeckManager</span>
+<span class="kn">from</span> <span class="nn">anki.models</span> <span class="kn">import</span> <span class="n">NoteType</span>
+<span class="kn">from</span> <span class="nn">anki.notes</span> <span class="kn">import</span> <span class="n">Note</span>
+<span class="kn">from</span> <span class="nn">anki.rsbackend</span> <span class="kn">import</span> <span class="n">pb</span><span class="p">,</span> <span class="n">to_json_bytes</span>
+<span class="kn">from</span> <span class="nn">anki.sound</span> <span class="kn">import</span> <span class="n">AVTag</span><span class="p">,</span> <span class="n">SoundOrVideoTag</span><span class="p">,</span> <span class="n">TTSTag</span>
+
+<span class="n">CARD_BLANK_HELP</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;https://anki.tenderapp.com/kb/card-appearance/the-front-of-this-card-is-blank&quot;</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="TemplateReplacement"><a class="viewcode-back" href="../../anki.html#anki.template.TemplateReplacement">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">TemplateReplacement</span><span class="p">:</span>
+    <span class="n">field_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">current_text</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">filters</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></div>
+
+
+<span class="n">TemplateReplacementList</span> <span class="o">=</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TemplateReplacement</span><span class="p">]]</span>
+
+
+<div class="viewcode-block" id="PartiallyRenderedCard"><a class="viewcode-back" href="../../anki.html#anki.template.PartiallyRenderedCard">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">PartiallyRenderedCard</span><span class="p">:</span>
+    <span class="n">qnodes</span><span class="p">:</span> <span class="n">TemplateReplacementList</span>
+    <span class="n">anodes</span><span class="p">:</span> <span class="n">TemplateReplacementList</span>
+
+<div class="viewcode-block" id="PartiallyRenderedCard.from_proto"><a class="viewcode-back" href="../../anki.html#anki.template.PartiallyRenderedCard.from_proto">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_proto</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">out</span><span class="p">:</span> <span class="n">pb</span><span class="o">.</span><span class="n">RenderCardOut</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PartiallyRenderedCard</span><span class="p">:</span>
+        <span class="n">qnodes</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">nodes_from_proto</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">question_nodes</span><span class="p">)</span>
+        <span class="n">anodes</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">nodes_from_proto</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">answer_nodes</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">PartiallyRenderedCard</span><span class="p">(</span><span class="n">qnodes</span><span class="p">,</span> <span class="n">anodes</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PartiallyRenderedCard.nodes_from_proto"><a class="viewcode-back" href="../../anki.html#anki.template.PartiallyRenderedCard.nodes_from_proto">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">nodes_from_proto</span><span class="p">(</span>
+        <span class="n">nodes</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">pb</span><span class="o">.</span><span class="n">RenderedTemplateNode</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TemplateReplacementList</span><span class="p">:</span>
+        <span class="n">results</span><span class="p">:</span> <span class="n">TemplateReplacementList</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">WhichOneof</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;text&quot;</span><span class="p">:</span>
+                <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">TemplateReplacement</span><span class="p">(</span>
+                        <span class="n">field_name</span><span class="o">=</span><span class="n">node</span><span class="o">.</span><span class="n">replacement</span><span class="o">.</span><span class="n">field_name</span><span class="p">,</span>
+                        <span class="n">current_text</span><span class="o">=</span><span class="n">node</span><span class="o">.</span><span class="n">replacement</span><span class="o">.</span><span class="n">current_text</span><span class="p">,</span>
+                        <span class="n">filters</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">replacement</span><span class="o">.</span><span class="n">filters</span><span class="p">),</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+        <span class="k">return</span> <span class="n">results</span></div></div>
+
+
+<div class="viewcode-block" id="av_tag_to_native"><a class="viewcode-back" href="../../anki.html#anki.template.av_tag_to_native">[docs]</a><span class="k">def</span> <span class="nf">av_tag_to_native</span><span class="p">(</span><span class="n">tag</span><span class="p">:</span> <span class="n">pb</span><span class="o">.</span><span class="n">AVTag</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AVTag</span><span class="p">:</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="n">tag</span><span class="o">.</span><span class="n">WhichOneof</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">val</span> <span class="o">==</span> <span class="s2">&quot;sound_or_video&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">SoundOrVideoTag</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">tag</span><span class="o">.</span><span class="n">sound_or_video</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">TTSTag</span><span class="p">(</span>
+            <span class="n">field_text</span><span class="o">=</span><span class="n">tag</span><span class="o">.</span><span class="n">tts</span><span class="o">.</span><span class="n">field_text</span><span class="p">,</span>
+            <span class="n">lang</span><span class="o">=</span><span class="n">tag</span><span class="o">.</span><span class="n">tts</span><span class="o">.</span><span class="n">lang</span><span class="p">,</span>
+            <span class="n">voices</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">tag</span><span class="o">.</span><span class="n">tts</span><span class="o">.</span><span class="n">voices</span><span class="p">),</span>
+            <span class="n">other_args</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">tag</span><span class="o">.</span><span class="n">tts</span><span class="o">.</span><span class="n">other_args</span><span class="p">),</span>
+            <span class="n">speed</span><span class="o">=</span><span class="n">tag</span><span class="o">.</span><span class="n">tts</span><span class="o">.</span><span class="n">speed</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="av_tags_to_native"><a class="viewcode-back" href="../../anki.html#anki.template.av_tags_to_native">[docs]</a><span class="k">def</span> <span class="nf">av_tags_to_native</span><span class="p">(</span><span class="n">tags</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">pb</span><span class="o">.</span><span class="n">AVTag</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">AVTag</span><span class="p">]:</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">av_tag_to_native</span><span class="p">,</span> <span class="n">tags</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TemplateRenderContext"><a class="viewcode-back" href="../../anki.html#anki.template.TemplateRenderContext">[docs]</a><span class="k">class</span> <span class="nc">TemplateRenderContext</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Holds information for the duration of one card render.</span>
+
+<span class="sd">    This may fetch information lazily in the future, so please avoid</span>
+<span class="sd">    using the _private fields directly.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TemplateRenderContext.from_existing_card"><a class="viewcode-back" href="../../anki.html#anki.template.TemplateRenderContext.from_existing_card">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_existing_card</span><span class="p">(</span><span class="n">card</span><span class="p">:</span> <span class="n">Card</span><span class="p">,</span> <span class="n">browser</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TemplateRenderContext</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">TemplateRenderContext</span><span class="p">(</span><span class="n">card</span><span class="o">.</span><span class="n">col</span><span class="p">,</span> <span class="n">card</span><span class="p">,</span> <span class="n">card</span><span class="o">.</span><span class="n">note</span><span class="p">(),</span> <span class="n">browser</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TemplateRenderContext.from_card_layout"><a class="viewcode-back" href="../../anki.html#anki.template.TemplateRenderContext.from_card_layout">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_card_layout</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">note</span><span class="p">:</span> <span class="n">Note</span><span class="p">,</span>
+        <span class="n">card</span><span class="p">:</span> <span class="n">Card</span><span class="p">,</span>
+        <span class="n">notetype</span><span class="p">:</span> <span class="n">NoteType</span><span class="p">,</span>
+        <span class="n">template</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
+        <span class="n">fill_empty</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TemplateRenderContext</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">TemplateRenderContext</span><span class="p">(</span>
+            <span class="n">note</span><span class="o">.</span><span class="n">col</span><span class="p">,</span>
+            <span class="n">card</span><span class="p">,</span>
+            <span class="n">note</span><span class="p">,</span>
+            <span class="n">notetype</span><span class="o">=</span><span class="n">notetype</span><span class="p">,</span>
+            <span class="n">template</span><span class="o">=</span><span class="n">template</span><span class="p">,</span>
+            <span class="n">fill_empty</span><span class="o">=</span><span class="n">fill_empty</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">col</span><span class="p">:</span> <span class="n">anki</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">Collection</span><span class="p">,</span>
+        <span class="n">card</span><span class="p">:</span> <span class="n">Card</span><span class="p">,</span>
+        <span class="n">note</span><span class="p">:</span> <span class="n">Note</span><span class="p">,</span>
+        <span class="n">browser</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">notetype</span><span class="p">:</span> <span class="n">NoteType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">template</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fill_empty</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_col</span> <span class="o">=</span> <span class="n">col</span><span class="o">.</span><span class="n">weakref</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_card</span> <span class="o">=</span> <span class="n">card</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_note</span> <span class="o">=</span> <span class="n">note</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_browser</span> <span class="o">=</span> <span class="n">browser</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_template</span> <span class="o">=</span> <span class="n">template</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fill_empty</span> <span class="o">=</span> <span class="n">fill_empty</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fields</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">notetype</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_note_type</span> <span class="o">=</span> <span class="n">note</span><span class="o">.</span><span class="n">model</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_note_type</span> <span class="o">=</span> <span class="n">notetype</span>
+
+        <span class="c1"># if you need to store extra state to share amongst rendering</span>
+        <span class="c1"># hooks, you can insert it into this dictionary</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extra_state</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="TemplateRenderContext.col"><a class="viewcode-back" href="../../anki.html#anki.template.TemplateRenderContext.col">[docs]</a>    <span class="k">def</span> <span class="nf">col</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">anki</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">Collection</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_col</span></div>
+
+<div class="viewcode-block" id="TemplateRenderContext.fields"><a class="viewcode-back" href="../../anki.html#anki.template.TemplateRenderContext.fields">[docs]</a>    <span class="k">def</span> <span class="nf">fields</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;.fields() is obsolete, use .note() or .card()&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fields</span><span class="p">:</span>
+            <span class="c1"># fields from note</span>
+            <span class="n">fields</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_note</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+
+            <span class="c1"># add (most) special fields</span>
+            <span class="n">fields</span><span class="p">[</span><span class="s2">&quot;Tags&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_note</span><span class="o">.</span><span class="n">stringTags</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">fields</span><span class="p">[</span><span class="s2">&quot;Type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_note_type</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+            <span class="n">fields</span><span class="p">[</span><span class="s2">&quot;Deck&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_card</span><span class="o">.</span><span class="n">odid</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_card</span><span class="o">.</span><span class="n">did</span><span class="p">)</span>
+            <span class="n">fields</span><span class="p">[</span><span class="s2">&quot;Subdeck&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">DeckManager</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">fields</span><span class="p">[</span><span class="s2">&quot;Deck&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_template</span><span class="p">:</span>
+                <span class="n">fields</span><span class="p">[</span><span class="s2">&quot;Card&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_template</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">fields</span><span class="p">[</span><span class="s2">&quot;Card&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="n">flag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_card</span><span class="o">.</span><span class="n">userFlag</span><span class="p">()</span>
+            <span class="n">fields</span><span class="p">[</span><span class="s2">&quot;CardFlag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">flag</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;flag</span><span class="si">{flag}</span><span class="s2">&quot;</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fields</span> <span class="o">=</span> <span class="n">fields</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fields</span></div>
+
+<div class="viewcode-block" id="TemplateRenderContext.card"><a class="viewcode-back" href="../../anki.html#anki.template.TemplateRenderContext.card">[docs]</a>    <span class="k">def</span> <span class="nf">card</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Card</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Returns the card being rendered.</span>
+
+<span class="sd">        Be careful not to call .q() or .a() on the card, or you&#39;ll create an</span>
+<span class="sd">        infinite loop.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_card</span></div>
+
+<div class="viewcode-block" id="TemplateRenderContext.note"><a class="viewcode-back" href="../../anki.html#anki.template.TemplateRenderContext.note">[docs]</a>    <span class="k">def</span> <span class="nf">note</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Note</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_note</span></div>
+
+<div class="viewcode-block" id="TemplateRenderContext.note_type"><a class="viewcode-back" href="../../anki.html#anki.template.TemplateRenderContext.note_type">[docs]</a>    <span class="k">def</span> <span class="nf">note_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoteType</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_note_type</span></div>
+
+    <span class="c1"># legacy</span>
+<div class="viewcode-block" id="TemplateRenderContext.qfmt"><a class="viewcode-back" href="../../anki.html#anki.template.TemplateRenderContext.qfmt">[docs]</a>    <span class="k">def</span> <span class="nf">qfmt</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">templates_for_card</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_browser</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
+
+    <span class="c1"># legacy</span>
+<div class="viewcode-block" id="TemplateRenderContext.afmt"><a class="viewcode-back" href="../../anki.html#anki.template.TemplateRenderContext.afmt">[docs]</a>    <span class="k">def</span> <span class="nf">afmt</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">templates_for_card</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_browser</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="TemplateRenderContext.render"><a class="viewcode-back" href="../../anki.html#anki.template.TemplateRenderContext.render">[docs]</a>    <span class="k">def</span> <span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TemplateRenderOutput</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">partial</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_partially_render</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">anki</span><span class="o">.</span><span class="n">rsbackend</span><span class="o">.</span><span class="n">TemplateError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">TemplateRenderOutput</span><span class="p">(</span>
+                <span class="n">question_text</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span>
+                <span class="n">answer_text</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span>
+                <span class="n">question_av_tags</span><span class="o">=</span><span class="p">[],</span>
+                <span class="n">answer_av_tags</span><span class="o">=</span><span class="p">[],</span>
+            <span class="p">)</span>
+
+        <span class="n">qtext</span> <span class="o">=</span> <span class="n">apply_custom_filters</span><span class="p">(</span><span class="n">partial</span><span class="o">.</span><span class="n">qnodes</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">front_side</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">qout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="p">()</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">extract_av_tags</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">qtext</span><span class="p">,</span> <span class="n">question_side</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">atext</span> <span class="o">=</span> <span class="n">apply_custom_filters</span><span class="p">(</span><span class="n">partial</span><span class="o">.</span><span class="n">anodes</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">front_side</span><span class="o">=</span><span class="n">qout</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">aout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="p">()</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">extract_av_tags</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">atext</span><span class="p">,</span> <span class="n">question_side</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">output</span> <span class="o">=</span> <span class="n">TemplateRenderOutput</span><span class="p">(</span>
+            <span class="n">question_text</span><span class="o">=</span><span class="n">qout</span><span class="o">.</span><span class="n">text</span><span class="p">,</span>
+            <span class="n">answer_text</span><span class="o">=</span><span class="n">aout</span><span class="o">.</span><span class="n">text</span><span class="p">,</span>
+            <span class="n">question_av_tags</span><span class="o">=</span><span class="n">av_tags_to_native</span><span class="p">(</span><span class="n">qout</span><span class="o">.</span><span class="n">av_tags</span><span class="p">),</span>
+            <span class="n">answer_av_tags</span><span class="o">=</span><span class="n">av_tags_to_native</span><span class="p">(</span><span class="n">aout</span><span class="o">.</span><span class="n">av_tags</span><span class="p">),</span>
+            <span class="n">css</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">note_type</span><span class="p">()[</span><span class="s2">&quot;css&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_browser</span><span class="p">:</span>
+            <span class="n">hooks</span><span class="o">.</span><span class="n">card_did_render</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">output</span></div>
+
+    <span class="k">def</span> <span class="nf">_partially_render</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PartiallyRenderedCard</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_template</span><span class="p">:</span>
+            <span class="c1"># card layout screen</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">render_uncommitted_card</span><span class="p">(</span>
+                <span class="n">note</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_note</span><span class="o">.</span><span class="n">to_backend_note</span><span class="p">(),</span>
+                <span class="n">card_ord</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_card</span><span class="o">.</span><span class="n">ord</span><span class="p">,</span>
+                <span class="n">template</span><span class="o">=</span><span class="n">to_json_bytes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_template</span><span class="p">),</span>
+                <span class="n">fill_empty</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_fill_empty</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># existing card (eg study mode)</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">render_existing_card</span><span class="p">(</span>
+                <span class="n">card_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_card</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">browser</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_browser</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">PartiallyRenderedCard</span><span class="o">.</span><span class="n">from_proto</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TemplateRenderOutput"><a class="viewcode-back" href="../../anki.html#anki.template.TemplateRenderOutput">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">TemplateRenderOutput</span><span class="p">:</span>
+    <span class="s2">&quot;Stores the rendered templates and extracted AV tags.&quot;</span>
+    <span class="n">question_text</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">answer_text</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">question_av_tags</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">AVTag</span><span class="p">]</span>
+    <span class="n">answer_av_tags</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">AVTag</span><span class="p">]</span>
+    <span class="n">css</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+<div class="viewcode-block" id="TemplateRenderOutput.question_and_style"><a class="viewcode-back" href="../../anki.html#anki.template.TemplateRenderOutput.question_and_style">[docs]</a>    <span class="k">def</span> <span class="nf">question_and_style</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&lt;style&gt;</span><span class="si">{self.css}</span><span class="s2">&lt;/style&gt;</span><span class="si">{self.question_text}</span><span class="s2">&quot;</span></div>
+
+<div class="viewcode-block" id="TemplateRenderOutput.answer_and_style"><a class="viewcode-back" href="../../anki.html#anki.template.TemplateRenderOutput.answer_and_style">[docs]</a>    <span class="k">def</span> <span class="nf">answer_and_style</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&lt;style&gt;</span><span class="si">{self.css}</span><span class="s2">&lt;/style&gt;</span><span class="si">{self.answer_text}</span><span class="s2">&quot;</span></div></div>
+
+
+<span class="c1"># legacy</span>
+<div class="viewcode-block" id="templates_for_card"><a class="viewcode-back" href="../../anki.html#anki.template.templates_for_card">[docs]</a><span class="k">def</span> <span class="nf">templates_for_card</span><span class="p">(</span><span class="n">card</span><span class="p">:</span> <span class="n">Card</span><span class="p">,</span> <span class="n">browser</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+    <span class="n">template</span> <span class="o">=</span> <span class="n">card</span><span class="o">.</span><span class="n">template</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">browser</span><span class="p">:</span>
+        <span class="n">q</span><span class="p">,</span> <span class="n">a</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;bqfmt&quot;</span><span class="p">),</span> <span class="n">template</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;bafmt&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">q</span><span class="p">,</span> <span class="n">a</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">q</span> <span class="ow">or</span> <span class="n">template</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;qfmt&quot;</span><span class="p">)</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">a</span> <span class="ow">or</span> <span class="n">template</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;afmt&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">q</span><span class="p">,</span> <span class="n">a</span>  <span class="c1"># type: ignore</span></div>
+
+
+<div class="viewcode-block" id="apply_custom_filters"><a class="viewcode-back" href="../../anki.html#anki.template.apply_custom_filters">[docs]</a><span class="k">def</span> <span class="nf">apply_custom_filters</span><span class="p">(</span>
+    <span class="n">rendered</span><span class="p">:</span> <span class="n">TemplateReplacementList</span><span class="p">,</span>
+    <span class="n">ctx</span><span class="p">:</span> <span class="n">TemplateRenderContext</span><span class="p">,</span>
+    <span class="n">front_side</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="s2">&quot;Complete rendering by applying any pending custom filters.&quot;</span>
+    <span class="c1"># template already fully rendered?</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rendered</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rendered</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">rendered</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">res</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">rendered</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">res</span> <span class="o">+=</span> <span class="n">node</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># do we need to inject in FrontSide?</span>
+            <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">field_name</span> <span class="o">==</span> <span class="s2">&quot;FrontSide&quot;</span> <span class="ow">and</span> <span class="n">front_side</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">node</span><span class="o">.</span><span class="n">current_text</span> <span class="o">=</span> <span class="n">front_side</span>
+
+            <span class="n">field_text</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">current_text</span>
+            <span class="k">for</span> <span class="n">filter_name</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">filters</span><span class="p">:</span>
+                <span class="n">field_text</span> <span class="o">=</span> <span class="n">hooks</span><span class="o">.</span><span class="n">field_filter</span><span class="p">(</span>
+                    <span class="n">field_text</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">field_name</span><span class="p">,</span> <span class="n">filter_name</span><span class="p">,</span> <span class="n">ctx</span>
+                <span class="p">)</span>
+                <span class="c1"># legacy hook - the second and fifth argument are no longer used.</span>
+                <span class="n">field_text</span> <span class="o">=</span> <span class="n">anki</span><span class="o">.</span><span class="n">hooks</span><span class="o">.</span><span class="n">runFilter</span><span class="p">(</span>
+                    <span class="s2">&quot;fmod_&quot;</span> <span class="o">+</span> <span class="n">filter_name</span><span class="p">,</span>
+                    <span class="n">field_text</span><span class="p">,</span>
+                    <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                    <span class="n">ctx</span><span class="o">.</span><span class="n">note</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span>
+                    <span class="n">node</span><span class="o">.</span><span class="n">field_name</span><span class="p">,</span>
+                    <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+
+            <span class="n">res</span> <span class="o">+=</span> <span class="n">field_text</span>
+    <span class="k">return</span> <span class="n">res</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Abdelrahman Hamdy
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

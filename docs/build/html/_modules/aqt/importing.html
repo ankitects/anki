@@ -1,0 +1,739 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>aqt.importing &mdash; Anki  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+        <script async="async" kind="hypothesis" src="https://hypothes.is/embed.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Anki
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.html">anki package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.importing.html">anki.importing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aqt.html">aqt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../genhooks_gui.html">genhooks_gui module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tools.html">tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Anki</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../aqt.html">aqt</a> &raquo;</li>
+        
+      <li>aqt.importing</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for aqt.importing</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding=utf-8</span>
+<span class="c1"># Copyright: Ankitects Pty Ltd and contributors</span>
+<span class="c1"># License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
+<span class="kn">import</span> <span class="nn">unicodedata</span>
+<span class="kn">import</span> <span class="nn">zipfile</span>
+<span class="kn">from</span> <span class="nn">concurrent.futures</span> <span class="kn">import</span> <span class="n">Future</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+
+<span class="kn">import</span> <span class="nn">anki.importing</span> <span class="k">as</span> <span class="nn">importing</span>
+<span class="kn">import</span> <span class="nn">aqt.deckchooser</span>
+<span class="kn">import</span> <span class="nn">aqt.forms</span>
+<span class="kn">import</span> <span class="nn">aqt.modelchooser</span>
+<span class="kn">from</span> <span class="nn">anki.lang</span> <span class="kn">import</span> <span class="n">_</span><span class="p">,</span> <span class="n">ngettext</span>
+<span class="kn">from</span> <span class="nn">aqt</span> <span class="kn">import</span> <span class="n">AnkiQt</span><span class="p">,</span> <span class="n">gui_hooks</span>
+<span class="kn">from</span> <span class="nn">aqt.qt</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">aqt.utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">TR</span><span class="p">,</span>
+    <span class="n">askUser</span><span class="p">,</span>
+    <span class="n">getFile</span><span class="p">,</span>
+    <span class="n">getOnlyText</span><span class="p">,</span>
+    <span class="n">openHelp</span><span class="p">,</span>
+    <span class="n">showInfo</span><span class="p">,</span>
+    <span class="n">showText</span><span class="p">,</span>
+    <span class="n">showWarning</span><span class="p">,</span>
+    <span class="n">tooltip</span><span class="p">,</span>
+    <span class="n">tr</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="ChangeMap"><a class="viewcode-back" href="../../aqt.html#aqt.importing.ChangeMap">[docs]</a><span class="k">class</span> <span class="nc">ChangeMap</span><span class="p">(</span><span class="n">QDialog</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mw</span><span class="p">:</span> <span class="n">AnkiQt</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">current</span><span class="p">):</span>
+        <span class="n">QDialog</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mw</span><span class="p">,</span> <span class="n">Qt</span><span class="o">.</span><span class="n">Window</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span> <span class="o">=</span> <span class="n">mw</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frm</span> <span class="o">=</span> <span class="n">aqt</span><span class="o">.</span><span class="n">forms</span><span class="o">.</span><span class="n">changemap</span><span class="o">.</span><span class="n">Ui_ChangeMap</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frm</span><span class="o">.</span><span class="n">setupUi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">setCurrent</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">[</span><span class="s2">&quot;flds&quot;</span><span class="p">]:</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="n">QListWidgetItem</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Map to </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">field</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">frm</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">current</span> <span class="o">==</span> <span class="n">field</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]:</span>
+                <span class="n">setCurrent</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">frm</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">setCurrentRow</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+            <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frm</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">QListWidgetItem</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Map to Tags&quot;</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frm</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">QListWidgetItem</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Ignore field&quot;</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">setCurrent</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">current</span> <span class="o">==</span> <span class="s2">&quot;_tags&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">frm</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">setCurrentRow</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">frm</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">setCurrentRow</span><span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">field</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="ChangeMap.getField"><a class="viewcode-back" href="../../aqt.html#aqt.importing.ChangeMap.getField">[docs]</a>    <span class="k">def</span> <span class="nf">getField</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">field</span></div>
+
+<div class="viewcode-block" id="ChangeMap.accept"><a class="viewcode-back" href="../../aqt.html#aqt.importing.ChangeMap.accept">[docs]</a>    <span class="k">def</span> <span class="nf">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frm</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">currentRow</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">row</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">[</span><span class="s2">&quot;flds&quot;</span><span class="p">]):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">field</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">[</span><span class="s2">&quot;flds&quot;</span><span class="p">][</span><span class="n">row</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">row</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">frm</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">-</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">field</span> <span class="o">=</span> <span class="s2">&quot;_tags&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">field</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">QDialog</span><span class="o">.</span><span class="n">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ChangeMap.reject"><a class="viewcode-back" href="../../aqt.html#aqt.importing.ChangeMap.reject">[docs]</a>    <span class="k">def</span> <span class="nf">reject</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span></div></div>
+
+
+<span class="c1"># called by importFile() when importing a mappable file like .csv</span>
+<div class="viewcode-block" id="ImportDialog"><a class="viewcode-back" href="../../aqt.html#aqt.importing.ImportDialog">[docs]</a><span class="k">class</span> <span class="nc">ImportDialog</span><span class="p">(</span><span class="n">QDialog</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mw</span><span class="p">:</span> <span class="n">AnkiQt</span><span class="p">,</span> <span class="n">importer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">QDialog</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mw</span><span class="p">,</span> <span class="n">Qt</span><span class="o">.</span><span class="n">Window</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span> <span class="o">=</span> <span class="n">mw</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">importer</span> <span class="o">=</span> <span class="n">importer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frm</span> <span class="o">=</span> <span class="n">aqt</span><span class="o">.</span><span class="n">forms</span><span class="o">.</span><span class="n">importing</span><span class="o">.</span><span class="n">Ui_ImportDialog</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frm</span><span class="o">.</span><span class="n">setupUi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">qconnect</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">frm</span><span class="o">.</span><span class="n">buttonBox</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">Help</span><span class="p">)</span><span class="o">.</span><span class="n">clicked</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">helpRequested</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setupMappingFrame</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setupOptions</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modelChanged</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frm</span><span class="o">.</span><span class="n">autoDetect</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">importer</span><span class="o">.</span><span class="n">needDelimiter</span><span class="p">)</span>
+        <span class="n">gui_hooks</span><span class="o">.</span><span class="n">current_note_type_did_change</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modelChanged</span><span class="p">)</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frm</span><span class="o">.</span><span class="n">autoDetect</span><span class="o">.</span><span class="n">clicked</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">onDelimiter</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">updateDelimiterButtonText</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frm</span><span class="o">.</span><span class="n">allowHTML</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;allowHTML&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frm</span><span class="o">.</span><span class="n">importMode</span><span class="o">.</span><span class="n">currentIndexChanged</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">importModeChanged</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frm</span><span class="o">.</span><span class="n">importMode</span><span class="o">.</span><span class="n">setCurrentIndex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;importMode&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frm</span><span class="o">.</span><span class="n">tagModified</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tagModified&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frm</span><span class="o">.</span><span class="n">tagModified</span><span class="o">.</span><span class="n">setCol</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="p">)</span>
+        <span class="c1"># import button</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Import&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frm</span><span class="o">.</span><span class="n">buttonBox</span><span class="o">.</span><span class="n">addButton</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">AcceptRole</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
+
+<div class="viewcode-block" id="ImportDialog.setupOptions"><a class="viewcode-back" href="../../aqt.html#aqt.importing.ImportDialog.setupOptions">[docs]</a>    <span class="k">def</span> <span class="nf">setupOptions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">current</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modelChooser</span> <span class="o">=</span> <span class="n">aqt</span><span class="o">.</span><span class="n">modelchooser</span><span class="o">.</span><span class="n">ModelChooser</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frm</span><span class="o">.</span><span class="n">modelArea</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deck</span> <span class="o">=</span> <span class="n">aqt</span><span class="o">.</span><span class="n">deckchooser</span><span class="o">.</span><span class="n">DeckChooser</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frm</span><span class="o">.</span><span class="n">deckArea</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImportDialog.modelChanged"><a class="viewcode-back" href="../../aqt.html#aqt.importing.ImportDialog.modelChanged">[docs]</a>    <span class="k">def</span> <span class="nf">modelChanged</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unused</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">importer</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">current</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">importer</span><span class="o">.</span><span class="n">initMapping</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">showMapping</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;addToCur&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+            <span class="n">did</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">conf</span><span class="p">[</span><span class="s2">&quot;curDeck&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">isDyn</span><span class="p">(</span><span class="n">did</span><span class="p">):</span>
+                <span class="n">did</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">did</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">importer</span><span class="o">.</span><span class="n">model</span><span class="p">[</span><span class="s2">&quot;did&quot;</span><span class="p">]</span></div>
+        <span class="c1"># self.deck.setText(self.mw.col.decks.name(did))</span>
+
+<div class="viewcode-block" id="ImportDialog.onDelimiter"><a class="viewcode-back" href="../../aqt.html#aqt.importing.ImportDialog.onDelimiter">[docs]</a>    <span class="k">def</span> <span class="nf">onDelimiter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">str</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">getOnlyText</span><span class="p">(</span>
+                <span class="n">_</span><span class="p">(</span>
+                    <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">By default, Anki will detect the character between fields, such as</span>
+<span class="sd">a tab, comma, and so on. If Anki is detecting the character incorrectly,</span>
+<span class="sd">you can enter it here. Use \\t to represent tab.&quot;&quot;&quot;</span>
+                <span class="p">),</span>
+                <span class="bp">self</span><span class="p">,</span>
+                <span class="n">help</span><span class="o">=</span><span class="s2">&quot;importing&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="ow">or</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="nb">str</span> <span class="o">=</span> <span class="nb">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">t&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">showWarning</span><span class="p">(</span>
+                <span class="n">_</span><span class="p">(</span>
+                    <span class="s2">&quot;Multi-character separators are not supported. &quot;</span>
+                    <span class="s2">&quot;Please enter one character only.&quot;</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hideMapping</span><span class="p">()</span>
+
+        <span class="k">def</span> <span class="nf">updateDelim</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">importer</span><span class="o">.</span><span class="n">delimiter</span> <span class="o">=</span> <span class="nb">str</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">importer</span><span class="o">.</span><span class="n">updateDelimiter</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">showMapping</span><span class="p">(</span><span class="n">hook</span><span class="o">=</span><span class="n">updateDelim</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">updateDelimiterButtonText</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ImportDialog.updateDelimiterButtonText"><a class="viewcode-back" href="../../aqt.html#aqt.importing.ImportDialog.updateDelimiterButtonText">[docs]</a>    <span class="k">def</span> <span class="nf">updateDelimiterButtonText</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">importer</span><span class="o">.</span><span class="n">needDelimiter</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">importer</span><span class="o">.</span><span class="n">delimiter</span><span class="p">:</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">importer</span><span class="o">.</span><span class="n">delimiter</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">importer</span><span class="o">.</span><span class="n">dialect</span><span class="o">.</span><span class="n">delimiter</span>
+        <span class="k">if</span> <span class="n">d</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">:</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Tab&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">d</span> <span class="o">==</span> <span class="s2">&quot;,&quot;</span><span class="p">:</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Comma&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">d</span> <span class="o">==</span> <span class="s2">&quot; &quot;</span><span class="p">:</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Space&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">d</span> <span class="o">==</span> <span class="s2">&quot;;&quot;</span><span class="p">:</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Semicolon&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">d</span> <span class="o">==</span> <span class="s2">&quot;:&quot;</span><span class="p">:</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Colon&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="n">txt</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Fields separated by: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">d</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frm</span><span class="o">.</span><span class="n">autoDetect</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImportDialog.accept"><a class="viewcode-back" href="../../aqt.html#aqt.importing.ImportDialog.accept">[docs]</a>    <span class="k">def</span> <span class="nf">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">importer</span><span class="o">.</span><span class="n">mapping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">importer</span><span class="o">.</span><span class="n">mappingOk</span><span class="p">():</span>
+            <span class="n">showWarning</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;The first field of the note type must be mapped.&quot;</span><span class="p">))</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">importer</span><span class="o">.</span><span class="n">importMode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frm</span><span class="o">.</span><span class="n">importMode</span><span class="o">.</span><span class="n">currentIndex</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">profile</span><span class="p">[</span><span class="s2">&quot;importMode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">importer</span><span class="o">.</span><span class="n">importMode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">importer</span><span class="o">.</span><span class="n">allowHTML</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frm</span><span class="o">.</span><span class="n">allowHTML</span><span class="o">.</span><span class="n">isChecked</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">profile</span><span class="p">[</span><span class="s2">&quot;allowHTML&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">importer</span><span class="o">.</span><span class="n">allowHTML</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">importer</span><span class="o">.</span><span class="n">tagModified</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frm</span><span class="o">.</span><span class="n">tagModified</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">profile</span><span class="p">[</span><span class="s2">&quot;tagModified&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">importer</span><span class="o">.</span><span class="n">tagModified</span>
+        <span class="n">did</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">deck</span><span class="o">.</span><span class="n">selectedId</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">did</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">importer</span><span class="o">.</span><span class="n">model</span><span class="p">[</span><span class="s2">&quot;did&quot;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">importer</span><span class="o">.</span><span class="n">model</span><span class="p">[</span><span class="s2">&quot;did&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">did</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">importer</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">updateReqs</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">did</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">checkpoint</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Import&quot;</span><span class="p">))</span>
+
+        <span class="k">def</span> <span class="nf">on_done</span><span class="p">(</span><span class="n">future</span><span class="p">:</span> <span class="n">Future</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">finish</span><span class="p">()</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">UnicodeDecodeError</span><span class="p">:</span>
+                <span class="n">showUnicodeWarning</span><span class="p">()</span>
+                <span class="k">return</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">IMPORTING_FAILED_DEBUG_INFO</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="n">err</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+                <span class="k">if</span> <span class="s2">&quot;1-character string&quot;</span> <span class="ow">in</span> <span class="n">err</span><span class="p">:</span>
+                    <span class="n">msg</span> <span class="o">+=</span> <span class="n">err</span>
+                <span class="k">elif</span> <span class="s2">&quot;invalidTempFolder&quot;</span> <span class="ow">in</span> <span class="n">err</span><span class="p">:</span>
+                    <span class="n">msg</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">errorHandler</span><span class="o">.</span><span class="n">tempFolderMsg</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">msg</span> <span class="o">+=</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">()</span>
+                <span class="n">showText</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                <span class="k">return</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">txt</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Importing complete.&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">importer</span><span class="o">.</span><span class="n">log</span><span class="p">:</span>
+                    <span class="n">txt</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">importer</span><span class="o">.</span><span class="n">log</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                <span class="n">showText</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">taskman</span><span class="o">.</span><span class="n">run_in_background</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">importer</span><span class="o">.</span><span class="n">run</span><span class="p">,</span> <span class="n">on_done</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImportDialog.setupMappingFrame"><a class="viewcode-back" href="../../aqt.html#aqt.importing.ImportDialog.setupMappingFrame">[docs]</a>    <span class="k">def</span> <span class="nf">setupMappingFrame</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># qt seems to have a bug with adding/removing from a grid, so we add</span>
+        <span class="c1"># to a separate object and add/remove that instead</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frame</span> <span class="o">=</span> <span class="n">QFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frm</span><span class="o">.</span><span class="n">mappingArea</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frm</span><span class="o">.</span><span class="n">mappingArea</span><span class="o">.</span><span class="n">setWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mapbox</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mapbox</span><span class="o">.</span><span class="n">setContentsMargins</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mapwidget</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="ImportDialog.hideMapping"><a class="viewcode-back" href="../../aqt.html#aqt.importing.ImportDialog.hideMapping">[docs]</a>    <span class="k">def</span> <span class="nf">hideMapping</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frm</span><span class="o">.</span><span class="n">mappingGroup</span><span class="o">.</span><span class="n">hide</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ImportDialog.showMapping"><a class="viewcode-back" href="../../aqt.html#aqt.importing.ImportDialog.showMapping">[docs]</a>    <span class="k">def</span> <span class="nf">showMapping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keepMapping</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">hook</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">hook</span><span class="p">:</span>
+            <span class="n">hook</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">keepMapping</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">importer</span><span class="o">.</span><span class="n">mapping</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frm</span><span class="o">.</span><span class="n">mappingGroup</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">importer</span><span class="o">.</span><span class="n">fields</span><span class="p">()</span>
+        <span class="c1"># set up the mapping grid</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapwidget</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mapbox</span><span class="o">.</span><span class="n">removeWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mapwidget</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mapwidget</span><span class="o">.</span><span class="n">deleteLater</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mapwidget</span> <span class="o">=</span> <span class="n">QWidget</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mapbox</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mapwidget</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid</span> <span class="o">=</span> <span class="n">QGridLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mapwidget</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mapwidget</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">setContentsMargins</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">setSpacing</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">importer</span><span class="o">.</span><span class="n">fields</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="p">)):</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Field &lt;b&gt;</span><span class="si">%d</span><span class="s2">&lt;/b&gt; of file is:&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="n">num</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">QLabel</span><span class="p">(</span><span class="n">text</span><span class="p">),</span> <span class="n">num</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="p">[</span><span class="n">num</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;_tags&quot;</span><span class="p">:</span>
+                <span class="n">text</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;mapped to &lt;b&gt;Tags&lt;/b&gt;&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="p">[</span><span class="n">num</span><span class="p">]:</span>
+                <span class="n">text</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;mapped to &lt;b&gt;</span><span class="si">%s</span><span class="s2">&lt;/b&gt;&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="p">[</span><span class="n">num</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">text</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;&lt;ignored&gt;&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">QLabel</span><span class="p">(</span><span class="n">text</span><span class="p">),</span> <span class="n">num</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">button</span> <span class="o">=</span> <span class="n">QPushButton</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Change&quot;</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">button</span><span class="p">,</span> <span class="n">num</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">qconnect</span><span class="p">(</span><span class="n">button</span><span class="o">.</span><span class="n">clicked</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">_</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">num</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">changeMappingNum</span><span class="p">(</span><span class="n">n</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="ImportDialog.changeMappingNum"><a class="viewcode-back" href="../../aqt.html#aqt.importing.ImportDialog.changeMappingNum">[docs]</a>    <span class="k">def</span> <span class="nf">changeMappingNum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">ChangeMap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">importer</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="p">[</span><span class="n">n</span><span class="p">])</span><span class="o">.</span><span class="n">getField</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># make sure we don&#39;t have it twice</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mapping</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">importer</span><span class="p">,</span> <span class="s2">&quot;delimiter&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">savedDelimiter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">importer</span><span class="o">.</span><span class="n">delimiter</span>
+
+            <span class="k">def</span> <span class="nf">updateDelim</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">importer</span><span class="o">.</span><span class="n">delimiter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">savedDelimiter</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">showMapping</span><span class="p">(</span><span class="n">hook</span><span class="o">=</span><span class="n">updateDelim</span><span class="p">,</span> <span class="n">keepMapping</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">showMapping</span><span class="p">(</span><span class="n">keepMapping</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImportDialog.reject"><a class="viewcode-back" href="../../aqt.html#aqt.importing.ImportDialog.reject">[docs]</a>    <span class="k">def</span> <span class="nf">reject</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modelChooser</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deck</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+        <span class="n">gui_hooks</span><span class="o">.</span><span class="n">current_note_type_did_change</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modelChanged</span><span class="p">)</span>
+        <span class="n">QDialog</span><span class="o">.</span><span class="n">reject</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImportDialog.helpRequested"><a class="viewcode-back" href="../../aqt.html#aqt.importing.ImportDialog.helpRequested">[docs]</a>    <span class="k">def</span> <span class="nf">helpRequested</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">openHelp</span><span class="p">(</span><span class="s2">&quot;importing&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImportDialog.importModeChanged"><a class="viewcode-back" href="../../aqt.html#aqt.importing.ImportDialog.importModeChanged">[docs]</a>    <span class="k">def</span> <span class="nf">importModeChanged</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">newImportMode</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">newImportMode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">frm</span><span class="o">.</span><span class="n">tagModified</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">frm</span><span class="o">.</span><span class="n">tagModified</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="showUnicodeWarning"><a class="viewcode-back" href="../../aqt.html#aqt.importing.showUnicodeWarning">[docs]</a><span class="k">def</span> <span class="nf">showUnicodeWarning</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Shorthand to show a standard warning.&quot;&quot;&quot;</span>
+    <span class="n">showWarning</span><span class="p">(</span>
+        <span class="n">_</span><span class="p">(</span>
+            <span class="s2">&quot;Selected file was not in UTF-8 format. Please see the &quot;</span>
+            <span class="s2">&quot;importing section of the manual.&quot;</span>
+        <span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="onImport"><a class="viewcode-back" href="../../aqt.html#aqt.importing.onImport">[docs]</a><span class="k">def</span> <span class="nf">onImport</span><span class="p">(</span><span class="n">mw</span><span class="p">):</span>
+    <span class="n">filt</span> <span class="o">=</span> <span class="s2">&quot;;;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">importing</span><span class="o">.</span><span class="n">Importers</span><span class="p">])</span>
+    <span class="n">file</span> <span class="o">=</span> <span class="n">getFile</span><span class="p">(</span><span class="n">mw</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Import&quot;</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;import&quot;</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="n">filt</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">file</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">file</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+
+    <span class="n">head</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+    <span class="n">ext</span> <span class="o">=</span> <span class="n">ext</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;.anki&quot;</span><span class="p">:</span>
+        <span class="n">showInfo</span><span class="p">(</span>
+            <span class="n">_</span><span class="p">(</span>
+                <span class="s2">&quot;.anki files are from a very old version of Anki. You can import them with Anki 2.0, available on the Anki website.&quot;</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span>
+    <span class="k">elif</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;.anki2&quot;</span><span class="p">:</span>
+        <span class="n">showInfo</span><span class="p">(</span>
+            <span class="n">_</span><span class="p">(</span>
+                <span class="s2">&quot;.anki2 files are not directly importable - please import the .apkg or .zip file you have received instead.&quot;</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">importFile</span><span class="p">(</span><span class="n">mw</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="importFile"><a class="viewcode-back" href="../../aqt.html#aqt.importing.importFile">[docs]</a><span class="k">def</span> <span class="nf">importFile</span><span class="p">(</span><span class="n">mw</span><span class="p">,</span> <span class="n">file</span><span class="p">):</span>
+    <span class="n">importerClass</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">done</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">importing</span><span class="o">.</span><span class="n">Importers</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">done</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="k">for</span> <span class="n">mext</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[( ]?\*\.(.+?)[) ]&quot;</span><span class="p">,</span> <span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="n">file</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">mext</span><span class="p">):</span>
+                <span class="n">importerClass</span> <span class="o">=</span> <span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">done</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">break</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">importerClass</span><span class="p">:</span>
+        <span class="c1"># if no matches, assume TSV</span>
+        <span class="n">importerClass</span> <span class="o">=</span> <span class="n">importing</span><span class="o">.</span><span class="n">Importers</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">importer</span> <span class="o">=</span> <span class="n">importerClass</span><span class="p">(</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+    <span class="c1"># need to show import dialog?</span>
+    <span class="k">if</span> <span class="n">importer</span><span class="o">.</span><span class="n">needMapper</span><span class="p">:</span>
+        <span class="c1"># make sure we can load the file first</span>
+        <span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">immediate</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">importer</span><span class="o">.</span><span class="n">open</span><span class="p">()</span>
+            <span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">finish</span><span class="p">()</span>
+            <span class="n">diag</span> <span class="o">=</span> <span class="n">ImportDialog</span><span class="p">(</span><span class="n">mw</span><span class="p">,</span> <span class="n">importer</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">UnicodeDecodeError</span><span class="p">:</span>
+            <span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">finish</span><span class="p">()</span>
+            <span class="n">showUnicodeWarning</span><span class="p">()</span>
+            <span class="k">return</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">finish</span><span class="p">()</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">msg</span> <span class="o">==</span> <span class="s2">&quot;&#39;unknownFormat&#39;&quot;</span><span class="p">:</span>
+                <span class="n">showWarning</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Unknown file format.&quot;</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">IMPORTING_FAILED_DEBUG_INFO</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="n">msg</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span>
+                <span class="n">showText</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">importer</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># if it&#39;s an apkg/zip, first test it&#39;s a valid file</span>
+        <span class="k">if</span> <span class="n">importer</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;AnkiPackageImporter&quot;</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">z</span> <span class="o">=</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">importer</span><span class="o">.</span><span class="n">file</span><span class="p">)</span>
+                <span class="n">z</span><span class="o">.</span><span class="n">getinfo</span><span class="p">(</span><span class="s2">&quot;collection.anki2&quot;</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">showWarning</span><span class="p">(</span><span class="n">invalidZipMsg</span><span class="p">())</span>
+                <span class="k">return</span>
+            <span class="c1"># we need to ask whether to import/replace; if it&#39;s</span>
+            <span class="c1"># a colpkg file then the rest of the import process</span>
+            <span class="c1"># will happen in setupApkgImport()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">setupApkgImport</span><span class="p">(</span><span class="n">mw</span><span class="p">,</span> <span class="n">importer</span><span class="p">):</span>
+                <span class="k">return</span>
+
+        <span class="c1"># importing non-colpkg files</span>
+        <span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">immediate</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">on_done</span><span class="p">(</span><span class="n">future</span><span class="p">:</span> <span class="n">Future</span><span class="p">):</span>
+            <span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">finish</span><span class="p">()</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+            <span class="k">except</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">BadZipfile</span><span class="p">:</span>
+                <span class="n">showWarning</span><span class="p">(</span><span class="n">invalidZipMsg</span><span class="p">())</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">err</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+                <span class="k">if</span> <span class="s2">&quot;invalidFile&quot;</span> <span class="ow">in</span> <span class="n">err</span><span class="p">:</span>
+                    <span class="n">msg</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span>
+                        <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">    Invalid file. Please restore from backup.&quot;&quot;&quot;</span>
+                    <span class="p">)</span>
+                    <span class="n">showWarning</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="s2">&quot;invalidTempFolder&quot;</span> <span class="ow">in</span> <span class="n">err</span><span class="p">:</span>
+                    <span class="n">showWarning</span><span class="p">(</span><span class="n">mw</span><span class="o">.</span><span class="n">errorHandler</span><span class="o">.</span><span class="n">tempFolderMsg</span><span class="p">())</span>
+                <span class="k">elif</span> <span class="s2">&quot;readonly&quot;</span> <span class="ow">in</span> <span class="n">err</span><span class="p">:</span>
+                    <span class="n">showWarning</span><span class="p">(</span>
+                        <span class="n">_</span><span class="p">(</span>
+                            <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">    Unable to import from a read-only file.&quot;&quot;&quot;</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">msg</span> <span class="o">=</span> <span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">IMPORTING_FAILED_DEBUG_INFO</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="n">msg</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span>
+                    <span class="n">showText</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">log</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">importer</span><span class="o">.</span><span class="n">log</span><span class="p">)</span>
+                <span class="k">if</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">log</span><span class="p">:</span>
+                    <span class="n">tooltip</span><span class="p">(</span><span class="n">log</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">showText</span><span class="p">(</span><span class="n">log</span><span class="p">)</span>
+
+            <span class="n">mw</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+        <span class="n">mw</span><span class="o">.</span><span class="n">taskman</span><span class="o">.</span><span class="n">run_in_background</span><span class="p">(</span><span class="n">importer</span><span class="o">.</span><span class="n">run</span><span class="p">,</span> <span class="n">on_done</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="invalidZipMsg"><a class="viewcode-back" href="../../aqt.html#aqt.importing.invalidZipMsg">[docs]</a><span class="k">def</span> <span class="nf">invalidZipMsg</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">_</span><span class="p">(</span>
+        <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">This file does not appear to be a valid .apkg file. If you&#39;re getting this \</span>
+<span class="sd">error from a file downloaded from AnkiWeb, chances are that your download \</span>
+<span class="sd">failed. Please try again, and if the problem persists, please try again \</span>
+<span class="sd">with a different browser.&quot;&quot;&quot;</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="setupApkgImport"><a class="viewcode-back" href="../../aqt.html#aqt.importing.setupApkgImport">[docs]</a><span class="k">def</span> <span class="nf">setupApkgImport</span><span class="p">(</span><span class="n">mw</span><span class="p">,</span> <span class="n">importer</span><span class="p">):</span>
+    <span class="n">base</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">importer</span><span class="o">.</span><span class="n">file</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="n">full</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">base</span> <span class="o">==</span> <span class="s2">&quot;collection.apkg&quot;</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s2">&quot;backup-.*</span><span class="se">\\</span><span class="s2">.apkg&quot;</span><span class="p">,</span> <span class="n">base</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="n">base</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.colpkg&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">full</span><span class="p">:</span>
+        <span class="c1"># adding</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">mw</span><span class="o">.</span><span class="n">restoringBackup</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">askUser</span><span class="p">(</span>
+        <span class="n">_</span><span class="p">(</span>
+            <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">This will delete your existing collection and replace it with the data in \</span>
+<span class="sd">the file you&#39;re importing. Are you sure?&quot;&quot;&quot;</span>
+        <span class="p">),</span>
+        <span class="n">msgfunc</span><span class="o">=</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">warning</span><span class="p">,</span>
+        <span class="n">defaultno</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="n">replaceWithApkg</span><span class="p">(</span><span class="n">mw</span><span class="p">,</span> <span class="n">importer</span><span class="o">.</span><span class="n">file</span><span class="p">,</span> <span class="n">mw</span><span class="o">.</span><span class="n">restoringBackup</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="replaceWithApkg"><a class="viewcode-back" href="../../aqt.html#aqt.importing.replaceWithApkg">[docs]</a><span class="k">def</span> <span class="nf">replaceWithApkg</span><span class="p">(</span><span class="n">mw</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">backup</span><span class="p">):</span>
+    <span class="n">mw</span><span class="o">.</span><span class="n">unloadCollection</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">_replaceWithApkg</span><span class="p">(</span><span class="n">mw</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">backup</span><span class="p">))</span></div>
+
+
+<span class="k">def</span> <span class="nf">_replaceWithApkg</span><span class="p">(</span><span class="n">mw</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">backup</span><span class="p">):</span>
+    <span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">immediate</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">do_import</span><span class="p">():</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+        <span class="c1"># v2 scheduler?</span>
+        <span class="n">colname</span> <span class="o">=</span> <span class="s2">&quot;collection.anki21&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">z</span><span class="o">.</span><span class="n">getinfo</span><span class="p">(</span><span class="n">colname</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">colname</span> <span class="o">=</span> <span class="s2">&quot;collection.anki2&quot;</span>
+
+        <span class="k">with</span> <span class="n">z</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">colname</span><span class="p">)</span> <span class="k">as</span> <span class="n">source</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">collectionPath</span><span class="p">(),</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">target</span><span class="p">:</span>
+            <span class="c1"># ignore appears related to https://github.com/python/typeshed/issues/4349</span>
+            <span class="c1"># see if can turn off once issue fix is merged in</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">copyfileobj</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+
+        <span class="n">d</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">profileFolder</span><span class="p">(),</span> <span class="s2">&quot;collection.media&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="p">(</span><span class="n">cStr</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">z</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;media&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf8&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">):</span>
+            <span class="n">mw</span><span class="o">.</span><span class="n">taskman</span><span class="o">.</span><span class="n">run_on_main</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">:</span> <span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                    <span class="n">ngettext</span><span class="p">(</span><span class="s2">&quot;Processed </span><span class="si">%d</span><span class="s2"> media file&quot;</span><span class="p">,</span> <span class="s2">&quot;Processed </span><span class="si">%d</span><span class="s2"> media files&quot;</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+                    <span class="o">%</span> <span class="n">n</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">getinfo</span><span class="p">(</span><span class="n">cStr</span><span class="p">)</span><span class="o">.</span><span class="n">file_size</span>
+            <span class="n">dest</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">unicodedata</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="s2">&quot;NFC&quot;</span><span class="p">,</span> <span class="n">file</span><span class="p">))</span>
+            <span class="c1"># if we have a matching file size</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span> <span class="ow">and</span> <span class="n">size</span> <span class="o">==</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span><span class="o">.</span><span class="n">st_size</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">cStr</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+                <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="n">z</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">on_done</span><span class="p">(</span><span class="n">future</span><span class="p">:</span> <span class="n">Future</span><span class="p">):</span>
+        <span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">finish</span><span class="p">()</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="n">showWarning</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;The provided file is not a valid .apkg file.&quot;</span><span class="p">))</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">mw</span><span class="o">.</span><span class="n">loadCollection</span><span class="p">():</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">backup</span><span class="p">:</span>
+            <span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">modSchema</span><span class="p">(</span><span class="n">check</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">tooltip</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Importing complete.&quot;</span><span class="p">))</span>
+
+    <span class="n">mw</span><span class="o">.</span><span class="n">taskman</span><span class="o">.</span><span class="n">run_in_background</span><span class="p">(</span><span class="n">do_import</span><span class="p">,</span> <span class="n">on_done</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Abdelrahman Hamdy
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

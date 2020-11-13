@@ -1,0 +1,531 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>aqt.sync &mdash; Anki  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+        <script async="async" kind="hypothesis" src="https://hypothes.is/embed.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Anki
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.html">anki package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.importing.html">anki.importing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aqt.html">aqt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../genhooks_gui.html">genhooks_gui module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tools.html">tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Anki</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../aqt.html">aqt</a> &raquo;</li>
+        
+      <li>aqt.sync</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for aqt.sync</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright: Ankitects Pty Ltd and contributors</span>
+<span class="c1"># License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span> <span class="nn">enum</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span> <span class="nn">aqt</span>
+<span class="kn">from</span> <span class="nn">anki.rsbackend</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">TR</span><span class="p">,</span>
+    <span class="n">FullSyncProgress</span><span class="p">,</span>
+    <span class="n">Interrupted</span><span class="p">,</span>
+    <span class="n">NormalSyncProgress</span><span class="p">,</span>
+    <span class="n">ProgressKind</span><span class="p">,</span>
+    <span class="n">SyncError</span><span class="p">,</span>
+    <span class="n">SyncErrorKind</span><span class="p">,</span>
+    <span class="n">SyncOutput</span><span class="p">,</span>
+    <span class="n">SyncStatus</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">anki.utils</span> <span class="kn">import</span> <span class="n">platDesc</span>
+<span class="kn">from</span> <span class="nn">aqt.qt</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">QDialog</span><span class="p">,</span>
+    <span class="n">QDialogButtonBox</span><span class="p">,</span>
+    <span class="n">QGridLayout</span><span class="p">,</span>
+    <span class="n">QLabel</span><span class="p">,</span>
+    <span class="n">QLineEdit</span><span class="p">,</span>
+    <span class="n">Qt</span><span class="p">,</span>
+    <span class="n">QTimer</span><span class="p">,</span>
+    <span class="n">QVBoxLayout</span><span class="p">,</span>
+    <span class="n">qconnect</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">aqt.utils</span> <span class="kn">import</span> <span class="n">askUser</span><span class="p">,</span> <span class="n">askUserDialog</span><span class="p">,</span> <span class="n">showText</span><span class="p">,</span> <span class="n">showWarning</span><span class="p">,</span> <span class="n">tr</span>
+
+
+<div class="viewcode-block" id="FullSyncChoice"><a class="viewcode-back" href="../../aqt.html#aqt.sync.FullSyncChoice">[docs]</a><span class="k">class</span> <span class="nc">FullSyncChoice</span><span class="p">(</span><span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">CANCEL</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">UPLOAD</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">DOWNLOAD</span> <span class="o">=</span> <span class="mi">2</span></div>
+
+
+<div class="viewcode-block" id="get_sync_status"><a class="viewcode-back" href="../../aqt.html#aqt.sync.get_sync_status">[docs]</a><span class="k">def</span> <span class="nf">get_sync_status</span><span class="p">(</span><span class="n">mw</span><span class="p">:</span> <span class="n">aqt</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">AnkiQt</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">SyncStatus</span><span class="p">],</span> <span class="kc">None</span><span class="p">]):</span>
+    <span class="n">auth</span> <span class="o">=</span> <span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">sync_auth</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">auth</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">SyncStatus</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="n">SyncStatus</span><span class="o">.</span><span class="n">NO_CHANGES</span><span class="p">)</span>  <span class="c1"># pylint:disable=no-member</span>
+
+    <span class="k">def</span> <span class="nf">on_future_done</span><span class="p">(</span><span class="n">fut</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">fut</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="c1"># swallow errors</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;sync status check failed:&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+            <span class="k">return</span>
+        <span class="n">callback</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+
+    <span class="n">mw</span><span class="o">.</span><span class="n">taskman</span><span class="o">.</span><span class="n">run_in_background</span><span class="p">(</span>
+        <span class="k">lambda</span><span class="p">:</span> <span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">sync_status</span><span class="p">(</span><span class="n">auth</span><span class="p">),</span> <span class="n">on_future_done</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="handle_sync_error"><a class="viewcode-back" href="../../aqt.html#aqt.sync.handle_sync_error">[docs]</a><span class="k">def</span> <span class="nf">handle_sync_error</span><span class="p">(</span><span class="n">mw</span><span class="p">:</span> <span class="n">aqt</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">AnkiQt</span><span class="p">,</span> <span class="n">err</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="n">SyncError</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">err</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">SyncErrorKind</span><span class="o">.</span><span class="n">AUTH_FAILED</span><span class="p">:</span>
+            <span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">clear_sync_auth</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="n">Interrupted</span><span class="p">):</span>
+        <span class="c1"># no message to show</span>
+        <span class="k">return</span>
+    <span class="n">showWarning</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="on_normal_sync_timer"><a class="viewcode-back" href="../../aqt.html#aqt.sync.on_normal_sync_timer">[docs]</a><span class="k">def</span> <span class="nf">on_normal_sync_timer</span><span class="p">(</span><span class="n">mw</span><span class="p">:</span> <span class="n">aqt</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">AnkiQt</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">progress</span> <span class="o">=</span> <span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">latest_progress</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">progress</span><span class="o">.</span><span class="n">kind</span> <span class="o">!=</span> <span class="n">ProgressKind</span><span class="o">.</span><span class="n">NormalSync</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">progress</span><span class="o">.</span><span class="n">val</span><span class="p">,</span> <span class="n">NormalSyncProgress</span><span class="p">)</span>
+    <span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{progress.val.added}</span><span class="se">\n</span><span class="si">{progress.val.removed}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">process</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">progress</span><span class="o">.</span><span class="n">val</span><span class="o">.</span><span class="n">stage</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">want_cancel</span><span class="p">():</span>
+        <span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">abort_sync</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="sync_collection"><a class="viewcode-back" href="../../aqt.html#aqt.sync.sync_collection">[docs]</a><span class="k">def</span> <span class="nf">sync_collection</span><span class="p">(</span><span class="n">mw</span><span class="p">:</span> <span class="n">aqt</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">AnkiQt</span><span class="p">,</span> <span class="n">on_done</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">auth</span> <span class="o">=</span> <span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">sync_auth</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">auth</span>
+
+    <span class="k">def</span> <span class="nf">on_timer</span><span class="p">():</span>
+        <span class="n">on_normal_sync_timer</span><span class="p">(</span><span class="n">mw</span><span class="p">)</span>
+
+    <span class="n">timer</span> <span class="o">=</span> <span class="n">QTimer</span><span class="p">(</span><span class="n">mw</span><span class="p">)</span>
+    <span class="n">qconnect</span><span class="p">(</span><span class="n">timer</span><span class="o">.</span><span class="n">timeout</span><span class="p">,</span> <span class="n">on_timer</span><span class="p">)</span>
+    <span class="n">timer</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="mi">150</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">on_future_done</span><span class="p">(</span><span class="n">fut</span><span class="p">):</span>
+        <span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span>
+        <span class="n">timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">out</span><span class="p">:</span> <span class="n">SyncOutput</span> <span class="o">=</span> <span class="n">fut</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="n">handle_sync_error</span><span class="p">(</span><span class="n">mw</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">on_done</span><span class="p">()</span>
+
+        <span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">set_host_number</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">host_number</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">out</span><span class="o">.</span><span class="n">server_message</span><span class="p">:</span>
+            <span class="n">showText</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">server_message</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">out</span><span class="o">.</span><span class="n">required</span> <span class="o">==</span> <span class="n">out</span><span class="o">.</span><span class="n">NO_CHANGES</span><span class="p">:</span>
+            <span class="c1"># all done</span>
+            <span class="k">return</span> <span class="n">on_done</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">full_sync</span><span class="p">(</span><span class="n">mw</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">on_done</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">basicCheck</span><span class="p">():</span>
+        <span class="n">showWarning</span><span class="p">(</span><span class="s2">&quot;Please use Tools&gt;Check Database&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">on_done</span><span class="p">()</span>
+
+    <span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">trx</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">mw</span><span class="o">.</span><span class="n">taskman</span><span class="o">.</span><span class="n">with_progress</span><span class="p">(</span>
+        <span class="k">lambda</span><span class="p">:</span> <span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">sync_collection</span><span class="p">(</span><span class="n">auth</span><span class="p">),</span>
+        <span class="n">on_future_done</span><span class="p">,</span>
+        <span class="n">label</span><span class="o">=</span><span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">SYNC_CHECKING</span><span class="p">),</span>
+        <span class="n">immediate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="full_sync"><a class="viewcode-back" href="../../aqt.html#aqt.sync.full_sync">[docs]</a><span class="k">def</span> <span class="nf">full_sync</span><span class="p">(</span>
+    <span class="n">mw</span><span class="p">:</span> <span class="n">aqt</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">AnkiQt</span><span class="p">,</span> <span class="n">out</span><span class="p">:</span> <span class="n">SyncOutput</span><span class="p">,</span> <span class="n">on_done</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">out</span><span class="o">.</span><span class="n">required</span> <span class="o">==</span> <span class="n">out</span><span class="o">.</span><span class="n">FULL_DOWNLOAD</span><span class="p">:</span>
+        <span class="n">confirm_full_download</span><span class="p">(</span><span class="n">mw</span><span class="p">,</span> <span class="n">on_done</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">out</span><span class="o">.</span><span class="n">required</span> <span class="o">==</span> <span class="n">out</span><span class="o">.</span><span class="n">FULL_UPLOAD</span><span class="p">:</span>
+        <span class="n">full_upload</span><span class="p">(</span><span class="n">mw</span><span class="p">,</span> <span class="n">on_done</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">choice</span> <span class="o">=</span> <span class="n">ask_user_to_decide_direction</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">choice</span> <span class="o">==</span> <span class="n">FullSyncChoice</span><span class="o">.</span><span class="n">UPLOAD</span><span class="p">:</span>
+            <span class="n">full_upload</span><span class="p">(</span><span class="n">mw</span><span class="p">,</span> <span class="n">on_done</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">choice</span> <span class="o">==</span> <span class="n">FullSyncChoice</span><span class="o">.</span><span class="n">DOWNLOAD</span><span class="p">:</span>
+            <span class="n">full_download</span><span class="p">(</span><span class="n">mw</span><span class="p">,</span> <span class="n">on_done</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">on_done</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="confirm_full_download"><a class="viewcode-back" href="../../aqt.html#aqt.sync.confirm_full_download">[docs]</a><span class="k">def</span> <span class="nf">confirm_full_download</span><span class="p">(</span><span class="n">mw</span><span class="p">:</span> <span class="n">aqt</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">AnkiQt</span><span class="p">,</span> <span class="n">on_done</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># confirmation step required, as some users customize their notetypes</span>
+    <span class="c1"># in an empty collection, then want to upload them</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">askUser</span><span class="p">(</span><span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">SYNC_CONFIRM_EMPTY_DOWNLOAD</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="n">on_done</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">mw</span><span class="o">.</span><span class="n">closeAllWindows</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">full_download</span><span class="p">(</span><span class="n">mw</span><span class="p">,</span> <span class="n">on_done</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="on_full_sync_timer"><a class="viewcode-back" href="../../aqt.html#aqt.sync.on_full_sync_timer">[docs]</a><span class="k">def</span> <span class="nf">on_full_sync_timer</span><span class="p">(</span><span class="n">mw</span><span class="p">:</span> <span class="n">aqt</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">AnkiQt</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">progress</span> <span class="o">=</span> <span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">latest_progress</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">progress</span><span class="o">.</span><span class="n">kind</span> <span class="o">!=</span> <span class="n">ProgressKind</span><span class="o">.</span><span class="n">FullSync</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">progress</span><span class="o">.</span><span class="n">val</span><span class="p">,</span> <span class="n">FullSyncProgress</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">progress</span><span class="o">.</span><span class="n">val</span><span class="o">.</span><span class="n">transferred</span> <span class="o">==</span> <span class="n">progress</span><span class="o">.</span><span class="n">val</span><span class="o">.</span><span class="n">total</span><span class="p">:</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">SYNC_CHECKING</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="n">value</span><span class="o">=</span><span class="n">progress</span><span class="o">.</span><span class="n">val</span><span class="o">.</span><span class="n">transferred</span><span class="p">,</span>
+        <span class="nb">max</span><span class="o">=</span><span class="n">progress</span><span class="o">.</span><span class="n">val</span><span class="o">.</span><span class="n">total</span><span class="p">,</span>
+        <span class="n">process</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">want_cancel</span><span class="p">():</span>
+        <span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">abort_sync</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="full_download"><a class="viewcode-back" href="../../aqt.html#aqt.sync.full_download">[docs]</a><span class="k">def</span> <span class="nf">full_download</span><span class="p">(</span><span class="n">mw</span><span class="p">:</span> <span class="n">aqt</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">AnkiQt</span><span class="p">,</span> <span class="n">on_done</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">close_for_full_sync</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">on_timer</span><span class="p">():</span>
+        <span class="n">on_full_sync_timer</span><span class="p">(</span><span class="n">mw</span><span class="p">)</span>
+
+    <span class="n">timer</span> <span class="o">=</span> <span class="n">QTimer</span><span class="p">(</span><span class="n">mw</span><span class="p">)</span>
+    <span class="n">qconnect</span><span class="p">(</span><span class="n">timer</span><span class="o">.</span><span class="n">timeout</span><span class="p">,</span> <span class="n">on_timer</span><span class="p">)</span>
+    <span class="n">timer</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="mi">150</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">on_future_done</span><span class="p">(</span><span class="n">fut</span><span class="p">):</span>
+        <span class="n">timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+        <span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">reopen</span><span class="p">(</span><span class="n">after_full_sync</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">mw</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">fut</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="n">handle_sync_error</span><span class="p">(</span><span class="n">mw</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+        <span class="n">mw</span><span class="o">.</span><span class="n">media_syncer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">on_done</span><span class="p">()</span>
+
+    <span class="n">mw</span><span class="o">.</span><span class="n">taskman</span><span class="o">.</span><span class="n">with_progress</span><span class="p">(</span>
+        <span class="k">lambda</span><span class="p">:</span> <span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">full_download</span><span class="p">(</span><span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">sync_auth</span><span class="p">()),</span>
+        <span class="n">on_future_done</span><span class="p">,</span>
+        <span class="n">label</span><span class="o">=</span><span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">SYNC_DOWNLOADING_FROM_ANKIWEB</span><span class="p">),</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="full_upload"><a class="viewcode-back" href="../../aqt.html#aqt.sync.full_upload">[docs]</a><span class="k">def</span> <span class="nf">full_upload</span><span class="p">(</span><span class="n">mw</span><span class="p">:</span> <span class="n">aqt</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">AnkiQt</span><span class="p">,</span> <span class="n">on_done</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">close_for_full_sync</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">on_timer</span><span class="p">():</span>
+        <span class="n">on_full_sync_timer</span><span class="p">(</span><span class="n">mw</span><span class="p">)</span>
+
+    <span class="n">timer</span> <span class="o">=</span> <span class="n">QTimer</span><span class="p">(</span><span class="n">mw</span><span class="p">)</span>
+    <span class="n">qconnect</span><span class="p">(</span><span class="n">timer</span><span class="o">.</span><span class="n">timeout</span><span class="p">,</span> <span class="n">on_timer</span><span class="p">)</span>
+    <span class="n">timer</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="mi">150</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">on_future_done</span><span class="p">(</span><span class="n">fut</span><span class="p">):</span>
+        <span class="n">timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+        <span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">reopen</span><span class="p">(</span><span class="n">after_full_sync</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">mw</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">fut</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="n">handle_sync_error</span><span class="p">(</span><span class="n">mw</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">on_done</span><span class="p">()</span>
+        <span class="n">mw</span><span class="o">.</span><span class="n">media_syncer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">on_done</span><span class="p">()</span>
+
+    <span class="n">mw</span><span class="o">.</span><span class="n">taskman</span><span class="o">.</span><span class="n">with_progress</span><span class="p">(</span>
+        <span class="k">lambda</span><span class="p">:</span> <span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">full_upload</span><span class="p">(</span><span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">sync_auth</span><span class="p">()),</span>
+        <span class="n">on_future_done</span><span class="p">,</span>
+        <span class="n">label</span><span class="o">=</span><span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">SYNC_UPLOADING_TO_ANKIWEB</span><span class="p">),</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="sync_login"><a class="viewcode-back" href="../../aqt.html#aqt.sync.sync_login">[docs]</a><span class="k">def</span> <span class="nf">sync_login</span><span class="p">(</span>
+    <span class="n">mw</span><span class="p">:</span> <span class="n">aqt</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">AnkiQt</span><span class="p">,</span> <span class="n">on_success</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">],</span> <span class="n">username</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span> <span class="o">=</span> <span class="n">get_id_and_pass_from_user</span><span class="p">(</span><span class="n">mw</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">username</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">password</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">username</span> <span class="ow">and</span> <span class="n">password</span><span class="p">:</span>
+            <span class="k">break</span>
+
+    <span class="k">def</span> <span class="nf">on_future_done</span><span class="p">(</span><span class="n">fut</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">auth</span> <span class="o">=</span> <span class="n">fut</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">SyncError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">kind</span><span class="p">()</span> <span class="o">==</span> <span class="n">SyncErrorKind</span><span class="o">.</span><span class="n">AUTH_FAILED</span><span class="p">:</span>
+                <span class="n">showWarning</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+                <span class="n">sync_login</span><span class="p">(</span><span class="n">mw</span><span class="p">,</span> <span class="n">on_success</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span>
+                <span class="k">return</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="n">handle_sync_error</span><span class="p">(</span><span class="n">mw</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">set_host_number</span><span class="p">(</span><span class="n">auth</span><span class="o">.</span><span class="n">host_number</span><span class="p">)</span>
+        <span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">set_sync_key</span><span class="p">(</span><span class="n">auth</span><span class="o">.</span><span class="n">hkey</span><span class="p">)</span>
+        <span class="n">mw</span><span class="o">.</span><span class="n">pm</span><span class="o">.</span><span class="n">set_sync_username</span><span class="p">(</span><span class="n">username</span><span class="p">)</span>
+
+        <span class="n">on_success</span><span class="p">()</span>
+
+    <span class="n">mw</span><span class="o">.</span><span class="n">taskman</span><span class="o">.</span><span class="n">with_progress</span><span class="p">(</span>
+        <span class="k">lambda</span><span class="p">:</span> <span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">sync_login</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">),</span>
+        <span class="n">on_future_done</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ask_user_to_decide_direction"><a class="viewcode-back" href="../../aqt.html#aqt.sync.ask_user_to_decide_direction">[docs]</a><span class="k">def</span> <span class="nf">ask_user_to_decide_direction</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">FullSyncChoice</span><span class="p">:</span>
+    <span class="n">button_labels</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">SYNC_UPLOAD_TO_ANKIWEB</span><span class="p">),</span>
+        <span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">SYNC_DOWNLOAD_FROM_ANKIWEB</span><span class="p">),</span>
+        <span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">SYNC_CANCEL_BUTTON</span><span class="p">),</span>
+    <span class="p">]</span>
+    <span class="n">diag</span> <span class="o">=</span> <span class="n">askUserDialog</span><span class="p">(</span><span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">SYNC_CONFLICT_EXPLANATION</span><span class="p">),</span> <span class="n">button_labels</span><span class="p">)</span>
+    <span class="n">diag</span><span class="o">.</span><span class="n">setDefault</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="n">diag</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">ret</span> <span class="o">==</span> <span class="n">button_labels</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">FullSyncChoice</span><span class="o">.</span><span class="n">UPLOAD</span>
+    <span class="k">elif</span> <span class="n">ret</span> <span class="o">==</span> <span class="n">button_labels</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">FullSyncChoice</span><span class="o">.</span><span class="n">DOWNLOAD</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">FullSyncChoice</span><span class="o">.</span><span class="n">CANCEL</span></div>
+
+
+<div class="viewcode-block" id="get_id_and_pass_from_user"><a class="viewcode-back" href="../../aqt.html#aqt.sync.get_id_and_pass_from_user">[docs]</a><span class="k">def</span> <span class="nf">get_id_and_pass_from_user</span><span class="p">(</span>
+    <span class="n">mw</span><span class="p">:</span> <span class="n">aqt</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">AnkiQt</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+    <span class="n">diag</span> <span class="o">=</span> <span class="n">QDialog</span><span class="p">(</span><span class="n">mw</span><span class="p">)</span>
+    <span class="n">diag</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s2">&quot;Anki&quot;</span><span class="p">)</span>
+    <span class="n">diag</span><span class="o">.</span><span class="n">setWindowModality</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">WindowModal</span><span class="p">)</span>
+    <span class="n">vbox</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">()</span>
+    <span class="n">info_label</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span>
+        <span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">SYNC_ACCOUNT_REQUIRED</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="s2">&quot;https://ankiweb.net/account/login&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">info_label</span><span class="o">.</span><span class="n">setOpenExternalLinks</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">info_label</span><span class="o">.</span><span class="n">setWordWrap</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">vbox</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">info_label</span><span class="p">)</span>
+    <span class="n">vbox</span><span class="o">.</span><span class="n">addSpacing</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">QGridLayout</span><span class="p">()</span>
+    <span class="n">l1</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">SYNC_ANKIWEB_ID_LABEL</span><span class="p">))</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">l1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">()</span>
+    <span class="n">user</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">username</span><span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">l2</span> <span class="o">=</span> <span class="n">QLabel</span><span class="p">(</span><span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">SYNC_PASSWORD_LABEL</span><span class="p">))</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">l2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">passwd</span> <span class="o">=</span> <span class="n">QLineEdit</span><span class="p">()</span>
+    <span class="n">passwd</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">password</span><span class="p">)</span>
+    <span class="n">passwd</span><span class="o">.</span><span class="n">setEchoMode</span><span class="p">(</span><span class="n">QLineEdit</span><span class="o">.</span><span class="n">Password</span><span class="p">)</span>
+    <span class="n">g</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">passwd</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">vbox</span><span class="o">.</span><span class="n">addLayout</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+    <span class="n">bb</span> <span class="o">=</span> <span class="n">QDialogButtonBox</span><span class="p">(</span><span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">Ok</span> <span class="o">|</span> <span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">Cancel</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+    <span class="n">bb</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">Ok</span><span class="p">)</span><span class="o">.</span><span class="n">setAutoDefault</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">qconnect</span><span class="p">(</span><span class="n">bb</span><span class="o">.</span><span class="n">accepted</span><span class="p">,</span> <span class="n">diag</span><span class="o">.</span><span class="n">accept</span><span class="p">)</span>
+    <span class="n">qconnect</span><span class="p">(</span><span class="n">bb</span><span class="o">.</span><span class="n">rejected</span><span class="p">,</span> <span class="n">diag</span><span class="o">.</span><span class="n">reject</span><span class="p">)</span>
+    <span class="n">vbox</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">bb</span><span class="p">)</span>
+    <span class="n">diag</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">vbox</span><span class="p">)</span>
+    <span class="n">diag</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="n">accepted</span> <span class="o">=</span> <span class="n">diag</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">accepted</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">text</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">passwd</span><span class="o">.</span><span class="n">text</span><span class="p">())</span></div>
+
+
+<span class="c1"># export platform version to syncing code</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;PLATFORM&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">platDesc</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Abdelrahman Hamdy
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

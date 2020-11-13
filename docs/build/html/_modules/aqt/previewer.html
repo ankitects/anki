@@ -1,0 +1,534 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>aqt.previewer &mdash; Anki  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+        <script async="async" kind="hypothesis" src="https://hypothes.is/embed.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Anki
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.html">anki package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.importing.html">anki.importing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aqt.html">aqt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../genhooks_gui.html">genhooks_gui module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tools.html">tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Anki</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../aqt.html">aqt</a> &raquo;</li>
+        
+      <li>aqt.previewer</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for aqt.previewer</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright: Ankitects Pty Ltd and contributors</span>
+<span class="c1"># License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html</span>
+<span class="c1"># mypy: check-untyped-defs</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">from</span> <span class="nn">anki.cards</span> <span class="kn">import</span> <span class="n">Card</span>
+<span class="kn">from</span> <span class="nn">anki.lang</span> <span class="kn">import</span> <span class="n">_</span>
+<span class="kn">from</span> <span class="nn">aqt</span> <span class="kn">import</span> <span class="n">AnkiQt</span><span class="p">,</span> <span class="n">gui_hooks</span>
+<span class="kn">from</span> <span class="nn">aqt.qt</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">QAbstractItemView</span><span class="p">,</span>
+    <span class="n">QCheckBox</span><span class="p">,</span>
+    <span class="n">QDialog</span><span class="p">,</span>
+    <span class="n">QDialogButtonBox</span><span class="p">,</span>
+    <span class="n">QIcon</span><span class="p">,</span>
+    <span class="n">QKeySequence</span><span class="p">,</span>
+    <span class="n">QPixmap</span><span class="p">,</span>
+    <span class="n">Qt</span><span class="p">,</span>
+    <span class="n">QVBoxLayout</span><span class="p">,</span>
+    <span class="n">QWidget</span><span class="p">,</span>
+    <span class="n">qconnect</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">aqt.reviewer</span> <span class="kn">import</span> <span class="n">replay_audio</span>
+<span class="kn">from</span> <span class="nn">aqt.sound</span> <span class="kn">import</span> <span class="n">av_player</span><span class="p">,</span> <span class="n">play_clicked_audio</span>
+<span class="kn">from</span> <span class="nn">aqt.theme</span> <span class="kn">import</span> <span class="n">theme_manager</span>
+<span class="kn">from</span> <span class="nn">aqt.utils</span> <span class="kn">import</span> <span class="n">restoreGeom</span><span class="p">,</span> <span class="n">saveGeom</span>
+<span class="kn">from</span> <span class="nn">aqt.webview</span> <span class="kn">import</span> <span class="n">AnkiWebView</span>
+
+
+<div class="viewcode-block" id="Previewer"><a class="viewcode-back" href="../../aqt.html#aqt.previewer.Previewer">[docs]</a><span class="k">class</span> <span class="nc">Previewer</span><span class="p">(</span><span class="n">QDialog</span><span class="p">):</span>
+    <span class="n">_last_state</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_card_changed</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">_last_render</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">_timer</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_show_both_sides</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">QWidget</span><span class="p">,</span> <span class="n">mw</span><span class="p">:</span> <span class="n">AnkiQt</span><span class="p">,</span> <span class="n">on_close</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">Qt</span><span class="o">.</span><span class="n">Window</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_open</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span> <span class="o">=</span> <span class="n">parent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_close_callback</span> <span class="o">=</span> <span class="n">on_close</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span> <span class="o">=</span> <span class="n">mw</span>
+        <span class="n">icon</span> <span class="o">=</span> <span class="n">QIcon</span><span class="p">()</span>
+        <span class="n">icon</span><span class="o">.</span><span class="n">addPixmap</span><span class="p">(</span><span class="n">QPixmap</span><span class="p">(</span><span class="s2">&quot;:/icons/anki.png&quot;</span><span class="p">),</span> <span class="n">QIcon</span><span class="o">.</span><span class="n">Normal</span><span class="p">,</span> <span class="n">QIcon</span><span class="o">.</span><span class="n">Off</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWindowIcon</span><span class="p">(</span><span class="n">icon</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Previewer.card"><a class="viewcode-back" href="../../aqt.html#aqt.previewer.Previewer.card">[docs]</a>    <span class="k">def</span> <span class="nf">card</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Card</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="Previewer.card_changed"><a class="viewcode-back" href="../../aqt.html#aqt.previewer.Previewer.card_changed">[docs]</a>    <span class="k">def</span> <span class="nf">card_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="Previewer.open"><a class="viewcode-back" href="../../aqt.html#aqt.previewer.Previewer.open">[docs]</a>    <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">=</span> <span class="s2">&quot;question&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_state</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_create_gui</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setup_web_view</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">render_card</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">_create_gui</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Preview&quot;</span><span class="p">))</span>
+
+        <span class="n">qconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">finished</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_finished</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">silentlyClose</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vbox</span> <span class="o">=</span> <span class="n">QVBoxLayout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vbox</span><span class="o">.</span><span class="n">setContentsMargins</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_web</span> <span class="o">=</span> <span class="n">AnkiWebView</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;previewer&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vbox</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_web</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bbox</span> <span class="o">=</span> <span class="n">QDialogButtonBox</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_replay</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbox</span><span class="o">.</span><span class="n">addButton</span><span class="p">(</span>
+            <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Replay Audio&quot;</span><span class="p">),</span> <span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">ActionRole</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_replay</span><span class="o">.</span><span class="n">setAutoDefault</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_replay</span><span class="o">.</span><span class="n">setShortcut</span><span class="p">(</span><span class="n">QKeySequence</span><span class="p">(</span><span class="s2">&quot;R&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_replay</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Shortcut key: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="s2">&quot;R&quot;</span><span class="p">))</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_replay</span><span class="o">.</span><span class="n">clicked</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_replay_audio</span><span class="p">)</span>
+
+        <span class="n">both_sides_button</span> <span class="o">=</span> <span class="n">QCheckBox</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Show Both Sides&quot;</span><span class="p">))</span>
+        <span class="n">both_sides_button</span><span class="o">.</span><span class="n">setShortcut</span><span class="p">(</span><span class="n">QKeySequence</span><span class="p">(</span><span class="s2">&quot;B&quot;</span><span class="p">))</span>
+        <span class="n">both_sides_button</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Shortcut key: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="s2">&quot;B&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bbox</span><span class="o">.</span><span class="n">addButton</span><span class="p">(</span><span class="n">both_sides_button</span><span class="p">,</span> <span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">ActionRole</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_show_both_sides</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;previewBothSides&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">both_sides_button</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_show_both_sides</span><span class="p">)</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="n">both_sides_button</span><span class="o">.</span><span class="n">toggled</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_show_both_sides</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">vbox</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bbox</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vbox</span><span class="p">)</span>
+        <span class="n">restoreGeom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;preview&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_on_finished</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ok</span><span class="p">):</span>
+        <span class="n">saveGeom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;preview&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">timer</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_close</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_on_replay_audio</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">==</span> <span class="s2">&quot;question&quot;</span><span class="p">:</span>
+            <span class="n">replay_audio</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="p">(),</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">==</span> <span class="s2">&quot;answer&quot;</span><span class="p">:</span>
+            <span class="n">replay_audio</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="p">(),</span> <span class="kc">False</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Previewer.close"><a class="viewcode-back" href="../../aqt.html#aqt.previewer.Previewer.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_on_close</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">_on_close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_open</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_close_callback</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_setup_web_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">jsinc</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;jquery.js&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;browsersel.js&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mathjax/conf.js&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mathjax/MathJax.js&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;reviewer.js&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_web</span><span class="o">.</span><span class="n">stdHtml</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">reviewer</span><span class="o">.</span><span class="n">revHtml</span><span class="p">(),</span> <span class="n">css</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;reviewer.css&quot;</span><span class="p">],</span> <span class="n">js</span><span class="o">=</span><span class="n">jsinc</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_web</span><span class="o">.</span><span class="n">set_bridge_command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_bridge_cmd</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_on_bridge_cmd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">cmd</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;play:&quot;</span><span class="p">):</span>
+            <span class="n">play_clicked_audio</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="p">())</span>
+
+<div class="viewcode-block" id="Previewer.render_card"><a class="viewcode-back" href="../../aqt.html#aqt.previewer.Previewer.render_card">[docs]</a>    <span class="k">def</span> <span class="nf">render_card</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cancel_timer</span><span class="p">()</span>
+        <span class="c1"># Keep track of whether render() has ever been called</span>
+        <span class="c1"># with cardChanged=True since the last successful render</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_card_changed</span> <span class="o">|=</span> <span class="bp">self</span><span class="o">.</span><span class="n">card_changed</span><span class="p">()</span>
+        <span class="c1"># avoid rendering in quick succession</span>
+        <span class="n">elap_ms</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_render</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
+        <span class="n">delay</span> <span class="o">=</span> <span class="mi">300</span>
+        <span class="k">if</span> <span class="n">elap_ms</span> <span class="o">&lt;</span> <span class="n">delay</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_timer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">progress</span><span class="o">.</span><span class="n">timer</span><span class="p">(</span>
+                <span class="n">delay</span> <span class="o">-</span> <span class="n">elap_ms</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_scheduled</span><span class="p">,</span> <span class="kc">False</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_render_scheduled</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Previewer.cancel_timer"><a class="viewcode-back" href="../../aqt.html#aqt.previewer.Previewer.cancel_timer">[docs]</a>    <span class="k">def</span> <span class="nf">cancel_timer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_timer</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_timer</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+    <span class="k">def</span> <span class="nf">_render_scheduled</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cancel_timer</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_render</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_open</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="p">()</span>
+        <span class="n">func</span> <span class="o">=</span> <span class="s2">&quot;_showQuestion&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">c</span><span class="p">:</span>
+            <span class="n">txt</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;(please select 1 card)&quot;</span><span class="p">)</span>
+            <span class="n">bodyclass</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_last_state</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_show_both_sides</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">=</span> <span class="s2">&quot;answer&quot;</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_card_changed</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">=</span> <span class="s2">&quot;question&quot;</span>
+
+            <span class="n">currentState</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state_and_mod</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">currentState</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_state</span><span class="p">:</span>
+                <span class="c1"># nothing has changed, avoid refreshing</span>
+                <span class="k">return</span>
+
+            <span class="c1"># need to force reload even if answer</span>
+            <span class="n">txt</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">q</span><span class="p">(</span><span class="n">reload</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">==</span> <span class="s2">&quot;answer&quot;</span><span class="p">:</span>
+                <span class="n">func</span> <span class="o">=</span> <span class="s2">&quot;_showAnswer&quot;</span>
+                <span class="n">txt</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">a</span><span class="p">()</span>
+            <span class="n">txt</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\[\[type:[^]]+\]\]&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">txt</span><span class="p">)</span>
+
+            <span class="n">bodyclass</span> <span class="o">=</span> <span class="n">theme_manager</span><span class="o">.</span><span class="n">body_classes_for_card_ord</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">ord</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">autoplay</span><span class="p">():</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_show_both_sides</span><span class="p">:</span>
+                    <span class="c1"># if we&#39;re showing both sides at once, remove any audio</span>
+                    <span class="c1"># from the answer that&#39;s appeared on the question already</span>
+                    <span class="n">question_audio</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">question_av_tags</span><span class="p">()</span>
+                    <span class="n">only_on_answer_audio</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">c</span><span class="o">.</span><span class="n">answer_av_tags</span><span class="p">()</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">question_audio</span>
+                    <span class="p">]</span>
+                    <span class="n">audio</span> <span class="o">=</span> <span class="n">question_audio</span> <span class="o">+</span> <span class="n">only_on_answer_audio</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">==</span> <span class="s2">&quot;question&quot;</span><span class="p">:</span>
+                    <span class="n">audio</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">question_av_tags</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">audio</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">answer_av_tags</span><span class="p">()</span>
+                <span class="n">av_player</span><span class="o">.</span><span class="n">play_tags</span><span class="p">(</span><span class="n">audio</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">av_player</span><span class="o">.</span><span class="n">clear_queue_and_maybe_interrupt</span><span class="p">()</span>
+
+            <span class="n">txt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">prepare_card_text_for_display</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
+            <span class="n">txt</span> <span class="o">=</span> <span class="n">gui_hooks</span><span class="o">.</span><span class="n">card_will_show</span><span class="p">(</span><span class="n">txt</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="s2">&quot;preview&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="o">.</span><span class="n">capitalize</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_last_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state_and_mod</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_web</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">(</span><span class="si">{}</span><span class="s2">,&#39;</span><span class="si">{}</span><span class="s2">&#39;);&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">txt</span><span class="p">),</span> <span class="n">bodyclass</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_card_changed</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">_on_show_both_sides</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">toggle</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_show_both_sides</span> <span class="o">=</span> <span class="n">toggle</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">conf</span><span class="p">[</span><span class="s2">&quot;previewBothSides&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">toggle</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">setMod</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">==</span> <span class="s2">&quot;answer&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">toggle</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">=</span> <span class="s2">&quot;question&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">render_card</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_state_and_mod</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="p">()</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">note</span><span class="p">()</span>
+        <span class="n">n</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">n</span><span class="o">.</span><span class="n">mod</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Previewer.state"><a class="viewcode-back" href="../../aqt.html#aqt.previewer.Previewer.state">[docs]</a>    <span class="k">def</span> <span class="nf">state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span></div></div>
+
+
+<div class="viewcode-block" id="MultiCardPreviewer"><a class="viewcode-back" href="../../aqt.html#aqt.previewer.MultiCardPreviewer">[docs]</a><span class="k">class</span> <span class="nc">MultiCardPreviewer</span><span class="p">(</span><span class="n">Previewer</span><span class="p">):</span>
+<div class="viewcode-block" id="MultiCardPreviewer.card"><a class="viewcode-back" href="../../aqt.html#aqt.previewer.MultiCardPreviewer.card">[docs]</a>    <span class="k">def</span> <span class="nf">card</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Card</span><span class="p">]:</span>
+        <span class="c1"># need to state explicitly it&#39;s not implement to avoid W0223</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="MultiCardPreviewer.card_changed"><a class="viewcode-back" href="../../aqt.html#aqt.previewer.MultiCardPreviewer.card_changed">[docs]</a>    <span class="k">def</span> <span class="nf">card_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="c1"># need to state explicitly it&#39;s not implement to avoid W0223</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+    <span class="k">def</span> <span class="nf">_create_gui</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_create_gui</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prev</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbox</span><span class="o">.</span><span class="n">addButton</span><span class="p">(</span><span class="s2">&quot;&lt;&quot;</span><span class="p">,</span> <span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">ActionRole</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prev</span><span class="o">.</span><span class="n">setAutoDefault</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prev</span><span class="o">.</span><span class="n">setShortcut</span><span class="p">(</span><span class="n">QKeySequence</span><span class="p">(</span><span class="s2">&quot;Left&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prev</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Shortcut key: Left arrow&quot;</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_next</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbox</span><span class="o">.</span><span class="n">addButton</span><span class="p">(</span><span class="s2">&quot;&gt;&quot;</span><span class="p">,</span> <span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">ActionRole</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_next</span><span class="o">.</span><span class="n">setAutoDefault</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_next</span><span class="o">.</span><span class="n">setShortcut</span><span class="p">(</span><span class="n">QKeySequence</span><span class="p">(</span><span class="s2">&quot;Right&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_next</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Shortcut key: Right arrow or Enter&quot;</span><span class="p">))</span>
+
+        <span class="n">qconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_prev</span><span class="o">.</span><span class="n">clicked</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_prev</span><span class="p">)</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_next</span><span class="o">.</span><span class="n">clicked</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_next</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_on_prev</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">==</span> <span class="s2">&quot;answer&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_show_both_sides</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">=</span> <span class="s2">&quot;question&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">render_card</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_on_prev_card</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_on_prev_card</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">_on_next</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">==</span> <span class="s2">&quot;question&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">=</span> <span class="s2">&quot;answer&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">render_card</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_on_next_card</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_on_next_card</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">_updateButtons</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_open</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prev</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_should_enable_prev</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_next</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_should_enable_next</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">_should_enable_prev</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">==</span> <span class="s2">&quot;answer&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_show_both_sides</span>
+
+    <span class="k">def</span> <span class="nf">_should_enable_next</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">==</span> <span class="s2">&quot;question&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_on_close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_on_close</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prev</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_next</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="BrowserPreviewer"><a class="viewcode-back" href="../../aqt.html#aqt.previewer.BrowserPreviewer">[docs]</a><span class="k">class</span> <span class="nc">BrowserPreviewer</span><span class="p">(</span><span class="n">MultiCardPreviewer</span><span class="p">):</span>
+    <span class="n">_last_card_id</span> <span class="o">=</span> <span class="mi">0</span>
+
+<div class="viewcode-block" id="BrowserPreviewer.card"><a class="viewcode-back" href="../../aqt.html#aqt.previewer.BrowserPreviewer.card">[docs]</a>    <span class="k">def</span> <span class="nf">card</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Card</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">singleCard</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">card</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="BrowserPreviewer.card_changed"><a class="viewcode-back" href="../../aqt.html#aqt.previewer.BrowserPreviewer.card_changed">[docs]</a>    <span class="k">def</span> <span class="nf">card_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">card</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">c</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">changed</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">id</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_card_id</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_last_card_id</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">id</span>
+            <span class="k">return</span> <span class="n">changed</span></div>
+
+    <span class="k">def</span> <span class="nf">_on_finished</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ok</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_on_finished</span><span class="p">(</span><span class="n">ok</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">previewButton</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_on_prev_card</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">editor</span><span class="o">.</span><span class="n">saveNow</span><span class="p">(</span>
+            <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_moveCur</span><span class="p">(</span><span class="n">QAbstractItemView</span><span class="o">.</span><span class="n">MoveUp</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_on_next_card</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">editor</span><span class="o">.</span><span class="n">saveNow</span><span class="p">(</span>
+            <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">_moveCur</span><span class="p">(</span><span class="n">QAbstractItemView</span><span class="o">.</span><span class="n">MoveDown</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_should_enable_prev</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_should_enable_prev</span><span class="p">()</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">currentRow</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">_should_enable_next</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_should_enable_next</span><span class="p">()</span>
+            <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">currentRow</span><span class="p">()</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">rowCount</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_render_scheduled</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_render_scheduled</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_updateButtons</span><span class="p">()</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Abdelrahman Hamdy
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

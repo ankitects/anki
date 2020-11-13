@@ -1,0 +1,365 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>aqt.dyndeckconf &mdash; Anki  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Anki
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.html">anki package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aqt.html">aqt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../genhooks_gui.html">genhooks_gui module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tools.html">tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Anki</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../aqt.html">aqt</a> &raquo;</li>
+        
+      <li>aqt.dyndeckconf</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for aqt.dyndeckconf</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright: Ankitects Pty Ltd and contributors</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span> <span class="nn">aqt</span>
+<span class="kn">from</span> <span class="nn">anki.lang</span> <span class="kn">import</span> <span class="n">_</span>
+<span class="kn">from</span> <span class="nn">aqt.qt</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">aqt.utils</span> <span class="kn">import</span> <span class="n">askUser</span><span class="p">,</span> <span class="n">openHelp</span><span class="p">,</span> <span class="n">restoreGeom</span><span class="p">,</span> <span class="n">saveGeom</span><span class="p">,</span> <span class="n">showWarning</span>
+
+
+<div class="viewcode-block" id="DeckConf"><a class="viewcode-back" href="../../aqt.html#aqt.dyndeckconf.DeckConf">[docs]</a><span class="k">class</span> <span class="nc">DeckConf</span><span class="p">(</span><span class="n">QDialog</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mw</span><span class="p">,</span> <span class="n">first</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">search</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">deck</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">QDialog</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mw</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span> <span class="o">=</span> <span class="n">mw</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deck</span> <span class="o">=</span> <span class="n">deck</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">current</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">search</span> <span class="o">=</span> <span class="n">search</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">form</span> <span class="o">=</span> <span class="n">aqt</span><span class="o">.</span><span class="n">forms</span><span class="o">.</span><span class="n">dyndconf</span><span class="o">.</span><span class="n">Ui_Dialog</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">setupUi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">first</span><span class="p">:</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Build&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Rebuild&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ok</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">buttonBox</span><span class="o">.</span><span class="n">addButton</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">AcceptRole</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">checkpoint</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Options&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWindowModality</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">WindowModal</span><span class="p">)</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">buttonBox</span><span class="o">.</span><span class="n">helpRequested</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">openHelp</span><span class="p">(</span><span class="s2">&quot;filtered&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Options for </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">deck</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
+        <span class="n">restoreGeom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;dyndeckconf&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialSetup</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loadConf</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">search</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">search</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">search</span> <span class="o">+</span> <span class="s2">&quot; is:due&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">search_2</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">search</span> <span class="o">+</span> <span class="s2">&quot; is:new&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">search</span><span class="o">.</span><span class="n">selectAll</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">schedVer</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">secondFilter</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
+        <span class="n">saveGeom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;dyndeckconf&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DeckConf.initialSetup"><a class="viewcode-back" href="../../aqt.html#aqt.dyndeckconf.DeckConf.initialSetup">[docs]</a>    <span class="k">def</span> <span class="nf">initialSetup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="kn">import</span> <span class="nn">anki.consts</span> <span class="k">as</span> <span class="nn">cs</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">order</span><span class="o">.</span><span class="n">addItems</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">dynOrderLabels</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">order_2</span><span class="o">.</span><span class="n">addItems</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">dynOrderLabels</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+
+        <span class="n">qconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">resched</span><span class="o">.</span><span class="n">stateChanged</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_onReschedToggled</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_onReschedToggled</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_state</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">previewDelayWidget</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span>
+            <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">resched</span><span class="o">.</span><span class="n">isChecked</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">schedVer</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="DeckConf.loadConf"><a class="viewcode-back" href="../../aqt.html#aqt.dyndeckconf.DeckConf.loadConf">[docs]</a>    <span class="k">def</span> <span class="nf">loadConf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">form</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">deck</span>
+
+        <span class="n">f</span><span class="o">.</span><span class="n">resched</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;resched&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_onReschedToggled</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">search</span><span class="p">,</span> <span class="n">limit</span><span class="p">,</span> <span class="n">order</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;terms&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">search</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">search</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">schedVer</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;delays&quot;</span><span class="p">]:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">listToUser</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;delays&quot;</span><span class="p">]))</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">stepsOn</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">steps</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">stepsOn</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">f</span><span class="o">.</span><span class="n">order</span><span class="o">.</span><span class="n">setCurrentIndex</span><span class="p">(</span><span class="n">order</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">limit</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">limit</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">previewDelay</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;previewDelay&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;terms&quot;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">search</span><span class="p">,</span> <span class="n">limit</span><span class="p">,</span> <span class="n">order</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;terms&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">search_2</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">search</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">order_2</span><span class="o">.</span><span class="n">setCurrentIndex</span><span class="p">(</span><span class="n">order</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">limit_2</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">limit</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">secondFilter</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">filter2group</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">order_2</span><span class="o">.</span><span class="n">setCurrentIndex</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">limit_2</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">secondFilter</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">filter2group</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DeckConf.saveConf"><a class="viewcode-back" href="../../aqt.html#aqt.dyndeckconf.DeckConf.saveConf">[docs]</a>    <span class="k">def</span> <span class="nf">saveConf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">form</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">deck</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;resched&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">resched</span><span class="o">.</span><span class="n">isChecked</span><span class="p">()</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;delays&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">schedVer</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">f</span><span class="o">.</span><span class="n">stepsOn</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+            <span class="n">steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">userToList</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">steps</span><span class="p">:</span>
+                <span class="n">d</span><span class="p">[</span><span class="s2">&quot;delays&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">steps</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">d</span><span class="p">[</span><span class="s2">&quot;delays&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">terms</span> <span class="o">=</span> <span class="p">[[</span><span class="n">f</span><span class="o">.</span><span class="n">search</span><span class="o">.</span><span class="n">text</span><span class="p">(),</span> <span class="n">f</span><span class="o">.</span><span class="n">limit</span><span class="o">.</span><span class="n">value</span><span class="p">(),</span> <span class="n">f</span><span class="o">.</span><span class="n">order</span><span class="o">.</span><span class="n">currentIndex</span><span class="p">()]]</span>
+
+        <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">secondFilter</span><span class="o">.</span><span class="n">isChecked</span><span class="p">():</span>
+            <span class="n">terms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">search_2</span><span class="o">.</span><span class="n">text</span><span class="p">(),</span> <span class="n">f</span><span class="o">.</span><span class="n">limit_2</span><span class="o">.</span><span class="n">value</span><span class="p">(),</span> <span class="n">f</span><span class="o">.</span><span class="n">order_2</span><span class="o">.</span><span class="n">currentIndex</span><span class="p">()]</span>
+            <span class="p">)</span>
+
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;terms&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">terms</span>
+        <span class="n">d</span><span class="p">[</span><span class="s2">&quot;previewDelay&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">previewDelay</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="DeckConf.reject"><a class="viewcode-back" href="../../aqt.html#aqt.dyndeckconf.DeckConf.reject">[docs]</a>    <span class="k">def</span> <span class="nf">reject</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ok</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">QDialog</span><span class="o">.</span><span class="n">reject</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DeckConf.accept"><a class="viewcode-back" href="../../aqt.html#aqt.dyndeckconf.DeckConf.accept">[docs]</a>    <span class="k">def</span> <span class="nf">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">saveConf</span><span class="p">():</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">rebuildDyn</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">askUser</span><span class="p">(</span>
+                <span class="n">_</span><span class="p">(</span>
+                    <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">The provided search did not match any cards. Would you like to revise \</span>
+<span class="sd">it?&quot;&quot;&quot;</span>
+                <span class="p">)</span>
+            <span class="p">):</span>
+                <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="n">QDialog</span><span class="o">.</span><span class="n">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+    <span class="c1"># Step load/save - fixme: share with std options screen</span>
+    <span class="c1">########################################################</span>
+
+<div class="viewcode-block" id="DeckConf.listToUser"><a class="viewcode-back" href="../../aqt.html#aqt.dyndeckconf.DeckConf.listToUser">[docs]</a>    <span class="k">def</span> <span class="nf">listToUser</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">l</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">l</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="DeckConf.userToList"><a class="viewcode-back" href="../../aqt.html#aqt.dyndeckconf.DeckConf.userToList">[docs]</a>    <span class="k">def</span> <span class="nf">userToList</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">minSize</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]]:</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">text</span><span class="p">())</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">item</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                <span class="k">assert</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+                    <span class="n">i</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="c1"># invalid, don&#39;t update</span>
+                <span class="n">showWarning</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Steps must be numbers.&quot;</span><span class="p">))</span>
+                <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">minSize</span><span class="p">:</span>
+            <span class="n">showWarning</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;At least one step is required.&quot;</span><span class="p">))</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">ret</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Abdelrahman Hamdy
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,670 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>anki.importing.anki2 &mdash; Anki  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+        <script async="async" kind="hypothesis" src="https://hypothes.is/embed.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home" alt="Documentation Home"> Anki
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../anki.html">anki package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../anki.importing.html">anki.importing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../aqt.html">aqt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../genhooks_gui.html">genhooks_gui module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tools.html">tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Anki</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>anki.importing.anki2</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for anki.importing.anki2</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright: Ankitects Pty Ltd and contributors</span>
+<span class="c1"># License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">unicodedata</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">from</span> <span class="nn">anki.collection</span> <span class="kn">import</span> <span class="n">Collection</span>
+<span class="kn">from</span> <span class="nn">anki.consts</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">anki.decks</span> <span class="kn">import</span> <span class="n">DeckManager</span>
+<span class="kn">from</span> <span class="nn">anki.importing.base</span> <span class="kn">import</span> <span class="n">Importer</span>
+<span class="kn">from</span> <span class="nn">anki.lang</span> <span class="kn">import</span> <span class="n">_</span>
+<span class="kn">from</span> <span class="nn">anki.utils</span> <span class="kn">import</span> <span class="n">intTime</span><span class="p">,</span> <span class="n">joinFields</span><span class="p">,</span> <span class="n">splitFields</span>
+
+<span class="n">GUID</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">MID</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">MOD</span> <span class="o">=</span> <span class="mi">3</span>
+
+
+<div class="viewcode-block" id="Anki2Importer"><a class="viewcode-back" href="../../../anki.importing.html#anki.importing.anki2.Anki2Importer">[docs]</a><span class="k">class</span> <span class="nc">Anki2Importer</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
+
+    <span class="n">needMapper</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">deckPrefix</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">allowUpdate</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">src</span><span class="p">:</span> <span class="n">Collection</span>
+    <span class="n">dst</span><span class="p">:</span> <span class="n">Collection</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">:</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+
+        <span class="c1"># set later, defined here for typechecking</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_decks</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mustResetLearning</span> <span class="o">=</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="Anki2Importer.run"><a class="viewcode-back" href="../../../anki.importing.html#anki.importing.anki2.Anki2Importer.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">media</span><span class="p">:</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prepareFiles</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">media</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Anki1 importer has provided us with a custom media folder</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">src</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">_dir</span> <span class="o">=</span> <span class="n">media</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_import</span><span class="p">()</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">src</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">save</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">downgrade</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_prepareFiles</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">importingV2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.anki21&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mustResetLearning</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dst</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">src</span> <span class="o">=</span> <span class="n">Collection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">importingV2</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">schedVer</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># any scheduling included?</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">src</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="s2">&quot;select 1 from cards where queue != 0 limit 1&quot;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mustResetLearning</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">_import</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_decks</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">deckPrefix</span><span class="p">:</span>
+            <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deckPrefix</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prepareTS</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prepareModels</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_importNotes</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_importCards</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_importStaticMedia</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_postImport</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">optimize</span><span class="p">()</span>
+
+    <span class="c1"># Notes</span>
+    <span class="c1">######################################################################</span>
+
+    <span class="k">def</span> <span class="nf">_logNoteRow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">noteRow</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;[</span><span class="si">%s</span><span class="s2">] </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">noteRow</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\x1f</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="p">)))</span>
+
+    <span class="k">def</span> <span class="nf">_importNotes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># build guid -&gt; (id,mod,mid) hash &amp; map of existing note ids</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_notes</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">existing</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="nb">id</span><span class="p">,</span> <span class="n">guid</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">mid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="s2">&quot;select id, guid, mod, mid from notes&quot;</span>
+        <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_notes</span><span class="p">[</span><span class="n">guid</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">mid</span><span class="p">)</span>
+            <span class="n">existing</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="c1"># we may need to rewrite the guid if the model schemas don&#39;t match,</span>
+        <span class="c1"># so we need to keep track of the changes for the card import stage</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_changedGuids</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># we ignore updates to changed schemas. we need to note the ignored</span>
+        <span class="c1"># guids, so we avoid importing invalid cards</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ignoredGuids</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># iterate over source collection</span>
+        <span class="n">add</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">update</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">dirty</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">usn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">usn</span><span class="p">()</span>
+        <span class="n">dupesIdentical</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">dupesIgnored</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">src</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;select * from notes&quot;</span><span class="p">):</span>
+            <span class="n">total</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="c1"># turn the db result into a mutable list</span>
+            <span class="n">note</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">note</span><span class="p">)</span>
+            <span class="n">shouldAdd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uniquifyNote</span><span class="p">(</span><span class="n">note</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">shouldAdd</span><span class="p">:</span>
+                <span class="c1"># ensure id is unique</span>
+                <span class="k">while</span> <span class="n">note</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">existing</span><span class="p">:</span>
+                    <span class="n">note</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">999</span>
+                <span class="n">existing</span><span class="p">[</span><span class="n">note</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="c1"># bump usn</span>
+                <span class="n">note</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="n">usn</span>
+                <span class="c1"># update media references in case of dupes</span>
+                <span class="n">note</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mungeMedia</span><span class="p">(</span><span class="n">note</span><span class="p">[</span><span class="n">MID</span><span class="p">],</span> <span class="n">note</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span>
+                <span class="n">add</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">note</span><span class="p">)</span>
+                <span class="n">dirty</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">note</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="c1"># note we have the added the guid</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_notes</span><span class="p">[</span><span class="n">note</span><span class="p">[</span><span class="n">GUID</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span><span class="n">note</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">note</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">note</span><span class="p">[</span><span class="n">MID</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># a duplicate or changed schema - safe to update?</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">allowUpdate</span><span class="p">:</span>
+                    <span class="n">oldNid</span><span class="p">,</span> <span class="n">oldMod</span><span class="p">,</span> <span class="n">oldMid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_notes</span><span class="p">[</span><span class="n">note</span><span class="p">[</span><span class="n">GUID</span><span class="p">]]</span>
+                    <span class="c1"># will update if incoming note more recent</span>
+                    <span class="k">if</span> <span class="n">oldMod</span> <span class="o">&lt;</span> <span class="n">note</span><span class="p">[</span><span class="n">MOD</span><span class="p">]:</span>
+                        <span class="c1"># safe if note types identical</span>
+                        <span class="k">if</span> <span class="n">oldMid</span> <span class="o">==</span> <span class="n">note</span><span class="p">[</span><span class="n">MID</span><span class="p">]:</span>
+                            <span class="c1"># incoming note should use existing id</span>
+                            <span class="n">note</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">oldNid</span>
+                            <span class="n">note</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="n">usn</span>
+                            <span class="n">note</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mungeMedia</span><span class="p">(</span><span class="n">note</span><span class="p">[</span><span class="n">MID</span><span class="p">],</span> <span class="n">note</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span>
+                            <span class="n">update</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">note</span><span class="p">)</span>
+                            <span class="n">dirty</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">note</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">dupesIgnored</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">note</span><span class="p">)</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_ignoredGuids</span><span class="p">[</span><span class="n">note</span><span class="p">[</span><span class="n">GUID</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">dupesIdentical</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">note</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Notes found in file: </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">total</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">dupesIgnored</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Notes that could not be imported as note type has changed: </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">dupesIgnored</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">update</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Notes updated, as file had newer version: </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">update</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">add</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Notes added from file: </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">add</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">dupesIdentical</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Notes skipped, as they&#39;re already in your collection: </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">dupesIdentical</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">dupesIgnored</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">dupesIgnored</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logNoteRow</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Skipped&quot;</span><span class="p">),</span> <span class="n">row</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">update</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">update</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logNoteRow</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Updated&quot;</span><span class="p">),</span> <span class="n">row</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">add</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">add</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logNoteRow</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Added&quot;</span><span class="p">),</span> <span class="n">row</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dupesIdentical</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">dupesIdentical</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_logNoteRow</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Identical&quot;</span><span class="p">),</span> <span class="n">row</span><span class="p">)</span>
+
+        <span class="c1"># export info for calling code</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dupes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dupesIdentical</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">added</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">updated</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">update</span><span class="p">)</span>
+        <span class="c1"># add to col</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span>
+            <span class="s2">&quot;insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)&quot;</span><span class="p">,</span> <span class="n">add</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span>
+            <span class="s2">&quot;insert or replace into notes values (?,?,?,?,?,?,?,?,?,?,?)&quot;</span><span class="p">,</span> <span class="n">update</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">updateFieldCache</span><span class="p">(</span><span class="n">dirty</span><span class="p">)</span>
+
+    <span class="c1"># determine if note is a duplicate, and adjust mid and/or guid as required</span>
+    <span class="c1"># returns true if note should be added</span>
+    <span class="k">def</span> <span class="nf">_uniquifyNote</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">note</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="n">origGuid</span> <span class="o">=</span> <span class="n">note</span><span class="p">[</span><span class="n">GUID</span><span class="p">]</span>
+        <span class="n">srcMid</span> <span class="o">=</span> <span class="n">note</span><span class="p">[</span><span class="n">MID</span><span class="p">]</span>
+        <span class="n">dstMid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mid</span><span class="p">(</span><span class="n">srcMid</span><span class="p">)</span>
+        <span class="c1"># duplicate schemas?</span>
+        <span class="k">if</span> <span class="n">srcMid</span> <span class="o">==</span> <span class="n">dstMid</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">origGuid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_notes</span>
+        <span class="c1"># differing schemas and note doesn&#39;t exist?</span>
+        <span class="n">note</span><span class="p">[</span><span class="n">MID</span><span class="p">]</span> <span class="o">=</span> <span class="n">dstMid</span>
+        <span class="k">if</span> <span class="n">origGuid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_notes</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="c1"># schema changed; don&#39;t import</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ignoredGuids</span><span class="p">[</span><span class="n">origGuid</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="c1"># Models</span>
+    <span class="c1">######################################################################</span>
+    <span class="c1"># Models in the two decks may share an ID but not a schema, so we need to</span>
+    <span class="c1"># compare the field &amp; template signature rather than just rely on ID. If</span>
+    <span class="c1"># the schemas don&#39;t match, we increment the mid and try again, creating a</span>
+    <span class="c1"># new model if necessary.</span>
+
+    <span class="k">def</span> <span class="nf">_prepareModels</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="s2">&quot;Prepare index of schema hashes.&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_modelMap</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="nf">_mid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">srcMid</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="s2">&quot;Return local id for remote MID.&quot;</span>
+        <span class="c1"># already processed this mid?</span>
+        <span class="k">if</span> <span class="n">srcMid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modelMap</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_modelMap</span><span class="p">[</span><span class="n">srcMid</span><span class="p">]</span>
+        <span class="n">mid</span> <span class="o">=</span> <span class="n">srcMid</span>
+        <span class="n">srcModel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">src</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">srcMid</span><span class="p">)</span>
+        <span class="n">srcScm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">src</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">scmhash</span><span class="p">(</span><span class="n">srcModel</span><span class="p">)</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="c1"># missing from target col?</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">have</span><span class="p">(</span><span class="n">mid</span><span class="p">):</span>
+                <span class="c1"># copy it over</span>
+                <span class="n">model</span> <span class="o">=</span> <span class="n">srcModel</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">model</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mid</span>
+                <span class="n">model</span><span class="p">[</span><span class="s2">&quot;usn&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">usn</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+                <span class="k">break</span>
+            <span class="c1"># there&#39;s an existing model; do the schemas match?</span>
+            <span class="n">dstModel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">mid</span><span class="p">)</span>
+            <span class="n">dstScm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">scmhash</span><span class="p">(</span><span class="n">dstModel</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">srcScm</span> <span class="o">==</span> <span class="n">dstScm</span><span class="p">:</span>
+                <span class="c1"># copy styling changes over if newer</span>
+                <span class="k">if</span> <span class="n">srcModel</span><span class="p">[</span><span class="s2">&quot;mod&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">dstModel</span><span class="p">[</span><span class="s2">&quot;mod&quot;</span><span class="p">]:</span>
+                    <span class="n">model</span> <span class="o">=</span> <span class="n">srcModel</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                    <span class="n">model</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mid</span>
+                    <span class="n">model</span><span class="p">[</span><span class="s2">&quot;usn&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">usn</span><span class="p">()</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+                <span class="k">break</span>
+            <span class="c1"># as they don&#39;t match, try next id</span>
+            <span class="n">mid</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="c1"># save map and return new mid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_modelMap</span><span class="p">[</span><span class="n">srcMid</span><span class="p">]</span> <span class="o">=</span> <span class="n">mid</span>
+        <span class="k">return</span> <span class="n">mid</span>
+
+    <span class="c1"># Decks</span>
+    <span class="c1">######################################################################</span>
+
+    <span class="k">def</span> <span class="nf">_did</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">did</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="s2">&quot;Given did in src col, return local id.&quot;</span>
+        <span class="c1"># already converted?</span>
+        <span class="k">if</span> <span class="n">did</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decks</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decks</span><span class="p">[</span><span class="n">did</span><span class="p">]</span>
+        <span class="c1"># get the name in src</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">src</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">did</span><span class="p">)</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+        <span class="c1"># if there&#39;s a prefix, replace the top level deck</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">deckPrefix</span><span class="p">:</span>
+            <span class="n">tmpname</span> <span class="o">=</span> <span class="s2">&quot;::&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DeckManager</span><span class="o">.</span><span class="n">path</span><span class="p">(</span><span class="n">name</span><span class="p">)[</span><span class="mi">1</span><span class="p">:])</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">deckPrefix</span>
+            <span class="k">if</span> <span class="n">tmpname</span><span class="p">:</span>
+                <span class="n">name</span> <span class="o">+=</span> <span class="s2">&quot;::&quot;</span> <span class="o">+</span> <span class="n">tmpname</span>
+        <span class="c1"># manually create any parents so we can pull in descriptions</span>
+        <span class="n">head</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">parent</span> <span class="ow">in</span> <span class="n">DeckManager</span><span class="o">.</span><span class="n">immediate_parent_path</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">head</span><span class="p">:</span>
+                <span class="n">head</span> <span class="o">+=</span> <span class="s2">&quot;::&quot;</span>
+            <span class="n">head</span> <span class="o">+=</span> <span class="n">parent</span>
+            <span class="n">idInSrc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">src</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="n">head</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_did</span><span class="p">(</span><span class="n">idInSrc</span><span class="p">)</span>
+        <span class="c1"># if target is a filtered deck, we&#39;ll need a new deck name</span>
+        <span class="n">deck</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">byName</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">deck</span> <span class="ow">and</span> <span class="n">deck</span><span class="p">[</span><span class="s2">&quot;dyn&quot;</span><span class="p">]:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">intTime</span><span class="p">())</span>
+        <span class="c1"># create in local</span>
+        <span class="n">newid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">id</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="c1"># pull conf over</span>
+        <span class="k">if</span> <span class="s2">&quot;conf&quot;</span> <span class="ow">in</span> <span class="n">g</span> <span class="ow">and</span> <span class="n">g</span><span class="p">[</span><span class="s2">&quot;conf&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">conf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">src</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="s2">&quot;conf&quot;</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">conf</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">update_config</span><span class="p">(</span><span class="n">conf</span><span class="p">)</span>
+            <span class="n">g2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">newid</span><span class="p">)</span>
+            <span class="n">g2</span><span class="p">[</span><span class="s2">&quot;conf&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="s2">&quot;conf&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">g2</span><span class="p">)</span>
+        <span class="c1"># save desc</span>
+        <span class="n">deck</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">newid</span><span class="p">)</span>
+        <span class="n">deck</span><span class="p">[</span><span class="s2">&quot;desc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="s2">&quot;desc&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">deck</span><span class="p">)</span>
+        <span class="c1"># add to deck map and return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_decks</span><span class="p">[</span><span class="n">did</span><span class="p">]</span> <span class="o">=</span> <span class="n">newid</span>
+        <span class="k">return</span> <span class="n">newid</span>
+
+    <span class="c1"># Cards</span>
+    <span class="c1">######################################################################</span>
+
+    <span class="k">def</span> <span class="nf">_importCards</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mustResetLearning</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">src</span><span class="o">.</span><span class="n">modSchema</span><span class="p">(</span><span class="n">check</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">src</span><span class="o">.</span><span class="n">changeSchedulerVer</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="c1"># build map of (guid, ord) -&gt; cid and used id cache</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cards</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">existing</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">guid</span><span class="p">,</span> <span class="nb">ord</span><span class="p">,</span> <span class="n">cid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="s2">&quot;select f.guid, c.ord, c.id from cards c, notes f &quot;</span> <span class="s2">&quot;where c.nid = f.id&quot;</span>
+        <span class="p">):</span>
+            <span class="n">existing</span><span class="p">[</span><span class="n">cid</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cards</span><span class="p">[(</span><span class="n">guid</span><span class="p">,</span> <span class="nb">ord</span><span class="p">)]</span> <span class="o">=</span> <span class="n">cid</span>
+        <span class="c1"># loop through src</span>
+        <span class="n">cards</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">revlog</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">cnt</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">usn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">usn</span><span class="p">()</span>
+        <span class="n">aheadBy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">src</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">today</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">today</span>
+        <span class="k">for</span> <span class="n">card</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">src</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="s2">&quot;select f.guid, f.mid, c.* from cards c, notes f &quot;</span> <span class="s2">&quot;where c.nid = f.id&quot;</span>
+        <span class="p">):</span>
+            <span class="n">guid</span> <span class="o">=</span> <span class="n">card</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">guid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_changedGuids</span><span class="p">:</span>
+                <span class="n">guid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_changedGuids</span><span class="p">[</span><span class="n">guid</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">guid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ignoredGuids</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="c1"># does the card&#39;s note exist in dst col?</span>
+            <span class="k">if</span> <span class="n">guid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_notes</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="c1"># does the card already exist in the dst col?</span>
+            <span class="nb">ord</span> <span class="o">=</span> <span class="n">card</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">guid</span><span class="p">,</span> <span class="nb">ord</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cards</span><span class="p">:</span>
+                <span class="c1"># fixme: in future, could update if newer mod time</span>
+                <span class="k">continue</span>
+            <span class="c1"># doesn&#39;t exist. strip off note info, and save src id for later</span>
+            <span class="n">card</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">card</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
+            <span class="n">scid</span> <span class="o">=</span> <span class="n">card</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="c1"># ensure the card id is unique</span>
+            <span class="k">while</span> <span class="n">card</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">existing</span><span class="p">:</span>
+                <span class="n">card</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">999</span>
+            <span class="n">existing</span><span class="p">[</span><span class="n">card</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="c1"># update cid, nid, etc</span>
+            <span class="n">card</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_notes</span><span class="p">[</span><span class="n">guid</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">card</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_did</span><span class="p">(</span><span class="n">card</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+            <span class="n">card</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="n">intTime</span><span class="p">()</span>
+            <span class="n">card</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="n">usn</span>
+            <span class="c1"># review cards have a due date relative to collection</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">card</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="n">QUEUE_TYPE_REV</span><span class="p">,</span> <span class="n">QUEUE_TYPE_DAY_LEARN_RELEARN</span><span class="p">)</span>
+                <span class="ow">or</span> <span class="n">card</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">==</span> <span class="n">CARD_TYPE_REV</span>
+            <span class="p">):</span>
+                <span class="n">card</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span> <span class="o">-=</span> <span class="n">aheadBy</span>
+            <span class="c1"># odue needs updating too</span>
+            <span class="k">if</span> <span class="n">card</span><span class="p">[</span><span class="mi">14</span><span class="p">]:</span>
+                <span class="n">card</span><span class="p">[</span><span class="mi">14</span><span class="p">]</span> <span class="o">-=</span> <span class="n">aheadBy</span>
+            <span class="c1"># if odid true, convert card from filtered to normal</span>
+            <span class="k">if</span> <span class="n">card</span><span class="p">[</span><span class="mi">15</span><span class="p">]:</span>
+                <span class="c1"># odid</span>
+                <span class="n">card</span><span class="p">[</span><span class="mi">15</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="c1"># odue</span>
+                <span class="n">card</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span> <span class="o">=</span> <span class="n">card</span><span class="p">[</span><span class="mi">14</span><span class="p">]</span>
+                <span class="n">card</span><span class="p">[</span><span class="mi">14</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="c1"># queue</span>
+                <span class="k">if</span> <span class="n">card</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">==</span> <span class="n">CARD_TYPE_LRN</span><span class="p">:</span>  <span class="c1"># type</span>
+                    <span class="n">card</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="o">=</span> <span class="n">QUEUE_TYPE_NEW</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">card</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="o">=</span> <span class="n">card</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span>
+                <span class="c1"># type</span>
+                <span class="k">if</span> <span class="n">card</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">==</span> <span class="n">CARD_TYPE_LRN</span><span class="p">:</span>
+                    <span class="n">card</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="n">CARD_TYPE_NEW</span>
+            <span class="n">cards</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">card</span><span class="p">)</span>
+            <span class="c1"># we need to import revlog, rewriting card ids and bumping usn</span>
+            <span class="k">for</span> <span class="n">rev</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">src</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;select * from revlog where cid = ?&quot;</span><span class="p">,</span> <span class="n">scid</span><span class="p">):</span>
+                <span class="n">rev</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">rev</span><span class="p">)</span>
+                <span class="n">rev</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">card</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">rev</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">usn</span><span class="p">()</span>
+                <span class="n">revlog</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rev</span><span class="p">)</span>
+            <span class="n">cnt</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="c1"># apply</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">insert or ignore into cards values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)&quot;&quot;&quot;</span><span class="p">,</span>
+            <span class="n">cards</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">insert or ignore into revlog values (?,?,?,?,?,?,?,?,?)&quot;&quot;&quot;</span><span class="p">,</span>
+            <span class="n">revlog</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Media</span>
+    <span class="c1">######################################################################</span>
+
+    <span class="c1"># note: this func only applies to imports of .anki2. for .apkg files, the</span>
+    <span class="c1"># apkg importer does the copying</span>
+    <span class="k">def</span> <span class="nf">_importStaticMedia</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Import any &#39;_foo&#39; prefixed media files regardless of whether</span>
+        <span class="c1"># they&#39;re used on notes or not</span>
+        <span class="nb">dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">src</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">dir</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="nb">dir</span><span class="p">):</span>
+            <span class="k">return</span>
+        <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="nb">dir</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">fname</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">have</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_writeDstMedia</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_srcMediaData</span><span class="p">(</span><span class="n">fname</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_mediaData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">dir</span><span class="p">:</span>
+            <span class="nb">dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">src</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">dir</span><span class="p">()</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span> <span class="n">fname</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">IOError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">):</span>
+            <span class="k">return</span> <span class="sa">b</span><span class="s2">&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_srcMediaData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+        <span class="s2">&quot;Data for FNAME in src collection.&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mediaData</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">src</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">dir</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">_dstMediaData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+        <span class="s2">&quot;Data for FNAME in dst collection.&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mediaData</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">dir</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">_writeDstMedia</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">dir</span><span class="p">(),</span> <span class="n">unicodedata</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="s2">&quot;NFC&quot;</span><span class="p">,</span> <span class="n">fname</span><span class="p">))</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">IOError</span><span class="p">):</span>
+            <span class="c1"># the user likely used subdirectories</span>
+            <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">_mungeMedia</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mid</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">fieldsStr</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="n">splitFields</span><span class="p">(</span><span class="n">fieldsStr</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">repl</span><span class="p">(</span><span class="n">match</span><span class="p">):</span>
+            <span class="n">fname</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;fname&quot;</span><span class="p">)</span>
+            <span class="n">srcData</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_srcMediaData</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+            <span class="n">dstData</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dstMediaData</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">srcData</span><span class="p">:</span>
+                <span class="c1"># file was not in source, ignore</span>
+                <span class="k">return</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="c1"># if model-local file exists from a previous import, use that</span>
+            <span class="n">name</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+            <span class="n">lname</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_</span><span class="si">%s%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">mid</span><span class="p">,</span> <span class="n">ext</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">have</span><span class="p">(</span><span class="n">lname</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">lname</span><span class="p">)</span>
+            <span class="c1"># if missing or the same, pass unmodified</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">dstData</span> <span class="ow">or</span> <span class="n">srcData</span> <span class="o">==</span> <span class="n">dstData</span><span class="p">:</span>
+                <span class="c1"># need to copy?</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">dstData</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_writeDstMedia</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">srcData</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="c1"># exists but does not match, so we need to dedupe</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_writeDstMedia</span><span class="p">(</span><span class="n">lname</span><span class="p">,</span> <span class="n">srcData</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">lname</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">fields</span><span class="p">)):</span>
+            <span class="n">fields</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">transformNames</span><span class="p">(</span><span class="n">fields</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">repl</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">joinFields</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span>
+
+    <span class="c1"># Post-import cleanup</span>
+    <span class="c1">######################################################################</span>
+
+    <span class="k">def</span> <span class="nf">_postImport</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">did</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_decks</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">maybeRandomizeDeck</span><span class="p">(</span><span class="n">did</span><span class="p">)</span>
+        <span class="c1"># make sure new position is correct</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">conf</span><span class="p">[</span><span class="s2">&quot;nextPos&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="s2">&quot;select max(due)+1 from cards where type = 0&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">save</span><span class="p">()</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Abdelrahman Hamdy
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

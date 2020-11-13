@@ -1,0 +1,326 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>anki.consts &mdash; Anki  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Anki
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.html">anki package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aqt.html">aqt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../genhooks_gui.html">genhooks_gui module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tools.html">tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Anki</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>anki.consts</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for anki.consts</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright: Ankitects Pty Ltd and contributors</span>
+<span class="c1"># License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span>
+
+<span class="kn">from</span> <span class="nn">anki.lang</span> <span class="kn">import</span> <span class="n">_</span>
+
+<span class="c1"># whether new cards should be mixed with reviews, or shown first or last</span>
+<span class="n">NEW_CARDS_DISTRIBUTE</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">NEW_CARDS_LAST</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">NEW_CARDS_FIRST</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="c1"># new card insertion order</span>
+<span class="n">NEW_CARDS_RANDOM</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">NEW_CARDS_DUE</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="c1"># Queue types</span>
+<span class="n">QUEUE_TYPE_MANUALLY_BURIED</span> <span class="o">=</span> <span class="o">-</span><span class="mi">3</span>
+<span class="n">QUEUE_TYPE_SIBLING_BURIED</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span>
+<span class="n">QUEUE_TYPE_SUSPENDED</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+<span class="n">QUEUE_TYPE_NEW</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">QUEUE_TYPE_LRN</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">QUEUE_TYPE_REV</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">QUEUE_TYPE_DAY_LEARN_RELEARN</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">QUEUE_TYPE_PREVIEW</span> <span class="o">=</span> <span class="mi">4</span>
+
+<span class="c1"># Card types</span>
+<span class="n">CARD_TYPE_NEW</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">CARD_TYPE_LRN</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">CARD_TYPE_REV</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">CARD_TYPE_RELEARNING</span> <span class="o">=</span> <span class="mi">3</span>
+
+<span class="c1"># removal types</span>
+<span class="n">REM_CARD</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">REM_NOTE</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">REM_DECK</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="c1"># count display</span>
+<span class="n">COUNT_ANSWERED</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">COUNT_REMAINING</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="c1"># media log</span>
+<span class="n">MEDIA_ADD</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">MEDIA_REM</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="c1"># Kind of decks</span>
+<span class="n">DECK_STD</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">DECK_DYN</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="c1"># dynamic deck order</span>
+<span class="n">DYN_OLDEST</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">DYN_RANDOM</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">DYN_SMALLINT</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">DYN_BIGINT</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">DYN_LAPSES</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">DYN_ADDED</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">DYN_DUE</span> <span class="o">=</span> <span class="mi">6</span>
+<span class="n">DYN_REVADDED</span> <span class="o">=</span> <span class="mi">7</span>
+<span class="n">DYN_DUEPRIORITY</span> <span class="o">=</span> <span class="mi">8</span>
+
+<span class="n">DYN_MAX_SIZE</span> <span class="o">=</span> <span class="mi">99999</span>
+
+<span class="c1"># model types</span>
+<span class="n">MODEL_STD</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">MODEL_CLOZE</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="n">STARTING_FACTOR</span> <span class="o">=</span> <span class="mi">2500</span>
+
+<span class="n">HELP_SITE</span> <span class="o">=</span> <span class="s2">&quot;https://apps.ankiweb.net/docs/manual.html&quot;</span>
+
+<span class="c1"># Leech actions</span>
+<span class="n">LEECH_SUSPEND</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">LEECH_TAGONLY</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="c1"># Buttons</span>
+<span class="n">BUTTON_ONE</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">BUTTON_TWO</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">BUTTON_THREE</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">BUTTON_FOUR</span> <span class="o">=</span> <span class="mi">4</span>
+
+<span class="c1"># Revlog types</span>
+<span class="n">REVLOG_LRN</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">REVLOG_REV</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">REVLOG_RELRN</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">REVLOG_CRAM</span> <span class="o">=</span> <span class="mi">3</span>
+
+<span class="c1"># Labels</span>
+<span class="c1">##########################################################################</span>
+
+
+<div class="viewcode-block" id="newCardOrderLabels"><a class="viewcode-back" href="../../anki.html#anki.consts.newCardOrderLabels">[docs]</a><span class="k">def</span> <span class="nf">newCardOrderLabels</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="mi">0</span><span class="p">:</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Show new cards in random order&quot;</span><span class="p">),</span>
+        <span class="mi">1</span><span class="p">:</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Show new cards in order added&quot;</span><span class="p">),</span>
+    <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="newCardSchedulingLabels"><a class="viewcode-back" href="../../anki.html#anki.consts.newCardSchedulingLabels">[docs]</a><span class="k">def</span> <span class="nf">newCardSchedulingLabels</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="mi">0</span><span class="p">:</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Mix new cards and reviews&quot;</span><span class="p">),</span>
+        <span class="mi">1</span><span class="p">:</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Show new cards after reviews&quot;</span><span class="p">),</span>
+        <span class="mi">2</span><span class="p">:</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Show new cards before reviews&quot;</span><span class="p">),</span>
+    <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="alignmentLabels"><a class="viewcode-back" href="../../anki.html#anki.consts.alignmentLabels">[docs]</a><span class="k">def</span> <span class="nf">alignmentLabels</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="mi">0</span><span class="p">:</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Center&quot;</span><span class="p">),</span>
+        <span class="mi">1</span><span class="p">:</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Left&quot;</span><span class="p">),</span>
+        <span class="mi">2</span><span class="p">:</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Right&quot;</span><span class="p">),</span>
+    <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="dynOrderLabels"><a class="viewcode-back" href="../../anki.html#anki.consts.dynOrderLabels">[docs]</a><span class="k">def</span> <span class="nf">dynOrderLabels</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="mi">0</span><span class="p">:</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Oldest seen first&quot;</span><span class="p">),</span>
+        <span class="mi">1</span><span class="p">:</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Random&quot;</span><span class="p">),</span>
+        <span class="mi">2</span><span class="p">:</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Increasing intervals&quot;</span><span class="p">),</span>
+        <span class="mi">3</span><span class="p">:</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Decreasing intervals&quot;</span><span class="p">),</span>
+        <span class="mi">4</span><span class="p">:</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Most lapses&quot;</span><span class="p">),</span>
+        <span class="mi">5</span><span class="p">:</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Order added&quot;</span><span class="p">),</span>
+        <span class="mi">6</span><span class="p">:</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Order due&quot;</span><span class="p">),</span>
+        <span class="mi">7</span><span class="p">:</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Latest added first&quot;</span><span class="p">),</span>
+        <span class="mi">8</span><span class="p">:</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Relative overdueness&quot;</span><span class="p">),</span>
+    <span class="p">}</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Abdelrahman Hamdy
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

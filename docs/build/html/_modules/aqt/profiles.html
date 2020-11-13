@@ -1,0 +1,856 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>aqt.profiles &mdash; Anki  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+        <script async="async" kind="hypothesis" src="https://hypothes.is/embed.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Anki
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.html">anki package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.importing.html">anki.importing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aqt.html">aqt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../genhooks_gui.html">genhooks_gui module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tools.html">tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Anki</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../aqt.html">aqt</a> &raquo;</li>
+        
+      <li>aqt.profiles</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for aqt.profiles</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright: Ankitects Pty Ltd and contributors</span>
+<span class="c1"># License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html</span>
+
+<span class="c1"># Profile handling</span>
+<span class="c1">##########################################################################</span>
+<span class="c1"># - Saves in pickles rather than json to easily store Qt window state.</span>
+<span class="c1"># - Saves in sqlite rather than a flat file so the config can&#39;t be corrupted</span>
+
+<span class="kn">import</span> <span class="nn">io</span>
+<span class="kn">import</span> <span class="nn">locale</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">from</span> <span class="nn">send2trash</span> <span class="kn">import</span> <span class="n">send2trash</span>
+
+<span class="kn">import</span> <span class="nn">anki.lang</span>
+<span class="kn">import</span> <span class="nn">aqt.forms</span>
+<span class="kn">import</span> <span class="nn">aqt.sound</span>
+<span class="kn">from</span> <span class="nn">anki</span> <span class="kn">import</span> <span class="n">Collection</span>
+<span class="kn">from</span> <span class="nn">anki.db</span> <span class="kn">import</span> <span class="n">DB</span>
+<span class="kn">from</span> <span class="nn">anki.lang</span> <span class="kn">import</span> <span class="n">_</span><span class="p">,</span> <span class="n">without_unicode_isolation</span>
+<span class="kn">from</span> <span class="nn">anki.rsbackend</span> <span class="kn">import</span> <span class="n">SyncAuth</span>
+<span class="kn">from</span> <span class="nn">anki.utils</span> <span class="kn">import</span> <span class="n">intTime</span><span class="p">,</span> <span class="n">isMac</span><span class="p">,</span> <span class="n">isWin</span>
+<span class="kn">from</span> <span class="nn">aqt</span> <span class="kn">import</span> <span class="n">appHelpSite</span>
+<span class="kn">from</span> <span class="nn">aqt.qt</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">aqt.utils</span> <span class="kn">import</span> <span class="n">TR</span><span class="p">,</span> <span class="n">locale_dir</span><span class="p">,</span> <span class="n">showWarning</span><span class="p">,</span> <span class="n">tr</span>
+
+<span class="n">metaConf</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+    <span class="n">ver</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">updates</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">created</span><span class="o">=</span><span class="n">intTime</span><span class="p">(),</span>
+    <span class="nb">id</span><span class="o">=</span><span class="n">random</span><span class="o">.</span><span class="n">randrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span> <span class="o">**</span> <span class="mi">63</span><span class="p">),</span>
+    <span class="n">lastMsg</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">suppressUpdate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">firstRun</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">defaultLang</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">profileConf</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+    <span class="c1"># profile</span>
+    <span class="n">mainWindowGeom</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">mainWindowState</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">numBackups</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+    <span class="n">lastOptimize</span><span class="o">=</span><span class="n">intTime</span><span class="p">(),</span>
+    <span class="c1"># editing</span>
+    <span class="n">fullSearch</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">searchHistory</span><span class="o">=</span><span class="p">[],</span>
+    <span class="n">lastColour</span><span class="o">=</span><span class="s2">&quot;#00f&quot;</span><span class="p">,</span>
+    <span class="n">stripHTML</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">pastePNG</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="c1"># not exposed in gui</span>
+    <span class="n">deleteMedia</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">preserveKeyboard</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="c1"># syncing</span>
+    <span class="n">syncKey</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">syncMedia</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">autoSync</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="c1"># importing</span>
+    <span class="n">allowHTML</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">importMode</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="LoadMetaResult"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.LoadMetaResult">[docs]</a><span class="k">class</span> <span class="nc">LoadMetaResult</span><span class="p">:</span>
+    <span class="n">firstTime</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">loadError</span><span class="p">:</span> <span class="nb">bool</span></div>
+
+
+<div class="viewcode-block" id="AnkiRestart"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.AnkiRestart">[docs]</a><span class="k">class</span> <span class="nc">AnkiRestart</span><span class="p">(</span><span class="ne">SystemExit</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exitcode</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;exitcode&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ProfileManager"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager">[docs]</a><span class="k">class</span> <span class="nc">ProfileManager</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1">## Settings which should be forgotten each Anki restart</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># instantiate base folder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setBaseFolder</span><span class="p">(</span><span class="n">base</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ProfileManager.setupMeta"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager.setupMeta">[docs]</a>    <span class="k">def</span> <span class="nf">setupMeta</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LoadMetaResult</span><span class="p">:</span>
+        <span class="c1"># load metadata</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loadMeta</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">firstRun</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">firstTime</span>
+        <span class="k">return</span> <span class="n">res</span></div>
+
+    <span class="c1"># profile load on startup</span>
+<div class="viewcode-block" id="ProfileManager.openProfile"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager.openProfile">[docs]</a>    <span class="k">def</span> <span class="nf">openProfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profile</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">profile</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">profile</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">profiles</span><span class="p">():</span>
+                <span class="n">QMessageBox</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Error&quot;</span><span class="p">,</span> <span class="s2">&quot;Requested profile does not exist.&quot;</span><span class="p">)</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Provided profile does not exist.&quot;</span><span class="p">)</span></div>
+
+    <span class="c1"># Base creation</span>
+    <span class="c1">######################################################################</span>
+
+<div class="viewcode-block" id="ProfileManager.ensureBaseExists"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager.ensureBaseExists">[docs]</a>    <span class="k">def</span> <span class="nf">ensureBaseExists</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ensureExists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="p">)</span></div>
+
+    <span class="c1"># Folder migration</span>
+    <span class="c1">######################################################################</span>
+
+    <span class="k">def</span> <span class="nf">_oldFolderLocation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">isMac</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~/Documents/Anki&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">isWin</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">aqt.winpaths</span> <span class="kn">import</span> <span class="n">get_personal</span>
+
+            <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">get_personal</span><span class="p">(),</span> <span class="s2">&quot;Anki&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~/Anki&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">p</span>
+            <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~/Documents/Anki&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ProfileManager.maybeMigrateFolder"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager.maybeMigrateFolder">[docs]</a>    <span class="k">def</span> <span class="nf">maybeMigrateFolder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">newBase</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base</span>
+        <span class="n">oldBase</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_oldFolderLocation</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">oldBase</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">oldBase</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># if anything goes wrong with UI, reset to the old behavior of always migrating</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_tryToMigrateFolder</span><span class="p">(</span><span class="n">oldBase</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">AnkiRestart</span><span class="p">:</span>
+                <span class="k">raise</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;migration failed&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">base</span> <span class="o">=</span> <span class="n">newBase</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">oldBase</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_tryToMigrateFolder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">oldBase</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">PyQt5</span> <span class="kn">import</span> <span class="n">QtWidgets</span><span class="p">,</span> <span class="n">QtGui</span>
+
+        <span class="n">app</span> <span class="o">=</span> <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QApplication</span><span class="p">([])</span>
+        <span class="n">icon</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QIcon</span><span class="p">()</span>
+        <span class="n">icon</span><span class="o">.</span><span class="n">addPixmap</span><span class="p">(</span>
+            <span class="n">QtGui</span><span class="o">.</span><span class="n">QPixmap</span><span class="p">(</span><span class="s2">&quot;:/icons/anki.png&quot;</span><span class="p">),</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QIcon</span><span class="o">.</span><span class="n">Normal</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QIcon</span><span class="o">.</span><span class="n">Off</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">window_title</span> <span class="o">=</span> <span class="s2">&quot;Data Folder Migration&quot;</span>
+        <span class="n">migration_directories</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">    </span><span class="si">{oldBase}</span><span class="se">\n\n</span><span class="s2">to</span><span class="se">\n\n</span><span class="s2">    </span><span class="si">{self.base}</span><span class="s2">&quot;</span>
+
+        <span class="n">confirmation</span> <span class="o">=</span> <span class="n">QMessageBox</span><span class="p">()</span>
+        <span class="n">confirmation</span><span class="o">.</span><span class="n">setIcon</span><span class="p">(</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">Warning</span><span class="p">)</span>
+        <span class="n">confirmation</span><span class="o">.</span><span class="n">setWindowIcon</span><span class="p">(</span><span class="n">icon</span><span class="p">)</span>
+        <span class="n">confirmation</span><span class="o">.</span><span class="n">setStandardButtons</span><span class="p">(</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">Ok</span> <span class="o">|</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Cancel</span><span class="p">)</span>
+        <span class="n">confirmation</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="n">window_title</span><span class="p">)</span>
+        <span class="n">confirmation</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span>
+            <span class="s2">&quot;Anki needs to move its data folder from Documents/Anki to a new location. Proceed?&quot;</span>
+        <span class="p">)</span>
+        <span class="n">retval</span> <span class="o">=</span> <span class="n">confirmation</span><span class="o">.</span><span class="n">exec</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">retval</span> <span class="o">==</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Ok</span><span class="p">:</span>
+            <span class="n">progress</span> <span class="o">=</span> <span class="n">QMessageBox</span><span class="p">()</span>
+            <span class="n">progress</span><span class="o">.</span><span class="n">setIcon</span><span class="p">(</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">Information</span><span class="p">)</span>
+            <span class="n">progress</span><span class="o">.</span><span class="n">setStandardButtons</span><span class="p">(</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">NoButton</span><span class="p">)</span>
+            <span class="n">progress</span><span class="o">.</span><span class="n">setWindowIcon</span><span class="p">(</span><span class="n">icon</span><span class="p">)</span>
+            <span class="n">progress</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="n">window_title</span><span class="p">)</span>
+            <span class="n">progress</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;Please wait...&quot;</span><span class="p">)</span>
+            <span class="n">progress</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+            <span class="n">app</span><span class="o">.</span><span class="n">processEvents</span><span class="p">()</span>
+
+            <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">oldBase</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="p">)</span>
+            <span class="n">progress</span><span class="o">.</span><span class="n">hide</span><span class="p">()</span>
+
+            <span class="n">completion</span> <span class="o">=</span> <span class="n">QMessageBox</span><span class="p">()</span>
+            <span class="n">completion</span><span class="o">.</span><span class="n">setIcon</span><span class="p">(</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">Information</span><span class="p">)</span>
+            <span class="n">completion</span><span class="o">.</span><span class="n">setStandardButtons</span><span class="p">(</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">Ok</span><span class="p">)</span>
+            <span class="n">completion</span><span class="o">.</span><span class="n">setWindowIcon</span><span class="p">(</span><span class="n">icon</span><span class="p">)</span>
+            <span class="n">completion</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="n">window_title</span><span class="p">)</span>
+            <span class="n">completion</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;Migration complete. Please start Anki again.&quot;</span><span class="p">)</span>
+            <span class="n">completion</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+            <span class="n">completion</span><span class="o">.</span><span class="n">exec</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">diag</span> <span class="o">=</span> <span class="n">QMessageBox</span><span class="p">()</span>
+            <span class="n">diag</span><span class="o">.</span><span class="n">setIcon</span><span class="p">(</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">Warning</span><span class="p">)</span>
+            <span class="n">diag</span><span class="o">.</span><span class="n">setWindowIcon</span><span class="p">(</span><span class="n">icon</span><span class="p">)</span>
+            <span class="n">diag</span><span class="o">.</span><span class="n">setStandardButtons</span><span class="p">(</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">Ok</span><span class="p">)</span>
+            <span class="n">diag</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="n">window_title</span><span class="p">)</span>
+            <span class="n">diag</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span>
+                <span class="s2">&quot;Migration aborted. If you would like to keep the old folder location, please &quot;</span>
+                <span class="s2">&quot;see the Startup Options section of the manual. Anki will now quit.&quot;</span>
+            <span class="p">)</span>
+            <span class="n">diag</span><span class="o">.</span><span class="n">exec</span><span class="p">()</span>
+
+        <span class="k">raise</span> <span class="n">AnkiRestart</span><span class="p">(</span><span class="n">exitcode</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># Profile load/save</span>
+    <span class="c1">######################################################################</span>
+
+<div class="viewcode-block" id="ProfileManager.profiles"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager.profiles">[docs]</a>    <span class="k">def</span> <span class="nf">profiles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">names</span><span class="p">():</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="s2">&quot;select name from profiles where name != &#39;_global&#39;&quot;</span><span class="p">)</span>
+
+        <span class="n">n</span> <span class="o">=</span> <span class="n">names</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">n</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ensureProfile</span><span class="p">()</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="n">names</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">n</span></div>
+
+    <span class="k">def</span> <span class="nf">_unpickle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">class</span> <span class="nc">Unpickler</span><span class="p">(</span><span class="n">pickle</span><span class="o">.</span><span class="n">Unpickler</span><span class="p">):</span>
+            <span class="k">def</span> <span class="nf">find_class</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">module</span> <span class="o">==</span> <span class="s2">&quot;PyQt5.sip&quot;</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="kn">import</span> <span class="nn">PyQt5.sip</span>  <span class="c1"># pylint: disable=unused-import</span>
+                    <span class="k">except</span><span class="p">:</span>
+                        <span class="c1"># use old sip location</span>
+                        <span class="n">module</span> <span class="o">=</span> <span class="s2">&quot;sip&quot;</span>
+                <span class="n">fn</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">find_class</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">module</span> <span class="o">==</span> <span class="s2">&quot;sip&quot;</span> <span class="ow">and</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;_unpickle_type&quot;</span><span class="p">:</span>
+
+                    <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="n">mod</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;PyQt4&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">obj</span> <span class="o">==</span> <span class="s2">&quot;QByteArray&quot;</span><span class="p">:</span>
+                            <span class="c1"># can&#39;t trust str objects from python 2</span>
+                            <span class="k">return</span> <span class="n">QByteArray</span><span class="p">()</span>
+                        <span class="k">return</span> <span class="n">fn</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+
+                    <span class="k">return</span> <span class="n">wrapper</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">fn</span>
+
+        <span class="n">up</span> <span class="o">=</span> <span class="n">Unpickler</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">up</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_pickle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">pickle</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ProfileManager.load"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">name</span> <span class="o">!=</span> <span class="s2">&quot;_global&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
+            <span class="s2">&quot;select cast(data as blob) from profiles where name = ?&quot;</span><span class="p">,</span> <span class="n">name</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">profile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unpickle</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">QMessageBox</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="kc">None</span><span class="p">,</span>
+                <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Profile Corrupt&quot;</span><span class="p">),</span>
+                <span class="n">_</span><span class="p">(</span>
+                    <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">Anki could not read your profile data. Window sizes and your sync login \</span>
+<span class="sd">details have been forgotten.&quot;&quot;&quot;</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+            <span class="n">traceback</span><span class="o">.</span><span class="n">print_stack</span><span class="p">()</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;resetting corrupt profile&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">profile</span> <span class="o">=</span> <span class="n">profileConf</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="ProfileManager.save"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="s2">&quot;update profiles set data = ? where name = ?&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pickle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pickle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="p">),</span> <span class="s2">&quot;_global&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ProfileManager.create"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="n">prof</span> <span class="o">=</span> <span class="n">profileConf</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="s2">&quot;insert or ignore into profiles values (?, ?)&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pickle</span><span class="p">(</span><span class="n">prof</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ProfileManager.remove"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager.remove">[docs]</a>    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">profileFolder</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+            <span class="n">send2trash</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;delete from profiles where name = ?&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ProfileManager.trashCollection"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager.trashCollection">[docs]</a>    <span class="k">def</span> <span class="nf">trashCollection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collectionPath</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+            <span class="n">send2trash</span><span class="p">(</span><span class="n">p</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ProfileManager.rename"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager.rename">[docs]</a>    <span class="k">def</span> <span class="nf">rename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="n">oldName</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">oldFolder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">profileFolder</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="n">newFolder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">profileFolder</span><span class="p">(</span><span class="n">create</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">newFolder</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">oldFolder</span> <span class="o">!=</span> <span class="n">newFolder</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">oldFolder</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="n">newFolder</span><span class="o">.</span><span class="n">lower</span><span class="p">()):</span>
+                <span class="c1"># OS is telling us the folder exists because it does not take</span>
+                <span class="c1"># case into account; use a temporary folder location</span>
+                <span class="n">midFolder</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">oldFolder</span><span class="p">,</span> <span class="s2">&quot;-temp&quot;</span><span class="p">])</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">midFolder</span><span class="p">):</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">oldFolder</span><span class="p">,</span> <span class="n">midFolder</span><span class="p">)</span>
+                    <span class="n">oldFolder</span> <span class="o">=</span> <span class="n">midFolder</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">showWarning</span><span class="p">(</span>
+                        <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Please remove the folder </span><span class="si">%s</span><span class="s2"> and try again.&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">midFolder</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">oldName</span>
+                    <span class="k">return</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">showWarning</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Folder already exists.&quot;</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">oldName</span>
+                <span class="k">return</span>
+
+        <span class="c1"># update name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;update profiles set name = ? where name = ?&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">oldName</span><span class="p">)</span>
+        <span class="c1"># rename folder</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">oldFolder</span><span class="p">,</span> <span class="n">newFolder</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+            <span class="k">if</span> <span class="s2">&quot;WinError 5&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                <span class="n">showWarning</span><span class="p">(</span>
+                    <span class="n">_</span><span class="p">(</span>
+                        <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">Anki could not rename your profile because it could not rename the profile \</span>
+<span class="sd">folder on disk. Please ensure you have permission to write to Documents/Anki \</span>
+<span class="sd">and no other programs are accessing your profile folders, then try again.&quot;&quot;&quot;</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+            <span class="k">raise</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
+
+    <span class="c1"># Folder handling</span>
+    <span class="c1">######################################################################</span>
+
+<div class="viewcode-block" id="ProfileManager.profileFolder"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager.profileFolder">[docs]</a>    <span class="k">def</span> <span class="nf">profileFolder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">create</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">create</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ensureExists</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">path</span></div>
+
+<div class="viewcode-block" id="ProfileManager.addonFolder"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager.addonFolder">[docs]</a>    <span class="k">def</span> <span class="nf">addonFolder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ensureExists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="s2">&quot;addons21&quot;</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="ProfileManager.backupFolder"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager.backupFolder">[docs]</a>    <span class="k">def</span> <span class="nf">backupFolder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ensureExists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profileFolder</span><span class="p">(),</span> <span class="s2">&quot;backups&quot;</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="ProfileManager.collectionPath"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager.collectionPath">[docs]</a>    <span class="k">def</span> <span class="nf">collectionPath</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profileFolder</span><span class="p">(),</span> <span class="s2">&quot;collection.anki2&quot;</span><span class="p">)</span></div>
+
+    <span class="c1"># Downgrade</span>
+    <span class="c1">######################################################################</span>
+
+<div class="viewcode-block" id="ProfileManager.downgrade"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager.downgrade">[docs]</a>    <span class="k">def</span> <span class="nf">downgrade</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profiles</span><span class="o">=</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="s2">&quot;Downgrade all profiles. Return a list of profiles that couldn&#39;t be opened.&quot;</span>
+        <span class="n">problem_profiles</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">profiles</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s2">&quot;collection.anki2&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="k">with</span> <span class="n">DB</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">db</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="s2">&quot;select ver from col&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">11</span><span class="p">:</span>
+                    <span class="c1"># nothing to do</span>
+                    <span class="k">continue</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">c</span> <span class="o">=</span> <span class="n">Collection</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+                <span class="n">c</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">save</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">downgrade</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                <span class="n">problem_profiles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">problem_profiles</span></div>
+
+    <span class="c1"># Helpers</span>
+    <span class="c1">######################################################################</span>
+
+    <span class="k">def</span> <span class="nf">_ensureExists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">path</span>
+
+    <span class="k">def</span> <span class="nf">_setBaseFolder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmdlineBase</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">cmdlineBase</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">base</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">cmdlineBase</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ANKI_BASE&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">base</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;ANKI_BASE&quot;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">base</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defaultBase</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">maybeMigrateFolder</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ensureBaseExists</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_defaultBase</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">isWin</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">aqt.winpaths</span> <span class="kn">import</span> <span class="n">get_appdata</span>
+
+            <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">get_appdata</span><span class="p">(),</span> <span class="s2">&quot;Anki2&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">isMac</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~/Library/Application Support/Anki2&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dataDir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="s2">&quot;XDG_DATA_HOME&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~/.local/share&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dataDir</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dataDir</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataDir</span><span class="p">,</span> <span class="s2">&quot;Anki2&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_loadMeta</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">retrying</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LoadMetaResult</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">LoadMetaResult</span><span class="p">()</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">firstTime</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">loadError</span> <span class="o">=</span> <span class="n">retrying</span>
+
+        <span class="n">opath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="s2">&quot;prefs.db&quot;</span><span class="p">)</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="s2">&quot;prefs21.db&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">retrying</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">opath</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">opath</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+
+        <span class="n">result</span><span class="o">.</span><span class="n">firstTime</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">recover</span><span class="p">():</span>
+            <span class="c1"># if we can&#39;t load profile, start with a new one</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="k">pass</span>
+            <span class="k">for</span> <span class="n">suffix</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;-journal&quot;</span><span class="p">):</span>
+                <span class="n">fpath</span> <span class="o">=</span> <span class="n">path</span> <span class="o">+</span> <span class="n">suffix</span>
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">fpath</span><span class="p">):</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">fpath</span><span class="p">)</span>
+
+        <span class="c1"># open DB file and read data</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="o">=</span> <span class="n">DB</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="s2">&quot;pragma integrity_check&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;ok&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">create table if not exists profiles</span>
+<span class="sd">(name text primary key, data text not null);&quot;&quot;&quot;</span>
+            <span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span>
+                <span class="s2">&quot;select cast(data as blob) from profiles where name = &#39;_global&#39;&quot;</span>
+            <span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">traceback</span><span class="o">.</span><span class="n">print_stack</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">loadError</span><span class="p">:</span>
+                <span class="c1"># already failed, prevent infinite loop</span>
+                <span class="k">raise</span>
+            <span class="c1"># delete files and try again</span>
+            <span class="n">recover</span><span class="p">()</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loadMeta</span><span class="p">(</span><span class="n">retrying</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># try to read data</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="o">.</span><span class="n">firstTime</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unpickle</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">result</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">traceback</span><span class="o">.</span><span class="n">print_stack</span><span class="p">()</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;resetting corrupt _global&quot;</span><span class="p">)</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">loadError</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">firstTime</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># if new or read failed, create a default global profile</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">meta</span> <span class="o">=</span> <span class="n">metaConf</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+            <span class="s2">&quot;insert or replace into profiles values (&#39;_global&#39;, ?)&quot;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pickle</span><span class="p">(</span><span class="n">metaConf</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">def</span> <span class="nf">_ensureProfile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;Create a new profile if none exists.&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;User 1&quot;</span><span class="p">))</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="s2">&quot;README.txt&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                <span class="n">without_unicode_isolation</span><span class="p">(</span>
+                    <span class="n">tr</span><span class="p">(</span><span class="n">TR</span><span class="o">.</span><span class="n">PROFILES_FOLDER_README</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="n">appHelpSite</span> <span class="o">+</span> <span class="s2">&quot;#startupopts&quot;</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+    <span class="c1"># Default language</span>
+    <span class="c1">######################################################################</span>
+    <span class="c1"># On first run, allow the user to choose the default language</span>
+
+<div class="viewcode-block" id="ProfileManager.setDefaultLang"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager.setDefaultLang">[docs]</a>    <span class="k">def</span> <span class="nf">setDefaultLang</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># create dialog</span>
+        <span class="k">class</span> <span class="nc">NoCloseDiag</span><span class="p">(</span><span class="n">QDialog</span><span class="p">):</span>
+            <span class="k">def</span> <span class="nf">reject</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="k">pass</span>
+
+        <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">langDiag</span> <span class="o">=</span> <span class="n">NoCloseDiag</span><span class="p">()</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">langForm</span> <span class="o">=</span> <span class="n">aqt</span><span class="o">.</span><span class="n">forms</span><span class="o">.</span><span class="n">setlang</span><span class="o">.</span><span class="n">Ui_Dialog</span><span class="p">()</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">setupUi</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">accepted</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_onLangSelected</span><span class="p">)</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">rejected</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># default to the system language</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="p">(</span><span class="n">lang</span><span class="p">,</span> <span class="n">enc</span><span class="p">)</span> <span class="o">=</span> <span class="n">locale</span><span class="o">.</span><span class="n">getdefaultlocale</span><span class="p">()</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="c1"># fails on osx</span>
+            <span class="n">lang</span> <span class="o">=</span> <span class="s2">&quot;en_US&quot;</span>
+        <span class="c1"># find index</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">en</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">code</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">anki</span><span class="o">.</span><span class="n">lang</span><span class="o">.</span><span class="n">langs</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">code</span> <span class="o">==</span> <span class="s2">&quot;en_US&quot;</span><span class="p">:</span>
+                <span class="n">en</span> <span class="o">=</span> <span class="n">c</span>
+            <span class="k">if</span> <span class="n">code</span> <span class="o">==</span> <span class="n">lang</span><span class="p">:</span>
+                <span class="n">idx</span> <span class="o">=</span> <span class="n">c</span>
+        <span class="c1"># if the system language isn&#39;t available, revert to english</span>
+        <span class="k">if</span> <span class="n">idx</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">en</span>
+        <span class="c1"># update list</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">lang</span><span class="o">.</span><span class="n">addItems</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">anki</span><span class="o">.</span><span class="n">lang</span><span class="o">.</span><span class="n">langs</span><span class="p">])</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">lang</span><span class="o">.</span><span class="n">setCurrentRow</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">_onLangSelected</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">langForm</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">anki</span><span class="o">.</span><span class="n">lang</span><span class="o">.</span><span class="n">langs</span><span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">lang</span><span class="o">.</span><span class="n">currentRow</span><span class="p">()]</span>
+        <span class="n">code</span> <span class="o">=</span> <span class="n">obj</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">obj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">en</span> <span class="o">=</span> <span class="s2">&quot;Are you sure you wish to display Anki&#39;s interface in </span><span class="si">%s</span><span class="s2">?&quot;</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">question</span><span class="p">(</span>
+            <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Anki&quot;</span><span class="p">,</span> <span class="n">en</span> <span class="o">%</span> <span class="n">name</span><span class="p">,</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Yes</span> <span class="o">|</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">No</span><span class="p">,</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">No</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">r</span> <span class="o">!=</span> <span class="n">QMessageBox</span><span class="o">.</span><span class="n">Yes</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">setDefaultLang</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setLang</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ProfileManager.setLang"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager.setLang">[docs]</a>    <span class="k">def</span> <span class="nf">setLang</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">code</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;defaultLang&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">code</span>
+        <span class="n">sql</span> <span class="o">=</span> <span class="s2">&quot;update profiles set data = ? where name = ?&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pickle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="p">),</span> <span class="s2">&quot;_global&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="n">anki</span><span class="o">.</span><span class="n">lang</span><span class="o">.</span><span class="n">set_lang</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">locale_dir</span><span class="p">())</span></div>
+
+    <span class="c1"># OpenGL</span>
+    <span class="c1">######################################################################</span>
+
+    <span class="k">def</span> <span class="nf">_glPath</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="s2">&quot;gldriver&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ProfileManager.glMode"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager.glMode">[docs]</a>    <span class="k">def</span> <span class="nf">glMode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">isMac</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;auto&quot;</span>
+
+        <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_glPath</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s2">&quot;software&quot;</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;angle&quot;</span> <span class="ow">and</span> <span class="n">isWin</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">mode</span>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;software&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">mode</span>
+        <span class="k">return</span> <span class="s2">&quot;auto&quot;</span></div>
+
+<div class="viewcode-block" id="ProfileManager.setGlMode"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager.setGlMode">[docs]</a>    <span class="k">def</span> <span class="nf">setGlMode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_glPath</span><span class="p">(),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ProfileManager.nextGlMode"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager.nextGlMode">[docs]</a>    <span class="k">def</span> <span class="nf">nextGlMode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">mode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">glMode</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;software&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setGlMode</span><span class="p">(</span><span class="s2">&quot;auto&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">isWin</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">setGlMode</span><span class="p">(</span><span class="s2">&quot;angle&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">setGlMode</span><span class="p">(</span><span class="s2">&quot;software&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;angle&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setGlMode</span><span class="p">(</span><span class="s2">&quot;software&quot;</span><span class="p">)</span></div>
+
+    <span class="c1"># Shared options</span>
+    <span class="c1">######################################################################</span>
+
+<div class="viewcode-block" id="ProfileManager.uiScale"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager.uiScale">[docs]</a>    <span class="k">def</span> <span class="nf">uiScale</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="n">scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;uiScale&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">scale</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ProfileManager.setUiScale"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager.setUiScale">[docs]</a>    <span class="k">def</span> <span class="nf">setUiScale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;uiScale&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">scale</span></div>
+
+<div class="viewcode-block" id="ProfileManager.last_addon_update_check"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager.last_addon_update_check">[docs]</a>    <span class="k">def</span> <span class="nf">last_addon_update_check</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;last_addon_update_check&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ProfileManager.set_last_addon_update_check"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager.set_last_addon_update_check">[docs]</a>    <span class="k">def</span> <span class="nf">set_last_addon_update_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">secs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;last_addon_update_check&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">secs</span></div>
+
+<div class="viewcode-block" id="ProfileManager.night_mode"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager.night_mode">[docs]</a>    <span class="k">def</span> <span class="nf">night_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;night_mode&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ProfileManager.set_night_mode"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager.set_night_mode">[docs]</a>    <span class="k">def</span> <span class="nf">set_night_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">on</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;night_mode&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">on</span></div>
+
+<div class="viewcode-block" id="ProfileManager.dark_mode_widgets"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager.dark_mode_widgets">[docs]</a>    <span class="k">def</span> <span class="nf">dark_mode_widgets</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dark_mode_widgets&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span></div>
+
+    <span class="c1"># Profile-specific</span>
+    <span class="c1">######################################################################</span>
+
+<div class="viewcode-block" id="ProfileManager.interrupt_audio"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager.interrupt_audio">[docs]</a>    <span class="k">def</span> <span class="nf">interrupt_audio</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;interrupt_audio&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ProfileManager.set_interrupt_audio"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager.set_interrupt_audio">[docs]</a>    <span class="k">def</span> <span class="nf">set_interrupt_audio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">[</span><span class="s2">&quot;interrupt_audio&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="n">aqt</span><span class="o">.</span><span class="n">sound</span><span class="o">.</span><span class="n">av_player</span><span class="o">.</span><span class="n">interrupt_current_audio</span> <span class="o">=</span> <span class="n">val</span></div>
+
+<div class="viewcode-block" id="ProfileManager.set_sync_key"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager.set_sync_key">[docs]</a>    <span class="k">def</span> <span class="nf">set_sync_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">[</span><span class="s2">&quot;syncKey&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span></div>
+
+<div class="viewcode-block" id="ProfileManager.set_sync_username"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager.set_sync_username">[docs]</a>    <span class="k">def</span> <span class="nf">set_sync_username</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">[</span><span class="s2">&quot;syncUser&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span></div>
+
+<div class="viewcode-block" id="ProfileManager.set_host_number"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager.set_host_number">[docs]</a>    <span class="k">def</span> <span class="nf">set_host_number</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">[</span><span class="s2">&quot;hostNum&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span> <span class="ow">or</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="ProfileManager.media_syncing_enabled"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager.media_syncing_enabled">[docs]</a>    <span class="k">def</span> <span class="nf">media_syncing_enabled</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">[</span><span class="s2">&quot;syncMedia&quot;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="ProfileManager.auto_syncing_enabled"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager.auto_syncing_enabled">[docs]</a>    <span class="k">def</span> <span class="nf">auto_syncing_enabled</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">[</span><span class="s2">&quot;autoSync&quot;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="ProfileManager.sync_auth"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager.sync_auth">[docs]</a>    <span class="k">def</span> <span class="nf">sync_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SyncAuth</span><span class="p">]:</span>
+        <span class="n">hkey</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;syncKey&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">hkey</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">SyncAuth</span><span class="p">(</span><span class="n">hkey</span><span class="o">=</span><span class="n">hkey</span><span class="p">,</span> <span class="n">host_number</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;hostNum&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="ProfileManager.clear_sync_auth"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager.clear_sync_auth">[docs]</a>    <span class="k">def</span> <span class="nf">clear_sync_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">[</span><span class="s2">&quot;syncKey&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">[</span><span class="s2">&quot;syncUser&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">[</span><span class="s2">&quot;hostNum&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="ProfileManager.auto_sync_media_minutes"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager.auto_sync_media_minutes">[docs]</a>    <span class="k">def</span> <span class="nf">auto_sync_media_minutes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;autoSyncMediaMinutes&quot;</span><span class="p">,</span> <span class="mi">15</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ProfileManager.set_auto_sync_media_minutes"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager.set_auto_sync_media_minutes">[docs]</a>    <span class="k">def</span> <span class="nf">set_auto_sync_media_minutes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">[</span><span class="s2">&quot;autoSyncMediaMinutes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span></div>
+
+    <span class="c1">######################################################################</span>
+
+<div class="viewcode-block" id="ProfileManager.apply_profile_options"><a class="viewcode-back" href="../../aqt.html#aqt.profiles.ProfileManager.apply_profile_options">[docs]</a>    <span class="k">def</span> <span class="nf">apply_profile_options</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">aqt</span><span class="o">.</span><span class="n">sound</span><span class="o">.</span><span class="n">av_player</span><span class="o">.</span><span class="n">interrupt_current_audio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interrupt_audio</span><span class="p">()</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Abdelrahman Hamdy
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

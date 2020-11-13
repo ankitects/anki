@@ -1,0 +1,407 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>aqt.customstudy &mdash; Anki  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Anki
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../anki.html">anki package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../aqt.html">aqt package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../genhooks_gui.html">genhooks_gui module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tools.html">tools package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Anki</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../aqt.html">aqt</a> &raquo;</li>
+        
+      <li>aqt.customstudy</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for aqt.customstudy</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright: Ankitects Pty Ltd and contributors</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1"># License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html</span>
+
+<span class="kn">import</span> <span class="nn">aqt</span>
+<span class="kn">from</span> <span class="nn">anki.consts</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">anki.lang</span> <span class="kn">import</span> <span class="n">_</span>
+<span class="kn">from</span> <span class="nn">aqt.qt</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">aqt.utils</span> <span class="kn">import</span> <span class="n">showInfo</span><span class="p">,</span> <span class="n">showWarning</span>
+
+<span class="n">RADIO_NEW</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">RADIO_REV</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">RADIO_FORGOT</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">RADIO_AHEAD</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">RADIO_PREVIEW</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">RADIO_CRAM</span> <span class="o">=</span> <span class="mi">6</span>
+
+<span class="n">TYPE_NEW</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">TYPE_DUE</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">TYPE_REVIEW</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">TYPE_ALL</span> <span class="o">=</span> <span class="mi">3</span>
+
+
+<div class="viewcode-block" id="CustomStudy"><a class="viewcode-back" href="../../aqt.html#aqt.customstudy.CustomStudy">[docs]</a><span class="k">class</span> <span class="nc">CustomStudy</span><span class="p">(</span><span class="n">QDialog</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mw</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">QDialog</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mw</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span> <span class="o">=</span> <span class="n">mw</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deck</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">current</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deck</span><span class="p">[</span><span class="s2">&quot;conf&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">form</span> <span class="o">=</span> <span class="n">f</span> <span class="o">=</span> <span class="n">aqt</span><span class="o">.</span><span class="n">forms</span><span class="o">.</span><span class="n">customstudy</span><span class="o">.</span><span class="n">Ui_Dialog</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">created_custom_study</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">setupUi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setWindowModality</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">WindowModal</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setupSignals</span><span class="p">()</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">radioNew</span><span class="o">.</span><span class="n">click</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
+
+<div class="viewcode-block" id="CustomStudy.setupSignals"><a class="viewcode-back" href="../../aqt.html#aqt.customstudy.CustomStudy.setupSignals">[docs]</a>    <span class="k">def</span> <span class="nf">setupSignals</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">form</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">radioNew</span><span class="o">.</span><span class="n">clicked</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">onRadioChange</span><span class="p">(</span><span class="n">RADIO_NEW</span><span class="p">))</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">radioRev</span><span class="o">.</span><span class="n">clicked</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">onRadioChange</span><span class="p">(</span><span class="n">RADIO_REV</span><span class="p">))</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">radioForgot</span><span class="o">.</span><span class="n">clicked</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">onRadioChange</span><span class="p">(</span><span class="n">RADIO_FORGOT</span><span class="p">))</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">radioAhead</span><span class="o">.</span><span class="n">clicked</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">onRadioChange</span><span class="p">(</span><span class="n">RADIO_AHEAD</span><span class="p">))</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">radioPreview</span><span class="o">.</span><span class="n">clicked</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">onRadioChange</span><span class="p">(</span><span class="n">RADIO_PREVIEW</span><span class="p">))</span>
+        <span class="n">qconnect</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">radioCram</span><span class="o">.</span><span class="n">clicked</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">onRadioChange</span><span class="p">(</span><span class="n">RADIO_CRAM</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="CustomStudy.onRadioChange"><a class="viewcode-back" href="../../aqt.html#aqt.customstudy.CustomStudy.onRadioChange">[docs]</a>    <span class="k">def</span> <span class="nf">onRadioChange</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">form</span>
+        <span class="n">sp</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">spin</span>
+        <span class="n">smin</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">smax</span> <span class="o">=</span> <span class="n">DYN_MAX_SIZE</span>
+        <span class="n">sval</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">post</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;cards&quot;</span><span class="p">)</span>
+        <span class="n">tit</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">spShow</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">typeShow</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">ok</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">plus</span><span class="p">(</span><span class="n">num</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">num</span> <span class="o">==</span> <span class="mi">1000</span><span class="p">:</span>
+                <span class="n">num</span> <span class="o">=</span> <span class="s2">&quot;1000+&quot;</span>
+            <span class="k">return</span> <span class="s2">&quot;&lt;b&gt;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">num</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&lt;/b&gt;&quot;</span>
+
+        <span class="k">if</span> <span class="n">idx</span> <span class="o">==</span> <span class="n">RADIO_NEW</span><span class="p">:</span>
+            <span class="n">new</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">totalNewForCurrentDeck</span><span class="p">()</span>
+            <span class="c1"># get the number of new cards in deck that exceed the new cards limit</span>
+            <span class="n">newUnderLearning</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
+                <span class="n">new</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="p">[</span><span class="s2">&quot;new&quot;</span><span class="p">][</span><span class="s2">&quot;perDay&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">deck</span><span class="p">[</span><span class="s2">&quot;newToday&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">newExceeding</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">new</span><span class="p">,</span> <span class="n">new</span> <span class="o">-</span> <span class="n">newUnderLearning</span><span class="p">)</span>
+            <span class="n">tit</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;New cards in deck over today limit: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">plus</span><span class="p">(</span><span class="n">newExceeding</span><span class="p">)</span>
+            <span class="n">pre</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Increase today&#39;s new card limit by&quot;</span><span class="p">)</span>
+            <span class="n">sval</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">new</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">deck</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;extendNew&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+            <span class="n">smin</span> <span class="o">=</span> <span class="o">-</span><span class="n">DYN_MAX_SIZE</span>
+            <span class="n">smax</span> <span class="o">=</span> <span class="n">newExceeding</span>
+        <span class="k">elif</span> <span class="n">idx</span> <span class="o">==</span> <span class="n">RADIO_REV</span><span class="p">:</span>
+            <span class="n">rev</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">totalRevForCurrentDeck</span><span class="p">()</span>
+            <span class="c1"># get the number of review due in deck that exceed the review due limit</span>
+            <span class="n">revUnderLearning</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
+                <span class="n">rev</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf</span><span class="p">[</span><span class="s2">&quot;rev&quot;</span><span class="p">][</span><span class="s2">&quot;perDay&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">deck</span><span class="p">[</span><span class="s2">&quot;revToday&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">revExceeding</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">rev</span><span class="p">,</span> <span class="n">rev</span> <span class="o">-</span> <span class="n">revUnderLearning</span><span class="p">)</span>
+            <span class="n">tit</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Reviews due in deck over today limit: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">plus</span><span class="p">(</span><span class="n">revExceeding</span><span class="p">)</span>
+            <span class="n">pre</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Increase today&#39;s review limit by&quot;</span><span class="p">)</span>
+            <span class="n">sval</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">rev</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">deck</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;extendRev&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+            <span class="n">smin</span> <span class="o">=</span> <span class="o">-</span><span class="n">DYN_MAX_SIZE</span>
+            <span class="n">smax</span> <span class="o">=</span> <span class="n">revExceeding</span>
+        <span class="k">elif</span> <span class="n">idx</span> <span class="o">==</span> <span class="n">RADIO_FORGOT</span><span class="p">:</span>
+            <span class="n">pre</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Review cards forgotten in last&quot;</span><span class="p">)</span>
+            <span class="n">post</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;days&quot;</span><span class="p">)</span>
+            <span class="n">smax</span> <span class="o">=</span> <span class="mi">30</span>
+        <span class="k">elif</span> <span class="n">idx</span> <span class="o">==</span> <span class="n">RADIO_AHEAD</span><span class="p">:</span>
+            <span class="n">pre</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Review ahead by&quot;</span><span class="p">)</span>
+            <span class="n">post</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;days&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">idx</span> <span class="o">==</span> <span class="n">RADIO_PREVIEW</span><span class="p">:</span>
+            <span class="n">pre</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Preview new cards added in the last&quot;</span><span class="p">)</span>
+            <span class="n">post</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;days&quot;</span><span class="p">)</span>
+            <span class="n">sval</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">idx</span> <span class="o">==</span> <span class="n">RADIO_CRAM</span><span class="p">:</span>
+            <span class="n">pre</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Select&quot;</span><span class="p">)</span>
+            <span class="n">post</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;cards from the deck&quot;</span><span class="p">)</span>
+            <span class="c1"># tit = _(&quot;After pressing OK, you can choose which tags to include.&quot;)</span>
+            <span class="n">ok</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Choose Tags&quot;</span><span class="p">)</span>
+            <span class="n">sval</span> <span class="o">=</span> <span class="mi">100</span>
+            <span class="n">typeShow</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">sp</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="n">spShow</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">cardType</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="n">typeShow</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">title</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">tit</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">title</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="ow">not</span> <span class="ow">not</span> <span class="n">tit</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">spin</span><span class="o">.</span><span class="n">setMinimum</span><span class="p">(</span><span class="n">smin</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">spin</span><span class="o">.</span><span class="n">setMaximum</span><span class="p">(</span><span class="n">smax</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">smax</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">spin</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">spin</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">spin</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">sval</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">preSpin</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">pre</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">postSpin</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">post</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">buttonBox</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="n">QDialogButtonBox</span><span class="o">.</span><span class="n">Ok</span><span class="p">)</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">ok</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radioIdx</span> <span class="o">=</span> <span class="n">idx</span></div>
+
+<div class="viewcode-block" id="CustomStudy.accept"><a class="viewcode-back" href="../../aqt.html#aqt.customstudy.CustomStudy.accept">[docs]</a>    <span class="k">def</span> <span class="nf">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">form</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">radioIdx</span>
+        <span class="n">spin</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">spin</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">RADIO_NEW</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">deck</span><span class="p">[</span><span class="s2">&quot;extendNew&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spin</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deck</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">extendLimits</span><span class="p">(</span><span class="n">spin</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">QDialog</span><span class="o">.</span><span class="n">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">i</span> <span class="o">==</span> <span class="n">RADIO_REV</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">deck</span><span class="p">[</span><span class="s2">&quot;extendRev&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spin</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deck</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">extendLimits</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">spin</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">QDialog</span><span class="o">.</span><span class="n">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">i</span> <span class="o">==</span> <span class="n">RADIO_CRAM</span><span class="p">:</span>
+            <span class="n">tags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_getTags</span><span class="p">()</span>
+        <span class="c1"># the rest create a filtered deck</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">byName</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Custom Study Session&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">cur</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">cur</span><span class="p">[</span><span class="s2">&quot;dyn&quot;</span><span class="p">]:</span>
+                <span class="n">showInfo</span><span class="p">(</span><span class="s2">&quot;Please rename the existing Custom Study deck first.&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">QDialog</span><span class="o">.</span><span class="n">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># safe to empty</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">emptyDyn</span><span class="p">(</span><span class="n">cur</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+                <span class="c1"># reuse; don&#39;t delete as it may have children</span>
+                <span class="n">dyn</span> <span class="o">=</span> <span class="n">cur</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">cur</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">did</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">newDyn</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Custom Study Session&quot;</span><span class="p">))</span>
+            <span class="n">dyn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">did</span><span class="p">)</span>
+        <span class="c1"># and then set various options</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">RADIO_FORGOT</span><span class="p">:</span>
+            <span class="n">dyn</span><span class="p">[</span><span class="s2">&quot;terms&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;rated:</span><span class="si">%d</span><span class="s2">:1&quot;</span> <span class="o">%</span> <span class="n">spin</span><span class="p">,</span> <span class="n">DYN_MAX_SIZE</span><span class="p">,</span> <span class="n">DYN_RANDOM</span><span class="p">]</span>
+            <span class="n">dyn</span><span class="p">[</span><span class="s2">&quot;resched&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">elif</span> <span class="n">i</span> <span class="o">==</span> <span class="n">RADIO_AHEAD</span><span class="p">:</span>
+            <span class="n">dyn</span><span class="p">[</span><span class="s2">&quot;terms&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;prop:due&lt;=</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">spin</span><span class="p">,</span> <span class="n">DYN_MAX_SIZE</span><span class="p">,</span> <span class="n">DYN_DUE</span><span class="p">]</span>
+            <span class="n">dyn</span><span class="p">[</span><span class="s2">&quot;resched&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">i</span> <span class="o">==</span> <span class="n">RADIO_PREVIEW</span><span class="p">:</span>
+            <span class="n">dyn</span><span class="p">[</span><span class="s2">&quot;terms&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;is:new added:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">spin</span><span class="p">,</span> <span class="n">DYN_MAX_SIZE</span><span class="p">,</span> <span class="n">DYN_OLDEST</span><span class="p">]</span>
+            <span class="n">dyn</span><span class="p">[</span><span class="s2">&quot;resched&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">elif</span> <span class="n">i</span> <span class="o">==</span> <span class="n">RADIO_CRAM</span><span class="p">:</span>
+            <span class="nb">type</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">cardType</span><span class="o">.</span><span class="n">currentRow</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">type</span> <span class="o">==</span> <span class="n">TYPE_NEW</span><span class="p">:</span>
+                <span class="n">terms</span> <span class="o">=</span> <span class="s2">&quot;is:new &quot;</span>
+                <span class="nb">ord</span> <span class="o">=</span> <span class="n">DYN_ADDED</span>
+                <span class="n">dyn</span><span class="p">[</span><span class="s2">&quot;resched&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="nb">type</span> <span class="o">==</span> <span class="n">TYPE_DUE</span><span class="p">:</span>
+                <span class="n">terms</span> <span class="o">=</span> <span class="s2">&quot;is:due &quot;</span>
+                <span class="nb">ord</span> <span class="o">=</span> <span class="n">DYN_DUE</span>
+                <span class="n">dyn</span><span class="p">[</span><span class="s2">&quot;resched&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="nb">type</span> <span class="o">==</span> <span class="n">TYPE_REVIEW</span><span class="p">:</span>
+                <span class="n">terms</span> <span class="o">=</span> <span class="s2">&quot;-is:new &quot;</span>
+                <span class="nb">ord</span> <span class="o">=</span> <span class="n">DYN_RANDOM</span>
+                <span class="n">dyn</span><span class="p">[</span><span class="s2">&quot;resched&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">terms</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                <span class="nb">ord</span> <span class="o">=</span> <span class="n">DYN_RANDOM</span>
+                <span class="n">dyn</span><span class="p">[</span><span class="s2">&quot;resched&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">dyn</span><span class="p">[</span><span class="s2">&quot;terms&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[(</span><span class="n">terms</span> <span class="o">+</span> <span class="n">tags</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">spin</span><span class="p">,</span> <span class="nb">ord</span><span class="p">]</span>
+        <span class="c1"># add deck limit</span>
+        <span class="n">dyn</span><span class="p">[</span><span class="s2">&quot;terms&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;deck:&quot;</span><span class="si">%s</span><span class="s1">&quot; </span><span class="si">%s</span><span class="s1"> &#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deck</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="n">dyn</span><span class="p">[</span><span class="s2">&quot;terms&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">dyn</span><span class="p">)</span>
+        <span class="c1"># generate cards</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">created_custom_study</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">sched</span><span class="o">.</span><span class="n">rebuildDyn</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">showWarning</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;No cards matched the criteria you provided.&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">moveToState</span><span class="p">(</span><span class="s2">&quot;overview&quot;</span><span class="p">)</span>
+        <span class="n">QDialog</span><span class="o">.</span><span class="n">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CustomStudy.reject"><a class="viewcode-back" href="../../aqt.html#aqt.customstudy.CustomStudy.reject">[docs]</a>    <span class="k">def</span> <span class="nf">reject</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">created_custom_study</span><span class="p">:</span>
+            <span class="c1"># set the original deck back to current</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="o">.</span><span class="n">col</span><span class="o">.</span><span class="n">decks</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deck</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+            <span class="c1"># fixme: clean up the empty custom study deck</span>
+        <span class="n">QDialog</span><span class="o">.</span><span class="n">reject</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_getTags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">aqt.taglimit</span> <span class="kn">import</span> <span class="n">TagLimit</span>
+
+        <span class="k">return</span> <span class="n">TagLimit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mw</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">tags</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Abdelrahman Hamdy
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
