@@ -61,19 +61,19 @@ reEnts = re.compile(r"&#?\w+;")
 reMedia = re.compile("(?i)<img[^>]+src=[\"']?([^\"'>]+)[\"']?[^>]*>")
 
 
-def stripHTML(s: str) -> str:
+def stripHTML(s: str, nbsp_to_sp: bool = True) -> str:
     s = reComment.sub("", s)
     s = reStyle.sub("", s)
     s = reScript.sub("", s)
     s = reTag.sub("", s)
-    s = entsToTxt(s)
+    s = entsToTxt(s, nbsp_to_sp)
     return s
 
 
-def stripHTMLMedia(s: str) -> str:
+def stripHTMLMedia(s: str, nbsp_to_sp: bool = True) -> str:
     "Strip HTML but keep media filenames"
     s = reMedia.sub(" \\1 ", s)
-    return stripHTML(s)
+    return stripHTML(s, nbsp_to_sp)
 
 
 def minimizeHTML(s: str) -> str:
@@ -98,10 +98,11 @@ def htmlToTextLine(s: str) -> str:
     return s
 
 
-def entsToTxt(html: str) -> str:
-    # entitydefs defines nbsp as \xa0 instead of a standard space, so we
-    # replace it first
-    html = html.replace("&nbsp;", " ")
+def entsToTxt(html: str, nbsp_to_sp: bool = True) -> str:
+    if nbsp_to_sp:
+        # entitydefs defines nbsp as \xa0 instead of a standard space, so we
+        # replace it first
+        html = html.replace("&nbsp;", " ")
 
     def fixup(m):
         text = m.group(0)
