@@ -201,7 +201,7 @@ impl SqlWriter<'_> {
                 }
             }
             OptionalRe::Re(s) => {
-                if s == "*" {
+                if s == r"\S*" {
                     write!(self.sql, "true").unwrap();
                 } else {
                     let re = format!("(?i).* {} .*", s);
