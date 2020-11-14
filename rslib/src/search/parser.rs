@@ -188,7 +188,7 @@ fn group_inner(input: &str) -> IResult<&str, Vec<Node>> {
 }
 
 fn whitespace0(s: &str) -> IResult<&str, Vec<char>> {
-    many0(one_of(" \u{3000}\t\n"))(s)
+    many0(one_of(" \u{3000}"))(s)
 }
 
 /// Optional leading space, then a (negated) group or text
