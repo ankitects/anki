@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use super::parser::{Node, PropertyKind, SearchNode, StateKind, OptionalRe, TemplateKind};
+use super::parser::{Node, OptionalRe, PropertyKind, SearchNode, StateKind, TemplateKind};
 use crate::{
     card::{CardQueue, CardType},
     collection::Collection,
@@ -597,10 +597,9 @@ mod test {
                 vec!["%te%st%".into()]
             )
         );
-        assert_eq!(s(ctx, "te%st").1, vec!["%te%st%".to_string()]);
-        // user should be able to escape sql wildcards
-        assert_eq!(s(ctx, r#"te\%s\_t"#).1, vec!["%te\\%s\\_t%".to_string()]);
-        assert_eq!(s(ctx, r#"te\*s\_t"#).1, vec!["%te\\*s\\_t%".to_string()]);
+        assert_eq!(s(ctx, "te%st").1, vec![r"%te\%st%".to_string()]);
+        // user should be able to escape wildcards
+        assert_eq!(s(ctx, r#"te\*s\_t"#).1, vec!["%te*s\\_t%".to_string()]);
 
         // qualified search
         assert_eq!(
@@ -682,10 +681,10 @@ mod test {
 
         // wildcards force a regexp search
         assert_eq!(
-            s(ctx, r"tag:o*n\*et%w\%oth_re\_e"),
+            s(ctx, r"tag:o*n\*et%w%oth_re\_e"),
             (
                 "(n.tags regexp ?)".into(),
-                vec![r"(?i).* o.*n\*et.*w%oth.re_e .*".into()]
+                vec![r"(?i).* o\S*n\*et%w%oth\Sre_e .*".into()]
             )
         );
         assert_eq!(s(ctx, "tag:none"), ("(n.tags = '')".into(), vec![]));
