@@ -18,7 +18,6 @@ use nom::{
 use regex::{Captures, Regex};
 use std::{borrow::Cow, num};
 
-
 struct ParseError {}
 
 impl From<num::ParseIntError> for ParseError {
@@ -221,7 +220,7 @@ fn search_node_for_text(s: &str) -> ParseResult<SearchNode> {
 fn unquoted_term(s: &str) -> IResult<&str, Node> {
     map_res(
         verify(
-        escaped(is_not("\"() \u{3000}\\"), '\\', none_of(" \u{3000}")),
+            escaped(is_not("\"() \u{3000}\\"), '\\', none_of(" \u{3000}")),
             |s: &str| !s.is_empty(),
         ),
         |text: &str| -> ParseResult<Node> {
@@ -259,7 +258,7 @@ fn partially_quoted_term(s: &str) -> IResult<&str, Node> {
     map_res(
         separated_pair(
             verify(
-            escaped(is_not("\"(): \u{3000}\\"), '\\', none_of(": \u{3000}")),
+                escaped(is_not("\"(): \u{3000}\\"), '\\', none_of(": \u{3000}")),
                 |s: &str| !s.is_empty(),
             ),
             char(':'),
@@ -472,19 +471,17 @@ fn unescape_to_glob(txt: &str) -> ParseResult<Cow<str>> {
         lazy_static! {
             static ref RE: Regex = Regex::new(r"\\.|[*%]").unwrap();
         }
-        Ok(RE.replace_all(&txt, |caps: &Captures| {
-            match &caps[0] {
-                r"\\" => r"\\",
-                "\\\"" => "\"",
-                r"\:" => ":",
-                r"\*" => "*",
-                r"\_" => r"\_",
-                r"\(" => "(",
-                r"\)" => ")",
-                "*" => "%",
-                "%" => r"\%",
-                _ => unreachable!(),
-            }
+        Ok(RE.replace_all(&txt, |caps: &Captures| match &caps[0] {
+            r"\\" => r"\\",
+            "\\\"" => "\"",
+            r"\:" => ":",
+            r"\*" => "*",
+            r"\_" => r"\_",
+            r"\(" => "(",
+            r"\)" => ")",
+            "*" => "%",
+            "%" => r"\%",
+            _ => unreachable!(),
         }))
     }
 }
@@ -512,12 +509,12 @@ fn unescape_to_custom_re<'a>(txt: &'a str, wildcard: &str) -> ParseResult<Option
                 |caps: &Captures| {
                     let s = &caps[0];
                     match s {
-                        r"\\" | r"\*" | r"\(" | r"\)" => s.to_string(),
+                        "\\" | r"\*" | r"\(" | r"\)" => s.to_string(),
                         "\\\"" => "\"".to_string(),
                         r"\:" => ":".to_string(),
-                        r"*" => format!("{}*", wildcard),
+                        "*" => format!("{}*", wildcard),
                         "_" => wildcard.to_string(),
-                        r"\_" => r"_".to_string(),
+                        r"\_" => "_".to_string(),
                         s => regex::escape(s),
                     }
                 },
@@ -544,8 +541,8 @@ mod test {
     #[test]
     fn parsing() -> Result<()> {
         use Node::*;
-        use SearchNode::*;
         use OptionalRe::*;
+        use SearchNode::*;
 
         assert_eq!(parse("")?, vec![Search(SearchNode::WholeCollection)]);
         assert_eq!(parse("  ")?, vec![Search(SearchNode::WholeCollection)]);
@@ -607,7 +604,7 @@ mod test {
         assert_eq!(
             parse(r#""field:va\"lue""#)?,
             vec![Search(SingleField {
-                field: Text("foo".into()),
+                field: Text("field".into()),
                 text: "va\"lue".into(),
                 is_re: false
             })]
@@ -623,7 +620,9 @@ mod test {
         assert_eq!(parse("added:3")?, vec![Search(AddedInDays(3))]);
         assert_eq!(
             parse("card:front")?,
-            vec![Search(CardTemplate(TemplateKind::Name(Text("front".into()))))]
+            vec![Search(CardTemplate(TemplateKind::Name(Text(
+                "front".into()
+            ))))]
         );
         assert_eq!(
             parse("card:3")?,
@@ -640,8 +639,11 @@ mod test {
             vec![Search(Deck("default one".into()))]
         );
 
-        assert_eq!(parse("note:basic")?, vec![Search(NoteType("basic".into()))]);
-        assert_eq!(parse("tag:hard")?, vec![Search(Tag("hard".into()))]);
+        assert_eq!(
+            parse("note:basic")?,
+            vec![Search(NoteType(Text("basic".into())))]
+        );
+        assert_eq!(parse("tag:hard")?, vec![Search(Tag(Text("hard".into())))]);
         assert_eq!(
             parse("nid:1237123712,2,3")?,
             vec![Search(NoteIDs("1237123712,2,3".into()))]
