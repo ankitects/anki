@@ -69,7 +69,7 @@ pub(super) enum SearchNode<'a> {
     AddedInDays(u32),
     EditedInDays(u32),
     CardTemplate(TemplateKind<'a>),
-    Deck(String),
+    Deck(Cow<'a, str>),
     DeckID(DeckID),
     NoteTypeID(NoteTypeID),
     NoteType(OptionalRe<'a>),
@@ -280,7 +280,7 @@ fn search_node_for_text_with_argument<'a>(
     Ok(match key.to_ascii_lowercase().as_str() {
         "added" => SearchNode::AddedInDays(val.parse()?),
         "edited" => SearchNode::EditedInDays(val.parse()?),
-        "deck" => SearchNode::Deck(unescape_to_enforced_re(val)?),
+        "deck" => SearchNode::Deck(unescape_quotes(val)),
         "note" => SearchNode::NoteType(unescape_to_re(val)?),
         "tag" => SearchNode::Tag(parse_tag(val)?),
         "mid" => SearchNode::NoteTypeID(val.parse()?),
