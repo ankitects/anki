@@ -11,7 +11,7 @@ use nom::{
     branch::alt,
     bytes::complete::{escaped, is_not, tag},
     character::complete::{anychar, char, none_of, one_of},
-    combinator::{all_consuming, map, map_res},
+    combinator::{all_consuming, map, map_res, verify},
     sequence::{delimited, preceded, separated_pair},
     {multi::many0, IResult},
 };
@@ -220,7 +220,10 @@ fn search_node_for_text(s: &str) -> ParseResult<SearchNode> {
 /// Unquoted text, terminated by whitespace or unescaped ", ( or )
 fn unquoted_term(s: &str) -> IResult<&str, Node> {
     map_res(
+        verify(
         escaped(is_not("\"() \u{3000}\\"), '\\', none_of(" \u{3000}")),
+            |s: &str| !s.is_empty(),
+        ),
         |text: &str| -> ParseResult<Node> {
             Ok(if text.eq_ignore_ascii_case("or") {
                 Node::Or
@@ -246,14 +249,19 @@ fn quoted_term_str(s: &str) -> IResult<&str, &str> {
 
 /// Quoted text, terminated by a non-escaped double quote
 fn quoted_term_inner(s: &str) -> IResult<&str, &str> {
-    escaped(is_not(r#""\"#), '\\', anychar)(s)
+    verify(escaped(is_not(r#""\"#), '\\', anychar), |s: &str| {
+        !s.is_empty()
+    })(s)
 }
 
 /// eg deck:"foo bar" - quotes must come after the :
 fn partially_quoted_term(s: &str) -> IResult<&str, Node> {
     map_res(
         separated_pair(
+            verify(
             escaped(is_not("\"(): \u{3000}\\"), '\\', none_of(": \u{3000}")),
+                |s: &str| !s.is_empty(),
+            ),
             char(':'),
             quoted_term_str,
         ),
