@@ -319,6 +319,7 @@ impl SqlWriter<'_> {
                 };
 
                 // convert to a regex that includes child decks
+                // fixme: use unescape_to_enforced_re from parser.rs?
                 let re = text_to_re(&native_deck);
                 self.args.push(format!("(?i)^{}($|\x1f)", re));
                 let arg_idx = self.args.len();
