@@ -3,17 +3,19 @@ window.MathJax = {
     displayMath: [["\\[", "\\]"]],
     processRefs: false,
     processEnvironments: false,
-    packages: [
-      'base',
-      'ams',
-      'noerrors',
-      'noundefined',
-      'mhchem',
-      'require',
-    ]
+    packages: {
+      '[+]': [
+        'noerrors',
+        'mhchem',
+      ],
+    }
   },
   startup: {
-    typeset: false
+    typeset: false,
+    pageReady: () => {
+      console.log('page is ready');
+      return MathJax.startup.defaultPageReady();
+    },
   },
   options: {
     renderActions: {
@@ -21,13 +23,12 @@ window.MathJax = {
       checkLoading: []
     },
     ignoreHtmlClass: 'tex2jax_ignore',
-    processHtmlClass: 'tex2jax_process'
+    processHtmlClass: 'tex2jax_process',
   },
   loader: {
     load: [
       '[tex]/noerrors',
       '[tex]/mhchem',
-      '[tex]/require',
     ]
   }
 };
