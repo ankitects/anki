@@ -11,10 +11,14 @@ var aFade = 0;
 var onUpdateHook;
 var onShownHook;
 
-function _runHook(arr) {
+function _runHook(arr: () => Promise<any>[]): Promise<any[]> {
+    var promises = [];
+
     for (var i = 0; i < arr.length; i++) {
-        arr[i]();
+        promises.push(arr[i]());
     }
+
+    return Promise.all(promises);
 }
 
 function _updateQA(html, fadeTime, onupdate, onshown) {
@@ -32,35 +36,39 @@ function _updateQA(html, fadeTime, onupdate, onshown) {
     onUpdateHook = [onupdate];
     onShownHook = [onshown];
 
-    // fade out current text
     var qa = $("#qa");
-    qa.fadeTo(fadeTime, 0, function () {
-        // update text
-        try {
-            qa.html(html);
-        } catch (err) {
-            qa.html(
-                (
-                    `Invalid HTML on card: ${String(err).substring(0, 2000)}\n` +
-                    String(err.stack).substring(0, 2000)
-                ).replace(/\n/g, "<br />")
-            );
-        }
-        _runHook(onUpdateHook);
 
-        // @ts-ignore
-        MathJax.startup.promise
-            // render mathjax
-            // @ts-ignore
-            .then(MathJax.typesetPromise)
-            // and reveal when processing is done
-            .then(function () {
-                qa.fadeTo(fadeTime, 1, function () {
-                    _runHook(onShownHook);
-                    _updatingQA = false;
-                });
-            });
-    });
+    // fade out current text
+    qa.fadeOut(fadeTime)
+        .promise()
+        // update text
+        .then(() => {
+            try {
+                qa.html(html);
+            } catch (err) {
+                qa.html(
+                    (
+                        `Invalid HTML on card: ${String(err).substring(0, 2000)}\n` +
+                        String(err.stack).substring(0, 2000)
+                    ).replace(/\n/g, "<br />")
+                );
+            }
+        })
+        .then(() => _runHook(onUpdateHook))
+        .then(() =>
+            // @ts-ignore wait for mathjax to ready
+            MathJax.startup.promise.then(() => {
+                // @ts-ignore clear MathJax buffer
+                MathJax.typesetClear();
+
+                // @ts-ignore typeset
+                return MathJax.typesetPromise(qa.slice(0, 1));
+            })
+        )
+        // and reveal when processing is done
+        .then(() => qa.fadeIn(fadeTime).promise())
+        .then(() => _runHook(onShownHook))
+        .then(() => (_updatingQA = false));
 }
 
 function _showQuestion(q, bodyclass) {
