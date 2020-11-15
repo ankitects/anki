@@ -192,14 +192,14 @@ impl SqlWriter<'_> {
         if s.contains(" ") {
             write!(self.sql, "false").unwrap();
         } else {
-        match s.as_str() {
-            "none" => write!(self.sql, "n.tags = ''").unwrap(),
-            r"\S*" => write!(self.sql, "true").unwrap(),
-            _ => {
-                write!(self.sql, "n.tags regexp ?").unwrap();
-                self.args.push(format!("(?i).* {} .*", s));
+            match s.as_str() {
+                "none" => write!(self.sql, "n.tags = ''").unwrap(),
+                r"\S*" => write!(self.sql, "true").unwrap(),
+                _ => {
+                    write!(self.sql, "n.tags regexp ?").unwrap();
+                    self.args.push(format!("(?i).* {} .*", s));
+                }
             }
-        }
         }
 
         Ok(())
