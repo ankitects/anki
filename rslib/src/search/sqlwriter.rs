@@ -188,28 +188,16 @@ impl SqlWriter<'_> {
         .unwrap();
     }
 
-    fn write_tag(&mut self, text: &OptionalRe) -> Result<()> {
-        match text {
-            OptionalRe::Text(s) => {
-                if s == "none" {
-                    write!(self.sql, "n.tags = ''").unwrap();
-                } else if let Some(tag) = self.col.storage.preferred_tag_case(s)? {
-                    write!(self.sql, "n.tags like ?").unwrap();
-                    self.args.push(format!("% {} %", tag));
-                } else {
-                    write!(self.sql, "false").unwrap();
-                }
-            }
-            OptionalRe::Re(s) => {
-                if s == r"\S*" {
-                    write!(self.sql, "true").unwrap();
-                } else {
-                    let re = format!("(?i).* {} .*", s);
-                    write!(self.sql, "n.tags regexp ?").unwrap();
-                    self.args.push(re);
-                }
+    fn write_tag(&mut self, s: &String) -> Result<()> {
+        match s.as_str() {
+            "none" => write!(self.sql, "n.tags = ''").unwrap(),
+            r"\S*" => write!(self.sql, "true").unwrap(),
+            _ => {
+                write!(self.sql, "n.tags regexp ?").unwrap();
+                self.args.push(format!("(?i).* {} .*", s));
             }
         }
+
         Ok(())
     }
 
@@ -668,15 +656,12 @@ mod test {
             )
         );
 
-        // unregistered tag short circuits
-        assert_eq!(s(ctx, r"tag:one"), ("(false)".into(), vec![]));
-
         // if registered, searches with canonical
         ctx.transact(None, |col| col.register_tag("One", Usn(-1)))
             .unwrap();
         assert_eq!(
             s(ctx, r"tag:one"),
-            ("(n.tags like ?)".into(), vec![r"% One %".into()])
+            ("(n.tags regexp ?)".into(), vec![r"(?i).* one .*".into()])
         );
 
         // wildcards force a regexp search
