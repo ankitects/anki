@@ -1219,6 +1219,9 @@ title="%s" %s>%s</button>""" % (
         aqt.update.showMessages(self, data)
 
     def clockIsOff(self, diff):
+        if devMode:
+            print("clock is off; ignoring")
+            return
         diffText = ngettext("%s second", "%s seconds", diff) % diff
         warn = (
             _(
