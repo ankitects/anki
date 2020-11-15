@@ -447,7 +447,15 @@ fn unescape_quotes(s: &str) -> Cow<str> {
 fn is_invalid_escape(txt: &str) -> bool {
     // odd number of \s not followed by an escapable character
     lazy_static! {
-        static ref RE: Regex = Regex::new(r#"(^|[^\\])(\\\\)*\\([^\\":*_()]|$)"#).unwrap();
+        static ref RE: Regex = Regex::new(
+            r#"(?x)
+            (?:^|[^\\])         # not a backslash
+            (?:\\\\)*           # even number of backslashes
+            \\                  # single backslash
+            (?:[^\\":*_()]|$)   # anything but an escapable char
+            "#
+        )
+        .unwrap();
     }
 
     RE.is_match(txt)
