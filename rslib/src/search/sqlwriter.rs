@@ -9,7 +9,6 @@ use crate::{
     err::Result,
     notes::field_checksum,
     notetype::NoteTypeID,
-    text::text_to_re,
     text::{normalize_to_nfc, strip_html_preserving_image_filenames, without_combining},
     timestamp::TimestampSecs,
 };
@@ -295,25 +294,26 @@ impl SqlWriter<'_> {
 
     fn write_deck(&mut self, deck: &str) -> Result<()> {
         match deck {
-            "*" => write!(self.sql, "true").unwrap(),
+            ".*" => write!(self.sql, "true").unwrap(),
             "filtered" => write!(self.sql, "c.odid != 0").unwrap(),
             deck => {
                 // rewrite "current" to the current deck name
                 let native_deck = if deck == "current" {
                     let current_did = self.col.get_current_deck_id();
-                    self.col
-                        .storage
-                        .get_deck(current_did)?
-                        .map(|d| d.name)
-                        .unwrap_or_else(|| "Default".into())
+                    regex::escape(
+                        self.col
+                            .storage
+                            .get_deck(current_did)?
+                            .map(|d| d.name)
+                            .unwrap_or_else(|| "Default".into())
+                            .as_str(),
+                    )
                 } else {
                     human_deck_name_to_native(deck)
                 };
 
                 // convert to a regex that includes child decks
-                // fixme: use unescape_to_enforced_re from parser.rs?
-                let re = text_to_re(&native_deck);
-                self.args.push(format!("(?i)^{}($|\x1f)", re));
+                self.args.push(format!("(?i)^{}($|\x1f)", native_deck));
                 let arg_idx = self.args.len();
                 self.sql.push_str(&format!(concat!(
                     "(c.did in (select id from decks where name regexp ?{n})",
