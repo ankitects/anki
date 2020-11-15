@@ -592,7 +592,7 @@ mod test {
             })]
         );
 
-        // partially quoted text should handle escaping the same way
+        // escaping is independent of quotation
         assert_eq!(
             parse(r#""field:va\"lue""#)?,
             vec![Search(SingleField {
@@ -602,12 +602,43 @@ mod test {
             })]
         );
         assert_eq!(parse(r#""field:va\"lue""#)?, parse(r#"field:"va\"lue""#)?,);
+        assert_eq!(parse(r#""field:va\"lue""#)?, parse(r#"field:va\"lue"#)?,);
 
-        // any character should be escapable in quotes
+        // only \":()*_ are escapable
+        assert!(parse(r"\").is_err());
+        assert!(parse(r"\a").is_err());
+        assert!(parse(r"\%").is_err());
         assert_eq!(
-            parse(r#""re:\btest""#)?,
-            vec![Search(Regex(r"\btest".into()))]
+            parse(r#"\\\"\:\(\)\*\_"#)?,
+            vec![Search(UnqualifiedText(r#"\\":()*\_"#.into())),]
         );
+
+        // escaping parentheses is optional (only) inside quotes
+        assert_eq!(parse(r#""\)\(""#), parse(r#"")(""#));
+        assert!(parse(")(").is_err());
+
+        // escaping : is optional if it is preceded by another :
+        assert!(parse(":test").is_err());
+        assert!(parse(":").is_err());
+        assert_eq!(parse("field:val:ue"), parse(r"field:val\:ue"));
+        assert_eq!(parse(r#""field:val:ue""#), parse(r"field:val\:ue"));
+        assert_eq!(parse(r#"field:"val:ue""#), parse(r"field:val\:ue"));
+
+        // any character should be escapable on the right side of  re:
+        assert_eq!(
+            parse(r#""re:\btest\%""#)?,
+            vec![Search(Regex(r"\btest\%".into()))]
+        );
+
+        // no exceptions for escaping "
+        assert_eq!(
+            parse(r#"re:te\"st"#)?,
+            vec![Search(Regex(r#"te"st"#.into()))]
+        );
+        assert!(parse(r#"re:te"st"#).is_err());
+
+        // spaces are optional if node separation is clear
+        assert_eq!(parse(r#"a"b"(c)"#)?, parse("a b (c)")?);
 
         assert_eq!(parse("added:3")?, vec![Search(AddedInDays(3))]);
         assert_eq!(
@@ -636,6 +667,10 @@ mod test {
             vec![Search(NoteType(Text("basic".into())))]
         );
         assert_eq!(parse("tag:hard")?, vec![Search(Tag("hard".to_string()))]);
+        // wildcards in tags don't match whitespace
+        assert_eq!(parse("tag:ha_d")?, vec![Search(Tag(r"ha\Sd".to_string()))]);
+        assert_eq!(parse("tag:h*d")?, vec![Search(Tag(r"h\S*d".to_string()))]);
+
         assert_eq!(
             parse("nid:1237123712,2,3")?,
             vec![Search(NoteIDs("1237123712,2,3".into()))]
