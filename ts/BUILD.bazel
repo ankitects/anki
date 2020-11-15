@@ -13,19 +13,3 @@ exports_files([
     ".eslintrc.js",
     "licenses.json",
 ])
-
-filegroup(
-    name = "mathjax",
-    srcs = glob(
-        include = glob([
-            'node_modules/mathjax/es5/tex-chtml.js',
-            'node_modules/mathjax/es5/input/tex/extensions/**/*',
-            'node_modules/mathjax/es5/output/chtml/fonts/woff-v2/**/*',
-            'node_modules/mathjax/es5/a11y/**/*',
-            'node_modules/mathjax/es5/sre/**/*',
-        ]),
-        exclude = [
-            'node_modules/mathjax/es5/sre/mathmaps/mathmaps_ie.js',
-        ],
-    ),
-)

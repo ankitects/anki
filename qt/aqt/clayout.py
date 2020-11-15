@@ -304,7 +304,7 @@ class CardLayout(QDialog):
         jsinc = [
             "js/vendor/jquery.js",
             "js/vendor/browsersel.js",
-            "js/vendor/mathjax/conf.js",
+            "js/mathjax.js",
             "js/vendor/mathjax/tex-chtml.js",
             "js/reviewer.js",
         ]

@@ -1,0 +1,6 @@
+load("//ts:mathjax.bzl", "copy_mathjax")
+
+copy_mathjax(
+    name = "mathjax",
+    visibility = ["//visibility:public"],
+)
