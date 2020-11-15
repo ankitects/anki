@@ -281,7 +281,7 @@ fn search_node_for_text_with_argument<'a>(
         "edited" => SearchNode::EditedInDays(val.parse()?),
         "deck" => SearchNode::Deck(unescape_quotes(val)),
         "note" => SearchNode::NoteType(unescape_to_re(val)?),
-        "tag" => SearchNode::Tag(parse_tag(val)?),
+        "tag" => SearchNode::Tag(unescape_to_enforced_re(val, r"\S")?),
         "mid" => SearchNode::NoteTypeID(val.parse()?),
         "nid" => SearchNode::NoteIDs(check_id_list(val)?),
         "cid" => SearchNode::CardIDs(check_id_list(val)?),
@@ -298,15 +298,6 @@ fn search_node_for_text_with_argument<'a>(
         // anything else is a field search
         _ => parse_single_field(key, val)?,
     })
-}
-
-/// Ensure the string doesn't contain whitespace and unescape.
-fn parse_tag(s: &str) -> ParseResult<String> {
-    if s.as_bytes().iter().any(u8::is_ascii_whitespace) {
-        Err(ParseError {})
-    } else {
-        unescape_to_enforced_re(s, r"\S")
-    }
 }
 
 /// ensure a list of ids contains only numbers and commas, returning unchanged if true

@@ -189,6 +189,9 @@ impl SqlWriter<'_> {
     }
 
     fn write_tag(&mut self, s: &String) -> Result<()> {
+        if s.contains(" ") {
+            write!(self.sql, "false").unwrap();
+        } else {
         match s.as_str() {
             "none" => write!(self.sql, "n.tags = ''").unwrap(),
             r"\S*" => write!(self.sql, "true").unwrap(),
@@ -196,6 +199,7 @@ impl SqlWriter<'_> {
                 write!(self.sql, "n.tags regexp ?").unwrap();
                 self.args.push(format!("(?i).* {} .*", s));
             }
+        }
         }
 
         Ok(())
