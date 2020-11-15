@@ -3,7 +3,14 @@ window.MathJax = {
     displayMath: [["\\[", "\\]"]],
     processRefs: false,
     processEnvironments: false,
-    packages: ['base', 'ams', 'noerrors', 'noundefined', 'mhchem']
+    packages: [
+      'base',
+      'ams',
+      'noerrors',
+      'noundefined',
+      'mhchem',
+      'require',
+    ]
   },
   startup: {
     typeset: false
@@ -17,6 +24,10 @@ window.MathJax = {
     processHtmlClass: 'tex2jax_process'
   },
   loader: {
-    load: ['[tex]/noerrors', '[tex]/mhchem']
+    load: [
+      '[tex]/noerrors',
+      '[tex]/mhchem',
+      '[tex]/require',
+    ]
   }
 };
