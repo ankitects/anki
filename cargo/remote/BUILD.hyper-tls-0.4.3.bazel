@@ -32,16 +32,10 @@ licenses([
 
 # Unsupported target "client" with type "example" omitted
 
-# Unsupported target "find_internet_password" with type "example" omitted
-
-# Unsupported target "set_internet_password" with type "example" omitted
-
 rust_library(
-    name = "security_framework",
+    name = "hyper_tls",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "OSX_10_9",
-        "default",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
@@ -53,13 +47,13 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "1.0.0",
+    version = "0.4.3",
     # buildifier: leave-alone
     deps = [
-        "@raze__bitflags__1_2_1//:bitflags",
-        "@raze__core_foundation__0_7_0//:core_foundation",
-        "@raze__core_foundation_sys__0_7_0//:core_foundation_sys",
-        "@raze__libc__0_2_80//:libc",
-        "@raze__security_framework_sys__1_0_0//:security_framework_sys",
+        "@raze__bytes__0_5_6//:bytes",
+        "@raze__hyper__0_13_9//:hyper",
+        "@raze__native_tls__0_2_6//:native_tls",
+        "@raze__tokio__0_2_23//:tokio",
+        "@raze__tokio_tls__0_3_1//:tokio_tls",
     ],
 )
