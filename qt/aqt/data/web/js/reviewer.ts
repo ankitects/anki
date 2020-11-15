@@ -48,16 +48,18 @@ function _updateQA(html, fadeTime, onupdate, onshown) {
         }
         _runHook(onUpdateHook);
 
-        // render mathjax
-        MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
-
-        // and reveal when processing is done
-        MathJax.Hub.Queue(function () {
-            qa.fadeTo(fadeTime, 1, function () {
-                _runHook(onShownHook);
-                _updatingQA = false;
+        // @ts-ignore
+        MathJax.startup.promise
+            // render mathjax
+            // @ts-ignore
+            .then(MathJax.typesetPromise)
+            // and reveal when processing is done
+            .then(function () {
+                qa.fadeTo(fadeTime, 1, function () {
+                    _runHook(onShownHook);
+                    _updatingQA = false;
+                });
             });
-        });
     });
 }
 
