@@ -30,14 +30,22 @@ licenses([
 
 # Generated Targets
 
+# Unsupported target "client" with type "example" omitted
+
+# Unsupported target "find_internet_password" with type "example" omitted
+
+# Unsupported target "set_internet_password" with type "example" omitted
+
 rust_library(
-    name = "core_foundation",
+    name = "security_framework",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "OSX_10_9",
+        "default",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
-    edition = "2015",
+    edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -45,12 +53,13 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.7.0",
+    version = "2.0.0",
     # buildifier: leave-alone
     deps = [
-        "@raze__core_foundation_sys__0_7_0//:core_foundation_sys",
+        "@raze__bitflags__1_2_1//:bitflags",
+        "@raze__core_foundation__0_9_1//:core_foundation",
+        "@raze__core_foundation_sys__0_8_2//:core_foundation_sys",
         "@raze__libc__0_2_80//:libc",
+        "@raze__security_framework_sys__2_0_0//:security_framework_sys",
     ],
 )
-
-# Unsupported target "use_macro_outside_crate" with type "test" omitted

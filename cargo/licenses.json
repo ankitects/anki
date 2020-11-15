@@ -298,7 +298,7 @@
   },
   {
     "name": "core-foundation",
-    "version": "0.7.0",
+    "version": "0.9.1",
     "authors": "The Servo Project Developers",
     "repository": "https://github.com/servo/core-foundation-rs",
     "license": "Apache-2.0/MIT",
@@ -307,7 +307,7 @@
   },
   {
     "name": "core-foundation-sys",
-    "version": "0.7.0",
+    "version": "0.8.2",
     "authors": "The Servo Project Developers",
     "repository": "https://github.com/servo/core-foundation-rs",
     "license": "Apache-2.0/MIT",
@@ -538,6 +538,24 @@
     "license": "Apache-2.0/MIT",
     "license_file": null,
     "description": "Fowler–Noll–Vo hash function"
+  },
+  {
+    "name": "foreign-types",
+    "version": "0.3.2",
+    "authors": "Steven Fackler <sfackler@gmail.com>",
+    "repository": "https://github.com/sfackler/foreign-types",
+    "license": "Apache-2.0/MIT",
+    "license_file": null,
+    "description": "A framework for Rust wrappers over C APIs"
+  },
+  {
+    "name": "foreign-types-shared",
+    "version": "0.1.1",
+    "authors": "Steven Fackler <sfackler@gmail.com>",
+    "repository": "https://github.com/sfackler/foreign-types",
+    "license": "Apache-2.0/MIT",
+    "license_file": null,
+    "description": "An internal crate used by foreign-types"
   },
   {
     "name": "form_urlencoded",
@@ -837,6 +855,15 @@
     "description": "A connect, read and write timeout aware connector to be used with hyper Client."
   },
   {
+    "name": "hyper-tls",
+    "version": "0.4.3",
+    "authors": "Sean McArthur <sean@seanmonstar.com>",
+    "repository": "https://github.com/hyperium/hyper-tls",
+    "license": "Apache-2.0/MIT",
+    "license_file": null,
+    "description": "Default TLS implementation for use with hyper"
+  },
+  {
     "name": "idna",
     "version": "0.2.0",
     "authors": "The rust-url developers",
@@ -1107,6 +1134,15 @@
     "description": "A multimap implementation."
   },
   {
+    "name": "native-tls",
+    "version": "0.2.6",
+    "authors": "Steven Fackler <sfackler@gmail.com>",
+    "repository": "https://github.com/sfackler/rust-native-tls",
+    "license": "Apache-2.0/MIT",
+    "license_file": null,
+    "description": "A wrapper over a platform's native TLS implementation"
+  },
+  {
     "name": "net2",
     "version": "0.2.35",
     "authors": "Alex Crichton <alex@alexcrichton.com>",
@@ -1206,6 +1242,15 @@
     "description": "Single assignment cells and lazy values."
   },
   {
+    "name": "openssl",
+    "version": "0.10.30",
+    "authors": "Steven Fackler <sfackler@gmail.com>",
+    "repository": "https://github.com/sfackler/rust-openssl",
+    "license": "Apache-2.0",
+    "license_file": null,
+    "description": "OpenSSL bindings"
+  },
+  {
     "name": "openssl-probe",
     "version": "0.1.2",
     "authors": "Alex Crichton <alex@alexcrichton.com>",
@@ -1213,6 +1258,15 @@
     "license": "Apache-2.0/MIT",
     "license_file": null,
     "description": "Tool for helping to find SSL certificate locations on the system for OpenSSL"
+  },
+  {
+    "name": "openssl-sys",
+    "version": "0.9.58",
+    "authors": "Alex Crichton <alex@alexcrichton.com>|Steven Fackler <sfackler@gmail.com>",
+    "repository": "https://github.com/sfackler/rust-openssl",
+    "license": "MIT",
+    "license_file": null,
+    "description": "FFI bindings to OpenSSL"
   },
   {
     "name": "parking_lot",
@@ -1611,15 +1665,6 @@
     "description": "Rustls is a modern TLS library written in Rust."
   },
   {
-    "name": "rustls-native-certs",
-    "version": "0.4.0",
-    "authors": "Joseph Birr-Pixton <jpixton@gmail.com>",
-    "repository": "https://github.com/ctz/rustls-native-certs",
-    "license": "Apache-2.0/ISC/MIT",
-    "license_file": null,
-    "description": "rustls-native-certs allows rustls to use the platform native certificate store"
-  },
-  {
     "name": "ryu",
     "version": "1.0.5",
     "authors": "David Tolnay <dtolnay@gmail.com>",
@@ -1657,7 +1702,7 @@
   },
   {
     "name": "security-framework",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "authors": "Steven Fackler <sfackler@gmail.com>|Kornel <kornel@geekhood.net>",
     "repository": "https://github.com/kornelski/rust-security-framework",
     "license": "MIT OR Apache-2.0",
@@ -1666,7 +1711,7 @@
   },
   {
     "name": "security-framework-sys",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "authors": "Steven Fackler <sfackler@gmail.com>|Kornel <kornel@geekhood.net>",
     "repository": "https://github.com/kornelski/rust-security-framework",
     "license": "MIT OR Apache-2.0",
@@ -2025,6 +2070,15 @@
     "description": "Asynchronous SOCKS proxy support for Rust."
   },
   {
+    "name": "tokio-tls",
+    "version": "0.3.1",
+    "authors": "Tokio Contributors <team@tokio.rs>",
+    "repository": "https://github.com/tokio-rs/tokio",
+    "license": "MIT",
+    "license_file": null,
+    "description": "Deprecated in favor of `tokio-naitve-tls`.  An implementation of TLS/SSL streams for Tokio giving an implementation of TLS for nonblocking I/O streams."
+  },
+  {
     "name": "tokio-util",
     "version": "0.3.1",
     "authors": "Tokio Contributors <team@tokio.rs>",
@@ -2338,6 +2392,15 @@
     "license": null,
     "license_file": "LICENSE",
     "description": "Web PKI X.509 Certificate Verification."
+  },
+  {
+    "name": "webpki-roots",
+    "version": "0.20.0",
+    "authors": "Joseph Birr-Pixton <jpixton@gmail.com>",
+    "repository": "https://github.com/ctz/webpki-roots",
+    "license": "MPL-2.0",
+    "license_file": null,
+    "description": "Mozilla's CA root certificates for use with webpki"
   },
   {
     "name": "which",
