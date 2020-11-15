@@ -1,0 +1,5 @@
+filegroup(
+    name = "vendor",
+    srcs = glob(["**"]) + ["//qt/aqt/data/web/js/vendor/mathjax"],
+    visibility = ["//qt:__subpackages__"],
+)

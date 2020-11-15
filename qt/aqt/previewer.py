@@ -114,8 +114,8 @@ class Previewer(QDialog):
         jsinc = [
             "js/vendor/jquery.js",
             "js/vendor/browsersel.js",
-            "js/vendor/mathjax/conf.js",
-            "js/vendor/mathjax/MathJax.js",
+            "js/mathjax.js",
+            "js/vendor/mathjax/tex-chtml.js",
             "js/reviewer.js",
         ]
         self._web.stdHtml(

@@ -17,7 +17,6 @@ ts_library(
         "pycmd",
         "@npm//@types/jquery",
         "@npm//@types/jqueryui",
-        "@npm//@types/mathjax",
     ],
 )
 
@@ -28,15 +27,11 @@ filegroup(
 )
 
 filegroup(
-    name = "vendor",
-    srcs = glob(["vendor/**"]),
-)
-
-filegroup(
     name = "js",
     srcs = [
         "aqt_es5",
-        "vendor",
+        "mathjax.js",
+        "//qt/aqt/data/web/js/vendor",
     ],
     visibility = ["//qt:__subpackages__"],
 )

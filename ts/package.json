@@ -26,7 +26,6 @@
         "@types/jqueryui": "^1.12.13",
         "@types/lodash": "^4.14.162",
         "@types/long": "^4.0.1",
-        "@types/mathjax": "0.0.36",
         "@types/react": "^16.9.53",
         "@types/react-dom": "^16.9.8",
         "@typescript-eslint/eslint-plugin": "^2.11.0",
@@ -65,6 +64,7 @@
         "intl-pluralrules": "^1.2.2",
         "lodash.debounce": "^4.0.8",
         "lodash.throttle": "^4.1.1",
+        "mathjax": "^3.1.2",
         "protobufjs": "^6.10.1"
     },
     "files": [
