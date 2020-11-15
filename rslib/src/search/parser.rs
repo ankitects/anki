@@ -68,7 +68,7 @@ pub(super) enum SearchNode<'a> {
     AddedInDays(u32),
     EditedInDays(u32),
     CardTemplate(TemplateKind<'a>),
-    Deck(Cow<'a, str>),
+    Deck(String),
     DeckID(DeckID),
     NoteTypeID(NoteTypeID),
     NoteType(OptionalRe<'a>),
@@ -279,7 +279,7 @@ fn search_node_for_text_with_argument<'a>(
     Ok(match key.to_ascii_lowercase().as_str() {
         "added" => SearchNode::AddedInDays(val.parse()?),
         "edited" => SearchNode::EditedInDays(val.parse()?),
-        "deck" => SearchNode::Deck(unescape_quotes(val)),
+        "deck" => SearchNode::Deck(unescape_to_enforced_re(val, ".")?),
         "note" => SearchNode::NoteType(unescape_to_re(val)?),
         "tag" => SearchNode::Tag(unescape_to_enforced_re(val, r"\S")?),
         "mid" => SearchNode::NoteTypeID(val.parse()?),
@@ -632,7 +632,7 @@ mod test {
         assert_eq!(parse(r#""field:val:ue""#), parse(r"field:val\:ue"));
         assert_eq!(parse(r#"field:"val:ue""#), parse(r"field:val\:ue"));
 
-        // any character should be escapable on the right side of  re:
+        // any character should be escapable on the right side of re:
         assert_eq!(
             parse(r#""re:\btest\%""#)?,
             vec![Search(Regex(r"\btest\%".into()))]
