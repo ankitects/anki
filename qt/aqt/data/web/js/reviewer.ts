@@ -39,13 +39,13 @@ function _updateQA(html, fadeTime, onupdate, onshown) {
     var qa = $("#qa");
 
     // fade out current text
-    qa.fadeOut(fadeTime).promise()
+    qa.fadeOut(fadeTime)
+        .promise()
         // update text
         .then(() => {
             try {
-                qa.html(html)
-            }
-            catch (err) {
+                qa.html(html);
+            } catch (err) {
                 qa.html(
                     (
                         `Invalid HTML on card: ${String(err).substring(0, 2000)}\n` +
@@ -55,19 +55,20 @@ function _updateQA(html, fadeTime, onupdate, onshown) {
             }
         })
         .then(() => _runHook(onUpdateHook))
-        // @ts-ignore wait for mathjax to ready
-        .then(() => MathJax.startup.promise
-            .then(() => {
+        .then(() =>
+            // @ts-ignore wait for mathjax to ready
+            MathJax.startup.promise.then(() => {
                 // @ts-ignore clear MathJax buffer
                 MathJax.typesetClear();
 
                 // @ts-ignore typeset
                 return MathJax.typesetPromise(qa.slice(0, 1));
-            }))
+            })
+        )
         // and reveal when processing is done
         .then(() => qa.fadeIn(fadeTime).promise())
         .then(() => _runHook(onShownHook))
-        .then(() => _updatingQA = false);
+        .then(() => (_updatingQA = false));
 }
 
 function _showQuestion(q, bodyclass) {
