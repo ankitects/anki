@@ -203,7 +203,7 @@ alias(
 
 alias(
     name = "once_cell",
-    actual = "@raze__once_cell__1_5_1//:once_cell",
+    actual = "@raze__once_cell__1_5_2//:once_cell",
     tags = [
         "cargo-raze",
         "manual",
@@ -401,7 +401,7 @@ alias(
 
 alias(
     name = "tokio",
-    actual = "@raze__tokio__0_2_22//:tokio",
+    actual = "@raze__tokio__0_2_23//:tokio",
     tags = [
         "cargo-raze",
         "manual",
