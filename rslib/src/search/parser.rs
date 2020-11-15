@@ -76,7 +76,7 @@ pub(super) enum SearchNode<'a> {
         days: u32,
         ease: Option<u8>,
     },
-    Tag(OptionalRe<'a>),
+    Tag(String),
     Duplicates {
         note_type_id: NoteTypeID,
         text: Cow<'a, str>,
@@ -294,18 +294,18 @@ fn search_node_for_text_with_argument<'a>(
         "prop" => parse_prop(val)?,
         "re" => SearchNode::Regex(unescape_quotes(val)),
         "nc" => SearchNode::NoCombining(unescape_to_glob(val)?),
-        "w" => SearchNode::WordBoundary(unescape_to_enforced_re(val)?),
+        "w" => SearchNode::WordBoundary(unescape_to_enforced_re(val, ".")?),
         // anything else is a field search
         _ => parse_single_field(key, val)?,
     })
 }
 
 /// Ensure the string doesn't contain whitespace and unescape.
-fn parse_tag(s: &str) -> ParseResult<OptionalRe> {
+fn parse_tag(s: &str) -> ParseResult<String> {
     if s.as_bytes().iter().any(u8::is_ascii_whitespace) {
         Err(ParseError {})
     } else {
-        unescape_to_custom_re(s, r"\S")
+        unescape_to_enforced_re(s, r"\S")
     }
 }
 
@@ -527,8 +527,8 @@ fn unescape_to_custom_re<'a>(txt: &'a str, wildcard: &str) -> ParseResult<Option
 
 /// Handle escaped characters and convert to regex.
 /// Return error if there is an undefined escape sequence.
-fn unescape_to_enforced_re(txt: &str) -> ParseResult<String> {
-    Ok(match unescape_to_re(txt)? {
+fn unescape_to_enforced_re(txt: &str, wildcard: &str) -> ParseResult<String> {
+    Ok(match unescape_to_custom_re(txt, wildcard)? {
         OptionalRe::Text(s) => regex::escape(s.as_ref()),
         OptionalRe::Re(s) => s.to_string(),
     })
@@ -643,7 +643,7 @@ mod test {
             parse("note:basic")?,
             vec![Search(NoteType(Text("basic".into())))]
         );
-        assert_eq!(parse("tag:hard")?, vec![Search(Tag(Text("hard".into())))]);
+        assert_eq!(parse("tag:hard")?, vec![Search(Tag("hard".to_string()))]);
         assert_eq!(
             parse("nid:1237123712,2,3")?,
             vec![Search(NoteIDs("1237123712,2,3".into()))]
