@@ -52,7 +52,7 @@ rust_library(
     deps = [
         "@raze__bytes__0_5_6//:bytes",
         "@raze__hyper__0_13_9//:hyper",
-        "@raze__tokio__0_2_22//:tokio",
+        "@raze__tokio__0_2_23//:tokio",
         "@raze__tokio_io_timeout__0_4_0//:tokio_io_timeout",
     ],
 )

@@ -1333,12 +1333,12 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "raze__once_cell__1_5_1",
-        url = "https://crates.io/api/v1/crates/once_cell/1.5.1/download",
+        name = "raze__once_cell__1_5_2",
+        url = "https://crates.io/api/v1/crates/once_cell/1.5.2/download",
         type = "tar.gz",
-        sha256 = "f53cef67919d7d247eb9a2f128ca9e522789967ef1eb4ccd8c71a95a8aedf596",
-        strip_prefix = "once_cell-1.5.1",
-        build_file = Label("//cargo/remote:BUILD.once_cell-1.5.1.bazel"),
+        sha256 = "13bd41f508810a131401606d54ac32a467c97172d74ba7662562ebba5ad07fa0",
+        strip_prefix = "once_cell-1.5.2",
+        build_file = Label("//cargo/remote:BUILD.once_cell-1.5.2.bazel"),
     )
 
     maybe(
@@ -2213,12 +2213,12 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "raze__tokio__0_2_22",
-        url = "https://crates.io/api/v1/crates/tokio/0.2.22/download",
+        name = "raze__tokio__0_2_23",
+        url = "https://crates.io/api/v1/crates/tokio/0.2.23/download",
         type = "tar.gz",
-        sha256 = "5d34ca54d84bf2b5b4d7d31e901a8464f7b60ac145a284fba25ceb801f2ddccd",
-        strip_prefix = "tokio-0.2.22",
-        build_file = Label("//cargo/remote:BUILD.tokio-0.2.22.bazel"),
+        sha256 = "a6d7ad61edd59bfcc7e80dababf0f4aed2e6d5e0ba1659356ae889752dfc12ff",
+        strip_prefix = "tokio-0.2.23",
+        build_file = Label("//cargo/remote:BUILD.tokio-0.2.23.bazel"),
     )
 
     maybe(
@@ -2413,12 +2413,12 @@ def raze_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "raze__unicode_segmentation__1_6_0",
-        url = "https://crates.io/api/v1/crates/unicode-segmentation/1.6.0/download",
+        name = "raze__unicode_segmentation__1_7_0",
+        url = "https://crates.io/api/v1/crates/unicode-segmentation/1.7.0/download",
         type = "tar.gz",
-        sha256 = "e83e153d1053cbb5a118eeff7fd5be06ed99153f00dbcd8ae310c5fb2b22edc0",
-        strip_prefix = "unicode-segmentation-1.6.0",
-        build_file = Label("//cargo/remote:BUILD.unicode-segmentation-1.6.0.bazel"),
+        sha256 = "db8716a166f290ff49dabc18b44aa407cb7c6dbe1aa0971b44b8a24b0ca35aae",
+        strip_prefix = "unicode-segmentation-1.7.0",
+        build_file = Label("//cargo/remote:BUILD.unicode-segmentation-1.7.0.bazel"),
     )
 
     maybe(

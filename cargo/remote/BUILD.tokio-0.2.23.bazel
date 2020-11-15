@@ -66,7 +66,7 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.2.22",
+    version = "0.2.23",
     # buildifier: leave-alone
     deps = [
         "@raze__bytes__0_5_6//:bytes",
@@ -132,6 +132,8 @@ rust_library(
 
 # Unsupported target "io_lines" with type "test" omitted
 
+# Unsupported target "io_mem_stream" with type "test" omitted
+
 # Unsupported target "io_read" with type "test" omitted
 
 # Unsupported target "io_read_exact" with type "test" omitted
@@ -143,6 +145,8 @@ rust_library(
 # Unsupported target "io_read_to_string" with type "test" omitted
 
 # Unsupported target "io_read_until" with type "test" omitted
+
+# Unsupported target "io_reader_stream" with type "test" omitted
 
 # Unsupported target "io_split" with type "test" omitted
 
@@ -177,8 +181,6 @@ rust_library(
 # Unsupported target "process_kill_on_drop" with type "test" omitted
 
 # Unsupported target "process_smoke" with type "test" omitted
-
-# Unsupported target "read_to_string" with type "test" omitted
 
 # Unsupported target "rt_basic" with type "test" omitted
 
