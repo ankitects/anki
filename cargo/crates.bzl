@@ -1797,7 +1797,7 @@ def raze_fetch_remote_crates():
         remote = "https://github.com/ankitects/reqwest.git",
         shallow_since = "1604362745 +1000",
         commit = "eab12efe22f370f386d99c7d90e7a964e85dd071",
-        build_file = Label("//cargo/remote:BUILD.reqwest-0.10.8.bazel"),
+        build_file = Label("//cargo:BUILD.reqwest.bazel"),
         init_submodules = True,
     )
 
