@@ -8,7 +8,7 @@ from testing.framework.runners.console_logger import ConsoleLogger
 class PythonCodeRunner(CodeRunner):
     RUN_CMD = '{}/libs/python/python3 {}'
 
-    def run(self, src: str, logger: ConsoleLogger):
+    def run(self, src: str, logger: ConsoleLogger, compilation_error_template: str):
         workdir, pythonsrc = self._create_src_file(src, 'test.py')
         resource_path = os.environ['RESOURCEPATH']
 

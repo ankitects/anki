@@ -61,10 +61,18 @@ class JavaTestCaseGenerator(TestCaseGenerator):
         return type_src, init_src
 
     def visit_float(self, node: SyntaxTree, data_item):
-        pass
+        type_src = ''
+        if node.parent.is_array_type():
+            type_src = 'float'
+        init_src = '(float)' + str(data_item)
+        return type_src, init_src
 
     def visit_string(self, node: SyntaxTree, data_item):
-        pass
+        type_src = ''
+        if node.parent.is_array_type():
+            type_src = 'String'
+        init_src = '"' + str(data_item) + '"'
+        return type_src, init_src
 
     def visit_obj(self, node: SyntaxTree, data_item):
         if not isinstance(data_item, list):

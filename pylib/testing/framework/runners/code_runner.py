@@ -15,5 +15,5 @@ class CodeRunner(ABC):
         return workdir, javasrc
 
     @abstractmethod
-    def run(self, src: str, logger: ConsoleLogger):
+    def run(self, src: str, logger: ConsoleLogger, compilation_error_template: str):
         pass

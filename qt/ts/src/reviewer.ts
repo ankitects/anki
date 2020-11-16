@@ -90,24 +90,17 @@ function _showQuestion(q, bodyclass) {
     );
 }
 
+function highlight(editor: HTMLElement) {
+    editor.textContent = editor.textContent;
+    hljs.highlightBlock(editor);
+}
+
 function _initalizeCodeEditor() {
     codeans = document.getElementById("codeans");
     if (!codeans) {
         return;
     }
     log = document.getElementById("log");
-
-    const highlight = (editor: HTMLElement) => {
-        // highlight.js does not trims old tags,
-        // let's do it by this hack.
-        editor.textContent = editor.textContent;
-        hljs.highlightBlock(editor);
-
-        // const code = editor.textContent
-        // // Do something with code and set html.
-        // const html = Prism.highlight(code, Prism.languages.javascript, 'javascript')
-        // editor.innerHTML = html
-    };
 
     let options = {
         tab: " ".repeat(4), // default is '\t'
@@ -173,12 +166,26 @@ function _showConsoleLog(html) {
 }
 
 function _initializeCodeAnswers() {
-    var $qa = $('#qa')
-    var html = $qa.html()
-    $qa.html(html.replace(/\`\`\`(\w+)([^`]+)\`\`\`/g, '<code class="language-$1 editor" language="$1">$2</code>'));
-    $qa.find('code').each(function() {
-      $(this).before($('<h4>').text($(this).attr('language')))
-      hljs.highlightBlock(this);
+    const $qa = $('#qa')
+    const input = $qa.html()
+
+    let html = ''
+    let match
+    const regex = /```(\w+)(<br>|\\n)*([^`]+)```/g;
+    while (match = regex.exec(input)) {
+        const lang = match[1]
+        const src = match[3].replace(/<br>/g, '\n')
+        const height = src.split('\n').length
+        html += `<div class="editor language-${lang}" style="height:${height*20}px;">${src}</div><br><br>`
+    }
+    $qa.html(html)
+    $qa.find('.editor').each(function() {
+        let options = {
+            tab: ' '.repeat(4),
+            indentOn: /[(\[]$/,
+        };
+        CodeJar(this, withLineNumbers(highlight), options);
+        $(this).attr('contenteditable', 'false')
     });
 }
 

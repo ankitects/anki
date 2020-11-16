@@ -5,6 +5,14 @@ import tempfile
 from testing.framework.runners.code_runner import CodeRunner
 from testing.framework.runners.console_logger import ConsoleLogger
 
+def strip_compile_error(error, file_name):
+    lines = error.split(file_name)
+    text = 'Compilation Error:\n'
+    for line in lines[1:]:
+        splitted = line.split(':')
+        line_number = int(splitted[1]) - 3
+        text += str(line_number) + ':' + ''.join(splitted[2:])
+    return text.replace('\n', '<br>')
 
 class JavaCodeRunner(CodeRunner):
     #todo: fix paths
@@ -15,7 +23,7 @@ class JavaCodeRunner(CodeRunner):
     CLASS_NAME = 'Solution'
     PKG_NAME = 'test_engine'
 
-    def run(self, src: str, logger: ConsoleLogger):
+    def run(self, src: str, logger: ConsoleLogger, compilation_error_template: str):
         workdir, javasrc = self._create_src_file(src, self.CLASS_NAME + '.java')
         # resource_path = os.environ['RESOURCEPATH']
         resource_path = ''
@@ -23,8 +31,8 @@ class JavaCodeRunner(CodeRunner):
         cmd = self.COMPILE_CMD.format(resource_path, javasrc.name, resource_path)
         proc = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = proc.communicate()
-        if err is not None:
-            print(err.decode('utf-8'))
+        if err != '':
+            logger.log('<span class="error">' + strip_compile_error(err.decode('utf-8'), javasrc.name) + '</span>')
         if len(err) > 0:
             return err
 
