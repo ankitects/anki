@@ -39,8 +39,7 @@ function _updateQA(html, fadeTime, onupdate, onshown) {
     var qa = $("#qa");
 
     // fade out current text
-    qa.fadeOut(fadeTime)
-        .promise()
+    new Promise((resolve) => qa.fadeOut(fadeTime, () => resolve()))
         // update text
         .then(() => {
             try {
@@ -66,7 +65,7 @@ function _updateQA(html, fadeTime, onupdate, onshown) {
             })
         )
         // and reveal when processing is done
-        .then(() => qa.fadeIn(fadeTime).promise())
+        .then(() => new Promise((resolve) => qa.fadeIn(fadeTime, () => resolve())))
         .then(() => _runHook(onShownHook))
         .then(() => (_updatingQA = false));
 }
