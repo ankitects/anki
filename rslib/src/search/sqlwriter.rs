@@ -432,7 +432,7 @@ impl SqlWriter<'_> {
             ntid, csum
         )
         .unwrap();
-        self.args.push(text.to_string());
+        self.args.push(text_nohtml.to_string());
     }
 
     fn write_added(&mut self, days: u32) -> Result<()> {
