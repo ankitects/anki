@@ -120,14 +120,14 @@ def register_repos():
     # translations
     ################
 
-    core_i18n_commit = "9df5d07e143d15e0cc3381df2b257806974cab5d"
-    core_i18n_shallow_since = "1605092904 +1000"
+    core_i18n_commit = "6e81c2cefc2b48cc0521c7f4a1490ba5e7b69c1f"
+    core_i18n_shallow_since = "1605564635 +0000"
 
-    qtftl_i18n_commit = "4cdc8472a6160b03b5346d3e5ae8bf025cd55b62"
-    qtftl_i18n_shallow_since = "1604887378 +0000"
+    qtftl_i18n_commit = "b7d449b346a31a72d88b1c63888beb1f756b3270"
+    qtftl_i18n_shallow_since = "1605564618 +0000"
 
-    qtpo_i18n_commit = "5b2d2a13ae77a16ca3b3b06b88b695a5e7c92b7f"
-    qtpo_i18n_shallow_since = "1605135350 +1000"
+    qtpo_i18n_commit = "872d7f0f6bde52577e8fc795dd85699b0eeb97d5"
+    qtpo_i18n_shallow_since = "1605564627 +0000"
 
     new_git_repository(
         name = "rslib_ftl",
