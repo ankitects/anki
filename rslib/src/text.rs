@@ -313,9 +313,8 @@ pub(crate) fn to_re(txt: &str) -> Cow<str> {
 
 /// Convert Anki style to RegEx using the provided wildcard.
 pub(crate) fn to_custom_re<'a>(txt: &'a str, wildcard: &str) -> Cow<'a, str> {
-    // escape sequences and unescaped special characters which need conversion
     lazy_static! {
-        static ref RE: Regex = Regex::new(r"\\.|[*_]").unwrap();
+        static ref RE: Regex = Regex::new(r"\\?.").unwrap();
     }
     RE.replace_all(&txt, |caps: &Captures| {
         let s = &caps[0];
