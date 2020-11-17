@@ -92,12 +92,9 @@ class Reviewer:
         elapsed = self.mw.col.timeboxReached()
         if elapsed:
             assert not isinstance(elapsed, bool)
-            part1 = (
-                ngettext("%d card studied in", "%d cards studied in", elapsed[1])
-                % elapsed[1]
-            )
+            part1 = tr(TR.STUDYING_CARD_STUDIED_IN, count=elapsed[1])
             mins = int(round(elapsed[0] / 60))
-            part2 = ngettext("%s minute.", "%s minutes.", mins) % mins
+            part2 = tr(TR.STUDYING_MINUTE, count=mins)
             fin = tr(TR.STUDYING_FINISH)
             diag = askUserDialog(
                 "%s %s" % (part1, part2), [tr(TR.STUDYING_CONTINUE), fin]

@@ -285,7 +285,7 @@ class DeckBrowser:
                 "odid in {0}".format(ids2str(dids))
             )
             if cnt:
-                extra = ngettext(" It has %d card.", " It has %d cards.", cnt) % cnt
+                extra = tr(TR.DECKS_IT_HAS_CARD, count=cnt)
             else:
                 extra = None
         if (

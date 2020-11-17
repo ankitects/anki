@@ -561,7 +561,7 @@ class CardLayout(QDialog):
             card_cnt = fut.result()
 
             template = self.current_template()
-            cards = ngettext("%d card", "%d cards", card_cnt) % card_cnt
+            cards = tr(TR.CARD_TEMPLATES_CARD_COUNT, count=card_cnt)
             msg = tr(TR.CARD_TEMPLATES_DELETE_THE_AS_CARD_TYPE_AND) % dict(
                 a=template["name"], b=cards
             )
