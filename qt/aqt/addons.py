@@ -24,7 +24,7 @@ import anki
 import aqt
 import aqt.forms
 from anki.httpclient import HttpClient
-from anki.lang import _, ngettext, without_unicode_isolation
+from anki.lang import ngettext, without_unicode_isolation
 from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import (
@@ -275,10 +275,7 @@ class AddonManager:
             if conflicting:
                 addons = ", ".join(self.addonName(f) for f in conflicting)
                 showInfo(
-                    _(
-                        "The following add-ons are incompatible with %(name)s \
-and have been disabled: %(found)s"
-                    )
+                    tr(TR.ADDONS_THE_FOLLOWING_ADDONS_ARE_INCOMPATIBLE_WITH)
                     % dict(name=addon.human_name(), found=addons),
                     textFormat="plain",
                 )
@@ -468,7 +465,9 @@ and have been disabled: %(found)s"
             "manifest": tr(TR.ADDONS_INVALID_ADDON_MANIFEST),
         }
 
-        msg = messages.get(result.errmsg, _("Unknown error: {}".format(result.errmsg)))
+        msg = messages.get(
+            result.errmsg, tr(TR.ADDONS_UNKNOWN_ERROR, val=result.errmsg)
+        )
 
         if mode == "download":  # preserve old format strings for i18n
             template = tr(TR.ADDONS_ERROR_DOWNLOADING_IDS_ERRORS)
@@ -1400,13 +1399,9 @@ def installAddonPackages(
 
     if warn:
         names = ",<br>".join(f"<b>{os.path.basename(p)}</b>" for p in paths)
-        q = _(
-            "<b>Important</b>: As add-ons are programs downloaded from the internet, "
-            "they are potentially malicious."
-            "<b>You should only install add-ons you trust.</b><br><br>"
-            "Are you sure you want to proceed with the installation of the "
-            "following Anki add-on(s)?<br><br>%(names)s"
-        ) % dict(names=names)
+        q = tr(TR.ADDONS_IMPORTANT_AS_ADDONS_ARE_PROGRAMS_DOWNLOADED) % dict(
+            names=names
+        )
         if (
             not showInfo(
                 q,

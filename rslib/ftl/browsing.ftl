@@ -102,3 +102,19 @@ browsing-treat-input-as-regular-expression = Treat input as regular expression
 browsing-type-here-to-search = <type here to search; hit enter to show current deck>
 browsing-whole-collection = Whole Collection
 browsing-you-must-have-at-least-one = You must have at least one column.
+browsing-group = { $count ->
+    [one] { $count } group
+   *[other] { $count } groups
+  }
+browsing-note-count = { $count ->
+    [one] { $count } note
+   *[other] { $count } notes
+  }
+browsing-note-deleted = { $count ->
+    [one] { $count } note deleted.
+   *[other] { $count } notes deleted.
+  }
+browsing-selected = { $count ->
+    [one] { $count } selected
+   *[other] { $count } selected
+  }

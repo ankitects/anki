@@ -52,3 +52,23 @@ importing-unable-to-import-from-a-readonly = Unable to import from a read-only f
 importing-unknown-file-format = Unknown file format.
 importing-update-existing-notes-when-first-field = Update existing notes when first field matches
 importing-updated = Updated
+importing-note-added = { $count ->
+    [one] { $count } note added
+   *[other] { $count } notes added
+  }
+importing-note-imported = { $count ->
+    [one] { $count } note imported.
+   *[other] { $count } notes imported.
+  }
+importing-note-unchanged = { $count ->
+    [one] { $count } note unchanged
+   *[other] { $count } notes unchanged
+  }
+importing-note-updated = { $count ->
+    [one] { $count } note updated
+   *[other] { $count } notes updated
+  }
+importing-processed-media-file = { $count ->
+    [one] Processed { $count } media file
+   *[other] Processed { $count } media files
+  }

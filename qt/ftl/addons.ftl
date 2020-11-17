@@ -59,3 +59,7 @@ addons-unable-to-update-or-delete-addon = Unable to update or delete add-on. Ple
 addons-unknown-error = Unknown error: { $val }
 addons-view-addon-page = View Add-on Page
 addons-view-files = View Files
+addons-delete-the-numd-selected-addon = { $count ->
+    [one] Delete the { $count } selected add-on?
+   *[other] Delete the { $count } selected add-ons?
+  }
