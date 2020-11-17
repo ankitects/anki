@@ -3,11 +3,11 @@
 import glob, re, json, stringcase
 
 files = (
-    glob.glob("../../pylib/**/*.py", recursive=True)
-    # + glob.glob("../../qt/**/*.py", recursive=True)
+    # glob.glob("../../pylib/**/*.py", recursive=True)
+    glob.glob("../../qt/**/*.py", recursive=True)
     # glob.glob("../../qt/**/forms/*.ui", recursive=True)
 )
-string_re = re.compile(r'ngettext\(\s*"(.+?)",\s+".+?",\s+(.+?)\) % \2')
+string_re = re.compile(r'ngettext\(\s*"(.+?)",\s+".+?",\s+(.+?)\) % \2', re.DOTALL)
 
 map = json.load(open("keys_by_text.json"))
 
@@ -20,6 +20,8 @@ blacklist = {
     "~",
     "about:blank",
     "%d card imported.",
+    # need to update manually
+    "Browse (%(cur)d card shown; %(sel)s)",
     # previewer.py needs updating to fix these
     "Shortcut key: R",
     "Shortcut key: B",
@@ -72,7 +74,7 @@ def repl(m):
 
     screaming = stringcase.constcase(key)
 
-    ret = f"tr_legacyglobal(TR.{screaming}, count={m.group(2)})"
+    ret = f"tr(TR.{screaming}, count={m.group(2)})"
     print(ret)
     return ret
 
@@ -84,7 +86,6 @@ for file in files:
     buf2 = string_re.sub(repl, buf)
     if buf != buf2:
         lines = buf2.split("\n")
-        lines.insert(3, "from anki.rsbackend import TR")
-        lines.insert(3, "from anki.lang import tr_legacyglobal")
+        lines.insert(3, "from aqt.utils import tr, TR")
         buf2 = "\n".join(lines)
         open(file, "w").write(buf2)

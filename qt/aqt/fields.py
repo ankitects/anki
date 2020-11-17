@@ -122,7 +122,7 @@ class FieldDialog(QDialog):
         if len(self.model["flds"]) < 2:
             return showWarning(tr(TR.FIELDS_NOTES_REQUIRE_AT_LEAST_ONE_FIELD))
         count = self.mm.useCount(self.model)
-        c = ngettext("%d note", "%d notes", count) % count
+        c = tr(TR.BROWSING_NOTE_COUNT, count=count)
         if not askUser(tr(TR.FIELDS_DELETE_FIELD_FROM, val=c)):
             return
         if not self.change_tracker.mark_schema():

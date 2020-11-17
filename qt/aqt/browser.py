@@ -1574,9 +1574,7 @@ where id in %s"""
             self.model.focusedCard = self.model.cards[newRow]
         self.model.endReset()
         self.mw.reset()
-        tooltip(
-            ngettext("%d note deleted.", "%d notes deleted.", len(nids)) % len(nids)
-        )
+        tooltip(tr(TR.BROWSING_NOTE_DELETED, count=len(nids)))
 
     # Deck change
     ######################################################################
@@ -2001,8 +1999,8 @@ where id in %s"""
         t = ""
         groups = len(res)
         notes = sum(len(r[1]) for r in res)
-        part1 = ngettext("%d group", "%d groups", groups) % groups
-        part2 = ngettext("%d note", "%d notes", notes) % notes
+        part1 = tr(TR.BROWSING_GROUP, count=groups)
+        part2 = tr(TR.BROWSING_NOTE_COUNT, count=notes)
         t += tr(TR.BROWSING_FOUND_AS_ACROSS_BS) % dict(a=part1, b=part2)
         t += "<p><ol>"
         for val, nids in res:
@@ -2010,7 +2008,7 @@ where id in %s"""
                 """<li><a href=# onclick="pycmd('%s');return false;">%s</a>: %s</a>"""
                 % (
                     "nid:" + ",".join(str(id) for id in nids),
-                    ngettext("%d note", "%d notes", len(nids)) % len(nids),
+                    tr(TR.BROWSING_NOTE_COUNT, count=len(nids)),
                     html.escape(val),
                 )
             )

@@ -1217,7 +1217,7 @@ title="%s" %s>%s</button>""" % (
         if devMode:
             print("clock is off; ignoring")
             return
-        diffText = ngettext("%s second", "%s seconds", diff) % diff
+        diffText = tr(TR.QT_MISC_SECOND, count=diff)
         warn = (
             _(
                 """\
