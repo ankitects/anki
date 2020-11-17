@@ -289,6 +289,80 @@ pub(crate) fn text_to_re(glob: &str) -> String {
     text2.into()
 }
 
+/// Check if string contains an unescaped wildcard.
+pub(crate) fn is_glob(txt: &str) -> bool {
+    // even number of \s followed by a wildcard
+    lazy_static! {
+        static ref RE: Regex = Regex::new(
+            r#"(?x)
+            (?:^|[^\\])     # not a backslash
+            (?:\\\\)*       # even number of backslashes
+            [*_]            # wildcard
+            "#
+        )
+        .unwrap();
+    }
+
+    RE.is_match(txt)
+}
+
+/// Convert to a RegEx respecting Anki wildcards.
+pub(crate) fn to_re(txt: &str) -> Cow<str> {
+    to_custom_re(txt, ".")
+}
+
+/// Convert Anki style to RegEx using the provided wildcard.
+pub(crate) fn to_custom_re<'a>(txt: &'a str, wildcard: &str) -> Cow<'a, str> {
+    // escape sequences and unescaped special characters which need conversion
+    lazy_static! {
+        static ref RE: Regex = Regex::new(r"\\.|[*_]").unwrap();
+    }
+    RE.replace_all(&txt, |caps: &Captures| {
+        let s = &caps[0];
+        match s {
+            r"\\" | r"\*" => s.to_string(),
+            r"\_" => "_".to_string(),
+            "*" => format!("{}*", wildcard),
+            "_" => wildcard.to_string(),
+            s => regex::escape(s),
+        }
+    })
+}
+
+/// Convert to SQL respecting Anki wildcards.
+pub(crate) fn to_sql<'a>(txt: &'a str) -> Cow<'a, str> {
+    // escape sequences and unescaped special characters which need conversion
+    lazy_static! {
+        static ref RE: Regex = Regex::new(r"\\[\\*]|[*%]").unwrap();
+    }
+    RE.replace_all(&txt, |caps: &Captures| {
+        let s = &caps[0];
+        match s {
+            r"\\" => r"\\",
+            r"\*" => "*",
+            "*" => "%",
+            "%" => r"\%",
+            _ => unreachable!(),
+        }
+    })
+}
+
+/// Unescape everything.
+pub(crate) fn to_text(txt: &str) -> Cow<str> {
+    lazy_static! {
+        static ref RE: Regex = Regex::new(r"\\(.)").unwrap();
+    }
+    RE.replace_all(&txt, "$1")
+}
+
+/// Escape characters special to SQL: \%_
+pub(crate) fn escape_sql(txt: &str) -> Cow<str> {
+    lazy_static! {
+        static ref RE: Regex = Regex::new(r"[\\%_]").unwrap();
+    }
+    RE.replace_all(&txt, r"\$0")
+}
+
 #[cfg(test)]
 mod test {
     use crate::text::without_combining;
