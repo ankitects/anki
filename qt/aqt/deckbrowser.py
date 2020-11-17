@@ -292,7 +292,7 @@ class DeckBrowser:
             deck["dyn"]
             or not extra
             or askUser(
-                (tr(TR.DECKS_ARE_YOU_SURE_YOU_WISH_TO, val="%s") % deck["name"]) + extra
+                (tr(TR.DECKS_ARE_YOU_SURE_YOU_WISH_TO, val=deck["name"])) + extra
             )
         ):
             self.mw.progress.start()
@@ -314,7 +314,7 @@ class DeckBrowser:
         drawLinks = deepcopy(self.drawLinks)
         for b in drawLinks:
             if b[0]:
-                b[0] = tr(TR.ACTIONS_SHORTCUT_KEY, val="%s") % shortcut(b[0])
+                b[0] = tr(TR.ACTIONS_SHORTCUT_KEY, val=shortcut(b[0]))
             buf += """
 <button title='%s' onclick='pycmd(\"%s\");'>%s</button>""" % tuple(
                 b

@@ -142,7 +142,7 @@ class ExportDialog(QDialog):
                 f = open(file, "wb")
                 f.close()
             except (OSError, IOError) as e:
-                showWarning(tr(TR.EXPORTING_COULDNT_SAVE_FILE, val="%s") % str(e))
+                showWarning(tr(TR.EXPORTING_COULDNT_SAVE_FILE, val=str(e)))
             else:
                 os.unlink(file)
 

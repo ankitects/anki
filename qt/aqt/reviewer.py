@@ -396,7 +396,7 @@ class Reviewer:
 Please run Tools>Empty Cards"""
                     )
                 else:
-                    warn = tr(TR.STUDYING_TYPE_ANSWER_UNKNOWN_FIELD, val="%s") % fld
+                    warn = tr(TR.STUDYING_TYPE_ANSWER_UNKNOWN_FIELD, val=fld)
                 return re.sub(self.typeAnsPat, warn, buf)
             else:
                 # empty field, remove type answer pattern
@@ -578,7 +578,7 @@ time = %(time)d;
 """ % dict(
             rem=self._remaining(),
             edit=tr(TR.STUDYING_EDIT),
-            editkey=tr(TR.ACTIONS_SHORTCUT_KEY, val="%s") % "E",
+            editkey=tr(TR.ACTIONS_SHORTCUT_KEY, val="E"),
             more=tr(TR.STUDYING_MORE),
             downArrow=downArrow(),
             time=self.card.timeTaken() // 1000,
@@ -589,7 +589,7 @@ time = %(time)d;
 <span class=stattxt>%s</span><br>
 <button title="%s" id="ansbut" class="focus" onclick='pycmd("ans");'>%s</button>""" % (
             self._remaining(),
-            tr(TR.ACTIONS_SHORTCUT_KEY, val="%s") % tr(TR.STUDYING_SPACE),
+            tr(TR.ACTIONS_SHORTCUT_KEY, val=tr(TR.STUDYING_SPACE)),
             tr(TR.STUDYING_SHOW_ANSWER),
         )
         # wrap it in a table so it has the same top margin as the ease buttons
@@ -669,7 +669,7 @@ time = %(time)d;
 %s</button></td>""" % (
                 due,
                 extra,
-                tr(TR.ACTIONS_SHORTCUT_KEY, val="%s") % i,
+                tr(TR.ACTIONS_SHORTCUT_KEY, val=i),
                 i,
                 i,
                 label,

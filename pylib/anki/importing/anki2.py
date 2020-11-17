@@ -131,26 +131,30 @@ class Anki2Importer(Importer):
                     else:
                         dupesIdentical.append(note)
 
-        self.log.append(self.dst.tr(TR.IMPORTING_NOTES_FOUND_IN_FILE, val="%s") % total)
+        self.log.append(self.dst.tr(TR.IMPORTING_NOTES_FOUND_IN_FILE, val=total))
 
         if dupesIgnored:
             self.log.append(
-                self.dst.tr(TR.IMPORTING_NOTES_THAT_COULD_NOT_BE_IMPORTED, val="%s")
-                % len(dupesIgnored)
+                self.dst.tr(
+                    TR.IMPORTING_NOTES_THAT_COULD_NOT_BE_IMPORTED, val=len(dupesIgnored)
+                )
             )
         if update:
             self.log.append(
-                self.dst.tr(TR.IMPORTING_NOTES_UPDATED_AS_FILE_HAD_NEWER, val="%s")
-                % len(update)
+                self.dst.tr(
+                    TR.IMPORTING_NOTES_UPDATED_AS_FILE_HAD_NEWER, val=len(update)
+                )
             )
         if add:
             self.log.append(
-                self.dst.tr(TR.IMPORTING_NOTES_ADDED_FROM_FILE, val="%s") % len(add)
+                self.dst.tr(TR.IMPORTING_NOTES_ADDED_FROM_FILE, val=len(add))
             )
         if dupesIdentical:
             self.log.append(
-                self.dst.tr(TR.IMPORTING_NOTES_SKIPPED_AS_THEYRE_ALREADY_IN, val="%s")
-                % len(dupesIdentical)
+                self.dst.tr(
+                    TR.IMPORTING_NOTES_SKIPPED_AS_THEYRE_ALREADY_IN,
+                    val=len(dupesIdentical),
+                )
             )
 
         self.log.append("")

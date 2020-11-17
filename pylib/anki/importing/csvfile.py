@@ -55,7 +55,7 @@ class TextImporter(NoteImporter):
                 note = self.noteFromFields(row)
                 notes.append(note)
         except (csv.Error) as e:
-            log.append(self.col.tr(TR.IMPORTING_ABORTED, val="%s") % str(e))
+            log.append(self.col.tr(TR.IMPORTING_ABORTED, val=str(e)))
         self.log = log
         self.ignored = ignored
         self.close()

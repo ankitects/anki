@@ -45,7 +45,7 @@ class DeckConf(QDialog):
             self.form.buttonBox.button(QDialogButtonBox.RestoreDefaults).clicked,
             self.onRestore,
         )
-        self.setWindowTitle(tr(TR.ACTIONS_OPTIONS_FOR, val="%s") % self.deck["name"])
+        self.setWindowTitle(tr(TR.ACTIONS_OPTIONS_FOR, val=self.deck["name"]))
         # qt doesn't size properly with altered fonts otherwise
         restoreGeom(self, "deckconf", adjustSize=True)
         gui_hooks.deck_conf_will_show(self)
@@ -156,9 +156,7 @@ class DeckConf(QDialog):
         self.loadConfs()
 
     def setChildren(self):
-        if not askUser(
-            tr(TR.SCHEDULING_SET_ALL_DECKS_BELOW_TO, val="%s") % self.deck["name"]
-        ):
+        if not askUser(tr(TR.SCHEDULING_SET_ALL_DECKS_BELOW_TO, val=self.deck["name"])):
             return
         for did in self.childDids:
             deck = self.mw.col.decks.get(did)
@@ -195,7 +193,7 @@ class DeckConf(QDialog):
                 lim = x
             else:
                 lim = min(x, lim)
-        return tr(TR.SCHEDULING_PARENT_LIMIT, val="%s") % lim
+        return tr(TR.SCHEDULING_PARENT_LIMIT, val=lim)
 
     def loadConf(self):
         self.conf = self.mw.col.decks.confForDid(self.deck["id"])

@@ -422,7 +422,7 @@ and have been disabled: %(found)s"
             return True
         except OSError as e:
             showWarning(
-                tr(TR.ADDONS_UNABLE_TO_UPDATE_OR_DELETE_ADDON, val="%s") % e,
+                tr(TR.ADDONS_UNABLE_TO_UPDATE_OR_DELETE_ADDON, val=str(e)),
                 textFormat="plain",
             )
             return False
@@ -740,9 +740,7 @@ class AddonsDialog(QDialog):
             return name + " " + tr(TR.ADDONS_DISABLED2)
         elif not addon.compatible():
             return (
-                name
-                + " "
-                + tr(TR.ADDONS_REQUIRES, val="%s") % self.compatible_string(addon)
+                name + " " + tr(TR.ADDONS_REQUIRES, val=self.compatible_string(addon))
             )
 
         return name
@@ -1007,10 +1005,7 @@ def describe_log_entry(id_and_entry: DownloadLogEntry) -> str:
             if entry.status_code in (403, 404):
                 buf += tr(TR.ADDONS_INVALID_CODE_OR_ADDON_NOT_AVAILABLE)
             else:
-                buf += (
-                    tr(TR.QT_MISC_UNEXPECTED_RESPONSE_CODE, val="%s")
-                    % entry.status_code
-                )
+                buf += tr(TR.QT_MISC_UNEXPECTED_RESPONSE_CODE, val=entry.status_code)
         else:
             buf += (
                 tr(TR.ADDONS_PLEASE_CHECK_YOUR_INTERNET_CONNECTION)

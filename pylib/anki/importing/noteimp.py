@@ -136,10 +136,6 @@ class NoteImporter(Importer):
         # loop through the notes
         updates = []
         updateLog = []
-        updateLogTxt = self.col.tr(TR.IMPORTING_FIRST_FIELD_MATCHED, val="%s")
-        dupeLogTxt = self.col.tr(
-            TR.IMPORTING_ADDED_DUPLICATE_WITH_FIRST_FIELD, val="%s"
-        )
         new = []
         self._ids: List[int] = []
         self._cards: List[Tuple] = []
@@ -157,15 +153,14 @@ class NoteImporter(Importer):
             # first field must exist
             if not fld0:
                 self.log.append(
-                    self.col.tr(TR.IMPORTING_EMPTY_FIRST_FIELD, val="%s")
-                    % " ".join(n.fields)
+                    self.col.tr(TR.IMPORTING_EMPTY_FIRST_FIELD, val=" ".join(n.fields))
                 )
                 continue
             # earlier in import?
             if fld0 in firsts and self.importMode != ADD_MODE:
                 # duplicates in source file; log and ignore
                 self.log.append(
-                    self.col.tr(TR.IMPORTING_APPEARED_TWICE_IN_FILE, val="%s") % fld0
+                    self.col.tr(TR.IMPORTING_APPEARED_TWICE_IN_FILE, val=fld0)
                 )
                 continue
             firsts[fld0] = True
@@ -183,7 +178,11 @@ class NoteImporter(Importer):
                             data = self.updateData(n, id, sflds)
                             if data:
                                 updates.append(data)
-                                updateLog.append(updateLogTxt % fld0)
+                                updateLog.append(
+                                    self.col.tr(
+                                        TR.IMPORTING_FIRST_FIELD_MATCHED, val=fld0
+                                    )
+                                )
                                 dupeCount += 1
                                 found = True
                         elif self.importMode == IGNORE_MODE:
@@ -193,7 +192,12 @@ class NoteImporter(Importer):
                             if fld0 not in dupes:
                                 # only show message once, no matter how many
                                 # duplicates are in the collection already
-                                updateLog.append(dupeLogTxt % fld0)
+                                updateLog.append(
+                                    self.col.tr(
+                                        TR.IMPORTING_ADDED_DUPLICATE_WITH_FIRST_FIELD,
+                                        val=fld0,
+                                    )
+                                )
                                 dupes.append(fld0)
                             found = False
             # newly add

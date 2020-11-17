@@ -24,7 +24,7 @@ class FieldDialog(QDialog):
         self.change_tracker = ChangeTracker(self.mw)
         self.form = aqt.forms.fields.Ui_Dialog()
         self.form.setupUi(self)
-        self.setWindowTitle(tr(TR.FIELDS_FIELDS_FOR, val="%s") % self.model["name"])
+        self.setWindowTitle(tr(TR.FIELDS_FIELDS_FOR, val=self.model["name"]))
         self.form.buttonBox.button(QDialogButtonBox.Help).setAutoDefault(False)
         self.form.buttonBox.button(QDialogButtonBox.Cancel).setAutoDefault(False)
         self.form.buttonBox.button(QDialogButtonBox.Save).setAutoDefault(False)
@@ -123,7 +123,7 @@ class FieldDialog(QDialog):
             return showWarning(tr(TR.FIELDS_NOTES_REQUIRE_AT_LEAST_ONE_FIELD))
         count = self.mm.useCount(self.model)
         c = ngettext("%d note", "%d notes", count) % count
-        if not askUser(tr(TR.FIELDS_DELETE_FIELD_FROM, val="%s") % c):
+        if not askUser(tr(TR.FIELDS_DELETE_FIELD_FROM, val=c)):
             return
         if not self.change_tracker.mark_schema():
             return
@@ -137,9 +137,7 @@ class FieldDialog(QDialog):
     def onPosition(self, delta=-1):
         idx = self.currentIdx
         l = len(self.model["flds"])
-        txt = getOnlyText(
-            tr(TR.FIELDS_NEW_POSITION_1, val="%s") % l, default=str(idx + 1)
-        )
+        txt = getOnlyText(tr(TR.FIELDS_NEW_POSITION_1, val=l), default=str(idx + 1))
         if not txt:
             return
         try:

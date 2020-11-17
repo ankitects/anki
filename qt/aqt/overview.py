@@ -261,7 +261,7 @@ to their original deck."""
         buf = ""
         for b in links:
             if b[0]:
-                b[0] = tr(TR.ACTIONS_SHORTCUT_KEY, val="%s") % shortcut(b[0])
+                b[0] = tr(TR.ACTIONS_SHORTCUT_KEY, val=shortcut(b[0]))
             buf += """
 <button title="%s" onclick='pycmd("%s")'>%s</button>""" % tuple(
                 b

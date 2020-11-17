@@ -160,7 +160,7 @@ class Models(QDialog):
         frm.latexsvg.setChecked(nt.get("latexsvg", False))
         frm.latexHeader.setText(nt["latexPre"])
         frm.latexFooter.setText(nt["latexPost"])
-        d.setWindowTitle(tr(TR.ACTIONS_OPTIONS_FOR, val="%s") % nt["name"])
+        d.setWindowTitle(tr(TR.ACTIONS_OPTIONS_FOR, val=nt["name"]))
         qconnect(frm.buttonBox.helpRequested, lambda: openHelp("math?id=latex"))
         restoreGeom(d, "modelopts")
         gui_hooks.models_advanced_will_show(d)
@@ -211,12 +211,12 @@ class AddModel(QDialog):
         # standard models
         self.models = []
         for (name, func) in stdmodels.get_stock_notetypes(self.col):
-            item = QListWidgetItem(tr(TR.NOTETYPES_ADD, val="%s") % name)
+            item = QListWidgetItem(tr(TR.NOTETYPES_ADD, val=name))
             self.dialog.models.addItem(item)
             self.models.append((True, func))
         # add copies
         for m in sorted(self.col.models.all(), key=itemgetter("name")):
-            item = QListWidgetItem(tr(TR.NOTETYPES_CLONE, val="%s") % m["name"])
+            item = QListWidgetItem(tr(TR.NOTETYPES_CLONE, val=m["name"]))
             self.dialog.models.addItem(item)
             self.models.append((False, m))  # type: ignore
         self.dialog.models.setCurrentRow(0)

@@ -653,7 +653,7 @@ def closeTooltip():
 def checkInvalidFilename(str, dirsep=True):
     bad = invalidFilename(str, dirsep)
     if bad:
-        showWarning(tr(TR.QT_MISC_THE_FOLLOWING_CHARACTER_CAN_NOT_BE, val="%s") % bad)
+        showWarning(tr(TR.QT_MISC_THE_FOLLOWING_CHARACTER_CAN_NOT_BE, val=bad))
         return True
     return False
 

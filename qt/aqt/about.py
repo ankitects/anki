@@ -101,13 +101,13 @@ system. It's free and open source."
         "Anki is licensed under the AGPL3 license. Please see "
         "the license file in the source distribution for more information."
     )
-    abouttext += "<p>" + tr(TR.ABOUT_VERSION, val="%s") % versionWithBuild() + "<br>"
+    abouttext += "<p>" + tr(TR.ABOUT_VERSION, val=versionWithBuild()) + "<br>"
     abouttext += ("Python %s Qt %s PyQt %s<br>") % (
         platform.python_version(),
         QT_VERSION_STR,
         PYQT_VERSION_STR,
     )
-    abouttext += (tr(TR.ABOUT_VISIT_WEBSITE, val="%s") % aqt.appWebsite) + "</span>"
+    abouttext += tr(TR.ABOUT_VISIT_WEBSITE, val=aqt.appWebsite) + "</span>"
 
     # automatically sorted; add new lines at the end
     allusers = sorted(

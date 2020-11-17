@@ -865,15 +865,15 @@ to a cloze type first, via 'Notes>Change Note Type'"""
                     client.timeout = 30
                     with client.get(url) as response:
                         if response.status_code != 200:
-                            error_msg = (
-                                tr(TR.QT_MISC_UNEXPECTED_RESPONSE_CODE, val="%s")
-                                % response.status_code
+                            error_msg = tr(
+                                TR.QT_MISC_UNEXPECTED_RESPONSE_CODE,
+                                val=response.status_code,
                             )
                             return None
                         filecontents = response.content
                         content_type = response.headers.get("content-type")
         except (urllib.error.URLError, requests.exceptions.RequestException) as e:
-            error_msg = tr(TR.EDITING_AN_ERROR_OCCURRED_WHILE_OPENING, val="%s") % e
+            error_msg = tr(TR.EDITING_AN_ERROR_OCCURRED_WHILE_OPENING, val=str(e))
             return None
         finally:
             self.mw.progress.finish()

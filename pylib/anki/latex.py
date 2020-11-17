@@ -164,8 +164,8 @@ def _save_latex_image(
 
 
 def _errMsg(col: anki.collection.Collection, type: str, texpath: str) -> Any:
-    msg = (col.tr(TR.MEDIA_ERROR_EXECUTING, val="%s") % type) + "<br>"
-    msg += (col.tr(TR.MEDIA_GENERATED_FILE, val="%s") % texpath) + "<br>"
+    msg = col.tr(TR.MEDIA_ERROR_EXECUTING, val=type) + "<br>"
+    msg += col.tr(TR.MEDIA_GENERATED_FILE, val=texpath) + "<br>"
     try:
         with open(namedtmp("latex_log.txt", rm=False)) as f:
             log = f.read()
