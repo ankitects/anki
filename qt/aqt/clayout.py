@@ -67,7 +67,7 @@ class CardLayout(QDialog):
         self.setupButtons()
         self.setupShortcuts()
         self.setWindowTitle(
-            tr(TR.CARD_TEMPLATES_CARD_TYPES_FOR, val="%s") % self.model["name"]
+            tr(TR.CARD_TEMPLATES_CARD_TYPES_FOR, val=self.model["name"])
         )
         v1 = QVBoxLayout()
         v1.addWidget(self.topArea)
@@ -244,7 +244,7 @@ class CardLayout(QDialog):
         qconnect(widg.returnPressed, self.on_search_next)
 
     def setup_cloze_number_box(self):
-        names = (tr(TR.CARD_TEMPLATES_CLOZE, val="%s") % n for n in self.cloze_numbers)
+        names = (tr(TR.CARD_TEMPLATES_CLOZE, val=n) for n in self.cloze_numbers)
         self.pform.cloze_number_combo.addItems(names)
         try:
             idx = self.cloze_numbers.index(self.ord + 1)
@@ -603,7 +603,7 @@ class CardLayout(QDialog):
         template = self.current_template()
         current_pos = self.templates.index(template) + 1
         pos = getOnlyText(
-            tr(TR.CARD_TEMPLATES_ENTER_NEW_CARD_POSITION_1, val="%s") % n,
+            tr(TR.CARD_TEMPLATES_ENTER_NEW_CARD_POSITION_1, val=n),
             default=str(current_pos),
         )
         if not pos:
@@ -626,7 +626,7 @@ class CardLayout(QDialog):
     def _newCardName(self):
         n = len(self.templates) + 1
         while 1:
-            name = tr(TR.CARD_TEMPLATES_CARD, val="%s") % n
+            name = tr(TR.CARD_TEMPLATES_CARD, val=n)
             if name not in [t["name"] for t in self.templates]:
                 break
             n += 1

@@ -67,8 +67,8 @@ class CustomStudy(QDialog):
                 new, self.conf["new"]["perDay"] - self.deck["newToday"][1]
             )
             newExceeding = min(new, new - newUnderLearning)
-            tit = tr(TR.CUSTOM_STUDY_NEW_CARDS_IN_DECK_OVER_TODAY, val="%s") % plus(
-                newExceeding
+            tit = tr(
+                TR.CUSTOM_STUDY_NEW_CARDS_IN_DECK_OVER_TODAY, val=plus(newExceeding)
             )
             pre = tr(TR.CUSTOM_STUDY_INCREASE_TODAYS_NEW_CARD_LIMIT_BY)
             sval = min(new, self.deck.get("extendNew", 10))
@@ -81,8 +81,8 @@ class CustomStudy(QDialog):
                 rev, self.conf["rev"]["perDay"] - self.deck["revToday"][1]
             )
             revExceeding = min(rev, rev - revUnderLearning)
-            tit = tr(TR.CUSTOM_STUDY_REVIEWS_DUE_IN_DECK_OVER_TODAY, val="%s") % plus(
-                revExceeding
+            tit = tr(
+                TR.CUSTOM_STUDY_REVIEWS_DUE_IN_DECK_OVER_TODAY, val=plus(revExceeding)
             )
             pre = tr(TR.CUSTOM_STUDY_INCREASE_TODAYS_REVIEW_LIMIT_BY)
             sval = min(rev, self.deck.get("extendRev", 10))

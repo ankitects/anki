@@ -621,7 +621,7 @@ class Browser(QMainWindow):
         f = self.form
         qconnect(f.previewButton.clicked, self.onTogglePreview)
         f.previewButton.setToolTip(
-            tr(TR.BROWSING_PREVIEW_SELECTED_CARD, val="%s") % shortcut("Ctrl+Shift+P")
+            tr(TR.BROWSING_PREVIEW_SELECTED_CARD, val=shortcut("Ctrl+Shift+P"))
         )
         f.previewButton.setShortcut("Ctrl+Shift+P")
 
@@ -1406,9 +1406,7 @@ QTableView {{ gridline-color: {grid} }}
 
     def _onRemoveFilter(self):
         name = self._currentFilterIsSaved()
-        if not askUser(
-            tr(TR.BROWSING_REMOVE_FROM_YOUR_SAVED_SEARCHES, val="%s") % name
-        ):
+        if not askUser(tr(TR.BROWSING_REMOVE_FROM_YOUR_SAVED_SEARCHES, val=name)):
             return
         del self.col.conf["savedFilters"][name]
         self.col.setMod()
@@ -1751,8 +1749,8 @@ where id in %s"""
         )
         pmin = pmin or 0
         pmax = pmax or 0
-        txt = tr(TR.BROWSING_QUEUE_TOP, val="%s") % pmin
-        txt += "\n" + tr(TR.BROWSING_QUEUE_BOTTOM, val="%s") % pmax
+        txt = tr(TR.BROWSING_QUEUE_TOP, val=pmin)
+        txt += "\n" + tr(TR.BROWSING_QUEUE_BOTTOM, val=pmax)
         frm.label.setText(txt)
         frm.start.selectAll()
         if not d.exec_():
@@ -2192,7 +2190,7 @@ class ChangeModel(QDialog):
         targets = [x["name"] for x in dst] + [tr(TR.BROWSING_NOTHING)]
         indices = {}
         for i, x in enumerate(src):
-            l.addWidget(QLabel(tr(TR.BROWSING_CHANGE_TO, val="%s") % x["name"]), i, 0)
+            l.addWidget(QLabel(tr(TR.BROWSING_CHANGE_TO, val=x["name"])), i, 0)
             cb = QComboBox()
             cb.addItems(targets)
             idx = min(i, len(targets) - 1)

@@ -305,8 +305,7 @@ details have been forgotten."""
                     oldFolder = midFolder
                 else:
                     showWarning(
-                        tr(TR.PROFILES_PLEASE_REMOVE_THE_FOLDER_AND, val="%s")
-                        % midFolder
+                        tr(TR.PROFILES_PLEASE_REMOVE_THE_FOLDER_AND, val=midFolder)
                     )
                     self.name = oldName
                     return

@@ -42,7 +42,7 @@ class ChangeMap(QDialog):
         n = 0
         setCurrent = False
         for field in self.model["flds"]:
-            item = QListWidgetItem(tr(TR.IMPORTING_MAP_TO, val="%s") % field["name"])
+            item = QListWidgetItem(tr(TR.IMPORTING_MAP_TO, val=field["name"]))
             self.frm.fields.addItem(item)
             if current == field["name"]:
                 setCurrent = True
@@ -166,7 +166,7 @@ you can enter it here. Use \\t to represent tab."""
             d = tr(TR.IMPORTING_COLON)
         else:
             d = repr(d)
-        txt = tr(TR.IMPORTING_FIELDS_SEPARATED_BY, val="%s") % d
+        txt = tr(TR.IMPORTING_FIELDS_SEPARATED_BY, val=d)
         self.frm.autoDetect.setText(txt)
 
     def accept(self):
@@ -247,12 +247,12 @@ you can enter it here. Use \\t to represent tab."""
         self.grid.setSpacing(6)
         fields = self.importer.fields()
         for num in range(len(self.mapping)):
-            text = tr(TR.IMPORTING_FIELD_OF_FILE_IS, val="%s") % (num + 1)
+            text = tr(TR.IMPORTING_FIELD_OF_FILE_IS, val=num + 1)
             self.grid.addWidget(QLabel(text), num, 0)
             if self.mapping[num] == "_tags":
                 text = tr(TR.IMPORTING_MAPPED_TO_TAGS)
             elif self.mapping[num]:
-                text = tr(TR.IMPORTING_MAPPED_TO, val="%s") % self.mapping[num]
+                text = tr(TR.IMPORTING_MAPPED_TO, val=self.mapping[num])
             else:
                 text = tr(TR.IMPORTING_IGNORED)
             self.grid.addWidget(QLabel(text), num, 1)

@@ -88,7 +88,7 @@ class AddCards(QDialog):
         else:
             sc = "Ctrl+H"
         b.setShortcut(QKeySequence(sc))
-        b.setToolTip(tr(TR.ADDING_SHORTCUT, val="%s") % shortcut(sc))
+        b.setToolTip(tr(TR.ADDING_SHORTCUT, val=shortcut(sc)))
         qconnect(b.clicked, self.onHistory)
         b.setEnabled(False)
         self.historyButton = b

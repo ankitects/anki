@@ -495,7 +495,7 @@ class _Recorder:
             finally:
                 self.cleanup()
             if ret:
-                raise Exception(tr(TR.MEDIA_ERROR_RUNNING, val="%s") % " ".join(cmd))
+                raise Exception(tr(TR.MEDIA_ERROR_RUNNING, val=" ").join(cmd))
 
     def cleanup(self) -> None:
         if os.path.exists(processingSrc):

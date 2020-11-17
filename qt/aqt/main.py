@@ -119,9 +119,7 @@ class AnkiQt(QMainWindow):
             self.setupAddons(args)
             self.finish_ui_setup()
         except:
-            showInfo(
-                tr(TR.QT_MISC_ERROR_DURING_STARTUP, val="%s") % traceback.format_exc()
-            )
+            showInfo(tr(TR.QT_MISC_ERROR_DURING_STARTUP, val=traceback.format_exc()))
             sys.exit(1)
         # must call this after ui set up
         if self.safeMode:
@@ -759,7 +757,7 @@ from the profile screen."
     ) -> str:
         class_ = "but " + class_
         if key:
-            key = tr(TR.ACTIONS_SHORTCUT_KEY, val="%s") % key
+            key = tr(TR.ACTIONS_SHORTCUT_KEY, val=key)
         else:
             key = ""
         return """
@@ -1030,15 +1028,13 @@ title="%s" %s>%s</button>""" % (
             gui_hooks.review_did_undo(cid)
         else:
             self.reset()
-            tooltip(tr(TR.QT_MISC_REVERTED_TO_STATE_PRIOR_TO, val="%s") % n.lower())
+            tooltip(tr(TR.QT_MISC_REVERTED_TO_STATE_PRIOR_TO, val=n.lower()))
             gui_hooks.state_did_revert(n)
         self.maybeEnableUndo()
 
     def maybeEnableUndo(self) -> None:
         if self.col and self.col.undoName():
-            self.form.actionUndo.setText(
-                tr(TR.QT_MISC_UNDO2, val="%s") % self.col.undoName()
-            )
+            self.form.actionUndo.setText(tr(TR.QT_MISC_UNDO2, val=self.col.undoName()))
             self.form.actionUndo.setEnabled(True)
             gui_hooks.undo_state_did_change(True)
         else:
@@ -1160,9 +1156,9 @@ title="%s" %s>%s</button>""" % (
         if not search:
             if not deck["dyn"]:
                 search = 'deck:"%s" ' % deck["name"]
-        while self.col.decks.id_for_name(tr(TR.QT_MISC_FILTERED_DECK, val="%s") % n):
+        while self.col.decks.id_for_name(tr(TR.QT_MISC_FILTERED_DECK, val=n)):
             n += 1
-        name = tr(TR.QT_MISC_FILTERED_DECK, val="%s") % n
+        name = tr(TR.QT_MISC_FILTERED_DECK, val=n)
         did = self.col.decks.new_filtered(name)
         diag = aqt.dyndeckconf.DeckConf(self, first=True, search=search)
         if not diag.ok:

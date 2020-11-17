@@ -56,7 +56,7 @@ class LatestVersionFinder(QThread):
 
 
 def askAndUpdate(mw, ver):
-    baseStr = tr(TR.QT_MISC_ANKI_UPDATEDANKI_HAS_BEEN_RELEASED, val="%s") % ver
+    baseStr = tr(TR.QT_MISC_ANKI_UPDATEDANKI_HAS_BEEN_RELEASED, val=ver)
     msg = QMessageBox(mw)
     msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)  # type: ignore
     msg.setIcon(QMessageBox.Information)
