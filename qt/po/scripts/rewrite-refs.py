@@ -3,11 +3,11 @@
 import glob, re, json, stringcase
 
 files = (
-    # glob.glob("../../pylib/**/*.py", recursive=True)
-    #    glob.glob("../../qt/**/*.py", recursive=True)
-    glob.glob("../../qt/**/forms/*.ui", recursive=True)
+    glob.glob("../../pylib/**/*.py", recursive=True)
+    # + glob.glob("../../qt/**/*.py", recursive=True)
+    # glob.glob("../../qt/**/forms/*.ui", recursive=True)
 )
-string_re = re.compile(r"<string>(.*?)</string>")
+string_re = re.compile(r'ngettext\(\s*"(.+?)",\s+".+?",\s+(.+?)\) % \2')
 
 map = json.load(open("keys_by_text.json"))
 
@@ -19,6 +19,7 @@ blacklist = {
     "Show %s",
     "~",
     "about:blank",
+    "%d card imported.",
     # previewer.py needs updating to fix these
     "Shortcut key: R",
     "Shortcut key: B",
@@ -52,16 +53,28 @@ def decode_ents(html):
     return reEnts.sub(fixup, html)
 
 
+def munge_key(key):
+    if key == "browsing-note":
+        return "browsing-note-count"
+    if key == "card-templates-card":
+        return "card-templates-card-count"
+    return key
+
+
 def repl(m):
+    print(m.group(0))
     text = decode_ents(m.group(1))
     if text in blacklist:
         return m.group(0)
 
     (module, key) = map[text]
-    screaming = stringcase.constcase(key)
-    print(screaming)
+    key = munge_key(key)
 
-    return f"<string>{screaming}</string>"
+    screaming = stringcase.constcase(key)
+
+    ret = f"tr_legacyglobal(TR.{screaming}, count={m.group(2)})"
+    print(ret)
+    return ret
 
 
 for file in files:
@@ -70,4 +83,8 @@ for file in files:
     buf = open(file).read()
     buf2 = string_re.sub(repl, buf)
     if buf != buf2:
+        lines = buf2.split("\n")
+        lines.insert(3, "from anki.rsbackend import TR")
+        lines.insert(3, "from anki.lang import tr_legacyglobal")
+        buf2 = "\n".join(lines)
         open(file, "w").write(buf2)
