@@ -442,7 +442,7 @@ fn unescape(txt: &str) -> ParseResult<Cow<str>> {
         Err(ParseError {})
     } else if is_parser_escape(txt) {
         lazy_static! {
-            static ref RE: Regex = Regex::new(r#"\\[\\":()]"#).unwrap();
+            static ref RE: Regex = Regex::new(r#"\\[\\":()-]"#).unwrap();
         }
         Ok(RE.replace_all(&txt, |caps: &Captures| match &caps[0] {
             r"\\" => r"\\",
@@ -450,6 +450,7 @@ fn unescape(txt: &str) -> ParseResult<Cow<str>> {
             r"\:" => ":",
             r"\(" => "(",
             r"\)" => ")",
+            r"\-" => "-",
             _ => unreachable!(),
         }))
     } else {
@@ -466,7 +467,7 @@ fn is_invalid_escape(txt: &str) -> bool {
             (?:^|[^\\])         # not a backslash
             (?:\\\\)*           # even number of backslashes
             \\                  # single backslash
-            (?:[^\\":*_()]|$)   # anything but an escapable char
+            (?:[^\\":*_()-]|$)  # anything but an escapable char
             "#
         )
         .unwrap();
@@ -484,7 +485,7 @@ fn is_parser_escape(txt: &str) -> bool {
             (?:^|[^\\])     # not a backslash
             (?:\\\\)*       # even number of backslashes
             \\              # single backslash
-            [":()]          # parser escape
+            [":()-]         # parser escape
             "#
         )
         .unwrap();
@@ -570,15 +571,15 @@ mod test {
         assert_eq!(parse(r#""field:va\"lue""#)?, parse(r#"field:"va\"lue""#)?,);
         assert_eq!(parse(r#""field:va\"lue""#)?, parse(r#"field:va\"lue"#)?,);
 
-        // only \":()*_ are escapable
+        // only \":()-*_ are escapable
         assert!(parse(r"\").is_err());
         assert!(parse(r"\a").is_err());
         assert!(parse(r"\%").is_err());
 
-        // parser unescapes ":()
+        // parser unescapes ":()-
         assert_eq!(
-            parse(r#"\"\:\(\)"#)?,
-            vec![Search(UnqualifiedText(r#"":()"#.into())),]
+            parse(r#"\"\:\(\)\-"#)?,
+            vec![Search(UnqualifiedText(r#"":()-"#.into())),]
         );
 
         // parser doesn't unescape unescape \*_
@@ -597,6 +598,12 @@ mod test {
         assert_eq!(parse("field:val:ue"), parse(r"field:val\:ue"));
         assert_eq!(parse(r#""field:val:ue""#), parse(r"field:val\:ue"));
         assert_eq!(parse(r#"field:"val:ue""#), parse(r"field:val\:ue"));
+
+        // escaping - is optional if it cannot be mistaken for a negator
+        assert_eq!(parse("-"), parse(r"\-"));
+        assert_eq!(parse("A-"), parse(r"A\-"));
+        assert_eq!(parse(r#""-A""#), parse(r"\-A"));
+        assert_ne!(parse("-A"), parse(r"\-A"));
 
         // any character should be escapable on the right side of re:
         assert_eq!(
