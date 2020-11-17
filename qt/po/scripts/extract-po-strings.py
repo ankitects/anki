@@ -170,13 +170,20 @@ text_remap = {
     "studying": ["Space"],
     "qt-misc": ["&Edit", "&Guide...", "&Help", "&Undo", "Unexpected response code: %s"],
     "adding": ["Added"],
+    "browsing": ["%d note"],
 }
 
 blacklist = {"Anki", "%", "Dialog", "Center", "Left", "Right", "~", "&Cram..."}
 
 
 def determine_module(text, files):
+    if not files:
+        return None
     if text in blacklist:
+        return None
+
+    if text.count("%") > 1:
+        print("skip", text)
         return None
 
     if "&" in text:
@@ -189,6 +196,7 @@ def determine_module(text, files):
     if len(files) == 1:
         return list(files)[0]
 
+    print(text, files)
     assert False
 
 
@@ -225,8 +233,7 @@ seen_keys = set()
 
 
 def migrate_entry(entry):
-    if entry.msgid_plural:
-        # print("skip plural", entry.msgid)
+    if not entry.msgid_plural:
         return
 
     text = entry.msgid
@@ -244,7 +251,7 @@ def migrate_entry(entry):
 
     files2 = set()
     for file in files:
-        if file == "stats":
+        if file in ("stats", "supermemo_xml"):
             continue
         file = module_map[file]
         files2.add(file)
@@ -260,7 +267,7 @@ def migrate_entry(entry):
     seen_keys.add(key)
 
     modules.setdefault(module, [])
-    modules[module].append((key, text))
+    modules[module].append((key, [entry.msgid, entry.msgid_plural]))
 
     return None
 
@@ -309,8 +316,8 @@ for (module, items) in modules.items():
     strings_by_module[module] = items
     for item in items:
         (key, text) = item
-        assert text not in keys_by_text
-        keys_by_text[text] = (module, key)
+        assert text[0] not in keys_by_text
+        keys_by_text[text[0]] = (module, key)
 
 with open("strings_by_module.json", "w") as file:
     file.write(json.dumps(strings_by_module))

@@ -138,3 +138,7 @@ scheduling-steps-must-be-numbers = Steps must be numbers.
 scheduling-tag-only = Tag Only
 scheduling-the-default-configuration-cant-be-removed = The default configuration can't be removed.
 scheduling-your-changes-will-affect-multiple-decks = Your changes will affect multiple decks. If you wish to change only the current deck, please add a new options group first.
+scheduling-deck-updated = { $count ->
+    [one] { $count } deck updated.
+   *[other] { $count } decks updated.
+  }

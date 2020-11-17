@@ -42,3 +42,15 @@ studying-type-answer-unknown-field = Type answer: unknown field { $val }
 studying-unbury = Unbury
 studying-what-would-you-like-to-unbury = What would you like to unbury?
 studying-you-havent-recorded-your-voice-yet = You haven't recorded your voice yet.
+studying-card-studied-in = { $count ->
+    [one] { $count } card studied in
+   *[other] { $count } cards studied in
+  }
+studying-minute = { $count ->
+    [one] { $count } minute.
+   *[other] { $count } minutes.
+  }
+studying-note-and-its-card-deleted = { $count ->
+    [one] Note and its { $count } card deleted.
+   *[other] Note and its { $count } cards deleted.
+  }
