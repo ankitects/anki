@@ -194,7 +194,11 @@ def determine_module(text, files):
 
 modules = dict()
 
-remap_keys = {"browsing-": "browsing-type-here-to-search"}
+remap_keys = {
+    "browsing-": "browsing-type-here-to-search",
+    "importing-": "importing-ignored",
+    "qt-misc-": "qt-misc-non-unicode-text",
+}
 
 
 def generate_key(module: str, text: str) -> str:
