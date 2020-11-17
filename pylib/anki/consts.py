@@ -103,14 +103,6 @@ def newCardSchedulingLabels() -> Dict[int, Any]:
     }
 
 
-def alignmentLabels() -> Dict[int, Any]:
-    return {
-        0: _("Center"),
-        1: _("Left"),
-        2: _("Right"),
-    }
-
-
 def dynOrderLabels() -> Dict[int, Any]:
     return {
         0: _("Oldest seen first"),
