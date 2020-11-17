@@ -1,7 +1,6 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 # mypy: check-untyped-defs
-
 import json
 import re
 import time
@@ -26,7 +25,7 @@ from aqt.qt import (
 from aqt.reviewer import replay_audio
 from aqt.sound import av_player, play_clicked_audio
 from aqt.theme import theme_manager
-from aqt.utils import restoreGeom, saveGeom
+from aqt.utils import TR, restoreGeom, saveGeom, tr
 from aqt.webview import AnkiWebView
 
 
@@ -62,7 +61,7 @@ class Previewer(QDialog):
         self.show()
 
     def _create_gui(self):
-        self.setWindowTitle(_("Preview"))
+        self.setWindowTitle(tr(TR.ACTIONS_PREVIEW))
 
         qconnect(self.finished, self._on_finished)
         self.silentlyClose = True
@@ -73,14 +72,14 @@ class Previewer(QDialog):
         self.bbox = QDialogButtonBox()
 
         self._replay = self.bbox.addButton(
-            _("Replay Audio"), QDialogButtonBox.ActionRole
+            tr(TR.ACTIONS_REPLAY_AUDIO), QDialogButtonBox.ActionRole
         )
         self._replay.setAutoDefault(False)
         self._replay.setShortcut(QKeySequence("R"))
         self._replay.setToolTip(_("Shortcut key: %s" % "R"))
         qconnect(self._replay.clicked, self._on_replay_audio)
 
-        both_sides_button = QCheckBox(_("Back Side Only"))
+        both_sides_button = QCheckBox(tr(TR.QT_MISC_BACK_SIDE_ONLY))
         both_sides_button.setShortcut(QKeySequence("B"))
         both_sides_button.setToolTip(_("Shortcut key: %s" % "B"))
         self.bbox.addButton(both_sides_button, QDialogButtonBox.ActionRole)
@@ -159,7 +158,7 @@ class Previewer(QDialog):
         c = self.card()
         func = "_showQuestion"
         if not c:
-            txt = _("(please select 1 card)")
+            txt = tr(TR.QT_MISC_PLEASE_SELECT_1_CARD)
             bodyclass = ""
             self._last_state = None
         else:
@@ -240,12 +239,12 @@ class MultiCardPreviewer(Previewer):
         self._prev = self.bbox.addButton("<", QDialogButtonBox.ActionRole)
         self._prev.setAutoDefault(False)
         self._prev.setShortcut(QKeySequence("Left"))
-        self._prev.setToolTip(_("Shortcut key: Left arrow"))
+        self._prev.setToolTip(tr(TR.QT_MISC_SHORTCUT_KEY_LEFT_ARROW))
 
         self._next = self.bbox.addButton(">", QDialogButtonBox.ActionRole)
         self._next.setAutoDefault(True)
         self._next.setShortcut(QKeySequence("Right"))
-        self._next.setToolTip(_("Shortcut key: Right arrow or Enter"))
+        self._next.setToolTip(tr(TR.QT_MISC_SHORTCUT_KEY_RIGHT_ARROW_OR_ENTER))
 
         qconnect(self._prev.clicked, self._on_prev)
         qconnect(self._next.clicked, self._on_next)

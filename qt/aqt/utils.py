@@ -1,7 +1,6 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
 from __future__ import annotations
 
 import os
@@ -54,7 +53,7 @@ def openHelp(section):
 
 
 def openLink(link):
-    tooltip(_("Loading..."), period=1000)
+    tooltip(tr(TR.QT_MISC_LOADING), period=1000)
     with noBundledLibs():
         QDesktopServices.openUrl(QUrl(link))
 
@@ -145,7 +144,7 @@ def showText(
         def onCopy():
             QApplication.clipboard().setText(text.toPlainText())
 
-        btn = QPushButton(_("Copy to Clipboard"))
+        btn = QPushButton(tr(TR.QT_MISC_COPY_TO_CLIPBOARD))
         qconnect(btn.clicked, onCopy)
         box.addButton(btn, QDialogButtonBox.ActionRole)
 
@@ -209,8 +208,8 @@ class ButtonedDialog(QMessageBox):
         for b in buttons:
             self._buttons.append(self.addButton(b, QMessageBox.AcceptRole))
         if help:
-            self.addButton(_("Help"), QMessageBox.HelpRole)
-            buttons.append(_("Help"))
+            self.addButton(tr(TR.ACTIONS_HELP), QMessageBox.HelpRole)
+            buttons.append(tr(TR.ACTIONS_HELP))
         # self.setLayout(v)
 
     def run(self):
@@ -408,9 +407,7 @@ def getSaveFile(parent, title, dir_description, key, ext, fname=None):
         aqt.mw.pm.profile[config_key] = dir
         # check if it exists
         if os.path.exists(file):
-            if not askUser(
-                _("This file exists. Are you sure you want to overwrite it?"), parent
-            ):
+            if not askUser(tr(TR.QT_MISC_THIS_FILE_EXISTS_ARE_YOU_SURE), parent):
                 return None
     return file
 
@@ -656,7 +653,7 @@ def closeTooltip():
 def checkInvalidFilename(str, dirsep=True):
     bad = invalidFilename(str, dirsep)
     if bad:
-        showWarning(_("The following character can not be used: %s") % bad)
+        showWarning(tr(TR.QT_MISC_THE_FOLLOWING_CHARACTER_CAN_NOT_BE, val="%s") % bad)
         return True
     return False
 

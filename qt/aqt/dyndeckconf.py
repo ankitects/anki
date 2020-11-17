@@ -6,7 +6,7 @@ from typing import List, Optional
 import aqt
 from anki.lang import _
 from aqt.qt import *
-from aqt.utils import askUser, openHelp, restoreGeom, saveGeom, showWarning
+from aqt.utils import TR, askUser, openHelp, restoreGeom, saveGeom, showWarning, tr
 
 
 class DeckConf(QDialog):
@@ -18,14 +18,14 @@ class DeckConf(QDialog):
         self.form = aqt.forms.dyndconf.Ui_Dialog()
         self.form.setupUi(self)
         if first:
-            label = _("Build")
+            label = tr(TR.DECKS_BUILD)
         else:
-            label = _("Rebuild")
+            label = tr(TR.ACTIONS_REBUILD)
         self.ok = self.form.buttonBox.addButton(label, QDialogButtonBox.AcceptRole)
-        self.mw.checkpoint(_("Options"))
+        self.mw.checkpoint(tr(TR.ACTIONS_OPTIONS))
         self.setWindowModality(Qt.WindowModal)
         qconnect(self.form.buttonBox.helpRequested, lambda: openHelp("filtered-decks"))
-        self.setWindowTitle(_("Options for %s") % self.deck["name"])
+        self.setWindowTitle(tr(TR.ACTIONS_OPTIONS_FOR, val="%s") % self.deck["name"])
         restoreGeom(self, "dyndeckconf")
         self.initialSetup()
         self.loadConf()
@@ -154,9 +154,9 @@ it?"""
                 ret.append(i)
             except:
                 # invalid, don't update
-                showWarning(_("Steps must be numbers."))
+                showWarning(tr(TR.SCHEDULING_STEPS_MUST_BE_NUMBERS))
                 return None
         if len(ret) < minSize:
-            showWarning(_("At least one step is required."))
+            showWarning(tr(TR.SCHEDULING_AT_LEAST_ONE_STEP_IS_REQUIRED))
             return None
         return ret

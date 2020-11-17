@@ -1,12 +1,20 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
 import aqt
 from anki.lang import _
 from aqt import gui_hooks
 from aqt.qt import *
-from aqt.utils import getOnlyText, openHelp, restoreGeom, saveGeom, shortcut, showInfo
+from aqt.utils import (
+    TR,
+    getOnlyText,
+    openHelp,
+    restoreGeom,
+    saveGeom,
+    shortcut,
+    showInfo,
+    tr,
+)
 
 
 class StudyDeck(QDialog):
@@ -43,9 +51,9 @@ class StudyDeck(QDialog):
             for b in buttons:
                 self.form.buttonBox.addButton(b, QDialogButtonBox.ActionRole)
         else:
-            b = QPushButton(_("Add"))
+            b = QPushButton(tr(TR.ACTIONS_ADD))
             b.setShortcut(QKeySequence("Ctrl+N"))
-            b.setToolTip(shortcut(_("Add New Deck (Ctrl+N)")))
+            b.setToolTip(shortcut(tr(TR.DECKS_ADD_NEW_DECK_CTRLANDN)))
             self.form.buttonBox.addButton(b, QDialogButtonBox.ActionRole)
             qconnect(b.clicked, self.onAddDeck)
         if title:
@@ -64,7 +72,7 @@ class StudyDeck(QDialog):
             self.origNames = names()
         self.name = None
         self.ok = self.form.buttonBox.addButton(
-            accept or _("Study"), QDialogButtonBox.AcceptRole
+            accept or tr(TR.DECKS_STUDY), QDialogButtonBox.AcceptRole
         )
         self.setWindowModality(Qt.WindowModal)
         qconnect(self.form.buttonBox.helpRequested, lambda: openHelp(help))
@@ -132,7 +140,7 @@ class StudyDeck(QDialog):
         gui_hooks.state_did_reset.remove(self.onReset)
         row = self.form.list.currentRow()
         if row < 0:
-            showInfo(_("Please select something."))
+            showInfo(tr(TR.DECKS_PLEASE_SELECT_SOMETHING))
             return
         self.name = self.names[self.form.list.currentRow()]
         QDialog.accept(self)
@@ -148,7 +156,7 @@ class StudyDeck(QDialog):
             default = self.form.filter.text()
         else:
             default = self.names[self.form.list.currentRow()]
-        n = getOnlyText(_("New deck name:"), default=default)
+        n = getOnlyText(tr(TR.DECKS_NEW_DECK_NAME), default=default)
         n = n.strip()
         if n:
             did = self.mw.col.decks.id(n)

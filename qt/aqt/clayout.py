@@ -60,13 +60,15 @@ class CardLayout(QDialog):
         self.mobile_emulation_enabled = False
         self.have_autoplayed = False
         self.mm._remove_from_cache(self.model["id"])
-        self.mw.checkpoint(_("Card Types"))
+        self.mw.checkpoint(tr(TR.CARD_TEMPLATES_CARD_TYPES))
         self.change_tracker = ChangeTracker(self.mw)
         self.setupTopArea()
         self.setupMainArea()
         self.setupButtons()
         self.setupShortcuts()
-        self.setWindowTitle(_("Card Types for %s") % self.model["name"])
+        self.setWindowTitle(
+            tr(TR.CARD_TEMPLATES_CARD_TYPES_FOR, val="%s") % self.model["name"]
+        )
         v1 = QVBoxLayout()
         v1.addWidget(self.topArea)
         v1.addWidget(self.mainArea)
@@ -108,7 +110,9 @@ class CardLayout(QDialog):
         self.topArea.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
         self.topAreaForm = aqt.forms.clayout_top.Ui_Form()
         self.topAreaForm.setupUi(self.topArea)
-        self.topAreaForm.templateOptions.setText(_("Options") + " " + downArrow())
+        self.topAreaForm.templateOptions.setText(
+            tr(TR.ACTIONS_OPTIONS) + " " + downArrow()
+        )
         qconnect(self.topAreaForm.templateOptions.clicked, self.onMore)
         qconnect(
             self.topAreaForm.templatesBox.currentIndexChanged,
@@ -240,7 +244,7 @@ class CardLayout(QDialog):
         qconnect(widg.returnPressed, self.on_search_next)
 
     def setup_cloze_number_box(self):
-        names = (_("Cloze %d") % n for n in self.cloze_numbers)
+        names = (tr(TR.CARD_TEMPLATES_CLOZE, val="%s") % n for n in self.cloze_numbers)
         self.pform.cloze_number_combo.addItems(names)
         try:
             idx = self.cloze_numbers.index(self.ord + 1)
@@ -381,28 +385,28 @@ class CardLayout(QDialog):
 
     def setupButtons(self):
         l = self.buttons = QHBoxLayout()
-        help = QPushButton(_("Help"))
+        help = QPushButton(tr(TR.ACTIONS_HELP))
         help.setAutoDefault(False)
         l.addWidget(help)
         qconnect(help.clicked, self.onHelp)
         l.addStretch()
-        self.add_field_button = QPushButton(_("Add Field"))
+        self.add_field_button = QPushButton(tr(TR.FIELDS_ADD_FIELD))
         self.add_field_button.setAutoDefault(False)
         l.addWidget(self.add_field_button)
         qconnect(self.add_field_button.clicked, self.onAddField)
         if not self._isCloze():
-            flip = QPushButton(_("Flip"))
+            flip = QPushButton(tr(TR.CARD_TEMPLATES_FLIP))
             flip.setAutoDefault(False)
             l.addWidget(flip)
             qconnect(flip.clicked, self.onFlip)
         l.addStretch()
-        save = QPushButton(_("Save"))
+        save = QPushButton(tr(TR.ACTIONS_SAVE))
         save.setAutoDefault(False)
         save.setShortcut(QKeySequence("Ctrl+Return"))
         l.addWidget(save)
         qconnect(save.clicked, self.accept)
 
-        close = QPushButton(_("Cancel"))
+        close = QPushButton(tr(TR.ACTIONS_CANCEL))
         close.setAutoDefault(False)
         l.addWidget(close)
         qconnect(close.clicked, self.reject)
@@ -548,7 +552,7 @@ class CardLayout(QDialog):
 
     def onRemove(self):
         if len(self.templates) < 2:
-            return showInfo(_("At least one card type is required."))
+            return showInfo(tr(TR.CARD_TEMPLATES_AT_LEAST_ONE_CARD_TYPE_IS))
 
         def get_count():
             return self.mm.template_use_count(self.model["id"], self.ord)
@@ -558,7 +562,7 @@ class CardLayout(QDialog):
 
             template = self.current_template()
             cards = ngettext("%d card", "%d cards", card_cnt) % card_cnt
-            msg = _("Delete the '%(a)s' card type, and its %(b)s?") % dict(
+            msg = tr(TR.CARD_TEMPLATES_DELETE_THE_AS_CARD_TYPE_AND) % dict(
                 a=template["name"], b=cards
             )
             if not askUser(msg):
@@ -583,7 +587,9 @@ class CardLayout(QDialog):
 
     def onRename(self):
         template = self.current_template()
-        name = getOnlyText(_("New name:"), default=template["name"]).replace('"', "")
+        name = getOnlyText(tr(TR.ACTIONS_NEW_NAME), default=template["name"]).replace(
+            '"', ""
+        )
         if not name.strip():
             return
 
@@ -597,7 +603,8 @@ class CardLayout(QDialog):
         template = self.current_template()
         current_pos = self.templates.index(template) + 1
         pos = getOnlyText(
-            _("Enter new card position (1...%s):") % n, default=str(current_pos)
+            tr(TR.CARD_TEMPLATES_ENTER_NEW_CARD_POSITION_1, val="%s") % n,
+            default=str(current_pos),
         )
         if not pos:
             return
@@ -619,7 +626,7 @@ class CardLayout(QDialog):
     def _newCardName(self):
         n = len(self.templates) + 1
         while 1:
-            name = _("Card %d") % n
+            name = tr(TR.CARD_TEMPLATES_CARD, val="%s") % n
             if name not in [t["name"] for t in self.templates]:
                 break
             n += 1
@@ -673,29 +680,29 @@ adjust the template manually to switch the question and answer."""
         m = QMenu(self)
 
         if not self._isCloze():
-            a = m.addAction(_("Add Card Type..."))
+            a = m.addAction(tr(TR.CARD_TEMPLATES_ADD_CARD_TYPE))
             qconnect(a.triggered, self.onAddCard)
 
-            a = m.addAction(_("Remove Card Type..."))
+            a = m.addAction(tr(TR.CARD_TEMPLATES_REMOVE_CARD_TYPE))
             qconnect(a.triggered, self.onRemove)
 
-            a = m.addAction(_("Rename Card Type..."))
+            a = m.addAction(tr(TR.CARD_TEMPLATES_RENAME_CARD_TYPE))
             qconnect(a.triggered, self.onRename)
 
-            a = m.addAction(_("Reposition Card Type..."))
+            a = m.addAction(tr(TR.CARD_TEMPLATES_REPOSITION_CARD_TYPE))
             qconnect(a.triggered, self.onReorder)
 
             m.addSeparator()
 
             t = self.current_template()
             if t["did"]:
-                s = _(" (on)")
+                s = tr(TR.CARD_TEMPLATES_ON)
             else:
-                s = _(" (off)")
-            a = m.addAction(_("Deck Override...") + s)
+                s = tr(TR.CARD_TEMPLATES_OFF)
+            a = m.addAction(tr(TR.CARD_TEMPLATES_DECK_OVERRIDE) + s)
             qconnect(a.triggered, self.onTargetDeck)
 
-        a = m.addAction(_("Browser Appearance..."))
+        a = m.addAction(tr(TR.CARD_TEMPLATES_BROWSER_APPEARANCE))
         qconnect(a.triggered, self.onBrowserDisplay)
 
         m.exec_(self.topAreaForm.templateOptions.mapToGlobal(QPoint(0, 0)))

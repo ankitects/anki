@@ -1,13 +1,12 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
 import aqt.editor
 from anki.lang import _
 from aqt import gui_hooks
 from aqt.main import ResetReason
 from aqt.qt import *
-from aqt.utils import restoreGeom, saveGeom, tooltip
+from aqt.utils import TR, restoreGeom, saveGeom, tooltip, tr
 
 
 class EditCurrent(QDialog):
@@ -17,7 +16,7 @@ class EditCurrent(QDialog):
         self.mw = mw
         self.form = aqt.forms.editcurrent.Ui_Dialog()
         self.form.setupUi(self)
-        self.setWindowTitle(_("Edit Current"))
+        self.setWindowTitle(tr(TR.EDITING_EDIT_CURRENT))
         self.setMinimumHeight(400)
         self.setMinimumWidth(250)
         self.form.buttonBox.button(QDialogButtonBox.Close).setShortcut(

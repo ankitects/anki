@@ -1,11 +1,6 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-# Profile handling
-##########################################################################
-# - Saves in pickles rather than json to easily store Qt window state.
-# - Saves in sqlite rather than a flat file so the config can't be corrupted
-
 import io
 import locale
 import pickle
@@ -27,6 +22,12 @@ from anki.utils import intTime, isMac, isWin
 from aqt import appHelpSite
 from aqt.qt import *
 from aqt.utils import TR, locale_dir, showWarning, tr
+
+# Profile handling
+##########################################################################
+# - Saves in pickles rather than json to easily store Qt window state.
+# - Saves in sqlite rather than a flat file so the config can't be corrupted
+
 
 metaConf = dict(
     ver=0,
@@ -251,7 +252,7 @@ class ProfileManager:
         except:
             QMessageBox.warning(
                 None,
-                _("Profile Corrupt"),
+                tr(TR.PROFILES_PROFILE_CORRUPT),
                 _(
                     """\
 Anki could not read your profile data. Window sizes and your sync login \
@@ -304,12 +305,13 @@ details have been forgotten."""
                     oldFolder = midFolder
                 else:
                     showWarning(
-                        _("Please remove the folder %s and try again.") % midFolder
+                        tr(TR.PROFILES_PLEASE_REMOVE_THE_FOLDER_AND, val="%s")
+                        % midFolder
                     )
                     self.name = oldName
                     return
             else:
-                showWarning(_("Folder already exists."))
+                showWarning(tr(TR.PROFILES_FOLDER_ALREADY_EXISTS))
                 self.name = oldName
                 return
 
@@ -476,7 +478,7 @@ create table if not exists profiles
 
     def _ensureProfile(self) -> None:
         "Create a new profile if none exists."
-        self.create(_("User 1"))
+        self.create(tr(TR.PROFILES_USER_1))
         p = os.path.join(self.base, "README.txt")
         with open(p, "w", encoding="utf8") as file:
             file.write(

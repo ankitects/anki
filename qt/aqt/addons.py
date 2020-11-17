@@ -1,7 +1,6 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
 from __future__ import annotations
 
 import io
@@ -310,7 +309,7 @@ and have been disabled: %(found)s"
         meta = self.addon_meta(dir)
         name = meta.human_name()
         if not meta.enabled:
-            name += _(" (disabled)")
+            name += tr(TR.ADDONS_DISABLED)
         return name
 
     # Conflict resolution
@@ -423,10 +422,7 @@ and have been disabled: %(found)s"
             return True
         except OSError as e:
             showWarning(
-                _(
-                    "Unable to update or delete add-on. Please start Anki while holding down the shift key to temporarily disable add-ons, then try again.\n\nDebug info: %s"
-                )
-                % e,
+                tr(TR.ADDONS_UNABLE_TO_UPDATE_OR_DELETE_ADDON, val="%s") % e,
                 textFormat="plain",
             )
             return False
@@ -468,16 +464,16 @@ and have been disabled: %(found)s"
     ) -> List[str]:
 
         messages = {
-            "zip": _("Corrupt add-on file."),
-            "manifest": _("Invalid add-on manifest."),
+            "zip": tr(TR.ADDONS_CORRUPT_ADDON_FILE),
+            "manifest": tr(TR.ADDONS_INVALID_ADDON_MANIFEST),
         }
 
         msg = messages.get(result.errmsg, _("Unknown error: {}".format(result.errmsg)))
 
         if mode == "download":  # preserve old format strings for i18n
-            template = _("Error downloading <i>%(id)s</i>: %(error)s")
+            template = tr(TR.ADDONS_ERROR_DOWNLOADING_IDS_ERRORS)
         else:
-            template = _("Error installing <i>%(base)s</i>: %(error)s")
+            template = tr(TR.ADDONS_ERROR_INSTALLING_BASES_ERRORS)
 
         name = base
 
@@ -488,24 +484,22 @@ and have been disabled: %(found)s"
     ) -> List[str]:
 
         if mode == "download":  # preserve old format strings for i18n
-            template = _("Downloaded %(fname)s")
+            template = tr(TR.ADDONS_DOWNLOADED_FNAMES)
         else:
-            template = _("Installed %(name)s")
+            template = tr(TR.ADDONS_INSTALLED_NAMES)
 
         name = result.name or base
         strings = [template % dict(name=name, fname=name)]
 
         if result.conflicts:
             strings.append(
-                _("The following conflicting add-ons were disabled:")
+                tr(TR.ADDONS_THE_FOLLOWING_CONFLICTING_ADDONS_WERE_DISABLED)
                 + " "
                 + ", ".join(self.addonName(f) for f in result.conflicts)
             )
 
         if not result.compatible:
-            strings.append(
-                _("This add-on is not compatible with your version of Anki.")
-            )
+            strings.append(tr(TR.ADDONS_THIS_ADDON_IS_NOT_COMPATIBLE_WITH))
 
         return strings
 
@@ -743,9 +737,13 @@ class AddonsDialog(QDialog):
         name = addon.human_name()
 
         if not addon.enabled:
-            return name + " " + _("(disabled)")
+            return name + " " + tr(TR.ADDONS_DISABLED2)
         elif not addon.compatible():
-            return name + " " + _("(requires %s)") % self.compatible_string(addon)
+            return (
+                name
+                + " "
+                + tr(TR.ADDONS_REQUIRES, val="%s") % self.compatible_string(addon)
+            )
 
         return name
 
@@ -804,7 +802,7 @@ class AddonsDialog(QDialog):
     def onlyOneSelected(self) -> Optional[str]:
         dirs = self.selectedAddons()
         if len(dirs) != 1:
-            showInfo(_("Please select a single add-on first."))
+            showInfo(tr(TR.ADDONS_PLEASE_SELECT_A_SINGLE_ADDON_FIRST))
             return None
         return dirs[0]
 
@@ -820,7 +818,7 @@ class AddonsDialog(QDialog):
         if re.match(r"^\d+$", addon):
             openLink(aqt.appShared + "info/{}".format(addon))
         else:
-            showWarning(_("Add-on was not downloaded from AnkiWeb."))
+            showWarning(tr(TR.ADDONS_ADDON_WAS_NOT_DOWNLOADED_FROM_ANKIWEB))
 
     def onViewFiles(self) -> None:
         # if nothing selected, open top level folder
@@ -865,13 +863,13 @@ class AddonsDialog(QDialog):
         if log:
             show_log_to_user(self, log)
         else:
-            tooltip(_("No updates available."))
+            tooltip(tr(TR.ADDONS_NO_UPDATES_AVAILABLE))
 
     def onInstallFiles(self, paths: Optional[List[str]] = None) -> Optional[bool]:
         if not paths:
-            key = _("Packaged Anki Add-on") + " (*{})".format(self.mgr.ext)
+            key = tr(TR.ADDONS_PACKAGED_ANKI_ADDON) + " (*{})".format(self.mgr.ext)
             paths = getFile(
-                self, _("Install Add-on(s)"), None, key, key="addons", multi=True
+                self, tr(TR.ADDONS_INSTALL_ADDONS), None, key, key="addons", multi=True
             )
             if not paths:
                 return False
@@ -882,7 +880,7 @@ class AddonsDialog(QDialog):
         return None
 
     def check_for_updates(self) -> None:
-        tooltip(_("Checking..."))
+        tooltip(tr(TR.ADDONS_CHECKING))
         check_and_prompt_for_updates(self, self.mgr, self.after_downloading)
 
     def onConfig(self) -> None:
@@ -899,7 +897,7 @@ class AddonsDialog(QDialog):
 
         conf = self.mgr.getConfig(addon)
         if conf is None:
-            showInfo(_("Add-on has no configuration."))
+            showInfo(tr(TR.ADDONS_ADDON_HAS_NO_CONFIGURATION))
             return
 
         ConfigEditor(self, addon, conf)
@@ -919,7 +917,7 @@ class GetAddons(QDialog):
         self.form = aqt.forms.getaddons.Ui_Dialog()
         self.form.setupUi(self)
         b = self.form.buttonBox.addButton(
-            _("Browse Add-ons"), QDialogButtonBox.ActionRole
+            tr(TR.ADDONS_BROWSE_ADDONS), QDialogButtonBox.ActionRole
         )
         qconnect(b.clicked, self.onBrowse)
         restoreGeom(self, "getaddons", adjustSize=True)
@@ -934,7 +932,7 @@ class GetAddons(QDialog):
         try:
             ids = [int(n) for n in self.form.code.text().split()]
         except ValueError:
-            showWarning(_("Invalid code."))
+            showWarning(tr(TR.ADDONS_INVALID_CODE))
             return
 
         self.ids = ids
@@ -1007,21 +1005,22 @@ def describe_log_entry(id_and_entry: DownloadLogEntry) -> str:
     if isinstance(entry, DownloadError):
         if entry.status_code is not None:
             if entry.status_code in (403, 404):
-                buf += _(
-                    "Invalid code, or add-on not available for your version of Anki."
-                )
+                buf += tr(TR.ADDONS_INVALID_CODE_OR_ADDON_NOT_AVAILABLE)
             else:
-                buf += _("Unexpected response code: %s") % entry.status_code
+                buf += (
+                    tr(TR.QT_MISC_UNEXPECTED_RESPONSE_CODE, val="%s")
+                    % entry.status_code
+                )
         else:
             buf += (
-                _("Please check your internet connection.")
+                tr(TR.ADDONS_PLEASE_CHECK_YOUR_INTERNET_CONNECTION)
                 + "\n\n"
                 + str(entry.exception)
             )
     elif isinstance(entry, InstallError):
         buf += entry.errmsg
     else:
-        buf += _("Installed successfully.")
+        buf += tr(TR.ADDONS_INSTALLED_SUCCESSFULLY)
 
     return buf
 
@@ -1091,7 +1090,7 @@ class DownloaderInstaller(QObject):
             # and "%(kb)0.2f" is the number of downloaded
             # kilobytes. This lead for example to "Downloading 3/5
             # (27KB)"
-            label=_("Downloading %(a)d/%(b)d (%(kb)0.2fKB)...")
+            label=tr(TR.ADDONS_DOWNLOADING_ADBD_KB02FKB)
             % dict(a=len(self.log) + 1, b=len(self.ids), kb=self.dl_bytes / 1024)
         )
 
@@ -1110,9 +1109,9 @@ def show_log_to_user(parent: QWidget, log: List[DownloadLogEntry]) -> None:
     have_problem = download_encountered_problem(log)
 
     if have_problem:
-        text = _("One or more errors occurred:")
+        text = tr(TR.ADDONS_ONE_OR_MORE_ERRORS_OCCURRED)
     else:
-        text = _("Download complete. Please restart Anki to apply changes.")
+        text = tr(TR.ADDONS_DOWNLOAD_COMPLETE_PLEASE_RESTART_ANKI_TO)
     text += "<br><br>" + download_log_to_html(log)
 
     if have_problem:
@@ -1265,7 +1264,7 @@ def prompt_to_update(
 ) -> None:
     names = map(lambda x: mgr.addonName(str(x)), ids)
     if not askUser(
-        _("The following add-ons have updates available. Install them now?")
+        tr(TR.ADDONS_THE_FOLLOWING_ADDONS_HAVE_UPDATES_AVAILABLE)
         + "\n\n"
         + "\n".join(names)
     ):
@@ -1307,7 +1306,7 @@ class ConfigEditor(QDialog):
     def onRestoreDefaults(self) -> None:
         default_conf = self.mgr.addonConfigDefaults(self.addon)
         self.updateText(default_conf)
-        tooltip(_("Restored defaults"), parent=self)
+        tooltip(tr(TR.ADDONS_RESTORED_DEFAULTS), parent=self)
 
     def setupFonts(self) -> None:
         font_mono = QFontDatabase.systemFont(QFontDatabase.FixedFont)
@@ -1373,11 +1372,11 @@ class ConfigEditor(QDialog):
             showInfo(msg)
             return
         except Exception as e:
-            showInfo(_("Invalid configuration: ") + repr(e))
+            showInfo(tr(TR.ADDONS_INVALID_CONFIGURATION) + repr(e))
             return
 
         if not isinstance(new_conf, dict):
-            showInfo(_("Invalid configuration: top level object must be a map"))
+            showInfo(tr(TR.ADDONS_INVALID_CONFIGURATION_TOP_LEVEL_OBJECT_MUST))
             return
 
         if new_conf != self.conf:
@@ -1417,7 +1416,7 @@ def installAddonPackages(
             not showInfo(
                 q,
                 parent=parent,
-                title=_("Install Anki add-on"),
+                title=tr(TR.ADDONS_INSTALL_ANKI_ADDON),
                 type="warning",
                 customBtns=[QMessageBox.No, QMessageBox.Yes],
             )
@@ -1430,9 +1429,7 @@ def installAddonPackages(
     if log:
         log_html = "<br>".join(log)
         if advise_restart:
-            log_html += "<br><br>" + _(
-                "<b>Please restart Anki to complete the installation.</b>"
-            )
+            log_html += "<br><br>" + tr(TR.ADDONS_PLEASE_RESTART_ANKI_TO_COMPLETE_THE)
         if len(log) == 1 and not strictly_modal:
             tooltip(log_html, parent=parent)
         else:
@@ -1440,15 +1437,15 @@ def installAddonPackages(
                 log_html,
                 parent=parent,
                 textFormat="rich",
-                title=_("Installation complete"),
+                title=tr(TR.ADDONS_INSTALLATION_COMPLETE),
             )
     if errs:
-        msg = _("Please report this to the respective add-on author(s).")
+        msg = tr(TR.ADDONS_PLEASE_REPORT_THIS_TO_THE_RESPECTIVE)
         showWarning(
             "<br><br>".join(errs + [msg]),
             parent=parent,
             textFormat="rich",
-            title=_("Add-on installation error"),
+            title=tr(TR.ADDONS_ADDON_INSTALLATION_ERROR),
         )
 
     return not errs
