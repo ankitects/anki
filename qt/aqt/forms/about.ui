@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>About Anki</string>
+   <string>ABOUT_ABOUT_ANKI</string>
   </property>
   <layout class="QVBoxLayout">
    <property name="leftMargin">
@@ -36,7 +36,7 @@
     <widget class="AnkiWebView" name="label" native="true">
      <property name="url" stdset="0">
       <url>
-       <string>about:blank</string>
+       <string notr="true">about:blank</string>
       </url>
      </property>
     </widget>

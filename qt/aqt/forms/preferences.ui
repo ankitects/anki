@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>424</width>
+    <width>632</width>
     <height>374</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Preferences</string>
+   <string>PREFERENCES_PREFERENCES</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
@@ -24,7 +24,7 @@
      </property>
      <widget class="QWidget" name="tab_1">
       <attribute name="title">
-       <string>Basic</string>
+       <string>PREFERENCES_BASIC</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout">
        <property name="spacing">
@@ -58,42 +58,42 @@
        <item>
         <widget class="QCheckBox" name="hwAccel">
          <property name="text">
-          <string>Hardware acceleration (faster, may cause display issues)</string>
+          <string>PREFERENCES_HARDWARE_ACCELERATION_FASTER_MAY_CAUSE_DISPLAY</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="showPlayButtons">
          <property name="text">
-          <string>Show play buttons on cards with audio</string>
+          <string>PREFERENCES_SHOW_PLAY_BUTTONS_ON_CARDS_WITH</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="interrupt_audio">
          <property name="text">
-          <string>Interrupt current audio when answering</string>
+          <string>PREFERENCES_INTERRUPT_CURRENT_AUDIO_WHEN_ANSWERING</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="pastePNG">
          <property name="text">
-          <string>Paste clipboard images as PNG</string>
+          <string>PREFERENCES_PASTE_CLIPBOARD_IMAGES_AS_PNG</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="pasteInvert">
          <property name="text">
-          <string>Paste without shift key strips formatting</string>
+          <string>PREFERENCES_PASTE_WITHOUT_SHIFT_KEY_STRIPS_FORMATTING</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="nightMode">
          <property name="text">
-          <string>Night mode</string>
+          <string>PREFERENCES_NIGHT_MODE</string>
          </property>
         </widget>
        </item>
@@ -101,12 +101,12 @@
         <widget class="QComboBox" name="useCurrent">
          <item>
           <property name="text">
-           <string>When adding, default to current deck</string>
+           <string>PREFERENCES_WHEN_ADDING_DEFAULT_TO_CURRENT_DECK</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>Change deck depending on note type</string>
+           <string>PREFERENCES_CHANGE_DECK_DEPENDING_ON_NOTE_TYPE</string>
           </property>
          </item>
         </widget>
@@ -116,14 +116,14 @@
          <item>
           <widget class="QLabel" name="label_2">
            <property name="text">
-            <string>User interface size</string>
+            <string>PREFERENCES_USER_INTERFACE_SIZE</string>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QSpinBox" name="uiScale">
            <property name="suffix">
-            <string>%</string>
+            <string notr="true">%</string>
            </property>
            <property name="minimum">
             <number>100</number>
@@ -171,34 +171,34 @@
      </widget>
      <widget class="QWidget" name="tab_3">
       <attribute name="title">
-       <string>Scheduling</string>
+       <string>PREFERENCES_SCHEDULING</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
         <widget class="QCheckBox" name="showEstimates">
          <property name="text">
-          <string>Show next review time above answer buttons</string>
+          <string>PREFERENCES_SHOW_NEXT_REVIEW_TIME_ABOVE_ANSWER</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="showProgress">
          <property name="text">
-          <string>Show remaining card count during review</string>
+          <string>PREFERENCES_SHOW_REMAINING_CARD_COUNT_DURING_REVIEW</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="dayLearnFirst">
          <property name="text">
-          <string>Show learning cards with larger steps before reviews</string>
+          <string>PREFERENCES_SHOW_LEARNING_CARDS_WITH_LARGER_STEPS</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="newSched">
          <property name="text">
-          <string>Anki 2.1 scheduler (beta)</string>
+          <string>PREFERENCES_ANKI_21_SCHEDULER_BETA</string>
          </property>
         </widget>
        </item>
@@ -220,7 +220,7 @@
          <item row="1" column="2">
           <widget class="QLabel" name="label_29">
            <property name="text">
-            <string>mins</string>
+            <string>PREFERENCES_MINS</string>
            </property>
           </widget>
          </item>
@@ -247,28 +247,28 @@
          <item row="2" column="0">
           <widget class="QLabel" name="label_30">
            <property name="text">
-            <string>Timebox time limit</string>
+            <string>PREFERENCES_TIMEBOX_TIME_LIMIT</string>
            </property>
           </widget>
          </item>
          <item row="0" column="2">
           <widget class="QLabel" name="label_40">
            <property name="text">
-            <string>hours past midnight</string>
+            <string>PREFERENCES_HOURS_PAST_MIDNIGHT</string>
            </property>
           </widget>
          </item>
          <item row="1" column="0">
           <widget class="QLabel" name="label_24">
            <property name="text">
-            <string>Learn ahead limit</string>
+            <string>PREFERENCES_LEARN_AHEAD_LIMIT</string>
            </property>
           </widget>
          </item>
          <item row="2" column="2">
           <widget class="QLabel" name="label_39">
            <property name="text">
-            <string>mins</string>
+            <string>PREFERENCES_MINS</string>
            </property>
           </widget>
          </item>
@@ -288,7 +288,7 @@
          <item row="0" column="0">
           <widget class="QLabel" name="label_23">
            <property name="text">
-            <string>Next day starts at</string>
+            <string>PREFERENCES_NEXT_DAY_STARTS_AT</string>
            </property>
           </widget>
          </item>
@@ -311,7 +311,7 @@
      </widget>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
-       <string>Network</string>
+       <string>PREFERENCES_NETWORK</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_4">
        <property name="spacing">
@@ -339,7 +339,7 @@
            <item>
             <widget class="QLabel" name="syncLabel">
              <property name="text">
-              <string>&lt;b&gt;Synchronisation&lt;/b&gt;</string>
+              <string>PREFERENCES_SYNCHRONISATION</string>
              </property>
              <property name="wordWrap">
               <bool>true</bool>
@@ -352,28 +352,28 @@
            <item>
             <widget class="QCheckBox" name="syncMedia">
              <property name="text">
-              <string>Synchronize audio and images too</string>
+              <string>PREFERENCES_SYNCHRONIZE_AUDIO_AND_IMAGES_TOO</string>
              </property>
             </widget>
            </item>
            <item>
             <widget class="QCheckBox" name="syncOnProgramOpen">
              <property name="text">
-              <string>Automatically sync on profile open/close</string>
+              <string>PREFERENCES_AUTOMATICALLY_SYNC_ON_PROFILE_OPENCLOSE</string>
              </property>
             </widget>
            </item>
            <item>
             <widget class="QCheckBox" name="autoSyncMedia">
              <property name="text">
-              <string>Periodically sync media</string>
+              <string>PREFERENCES_PERIODICALLY_SYNC_MEDIA</string>
              </property>
             </widget>
            </item>
            <item>
             <widget class="QCheckBox" name="fullSync">
              <property name="text">
-              <string>On next sync, force changes in one direction</string>
+              <string>PREFERENCES_ON_NEXT_SYNC_FORCE_CHANGES_IN</string>
              </property>
             </widget>
            </item>
@@ -456,7 +456,7 @@
      </widget>
      <widget class="QWidget" name="tab">
       <attribute name="title">
-       <string>Backups</string>
+       <string>PREFERENCES_BACKUPS</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <property name="spacing">
@@ -477,7 +477,7 @@
        <item>
         <widget class="QLabel" name="label_9">
          <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Backups&lt;/span&gt;&lt;br/&gt;Anki will create a backup of your collection each time it is closed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>PREFERENCES_BACKUPSANKI_WILL_CREATE_A_BACKUP_OF</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
@@ -489,7 +489,7 @@
          <item row="0" column="0">
           <widget class="QLabel" name="label_10">
            <property name="text">
-            <string>Keep</string>
+            <string>PREFERENCES_KEEP</string>
            </property>
           </widget>
          </item>
@@ -512,7 +512,7 @@
          <item row="0" column="2">
           <widget class="QLabel" name="label_11">
            <property name="text">
-            <string>backups</string>
+            <string>PREFERENCES_BACKUPS2</string>
            </property>
           </widget>
          </item>
@@ -534,14 +534,14 @@
        <item>
         <widget class="QLabel" name="openBackupFolder">
          <property name="text">
-          <string>You can restore backups via File&gt;Switch Profile.</string>
+          <string>PREFERENCES_YOU_CAN_RESTORE_BACKUPS_VIA_FILESWITCH</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QLabel" name="label_4">
          <property name="text">
-          <string>Note: Media is not backed up. Please create a periodic backup of your Anki folder to be safe.</string>
+          <string>PREFERENCES_NOTE_MEDIA_IS_NOT_BACKED_UP</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
@@ -564,7 +564,7 @@
        <item>
         <widget class="QLabel" name="label_21">
          <property name="text">
-          <string>Some settings will take effect after you restart Anki.</string>
+          <string>PREFERENCES_SOME_SETTINGS_WILL_TAKE_EFFECT_AFTER</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>

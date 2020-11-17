@@ -11,13 +11,13 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Reschedule</string>
+   <string>BROWSING_RESCHEDULE</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
     <widget class="QRadioButton" name="asNew">
      <property name="text">
-      <string>Place at end of new card queue</string>
+      <string>BROWSING_PLACE_AT_END_OF_NEW_CARD</string>
      </property>
      <property name="checked">
       <bool>true</bool>
@@ -27,7 +27,7 @@
    <item>
     <widget class="QRadioButton" name="asRev">
      <property name="text">
-      <string>Place in review queue with interval between:</string>
+      <string>BROWSING_PLACE_IN_REVIEW_QUEUE_WITH_INTERVAL</string>
      </property>
     </widget>
    </item>
@@ -54,7 +54,7 @@
         <item row="0" column="1">
          <widget class="QLabel" name="label_3">
           <property name="text">
-           <string>~</string>
+           <string notr="true">~</string>
           </property>
          </widget>
         </item>
@@ -75,7 +75,7 @@
         <item row="0" column="3">
          <widget class="QLabel" name="label_4">
           <property name="text">
-           <string>days</string>
+           <string>SCHEDULING_DAYS</string>
           </property>
          </widget>
         </item>
