@@ -3,8 +3,8 @@
 import glob, re, json, stringcase
 
 files = (
-    # glob.glob("../../pylib/**/*.py", recursive=True) +
-    glob.glob("../../qt/**/*.py", recursive=True)
+    glob.glob("../../pylib/**/*.py", recursive=True)
+    #    glob.glob("../../qt/**/*.py", recursive=True)
 )
 string_re = re.compile(r'_\(\s*(".*?")\s*\)')
 
@@ -15,6 +15,7 @@ blacklist = {
     "Label1",
     "After pressing OK, you can choose which tags to include.",
     "Filter/Cram",
+    "Show %s",
     # previewer.py needs updating to fix these
     "Shortcut key: R",
     "Shortcut key: B",
@@ -34,9 +35,9 @@ def repl(m):
 
     if "%d" in text or "%s" in text:
         # replace { $val } with %s for compat with old code
-        return f'tr(TR.{screaming}, val="%s")'
+        return f'tr_legacyglobal(TR.{screaming}, val="%s")'
 
-    return f"tr(TR.{screaming})"
+    return f"tr_legacyglobal(TR.{screaming})"
 
 
 for file in files:
@@ -46,6 +47,7 @@ for file in files:
     buf2 = string_re.sub(repl, buf)
     if buf != buf2:
         lines = buf2.split("\n")
-        lines.insert(3, "from aqt.utils import tr, TR")
+        lines.insert(3, "from anki.rsbackend import TR")
+        lines.insert(3, "from anki.lang import tr_legacyglobal")
         buf2 = "\n".join(lines)
         open(file, "w").write(buf2)

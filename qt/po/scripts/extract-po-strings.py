@@ -237,6 +237,11 @@ def migrate_entry(entry):
     if len(files) == 1 and "stats" in files:
         return None
 
+    for e in entry.occurrences:
+        if "importing/__init__.py" in e[0]:
+            files = ["importing"]
+            break
+
     files2 = set()
     for file in files:
         if file == "stats":

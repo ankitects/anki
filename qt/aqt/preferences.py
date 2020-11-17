@@ -86,7 +86,7 @@ class Preferences(QDialog):
         else:
             f.hwAccel.setChecked(self.mw.pm.glMode() != "software")
 
-        f.newSpread.addItems(list(c.newCardSchedulingLabels().values()))
+        f.newSpread.addItems(list(c.newCardSchedulingLabels(self.mw.col).values()))
 
         f.useCurrent.setCurrentIndex(int(not qc.get("addToCur", True)))
 

@@ -11,8 +11,14 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 import anki  # pylint: disable=unused-import
 import anki.backend_pb2 as pb
 from anki.consts import *
-from anki.lang import _
-from anki.rsbackend import NotFoundError, StockNoteType, from_json_bytes, to_json_bytes
+from anki.lang import without_unicode_isolation
+from anki.rsbackend import (
+    TR,
+    NotFoundError,
+    StockNoteType,
+    from_json_bytes,
+    to_json_bytes,
+)
 from anki.utils import checksum, ids2str, intTime, joinFields, splitFields
 
 # types
@@ -260,7 +266,9 @@ class ModelManager:
     def copy(self, m: NoteType) -> NoteType:
         "Copy, save and return."
         m2 = copy.deepcopy(m)
-        m2["name"] = _("%s copy") % m2["name"]
+        m2["name"] = without_unicode_isolation(
+            self.col.tr(TR.NOTETYPES_COPY, val=m2["name"])
+        )
         m2["id"] = 0
         self.add(m2)
         return m2

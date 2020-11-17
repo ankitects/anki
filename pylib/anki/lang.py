@@ -148,7 +148,7 @@ current_catalog: Optional[
 ] = None
 
 # the current Fluent translation instance
-current_i18n: Optional[anki.rsbackend.RustBackend]
+current_i18n: Optional[anki.rsbackend.RustBackend] = None
 
 # path to locale folder
 locale_folder = ""
@@ -159,6 +159,14 @@ def _(str: str) -> str:
         return current_catalog.gettext(str)
     else:
         return str
+
+
+def tr_legacyglobal(*args, **kwargs) -> str:
+    "Should use col.tr() instead."
+    if current_i18n:
+        return current_i18n.translate(*args, **kwargs)
+    else:
+        return "tr_legacyglobal() called without active backend"
 
 
 def ngettext(single: str, plural: str, n: int) -> str:

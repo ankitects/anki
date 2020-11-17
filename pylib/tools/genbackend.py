@@ -5,9 +5,9 @@ import os
 import re
 import sys
 
-import stringcase
-
 import pylib.anki.backend_pb2 as pb
+
+import stringcase
 
 TYPE_DOUBLE = 1
 TYPE_FLOAT = 2
