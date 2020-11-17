@@ -155,7 +155,7 @@ the legacy addHook() API.
 # %s</a><div id="%s" class=hint style="display: none">%s</div>
 # """ % (
 #         domid,
-#         _("Show %s") % tag,
+#         "Show %s" % tag,
 #         domid,
 #         txt,
 #     )
