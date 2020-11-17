@@ -11,9 +11,8 @@ from typing import Any, List, Optional, Tuple
 
 import anki
 from anki import hooks
-from anki.lang import _
 from anki.models import NoteType
-from anki.rsbackend import pb
+from anki.rsbackend import TR, pb
 from anki.template import TemplateRenderContext, TemplateRenderOutput
 from anki.utils import call, isMac, namedtmp, tmpdir
 
@@ -129,15 +128,7 @@ def _save_latex_image(
         # don't mind if the sequence is only part of a command
         bad_re = "\\" + bad + "[^a-zA-Z]"
         if re.search(bad_re, tmplatex):
-            return (
-                _(
-                    """\
-For security reasons, '%s' is not allowed on cards. You can still use \
-it by placing the command in a different package, and importing that \
-package in the LaTeX header instead."""
-                )
-                % bad
-            )
+            return col.tr(TR.MEDIA_FOR_SECURITY_REASONS_IS_NOT, val=bad)
 
     # commands to use
     if svg:
@@ -160,7 +151,7 @@ package in the LaTeX header instead."""
         os.chdir(tmpdir())
         for latexCmd in latexCmds:
             if call(latexCmd, stdout=log, stderr=log):
-                return _errMsg(latexCmd[0], texpath)
+                return _errMsg(col, latexCmd[0], texpath)
         # add to media
         with open(png_or_svg, "rb") as file:
             data = file.read()
@@ -172,9 +163,9 @@ package in the LaTeX header instead."""
         log.close()
 
 
-def _errMsg(type: str, texpath: str) -> Any:
-    msg = (_("Error executing %s.") % type) + "<br>"
-    msg += (_("Generated file: %s") % texpath) + "<br>"
+def _errMsg(col: anki.collection.Collection, type: str, texpath: str) -> Any:
+    msg = (col.tr(TR.MEDIA_ERROR_EXECUTING, val="%s") % type) + "<br>"
+    msg += (col.tr(TR.MEDIA_GENERATED_FILE, val="%s") % texpath) + "<br>"
     try:
         with open(namedtmp("latex_log.txt", rm=False)) as f:
             log = f.read()
@@ -182,7 +173,7 @@ def _errMsg(type: str, texpath: str) -> Any:
             raise Exception()
         msg += "<small><pre>" + html.escape(log) + "</pre></small>"
     except:
-        msg += _("Have you installed latex and dvipng/dvisvgm?")
+        msg += col.tr(TR.MEDIA_HAVE_YOU_INSTALLED_LATEX_AND_DVIPNGDVISVGM)
     return msg
 
 

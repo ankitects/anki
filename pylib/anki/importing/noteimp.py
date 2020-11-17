@@ -7,7 +7,8 @@ from typing import Dict, List, Optional, Tuple, Union
 from anki.collection import Collection
 from anki.consts import NEW_CARDS_RANDOM, STARTING_FACTOR
 from anki.importing.base import Importer
-from anki.lang import _, ngettext
+from anki.lang import ngettext
+from anki.rsbackend import TR
 from anki.utils import (
     fieldChecksum,
     guid64,
@@ -135,8 +136,10 @@ class NoteImporter(Importer):
         # loop through the notes
         updates = []
         updateLog = []
-        updateLogTxt = _("First field matched: %s")
-        dupeLogTxt = _("Added duplicate with first field: %s")
+        updateLogTxt = self.col.tr(TR.IMPORTING_FIRST_FIELD_MATCHED, val="%s")
+        dupeLogTxt = self.col.tr(
+            TR.IMPORTING_ADDED_DUPLICATE_WITH_FIRST_FIELD, val="%s"
+        )
         new = []
         self._ids: List[int] = []
         self._cards: List[Tuple] = []
@@ -153,12 +156,17 @@ class NoteImporter(Importer):
             csum = fieldChecksum(fld0)
             # first field must exist
             if not fld0:
-                self.log.append(_("Empty first field: %s") % " ".join(n.fields))
+                self.log.append(
+                    self.col.tr(TR.IMPORTING_EMPTY_FIRST_FIELD, val="%s")
+                    % " ".join(n.fields)
+                )
                 continue
             # earlier in import?
             if fld0 in firsts and self.importMode != ADD_MODE:
                 # duplicates in source file; log and ignore
-                self.log.append(_("Appeared twice in file: %s") % fld0)
+                self.log.append(
+                    self.col.tr(TR.IMPORTING_APPEARED_TWICE_IN_FILE, val="%s") % fld0
+                )
                 continue
             firsts[fld0] = True
             # already exists?

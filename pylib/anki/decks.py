@@ -11,8 +11,13 @@ import anki  # pylint: disable=unused-import
 import anki.backend_pb2 as pb
 from anki.consts import *
 from anki.errors import DeckRenameError
-from anki.lang import _
-from anki.rsbackend import DeckTreeNode, NotFoundError, from_json_bytes, to_json_bytes
+from anki.rsbackend import (
+    TR,
+    DeckTreeNode,
+    NotFoundError,
+    from_json_bytes,
+    to_json_bytes,
+)
 from anki.utils import ids2str, intTime
 
 # legacy code may pass this in as the type argument to .id()
@@ -379,7 +384,7 @@ class DeckManager:
         deck = self.get(did, default=default)
         if deck:
             return deck["name"]
-        return _("[no deck]")
+        return self.col.tr(TR.DECKS_NO_DECK)
 
     def nameOrNone(self, did: int) -> Optional[str]:
         deck = self.get(did, default=False)

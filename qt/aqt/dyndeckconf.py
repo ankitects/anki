@@ -44,8 +44,8 @@ class DeckConf(QDialog):
     def initialSetup(self):
         import anki.consts as cs
 
-        self.form.order.addItems(list(cs.dynOrderLabels().values()))
-        self.form.order_2.addItems(list(cs.dynOrderLabels().values()))
+        self.form.order.addItems(list(cs.dynOrderLabels(self.mw.col).values()))
+        self.form.order_2.addItems(list(cs.dynOrderLabels(self.mw.col).values()))
 
         qconnect(self.form.resched.stateChanged, self._onReschedToggled)
 

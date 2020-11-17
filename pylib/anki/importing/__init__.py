@@ -7,12 +7,16 @@ from anki.importing.csvfile import TextImporter
 from anki.importing.mnemo import MnemosyneImporter
 from anki.importing.pauker import PaukerImporter
 from anki.importing.supermemo_xml import SupermemoXmlImporter  # type: ignore
-from anki.lang import _
+from anki.lang import _, tr_legacyglobal
+from anki.rsbackend import TR
 
 Importers = (
-    (_("Text separated by tabs or semicolons (*)"), TextImporter),
-    (_("Packaged Anki Deck/Collection (*.apkg *.colpkg *.zip)"), AnkiPackageImporter),
-    (_("Mnemosyne 2.0 Deck (*.db)"), MnemosyneImporter),
-    (_("Supermemo XML export (*.xml)"), SupermemoXmlImporter),
-    (_("Pauker 1.8 Lesson (*.pau.gz)"), PaukerImporter),
+    (tr_legacyglobal(TR.IMPORTING_TEXT_SEPARATED_BY_TABS_OR_SEMICOLONS), TextImporter),
+    (
+        tr_legacyglobal(TR.IMPORTING_PACKAGED_ANKI_DECKCOLLECTION_APKG_COLPKG_ZIP),
+        AnkiPackageImporter,
+    ),
+    (tr_legacyglobal(TR.IMPORTING_MNEMOSYNE_20_DECK_DB), MnemosyneImporter),
+    (tr_legacyglobal(TR.IMPORTING_SUPERMEMO_XML_EXPORT_XML), SupermemoXmlImporter),
+    (tr_legacyglobal(TR.IMPORTING_PAUKER_18_LESSON_PAUGZ), PaukerImporter),
 )

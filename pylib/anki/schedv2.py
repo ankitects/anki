@@ -25,9 +25,9 @@ from anki import hooks
 from anki.cards import Card
 from anki.consts import *
 from anki.decks import Deck, DeckConfig, DeckManager, QueueConfig
-from anki.lang import _
 from anki.notes import Note
 from anki.rsbackend import (
+    TR,
     CountsForDeckToday,
     DeckTreeNode,
     FormatTimeSpanContext,
@@ -1258,7 +1258,7 @@ due = (case when odue>0 then odue else due end), odue = 0, odid = 0, usn = ? whe
         "Return the next interval for CARD as a string."
         ivl_secs = self.nextIvl(card, ease)
         if not ivl_secs:
-            return _("(end)")
+            return self.col.tr(TR.SCHEDULING_END)
         s = self.col.format_timespan(ivl_secs, FormatTimeSpanContext.ANSWER_BUTTONS)
         if ivl_secs < self.col.conf["collapseTime"]:
             s = "<" + s
