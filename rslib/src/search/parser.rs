@@ -41,12 +41,6 @@ impl<I> From<nom::Err<(I, nom::error::ErrorKind)>> for ParseError {
 type ParseResult<T> = std::result::Result<T, ParseError>;
 
 #[derive(Debug, PartialEq)]
-pub(super) enum OptionalRe<'a> {
-    Text(Cow<'a, str>),
-    Re(Cow<'a, str>),
-}
-
-#[derive(Debug, PartialEq)]
 pub(super) enum Node<'a> {
     And,
     Or,
@@ -61,22 +55,22 @@ pub(super) enum SearchNode<'a> {
     UnqualifiedText(Cow<'a, str>),
     // foo:bar, where foo doesn't match a term below
     SingleField {
-        field: OptionalRe<'a>,
+        field: Cow<'a, str>,
         text: Cow<'a, str>,
         is_re: bool,
     },
     AddedInDays(u32),
     EditedInDays(u32),
     CardTemplate(TemplateKind<'a>),
-    Deck(String),
+    Deck(Cow<'a, str>),
     DeckID(DeckID),
     NoteTypeID(NoteTypeID),
-    NoteType(OptionalRe<'a>),
+    NoteType(Cow<'a, str>),
     Rated {
         days: u32,
         ease: Option<u8>,
     },
-    Tag(String),
+    Tag(Cow<'a, str>),
     Duplicates {
         note_type_id: NoteTypeID,
         text: Cow<'a, str>,
@@ -92,7 +86,7 @@ pub(super) enum SearchNode<'a> {
     WholeCollection,
     Regex(Cow<'a, str>),
     NoCombining(Cow<'a, str>),
-    WordBoundary(String),
+    WordBoundary(Cow<'a, str>),
 }
 
 #[derive(Debug, PartialEq)]
@@ -119,7 +113,7 @@ pub(super) enum StateKind {
 #[derive(Debug, PartialEq)]
 pub(super) enum TemplateKind<'a> {
     Ordinal(u16),
-    Name(OptionalRe<'a>),
+    Name(Cow<'a, str>),
 }
 
 /// Parse the input string into a list of nodes.
@@ -210,7 +204,7 @@ fn text(s: &str) -> IResult<&str, Node> {
 fn search_node_for_text(s: &str) -> ParseResult<SearchNode> {
     let (tail, head) = escaped(is_not(r":\"), '\\', anychar)(s)?;
     if tail.is_empty() {
-        Ok(SearchNode::UnqualifiedText(unescape_to_glob(head)?))
+        Ok(SearchNode::UnqualifiedText(unescape(head)?))
     } else {
         search_node_for_text_with_argument(head, &tail[1..])
     }
@@ -279,9 +273,9 @@ fn search_node_for_text_with_argument<'a>(
     Ok(match key.to_ascii_lowercase().as_str() {
         "added" => SearchNode::AddedInDays(val.parse()?),
         "edited" => SearchNode::EditedInDays(val.parse()?),
-        "deck" => SearchNode::Deck(unescape_to_enforced_re(val, ".")?),
-        "note" => SearchNode::NoteType(unescape_to_re(val)?),
-        "tag" => SearchNode::Tag(unescape_to_enforced_re(val, r"\S")?),
+        "deck" => SearchNode::Deck(unescape(val)?),
+        "note" => SearchNode::NoteType(unescape(val)?),
+        "tag" => SearchNode::Tag(unescape(val)?),
         "mid" => SearchNode::NoteTypeID(val.parse()?),
         "nid" => SearchNode::NoteIDs(check_id_list(val)?),
         "cid" => SearchNode::CardIDs(check_id_list(val)?),
@@ -293,8 +287,8 @@ fn search_node_for_text_with_argument<'a>(
         "dupe" => parse_dupes(val)?,
         "prop" => parse_prop(val)?,
         "re" => SearchNode::Regex(unescape_quotes(val)),
-        "nc" => SearchNode::NoCombining(unescape_to_glob(val)?),
-        "w" => SearchNode::WordBoundary(unescape_to_enforced_re(val, ".")?),
+        "nc" => SearchNode::NoCombining(unescape(val)?),
+        "w" => SearchNode::WordBoundary(unescape(val)?),
         // anything else is a field search
         _ => parse_single_field(key, val)?,
     })
@@ -414,21 +408,21 @@ fn parse_prop(val: &str) -> ParseResult<SearchNode<'static>> {
 fn parse_template(val: &str) -> ParseResult<SearchNode> {
     Ok(SearchNode::CardTemplate(match val.parse::<u16>() {
         Ok(n) => TemplateKind::Ordinal(n.max(1) - 1),
-        Err(_) => TemplateKind::Name(unescape_to_re(val)?),
+        Err(_) => TemplateKind::Name(unescape(val)?),
     }))
 }
 
 fn parse_single_field<'a>(key: &'a str, val: &'a str) -> ParseResult<SearchNode<'a>> {
     Ok(if val.starts_with("re:") {
         SearchNode::SingleField {
-            field: unescape_to_re(key)?,
+            field: unescape(key)?,
             text: unescape_quotes(&val[3..]),
             is_re: true,
         }
     } else {
         SearchNode::SingleField {
-            field: unescape_to_re(key)?,
-            text: unescape_to_glob(val)?,
+            field: unescape(key)?,
+            text: unescape(val)?,
             is_re: false,
         }
     })
@@ -440,6 +434,26 @@ fn unescape_quotes(s: &str) -> Cow<str> {
         s.replace(r#"\""#, "\"").into()
     } else {
         s.into()
+    }
+}
+
+fn unescape(txt: &str) -> ParseResult<Cow<str>> {
+    if is_invalid_escape(txt) {
+        Err(ParseError {})
+    } else if is_parser_escape(txt) {
+        lazy_static! {
+            static ref RE: Regex = Regex::new(r#"\\[\\":()]"#).unwrap();
+        }
+        Ok(RE.replace_all(&txt, |caps: &Captures| match &caps[0] {
+            r"\\" => r"\\",
+            "\\\"" => "\"",
+            r"\:" => ":",
+            r"\(" => "(",
+            r"\)" => ")",
+            _ => unreachable!(),
+        }))
+    } else {
+        Ok(txt.into())
     }
 }
 
@@ -461,77 +475,22 @@ fn is_invalid_escape(txt: &str) -> bool {
     RE.is_match(txt)
 }
 
-/// Handle escaped characters and convert Anki wildcards to SQL wildcards.
-/// Return error if there is an undefined escape sequence.
-fn unescape_to_glob(txt: &str) -> ParseResult<Cow<str>> {
-    if is_invalid_escape(txt) {
-        Err(ParseError {})
-    } else {
-        // escape sequences and unescaped special characters which need conversion
-        lazy_static! {
-            static ref RE: Regex = Regex::new(r"\\.|[*%]").unwrap();
-        }
-        Ok(RE.replace_all(&txt, |caps: &Captures| match &caps[0] {
-            r"\\" => r"\\",
-            "\\\"" => "\"",
-            r"\:" => ":",
-            r"\*" => "*",
-            r"\_" => r"\_",
-            r"\(" => "(",
-            r"\)" => ")",
-            "*" => "%",
-            "%" => r"\%",
-            _ => unreachable!(),
-        }))
+/// Check string for escape sequences handled by the parser: ":()
+fn is_parser_escape(txt: &str) -> bool {
+    // odd number of \s followed by a char with special meaning to the parser
+    lazy_static! {
+        static ref RE: Regex = Regex::new(
+            r#"(?x)
+            (?:^|[^\\])     # not a backslash
+            (?:\\\\)*       # even number of backslashes
+            \\              # single backslash
+            [":()]          # parser escape
+            "#
+        )
+        .unwrap();
     }
-}
 
-/// Handle escaped characters and convert to regex if there are wildcards.
-/// Return error if there is an undefined escape sequence.
-fn unescape_to_re(txt: &str) -> ParseResult<OptionalRe> {
-    unescape_to_custom_re(txt, ".")
-}
-
-/// Handle escaped characters and if there are wildcards, convert to a regex using the given wildcard.
-/// Return error if there is an undefined escape sequence.
-fn unescape_to_custom_re<'a>(txt: &'a str, wildcard: &str) -> ParseResult<OptionalRe<'a>> {
-    if is_invalid_escape(txt) {
-        Err(ParseError {})
-    } else {
-        lazy_static! {
-            static ref WILDCARD: Regex = Regex::new(r"(^|[^\\])(\\\\)*[*_]").unwrap();
-            static ref MAYBE_ESCAPED: Regex = Regex::new(r"\\?.").unwrap();
-            static ref ESCAPED: Regex = Regex::new(r"\\(.)").unwrap();
-        }
-        if WILDCARD.is_match(txt) {
-            Ok(OptionalRe::Re(MAYBE_ESCAPED.replace_all(
-                &txt,
-                |caps: &Captures| {
-                    let s = &caps[0];
-                    match s {
-                        "\\" | r"\*" | r"\(" | r"\)" => s.to_string(),
-                        "\\\"" => "\"".to_string(),
-                        r"\:" => ":".to_string(),
-                        "*" => format!("{}*", wildcard),
-                        "_" => wildcard.to_string(),
-                        r"\_" => "_".to_string(),
-                        s => regex::escape(s),
-                    }
-                },
-            )))
-        } else {
-            Ok(OptionalRe::Text(ESCAPED.replace_all(&txt, "$1")))
-        }
-    }
-}
-
-/// Handle escaped characters and convert to regex.
-/// Return error if there is an undefined escape sequence.
-fn unescape_to_enforced_re(txt: &str, wildcard: &str) -> ParseResult<String> {
-    Ok(match unescape_to_custom_re(txt, wildcard)? {
-        OptionalRe::Text(s) => regex::escape(s.as_ref()),
-        OptionalRe::Re(s) => s.to_string(),
-    })
+    RE.is_match(txt)
 }
 
 #[cfg(test)]
@@ -541,7 +500,6 @@ mod test {
     #[test]
     fn parsing() -> Result<()> {
         use Node::*;
-        use OptionalRe::*;
         use SearchNode::*;
 
         assert_eq!(parse("")?, vec![Search(SearchNode::WholeCollection)]);
@@ -581,7 +539,7 @@ mod test {
                     Search(UnqualifiedText("world".into())),
                     And,
                     Search(SingleField {
-                        field: Text("foo".into()),
+                        field: "foo".into(),
                         text: "bar baz".into(),
                         is_re: false,
                     })
@@ -594,7 +552,7 @@ mod test {
         assert_eq!(
             parse("foo:re:bar")?,
             vec![Search(SingleField {
-                field: Text("foo".into()),
+                field: "foo".into(),
                 text: "bar".into(),
                 is_re: true
             })]
@@ -604,7 +562,7 @@ mod test {
         assert_eq!(
             parse(r#""field:va\"lue""#)?,
             vec![Search(SingleField {
-                field: Text("field".into()),
+                field: "field".into(),
                 text: "va\"lue".into(),
                 is_re: false
             })]
@@ -616,9 +574,17 @@ mod test {
         assert!(parse(r"\").is_err());
         assert!(parse(r"\a").is_err());
         assert!(parse(r"\%").is_err());
+
+        // parser unescapes ":()
         assert_eq!(
-            parse(r#"\\\"\:\(\)\*\_"#)?,
-            vec![Search(UnqualifiedText(r#"\\":()*\_"#.into())),]
+            parse(r#"\"\:\(\)"#)?,
+            vec![Search(UnqualifiedText(r#"":()"#.into())),]
+        );
+
+        // parser doesn't unescape unescape \*_
+        assert_eq!(
+            parse(r#"\\\*\_"#)?,
+            vec![Search(UnqualifiedText(r#"\\\*\_"#.into())),]
         );
 
         // escaping parentheses is optional (only) inside quotes
@@ -651,9 +617,7 @@ mod test {
         assert_eq!(parse("added:3")?, vec![Search(AddedInDays(3))]);
         assert_eq!(
             parse("card:front")?,
-            vec![Search(CardTemplate(TemplateKind::Name(Text(
-                "front".into()
-            ))))]
+            vec![Search(CardTemplate(TemplateKind::Name("front".into())))]
         );
         assert_eq!(
             parse("card:3")?,
@@ -670,15 +634,8 @@ mod test {
             vec![Search(Deck("default one".into()))]
         );
 
-        assert_eq!(
-            parse("note:basic")?,
-            vec![Search(NoteType(Text("basic".into())))]
-        );
-        assert_eq!(parse("tag:hard")?, vec![Search(Tag("hard".to_string()))]);
-        // wildcards in tags don't match whitespace
-        assert_eq!(parse("tag:ha_d")?, vec![Search(Tag(r"ha\Sd".to_string()))]);
-        assert_eq!(parse("tag:h*d")?, vec![Search(Tag(r"h\S*d".to_string()))]);
-
+        assert_eq!(parse("note:basic")?, vec![Search(NoteType("basic".into()))]);
+        assert_eq!(parse("tag:hard")?, vec![Search(Tag("hard".into()))]);
         assert_eq!(
             parse("nid:1237123712,2,3")?,
             vec![Search(NoteIDs("1237123712,2,3".into()))]
