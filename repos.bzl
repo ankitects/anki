@@ -129,44 +129,49 @@ def register_repos():
     qtpo_i18n_commit = "872d7f0f6bde52577e8fc795dd85699b0eeb97d5"
     qtpo_i18n_shallow_since = "1605564627 +0000"
 
-    new_git_repository(
-        name = "rslib_ftl",
-        build_file_content = """
+    i18n_build_content = """
 filegroup(
     name = "files",
     srcs = glob(["**/*.ftl"]),
     visibility = ["//visibility:public"],
 )
-
 exports_files(["l10n.toml"])
-    """,
-        commit = core_i18n_commit,
-        shallow_since = core_i18n_shallow_since,
-        remote = "https://github.com/ankitects/anki-core-i18n",
+"""
+
+    native.new_local_repository(
+        name = "rslib_ftl",
+        path = "../anki-i18n/core",
+        build_file_content = i18n_build_content,
     )
 
-    if not native.existing_rule("extra_ftl"):
-        new_git_repository(
-            name = "extra_ftl",
-            build_file_content = """
-filegroup(
-    name = "files",
-    srcs = glob(["**/*.ftl"]),
-    visibility = ["//visibility:public"],
-)
+    # new_git_repository(
+    #     name = "rslib_ftl",
+    #     build_file_content = i18n_build_content,
+    #     commit = core_i18n_commit,
+    #     shallow_since = core_i18n_shallow_since,
+    #     remote = "https://github.com/ankitects/anki-core-i18n",
+    # )
 
-exports_files(["l10n.toml"])
-""",
-            commit = qtftl_i18n_commit,
-            shallow_since = qtftl_i18n_shallow_since,
-            remote = "https://github.com/ankitects/anki-desktop-ftl",
+    if not native.existing_rule("extra_ftl"):
+        native.new_local_repository(
+            name = "extra_ftl",
+            path = "../anki-i18n/qtftl",
+            build_file_content = i18n_build_content,
         )
+
+        # new_git_repository(
+        #     name = "extra_ftl",
+        #     build_file_content = i18n_build_content,
+        #     commit = qtftl_i18n_commit,
+        #     shallow_since = qtftl_i18n_shallow_since,
+        #     remote = "https://github.com/ankitects/anki-desktop-ftl",
+        # )
 
     new_git_repository(
         name = "aqt_po",
         build_file_content = """
 exports_files(glob(["**/*.pot", "**/*.po"]),
-    visibility = ["//visibility:public"],
+visibility = ["//visibility:public"],
 )    
     """,
         commit = qtpo_i18n_commit,

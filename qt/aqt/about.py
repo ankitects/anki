@@ -9,7 +9,7 @@ from anki.lang import _
 from anki.utils import versionWithBuild
 from aqt.addons import AddonManager, AddonMeta
 from aqt.qt import *
-from aqt.utils import supportText, tooltip
+from aqt.utils import TR, supportText, tooltip, tr
 
 
 class ClosableQDialog(QDialog):
@@ -83,9 +83,9 @@ def show(mw):
 """
         info = "    " + "    ".join(info.splitlines(True))
         QApplication.clipboard().setText(info)
-        tooltip(_("Copied to clipboard"), parent=dialog)
+        tooltip(tr(TR.ABOUT_COPIED_TO_CLIPBOARD), parent=dialog)
 
-    btn = QPushButton(_("Copy Debug Info"))
+    btn = QPushButton(tr(TR.ABOUT_COPY_DEBUG_INFO))
     qconnect(btn.clicked, onCopy)
     abt.buttonBox.addButton(btn, QDialogButtonBox.ActionRole)
     abt.buttonBox.button(QDialogButtonBox.Ok).setFocus()
@@ -101,13 +101,13 @@ system. It's free and open source."
         "Anki is licensed under the AGPL3 license. Please see "
         "the license file in the source distribution for more information."
     )
-    abouttext += "<p>" + _("Version %s") % versionWithBuild() + "<br>"
+    abouttext += "<p>" + tr(TR.ABOUT_VERSION, val="%s") % versionWithBuild() + "<br>"
     abouttext += ("Python %s Qt %s PyQt %s<br>") % (
         platform.python_version(),
         QT_VERSION_STR,
         PYQT_VERSION_STR,
     )
-    abouttext += (_("<a href='%s'>Visit website</a>") % aqt.appWebsite) + "</span>"
+    abouttext += (tr(TR.ABOUT_VISIT_WEBSITE, val="%s") % aqt.appWebsite) + "</span>"
 
     # automatically sorted; add new lines at the end
     allusers = sorted(

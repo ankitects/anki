@@ -1,7 +1,6 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
 import aqt
 from anki.consts import *
 from anki.lang import _
@@ -50,11 +49,11 @@ class CustomStudy(QDialog):
         smin = 1
         smax = DYN_MAX_SIZE
         sval = 1
-        post = _("cards")
+        post = tr(TR.CUSTOM_STUDY_CARDS)
         tit = ""
         spShow = True
         typeShow = False
-        ok = _("OK")
+        ok = tr(TR.CUSTOM_STUDY_OK)
 
         def plus(num):
             if num == 1000:
@@ -68,8 +67,10 @@ class CustomStudy(QDialog):
                 new, self.conf["new"]["perDay"] - self.deck["newToday"][1]
             )
             newExceeding = min(new, new - newUnderLearning)
-            tit = _("New cards in deck over today limit: %s") % plus(newExceeding)
-            pre = _("Increase today's new card limit by")
+            tit = tr(TR.CUSTOM_STUDY_NEW_CARDS_IN_DECK_OVER_TODAY, val="%s") % plus(
+                newExceeding
+            )
+            pre = tr(TR.CUSTOM_STUDY_INCREASE_TODAYS_NEW_CARD_LIMIT_BY)
             sval = min(new, self.deck.get("extendNew", 10))
             smin = -DYN_MAX_SIZE
             smax = newExceeding
@@ -80,27 +81,29 @@ class CustomStudy(QDialog):
                 rev, self.conf["rev"]["perDay"] - self.deck["revToday"][1]
             )
             revExceeding = min(rev, rev - revUnderLearning)
-            tit = _("Reviews due in deck over today limit: %s") % plus(revExceeding)
-            pre = _("Increase today's review limit by")
+            tit = tr(TR.CUSTOM_STUDY_REVIEWS_DUE_IN_DECK_OVER_TODAY, val="%s") % plus(
+                revExceeding
+            )
+            pre = tr(TR.CUSTOM_STUDY_INCREASE_TODAYS_REVIEW_LIMIT_BY)
             sval = min(rev, self.deck.get("extendRev", 10))
             smin = -DYN_MAX_SIZE
             smax = revExceeding
         elif idx == RADIO_FORGOT:
-            pre = _("Review cards forgotten in last")
-            post = _("days")
+            pre = tr(TR.CUSTOM_STUDY_REVIEW_CARDS_FORGOTTEN_IN_LAST)
+            post = tr(TR.SCHEDULING_DAYS)
             smax = 30
         elif idx == RADIO_AHEAD:
-            pre = _("Review ahead by")
-            post = _("days")
+            pre = tr(TR.CUSTOM_STUDY_REVIEW_AHEAD_BY)
+            post = tr(TR.SCHEDULING_DAYS)
         elif idx == RADIO_PREVIEW:
-            pre = _("Preview new cards added in the last")
-            post = _("days")
+            pre = tr(TR.CUSTOM_STUDY_PREVIEW_NEW_CARDS_ADDED_IN_THE)
+            post = tr(TR.SCHEDULING_DAYS)
             sval = 1
         elif idx == RADIO_CRAM:
-            pre = _("Select")
-            post = _("cards from the deck")
+            pre = tr(TR.CUSTOM_STUDY_SELECT)
+            post = tr(TR.CUSTOM_STUDY_CARDS_FROM_THE_DECK)
             # tit = _("After pressing OK, you can choose which tags to include.")
-            ok = _("Choose Tags")
+            ok = tr(TR.CUSTOM_STUDY_CHOOSE_TAGS)
             sval = 100
             typeShow = True
         sp.setVisible(spShow)
@@ -138,7 +141,7 @@ class CustomStudy(QDialog):
         elif i == RADIO_CRAM:
             tags = self._getTags()
         # the rest create a filtered deck
-        cur = self.mw.col.decks.byName(_("Custom Study Session"))
+        cur = self.mw.col.decks.byName(tr(TR.CUSTOM_STUDY_CUSTOM_STUDY_SESSION))
         if cur:
             if not cur["dyn"]:
                 showInfo(tr(TR.CUSTOM_STUDY_MUST_RENAME_DECK))
@@ -150,7 +153,9 @@ class CustomStudy(QDialog):
                 dyn = cur
                 self.mw.col.decks.select(cur["id"])
         else:
-            did = self.mw.col.decks.new_filtered(_("Custom Study Session"))
+            did = self.mw.col.decks.new_filtered(
+                tr(TR.CUSTOM_STUDY_CUSTOM_STUDY_SESSION)
+            )
             dyn = self.mw.col.decks.get(did)
         # and then set various options
         if i == RADIO_FORGOT:
@@ -187,7 +192,7 @@ class CustomStudy(QDialog):
         # generate cards
         self.created_custom_study = True
         if not self.mw.col.sched.rebuild_filtered_deck(dyn["id"]):
-            return showWarning(_("No cards matched the criteria you provided."))
+            return showWarning(tr(TR.CUSTOM_STUDY_NO_CARDS_MATCHED_THE_CRITERIA_YOU))
         self.mw.moveToState("overview")
         QDialog.accept(self)
 

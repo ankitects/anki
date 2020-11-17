@@ -1,7 +1,6 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
 from __future__ import annotations
 
 import enum
@@ -120,7 +119,9 @@ class AnkiQt(QMainWindow):
             self.setupAddons(args)
             self.finish_ui_setup()
         except:
-            showInfo(_("Error during startup:\n%s") % traceback.format_exc())
+            showInfo(
+                tr(TR.QT_MISC_ERROR_DURING_STARTUP, val="%s") % traceback.format_exc()
+            )
             sys.exit(1)
         # must call this after ui set up
         if self.safeMode:
@@ -291,10 +292,10 @@ class AnkiQt(QMainWindow):
         return not checkInvalidFilename(name) and name != "addons21"
 
     def onAddProfile(self):
-        name = getOnlyText(_("Name:")).strip()
+        name = getOnlyText(tr(TR.ACTIONS_NAME)).strip()
         if name:
             if name in self.pm.profiles():
-                return showWarning(_("Name exists."))
+                return showWarning(tr(TR.QT_MISC_NAME_EXISTS))
             if not self.profileNameOk(name):
                 return
             self.pm.create(name)
@@ -302,13 +303,13 @@ class AnkiQt(QMainWindow):
             self.refreshProfilesList()
 
     def onRenameProfile(self):
-        name = getOnlyText(_("New name:"), default=self.pm.name).strip()
+        name = getOnlyText(tr(TR.ACTIONS_NEW_NAME), default=self.pm.name).strip()
         if not name:
             return
         if name == self.pm.name:
             return
         if name in self.pm.profiles():
-            return showWarning(_("Name exists."))
+            return showWarning(tr(TR.QT_MISC_NAME_EXISTS))
         if not self.profileNameOk(name):
             return
         self.pm.rename(name)
@@ -317,7 +318,7 @@ class AnkiQt(QMainWindow):
     def onRemProfile(self):
         profs = self.pm.profiles()
         if len(profs) < 2:
-            return showWarning(_("There must be at least one profile."))
+            return showWarning(tr(TR.QT_MISC_THERE_MUST_BE_AT_LEAST_ONE))
         # sure?
         if not askUser(
             _(
@@ -348,7 +349,7 @@ Replace your collection with an earlier backup?"""
 
         getFile(
             self.profileDiag,
-            _("Revert to backup"),
+            tr(TR.QT_MISC_REVERT_TO_BACKUP),
             cb=doOpen,
             filter="*.colpkg",
             dir=self.pm.backupFolder(),
@@ -359,11 +360,7 @@ Replace your collection with an earlier backup?"""
             # move the existing collection to the trash, as it may not open
             self.pm.trashCollection()
         except:
-            showWarning(
-                _(
-                    "Unable to move existing file to trash - please try restarting your computer."
-                )
-            )
+            showWarning(tr(TR.QT_MISC_UNABLE_TO_MOVE_EXISTING_FILE_TO))
             return
 
         self.pendingImport = path
@@ -553,9 +550,9 @@ close the profile or restart Anki."""
         if not self.col:
             return
         if self.restoringBackup:
-            label = _("Closing...")
+            label = tr(TR.QT_MISC_CLOSING)
         else:
-            label = _("Backing Up...")
+            label = tr(TR.QT_MISC_BACKING_UP)
         self.progress.start(label=label)
         corrupt = False
         try:
@@ -641,7 +638,7 @@ from the profile screen."
         # have two weeks passed?
         if (intTime() - self.pm.profile["lastOptimize"]) < 86400 * 14:
             return
-        self.progress.start(label=_("Optimizing..."))
+        self.progress.start(label=tr(TR.QT_MISC_OPTIMIZING))
         self.col.optimize()
         self.pm.profile["lastOptimize"] = intTime()
         self.pm.save()
@@ -672,7 +669,7 @@ from the profile screen."
     def _selectedDeck(self) -> Optional[Deck]:
         did = self.col.decks.selected()
         if not self.col.decks.nameOrNone(did):
-            showInfo(_("Please select a deck."))
+            showInfo(tr(TR.QT_MISC_PLEASE_SELECT_A_DECK))
             return None
         return self.col.decks.get(did)
 
@@ -732,8 +729,8 @@ from the profile screen."
             return
         web_context = ResetRequired(self)
         self.web.set_bridge_command(lambda url: self.delayedMaybeReset(), web_context)
-        i = _("Waiting for editing to finish.")
-        b = self.button("refresh", _("Resume Now"), id="resume")
+        i = tr(TR.QT_MISC_WAITING_FOR_EDITING_TO_FINISH)
+        b = self.button("refresh", tr(TR.QT_MISC_RESUME_NOW), id="resume")
         self.web.stdHtml(
             """
 <center><div style="height: 100%%">
@@ -762,7 +759,7 @@ from the profile screen."
     ) -> str:
         class_ = "but " + class_
         if key:
-            key = _("Shortcut key: %s") % key
+            key = tr(TR.ACTIONS_SHORTCUT_KEY, val="%s") % key
         else:
             key = ""
         return """
@@ -1033,17 +1030,19 @@ title="%s" %s>%s</button>""" % (
             gui_hooks.review_did_undo(cid)
         else:
             self.reset()
-            tooltip(_("Reverted to state prior to '%s'.") % n.lower())
+            tooltip(tr(TR.QT_MISC_REVERTED_TO_STATE_PRIOR_TO, val="%s") % n.lower())
             gui_hooks.state_did_revert(n)
         self.maybeEnableUndo()
 
     def maybeEnableUndo(self) -> None:
         if self.col and self.col.undoName():
-            self.form.actionUndo.setText(_("Undo %s") % self.col.undoName())
+            self.form.actionUndo.setText(
+                tr(TR.QT_MISC_UNDO2, val="%s") % self.col.undoName()
+            )
             self.form.actionUndo.setEnabled(True)
             gui_hooks.undo_state_did_change(True)
         else:
-            self.form.actionUndo.setText(_("Undo"))
+            self.form.actionUndo.setText(tr(TR.QT_MISC_UNDO))
             self.form.actionUndo.setEnabled(False)
             gui_hooks.undo_state_did_change(False)
 
@@ -1119,7 +1118,7 @@ title="%s" %s>%s</button>""" % (
         import aqt.importing
 
         if not os.path.exists(path):
-            showInfo(_("Please use File>Import to import this file."))
+            showInfo(tr(TR.QT_MISC_PLEASE_USE_FILEIMPORT_TO_IMPORT_THIS))
             return None
 
         aqt.importing.importFile(self, path)
@@ -1161,9 +1160,9 @@ title="%s" %s>%s</button>""" % (
         if not search:
             if not deck["dyn"]:
                 search = 'deck:"%s" ' % deck["name"]
-        while self.col.decks.id_for_name(_("Filtered Deck %d") % n):
+        while self.col.decks.id_for_name(tr(TR.QT_MISC_FILTERED_DECK, val="%s") % n):
             n += 1
-        name = _("Filtered Deck %d") % n
+        name = tr(TR.QT_MISC_FILTERED_DECK, val="%s") % n
         did = self.col.decks.new_filtered(name)
         diag = aqt.dyndeckconf.DeckConf(self, first=True, search=search)
         if not diag.ok:
@@ -1537,7 +1536,7 @@ will be lost. Continue?"""
             )
             frm.log.appendPlainText(to_append)
         except UnicodeDecodeError:
-            to_append = _("<non-unicode text>")
+            to_append = tr(TR.QT_MISC_NON_UNICODE_TEXT)
             to_append = gui_hooks.debug_console_did_evaluate_python(
                 to_append, text, frm
             )
@@ -1600,9 +1599,9 @@ will be lost. Continue?"""
                 return None
             self.pendingImport = buf
             if is_addon:
-                msg = _("Add-on will be installed when a profile is opened.")
+                msg = tr(TR.QT_MISC_ADDON_WILL_BE_INSTALLED_WHEN_A)
             else:
-                msg = _("Deck will be imported when a profile is opened.")
+                msg = tr(TR.QT_MISC_DECK_WILL_BE_IMPORTED_WHEN_A)
             return tooltip(msg)
         if not self.interactiveState() or self.progress.busy():
             # we can't raise the main window while in profile dialog, syncing, etc

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
 import anki.lang
 import aqt
 from anki.lang import _
@@ -69,7 +68,9 @@ class Preferences(QDialog):
     def onLangIdxChanged(self, idx):
         code = anki.lang.langs[idx][1]
         self.mw.pm.setLang(code)
-        showInfo(_("Please restart Anki to complete language change."), parent=self)
+        showInfo(
+            tr(TR.PREFERENCES_PLEASE_RESTART_ANKI_TO_COMPLETE_LANGUAGE), parent=self
+        )
 
     # Collection options
     ######################################################################
@@ -117,7 +118,7 @@ class Preferences(QDialog):
                     self.mw.pm.setGlMode("auto")
                 else:
                     self.mw.pm.setGlMode("software")
-                showInfo(_("Changes will take effect when you restart Anki."))
+                showInfo(tr(TR.PREFERENCES_CHANGES_WILL_TAKE_EFFECT_WHEN_YOU))
 
         qc = d.conf
         qc["addToCur"] = not f.useCurrent.currentIndex()
@@ -149,11 +150,7 @@ class Preferences(QDialog):
         if haveNew == wantNew:
             return
 
-        if not askUser(
-            _(
-                "This will reset any cards in learning, clear filtered decks, and change the scheduler version. Proceed?"
-            )
-        ):
+        if not askUser(tr(TR.PREFERENCES_THIS_WILL_RESET_ANY_CARDS_IN)):
             return
 
         if wantNew:
@@ -247,4 +244,4 @@ Not currently enabled; click the sync button in the main window to enable."""
         self.mw.pm.set_interrupt_audio(self.form.interrupt_audio.isChecked())
 
         if restart_required:
-            showInfo(_("Changes will take effect when you restart Anki."))
+            showInfo(tr(TR.PREFERENCES_CHANGES_WILL_TAKE_EFFECT_WHEN_YOU))

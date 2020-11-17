@@ -16,6 +16,7 @@ from aqt.main import ResetReason
 from aqt.qt import *
 from aqt.sound import av_player
 from aqt.utils import (
+    TR,
     addCloseShortcut,
     askUser,
     downArrow,
@@ -25,6 +26,7 @@ from aqt.utils import (
     shortcut,
     showWarning,
     tooltip,
+    tr,
 )
 
 
@@ -35,7 +37,7 @@ class AddCards(QDialog):
         self.mw = mw
         self.form = aqt.forms.addcards.Ui_Dialog()
         self.form.setupUi(self)
-        self.setWindowTitle(_("Add"))
+        self.setWindowTitle(tr(TR.ACTIONS_ADD))
         self.setMinimumHeight(300)
         self.setMinimumWidth(400)
         self.setupChoosers()
@@ -67,26 +69,26 @@ class AddCards(QDialog):
         bb = self.form.buttonBox
         ar = QDialogButtonBox.ActionRole
         # add
-        self.addButton = bb.addButton(_("Add"), ar)
+        self.addButton = bb.addButton(tr(TR.ACTIONS_ADD), ar)
         qconnect(self.addButton.clicked, self.addCards)
         self.addButton.setShortcut(QKeySequence("Ctrl+Return"))
-        self.addButton.setToolTip(shortcut(_("Add (shortcut: ctrl+enter)")))
+        self.addButton.setToolTip(shortcut(tr(TR.ADDING_ADD_SHORTCUT_CTRLANDENTER)))
         # close
-        self.closeButton = QPushButton(_("Close"))
+        self.closeButton = QPushButton(tr(TR.ACTIONS_CLOSE))
         self.closeButton.setAutoDefault(False)
         bb.addButton(self.closeButton, QDialogButtonBox.RejectRole)
         # help
-        self.helpButton = QPushButton(_("Help"), clicked=self.helpRequested)  # type: ignore
+        self.helpButton = QPushButton(tr(TR.ACTIONS_HELP), clicked=self.helpRequested)  # type: ignore
         self.helpButton.setAutoDefault(False)
         bb.addButton(self.helpButton, QDialogButtonBox.HelpRole)
         # history
-        b = bb.addButton(_("History") + " " + downArrow(), ar)
+        b = bb.addButton(tr(TR.ADDING_HISTORY) + " " + downArrow(), ar)
         if isMac:
             sc = "Ctrl+Shift+H"
         else:
             sc = "Ctrl+H"
         b.setShortcut(QKeySequence(sc))
-        b.setToolTip(_("Shortcut: %s") % shortcut(sc))
+        b.setToolTip(tr(TR.ADDING_SHORTCUT, val="%s") % shortcut(sc))
         qconnect(b.clicked, self.onHistory)
         b.setEnabled(False)
         self.historyButton = b
@@ -151,7 +153,7 @@ class AddCards(QDialog):
                 a = m.addAction(line)
                 qconnect(a.triggered, lambda b, nid=nid: self.editHistory(nid))
             else:
-                a = m.addAction(_("(Note deleted)"))
+                a = m.addAction(tr(TR.ADDING_NOTE_DELETED))
                 a.setEnabled(False)
         gui_hooks.add_cards_will_show_history_menu(self, m)
         m.exec_(self.historyButton.mapToGlobal(QPoint(0, 0)))
@@ -166,7 +168,7 @@ class AddCards(QDialog):
         ret = note.dupeOrEmpty()
         problem = None
         if ret == 1:
-            problem = _("The first field is empty.")
+            problem = tr(TR.ADDING_THE_FIRST_FIELD_IS_EMPTY)
         problem = gui_hooks.add_cards_will_add_note(problem, note)
         if problem is not None:
             showWarning(problem, help="AddItems#AddError")
@@ -199,7 +201,7 @@ class AddCards(QDialog):
         # workaround for PyQt focus bug
         self.editor.hideCompleters()
 
-        tooltip(_("Added"), period=500)
+        tooltip(tr(TR.ADDING_ADDED), period=500)
         av_player.stop_and_clear_queue()
         self.onReset(keep=True)
         self.mw.col.autosave()
@@ -229,7 +231,7 @@ class AddCards(QDialog):
     def ifCanClose(self, onOk: Callable) -> None:
         def afterSave():
             ok = self.editor.fieldsAreBlank(self.previousNote) or askUser(
-                _("Close and lose current input?"), defaultno=True
+                tr(TR.ADDING_CLOSE_AND_LOSE_CURRENT_INPUT), defaultno=True
             )
             if ok:
                 onOk()

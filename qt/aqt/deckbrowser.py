@@ -1,7 +1,6 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
 from __future__ import annotations
 
 from copy import deepcopy
@@ -16,7 +15,7 @@ from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.sound import av_player
 from aqt.toolbar import BottomBar
-from aqt.utils import askUser, getOnlyText, openLink, shortcut, showWarning, tr
+from aqt.utils import TR, askUser, getOnlyText, openLink, shortcut, showWarning, tr
 
 
 class DeckBrowserBottomBar:
@@ -79,7 +78,7 @@ class DeckBrowser:
         elif cmd == "import":
             self.mw.onImport()
         elif cmd == "create":
-            deck = getOnlyText(_("Name for deck:"))
+            deck = getOnlyText(tr(TR.DECKS_NAME_FOR_DECK))
             if deck:
                 self.mw.col.decks.id(deck)
                 gui_hooks.sidebar_should_refresh_decks()
@@ -144,9 +143,9 @@ class DeckBrowser:
         buf = """
 <tr><th colspan=5 align=start>%s</th><th class=count>%s</th>
 <th class=count>%s</th><th class=optscol></th></tr>""" % (
-            _("Deck"),
+            tr(TR.DECKS_DECK),
             tr(TR.STATISTICS_DUE_COUNT),
-            _("New"),
+            tr(TR.ACTIONS_NEW),
         )
         buf += self._topLevelDragRow()
 
@@ -225,13 +224,13 @@ class DeckBrowser:
 
     def _showOptions(self, did: str) -> None:
         m = QMenu(self.mw)
-        a = m.addAction(_("Rename"))
+        a = m.addAction(tr(TR.ACTIONS_RENAME))
         qconnect(a.triggered, lambda b, did=did: self._rename(int(did)))
-        a = m.addAction(_("Options"))
+        a = m.addAction(tr(TR.ACTIONS_OPTIONS))
         qconnect(a.triggered, lambda b, did=did: self._options(did))
-        a = m.addAction(_("Export"))
+        a = m.addAction(tr(TR.ACTIONS_EXPORT))
         qconnect(a.triggered, lambda b, did=did: self._export(did))
-        a = m.addAction(_("Delete"))
+        a = m.addAction(tr(TR.ACTIONS_DELETE))
         qconnect(a.triggered, lambda b, did=did: self._delete(int(did)))
         gui_hooks.deck_browser_will_show_options_menu(m, int(did))
         m.exec_(QCursor.pos())
@@ -240,10 +239,10 @@ class DeckBrowser:
         self.mw.onExport(did=did)
 
     def _rename(self, did: int) -> None:
-        self.mw.checkpoint(_("Rename Deck"))
+        self.mw.checkpoint(tr(TR.ACTIONS_RENAME_DECK))
         deck = self.mw.col.decks.get(did)
         oldName = deck["name"]
-        newName = getOnlyText(_("New deck name:"), default=oldName)
+        newName = getOnlyText(tr(TR.DECKS_NEW_DECK_NAME), default=oldName)
         newName = newName.replace('"', "")
         if not newName or newName == oldName:
             return
@@ -277,7 +276,7 @@ class DeckBrowser:
         self.show()
 
     def _delete(self, did):
-        self.mw.checkpoint(_("Delete Deck"))
+        self.mw.checkpoint(tr(TR.DECKS_DELETE_DECK))
         deck = self.mw.col.decks.get(did)
         if not deck["dyn"]:
             dids = [did] + [r[1] for r in self.mw.col.decks.children(did)]
@@ -293,7 +292,7 @@ class DeckBrowser:
             deck["dyn"]
             or not extra
             or askUser(
-                (_("Are you sure you wish to delete %s?") % deck["name"]) + extra
+                (tr(TR.DECKS_ARE_YOU_SURE_YOU_WISH_TO, val="%s") % deck["name"]) + extra
             )
         ):
             self.mw.progress.start()
@@ -305,9 +304,9 @@ class DeckBrowser:
     ######################################################################
 
     drawLinks = [
-        ["", "shared", _("Get Shared")],
-        ["", "create", _("Create Deck")],
-        ["Ctrl+Shift+I", "import", _("Import File")],
+        ["", "shared", tr(TR.DECKS_GET_SHARED)],
+        ["", "create", tr(TR.DECKS_CREATE_DECK)],
+        ["Ctrl+Shift+I", "import", tr(TR.DECKS_IMPORT_FILE)],
     ]
 
     def _drawButtons(self):
@@ -315,7 +314,7 @@ class DeckBrowser:
         drawLinks = deepcopy(self.drawLinks)
         for b in drawLinks:
             if b[0]:
-                b[0] = _("Shortcut key: %s") % shortcut(b[0])
+                b[0] = tr(TR.ACTIONS_SHORTCUT_KEY, val="%s") % shortcut(b[0])
             buf += """
 <button title='%s' onclick='pycmd(\"%s\");'>%s</button>""" % tuple(
                 b

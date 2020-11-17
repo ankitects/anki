@@ -1,7 +1,6 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
 import dataclasses
 import json
 import re
@@ -14,7 +13,7 @@ from anki.utils import isLin, isMac, isWin
 from aqt import gui_hooks
 from aqt.qt import *
 from aqt.theme import theme_manager
-from aqt.utils import openLink, showInfo
+from aqt.utils import TR, openLink, showInfo, tr
 
 serverbaseurl = re.compile(r"^.+:\/\/[^\/]+")
 
@@ -286,7 +285,7 @@ class AnkiWebView(QWebEngineView):
 
     def contextMenuEvent(self, evt: QContextMenuEvent) -> None:
         m = QMenu(self)
-        a = m.addAction(_("Copy"))
+        a = m.addAction(tr(TR.ACTIONS_COPY))
         qconnect(a.triggered, self.onCopy)
         gui_hooks.webview_will_show_context_menu(self, m)
         m.popup(QCursor.pos())

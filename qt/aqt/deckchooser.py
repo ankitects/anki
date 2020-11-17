@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
 from typing import Any
 
 from anki.lang import _
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
-from aqt.utils import shortcut
+from aqt.utils import TR, shortcut, tr
 
 
 class DeckChooser(QHBoxLayout):
@@ -26,12 +25,12 @@ class DeckChooser(QHBoxLayout):
 
     def setupDecks(self) -> None:
         if self.label:
-            self.deckLabel = QLabel(_("Deck"))
+            self.deckLabel = QLabel(tr(TR.DECKS_DECK))
             self.addWidget(self.deckLabel)
         # decks box
         self.deck = QPushButton(clicked=self.onDeckChange)  # type: ignore
         self.deck.setAutoDefault(False)
-        self.deck.setToolTip(shortcut(_("Target Deck (Ctrl+D)")))
+        self.deck.setToolTip(shortcut(tr(TR.QT_MISC_TARGET_DECK_CTRLANDD)))
         QShortcut(QKeySequence("Ctrl+D"), self.widget, activated=self.onDeckChange)  # type: ignore
         self.addWidget(self.deck)
         # starting label
@@ -48,11 +47,13 @@ class DeckChooser(QHBoxLayout):
                         did = c.odid
                 else:
                     did = 1
-            self.setDeckName(self.mw.col.decks.nameOrNone(did) or _("Default"))
+            self.setDeckName(
+                self.mw.col.decks.nameOrNone(did) or tr(TR.QT_MISC_DEFAULT)
+            )
         else:
             self.setDeckName(
                 self.mw.col.decks.nameOrNone(self.mw.col.models.current()["did"])
-                or _("Default")
+                or tr(TR.QT_MISC_DEFAULT)
             )
         # layout
         sizePolicy = QSizePolicy(QSizePolicy.Policy(7), QSizePolicy.Policy(0))
@@ -74,7 +75,7 @@ class DeckChooser(QHBoxLayout):
         if not self.mw.col.conf.get("addToCur", True):
             self.setDeckName(
                 self.mw.col.decks.nameOrNone(self.mw.col.models.current()["did"])
-                or _("Default")
+                or tr(TR.QT_MISC_DEFAULT)
             )
 
     def onDeckChange(self) -> None:
@@ -84,8 +85,8 @@ class DeckChooser(QHBoxLayout):
         ret = StudyDeck(
             self.mw,
             current=current,
-            accept=_("Choose"),
-            title=_("Choose Deck"),
+            accept=tr(TR.ACTIONS_CHOOSE),
+            title=tr(TR.QT_MISC_CHOOSE_DECK),
             help="addingnotes",
             cancel=False,
             parent=self.widget,

@@ -23,7 +23,7 @@ from aqt import gui_hooks
 from aqt.mpv import MPV, MPVBase, MPVCommandError
 from aqt.qt import *
 from aqt.taskman import TaskManager
-from aqt.utils import restoreGeom, saveGeom, showWarning, startup_info
+from aqt.utils import TR, restoreGeom, saveGeom, showWarning, startup_info, tr
 
 try:
     import pyaudio
@@ -318,11 +318,7 @@ class SimpleProcessPlayer(Player):  # pylint: disable=abstract-method
         try:
             ret.result()
         except FileNotFoundError:
-            showWarning(
-                _(
-                    "Sound and video on cards will not function until mpv or mplayer is installed."
-                )
-            )
+            showWarning(tr(TR.MEDIA_SOUND_AND_VIDEO_ON_CARDS_WILL))
             # must call cb() here, as we don't currently have another way
             # to flag to av_player that we've stopped
         cb()
@@ -499,7 +495,7 @@ class _Recorder:
             finally:
                 self.cleanup()
             if ret:
-                raise Exception(_("Error running %s") % " ".join(cmd))
+                raise Exception(tr(TR.MEDIA_ERROR_RUNNING, val="%s") % " ".join(cmd))
 
     def cleanup(self) -> None:
         if os.path.exists(processingSrc):
@@ -596,10 +592,10 @@ def getAudio(parent: QWidget, encode: bool = True) -> Optional[str]:
     restoreGeom(mb, "audioRecorder")
     mb.setWindowTitle("Anki")
     mb.setIconPixmap(QPixmap(":/icons/media-record.png"))
-    but = QPushButton(_("Save"))
+    but = QPushButton(tr(TR.ACTIONS_SAVE))
     mb.addButton(but, QMessageBox.AcceptRole)
     but.setDefault(True)
-    but = QPushButton(_("Cancel"))
+    but = QPushButton(tr(TR.ACTIONS_CANCEL))
     mb.addButton(but, QMessageBox.RejectRole)
     mb.setEscapeButton(but)
     t = time.time()
@@ -607,7 +603,7 @@ def getAudio(parent: QWidget, encode: bool = True) -> Optional[str]:
     time.sleep(r.startupDelay)
     QApplication.instance().processEvents()  # type: ignore
     while not mb.clickedButton():
-        txt = _("Recording...<br>Time: %0.1f")
+        txt = tr(TR.MEDIA_RECORDINGTIME)
         mb.setText(txt % (time.time() - t))
         mb.show()
         QApplication.instance().processEvents()  # type: ignore

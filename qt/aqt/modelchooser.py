@@ -6,7 +6,7 @@ from typing import Optional
 from anki.lang import _
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
-from aqt.utils import shortcut
+from aqt.utils import TR, shortcut, tr
 
 
 class ModelChooser(QHBoxLayout):
@@ -37,11 +37,11 @@ class ModelChooser(QHBoxLayout):
 
     def setupModels(self) -> None:
         if self.label:
-            self.modelLabel = QLabel(_("Type"))
+            self.modelLabel = QLabel(tr(TR.NOTETYPES_TYPE))
             self.addWidget(self.modelLabel)
         # models box
         self.models = QPushButton()
-        self.models.setToolTip(shortcut(_("Change Note Type (Ctrl+N)")))
+        self.models.setToolTip(shortcut(tr(TR.QT_MISC_CHANGE_NOTE_TYPE_CTRLANDN)))
         QShortcut(QKeySequence("Ctrl+N"), self.widget, activated=self.on_activated)  # type: ignore
         self.models.setAutoDefault(False)
         self.addWidget(self.models)
@@ -73,7 +73,7 @@ class ModelChooser(QHBoxLayout):
 
         current = self.deck.models.current()["name"]
         # edit button
-        edit = QPushButton(_("Manage"), clicked=self.onEdit)  # type: ignore
+        edit = QPushButton(tr(TR.QT_MISC_MANAGE), clicked=self.onEdit)  # type: ignore
 
         def nameFunc():
             return sorted(self.deck.models.allNames())
@@ -81,8 +81,8 @@ class ModelChooser(QHBoxLayout):
         ret = StudyDeck(
             self.mw,
             names=nameFunc,
-            accept=_("Choose"),
-            title=_("Choose Note Type"),
+            accept=tr(TR.ACTIONS_CHOOSE),
+            title=tr(TR.QT_MISC_CHOOSE_NOTE_TYPE),
             help="_notes",
             current=current,
             parent=self.widget,
