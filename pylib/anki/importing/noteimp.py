@@ -7,7 +7,6 @@ from typing import Dict, List, Optional, Tuple, Union
 from anki.collection import Collection
 from anki.consts import NEW_CARDS_RANDOM, STARTING_FACTOR
 from anki.importing.base import Importer
-from anki.lang import ngettext
 from anki.rsbackend import TR
 from anki.utils import (
     fieldChecksum,
@@ -221,20 +220,15 @@ class NoteImporter(Importer):
         if conf["new"]["order"] == NEW_CARDS_RANDOM:
             self.col.sched.randomizeCards(did)
 
-        part1 = ngettext("%d note added", "%d notes added", len(new)) % len(new)
-        part2 = (
-            ngettext("%d note updated", "%d notes updated", self.updateCount)
-            % self.updateCount
-        )
+        part1 = self.col.tr(TR.IMPORTING_NOTE_ADDED, count=len(new))
+        part2 = self.col.tr(TR.IMPORTING_NOTE_UPDATED, count=self.updateCount)
         if self.importMode == UPDATE_MODE:
             unchanged = dupeCount - self.updateCount
         elif self.importMode == IGNORE_MODE:
             unchanged = dupeCount
         else:
             unchanged = 0
-        part3 = (
-            ngettext("%d note unchanged", "%d notes unchanged", unchanged) % unchanged
-        )
+        part3 = self.col.tr(TR.IMPORTING_NOTE_UNCHANGED, count=unchanged)
         self.log.append("%s, %s, %s." % (part1, part2, part3))
         self.log.extend(updateLog)
         self.total = len(self._ids)
