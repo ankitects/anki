@@ -3,10 +3,11 @@
 import glob, re, json, stringcase
 
 files = (
-    glob.glob("../../pylib/**/*.py", recursive=True)
+    # glob.glob("../../pylib/**/*.py", recursive=True)
     #    glob.glob("../../qt/**/*.py", recursive=True)
+    glob.glob("../../qt/**/forms/*.ui", recursive=True)
 )
-string_re = re.compile(r'_\(\s*(".*?")\s*\)')
+string_re = re.compile(r"<string>(.*?)</string>")
 
 map = json.load(open("keys_by_text.json"))
 
@@ -16,16 +17,43 @@ blacklist = {
     "After pressing OK, you can choose which tags to include.",
     "Filter/Cram",
     "Show %s",
+    "~",
+    "about:blank",
     # previewer.py needs updating to fix these
     "Shortcut key: R",
     "Shortcut key: B",
 }
 
+from html.entities import name2codepoint
+
+reEnts = re.compile(r"&#?\w+;")
+
+
+def decode_ents(html):
+    def fixup(m):
+        text = m.group(0)
+        if text[:2] == "&#":
+            # character reference
+            try:
+                if text[:3] == "&#x":
+                    return chr(int(text[3:-1], 16))
+                else:
+                    return chr(int(text[2:-1]))
+            except ValueError:
+                pass
+        else:
+            # named entity
+            try:
+                text = chr(name2codepoint[text[1:-1]])
+            except KeyError:
+                pass
+        return text  # leave as is
+
+    return reEnts.sub(fixup, html)
+
 
 def repl(m):
-    # the argument may consistent of multiple strings that need merging together
-    text = eval(m.group(1))
-
+    text = decode_ents(m.group(1))
     if text in blacklist:
         return m.group(0)
 
@@ -33,11 +61,7 @@ def repl(m):
     screaming = stringcase.constcase(key)
     print(screaming)
 
-    if "%d" in text or "%s" in text:
-        # replace { $val } with %s for compat with old code
-        return f'tr_legacyglobal(TR.{screaming}, val="%s")'
-
-    return f"tr_legacyglobal(TR.{screaming})"
+    return f"<string>{screaming}</string>"
 
 
 for file in files:
@@ -46,8 +70,4 @@ for file in files:
     buf = open(file).read()
     buf2 = string_re.sub(repl, buf)
     if buf != buf2:
-        lines = buf2.split("\n")
-        lines.insert(3, "from anki.rsbackend import TR")
-        lines.insert(3, "from anki.lang import tr_legacyglobal")
-        buf2 = "\n".join(lines)
         open(file, "w").write(buf2)

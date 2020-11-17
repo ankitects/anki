@@ -10,7 +10,7 @@
    </rect>
   </property>
   <property name="windowTitle" >
-   <string>HTML Editor</string>
+   <string>EDITING_HTML_EDITOR</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout" >
    <item>

@@ -11,13 +11,13 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Anki</string>
+   <string notr="true">Anki</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Interface language:</string>
+      <string>PREFERENCES_INTERFACE_LANGUAGE</string>
      </property>
     </widget>
    </item>

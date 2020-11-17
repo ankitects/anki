@@ -11,26 +11,26 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string notr="true">Dialog</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>Filter</string>
+      <string>ACTIONS_FILTER</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
       <item row="1" column="0">
        <widget class="QLabel" name="label_5">
         <property name="text">
-         <string>Limit to</string>
+         <string>DECKS_LIMIT_TO</string>
         </property>
        </widget>
       </item>
       <item row="0" column="0">
        <widget class="QLabel" name="label_2">
         <property name="text">
-         <string>Search</string>
+         <string>ACTIONS_SEARCH</string>
         </property>
        </widget>
       </item>
@@ -53,7 +53,7 @@
       <item row="1" column="2">
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>cards selected by</string>
+         <string>DECKS_CARDS_SELECTED_BY</string>
         </property>
        </widget>
       </item>
@@ -69,13 +69,13 @@
    <item>
     <widget class="QGroupBox" name="filter2group">
      <property name="title">
-      <string>Filter 2</string>
+      <string>DECKS_FILTER_2</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
       <item row="1" column="0">
        <widget class="QLabel" name="label_6">
         <property name="text">
-         <string>Limit to</string>
+         <string>DECKS_LIMIT_TO</string>
         </property>
        </widget>
       </item>
@@ -88,7 +88,7 @@
       <item row="0" column="0">
        <widget class="QLabel" name="label_3">
         <property name="text">
-         <string>Search</string>
+         <string>ACTIONS_SEARCH</string>
         </property>
        </widget>
       </item>
@@ -111,7 +111,7 @@
       <item row="1" column="2">
        <widget class="QLabel" name="label_4">
         <property name="text">
-         <string>cards selected by</string>
+         <string>DECKS_CARDS_SELECTED_BY</string>
         </property>
        </widget>
       </item>
@@ -121,13 +121,13 @@
    <item>
     <widget class="QGroupBox" name="groupBox_2">
      <property name="title">
-      <string>Options</string>
+      <string>ACTIONS_OPTIONS</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="0" column="0" colspan="2">
        <widget class="QCheckBox" name="resched">
         <property name="text">
-         <string>Reschedule cards based on my answers in this deck</string>
+         <string>DECKS_RESCHEDULE_CARDS_BASED_ON_MY_ANSWERS</string>
         </property>
         <property name="checked">
          <bool>true</bool>
@@ -137,7 +137,7 @@
       <item row="2" column="0">
        <widget class="QCheckBox" name="secondFilter">
         <property name="text">
-         <string>Enable second filter</string>
+         <string>DECKS_ENABLE_SECOND_FILTER</string>
         </property>
        </widget>
       </item>
@@ -147,7 +147,7 @@
          <item>
           <widget class="QLabel" name="label_7">
            <property name="text">
-            <string>Repeat failed cards after</string>
+            <string>DECKS_REPEAT_FAILED_CARDS_AFTER</string>
            </property>
           </widget>
          </item>
@@ -157,7 +157,7 @@
          <item>
           <widget class="QLabel" name="label_8">
            <property name="text">
-            <string>minutes</string>
+            <string>DECKS_MINUTES</string>
            </property>
           </widget>
          </item>
@@ -177,7 +177,7 @@
       <item row="3" column="0">
        <widget class="QCheckBox" name="stepsOn">
         <property name="text">
-         <string>Custom steps (in minutes)</string>
+         <string>DECKS_CUSTOM_STEPS_IN_MINUTES</string>
         </property>
        </widget>
       </item>

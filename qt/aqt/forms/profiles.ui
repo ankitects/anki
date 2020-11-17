@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Profiles</string>
+   <string>PROFILES_PROFILES</string>
   </property>
   <property name="windowIcon">
    <iconset resource="icons.qrc">
@@ -33,7 +33,7 @@
         <item>
          <widget class="QPushButton" name="login">
           <property name="text">
-           <string>Open</string>
+           <string>PROFILES_OPEN</string>
           </property>
           <property name="default">
            <bool>true</bool>
@@ -43,28 +43,28 @@
         <item>
          <widget class="QPushButton" name="add">
           <property name="text">
-           <string>Add</string>
+           <string>ACTIONS_ADD</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QPushButton" name="rename">
           <property name="text">
-           <string>Rename</string>
+           <string>ACTIONS_RENAME</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QPushButton" name="delete_2">
           <property name="text">
-           <string>Delete</string>
+           <string>ACTIONS_DELETE</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QPushButton" name="quit">
           <property name="text">
-           <string>Quit</string>
+           <string>PROFILES_QUIT</string>
           </property>
          </widget>
         </item>
@@ -84,7 +84,7 @@
         <item>
          <widget class="QPushButton" name="openBackup">
           <property name="text">
-           <string>Open Backup...</string>
+           <string>PROFILES_OPEN_BACKUP</string>
           </property>
          </widget>
         </item>
