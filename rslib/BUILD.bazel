@@ -3,14 +3,6 @@ load("@io_bazel_rules_rust//rust:rust.bzl", "rust_binary", "rust_library", "rust
 load("@io_bazel_rules_rust//cargo:cargo_build_script.bzl", "cargo_build_script")
 load(":rustfmt.bzl", "rustfmt_fix", "rustfmt_test")
 
-# FTL file gathering
-#######################
-
-all_ftl_files = [
-    "@rslib_ftl//:files",
-    "@extra_ftl//:files",
-] + glob(["ftl/*.ftl"])
-
 # Build script
 #######################
 
@@ -25,7 +17,8 @@ cargo_build_script(
         "BUILDINFO": "$(location //:buildinfo.txt)",
     },
     crate_root = "build/main.rs",
-    data = all_ftl_files + [
+    data = [
+        "//ftl",
         "backend.proto",
         "//:buildinfo.txt",
         "@com_google_protobuf//:protoc",
@@ -162,7 +155,9 @@ rust_binary(
 
 genrule(
     name = "fluent_proto",
-    srcs = all_ftl_files + [
+    srcs = [
+        "//ftl",
+        "//ftl:BUILD.bazel",
         "//cargo:fluent_syntax",
         "@rslib_ftl//:l10n.toml",
         "@extra_ftl//:l10n.toml",
@@ -171,7 +166,7 @@ genrule(
     cmd = """\
 RSLIB_FTL_ROOT="$(location @rslib_ftl//:l10n.toml)" \
 EXTRA_FTL_ROOT="$(location @extra_ftl//:l10n.toml)" \
-FTL_SRC="$(location ftl/database-check.ftl)" \
+FTL_SRC="$(location //ftl:BUILD.bazel)" \
 $(location :write_fluent_proto) $(location fluent.proto)""",
     tools = [
         ":write_fluent_proto",
