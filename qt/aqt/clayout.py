@@ -9,6 +9,7 @@ from typing import Any, Dict, List, Optional
 import aqt
 from anki.cards import Card
 from anki.consts import *
+from anki.lang import without_unicode_isolation
 from anki.notes import Note
 from anki.rsbackend import TemplateError
 from anki.template import TemplateRenderContext
@@ -66,7 +67,9 @@ class CardLayout(QDialog):
         self.setupButtons()
         self.setupShortcuts()
         self.setWindowTitle(
-            tr(TR.CARD_TEMPLATES_CARD_TYPES_FOR, val=self.model["name"])
+            without_unicode_isolation(
+                tr(TR.CARD_TEMPLATES_CARD_TYPES_FOR, val=self.model["name"])
+            )
         )
         v1 = QVBoxLayout()
         v1.addWidget(self.topArea)

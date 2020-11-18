@@ -29,6 +29,7 @@ from anki import hooks
 from anki.collection import Collection
 from anki.decks import Deck
 from anki.hooks import runHook
+from anki.lang import without_unicode_isolation
 from anki.rsbackend import RustBackend
 from anki.sound import AVTag, SoundOrVideoTag
 from anki.utils import devMode, ids2str, intTime, isMac, isWin, splitFields
@@ -1129,9 +1130,11 @@ title="%s" %s>%s</button>""" % (
         if not search:
             if not deck["dyn"]:
                 search = 'deck:"%s" ' % deck["name"]
-        while self.col.decks.id_for_name(tr(TR.QT_MISC_FILTERED_DECK, val=n)):
+        while self.col.decks.id_for_name(
+            without_unicode_isolation(tr(TR.QT_MISC_FILTERED_DECK, val=n))
+        ):
             n += 1
-        name = tr(TR.QT_MISC_FILTERED_DECK, val=n)
+        name = without_unicode_isolation(tr(TR.QT_MISC_FILTERED_DECK, val=n))
         did = self.col.decks.new_filtered(name)
         diag = aqt.dyndeckconf.DeckConf(self, first=True, search=search)
         if not diag.ok:

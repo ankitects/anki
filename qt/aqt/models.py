@@ -7,6 +7,7 @@ from typing import Any, List, Optional, Sequence
 import aqt.clayout
 from anki import stdmodels
 from anki.backend_pb2 import NoteTypeNameIDUseCount
+from anki.lang import without_unicode_isolation
 from anki.models import NoteType
 from anki.notes import Note
 from anki.rsbackend import pb
@@ -159,7 +160,9 @@ class Models(QDialog):
         frm.latexsvg.setChecked(nt.get("latexsvg", False))
         frm.latexHeader.setText(nt["latexPre"])
         frm.latexFooter.setText(nt["latexPost"])
-        d.setWindowTitle(tr(TR.ACTIONS_OPTIONS_FOR, val=nt["name"]))
+        d.setWindowTitle(
+            without_unicode_isolation(tr(TR.ACTIONS_OPTIONS_FOR, val=nt["name"]))
+        )
         qconnect(frm.buttonBox.helpRequested, lambda: openHelp("math?id=latex"))
         restoreGeom(d, "modelopts")
         gui_hooks.models_advanced_will_show(d)

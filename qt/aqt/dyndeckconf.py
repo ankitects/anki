@@ -4,6 +4,7 @@
 from typing import List, Optional
 
 import aqt
+from anki.lang import without_unicode_isolation
 from aqt.qt import *
 from aqt.utils import TR, askUser, openHelp, restoreGeom, saveGeom, showWarning, tr
 
@@ -24,7 +25,9 @@ class DeckConf(QDialog):
         self.mw.checkpoint(tr(TR.ACTIONS_OPTIONS))
         self.setWindowModality(Qt.WindowModal)
         qconnect(self.form.buttonBox.helpRequested, lambda: openHelp("filtered-decks"))
-        self.setWindowTitle(tr(TR.ACTIONS_OPTIONS_FOR, val=self.deck["name"]))
+        self.setWindowTitle(
+            without_unicode_isolation(tr(TR.ACTIONS_OPTIONS_FOR, val=self.deck["name"]))
+        )
         restoreGeom(self, "dyndeckconf")
         self.initialSetup()
         self.loadConf()
