@@ -3,13 +3,10 @@
 import glob, re, json, stringcase
 
 files = (
-    # glob.glob("../../pylib/**/*.py", recursive=True)
+    # glob.glob("../../pylib/**/*.py", recursive=True) +
     glob.glob("../../qt/**/*.py", recursive=True)
-    # glob.glob("../../qt/**/forms/*.ui", recursive=True)
 )
-string_re = re.compile(
-    r'ngettext\(\s*"(.+?)",\s+".+?",\s+(.+?)\s*,?\s*\)\s+%\s+\2', re.DOTALL
-)
+string_re = re.compile(r'_\(\s*(".*?")\s*\)', re.DOTALL)
 
 map = json.load(open("keys_by_text.json"))
 
@@ -18,67 +15,29 @@ blacklist = {
     "Label1",
     "After pressing OK, you can choose which tags to include.",
     "Filter/Cram",
-    "Show %s",
-    "~",
-    "about:blank",
-    "%d card imported.",
-    # need to update manually
-    "Browse (%(cur)d card shown; %(sel)s)",
     # previewer.py needs updating to fix these
     "Shortcut key: R",
     "Shortcut key: B",
 }
 
-from html.entities import name2codepoint
-
-reEnts = re.compile(r"&#?\w+;")
-
-
-def decode_ents(html):
-    def fixup(m):
-        text = m.group(0)
-        if text[:2] == "&#":
-            # character reference
-            try:
-                if text[:3] == "&#x":
-                    return chr(int(text[3:-1], 16))
-                else:
-                    return chr(int(text[2:-1]))
-            except ValueError:
-                pass
-        else:
-            # named entity
-            try:
-                text = chr(name2codepoint[text[1:-1]])
-            except KeyError:
-                pass
-        return text  # leave as is
-
-    return reEnts.sub(fixup, html)
-
-
-def munge_key(key):
-    if key == "browsing-note":
-        return "browsing-note-count"
-    if key == "card-templates-card":
-        return "card-templates-card-count"
-    return key
-
 
 def repl(m):
-    print(m.group(0))
-    text = decode_ents(m.group(1))
+    # the argument may consistent of multiple strings that need merging together
+    text = eval("(" + m.group(1) + ")")
+    print(f"text is `{text}`")
+
     if text in blacklist:
         return m.group(0)
 
     (module, key) = map[text]
-    key = munge_key(key)
-
     screaming = stringcase.constcase(key)
+    print(screaming)
 
-    ret = f"tr(TR.{screaming}, count={m.group(2)})"
-    print(ret)
-    return ret
+    if "%d" in text or "%s" in text:
+        # replace { $val } with %s for compat with old code
+        return f'tr(TR.{screaming}, val="%s")'
+
+    return f"tr(TR.{screaming})"
 
 
 for file in files:

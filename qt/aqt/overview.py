@@ -183,20 +183,9 @@ class Overview:
 
     def _desc(self, deck):
         if deck["dyn"]:
-            desc = _(
-                """\
-This is a special deck for studying outside of the normal schedule."""
-            )
-            desc += " " + _(
-                """\
-Cards will be automatically returned to their original decks after you review \
-them."""
-            )
-            desc += " " + _(
-                """\
-Deleting this deck from the deck list will return all remaining cards \
-to their original deck."""
-            )
+            desc = tr(TR.STUDYING_THIS_IS_A_SPECIAL_DECK_FOR)
+            desc += " " + tr(TR.STUDYING_CARDS_WILL_BE_AUTOMATICALLY_RETURNED_TO)
+            desc += " " + tr(TR.STUDYING_DELETING_THIS_DECK_FROM_THE_DECK)
         else:
             desc = deck.get("desc", "")
         if not desc:

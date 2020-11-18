@@ -17,7 +17,6 @@ import aqt.forms
 from anki.cards import Card
 from anki.collection import Collection
 from anki.consts import *
-from anki.lang import _, ngettext
 from anki.models import NoteType
 from anki.notes import Note
 from anki.rsbackend import TR, DeckTreeNode, InvalidInput
@@ -821,16 +820,10 @@ class Browser(QMainWindow):
     def updateTitle(self):
         selected = len(self.form.tableView.selectionModel().selectedRows())
         cur = len(self.model.cards)
+        print("fixme: browser updateTitle()")
         self.setWindowTitle(
-            ngettext(
-                "Browse (%(cur)d card shown; %(sel)s)",
-                "Browse (%(cur)d cards shown; %(sel)s)",
-                cur,
-            )
-            % {
-                "cur": cur,
-                "sel": ngettext("%d selected", "%d selected", selected) % selected,
-            }
+            "Browse (%(cur)d cards shown; %(sel)s)"
+            % {"cur": cur, "sel": self.col.tr(TR.BROWSING_SELECTED, count=selected)}
         )
         return selected
 
@@ -2266,14 +2259,7 @@ class ChangeModel(QDialog):
         fmap = self.getFieldMap()
         cmap = self.getTemplateMap()
         if any(True for c in list(cmap.values()) if c is None):
-            if not askUser(
-                _(
-                    """\
-Any cards mapped to nothing will be deleted. \
-If a note has no remaining cards, it will be lost. \
-Are you sure you want to continue?"""
-                )
-            ):
+            if not askUser(tr(TR.BROWSING_ANY_CARDS_MAPPED_TO_NOTHING_WILL)):
                 return
         self.browser.mw.checkpoint(tr(TR.BROWSING_CHANGE_NOTE_TYPE))
         b = self.browser

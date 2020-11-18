@@ -14,7 +14,6 @@ from PyQt5.QtCore import Qt
 
 from anki import hooks
 from anki.cards import Card
-from anki.lang import _, ngettext
 from anki.utils import stripHTML
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
@@ -388,10 +387,7 @@ class Reviewer:
         if not self.typeCorrect:
             if self.typeCorrect is None:
                 if clozeIdx:
-                    warn = _(
-                        """\
-Please run Tools>Empty Cards"""
-                    )
+                    warn = tr(TR.STUDYING_PLEASE_RUN_TOOLSEMPTY_CARDS)
                 else:
                     warn = tr(TR.STUDYING_TYPE_ANSWER_UNKNOWN_FIELD, val=fld)
                 return re.sub(self.typeAnsPat, warn, buf)

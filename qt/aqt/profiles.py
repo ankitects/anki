@@ -253,11 +253,7 @@ class ProfileManager:
             QMessageBox.warning(
                 None,
                 tr(TR.PROFILES_PROFILE_CORRUPT),
-                _(
-                    """\
-Anki could not read your profile data. Window sizes and your sync login \
-details have been forgotten."""
-                ),
+                tr(TR.PROFILES_ANKI_COULD_NOT_READ_YOUR_PROFILE),
             )
             traceback.print_stack()
             print("resetting corrupt profile")
@@ -322,14 +318,7 @@ details have been forgotten."""
         except Exception as e:
             self.db.rollback()
             if "WinError 5" in str(e):
-                showWarning(
-                    _(
-                        """\
-Anki could not rename your profile because it could not rename the profile \
-folder on disk. Please ensure you have permission to write to Documents/Anki \
-and no other programs are accessing your profile folders, then try again."""
-                    )
-                )
+                showWarning(tr(TR.PROFILES_ANKI_COULD_NOT_RENAME_YOUR_PROFILE))
             else:
                 raise
         except:

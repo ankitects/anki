@@ -93,14 +93,8 @@ def show(mw):
     # WebView contents
     ######################################################################
     abouttext = "<center><img src='/_anki/imgs/anki-logo-thin.png'></center>"
-    abouttext += "<p>" + _(
-        "Anki is a friendly, intelligent spaced learning \
-system. It's free and open source."
-    )
-    abouttext += "<p>" + _(
-        "Anki is licensed under the AGPL3 license. Please see "
-        "the license file in the source distribution for more information."
-    )
+    abouttext += "<p>" + tr(TR.ABOUT_ANKI_IS_A_FRIENDLY_INTELLIGENT_SPACED)
+    abouttext += "<p>" + tr(TR.ABOUT_ANKI_IS_LICENSED_UNDER_THE_AGPL3)
     abouttext += "<p>" + tr(TR.ABOUT_VERSION, val=versionWithBuild()) + "<br>"
     abouttext += ("Python %s Qt %s PyQt %s<br>") % (
         platform.python_version(),
@@ -209,22 +203,11 @@ system. It's free and open source."
         )
     )
 
-    abouttext += (
-        "<p>"
-        + _(
-            "Written by Damien Elmes, with patches, translation,\
-    testing and design from:<p>%(cont)s"
-        )
-        % {"cont": ", ".join(allusers)}
-    )
-    abouttext += "<p>" + _(
-        "If you have contributed and are not on this list, \
-please get in touch."
-    )
-    abouttext += "<p>" + _(
-        "A big thanks to all the people who have provided \
-suggestions, bug reports and donations."
-    )
+    abouttext += "<p>" + tr(TR.ABOUT_WRITTEN_BY_DAMIEN_ELMES_WITH_PATCHES) % {
+        "cont": ", ".join(allusers)
+    }
+    abouttext += "<p>" + tr(TR.ABOUT_IF_YOU_HAVE_CONTRIBUTED_AND_ARE)
+    abouttext += "<p>" + tr(TR.ABOUT_A_BIG_THANKS_TO_ALL_THE)
     abt.label.setMinimumWidth(800)
     abt.label.setMinimumHeight(600)
     dialog.show()

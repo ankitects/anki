@@ -181,11 +181,7 @@ class Preferences(QDialog):
         self.form.syncDeauth.setVisible(False)
         self.form.syncUser.setText("")
         self.form.syncLabel.setText(
-            _(
-                """\
-<b>Synchronization</b><br>
-Not currently enabled; click the sync button in the main window to enable."""
-            )
+            tr(TR.PREFERENCES_SYNCHRONIZATIONNOT_CURRENTLY_ENABLED_CLICK_THE_SYNC)
         )
 
     def onSyncDeauth(self) -> None:

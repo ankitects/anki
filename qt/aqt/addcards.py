@@ -175,12 +175,7 @@ class AddCards(QDialog):
             return None
         if note.model()["type"] == MODEL_CLOZE:
             if not note.cloze_numbers_in_fields():
-                if not askUser(
-                    _(
-                        "You have a cloze deletion note type "
-                        "but have not made any cloze deletions. Proceed?"
-                    )
-                ):
+                if not askUser(tr(TR.ADDING_YOU_HAVE_A_CLOZE_DELETION_NOTE)):
                     return None
         self.mw.col.add_note(note, self.deckChooser.selectedId())
         self.mw.col.clearUndo()

@@ -65,10 +65,7 @@ class ErrorHandler(QObject):
         self.timer.start()
 
     def tempFolderMsg(self):
-        return _(
-            """Unable to access Anki media folder. The permissions on \
-your system's temporary folder may be incorrect."""
-        )
+        return tr(TR.QT_MISC_UNABLE_TO_ACCESS_ANKI_MEDIA_FOLDER)
 
     def onTimeout(self):
         error = html.escape(self.pool)
@@ -79,12 +76,7 @@ your system's temporary folder may be incorrect."""
         if "10013" in error:
             return showWarning(tr(TR.QT_MISC_YOUR_FIREWALL_OR_ANTIVIRUS_PROGRAM_IS))
         if "no default input" in error.lower():
-            return showWarning(
-                _(
-                    "Please connect a microphone, and ensure "
-                    "other programs are not using the audio device."
-                )
-            )
+            return showWarning(tr(TR.QT_MISC_PLEASE_CONNECT_A_MICROPHONE_AND_ENSURE))
         if "invalidTempFolder" in error:
             return showWarning(self.tempFolderMsg())
         if "Beautiful Soup is not an HTTP client" in error:

@@ -123,13 +123,7 @@ class DeckConf(QDialog):
         if not self.saveConf():
             return
         if not self.mw.col.sched.rebuild_filtered_deck(self.deck["id"]):
-            if askUser(
-                _(
-                    """\
-The provided search did not match any cards. Would you like to revise \
-it?"""
-                )
-            ):
+            if askUser(tr(TR.DECKS_THE_PROVIDED_SEARCH_DID_NOT_MATCH)):
                 return
         self.mw.reset()
         QDialog.accept(self)
