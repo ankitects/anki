@@ -35,12 +35,12 @@ modules = [
     Module(
         name="core",
         repo="git@github.com:ankitects/anki-core-i18n",
-        ftl=("rslib/ftl", "core/templates"),
+        ftl=("ftl/core", "core/templates"),
     ),
     Module(
         name="qtftl",
         repo="git@github.com:ankitects/anki-desktop-ftl",
-        ftl=("qt/ftl", "desktop/templates"),
+        ftl=("ftl/qt", "desktop/templates"),
     ),
 ]
 
@@ -122,7 +122,15 @@ def update_ftl_templates():
             (source, dest) = ftl
             dest = os.path.join(module.folder(), dest)
             subprocess.run(
-                ["rsync", "-ai", "--delete", "--no-perms", source + "/", dest + "/"],
+                [
+                    "rsync",
+                    "-ai",
+                    "--delete",
+                    "--no-perms",
+                    "--no-times",
+                    source + "/",
+                    dest + "/",
+                ],
                 check=True,
             )
             commit_if_changed(module.folder())

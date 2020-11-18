@@ -135,12 +135,6 @@ filegroup(
 exports_files(["l10n.toml"])
 """
 
-    # native.new_local_repository(
-    #     name = "rslib_ftl",
-    #     path = "../anki-i18n/core",
-    #     build_file_content = i18n_build_content,
-    # )
-
     new_git_repository(
         name = "rslib_ftl",
         build_file_content = i18n_build_content,
@@ -150,12 +144,6 @@ exports_files(["l10n.toml"])
     )
 
     if not native.existing_rule("extra_ftl"):
-        # native.new_local_repository(
-        #     name = "extra_ftl",
-        #     path = "../anki-i18n/qtftl",
-        #     build_file_content = i18n_build_content,
-        # )
-
         new_git_repository(
             name = "extra_ftl",
             build_file_content = i18n_build_content,

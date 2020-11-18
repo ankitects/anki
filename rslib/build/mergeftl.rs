@@ -124,6 +124,10 @@ fn get_ftl_data() -> FTLData {
                 for entry in fs::read_dir(&outer_entry.path()).unwrap() {
                     let entry = entry.unwrap();
                     if entry.file_name().to_str().unwrap() == "templates" {
+                        if include_local_qt_templates() {
+                            // ignore source ftl files, as we've already extracted them from the source tree
+                            continue;
+                        }
                         data.add_template_folder(&entry.path());
                     } else {
                         data.add_language_folder(&entry.path());
@@ -136,23 +140,43 @@ fn get_ftl_data() -> FTLData {
     data
 }
 
+/// In a standard build, the ftl/qt folder is used as the source
+/// of truth for @extra_ftl, making it easier to add new strings.
+/// If the Qt templates are not desired, the NO_QT_TEMPLATES env
+/// var can be set to skip them.
+fn include_local_qt_templates() -> bool {
+    env::var("NO_QT_TEMPLATES").is_err()
+}
+
 /// Extracts English text from ftl folder in source tree.
 fn get_ftl_data_from_source_tree() -> FTLData {
     let mut templates: Vec<String> = vec![];
 
-    let dir = if let Ok(srcfile) = env::var("FTL_SRC") {
+    let ftl_base = if let Ok(srcfile) = env::var("FTL_SRC") {
         let mut path = PathBuf::from(srcfile);
         path.pop();
         path
     } else {
-        PathBuf::from("ftl")
+        PathBuf::from("../ftl")
     };
 
+    let dir = ftl_base.join("core");
     for entry in fs::read_dir(dir).unwrap() {
         let entry = entry.unwrap();
         let fname = entry.file_name().into_string().unwrap();
         if fname.ends_with(".ftl") {
             templates.push(fs::read_to_string(entry.path()).unwrap());
+        }
+    }
+
+    if include_local_qt_templates() {
+        let dir = ftl_base.join("qt");
+        for entry in fs::read_dir(dir).unwrap() {
+            let entry = entry.unwrap();
+            let fname = entry.file_name().into_string().unwrap();
+            if fname.ends_with(".ftl") {
+                templates.push(fs::read_to_string(entry.path()).unwrap());
+            }
         }
     }
 
