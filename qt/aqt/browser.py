@@ -14,10 +14,10 @@ from typing import Callable, List, Optional, Sequence, Tuple, Union, cast
 import anki
 import aqt
 import aqt.forms
-from anki.lang import without_unicode_isolation
 from anki.cards import Card
 from anki.collection import Collection
 from anki.consts import *
+from anki.lang import without_unicode_isolation
 from anki.models import NoteType
 from anki.notes import Note
 from anki.rsbackend import TR, DeckTreeNode, InvalidInput
