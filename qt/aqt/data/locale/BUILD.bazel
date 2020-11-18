@@ -1,6 +1,0 @@
-load("//qt/po:gettext.bzl", "compile_all_po_files")
-
-compile_all_po_files(
-    name = "locale",
-    visibility = ["//qt:__subpackages__"],
-)

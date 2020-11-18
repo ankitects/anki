@@ -4,7 +4,6 @@
 import argparse
 import builtins
 import getpass
-import gettext
 import locale
 import os
 import sys
@@ -167,7 +166,7 @@ dialogs = DialogManager()
 # Language handling
 ##########################################################################
 # Qt requires its translator to be installed before any GUI widgets are
-# loaded, and we need the Qt language to match the gettext language or
+# loaded, and we need the Qt language to match the i18n language or
 # translated shortcuts will not work.
 
 # A reference to the Qt translator needs to be held to prevent it from
@@ -202,7 +201,7 @@ def setupLangAndBackend(
     lang = force or pm.meta["defaultLang"]
     lang = anki.lang.lang_to_disk_lang(lang)
 
-    # load gettext catalog
+    # set active language
     ldir = locale_dir()
     anki.lang.set_lang(lang, ldir)
 

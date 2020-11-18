@@ -31,7 +31,7 @@ Install [msys2](https://www.msys2.org/) into the default folder location.
 After installation completes, run msys2, and run the following command:
 
 ```
-$ pacman -S git gettext
+$ pacman -S git
 ```
 
 **Bazelisk**:

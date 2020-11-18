@@ -139,7 +139,7 @@ jobs:
 
           set -x
           sudo apt update
-          sudo apt install portaudio19-dev gettext
+          sudo apt install portaudio19-dev
           curl -L https://github.com/bazelbuild/bazelisk/releases/download/v1.7.4/bazelisk-linux-amd64 -o ./bazel && \
             chmod +x ./bazel
 

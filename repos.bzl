@@ -126,9 +126,6 @@ def register_repos():
     qtftl_i18n_commit = "9909cfa4386288e686b2336b3b1048b7ee1bb194"
     qtftl_i18n_shallow_since = "1605664969 +1000"
 
-    qtpo_i18n_commit = "872d7f0f6bde52577e8fc795dd85699b0eeb97d5"
-    qtpo_i18n_shallow_since = "1605564627 +0000"
-
     i18n_build_content = """
 filegroup(
     name = "files",
@@ -166,15 +163,3 @@ exports_files(["l10n.toml"])
             shallow_since = qtftl_i18n_shallow_since,
             remote = "https://github.com/ankitects/anki-desktop-ftl",
         )
-
-    new_git_repository(
-        name = "aqt_po",
-        build_file_content = """
-exports_files(glob(["**/*.pot", "**/*.po"]),
-visibility = ["//visibility:public"],
-)    
-    """,
-        commit = qtpo_i18n_commit,
-        shallow_since = qtpo_i18n_shallow_since,
-        remote = "https://github.com/ankitects/anki-desktop-i18n",
-    )

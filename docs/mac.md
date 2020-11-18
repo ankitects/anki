@@ -14,7 +14,7 @@ Install Homebrew from <https://brew.sh/>
 Then install deps:
 
 ```
-$ brew install rsync gettext bazelisk
+$ brew install rsync bazelisk
 ```
 
 **Install Python 3.8**:
