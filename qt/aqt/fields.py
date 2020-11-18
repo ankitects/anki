@@ -3,6 +3,7 @@
 
 import aqt
 from anki.consts import *
+from anki.lang import without_unicode_isolation
 from anki.models import NoteType
 from anki.rsbackend import TemplateError
 from aqt import AnkiQt, gui_hooks
@@ -23,7 +24,9 @@ class FieldDialog(QDialog):
         self.change_tracker = ChangeTracker(self.mw)
         self.form = aqt.forms.fields.Ui_Dialog()
         self.form.setupUi(self)
-        self.setWindowTitle(tr(TR.FIELDS_FIELDS_FOR, val=self.model["name"]))
+        self.setWindowTitle(
+            without_unicode_isolation(tr(TR.FIELDS_FIELDS_FOR, val=self.model["name"]))
+        )
         self.form.buttonBox.button(QDialogButtonBox.Help).setAutoDefault(False)
         self.form.buttonBox.button(QDialogButtonBox.Cancel).setAutoDefault(False)
         self.form.buttonBox.button(QDialogButtonBox.Save).setAutoDefault(False)
