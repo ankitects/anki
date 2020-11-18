@@ -8,7 +8,7 @@ import sys
 from typing import Any, Callable, List, Optional, Sequence, Tuple
 
 import anki
-from anki.lang import _, is_rtl
+from anki.lang import is_rtl
 from anki.utils import isLin, isMac, isWin
 from aqt import gui_hooks
 from aqt.qt import *
@@ -375,7 +375,7 @@ class AnkiWebView(QWebEngineView):
 
         if isWin:
             # T: include a font for your language on Windows, eg: "Segoe UI", "MS Mincho"
-            family = _('"Segoe UI"')
+            family = tr(TR.QT_MISC_SEGOE_UI)
             button_style = "button { font-family:%s; }" % family
             button_style += "\n:focus { outline: 1px solid %s; }" % color_hl
             font = "font-size:12px;font-family:%s;" % family

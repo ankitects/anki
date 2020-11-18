@@ -7,7 +7,6 @@ from dataclasses import dataclass
 from typing import Optional
 
 import aqt
-from anki.lang import _
 from aqt import gui_hooks
 from aqt.sound import av_player
 from aqt.toolbar import BottomBar

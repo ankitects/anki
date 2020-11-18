@@ -3,7 +3,6 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from typing import Any
 
-from anki.lang import _
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.utils import TR, shortcut, tr

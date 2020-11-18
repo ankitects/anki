@@ -7,7 +7,6 @@ import time
 from typing import Any, Callable, Optional, Union
 
 from anki.cards import Card
-from anki.lang import _
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import (
     QAbstractItemView,

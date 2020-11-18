@@ -11,7 +11,6 @@ from typing import TYPE_CHECKING, Any, List, Optional, Union
 
 import anki
 import aqt
-from anki.lang import _
 from anki.rsbackend import TR  # pylint: disable=unused-import
 from anki.utils import invalidFilename, isMac, isWin, noBundledLibs, versionWithBuild
 from aqt.qt import *

@@ -5,7 +5,6 @@ import platform
 import time
 
 import aqt.forms
-from anki.lang import _
 from anki.utils import versionWithBuild
 from aqt.addons import AddonManager, AddonMeta
 from aqt.qt import *

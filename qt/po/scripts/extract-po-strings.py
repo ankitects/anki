@@ -99,7 +99,7 @@ module_map = {
     "update": "qt-misc",
     "utils": "qt-misc",
     "webview": "qt-misc",
-    "stats": "stats",
+    "stats": "statistics",
 }
 
 text_remap = {
@@ -170,20 +170,13 @@ text_remap = {
     "studying": ["Space"],
     "qt-misc": ["&Edit", "&Guide...", "&Help", "&Undo", "Unexpected response code: %s"],
     "adding": ["Added"],
-    "browsing": ["%d note"],
 }
 
 blacklist = {"Anki", "%", "Dialog", "Center", "Left", "Right", "~", "&Cram..."}
 
 
 def determine_module(text, files):
-    if not files:
-        return None
     if text in blacklist:
-        return None
-
-    if text.count("%") > 1:
-        print("skip", text)
         return None
 
     if "&" in text:
@@ -196,7 +189,6 @@ def determine_module(text, files):
     if len(files) == 1:
         return list(files)[0]
 
-    print(text, files)
     assert False
 
 
@@ -233,26 +225,22 @@ seen_keys = set()
 
 
 def migrate_entry(entry):
-    if not entry.msgid_plural:
+    if entry.msgid_plural:
+        # print("skip plural", entry.msgid)
         return
 
+    entry.occurrences = [e for e in entry.occurrences if "aqt/stats.py" in e[0]]
+    if not entry.occurrences:
+        return None
+
+    print(entry.occurrences)
     text = entry.msgid
     files = set(
         [os.path.splitext(os.path.basename(e[0]))[0] for e in entry.occurrences]
     )
-    # drop translations only used by old graphs
-    if len(files) == 1 and "stats" in files:
-        return None
-
-    for e in entry.occurrences:
-        if "importing/__init__.py" in e[0]:
-            files = ["importing"]
-            break
 
     files2 = set()
     for file in files:
-        if file in ("stats", "supermemo_xml"):
-            continue
         file = module_map[file]
         files2.add(file)
     module = determine_module(text, files2)
@@ -267,7 +255,7 @@ def migrate_entry(entry):
     seen_keys.add(key)
 
     modules.setdefault(module, [])
-    modules[module].append((key, [entry.msgid, entry.msgid_plural]))
+    modules[module].append((key, text))
 
     return None
 
@@ -316,8 +304,8 @@ for (module, items) in modules.items():
     strings_by_module[module] = items
     for item in items:
         (key, text) = item
-        assert text[0] not in keys_by_text
-        keys_by_text[text[0]] = (module, key)
+        assert text not in keys_by_text
+        keys_by_text[text] = (module, key)
 
 with open("strings_by_module.json", "w") as file:
     file.write(json.dumps(strings_by_module))

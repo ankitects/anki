@@ -1,23 +1,23 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
 from __future__ import annotations
 
 import time
 
 import aqt
-from anki.lang import _
 from aqt import gui_hooks
 from aqt.qt import *
 from aqt.theme import theme_manager
 from aqt.utils import (
+    TR,
     addCloseShortcut,
     getSaveFile,
     maybeHideClose,
     restoreGeom,
     saveGeom,
     tooltip,
+    tr,
 )
 
 
@@ -39,7 +39,9 @@ class NewDeckStats(QDialog):
         f.groupBox.setVisible(False)
         f.groupBox_2.setVisible(False)
         restoreGeom(self, self.name)
-        b = f.buttonBox.addButton(_("Save PDF"), QDialogButtonBox.ActionRole)
+        b = f.buttonBox.addButton(
+            tr(TR.STATISTICS_SAVE_PDF), QDialogButtonBox.ActionRole
+        )
         qconnect(b.clicked, self.saveImage)
         b.setAutoDefault(False)
         maybeHideClose(self.form.buttonBox)
@@ -61,10 +63,10 @@ class NewDeckStats(QDialog):
 
     def _imagePath(self):
         name = time.strftime("-%Y-%m-%d@%H-%M-%S.pdf", time.localtime(time.time()))
-        name = "anki-" + _("stats") + name
+        name = "anki-" + tr(TR.STATISTICS_STATS) + name
         file = getSaveFile(
             self,
-            title=_("Save PDF"),
+            title=tr(TR.STATISTICS_SAVE_PDF),
             dir_description="stats",
             key="stats",
             ext=".pdf",
@@ -77,7 +79,7 @@ class NewDeckStats(QDialog):
         if not path:
             return
         self.form.web.page().printToPdf(path)
-        tooltip(_("Saved."))
+        tooltip(tr(TR.STATISTICS_SAVED))
 
     def changePeriod(self, n):
         pass
@@ -111,7 +113,9 @@ class DeckStats(QDialog):
             self.setStyleSheet("QGroupBox { border: 0; }")
         f.setupUi(self)
         restoreGeom(self, self.name)
-        b = f.buttonBox.addButton(_("Save PDF"), QDialogButtonBox.ActionRole)
+        b = f.buttonBox.addButton(
+            tr(TR.STATISTICS_SAVE_PDF), QDialogButtonBox.ActionRole
+        )
         qconnect(b.clicked, self.saveImage)
         b.setAutoDefault(False)
         qconnect(f.groups.clicked, lambda: self.changeScope("deck"))
@@ -139,10 +143,10 @@ class DeckStats(QDialog):
 
     def _imagePath(self):
         name = time.strftime("-%Y-%m-%d@%H-%M-%S.pdf", time.localtime(time.time()))
-        name = "anki-" + _("stats") + name
+        name = "anki-" + tr(TR.STATISTICS_STATS) + name
         file = getSaveFile(
             self,
-            title=_("Save PDF"),
+            title=tr(TR.STATISTICS_SAVE_PDF),
             dir_description="stats",
             key="stats",
             ext=".pdf",
@@ -155,7 +159,7 @@ class DeckStats(QDialog):
         if not path:
             return
         self.form.web.page().printToPdf(path)
-        tooltip(_("Saved."))
+        tooltip(tr(TR.STATISTICS_SAVED))
 
     def changePeriod(self, n):
         self.period = n

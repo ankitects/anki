@@ -186,20 +186,14 @@ def setupLangAndBackend(
 
     # add _ and ngettext globals used by legacy code
     def fn__(arg):
-        print("accessing _ without importing from anki.lang will break in the future")
         print("".join(traceback.format_stack()[-2]))
-        from anki.lang import _
-
-        return _(arg)
+        print("_ global will break in the future; please see anki/lang.py")
+        return arg
 
     def fn_ngettext(a, b, c):
-        print(
-            "accessing ngettext without importing from anki.lang will break in the future"
-        )
         print("".join(traceback.format_stack()[-2]))
-        from anki.lang import ngettext
-
-        return ngettext(a, b, c)
+        print("ngettext global will break in the future; please see anki/lang.py")
+        return b
 
     builtins.__dict__["_"] = fn__
     builtins.__dict__["ngettext"] = fn_ngettext

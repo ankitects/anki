@@ -7,7 +7,6 @@ from enum import Enum
 
 import aqt
 from anki.errors import DeckRenameError
-from anki.lang import _
 from aqt.qt import *
 from aqt.utils import TR, getOnlyText, showWarning, tr
 
