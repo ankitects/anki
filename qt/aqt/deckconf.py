@@ -8,7 +8,6 @@ from PyQt5.QtWidgets import QLineEdit
 
 import aqt
 from anki.consts import NEW_CARDS_RANDOM
-from anki.lang import _, ngettext
 from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import (
@@ -110,10 +109,7 @@ class DeckConf(QDialog):
         self.loadConf()
         cnt = len(self.mw.col.decks.didsForConf(conf))
         if cnt > 1:
-            txt = _(
-                "Your changes will affect multiple decks. If you wish to "
-                "change only the current deck, please add a new options group first."
-            )
+            txt = tr(TR.SCHEDULING_YOUR_CHANGES_WILL_AFFECT_MULTIPLE_DECKS)
         else:
             txt = ""
         self.form.count.setText(txt)

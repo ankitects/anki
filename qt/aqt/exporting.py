@@ -12,7 +12,6 @@ from typing import List, Optional
 import aqt
 from anki import hooks
 from anki.exporting import Exporter, exporters
-from anki.lang import _, ngettext
 from aqt.qt import *
 from aqt.utils import TR, checkInvalidFilename, getSaveFile, showWarning, tooltip, tr
 

@@ -29,7 +29,6 @@ from anki import hooks
 from anki.collection import Collection
 from anki.decks import Deck
 from anki.hooks import runHook
-from anki.lang import _, ngettext
 from anki.rsbackend import RustBackend
 from anki.sound import AVTag, SoundOrVideoTag
 from anki.utils import devMode, ids2str, intTime, isMac, isWin, splitFields
@@ -123,12 +122,7 @@ class AnkiQt(QMainWindow):
             sys.exit(1)
         # must call this after ui set up
         if self.safeMode:
-            tooltip(
-                _(
-                    "Shift key was held down. Skipping automatic "
-                    "syncing and add-on loading."
-                )
-            )
+            tooltip(tr(TR.QT_MISC_SHIFT_KEY_WAS_HELD_DOWN_SKIPPING))
         # were we given a file to import?
         if args and args[0] and not self._isAddon(args[0]):
             self.onAppMsg(args[0])
@@ -319,11 +313,7 @@ class AnkiQt(QMainWindow):
             return showWarning(tr(TR.QT_MISC_THERE_MUST_BE_AT_LEAST_ONE))
         # sure?
         if not askUser(
-            _(
-                """\
-All cards, notes, and media for this profile will be deleted. \
-Are you sure?"""
-            ),
+            tr(TR.QT_MISC_ALL_CARDS_NOTES_AND_MEDIA_FOR),
             msgfunc=QMessageBox.warning,
             defaultno=True,
         ):
@@ -333,10 +323,7 @@ Are you sure?"""
 
     def onOpenBackup(self):
         if not askUser(
-            _(
-                """\
-Replace your collection with an earlier backup?"""
-            ),
+            tr(TR.QT_MISC_REPLACE_YOUR_COLLECTION_WITH_AN_EARLIER),
             msgfunc=QMessageBox.warning,
             defaultno=True,
         ):
@@ -364,13 +351,7 @@ Replace your collection with an earlier backup?"""
         self.pendingImport = path
         self.restoringBackup = True
 
-        showInfo(
-            _(
-                """\
-Automatic syncing and backups have been disabled while restoring. To enable them again, \
-close the profile or restart Anki."""
-            )
-        )
+        showInfo(tr(TR.QT_MISC_AUTOMATIC_SYNCING_AND_BACKUPS_HAVE_BEEN))
 
         self.onOpenProfile()
 
@@ -568,15 +549,7 @@ close the profile or restart Anki."""
             self.col = None
             self.progress.finish()
         if corrupt:
-            showWarning(
-                _(
-                    "Your collection file appears to be corrupt. \
-This can happen when the file is copied or moved while Anki is open, or \
-when the collection is stored on a network or cloud drive. If problems \
-persist after restarting your computer, please open an automatic backup \
-from the profile screen."
-                )
-            )
+            showWarning(tr(TR.QT_MISC_YOUR_COLLECTION_FILE_APPEARS_TO_BE))
         if not corrupt and not self.restoringBackup:
             self.backup()
 
@@ -1218,26 +1191,7 @@ title="%s" %s>%s</button>""" % (
             print("clock is off; ignoring")
             return
         diffText = tr(TR.QT_MISC_SECOND, count=diff)
-        warn = (
-            _(
-                """\
-In order to ensure your collection works correctly when moved between \
-devices, Anki requires your computer's internal clock to be set correctly. \
-The internal clock can be wrong even if your system is showing the correct \
-local time.
-
-Please go to the time settings on your computer and check the following:
-
-- AM/PM
-- Clock drift
-- Day, month and year
-- Timezone
-- Daylight savings
-
-Difference to correct time: %s."""
-            )
-            % diffText
-        )
+        warn = tr(TR.QT_MISC_IN_ORDER_TO_ENSURE_YOUR_COLLECTION, val="%s") % diffText
         showWarning(warn)
         self.app.closeAllWindows()
 
@@ -1281,13 +1235,7 @@ Difference to correct time: %s."""
         self._activeWindowOnPlay: Optional[QWidget] = None
 
     def onOdueInvalid(self):
-        showWarning(
-            _(
-                """\
-Invalid property found on card. Please use Tools>Check Database, \
-and if the problem comes up again, please ask on the support site."""
-            )
-        )
+        showWarning(tr(TR.QT_MISC_INVALID_PROPERTY_FOUND_ON_CARD_PLEASE))
 
     def _isVideo(self, tag: AVTag) -> bool:
         if isinstance(tag, SoundOrVideoTag):
@@ -1336,15 +1284,7 @@ and if the problem comes up again, please ask on the support site."""
         progress_shown = self.progress.busy()
         if progress_shown:
             self.progress.finish()
-        ret = askUser(
-            _(
-                """\
-The requested change will require a full upload of the database when \
-you next synchronize your collection. If you have reviews or other changes \
-waiting on another device that haven't been synchronized here yet, they \
-will be lost. Continue?"""
-            )
-        )
+        ret = askUser(tr(TR.QT_MISC_THE_REQUESTED_CHANGE_WILL_REQUIRE_A))
         if progress_shown:
             self.progress.start()
         return ret
@@ -1355,15 +1295,7 @@ will be lost. Continue?"""
         True if confirmed or already modified."""
         if self.col.schemaChanged():
             return True
-        return askUser(
-            _(
-                """\
-The requested change will require a full upload of the database when \
-you next synchronize your collection. If you have reviews or other changes \
-waiting on another device that haven't been synchronized here yet, they \
-will be lost. Continue?"""
-            )
-        )
+        return askUser(tr(TR.QT_MISC_THE_REQUESTED_CHANGE_WILL_REQUIRE_A))
 
     # Advanced features
     ##########################################################################
@@ -1603,10 +1535,7 @@ will be lost. Continue?"""
             # we can't raise the main window while in profile dialog, syncing, etc
             if buf != "raise":
                 showInfo(
-                    _(
-                        """\
-Please ensure a profile is open and Anki is not busy, then try again."""
-                    ),
+                    tr(TR.QT_MISC_PLEASE_ENSURE_A_PROFILE_IS_OPEN),
                     parent=None,
                 )
             return None

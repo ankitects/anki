@@ -9,7 +9,6 @@ from typing import Any, Dict, List, Optional
 import aqt
 from anki.cards import Card
 from anki.consts import *
-from anki.lang import _, ngettext
 from anki.notes import Note
 from anki.rsbackend import TemplateError
 from anki.template import TemplateRenderContext
@@ -656,13 +655,7 @@ class CardLayout(QDialog):
     def _flipQA(self, src, dst):
         m = re.match("(?s)(.+)<hr id=answer>(.+)", src["afmt"])
         if not m:
-            showInfo(
-                _(
-                    """\
-Anki couldn't find the line between the question and answer. Please \
-adjust the template manually to switch the question and answer."""
-                )
-            )
+            showInfo(tr(TR.CARD_TEMPLATES_ANKI_COULDNT_FIND_THE_LINE_BETWEEN))
             return
         self.change_tracker.mark_basic()
         dst["afmt"] = "{{FrontSide}}\n\n<hr id=answer>\n\n%s" % src["qfmt"]
@@ -736,10 +729,7 @@ adjust the template manually to switch the question and answer."""
         d.setMinimumWidth(400)
         l = QVBoxLayout()
         lab = QLabel(
-            _(
-                """\
-Enter deck to place new %s cards in, or leave blank:"""
-            )
+            tr(TR.CARD_TEMPLATES_ENTER_DECK_TO_PLACE_NEW, val="%s")
             % self.current_template()["name"]
         )
         lab.setWordWrap(True)

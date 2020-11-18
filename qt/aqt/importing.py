@@ -15,7 +15,6 @@ import anki.importing as importing
 import aqt.deckchooser
 import aqt.forms
 import aqt.modelchooser
-from anki.lang import _, ngettext
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.utils import (
@@ -118,12 +117,7 @@ class ImportDialog(QDialog):
     def onDelimiter(self):
         str = (
             getOnlyText(
-                _(
-                    """\
-By default, Anki will detect the character between fields, such as
-a tab, comma, and so on. If Anki is detecting the character incorrectly,
-you can enter it here. Use \\t to represent tab."""
-                ),
+                tr(TR.IMPORTING_BY_DEFAULT_ANKI_WILL_DETECT_THE),
                 self,
                 help="importing",
             )
@@ -132,10 +126,7 @@ you can enter it here. Use \\t to represent tab."""
         str = str.replace("\\t", "\t")
         if len(str) > 1:
             showWarning(
-                _(
-                    "Multi-character separators are not supported. "
-                    "Please enter one character only."
-                )
+                tr(TR.IMPORTING_MULTICHARACTER_SEPARATORS_ARE_NOT_SUPPORTED_PLEASE)
             )
             return
         self.hideMapping()
@@ -297,12 +288,7 @@ you can enter it here. Use \\t to represent tab."""
 
 def showUnicodeWarning():
     """Shorthand to show a standard warning."""
-    showWarning(
-        _(
-            "Selected file was not in UTF-8 format. Please see the "
-            "importing section of the manual."
-        )
-    )
+    showWarning(tr(TR.IMPORTING_SELECTED_FILE_WAS_NOT_IN_UTF8))
 
 
 def onImport(mw):
@@ -390,20 +376,12 @@ def importFile(mw, file):
             except Exception as e:
                 err = repr(str(e))
                 if "invalidFile" in err:
-                    msg = _(
-                        """\
-Invalid file. Please restore from backup."""
-                    )
+                    msg = tr(TR.IMPORTING_INVALID_FILE_PLEASE_RESTORE_FROM_BACKUP)
                     showWarning(msg)
                 elif "invalidTempFolder" in err:
                     showWarning(mw.errorHandler.tempFolderMsg())
                 elif "readonly" in err:
-                    showWarning(
-                        _(
-                            """\
-Unable to import from a read-only file."""
-                        )
-                    )
+                    showWarning(tr(TR.IMPORTING_UNABLE_TO_IMPORT_FROM_A_READONLY))
                 else:
                     msg = tr(TR.IMPORTING_FAILED_DEBUG_INFO) + "\n"
                     msg += str(traceback.format_exc())
@@ -421,13 +399,7 @@ Unable to import from a read-only file."""
 
 
 def invalidZipMsg():
-    return _(
-        """\
-This file does not appear to be a valid .apkg file. If you're getting this \
-error from a file downloaded from AnkiWeb, chances are that your download \
-failed. Please try again, and if the problem persists, please try again \
-with a different browser."""
-    )
+    return tr(TR.IMPORTING_THIS_FILE_DOES_NOT_APPEAR_TO)
 
 
 def setupApkgImport(mw, importer):
@@ -441,11 +413,7 @@ def setupApkgImport(mw, importer):
         # adding
         return True
     if not mw.restoringBackup and not askUser(
-        _(
-            """\
-This will delete your existing collection and replace it with the data in \
-the file you're importing. Are you sure?"""
-        ),
+        tr(TR.IMPORTING_THIS_WILL_DELETE_YOUR_EXISTING_COLLECTION),
         msgfunc=QMessageBox.warning,
         defaultno=True,
     ):

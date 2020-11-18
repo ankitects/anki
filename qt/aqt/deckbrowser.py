@@ -8,7 +8,6 @@ from dataclasses import dataclass
 
 import aqt
 from anki.errors import DeckRenameError
-from anki.lang import _, ngettext
 from anki.rsbackend import TR, DeckTreeNode
 from anki.utils import ids2str
 from aqt import AnkiQt, gui_hooks

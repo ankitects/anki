@@ -3,7 +3,6 @@
 
 import aqt
 from anki.consts import *
-from anki.lang import _, ngettext
 from anki.models import NoteType
 from anki.rsbackend import TemplateError
 from aqt import AnkiQt, gui_hooks

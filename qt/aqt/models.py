@@ -7,7 +7,6 @@ from typing import Any, List, Optional, Sequence
 import aqt.clayout
 from anki import stdmodels
 from anki.backend_pb2 import NoteTypeNameIDUseCount
-from anki.lang import _, ngettext
 from anki.models import NoteType
 from anki.notes import Note
 from anki.rsbackend import pb

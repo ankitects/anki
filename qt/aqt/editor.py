@@ -658,20 +658,9 @@ class Editor:
         # check that the model is set up for cloze deletion
         if not re.search("{{(.*:)*cloze:", self.note.model()["tmpls"][0]["qfmt"]):
             if self.addMode:
-                tooltip(
-                    _(
-                        "Warning, cloze deletions will not work until "
-                        "you switch the type at the top to Cloze."
-                    )
-                )
+                tooltip(tr(TR.EDITING_WARNING_CLOZE_DELETIONS_WILL_NOT_WORK))
             else:
-                showInfo(
-                    _(
-                        """\
-To make a cloze deletion on an existing note, you need to change it \
-to a cloze type first, via 'Notes>Change Note Type'"""
-                    )
-                )
+                showInfo(tr(TR.EDITING_TO_MAKE_A_CLOZE_DELETION_ON))
                 return
         # find the highest existing cloze
         highest = 0
