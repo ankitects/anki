@@ -14,6 +14,7 @@ from typing import Callable, List, Optional, Sequence, Tuple, Union, cast
 import anki
 import aqt
 import aqt.forms
+from anki.lang import without_unicode_isolation
 from anki.cards import Card
 from anki.collection import Collection
 from anki.consts import *
@@ -820,10 +821,10 @@ class Browser(QMainWindow):
     def updateTitle(self):
         selected = len(self.form.tableView.selectionModel().selectedRows())
         cur = len(self.model.cards)
-        print("fixme: browser updateTitle()")
         self.setWindowTitle(
-            "Browse (%(cur)d cards shown; %(sel)s)"
-            % {"cur": cur, "sel": self.col.tr(TR.BROWSING_SELECTED, count=selected)}
+            without_unicode_isolation(
+                tr(TR.BROWSING_WINDOW_TITLE, total=cur, selected=selected)
+            )
         )
         return selected
 

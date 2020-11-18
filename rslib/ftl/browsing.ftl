@@ -114,7 +114,5 @@ browsing-note-deleted = { $count ->
     [one] { $count } note deleted.
    *[other] { $count } notes deleted.
   }
-browsing-selected = { $count ->
-    [one] { $count } selected
-   *[other] { $count } selected
-  }
+browsing-window-title = Browse ({ $selected } of { $total } cards selected)
+
