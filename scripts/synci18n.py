@@ -42,8 +42,6 @@ modules = [
         repo="git@github.com:ankitects/anki-desktop-ftl",
         ftl=("qt/ftl", "desktop/templates"),
     ),
-    # update_po_templates() expects this last
-    Module(name="qtpo", repo="git@github.com:ankitects/anki-desktop-i18n"),
 ]
 
 
@@ -82,7 +80,7 @@ def module_git_info(module: Module) -> GitInfo:
     return GitInfo(sha1=sha.decode("utf8"), shallow_since=shallow.decode("utf8"))
 
 
-def update_repos_bzl(commit: bool):
+def update_repos_bzl():
     # gather changes
     entries = {}
     for module in modules:
@@ -105,8 +103,7 @@ def update_repos_bzl(commit: bool):
             out.append(line)
     open(path, "w").writelines(out)
 
-    if commit:
-        commit_if_changed(".")
+    commit_if_changed(".")
 
 
 def commit_if_changed(folder: str):
@@ -131,37 +128,12 @@ def update_ftl_templates():
             commit_if_changed(module.folder())
 
 
-def update_pot_and_po_files() -> str:
-    "Update .pot and .po files, returning generated folder root."
-    subprocess.run(["bazel", "build", "//qt/po:po_files"], check=True)
-    return "bazel-bin/qt/po/"
-
-
-def update_po_templates():
-    "Copy updated files into repo."
-    module = modules[-1]
-    src_root = update_pot_and_po_files()
-    dest_root = os.path.join(module.folder(), "desktop")
-    subprocess.run(
-        ["rsync", "-ai", "--no-perms", src_root + "/", dest_root + "/"], check=True
-    )
-    commit_if_changed(module.folder())
-
-
 def push_i18n_changes():
     for module in modules:
         subprocess.run(["git", "push"], cwd=module.folder(), check=True)
 
 
 update_git_repos()
-update_repos_bzl(commit=False)
 update_ftl_templates()
-if len(sys.argv) > 1 and sys.argv[1] == "all":
-    update_po_templates()
-else:
-    print("skipping po updates")
 push_i18n_changes()
-# we need to run this again - the first time ensures we merge
-# the latest changes into the po files, and the second time ensures
-# we're up to date after we made changes to the repos
-update_repos_bzl(commit=True)
+update_repos_bzl()
