@@ -7,7 +7,9 @@ files = (
     glob.glob("../../qt/**/*.py", recursive=True)
     # glob.glob("../../qt/**/forms/*.ui", recursive=True)
 )
-string_re = re.compile(r'ngettext\(\s*"(.+?)",\s+".+?",\s+(.+?)\) % \2', re.DOTALL)
+string_re = re.compile(
+    r'ngettext\(\s*"(.+?)",\s+".+?",\s+(.+?)\s*,?\s*\)\s+%\s+\2', re.DOTALL
+)
 
 map = json.load(open("keys_by_text.json"))
 

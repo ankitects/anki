@@ -634,14 +634,7 @@ class CardLayout(QDialog):
 
     def onAddCard(self):
         cnt = self.mw.col.models.useCount(self.model)
-        txt = (
-            ngettext(
-                "This will create %d card. Proceed?",
-                "This will create %d cards. Proceed?",
-                cnt,
-            )
-            % cnt
-        )
+        txt = tr(TR.CARD_TEMPLATES_THIS_WILL_CREATE_CARD_PROCEED, count=cnt)
         if not askUser(txt):
             return
         if not self.change_tracker.mark_schema():

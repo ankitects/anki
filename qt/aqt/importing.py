@@ -482,8 +482,7 @@ def _replaceWithApkg(mw, filename, backup):
         ):
             mw.taskman.run_on_main(
                 lambda n=n: mw.progress.update(
-                    ngettext("Processed %d media file", "Processed %d media files", n)
-                    % n
+                    tr(TR.IMPORTING_PROCESSED_MEDIA_FILE, count=n)
                 )
             )
             size = z.getinfo(cStr).file_size

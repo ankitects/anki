@@ -164,10 +164,7 @@ class DeckConf(QDialog):
                 continue
             deck["conf"] = self.deck["conf"]
             self.mw.col.decks.save(deck)
-        tooltip(
-            ngettext("%d deck updated.", "%d decks updated.", len(self.childDids))
-            % len(self.childDids)
-        )
+        tooltip(tr(TR.SCHEDULING_DECK_UPDATED, count=len(self.childDids)))
 
     # Loading
     ##################################################
