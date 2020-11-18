@@ -12,9 +12,8 @@ from typing import List, Optional
 import aqt
 from anki import hooks
 from anki.exporting import Exporter, exporters
-from anki.lang import _, ngettext
 from aqt.qt import *
-from aqt.utils import checkInvalidFilename, getSaveFile, showWarning, tooltip
+from aqt.utils import TR, checkInvalidFilename, getSaveFile, showWarning, tooltip, tr
 
 
 class ExportDialog(QDialog):
@@ -49,13 +48,13 @@ class ExportDialog(QDialog):
         self.exporterChanged(idx)
         # deck list
         if self.cids is None:
-            self.decks = [_("All Decks")]
+            self.decks = [tr(TR.EXPORTING_ALL_DECKS)]
             self.decks.extend(d.name for d in self.col.decks.all_names_and_ids())
         else:
-            self.decks = [_("Selected Notes")]
+            self.decks = [tr(TR.EXPORTING_SELECTED_NOTES)]
         self.frm.deck.addItems(self.decks)
         # save button
-        b = QPushButton(_("Export..."))
+        b = QPushButton(tr(TR.EXPORTING_EXPORT))
         self.frm.buttonBox.addButton(b, QDialogButtonBox.AcceptRole)
         # set default option if accessed through deck button
         if did:
@@ -107,7 +106,7 @@ class ExportDialog(QDialog):
             self.exporter.did = self.col.decks.id(name)
         if self.isVerbatim:
             name = time.strftime("-%Y-%m-%d@%H-%M-%S", time.localtime(time.time()))
-            deck_name = _("collection") + name
+            deck_name = tr(TR.EXPORTING_COLLECTION) + name
         else:
             # Get deck name and remove invalid filename characters
             deck_name = self.decks[self.frm.deck.currentIndex()]
@@ -121,7 +120,7 @@ class ExportDialog(QDialog):
         while 1:
             file = getSaveFile(
                 self,
-                _("Export"),
+                tr(TR.ACTIONS_EXPORT),
                 "export",
                 key_str,
                 self.exporter.ext,
@@ -142,7 +141,7 @@ class ExportDialog(QDialog):
                 f = open(file, "wb")
                 f.close()
             except (OSError, IOError) as e:
-                showWarning(_("Couldn't save file: %s") % str(e))
+                showWarning(tr(TR.EXPORTING_COULDNT_SAVE_FILE, val=str(e)))
             else:
                 os.unlink(file)
 
@@ -150,10 +149,7 @@ class ExportDialog(QDialog):
             def exported_media(cnt):
                 self.mw.taskman.run_on_main(
                     lambda: self.mw.progress.update(
-                        label=ngettext(
-                            "Exported %d media file", "Exported %d media files", cnt
-                        )
-                        % cnt
+                        label=tr(TR.EXPORTING_EXPORTED_MEDIA_FILE, count=cnt)
                     )
                 )
 
@@ -174,26 +170,12 @@ class ExportDialog(QDialog):
 
     def on_export_finished(self):
         if self.isVerbatim:
-            msg = _("Collection exported.")
+            msg = tr(TR.EXPORTING_COLLECTION_EXPORTED)
             self.mw.reopen()
         else:
             if self.isTextNote:
-                msg = (
-                    ngettext(
-                        "%d note exported.",
-                        "%d notes exported.",
-                        self.exporter.count,
-                    )
-                    % self.exporter.count
-                )
+                msg = tr(TR.EXPORTING_NOTE_EXPORTED, count=self.exporter.count)
             else:
-                msg = (
-                    ngettext(
-                        "%d card exported.",
-                        "%d cards exported.",
-                        self.exporter.count,
-                    )
-                    % self.exporter.count
-                )
+                msg = tr(TR.EXPORTING_CARD_EXPORTED, count=self.exporter.count)
         tooltip(msg, period=3000)
         QDialog.reject(self)

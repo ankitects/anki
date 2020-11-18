@@ -9,9 +9,12 @@ buf = io.StringIO()
 compileUi(open(ui_file), buf, from_imports=True)
 
 outdata = buf.getvalue()
-outdata = outdata.replace("# -*- coding: utf-8 -*-", "# -*- coding: utf-8 -*-\nfrom anki.lang import _\n")
-outdata = re.sub(r'(QtGui\.QApplication\.)?_?translate\(".*?", ', '_(', outdata) 
-outdata = re.sub(r', None.*', '))', outdata)
+outdata = outdata.replace(
+    "# -*- coding: utf-8 -*-", "# -*- coding: utf-8 -*-\nfrom aqt.utils import tr, TR\n"
+)
+outdata = re.sub(
+    r'(?:QtGui\.QApplication\.)?_?translate\(".*?", "(.*?)"', "tr(TR.\\1", outdata
+)
 
 with open(py_file, "w") as file:
     file.write(outdata)
@@ -35,8 +38,7 @@ with open(py_file, "w") as file:
 #         (cat <<EOF; tail -n +3 $py.tmp) |  perl -p -e 's/(QtGui\.QApplication\.)?_?translate\(".*?", /_(/; s/, None.*/))/' > $py
 # # -*- coding: utf-8 -*-
 # # pylint: disable=unsubscriptable-object,unused-import
-# from anki.lang import _
-# EOF
+# # EOF
 #         rm $py.tmp
 #     fi
 # done

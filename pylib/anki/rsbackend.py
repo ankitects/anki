@@ -22,6 +22,8 @@ import os
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence, Union
 
+import orjson
+
 import anki._rsbridge
 import anki.backend_pb2 as pb
 import anki.buildinfo
@@ -59,15 +61,8 @@ SyncOutput = pb.SyncCollectionOut
 SyncStatus = pb.SyncStatusOut
 CountsForDeckToday = pb.CountsForDeckTodayOut
 
-try:
-    import orjson
-
-    to_json_bytes = orjson.dumps
-    from_json_bytes = orjson.loads
-except:
-    # add compat layer for 32 bit builds that can't use orjson
-    to_json_bytes = lambda obj: json.dumps(obj).encode("utf8")  # type: ignore
-    from_json_bytes = json.loads
+to_json_bytes = orjson.dumps
+from_json_bytes = orjson.loads
 
 
 class Interrupted(Exception):

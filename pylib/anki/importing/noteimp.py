@@ -7,7 +7,7 @@ from typing import Dict, List, Optional, Tuple, Union
 from anki.collection import Collection
 from anki.consts import NEW_CARDS_RANDOM, STARTING_FACTOR
 from anki.importing.base import Importer
-from anki.lang import _, ngettext
+from anki.rsbackend import TR
 from anki.utils import (
     fieldChecksum,
     guid64,
@@ -135,8 +135,6 @@ class NoteImporter(Importer):
         # loop through the notes
         updates = []
         updateLog = []
-        updateLogTxt = _("First field matched: %s")
-        dupeLogTxt = _("Added duplicate with first field: %s")
         new = []
         self._ids: List[int] = []
         self._cards: List[Tuple] = []
@@ -153,12 +151,16 @@ class NoteImporter(Importer):
             csum = fieldChecksum(fld0)
             # first field must exist
             if not fld0:
-                self.log.append(_("Empty first field: %s") % " ".join(n.fields))
+                self.log.append(
+                    self.col.tr(TR.IMPORTING_EMPTY_FIRST_FIELD, val=" ".join(n.fields))
+                )
                 continue
             # earlier in import?
             if fld0 in firsts and self.importMode != ADD_MODE:
                 # duplicates in source file; log and ignore
-                self.log.append(_("Appeared twice in file: %s") % fld0)
+                self.log.append(
+                    self.col.tr(TR.IMPORTING_APPEARED_TWICE_IN_FILE, val=fld0)
+                )
                 continue
             firsts[fld0] = True
             # already exists?
@@ -175,7 +177,11 @@ class NoteImporter(Importer):
                             data = self.updateData(n, id, sflds)
                             if data:
                                 updates.append(data)
-                                updateLog.append(updateLogTxt % fld0)
+                                updateLog.append(
+                                    self.col.tr(
+                                        TR.IMPORTING_FIRST_FIELD_MATCHED, val=fld0
+                                    )
+                                )
                                 dupeCount += 1
                                 found = True
                         elif self.importMode == IGNORE_MODE:
@@ -185,7 +191,12 @@ class NoteImporter(Importer):
                             if fld0 not in dupes:
                                 # only show message once, no matter how many
                                 # duplicates are in the collection already
-                                updateLog.append(dupeLogTxt % fld0)
+                                updateLog.append(
+                                    self.col.tr(
+                                        TR.IMPORTING_ADDED_DUPLICATE_WITH_FIRST_FIELD,
+                                        val=fld0,
+                                    )
+                                )
                                 dupes.append(fld0)
                             found = False
             # newly add
@@ -209,20 +220,15 @@ class NoteImporter(Importer):
         if conf["new"]["order"] == NEW_CARDS_RANDOM:
             self.col.sched.randomizeCards(did)
 
-        part1 = ngettext("%d note added", "%d notes added", len(new)) % len(new)
-        part2 = (
-            ngettext("%d note updated", "%d notes updated", self.updateCount)
-            % self.updateCount
-        )
+        part1 = self.col.tr(TR.IMPORTING_NOTE_ADDED, count=len(new))
+        part2 = self.col.tr(TR.IMPORTING_NOTE_UPDATED, count=self.updateCount)
         if self.importMode == UPDATE_MODE:
             unchanged = dupeCount - self.updateCount
         elif self.importMode == IGNORE_MODE:
             unchanged = dupeCount
         else:
             unchanged = 0
-        part3 = (
-            ngettext("%d note unchanged", "%d notes unchanged", unchanged) % unchanged
-        )
+        part3 = self.col.tr(TR.IMPORTING_NOTE_UNCHANGED, count=unchanged)
         self.log.append("%s, %s, %s." % (part1, part2, part3))
         self.log.extend(updateLog)
         self.total = len(self._ids)

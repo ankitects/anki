@@ -22,7 +22,6 @@ from anki.consts import *
 from anki.dbproxy import DBProxy
 from anki.decks import DeckManager
 from anki.errors import AnkiError
-from anki.lang import _
 from anki.media import MediaManager, media_paths_from_col_path
 from anki.models import ModelManager
 from anki.notes import Note
@@ -574,7 +573,12 @@ table.review-log {{ {revlog_style} }}
                 old = self._undo[2]
             self.clearUndo()
         wasLeech = card.note().hasTag("leech") or False
-        self._undo = [1, _("Review"), old + [copy.copy(card)], wasLeech]
+        self._undo = [
+            1,
+            self.tr(TR.SCHEDULING_REVIEW),
+            old + [copy.copy(card)],
+            wasLeech,
+        ]
 
     def _undoReview(self) -> Any:
         data = self._undo[2]

@@ -51,7 +51,7 @@ filegroup(
 ################
 
 prettier_test(
-    name = "format",
+    name = "format_check",
     srcs = glob(["*.ts"]),
 )
 

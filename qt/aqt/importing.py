@@ -1,7 +1,6 @@
 # coding=utf-8
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
 import json
 import os
 import re
@@ -16,7 +15,6 @@ import anki.importing as importing
 import aqt.deckchooser
 import aqt.forms
 import aqt.modelchooser
-from anki.lang import _, ngettext
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.utils import (
@@ -43,14 +41,14 @@ class ChangeMap(QDialog):
         n = 0
         setCurrent = False
         for field in self.model["flds"]:
-            item = QListWidgetItem(_("Map to %s") % field["name"])
+            item = QListWidgetItem(tr(TR.IMPORTING_MAP_TO, val=field["name"]))
             self.frm.fields.addItem(item)
             if current == field["name"]:
                 setCurrent = True
                 self.frm.fields.setCurrentRow(n)
             n += 1
-        self.frm.fields.addItem(QListWidgetItem(_("Map to Tags")))
-        self.frm.fields.addItem(QListWidgetItem(_("Ignore field")))
+        self.frm.fields.addItem(QListWidgetItem(tr(TR.IMPORTING_MAP_TO_TAGS)))
+        self.frm.fields.addItem(QListWidgetItem(tr(TR.IMPORTING_IGNORE_FIELD)))
         if not setCurrent:
             if current == "_tags":
                 self.frm.fields.setCurrentRow(n)
@@ -100,7 +98,7 @@ class ImportDialog(QDialog):
         self.frm.tagModified.setText(self.mw.pm.profile.get("tagModified", ""))
         self.frm.tagModified.setCol(self.mw.col)
         # import button
-        b = QPushButton(_("Import"))
+        b = QPushButton(tr(TR.ACTIONS_IMPORT))
         self.frm.buttonBox.addButton(b, QDialogButtonBox.AcceptRole)
         self.exec_()
 
@@ -119,12 +117,7 @@ class ImportDialog(QDialog):
     def onDelimiter(self):
         str = (
             getOnlyText(
-                _(
-                    """\
-By default, Anki will detect the character between fields, such as
-a tab, comma, and so on. If Anki is detecting the character incorrectly,
-you can enter it here. Use \\t to represent tab."""
-                ),
+                tr(TR.IMPORTING_BY_DEFAULT_ANKI_WILL_DETECT_THE),
                 self,
                 help="importing",
             )
@@ -133,10 +126,7 @@ you can enter it here. Use \\t to represent tab."""
         str = str.replace("\\t", "\t")
         if len(str) > 1:
             showWarning(
-                _(
-                    "Multi-character separators are not supported. "
-                    "Please enter one character only."
-                )
+                tr(TR.IMPORTING_MULTICHARACTER_SEPARATORS_ARE_NOT_SUPPORTED_PLEASE)
             )
             return
         self.hideMapping()
@@ -156,24 +146,24 @@ you can enter it here. Use \\t to represent tab."""
         else:
             d = self.importer.dialect.delimiter
         if d == "\t":
-            d = _("Tab")
+            d = tr(TR.IMPORTING_TAB)
         elif d == ",":
-            d = _("Comma")
+            d = tr(TR.IMPORTING_COMMA)
         elif d == " ":
-            d = _("Space")
+            d = tr(TR.STUDYING_SPACE)
         elif d == ";":
-            d = _("Semicolon")
+            d = tr(TR.IMPORTING_SEMICOLON)
         elif d == ":":
-            d = _("Colon")
+            d = tr(TR.IMPORTING_COLON)
         else:
             d = repr(d)
-        txt = _("Fields separated by: %s") % d
+        txt = tr(TR.IMPORTING_FIELDS_SEPARATED_BY, val=d)
         self.frm.autoDetect.setText(txt)
 
     def accept(self):
         self.importer.mapping = self.mapping
         if not self.importer.mappingOk():
-            showWarning(_("The first field of the note type must be mapped."))
+            showWarning(tr(TR.IMPORTING_THE_FIRST_FIELD_OF_THE_NOTE))
             return
         self.importer.importMode = self.frm.importMode.currentIndex()
         self.mw.pm.profile["importMode"] = self.importer.importMode
@@ -186,7 +176,7 @@ you can enter it here. Use \\t to represent tab."""
         self.mw.col.models.save(self.importer.model, updateReqs=False)
         self.mw.col.decks.select(did)
         self.mw.progress.start()
-        self.mw.checkpoint(_("Import"))
+        self.mw.checkpoint(tr(TR.ACTIONS_IMPORT))
 
         def on_done(future: Future):
             self.mw.progress.finish()
@@ -208,7 +198,7 @@ you can enter it here. Use \\t to represent tab."""
                 showText(msg)
                 return
             else:
-                txt = _("Importing complete.") + "\n"
+                txt = tr(TR.IMPORTING_IMPORTING_COMPLETE) + "\n"
                 if self.importer.log:
                     txt += "\n".join(self.importer.log)
                 self.close()
@@ -248,16 +238,16 @@ you can enter it here. Use \\t to represent tab."""
         self.grid.setSpacing(6)
         fields = self.importer.fields()
         for num in range(len(self.mapping)):
-            text = _("Field <b>%d</b> of file is:") % (num + 1)
+            text = tr(TR.IMPORTING_FIELD_OF_FILE_IS, val=num + 1)
             self.grid.addWidget(QLabel(text), num, 0)
             if self.mapping[num] == "_tags":
-                text = _("mapped to <b>Tags</b>")
+                text = tr(TR.IMPORTING_MAPPED_TO_TAGS)
             elif self.mapping[num]:
-                text = _("mapped to <b>%s</b>") % self.mapping[num]
+                text = tr(TR.IMPORTING_MAPPED_TO, val=self.mapping[num])
             else:
-                text = _("<ignored>")
+                text = tr(TR.IMPORTING_IGNORED)
             self.grid.addWidget(QLabel(text), num, 1)
-            button = QPushButton(_("Change"))
+            button = QPushButton(tr(TR.IMPORTING_CHANGE))
             self.grid.addWidget(button, num, 2)
             qconnect(button.clicked, lambda _, s=self, n=num: s.changeMappingNum(n))
 
@@ -298,17 +288,12 @@ you can enter it here. Use \\t to represent tab."""
 
 def showUnicodeWarning():
     """Shorthand to show a standard warning."""
-    showWarning(
-        _(
-            "Selected file was not in UTF-8 format. Please see the "
-            "importing section of the manual."
-        )
-    )
+    showWarning(tr(TR.IMPORTING_SELECTED_FILE_WAS_NOT_IN_UTF8))
 
 
 def onImport(mw):
     filt = ";;".join([x[0] for x in importing.Importers])
-    file = getFile(mw, _("Import"), None, key="import", filter=filt)
+    file = getFile(mw, tr(TR.ACTIONS_IMPORT), None, key="import", filter=filt)
     if not file:
         return
     file = str(file)
@@ -316,18 +301,10 @@ def onImport(mw):
     head, ext = os.path.splitext(file)
     ext = ext.lower()
     if ext == ".anki":
-        showInfo(
-            _(
-                ".anki files are from a very old version of Anki. You can import them with Anki 2.0, available on the Anki website."
-            )
-        )
+        showInfo(tr(TR.IMPORTING_ANKI_FILES_ARE_FROM_A_VERY))
         return
     elif ext == ".anki2":
-        showInfo(
-            _(
-                ".anki2 files are not directly importable - please import the .apkg or .zip file you have received instead."
-            )
-        )
+        showInfo(tr(TR.IMPORTING_ANKI2_FILES_ARE_NOT_DIRECTLY_IMPORTABLE))
         return
 
     importFile(mw, file)
@@ -364,7 +341,7 @@ def importFile(mw, file):
             mw.progress.finish()
             msg = repr(str(e))
             if msg == "'unknownFormat'":
-                showWarning(_("Unknown file format."))
+                showWarning(tr(TR.IMPORTING_UNKNOWN_FILE_FORMAT))
             else:
                 msg = tr(TR.IMPORTING_FAILED_DEBUG_INFO) + "\n"
                 msg += str(traceback.format_exc())
@@ -399,20 +376,12 @@ def importFile(mw, file):
             except Exception as e:
                 err = repr(str(e))
                 if "invalidFile" in err:
-                    msg = _(
-                        """\
-    Invalid file. Please restore from backup."""
-                    )
+                    msg = tr(TR.IMPORTING_INVALID_FILE_PLEASE_RESTORE_FROM_BACKUP)
                     showWarning(msg)
                 elif "invalidTempFolder" in err:
                     showWarning(mw.errorHandler.tempFolderMsg())
                 elif "readonly" in err:
-                    showWarning(
-                        _(
-                            """\
-    Unable to import from a read-only file."""
-                        )
-                    )
+                    showWarning(tr(TR.IMPORTING_UNABLE_TO_IMPORT_FROM_A_READONLY))
                 else:
                     msg = tr(TR.IMPORTING_FAILED_DEBUG_INFO) + "\n"
                     msg += str(traceback.format_exc())
@@ -430,13 +399,7 @@ def importFile(mw, file):
 
 
 def invalidZipMsg():
-    return _(
-        """\
-This file does not appear to be a valid .apkg file. If you're getting this \
-error from a file downloaded from AnkiWeb, chances are that your download \
-failed. Please try again, and if the problem persists, please try again \
-with a different browser."""
-    )
+    return tr(TR.IMPORTING_THIS_FILE_DOES_NOT_APPEAR_TO)
 
 
 def setupApkgImport(mw, importer):
@@ -450,11 +413,7 @@ def setupApkgImport(mw, importer):
         # adding
         return True
     if not mw.restoringBackup and not askUser(
-        _(
-            """\
-This will delete your existing collection and replace it with the data in \
-the file you're importing. Are you sure?"""
-        ),
+        tr(TR.IMPORTING_THIS_WILL_DELETE_YOUR_EXISTING_COLLECTION),
         msgfunc=QMessageBox.warning,
         defaultno=True,
     ):
@@ -491,8 +450,7 @@ def _replaceWithApkg(mw, filename, backup):
         ):
             mw.taskman.run_on_main(
                 lambda n=n: mw.progress.update(
-                    ngettext("Processed %d media file", "Processed %d media files", n)
-                    % n
+                    tr(TR.IMPORTING_PROCESSED_MEDIA_FILE, count=n)
                 )
             )
             size = z.getinfo(cStr).file_size
@@ -513,7 +471,7 @@ def _replaceWithApkg(mw, filename, backup):
             future.result()
         except Exception as e:
             print(e)
-            showWarning(_("The provided file is not a valid .apkg file."))
+            showWarning(tr(TR.IMPORTING_THE_PROVIDED_FILE_IS_NOT_A))
             return
 
         if not mw.loadCollection():
@@ -521,6 +479,6 @@ def _replaceWithApkg(mw, filename, backup):
         if backup:
             mw.col.modSchema(check=False)
 
-        tooltip(_("Importing complete."))
+        tooltip(tr(TR.IMPORTING_IMPORTING_COMPLETE))
 
     mw.taskman.run_in_background(do_import, on_done)

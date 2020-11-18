@@ -5,7 +5,8 @@ import os
 import re
 import sys
 
-import backend_pb2 as pb
+import pylib.anki.backend_pb2 as pb
+
 import stringcase
 
 TYPE_DOUBLE = 1

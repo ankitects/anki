@@ -1,11 +1,6 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-# Profile handling
-##########################################################################
-# - Saves in pickles rather than json to easily store Qt window state.
-# - Saves in sqlite rather than a flat file so the config can't be corrupted
-
 import io
 import locale
 import pickle
@@ -21,12 +16,18 @@ import aqt.forms
 import aqt.sound
 from anki import Collection
 from anki.db import DB
-from anki.lang import _, without_unicode_isolation
+from anki.lang import without_unicode_isolation
 from anki.rsbackend import SyncAuth
 from anki.utils import intTime, isMac, isWin
 from aqt import appHelpSite
 from aqt.qt import *
 from aqt.utils import TR, locale_dir, showWarning, tr
+
+# Profile handling
+##########################################################################
+# - Saves in pickles rather than json to easily store Qt window state.
+# - Saves in sqlite rather than a flat file so the config can't be corrupted
+
 
 metaConf = dict(
     ver=0,
@@ -251,12 +252,8 @@ class ProfileManager:
         except:
             QMessageBox.warning(
                 None,
-                _("Profile Corrupt"),
-                _(
-                    """\
-Anki could not read your profile data. Window sizes and your sync login \
-details have been forgotten."""
-                ),
+                tr(TR.PROFILES_PROFILE_CORRUPT),
+                tr(TR.PROFILES_ANKI_COULD_NOT_READ_YOUR_PROFILE),
             )
             traceback.print_stack()
             print("resetting corrupt profile")
@@ -304,12 +301,12 @@ details have been forgotten."""
                     oldFolder = midFolder
                 else:
                     showWarning(
-                        _("Please remove the folder %s and try again.") % midFolder
+                        tr(TR.PROFILES_PLEASE_REMOVE_THE_FOLDER_AND, val=midFolder)
                     )
                     self.name = oldName
                     return
             else:
-                showWarning(_("Folder already exists."))
+                showWarning(tr(TR.PROFILES_FOLDER_ALREADY_EXISTS))
                 self.name = oldName
                 return
 
@@ -321,14 +318,7 @@ details have been forgotten."""
         except Exception as e:
             self.db.rollback()
             if "WinError 5" in str(e):
-                showWarning(
-                    _(
-                        """\
-Anki could not rename your profile because it could not rename the profile \
-folder on disk. Please ensure you have permission to write to Documents/Anki \
-and no other programs are accessing your profile folders, then try again."""
-                    )
-                )
+                showWarning(tr(TR.PROFILES_ANKI_COULD_NOT_RENAME_YOUR_PROFILE))
             else:
                 raise
         except:
@@ -476,7 +466,7 @@ create table if not exists profiles
 
     def _ensureProfile(self) -> None:
         "Create a new profile if none exists."
-        self.create(_("User 1"))
+        self.create(tr(TR.PROFILES_USER_1))
         p = os.path.join(self.base, "README.txt")
         with open(p, "w", encoding="utf8") as file:
             file.write(

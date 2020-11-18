@@ -4,12 +4,6 @@ load("@py_deps//:requirements.bzl", "requirement")
 load("@rules_python//experimental/python:wheel.bzl", "py_package", "py_wheel")
 load("//:defs.bzl", "anki_version")
 
-copy_file(
-    name = "buildinfo",
-    src = "//:buildinfo.txt",
-    out = "buildinfo.txt",
-)
-
 genrule(
     name = "hooks_gen",
     outs = ["hooks_gen.py"],
@@ -37,7 +31,6 @@ aqt_srcs = glob([
 ]
 
 aqt_core_data = [
-    "buildinfo.txt",
     "colors.py",
     "py.typed",
     ":hooks_gen",
@@ -100,7 +93,6 @@ py_wheel(
     python_version = ">=3.8",
     requires = [
         # "pyaudio", # currently off as a pain to install on Windows for code completion
-        # "pyqtwebengine", # depending on this limits installable qt5 versions
         "beautifulsoup4",
         "requests",
         "send2trash",
@@ -109,7 +101,8 @@ py_wheel(
         "flask",
         "flask_cors",
         "waitress",
-        "pyqt5>=5.9",
+        "pyqt5>=5.12",
+        "pyqtwebengine",
         'psutil; sys.platform == "win32"',
         'pywin32; sys.platform == "win32"',
         "anki==" + anki_version,
@@ -120,5 +113,13 @@ py_wheel(
     version = anki_version,
     deps = [
         ":aqt_pkg",
+    ],
+)
+
+filegroup(
+    name = "py_source_files",
+    srcs = glob(["**/*.py"]),
+    visibility = [
+        "//qt/po:__pkg__",
     ],
 )

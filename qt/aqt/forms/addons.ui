@@ -25,7 +25,7 @@
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>Changes will take effect when Anki is restarted.</string>
+        <string>ADDONS_CHANGES_WILL_TAKE_EFFECT_WHEN_ANKI</string>
        </property>
       </widget>
      </item>
@@ -43,21 +43,21 @@
      <item>
       <widget class="QPushButton" name="getAddons">
        <property name="text">
-        <string>Get Add-ons...</string>
+        <string>ADDONS_GET_ADDONS</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="installFromFile">
        <property name="text">
-        <string>Install from file...</string>
+        <string>ADDONS_INSTALL_FROM_FILE</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="checkForUpdates">
        <property name="text">
-        <string>Check for Updates</string>
+        <string>ADDONS_CHECK_FOR_UPDATES</string>
        </property>
       </widget>
      </item>
@@ -77,35 +77,35 @@
      <item>
       <widget class="QPushButton" name="viewPage">
        <property name="text">
-        <string>View Add-on Page</string>
+        <string>ADDONS_VIEW_ADDON_PAGE</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="config">
        <property name="text">
-        <string>Config</string>
+        <string>ADDONS_CONFIG</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="viewFiles">
        <property name="text">
-        <string>View Files</string>
+        <string>ADDONS_VIEW_FILES</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="toggleEnabled">
        <property name="text">
-        <string>Toggle Enabled</string>
+        <string>ADDONS_TOGGLE_ENABLED</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="delete_2">
        <property name="text">
-        <string>Delete</string>
+        <string>ACTIONS_DELETE</string>
        </property>
       </widget>
      </item>

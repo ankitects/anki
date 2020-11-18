@@ -22,7 +22,6 @@ import aqt.sound
 from anki.cards import Card
 from anki.hooks import runFilter
 from anki.httpclient import HttpClient
-from anki.lang import _
 from anki.notes import Note
 from anki.utils import checksum, isLin, isWin, namedtmp, stripHTMLMedia
 from aqt import AnkiQt, gui_hooks
@@ -31,6 +30,7 @@ from aqt.qt import *
 from aqt.sound import av_player, getAudio
 from aqt.theme import theme_manager
 from aqt.utils import (
+    TR,
     getFile,
     openHelp,
     qtMenuShortcutWorkaround,
@@ -40,6 +40,7 @@ from aqt.utils import (
     showInfo,
     showWarning,
     tooltip,
+    tr,
 )
 from aqt.webview import AnkiWebView
 
@@ -122,16 +123,16 @@ class Editor:
             self._addButton(
                 None,
                 "fields",
-                _("Customize Fields"),
-                _("Fields") + "...",
+                tr(TR.EDITING_CUSTOMIZE_FIELDS),
+                tr(TR.EDITING_FIELDS) + "...",
                 disables=False,
                 rightside=False,
             ),
             self._addButton(
                 None,
                 "cards",
-                _("Customize Card Templates (Ctrl+L)"),
-                _("Cards") + "...",
+                tr(TR.EDITING_CUSTOMIZE_CARD_TEMPLATES_CTRLANDL),
+                tr(TR.EDITING_CARDS) + "...",
                 disables=False,
                 rightside=False,
             ),
@@ -140,22 +141,37 @@ class Editor:
         gui_hooks.editor_did_init_left_buttons(lefttopbtns, self)
 
         righttopbtns: List[str] = [
-            self._addButton("text_bold", "bold", _("Bold text (Ctrl+B)"), id="bold"),
             self._addButton(
-                "text_italic", "italic", _("Italic text (Ctrl+I)"), id="italic"
+                "text_bold", "bold", tr(TR.EDITING_BOLD_TEXT_CTRLANDB), id="bold"
             ),
             self._addButton(
-                "text_under", "underline", _("Underline text (Ctrl+U)"), id="underline"
+                "text_italic",
+                "italic",
+                tr(TR.EDITING_ITALIC_TEXT_CTRLANDI),
+                id="italic",
             ),
             self._addButton(
-                "text_super", "super", _("Superscript (Ctrl++)"), id="superscript"
+                "text_under",
+                "underline",
+                tr(TR.EDITING_UNDERLINE_TEXT_CTRLANDU),
+                id="underline",
             ),
-            self._addButton("text_sub", "sub", _("Subscript (Ctrl+=)"), id="subscript"),
-            self._addButton("text_clear", "clear", _("Remove formatting (Ctrl+R)")),
+            self._addButton(
+                "text_super",
+                "super",
+                tr(TR.EDITING_SUPERSCRIPT_CTRLANDAND),
+                id="superscript",
+            ),
+            self._addButton(
+                "text_sub", "sub", tr(TR.EDITING_SUBSCRIPT_CTRLAND), id="subscript"
+            ),
+            self._addButton(
+                "text_clear", "clear", tr(TR.EDITING_REMOVE_FORMATTING_CTRLANDR)
+            ),
             self._addButton(
                 None,
                 "colour",
-                _("Set foreground colour (F7)"),
+                tr(TR.EDITING_SET_FOREGROUND_COLOUR_F7),
                 """
 <div id="forecolor"
      style="display: inline-block; background: #000; border-radius: 5px;"
@@ -165,17 +181,19 @@ class Editor:
             self._addButton(
                 None,
                 "changeCol",
-                _("Change colour (F8)"),
+                tr(TR.EDITING_CHANGE_COLOUR_F8),
                 """
 <div style="display: inline-block; border-radius: 5px;"
      class="topbut rainbow"
 >""",
             ),
-            self._addButton("text_cloze", "cloze", _("Cloze deletion (Ctrl+Shift+C)")),
             self._addButton(
-                "paperclip", "attach", _("Attach pictures/audio/video (F3)")
+                "text_cloze", "cloze", tr(TR.EDITING_CLOZE_DELETION_CTRLANDSHIFTANDC)
             ),
-            self._addButton("media-record", "record", _("Record audio (F5)")),
+            self._addButton(
+                "paperclip", "attach", tr(TR.EDITING_ATTACH_PICTURESAUDIOVIDEO_F3)
+            ),
+            self._addButton("media-record", "record", tr(TR.EDITING_RECORD_AUDIO_F5)),
             self._addButton("more", "more"),
         ]
 
@@ -197,7 +215,7 @@ class Editor:
         bgcol = self.mw.app.palette().window().color().name()  # type: ignore
         # then load page
         self.web.stdHtml(
-            _html % (bgcol, bgcol, topbuts, _("Show Duplicates")),
+            _html % (bgcol, bgcol, topbuts, tr(TR.EDITING_SHOW_DUPLICATES)),
             css=["css/editor.css"],
             js=["js/vendor/jquery.js", "js/editor.js"],
             context=self,
@@ -450,7 +468,8 @@ class Editor:
             return
 
         data = [
-            (fld, self.mw.col.media.escapeImages(val)) for fld, val in self.note.items()
+            (fld, self.mw.col.media.escape_media_filenames(val))
+            for fld, val in self.note.items()
         ]
         self.widget.show()
         self.updateTags()
@@ -499,9 +518,7 @@ class Editor:
         self.web.eval("setBackgrounds(%s);" % json.dumps(cols))
 
     def showDupes(self):
-        contents = html.escape(
-            stripHTMLMedia(self.note.fields[0]), quote=False
-        ).replace('"', r"\"")
+        contents = self.note.fields[0].replace('"', r"\"")
         browser = aqt.dialogs.open("Browser", self.mw)
         browser.form.searchEdit.lineEdit().setText(
             '"dupe:%s,%s"' % (self.note.model()["id"], contents)
@@ -547,11 +564,13 @@ class Editor:
         if html.find(">") > -1:
             # filter html through beautifulsoup so we can strip out things like a
             # leading </div>
-            html_escaped = self.mw.col.media.escapeImages(html)
+            html_escaped = self.mw.col.media.escape_media_filenames(html)
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore", UserWarning)
                 html_escaped = str(BeautifulSoup(html_escaped, "html.parser"))
-                html = self.mw.col.media.escapeImages(html_escaped, unescape=True)
+                html = self.mw.col.media.escape_media_filenames(
+                    html_escaped, unescape=True
+                )
         self.note.fields[field] = html
         if not self.addMode:
             self.note.flush()
@@ -570,11 +589,13 @@ class Editor:
         tb.setSpacing(12)
         tb.setContentsMargins(2, 6, 2, 6)
         # tags
-        l = QLabel(_("Tags"))
+        l = QLabel(tr(TR.EDITING_TAGS))
         tb.addWidget(l, 1, 0)
         self.tags = aqt.tagedit.TagEdit(self.widget)
         qconnect(self.tags.lostFocus, self.saveTags)
-        self.tags.setToolTip(shortcut(_("Jump to tags with Ctrl+Shift+T")))
+        self.tags.setToolTip(
+            shortcut(tr(TR.EDITING_JUMP_TO_TAGS_WITH_CTRLANDSHIFTANDT))
+        )
         border = theme_manager.str_color("border")
         self.tags.setStyleSheet(f"border: 1px solid {border}")
         tb.addWidget(self.tags, 1, 1)
@@ -636,20 +657,9 @@ class Editor:
         # check that the model is set up for cloze deletion
         if not re.search("{{(.*:)*cloze:", self.note.model()["tmpls"][0]["qfmt"]):
             if self.addMode:
-                tooltip(
-                    _(
-                        "Warning, cloze deletions will not work until "
-                        "you switch the type at the top to Cloze."
-                    )
-                )
+                tooltip(tr(TR.EDITING_WARNING_CLOZE_DELETIONS_WILL_NOT_WORK))
             else:
-                showInfo(
-                    _(
-                        """\
-To make a cloze deletion on an existing note, you need to change it \
-to a cloze type first, via 'Notes>Change Note Type'"""
-                    )
-                )
+                showInfo(tr(TR.EDITING_TO_MAKE_A_CLOZE_DELETION_ON))
                 return
         # find the highest existing cloze
         highest = 0
@@ -707,12 +717,12 @@ to a cloze type first, via 'Notes>Change Note Type'"""
         extension_filter = " ".join(
             "*." + extension for extension in sorted(itertools.chain(pics, audio))
         )
-        key = _("Media") + " (" + extension_filter + ")"
+        key = tr(TR.EDITING_MEDIA) + " (" + extension_filter + ")"
 
         def accept(file):
             self.addMedia(file, canDelete=True)
 
-        file = getFile(self.widget, _("Add Media"), accept, key, key="media")
+        file = getFile(self.widget, tr(TR.EDITING_ADD_MEDIA), accept, key, key="media")
         self.parentWindow.activateWindow()
 
     def addMedia(self, path, canDelete=False):
@@ -745,7 +755,7 @@ to a cloze type first, via 'Notes>Change Note Type'"""
             file = getAudio(self.widget)
         except Exception as e:
             showWarning(
-                _("Couldn't record audio. Have you installed 'lame'?")
+                tr(TR.EDITING_COULDNT_RECORD_AUDIO_HAVE_YOU_INSTALLED)
                 + "\n\n"
                 + repr(str(e))
             )
@@ -843,14 +853,15 @@ to a cloze type first, via 'Notes>Change Note Type'"""
                     client.timeout = 30
                     with client.get(url) as response:
                         if response.status_code != 200:
-                            error_msg = (
-                                _("Unexpected response code: %s") % response.status_code
+                            error_msg = tr(
+                                TR.QT_MISC_UNEXPECTED_RESPONSE_CODE,
+                                val=response.status_code,
                             )
                             return None
                         filecontents = response.content
                         content_type = response.headers.get("content-type")
         except (urllib.error.URLError, requests.exceptions.RequestException) as e:
-            error_msg = _("An error occurred while opening %s") % e
+            error_msg = tr(TR.EDITING_AN_ERROR_OCCURRED_WHILE_OPENING, val=str(e))
             return None
         finally:
             self.mw.progress.finish()
@@ -947,13 +958,17 @@ to a cloze type first, via 'Notes>Change Note Type'"""
         m = QMenu(self.mw)
 
         for text, handler, shortcut in (
-            (_("MathJax inline"), self.insertMathjaxInline, "Ctrl+M, M"),
-            (_("MathJax block"), self.insertMathjaxBlock, "Ctrl+M, E"),
-            (_("MathJax chemistry"), self.insertMathjaxChemistry, "Ctrl+M, C"),
-            (_("LaTeX"), self.insertLatex, "Ctrl+T, T"),
-            (_("LaTeX equation"), self.insertLatexEqn, "Ctrl+T, E"),
-            (_("LaTeX math env."), self.insertLatexMathEnv, "Ctrl+T, M"),
-            (_("Edit HTML"), self.onHtmlEdit, "Ctrl+Shift+X"),
+            (tr(TR.EDITING_MATHJAX_INLINE), self.insertMathjaxInline, "Ctrl+M, M"),
+            (tr(TR.EDITING_MATHJAX_BLOCK), self.insertMathjaxBlock, "Ctrl+M, E"),
+            (
+                tr(TR.EDITING_MATHJAX_CHEMISTRY),
+                self.insertMathjaxChemistry,
+                "Ctrl+M, C",
+            ),
+            (tr(TR.EDITING_LATEX), self.insertLatex, "Ctrl+T, T"),
+            (tr(TR.EDITING_LATEX_EQUATION), self.insertLatexEqn, "Ctrl+T, E"),
+            (tr(TR.EDITING_LATEX_MATH_ENV), self.insertLatexMathEnv, "Ctrl+T, M"),
+            (tr(TR.EDITING_EDIT_HTML), self.onHtmlEdit, "Ctrl+Shift+X"),
         ):
             a = m.addAction(text)
             qconnect(a.triggered, handler)
@@ -1203,11 +1218,11 @@ class EditorWebView(AnkiWebView):
 
     def contextMenuEvent(self, evt: QContextMenuEvent) -> None:
         m = QMenu(self)
-        a = m.addAction(_("Cut"))
+        a = m.addAction(tr(TR.EDITING_CUT))
         qconnect(a.triggered, self.onCut)
-        a = m.addAction(_("Copy"))
+        a = m.addAction(tr(TR.ACTIONS_COPY))
         qconnect(a.triggered, self.onCopy)
-        a = m.addAction(_("Paste"))
+        a = m.addAction(tr(TR.EDITING_PASTE))
         qconnect(a.triggered, self.onPaste)
         gui_hooks.editor_will_show_context_menu(self, m)
         m.popup(QCursor.pos())
@@ -1231,7 +1246,7 @@ def remove_null_bytes(txt, editor):
 
 def reverse_url_quoting(txt, editor):
     # reverse the url quoting we added to get images to display
-    return editor.mw.col.media.escapeImages(txt, unescape=True)
+    return editor.mw.col.media.escape_media_filenames(txt, unescape=True)
 
 
 gui_hooks.editor_will_use_font_for_field.append(fontMungeHack)

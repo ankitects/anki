@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Find and Replace</string>
+   <string>BROWSING_FIND_AND_REPLACE</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -19,7 +19,7 @@
      <item row="0" column="0">
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>&lt;b&gt;Find&lt;/b&gt;:</string>
+        <string>BROWSING_FIND</string>
        </property>
       </widget>
      </item>
@@ -45,7 +45,7 @@
      <item row="1" column="0">
       <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>&lt;b&gt;Replace With&lt;/b&gt;:</string>
+        <string>BROWSING_REPLACE_WITH</string>
        </property>
       </widget>
      </item>
@@ -71,7 +71,7 @@
      <item row="2" column="0">
       <widget class="QLabel" name="label_3">
        <property name="text">
-        <string>&lt;b&gt;In&lt;/b&gt;:</string>
+        <string>BROWSING_IN</string>
        </property>
       </widget>
      </item>
@@ -85,14 +85,14 @@
      <item row="4" column="1">
       <widget class="QCheckBox" name="re">
        <property name="text">
-        <string>Treat input as regular expression</string>
+        <string>BROWSING_TREAT_INPUT_AS_REGULAR_EXPRESSION</string>
        </property>
       </widget>
      </item>
      <item row="3" column="1">
       <widget class="QCheckBox" name="ignoreCase">
        <property name="text">
-        <string>Ignore case</string>
+        <string>BROWSING_IGNORE_CASE</string>
        </property>
        <property name="checked">
         <bool>true</bool>

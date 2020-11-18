@@ -1,3 +1,7 @@
+load("//ts:prettier.bzl", "prettier")
+
+prettier()
+
 # Exported files
 #################
 
@@ -7,4 +11,5 @@ exports_files([
     ".prettierrc",
     "rollup.config.js",
     ".eslintrc.js",
+    "licenses.json",
 ])

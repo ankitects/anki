@@ -1,6 +1,6 @@
 """
 @generated
-cargo-raze workspace build file.
+cargo-raze generated Bazel file.
 
 DO NOT EDIT! Replaced on runs of cargo-raze
 """
@@ -23,7 +23,7 @@ alias(
 
 alias(
     name = "async_compression",
-    actual = "@raze__async_compression__0_3_5//:async_compression",
+    actual = "@raze__async_compression__0_3_6//:async_compression",
     tags = [
         "cargo-raze",
         "manual",
@@ -59,7 +59,7 @@ alias(
 
 alias(
     name = "coarsetime",
-    actual = "@raze__coarsetime__0_1_14//:coarsetime",
+    actual = "@raze__coarsetime__0_1_16//:coarsetime",
     tags = [
         "cargo-raze",
         "manual",
@@ -113,7 +113,7 @@ alias(
 
 alias(
     name = "futures",
-    actual = "@raze__futures__0_3_7//:futures",
+    actual = "@raze__futures__0_3_8//:futures",
     tags = [
         "cargo-raze",
         "manual",
@@ -203,7 +203,7 @@ alias(
 
 alias(
     name = "once_cell",
-    actual = "@raze__once_cell__1_4_1//:once_cell",
+    actual = "@raze__once_cell__1_5_2//:once_cell",
     tags = [
         "cargo-raze",
         "manual",
@@ -401,7 +401,7 @@ alias(
 
 alias(
     name = "tokio",
-    actual = "@raze__tokio__0_2_22//:tokio",
+    actual = "@raze__tokio__0_2_23//:tokio",
     tags = [
         "cargo-raze",
         "manual",
@@ -428,7 +428,7 @@ alias(
 
 alias(
     name = "unicode_normalization",
-    actual = "@raze__unicode_normalization__0_1_13//:unicode_normalization",
+    actual = "@raze__unicode_normalization__0_1_14//:unicode_normalization",
     tags = [
         "cargo-raze",
         "manual",
@@ -452,3 +452,5 @@ alias(
         "manual",
     ],
 )
+
+exports_files(["licenses.json"])

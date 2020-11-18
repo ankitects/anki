@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
 import anki.lang
 import aqt
-from anki.lang import _
 from aqt import AnkiQt
 from aqt.qt import *
 from aqt.utils import TR, askUser, openHelp, showInfo, showWarning, tr
@@ -69,7 +67,9 @@ class Preferences(QDialog):
     def onLangIdxChanged(self, idx):
         code = anki.lang.langs[idx][1]
         self.mw.pm.setLang(code)
-        showInfo(_("Please restart Anki to complete language change."), parent=self)
+        showInfo(
+            tr(TR.PREFERENCES_PLEASE_RESTART_ANKI_TO_COMPLETE_LANGUAGE), parent=self
+        )
 
     # Collection options
     ######################################################################
@@ -85,7 +85,7 @@ class Preferences(QDialog):
         else:
             f.hwAccel.setChecked(self.mw.pm.glMode() != "software")
 
-        f.newSpread.addItems(list(c.newCardSchedulingLabels().values()))
+        f.newSpread.addItems(list(c.newCardSchedulingLabels(self.mw.col).values()))
 
         f.useCurrent.setCurrentIndex(int(not qc.get("addToCur", True)))
 
@@ -117,7 +117,7 @@ class Preferences(QDialog):
                     self.mw.pm.setGlMode("auto")
                 else:
                     self.mw.pm.setGlMode("software")
-                showInfo(_("Changes will take effect when you restart Anki."))
+                showInfo(tr(TR.PREFERENCES_CHANGES_WILL_TAKE_EFFECT_WHEN_YOU))
 
         qc = d.conf
         qc["addToCur"] = not f.useCurrent.currentIndex()
@@ -149,11 +149,7 @@ class Preferences(QDialog):
         if haveNew == wantNew:
             return
 
-        if not askUser(
-            _(
-                "This will reset any cards in learning, clear filtered decks, and change the scheduler version. Proceed?"
-            )
-        ):
+        if not askUser(tr(TR.PREFERENCES_THIS_WILL_RESET_ANY_CARDS_IN)):
             return
 
         if wantNew:
@@ -184,11 +180,7 @@ class Preferences(QDialog):
         self.form.syncDeauth.setVisible(False)
         self.form.syncUser.setText("")
         self.form.syncLabel.setText(
-            _(
-                """\
-<b>Synchronization</b><br>
-Not currently enabled; click the sync button in the main window to enable."""
-            )
+            tr(TR.PREFERENCES_SYNCHRONIZATIONNOT_CURRENTLY_ENABLED_CLICK_THE_SYNC)
         )
 
     def onSyncDeauth(self) -> None:
@@ -247,4 +239,4 @@ Not currently enabled; click the sync button in the main window to enable."""
         self.mw.pm.set_interrupt_audio(self.form.interrupt_audio.isChecked())
 
         if restart_required:
-            showInfo(_("Changes will take effect when you restart Anki."))
+            showInfo(tr(TR.PREFERENCES_CHANGES_WILL_TAKE_EFFECT_WHEN_YOU))

@@ -7,7 +7,7 @@ These instructions are written for Debian/Ubuntu; adjust for your distribution.
 **Ensure some basic tools are installed**:
 
 ```
-$ sudo apt install bash grep findutils curl gcc g++ git gettext
+$ sudo apt install bash grep findutils curl gcc g++ git
 ```
 
 The 'find' utility is 'findutils' on Debian.

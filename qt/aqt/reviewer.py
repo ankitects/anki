@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
 from __future__ import annotations
 
 import difflib
@@ -15,14 +14,21 @@ from PyQt5.QtCore import Qt
 
 from anki import hooks
 from anki.cards import Card
-from anki.lang import _, ngettext
 from anki.utils import stripHTML
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.sound import av_player, getAudio, play_clicked_audio
 from aqt.theme import theme_manager
 from aqt.toolbar import BottomBar
-from aqt.utils import askUserDialog, downArrow, qtMenuShortcutWorkaround, tooltip
+from aqt.utils import (
+    TR,
+    askUserDialog,
+    downArrow,
+    qtMenuShortcutWorkaround,
+    tooltip,
+    tr,
+)
+from aqt.webview import AnkiWebView
 
 
 class ReviewerBottomBar:
@@ -85,14 +91,13 @@ class Reviewer:
         elapsed = self.mw.col.timeboxReached()
         if elapsed:
             assert not isinstance(elapsed, bool)
-            part1 = (
-                ngettext("%d card studied in", "%d cards studied in", elapsed[1])
-                % elapsed[1]
-            )
+            part1 = tr(TR.STUDYING_CARD_STUDIED_IN, count=elapsed[1])
             mins = int(round(elapsed[0] / 60))
-            part2 = ngettext("%s minute.", "%s minutes.", mins) % mins
-            fin = _("Finish")
-            diag = askUserDialog("%s %s" % (part1, part2), [_("Continue"), fin])
+            part2 = tr(TR.STUDYING_MINUTE, count=mins)
+            fin = tr(TR.STUDYING_FINISH)
+            diag = askUserDialog(
+                "%s %s" % (part1, part2), [tr(TR.STUDYING_CONTINUE), fin]
+            )
             diag.setIcon(QMessageBox.Information)
             if diag.run() == fin:
                 return self.mw.moveToState("deckBrowser")
@@ -154,8 +159,8 @@ class Reviewer:
             js=[
                 "js/vendor/jquery.js",
                 "js/vendor/browsersel.js",
-                "js/vendor/mathjax/conf.js",
-                "js/vendor/mathjax/MathJax.js",
+                "js/mathjax.js",
+                "js/vendor/mathjax/tex-chtml.js",
                 "js/reviewer.js",
             ],
             context=self,
@@ -184,10 +189,12 @@ class Reviewer:
         q = c.q()
         # play audio?
         if c.autoplay():
+            AnkiWebView.setPlaybackRequiresGesture(False)
             sounds = c.question_av_tags()
             gui_hooks.reviewer_will_play_question_sounds(c, sounds)
             av_player.play_tags(sounds)
         else:
+            AnkiWebView.setPlaybackRequiresGesture(True)
             av_player.clear_queue_and_maybe_interrupt()
             sounds = []
             gui_hooks.reviewer_will_play_question_sounds(c, sounds)
@@ -380,12 +387,9 @@ class Reviewer:
         if not self.typeCorrect:
             if self.typeCorrect is None:
                 if clozeIdx:
-                    warn = _(
-                        """\
-Please run Tools>Empty Cards"""
-                    )
+                    warn = tr(TR.STUDYING_PLEASE_RUN_TOOLSEMPTY_CARDS)
                 else:
-                    warn = _("Type answer: unknown field %s") % fld
+                    warn = tr(TR.STUDYING_TYPE_ANSWER_UNKNOWN_FIELD, val=fld)
                 return re.sub(self.typeAnsPat, warn, buf)
             else:
                 # empty field, remove type answer pattern
@@ -566,9 +570,9 @@ time = %(time)d;
 </script>
 """ % dict(
             rem=self._remaining(),
-            edit=_("Edit"),
-            editkey=_("Shortcut key: %s") % "E",
-            more=_("More"),
+            edit=tr(TR.STUDYING_EDIT),
+            editkey=tr(TR.ACTIONS_SHORTCUT_KEY, val="E"),
+            more=tr(TR.STUDYING_MORE),
             downArrow=downArrow(),
             time=self.card.timeTaken() // 1000,
         )
@@ -578,8 +582,8 @@ time = %(time)d;
 <span class=stattxt>%s</span><br>
 <button title="%s" id="ansbut" class="focus" onclick='pycmd("ans");'>%s</button>""" % (
             self._remaining(),
-            _("Shortcut key: %s") % _("Space"),
-            _("Show Answer"),
+            tr(TR.ACTIONS_SHORTCUT_KEY, val=tr(TR.STUDYING_SPACE)),
+            tr(TR.STUDYING_SHOW_ANSWER),
         )
         # wrap it in a table so it has the same top margin as the ease buttons
         middle = (
@@ -623,17 +627,21 @@ time = %(time)d;
         button_count = self.mw.col.sched.answerButtons(self.card)
         if button_count == 2:
             buttons_tuple: Tuple[Tuple[int, str], ...] = (
-                (1, _("Again")),
-                (2, _("Good")),
+                (1, tr(TR.STUDYING_AGAIN)),
+                (2, tr(TR.STUDYING_GOOD)),
             )
         elif button_count == 3:
-            buttons_tuple = ((1, _("Again")), (2, _("Good")), (3, _("Easy")))
+            buttons_tuple = (
+                (1, tr(TR.STUDYING_AGAIN)),
+                (2, tr(TR.STUDYING_GOOD)),
+                (3, tr(TR.STUDYING_EASY)),
+            )
         else:
             buttons_tuple = (
-                (1, _("Again")),
-                (2, _("Hard")),
-                (3, _("Good")),
-                (4, _("Easy")),
+                (1, tr(TR.STUDYING_AGAIN)),
+                (2, tr(TR.STUDYING_HARD)),
+                (3, tr(TR.STUDYING_GOOD)),
+                (4, tr(TR.STUDYING_EASY)),
             )
         buttons_tuple = gui_hooks.reviewer_will_init_answer_buttons(
             buttons_tuple, self, self.card
@@ -654,7 +662,7 @@ time = %(time)d;
 %s</button></td>""" % (
                 due,
                 extra,
-                _("Shortcut key: %s") % i,
+                tr(TR.ACTIONS_SHORTCUT_KEY, val=i),
                 i,
                 i,
                 label,
@@ -679,9 +687,9 @@ time = %(time)d;
 
     def onLeech(self, card: Card) -> None:
         # for now
-        s = _("Card was a leech.")
+        s = tr(TR.STUDYING_CARD_WAS_A_LEECH)
         if card.queue < 0:
-            s += " " + _("It has been suspended.")
+            s += " " + tr(TR.STUDYING_IT_HAS_BEEN_SUSPENDED)
         tooltip(s)
 
     # Context menu
@@ -692,48 +700,48 @@ time = %(time)d;
         currentFlag = self.card and self.card.userFlag()
         opts = [
             [
-                _("Flag Card"),
+                tr(TR.STUDYING_FLAG_CARD),
                 [
                     [
-                        _("Red Flag"),
+                        tr(TR.ACTIONS_RED_FLAG),
                         "Ctrl+1",
                         lambda: self.setFlag(1),
                         dict(checked=currentFlag == 1),
                     ],
                     [
-                        _("Orange Flag"),
+                        tr(TR.ACTIONS_ORANGE_FLAG),
                         "Ctrl+2",
                         lambda: self.setFlag(2),
                         dict(checked=currentFlag == 2),
                     ],
                     [
-                        _("Green Flag"),
+                        tr(TR.ACTIONS_GREEN_FLAG),
                         "Ctrl+3",
                         lambda: self.setFlag(3),
                         dict(checked=currentFlag == 3),
                     ],
                     [
-                        _("Blue Flag"),
+                        tr(TR.ACTIONS_BLUE_FLAG),
                         "Ctrl+4",
                         lambda: self.setFlag(4),
                         dict(checked=currentFlag == 4),
                     ],
                 ],
             ],
-            [_("Mark Note"), "*", self.onMark],
-            [_("Bury Card"), "-", self.onBuryCard],
-            [_("Bury Note"), "=", self.onBuryNote],
-            [_("Suspend Card"), "@", self.onSuspendCard],
-            [_("Suspend Note"), "!", self.onSuspend],
-            [_("Delete Note"), "Ctrl+Delete", self.onDelete],
-            [_("Options"), "O", self.onOptions],
+            [tr(TR.STUDYING_MARK_NOTE), "*", self.onMark],
+            [tr(TR.STUDYING_BURY_CARD), "-", self.onBuryCard],
+            [tr(TR.STUDYING_BURY_NOTE), "=", self.onBuryNote],
+            [tr(TR.ACTIONS_SUSPEND_CARD), "@", self.onSuspendCard],
+            [tr(TR.STUDYING_SUSPEND_NOTE), "!", self.onSuspend],
+            [tr(TR.STUDYING_DELETE_NOTE), "Ctrl+Delete", self.onDelete],
+            [tr(TR.ACTIONS_OPTIONS), "O", self.onOptions],
             None,
-            [_("Replay Audio"), "R", self.replayAudio],
-            [_("Pause Audio"), "5", self.on_pause_audio],
-            [_("Audio -5s"), "6", self.on_seek_backward],
-            [_("Audio +5s"), "7", self.on_seek_forward],
-            [_("Record Own Voice"), "Shift+V", self.onRecordVoice],
-            [_("Replay Own Voice"), "V", self.onReplayRecorded],
+            [tr(TR.ACTIONS_REPLAY_AUDIO), "R", self.replayAudio],
+            [tr(TR.STUDYING_PAUSE_AUDIO), "5", self.on_pause_audio],
+            [tr(TR.STUDYING_AUDIO_5S), "6", self.on_seek_backward],
+            [tr(TR.STUDYING_AUDIO_AND5S), "7", self.on_seek_forward],
+            [tr(TR.STUDYING_RECORD_OWN_VOICE), "Shift+V", self.onRecordVoice],
+            [tr(TR.STUDYING_REPLAY_OWN_VOICE), "V", self.onReplayRecorded],
         ]
         return opts
 
@@ -790,15 +798,15 @@ time = %(time)d;
         self._drawMark()
 
     def onSuspend(self) -> None:
-        self.mw.checkpoint(_("Suspend"))
+        self.mw.checkpoint(tr(TR.STUDYING_SUSPEND))
         self.mw.col.sched.suspend_cards([c.id for c in self.card.note().cards()])
-        tooltip(_("Note suspended."))
+        tooltip(tr(TR.STUDYING_NOTE_SUSPENDED))
         self.mw.reset()
 
     def onSuspendCard(self) -> None:
-        self.mw.checkpoint(_("Suspend"))
+        self.mw.checkpoint(tr(TR.STUDYING_SUSPEND))
         self.mw.col.sched.suspend_cards([self.card.id])
-        tooltip(_("Card suspended."))
+        tooltip(tr(TR.STUDYING_CARD_SUSPENDED))
         self.mw.reset()
 
     def onDelete(self) -> None:
@@ -806,28 +814,23 @@ time = %(time)d;
         # window
         if self.mw.state != "review" or not self.card:
             return
-        self.mw.checkpoint(_("Delete"))
+        self.mw.checkpoint(tr(TR.ACTIONS_DELETE))
         cnt = len(self.card.note().cards())
         self.mw.col.remove_notes([self.card.note().id])
         self.mw.reset()
-        tooltip(
-            ngettext(
-                "Note and its %d card deleted.", "Note and its %d cards deleted.", cnt
-            )
-            % cnt
-        )
+        tooltip(tr(TR.STUDYING_NOTE_AND_ITS_CARD_DELETED, count=cnt))
 
     def onBuryCard(self) -> None:
-        self.mw.checkpoint(_("Bury"))
+        self.mw.checkpoint(tr(TR.STUDYING_BURY))
         self.mw.col.sched.bury_cards([self.card.id])
         self.mw.reset()
-        tooltip(_("Card buried."))
+        tooltip(tr(TR.STUDYING_CARD_BURIED))
 
     def onBuryNote(self) -> None:
-        self.mw.checkpoint(_("Bury"))
+        self.mw.checkpoint(tr(TR.STUDYING_BURY))
         self.mw.col.sched.bury_note(self.card.note())
         self.mw.reset()
-        tooltip(_("Note buried."))
+        tooltip(tr(TR.STUDYING_NOTE_BURIED))
 
     def onRecordVoice(self) -> None:
         self._recordedAudio = getAudio(self.mw, encode=False)
@@ -835,6 +838,6 @@ time = %(time)d;
 
     def onReplayRecorded(self) -> None:
         if not self._recordedAudio:
-            tooltip(_("You haven't recorded your voice yet."))
+            tooltip(tr(TR.STUDYING_YOU_HAVENT_RECORDED_YOUR_VOICE_YET))
             return
         av_player.play_file(self._recordedAudio)
