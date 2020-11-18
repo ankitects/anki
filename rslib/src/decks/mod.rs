@@ -290,9 +290,12 @@ impl Collection {
 
     /// Add a single, normal deck with the provided name for a child deck.
     /// Caller must have done necessarily validation on name.
-    fn add_parent_deck(&self, machine_name: &str) -> Result<()> {
+    fn add_parent_deck(&mut self, machine_name: &str) -> Result<()> {
         let mut deck = Deck::new_normal();
         deck.name = machine_name.into();
+        let usn = self.usn()?;
+        deck.set_modified(usn);
+        self.prepare_deck_for_update(&mut deck, usn)?;
         // fixme: undo
         self.storage.add_deck(&mut deck)
     }
@@ -326,7 +329,7 @@ impl Collection {
         }
     }
 
-    fn create_missing_parents(&self, mut machine_name: &str) -> Result<()> {
+    fn create_missing_parents(&mut self, mut machine_name: &str) -> Result<()> {
         while let Some(parent_name) = immediate_parent_name(machine_name) {
             if self.storage.get_deck_id(parent_name)?.is_none() {
                 self.add_parent_deck(parent_name)?;
