@@ -9,6 +9,7 @@
 # included implicitly in the past, and relied upon by some add-ons
 import cgi
 import decimal
+import gettext
 
 # useful for add-ons
 import logging

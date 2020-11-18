@@ -1,13 +1,10 @@
-# -*- coding: utf-8 -*-
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-# Please leave the coding line in this file to prevent xgettext complaining.
 
 from __future__ import annotations
 
-import gettext
 import re
-from typing import Optional, Union
+from typing import Optional
 
 import anki
 
@@ -142,11 +139,6 @@ def lang_to_disk_lang(lang: str) -> str:
 # the currently set interface language
 currentLang = "en"
 
-# the current gettext translation catalog
-current_catalog: Optional[
-    Union[gettext.NullTranslations, gettext.GNUTranslations]
-] = None
-
 # the current Fluent translation instance
 current_i18n: Optional[anki.rsbackend.RustBackend] = None
 
@@ -155,10 +147,13 @@ locale_folder = ""
 
 
 def _(str: str) -> str:
-    if current_catalog:
-        return current_catalog.gettext(str)
-    else:
-        return str
+    print(f"gettext _() is deprecated: {str}")
+    return str
+
+
+def ngettext(single: str, plural: str, n: int) -> str:
+    print(f"ngettext() is deprecated: {plural}")
+    return plural
 
 
 def tr_legacyglobal(*args, **kwargs) -> str:
@@ -169,26 +164,10 @@ def tr_legacyglobal(*args, **kwargs) -> str:
         return "tr_legacyglobal() called without active backend"
 
 
-def ngettext(single: str, plural: str, n: int) -> str:
-    if current_catalog:
-        return current_catalog.ngettext(single, plural, n)
-    elif n == 1:
-        return single
-    return plural
-
-
 def set_lang(lang: str, locale_dir: str) -> None:
-    global currentLang, current_catalog, current_i18n, locale_folder
-    gettext_dir = locale_dir
-    ftl_dir = locale_dir
-
+    global currentLang, current_i18n, locale_folder
     currentLang = lang
-    current_catalog = gettext.translation(
-        "anki", gettext_dir, languages=[lang], fallback=True
-    )
-
-    current_i18n = anki.rsbackend.RustBackend(ftl_folder=ftl_dir, langs=[lang])
-
+    current_i18n = anki.rsbackend.RustBackend(ftl_folder=locale_folder, langs=[lang])
     locale_folder = locale_dir
 
 
