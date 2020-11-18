@@ -201,7 +201,7 @@ impl Collection {
 
             if deck.id.0 == 0 {
                 col.prepare_deck_for_update(deck, usn)?;
-                col.match_or_create_parents(deck)?;
+                col.match_or_create_parents(deck, usn)?;
                 col.storage.add_deck(deck)
             } else if let Some(existing_deck) = col.storage.get_deck(deck.id)? {
                 if existing_deck.name != deck.name {
@@ -262,14 +262,14 @@ impl Collection {
 
     fn update_renamed_deck(&mut self, existing: Deck, updated: &mut Deck, usn: Usn) -> Result<()> {
         // match closest parent name
-        self.match_or_create_parents(updated)?;
+        self.match_or_create_parents(updated, usn)?;
         // rename children
         self.rename_child_decks(&existing, &updated.name, usn)?;
         // update deck
         self.add_or_update_single_deck(updated, usn)?;
         // after updating, we need to ensure all grandparents exist, which may not be the case
         // in the parent->child case
-        self.create_missing_parents(&updated.name)
+        self.create_missing_parents(&updated.name, usn)
     }
 
     fn rename_child_decks(&mut self, old: &Deck, new_name: &str, usn: Usn) -> Result<()> {
@@ -290,9 +290,10 @@ impl Collection {
 
     /// Add a single, normal deck with the provided name for a child deck.
     /// Caller must have done necessarily validation on name.
-    fn add_parent_deck(&self, machine_name: &str) -> Result<()> {
+    fn add_parent_deck(&self, machine_name: &str, usn: Usn) -> Result<()> {
         let mut deck = Deck::new_normal();
         deck.name = machine_name.into();
+        deck.set_modified(usn);
         // fixme: undo
         self.storage.add_deck(&mut deck)
     }
@@ -300,7 +301,7 @@ impl Collection {
     /// If parent deck(s) exist, rewrite name to match their case.
     /// If they don't exist, create them.
     /// Returns an error if a DB operation fails, or if the first existing parent is a filtered deck.
-    fn match_or_create_parents(&mut self, deck: &mut Deck) -> Result<()> {
+    fn match_or_create_parents(&mut self, deck: &mut Deck, usn: Usn) -> Result<()> {
         let child_split: Vec<_> = deck.name.split('\x1f').collect();
         if let Some(parent_deck) = self.first_existing_parent(&deck.name, 0)? {
             if parent_deck.is_filtered() {
@@ -314,7 +315,7 @@ impl Collection {
                 &child_split[parent_count..].join("\x1f")
             );
             if need_create {
-                self.create_missing_parents(&deck.name)?;
+                self.create_missing_parents(&deck.name, usn)?;
             }
             Ok(())
         } else if child_split.len() == 1 {
@@ -322,14 +323,14 @@ impl Collection {
             Ok(())
         } else {
             // no existing parents
-            self.create_missing_parents(&deck.name)
+            self.create_missing_parents(&deck.name, usn)
         }
     }
 
-    fn create_missing_parents(&self, mut machine_name: &str) -> Result<()> {
+    fn create_missing_parents(&self, mut machine_name: &str, usn: Usn) -> Result<()> {
         while let Some(parent_name) = immediate_parent_name(machine_name) {
             if self.storage.get_deck_id(parent_name)?.is_none() {
-                self.add_parent_deck(parent_name)?;
+                self.add_parent_deck(parent_name, usn)?;
             }
             machine_name = parent_name;
         }
