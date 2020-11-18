@@ -21,7 +21,6 @@ def test_latex():
     assert len(os.listdir(col.media.dir())) == 0
     # check the error message
     msg = note.cards()[0].q()
-    print(msg)
     assert "executing nolatex" in without_unicode_isolation(msg)
     assert "installed" in msg
     # check if we have latex installed, and abort test if we don't
