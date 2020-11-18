@@ -8,7 +8,6 @@ import traceback
 
 from markdown import markdown
 
-from anki.lang import _
 from aqt import mw
 from aqt.qt import *
 from aqt.utils import TR, showText, showWarning, supportText, tr

@@ -41,8 +41,6 @@ def repl(m):
 
 
 for file in files:
-    if file.endswith("stats.py"):
-        continue
     buf = open(file).read()
     buf2 = string_re.sub(repl, buf)
     if buf != buf2:

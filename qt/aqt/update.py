@@ -6,7 +6,6 @@ import time
 import requests
 
 import aqt
-from anki.lang import _
 from anki.utils import platDesc, versionWithBuild
 from aqt.qt import *
 from aqt.utils import TR, openLink, showText, tr

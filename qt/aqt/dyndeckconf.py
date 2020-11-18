@@ -4,7 +4,6 @@
 from typing import List, Optional
 
 import aqt
-from anki.lang import _
 from aqt.qt import *
 from aqt.utils import TR, askUser, openHelp, restoreGeom, saveGeom, showWarning, tr
 

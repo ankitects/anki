@@ -8,7 +8,6 @@ import aqt.editor
 import aqt.forms
 import aqt.modelchooser
 from anki.consts import MODEL_CLOZE
-from anki.lang import _
 from anki.notes import Note
 from anki.utils import htmlToTextLine, isMac
 from aqt import AnkiQt, gui_hooks
@@ -148,7 +147,7 @@ class AddCards(QDialog):
                 txt = htmlToTextLine(", ".join(fields))
                 if len(txt) > 30:
                     txt = txt[:30] + "..."
-                line = _('Edit "%s"') % txt
+                line = tr(TR.ADDING_EDIT, val=txt)
                 line = gui_hooks.addcards_will_add_history_entry(line, note)
                 a = m.addAction(line)
                 qconnect(a.triggered, lambda b, nid=nid: self.editHistory(nid))

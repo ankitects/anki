@@ -3,7 +3,6 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import anki.lang
 import aqt
-from anki.lang import _
 from aqt import AnkiQt
 from aqt.qt import *
 from aqt.utils import TR, askUser, openHelp, showInfo, showWarning, tr

@@ -7,7 +7,6 @@ import time
 from typing import Optional
 
 import aqt.forms
-from anki.lang import _
 from aqt.qt import *
 from aqt.utils import TR, tr
 

@@ -16,7 +16,7 @@ import aqt.forms
 import aqt.sound
 from anki import Collection
 from anki.db import DB
-from anki.lang import _, without_unicode_isolation
+from anki.lang import without_unicode_isolation
 from anki.rsbackend import SyncAuth
 from anki.utils import intTime, isMac, isWin
 from aqt import appHelpSite

@@ -12,8 +12,7 @@ the legacy addHook() API.
 # import re
 # from typing import Any, Callable
 #
-# from anki.lang import _
-# from anki.template import (
+# # from anki.template import (
 #     CLOZE_REGEX_MATCH_GROUP_CONTENT,
 #     CLOZE_REGEX_MATCH_GROUP_HINT,
 #     CLOZE_REGEX_MATCH_GROUP_TAG,

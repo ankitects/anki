@@ -22,7 +22,6 @@ import aqt.sound
 from anki.cards import Card
 from anki.hooks import runFilter
 from anki.httpclient import HttpClient
-from anki.lang import _
 from anki.notes import Note
 from anki.utils import checksum, isLin, isWin, namedtmp, stripHTMLMedia
 from aqt import AnkiQt, gui_hooks

@@ -16,7 +16,6 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 import aqt
 from anki import hooks
 from anki.cards import Card
-from anki.lang import _
 from anki.sound import AV_REF_RE, AVTag, SoundOrVideoTag
 from anki.utils import isLin, isMac, isWin
 from aqt import gui_hooks

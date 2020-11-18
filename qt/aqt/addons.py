@@ -24,7 +24,7 @@ import anki
 import aqt
 import aqt.forms
 from anki.httpclient import HttpClient
-from anki.lang import ngettext, without_unicode_isolation
+from anki.lang import without_unicode_isolation
 from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import (

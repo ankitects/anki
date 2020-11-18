@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import aqt
-from anki.lang import _
 from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import (
