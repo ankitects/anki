@@ -4,7 +4,6 @@
 import argparse
 import builtins
 import getpass
-import gettext
 import locale
 import os
 import sys
@@ -12,17 +11,13 @@ import tempfile
 import traceback
 from typing import Any, Callable, Dict, Optional, Union
 
-import anki.buildinfo
 import anki.lang
-import aqt.buildinfo
 from anki import version as _version
 from anki.consts import HELP_SITE
 from anki.rsbackend import RustBackend
 from anki.utils import checksum, isLin, isMac
 from aqt.qt import *
 from aqt.utils import locale_dir
-
-assert anki.buildinfo.buildhash == aqt.buildinfo.buildhash
 
 # we want to be able to print unicode debug info to console without
 # fear of a traceback on systems with the console set to ASCII
@@ -171,7 +166,7 @@ dialogs = DialogManager()
 # Language handling
 ##########################################################################
 # Qt requires its translator to be installed before any GUI widgets are
-# loaded, and we need the Qt language to match the gettext language or
+# loaded, and we need the Qt language to match the i18n language or
 # translated shortcuts will not work.
 
 # A reference to the Qt translator needs to be held to prevent it from
@@ -190,20 +185,14 @@ def setupLangAndBackend(
 
     # add _ and ngettext globals used by legacy code
     def fn__(arg):
-        print("accessing _ without importing from anki.lang will break in the future")
         print("".join(traceback.format_stack()[-2]))
-        from anki.lang import _
-
-        return _(arg)
+        print("_ global will break in the future; please see anki/lang.py")
+        return arg
 
     def fn_ngettext(a, b, c):
-        print(
-            "accessing ngettext without importing from anki.lang will break in the future"
-        )
         print("".join(traceback.format_stack()[-2]))
-        from anki.lang import ngettext
-
-        return ngettext(a, b, c)
+        print("ngettext global will break in the future; please see anki/lang.py")
+        return b
 
     builtins.__dict__["_"] = fn__
     builtins.__dict__["ngettext"] = fn_ngettext
@@ -212,7 +201,7 @@ def setupLangAndBackend(
     lang = force or pm.meta["defaultLang"]
     lang = anki.lang.lang_to_disk_lang(lang)
 
-    # load gettext catalog
+    # set active language
     ldir = locale_dir()
     anki.lang.set_lang(lang, ldir)
 

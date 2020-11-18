@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Reposition New Cards</string>
+   <string>BROWSING_REPOSITION_NEW_CARDS</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -26,7 +26,7 @@
      <item row="0" column="0">
       <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>Start position:</string>
+        <string>BROWSING_START_POSITION</string>
        </property>
       </widget>
      </item>
@@ -46,7 +46,7 @@
      <item row="1" column="0">
       <widget class="QLabel" name="label_3">
        <property name="text">
-        <string>Step:</string>
+        <string>BROWSING_STEP</string>
        </property>
       </widget>
      </item>
@@ -65,14 +65,14 @@
    <item>
     <widget class="QCheckBox" name="randomize">
      <property name="text">
-      <string>Randomize order</string>
+      <string>BROWSING_RANDOMIZE_ORDER</string>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QCheckBox" name="shift">
      <property name="text">
-      <string>Shift position of existing cards</string>
+      <string>BROWSING_SHIFT_POSITION_OF_EXISTING_CARDS</string>
      </property>
      <property name="checked">
       <bool>true</bool>

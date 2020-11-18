@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Find Duplicates</string>
+   <string>BROWSING_FIND_DUPLICATES</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
@@ -22,14 +22,14 @@
      <item row="2" column="1">
       <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>Optional filter:</string>
+        <string>BROWSING_OPTIONAL_FILTER</string>
        </property>
       </widget>
      </item>
      <item row="1" column="1">
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>Search in:</string>
+        <string>BROWSING_SEARCH_IN</string>
        </property>
       </widget>
      </item>
@@ -76,7 +76,7 @@
        <widget class="AnkiWebView" name="webView" native="true">
         <property name="url" stdset="0">
          <url>
-          <string>about:blank</string>
+          <string notr="true">about:blank</string>
          </url>
         </property>
        </widget>

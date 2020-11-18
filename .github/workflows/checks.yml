@@ -119,13 +119,13 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ matrix.BAZEL_DISK }}
-          key: ${{ runner.os }}-disk-1-${{ hashFiles('ts/yarn.lock') }}-${{ hashFiles('pip/requirements.txt') }}-${{ hashFiles('cargo/Cargo.lock') }}-${{ hashFiles('**/BUILD.bazel') }}-${{ hashFiles('**/*.bzl') }}
+          key: ${{ runner.os }}-disk-2-${{ hashFiles('ts/yarn.lock') }}-${{ hashFiles('pip/requirements.txt') }}-${{ hashFiles('cargo/Cargo.lock') }}-${{ hashFiles('**/BUILD.bazel') }}-${{ hashFiles('**/*.bzl') }}
 
       - name: Cache repo
         uses: actions/cache@v2
         with:
           path: ${{ matrix.BAZEL_REPO }}
-          key: ${{ runner.os }}-repo-1-${{ hashFiles('ts/yarn.lock') }}-${{ hashFiles('pip/requirements.txt') }}-${{ hashFiles('cargo/Cargo.lock') }}-${{ hashFiles('**/BUILD.bazel') }}-${{ hashFiles('**/*.bzl') }}
+          key: ${{ runner.os }}-repo-2-${{ hashFiles('ts/yarn.lock') }}-${{ hashFiles('pip/requirements.txt') }}-${{ hashFiles('cargo/Cargo.lock') }}-${{ hashFiles('**/BUILD.bazel') }}-${{ hashFiles('**/*.bzl') }}
 
       ################################
       # Linux
@@ -139,7 +139,7 @@ jobs:
 
           set -x
           sudo apt update
-          sudo apt install portaudio19-dev gettext
+          sudo apt install portaudio19-dev
           curl -L https://github.com/bazelbuild/bazelisk/releases/download/v1.7.4/bazelisk-linux-amd64 -o ./bazel && \
             chmod +x ./bazel
 

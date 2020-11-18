@@ -5,11 +5,10 @@ import platform
 import time
 
 import aqt.forms
-from anki.lang import _
 from anki.utils import versionWithBuild
 from aqt.addons import AddonManager, AddonMeta
 from aqt.qt import *
-from aqt.utils import supportText, tooltip
+from aqt.utils import TR, supportText, tooltip, tr
 
 
 class ClosableQDialog(QDialog):
@@ -83,9 +82,9 @@ def show(mw):
 """
         info = "    " + "    ".join(info.splitlines(True))
         QApplication.clipboard().setText(info)
-        tooltip(_("Copied to clipboard"), parent=dialog)
+        tooltip(tr(TR.ABOUT_COPIED_TO_CLIPBOARD), parent=dialog)
 
-    btn = QPushButton(_("Copy Debug Info"))
+    btn = QPushButton(tr(TR.ABOUT_COPY_DEBUG_INFO))
     qconnect(btn.clicked, onCopy)
     abt.buttonBox.addButton(btn, QDialogButtonBox.ActionRole)
     abt.buttonBox.button(QDialogButtonBox.Ok).setFocus()
@@ -93,21 +92,15 @@ def show(mw):
     # WebView contents
     ######################################################################
     abouttext = "<center><img src='/_anki/imgs/anki-logo-thin.png'></center>"
-    abouttext += "<p>" + _(
-        "Anki is a friendly, intelligent spaced learning \
-system. It's free and open source."
-    )
-    abouttext += "<p>" + _(
-        "Anki is licensed under the AGPL3 license. Please see "
-        "the license file in the source distribution for more information."
-    )
-    abouttext += "<p>" + _("Version %s") % versionWithBuild() + "<br>"
+    abouttext += "<p>" + tr(TR.ABOUT_ANKI_IS_A_FRIENDLY_INTELLIGENT_SPACED)
+    abouttext += "<p>" + tr(TR.ABOUT_ANKI_IS_LICENSED_UNDER_THE_AGPL3)
+    abouttext += "<p>" + tr(TR.ABOUT_VERSION, val=versionWithBuild()) + "<br>"
     abouttext += ("Python %s Qt %s PyQt %s<br>") % (
         platform.python_version(),
         QT_VERSION_STR,
         PYQT_VERSION_STR,
     )
-    abouttext += (_("<a href='%s'>Visit website</a>") % aqt.appWebsite) + "</span>"
+    abouttext += tr(TR.ABOUT_VISIT_WEBSITE, val=aqt.appWebsite) + "</span>"
 
     # automatically sorted; add new lines at the end
     allusers = sorted(
@@ -209,22 +202,11 @@ system. It's free and open source."
         )
     )
 
-    abouttext += (
-        "<p>"
-        + _(
-            "Written by Damien Elmes, with patches, translation,\
-    testing and design from:<p>%(cont)s"
-        )
-        % {"cont": ", ".join(allusers)}
-    )
-    abouttext += "<p>" + _(
-        "If you have contributed and are not on this list, \
-please get in touch."
-    )
-    abouttext += "<p>" + _(
-        "A big thanks to all the people who have provided \
-suggestions, bug reports and donations."
-    )
+    abouttext += "<p>" + tr(TR.ABOUT_WRITTEN_BY_DAMIEN_ELMES_WITH_PATCHES) % {
+        "cont": ", ".join(allusers)
+    }
+    abouttext += "<p>" + tr(TR.ABOUT_IF_YOU_HAVE_CONTRIBUTED_AND_ARE)
+    abouttext += "<p>" + tr(TR.ABOUT_A_BIG_THANKS_TO_ALL_THE)
     abt.label.setMinimumWidth(800)
     abt.label.setMinimumHeight(600)
     dialog.show()

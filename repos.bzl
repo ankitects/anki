@@ -37,12 +37,12 @@ def register_repos():
 
     git_repository(
         name = "io_bazel_rules_rust",
-        commit = "a364ded42d9788144cd26b6e98d6b4038753bfa9",
+        commit = "212cc4d6cb7f23d0aa29d2f09e3860c49aaf9144",
         remote = "https://github.com/ankitects/rules_rust",
-        shallow_since = "1604550071 +1000",
+        shallow_since = "1605354106 +1000",
     )
 
-    # local_repository(
+    # native.local_repository(
     #     name = "io_bazel_rules_rust",
     #     path = "../rules_rust",
     # )
@@ -120,26 +120,24 @@ def register_repos():
     # translations
     ################
 
-    core_i18n_commit = "b9fdeadef0b92a6d9acadbce01e43cba53739df6"
-    core_i18n_shallow_since = "1602372775 +0000"
+    core_i18n_commit = "1599ff1c4cb60b98fe0e80e1b45da47e9de9eeb1"
+    core_i18n_shallow_since = "1605671186 +1000"
 
-    desktop_i18n_commit = "51320cdc51fbfb3d60791467879069ea3a8188a6"
-    desktop_i18n_shallow_since = "1600900614 +0000"
+    qtftl_i18n_commit = "9909cfa4386288e686b2336b3b1048b7ee1bb194"
+    qtftl_i18n_shallow_since = "1605664969 +1000"
 
-    desktop_i18n_po_commit = "710be3864b356ddf90253034c6acfcb420dffeff"
-    desktop_i18n_po_shallow_since = "1603966644 +0000"
-
-    new_git_repository(
-        name = "rslib_ftl",
-        build_file_content = """
+    i18n_build_content = """
 filegroup(
     name = "files",
     srcs = glob(["**/*.ftl"]),
     visibility = ["//visibility:public"],
 )
-
 exports_files(["l10n.toml"])
-    """,
+"""
+
+    new_git_repository(
+        name = "rslib_ftl",
+        build_file_content = i18n_build_content,
         commit = core_i18n_commit,
         shallow_since = core_i18n_shallow_since,
         remote = "https://github.com/ankitects/anki-core-i18n",
@@ -148,28 +146,8 @@ exports_files(["l10n.toml"])
     if not native.existing_rule("extra_ftl"):
         new_git_repository(
             name = "extra_ftl",
-            build_file_content = """
-filegroup(
-    name = "files",
-    srcs = glob(["**/*.ftl"]),
-    visibility = ["//visibility:public"],
-)
-
-exports_files(["l10n.toml"])
-""",
-            commit = desktop_i18n_commit,
-            shallow_since = desktop_i18n_shallow_since,
+            build_file_content = i18n_build_content,
+            commit = qtftl_i18n_commit,
+            shallow_since = qtftl_i18n_shallow_since,
             remote = "https://github.com/ankitects/anki-desktop-ftl",
         )
-
-    new_git_repository(
-        name = "aqt_po",
-        build_file_content = """
-exports_files(glob(["**/*.pot", "**/*.po"]),
-    visibility = ["//visibility:public"],
-)    
-    """,
-        commit = desktop_i18n_po_commit,
-        shallow_since = desktop_i18n_po_shallow_since,
-        remote = "https://github.com/ankitects/anki-desktop-i18n",
-    )

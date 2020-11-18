@@ -3,6 +3,7 @@
 import os
 import shutil
 
+from anki.lang import without_unicode_isolation
 from tests.shared import getEmptyCol
 
 
@@ -20,7 +21,7 @@ def test_latex():
     assert len(os.listdir(col.media.dir())) == 0
     # check the error message
     msg = note.cards()[0].q()
-    assert "executing nolatex" in msg
+    assert "executing nolatex" in without_unicode_isolation(msg)
     assert "installed" in msg
     # check if we have latex installed, and abort test if we don't
     if not shutil.which("latex") or not shutil.which("dvipng"):
@@ -91,5 +92,5 @@ def _test_includes_bad_command(bad):
     note = col.newNote()
     note["Front"] = "[latex]%s[/latex]" % bad
     col.addNote(note)
-    q = note.cards()[0].q()
+    q = without_unicode_isolation(note.cards()[0].q())
     return ("'%s' is not allowed on cards" % bad in q, "Card content: %s" % q)

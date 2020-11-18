@@ -9,7 +9,7 @@ from anki.collection import Collection
 from anki.consts import *
 from anki.decks import DeckManager
 from anki.importing.base import Importer
-from anki.lang import _
+from anki.rsbackend import TR
 from anki.utils import intTime, joinFields, splitFields
 
 GUID = 1
@@ -131,39 +131,46 @@ class Anki2Importer(Importer):
                     else:
                         dupesIdentical.append(note)
 
-        self.log.append(_("Notes found in file: %d") % total)
+        self.log.append(self.dst.tr(TR.IMPORTING_NOTES_FOUND_IN_FILE, val=total))
 
         if dupesIgnored:
             self.log.append(
-                _("Notes that could not be imported as note type has changed: %d")
-                % len(dupesIgnored)
+                self.dst.tr(
+                    TR.IMPORTING_NOTES_THAT_COULD_NOT_BE_IMPORTED, val=len(dupesIgnored)
+                )
             )
         if update:
             self.log.append(
-                _("Notes updated, as file had newer version: %d") % len(update)
+                self.dst.tr(
+                    TR.IMPORTING_NOTES_UPDATED_AS_FILE_HAD_NEWER, val=len(update)
+                )
             )
         if add:
-            self.log.append(_("Notes added from file: %d") % len(add))
+            self.log.append(
+                self.dst.tr(TR.IMPORTING_NOTES_ADDED_FROM_FILE, val=len(add))
+            )
         if dupesIdentical:
             self.log.append(
-                _("Notes skipped, as they're already in your collection: %d")
-                % len(dupesIdentical)
+                self.dst.tr(
+                    TR.IMPORTING_NOTES_SKIPPED_AS_THEYRE_ALREADY_IN,
+                    val=len(dupesIdentical),
+                )
             )
 
         self.log.append("")
 
         if dupesIgnored:
             for row in dupesIgnored:
-                self._logNoteRow(_("Skipped"), row)
+                self._logNoteRow(self.dst.tr(TR.IMPORTING_SKIPPED), row)
         if update:
             for row in update:
-                self._logNoteRow(_("Updated"), row)
+                self._logNoteRow(self.dst.tr(TR.IMPORTING_UPDATED), row)
         if add:
             for row in add:
-                self._logNoteRow(_("Added"), row)
+                self._logNoteRow(self.dst.tr(TR.ADDING_ADDED), row)
         if dupesIdentical:
             for row in dupesIdentical:
-                self._logNoteRow(_("Identical"), row)
+                self._logNoteRow(self.dst.tr(TR.IMPORTING_IDENTICAL), row)
 
         # export info for calling code
         self.dupes = len(dupesIdentical)

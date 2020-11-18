@@ -11,10 +11,14 @@ var aFade = 0;
 var onUpdateHook;
 var onShownHook;
 
-function _runHook(arr) {
+function _runHook(arr: () => Promise<any>[]): Promise<any[]> {
+    var promises = [];
+
     for (var i = 0; i < arr.length; i++) {
-        arr[i]();
+        promises.push(arr[i]());
     }
+
+    return Promise.all(promises);
 }
 
 function _updateQA(html, fadeTime, onupdate, onshown) {
@@ -32,33 +36,38 @@ function _updateQA(html, fadeTime, onupdate, onshown) {
     onUpdateHook = [onupdate];
     onShownHook = [onshown];
 
-    // fade out current text
     var qa = $("#qa");
-    qa.fadeTo(fadeTime, 0, function () {
+
+    // fade out current text
+    new Promise((resolve) => qa.fadeOut(fadeTime, () => resolve()))
         // update text
-        try {
-            qa.html(html);
-        } catch (err) {
-            qa.html(
-                (
-                    `Invalid HTML on card: ${String(err).substring(0, 2000)}\n` +
-                    String(err.stack).substring(0, 2000)
-                ).replace(/\n/g, "<br />")
-            );
-        }
-        _runHook(onUpdateHook);
+        .then(() => {
+            try {
+                qa.html(html);
+            } catch (err) {
+                qa.html(
+                    (
+                        `Invalid HTML on card: ${String(err).substring(0, 2000)}\n` +
+                        String(err.stack).substring(0, 2000)
+                    ).replace(/\n/g, "<br />")
+                );
+            }
+        })
+        .then(() => _runHook(onUpdateHook))
+        .then(() =>
+            // @ts-ignore wait for mathjax to ready
+            MathJax.startup.promise.then(() => {
+                // @ts-ignore clear MathJax buffer
+                MathJax.typesetClear();
 
-        // render mathjax
-        MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
-
+                // @ts-ignore typeset
+                return MathJax.typesetPromise(qa.slice(0, 1));
+            })
+        )
         // and reveal when processing is done
-        MathJax.Hub.Queue(function () {
-            qa.fadeTo(fadeTime, 1, function () {
-                _runHook(onShownHook);
-                _updatingQA = false;
-            });
-        });
-    });
+        .then(() => new Promise((resolve) => qa.fadeIn(fadeTime, () => resolve())))
+        .then(() => _runHook(onShownHook))
+        .then(() => (_updatingQA = false));
 }
 
 function _showQuestion(q, bodyclass) {

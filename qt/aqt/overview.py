@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
 from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Optional
 
 import aqt
-from anki.lang import _
 from aqt import gui_hooks
 from aqt.sound import av_player
 from aqt.toolbar import BottomBar
-from aqt.utils import askUserDialog, openLink, shortcut, tooltip
+from aqt.utils import TR, askUserDialog, openLink, shortcut, tooltip, tr
 
 
 class OverviewBottomBar:
@@ -67,7 +65,7 @@ class Overview:
             self.mw.col.startTimebox()
             self.mw.moveToState("review")
             if self.mw.state == "overview":
-                tooltip(_("No cards are due yet."))
+                tooltip(tr(TR.STUDYING_NO_CARDS_ARE_DUE_YET))
         elif url == "anki":
             print("anki menu")
         elif url == "opts":
@@ -128,13 +126,13 @@ class Overview:
         info = self.mw.col.sched.congratulations_info()
         if info.have_sched_buried and info.have_user_buried:
             opts = [
-                _("Manually Buried Cards"),
-                _("Buried Siblings"),
-                _("All Buried Cards"),
-                _("Cancel"),
+                tr(TR.STUDYING_MANUALLY_BURIED_CARDS),
+                tr(TR.STUDYING_BURIED_SIBLINGS),
+                tr(TR.STUDYING_ALL_BURIED_CARDS),
+                tr(TR.ACTIONS_CANCEL),
             ]
 
-            diag = askUserDialog(_("What would you like to unbury?"), opts)
+            diag = askUserDialog(tr(TR.STUDYING_WHAT_WOULD_YOU_LIKE_TO_UNBURY), opts)
             diag.setDefault(0)
             ret = diag.run()
             if ret == opts[0]:
@@ -184,20 +182,9 @@ class Overview:
 
     def _desc(self, deck):
         if deck["dyn"]:
-            desc = _(
-                """\
-This is a special deck for studying outside of the normal schedule."""
-            )
-            desc += " " + _(
-                """\
-Cards will be automatically returned to their original decks after you review \
-them."""
-            )
-            desc += " " + _(
-                """\
-Deleting this deck from the deck list will return all remaining cards \
-to their original deck."""
-            )
+            desc = tr(TR.STUDYING_THIS_IS_A_SPECIAL_DECK_FOR)
+            desc += " " + tr(TR.STUDYING_CARDS_WILL_BE_AUTOMATICALLY_RETURNED_TO)
+            desc += " " + tr(TR.STUDYING_DELETING_THIS_DECK_FROM_THE_DECK)
         else:
             desc = deck.get("desc", "")
         if not desc:
@@ -226,13 +213,13 @@ to their original deck."""
 </table>
 </td><td align=center>
 %s</td></tr></table>""" % (
-                _("New"),
+                tr(TR.ACTIONS_NEW),
                 counts[0],
-                _("Learning"),
+                tr(TR.SCHEDULING_LEARNING),
                 counts[1],
-                _("To Review"),
+                tr(TR.STUDYING_TO_REVIEW),
                 counts[2],
-                but("study", _("Study Now"), id="study", extra=" autofocus"),
+                but("study", tr(TR.STUDYING_STUDY_NOW), id="study", extra=" autofocus"),
             )
 
     _body = """
@@ -249,20 +236,20 @@ to their original deck."""
 
     def _renderBottom(self):
         links = [
-            ["O", "opts", _("Options")],
+            ["O", "opts", tr(TR.ACTIONS_OPTIONS)],
         ]
         if self.mw.col.decks.current()["dyn"]:
-            links.append(["R", "refresh", _("Rebuild")])
-            links.append(["E", "empty", _("Empty")])
+            links.append(["R", "refresh", tr(TR.ACTIONS_REBUILD)])
+            links.append(["E", "empty", tr(TR.STUDYING_EMPTY)])
         else:
-            links.append(["C", "studymore", _("Custom Study")])
+            links.append(["C", "studymore", tr(TR.ACTIONS_CUSTOM_STUDY)])
             # links.append(["F", "cram", _("Filter/Cram")])
         if self.mw.col.sched.haveBuried():
-            links.append(["U", "unbury", _("Unbury")])
+            links.append(["U", "unbury", tr(TR.STUDYING_UNBURY)])
         buf = ""
         for b in links:
             if b[0]:
-                b[0] = _("Shortcut key: %s") % shortcut(b[0])
+                b[0] = tr(TR.ACTIONS_SHORTCUT_KEY, val=shortcut(b[0]))
             buf += """
 <button title="%s" onclick='pycmd("%s")'>%s</button>""" % tuple(
                 b

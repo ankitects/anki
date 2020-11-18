@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Custom Study</string>
+   <string>ACTIONS_CUSTOM_STUDY</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -19,42 +19,42 @@
      <item row="3" column="0">
       <widget class="QRadioButton" name="radioAhead">
        <property name="text">
-        <string>Review ahead</string>
+        <string>CUSTOM_STUDY_REVIEW_AHEAD</string>
        </property>
       </widget>
      </item>
      <item row="2" column="0">
       <widget class="QRadioButton" name="radioForgot">
        <property name="text">
-        <string>Review forgotten cards</string>
+        <string>CUSTOM_STUDY_REVIEW_FORGOTTEN_CARDS</string>
        </property>
       </widget>
      </item>
      <item row="0" column="0">
       <widget class="QRadioButton" name="radioNew">
        <property name="text">
-        <string>Increase today's new card limit</string>
+        <string>CUSTOM_STUDY_INCREASE_TODAYS_NEW_CARD_LIMIT</string>
        </property>
       </widget>
      </item>
      <item row="1" column="0">
       <widget class="QRadioButton" name="radioRev">
        <property name="text">
-        <string>Increase today's review card limit</string>
+        <string>CUSTOM_STUDY_INCREASE_TODAYS_REVIEW_CARD_LIMIT</string>
        </property>
       </widget>
      </item>
      <item row="5" column="0">
       <widget class="QRadioButton" name="radioCram">
        <property name="text">
-        <string>Study by card state or tag</string>
+        <string>CUSTOM_STUDY_STUDY_BY_CARD_STATE_OR_TAG</string>
        </property>
       </widget>
      </item>
      <item row="4" column="0">
       <widget class="QRadioButton" name="radioPreview">
        <property name="text">
-        <string>Preview new cards</string>
+        <string>CUSTOM_STUDY_PREVIEW_NEW_CARDS</string>
        </property>
       </widget>
      </item>
@@ -114,22 +114,22 @@
         </property>
         <item>
          <property name="text">
-          <string>New cards only</string>
+          <string>CUSTOM_STUDY_NEW_CARDS_ONLY</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>Due cards only</string>
+          <string>CUSTOM_STUDY_DUE_CARDS_ONLY</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>All review cards in random order</string>
+          <string>CUSTOM_STUDY_ALL_REVIEW_CARDS_IN_RANDOM_ORDER</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>All cards in random order (don't reschedule)</string>
+          <string>CUSTOM_STUDY_ALL_CARDS_IN_RANDOM_ORDER_DONT</string>
          </property>
         </item>
        </widget>

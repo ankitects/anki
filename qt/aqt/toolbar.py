@@ -1,17 +1,16 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
 from __future__ import annotations
 
 from typing import Any, Dict, Optional
 
 import aqt
-from anki.lang import _
 from anki.rsbackend import SyncStatus
 from aqt import gui_hooks
 from aqt.qt import *
 from aqt.sync import get_sync_status
+from aqt.utils import TR, tr
 from aqt.webview import AnkiWebView
 
 
@@ -102,30 +101,30 @@ class Toolbar:
         links = [
             self.create_link(
                 "decks",
-                _("Decks"),
+                tr(TR.ACTIONS_DECKS),
                 self._deckLinkHandler,
-                tip=_("Shortcut key: %s") % "D",
+                tip=tr(TR.ACTIONS_SHORTCUT_KEY, val="D"),
                 id="decks",
             ),
             self.create_link(
                 "add",
-                _("Add"),
+                tr(TR.ACTIONS_ADD),
                 self._addLinkHandler,
-                tip=_("Shortcut key: %s") % "A",
+                tip=tr(TR.ACTIONS_SHORTCUT_KEY, val="A"),
                 id="add",
             ),
             self.create_link(
                 "browse",
-                _("Browse"),
+                tr(TR.QT_MISC_BROWSE),
                 self._browseLinkHandler,
-                tip=_("Shortcut key: %s") % "B",
+                tip=tr(TR.ACTIONS_SHORTCUT_KEY, val="B"),
                 id="browse",
             ),
             self.create_link(
                 "stats",
-                _("Stats"),
+                tr(TR.QT_MISC_STATS),
                 self._statsLinkHandler,
-                tip=_("Shortcut key: %s") % "T",
+                tip=tr(TR.ACTIONS_SHORTCUT_KEY, val="T"),
                 id="stats",
             ),
         ]
@@ -140,8 +139,8 @@ class Toolbar:
     ######################################################################
 
     def _create_sync_link(self) -> str:
-        name = _("Sync")
-        title = _("Shortcut key: %s") % "Y"
+        name = tr(TR.QT_MISC_SYNC)
+        title = tr(TR.ACTIONS_SHORTCUT_KEY, val="Y")
         label = "sync"
         self.link_handlers[label] = self._syncLinkHandler
 

@@ -1,7 +1,6 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
 import dataclasses
 import json
 import re
@@ -9,12 +8,12 @@ import sys
 from typing import Any, Callable, List, Optional, Sequence, Tuple
 
 import anki
-from anki.lang import _, is_rtl
+from anki.lang import is_rtl
 from anki.utils import isLin, isMac, isWin
 from aqt import gui_hooks
 from aqt.qt import *
 from aqt.theme import theme_manager
-from aqt.utils import openLink, showInfo
+from aqt.utils import TR, openLink, showInfo, tr
 
 serverbaseurl = re.compile(r"^.+:\/\/[^\/]+")
 
@@ -286,7 +285,7 @@ class AnkiWebView(QWebEngineView):
 
     def contextMenuEvent(self, evt: QContextMenuEvent) -> None:
         m = QMenu(self)
-        a = m.addAction(_("Copy"))
+        a = m.addAction(tr(TR.ACTIONS_COPY))
         qconnect(a.triggered, self.onCopy)
         gui_hooks.webview_will_show_context_menu(self, m)
         m.popup(QCursor.pos())
@@ -340,6 +339,12 @@ class AnkiWebView(QWebEngineView):
         newFactor = desiredScale / qtIntScale
         return max(1, newFactor)
 
+    @staticmethod
+    def setPlaybackRequiresGesture(value: bool) -> None:
+        QWebEngineSettings.globalSettings().setAttribute(
+            QWebEngineSettings.PlaybackRequiresUserGesture, value
+        )
+
     def _getQtIntScale(self, screen) -> int:
         # try to detect if Qt has scaled the screen
         # - qt will round the scale factor to a whole number, so a dpi of 125% = 1x,
@@ -370,7 +375,7 @@ class AnkiWebView(QWebEngineView):
 
         if isWin:
             # T: include a font for your language on Windows, eg: "Segoe UI", "MS Mincho"
-            family = _('"Segoe UI"')
+            family = tr(TR.QT_MISC_SEGOE_UI)
             button_style = "button { font-family:%s; }" % family
             button_style += "\n:focus { outline: 1px solid %s; }" % color_hl
             font = "font-size:12px;font-family:%s;" % family

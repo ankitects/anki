@@ -1,7 +1,6 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
 from __future__ import annotations
 
 import enum
@@ -30,7 +29,6 @@ from anki import hooks
 from anki.collection import Collection
 from anki.decks import Deck
 from anki.hooks import runHook
-from anki.lang import _, ngettext
 from anki.rsbackend import RustBackend
 from anki.sound import AVTag, SoundOrVideoTag
 from anki.utils import devMode, ids2str, intTime, isMac, isWin, splitFields
@@ -120,16 +118,11 @@ class AnkiQt(QMainWindow):
             self.setupAddons(args)
             self.finish_ui_setup()
         except:
-            showInfo(_("Error during startup:\n%s") % traceback.format_exc())
+            showInfo(tr(TR.QT_MISC_ERROR_DURING_STARTUP, val=traceback.format_exc()))
             sys.exit(1)
         # must call this after ui set up
         if self.safeMode:
-            tooltip(
-                _(
-                    "Shift key was held down. Skipping automatic "
-                    "syncing and add-on loading."
-                )
-            )
+            tooltip(tr(TR.QT_MISC_SHIFT_KEY_WAS_HELD_DOWN_SKIPPING))
         # were we given a file to import?
         if args and args[0] and not self._isAddon(args[0]):
             self.onAppMsg(args[0])
@@ -291,10 +284,10 @@ class AnkiQt(QMainWindow):
         return not checkInvalidFilename(name) and name != "addons21"
 
     def onAddProfile(self):
-        name = getOnlyText(_("Name:")).strip()
+        name = getOnlyText(tr(TR.ACTIONS_NAME)).strip()
         if name:
             if name in self.pm.profiles():
-                return showWarning(_("Name exists."))
+                return showWarning(tr(TR.QT_MISC_NAME_EXISTS))
             if not self.profileNameOk(name):
                 return
             self.pm.create(name)
@@ -302,13 +295,13 @@ class AnkiQt(QMainWindow):
             self.refreshProfilesList()
 
     def onRenameProfile(self):
-        name = getOnlyText(_("New name:"), default=self.pm.name).strip()
+        name = getOnlyText(tr(TR.ACTIONS_NEW_NAME), default=self.pm.name).strip()
         if not name:
             return
         if name == self.pm.name:
             return
         if name in self.pm.profiles():
-            return showWarning(_("Name exists."))
+            return showWarning(tr(TR.QT_MISC_NAME_EXISTS))
         if not self.profileNameOk(name):
             return
         self.pm.rename(name)
@@ -317,14 +310,10 @@ class AnkiQt(QMainWindow):
     def onRemProfile(self):
         profs = self.pm.profiles()
         if len(profs) < 2:
-            return showWarning(_("There must be at least one profile."))
+            return showWarning(tr(TR.QT_MISC_THERE_MUST_BE_AT_LEAST_ONE))
         # sure?
         if not askUser(
-            _(
-                """\
-All cards, notes, and media for this profile will be deleted. \
-Are you sure?"""
-            ),
+            tr(TR.QT_MISC_ALL_CARDS_NOTES_AND_MEDIA_FOR),
             msgfunc=QMessageBox.warning,
             defaultno=True,
         ):
@@ -334,10 +323,7 @@ Are you sure?"""
 
     def onOpenBackup(self):
         if not askUser(
-            _(
-                """\
-Replace your collection with an earlier backup?"""
-            ),
+            tr(TR.QT_MISC_REPLACE_YOUR_COLLECTION_WITH_AN_EARLIER),
             msgfunc=QMessageBox.warning,
             defaultno=True,
         ):
@@ -348,7 +334,7 @@ Replace your collection with an earlier backup?"""
 
         getFile(
             self.profileDiag,
-            _("Revert to backup"),
+            tr(TR.QT_MISC_REVERT_TO_BACKUP),
             cb=doOpen,
             filter="*.colpkg",
             dir=self.pm.backupFolder(),
@@ -359,23 +345,13 @@ Replace your collection with an earlier backup?"""
             # move the existing collection to the trash, as it may not open
             self.pm.trashCollection()
         except:
-            showWarning(
-                _(
-                    "Unable to move existing file to trash - please try restarting your computer."
-                )
-            )
+            showWarning(tr(TR.QT_MISC_UNABLE_TO_MOVE_EXISTING_FILE_TO))
             return
 
         self.pendingImport = path
         self.restoringBackup = True
 
-        showInfo(
-            _(
-                """\
-Automatic syncing and backups have been disabled while restoring. To enable them again, \
-close the profile or restart Anki."""
-            )
-        )
+        showInfo(tr(TR.QT_MISC_AUTOMATIC_SYNCING_AND_BACKUPS_HAVE_BEEN))
 
         self.onOpenProfile()
 
@@ -485,7 +461,7 @@ close the profile or restart Anki."""
             return anki.sound.strip_av_refs(text)
 
     def prepare_card_text_for_display(self, text: str) -> str:
-        text = self.col.media.escapeImages(text)
+        text = self.col.media.escape_media_filenames(text)
         text = self._add_play_buttons(text)
         return text
 
@@ -553,9 +529,9 @@ close the profile or restart Anki."""
         if not self.col:
             return
         if self.restoringBackup:
-            label = _("Closing...")
+            label = tr(TR.QT_MISC_CLOSING)
         else:
-            label = _("Backing Up...")
+            label = tr(TR.QT_MISC_BACKING_UP)
         self.progress.start(label=label)
         corrupt = False
         try:
@@ -573,15 +549,7 @@ close the profile or restart Anki."""
             self.col = None
             self.progress.finish()
         if corrupt:
-            showWarning(
-                _(
-                    "Your collection file appears to be corrupt. \
-This can happen when the file is copied or moved while Anki is open, or \
-when the collection is stored on a network or cloud drive. If problems \
-persist after restarting your computer, please open an automatic backup \
-from the profile screen."
-                )
-            )
+            showWarning(tr(TR.QT_MISC_YOUR_COLLECTION_FILE_APPEARS_TO_BE))
         if not corrupt and not self.restoringBackup:
             self.backup()
 
@@ -641,7 +609,7 @@ from the profile screen."
         # have two weeks passed?
         if (intTime() - self.pm.profile["lastOptimize"]) < 86400 * 14:
             return
-        self.progress.start(label=_("Optimizing..."))
+        self.progress.start(label=tr(TR.QT_MISC_OPTIMIZING))
         self.col.optimize()
         self.pm.profile["lastOptimize"] = intTime()
         self.pm.save()
@@ -672,7 +640,7 @@ from the profile screen."
     def _selectedDeck(self) -> Optional[Deck]:
         did = self.col.decks.selected()
         if not self.col.decks.nameOrNone(did):
-            showInfo(_("Please select a deck."))
+            showInfo(tr(TR.QT_MISC_PLEASE_SELECT_A_DECK))
             return None
         return self.col.decks.get(did)
 
@@ -732,8 +700,8 @@ from the profile screen."
             return
         web_context = ResetRequired(self)
         self.web.set_bridge_command(lambda url: self.delayedMaybeReset(), web_context)
-        i = _("Waiting for editing to finish.")
-        b = self.button("refresh", _("Resume Now"), id="resume")
+        i = tr(TR.QT_MISC_WAITING_FOR_EDITING_TO_FINISH)
+        b = self.button("refresh", tr(TR.QT_MISC_RESUME_NOW), id="resume")
         self.web.stdHtml(
             """
 <center><div style="height: 100%%">
@@ -762,7 +730,7 @@ from the profile screen."
     ) -> str:
         class_ = "but " + class_
         if key:
-            key = _("Shortcut key: %s") % key
+            key = tr(TR.ACTIONS_SHORTCUT_KEY, val=key)
         else:
             key = ""
         return """
@@ -1033,17 +1001,17 @@ title="%s" %s>%s</button>""" % (
             gui_hooks.review_did_undo(cid)
         else:
             self.reset()
-            tooltip(_("Reverted to state prior to '%s'.") % n.lower())
+            tooltip(tr(TR.QT_MISC_REVERTED_TO_STATE_PRIOR_TO, val=n.lower()))
             gui_hooks.state_did_revert(n)
         self.maybeEnableUndo()
 
     def maybeEnableUndo(self) -> None:
         if self.col and self.col.undoName():
-            self.form.actionUndo.setText(_("Undo %s") % self.col.undoName())
+            self.form.actionUndo.setText(tr(TR.QT_MISC_UNDO2, val=self.col.undoName()))
             self.form.actionUndo.setEnabled(True)
             gui_hooks.undo_state_did_change(True)
         else:
-            self.form.actionUndo.setText(_("Undo"))
+            self.form.actionUndo.setText(tr(TR.QT_MISC_UNDO))
             self.form.actionUndo.setEnabled(False)
             gui_hooks.undo_state_did_change(False)
 
@@ -1119,7 +1087,7 @@ title="%s" %s>%s</button>""" % (
         import aqt.importing
 
         if not os.path.exists(path):
-            showInfo(_("Please use File>Import to import this file."))
+            showInfo(tr(TR.QT_MISC_PLEASE_USE_FILEIMPORT_TO_IMPORT_THIS))
             return None
 
         aqt.importing.importFile(self, path)
@@ -1161,9 +1129,9 @@ title="%s" %s>%s</button>""" % (
         if not search:
             if not deck["dyn"]:
                 search = 'deck:"%s" ' % deck["name"]
-        while self.col.decks.id_for_name(_("Filtered Deck %d") % n):
+        while self.col.decks.id_for_name(tr(TR.QT_MISC_FILTERED_DECK, val=n)):
             n += 1
-        name = _("Filtered Deck %d") % n
+        name = tr(TR.QT_MISC_FILTERED_DECK, val=n)
         did = self.col.decks.new_filtered(name)
         diag = aqt.dyndeckconf.DeckConf(self, first=True, search=search)
         if not diag.ok:
@@ -1219,27 +1187,11 @@ title="%s" %s>%s</button>""" % (
         aqt.update.showMessages(self, data)
 
     def clockIsOff(self, diff):
-        diffText = ngettext("%s second", "%s seconds", diff) % diff
-        warn = (
-            _(
-                """\
-In order to ensure your collection works correctly when moved between \
-devices, Anki requires your computer's internal clock to be set correctly. \
-The internal clock can be wrong even if your system is showing the correct \
-local time.
-
-Please go to the time settings on your computer and check the following:
-
-- AM/PM
-- Clock drift
-- Day, month and year
-- Timezone
-- Daylight savings
-
-Difference to correct time: %s."""
-            )
-            % diffText
-        )
+        if devMode:
+            print("clock is off; ignoring")
+            return
+        diffText = tr(TR.QT_MISC_SECOND, count=diff)
+        warn = tr(TR.QT_MISC_IN_ORDER_TO_ENSURE_YOUR_COLLECTION, val="%s") % diffText
         showWarning(warn)
         self.app.closeAllWindows()
 
@@ -1283,13 +1235,7 @@ Difference to correct time: %s."""
         self._activeWindowOnPlay: Optional[QWidget] = None
 
     def onOdueInvalid(self):
-        showWarning(
-            _(
-                """\
-Invalid property found on card. Please use Tools>Check Database, \
-and if the problem comes up again, please ask on the support site."""
-            )
-        )
+        showWarning(tr(TR.QT_MISC_INVALID_PROPERTY_FOUND_ON_CARD_PLEASE))
 
     def _isVideo(self, tag: AVTag) -> bool:
         if isinstance(tag, SoundOrVideoTag):
@@ -1338,15 +1284,7 @@ and if the problem comes up again, please ask on the support site."""
         progress_shown = self.progress.busy()
         if progress_shown:
             self.progress.finish()
-        ret = askUser(
-            _(
-                """\
-The requested change will require a full upload of the database when \
-you next synchronize your collection. If you have reviews or other changes \
-waiting on another device that haven't been synchronized here yet, they \
-will be lost. Continue?"""
-            )
-        )
+        ret = askUser(tr(TR.QT_MISC_THE_REQUESTED_CHANGE_WILL_REQUIRE_A))
         if progress_shown:
             self.progress.start()
         return ret
@@ -1357,15 +1295,7 @@ will be lost. Continue?"""
         True if confirmed or already modified."""
         if self.col.schemaChanged():
             return True
-        return askUser(
-            _(
-                """\
-The requested change will require a full upload of the database when \
-you next synchronize your collection. If you have reviews or other changes \
-waiting on another device that haven't been synchronized here yet, they \
-will be lost. Continue?"""
-            )
-        )
+        return askUser(tr(TR.QT_MISC_THE_REQUESTED_CHANGE_WILL_REQUIRE_A))
 
     # Advanced features
     ##########################################################################
@@ -1534,7 +1464,7 @@ will be lost. Continue?"""
             )
             frm.log.appendPlainText(to_append)
         except UnicodeDecodeError:
-            to_append = _("<non-unicode text>")
+            to_append = tr(TR.QT_MISC_NON_UNICODE_TEXT)
             to_append = gui_hooks.debug_console_did_evaluate_python(
                 to_append, text, frm
             )
@@ -1597,18 +1527,15 @@ will be lost. Continue?"""
                 return None
             self.pendingImport = buf
             if is_addon:
-                msg = _("Add-on will be installed when a profile is opened.")
+                msg = tr(TR.QT_MISC_ADDON_WILL_BE_INSTALLED_WHEN_A)
             else:
-                msg = _("Deck will be imported when a profile is opened.")
+                msg = tr(TR.QT_MISC_DECK_WILL_BE_IMPORTED_WHEN_A)
             return tooltip(msg)
         if not self.interactiveState() or self.progress.busy():
             # we can't raise the main window while in profile dialog, syncing, etc
             if buf != "raise":
                 showInfo(
-                    _(
-                        """\
-Please ensure a profile is open and Anki is not busy, then try again."""
-                    ),
+                    tr(TR.QT_MISC_PLEASE_ENSURE_A_PROFILE_IS_OPEN),
                     parent=None,
                 )
             return None

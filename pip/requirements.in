@@ -10,6 +10,7 @@ markdown
 mock
 mypy
 mypy-protobuf
+orjson
 pip-tools
 protobuf
 pylint

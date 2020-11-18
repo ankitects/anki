@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
 from __future__ import annotations
 
 import html
@@ -18,7 +17,7 @@ import aqt.forms
 from anki.cards import Card
 from anki.collection import Collection
 from anki.consts import *
-from anki.lang import _, ngettext
+from anki.lang import without_unicode_isolation
 from anki.models import NoteType
 from anki.notes import Note
 from anki.rsbackend import TR, DeckTreeNode, InvalidInput
@@ -34,6 +33,7 @@ from aqt.qt import *
 from aqt.sidebar import NewSidebarTreeView, SidebarItemType, SidebarTreeViewBase
 from aqt.theme import theme_manager
 from aqt.utils import (
+    TR,
     MenuList,
     SubMenu,
     askUser,
@@ -169,7 +169,7 @@ class DataModel(QAbstractTableModel):
                     break
             # give the user a hint an invalid column was added by an add-on
             if not txt:
-                txt = _("Add-on")
+                txt = tr(TR.BROWSING_ADDON)
             return txt
         else:
             return
@@ -331,13 +331,13 @@ class DataModel(QAbstractTableModel):
             return c.model()["name"]
         elif type == "cardIvl":
             if c.type == CARD_TYPE_NEW:
-                return _("(new)")
+                return tr(TR.BROWSING_NEW)
             elif c.type == CARD_TYPE_LRN:
-                return _("(learning)")
+                return tr(TR.BROWSING_LEARNING)
             return self.col.format_timespan(c.ivl * 86400)
         elif type == "cardEase":
             if c.type == CARD_TYPE_NEW:
-                return _("(new)")
+                return tr(TR.BROWSING_NEW)
             return "%d%%" % (c.factor / 10)
         elif type == "deck":
             if c.odid:
@@ -366,7 +366,7 @@ class DataModel(QAbstractTableModel):
 
     def nextDue(self, c, index):
         if c.odid:
-            return _("(filtered)")
+            return tr(TR.BROWSING_FILTERED)
         elif c.queue == QUEUE_TYPE_LRN:
             date = c.due
         elif c.queue == QUEUE_TYPE_NEW or c.type == CARD_TYPE_NEW:
@@ -621,7 +621,7 @@ class Browser(QMainWindow):
         f = self.form
         qconnect(f.previewButton.clicked, self.onTogglePreview)
         f.previewButton.setToolTip(
-            _("Preview Selected Card (%s)") % shortcut("Ctrl+Shift+P")
+            tr(TR.BROWSING_PREVIEW_SELECTED_CARD, val=shortcut("Ctrl+Shift+P"))
         )
         f.previewButton.setShortcut("Ctrl+Shift+P")
 
@@ -737,21 +737,21 @@ class Browser(QMainWindow):
 
     def setupColumns(self):
         self.columns = [
-            ("question", _("Question")),
-            ("answer", _("Answer")),
-            ("template", _("Card")),
-            ("deck", _("Deck")),
-            ("noteFld", _("Sort Field")),
-            ("noteCrt", _("Created")),
+            ("question", tr(TR.BROWSING_QUESTION)),
+            ("answer", tr(TR.BROWSING_ANSWER)),
+            ("template", tr(TR.BROWSING_CARD)),
+            ("deck", tr(TR.DECKS_DECK)),
+            ("noteFld", tr(TR.BROWSING_SORT_FIELD)),
+            ("noteCrt", tr(TR.BROWSING_CREATED)),
             ("noteMod", tr(TR.SEARCH_NOTE_MODIFIED)),
             ("cardMod", tr(TR.SEARCH_CARD_MODIFIED)),
             ("cardDue", tr(TR.STATISTICS_DUE_DATE)),
-            ("cardIvl", _("Interval")),
-            ("cardEase", _("Ease")),
-            ("cardReps", _("Reviews")),
-            ("cardLapses", _("Lapses")),
-            ("noteTags", _("Tags")),
-            ("note", _("Note")),
+            ("cardIvl", tr(TR.BROWSING_INTERVAL)),
+            ("cardEase", tr(TR.BROWSING_EASE)),
+            ("cardReps", tr(TR.SCHEDULING_REVIEWS)),
+            ("cardLapses", tr(TR.SCHEDULING_LAPSES)),
+            ("noteTags", tr(TR.EDITING_TAGS)),
+            ("note", tr(TR.BROWSING_NOTE)),
         ]
         self.columns.sort(key=itemgetter(1))
 
@@ -762,7 +762,7 @@ class Browser(QMainWindow):
         qconnect(self.form.searchButton.clicked, self.onSearchActivated)
         qconnect(self.form.searchEdit.lineEdit().returnPressed, self.onSearchActivated)
         self.form.searchEdit.setCompleter(None)
-        self._searchPrompt = _("<type here to search; hit enter to show current deck>")
+        self._searchPrompt = tr(TR.BROWSING_TYPE_HERE_TO_SEARCH)
         self.form.searchEdit.addItems(
             [self._searchPrompt] + self.mw.pm.profile["searchHistory"]
         )
@@ -822,15 +822,9 @@ class Browser(QMainWindow):
         selected = len(self.form.tableView.selectionModel().selectedRows())
         cur = len(self.model.cards)
         self.setWindowTitle(
-            ngettext(
-                "Browse (%(cur)d card shown; %(sel)s)",
-                "Browse (%(cur)d cards shown; %(sel)s)",
-                cur,
+            without_unicode_isolation(
+                tr(TR.BROWSING_WINDOW_TITLE, total=cur, selected=selected)
             )
-            % {
-                "cur": cur,
-                "sel": ngettext("%d selected", "%d selected", selected) % selected,
-            }
         )
         return selected
 
@@ -938,9 +932,7 @@ QTableView {{ gridline-color: {grid} }}
         type = self.model.activeCols[idx]
         noSort = ("question", "answer")
         if type in noSort:
-            showInfo(
-                _("Sorting on this column is not supported. Please " "choose another.")
-            )
+            showInfo(tr(TR.BROWSING_SORTING_ON_THIS_COLUMN_IS_NOT))
             type = self.col.conf["sortType"]
         if self.col.conf["sortType"] != type:
             self.col.conf["sortType"] = type
@@ -994,7 +986,7 @@ QTableView {{ gridline-color: {grid} }}
         if type in self.model.activeCols:
             if len(self.model.activeCols) < 2:
                 self.model.endReset()
-                return showInfo(_("You must have at least one column."))
+                return showInfo(tr(TR.BROWSING_YOU_MUST_HAVE_AT_LEAST_ONE))
             self.model.activeCols.remove(type)
             adding = False
         else:
@@ -1028,7 +1020,7 @@ QTableView {{ gridline-color: {grid} }}
         pass
 
     def setupSidebar(self) -> None:
-        dw = self.sidebarDockWidget = QDockWidget(_("Sidebar"), self)
+        dw = self.sidebarDockWidget = QDockWidget(tr(TR.BROWSING_SIDEBAR), self)
         dw.setFeatures(QDockWidget.DockWidgetClosable)
         dw.setObjectName("Sidebar")
         dw.setAllowedAreas(Qt.LeftDockWidgetArea)
@@ -1105,14 +1097,14 @@ QTableView {{ gridline-color: {grid} }}
 
     def _stdTree(self, root) -> None:
         item = SidebarItem(
-            _("Whole Collection"),
+            tr(TR.BROWSING_WHOLE_COLLECTION),
             ":/icons/collection.svg",
             self._filterFunc(""),
             item_type=SidebarItemType.COLLECTION,
         )
         root.addChild(item)
         item = SidebarItem(
-            _("Current Deck"),
+            tr(TR.BROWSING_CURRENT_DECK),
             ":/icons/deck.svg",
             self._filterFunc("deck:current"),
             item_type=SidebarItemType.CURRENT_DECK,
@@ -1252,41 +1244,44 @@ QTableView {{ gridline-color: {grid} }}
 
     def _commonFilters(self):
         return self._simpleFilters(
-            ((_("Whole Collection"), ""), (_("Current Deck"), "deck:current"))
+            (
+                (tr(TR.BROWSING_WHOLE_COLLECTION), ""),
+                (tr(TR.BROWSING_CURRENT_DECK), "deck:current"),
+            )
         )
 
     def _todayFilters(self):
-        subm = SubMenu(_("Today"))
+        subm = SubMenu(tr(TR.BROWSING_TODAY))
         subm.addChild(
             self._simpleFilters(
                 (
-                    (_("Added Today"), "added:1"),
-                    (_("Studied Today"), "rated:1"),
-                    (_("Again Today"), "rated:1:1"),
+                    (tr(TR.BROWSING_ADDED_TODAY), "added:1"),
+                    (tr(TR.BROWSING_STUDIED_TODAY), "rated:1"),
+                    (tr(TR.BROWSING_AGAIN_TODAY), "rated:1:1"),
                 )
             )
         )
         return subm
 
     def _cardStateFilters(self):
-        subm = SubMenu(_("Card State"))
+        subm = SubMenu(tr(TR.BROWSING_CARD_STATE))
         subm.addChild(
             self._simpleFilters(
                 (
-                    (_("New"), "is:new"),
-                    (_("Learning"), "is:learn"),
-                    (_("Review"), "is:review"),
+                    (tr(TR.ACTIONS_NEW), "is:new"),
+                    (tr(TR.SCHEDULING_LEARNING), "is:learn"),
+                    (tr(TR.SCHEDULING_REVIEW), "is:review"),
                     (tr(TR.FILTERING_IS_DUE), "is:due"),
                     None,
-                    (_("Suspended"), "is:suspended"),
-                    (_("Buried"), "is:buried"),
+                    (tr(TR.BROWSING_SUSPENDED), "is:suspended"),
+                    (tr(TR.BROWSING_BURIED), "is:buried"),
                     None,
-                    (_("Red Flag"), "flag:1"),
-                    (_("Orange Flag"), "flag:2"),
-                    (_("Green Flag"), "flag:3"),
-                    (_("Blue Flag"), "flag:4"),
-                    (_("No Flag"), "flag:0"),
-                    (_("Any Flag"), "-flag:0"),
+                    (tr(TR.ACTIONS_RED_FLAG), "flag:1"),
+                    (tr(TR.ACTIONS_ORANGE_FLAG), "flag:2"),
+                    (tr(TR.ACTIONS_GREEN_FLAG), "flag:3"),
+                    (tr(TR.ACTIONS_BLUE_FLAG), "flag:4"),
+                    (tr(TR.BROWSING_NO_FLAG), "flag:0"),
+                    (tr(TR.BROWSING_ANY_FLAG), "-flag:0"),
                 )
             )
         )
@@ -1296,9 +1291,9 @@ QTableView {{ gridline-color: {grid} }}
         return label.replace("&", "&&")
 
     def _tagFilters(self):
-        m = SubMenu(_("Tags"))
+        m = SubMenu(tr(TR.EDITING_TAGS))
 
-        m.addItem(_("Clear Unused"), self.clearUnusedTags)
+        m.addItem(tr(TR.BROWSING_CLEAR_UNUSED), self.clearUnusedTags)
         m.addSeparator()
 
         tagList = MenuList()
@@ -1316,7 +1311,9 @@ QTableView {{ gridline-color: {grid} }}
                 fullname = parent_prefix + node.name
                 if node.children:
                     subm = parent.addMenu(escaped_name)
-                    subm.addItem(_("Filter"), self._filterFunc("deck", fullname))
+                    subm.addItem(
+                        tr(TR.ACTIONS_FILTER), self._filterFunc("deck", fullname)
+                    )
                     subm.addSeparator()
                     addDecks(subm, node.children, fullname + "::")
                 else:
@@ -1326,15 +1323,15 @@ QTableView {{ gridline-color: {grid} }}
         ml = MenuList()
         addDecks(ml, alldecks.children, "")
 
-        root = SubMenu(_("Decks"))
+        root = SubMenu(tr(TR.ACTIONS_DECKS))
         root.addChild(ml.chunked())
 
         return root
 
     def _noteTypeFilters(self):
-        m = SubMenu(_("Note Types"))
+        m = SubMenu(tr(TR.NOTETYPES_NOTE_TYPES))
 
-        m.addItem(_("Manage..."), self.mw.onNoteTypes)
+        m.addItem(tr(TR.ACTIONS_MANAGE), self.mw.onNoteTypes)
         m.addSeparator()
 
         noteTypes = MenuList()
@@ -1346,14 +1343,16 @@ QTableView {{ gridline-color: {grid} }}
             else:
                 subm = noteTypes.addMenu(escaped_nt_name)
 
-                subm.addItem(_("All Card Types"), self._filterFunc("note", nt["name"]))
+                subm.addItem(
+                    tr(TR.BROWSING_ALL_CARD_TYPES), self._filterFunc("note", nt["name"])
+                )
                 subm.addSeparator()
 
                 # add templates
                 for c, tmpl in enumerate(nt["tmpls"]):
                     # T: name is a card type name. n it's order in the list of card type.
                     # T: this is shown in browser's filter, when seeing the list of card type of a note type.
-                    name = _("%(n)d: %(name)s") % dict(
+                    name = tr(TR.BROWSING_ND_NAMES) % dict(
                         n=c + 1, name=self._escapeMenuItem(tmpl["name"])
                     )
                     subm.addItem(
@@ -1375,9 +1374,9 @@ QTableView {{ gridline-color: {grid} }}
         ml.addSeparator()
 
         if self._currentFilterIsSaved():
-            ml.addItem(_("Remove Current Filter..."), self._onRemoveFilter)
+            ml.addItem(tr(TR.BROWSING_REMOVE_CURRENT_FILTER), self._onRemoveFilter)
         else:
-            ml.addItem(_("Save Current Filter..."), self._onSaveFilter)
+            ml.addItem(tr(TR.BROWSING_SAVE_CURRENT_FILTER), self._onSaveFilter)
 
         saved = self.col.get_config("savedFilters")
         if not saved:
@@ -1390,7 +1389,7 @@ QTableView {{ gridline-color: {grid} }}
         return ml
 
     def _onSaveFilter(self) -> None:
-        name = getOnlyText(_("Please give your filter a name:"))
+        name = getOnlyText(tr(TR.BROWSING_PLEASE_GIVE_YOUR_FILTER_A_NAME))
         if not name:
             return
         filt = self.form.searchEdit.lineEdit().text()
@@ -1401,7 +1400,7 @@ QTableView {{ gridline-color: {grid} }}
 
     def _onRemoveFilter(self):
         name = self._currentFilterIsSaved()
-        if not askUser(_("Remove %s from your saved searches?") % name):
+        if not askUser(tr(TR.BROWSING_REMOVE_FROM_YOUR_SAVED_SEARCHES, val=name)):
             return
         del self.col.conf["savedFilters"][name]
         self.col.setMod()
@@ -1490,7 +1489,7 @@ where id in %s"""
             % ids2str(sf)
         )
         if mods > 1:
-            showInfo(_("Please select cards from only one note type."))
+            showInfo(tr(TR.BROWSING_PLEASE_SELECT_CARDS_FROM_ONLY_ONE))
             return
         return sf
 
@@ -1544,7 +1543,7 @@ where id in %s"""
         nids = self.selectedNotes()
         if not nids:
             return
-        self.mw.checkpoint(_("Delete Notes"))
+        self.mw.checkpoint(tr(TR.BROWSING_DELETE_NOTES))
         self.model.beginReset()
         # figure out where to place the cursor after the deletion
         curRow = self.form.tableView.selectionModel().currentIndex().row()
@@ -1569,9 +1568,7 @@ where id in %s"""
             self.model.focusedCard = self.model.cards[newRow]
         self.model.endReset()
         self.mw.reset()
-        tooltip(
-            ngettext("%d note deleted.", "%d notes deleted.", len(nids)) % len(nids)
-        )
+        tooltip(tr(TR.BROWSING_NOTE_DELETED, count=len(nids)))
 
     # Deck change
     ######################################################################
@@ -1590,8 +1587,8 @@ where id in %s"""
         ret = StudyDeck(
             self.mw,
             current=current,
-            accept=_("Move Cards"),
-            title=_("Change Deck"),
+            accept=tr(TR.BROWSING_MOVE_CARDS),
+            title=tr(TR.BROWSING_CHANGE_DECK),
             help="browse",
             parent=self,
         )
@@ -1600,10 +1597,10 @@ where id in %s"""
         did = self.col.decks.id(ret.name)
         deck = self.col.decks.get(did)
         if deck["dyn"]:
-            showWarning(_("Cards can't be manually moved into a filtered deck."))
+            showWarning(tr(TR.BROWSING_CARDS_CANT_BE_MANUALLY_MOVED_INTO))
             return
         self.model.beginReset()
-        self.mw.checkpoint(_("Change Deck"))
+        self.mw.checkpoint(tr(TR.BROWSING_CHANGE_DECK))
         self.col.set_deck(cids, did)
         self.model.endReset()
         self.mw.requireReset(reason=ResetReason.BrowserSetDeck, context=self)
@@ -1616,7 +1613,7 @@ where id in %s"""
 
     def _addTags(self, tags, label, prompt, func):
         if prompt is None:
-            prompt = _("Enter tags to add:")
+            prompt = tr(TR.BROWSING_ENTER_TAGS_TO_ADD)
         if tags is None:
             (tags, r) = getTag(self, self.col, prompt)
         else:
@@ -1626,7 +1623,7 @@ where id in %s"""
         if func is None:
             func = self.col.tags.bulkAdd
         if label is None:
-            label = _("Add Tags")
+            label = tr(TR.BROWSING_ADD_TAGS)
         if label:
             self.mw.checkpoint(label)
         self.model.beginReset()
@@ -1636,9 +1633,12 @@ where id in %s"""
 
     def deleteTags(self, tags=None, label=None):
         if label is None:
-            label = _("Delete Tags")
+            label = tr(TR.BROWSING_DELETE_TAGS)
         self.addTags(
-            tags, label, _("Enter tags to delete:"), func=self.col.tags.bulkRem
+            tags,
+            label,
+            tr(TR.BROWSING_ENTER_TAGS_TO_DELETE),
+            func=self.col.tags.bulkRem,
         )
 
     def clearUnusedTags(self):
@@ -1731,7 +1731,7 @@ where id in %s"""
             + ids2str(cids)
         )
         if not cids2:
-            return showInfo(_("Only new cards can be repositioned."))
+            return showInfo(tr(TR.BROWSING_ONLY_NEW_CARDS_CAN_BE_REPOSITIONED))
         d = QDialog(self)
         d.setWindowModality(Qt.WindowModal)
         frm = aqt.forms.reposition.Ui_Dialog()
@@ -1741,14 +1741,14 @@ where id in %s"""
         )
         pmin = pmin or 0
         pmax = pmax or 0
-        txt = _("Queue top: %d") % pmin
-        txt += "\n" + _("Queue bottom: %d") % pmax
+        txt = tr(TR.BROWSING_QUEUE_TOP, val=pmin)
+        txt += "\n" + tr(TR.BROWSING_QUEUE_BOTTOM, val=pmax)
         frm.label.setText(txt)
         frm.start.selectAll()
         if not d.exec_():
             return
         self.model.beginReset()
-        self.mw.checkpoint(_("Reposition"))
+        self.mw.checkpoint(tr(TR.ACTIONS_REPOSITION))
         self.col.sched.sortCards(
             cids,
             start=frm.start.value(),
@@ -1774,7 +1774,7 @@ where id in %s"""
         if not d.exec_():
             return
         self.model.beginReset()
-        self.mw.checkpoint(_("Reschedule"))
+        self.mw.checkpoint(tr(TR.BROWSING_RESCHEDULE))
         if frm.asNew.isChecked():
             self.col.sched.forgetCards(self.selectedCards())
         else:
@@ -1881,7 +1881,7 @@ where id in %s"""
         restore_is_checked(frm.ignoreCase, combo + "ignoreCase")
 
         frm.find.setFocus()
-        allfields = [_("All Fields")] + fields
+        allfields = [tr(TR.BROWSING_ALL_FIELDS)] + fields
         frm.field.addItems(allfields)
         restore_combo_index_for_session(frm.field, allfields, combo + "Field")
         qconnect(frm.buttonBox.helpRequested, self.onFindReplaceHelp)
@@ -1906,7 +1906,7 @@ where id in %s"""
         save_is_checked(frm.re, combo + "Regex")
         save_is_checked(frm.ignoreCase, combo + "ignoreCase")
 
-        self.mw.checkpoint(_("Find and Replace"))
+        self.mw.checkpoint(tr(TR.BROWSING_FIND_AND_REPLACE))
         # starts progress dialog as well
         self.model.beginReset()
 
@@ -1976,7 +1976,9 @@ where id in %s"""
             field = fields[frm.fields.currentIndex()]
             self.duplicatesReport(frm.webView, field, search_text, frm, web_context)
 
-        search = frm.buttonBox.addButton(_("Search"), QDialogButtonBox.ActionRole)
+        search = frm.buttonBox.addButton(
+            tr(TR.ACTIONS_SEARCH), QDialogButtonBox.ActionRole
+        )
         qconnect(search.clicked, onClick)
         d.show()
 
@@ -1985,22 +1987,22 @@ where id in %s"""
         res = self.mw.col.findDupes(fname, search)
         if not self._dupesButton:
             self._dupesButton = b = frm.buttonBox.addButton(
-                _("Tag Duplicates"), QDialogButtonBox.ActionRole
+                tr(TR.BROWSING_TAG_DUPLICATES), QDialogButtonBox.ActionRole
             )
             qconnect(b.clicked, lambda: self._onTagDupes(res))
         t = ""
         groups = len(res)
         notes = sum(len(r[1]) for r in res)
-        part1 = ngettext("%d group", "%d groups", groups) % groups
-        part2 = ngettext("%d note", "%d notes", notes) % notes
-        t += _("Found %(a)s across %(b)s.") % dict(a=part1, b=part2)
+        part1 = tr(TR.BROWSING_GROUP, count=groups)
+        part2 = tr(TR.BROWSING_NOTE_COUNT, count=notes)
+        t += tr(TR.BROWSING_FOUND_AS_ACROSS_BS) % dict(a=part1, b=part2)
         t += "<p><ol>"
         for val, nids in res:
             t += (
                 """<li><a href=# onclick="pycmd('%s');return false;">%s</a>: %s</a>"""
                 % (
                     "nid:" + ",".join(str(id) for id in nids),
-                    ngettext("%d note", "%d notes", len(nids)) % len(nids),
+                    tr(TR.BROWSING_NOTE_COUNT, count=len(nids)),
                     html.escape(val),
                 )
             )
@@ -2012,15 +2014,15 @@ where id in %s"""
         if not res:
             return
         self.model.beginReset()
-        self.mw.checkpoint(_("Tag Duplicates"))
+        self.mw.checkpoint(tr(TR.BROWSING_TAG_DUPLICATES))
         nids = set()
         for s, nidlist in res:
             nids.update(nidlist)
-        self.col.tags.bulkAdd(list(nids), _("duplicate"))
+        self.col.tags.bulkAdd(list(nids), tr(TR.BROWSING_DUPLICATE))
         self.mw.progress.finish()
         self.model.endReset()
         self.mw.requireReset(reason=ResetReason.BrowserTagDupes, context=self)
-        tooltip(_("Notes tagged."))
+        tooltip(tr(TR.BROWSING_NOTES_TAGGED))
 
     def dupeLinkClicked(self, link):
         self.search_for(link)
@@ -2177,10 +2179,10 @@ class ChangeModel(QDialog):
         map = QWidget()
         l = QGridLayout()
         combos = []
-        targets = [x["name"] for x in dst] + [_("Nothing")]
+        targets = [x["name"] for x in dst] + [tr(TR.BROWSING_NOTHING)]
         indices = {}
         for i, x in enumerate(src):
-            l.addWidget(QLabel(_("Change %s to:") % x["name"]), i, 0)
+            l.addWidget(QLabel(tr(TR.BROWSING_CHANGE_TO, val=x["name"])), i, 0)
             cb = QComboBox()
             cb.addItems(targets)
             idx = min(i, len(targets) - 1)
@@ -2258,16 +2260,9 @@ class ChangeModel(QDialog):
         fmap = self.getFieldMap()
         cmap = self.getTemplateMap()
         if any(True for c in list(cmap.values()) if c is None):
-            if not askUser(
-                _(
-                    """\
-Any cards mapped to nothing will be deleted. \
-If a note has no remaining cards, it will be lost. \
-Are you sure you want to continue?"""
-                )
-            ):
+            if not askUser(tr(TR.BROWSING_ANY_CARDS_MAPPED_TO_NOTHING_WILL)):
                 return
-        self.browser.mw.checkpoint(_("Change Note Type"))
+        self.browser.mw.checkpoint(tr(TR.BROWSING_CHANGE_NOTE_TYPE))
         b = self.browser
         b.mw.col.modSchema(check=True)
         b.mw.progress.start()

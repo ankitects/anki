@@ -1,0 +1,297 @@
+{
+    "@fluent/bundle@0.15.1": {
+        "licenses": "Apache-2.0",
+        "repository": "https://github.com/projectfluent/fluent.js",
+        "publisher": "Mozilla",
+        "email": "l10n-drivers@mozilla.org",
+        "path": "node_modules/@fluent/bundle",
+        "licenseFile": "node_modules/@fluent/bundle/README.md"
+    },
+    "@protobufjs/aspromise@1.1.2": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/dcodeIO/protobuf.js",
+        "publisher": "Daniel Wirtz",
+        "email": "dcode+protobufjs@dcode.io",
+        "path": "node_modules/@protobufjs/aspromise",
+        "licenseFile": "node_modules/@protobufjs/aspromise/LICENSE"
+    },
+    "@protobufjs/base64@1.1.2": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/dcodeIO/protobuf.js",
+        "publisher": "Daniel Wirtz",
+        "email": "dcode+protobufjs@dcode.io",
+        "path": "node_modules/@protobufjs/base64",
+        "licenseFile": "node_modules/@protobufjs/base64/LICENSE"
+    },
+    "@protobufjs/codegen@2.0.4": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/dcodeIO/protobuf.js",
+        "publisher": "Daniel Wirtz",
+        "email": "dcode+protobufjs@dcode.io",
+        "path": "node_modules/@protobufjs/codegen",
+        "licenseFile": "node_modules/@protobufjs/codegen/LICENSE"
+    },
+    "@protobufjs/eventemitter@1.1.0": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/dcodeIO/protobuf.js",
+        "publisher": "Daniel Wirtz",
+        "email": "dcode+protobufjs@dcode.io",
+        "path": "node_modules/@protobufjs/eventemitter",
+        "licenseFile": "node_modules/@protobufjs/eventemitter/LICENSE"
+    },
+    "@protobufjs/fetch@1.1.0": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/dcodeIO/protobuf.js",
+        "publisher": "Daniel Wirtz",
+        "email": "dcode+protobufjs@dcode.io",
+        "path": "node_modules/@protobufjs/fetch",
+        "licenseFile": "node_modules/@protobufjs/fetch/LICENSE"
+    },
+    "@protobufjs/float@1.0.2": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/dcodeIO/protobuf.js",
+        "publisher": "Daniel Wirtz",
+        "email": "dcode+protobufjs@dcode.io",
+        "path": "node_modules/@protobufjs/float",
+        "licenseFile": "node_modules/@protobufjs/float/LICENSE"
+    },
+    "@protobufjs/inquire@1.1.0": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/dcodeIO/protobuf.js",
+        "publisher": "Daniel Wirtz",
+        "email": "dcode+protobufjs@dcode.io",
+        "path": "node_modules/@protobufjs/inquire",
+        "licenseFile": "node_modules/@protobufjs/inquire/LICENSE"
+    },
+    "@protobufjs/path@1.1.2": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/dcodeIO/protobuf.js",
+        "publisher": "Daniel Wirtz",
+        "email": "dcode+protobufjs@dcode.io",
+        "path": "node_modules/@protobufjs/path",
+        "licenseFile": "node_modules/@protobufjs/path/LICENSE"
+    },
+    "@protobufjs/pool@1.1.0": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/dcodeIO/protobuf.js",
+        "publisher": "Daniel Wirtz",
+        "email": "dcode+protobufjs@dcode.io",
+        "path": "node_modules/@protobufjs/pool",
+        "licenseFile": "node_modules/@protobufjs/pool/LICENSE"
+    },
+    "@protobufjs/utf8@1.1.0": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/dcodeIO/protobuf.js",
+        "publisher": "Daniel Wirtz",
+        "email": "dcode+protobufjs@dcode.io",
+        "path": "node_modules/@protobufjs/utf8",
+        "licenseFile": "node_modules/@protobufjs/utf8/LICENSE"
+    },
+    "@types/long@4.0.1": {
+        "licenses": "MIT",
+        "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
+        "path": "node_modules/@types/long",
+        "licenseFile": "node_modules/@types/long/LICENSE"
+    },
+    "@types/node@13.13.30": {
+        "licenses": "MIT",
+        "repository": "https://github.com/DefinitelyTyped/DefinitelyTyped",
+        "path": "node_modules/protobufjs/node_modules/@types/node",
+        "licenseFile": "node_modules/protobufjs/node_modules/@types/node/LICENSE"
+    },
+    "d3-array@2.8.0": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/d3/d3-array",
+        "publisher": "Mike Bostock",
+        "url": "http://bost.ocks.org/mike",
+        "path": "node_modules/d3-array",
+        "licenseFile": "node_modules/d3-array/LICENSE"
+    },
+    "d3-axis@1.0.12": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/d3/d3-axis",
+        "publisher": "Mike Bostock",
+        "url": "http://bost.ocks.org/mike",
+        "path": "node_modules/d3-axis",
+        "licenseFile": "node_modules/d3-axis/LICENSE"
+    },
+    "d3-color@1.4.1": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/d3/d3-color",
+        "publisher": "Mike Bostock",
+        "url": "http://bost.ocks.org/mike",
+        "path": "node_modules/d3-color",
+        "licenseFile": "node_modules/d3-color/LICENSE"
+    },
+    "d3-color@2.0.0": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/d3/d3-color",
+        "publisher": "Mike Bostock",
+        "url": "http://bost.ocks.org/mike",
+        "path": "node_modules/d3-scale/node_modules/d3-color",
+        "licenseFile": "node_modules/d3-scale/node_modules/d3-color/LICENSE"
+    },
+    "d3-dispatch@1.0.6": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/d3/d3-dispatch",
+        "publisher": "Mike Bostock",
+        "url": "http://bost.ocks.org/mike",
+        "path": "node_modules/d3-dispatch",
+        "licenseFile": "node_modules/d3-dispatch/LICENSE"
+    },
+    "d3-ease@1.0.7": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/d3/d3-ease",
+        "publisher": "Mike Bostock",
+        "url": "http://bost.ocks.org/mike",
+        "path": "node_modules/d3-ease",
+        "licenseFile": "node_modules/d3-ease/LICENSE"
+    },
+    "d3-format@2.0.0": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/d3/d3-format",
+        "publisher": "Mike Bostock",
+        "url": "http://bost.ocks.org/mike",
+        "path": "node_modules/d3-format",
+        "licenseFile": "node_modules/d3-format/LICENSE"
+    },
+    "d3-interpolate@1.4.0": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/d3/d3-interpolate",
+        "publisher": "Mike Bostock",
+        "url": "http://bost.ocks.org/mike",
+        "path": "node_modules/d3-interpolate",
+        "licenseFile": "node_modules/d3-interpolate/LICENSE"
+    },
+    "d3-interpolate@2.0.1": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/d3/d3-interpolate",
+        "publisher": "Mike Bostock",
+        "url": "http://bost.ocks.org/mike",
+        "path": "node_modules/d3-scale/node_modules/d3-interpolate",
+        "licenseFile": "node_modules/d3-scale/node_modules/d3-interpolate/LICENSE"
+    },
+    "d3-path@1.0.9": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/d3/d3-path",
+        "publisher": "Mike Bostock",
+        "url": "http://bost.ocks.org/mike",
+        "path": "node_modules/d3-path",
+        "licenseFile": "node_modules/d3-path/LICENSE"
+    },
+    "d3-scale-chromatic@1.5.0": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/d3/d3-scale-chromatic",
+        "publisher": "Mike Bostock",
+        "url": "http://bost.ocks.org/mike",
+        "path": "node_modules/d3-scale-chromatic",
+        "licenseFile": "node_modules/d3-scale-chromatic/LICENSE"
+    },
+    "d3-scale@3.2.3": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/d3/d3-scale",
+        "publisher": "Mike Bostock",
+        "url": "http://bost.ocks.org/mike",
+        "path": "node_modules/d3-scale",
+        "licenseFile": "node_modules/d3-scale/LICENSE"
+    },
+    "d3-selection@1.4.2": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/d3/d3-selection",
+        "publisher": "Mike Bostock",
+        "url": "https://bost.ocks.org/mike",
+        "path": "node_modules/d3-selection",
+        "licenseFile": "node_modules/d3-selection/LICENSE"
+    },
+    "d3-shape@1.3.7": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/d3/d3-shape",
+        "publisher": "Mike Bostock",
+        "url": "http://bost.ocks.org/mike",
+        "path": "node_modules/d3-shape",
+        "licenseFile": "node_modules/d3-shape/LICENSE"
+    },
+    "d3-time-format@3.0.0": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/d3/d3-time-format",
+        "publisher": "Mike Bostock",
+        "url": "http://bost.ocks.org/mike",
+        "path": "node_modules/d3-time-format",
+        "licenseFile": "node_modules/d3-time-format/LICENSE"
+    },
+    "d3-time@1.1.0": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/d3/d3-time",
+        "publisher": "Mike Bostock",
+        "url": "http://bost.ocks.org/mike",
+        "path": "node_modules/d3-time",
+        "licenseFile": "node_modules/d3-time/LICENSE"
+    },
+    "d3-time@2.0.0": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/d3/d3-time",
+        "publisher": "Mike Bostock",
+        "url": "http://bost.ocks.org/mike",
+        "path": "node_modules/d3-scale/node_modules/d3-time",
+        "licenseFile": "node_modules/d3-scale/node_modules/d3-time/LICENSE"
+    },
+    "d3-timer@1.0.10": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/d3/d3-timer",
+        "publisher": "Mike Bostock",
+        "url": "http://bost.ocks.org/mike",
+        "path": "node_modules/d3-timer",
+        "licenseFile": "node_modules/d3-timer/LICENSE"
+    },
+    "d3-transition@1.3.2": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/d3/d3-transition",
+        "publisher": "Mike Bostock",
+        "url": "https://bost.ocks.org/mike",
+        "path": "node_modules/d3-transition",
+        "licenseFile": "node_modules/d3-transition/LICENSE"
+    },
+    "intl-pluralrules@1.2.2": {
+        "licenses": "ISC",
+        "repository": "https://github.com/eemeli/intl-pluralrules",
+        "publisher": "Eemeli Aro",
+        "email": "eemeli@gmail.com",
+        "path": "node_modules/intl-pluralrules",
+        "licenseFile": "node_modules/intl-pluralrules/LICENSE"
+    },
+    "lodash.debounce@4.0.8": {
+        "licenses": "MIT",
+        "repository": "https://github.com/lodash/lodash",
+        "publisher": "John-David Dalton",
+        "email": "john.david.dalton@gmail.com",
+        "url": "http://allyoucanleet.com/",
+        "path": "node_modules/lodash.debounce",
+        "licenseFile": "node_modules/lodash.debounce/LICENSE"
+    },
+    "lodash.throttle@4.1.1": {
+        "licenses": "MIT",
+        "repository": "https://github.com/lodash/lodash",
+        "publisher": "John-David Dalton",
+        "email": "john.david.dalton@gmail.com",
+        "url": "http://allyoucanleet.com/",
+        "path": "node_modules/lodash.throttle",
+        "licenseFile": "node_modules/lodash.throttle/LICENSE"
+    },
+    "long@4.0.0": {
+        "licenses": "Apache-2.0",
+        "repository": "https://github.com/dcodeIO/long.js",
+        "publisher": "Daniel Wirtz",
+        "email": "dcode@dcode.io",
+        "path": "node_modules/long",
+        "licenseFile": "node_modules/long/LICENSE"
+    },
+    "protobufjs@6.10.1": {
+        "licenses": "BSD-3-Clause",
+        "repository": "https://github.com/protobufjs/protobuf.js",
+        "publisher": "Daniel Wirtz",
+        "email": "dcode+protobufjs@dcode.io",
+        "path": "node_modules/protobufjs",
+        "licenseFile": "node_modules/protobufjs/LICENSE"
+    }
+}
+

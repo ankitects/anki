@@ -31,7 +31,7 @@ From Anki 2.1.36 onwards:
 
 ```
 $ python -m venv pyenv
-$ pyenv/bin/pip install aqt anki pyqtwebengine
+$ pyenv/bin/pip install aqt
 $ pyenv/bin/python -c 'import aqt; aqt.run()'
 ```
 
@@ -60,21 +60,21 @@ bazel test //...
 
 ## Fixing formatting
 
-If the format tests fail, most can be fixed by running format_fix
-in the relevant folder:
+If the format tests fail, most can be fixed by running `format`
+in the relevant package:
 
 ```
-bazel run //rslib:format_fix
-bazel run //pylib:format_fix
-bazel run //pylib/rsbridge:format_fix
-bazel run //qt:format_fix
+bazel run //rslib:format
+bazel run //pylib:format
+bazel run //qt:format
+bazel run //ts:format
+bazel run //pylib/rsbridge:format
 ```
 
-Currently the typescript code needs to be formatted differently:
+If you're in one of those folders, you can use the short form:
 
 ```
-cd ts
-./node_modules/.bin/prettier --write .
+bazel run format
 ```
 
 ## Building redistributable wheels
@@ -86,6 +86,21 @@ bazel build -c opt //qt/aqt:wheel
 
 The generated wheel paths will be printed as the build completes. To install
 them, see earlier in this document.
+
+## Audio
+
+Audio playing requires `mpv` or `mplayer` to be in your system path.
+
+Currently pyaudio is not included as part of the build or the generated wheel
+requirements, so audio recording will not work when running in place. When installing
+the wheels, you can optionally install pyaudio as well.
+
+On Linux/Mac, install the portaudio libs: (`apt install portaudio19-dev` / `brew install portaudio`), then `pip install pyaudio`.
+
+On Windows, install the Python 3.8 wheel from
+https://github.com/ankitects/windows-ci-tools.
+
+Recording also requires `lame` to be in your system path.
 
 ## Tracing build problems
 
@@ -107,6 +122,14 @@ and automatic backups will be disabled - so please don't use this except on a te
 If LOGTERM is set before starting Anki, warnings and error messages that are normally placed
 in the collection2.log file will also be printed on stdout.
 
+## Cleaning
+
+Unlike the old Make system, a "clean build" should almost never be required
+unless you are debugging issues with the build system. But if you need to get
+things to a fresh state, you can run `bazel clean --expunge`. Afte doing so,
+make sure you remove the ts/node_modules folder, or subsequent build commands
+will fail with a "no such file or directory node_modules/anki" message.
+
 ## Mixing development and study
 
 You may wish to create a separate profile with File>Switch Profile for use
@@ -119,14 +142,3 @@ If you're using PyCharm:
 - click "Edit 'run'..." - in Script options and enter:
   "-p [dev profile name]" without the quotes
 - click "Ok"
-
-# Instructions need updating:
-
-optional deps:
-pyaudio
-dpkg: portaudio19-dev
-
-mpv
-lame
-
-1. Download and install the pyaudio wheel from: https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio

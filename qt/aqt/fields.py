@@ -3,13 +3,12 @@
 
 import aqt
 from anki.consts import *
-from anki.lang import _, ngettext
 from anki.models import NoteType
 from anki.rsbackend import TemplateError
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.schema_change_tracker import ChangeTracker
-from aqt.utils import askUser, getOnlyText, openHelp, showWarning, tooltip
+from aqt.utils import TR, askUser, getOnlyText, openHelp, showWarning, tooltip, tr
 
 
 class FieldDialog(QDialog):
@@ -20,11 +19,11 @@ class FieldDialog(QDialog):
         self.mm = self.mw.col.models
         self.model = nt
         self.mm._remove_from_cache(self.model["id"])
-        self.mw.checkpoint(_("Fields"))
+        self.mw.checkpoint(tr(TR.EDITING_FIELDS))
         self.change_tracker = ChangeTracker(self.mw)
         self.form = aqt.forms.fields.Ui_Dialog()
         self.form.setupUi(self)
-        self.setWindowTitle(_("Fields for %s") % self.model["name"])
+        self.setWindowTitle(tr(TR.FIELDS_FIELDS_FOR, val=self.model["name"]))
         self.form.buttonBox.button(QDialogButtonBox.Help).setAutoDefault(False)
         self.form.buttonBox.button(QDialogButtonBox.Cancel).setAutoDefault(False)
         self.form.buttonBox.button(QDialogButtonBox.Save).setAutoDefault(False)
@@ -87,14 +86,14 @@ class FieldDialog(QDialog):
             if ignoreOrd is not None and f["ord"] == ignoreOrd:
                 continue
             if f["name"] == txt:
-                showWarning(_("That field name is already used."))
+                showWarning(tr(TR.FIELDS_THAT_FIELD_NAME_IS_ALREADY_USED))
                 return
         return txt
 
     def onRename(self):
         idx = self.currentIdx
         f = self.model["flds"][idx]
-        name = self._uniqueName(_("New name:"), self.currentIdx, f["name"])
+        name = self._uniqueName(tr(TR.ACTIONS_NEW_NAME), self.currentIdx, f["name"])
         if not name:
             return
 
@@ -107,7 +106,7 @@ class FieldDialog(QDialog):
         self.form.fieldList.setCurrentRow(idx)
 
     def onAdd(self):
-        name = self._uniqueName(_("Field name:"))
+        name = self._uniqueName(tr(TR.FIELDS_FIELD_NAME))
         if not name:
             return
         if not self.change_tracker.mark_schema():
@@ -120,10 +119,10 @@ class FieldDialog(QDialog):
 
     def onDelete(self):
         if len(self.model["flds"]) < 2:
-            return showWarning(_("Notes require at least one field."))
+            return showWarning(tr(TR.FIELDS_NOTES_REQUIRE_AT_LEAST_ONE_FIELD))
         count = self.mm.useCount(self.model)
-        c = ngettext("%d note", "%d notes", count) % count
-        if not askUser(_("Delete field from %s?") % c):
+        c = tr(TR.BROWSING_NOTE_COUNT, count=count)
+        if not askUser(tr(TR.FIELDS_DELETE_FIELD_FROM, val=c)):
             return
         if not self.change_tracker.mark_schema():
             return
@@ -137,7 +136,7 @@ class FieldDialog(QDialog):
     def onPosition(self, delta=-1):
         idx = self.currentIdx
         l = len(self.model["flds"])
-        txt = getOnlyText(_("New position (1...%d):") % l, default=str(idx + 1))
+        txt = getOnlyText(tr(TR.FIELDS_NEW_POSITION_1, val=l), default=str(idx + 1))
         if not txt:
             return
         try:

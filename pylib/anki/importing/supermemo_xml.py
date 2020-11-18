@@ -14,7 +14,6 @@ from xml.dom.minidom import Element, Text
 
 from anki.collection import Collection
 from anki.importing.noteimp import ForeignCard, ForeignNote, NoteImporter
-from anki.lang import _, ngettext
 from anki.stdmodels import addBasicModel
 
 
@@ -198,9 +197,7 @@ class SupermemoXmlImporter(NoteImporter):
 
         # Return imported cards
         self.total = len(self.notes)
-        self.log.append(
-            ngettext("%d card imported.", "%d cards imported.", self.total) % self.total
-        )
+        self.log.append("%d cards imported." % self.total)
         return self.notes
 
     def fields(self) -> int:
@@ -295,7 +292,7 @@ class SupermemoXmlImporter(NoteImporter):
                     + " - "
                     + dLevels[level].ljust(9)
                     + " -\t"
-                    + _(text)
+                    + text
                 )
 
     # OPEN AND LOAD

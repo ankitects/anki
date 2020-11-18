@@ -1,14 +1,12 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 # mypy: check-untyped-defs
-
 import json
 import re
 import time
 from typing import Any, Callable, Optional, Union
 
 from anki.cards import Card
-from anki.lang import _
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import (
     QAbstractItemView,
@@ -26,7 +24,7 @@ from aqt.qt import (
 from aqt.reviewer import replay_audio
 from aqt.sound import av_player, play_clicked_audio
 from aqt.theme import theme_manager
-from aqt.utils import restoreGeom, saveGeom
+from aqt.utils import TR, restoreGeom, saveGeom, tr
 from aqt.webview import AnkiWebView
 
 
@@ -62,7 +60,7 @@ class Previewer(QDialog):
         self.show()
 
     def _create_gui(self):
-        self.setWindowTitle(_("Preview"))
+        self.setWindowTitle(tr(TR.ACTIONS_PREVIEW))
 
         qconnect(self.finished, self._on_finished)
         self.silentlyClose = True
@@ -73,16 +71,16 @@ class Previewer(QDialog):
         self.bbox = QDialogButtonBox()
 
         self._replay = self.bbox.addButton(
-            _("Replay Audio"), QDialogButtonBox.ActionRole
+            tr(TR.ACTIONS_REPLAY_AUDIO), QDialogButtonBox.ActionRole
         )
         self._replay.setAutoDefault(False)
         self._replay.setShortcut(QKeySequence("R"))
-        self._replay.setToolTip(_("Shortcut key: %s" % "R"))
+        self._replay.setToolTip(tr(TR.ACTIONS_SHORTCUT_KEY, val="R"))
         qconnect(self._replay.clicked, self._on_replay_audio)
 
-        both_sides_button = QCheckBox(_("Back Side Only"))
+        both_sides_button = QCheckBox(tr(TR.QT_MISC_BACK_SIDE_ONLY))
         both_sides_button.setShortcut(QKeySequence("B"))
-        both_sides_button.setToolTip(_("Shortcut key: %s" % "B"))
+        both_sides_button.setToolTip(tr(TR.ACTIONS_SHORTCUT_KEY, val="B"))
         self.bbox.addButton(both_sides_button, QDialogButtonBox.ActionRole)
         self._show_both_sides = self.mw.col.conf.get("previewBothSides", False)
         both_sides_button.setChecked(self._show_both_sides)
@@ -114,8 +112,8 @@ class Previewer(QDialog):
         jsinc = [
             "js/vendor/jquery.js",
             "js/vendor/browsersel.js",
-            "js/vendor/mathjax/conf.js",
-            "js/vendor/mathjax/MathJax.js",
+            "js/mathjax.js",
+            "js/vendor/mathjax/tex-chtml.js",
             "js/reviewer.js",
         ]
         self._web.stdHtml(
@@ -159,7 +157,7 @@ class Previewer(QDialog):
         c = self.card()
         func = "_showQuestion"
         if not c:
-            txt = _("(please select 1 card)")
+            txt = tr(TR.QT_MISC_PLEASE_SELECT_1_CARD)
             bodyclass = ""
             self._last_state = None
         else:
@@ -184,6 +182,7 @@ class Previewer(QDialog):
             bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
 
             if c.autoplay():
+                AnkiWebView.setPlaybackRequiresGesture(False)
                 if self._show_both_sides:
                     # if we're showing both sides at once, remove any audio
                     # from the answer that's appeared on the question already
@@ -198,6 +197,7 @@ class Previewer(QDialog):
                     audio = c.answer_av_tags()
                 av_player.play_tags(audio)
             else:
+                AnkiWebView.setPlaybackRequiresGesture(True)
                 av_player.clear_queue_and_maybe_interrupt()
 
             txt = self.mw.prepare_card_text_for_display(txt)
@@ -238,12 +238,12 @@ class MultiCardPreviewer(Previewer):
         self._prev = self.bbox.addButton("<", QDialogButtonBox.ActionRole)
         self._prev.setAutoDefault(False)
         self._prev.setShortcut(QKeySequence("Left"))
-        self._prev.setToolTip(_("Shortcut key: Left arrow"))
+        self._prev.setToolTip(tr(TR.QT_MISC_SHORTCUT_KEY_LEFT_ARROW))
 
         self._next = self.bbox.addButton(">", QDialogButtonBox.ActionRole)
         self._next.setAutoDefault(True)
         self._next.setShortcut(QKeySequence("Right"))
-        self._next.setToolTip(_("Shortcut key: Right arrow or Enter"))
+        self._next.setToolTip(tr(TR.QT_MISC_SHORTCUT_KEY_RIGHT_ARROW_OR_ENTER))
 
         qconnect(self._prev.clicked, self._on_prev)
         qconnect(self._next.clicked, self._on_next)

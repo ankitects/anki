@@ -1,0 +1,14 @@
+filegroup(
+    name = "ftl",
+    srcs = [
+        "@rslib_ftl//:files",
+        "@extra_ftl//:files",
+    ] + glob(["**/*.ftl"]),
+    visibility = ["//rslib:__subpackages__"],
+)
+
+# export this file as a way of locating the top level folder in $(location ...)
+exports_files(
+    ["BUILD.bazel"],
+    visibility = ["//rslib:__subpackages__"],
+)

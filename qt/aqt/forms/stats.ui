@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Statistics</string>
+   <string notr="true">Statistics</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
@@ -33,7 +33,7 @@
     <widget class="AnkiWebView" name="web" native="true">
      <property name="url" stdset="0">
       <url>
-       <string>about:blank</string>
+       <string notr="true">about:blank</string>
       </url>
      </property>
     </widget>
@@ -77,7 +77,7 @@
         <item>
          <widget class="QRadioButton" name="groups">
           <property name="text">
-           <string>deck</string>
+           <string notr="true">deck</string>
           </property>
           <property name="checked">
            <bool>true</bool>
@@ -87,7 +87,7 @@
         <item>
          <widget class="QRadioButton" name="all">
           <property name="text">
-           <string>collection</string>
+           <string notr="true">collection</string>
           </property>
          </widget>
         </item>
@@ -103,7 +103,7 @@
         <item>
          <widget class="QRadioButton" name="month">
           <property name="text">
-           <string>1 month</string>
+           <string notr="true">1 month</string>
           </property>
           <property name="checked">
            <bool>true</bool>
@@ -113,14 +113,14 @@
         <item>
          <widget class="QRadioButton" name="year">
           <property name="text">
-           <string>1 year</string>
+           <string notr="true">1 year</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QRadioButton" name="life">
           <property name="text">
-           <string>deck life</string>
+           <string notr="true">deck life</string>
           </property>
          </widget>
         </item>

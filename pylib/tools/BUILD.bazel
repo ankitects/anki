@@ -28,9 +28,6 @@ py_binary(
         "genbackend.py",
         "//pylib/anki:backend_pb2",
     ],
-    imports = [
-        "../anki",
-    ],
     visibility = ["//pylib:__subpackages__"],
     deps = [
         requirement("black"),
@@ -64,7 +61,7 @@ py_binary(
 )
 
 filegroup(
-    name = "py_files",
+    name = "py_source_files",
     srcs = glob(["*.py"]),
     visibility = ["//pylib:__subpackages__"],
 )

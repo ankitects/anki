@@ -1,15 +1,14 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
 from __future__ import annotations
 
 import time
 from typing import Optional
 
 import aqt.forms
-from anki.lang import _
 from aqt.qt import *
+from aqt.utils import TR, tr
 
 # Progress info
 ##########################################################################
@@ -80,7 +79,7 @@ class ProgressManager:
         if not parent and self.mw.isVisible():
             parent = self.mw
 
-        label = label or _("Processing...")
+        label = label or tr(TR.QT_MISC_PROCESSING)
         self._win = ProgressDialog(parent)
         self._win.form.progressBar.setMinimum(min)
         self._win.form.progressBar.setMaximum(max)

@@ -1,0 +1,10 @@
+profiles-anki-could-not-read-your-profile = Anki could not read your profile data. Window sizes and your sync login details have been forgotten.
+profiles-anki-could-not-rename-your-profile = Anki could not rename your profile because it could not rename the profile folder on disk. Please ensure you have permission to write to Documents/Anki and no other programs are accessing your profile folders, then try again.
+profiles-folder-already-exists = Folder already exists.
+profiles-open = Open
+profiles-open-backup = Open Backup...
+profiles-please-remove-the-folder-and = Please remove the folder { $val } and try again.
+profiles-profile-corrupt = Profile Corrupt
+profiles-profiles = Profiles
+profiles-quit = Quit
+profiles-user-1 = User 1

@@ -33,7 +33,6 @@ do
         (cat <<EOF; tail -n +3 $py.tmp) |  perl -p -e 's/(QtGui\.QApplication\.)?_?translate\(".*?", /_(/; s/, None.*/))/' > $py
 # -*- coding: utf-8 -*-
 # pylint: disable=unsubscriptable-object,unused-import
-from anki.lang import _
 EOF
         rm $py.tmp
     fi

@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
 from __future__ import annotations
 
 from enum import Enum
 
 import aqt
 from anki.errors import DeckRenameError
-from anki.lang import _
 from aqt.qt import *
-from aqt.utils import getOnlyText, showWarning
+from aqt.utils import TR, getOnlyText, showWarning, tr
 
 
 class SidebarItemType(Enum):
@@ -71,7 +69,7 @@ class NewSidebarTreeView(SidebarTreeViewBase):
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.onContextMenu)  # type: ignore
         self.context_menus = {
-            SidebarItemType.DECK: ((_("Rename"), self.rename_deck),),
+            SidebarItemType.DECK: ((tr(TR.ACTIONS_RENAME), self.rename_deck),),
         }
 
     def onContextMenu(self, point: QPoint) -> None:
@@ -92,10 +90,10 @@ class NewSidebarTreeView(SidebarTreeViewBase):
         m.exec_(QCursor.pos())
 
     def rename_deck(self, item: "aqt.browser.SidebarItem") -> None:
-        self.mw.checkpoint(_("Rename Deck"))
+        self.mw.checkpoint(tr(TR.ACTIONS_RENAME_DECK))
         deck = self.mw.col.decks.get(item.id)
         old_name = deck["name"]
-        new_name = getOnlyText(_("New deck name:"), default=old_name)
+        new_name = getOnlyText(tr(TR.DECKS_NEW_DECK_NAME), default=old_name)
         new_name = new_name.replace('"', "")
         if not new_name or new_name == old_name:
             return

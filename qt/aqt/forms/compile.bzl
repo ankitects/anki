@@ -13,7 +13,7 @@ def compile(name, ui_file, py_file):
         message = "Building UI",
     )
 
-def compile_all(group, srcs):
+def compile_all(group, srcs, visibility):
     py_files = []
     for ui_file in srcs:
         name = ui_file.replace(".ui", "")
@@ -24,5 +24,5 @@ def compile_all(group, srcs):
     native.filegroup(
         name = group,
         srcs = py_files + ["__init__.py"],
-        visibility = ["//qt/aqt:__pkg__"],
+        visibility = visibility,
     )

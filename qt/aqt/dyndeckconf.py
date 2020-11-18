@@ -4,9 +4,8 @@
 from typing import List, Optional
 
 import aqt
-from anki.lang import _
 from aqt.qt import *
-from aqt.utils import askUser, openHelp, restoreGeom, saveGeom, showWarning
+from aqt.utils import TR, askUser, openHelp, restoreGeom, saveGeom, showWarning, tr
 
 
 class DeckConf(QDialog):
@@ -18,14 +17,14 @@ class DeckConf(QDialog):
         self.form = aqt.forms.dyndconf.Ui_Dialog()
         self.form.setupUi(self)
         if first:
-            label = _("Build")
+            label = tr(TR.DECKS_BUILD)
         else:
-            label = _("Rebuild")
+            label = tr(TR.ACTIONS_REBUILD)
         self.ok = self.form.buttonBox.addButton(label, QDialogButtonBox.AcceptRole)
-        self.mw.checkpoint(_("Options"))
+        self.mw.checkpoint(tr(TR.ACTIONS_OPTIONS))
         self.setWindowModality(Qt.WindowModal)
         qconnect(self.form.buttonBox.helpRequested, lambda: openHelp("filtered-decks"))
-        self.setWindowTitle(_("Options for %s") % self.deck["name"])
+        self.setWindowTitle(tr(TR.ACTIONS_OPTIONS_FOR, val=self.deck["name"]))
         restoreGeom(self, "dyndeckconf")
         self.initialSetup()
         self.loadConf()
@@ -44,8 +43,8 @@ class DeckConf(QDialog):
     def initialSetup(self):
         import anki.consts as cs
 
-        self.form.order.addItems(list(cs.dynOrderLabels().values()))
-        self.form.order_2.addItems(list(cs.dynOrderLabels().values()))
+        self.form.order.addItems(list(cs.dynOrderLabels(self.mw.col).values()))
+        self.form.order_2.addItems(list(cs.dynOrderLabels(self.mw.col).values()))
 
         qconnect(self.form.resched.stateChanged, self._onReschedToggled)
 
@@ -123,13 +122,7 @@ class DeckConf(QDialog):
         if not self.saveConf():
             return
         if not self.mw.col.sched.rebuild_filtered_deck(self.deck["id"]):
-            if askUser(
-                _(
-                    """\
-The provided search did not match any cards. Would you like to revise \
-it?"""
-                )
-            ):
+            if askUser(tr(TR.DECKS_THE_PROVIDED_SEARCH_DID_NOT_MATCH)):
                 return
         self.mw.reset()
         QDialog.accept(self)
@@ -154,9 +147,9 @@ it?"""
                 ret.append(i)
             except:
                 # invalid, don't update
-                showWarning(_("Steps must be numbers."))
+                showWarning(tr(TR.SCHEDULING_STEPS_MUST_BE_NUMBERS))
                 return None
         if len(ret) < minSize:
-            showWarning(_("At least one step is required."))
+            showWarning(tr(TR.SCHEDULING_AT_LEAST_ONE_STEP_IS_REQUIRED))
             return None
         return ret

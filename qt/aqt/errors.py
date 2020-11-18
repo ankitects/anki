@@ -8,7 +8,6 @@ import traceback
 
 from markdown import markdown
 
-from anki.lang import _
 from aqt import mw
 from aqt.qt import *
 from aqt.utils import TR, showText, showWarning, supportText, tr
@@ -65,10 +64,7 @@ class ErrorHandler(QObject):
         self.timer.start()
 
     def tempFolderMsg(self):
-        return _(
-            """Unable to access Anki media folder. The permissions on \
-your system's temporary folder may be incorrect."""
-        )
+        return tr(TR.QT_MISC_UNABLE_TO_ACCESS_ANKI_MEDIA_FOLDER)
 
     def onTimeout(self):
         error = html.escape(self.pool)
@@ -77,28 +73,15 @@ your system's temporary folder may be incorrect."""
         if "abortSchemaMod" in error:
             return
         if "10013" in error:
-            return showWarning(
-                _(
-                    "Your firewall or antivirus program is preventing Anki from creating a connection to itself. Please add an exception for Anki."
-                )
-            )
+            return showWarning(tr(TR.QT_MISC_YOUR_FIREWALL_OR_ANTIVIRUS_PROGRAM_IS))
         if "no default input" in error.lower():
-            return showWarning(
-                _(
-                    "Please connect a microphone, and ensure "
-                    "other programs are not using the audio device."
-                )
-            )
+            return showWarning(tr(TR.QT_MISC_PLEASE_CONNECT_A_MICROPHONE_AND_ENSURE))
         if "invalidTempFolder" in error:
             return showWarning(self.tempFolderMsg())
         if "Beautiful Soup is not an HTTP client" in error:
             return
         if "database or disk is full" in error or "Errno 28" in error:
-            return showWarning(
-                _(
-                    "Your computer's storage may be full. Please delete some unneeded files, then try again."
-                )
-            )
+            return showWarning(tr(TR.QT_MISC_YOUR_COMPUTERS_STORAGE_MAY_BE_FULL))
         if "disk I/O error" in error:
             showWarning(markdown(tr(TR.ERRORS_ACCESSING_DB)))
             return

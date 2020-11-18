@@ -7,13 +7,13 @@ from typing import Any, List, Optional, Sequence
 import aqt.clayout
 from anki import stdmodels
 from anki.backend_pb2 import NoteTypeNameIDUseCount
-from anki.lang import _, ngettext
 from anki.models import NoteType
 from anki.notes import Note
 from anki.rsbackend import pb
 from aqt import AnkiQt, gui_hooks
 from aqt.qt import *
 from aqt.utils import (
+    TR,
     askUser,
     getText,
     maybeHideClose,
@@ -21,6 +21,7 @@ from aqt.utils import (
     restoreGeom,
     saveGeom,
     showInfo,
+    tr,
 )
 
 
@@ -33,7 +34,7 @@ class Models(QDialog):
         self.col = mw.col.weakref()
         assert self.col
         self.mm = self.col.models
-        self.mw.checkpoint(_("Note Types"))
+        self.mw.checkpoint(tr(TR.NOTETYPES_NOTE_TYPES))
         self.form = aqt.forms.models.Ui_Dialog()
         self.form.setupUi(self)
         qconnect(
@@ -54,20 +55,20 @@ class Models(QDialog):
         box = f.buttonBox
 
         default_buttons = [
-            (_("Add"), self.onAdd),
-            (_("Rename"), self.onRename),
-            (_("Delete"), self.onDelete),
+            (tr(TR.ACTIONS_ADD), self.onAdd),
+            (tr(TR.ACTIONS_RENAME), self.onRename),
+            (tr(TR.ACTIONS_DELETE), self.onDelete),
         ]
 
         if self.fromMain:
             default_buttons.extend(
                 [
-                    (_("Fields..."), self.onFields),
-                    (_("Cards..."), self.onCards),
+                    (tr(TR.NOTETYPES_FIELDS), self.onFields),
+                    (tr(TR.NOTETYPES_CARDS), self.onCards),
                 ]
             )
 
-        default_buttons.append((_("Options..."), self.onAdvanced))
+        default_buttons.append((tr(TR.NOTETYPES_OPTIONS), self.onAdvanced))
 
         for label, func in gui_hooks.models_did_init_buttons(default_buttons, self):
             button = box.addButton(label, QDialogButtonBox.ActionRole)
@@ -84,7 +85,7 @@ class Models(QDialog):
 
     def onRename(self) -> None:
         nt = self.current_notetype()
-        txt = getText(_("New name:"), default=nt["name"])
+        txt = getText(tr(TR.ACTIONS_NEW_NAME), default=nt["name"])
         name = txt[0].replace('"', "")
         if txt[1] and name:
             nt["name"] = name
@@ -108,7 +109,7 @@ class Models(QDialog):
 
         self.models = notetypes
         for m in self.models:
-            mUse = ngettext("%d note", "%d notes", m.use_count) % m.use_count
+            mUse = tr(TR.BROWSING_NOTE_COUNT, count=m.use_count)
             item = QListWidgetItem("%s [%s]" % (m.name, mUse))
             self.form.modelsList.addItem(item)
         self.form.modelsList.setCurrentRow(row)
@@ -120,20 +121,20 @@ class Models(QDialog):
     def onAdd(self) -> None:
         m = AddModel(self.mw, self).get()
         if m:
-            txt = getText(_("Name:"), default=m["name"])[0].replace('"', "")
+            txt = getText(tr(TR.ACTIONS_NAME), default=m["name"])[0].replace('"', "")
             if txt:
                 m["name"] = txt
             self.saveAndRefresh(m)
 
     def onDelete(self) -> None:
         if len(self.models) < 2:
-            showInfo(_("Please add another note type first."), parent=self)
+            showInfo(tr(TR.NOTETYPES_PLEASE_ADD_ANOTHER_NOTE_TYPE_FIRST), parent=self)
             return
         idx = self.form.modelsList.currentRow()
         if self.models[idx].use_count:
-            msg = _("Delete this note type and all its cards?")
+            msg = tr(TR.NOTETYPES_DELETE_THIS_NOTE_TYPE_AND_ALL)
         else:
-            msg = _("Delete this unused note type?")
+            msg = tr(TR.NOTETYPES_DELETE_THIS_UNUSED_NOTE_TYPE)
         if not askUser(msg, parent=self):
             return
 
@@ -158,7 +159,7 @@ class Models(QDialog):
         frm.latexsvg.setChecked(nt.get("latexsvg", False))
         frm.latexHeader.setText(nt["latexPre"])
         frm.latexFooter.setText(nt["latexPost"])
-        d.setWindowTitle(_("Options for %s") % nt["name"])
+        d.setWindowTitle(tr(TR.ACTIONS_OPTIONS_FOR, val=nt["name"]))
         qconnect(frm.buttonBox.helpRequested, lambda: openHelp("math?id=latex"))
         restoreGeom(d, "modelopts")
         gui_hooks.models_advanced_will_show(d)
@@ -209,12 +210,12 @@ class AddModel(QDialog):
         # standard models
         self.models = []
         for (name, func) in stdmodels.get_stock_notetypes(self.col):
-            item = QListWidgetItem(_("Add: %s") % name)
+            item = QListWidgetItem(tr(TR.NOTETYPES_ADD, val=name))
             self.dialog.models.addItem(item)
             self.models.append((True, func))
         # add copies
         for m in sorted(self.col.models.all(), key=itemgetter("name")):
-            item = QListWidgetItem(_("Clone: %s") % m["name"])
+            item = QListWidgetItem(tr(TR.NOTETYPES_CLONE, val=m["name"]))
             self.dialog.models.addItem(item)
             self.models.append((False, m))  # type: ignore
         self.dialog.models.setCurrentRow(0)

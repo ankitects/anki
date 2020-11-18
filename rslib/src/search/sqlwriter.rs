@@ -10,7 +10,7 @@ use crate::{
     notes::field_checksum,
     notetype::NoteTypeID,
     text::{
-        escape_sql, is_glob, normalize_to_nfc, strip_html_preserving_image_filenames, to_custom_re,
+        escape_sql, is_glob, normalize_to_nfc, strip_html_preserving_media_filenames, to_custom_re,
         to_re, to_sql, to_text, without_combining,
     },
     timestamp::TimestampSecs,
@@ -436,7 +436,7 @@ impl SqlWriter<'_> {
 
     fn write_dupes(&mut self, ntid: NoteTypeID, text: &str) {
         let text = &self.convert(CM::OnlyNorm, text);
-        let text_nohtml = strip_html_preserving_image_filenames(text);
+        let text_nohtml = strip_html_preserving_media_filenames(text);
         let csum = field_checksum(text_nohtml.as_ref());
         write!(
             self.sql,
@@ -444,7 +444,7 @@ impl SqlWriter<'_> {
             ntid, csum
         )
         .unwrap();
-        self.args.push(text.to_string());
+        self.args.push(text_nohtml.to_string());
     }
 
     fn write_added(&mut self, days: u32) -> Result<()> {

@@ -47,10 +47,10 @@ py_test(
 )
 
 py_test(
-    name = "format",
+    name = "format_check",
     srcs = [
-        "//pylib/tools:py_files",
-        "//pylib/anki:py_files",
+        "//pylib/tools:py_source_files",
+        "//pylib/anki:py_source_files",
     ] + glob([
         "tests/**/*.py",
     ]),
@@ -66,7 +66,7 @@ py_test(
 )
 
 py_binary(
-    name = "format_fix",
+    name = "format",
     srcs = [
         "tests/run_format.py",
     ],

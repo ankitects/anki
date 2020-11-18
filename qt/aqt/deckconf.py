@@ -1,7 +1,6 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # -*- coding: utf-8 -*-
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
-
 from operator import itemgetter
 from typing import Any, Dict
 
@@ -9,10 +8,10 @@ from PyQt5.QtWidgets import QLineEdit
 
 import aqt
 from anki.consts import NEW_CARDS_RANDOM
-from anki.lang import _, ngettext
 from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import (
+    TR,
     askUser,
     getOnlyText,
     openHelp,
@@ -21,6 +20,7 @@ from aqt.utils import (
     showInfo,
     showWarning,
     tooltip,
+    tr,
 )
 
 
@@ -34,7 +34,7 @@ class DeckConf(QDialog):
         self.form = aqt.forms.dconf.Ui_Dialog()
         self.form.setupUi(self)
         gui_hooks.deck_conf_did_setup_ui_form(self)
-        self.mw.checkpoint(_("Options"))
+        self.mw.checkpoint(tr(TR.ACTIONS_OPTIONS))
         self.setupCombos()
         self.setupConfs()
         self.setWindowModality(Qt.WindowModal)
@@ -44,7 +44,7 @@ class DeckConf(QDialog):
             self.form.buttonBox.button(QDialogButtonBox.RestoreDefaults).clicked,
             self.onRestore,
         )
-        self.setWindowTitle(_("Options for %s") % self.deck["name"])
+        self.setWindowTitle(tr(TR.ACTIONS_OPTIONS_FOR, val=self.deck["name"]))
         # qt doesn't size properly with altered fonts otherwise
         restoreGeom(self, "deckconf", adjustSize=True)
         gui_hooks.deck_conf_will_show(self)
@@ -56,7 +56,7 @@ class DeckConf(QDialog):
         import anki.consts as cs
 
         f = self.form
-        f.newOrder.addItems(list(cs.newCardOrderLabels().values()))
+        f.newOrder.addItems(list(cs.newCardOrderLabels(self.mw.col).values()))
         qconnect(f.newOrder.currentIndexChanged, self.onNewOrderChanged)
 
     # Conf list
@@ -86,13 +86,13 @@ class DeckConf(QDialog):
 
     def confOpts(self):
         m = QMenu(self.mw)
-        a = m.addAction(_("Add"))
+        a = m.addAction(tr(TR.ACTIONS_ADD))
         qconnect(a.triggered, self.addGroup)
-        a = m.addAction(_("Delete"))
+        a = m.addAction(tr(TR.ACTIONS_DELETE))
         qconnect(a.triggered, self.remGroup)
-        a = m.addAction(_("Rename"))
+        a = m.addAction(tr(TR.ACTIONS_RENAME))
         qconnect(a.triggered, self.renameGroup)
-        a = m.addAction(_("Set for all subdecks"))
+        a = m.addAction(tr(TR.SCHEDULING_SET_FOR_ALL_SUBDECKS))
         qconnect(a.triggered, self.setChildren)
         if not self.childDids:
             a.setEnabled(False)
@@ -109,16 +109,13 @@ class DeckConf(QDialog):
         self.loadConf()
         cnt = len(self.mw.col.decks.didsForConf(conf))
         if cnt > 1:
-            txt = _(
-                "Your changes will affect multiple decks. If you wish to "
-                "change only the current deck, please add a new options group first."
-            )
+            txt = tr(TR.SCHEDULING_YOUR_CHANGES_WILL_AFFECT_MULTIPLE_DECKS)
         else:
             txt = ""
         self.form.count.setText(txt)
 
     def addGroup(self) -> None:
-        name = getOnlyText(_("New options group name:"))
+        name = getOnlyText(tr(TR.SCHEDULING_NEW_OPTIONS_GROUP_NAME))
         if not name:
             return
 
@@ -134,7 +131,7 @@ class DeckConf(QDialog):
 
     def remGroup(self) -> None:
         if int(self.conf["id"]) == 1:
-            showInfo(_("The default configuration can't be removed."), self)
+            showInfo(tr(TR.SCHEDULING_THE_DEFAULT_CONFIGURATION_CANT_BE_REMOVED), self)
         else:
             gui_hooks.deck_conf_will_remove_config(self, self.deck, self.conf)
             self.mw.col.modSchema(check=True)
@@ -145,7 +142,7 @@ class DeckConf(QDialog):
 
     def renameGroup(self) -> None:
         old = self.conf["name"]
-        name = getOnlyText(_("New name:"), default=old)
+        name = getOnlyText(tr(TR.ACTIONS_NEW_NAME), default=old)
         if not name or name == old:
             return
 
@@ -155,9 +152,7 @@ class DeckConf(QDialog):
         self.loadConfs()
 
     def setChildren(self):
-        if not askUser(
-            _("Set all decks below %s to this option group?") % self.deck["name"]
-        ):
+        if not askUser(tr(TR.SCHEDULING_SET_ALL_DECKS_BELOW_TO, val=self.deck["name"])):
             return
         for did in self.childDids:
             deck = self.mw.col.decks.get(did)
@@ -165,10 +160,7 @@ class DeckConf(QDialog):
                 continue
             deck["conf"] = self.deck["conf"]
             self.mw.col.decks.save(deck)
-        tooltip(
-            ngettext("%d deck updated.", "%d decks updated.", len(self.childDids))
-            % len(self.childDids)
-        )
+        tooltip(tr(TR.SCHEDULING_DECK_UPDATED, count=len(self.childDids)))
 
     # Loading
     ##################################################
@@ -194,7 +186,7 @@ class DeckConf(QDialog):
                 lim = x
             else:
                 lim = min(x, lim)
-        return _("(parent limit: %d)") % lim
+        return tr(TR.SCHEDULING_PARENT_LIMIT, val=lim)
 
     def loadConf(self):
         self.conf = self.mw.col.decks.confForDid(self.deck["id"])
@@ -273,10 +265,10 @@ class DeckConf(QDialog):
                 ret.append(i)
             except:
                 # invalid, don't update
-                showWarning(_("Steps must be numbers."))
+                showWarning(tr(TR.SCHEDULING_STEPS_MUST_BE_NUMBERS))
                 return
         if len(ret) < minSize:
-            showWarning(_("At least one step is required."))
+            showWarning(tr(TR.SCHEDULING_AT_LEAST_ONE_STEP_IS_REQUIRED))
             return
         conf[key] = ret
 
