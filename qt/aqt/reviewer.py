@@ -822,12 +822,7 @@ time = %(time)d;
         cnt = len(self.card.note().cards())
         self.mw.col.remove_notes([self.card.note().id])
         self.mw.reset()
-        tooltip(
-            ngettext(
-                "Note and its %d card deleted.", "Note and its %d cards deleted.", cnt
-            )
-            % cnt
-        )
+        tooltip(tr(TR.STUDYING_NOTE_AND_ITS_CARD_DELETED, count=cnt))
 
     def onBuryCard(self) -> None:
         self.mw.checkpoint(tr(TR.STUDYING_BURY))

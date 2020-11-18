@@ -150,10 +150,7 @@ class ExportDialog(QDialog):
             def exported_media(cnt):
                 self.mw.taskman.run_on_main(
                     lambda: self.mw.progress.update(
-                        label=ngettext(
-                            "Exported %d media file", "Exported %d media files", cnt
-                        )
-                        % cnt
+                        label=tr(TR.EXPORTING_EXPORTED_MEDIA_FILE, count=cnt)
                     )
                 )
 
@@ -178,22 +175,8 @@ class ExportDialog(QDialog):
             self.mw.reopen()
         else:
             if self.isTextNote:
-                msg = (
-                    ngettext(
-                        "%d note exported.",
-                        "%d notes exported.",
-                        self.exporter.count,
-                    )
-                    % self.exporter.count
-                )
+                msg = tr(TR.EXPORTING_NOTE_EXPORTED, count=self.exporter.count)
             else:
-                msg = (
-                    ngettext(
-                        "%d card exported.",
-                        "%d cards exported.",
-                        self.exporter.count,
-                    )
-                    % self.exporter.count
-                )
+                msg = tr(TR.EXPORTING_CARD_EXPORTED, count=self.exporter.count)
         tooltip(msg, period=3000)
         QDialog.reject(self)
