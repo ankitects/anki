@@ -5,6 +5,7 @@ use lazy_static::lazy_static;
 use regex::{Captures, Regex};
 use std::borrow::Cow;
 use std::ptr;
+use unicase::eq as uni_eq;
 use unicode_normalization::{
     char::is_combining_mark, is_nfc, is_nfkd_quick, IsNormalized, UnicodeNormalization,
 };
@@ -360,6 +361,16 @@ pub(crate) fn escape_sql(txt: &str) -> Cow<str> {
         static ref RE: Regex = Regex::new(r"[\\%_]").unwrap();
     }
     RE.replace_all(&txt, r"\$0")
+}
+
+/// Compare text with a possible glob, folding case.
+pub(crate) fn matches_glob(text: &str, search: &str) -> bool {
+    if is_glob(search) {
+        let search = format!("^(?i){}$", to_re(search));
+        Regex::new(&search).unwrap().is_match(text)
+    } else {
+        uni_eq(text, &to_text(search))
+    }
 }
 
 #[cfg(test)]
