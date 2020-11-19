@@ -49,6 +49,9 @@ def test_findCards():
     assert len(col.findCards("tag:*")) == 5
     assert len(col.findCards("tag:\\*")) == 1
     assert len(col.findCards("tag:%")) == 1
+    assert len(col.findCards("tag:sheep_goat")) == 0
+    assert len(col.findCards('"tag:sheep goat"')) == 0
+    assert len(col.findCards('"tag:* *"')) == 0
     assert len(col.findCards("tag:animal_1")) == 2
     assert len(col.findCards("tag:animal\\_1")) == 1
     assert not col.findCards("tag:donkey")
