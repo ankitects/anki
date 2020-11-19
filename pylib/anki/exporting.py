@@ -8,7 +8,7 @@ import shutil
 import unicodedata
 import zipfile
 from io import BufferedWriter
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 from zipfile import ZipFile
 
 from anki import hooks
@@ -20,7 +20,6 @@ from anki.utils import ids2str, namedtmp, splitFields, stripHTML
 class Exporter:
     includeHTML: Union[bool, None] = None
     ext: Optional[str] = None
-    key: Union[str, Callable, None] = None
     includeTags: Optional[bool] = None
     includeSched: Optional[bool] = None
     includeMedia: Optional[bool] = None
@@ -34,6 +33,10 @@ class Exporter:
         self.col = col.weakref()
         self.did = did
         self.cids = cids
+
+    @staticmethod
+    def key(col: Collection) -> str:
+        return ""
 
     def doExport(self, path) -> None:
         raise Exception("not implemented")
@@ -97,7 +100,10 @@ class TextCardExporter(Exporter):
 
     def __init__(self, col) -> None:
         Exporter.__init__(self, col)
-        self.key = col.tr(TR.EXPORTING_CARDS_IN_PLAIN_TEXT)
+
+    @staticmethod
+    def key(col: Collection) -> str:
+        return col.tr(TR.EXPORTING_CARDS_IN_PLAIN_TEXT)
 
     def doExport(self, file) -> None:
         ids = sorted(self.cardIds())
@@ -129,7 +135,10 @@ class TextNoteExporter(Exporter):
     def __init__(self, col: Collection) -> None:
         Exporter.__init__(self, col)
         self.includeID = False
-        self.key = col.tr(TR.EXPORTING_NOTES_IN_PLAIN_TEXT)
+
+    @staticmethod
+    def key(col: Collection) -> str:
+        return col.tr(TR.EXPORTING_NOTES_IN_PLAIN_TEXT)
 
     def doExport(self, file: BufferedWriter) -> None:
         cardIds = self.cardIds()
@@ -170,7 +179,10 @@ class AnkiExporter(Exporter):
 
     def __init__(self, col: Collection) -> None:
         Exporter.__init__(self, col)
-        self.key = col.tr(TR.EXPORTING_ANKI_20_DECK)
+
+    @staticmethod
+    def key(col: Collection) -> str:
+        return col.tr(TR.EXPORTING_ANKI_20_DECK)
 
     def deckIds(self) -> List[int]:
         if self.cids:
@@ -317,7 +329,10 @@ class AnkiPackageExporter(AnkiExporter):
 
     def __init__(self, col: Collection) -> None:
         AnkiExporter.__init__(self, col)
-        self.key = col.tr(TR.EXPORTING_ANKI_DECK_PACKAGE)
+
+    @staticmethod
+    def key(col: Collection) -> str:
+        return col.tr(TR.EXPORTING_ANKI_DECK_PACKAGE)
 
     def exportInto(self, path: str) -> None:
         # open a zip file
@@ -401,7 +416,10 @@ class AnkiCollectionPackageExporter(AnkiPackageExporter):
 
     def __init__(self, col):
         AnkiPackageExporter.__init__(self, col)
-        self.key = col.tr(TR.EXPORTING_ANKI_COLLECTION_PACKAGE)
+
+    @staticmethod
+    def key(col: Collection) -> str:
+        return col.tr(TR.EXPORTING_ANKI_COLLECTION_PACKAGE)
 
     def doExport(self, z, path):
         "Export collection. Caller must re-open afterwards."
@@ -425,10 +443,10 @@ class AnkiCollectionPackageExporter(AnkiPackageExporter):
 ##########################################################################
 
 
-def exporters() -> List[Tuple[str, Any]]:
+def exporters(col: Collection) -> List[Tuple[str, Any]]:
     def id(obj):
         if callable(obj.key):
-            key_str = obj.key(obj)
+            key_str = obj.key(col)
         else:
             key_str = obj.key
         return ("%s (*%s)" % (key_str, obj.ext), obj)
