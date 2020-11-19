@@ -19,6 +19,7 @@ requests[socks]
 send2trash
 stringcase
 waitress
+fluent-syntax
 
 # windows only
 psutil; sys.platform == "win32"
