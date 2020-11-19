@@ -14,6 +14,7 @@ decorator==4.4.2          # via -r requirements.in
 distro==1.5.0             # via -r requirements.in
 flask-cors==3.0.9         # via -r requirements.in
 flask==1.1.2              # via -r requirements.in, flask-cors
+fluent-syntax==0.18.1     # via -r requirements.in
 idna==2.10                # via requests
 iniconfig==1.1.1          # via pytest
 isort==5.6.4              # via -r requirements.in, pylint
