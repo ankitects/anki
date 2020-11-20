@@ -490,7 +490,6 @@ create table if not exists profiles
 
         d = self.langDiag = NoCloseDiag()
         f = self.langForm = aqt.forms.setlang.Ui_Dialog()
-        f.setupUi(d)
         qconnect(d.accepted, self._onLangSelected)
         qconnect(d.rejected, lambda: True)
         # default to the system language
@@ -510,6 +509,9 @@ create table if not exists profiles
         # if the system language isn't available, revert to english
         if idx is None:
             idx = en
+            lang = "en_US"
+        anki.lang.set_lang(lang, locale_dir())
+        f.setupUi(d)
         # update list
         f.lang.addItems([x[0] for x in anki.lang.langs])
         f.lang.setCurrentRow(idx)
