@@ -2,11 +2,8 @@ To run, change to this folder in a terminal and run the following command:
 
 ./bin/Anki
 
-- To install system wide, ensure you have make installed
-(eg in Ubuntu, run 'sudo apt install make' in a terminal)
-- Run 'sudo make install'
-- Start Anki with 'anki'
-- To remove in the future, run 'sudo make uninstall' from the same folder.
+- To install system wide, run 'sudo ./install.sh'
+- To remove in the future, run 'sudo ./uninstall.sh' from the same folder.
 
 To play and record audio, mpv and lame must be installed. If mpv is not
 installed or too old, Anki will try to fall back on using mplayer.
