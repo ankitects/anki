@@ -240,17 +240,6 @@ pub(crate) fn ensure_string_in_nfc(s: &mut String) {
     }
 }
 
-/// True if search is equal to text, folding case.
-/// Supports '*' to match 0 or more characters.
-pub(crate) fn matches_wildcard(text: &str, search: &str) -> bool {
-    if search.contains('*') {
-        let search = format!("^(?i){}$", regex::escape(search).replace(r"\*", ".*"));
-        Regex::new(&search).unwrap().is_match(text)
-    } else {
-        uni_eq(text, search)
-    }
-}
-
 /// Convert provided string to NFKD form and strip combining characters.
 pub(crate) fn without_combining(s: &str) -> Cow<str> {
     // if the string is already normalized
@@ -301,9 +290,91 @@ pub(crate) fn text_to_re(glob: &str) -> String {
     text2.into()
 }
 
+/// Check if string contains an unescaped wildcard.
+pub(crate) fn is_glob(txt: &str) -> bool {
+    // even number of \s followed by a wildcard
+    lazy_static! {
+        static ref RE: Regex = Regex::new(
+            r#"(?x)
+            (?:^|[^\\])     # not a backslash
+            (?:\\\\)*       # even number of backslashes
+            [*_]            # wildcard
+            "#
+        )
+        .unwrap();
+    }
+
+    RE.is_match(txt)
+}
+
+/// Convert to a RegEx respecting Anki wildcards.
+pub(crate) fn to_re(txt: &str) -> Cow<str> {
+    to_custom_re(txt, ".")
+}
+
+/// Convert Anki style to RegEx using the provided wildcard.
+pub(crate) fn to_custom_re<'a>(txt: &'a str, wildcard: &str) -> Cow<'a, str> {
+    lazy_static! {
+        static ref RE: Regex = Regex::new(r"\\?.").unwrap();
+    }
+    RE.replace_all(&txt, |caps: &Captures| {
+        let s = &caps[0];
+        match s {
+            r"\\" | r"\*" => s.to_string(),
+            r"\_" => "_".to_string(),
+            "*" => format!("{}*", wildcard),
+            "_" => wildcard.to_string(),
+            s => regex::escape(s),
+        }
+    })
+}
+
+/// Convert to SQL respecting Anki wildcards.
+pub(crate) fn to_sql<'a>(txt: &'a str) -> Cow<'a, str> {
+    // escape sequences and unescaped special characters which need conversion
+    lazy_static! {
+        static ref RE: Regex = Regex::new(r"\\[\\*]|[*%]").unwrap();
+    }
+    RE.replace_all(&txt, |caps: &Captures| {
+        let s = &caps[0];
+        match s {
+            r"\\" => r"\\",
+            r"\*" => "*",
+            "*" => "%",
+            "%" => r"\%",
+            _ => unreachable!(),
+        }
+    })
+}
+
+/// Unescape everything.
+pub(crate) fn to_text(txt: &str) -> Cow<str> {
+    lazy_static! {
+        static ref RE: Regex = Regex::new(r"\\(.)").unwrap();
+    }
+    RE.replace_all(&txt, "$1")
+}
+
+/// Escape characters special to SQL: \%_
+pub(crate) fn escape_sql(txt: &str) -> Cow<str> {
+    lazy_static! {
+        static ref RE: Regex = Regex::new(r"[\\%_]").unwrap();
+    }
+    RE.replace_all(&txt, r"\$0")
+}
+
+/// Compare text with a possible glob, folding case.
+pub(crate) fn matches_glob(text: &str, search: &str) -> bool {
+    if is_glob(search) {
+        let search = format!("^(?i){}$", to_re(search));
+        Regex::new(&search).unwrap().is_match(text)
+    } else {
+        uni_eq(text, &to_text(search))
+    }
+}
+
 #[cfg(test)]
 mod test {
-    use super::matches_wildcard;
     use crate::text::without_combining;
     use crate::text::{
         extract_av_tags, strip_av_tags, strip_html, strip_html_preserving_media_filenames, AVTag,
@@ -349,15 +420,6 @@ mod test {
                 },
             ]
         );
-    }
-
-    #[test]
-    fn wildcard() {
-        assert_eq!(matches_wildcard("foo", "bar"), false);
-        assert_eq!(matches_wildcard("foo", "Foo"), true);
-        assert_eq!(matches_wildcard("foo", "F*"), true);
-        assert_eq!(matches_wildcard("foo", "F*oo"), true);
-        assert_eq!(matches_wildcard("foo", "b*"), false);
     }
 
     #[test]
