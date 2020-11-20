@@ -161,4 +161,4 @@ def test_export_textnote():
 
 
 def test_exporters():
-    assert "*.apkg" in str(exporters())
+    assert "*.apkg" in str(exporters(getEmptyCol()))

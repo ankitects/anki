@@ -34,7 +34,7 @@ class ExportDialog(QDialog):
         self.exec_()
 
     def setup(self, did: Optional[int]):
-        self.exporters = exporters()
+        self.exporters = exporters(self.col)
         # if a deck specified, start with .apkg type selected
         idx = 0
         if did or self.cids:
@@ -114,7 +114,7 @@ class ExportDialog(QDialog):
 
         filename = "{0}{1}".format(deck_name, self.exporter.ext)
         if callable(self.exporter.key):
-            key_str = self.exporter.key()
+            key_str = self.exporter.key(self.col)
         else:
             key_str = self.exporter.key
         while 1:
