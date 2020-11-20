@@ -343,10 +343,7 @@ pub(crate) fn matches_glob(text: &str, search: &str) -> bool {
 
 #[cfg(test)]
 mod test {
-    use crate::text::without_combining;
-    use crate::text::{
-        extract_av_tags, strip_av_tags, strip_html, strip_html_preserving_media_filenames, AVTag,
-    };
+    use super::*;
     use std::borrow::Cow;
 
     #[test]
@@ -394,5 +391,17 @@ mod test {
     fn combining() {
         assert!(matches!(without_combining("test"), Cow::Borrowed(_)));
         assert!(matches!(without_combining("Über"), Cow::Owned(_)));
+    }
+
+    #[test]
+    fn conversion() {
+        assert_eq!(&to_re(r"[te\*st]"), r"\[te\*st\]");
+        assert_eq!(&to_custom_re("f_o*", r"\d"), r"f\do\d*");
+        assert_eq!(&to_sql("%f_o*"), r"\%f_o%");
+        assert_eq!(&to_text(r"\*\_*_"), "*_*_");
+        assert_eq!(&escape_sql(r"1\2%3_"), r"1\\2\%3\_");
+        assert!(is_glob(r"\\\\_"));
+        assert!(!is_glob(r"\\\_"));
+        assert!(matches_glob("foo*bar123", r"foo\*bar*"));
     }
 }
