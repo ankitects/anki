@@ -9,16 +9,14 @@ use crate::{
 use lazy_static::lazy_static;
 use nom::{
     branch::alt,
-    bytes::complete::{escaped, is_not, tag, take_while1},
-    character::complete::{anychar, char, one_of},
-    combinator::{all_consuming, map, map_res},
-    sequence::{delimited, preceded, tuple},
+    bytes::complete::{escaped, is_not, tag},
+    character::complete::{anychar, char, none_of, one_of},
+    combinator::{all_consuming, map, map_res, verify},
+    sequence::{delimited, preceded, separated_pair},
     {multi::many0, IResult},
 };
-use regex::Regex;
+use regex::{Captures, Regex};
 use std::{borrow::Cow, num};
-
-// fixme: need to preserve \ when used twice in string
 
 struct ParseError {}
 
@@ -63,7 +61,7 @@ pub(super) enum SearchNode<'a> {
     },
     AddedInDays(u32),
     EditedInDays(u32),
-    CardTemplate(TemplateKind),
+    CardTemplate(TemplateKind<'a>),
     Deck(Cow<'a, str>),
     DeckID(DeckID),
     NoteTypeID(NoteTypeID),
@@ -75,12 +73,12 @@ pub(super) enum SearchNode<'a> {
     Tag(Cow<'a, str>),
     Duplicates {
         note_type_id: NoteTypeID,
-        text: String,
+        text: Cow<'a, str>,
     },
     State(StateKind),
     Flag(u8),
-    NoteIDs(Cow<'a, str>),
-    CardIDs(Cow<'a, str>),
+    NoteIDs(&'a str),
+    CardIDs(&'a str),
     Property {
         operator: String,
         kind: PropertyKind,
@@ -113,9 +111,9 @@ pub(super) enum StateKind {
 }
 
 #[derive(Debug, PartialEq)]
-pub(super) enum TemplateKind {
+pub(super) enum TemplateKind<'a> {
     Ordinal(u16),
-    Name(String),
+    Name(Cow<'a, str>),
 }
 
 /// Parse the input string into a list of nodes.
@@ -127,7 +125,6 @@ pub(super) fn parse(input: &str) -> Result<Vec<Node>> {
 
     let (_, nodes) =
         all_consuming(group_inner)(input).map_err(|_e| AnkiError::SearchError(None))?;
-
     Ok(nodes)
 }
 
@@ -205,32 +202,21 @@ fn text(s: &str) -> IResult<&str, Node> {
 
 /// Determine if text is a qualified search, and handle escaped chars.
 fn search_node_for_text(s: &str) -> ParseResult<SearchNode> {
-    let mut it = s.splitn(2, ':');
-    let (head, tail) = (
-        unescape_quotes(it.next().unwrap()),
-        it.next().map(unescape_quotes),
-    );
-
-    if let Some(tail) = tail {
-        search_node_for_text_with_argument(head, tail)
+    let (tail, head) = escaped(is_not(r":\"), '\\', anychar)(s)?;
+    if tail.is_empty() {
+        Ok(SearchNode::UnqualifiedText(unescape(head)?))
     } else {
-        Ok(SearchNode::UnqualifiedText(head))
+        search_node_for_text_with_argument(head, &tail[1..])
     }
 }
 
-/// \" -> "
-fn unescape_quotes(s: &str) -> Cow<str> {
-    if s.find(r#"\""#).is_some() {
-        s.replace(r#"\""#, "\"").into()
-    } else {
-        s.into()
-    }
-}
-
-/// Unquoted text, terminated by a space or )
+/// Unquoted text, terminated by whitespace or unescaped ", ( or )
 fn unquoted_term(s: &str) -> IResult<&str, Node> {
     map_res(
-        take_while1(|c| c != ' ' && c != ')' && c != '"'),
+        verify(
+            escaped(is_not("\"() \u{3000}\\"), '\\', none_of(" \u{3000}")),
+            |s: &str| !s.is_empty(),
+        ),
         |text: &str| -> ParseResult<Node> {
             Ok(if text.eq_ignore_ascii_case("or") {
                 Node::Or
@@ -256,57 +242,66 @@ fn quoted_term_str(s: &str) -> IResult<&str, &str> {
 
 /// Quoted text, terminated by a non-escaped double quote
 fn quoted_term_inner(s: &str) -> IResult<&str, &str> {
-    escaped(is_not(r#""\"#), '\\', anychar)(s)
+    verify(escaped(is_not(r#""\"#), '\\', anychar), |s: &str| {
+        !s.is_empty()
+    })(s)
 }
 
 /// eg deck:"foo bar" - quotes must come after the :
 fn partially_quoted_term(s: &str) -> IResult<&str, Node> {
-    let term = take_while1(|c| c != ' ' && c != ')' && c != ':');
-    let (s, (term, _, quoted_val)) = tuple((term, char(':'), quoted_term_str))(s)?;
-    let quoted_val = unescape_quotes(quoted_val);
-
-    match search_node_for_text_with_argument(term.into(), quoted_val) {
-        Ok(search) => Ok((s, Node::Search(search))),
-        Err(_) => Err(nom::Err::Failure((s, nom::error::ErrorKind::NoneOf))),
-    }
+    map_res(
+        separated_pair(
+            verify(
+                escaped(is_not("\"(): \u{3000}\\"), '\\', none_of(": \u{3000}")),
+                |s: &str| !s.is_empty(),
+            ),
+            char(':'),
+            quoted_term_str,
+        ),
+        |p| match search_node_for_text_with_argument(p.0, p.1) {
+            Ok(search) => Ok(Node::Search(search)),
+            Err(e) => Err(e),
+        },
+    )(s)
 }
 
 /// Convert a colon-separated key/val pair into the relevant search type.
 fn search_node_for_text_with_argument<'a>(
-    key: Cow<'a, str>,
-    val: Cow<'a, str>,
+    key: &'a str,
+    val: &'a str,
 ) -> ParseResult<SearchNode<'a>> {
     Ok(match key.to_ascii_lowercase().as_str() {
         "added" => SearchNode::AddedInDays(val.parse()?),
         "edited" => SearchNode::EditedInDays(val.parse()?),
-        "deck" => SearchNode::Deck(val),
-        "note" => SearchNode::NoteType(val),
-        "tag" => SearchNode::Tag(val),
+        "deck" => SearchNode::Deck(unescape(val)?),
+        "note" => SearchNode::NoteType(unescape(val)?),
+        "tag" => SearchNode::Tag(unescape(val)?),
         "mid" => SearchNode::NoteTypeID(val.parse()?),
         "nid" => SearchNode::NoteIDs(check_id_list(val)?),
         "cid" => SearchNode::CardIDs(check_id_list(val)?),
         "did" => SearchNode::DeckID(val.parse()?),
-        "card" => parse_template(val.as_ref()),
-        "is" => parse_state(val.as_ref())?,
-        "flag" => parse_flag(val.as_ref())?,
-        "rated" => parse_rated(val.as_ref())?,
-        "dupe" => parse_dupes(val.as_ref())?,
-        "prop" => parse_prop(val.as_ref())?,
-        "re" => SearchNode::Regex(val),
-        "nc" => SearchNode::NoCombining(val),
-        "w" => SearchNode::WordBoundary(val),
+        "card" => parse_template(val)?,
+        "is" => parse_state(val)?,
+        "flag" => parse_flag(val)?,
+        "rated" => parse_rated(val)?,
+        "dupe" => parse_dupes(val)?,
+        "prop" => parse_prop(val)?,
+        "re" => SearchNode::Regex(unescape_quotes(val)),
+        "r" => SearchNode::UnqualifiedText(unescape_raw(val)),
+        "nc" => SearchNode::NoCombining(unescape(val)?),
+        "w" => SearchNode::WordBoundary(unescape(val)?),
         // anything else is a field search
-        _ => parse_single_field(key.as_ref(), val.as_ref()),
+        _ => parse_single_field(key, val)?,
     })
 }
 
 /// ensure a list of ids contains only numbers and commas, returning unchanged if true
 /// used by nid: and cid:
-fn check_id_list(s: Cow<str>) -> ParseResult<Cow<str>> {
+fn check_id_list(s: &str) -> ParseResult<&str> {
     lazy_static! {
         static ref RE: Regex = Regex::new(r"^(\d+,)*\d+$").unwrap();
     }
-    if RE.is_match(s.as_ref()) {
+    if RE.is_match(s) {
         Ok(s)
     } else {
         Err(ParseError {})
@@ -360,13 +355,13 @@ fn parse_rated(val: &str) -> ParseResult<SearchNode<'static>> {
 }
 
 /// eg dupes:1231,hello
-fn parse_dupes(val: &str) -> ParseResult<SearchNode<'static>> {
+fn parse_dupes(val: &str) -> ParseResult<SearchNode> {
     let mut it = val.splitn(2, ',');
     let mid: NoteTypeID = it.next().unwrap().parse()?;
     let text = it.next().ok_or(ParseError {})?;
     Ok(SearchNode::Duplicates {
         note_type_id: mid,
-        text: text.into(),
+        text: unescape_quotes(text),
     })
 }
 
@@ -411,25 +406,114 @@ fn parse_prop(val: &str) -> ParseResult<SearchNode<'static>> {
     })
 }
 
-fn parse_template(val: &str) -> SearchNode<'static> {
-    SearchNode::CardTemplate(match val.parse::<u16>() {
+fn parse_template(val: &str) -> ParseResult<SearchNode> {
+    Ok(SearchNode::CardTemplate(match val.parse::<u16>() {
         Ok(n) => TemplateKind::Ordinal(n.max(1) - 1),
-        Err(_) => TemplateKind::Name(val.into()),
+        Err(_) => TemplateKind::Name(unescape(val)?),
+    }))
+}
+
+fn parse_single_field<'a>(key: &'a str, val: &'a str) -> ParseResult<SearchNode<'a>> {
+    Ok(if val.starts_with("re:") {
+        SearchNode::SingleField {
+            field: unescape(key)?,
+            text: unescape_quotes(&val[3..]),
+            is_re: true,
+        }
+    } else if val.starts_with("r:") {
+        SearchNode::SingleField {
+            field: unescape(key)?,
+            text: unescape_raw(&val[2..]),
+            is_re: false,
+        }
+    } else {
+        SearchNode::SingleField {
+            field: unescape(key)?,
+            text: unescape(val)?,
+            is_re: false,
+        }
     })
 }
 
-fn parse_single_field(key: &str, mut val: &str) -> SearchNode<'static> {
-    let is_re = if val.starts_with("re:") {
-        val = val.trim_start_matches("re:");
-        true
+/// For strings without unescaped ", convert \" to "
+fn unescape_quotes(s: &str) -> Cow<str> {
+    if s.contains('"') {
+        s.replace(r#"\""#, "\"").into()
     } else {
-        false
-    };
-    SearchNode::SingleField {
-        field: key.to_string().into(),
-        text: val.to_string().into(),
-        is_re,
+        s.into()
     }
+}
+
+/// Unescape quotes but escape wildcards and \s.
+fn unescape_raw(s: &str) -> Cow<str> {
+    lazy_static! {
+        static ref RE: Regex = Regex::new(r#"\\"?|\*|_"#).unwrap();
+    }
+    RE.replace_all(&s, |caps: &Captures| match &caps[0] {
+        r"\" => r"\\",
+        "\\\"" => "\"",
+        r"*" => r"\*",
+        r"_" => r"\_",
+        _ => unreachable!(),
+    })
+}
+
+/// Unescape chars with special meaning to the parser.
+fn unescape(txt: &str) -> ParseResult<Cow<str>> {
+    if is_invalid_escape(txt) {
+        Err(ParseError {})
+    } else if is_parser_escape(txt) {
+        lazy_static! {
+            static ref RE: Regex = Regex::new(r#"\\[\\":()-]"#).unwrap();
+        }
+        Ok(RE.replace_all(&txt, |caps: &Captures| match &caps[0] {
+            r"\\" => r"\\",
+            "\\\"" => "\"",
+            r"\:" => ":",
+            r"\(" => "(",
+            r"\)" => ")",
+            r"\-" => "-",
+            _ => unreachable!(),
+        }))
+    } else {
+        Ok(txt.into())
+    }
+}
+
+/// Check string for invalid escape sequences.
+fn is_invalid_escape(txt: &str) -> bool {
+    // odd number of \s not followed by an escapable character
+    lazy_static! {
+        static ref RE: Regex = Regex::new(
+            r#"(?x)
+            (?:^|[^\\])         # not a backslash
+            (?:\\\\)*           # even number of backslashes
+            \\                  # single backslash
+            (?:[^\\":*_()-]|$)  # anything but an escapable char
+            "#
+        )
+        .unwrap();
+    }
+
+    RE.is_match(txt)
+}
+
+/// Check string for escape sequences handled by the parser: ":()
+fn is_parser_escape(txt: &str) -> bool {
+    // odd number of \s followed by a char with special meaning to the parser
+    lazy_static! {
+        static ref RE: Regex = Regex::new(
+            r#"(?x)
+            (?:^|[^\\])     # not a backslash
+            (?:\\\\)*       # even number of backslashes
+            \\              # single backslash
+            [":()-]         # parser escape
+            "#
+        )
+        .unwrap();
+    }
+
+    RE.is_match(txt)
 }
 
 #[cfg(test)]
@@ -497,7 +581,7 @@ mod test {
             })]
         );
 
-        // partially quoted text should handle escaping the same way
+        // escaping is independent of quotation
         assert_eq!(
             parse(r#""field:va\"lue""#)?,
             vec![Search(SingleField {
@@ -507,12 +591,66 @@ mod test {
             })]
         );
         assert_eq!(parse(r#""field:va\"lue""#)?, parse(r#"field:"va\"lue""#)?,);
+        assert_eq!(parse(r#""field:va\"lue""#)?, parse(r#"field:va\"lue"#)?,);
 
-        // any character should be escapable in quotes
+        // only \":()-*_ are escapable
+        assert!(parse(r"\").is_err());
+        assert!(parse(r"\a").is_err());
+        assert!(parse(r"\%").is_err());
+
+        // parser unescapes ":()-
         assert_eq!(
-            parse(r#""re:\btest""#)?,
-            vec![Search(Regex(r"\btest".into()))]
+            parse(r#"\"\:\(\)\-"#)?,
+            vec![Search(UnqualifiedText(r#"":()-"#.into())),]
         );
+
+        // parser doesn't unescape unescape \*_
+        assert_eq!(
+            parse(r#"\\\*\_"#)?,
+            vec![Search(UnqualifiedText(r#"\\\*\_"#.into())),]
+        );
+
+        // escaping parentheses is optional (only) inside quotes
+        assert_eq!(parse(r#""\)\(""#), parse(r#"")(""#));
+        assert!(parse(")(").is_err());
+
+        // escaping : is optional if it is preceded by another :
+        assert!(parse(":test").is_err());
+        assert!(parse(":").is_err());
+        assert_eq!(parse("field:val:ue"), parse(r"field:val\:ue"));
+        assert_eq!(parse(r#""field:val:ue""#), parse(r"field:val\:ue"));
+        assert_eq!(parse(r#"field:"val:ue""#), parse(r"field:val\:ue"));
+
+        // escaping - is optional if it cannot be mistaken for a negator
+        assert_eq!(parse("-"), parse(r"\-"));
+        assert_eq!(parse("A-"), parse(r"A\-"));
+        assert_eq!(parse(r#""-A""#), parse(r"\-A"));
+        assert_ne!(parse("-A"), parse(r"\-A"));
+
+        // any character should be escapable on the right side of re:
+        assert_eq!(
+            parse(r#""re:\btest\%""#)?,
+            vec![Search(Regex(r"\btest\%".into()))]
+        );
+
+        // treat all chars as literals in raw searches
+        assert_eq!(parse(r"r:\*_"), parse(r"\\\*\_"));
+        assert_eq!(parse(r"field:r:\*_"), parse(r"field:\\\*\_"));
+
+        // no exceptions for escaping "
+        assert_eq!(
+            parse(r#"re:te\"st"#)?,
+            vec![Search(Regex(r#"te"st"#.into()))]
+        );
+        assert!(parse(r#"re:te"st"#).is_err());
+        assert_eq!(
+            parse(r#"r:te\"st"#)?,
+            vec![Search(UnqualifiedText(r#"te"st"#.into()))]
+        );
+        assert!(parse(r#"r:te"st"#).is_err());
+
+        // spaces are optional if node separation is clear
+        assert_eq!(parse(r#"a"b"(c)"#)?, parse("a b (c)")?);
 
         assert_eq!(parse("added:3")?, vec![Search(AddedInDays(3))]);
         assert_eq!(

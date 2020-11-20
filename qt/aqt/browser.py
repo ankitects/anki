@@ -1207,7 +1207,7 @@ QTableView {{ gridline-color: {grid} }}
                 if i % 2 == 0:
                     txt += a + ":"
                 else:
-                    txt += re.sub("[*%_]", r"\\\g<0>", a)
+                    txt += re.sub(r"[*_\\]", r"\\\g<0>", a)
                     for c in ' 　()"':
                         if c in txt:
                             txt = '"{}"'.format(txt.replace('"', '\\"'))
