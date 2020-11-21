@@ -17,7 +17,7 @@ from anki.consts import HELP_SITE
 from anki.rsbackend import RustBackend
 from anki.utils import checksum, isLin, isMac
 from aqt.qt import *
-from aqt.utils import locale_dir
+from aqt.utils import TR, locale_dir, tr
 
 # we want to be able to print unicode debug info to console without
 # fear of a traceback on systems with the console set to ASCII
@@ -175,7 +175,10 @@ _qtrans: Optional[QTranslator] = None
 
 
 def setupLangAndBackend(
-    pm: ProfileManager, app: QApplication, force: Optional[str] = None
+    pm: ProfileManager,
+    app: QApplication,
+    force: Optional[str] = None,
+    firstTime: bool = False,
 ) -> RustBackend:
     global _qtrans
     try:
@@ -198,12 +201,16 @@ def setupLangAndBackend(
     builtins.__dict__["ngettext"] = fn_ngettext
 
     # get lang and normalize into ja/zh-CN form
-    lang = force or pm.meta["defaultLang"]
+    if firstTime:
+        lang = pm.meta["defaultLang"]
+    else:
+        lang = force or pm.meta["defaultLang"]
     lang = anki.lang.lang_to_disk_lang(lang)
 
-    # set active language
     ldir = locale_dir()
-    anki.lang.set_lang(lang, ldir)
+    if not firstTime:
+        # set active language
+        anki.lang.set_lang(lang, ldir)
 
     # switch direction for RTL languages
     if anki.lang.is_rtl(lang):
@@ -269,8 +276,8 @@ class AnkiApp(QApplication):
             # existing instance running but hung
             QMessageBox.warning(
                 None,
-                "Anki Already Running",
-                "If the existing instance of Anki is not responding, please close it using your task manager, or restart your computer.",
+                tr(TR.QT_MISC_ANKI_IS_RUNNING),
+                tr(TR.QT_MISC_IF_INSTANCE_IS_NOT_RESPONDING),
             )
 
             sys.exit(1)
@@ -356,8 +363,10 @@ def setupGL(pm):
         if "Failed to create OpenGL context" in msg:
             QMessageBox.critical(
                 None,
-                "Error",
-                f"Error loading '{mode}' graphics driver. Please start Anki again to try next driver. {context}",
+                tr(TR.QT_MISC_ERROR),
+                tr(
+                    TR.QT_MISC_ERROR_LOADING_GRAPHICS_DRIVER, mode=mode, context=context
+                ),
             )
             pm.nextGlMode()
             return
@@ -427,6 +436,10 @@ def _run(argv=None, exec=True):
         profiler = cProfile.Profile()
         profiler.enable()
 
+    # default to specified/system language before getting user's preference so that we can localize some more strings
+    lang = anki.lang.get_def_lang(opts.lang)
+    anki.lang.set_lang(lang[1], locale_dir())
+
     # profile manager
     pm = None
     try:
@@ -475,10 +488,8 @@ def _run(argv=None, exec=True):
     if not pm:
         QMessageBox.critical(
             None,
-            "Error",
-            """\
-Anki could not create its data folder. Please see the File Locations \
-section of the manual, and ensure that location is not read-only.""",
+            tr(TR.QT_MISC_ERROR),
+            tr(TR.PROFILES_COULD_NOT_CREATE_DATA_FOLDER),
         )
         return
 
@@ -517,29 +528,26 @@ section of the manual, and ensure that location is not read-only.""",
     except:
         QMessageBox.critical(
             None,
-            "Error",
-            """\
-No usable temporary folder found. Make sure C:\\temp exists or TEMP in your \
-environment points to a valid, writable folder.""",
+            tr(TR.QT_MISC_ERROR),
+            tr(TR.QT_MISC_NO_TEMP_FOLDER),
         )
         return
 
     if pmLoadResult.firstTime:
-        pm.setDefaultLang()
+        pm.setDefaultLang(lang[0])
 
     if pmLoadResult.loadError:
         QMessageBox.warning(
             None,
-            "Preferences Corrupt",
-            """Anki's prefs21.db file was corrupt and has been recreated. If you were using multiple \
-    profiles, please add them back using the same names to recover your cards.""",
+            tr(TR.PROFILES_PREFS_CORRUPT_TITLE),
+            tr(TR.PROFILES_PREFS_FILE_IS_CORRUPT),
         )
 
     if opts.profile:
         pm.openProfile(opts.profile)
 
     # i18n & backend
-    backend = setupLangAndBackend(pm, app, opts.lang)
+    backend = setupLangAndBackend(pm, app, opts.lang, pmLoadResult.firstTime)
 
     if isLin and pm.glMode() == "auto":
         from aqt.utils import gfxDriverIsBroken
@@ -548,8 +556,8 @@ environment points to a valid, writable folder.""",
             pm.nextGlMode()
             QMessageBox.critical(
                 None,
-                "Error",
-                "Your video driver is incompatible. Please start Anki again, and Anki will switch to a slower, more compatible mode.",
+                tr(TR.QT_MISC_ERROR),
+                tr(TR.QT_MISC_INCOMPATIBLE_VIDEO_DRIVER),
             )
             sys.exit(1)
 
