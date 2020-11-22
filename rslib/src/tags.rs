@@ -5,7 +5,7 @@ use crate::{
     collection::Collection,
     err::{AnkiError, Result},
     notes::{NoteID, TransformNoteOutput},
-    text::text_to_re,
+    text::to_re,
     {text::normalize_to_nfc, types::Usn},
 };
 use regex::{NoExpand, Regex, Replacer};
@@ -134,7 +134,7 @@ impl Collection {
         // generate regexps
         let tags = split_tags(tags)
             .map(|tag| {
-                let tag = if regex { tag.into() } else { text_to_re(tag) };
+                let tag = if regex { tag.into() } else { to_re(tag) };
                 Regex::new(&format!("(?i)^{}$", tag))
                     .map_err(|_| AnkiError::invalid_input("invalid regex"))
             })
