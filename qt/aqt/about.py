@@ -202,9 +202,9 @@ def show(mw):
         )
     )
 
-    abouttext += "<p>" + tr(TR.ABOUT_WRITTEN_BY_DAMIEN_ELMES_WITH_PATCHES) % {
-        "cont": ", ".join(allusers)
-    }
+    abouttext += "<p>" + tr(
+        TR.ABOUT_WRITTEN_BY_DAMIEN_ELMES_WITH_PATCHES, cont=", ".join(allusers)
+    )
     abouttext += "<p>" + tr(TR.ABOUT_IF_YOU_HAVE_CONTRIBUTED_AND_ARE)
     abouttext += "<p>" + tr(TR.ABOUT_A_BIG_THANKS_TO_ALL_THE)
     abt.label.setMinimumWidth(800)

@@ -36,7 +36,7 @@ importing-notes-that-could-not-be-imported = Notes that could not be imported as
 importing-notes-updated-as-file-had-newer = Notes updated, as file had newer version: { $val }
 importing-packaged-anki-deckcollection-apkg-colpkg-zip = Packaged Anki Deck/Collection (*.apkg *.colpkg *.zip)
 importing-pauker-18-lesson-paugz = Pauker 1.8 Lesson (*.pau.gz)
-importing-rows-had-num1d-fields-expected-num2d = '%(row)s' had %(num1)d fields, expected %(num2)d
+importing-rows-had-num1d-fields-expected-num2d = '{ $row }' had { $found } fields, expected { $expected }
 importing-selected-file-was-not-in-utf8 = Selected file was not in UTF-8 format. Please see the importing section of the manual.
 importing-semicolon = Semicolon
 importing-skipped = Skipped
@@ -52,23 +52,28 @@ importing-unable-to-import-from-a-readonly = Unable to import from a read-only f
 importing-unknown-file-format = Unknown file format.
 importing-update-existing-notes-when-first-field = Update existing notes when first field matches
 importing-updated = Updated
-importing-note-added = { $count ->
-    [one] { $count } note added
-   *[other] { $count } notes added
-  }
-importing-note-imported = { $count ->
-    [one] { $count } note imported.
-   *[other] { $count } notes imported.
-  }
-importing-note-unchanged = { $count ->
-    [one] { $count } note unchanged
-   *[other] { $count } notes unchanged
-  }
-importing-note-updated = { $count ->
-    [one] { $count } note updated
-   *[other] { $count } notes updated
-  }
-importing-processed-media-file = { $count ->
-    [one] Processed { $count } media file
-   *[other] Processed { $count } media files
-  }
+importing-note-added =
+    { $count ->
+        [one] { $count } note added
+       *[other] { $count } notes added
+    }
+importing-note-imported =
+    { $count ->
+        [one] { $count } note imported.
+       *[other] { $count } notes imported.
+    }
+importing-note-unchanged =
+    { $count ->
+        [one] { $count } note unchanged
+       *[other] { $count } notes unchanged
+    }
+importing-note-updated =
+    { $count ->
+        [one] { $count } note updated
+       *[other] { $count } notes updated
+    }
+importing-processed-media-file =
+    { $count ->
+        [one] Processed { $count } media file
+       *[other] Processed { $count } media files
+    }

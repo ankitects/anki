@@ -1352,8 +1352,10 @@ QTableView {{ gridline-color: {grid} }}
                 for c, tmpl in enumerate(nt["tmpls"]):
                     # T: name is a card type name. n it's order in the list of card type.
                     # T: this is shown in browser's filter, when seeing the list of card type of a note type.
-                    name = tr(TR.BROWSING_ND_NAMES) % dict(
-                        n=c + 1, name=self._escapeMenuItem(tmpl["name"])
+                    name = tr(
+                        TR.BROWSING_ND_NAMES,
+                        num=c + 1,
+                        name=self._escapeMenuItem(tmpl["name"]),
                     )
                     subm.addItem(
                         name, self._filterFunc("note", nt["name"], "card", str(c + 1))
@@ -1995,7 +1997,7 @@ where id in %s"""
         notes = sum(len(r[1]) for r in res)
         part1 = tr(TR.BROWSING_GROUP, count=groups)
         part2 = tr(TR.BROWSING_NOTE_COUNT, count=notes)
-        t += tr(TR.BROWSING_FOUND_AS_ACROSS_BS) % dict(a=part1, b=part2)
+        t += tr(TR.BROWSING_FOUND_AS_ACROSS_BS, part=part1, whole=part2)
         t += "<p><ol>"
         for val, nids in res:
             t += (

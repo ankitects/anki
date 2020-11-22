@@ -19,13 +19,13 @@ addons-code = Code:
 addons-config = Config
 addons-configuration = Configuration
 addons-corrupt-addon-file = Corrupt add-on file.
-addons-disabled =  (disabled)
+addons-disabled = (disabled)
 addons-disabled2 = (disabled)
 addons-download-complete-please-restart-anki-to = Download complete. Please restart Anki to apply changes.
-addons-downloaded-fnames = Downloaded %(fname)s
-addons-downloading-adbd-kb02fkb = Downloading %(a)d/%(b)d (%(kb)0.2fKB)...
-addons-error-downloading-ids-errors = Error downloading <i>%(id)s</i>: %(error)s
-addons-error-installing-bases-errors = Error installing <i>%(base)s</i>: %(error)s
+addons-downloaded-fnames = Downloaded { $fname }
+addons-downloading-adbd-kb02fkb = Downloading { $part }/{ $total } ({ $kilobytes }KB)...
+addons-error-downloading-ids-errors = Error downloading <i>{ $id }</i>: { $error }
+addons-error-installing-bases-errors = Error installing <i>{ $base }</i>: { $error }
 addons-get-addons = Get Add-ons...
 addons-important-as-addons-are-programs-downloaded = <b>Important</b>: As add-ons are programs downloaded from the internet, they are potentially malicious.<b>You should only install add-ons you trust.</b><br><br>Are you sure you want to proceed with the installation of the following Anki add-on(s)?<br><br>%(names)s
 addons-install-addon = Install Add-on
@@ -33,12 +33,12 @@ addons-install-addons = Install Add-on(s)
 addons-install-anki-addon = Install Anki add-on
 addons-install-from-file = Install from file...
 addons-installation-complete = Installation complete
-addons-installed-names = Installed %(name)s
+addons-installed-names = Installed { $name }
 addons-installed-successfully = Installed successfully.
 addons-invalid-addon-manifest = Invalid add-on manifest.
 addons-invalid-code = Invalid code.
 addons-invalid-code-or-addon-not-available = Invalid code, or add-on not available for your version of Anki.
-addons-invalid-configuration = Invalid configuration: 
+addons-invalid-configuration = Invalid configuration:
 addons-invalid-configuration-top-level-object-must = Invalid configuration: top level object must be a map
 addons-no-updates-available = No updates available.
 addons-one-or-more-errors-occurred = One or more errors occurred:
@@ -49,7 +49,7 @@ addons-please-restart-anki-to-complete-the = <b>Please restart Anki to complete 
 addons-please-select-a-single-addon-first = Please select a single add-on first.
 addons-requires = (requires { $val })
 addons-restored-defaults = Restored defaults
-addons-the-following-addons-are-incompatible-with = The following add-ons are incompatible with %(name)s and have been disabled: %(found)s
+addons-the-following-addons-are-incompatible-with = The following add-ons are incompatible with { $name } and have been disabled: { $found }
 addons-the-following-addons-have-updates-available = The following add-ons have updates available. Install them now?
 addons-the-following-conflicting-addons-were-disabled = The following conflicting add-ons were disabled:
 addons-this-addon-is-not-compatible-with = This add-on is not compatible with your version of Anki.
@@ -59,7 +59,8 @@ addons-unable-to-update-or-delete-addon = Unable to update or delete add-on. Ple
 addons-unknown-error = Unknown error: { $val }
 addons-view-addon-page = View Add-on Page
 addons-view-files = View Files
-addons-delete-the-numd-selected-addon = { $count ->
-    [one] Delete the { $count } selected add-on?
-   *[other] Delete the { $count } selected add-ons?
-  }
+addons-delete-the-numd-selected-addon =
+    { $count ->
+        [one] Delete the { $count } selected add-on?
+       *[other] Delete the { $count } selected add-ons?
+    }
