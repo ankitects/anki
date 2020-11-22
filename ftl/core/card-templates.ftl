@@ -11,7 +11,7 @@ card-templates-front-preview = Front Preview
 card-templates-back-preview = Back Preview
 card-templates-preview-box = Preview
 card-templates-template-box = Template
-card-templates-sample-cloze = This is a {"{{c1::"}sample{"}}"} cloze deletion.
+card-templates-sample-cloze = This is a { "{{c1::" }sample{ "}}" } cloze deletion.
 card-templates-fill-empty = Fill Empty Fields
 card-templates-night-mode = Night Mode
 # Add "mobile" class to card preview, so the card appears like it would
@@ -30,21 +30,23 @@ card-templates-card-types = Card Types
 card-templates-card-types-for = Card Types for { $val }
 card-templates-cloze = Cloze { $val }
 card-templates-deck-override = Deck Override...
-card-templates-delete-the-as-card-type-and = Delete the '%(a)s' card type, and its %(b)s?
+card-templates-delete-the-as-card-type-and = Delete the '{ $template }' card type, and its { $cards }?
 card-templates-enter-deck-to-place-new = Enter deck to place new { $val } cards in, or leave blank:
 card-templates-enter-new-card-position-1 = Enter new card position (1...{ $val }):
 card-templates-flip = Flip
 card-templates-form = Form
-card-templates-off =  (off)
-card-templates-on =  (on)
+card-templates-off = (off)
+card-templates-on = (on)
 card-templates-remove-card-type = Remove Card Type...
 card-templates-rename-card-type = Rename Card Type...
 card-templates-reposition-card-type = Reposition Card Type...
-card-templates-card-count = { $count ->
-    [one] { $count } card
-   *[other] { $count } cards
-  }
-card-templates-this-will-create-card-proceed = { $count ->
-    [one] This will create { $count } card. Proceed?
-   *[other] This will create { $count } cards. Proceed?
-  }
+card-templates-card-count =
+    { $count ->
+        [one] { $count } card
+       *[other] { $count } cards
+    }
+card-templates-this-will-create-card-proceed =
+    { $count ->
+        [one] This will create { $count } card. Proceed?
+       *[other] This will create { $count } cards. Proceed?
+    }

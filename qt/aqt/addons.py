@@ -275,8 +275,11 @@ class AddonManager:
             if conflicting:
                 addons = ", ".join(self.addonName(f) for f in conflicting)
                 showInfo(
-                    tr(TR.ADDONS_THE_FOLLOWING_ADDONS_ARE_INCOMPATIBLE_WITH)
-                    % dict(name=addon.human_name(), found=addons),
+                    tr(
+                        TR.ADDONS_THE_FOLLOWING_ADDONS_ARE_INCOMPATIBLE_WITH,
+                        name=addon.human_name(),
+                        found=addons,
+                    ),
                     textFormat="plain",
                 )
 
@@ -306,7 +309,7 @@ class AddonManager:
         meta = self.addon_meta(dir)
         name = meta.human_name()
         if not meta.enabled:
-            name += tr(TR.ADDONS_DISABLED)
+            name += " " + tr(TR.ADDONS_DISABLED)
         return name
 
     # Conflict resolution
@@ -469,26 +472,24 @@ class AddonManager:
             result.errmsg, tr(TR.ADDONS_UNKNOWN_ERROR, val=result.errmsg)
         )
 
-        if mode == "download":  # preserve old format strings for i18n
-            template = tr(TR.ADDONS_ERROR_DOWNLOADING_IDS_ERRORS)
+        if mode == "download":
+            template = tr(TR.ADDONS_ERROR_DOWNLOADING_IDS_ERRORS, id=base, error=msg)
         else:
-            template = tr(TR.ADDONS_ERROR_INSTALLING_BASES_ERRORS)
+            template = tr(TR.ADDONS_ERROR_INSTALLING_BASES_ERRORS, base=base, error=msg)
 
-        name = base
-
-        return [template % dict(base=name, id=name, error=msg)]
+        return [template]
 
     def _installationSuccessReport(
         self, result: InstallOk, base: str, mode: str = "download"
     ) -> List[str]:
 
-        if mode == "download":  # preserve old format strings for i18n
-            template = tr(TR.ADDONS_DOWNLOADED_FNAMES)
-        else:
-            template = tr(TR.ADDONS_INSTALLED_NAMES)
-
         name = result.name or base
-        strings = [template % dict(name=name, fname=name)]
+        if mode == "download":
+            template = tr(TR.ADDONS_DOWNLOADED_FNAMES, fname=name)
+        else:
+            template = tr(TR.ADDONS_INSTALLED_NAMES, name=name)
+
+        strings = [template]
 
         if result.conflicts:
             strings.append(
@@ -1074,13 +1075,12 @@ class DownloaderInstaller(QObject):
     def _progress_callback(self, up: int, down: int) -> None:
         self.dl_bytes += down
         self.mgr.mw.progress.update(
-            # T: "%(a)d" is the index of the element currently
-            # downloaded. "%(b)d" is the number of element to download,
-            # and "%(kb)0.2f" is the number of downloaded
-            # kilobytes. This lead for example to "Downloading 3/5
-            # (27KB)"
-            label=tr(TR.ADDONS_DOWNLOADING_ADBD_KB02FKB)
-            % dict(a=len(self.log) + 1, b=len(self.ids), kb=self.dl_bytes / 1024)
+            label=tr(
+                TR.ADDONS_DOWNLOADING_ADBD_KB02FKB,
+                part=len(self.log) + 1,
+                total=len(self.ids),
+                kilobytes=self.dl_bytes / 1024,
+            )
         )
 
     def _download_all(self) -> None:
@@ -1361,7 +1361,7 @@ class ConfigEditor(QDialog):
             showInfo(msg)
             return
         except Exception as e:
-            showInfo(tr(TR.ADDONS_INVALID_CONFIGURATION) + repr(e))
+            showInfo(tr(TR.ADDONS_INVALID_CONFIGURATION) + " " + repr(e))
             return
 
         if not isinstance(new_conf, dict):

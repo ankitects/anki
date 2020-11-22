@@ -18,7 +18,6 @@ notetypes-cloze-name = Cloze
 
 notetypes-card-1-name = Card 1
 notetypes-card-2-name = Card 2
-
 notetypes-add = Add: { $val }
 notetypes-add-note-type = Add Note Type
 notetypes-cards = Cards...

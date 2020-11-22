@@ -3,7 +3,6 @@ profiles-folder-readme =
     to make backups easy. To tell Anki to use a different location,
     please see:
     
-    {$link}
-
+    { $link }
 # will appear as 'Downgrade & Quit'
 profiles-downgrade-and-quit = Downgrade && Quit

@@ -1,3 +1,5 @@
+load("@py_deps//:requirements.bzl", "requirement")
+
 filegroup(
     name = "ftl",
     srcs = [
@@ -5,6 +7,44 @@ filegroup(
         "@extra_ftl//:files",
     ] + glob(["**/*.ftl"]),
     visibility = ["//rslib:__subpackages__"],
+)
+
+py_binary(
+    name = "format",
+    srcs = ["format.py"],
+    deps = [requirement("fluent-syntax")],
+)
+
+py_test(
+    name = "format_check",
+    srcs = [
+        "format.py",
+        "format_check.py",
+    ],
+    # so we can locate data files
+    args = ["$(location BUILD.bazel)"],
+    data = glob(["**/*.ftl"]) + ["BUILD.bazel"],
+    deps = [requirement("fluent-syntax")],
+)
+
+py_binary(
+    name = "sync",
+    srcs = ["sync.py"],
+    tags = ["manual"],
+)
+
+py_binary(
+    name = "extract-strings",
+    srcs = ["extract-strings.py"],
+    tags = ["manual"],
+    deps = [requirement("fluent-syntax")],
+)
+
+py_binary(
+    name = "transform-string",
+    srcs = ["transform-string.py"],
+    tags = ["manual"],
+    deps = [requirement("fluent-syntax")],
 )
 
 # export this file as a way of locating the top level folder in $(location ...)
