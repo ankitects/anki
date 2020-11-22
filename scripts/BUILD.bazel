@@ -7,9 +7,3 @@ py_binary(
     stamp = 1,
     visibility = ["//visibility:public"],
 )
-
-py_binary(
-    name = "extract-strings",
-    srcs = ["extract-strings.py"],
-    deps = [requirement("fluent-syntax")],
-)

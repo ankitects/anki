@@ -1,5 +1,6 @@
 ### Messages shown when synchronizing with AnkiWeb.
 
+
 ## Media synchronization
 
 sync-media-added-count = Added: { $up }↑ { $down }↓

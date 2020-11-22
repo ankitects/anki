@@ -42,13 +42,11 @@ class TextImporter(NoteImporter):
                     if row:
                         log.append(
                             self.col.tr(
-                                TR.IMPORTING_ROWS_HAD_NUM1D_FIELDS_EXPECTED_NUM2D
+                                TR.IMPORTING_ROWS_HAD_NUM1D_FIELDS_EXPECTED_NUM2D,
+                                row=" ".join(row),
+                                found=len(row),
+                                expected=self.numFields,
                             )
-                            % {
-                                "row": " ".join(row),
-                                "num1": len(row),
-                                "num2": self.numFields,
-                            }
                         )
                         ignored += 1
                     continue
