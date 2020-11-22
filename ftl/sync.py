@@ -10,11 +10,9 @@ import os
 import sys
 from typing import Optional, Tuple
 
-repos_bzl = "repos.bzl"
-working_folder = "../anki-i18n"
-
-if not os.path.exists(repos_bzl):
-    raise Exception("run from workspace root")
+root = os.environ["BUILD_WORKSPACE_DIRECTORY"]
+repos_bzl = os.path.join(root, "repos.bzl")
+working_folder = os.path.join(root, "..", "anki-i18n")
 
 if not os.path.exists(working_folder):
     os.mkdir(working_folder)
@@ -35,12 +33,12 @@ modules = [
     Module(
         name="core",
         repo="git@github.com:ankitects/anki-core-i18n",
-        ftl=("ftl/core", "core/templates"),
+        ftl=(os.path.join(root, "ftl", "core"), "core/templates"),
     ),
     Module(
         name="qtftl",
         repo="git@github.com:ankitects/anki-desktop-ftl",
-        ftl=("ftl/qt", "desktop/templates"),
+        ftl=(os.path.join(root, "ftl", "qt"), "desktop/templates"),
     ),
 ]
 
@@ -103,7 +101,7 @@ def update_repos_bzl():
             out.append(line)
     open(path, "w").writelines(out)
 
-    commit_if_changed(".")
+    commit_if_changed(root)
 
 
 def commit_if_changed(folder: str):
