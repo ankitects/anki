@@ -1,5 +1,11 @@
 load("@py_deps//:requirements.bzl", "requirement")
 
+fluent_syntax = [
+    requirement("fluent-syntax"),
+    # undeclared runtime dependency
+    requirement("six"),
+]
+
 filegroup(
     name = "ftl",
     srcs = [
@@ -12,7 +18,7 @@ filegroup(
 py_binary(
     name = "format",
     srcs = ["format.py"],
-    deps = [requirement("fluent-syntax")],
+    deps = fluent_syntax,
 )
 
 py_test(
@@ -24,7 +30,7 @@ py_test(
     # so we can locate data files
     args = ["$(location BUILD.bazel)"],
     data = glob(["**/*.ftl"]) + ["BUILD.bazel"],
-    deps = [requirement("fluent-syntax")],
+    deps = fluent_syntax,
 )
 
 py_binary(
@@ -37,14 +43,14 @@ py_binary(
     name = "extract-strings",
     srcs = ["extract-strings.py"],
     tags = ["manual"],
-    deps = [requirement("fluent-syntax")],
+    deps = fluent_syntax,
 )
 
 py_binary(
     name = "transform-string",
     srcs = ["transform-string.py"],
     tags = ["manual"],
-    deps = [requirement("fluent-syntax")],
+    deps = fluent_syntax,
 )
 
 # export this file as a way of locating the top level folder in $(location ...)
