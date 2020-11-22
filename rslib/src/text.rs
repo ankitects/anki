@@ -258,38 +258,6 @@ pub(crate) fn without_combining(s: &str) -> Cow<str> {
         .into()
 }
 
-/// Escape text, converting glob characters to regex syntax, then return.
-pub(crate) fn text_to_re(glob: &str) -> String {
-    lazy_static! {
-        static ref ESCAPED: Regex = Regex::new(r"(\\\\)?\\\*").unwrap();
-        static ref GLOB: Regex = Regex::new(r"(\\\\)?[_%]").unwrap();
-    }
-
-    let escaped = regex::escape(glob);
-
-    let text = ESCAPED.replace_all(&escaped, |caps: &Captures| {
-        if caps.get(0).unwrap().as_str().len() == 2 {
-            ".*"
-        } else {
-            r"\*"
-        }
-    });
-
-    let text2 = GLOB.replace_all(&text, |caps: &Captures| {
-        match caps.get(0).unwrap().as_str() {
-            "_" => ".",
-            "%" => ".*",
-            other => {
-                // strip off the escaping char
-                &other[2..]
-            }
-        }
-        .to_string()
-    });
-
-    text2.into()
-}
-
 /// Check if string contains an unescaped wildcard.
 pub(crate) fn is_glob(txt: &str) -> bool {
     // even number of \s followed by a wildcard
@@ -375,10 +343,7 @@ pub(crate) fn matches_glob(text: &str, search: &str) -> bool {
 
 #[cfg(test)]
 mod test {
-    use crate::text::without_combining;
-    use crate::text::{
-        extract_av_tags, strip_av_tags, strip_html, strip_html_preserving_media_filenames, AVTag,
-    };
+    use super::*;
     use std::borrow::Cow;
 
     #[test]
@@ -426,5 +391,17 @@ mod test {
     fn combining() {
         assert!(matches!(without_combining("test"), Cow::Borrowed(_)));
         assert!(matches!(without_combining("Über"), Cow::Owned(_)));
+    }
+
+    #[test]
+    fn conversion() {
+        assert_eq!(&to_re(r"[te\*st]"), r"\[te\*st\]");
+        assert_eq!(&to_custom_re("f_o*", r"\d"), r"f\do\d*");
+        assert_eq!(&to_sql("%f_o*"), r"\%f_o%");
+        assert_eq!(&to_text(r"\*\_*_"), "*_*_");
+        assert_eq!(&escape_sql(r"1\2%3_"), r"1\\2\%3\_");
+        assert!(is_glob(r"\\\\_"));
+        assert!(!is_glob(r"\\\_"));
+        assert!(matches_glob("foo*bar123", r"foo\*bar*"));
     }
 }
