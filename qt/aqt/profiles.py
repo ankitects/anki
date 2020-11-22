@@ -97,7 +97,9 @@ class ProfileManager:
     def openProfile(self, profile) -> None:
         if profile:
             if profile not in self.profiles():
-                QMessageBox.critical(None, "Error", "Requested profile does not exist.")
+                QMessageBox.critical(
+                    None, tr(TR.QT_MISC_ERROR), tr(TR.PROFILES_PROFILE_DOES_NOT_EXIST)
+                )
                 sys.exit(1)
             try:
                 self.load(profile)
@@ -482,7 +484,7 @@ create table if not exists profiles
     ######################################################################
     # On first run, allow the user to choose the default language
 
-    def setDefaultLang(self) -> None:
+    def setDefaultLang(self, idx: int) -> None:
         # create dialog
         class NoCloseDiag(QDialog):
             def reject(self):
@@ -490,28 +492,9 @@ create table if not exists profiles
 
         d = self.langDiag = NoCloseDiag()
         f = self.langForm = aqt.forms.setlang.Ui_Dialog()
+        f.setupUi(d)
         qconnect(d.accepted, self._onLangSelected)
         qconnect(d.rejected, lambda: True)
-        # default to the system language
-        try:
-            (lang, enc) = locale.getdefaultlocale()
-        except:
-            # fails on osx
-            lang = "en_US"
-        # find index
-        idx = None
-        en = None
-        for c, (name, code) in enumerate(anki.lang.langs):
-            if code == "en_US":
-                en = c
-            if code == lang:
-                idx = c
-        # if the system language isn't available, revert to english
-        if idx is None:
-            idx = en
-            lang = "en_US"
-        anki.lang.set_lang(lang, locale_dir())
-        f.setupUi(d)
         # update list
         f.lang.addItems([x[0] for x in anki.lang.langs])
         f.lang.setCurrentRow(idx)
@@ -522,12 +505,11 @@ create table if not exists profiles
         obj = anki.lang.langs[f.lang.currentRow()]
         code = obj[1]
         name = obj[0]
-        en = "Are you sure you wish to display Anki's interface in %s?"
         r = QMessageBox.question(
-            None, "Anki", en % name, QMessageBox.Yes | QMessageBox.No, QMessageBox.No  # type: ignore
+            None, "Anki", tr(TR.PROFILES_CONFIRM_LANG_CHOICE, lang=name), QMessageBox.Yes | QMessageBox.No, QMessageBox.No  # type: ignore
         )
         if r != QMessageBox.Yes:
-            return self.setDefaultLang()
+            return self.setDefaultLang(f.lang.currentRow())
         self.setLang(code)
 
     def setLang(self, code) -> None:

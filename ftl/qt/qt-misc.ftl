@@ -61,6 +61,12 @@ qt-misc-would-you-like-to-download-it = Would you like to download it now?
 qt-misc-your-collection-file-appears-to-be = Your collection file appears to be corrupt. This can happen when the file is copied or moved while Anki is open, or when the collection is stored on a network or cloud drive. If problems persist after restarting your computer, please open an automatic backup from the profile screen.
 qt-misc-your-computers-storage-may-be-full = Your computer's storage may be full. Please delete some unneeded files, then try again.
 qt-misc-your-firewall-or-antivirus-program-is = Your firewall or antivirus program is preventing Anki from creating a connection to itself. Please add an exception for Anki.
+qt-misc-error = Error
+qt-misc-no-temp-folder = No usable temporary folder found. Make sure C:\\temp exists or TEMP in your environment points to a valid, writable folder.
+qt-misc-incompatible-video-driver = Your video driver is incompatible. Please start Anki again, and Anki will switch to a slower, more compatible mode.
+qt-misc-error-loading-graphics-driver = Error loading '{ $mode }' graphics driver. Please start Anki again to try next driver. { $context }
+qt-misc-anki-is-running = Anki Already Running
+qt-misc-if-instance-is-not-responding = If the existing instance of Anki is not responding, please close it using your task manager, or restart your computer.
 qt-misc-second =
     { $count ->
         [one] { $count } second

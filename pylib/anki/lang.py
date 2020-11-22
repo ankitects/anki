@@ -3,8 +3,9 @@
 
 from __future__ import annotations
 
+import locale
 import re
-from typing import Optional
+from typing import Optional, Tuple
 
 import anki
 
@@ -169,6 +170,36 @@ def set_lang(lang: str, locale_dir: str) -> None:
     currentLang = lang
     current_i18n = anki.rsbackend.RustBackend(ftl_folder=locale_folder, langs=[lang])
     locale_folder = locale_dir
+
+
+def get_def_lang(lang: Optional[str] = None) -> Tuple[int, str]:
+    """Return lang converted to name used on disk and its index, defaulting to system language
+    or English if not available."""
+    try:
+        (sys_lang, enc) = locale.getdefaultlocale()
+    except:
+        # fails on osx
+        sys_lang = "en_US"
+    user_lang = lang
+    if user_lang in compatMap:
+        user_lang = compatMap[user_lang]
+    idx = None
+    lang = None
+    en = None
+    for l in (user_lang, sys_lang):
+        for c, (name, code) in enumerate(langs):
+            if code == "en_US":
+                en = c
+            if code == l:
+                idx = c
+                lang = l
+        if idx is not None:
+            break
+    # if the specified language and the system language aren't available, revert to english
+    if idx is None:
+        idx = en
+        lang = "en_US"
+    return (idx, lang)
 
 
 def is_rtl(lang: str) -> bool:
