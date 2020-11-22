@@ -13,3 +13,9 @@ py_binary(
     srcs = ["extract-strings.py"],
     deps = [requirement("fluent-syntax")],
 )
+
+py_binary(
+    name = "transform-string",
+    srcs = ["transform-string.py"],
+    deps = [requirement("fluent-syntax")],
+)

@@ -43,7 +43,7 @@ browsing-first-card = First Card
 browsing-flag = Flag
 browsing-font = <b>Font</b>:
 browsing-font-size = <b>Font Size</b>:
-browsing-found-as-across-bs = Found %(a)s across %(b)s.
+browsing-found-as-across-bs = Found { $part } across { $whole }.
 browsing-home = Home
 browsing-ignore-case = Ignore case
 browsing-in = <b>In</b>:
@@ -54,7 +54,7 @@ browsing-line-size = <b>Line Size</b>:
 browsing-manage-note-types = Manage Note Types...
 browsing-move-cards = Move Cards
 browsing-move-cards-to-deck = Move cards to deck:
-browsing-nd-names = %(n)d: %(name)s
+browsing-nd-names = { $num }: { $name }
 browsing-new = (new)
 browsing-new-note-type = New note type:
 browsing-no-flag = No Flag
@@ -102,17 +102,19 @@ browsing-treat-input-as-regular-expression = Treat input as regular expression
 browsing-type-here-to-search = <type here to search; hit enter to show current deck>
 browsing-whole-collection = Whole Collection
 browsing-you-must-have-at-least-one = You must have at least one column.
-browsing-group = { $count ->
-    [one] { $count } group
-   *[other] { $count } groups
-  }
-browsing-note-count = { $count ->
-    [one] { $count } note
-   *[other] { $count } notes
-  }
-browsing-note-deleted = { $count ->
-    [one] { $count } note deleted.
-   *[other] { $count } notes deleted.
-  }
+browsing-group =
+    { $count ->
+        [one] { $count } group
+       *[other] { $count } groups
+    }
+browsing-note-count =
+    { $count ->
+        [one] { $count } note
+       *[other] { $count } notes
+    }
+browsing-note-deleted =
+    { $count ->
+        [one] { $count } note deleted.
+       *[other] { $count } notes deleted.
+    }
 browsing-window-title = Browse ({ $selected } of { $total } cards selected)
-
